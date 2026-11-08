@@ -48,6 +48,13 @@ The construction is the classical shift-invert one, done in `ℝ`:
   isometry.  So the flow is a *contractive self-adjoint* semigroup;
 * `tendsto_flowOfH_slope` — the flow's difference quotient converges to `−H` on `dom H`, proved
   from the model's own slope rather than from the transfer semigroup;
+* `tendsto_flowOfH_slope_of_hasGenRight` and `hasGenRight_iff_tendsto_flowOfH_slope` — the same on
+  the **whole forward domain**: the flow's forward domain *is* the transfer generator's, so the
+  flow generates `generatorRight` and not a larger operator, and `tendsto_flowOfH_slope_of_mem_domainH`
+  recovers the `dom H` value `−H` from that general statement;
+* `flowOfH_nonneg` — positivity preservation: `e^{−τ f} ≥ 0` on the chart, so a vector with a.e.
+  nonnegative chart image stays nonnegative, and `flowOfH_apply_le_of_nonneg` says it is pulled
+  down (`e^{−τ f} ≤ 1`, i.e. `f ≥ 0`);
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
@@ -1060,6 +1067,118 @@ theorem tendsto_flowOfH_slope (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < l
       = τ⁻¹ • (flowOfH D τ (resolventMulModel D hlam a) - resolventMulModel D hlam a)
   rw [map_smul, map_sub, hsymm]
   rfl
+
+/-! ## The flow's generator on the whole forward domain
+
+`tendsto_flowOfH_slope` proves the slope limit on `dom H = ran R`, which is where the multiplier
+chart can compute it directly.  The forward domain of the transfer generator is larger than that:
+it is every vector whose semigroup quotient converges.  The results below show that on that whole
+domain the *flow's* quotient converges too, to the same value, so the generator of `e^{−τH}` is
+the transfer generator — and on `dom H` that value is `−H`, by
+`generatorRight_eq_neg_hamiltonianMulModel`.
+
+The one ingredient that is not available on the model side is the multiplier law: for a vector
+outside `dom H` the model slope `τ⁻¹ (e^{−τf}u − u)` need not converge, since `f · u` need not be
+in `L²`.  So here the flow is identified with the transfer semigroup first
+(`physEvol_eq_flowOfH`, which is `MulModel.hlaw` read back) and the domain comes from the
+semigroup, not from the multiplier. -/
+
+/-- **The flow's slope converges on the whole forward domain**, to the transfer generator's value.
+-/
+theorem tendsto_flowOfH_slope_of_hasGenRight (D : MulModel X ν Λ T) {z : Hphys Λ}
+    (hz : HasGenRight D.hinv z) :
+    Tendsto (fun τ : ℝ => τ⁻¹ • (flowOfH D τ z - z)) (𝓝[>] 0)
+      (𝓝 (generatorRight D.hinv ⟨z, hz⟩)) := by
+  refine (generatorRight_apply_tendsto D.hinv ⟨z, hz⟩).congr' ?_
+  filter_upwards [self_mem_nhdsWithin] with τ hτ
+  have hτ0 : 0 ≤ τ := le_of_lt hτ
+  rw [diffQuot, physEvol_eq_flowOfH D hτ0]
+
+/-- Conversely, convergence of the flow's slope puts the vector in the forward domain: the flow
+generates the transfer generator, not a larger one. -/
+theorem hasGenRight_of_tendsto_flowOfH_slope (D : MulModel X ν Λ T) {z y : Hphys Λ}
+    (h : Tendsto (fun τ : ℝ => τ⁻¹ • (flowOfH D τ z - z)) (𝓝[>] 0) (𝓝 y)) :
+    HasGenRight D.hinv z := by
+  refine ⟨y, h.congr' ?_⟩
+  filter_upwards [self_mem_nhdsWithin] with τ hτ
+  have hτ0 : 0 ≤ τ := le_of_lt hτ
+  rw [diffQuot, physEvol_eq_flowOfH D hτ0]
+
+/-- **The flow's forward domain is exactly the transfer generator's forward domain.** -/
+theorem hasGenRight_iff_tendsto_flowOfH_slope (D : MulModel X ν Λ T) (z : Hphys Λ) :
+    HasGenRight D.hinv z ↔ ∃ y : Hphys Λ,
+      Tendsto (fun τ : ℝ => τ⁻¹ • (flowOfH D τ z - z)) (𝓝[>] 0) (𝓝 y) :=
+  ⟨fun hz => ⟨_, tendsto_flowOfH_slope_of_hasGenRight D hz⟩,
+    fun ⟨_, hy⟩ => hasGenRight_of_tendsto_flowOfH_slope D hy⟩
+
+/-- **Agreement with `−H` on `dom H`, through the general statement.**  The limit of the slope at
+`R a` is the transfer generator's value there, and `U` carries it to `−U (H (R a))`; injectivity
+of `U` turns that into an equality of vectors. -/
+theorem tendsto_flowOfH_slope_of_mem_domainH (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam)
+    (a : Hphys Λ) :
+    Tendsto (fun τ : ℝ => τ⁻¹ • (flowOfH D τ (resolventMulModel D hlam a)
+        - resolventMulModel D hlam a)) (𝓝[>] 0)
+      (𝓝 (-(hamiltonianMulModel D hlam
+        ⟨resolventMulModel D hlam a, mem_domain_hamiltonianMulModel D hlam a⟩))) := by
+  obtain ⟨hz, hgen⟩ := generatorRight_eq_neg_hamiltonianMulModel D hlam a
+  have hlim : generatorRight D.hinv ⟨resolventMulModel D hlam a, hz⟩
+      = -(hamiltonianMulModel D hlam
+        ⟨resolventMulModel D hlam a, mem_domain_hamiltonianMulModel D hlam a⟩) :=
+    D.U.injective (by rw [hgen, map_neg])
+  rw [← hlim]
+  exact tendsto_flowOfH_slope_of_hasGenRight D hz
+
+/-! ## Positivity preservation
+
+On the multiplier chart the flow acts by the *nonnegative* multiplier `e^{−τ f}`, so it preserves
+the nonnegative cone of `L²(ν)` and, since `f ≥ 0` and `τ ≥ 0` force `e^{−τ f} ≤ 1`, it pulls a
+nonnegative vector down rather than up (`expFlow_apply_le_of_nonneg`).  Carried through `U` this is
+positivity preservation on `ℋ` in the only cone the corpus has: the preimage of the a.e.
+nonnegative cone.  `H` itself is a nonnegative operator (`hamiltonianMulModel_inner_nonneg`), and
+these two facts are its semigroup form.
+-/
+
+/-- **The multiplier flow preserves nonnegativity**, at every time. -/
+theorem expFlow_nonneg (D : MulModel X ν Λ T) (τ : ℝ) {u : Lp ℝ 2 ν}
+    (hu : ∀ᵐ x ∂ν, 0 ≤ (u : X → ℝ) x) :
+    ∀ᵐ x ∂ν, 0 ≤ (expFlow D.f D.hf D.hpos τ u : X → ℝ) x := by
+  rcases le_or_gt 0 τ with hτ | hτ
+  · filter_upwards [expFlow_coeFn D.hf D.hpos hτ u, hu] with x hx hu'
+    rw [hx]
+    exact mul_nonneg (le_of_lt (Real.exp_pos _)) hu'
+  · rw [expFlow, dif_neg (not_le.mpr hτ)]
+    exact hu
+
+/-- **`e^{−τH}` is positivity preserving** on `ℋ`: a vector whose chart image is a.e. nonnegative
+has a chart image that stays a.e. nonnegative. -/
+theorem flowOfH_nonneg (D : MulModel X ν Λ T) (τ : ℝ) {y : Hphys Λ}
+    (hy : ∀ᵐ x ∂ν, 0 ≤ (D.U y : X → ℝ) x) :
+    ∀ᵐ x ∂ν, 0 ≤ (D.U (flowOfH D τ y) : X → ℝ) x := by
+  rw [U_flowOfH]
+  exact expFlow_nonneg D τ hy
+
+/-- **The flow decreases the cone**: on a nonnegative vector `e^{−τ f} u ≤ u` pointwise, because
+`e^{−τ f} ≤ 1`.  This is the semigroup form of `f ≥ 0`. -/
+theorem expFlow_apply_le_of_nonneg (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) {u : Lp ℝ 2 ν}
+    (hu : ∀ᵐ x ∂ν, 0 ≤ (u : X → ℝ) x) :
+    ∀ᵐ x ∂ν, (expFlow D.f D.hf D.hpos τ u : X → ℝ) x ≤ (u : X → ℝ) x := by
+  filter_upwards [expFlow_coeFn D.hf D.hpos hτ u, D.hpos, hu] with x hx hf₀ hu'
+  rw [hx]
+  have hexp : Real.exp (-(τ * D.f x)) ≤ 1 := by
+    have hle : -(τ * D.f x) ≤ 0 := by
+      have hnn : 0 ≤ τ * D.f x := mul_nonneg hτ hf₀
+      linarith
+    simpa using Real.exp_le_exp.mpr hle
+  calc Real.exp (-(τ * D.f x)) * u x ≤ 1 * u x := mul_le_mul_of_nonneg_right hexp hu'
+    _ = u x := one_mul _
+
+/-- The same domination on `ℋ`. -/
+theorem flowOfH_apply_le_of_nonneg (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) {y : Hphys Λ}
+    (hy : ∀ᵐ x ∂ν, 0 ≤ (D.U y : X → ℝ) x) :
+    ∀ᵐ x ∂ν, (D.U (flowOfH D τ y) : X → ℝ) x ≤ (D.U y : X → ℝ) x := by
+  rw [U_flowOfH]
+  exact expFlow_apply_le_of_nonneg D hτ hy
+
 end
 
 end BookProof.OSReconstruction

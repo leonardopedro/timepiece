@@ -1313,6 +1313,26 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     model's `tendsto_expFlow_slope` carried through the bridge, without passing through
     `physEvolCompletionRightFun` or `HasGenRight`.
 
+    That last point is where the two routes part.  `dom H = ran R` is where the multiplier chart can
+    compute the slope itself; the *forward* domain of the transfer generator is larger, and there
+    `f · u` need not be square-integrable, so the model slope need not converge.  The flow still
+    generates the same operator there: `tendsto_flowOfH_slope_of_hasGenRight` shows the flow's
+    quotient converges on every `z` with `HasGenRight D.hinv z`, with limit
+    `generatorRight D.hinv z`, and `hasGenRight_iff_tendsto_flowOfH_slope` gives the converse, so
+    the flow's forward domain *equals* the transfer generator's — the flow generates nothing
+    larger.  `tendsto_flowOfH_slope_of_mem_domainH` then recovers the `dom H` value `−H` from that
+    general statement via `generatorRight_eq_neg_hamiltonianMulModel` and injectivity of `U`.
+    The single ingredient this route borrows is the multiplier law (`physEvol_eq_flowOfH`); the
+    `dom H` route does not borrow it.
+
+    Positivity is the semigroup face of `f ≥ 0`.  On the chart the flow is multiplication by
+    `e^{−τf} ≥ 0`, so it preserves the a.e. nonnegative cone (`expFlow_nonneg`, `flowOfH_nonneg`),
+    and since `τ ≥ 0` and `f ≥ 0` force `e^{−τf} ≤ 1` it also pulls a nonnegative vector down
+    (`expFlow_apply_le_of_nonneg`, `flowOfH_apply_le_of_nonneg`).  Together with
+    `hamiltonianMulModel_inner_nonneg` (`H ≥ 0`) this is the order theory of the model; the corpus
+    has no order on `ℋ` other than the chart cone, which is why the statement is phrased through
+    `U`.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the
