@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-08T21:48:12+00:00",
+ "generated_at": "2026-11-08T22:12:59+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1753,9 +1753,13 @@
   },
   {
    "path": "pcnl.md",
-   "title": "pcnl",
-   "lines": 668,
-   "headings": []
+   "title": "pCNL: Mehler operators, nested Fock representations and convergence certificates",
+   "lines": 1288,
+   "headings": [
+    "# pCNL: Mehler operators, nested Fock representations and convergence certificates",
+    "## Revised research and formalization work order (2026-11-08)",
+    "## Historical architecture and implementation notes"
+   ]
   },
   {
    "path": "scripts/notes/handedits.md",
@@ -2685,7 +2689,15 @@
   },
   {
    "source": "pcnl.md",
+   "target": "CURRENT_WORK_ORDER.md"
+  },
+  {
+   "source": "pcnl.md",
    "target": "cftproof.md"
+  },
+  {
+   "source": "pcnl.md",
+   "target": "softmodes.md"
   },
   {
    "source": "softmodes.md",

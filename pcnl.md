@@ -9,6 +9,10 @@ identify a concrete Markov operator, prove its gap under explicit assumptions, a
 that result to the correct implementation. No full transformer pCNL gap is claimed here.
 This revision inspects source statements; it does not rerun Lean or numerical experiments.
 
+**Implementation refinement (2026-11-08, subsequent review):** the “Executable proof
+packets” below turn P0–P6 into concrete interfaces, analytic benchmarks and acceptance
+artifacts. They refine this work order without superseding its mathematical corrections.
+
 ### Sources and division of responsibilities
 
 * [book.tex](book.tex), the recursive second-quantization paragraph beginning “Since the
@@ -308,6 +312,212 @@ noise does not by itself imply useful predictions or calibrated decisions.
 crate R0–R3 tests and manifests. Formal sampling statements stay conditional until those
 data/gradient/transition identities and the target-specific gap are supplied.
 
+### Executable proof packets
+
+All declarations in this subsection are **proposed targets**, not completed theorems.
+They are specifications for the Lean specialist and the crate's R0–R3 work. Implement
+them as small modules with explicit probability, integrability and domain assumptions;
+do not introduce axioms to fill the missing identifications.
+
+#### T0 — reuse the actual kernel API, then build its `L2` action
+
+The pinned Mathlib already supplies `ProbabilityTheory.Kernel`, `IsMarkovKernel`,
+`Kernel.Invariant`, `Kernel.IsReversible` and `Kernel.IsReversible.invariant` in
+`Mathlib/Probability/Kernel/Invariance.lean`. Reuse these definitions. Reversibility is
+equality of the two setwise flows; invariance is `pi.bind K = pi`. A second bespoke
+stationarity predicate would create an unnecessary translation obligation.
+
+For a probability measure `pi`, first define the integral action on bounded measurable
+test functions. Prove Jensen's estimate and integrate against the invariant measure:
+
+$$|Pf(x)|^2\le P(|f|^2)(x),\qquad
+\int|Pf|^2d\pi\le\int|f|^2d\pi.$$
+
+Then descend to almost-everywhere equivalence classes and extend to `Lp complex 2 pi`.
+This must prove that changing a representative does not change the resulting `L2` class;
+writing the Bochner integral for an arbitrary representative is not sufficient. Establish
+`P 1 = 1`, preservation of the mean, and the integral duality identifying density
+evolution with the adjoint. Derive self-adjointness from detailed balance on a dense
+test class and continuity. Complete the product-Gaussian kernel instance before any
+posterior or outer-Fock lift.
+
+**Deliverable:** `KernelContract.lean` plus `GaussianKernelBridge.lean`, with an actual
+`Kernel`-to-continuous-linear-map construction. Any finite-state tests should use the
+same observable/density orientation. `ChapterAttentionMarkov`'s stochastic-matrix
+contraction is a useful finite-state check, but an attention-position kernel is not the
+parameter-space sampling kernel.
+
+**Receiver audit:** `ConvergenceTheorem.pcnl_mcmc_geometric_convergence` accepts a
+density-decay bound and only `gamma < 1`; the wrapper must additionally require
+`0 < gamma`. Handle `gamma = 1` separately if needed. Its `tvDist` uses `toReal` on
+measure values, so retain probability/finite-measure instances for every `nu_m` when
+identifying that expression with standard total variation. Prove normalization and
+nonnegativity from kernel pushforward; do not merely assume unrelated functions `d_m`
+have the desired decay. These bridges make P2 an MCMC theorem rather than a theorem
+about an arbitrary sequence of densities.
+
+#### T1 — exact Gaussian targets that distinguish a gap from posterior accuracy
+
+Use the scalar whitened prior `N(0,1)` and
+$\Phi(x)=\kappa x^2/2-bx$ with $\kappa>-1$. The intended posterior is
+
+$$\pi=\mathcal N\left(\frac{b}{1+\kappa},\frac1{1+\kappa}\right).$$
+
+For the full-gradient unadjusted update in this crate's coefficient convention, fix
+$0<\beta\le1$, set $\rho=\sqrt{1-\beta^2}$, $h=\beta^2/2$, and obtain
+
+$$x_{t+1}=a x_t+h b+\beta\xi_t,\qquad
+a=\rho-h\kappa,\quad\xi_t\sim\mathcal N(0,1).$$
+
+When $|a|<1$, its invariant distribution is exactly
+
+$$\pi_\beta=\mathcal N\left(m_\beta,s_\beta^2\right),\qquad
+m_\beta=\frac{h b}{1-a},\quad s_\beta^2=\frac{\beta^2}{1-a^2}.$$
+
+This is the first canary: the chain has a Hermite absolute gap `1-|a|` in
+`L2(pi_beta)` while generally sampling a law different from `pi`. Even the linear
+case $\kappa=0$ gives $m_\beta=b(1+\rho)/2$, not $b$, at finite step.
+For fixed $\kappa,b$, the mean and variance errors vanish as $O(\beta^2)$ as
+$\beta\to0$; prove constants/ranges instead of repeating a generic $O(\beta)$ claim.
+Also include a parameter cell with $\kappa>-1$ but $|a|\ge1$: a normalizable
+target does not imply stability of an unadjusted discretization.
+
+For a simple hand-check, take `beta = 0.6`, hence `rho = 0.8`, `h = 0.18`, and `b = 1`.
+At `kappa = 0` the invariant mean is `0.9` instead of `1`, although the invariant
+variance is exactly `1`. At `kappa = 11` the intended posterior still exists but
+`a = -1.18`, so the update is unstable. These cells detect target/bias conflation and
+the erroneous inference that a prior-preserving noise term stabilizes every drift.
+
+For an independent Gaussian gradient error $\zeta_t\sim N(0,v)$, replace the
+innovation by $\beta\xi_t-h\zeta_t$. The invariant mean is unchanged and its
+variance is $(\beta^2+h^2v)/(1-a^2)$. This isolates mini-batch-noise inflation from
+drift discretization bias. For non-Gaussian independent errors only the corresponding
+moment formulas follow; do not call the invariant law Gaussian. State independence
+from the current state, which a real state-dependent minibatch oracle need not satisfy.
+
+**Deliverable:** proposed `GaussianARBenchmark.lean` with stationary-law identities,
+stability conditions, Hermite contraction for Gaussian innovations, and explicit bias
+formulas; corresponding crate tests compare moments and projected gradients at matched
+coefficients. Choose analytic tolerances before simulation. Do not tune the intended
+posterior parameters to the measured stationary law after the fact.
+
+#### T2 — a genuine dimension-robust informed-subspace benchmark
+
+For `P >= r >= 1`, split standard Gaussian coordinates as `(z,q)` with `r` informed
+coordinates and `P-r` uninformed coordinates. Set
+$\Phi(z,q)=\tfrac12 z^T\Lambda z-b^Tz$, with diagonal
+$\Lambda=\operatorname{diag}(\lambda_i)$ and $\lambda_i>-1$.
+Then `pi = pi_z tensor N(0,I_(P-r))`, where
+$\pi_z=N((I+\Lambda)^{-1}b,(I+\Lambda)^{-1})$.
+
+Construct a **posterior-aware Gaussian reference kernel** by whitening with these known
+posterior moments and applying independent Mehler steps with factors `rho_z` and
+`rho_q`. This is an exact reference kernel, not a claim that prior-based MH-pCNL has
+that form. For nonempty blocks and `0 <= rho_z,rho_q < 1`, tensorization gives the
+absolute gap `1-max(rho_z,rho_q)`, independent of the number of uninformed coordinates.
+For an empty complement use only `rho_z`. Verify the full law, not just its restriction
+to the informed coordinates. Frozen-complement sampling of `pi_z` is a different model.
+
+Hold `r`, `Lambda`, `b` and the two factors fixed while varying `P`. This creates the
+controlled dimension family that the neural experiments currently lack. A dimension-free
+operator gap still does not make the warm-start prefactor dimension free. For example,
+in the scalar centred case the prior-to-posterior density ratio fails to lie in
+`L2(pi)` when `kappa >= 1`; use an explicitly justified warm distribution instead.
+
+**Deliverable:** proposed `GaussianSubspaceBenchmark.lean` with product measure, chaos
+isometry, exact invariant law and tensor norm bound, followed by a test of the crate's
+restricted and full-target arms. Only after this benchmark passes should the measured
+cap budget select ranks for a nonquadratic transformer experiment.
+
+#### T3 — turn P3's bounded-oscillation comparison into a short proof chain
+
+Work first with a prior-reversible proposal `K0` and a density satisfying
+$0<q_-\le q\le q_+<\infty$ almost everywhere. Let
+$\mathcal E_K(f)=\tfrac12\int\pi(dx)K(x,dy)|f(y)-f(x)|^2$.
+For the MH correction of **this** proposal, the detailed-balance measure identity in
+P3 gives
+
+$$\mathcal E_{MH,\pi}(f)\ge q_-\mathcal E_{K0,\mu_0}(f),\qquad
+\operatorname{Var}_\pi f\le q_+\operatorname{Var}_{\mu_0}f.$$
+
+Prove the variance inequality using its infimum over constant centres; a `pi`-centred
+function need not be `mu0`-centred. Thus a prior Poincare gap `g0` transfers as
+`g_pi >= (q_minus/q_plus) g0`. With `osc Phi <= B`, use
+`q_plus/q_minus <= exp B`, then lazify for the absolute contraction. This proof needs
+no assertion that the two measures share the same mean-zero subspace.
+
+**Deliverable:** lemmas for density bounds, variance comparison, MH Dirichlet comparison
+and lazy absolute contraction, ending in the warm-start TV theorem of T0/P2. The output
+is an exact MH-pCN benchmark with a possibly conservative constant. Extending to a
+drifted proposal requires a new comparison of its flow measure, not a change of name.
+
+#### T4 — specify a full-space spectral certificate before finite truncation
+
+On the true mean-zero space use `H = I-P_lazy`, with the equilibrium vector already
+removed. Split that space orthogonally into a retained subspace and its complement.
+For bounded `H`, write its blocks as `A, B*, B, D`; for an unbounded diffusion
+generator state the corresponding common form-domain and cross-form bounds instead.
+Require verified constants
+
+$$A\ge\alpha I,\qquad D\ge\delta I,\qquad\|B\|\le c,\qquad
+\alpha>0,\quad\delta>0,\quad c^2<\alpha\delta.$$
+
+Then the block estimate supplies the explicit positive full-space bound
+
+$$g_{cert}=\frac{\alpha+\delta-
+\sqrt{(\alpha-\delta)^2+4c^2}}2>0.$$
+
+Enclose the retained block, tail and coupling separately; use outward error bounds in
+all three inputs. For pure Gaussian pCN, chaos degrees above `M` give the exact tail
+bound `1-rho^(M+1)` for `I-P0`, with zero coupling. For an interacting MH kernel
+neither finite band nor zero coupling follows from the polynomial diffusion expansion.
+The retained basis must be centred/orthonormal for the **target** measure, or transported
+with its verified Gram matrix and ground projection.
+
+This supplies a concrete softmodes-style tail/coupling route. When these block bounds
+are proved, no Temple argument is needed to manufacture a separation that is already
+contained in them. Hashimoto approximation can help compute operator actions; it does
+not replace the tail estimate. Reject a certificate with an unknown tail, omitted
+coupling, or nonpositive `g_cert` rather than reporting a finite-matrix gap as full-space.
+
+**Deliverable:** proposed `MarkovGapCertificate.lean` with the block inequality and a
+certificate record containing the target/kernel revision, equilibrium projection,
+cutoff, `alpha/delta/c` enclosures, all approximation errors and the resulting rate.
+Use the exact Gaussian case to test the record end to end before a nonpolynomial model.
+
+#### T5 — connect an operator gap to predictive precision and approximate updates
+
+For a stationary chain with absolute contraction factor `r=1-gamma`, and a centred
+square-integrable vector prediction `p-p_bar`, prove the covariance estimate
+$|\operatorname{Tr}\Gamma_k|\le r^k\operatorname{Tr}\Gamma_0$. It yields
+
+$$E\|\widehat p_m-\bar p\|^2
+\le\frac{\operatorname{Tr}\Gamma_0}{m}\frac{1+r}{1-r}
+=\frac{\operatorname{Tr}\Gamma_0}{m}\frac{2-\gamma}{\gamma}.$$
+
+Use this in ngpt's correlated Brier calculation, stating stationarity and finite second
+moments. Do not infer calibration of `p_bar` or superiority to an optimizer: the bound
+only controls Monte Carlo error for the specified target. A useful posterior and a
+precisely computed weak posterior remain distinct outcomes.
+
+For approximate dynamics on the same density-ratio space, define the residual explicitly:
+$e_t=g_t-1$, $e_{t+1}=P^*e_t+R_t$. If `||R_t||_2 <= epsilon_t` and `P*`
+contracts mean-zero vectors by `r`, induction gives
+
+$$\|e_m\|_2\le r^m\|e_0\|_2+
+\sum_{j=0}^{m-1}r^{m-1-j}\varepsilon_j.$$
+
+For constant residual ceiling `epsilon`, the second term is at most `epsilon/gamma`.
+State how the actual approximate kernel supplies that residual and preserves probability;
+a minibatch covariance ceiling alone does not bound it. This provides a precise location
+for discretization, biased gradients and numerical errors, rather than claiming that
+annealing or unconditional acceptance erases them. Extend to inhomogeneous reference
+factors only with their product bound and explicit target-change terms.
+
+**Deliverable:** proposed `PredictiveErrorFromGap.lean` and `ApproximateKernelError.lean`,
+with scalar Gaussian checks from T1. Couple these to predictive MCSE/bias reports in
+crate R2–R3, not to loss-only ESS or unvalidated radial-shell diagnostics.
+
 ### Lean reuse ledger and execution order
 
 All paths in this ledger are under `BookProof/MCMC/` unless stated otherwise.
@@ -324,11 +534,22 @@ All paths in this ledger are under `BookProof/MCMC/` unless stated otherwise.
 | `ConvergenceTheorem.tvDist_le_half_l2` | U: density-ratio TV bound | Kernel density evolution |
 | `BayesianTransformer/` | Geometry/noise source statements | Local compile/model audit |
 
-Execute **P0 → P1 → P2 → P3** for the first end-to-end exact MH-pCN theorem.
-P4 is a separate diffusion/Fock branch; P5 consumes a verified operator and gap/tail
-input; P6 connects the selected branch to the implementation. The first deliverable is
-the Gaussian kernel/chaos bridge plus the bounded-oscillation MH benchmark, not another
-abstract wrapper that assumes the full pCNL gap.
+Execute **T0 → T1 → T2 → T3** for the first concrete kernel, bias benchmarks and
+exact MH-pCN theorem. These implement P0–P3; the scalar algebra in T1 can be prepared
+while T0's integration/quotient bridge is being built. T4 implements P5 only after its
+tail and coupling hypotheses are available. T5 connects the proof to P6 and the crate.
+P4 remains a separate diffusion/Fock branch, with its ground-transform identity required
+before reusing polynomial band estimates. Preserve the historical notes below, but use
+this packet order rather than their old “Module 3 is the sole remaining blocker” claim.
+
+| Review gate | Artifact | Failure interpretation |
+|---|---|---|
+| T0 | Actual reversible kernel and `L2` density action | Representation still unconnected |
+| T1 | Exact stationary moments and finite-step bias | Kernel accuracy/stability failure |
+| T2 | Controlled rank/complement tensor example | Dimension claim lacks a reference |
+| T3 | Density/variance/Dirichlet comparison to TV | Target gap remains an assumption |
+| T4 | Positive full-space block certificate | Tail/coupling exclusion missing |
+| T5 | Predictive variance and residual budget | Precision/bias claim remains empirical |
 
 For later Lean changes use the pinned local toolchain, build the affected MCMC modules
 and audit binders/axioms. Audit the `BayesianTransformer` target separately rather than

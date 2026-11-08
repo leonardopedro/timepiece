@@ -24,7 +24,7 @@
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
 | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18775 | 60 | 19 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 1 |
-| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 33 | 5 |
+| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 33 | 6 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 1 |
@@ -86,14 +86,14 @@
 | [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT | 222 | 1 | 1 |
 | [math28/README.md](math28/README.md) | `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 | 48 | 0 | 2 |
 | [newproof.md](newproof.md) | newproof | 285 | 0 | 6 |
-| [pcnl.md](pcnl.md) | pcnl | 668 | 1 | 4 |
+| [pcnl.md](pcnl.md) | pCNL: Mehler operators, nested Fock representations and convergence certificates | 1288 | 3 | 4 |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | handedits | 21 | 0 | 0 |
-| [softmodes.md](softmodes.md) | Soft modes in the Mehler / nested-Fock Yang–Mills formalism | 1862 | 2 | 4 |
+| [softmodes.md](softmodes.md) | Soft modes in the Mehler / nested-Fock Yang–Mills formalism | 1862 | 2 | 5 |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | Self-contained mass-gap regeneration bundle | 219 | 2 | 4 |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | MASS_GAP_SPEC — the proof-facing seam of the certified mass gap | 150 | 1 | 5 |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9) | 88 | 2 | 1 |
 
-## Backlinks (225 links)
+## Backlinks (227 links)
 
 | Document | Linked from |
 |---|---|
@@ -111,7 +111,7 @@
 | [CHANGELOG.md](CHANGELOG.md) | — |
 | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md), [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [HONEST_BOUNDARIES_SM.md](HONEST_BOUNDARIES_SM.md), [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md), [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md), [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md), [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md), [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md), [REVIEW_THREADS_20260906.md](REVIEW_THREADS_20260906.md), [STATUS.md](STATUS.md), [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md), [bkPrompts.md](bkPrompts.md), [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
-| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [cftproof.md](cftproof.md), [softmodes.md](softmodes.md) |
+| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [cftproof.md](cftproof.md), [pcnl.md](pcnl.md), [softmodes.md](softmodes.md) |
 | [Contention.md](Contention.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -175,7 +175,7 @@
 | [newproof.md](newproof.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [Issues.md](Issues.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [RandomMap.md](RandomMap.md), [RandomMap_old.md](RandomMap_old.md) |
 | [pcnl.md](pcnl.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | — |
-| [softmodes.md](softmodes.md) | [HANDOUT.md](HANDOUT.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md), [cftproof.md](cftproof.md) |
+| [softmodes.md](softmodes.md) | [HANDOUT.md](HANDOUT.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md), [cftproof.md](cftproof.md), [pcnl.md](pcnl.md) |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
