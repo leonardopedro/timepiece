@@ -7,7 +7,46 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-10-21):** **§“State of the project — 2026-10-21: `BayesianTransformer/` imported (uncompiled), `Book/BayesianTransformer.lean` read pedagogically, final-Hamiltonian convention re-verified, `../unfer/pcnl` comparator milestone”** at the very end of this file.  The specialist export’s `BayesianTransformer/` tree (Lake target `BayesianTransformer`, namespace `BayesianTransformer`) and the five updated `math28/Math28/*.lean` files are in the repo but **not compiled** — step 0 of the new entry’s work order is the name-level check; `Book/` gains a prose-only chapter wired into the Bayesian part; all five convention surfaces (this file, `BookProof/`, `Book/`, `../test/`, `../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md`) re-verified clean; the pCNL numerical layer lands its Adam/SGLD comparators with the full comparison run recorded in the entry.  **Earlier newest entry (2026-10-20):** **§“State of the project — 2026-10-20: `math28/` — `math/` results as named hypotheses on Lean v4.28.0; BookProof import graph repaired”** at the very end of this file.  **Earlier newest entry (2026-10-19):** **§“State of the project — 2026-10-19:
+> **Newest entry (2026-11-08e):** **§11 Addendum of “State of the project — 2026-11-08b”**, at the
+> very end of this file — `FockLangevinOperator` §11 **proves `DriftFormBound`**: Cauchy–Schwarz
+> in the core pairing (`norm_corePair_le`), Cauchy–Schwarz in the mode index
+> (`sum_coreNorm_hopStep_le`, reading §10's oscillator identity as an average over modes), and the
+> `2uv ≤ δu² + v²/δ` step give
+> `‖⟪c, K_drift c⟫‖ ≤ δ·⟪c, N c⟫ + (B²d/(2δ) + Bd)·‖c‖²` (`driftOpCoeff_form_bound`), with
+> `driftFormBound_holds` closing §5's `Prop` for every `B` and `b`.  Module 3's estimate is a
+> theorem; what stays outside the model is `K_reject` and the identification `bⱼ = (β²σ²/2)∂ⱼΦ_ε`.
+> **Earlier newest entry (2026-11-08d):** **§10 Addendum of “State of the project — 2026-11-08b”**, at
+> the very end of this file — `FockLangevinOperator` §10 proves the *coordinates* of one ladder
+> letter (`hopStep_coord_lower`, `hopStep_coord_raise`), the letter norms
+> (`‖a_j c‖² = ∑ₙ nⱼ‖c n‖²`, `‖a_j† c‖² = ∑ₙ (nⱼ + 1)‖c n‖²`) and the **oscillator identity**
+> `∑ⱼ (‖a_j c‖² + ‖a_j† c‖²) = 2⟪c, N c⟫ + d‖c‖²` on the core — the input the plan calls
+> analytic rather than bookkeeping.
+> **Earlier newest entry (2026-11-08c):** **§8 Addendum of “State of the project — 2026-11-08b”**, at the
+> very end of this file — `FockLangevinOperator` §9.9 gives the drift's *size* on the core (an
+> `ℓ¹` bound `coreL1 (polyDrift Φ c) ≤ driftL1Bound Φ M * coreL1 c` with an explicit sector
+> constant, from `stepAmp_norm_le` plus §9.8's band), and §9.10 puts the drift inside the pCNL
+> shape (`pcnlPolyHamiltonian Φ = numberOp + polyDrift Φ`) with its finite band proved
+> (`pcnlPolyHamiltonian_band`, degree `≤ K` ⇒ `{N ≤ N₀}` into `{N ≤ N₀ + K}`); `polyDrift_linear`
+> checks the `driftOpCoeff` case.  Same entry §9: `scripts/test_check_links.py`, the regression
+> tests for the `check-links` scope rule, now run in CI before the gate.
+> **Earlier newest entry (2026-11-08b):** **§“State of the project — 2026-11-08b: `K_drift` for a
+> polynomial potential — the composition with the letter `∂ⱼ`, its ladder-word family, and the band
+> of `polyMul` (`FockLangevinOperator` §9.6–§9.7)”** at the very end of this file — the composition
+> the previous entry still listed as missing, `−Σⱼ (∂ⱼ Φ)(x)·∂ⱼ`, is now a definition
+> (`polyDrift`) with its ladder-word family proved (`polyDrift_eq_ladderWords`,
+> `polyDrift_eq_hopWords`), and the polynomial operator's finite band is proved for an arbitrary
+> potential (`polyMul_band`), and the drift itself has band `K` (`polyDrift_band`, §9.8); the chapter
+> and its importer build green and every new theorem's axiom
+> set is `propext, Classical.choice, Quot.sound`.  The same batch repairs the `check-links` gate
+> (tracked-file scope, and the invocation spelled out in its docstring).
+> **Earlier newest entry (2026-11-08):** **§“State of the project — 2026-11-08: pCNL Module 3's expansion
+> closed in both directions — the mode calculus, the polynomial interpolation and the derivative
+> side, `FockLangevinOperator` §9.3–§9.5”** at the very end of this file — `pcnl.md` Module 3's
+> last recorded missing input, the `MvPolynomial` interpolation feeding §9.2's `2^k` word family,
+> is now proved on the multiplication side (`polyMul_mul`) **and** on the derivative side
+> (`polyMul` on `MvPolynomial.pderiv`, i.e. `∂ⱼ Φ` as a finite sum of ladder words); the chapter
+> builds green and every new theorem's axiom set is `propext, Classical.choice, Quot.sound`.
+> **Earlier entry (2026-10-21):** **§“State of the project — 2026-10-21: `BayesianTransformer/` imported (uncompiled), `Book/BayesianTransformer.lean` read pedagogically, final-Hamiltonian convention re-verified, `../unfer/pcnl` comparator milestone”** at the very end of this file.  The specialist export’s `BayesianTransformer/` tree (Lake target `BayesianTransformer`, namespace `BayesianTransformer`) and the five updated `math28/Math28/*.lean` files are in the repo but **not compiled** — step 0 of the new entry’s work order is the name-level check; `Book/` gains a prose-only chapter wired into the Bayesian part; all five convention surfaces (this file, `BookProof/`, `Book/`, `../test/`, `../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md`) re-verified clean; the pCNL numerical layer lands its Adam/SGLD comparators with the full comparison run recorded in the entry.  **Earlier newest entry (2026-10-20):** **§“State of the project — 2026-10-20: `math28/` — `math/` results as named hypotheses on Lean v4.28.0; BookProof import graph repaired”** at the very end of this file.  **Earlier newest entry (2026-10-19):** **§“State of the project — 2026-10-19:
 > Downloads moved in-repo; `_deps/` platform import closure”** at the very end of
 > this file — `Downloads/` moved from `../prove2me_workspace/` to this repo’s
 > root, and `Downloads/_deps/` added: the 723-module verbatim import closure
@@ -18326,3 +18365,411 @@ baseline (32.4 %).
 4. **Effect on open items:** none — the NS square-comparison ESA (step 4 of the
    2026-10-20 entry) and the QYM form gap (step 5) stay open and are not touched
    by anything here.
+
+## State of the project — 2026-11-08: pCNL Module 3's expansion closed in both directions — the mode calculus, the polynomial interpolation and the derivative side, `FockLangevinOperator` §9.3–§9.5
+
+> **Supersession.** This entry supersedes **no** earlier entry as a reading guide. It records a
+> proof-track increment and leaves the 2026-10-21 entry's work order (steps 0–3: the
+> `BayesianTransformer` name-level check, the `Book` build, the bridge lemmas, the `DOC_INDEX`
+> regen) untouched and still open. What it supersedes, for the pCNL/Module 3 track only, is
+> `pcnl.md`'s own status prose: the two places that recorded Module 3's missing input — *"What
+> remains of Module 3's expansion is the induction that feeds it"* and *"the same interpolation
+> applied to the derivative polynomials `∂_j Φ` … is not carried out here"* — are both closed
+> below, and `pcnl.md` now carries the dated status paragraphs that say so.
+
+### 1. What was missing
+
+`pcnl.md` Module 3 had two open inputs after §9.2 (`mulHermiteList_eq_ladderWords`, 2026-11-04)
+made a *single* monomial's `2^k` ladder-word family explicit:
+
+1. **The induction that feeds it.** A general potential `Φ` is a sum of monomials `∏ⱼ xⱼ^{mⱼ}`,
+   so interpolating a polynomial from its monomial expansions is an `MvPolynomial` induction the
+   corpus did not carry.  Its *mathematical* prerequisite — that multiplication laws at distinct
+   modes commute, so a monomial's word family may be listed in any mode order — was missing too.
+2. **The derivative side.** The drift is `K_drift = −Σⱼ bⱼ ∂ⱼ` with `bⱼ = (β²σ²/2)·∂ⱼ Φ_ε`, so
+   `∂ⱼ Φ` must be a ladder-word object as well; §9.4 covered only the multiplication laws
+   `xⱼ = (aⱼ + aⱼ†)/√2`.
+
+Both are now proved in `BookProof/MCMC/FockLangevinOperator.lean`, `sorry`-free.
+
+### 2. §9.3 — the mode calculus (the input the interpolation needs)
+
+`eq_sum_singles` (a core state is the sum of its single-occupation terms) reduces a letter to one
+occupation; `stepIdx_apply_of_ne` and `stepIdx_comm` show two updates at distinct modes touch
+disjoint coordinates; `stepAmp_stepIdx_of_ne` is the amplitude factorization `amp_j ∘ update_k =
+amp_j`; `hopStep_single` computes one letter on one occupation; hence `hopStep_comm` and
+**`mulHermite_comm`**: `xⱼ` and `xₖ` commute on the core for `j ≠ k`.  The list form is
+`mulHermiteList_perm` (via `List.Perm.recOnSwap'`: a product of laws depends only on the *multiset*
+of its modes), with `mulHermiteList_append`, `mulHermiteList_add`, `mulHermiteList_smul` for the
+structure.  The monomial dictionary is `monomialList` (mode `j` repeated `m j` times),
+`flatMap_replicate_perm` / `monomialList_append_perm` (**exponents add**:
+`monomialList m ++ monomialList n ~ monomialList (m + n)`), `mulHermiteList_monomialList_add`,
+`mulHermiteList_monomialList_comm`, `flatMap_replicate_single_of_notMem` /
+`flatMap_replicate_single` / `monomialList_single` (the word family of `X j` is the single
+multiplication law).
+
+Two proof notes worth keeping, because they cost a cycle each: the `List.Perm` step is cleaner from
+`List.flatMap_append_perm` than by hand (`flatMap_replicate_perm`), and `Nat.add_comm` applied to
+the exponent vector needs `congrArg monomialList (funext …)` — `congr` will not descend into the
+`monomialList` application.
+
+### 3. §9.4 — the polynomial interpolation
+
+`polyMul Φ c = ∑ m ∈ Φ.support, coeff m Φ • mulHermiteList (monomialList m) c`, with
+`polyMul_zero`, `polyMul_add`, `polyMul_sum`, `polyMul_monomial`, `polyMul_X` (the dictionary at
+the generators: `X j ↦ mulHermite j`), `polyMul_add_arg`, `polyMul_smul_arg`, and
+**`polyMul_mul`**: `polyMul (Φ * Ψ) c = polyMul Φ (polyMul Ψ c)`.  That is the `MvPolynomial`
+induction; the monomial case is `MvPolynomial.monomial_mul` plus
+`mulHermiteList_monomialList_add`/`_comm` against the exponent sum.
+
+### 4. §9.5 — the derivative side
+
+Mathlib's algebraic `∂ⱼ` is **`MvPolynomial.pderiv`**, not `MvPolynomial.derivative` (there is no
+such name in this pin) — the plan's prose says "`polyMul` to `MvPolynomial.derivative`"; the
+translation is `pderiv`.  On a monomial it does one thing, `pderiv_monomial`:
+`monomial m a ↦ monomial (m − single j 1) (a · m j)`.  Consequences, proved:
+
+* `lowerExp m j` (an `abbrev`: `fun k => (m − Finsupp.single j 1 : Fin d →₀ ℕ) k`) and its
+  defining equation `lowerExp_apply`.  `Finsupp` subtraction on `ℕ`-valued families is truncated,
+  which is exactly right: if mode `j` is absent the exponent is unchanged and the coefficient
+  `m j = 0` kills the term.
+* `monomialList_zero`, `polyMul_C` (`polyMul (C a) c = a • c`), `polyMul_one` (`polyMul 1 c = c`).
+* `polyMul_derivative_monomial` — one monomial of `∂ⱼ Φ`: the word family of the lowered exponent,
+  coefficient `a · m j`.
+* **`polyMul_derivative`** — the interpolation itself: for arbitrary `Φ`,
+  `polyMul (pderiv j Φ) c = ∑ m ∈ Φ.support, (coeff m Φ · m j) • mulHermiteList (monomialList
+  (lowerExp m j)) c`.  §9.4's `Φ.support` sum over shorter monomials.
+* **`polyMul_derivative_eq_ladderWords`** — the same statement with §9.2's family written out,
+  `∑_{w ∈ mulWords js} hopWord w c`, so `∂ⱼ Φ` is literally a finite sum of ladder words with the
+  Hermite amplitudes carried by the letters.
+* `polyMul_derivative_X` — the dictionary at the derivative generators: `∂ⱼ xₖ = δⱼₖ`, i.e.
+  `polyMul (pderiv j (X k)) c = if j = k then c else 0`.  With `polyMul_X` this closes both sides
+  of §9.1's dictionary.
+
+A parse note for whoever continues: `(m - Finsupp.single j 1) k` does **not** elaborate (no `Sub`
+instance on `Fin d →₀ ℕ` is found without an ascription), which is why `lowerExp` carries the
+type ascription and is an `abbrev` (the defeq to `polyMul_monomial`'s `fun j => m j` form matters).
+
+### 5. Verification
+
+* `lake build BookProof.MCMC.FockLangevinOperator` — **green, 8076 jobs**.  `lake build
+  BookProof.YangMillsFieldStrength` (the chapter's dependent) — **green, 8095 jobs**.
+* `#print axioms` on `hopStep_comm`, `mulHermite_comm`, `mulHermiteList_perm`,
+  `mulHermiteList_monomialList_add`, `monomialList_single`, `polyMul_mul`, `polyMul_X`,
+  `polyMul_derivative`, `polyMul_derivative_eq_ladderWords`, `polyMul_derivative_X`,
+  `polyMul_C`, `polyMul_one` — all `[propext, Classical.choice, Quot.sound]`; no `sorryAx`, no
+  "declaration uses 'sorry'" in the build log.
+* No line over 100 characters in the new sections; no trailing whitespace.
+* `scripts/health.sh` — 1 pass (doc index fresh after `python3 scripts/doc_index.py`), 2 warnings
+  (import-components and GitBook-citation drift, both at their documented baselines), 0 failures.
+  `scripts/verify-invariants` — 5 passed, 1 failed: the GitBook drift gate, on 6 unreviewed misses
+  that are `ym_*`/`sm_*`/`ns_*` identifiers in `../test` pages and are unrelated to this change
+  (pre-existing); its lake gate reports `[gap]` because it cannot find `lake` on its own `PATH`
+  (`lake --version` works from an elan `PATH`).
+
+### 6. What stays open on this track
+
+* **The composition.** `K_drift` acts as `−Σⱼ (β²σ²/2)(∂ⱼ Φ)(x)·∂ⱼ`, i.e. as §9.5's operator
+  composed with the ladder letter `∂ⱼ = (aⱼ − aⱼ†)/√2` of §5 (`driftOpCoeff`).  Both factors now
+  have expansions; their *operator product* is not formalized, and that is a statement about
+  composition, not about either expansion.
+* **The band statement for the derivative.** §4's `hopWord_band`/`driftOp_band` bound the *hop* by
+  the word length; the analogous statement for `polyMul`/`polyMul (pderiv j Φ)` — that a polynomial
+  of degree ≤ K maps `{N ≤ N₀}` into `{N ≤ N₀ + K}`, and its derivative into `{N ≤ N₀ + K − 1}` —
+  would follow from `mulHermiteList_eq_ladderWords` plus `hopWord_band`, and is not written.
+* `DriftFormBound` (stated, §5) and its Fock-model proof (§6) are unchanged; the model
+  identification (§7–§8) is unchanged; `K_reject` is not finite-band and nothing here describes it.
+* Nothing on the pCNL/MCMC *convergence* side moves: Modules 1, 2, 4–5 and the Born-to-variation
+  step in `ConvergenceTheorem` are as recorded in the 2026-10-21 entry.
+
+## State of the project — 2026-11-08b: `K_drift` for a polynomial potential — the composition with the letter `∂ⱼ`, its ladder-word family, and the band of `polyMul` (`FockLangevinOperator` §9.6–§9.7)
+
+> **Supersession.** This entry supersedes **no** entry as a reading guide. It leaves the 2026-10-21
+> work order (steps 0–3: the `BayesianTransformer` name-level check, the `Book` build, the bridge
+> lemmas, the `DOC_INDEX` regen) untouched and still open, and it does not revise anything the
+> 2026-11-08 entry said about §9.3–§9.5. What it supersedes, for the pCNL/Module 3 track only, is
+> that entry's **two open sentences** — `pcnl.md`'s *"the composition `−Σⱼ (β²σ²/2)(∂ⱼ Φ)(x)·∂ⱼ` of
+> §9.5's operator with the ladder letter `∂ⱼ = (aⱼ − aⱼ†)/√2` of §5 … is not formalized"*, and its
+> remark that the polynomial operator's band *"would follow from `mulHermiteList_eq_ladderWords` plus
+> `hopWord_band`, and is not written"*. Both are now written, in `BookProof/MCMC/FockLangevinOperator.lean`,
+> `sorry`-free.
+
+### 1. What was still open after §9.5
+
+The 2026-11-08 entry closed Module 3's two *expansions*: `Φ` as a finite sum of monomial word
+families (§9.4, `polyMul_mul`) and `∂ⱼ Φ` likewise (§9.5, `polyMul_derivative`,
+`polyMul_derivative_eq_ladderWords`). Neither is the drift. `K_drift = −Σⱼ (∂ⱼ Φ)(x) ∂ⱼ` is the
+*product* of the second with the letter `∂ⱼ`, so what remained was (a) the letter as an operator on
+the core and the composition with it, and (b) the polynomial operator's *size*: the finite band the
+chapter had only for the constant-coefficient `driftOpCoeff` of §3 (`hopWord_band`, `driftOp_band`).
+
+### 2. §9.6 — the band of the polynomial operator
+
+`pcnl.md` §2.2's "finite-band hopping matrix", for an arbitrary potential: a potential of degree
+`≤ K` maps the sector `{N ≤ N₀}` into `{N ≤ N₀ + K}`, so a truncation at degree `N₀` couples only to
+degrees `≤ N₀ + K`.
+
+* `mulHermite_band` — one multiplication law is a sum of two ladder letters, so it moves the degree
+  by at most one; `mulHermiteList_band` — a product of `k` laws is `k` letters, so `k` degrees.
+* `monomialList_length` — the mode list of `∏ⱼ xⱼ^{mⱼ}` has `∑ⱼ mⱼ` letters, hence one word of length
+  equal to the monomial's degree. The bridge is `Fin.sum_univ_def` (`∑ i, m i` is the list sum over
+  `List.finRange d`) plus `natDeg_ofFinsupp` (the `Finsupp` exponent sum), and it is the one place
+  where the chapter's `natDeg` grading meets `MvPolynomial`'s.
+* `polyMul_monomial_band` — a monomial of degree `k` stays in `{N ≤ N₀ + k}`; `band_finset_sum` — a
+  finite sum of families stays in the sector of its summands; and **`polyMul_band`**, with
+  `polyMul_band_sector` as the literal sector form. The only `MvPolynomial` input is
+  `MvPolynomial.le_totalDegree`, which reads a monomial's degree off `Φ.totalDegree`.
+
+### 3. §9.7 — `K_drift` as the composition, and its word family
+
+* `diffHermite j` — the letter `∂ⱼ = (aⱼ − aⱼ†)/√2` of §5 as a transformation of the core (the
+  mirror of §9.1's `mulHermite`), with `hopStep_neg`/`hopStep_sub`/`hopWord_sub`/`hopWord_cons` for
+  the additive structure and `diffHermite_eq_ladderWords` for its two coefficients.
+* **`hopWord_diffHermite`** — the letter *inside* a word: `hopWord w (∂ⱼ c)` is two ladder words of
+  one letter more, with opposite signs. This is what turns §9.5's family into genuine ladder words.
+* **`polyDrift Φ`** — `−Σⱼ polyMul (∂ⱼ Φ) ∘ diffHermite j`: `∂ⱼ` applied to the state, then
+  multiplication by the derivative polynomial. The constant `β²σ²/2` of the plan is absorbed into
+  `Φ`, exactly as `bⱼ = (β²σ²/2)∂ⱼΦ_ε` is in §5.
+* Its **ladder-word family**, proved twice: `polyDrift_eq_ladderWords` (one sum per mode and per
+  monomial of `Φ`, the derivative's own `2^{deg}` words still inside `hopWord w (diffHermite j c)`,
+  with the `2^{-k/2}` normalization explicit) and **`polyDrift_eq_hopWords`** (spelled out as
+  ladder words: the letter `∂ⱼ` at the head of `w`, the two halves subtracting, both `1/√2`
+  normalizations explicit).
+* `driftOpCoeff_eq_neg_sum_diffHermite` — the check that this generalizes §5 rather than replacing
+  it: with constant coefficients (`∂ⱼ Φ = cⱼ`, `polyMul_C`) the composition collapses to
+  `driftOpCoeff`.
+
+### 4. Verification
+
+* `lake build BookProof.MCMC.FockLangevinOperator` → **Build completed successfully (8076 jobs)**
+  (36 s incremental; the module replays cleanly, i.e. the olean matches the current source bytes).
+* `lake build BookProof.YangMillsFieldStrength` (the chapter's only `BookProof/` importer) →
+  **Build completed successfully (8095 jobs)**, rebuilt against the new olean.
+* `#print axioms` on `mulHermite_band`, `mulHermiteList_band`, `monomialList_length`,
+  `natDeg_ofFinsupp`, `polyMul_monomial_band`, `band_finset_sum`, `polyMul_band`,
+  `polyMul_band_sector`, `hopWord_diffHermite`, `diffHermite_eq_ladderWords`,
+  `driftOpCoeff_eq_neg_sum_diffHermite`, `polyDrift_eq_ladderWords`, `polyDrift_eq_hopWords` →
+  `propext, Classical.choice, Quot.sound` only; no `sorryAx`, and the build emits no
+  "declaration uses 'sorry'".
+* Style: the two lines the style linter would flag in the new sections were rewrapped; the file's
+  remaining over-100-character lines are the pre-existing docstrings.
+* `python3 scripts/doc_index.py` regenerated `DOC_INDEX.md` / `state/doc_index.json`;
+  `bash scripts/health.sh` → 1 pass, 2 warnings (both documented baselines), 0 fail.
+
+### 5. Hygiene landed with it — `scripts/check-links` runs again
+
+The relative-link gate is a **Python** script (`#!/usr/bin/env python3`, CI calls
+`python3 scripts/check-links`); it had been reported as failing with `SKIP_DIRS: command not found`,
+which is what `bash scripts/check-links` prints when a shell is handed Python. Two things were
+therefore done, both in the script:
+
+1. The docstring now states the invocation (`python3 scripts/check-links`, never `bash`), so the
+   misreading is not available again.
+2. The default scan now enumerates **git-tracked** `*.md` (`git ls-files -z -- '*.md'`), falling back
+   to the old `rglob` when git cannot be consulted. Two PDF-to-markdown reference dumps at the repo
+   root, `Hashimoto.md` and `lopez99.md`, are **git-ignored** (`.gitignore` lines 3 and 6) and
+   reference figures (`img-*.jpeg`) that were never extracted with them; they are not part of the
+   repository — `.gitignore` says so — and checking them failed the gate on files no reader can
+   reach. An explicit `FILE` argument is still checked whether or not it is tracked or ignored.
+
+Result: `python3 scripts/check-links` → **check-links: OK — 81 document(s), 379 relative link(s)
+resolve (7 external skipped)**, exit 0; `python3 scripts/check-links Hashimoto.md` still exits 1 with
+its 6 broken figure links, so the gate has not been weakened, only scoped.
+
+### 6. What stays open
+
+* The **estimate**: no norm bound on `polyDrift` that combines `stepAmp_norm_le` with §9.6's band,
+  and hence no proof of `DriftFormBound` (§5) on the core. That is now the *only* Module 3 item on
+  the core besides §7–§8's model identification, which is unchanged.
+* `K_reject` — a multiplication operator, not finite-band; nothing here describes it.
+* `DriftFormBound`'s Fock-model twin (§6) is unchanged and still the proved statement.
+* Nothing on the pCNL/MCMC *convergence* side moves: Modules 1, 2, 4–5 and the Born-to-variation
+  step in `ConvergenceTheorem` are as recorded in the 2026-10-21 entry.
+
+### 7. Addendum (same day) — §9.8, the band of the drift itself
+
+§9.6 proved the band of the *multiplication* operator and §9.7 built `K_drift` as a composition;
+the addendum closes the band of the drift, with the sharp constant.  `K_drift = −Σⱼ (∂ⱼ Φ)(x) ∂ⱼ`
+maps `{N ≤ N₀}` into **`{N ≤ N₀ + K}`** when `deg Φ ≤ K` — not `K + 1`: the derivative `∂ⱼ Φ` costs
+one degree and the letter `∂ⱼ` gives it back.
+
+* `diffHermite_band` — the letter is a difference of two ladder letters, so it moves `N` by at most
+  one.
+* `natDeg_lowerIdx_of_pos` — **the equality** `natDeg (lowerIdx j n) = natDeg n - 1` for
+  `0 < n j`, the strengthening of §1's `natDeg_lowerIdx_le` that makes the constant sharp.
+* `lowerExp_eq_lowerIdx` / `natDeg_lowerExp` — §9.5's `lowerExp` is `lowerIdx` read on the
+  occupation vector, so a *lowered* exponent has exactly one degree less (`m j ≠ 0`).
+* **`polyDrift_band`**, with `polyDrift_band_sector` as the sector form.  The proof is §9.6's
+  `band_finset_sum` over the modes, then §9.5's `polyMul_derivative` sum over `Φ.support` with
+  `mulHermiteList_band` at `N + 1`; the `m' j = 0` case is the term that is *absent* (its
+  coefficient is `0`), which is exactly what the sharp bound needs, and `omega` needs
+  `0 < natDeg m'` for the truncated subtraction — supplied by `Finset.single_le_sum` at mode `j`.
+
+Verification: `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs** (45 s);
+`lake build BookProof.YangMillsFieldStrength` → **8095 jobs**; `#print axioms` on
+`diffHermite_band`, `natDeg_lowerIdx_of_pos`, `lowerExp_eq_lowerIdx`, `natDeg_lowerExp`,
+`polyDrift_band`, `polyDrift_band_sector` → `propext, Classical.choice, Quot.sound` only.
+`pcnl.md`'s Module 3 bullet and `CURRENT_WORK_ORDER.md`'s row carry the §9.8 status; §6 above is
+unchanged, and its first bullet — the *estimate* — remains the only Module 3 item on the core
+besides §7–§8's model identification.
+
+### 8. Addendum (same day) — §9.9–§9.10: the estimate, and the pCNL Hamiltonian of a polynomial
+potential
+
+§9.8 says *where* the drift sends a state; §9.9 says *how big* the image is, and §9.10 puts the
+drift inside the pCNL shape the plan states.  Both are on the core, both are `sorry`-free.
+
+**§9.9, the `ℓ¹` estimate (`FockLangevinOperator`).**  The size used is the `ℓ¹` mass
+`coreL1 c = ∑ₙ ‖c n‖`, which needs no orthogonality — only that a ladder letter moves each source
+index once, so the two halves of a letter cannot interfere:
+
+* `coreL1` with `coreL1_add_le`, `coreL1_smul_le`, `coreL1_neg`, `coreL1_finset_sum_le`,
+  `coreL1_sub_le` — the triangle inequality in the form the word family consumes;
+* **`hopStep_l1_le`** — one letter multiplies the mass by at most `√(N + 1)` on the sector
+  `{N ≤ N}`, i.e. `stepAmp_norm_le` applied at every source index;
+* **`hopWord_l1_sector`** — a word of length `k` multiplies the mass by at most `(√(M + 1))^k`,
+  where `M ≥ N + k` bounds the degrees the word meets; the induction walks the sector up one degree
+  per letter (§3's `hopStep_band`) and compares the two roots;
+* **`polyDrift_l1_le`** — the drift's own estimate, `coreL1 (polyDrift Φ c) ≤ driftL1Bound Φ M *
+  coreL1 c` for `M ≥ N + deg Φ + 1`, with `driftL1Bound` an *explicit* sector constant.  The three
+  inputs are §9.2's `2^k` word count (`mulWords_card`), the degree bound `k ≤ deg Φ`
+  (`natDeg_lowerExp_le` with `MvPolynomial.le_totalDegree`), and the Hermite normalizations
+  `1/√2 ≤ 1` (`invSqrtTwo_le_one`) — nothing existential.
+
+**§9.10, the pCNL Hamiltonian of a polynomial potential.**  §4 built the shape `P₀ + K_drift` from a
+*list* of ladder words; now the drift is `polyDrift` itself:
+
+* `pcnlPolyHamiltonian Φ = numberOp + polyDrift Φ`;
+* **`pcnlPolyHamiltonian_band`** — a potential of degree `≤ K` maps `{N ≤ N₀}` into
+  `{N ≤ N₀ + K}`.  The diagonal part does not move the degree (`mem_support_numberOp`), the drift
+  contributes `K` (§9.8), so a truncation at `N₀` couples only to `≤ N₀ + K` — the finite-band
+  property of `pcnl.md` §2.2 for the operator the plan uses, not just for a word list;
+* `polyDrift_linear` — for `Φ(u) = Σₖ bₖ uₖ` the derivative is the constant `bⱼ`, so
+  `polyDrift Φ = driftOpCoeff b`: the polynomial Hamiltonian generalizes the `driftOpCoeff` one.
+
+**Verification.** `lake build BookProof.MCMC.FockLangevinOperator` → **Build completed successfully
+(8076 jobs)**, replayed clean; `lake build BookProof.YangMillsFieldStrength` (the only `BookProof/`
+importer) → **8095 jobs** against the new olean.  `#print axioms` on `coreL1_add_le`,
+`hopStep_l1_le`, `hopWord_l1_sector`, `polyDrift_l1_le`, `pcnlPolyHamiltonian_band`,
+`polyDrift_linear` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over
+100 characters by character count, no trailing whitespace.
+
+**What stays open.**  §6's first bullet — the *estimate* — is now closed in `ℓ¹`.  What
+`DriftFormBound` still needs is the `ℓ²` step: the adjoint pairing `⟪c, a_j c⟫`, Cauchy–Schwarz in
+the core pairing, and the oscillator identity `Σ_j (‖a_j c‖² + ‖a_j† c‖²) = 2⟪c, N c⟫ + d‖c‖²`.
+`K_reject` remains outside the model.
+
+### 9. Hygiene — a regression test for the `check-links` scope rule
+
+The `check-links` gate was scoped to git-tracked markdown earlier in this batch (a git-ignored
+PDF-to-markdown dump is not part of the repository, so its unextracted figures are not the gate's
+contract).  That scoping is the gate's whole semantics, so it now has tests:
+**`scripts/test_check_links.py`** (stdlib `unittest`, 7 tests, no pytest) copies the gate into a
+temporary git repository and asserts:
+
+* a tracked document with a broken link fails (exit 1, the file and target named);
+* a **git-ignored** document with the same broken link is skipped by the default run;
+* an **untracked** document (written, never added) is likewise skipped — the scope is the index, not
+  the working tree;
+* an ignored document named **explicitly** is still checked, and still fails;
+* an ignored document does not mask a *tracked* document's failure — the scoping is per document,
+  not an escape hatch;
+* a clean tracked set reports `OK` and both documents;
+* with `git` unreachable the gate falls back to the working tree and checks everything (the old
+  behaviour, still there for a non-git checkout).
+
+CI runs it in `.github/workflows/linkcheck.yml` before the gate itself, so a future "just check
+every `*.md`" edit fails the linkcheck job instead of surfacing as an unrelated PR's red.
+`AGENTS.md`'s script table lists it next to `check-links`.  Local run:
+`python3 scripts/test_check_links.py` → **Ran 7 tests … OK**.
+
+### 10. Addendum (same day) — §10 of the chapter: the letter norms, and the oscillator identity
+
+The `ℓ²` half of the relative form bound had one input the plan itself singles out as *not*
+bookkeeping: the oscillator identity `∑ⱼ (‖a_j c‖² + ‖a_j† c‖²) = 2⟪c, N c⟫ + d‖c‖²`.  It is now a
+theorem on the core, together with the letter norms it rests on.
+
+**Coordinates first.**  `hopStep_coord_lower` — `(a_j c)(m) = √(m_j + 1)·c(m + e_j)` — is where the
+saturation hides: for `m_j = 0` the index `m` has *two* preimages under `lowerIdx` (`m` itself and
+`m + e_j`), and they collapse into the single formula because the extra term carries the amplitude
+`√(m_j) = 0`; the helper `raiseIdx_lowerIdx_of_pos` is exactly the hypothesis that rules that case
+out.  `hopStep_coord_raise` — `(a_j† c)(m) = √(m_j)·c(m − e_j)` — has one preimage, since raising is
+injective (`raiseIdx_injective`, from `lowerIdx_raiseIdx`).  Both are proved by linear induction on
+the finitely supported family (`Finsupp.induction_linear`), the single-occupation case being §9.3's
+`hopStep_single`.
+
+**The norms, by support bijections.**
+
+* **`coreNormSq_hopStep_lower`** — `‖a_j c‖² = ∑ₙ nⱼ‖c n‖²`: the bijection is `m ↦ m + e_j` from the
+  support of `a_j c` onto the `j`-occupied part of `c`'s support (`mem_support_hopStep_lower` lands in
+  that filtered set, `hopStep_coord_lower_at` gives the value there); the dropped `nⱼ = 0` terms are
+  `0`.
+* **`coreNormSq_hopStep_raise`** — `‖a_j† c‖² = ∑ₙ (nⱼ + 1)‖c n‖²`: the same with the bijection in the
+  other direction, `m ↦ m − e_j`, where `mem_support_hopStep_raise_pos` (a supported index of a raised
+  state has `mⱼ ≠ 0`) supplies the injectivity of `lowerIdx` on that support.
+* `sum_coreNormSq_hopStep_lower` / `sum_coreNormSq_hopStep_raise` — the mode sums,
+  `∑ⱼ ‖a_j c‖² = ⟪c, N c⟫` and `∑ⱼ ‖a_j† c‖² = ⟪c, N c⟫ + d‖c‖²` (`Finset.sum_comm` for the first,
+  `d` copies of `coreNormSq c` for the second).
+* **`oscillator_identity`** — their sum, the plan's identity.
+
+**Verification.** `lake build BookProof.MCMC.FockLangevinOperator` → **Build completed successfully
+(8076 jobs)**; `lake build BookProof.YangMillsFieldStrength` → **8095 jobs**.  `#print axioms` on
+`hopStep_coord_lower`, `hopStep_coord_raise`, `coreNormSq_hopStep_lower`, `coreNormSq_hopStep_raise`,
+`sum_coreNormSq_hopStep_lower`, `sum_coreNormSq_hopStep_raise`, `oscillator_identity` →
+`propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters by
+character count, no trailing whitespace.
+
+**What stays open.**  `DriftFormBound` (§5) now needs only the *assembly*: Cauchy–Schwarz in the core
+pairing `corePair`, the two `∑ⱼ √(·)` bounds by `√(d · ∑)`, the split `√(x + y) ≤ √x + √y`, and
+`2ab ≤ δa² + b²/δ` with the plan's constant `B²d/(2δ) + Bd`.  `K_reject` remains outside the model.
+
+### 11. Addendum (same day) — §11 of the chapter: `DriftFormBound`, proved
+
+§5 stated the bound and §10 proved the identity it leans on; §11 closes it.  On the core,
+
+    ‖⟪c, K_drift c⟫‖ ≤ δ·⟪c, N c⟫ + (B²d/(2δ) + Bd)·‖c‖²
+
+for every `δ > 0` — `K_drift` is infinitesimally form-small with respect to `N`, which is what the
+KLMN argument needs to make `N + K_drift` self-adjoint and bounded below.
+
+**The pairing, first.**  `corePair` sums over the union of the two supports, which makes its
+algebraic laws awkward to state; `corePair_eq_sum` shows the ambient finset is bookkeeping — once
+it contains both supports the sum is the same.  On top of it: `corePair_smul`
+(`⟪c, r·c'⟫ = star r · ⟪c, c'⟫`, conjugate-linear in the second slot), `corePair_add`, and
+`corePair_finset_sum` (additivity over the drift's letter family, by induction on the finset).
+**`norm_corePair_le`** is Cauchy–Schwarz: `‖⟪c, c'⟫‖ ≤ ‖c‖·‖c'‖`, via `norm_sum_le` then
+`Real.sum_mul_le_sqrt_mul_sqrt`, the two sums of squares reducing to `coreNormSq` by
+`sum_sq_subset` (the mass over any finset containing the support).
+
+**The mode index, next.**  `coreNorm` is the core `ℓ²` norm `√(coreNormSq c)` — the object every
+`√(·)` in the chain is.  `sum_coreNorm_hopStep_le` is Cauchy–Schwarz *in the mode index*: with
+`f ≡ 1`, `∑ⱼ ‖a_j c‖ ≤ √d · √(∑ⱼ ‖a_j c‖²)`, whose right-hand side is §10's mode sum —
+`⟪c, N c⟫` for the lowering letters, `⟪c, N c⟫ + d‖c‖²` for the raising ones.  The oscillator
+identity is thereby read as an average over the modes, which is the form the letter sum needs.
+
+**The assembly.**  With `invSqrtTwo = 1/√2` on each coefficient: the letters give
+`‖⟪c, K c⟫‖ ≤ (B/√2)·‖c‖·∑ⱼ (‖a_j c‖ + ‖a_j† c‖)`, the mode sums give
+`≤ (B/√2)·√d·‖c‖·(√X + √(X + d‖c‖²))` with `X = ⟪c, N c⟫`, and then `sqrt_add_le` splits
+`√(X + d‖c‖²)` into `√X + √d·‖c‖` while `two_mul_le_add_div` (`2uv ≤ δu² + v²/δ`) spends the free
+parameter.  The `√X` half costs `δ·X + B²d/(2δ)·‖c‖²` (after `invSqrtTwo_sq` and `√d·√d = d`), the
+`√d‖c‖` half is exactly `B·d·‖c‖²`, and the slack `invSqrtTwo ≤ 1` absorbs the `1/√2` of that
+second half when `B ≥ 0`.  That is the plan's constant, term for term.
+
+* **`driftOpCoeff_form_bound`** — the estimate, with `0 ≤ B` as the honest hypothesis (the plan's
+  `B = β²σ²M_ε/2` is nonnegative).
+* **`driftFormBound_holds`** — `DriftFormBound B b` for *every* `B` and *every* `b`: §5's target,
+  proved.  The only case beyond the estimate is `B < 0`, which forces `d = 0` (`|b j| ≤ B < 0` is
+  impossible when a mode exists), and with no modes both sides vanish.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **Build completed
+successfully (8076 jobs)**; `lake build BookProof.YangMillsFieldStrength` → **8095 jobs**.
+`#print axioms` on `coreNorm_sq`, `corePair_eq_sum`, `corePair_add`, `corePair_smul`,
+`corePair_finset_sum`, `norm_corePair_le`, `sum_coreNorm_hopStep_le`, `sqrt_add_le`,
+`two_mul_le_add_div`, `driftOpCoeff_form_bound`, `driftFormBound_holds` → `propext,
+Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters by character
+count, no trailing whitespace.  The module's Contents and honest boundary, §5's docstring and §6's
+opener are updated in the same change, so no stale "target" claim remains anywhere in the chapter.
+
+**What stays open.**  `K_reject` — a multiplication operator, not finite-band at all — and the
+*identification* `bⱼ = (β²σ²/2)·∂ⱼΦ_ε`, which is where the `ε`-dependence enters, through `B`.
+The estimate itself, which is what the KLMN argument consumes, is a theorem.
