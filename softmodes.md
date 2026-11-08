@@ -1413,6 +1413,44 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     holds strongly.  The section header records this, so the corpus does not claim an
     unconditional operator-norm limit it cannot have.
 
+    Three follow-ups turn that caveat into theorems about the same operator.  (i) The
+    `ker H` identification is now an equality of **submodules**, not a pointwise statement on the
+    domain: `kerHamiltonianMulModel` carries the domain in its carrier, and
+    `kerHamiltonianMulModel_eq_range_limitProjection` proves `ker H = range P` in
+    `Submodule ℝ ℋ`.  The pointwise form alone cannot give this, because `dom H = ran R` is dense
+    but proper; the missing half is `range_limitProjection_subset_domain` — a chart living on
+    `{f = 0}` satisfies `(λ + f)·U y = λ·U y`, and `λ • U y` is again a chart because the range of
+    an isometry is a subspace — so the range of `P` sits inside the domain after all.  The witness
+    is explicit (`exists_resolventMulModel_eq_of_limitProjection` records both `R a = y` and
+    `U a = λ • U y`), and `resolventFun_mul_smul_of_eq_zero` / `eq_zero_of_eq_mul_resolventFun`
+    are the two halves of the scalar arithmetic `(λ + f)⁻¹(λ v) = v` that make it work in both
+    directions.
+
+    (ii) The counterexample is now a theorem rather than prose.
+    `not_tendsto_opNorm_flowOfHCLM_of_noGap` takes the negation of a gap — every `δ > 0` has a set
+    of positive finite measure carrying `0 < f < δ` — and proves that
+    `‖flowOfHCLM D τ − limitProjection D‖` does not tend to `0`.  The estimate is
+    `norm_expFlow_sub_limitMulL2_ge`: the indicator of that set is a nonzero `L²` class and the
+    multiplier is at least `e^{−τδ}` on it, so the model-side norm is at least `e^{−τδ}`; with
+    `δ = log 2/(2τ)` the bound is `1/2` at every `τ ≥ 1`.  It transfers to `ℋ` only because the two
+    operator norms are equal, `norm_flowOfHCLM_sub_limitProjection_eq`, which needs the density of
+    `ran U` (`‖S‖ ≤ ‖T‖` is immediate from the isometry; density upgrades it to equality).  So the
+    gap in the rate theorem is a hypothesis on the truth, not on the proof.
+
+    (iii) Strong convergence is quantified.  The two-scale bound splits at `δ > 0`: where `f ≥ δ`
+    the multiplier is at most `e^{−τδ}`, where `0 < f < δ` it is at most one, and where `f = 0` it
+    vanishes, so `‖e^{−τH}y − P y‖ ≤ e^{−τδ}‖y‖ + ‖1_{0<f<δ}·U y‖`
+    (`norm_flowOfHCLM_sub_limitProjection_le_two_scale`, via the pointwise
+    `abs_exp_neg_sub_kernelIndicator_le_two_scale` and `Lp.norm_le_norm_of_ae_le`).  The tail
+    `tailMul D δ u` is a genuine `L²` class that does not depend on `τ`, and it vanishes as
+    `δ ↓ 0` (`tendsto_norm_tailMul`, dominated convergence with `{0 < f < δ} ↓ ∅`, and
+    `exists_tailMul_norm_lt` picks the split).  Choosing the split first and then the time gives
+    the explicit bound `norm_flowOfHCLM_sub_limitProjection_lt_of_time`: from
+    `max 0 (-log (ε / (2(‖y‖+1))) / δ)` on, the flow is within `ε` of the projection, so
+    `exists_time_norm_flowOfHCLM_sub_limitProjection_lt` is the quantified form of the asymptotic
+    statement.  The rate is explicit in `δ, ε, ‖y‖`; only `δ` comes from a limit, and that is the
+    sense in which a rate exists without a gap — pointwise in `y`, never uniformly.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the

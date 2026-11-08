@@ -77,10 +77,26 @@ The construction is the classical shift-invert one, done in `ℝ`:
 * `hamiltonianMulModel_eq_zero_iff_limitProjection` — the projection's range is `ker H`: on the
   domain of `H`, `H y = 0` exactly when the chart of `y` vanishes where `f ≠ 0`, i.e. exactly when
   the limit fixes `y`;
+* `kerHamiltonianMulModel_eq_range_limitProjection` — the same at the level of **submodules**: with
+  `kerHamiltonianMulModel` carrying the domain in its carrier, `ker H = range P` in
+  `Submodule ℝ ℋ`.  The pointwise form is not enough, because `dom H = ran R` is dense but proper;
+  what makes the submodule statement true is `range_limitProjection_subset_domain` — a chart living
+  on `{f = 0}` satisfies `(λ + f)·U y = λ·U y`, and `λ • U y` is again a chart of `ℋ`;
 * `tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop` — operator-norm convergence with rate
-  `e^{−τδ}`, **given** a gap `δ > 0` above zero in the density.  Without such a gap it is false —
-  see the section header, where the essential-supremum reading of the norm produces the
-  counterexample — so strong convergence is the unconditional statement;
+  `e^{−τδ}`, **given** a gap `δ > 0` above zero in the density.  Without such a gap it is false, and
+  `not_tendsto_opNorm_flowOfHCLM_of_noGap` proves that: if every `δ > 0` has a set of positive
+  finite measure carrying `0 < f < δ`, then testing on its indicator gives norm at least
+  `e^{−τδ} = e^{−(log 2)/2} ≥ 1/2` at every time `τ ≥ 1`.  The two norms are equal
+  (`norm_flowOfHCLM_sub_limitProjection_eq`, by density of `ran U`), so no-gap ⇒ no norm
+  convergence, while strong convergence still holds;
+* `norm_flowOfHCLM_sub_limitProjection_le_two_scale` and
+  `norm_flowOfHCLM_sub_limitProjection_lt_of_time`, with
+  `exists_time_norm_flowOfHCLM_sub_limitProjection_lt` — the quantitative **strong** convergence,
+  with no hypothesis on the density: for every split `δ > 0`,
+  `‖e^{−τH}y − P y‖ ≤ e^{−τδ}‖y‖ + ‖1_{0<f<δ}·U y‖`, so after the explicit time
+  `max 0 (-log (ε / (2(‖y‖+1))) / δ)` the flow is within `ε` of the projection.  The unresolved tail
+  is chosen first and vanishes as `δ ↓ 0` (`tendsto_norm_tailMul`, dominated convergence); the rate
+  is therefore explicit in `δ, ε, ‖y‖`, and only `δ` is supplied by a limit;
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
@@ -2129,8 +2145,8 @@ theorem abs_exp_neg_sub_kernelIndicator_le_two_scale (D : MulModel X ν Λ T) {�
       have hge : δ ≤ D.f x := le_of_not_gt hlt
       nlinarith [mul_le_mul_of_nonneg_left hge hτ]
 
-/-- **The two-scale estimate on `L²(ν)`**: the deviation from the limit is bounded by the gapped term
-plus the tail below the split. -/
+/-- **The two-scale estimate on `L²(ν)`**: the deviation from the limit is bounded by the gapped
+term plus the tail below the split. -/
 theorem norm_expFlow_sub_limitMulL2_le_two_scale (D : MulModel X ν Λ T) {δ : ℝ}
     {τ : ℝ} (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν) :
     ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖
@@ -2283,7 +2299,7 @@ theorem norm_flowOfHCLM_sub_limitProjection_lt_of_time (D : MulModel X ν Λ T) 
       _ ≤ ε / 2 := by
           rw [div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
           nlinarith [norm_nonneg y, hε.le]
-  have hmain := norm_flowOfHCLM_sub_limitProjection_le_two_scale D hτ0 y
+  have hmain := norm_flowOfHCLM_sub_limitProjection_le_two_scale (δ := δ) D hτ0 y
   linarith
 
 /-- **Strong convergence with an explicit time.**  For every `ε > 0` the flow is within `ε` of the
@@ -2297,6 +2313,146 @@ theorem exists_time_norm_flowOfHCLM_sub_limitProjection_lt (D : MulModel X ν Λ
   obtain ⟨δ, hδpos, hδtail⟩ := exists_tailMul_norm_lt D (D.U y) (η := ε / 2) (by linarith)
   exact ⟨max 0 (-(Real.log (ε / (2 * (‖y‖ + 1)))) / δ), fun τ hτ =>
     norm_flowOfHCLM_sub_limitProjection_lt_of_time D hδpos y hε hτ hδtail⟩
+
+/-- **The operator norms agree.**  The flow and the projection are conjugates of their model-side
+counterparts by the isometry `U`, so `‖S‖ ≤ ‖T‖` is immediate; density of the range of `U` is what
+turns it into an equality, because every `L²` vector is a limit of charts and the two operators
+agree on charts. -/
+theorem norm_flowOfHCLM_sub_limitProjection_eq (D : MulModel X ν Λ T) (τ : ℝ) :
+    ‖flowOfHCLM D τ - limitProjection D‖ = ‖expFlow D.f D.hf D.hpos τ - limitMulL2 D‖ := by
+  have hUfun : ∀ y : Hphys Λ, D.U ((flowOfHCLM D τ - limitProjection D) y)
+      = (expFlow D.f D.hf D.hpos τ - limitMulL2 D) (D.U y) := by
+    intro y
+    rw [ContinuousLinearMap.sub_apply, map_sub, ContinuousLinearMap.sub_apply, flowOfHCLM_apply,
+      U_flowOfH, U_limitProjection]
+  refine le_antisymm ?_ ?_
+  · refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg _) fun y => ?_
+    calc ‖(flowOfHCLM D τ - limitProjection D) y‖
+        = ‖D.U ((flowOfHCLM D τ - limitProjection D) y)‖ := (D.U.norm_map _).symm
+      _ = ‖(expFlow D.f D.hf D.hpos τ - limitMulL2 D) (D.U y)‖ := by rw [hUfun y]
+      _ ≤ ‖expFlow D.f D.hf D.hpos τ - limitMulL2 D‖ * ‖D.U y‖ :=
+          ContinuousLinearMap.le_opNorm _ _
+      _ = ‖expFlow D.f D.hf D.hpos τ - limitMulL2 D‖ * ‖y‖ := by rw [D.U.norm_map]
+  · refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg _) fun u => ?_
+    have happrox : ∀ n : ℕ, ∃ y : Hphys Λ, ‖D.U y - u‖ < 1 / (n + 1) := by
+      intro n
+      have hmem : u ∈ closure (Set.range D.U) := by
+        rw [D.hdense.closure_range]
+        exact Set.mem_univ u
+      obtain ⟨v, ⟨y, rfl⟩, hv⟩ := Metric.mem_closure_iff.mp hmem (1 / (n + 1)) (by positivity)
+      exact ⟨y, by simpa [dist_eq_norm, norm_sub_rev] using hv⟩
+    choose y hy using happrox
+    have hcont : Tendsto (fun n : ℕ => D.U (y n)) atTop (𝓝 u) := by
+      rw [tendsto_iff_norm_sub_tendsto_zero]
+      refine squeeze_zero (fun n => norm_nonneg _) (fun n => (hy n).le) ?_
+      simpa using tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ)
+    have h1 : Tendsto (fun n : ℕ =>
+        ‖(expFlow D.f D.hf D.hpos τ - limitMulL2 D) (D.U (y n))‖) atTop
+        (𝓝 ‖(expFlow D.f D.hf D.hpos τ - limitMulL2 D) u‖) :=
+      (((expFlow D.f D.hf D.hpos τ - limitMulL2 D).continuous.tendsto u).norm).comp hcont
+    have h2 : Tendsto (fun n : ℕ => ‖flowOfHCLM D τ - limitProjection D‖ * ‖D.U (y n)‖)
+        atTop (𝓝 (‖flowOfHCLM D τ - limitProjection D‖ * ‖u‖)) :=
+      tendsto_const_nhds.mul hcont.norm
+    refine le_of_tendsto_of_tendsto' h1 h2 fun n => ?_
+    calc ‖(expFlow D.f D.hf D.hpos τ - limitMulL2 D) (D.U (y n))‖
+        = ‖(flowOfHCLM D τ - limitProjection D) (y n)‖ := by
+          rw [← D.U.norm_map ((flowOfHCLM D τ - limitProjection D) (y n)), hUfun]
+      _ ≤ ‖flowOfHCLM D τ - limitProjection D‖ * ‖y n‖ := ContinuousLinearMap.le_opNorm _ _
+      _ = ‖flowOfHCLM D τ - limitProjection D‖ * ‖D.U (y n)‖ := by rw [D.U.norm_map]
+
+/-- **The model-side lower bound.**  On a set where `0 < f < δ` the multiplier is at least
+`e^{−τ δ}`, so the indicator of that set is a test vector on which the operator is large; since the
+indicator is a nonzero `L²` class, the operator norm is at least `e^{−τ δ}`. -/
+theorem norm_expFlow_sub_limitMulL2_ge (D : MulModel X ν Λ T) {δ : ℝ}
+    {s : Set X} (hs : MeasurableSet s) (hs0 : ν s ≠ 0) (hsf : ν s ≠ ∞)
+    (hgs : ∀ x ∈ s, 0 < D.f x ∧ D.f x < δ) {τ : ℝ} (hτ : 0 ≤ τ) :
+    Real.exp (-(τ * δ)) ≤ ‖expFlow D.f D.hf D.hpos τ - limitMulL2 D‖ := by
+  set u : Lp ℝ 2 ν := indicatorConstLp 2 hs hsf (1 : ℝ) with hu_def
+  have hu_coe : (u : X → ℝ) =ᵐ[ν] s.indicator (fun _ => (1 : ℝ)) :=
+    indicatorConstLp_coeFn
+  have hpos : 0 < ν.real s := by
+    rw [measureReal_def]
+    exact ENNReal.toReal_pos hs0 hsf
+  have hu_pos : 0 < ‖u‖ := by
+    rw [hu_def, norm_indicatorConstLp' (p := (2 : ℝ≥0∞)) (by norm_num) hs0]
+    simp only [Real.norm_eq_abs, abs_one, one_mul]
+    exact Real.rpow_pos_of_pos hpos _
+  have hlow : Real.exp (-(τ * δ)) * ‖u‖
+      ≤ ‖(expFlow D.f D.hf D.hpos τ - limitMulL2 D) u‖ := by
+    rw [ContinuousLinearMap.sub_apply]
+    have hnorm : Real.exp (-(τ * δ)) * ‖u‖ = ‖Real.exp (-(τ * δ)) • u‖ := by
+      rw [norm_smul, Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le]
+    rw [hnorm]
+    refine Lp.norm_le_norm_of_ae_le ?_
+    filter_upwards [expFlow_coeFn D.hf D.hpos hτ u, limitMulL2_coeFn D u,
+      Lp.coeFn_sub (expFlow D.f D.hf D.hpos τ u) (limitMulL2 D u),
+      Lp.coeFn_smul (Real.exp (-(τ * δ))) u, hu_coe] with x h1 h2 h3 h4 h5
+    have hpt : (((expFlow D.f D.hf D.hpos τ u - limitMulL2 D u) : Lp ℝ 2 ν) : X → ℝ) x
+        = (Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0)) * (u : X → ℝ) x := by
+      rw [h3, Pi.sub_apply, h1, h2, sub_mul]
+    have hptsmul : (((Real.exp (-(τ * δ)) • u) : Lp ℝ 2 ν) : X → ℝ) x
+        = Real.exp (-(τ * δ)) * (u : X → ℝ) x := by
+      rw [h4, Pi.smul_apply, smul_eq_mul]
+    rw [hpt, hptsmul, Real.norm_eq_abs, Real.norm_eq_abs, abs_mul, abs_mul]
+    by_cases hmem : x ∈ s
+    · have hx := hgs x hmem
+      have hge : Real.exp (-(τ * δ)) ≤ Real.exp (-(τ * D.f x)) :=
+        Real.exp_le_exp.2 (by nlinarith [mul_le_mul_of_nonneg_left hx.2.le hτ])
+      rw [h5, Set.indicator_of_mem hmem, if_neg (ne_of_gt hx.1), sub_zero,
+        abs_of_nonneg (Real.exp_pos _).le, abs_of_nonneg (Real.exp_nonneg _)]
+      simpa using hge
+    · rw [h5, Set.indicator_of_notMem hmem]
+      simp
+  exact le_of_mul_le_mul_right
+    (hlow.trans (ContinuousLinearMap.le_opNorm
+      (expFlow D.f D.hf D.hpos τ - limitMulL2 D) u)) hu_pos
+
+/-- **Without a gap, the operator norm does not converge to zero.**  The hypothesis says the density
+has no gap above its zero set — for every `δ > 0` some set of positive finite measure carries
+`0 < f < δ` — and then the norm is at least `1/2` at every time `τ ≥ 1` (take `δ = log 2 / (2τ)`),
+so it cannot tend to zero.  Strong convergence is unaffected: this is a failure of the *uniform*
+statement only. -/
+theorem not_tendsto_opNorm_flowOfHCLM_of_noGap (D : MulModel X ν Λ T)
+    (hno : ∀ δ : ℝ, 0 < δ → ∃ s : Set X, MeasurableSet s ∧ ν s ≠ 0 ∧ ν s ≠ ∞ ∧
+      ∀ x ∈ s, 0 < D.f x ∧ D.f x < δ) :
+    ¬ Tendsto (fun τ : ℝ => ‖flowOfHCLM D τ - limitProjection D‖) atTop (𝓝 0) := by
+  intro hconv
+  have hev : ∀ᶠ τ : ℝ in atTop, ‖flowOfHCLM D τ - limitProjection D‖ < 1 / 2 :=
+    hconv.eventually (Iio_mem_nhds (by norm_num : (0 : ℝ) < 1 / 2))
+  obtain ⟨τ, hτlt, hτ1⟩ := (hev.and (eventually_ge_atTop (1 : ℝ))).exists
+  have hτ0 : 0 ≤ τ := by linarith
+  set δ : ℝ := Real.log 2 / (2 * τ) with hδ_def
+  have hlog : 0 < Real.log 2 := Real.log_pos (by norm_num)
+  have hδpos : 0 < δ := by
+    rw [hδ_def]
+    exact div_pos hlog (by linarith)
+  obtain ⟨s, hs, hs0, hsf, hgs⟩ := hno δ hδpos
+  have hlower := norm_expFlow_sub_limitMulL2_ge D hs hs0 hsf hgs hτ0
+  rw [norm_flowOfHCLM_sub_limitProjection_eq D τ] at hτlt
+  have hτδ : τ * δ = Real.log 2 / 2 := by
+    rw [hδ_def]
+    have : τ ≠ 0 := by linarith
+    field_simp
+  have hexp : (1 / 2 : ℝ) ≤ Real.exp (-(τ * δ)) := by
+    rw [hτδ]
+    calc (1 / 2 : ℝ) = Real.exp (-(Real.log 2)) := by
+          rw [Real.exp_neg, Real.exp_log (by norm_num)]
+          norm_num
+      _ ≤ Real.exp (-(Real.log 2 / 2)) := Real.exp_le_exp.2 (by linarith)
+  linarith
+
+/-! ### Without a gap the operator norm does not converge
+
+The counterexample promised in the section header, as a theorem.  The hypothesis is exactly the
+negation of a gap: for every `δ > 0` there is a set of positive finite measure on which
+`0 < f < δ`.  There the multiplier `e^{−τ f}` is at least `e^{−τ δ}`, so testing the model-side
+operator on the indicator of that set gives operator norm at least `e^{−τ δ}`; with
+`δ = log 2 / (2τ)` that is `1/2`.  The two operator norms agree
+(`norm_flowOfHCLM_sub_limitProjection_eq`, by density of the range of `U`), so the norm on `ℋ` is
+at least `1/2` at every time `τ ≥ 1`: it cannot converge to `0`, even though the flow does converge
+to the projection *strongly* (`tendsto_flowOfHCLM_atTop`).  The gap in the rate theorem is
+therefore not an artefact of the proof — without it the statement is false.
+-/
 
 /-- **The large-time limit is the orthogonal projection onto the kernel of the density.**  The
 operator statement: the flow converges strongly to `limitProjection`, which is self-adjoint and
