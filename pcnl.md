@@ -1,4 +1,352 @@
-A complete, linear spectral formulation of the **pCNL MCMC convergence theorem** within the **nested Fock-space framework** requires shifting the analysis from stochastic trajectories to **operator spectral decomposition** [1.1].
+# pCNL: Mehler operators, nested Fock representations and convergence certificates
+
+## Revised research and formalization work order (2026-11-08)
+
+This section supersedes the architecture, milestone ordering and completion claims below
+**as a reading guide for this file**. Earlier dated notes remain implementation history.
+It does not change the programme ordering in `CURRENT_WORK_ORDER.md`. The task is to
+identify a concrete Markov operator, prove its gap under explicit assumptions, and connect
+that result to the correct implementation. No full transformer pCNL gap is claimed here.
+This revision inspects source statements; it does not rerun Lean or numerical experiments.
+
+### Sources and division of responsibilities
+
+* [book.tex](book.tex), the recursive second-quantization paragraph beginning “Since the
+  second-quantization procedure can be applied recursively”: an inner interacting operator
+  can be enclosed in outer creation/annihilation operators. That operation is not a proof
+  of reversibility or a spectral gap for a statistical sampler.
+* [Book/FreeField.lean](Book/FreeField.lean), the Mehler-limit section, and
+  [Book/SolovayTensor.lean](Book/SolovayTensor.lean), “Only the Mehler Measure on the
+  Infinite Part”: Gaussian coordinates and representation. Coordinate-law uniqueness
+  does not imply uniqueness of a posterior or of its invariant transition kernel.
+* [Book/BayesianTransformer.lean](Book/BayesianTransformer.lean): the geometry/noise
+  development and its operator-bridge boundary. Its old reported BMA values and compile
+  status must be checked against the current implementation before being reused.
+* [Hashimoto–Nodera](../papers/Hashimoto.md), Definition 2.4 and Theorem 4.1: resolvent
+  functional calculus and rational approximation errors, not automatic gap certificates.
+* [softmodes.md](softmodes.md), “Revised work package (2026-11-08)”: form/operator
+  identification, ground-sector alignment and independent spectral exclusion.
+* [ngpt.md](../test/unfer/ngpt.md), §3.2, §4.3, §6.5.9, §6.6 and §9: the experimental
+  motivation, epsilon/schedule corrections, dimension-budget hypothesis and readout tasks.
+* [unfer/pcnl/RESEARCH_PLAN.md](../unfer/pcnl/RESEARCH_PLAN.md): the crate execution
+  plan R0–R6. It owns numerical audits and experiments; this file owns the mathematical
+  operator/representation contracts and Lean targets. Keep their conclusions consistent.
+
+Use **U** for an existing result within its stated model, **C** for an unproved bridge
+or hypothesis, **N** for an invalid inference, and **B** for a scope boundary. Read theorem
+types rather than names or headers. Several module comments still repeat older claims
+that their actual declarations do not prove.
+
+### P0 — fix the kernel, measure and convergence target first
+
+For a finite-dimensional Gaussian reference `mu0 = N(0,C)`, define
+$q=d\pi/d\mu_0=Z^{-1}e^{-\Phi}$ with $0<Z<\infty$. State the covariance, energy
+scaling, dimension, batch law, epsilon normalization and parameter domain. An
+infinite-dimensional Hilbert Gaussian additionally needs trace-class covariance; white
+product coordinates live on a different measure space, not almost surely in $\ell^2$.
+
+There are four different operator problems:
+
+| Kernel | Invariant measure / symmetry | Initial theorem target |
+|---|---|---|
+| Gaussian pCN proposal | `mu0`, reversible | Exact Mehler benchmark |
+| Fixed-angle sphere walk | Haar, reversible | Spherical operator identity and gap |
+| Correct MH-pCNL | `pi`, reversible | Target-specific absolute gap |
+| Fixed-step unadjusted SG-pCNL | Must establish its own invariant law | Bias and contraction |
+
+For a kernel $K$, use $(Pf)(x)=\int f(y)K(x,dy)$ on **observables** in $L^2(\pi)$.
+Prove stationarity and detailed balance before asserting self-adjointness. Density ratios
+evolve by $P^*$; only in the reversible case can they be written as $P^m g_0$.
+A nonreversible Markov contraction need not be normal. Its analysis may use a norm bound
+on the centred subspace, $P^*P$, or a multi-step contraction; do not apply a self-adjoint
+spectral theorem solely because the transition is linear.
+
+Unadjusted fixed-step and mini-batch kernels do not automatically preserve `pi`, and
+there is no generic $O(\beta)$ bias statement without assumptions, a metric and a proof.
+Annealed/cyclical steps define time-inhomogeneous products, not powers of one operator.
+State these targets separately from a fixed-step MH theorem.
+
+**Acceptance:** a proposed `BookProof/MCMC/KernelContract.lean` with a measurable kernel,
+stationary law, associated $L^2$ operator, adjoint/density action and reversibility lemma
+for a concrete benchmark. This is new work, not an existing module. Follow crate R0's
+gradient, exact-ratio and diagnostic audits before binding the contract to Rust.
+
+### P1 — establish the Gaussian Mehler benchmark without a spherical detour
+
+In finite dimension, $x'=\rho x+\sqrt{1-\rho^2}\xi$, $\xi\sim N(0,C)$,
+already has a Gaussian/Hermite diagonalization. For $0\le\rho<1$, its degree-$n$
+chaos eigenvalue is $\rho^n$ and its norm on mean-zero observables is $\rho$.
+This identity does **not** require $d\to\infty$. Complete the finite-product tensor
+argument, normalization and basis-isometry bridge from the existing one-dimensional
+Mehler integral to a bounded operator on the chosen Gaussian $L^2$ space.
+
+`MehlerEigenfunction.mehlerOp_physHermite` uses density $e^{-x^2}/\sqrt\pi$
+(variance $1/2$). Record the rescaling to standard normals and the actual prior `C`.
+Hermite polynomials in Gaussian $L^2$ and Hermite functions in Lebesgue $L^2$ are related
+by multiplication by the square root of the Gaussian density; they are not the same basis.
+For variance one, Gaussian adjoints satisfy $D_j^*=x_j-D_j$, with
+$N=\sum_jD_j^*D_j$; numerical ladder factors must follow that convention.
+
+The fixed-angle **spherical** proposal instead takes uniform unit tangent noise and has
+the candidate zonal eigenvalues
+$\Lambda_n^{(d)}=C_n^{((d-2)/2)}(\rho)/C_n^{((d-2)/2)}(1)$ for $d>2$.
+`GegenbauerEigenvalue` proves quotient identities and fixed-degree limits; it does not
+construct the spherical Markov operator or prove its addition theorem/completeness.
+The circle needs its own Fourier/Chebyshev treatment. Random geodesic step lengths in
+the implemented sphere sampler are yet another kernel, not this fixed-angle proposal.
+
+**N:** fixed-degree convergence $\Lambda_n^{(d)}\to\rho^n$ cannot interchange
+$d\to\infty$ with $\sup_{n\ge1}|\Lambda_n^{(d)}|$. A polynomial marginal limit
+also does not prove strong convergence of unbounded generators on changing spaces.
+For a spherical-generator limit specify radius, time scaling, embeddings, common cores
+and a semigroup/resolvent convergence theorem. Keep that optional work off the critical
+path of the finite-dimensional Gaussian pCN theorem.
+
+**Acceptance:** proposed `GaussianKernelBridge.lean` linking the real transition to
+`UnadjustedPCNGap`'s coefficient norm estimate. Its `pcn_gap_uniform` concerns the
+defined weights $\rho^{2N}$; the squared-norm loss $1-\rho^2$ and the absolute
+operator gap $1-\rho$ must remain distinct.
+
+### P2 — use the correct density-ratio convergence theorem
+
+Let $\Pi f=\int f\,d\pi$ and prove
+$\|P-\Pi\|_{L^2(\pi)\to L^2(\pi)}\le1-\gamma$, $0<\gamma\le1$.
+For self-adjoint $P$, this controls the **absolute** spectrum on the mean-zero subspace:
+both its upper edge and negative edge matter. A Poincare bound on $I-P$ controls only
+the upper edge. One clean option is explicit lazification $P_L=(I+P)/2$, which changes
+the implementation's clock and must be reported; it puts the spectrum in $[0,1]$.
+
+With $g_0=d\nu_0/d\pi\ge0$, $\int g_0d\pi=1$ and $g_0-1\in L^2(\pi)$,
+reversibility and the gap give
+
+$$\|\nu_0K^m-\pi\|_{TV}\le\tfrac12\|g_0-1\|_{L^2(\pi)}(1-\gamma)^m.$$
+
+`GeometricErgodicity.norm_iterate_sub_invariant_le` proves the Hilbert-space decay
+**given** the contraction. `ConvergenceTheorem.tvDist_le_half_l2` and
+`pcnl_mcmc_geometric_convergence` provide the density-ratio-to-TV receiver. Connect
+them through an actual kernel and its density evolution; the receiver does not prove
+the invariant law, gap or smoothing of a point initialization.
+
+In $L^2(\pi)$ the invariant vector is $1$. When $q>0$ almost everywhere for $\mu_0$,
+the unitary $Uf=\sqrt q\,f$ onto $L^2(\mu_0)$ sends it to $\sqrt q$. For a
+restricted-support target use its supported range instead of asserting surjectivity. Thus
+$T=UPU^{-1}$ fixes $\sqrt q$, but $U g_0=g_0\sqrt q$ is generally **not** the
+square root of $d\nu_0/d\mu_0$. Markov evolution is linear on densities; it does
+not generally evolve Born square-root amplitudes by the same linear map.
+Normalization gives $\langle\sqrt q,U g_0\rangle=1$, not a statement about arbitrary
+unit wavefunctions. Use spectral measures for a general operator, not an assumed
+countable eigenbasis/discrete spectrum.
+
+**B:** $\delta_x$ need not have an $L^2$ density. A rejected MH chain can retain an
+atom at its initial state at finite time. Provide a warm-start or minorization/smoothing
+argument before claiming the bound for every deterministic `u0`.
+
+**Acceptance:** a kernel-level convergence theorem carrying its warm-start constant,
+ground projection, absolute gap and density-action identity explicitly.
+
+### P3 — derive a target gap, not merely a drift-size estimate
+
+Start with exact MH-pCN as a tractable benchmark, separate from MH-pCNL's drifted
+proposal. When $\operatorname{osc}\Phi\le B<\infty$, prior reversibility gives
+$\pi(dx)K_{MH}(x,dy)=\min(q(x),q(y))\mu_0(dx)K_0(x,dy)$ off the diagonal.
+Derive a Dirichlet-form comparison and target-variance comparison to obtain the
+Poincare gap bound $e^{-B}(1-\rho)$. For its lazy version this yields an absolute
+gap at least $\tfrac12e^{-B}(1-\rho)$. Formalize the assumptions and comparisons;
+these are proposed proofs, not current declarations. The constant may be unusably small
+or depend strongly on dataset size, architecture and dimension.
+
+For unbounded potentials or drifted proposals, supply the appropriate target-specific
+Dirichlet-form comparison, conductance, Lyapunov/minorization or other quantitative
+argument. The [pCN construction](https://arxiv.org/abs/1202.0709) and
+[Hairer–Stuart–Vollmer](https://arxiv.org/abs/1112.1392) are primary references to audit
+for their exact hypotheses and notion of gap before porting a theorem. Do not transfer
+a theorem about pCN, a Wasserstein metric or a function-space discretization directly
+to finite-sphere MH-pCNL or unadjusted transformer sampling.
+
+**N:** bounded $\nabla\Phi$ alone supplies neither a small operator-norm perturbation
+of the pCN transition nor a useful gap. On the current `FockLangevinOperator` core,
+`driftOpCoeff` takes **constant coefficients** `b : Fin d → R`.
+`driftFormBound_holds` does not replace them by state-dependent multiplication operators.
+`polyDrift` separately expands polynomial coefficients, with sector-dependent estimates.
+An nGPT cross-entropy potential is not a polynomial; an approximation needs tail,
+derivative and operator/form-error control, not just a finite-band truncation.
+
+**N:** the KLMN conclusion in the history needs correction. For real couplings the
+constant field `creVec - annVec` is skew-symmetric on its natural core, not symmetric.
+An absolute bound on its quadratic pairing does not make `N + driftField` self-adjoint
+by the symmetric KLMN theorem. A variable-coefficient transport drift is not symmetric
+in the Gaussian inner product either. Prove the adjoint/domain relation for the actual
+operator before choosing a symmetric-form or sectorial-generator theorem.
+
+The exact MH operator is
+$Pf(x)=\int\alpha(x,y)f(y)Q(x,dy)+r(x)f(x)$ with
+$r(x)=1-\int\alpha(x,y)Q(x,dy)$. Only the holding term is multiplication.
+The accepted off-diagonal term changes too. Writing `P0 + K_drift + K_reject` requires
+an actual remainder identity; a first-order differential drift is not an exact additive
+correction to a finite-step Markov transition.
+
+**Acceptance:** a proposed `MetropolisGapComparison.lean` for the bounded-oscillation
+benchmark, then a separately justified full pCNL target estimate. Following softmodes S2,
+do not subtract two lower spectral bounds, confuse a reference vacuum with the true
+ground state, or call closability/semiboundedness a positive gap.
+
+### P4 — derive the diffusion/Fock bridge with all Gaussian terms included
+
+For a separate finite-dimensional, whitened, smooth benchmark let
+$V(x)=|x|^2/2+\Phi(x)$, $\pi(dx)\propto e^{-V(x)}dx$, and
+$Lf=\Delta f-\nabla V\cdot\nabla f$. State the closed Dirichlet form,
+domain, integrability and integration-by-parts hypotheses. The ground-state transform
+$Wf=Z_V^{-1/2}e^{-V/2}f$ gives, on a verified core,
+
+$$H=-WLW^{-1}=-\Delta+\tfrac14|\nabla V|^2-\tfrac12\Delta V
+=N+\tfrac12x\cdot\nabla\Phi+\tfrac14|\nabla\Phi|^2-\tfrac12\Delta\Phi,$$
+
+where $N=-\Delta+|x|^2/4-d/2$. The earlier expression containing only derivatives of
+$\Phi$ omits the Gaussian prior and cross term. For nonidentity covariance first prove
+the whitening/preconditioning transformation, with its domains and constants.
+`N + polyDrift Phi` is not automatically this self-adjoint transformed generator.
+
+A Hessian criterion is $\nabla^2V\ge\kappa I$, $\kappa>0$, with the usual diffusion
+assumptions, not an unexplained `Hess Phi` criterion for every discrete pCNL kernel.
+If the target is nonconvex, state another justified Poincare estimate. A diffusion
+gap gives heat-flow decay; finite-step MH or unadjusted convergence needs a separate
+discretization/operator comparison with a quantitative error.
+
+Tests of the formula should include $\Phi=0$, a linear potential (shifted Gaussian,
+same diffusion gap), and $\Phi=\eta|x|^2/2$ with $\eta>-1$ (gap $1+\eta$).
+Build polynomial matrix elements using `polyMul_mul`, `polyMul_derivative`,
+`polyDrift_eq_hopWords`, the band and letter-norm lemmas, but check symmetry of the
+**transformed** operator rather than assigning that property to a drift by its name.
+
+Under a Gaussian-chaos isometry, $L^2(\mu_0)$ has a symmetric-Fock representation and
+the free OU operator is its number operator. The manuscript's **outer** nested enclosure
+of a chosen inner $h$ is another construction:
+$H_{out}=d\Gamma(h)=\sum h_{ij}C^\dagger(e_i)A(e_j)$.
+Prove the isometry, matrix elements, core transport and restriction to the one-outer-
+particle sector before using it for the original chain. Outer quadraticity retains the
+inner interactions; it does not diagonalize the posterior operator.
+
+In particular the inner equilibrium has energy zero. Its occupation in an outer
+one-particle sector is different from the outer vacuum; arbitrary copies give additional
+zero-energy outer states. A gap above the full kernel is not isolation of the outer
+vacuum. Do not add $\mu N_{out}$ or silently discard inner equilibrium states to claim
+the original chain mixes. Also $d\Gamma(B^2)\ne d\Gamma(B)^2$ in general.
+
+**Acceptance:** proposed `LangevinGroundTransform.lean` with operator/core identity,
+correct Gaussian normalization, self-adjoint realization and a named target gap input.
+The optional nested lift should state exactly which sector recovers the MCMC problem.
+
+### P5 — make Hashimoto approximation and gap certification separate gates
+
+For a verified positive self-adjoint $H$, use the paper's generator $A=-H$ and bounded
+$X_\gamma=(\gamma I+H)^{-1}$ with $\|X_\gamma\|\le1/\gamma$.
+Definition 2.4 requires admissibility of $f_\gamma(z)=f(\gamma-z^{-1})$ on the
+resolvent's numerical range. Theorem 4.1 additionally needs its projected-matrix
+invertibility, real shift schedule $\gamma_j=N_s-sj>0$, and $m<N_s/s$:
+
+$$\|\phi_k(A)v-u_m\|\le2C\|v\|e^{-sm}
+\inf_{r\in\mathcal R^{SIRK}_{m-1}}\|f_{k,N_s}-r\|_{\infty,\Sigma}.$$
+
+Keep the approximation factor and finite shift budget. Complex-shift Lean results and
+the book's inversion-free polynomial shortcut require their own equivalence hypotheses;
+they are not automatically this rational approximation theorem.
+For a discrete reversible chain, $H=I-P$ is positive but $e^{-t(I-P)}$ is a
+Poissonized chain, not $P^m$. Its decay does not control eigenvalues of $P$ near $-1$;
+use lazification or a separate negative-spectrum bound.
+
+Follow softmodes S3: certify the **full** residual, including the omitted basis tail;
+distinguish compressed resolvent from inverse compressed Hamiltonian; propagate solve,
+rounding, quadrature and operator-approximation errors. A solve defect $r$ yields
+inverse-action error at most $\|r\|/\gamma$. Reference eigenvalues and small Ritz
+residuals alone do not exclude unseen modes near zero. Deflation requires the actual
+ground projection, and Temple separation must be justified independently.
+
+A finite-degree gap needs a uniform tail/coercivity and coupling estimate before it is
+a full-operator gap. `ChapterSirkDiffusiveDecay.isCoercive_compress` preserves supplied
+coercivity; it does not discover it. Strong resolvent convergence alone or convergence
+of each displayed matrix entry does not complete this exclusion.
+
+**Acceptance:** a certificate listing operator, measure, ground sector, cutoff, tail
+estimate, absolute/one-sided gap, and the complete error budget. Separate the certified
+mathematical model from the floating-point Rust transition. Empirical diagnostics still
+check whether that model and its claimed assumptions describe the run.
+
+### P6 — bind the formal result to ngpt experiments without changing the target
+
+Use ngpt §6.5.9's exact cap-law measurements to select **candidate** ranks and radii,
+not to assert a theorem about the number of informative directions. Local curvature,
+random-ray contrasts and high ESS on observed prior draws do not establish a global
+posterior-mass exclusion. The crate plan distinguishes a frozen-complement subspace
+posterior from a full posterior sampled with informed proposals; keep that distinction
+in the Lean contract. Data-dependent anchors/priors, temperature and cap conditioning
+change the statistical target and must appear in the statement.
+
+Carry ngpt §3.2's epsilon and architecture-domain hypotheses explicitly. Exact scale
+invariance and tangent-gradient identities do not automatically apply to epsilon-
+regularized tensors or stopped-gradient norm calculations. In
+`BayesianTransformer/Probability/GradientNoise.lean`,
+`sg_pcnl_noise_covariance_bound` is a deterministic norm ceiling for an assumed estimator;
+`sg_pcnl_noise_trace_bound` gives a finite-distribution trace ceiling. Neither proves
+unbiasedness of the actual loader, a sharp $1/B$ variance law or posterior invariance.
+The architecture proof's operator-norm normalization/domain also needs a bridge to the
+Rust Frobenius-normalized implementation.
+
+For an annealed schedule use its **actual** floored/clamped steps. The ideal power law
+with $1/4<\kappa\le1/2$ satisfies the stated sums on $\beta_t^2$ and $\beta_t^4$;
+a positive floor eventually changes those sums. Even if each kernel shares a target,
+product contraction needs a bound such as $\prod_t(1-\gamma_t)$ and its accumulated
+gap. If invariant laws differ, add a proved bias/perturbation term instead. A cyclical
+schedule requires another analysis, and scalar ESS/Rhat does not certify any of these.
+
+For ngpt §9's chain readout, prove predictive precision separately from posterior
+mixing and model quality. Finite-mixture Brier inflation is `tr Cov/m` for independent
+draws; correlated stationary chains need the full autocovariance sum, and nonstationary
+draws also have bias. Parameter wandering, a stable Gaussian shell, or finite gradient
+noise does not by itself imply useful predictions or calibrated decisions.
+
+**Acceptance:** a proposed `ImplementedKernelBridge.lean` hypothesis list mirrored by
+crate R0–R3 tests and manifests. Formal sampling statements stay conditional until those
+data/gradient/transition identities and the target-specific gap are supplied.
+
+### Lean reuse ledger and execution order
+
+All paths in this ledger are under `BookProof/MCMC/` unless stated otherwise.
+
+| Existing result | Status within its model | Missing bridge |
+|---|---|---|
+| `MehlerEigenfunction.mehlerOp_physHermite` | U: 1D Gaussian identity | Product `L2` operator |
+| `GegenbauerEigenvalue.pcnZonalEigen_tendsto` | U: quotient limit | Sphere operator/tail |
+| `UnadjustedPCNGap.pcn_gap_uniform` | U: defined coefficient-form bound | Gaussian kernel map |
+| `FockLangevinOperator.polyMul_mul` | U: polynomial ladder algebra | Posterior transform |
+| `FockLangevinOperator.polyDrift_band` | U: polynomial core band | Nonpolynomial/error bound |
+| `FockLangevinOperator.driftFormBound_holds` | U: constant drift bound | Actual symmetric form |
+| `GeometricErgodicity.norm_iterate_sub_invariant_le` | U: decay from gap | Concrete gap |
+| `ConvergenceTheorem.tvDist_le_half_l2` | U: density-ratio TV bound | Kernel density evolution |
+| `BayesianTransformer/` | Geometry/noise source statements | Local compile/model audit |
+
+Execute **P0 → P1 → P2 → P3** for the first end-to-end exact MH-pCN theorem.
+P4 is a separate diffusion/Fock branch; P5 consumes a verified operator and gap/tail
+input; P6 connects the selected branch to the implementation. The first deliverable is
+the Gaussian kernel/chaos bridge plus the bounded-oscillation MH benchmark, not another
+abstract wrapper that assumes the full pCNL gap.
+
+For later Lean changes use the pinned local toolchain, build the affected MCMC modules
+and audit binders/axioms. Audit the `BayesianTransformer` target separately rather than
+inheriting prose compile claims. Tests should include the three analytic diffusion
+benchmarks, Gaussian pCN moments, negative-spectrum/lazy examples and density-ratio
+normalization. Documentation checks for this revision are relative links, whitespace and
+doc-index freshness. No numerical or Lean result is newly claimed by editing this plan.
+
+## Historical architecture and implementation notes
+
+The revised work order above governs every “DONE”, convergence, symmetry and gap claim
+below. In particular the spherical/Gaussian identification, KLMN inference, omitted
+Gaussian potential, wavefunction evolution and general unadjusted-bias claims are
+superseded by P0–P6. The new polynomial and constant-coefficient Lean lemmas remain
+useful within their actual types; their existence does not discharge those bridges.
+
+The original proposal sought a linear spectral formulation of the **pCNL MCMC convergence
+theorem** using a **nested Fock-space representation**.
 
 In this setting, the MCMC transition kernel is treated as a **self-adjoint/normal linear operator** acting on a Hilbert space of densities [1.1]. The finite-dimensional spherical harmonics (Gegenbauer polynomials) diagonalize the base diffusion, and their scaling limit yields the Fock-space number states (Hermite polynomials) as verified in *Timepiece* (`PhysHSGaussian`) [1.1].
 
@@ -266,7 +614,11 @@ be restricted to the sector carried by the first `d` modes (i.e. `f` supported i
 `ℓ²` spaces reindexed along `idxEquiv`; neither is done, and both are transport rather than
 analysis.
 
-**What it buys.**  `K_drift` is symmetric and `N^{1/2}`-form-bounded with relative bound zero, so
+**Correction (2026-11-08):** the KLMN inference below is superseded by P3. The real
+constant field `creVec - annVec` is skew-symmetric; its size bound does not prove that
+its sum with `N` is self-adjoint. A transformed generator needs its own symmetric form.
+
+**Historical claim.** `K_drift` is symmetric and `N^{1/2}`-form-bounded with relative bound zero, so
 **KLMN** applies: the form `q(ψ) = ‖N^{1/2}ψ‖² + ⟪ψ, K_drift ψ⟫` is closed and bounded below on
 `Q(N^{1/2})`, hence `pcnlHamiltonian = N + K_drift` is a self-adjoint operator bounded below.  That
 is what makes §2's "linear perturbation" an operator at all, and it is independent of the
@@ -665,4 +1017,7 @@ about where the chain sits.
 
 1. **No Non-Linear Trajectory Tracking:** MCMC convergence is proven strictly through **linear algebra and functional analysis** in the nested Fock space [1.1].
 2. **Explicit Basis Functions:** The convergence rate is decomposed along the **Gegenbauer harmonics at finite $d$** and along the **Hermite/Fock number states as $d \to \infty$** [1.1].
-3. **Certified Bounds via SIRK:** Because the Langevin operator is expressed in the ladder basis $(a, a^\dagger)$, the existing *Timepiece* SIRK solver (`airma.de`) can compute **rigorous, certified interval bounds on the MCMC convergence rate $\gamma$**, replacing empirical mixing diagnostics with machine-checked mathematical proofs [1.1].
+3. **Conditional certification via SIRK:** a verified operator, tail estimate, ground
+   projection and independent spectral exclusion can support a rate certificate. Ladder
+   expansion alone does not establish those inputs or replace implementation diagnostics;
+   use P5's acceptance criteria.
