@@ -68,6 +68,19 @@ The construction is the classical shift-invert one, done in `ℝ`:
   large-time limit is the projection onto the kernel of the density;
 * `tendsto_norm_flowOfH_atTop` — the quantitative form, `‖e^{−τH}y‖ → 0` for every `y` when the
   density is a.e. strictly positive, by dominated convergence against the bound `(u x)²`;
+* `limitProjection_isOrthogonalProjectionOntoDensity` — the sharper statement, needing **no**
+  hypothesis on the density: the flow converges strongly to an orthogonal projection, multiplication
+  by the indicator of `{f = 0}` (`limitProjection`, `limitMulL2`), idempotent and self-adjoint, with
+  the subspace it projects onto identified (`limitProjection_eq_iff`: fixed exactly when the chart
+  vanishes where `f ≠ 0`; `limitProjection_eq_zero_iff` for the kernel; and the residual orthogonal
+  to the range).  `‖e^{−τH}y‖ → 0` is then the case where that kernel is negligible;
+* `hamiltonianMulModel_eq_zero_iff_limitProjection` — the projection's range is `ker H`: on the
+  domain of `H`, `H y = 0` exactly when the chart of `y` vanishes where `f ≠ 0`, i.e. exactly when
+  the limit fixes `y`;
+* `tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop` — operator-norm convergence with rate
+  `e^{−τδ}`, **given** a gap `δ > 0` above zero in the density.  Without such a gap it is false —
+  see the section header, where the essential-supremum reading of the norm produces the
+  counterexample — so strong convergence is the unconditional statement;
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
@@ -1415,6 +1428,509 @@ theorem tendsto_norm_flowOfH_atTop (D : MulModel X ν Λ T)
     intro τ
     rw [← U_flowOfH, D.U.norm_map]
   simpa [hnorm] using h
+
+/-! ### The limit is an orthogonal projection
+
+`tendsto_norm_flowOfH_atTop` said where the mass goes but wrote the limit as `0`.  The limit is
+better than that, and the better statement needs no strict positivity: `e^{−τ f x} → 1` where
+`f x = 0` and `→ 0` where `f x > 0`, so the multiplier converges pointwise to the indicator of
+`{f = 0}`, and that indicator is bounded by one, so the same dominated-convergence argument
+converges the flow *as an operator* to multiplication by it (strongly).  On `ℋ` this is
+`limitProjection`, and it is an orthogonal projection — idempotent and self-adjoint — which is the
+precise sense in which the large-time limit is "the projection onto the kernel of the density".
+`tendsto_norm_flowOfH_atTop` is then the case where `{f = 0}` is negligible and the projection is
+`0`. -/
+
+/-- **The indicator of the kernel of the density is essentially bounded.** -/
+theorem memLp_kernelIndicator (D : MulModel X ν Λ T) :
+    MemLp (fun x => if D.f x = 0 then (1 : ℝ) else 0) (⊤ : ℝ≥0∞) ν := by
+  refine memLp_top_of_bound ?_ 1 ?_
+  · exact (Measurable.ite (D.hf (measurableSet_singleton 0)) measurable_const
+      measurable_const).aestronglyMeasurable
+  · filter_upwards with x
+    split_ifs <;> simp
+
+/-- The indicator class of `{f = 0}`, as an element of `L^∞(ν)`. -/
+noncomputable def kernelIndicator (D : MulModel X ν Λ T) : Lp ℝ (⊤ : ℝ≥0∞) ν :=
+  (memLp_kernelIndicator D).toLp _
+
+/-- The indicator class is the indicator function. -/
+theorem kernelIndicator_coeFn (D : MulModel X ν Λ T) :
+    (kernelIndicator D : X → ℝ) =ᵐ[ν] fun x => if D.f x = 0 then (1 : ℝ) else 0 :=
+  MemLp.coeFn_toLp _
+
+/-- The indicator is bounded by one. -/
+theorem norm_kernelIndicator_le_one (D : MulModel X ν Λ T) :
+    ∀ᵐ x ∂ν, ‖(kernelIndicator D : X → ℝ) x‖ ≤ 1 := by
+  filter_upwards [kernelIndicator_coeFn D] with x hx
+  rw [hx]
+  split_ifs <;> simp
+
+/-- **The limit operator on `L²(ν)`**: multiplication by the indicator of `{f = 0}`. -/
+noncomputable def limitMulL2 (D : MulModel X ν Λ T) : Lp ℝ 2 ν →L[ℝ] Lp ℝ 2 ν :=
+  mulL2 (kernelIndicator D)
+
+/-- The limit operator acts pointwise by the indicator. -/
+theorem limitMulL2_coeFn (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    (limitMulL2 D u : X → ℝ) =ᵐ[ν]
+      fun x => (if D.f x = 0 then (1 : ℝ) else 0) * (u : X → ℝ) x := by
+  refine (mulL2_coeFn (kernelIndicator D) u).trans ?_
+  filter_upwards [kernelIndicator_coeFn D] with x hx
+  rw [hx]
+
+/-- The limit operator is contractive. -/
+theorem limitMulL2_contractive (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    ‖limitMulL2 D u‖ ≤ ‖u‖ :=
+  mulL2_contractive (kernelIndicator D) (norm_kernelIndicator_le_one D) u
+
+/-- **The multiplier approaches the indicator of `{f = 0}`, uniformly in `x`.**  Where `f x = 0` the
+multiplier is `1` at every time and the indicator is `1`; where `f x > 0` the multiplier decays to
+`0` and the indicator is `0`.  The difference therefore lies in `[−1, 1]` always, which is the
+bound that makes the dominated convergence in the next theorem work. -/
+theorem abs_exp_neg_sub_kernelIndicator_le_one (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ)
+    {x : X} (hfx : 0 ≤ D.f x) :
+    |Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0)| ≤ 1 := by
+  have he0 : 0 ≤ Real.exp (-(τ * D.f x)) := (Real.exp_pos _).le
+  have he1 : Real.exp (-(τ * D.f x)) ≤ 1 := by
+    rw [← Real.exp_zero]
+    exact Real.exp_le_exp.2 (by linarith [mul_nonneg hτ hfx])
+  by_cases h : D.f x = 0
+  · rw [if_pos h, h]
+    simp
+  · rw [if_neg h, sub_zero, abs_of_nonneg he0]
+    exact he1
+
+/-- **The flow converges to the projection in `L²`**, without any strict-positivity hypothesis: the
+limit is the indicator of the kernel of the density in general. -/
+theorem tendsto_norm_sq_expFlow_sub_limitMulL2_atTop (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    Tendsto (fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖ ^ 2)
+      atTop (𝓝 0) := by
+  have hInt : Integrable (fun x => (u : X → ℝ) x ^ 2) ν := MemLp.integrable_sq (Lp.memLp u)
+  have hF_meas : ∀ᶠ τ in atTop, AEStronglyMeasurable
+      (fun x => ((Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0))
+        * (u : X → ℝ) x) ^ 2) ν :=
+    Eventually.of_forall fun τ =>
+      ((((measurable_const.mul D.hf).neg.exp.sub
+        (Measurable.ite (D.hf (measurableSet_singleton 0)) measurable_const
+          measurable_const)).aestronglyMeasurable.mul
+        (Lp.aestronglyMeasurable u))).pow 2
+  have h_bound : ∀ᶠ τ in atTop, ∀ᵐ x ∂ν,
+      ‖((Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0))
+        * (u : X → ℝ) x) ^ 2‖ ≤ (u : X → ℝ) x ^ 2 := by
+    filter_upwards [Ici_mem_atTop (0 : ℝ)] with τ hτ
+    filter_upwards [D.hpos] with x hfx
+    have hτ0 : 0 ≤ τ := hτ
+    have habs := abs_exp_neg_sub_kernelIndicator_le_one D hτ0 hfx
+    have hsq1 : (Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0)) ^ 2 ≤ 1 := by
+      rw [← sq_abs]
+      exact pow_le_one₀ (abs_nonneg _) habs
+    rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
+    have hsplit : ((Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0))
+        * (u : X → ℝ) x) ^ 2
+        = (Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0)) ^ 2
+          * (u : X → ℝ) x ^ 2 := by ring
+    rw [hsplit]
+    calc (Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0)) ^ 2
+          * (u : X → ℝ) x ^ 2
+        ≤ 1 * (u : X → ℝ) x ^ 2 := by
+          simpa using mul_le_of_le_one_left (sq_nonneg ((u : X → ℝ) x)) hsq1
+      _ = (u : X → ℝ) x ^ 2 := one_mul _
+  have h_lim : ∀ᵐ x ∂ν, Tendsto (fun τ : ℝ =>
+      ((Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0))
+        * (u : X → ℝ) x) ^ 2) atTop (𝓝 0) := by
+    filter_upwards [D.hpos] with x hfx
+    by_cases h : D.f x = 0
+    · rw [if_pos h, h]
+      simp
+    · rw [if_neg h]
+      have hposx : 0 < D.f x := lt_of_le_of_ne hfx (Ne.symm h)
+      simpa using (tendsto_expFlow_mul_atTop D u hposx).pow 2
+  have hint : Tendsto (fun τ : ℝ => ∫ x, ((Real.exp (-(τ * D.f x))
+      - (if D.f x = 0 then (1 : ℝ) else 0)) * (u : X → ℝ) x) ^ 2 ∂ν) atTop (𝓝 0) := by
+    have h := tendsto_integral_filter_of_dominated_convergence (μ := ν) (l := atTop)
+      (f := fun _ => (0 : ℝ)) (fun x => (u : X → ℝ) x ^ 2) hF_meas h_bound hInt h_lim
+    simpa using h
+  have hsq : ∀ᶠ τ in atTop, ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖ ^ 2
+      = ∫ x, ((Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0))
+          * (u : X → ℝ) x) ^ 2 ∂ν := by
+    filter_upwards [Ici_mem_atTop (0 : ℝ)] with τ hτ
+    rw [norm_sq_eq_integral]
+    refine integral_congr_ae ?_
+    filter_upwards [expFlow_coeFn D.hf D.hpos hτ u, limitMulL2_coeFn D u,
+      Lp.coeFn_sub (expFlow D.f D.hf D.hpos τ u) (limitMulL2 D u)] with x h1 h2 h3
+    rw [h3, Pi.sub_apply, h1, h2, ← sub_mul]
+  exact hint.congr' (hsq.mono fun _ h => h.symm)
+
+/-- The same in norm form. -/
+theorem tendsto_norm_expFlow_sub_limitMulL2_atTop (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    Tendsto (fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖) atTop (𝓝 0) := by
+  have h2 := tendsto_norm_sq_expFlow_sub_limitMulL2_atTop D u
+  have hsqrt : Tendsto (fun τ : ℝ =>
+      Real.sqrt (‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖ ^ 2))
+      atTop (𝓝 (Real.sqrt 0)) :=
+    Real.continuous_sqrt.continuousAt.tendsto.comp h2
+  have hfun : (fun τ : ℝ =>
+      Real.sqrt (‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖ ^ 2))
+      = fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖ := by
+    funext τ
+    exact Real.sqrt_sq (norm_nonneg _)
+  rw [hfun] at hsqrt
+  simpa using hsqrt
+
+/-- The limit operator is idempotent: the indicator of `{f = 0}` is a projection. -/
+theorem limitMulL2_idem (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    limitMulL2 D (limitMulL2 D u) = limitMulL2 D u := by
+  refine Lp.ext ?_
+  filter_upwards [limitMulL2_coeFn D (limitMulL2 D u), limitMulL2_coeFn D u] with x h1 h2
+  rw [h1, h2]
+  by_cases h : D.f x = 0 <;> simp [h]
+
+/-- **The large-time limit operator on `ℋ`**: the limit of the flow, conjugated by the bridge. -/
+noncomputable def limitProjection (D : MulModel X ν Λ T) : Hphys Λ →L[ℝ] Hphys Λ :=
+  LinearMap.mkContinuous
+    { toFun := fun x => D.bridge.toIsometryEquiv.symm (limitMulL2 D (D.U x))
+      map_add' := by intro x y; simp only [map_add]
+      map_smul' := by intro c x; simp }
+    1 (by
+      intro x
+      calc ‖D.bridge.toIsometryEquiv.symm (limitMulL2 D (D.U x))‖
+          = ‖limitMulL2 D (D.U x)‖ := by simp
+        _ ≤ ‖D.U x‖ := limitMulL2_contractive D (D.U x)
+        _ = ‖x‖ := D.U.norm_map x
+        _ = 1 * ‖x‖ := (one_mul _).symm)
+
+/-- The defining property: `U` intertwines the limit operator with the indicator. -/
+theorem U_limitProjection (D : MulModel X ν Λ T) (x : Hphys Λ) :
+    D.U (limitProjection D x) = limitMulL2 D (D.U x) :=
+  D.bridge.apply_toIsometryEquiv_symm_apply _
+
+/-- **The flow converges strongly to the limit operator on `ℋ`.**  The statement needs no
+hypothesis on the density: the limit is the projection onto `{f = 0}`, whatever that set is. -/
+theorem tendsto_flowOfHCLM_atTop (D : MulModel X ν Λ T) (y : Hphys Λ) :
+    Tendsto (fun τ : ℝ => flowOfHCLM D τ y) atTop (𝓝 (limitProjection D y)) := by
+  have hnorm : Tendsto (fun τ : ℝ => ‖flowOfHCLM D τ y - limitProjection D y‖)
+      atTop (𝓝 0) := by
+    have h := tendsto_norm_expFlow_sub_limitMulL2_atTop D (D.U y)
+    have hdiff : ∀ τ : ℝ, ‖flowOfH D τ y - limitProjection D y‖
+        = ‖expFlow D.f D.hf D.hpos τ (D.U y) - limitMulL2 D (D.U y)‖ := by
+      intro τ
+      rw [← D.U.norm_map (flowOfH D τ y - limitProjection D y), map_sub, U_flowOfH,
+        U_limitProjection]
+    simpa [hdiff] using h
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  exact hnorm
+
+/-- **The limit operator is self-adjoint** — the indicator is real, so the same symmetry argument
+that gives `isSelfAdjoint_flowOfHCLM` applies. -/
+theorem isSelfAdjoint_limitProjection (D : MulModel X ν Λ T) :
+    IsSelfAdjoint (limitProjection D) := by
+  refine LinearMap.IsSymmetric.isSelfAdjoint fun x y => ?_
+  calc ⟪limitProjection D x, y⟫ = ⟪D.U (limitProjection D x), D.U y⟫ :=
+        (D.U.inner_map_map _ _).symm
+    _ = ⟪limitMulL2 D (D.U x), D.U y⟫ := by rw [U_limitProjection]
+    _ = ⟪D.U x, limitMulL2 D (D.U y)⟫ := inner_mulL2_comm (kernelIndicator D) _ _
+    _ = ⟪D.U x, D.U (limitProjection D y)⟫ := by rw [U_limitProjection]
+    _ = ⟪x, limitProjection D y⟫ := D.U.inner_map_map _ _
+
+/-- **The limit operator is idempotent**, read through the bridge from `limitMulL2_idem`. -/
+theorem limitProjection_idem (D : MulModel X ν Λ T) (y : Hphys Λ) :
+    limitProjection D (limitProjection D y) = limitProjection D y := by
+  refine D.U.injective ?_
+  rw [U_limitProjection, U_limitProjection, limitMulL2_idem]
+
+/-- **The large-time limit is an orthogonal projection.**  It is self-adjoint and idempotent, and it
+is the strong limit of the flow, so the flow's large-time behaviour is exactly the projection onto
+the kernel of the Hamiltonian density. -/
+theorem limitProjection_isOrthogonalProjection (D : MulModel X ν Λ T) :
+    IsSelfAdjoint (limitProjection D) ∧
+      (∀ y : Hphys Λ, limitProjection D (limitProjection D y) = limitProjection D y) ∧
+      (∀ y : Hphys Λ, Tendsto (fun τ : ℝ => flowOfHCLM D τ y) atTop (𝓝 (limitProjection D y))) :=
+  ⟨isSelfAdjoint_limitProjection D, limitProjection_idem D, tendsto_flowOfHCLM_atTop D⟩
+
+/-! ### Which subspace it projects onto
+
+Self-adjoint and idempotent do not yet say *where* the projection lands.  The chart identifies it:
+a vector is fixed by the flow exactly when its chart vanishes where the density does not
+(`limitProjection_eq_iff`), and is killed exactly when its chart vanishes where the density does
+(`limitProjection_eq_zero_iff`).  The residual is orthogonal to the range
+(`inner_sub_limitProjection_limitProjection`), so the two subspaces are orthogonal complements —
+which is what "the orthogonal projection onto the kernel of the density" means. -/
+
+/-- **The fixed points of the limit are the vectors living on `{f = 0}`.**  On the chart the
+projection is multiplication by the indicator of `{f = 0}`, so it fixes `y` exactly when `U y`
+vanishes where the density is nonzero. -/
+theorem limitProjection_eq_iff (D : MulModel X ν Λ T) (y : Hphys Λ) :
+    limitProjection D y = y ↔ ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U y : X → ℝ) x = 0 := by
+  constructor
+  · intro h
+    have h2 : D.U y = limitMulL2 D (D.U y) := by
+      calc D.U y = D.U (limitProjection D y) := (congrArg D.U h).symm
+        _ = limitMulL2 D (D.U y) := U_limitProjection D y
+    have hcoe : (D.U y : X → ℝ) =ᵐ[ν]
+        fun x => (if D.f x = 0 then (1 : ℝ) else 0) * (D.U y : X → ℝ) x := by
+      have h3 := limitMulL2_coeFn D (D.U y)
+      rw [← h2] at h3
+      exact h3
+    filter_upwards [hcoe] with x hx hfx
+    rw [hx, if_neg hfx, zero_mul]
+  · intro h
+    refine D.U.injective ?_
+    rw [U_limitProjection]
+    refine Lp.ext ?_
+    filter_upwards [limitMulL2_coeFn D (D.U y), h] with x hx hy
+    rw [hx]
+    by_cases hf0 : D.f x = 0
+    · rw [if_pos hf0, one_mul]
+    · rw [if_neg hf0, zero_mul]
+      exact (hy hf0).symm
+
+/-- **The kernel of the limit is the part of `ℋ` living on `{f > 0}`.**  The projection kills `y`
+exactly when `U y` vanishes where the density is zero. -/
+theorem limitProjection_eq_zero_iff (D : MulModel X ν Λ T) (y : Hphys Λ) :
+    limitProjection D y = 0 ↔ ∀ᵐ x ∂ν, D.f x = 0 → (D.U y : X → ℝ) x = 0 := by
+  constructor
+  · intro h
+    have hU : limitMulL2 D (D.U y) = (0 : Lp ℝ 2 ν) := by
+      rw [← U_limitProjection, h, map_zero]
+    have hcoe : (fun x => (if D.f x = 0 then (1 : ℝ) else 0) * (D.U y : X → ℝ) x)
+        =ᵐ[ν] fun _ => (0 : ℝ) := by
+      have h1 := limitMulL2_coeFn D (D.U y)
+      rw [hU] at h1
+      simpa using h1.symm.trans (Lp.coeFn_zero (μ := ν) (p := 2) (E := ℝ))
+    filter_upwards [hcoe] with x hx hf0
+    rw [hf0, if_pos rfl, one_mul] at hx
+    exact hx
+  · intro h
+    refine D.U.injective ?_
+    rw [U_limitProjection, map_zero]
+    refine Lp.ext ?_
+    filter_upwards [limitMulL2_coeFn D (D.U y), h,
+      Lp.coeFn_zero (μ := ν) (p := 2) (E := ℝ)] with x hx hy hz
+    rw [hx, hz, Pi.zero_apply]
+    by_cases hf0 : D.f x = 0
+    · rw [if_pos hf0, one_mul]
+      exact hy hf0
+    · rw [if_neg hf0, zero_mul]
+
+/-- **The residual is orthogonal to the range.**  On the chart the residual is multiplication by
+`1 − 1_{f = 0}`, i.e. by the indicator of `{f ≠ 0}`, and the projection's value is multiplication by
+`1_{f = 0}`, so their pointwise product vanishes. -/
+theorem inner_sub_limitProjection_limitProjection (D : MulModel X ν Λ T) (y z : Hphys Λ) :
+    ⟪y - limitProjection D y, limitProjection D z⟫ = 0 := by
+  rw [← D.U.inner_map_map (y - limitProjection D y) (limitProjection D z)]
+  have hres : D.U (y - limitProjection D y) = D.U y - limitMulL2 D (D.U y) := by
+    rw [map_sub, U_limitProjection]
+  have hcoe1 : (D.U (y - limitProjection D y) : X → ℝ) =ᵐ[ν]
+      fun x => (if D.f x = 0 then (0 : ℝ) else 1) * (D.U y : X → ℝ) x := by
+    rw [hres]
+    filter_upwards [Lp.coeFn_sub (D.U y) (limitMulL2 D (D.U y)),
+      limitMulL2_coeFn D (D.U y)] with x hx hy
+    rw [hx, Pi.sub_apply, hy]
+    by_cases h : D.f x = 0 <;> simp [h]
+  have hcoe2 : (D.U (limitProjection D z) : X → ℝ) =ᵐ[ν]
+      fun x => (if D.f x = 0 then (1 : ℝ) else 0) * (D.U z : X → ℝ) x := by
+    rw [U_limitProjection]
+    exact limitMulL2_coeFn D (D.U z)
+  rw [L2.inner_def]
+  refine integral_eq_zero_of_ae ?_
+  filter_upwards [hcoe1, hcoe2] with x hx hy
+  rw [hx, hy]
+  by_cases h : D.f x = 0 <;> simp [h]
+
+/-- **Range and kernel are orthogonal.**  Read on the chart: a vector in the range vanishes where
+`f ≠ 0`, one in the kernel vanishes where `f = 0`, so the pointwise product is zero everywhere. -/
+theorem inner_limitProjection_ker (D : MulModel X ν Λ T) {y z : Hphys Λ}
+    (hy : limitProjection D y = y) (hz : limitProjection D z = 0) : ⟪y, z⟫ = 0 := by
+  have hy' := (limitProjection_eq_iff D y).mp hy
+  have hz' := (limitProjection_eq_zero_iff D z).mp hz
+  rw [← D.U.inner_map_map y z, L2.inner_def]
+  refine integral_eq_zero_of_ae ?_
+  filter_upwards [hy', hz'] with x h1 h2
+  by_cases h : D.f x = 0
+  · rw [h2 h]
+    simp
+  · rw [h1 h]
+    simp
+
+/-- **The range of the limit is the part of `ℋ` living on the kernel of the density.** -/
+theorem range_limitProjection (D : MulModel X ν Λ T) :
+    Set.range (limitProjection D) = {y | ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U y : X → ℝ) x = 0} := by
+  ext y
+  constructor
+  · rintro ⟨z, rfl⟩
+    exact (limitProjection_eq_iff D (limitProjection D z)).mp (limitProjection_idem D z)
+  · intro hy
+    exact ⟨y, (limitProjection_eq_iff D y).mpr hy⟩
+
+/-- **The kernel of the limit**, as a submodule. -/
+theorem mem_ker_limitProjection (D : MulModel X ν Λ T) (y : Hphys Λ) :
+    y ∈ LinearMap.ker (limitProjection D : Hphys Λ →ₗ[ℝ] Hphys Λ) ↔
+      ∀ᵐ x ∂ν, D.f x = 0 → (D.U y : X → ℝ) x = 0 := by
+  rw [LinearMap.mem_ker]
+  exact limitProjection_eq_zero_iff D y
+
+/-- **The residual lies in the kernel**, so every vector decomposes as `limitProjection D y` plus a
+kernel vector: the two subspaces give `ℋ` as an orthogonal direct sum. -/
+theorem residual_mem_ker_limitProjection (D : MulModel X ν Λ T) (y : Hphys Λ) :
+    y - limitProjection D y ∈ LinearMap.ker (limitProjection D : Hphys Λ →ₗ[ℝ] Hphys Λ) := by
+  rw [mem_ker_limitProjection]
+  have hres : D.U (y - limitProjection D y) = D.U y - limitMulL2 D (D.U y) := by
+    rw [map_sub, U_limitProjection]
+  filter_upwards [limitMulL2_coeFn D (D.U y),
+    Lp.coeFn_sub (D.U y) (limitMulL2 D (D.U y))] with x h1 h2 hfx
+  rw [hres, h2, Pi.sub_apply, h1, if_pos hfx, one_mul, sub_self]
+
+/-- **`mulImage` vanishes exactly on charts that vanish where the density is nonzero.** -/
+theorem mulImage_eq_zero_iff (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam) (a : Hphys Λ) :
+    mulImage D hlam a = 0 ↔
+      ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U (resolventMulModel D hlam a) : X → ℝ) x = 0 := by
+  constructor
+  · intro h
+    have hcoe : (fun x => D.f x * resolventFun D lam x * (D.U a : X → ℝ) x)
+        =ᵐ[ν] fun _ => (0 : ℝ) := by
+      have h1 := mulImage_coeFn D hlam a
+      rw [h] at h1
+      exact h1.symm.trans (Lp.coeFn_zero (μ := ν) (p := 2) (E := ℝ))
+    filter_upwards [hcoe, resolventMulModel_coeFn D hlam a] with x hx hr hfx
+    rw [hr]
+    rcases mul_eq_zero.mp hx with h1 | h1
+    · rcases mul_eq_zero.mp h1 with h2 | h2
+      · exact absurd h2 hfx
+      · rw [h2, zero_mul]
+    · rw [h1, mul_zero]
+  · intro h
+    have hprod : (fun x => D.f x * (D.U (resolventMulModel D hlam a) : X → ℝ) x)
+        =ᵐ[ν] fun _ => (0 : ℝ) := by
+      filter_upwards [h] with x hx
+      by_cases hfx : D.f x = 0
+      · rw [hfx, zero_mul]
+      · rw [hx hfx, mul_zero]
+    refine Lp.ext ?_
+    filter_upwards [mulImage_coeFn D hlam a, resolventMulModel_coeFn D hlam a, hprod,
+      Lp.coeFn_zero (μ := ν) (p := 2) (E := ℝ)] with x hm hr hp h0
+    rw [hm, mul_assoc, ← hr, hp, h0]
+    rfl
+
+/-- **The kernel of `H` is the kernel of the density**: a domain vector `R a` is annihilated by `H`
+exactly when its chart vanishes where the density is nonzero.  This is `H = f` on the chart read at
+zero: `U (H (R a)) = f · U (R a)`. -/
+theorem hamiltonianMulModel_eq_zero_iff (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam)
+    (a : Hphys Λ) (ha : resolventMulModel D hlam a ∈ (hamiltonianMulModel D hlam).domain) :
+    hamiltonianMulModel D hlam ⟨resolventMulModel D hlam a, ha⟩ = 0 ↔
+      ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U (resolventMulModel D hlam a) : X → ℝ) x = 0 := by
+  rw [← mulImage_eq_zero_iff D hlam a]
+  constructor
+  · intro h
+    rw [← hamiltonianMulModel_image D hlam a ha, h, map_zero]
+  · intro h
+    refine D.U.injective ?_
+    rw [hamiltonianMulModel_image D hlam a ha, h, map_zero]
+
+/-- **The range of the projection is `ker H`**: on the domain of `H`, being annihilated by `H` is
+the same as being fixed by the large-time limit.  So the subspace the flow projects onto is
+exactly the kernel of the Hamiltonian. -/
+theorem hamiltonianMulModel_eq_zero_iff_limitProjection (D : MulModel X ν Λ T) {lam : ℝ}
+    (hlam : 0 < lam) (a : Hphys Λ)
+    (ha : resolventMulModel D hlam a ∈ (hamiltonianMulModel D hlam).domain) :
+    hamiltonianMulModel D hlam ⟨resolventMulModel D hlam a, ha⟩ = 0 ↔
+      limitProjection D (resolventMulModel D hlam a) = resolventMulModel D hlam a :=
+  (hamiltonianMulModel_eq_zero_iff D hlam a ha).trans (limitProjection_eq_iff D _).symm
+
+/-! ### Operator-norm convergence needs a spectral gap
+
+Strong convergence (`tendsto_flowOfHCLM_atTop`) does **not** upgrade to operator-norm convergence
+without a hypothesis, and it is worth saying exactly why, because the naive statement is false.
+
+The operator under consideration is multiplication by `g_τ = e^{−τ f} − 1_{f = 0}`, whose operator
+norm is the essential supremum of `|g_τ|`.  If `f` has no gap above zero — say `ν` is Lebesgue
+measure on `(0, 1)` and `f x = x` — then for every `τ` the multiplier is `≥ e^{−τ ε}` on the set
+`{f < ε}` of positive measure, so testing against vectors supported there gives
+`‖e^{−τH} − P‖ ≥ e^{−τ ε}` for every `ε > 0`, hence `‖e^{−τH} − P‖ = 1` for all `τ`, while still
+`e^{−τH} y → P y` strongly for every `y`.
+
+What *does* give operator-norm convergence, with a rate, is a gap: if `f` is bounded below by
+`δ > 0` away from its zero set, then `|g_τ| ≤ e^{−τ δ}` everywhere, and the norm estimate
+`‖e^{−τH} − P‖ ≤ e^{−τ δ}` follows from the pointwise one (`Lp.norm_le_norm_of_ae_le`).  So this
+section proves the conditional statement `tendsto_flowOfHCLM_opNorm_atTop` and leaves the
+unconditional one alone: it is not a gap in the proof but a false statement. -/
+
+/-- **Pointwise `L²` estimate with rate**: a gap `δ` above zero bounds the flow's deviation from the
+projection by `e^{−τδ}` on the chart, hence in norm on every vector. -/
+theorem norm_flowOfHCLM_sub_limitProjection_le (D : MulModel X ν Λ T) {δ : ℝ}
+    (hgap : ∀ᵐ x ∂ν, D.f x ≠ 0 → δ ≤ D.f x) {τ : ℝ} (hτ : 0 ≤ τ) (y : Hphys Λ) :
+    ‖flowOfHCLM D τ y - limitProjection D y‖ ≤ Real.exp (-(τ * δ)) * ‖y‖ := by
+  have hdiff : ‖flowOfHCLM D τ y - limitProjection D y‖
+      = ‖expFlow D.f D.hf D.hpos τ (D.U y) - limitMulL2 D (D.U y)‖ := by
+    rw [← D.U.norm_map (flowOfHCLM D τ y - limitProjection D y), map_sub, flowOfHCLM_apply,
+      U_flowOfH, U_limitProjection]
+  rw [hdiff]
+  have hle : ‖expFlow D.f D.hf D.hpos τ (D.U y) - limitMulL2 D (D.U y)‖
+      ≤ ‖Real.exp (-(τ * δ)) • (D.U y)‖ := by
+    refine Lp.norm_le_norm_of_ae_le ?_
+    filter_upwards [expFlow_coeFn D.hf D.hpos hτ (D.U y), limitMulL2_coeFn D (D.U y),
+      Lp.coeFn_sub (expFlow D.f D.hf D.hpos τ (D.U y)) (limitMulL2 D (D.U y)),
+      Lp.coeFn_smul (Real.exp (-(τ * δ))) (D.U y), hgap] with x h1 h2 h3 h4 hg
+    rw [h3, Pi.sub_apply, h1, h2, ← sub_mul, h4, Pi.smul_apply, norm_mul, norm_smul]
+    refine mul_le_mul_of_nonneg_right ?_ (norm_nonneg _)
+    rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le]
+    by_cases hfx : D.f x = 0
+    · rw [hfx]
+      simpa using (Real.exp_pos (-(τ * δ))).le
+    · rw [if_neg hfx, sub_zero, abs_of_nonneg (Real.exp_nonneg _)]
+      refine Real.exp_le_exp.2 ?_
+      have hle : τ * δ ≤ τ * D.f x := mul_le_mul_of_nonneg_left (hg hfx) hτ
+      linarith
+  calc ‖expFlow D.f D.hf D.hpos τ (D.U y) - limitMulL2 D (D.U y)‖
+      ≤ ‖Real.exp (-(τ * δ)) • (D.U y)‖ := hle
+    _ = Real.exp (-(τ * δ)) * ‖y‖ := by
+        rw [norm_smul, Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le, D.U.norm_map]
+
+/-- **Operator-norm estimate with rate `e^{−τδ}`.** -/
+theorem norm_flowOfHCLM_sub_limitProjection (D : MulModel X ν Λ T) {δ : ℝ}
+    (hgap : ∀ᵐ x ∂ν, D.f x ≠ 0 → δ ≤ D.f x) {τ : ℝ} (hτ : 0 ≤ τ) :
+    ‖flowOfHCLM D τ - limitProjection D‖ ≤ Real.exp (-(τ * δ)) := by
+  refine ContinuousLinearMap.opNorm_le_bound _ (Real.exp_pos _).le fun y => ?_
+  exact norm_flowOfHCLM_sub_limitProjection_le D hgap hτ y
+
+/-- **The flow converges to the projection in operator norm**, given a spectral gap `δ` above zero
+in the density.  Without the gap the statement is false (see the section header). -/
+theorem tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop (D : MulModel X ν Λ T) {δ : ℝ}
+    (hδ : 0 < δ) (hgap : ∀ᵐ x ∂ν, D.f x ≠ 0 → δ ≤ D.f x) :
+    Tendsto (fun τ : ℝ => ‖flowOfHCLM D τ - limitProjection D‖) atTop (𝓝 0) := by
+  have hexp : Tendsto (fun τ : ℝ => Real.exp (-(τ * δ))) atTop (𝓝 0) := by
+    have hneg : Tendsto (fun τ : ℝ => -(τ * δ)) atTop atBot := by
+      have h1 : Tendsto (fun τ : ℝ => τ * (-δ)) atTop atBot :=
+        tendsto_id.atTop_mul_const_of_neg' (by linarith)
+      simpa [mul_neg] using h1
+    simpa [Function.comp_def] using Real.tendsto_exp_atBot.comp hneg
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hexp
+    (Eventually.of_forall fun τ =>
+      ContinuousLinearMap.opNorm_nonneg (flowOfHCLM D τ - limitProjection D)) ?_
+  filter_upwards [Ici_mem_atTop (0 : ℝ)] with τ hτ
+  exact norm_flowOfHCLM_sub_limitProjection D hgap hτ
+
+/-- **The large-time limit is the orthogonal projection onto the kernel of the density.**  The
+operator statement: the flow converges strongly to `limitProjection`, which is self-adjoint and
+idempotent, is the identity exactly on the vectors whose chart lives on `{f = 0}`, is zero exactly
+on those whose chart lives on `{f ≠ 0}`, and whose residual is orthogonal to its range.  So the
+asymptotic state of any vector is its part supported where the Hamiltonian density vanishes, and
+nothing else survives. -/
+theorem limitProjection_isOrthogonalProjectionOntoDensity (D : MulModel X ν Λ T) :
+    IsSelfAdjoint (limitProjection D) ∧
+      (∀ y : Hphys Λ, limitProjection D (limitProjection D y) = limitProjection D y) ∧
+      (∀ y : Hphys Λ, Tendsto (fun τ : ℝ => flowOfHCLM D τ y) atTop (𝓝 (limitProjection D y))) ∧
+      (∀ y : Hphys Λ, limitProjection D y = y ↔
+        ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U y : X → ℝ) x = 0) ∧
+      (∀ y : Hphys Λ, limitProjection D y = 0 ↔
+        ∀ᵐ x ∂ν, D.f x = 0 → (D.U y : X → ℝ) x = 0) ∧
+      (∀ y z : Hphys Λ, limitProjection D y = 0 → limitProjection D z = z → ⟪y, z⟫ = 0) ∧
+      Set.range (limitProjection D) = {y | ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U y : X → ℝ) x = 0} :=
+  ⟨isSelfAdjoint_limitProjection D, limitProjection_idem D, tendsto_flowOfHCLM_atTop D,
+    limitProjection_eq_iff D, limitProjection_eq_zero_iff D,
+    fun _ _ hy hz => by
+      rw [real_inner_comm _ _]
+      exact inner_limitProjection_ker D hz hy,
+    range_limitProjection D⟩
 
 end
 

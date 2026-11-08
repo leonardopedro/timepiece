@@ -1366,6 +1366,53 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     (`expFlow_apply_of_f_eq_zero`), so a density vanishing on a set of positive measure leaves a
     nonzero part in the limit and the norm cannot tend to `0`.
 
+    That caveat points at the sharper statement, which needs no hypothesis on the density at all:
+    the flow's limit is the *projection* rather than `0`.  Pointwise, `e^{−τ f x} → 1` where
+    `f x = 0` and `→ 0` where `f x > 0`, so the multiplier converges to the indicator of
+    `{f = 0}`, and that indicator is bounded by one, so dominated convergence applies to the
+    differences too — with the same bound `(u x)²`, since `|e^{−τ f x} − 1_{f = 0}| ≤ 1`
+    (`abs_exp_neg_sub_kernelIndicator_le_one`).  Thus `‖expFlow τ u − limitMulL2 D u‖ → 0`
+    (`tendsto_norm_expFlow_sub_limitMulL2_atTop`), where `limitMulL2` is multiplication by the
+    indicator class (`kernelIndicator`).  On `ℋ` the same gives
+    `tendsto_flowOfHCLM_atTop : flowOfHCLM D τ y → limitProjection D y`, and `limitProjection` is
+    an **orthogonal projection**: idempotent (`limitProjection_idem`, from the indicator's `w² = w`)
+    and self-adjoint (`isSelfAdjoint_limitProjection`, the same symmetry argument as the flow, via
+    `inner_mulL2_comm`), bundled in `limitProjection_isOrthogonalProjection`.  So the large-time
+    limit *is* the projection onto the kernel of the density, and the `‖·‖ → 0` statement is its
+    special case where that kernel is negligible.
+
+    Self-adjoint plus idempotent does not by itself say *which* subspace is projected onto, so the
+    next step identifies it on the chart.  `limitProjection_eq_iff` says `limitProjection D y = y`
+    exactly when `U y` vanishes where `f ≠ 0` — the vectors living on the kernel of the density —
+    and `limitProjection_eq_zero_iff` says `limitProjection D y = 0` exactly when `U y` vanishes
+    where `f = 0`, so the kernel is the complementary part of `ℋ`.  The residual is orthogonal to
+    the range (`inner_sub_limitProjection_limitProjection`: on the chart the residual carries
+    `1_{f ≠ 0}` and the projection `1_{f = 0}`, so the pointwise product is zero), hence range and
+    kernel are orthogonal (`inner_limitProjection_ker`), and the range is characterised as a set in
+    `range_limitProjection` with the kernel in `mem_ker_limitProjection`; the residual is itself a
+    kernel vector (`residual_mem_ker_limitProjection`), so every vector splits as
+    `limitProjection D y` plus a kernel vector — an orthogonal direct sum.
+    `limitProjection_isOrthogonalProjectionOntoDensity` bundles the whole operator statement: the
+    flow converges strongly to the orthogonal projection onto the part of `ℋ` supported where the
+    Hamiltonian density vanishes.
+
+    That subspace is literally `ker H`.  `H` is multiplication by `f` on the chart,
+    `U (H (R a)) = f · U (R a)` (`hamiltonianMulModel_image`), so `mulImage_eq_zero_iff` turns
+    `H (R a) = 0` into the a.e. condition that `U (R a)` vanish where `f ≠ 0`
+    (`hamiltonianMulModel_eq_zero_iff`), which by `limitProjection_eq_iff` is exactly the fixed
+    space of the limit (`hamiltonianMulModel_eq_zero_iff_limitProjection`).  So the flow's
+    asymptotic state is the `ker H` component, and the `‖·‖ → 0` statement is the case `ker H = 0`.
+
+    Operator-norm convergence is a different matter and needed a correction: it holds with rate
+    `e^{−τδ}` when the density has a gap `δ > 0` above zero
+    (`norm_flowOfHCLM_sub_limitProjection`, `tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop`),
+    but it is **false** without a gap.  The norm of multiplication by `g_τ = e^{−τf} − 1_{f = 0}` is
+    the essential supremum of `|g_τ|`, and a density with values arbitrarily close to zero —
+    Lebesgue measure on `(0, 1)` with `f x = x`, for instance — keeps `|g_τ|` at `1` on sets of
+    positive measure for every `τ`, so `‖e^{−τH} − P‖ = 1` for all `τ` while `e^{−τH} → P` still
+    holds strongly.  The section header records this, so the corpus does not claim an
+    unconditional operator-norm limit it cannot have.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the
