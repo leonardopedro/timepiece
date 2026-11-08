@@ -189,10 +189,14 @@ carries the target as `DriftFormBound : Prop` over the same `CoreCoeff d` and th
 as the rest of that module, together with the `ℓ²` pairing `corePair`, the number form `numberForm`
 and the coefficient drift `driftOpCoeff` (`K_drift = −Σⱼ bⱼ ∂ⱼ`, `∂ⱼ = (aⱼ − aⱼ†)/√2`), with the
 constant `B²d/(2δ) + Bd` and `d` the mode count `P`.  It **compiles and is a `def` returning a
-`Prop`**, so the development stays `sorry`-free — but it is a *target*, not a theorem: what a proof
-would still need is the Hermite expansion of `∇Φ_ε` into those ladder coefficients, plus the three
-core identities the chain uses (adjoint pairing, Cauchy–Schwarz in `ℓ²`, and
-`Σⱼ(‖aⱼc‖² + ‖aⱼ†c‖²) = 2⟪c,Nc⟫ + d‖c‖²`).)*
+`Prop`**, so the development stays `sorry`-free — but at that date it was a *target*, not a theorem:
+what a proof still needed was the Hermite expansion of `∇Φ_ε` into those ladder coefficients, plus
+the three core identities the chain uses (adjoint pairing, Cauchy–Schwarz in `ℓ²`, and
+`Σⱼ(‖aⱼc‖² + ‖aⱼ†c‖²) = 2⟪c,Nc⟫ + d‖c‖²`).
+
+*(Proved 2026-11-08: §10 of the chapter supplies the three identities and §11 the assembly, so
+`DriftFormBound` is a theorem — `driftFormBound_holds`.  What remains outside the formalization is
+the identification `bⱼ = (β²σ²/2)·∂ⱼΦ_ε`, which is where the `ε`-dependence enters.)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
@@ -243,12 +247,24 @@ this gives the displayed `C_δ` with **no linear `Bd` term** — the `N^{1/2}` e
 the plan's constant was the cruder ℓ¹-over-modes version.  So KLMN's hypothesis is met at the
 operator level for the drift as the corpus models it.
 
-What is *not* done, and is the reason the `CoreCoeff` statement above stays a `Prop`: the two
-models are not identified in Lean — `CoreCoeff d` indexes by occupation *vectors* `Fin d → ℕ`, the
-Fock toolbox by finite *multisets* of modes (`Conf →₀ ℂ`) — and no transport of a form bound along
-that equivalence exists.  This is the same *kind* of gap `cftproof.md` item 3 records for the OS
-identity: mathematics done in one modelling of configuration space, a transport missing between it
-and the model the surrounding development uses.
+What is *not* done, and is the reason the `CoreCoeff` statement above stays a `Prop`: no transport
+of a form bound along the identification exists.  This is the same *kind* of gap `cftproof.md` item
+3 records for the OS identity: mathematics done in one modelling of configuration space, a
+transport missing between it and the model the surrounding development uses.
+
+**The index half of that identification is now proved (2026-11-04)**, in `FockLangevinOperator` §7:
+`idxEquiv d : (Fin d → ℕ) ≃ (Fin d →₀ ℕ)` is `Finsupp.equivFunOnFinite.symm` — on a *finite* mode
+set an occupation vector and a finite multiset of modes are the same data, since every `Fin d → ℕ`
+is finitely supported — and `natDeg_idxEquiv` shows the grading is read through it,
+`(idxEquiv d n).sum (fun _ m => m) = natDeg n`.  So the sector structure of §4's band lemmas
+(`hopWord_band`, `driftOp_band`, `pcnlHamiltonian_band`) is the sector structure of the Fock model,
+not merely analogous to it.
+
+The remaining half is the mode *set*: the toolbox's modes are all of `ℕ` (`Conf = ℕ →₀ ℕ`, and
+`creVec`/`annVec` take `ℕ →₀ ℂ`), while the chapter's are `Fin d`.  A bound proved there must first
+be restricted to the sector carried by the first `d` modes (i.e. `f` supported in `Fin d`), and the
+`ℓ²` spaces reindexed along `idxEquiv`; neither is done, and both are transport rather than
+analysis.
 
 **What it buys.**  `K_drift` is symmetric and `N^{1/2}`-form-bounded with relative bound zero, so
 **KLMN** applies: the form `q(ψ) = ‖N^{1/2}ψ‖² + ⟪ψ, K_drift ψ⟫` is closed and bounded below on
@@ -324,6 +340,129 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   `{N ≤ N₀ + k}`) and **`driftOp_band`** (a monomial family of degree `≤ K` maps into
   `{N ≤ N₀ + K}`).  `numberOp` is the diagonal `N`, and `pcnlHamiltonian_band` states the §2.2
   operator shape `P₀`-diagonal-plus-finite-band-drift on the core.
+  **§9 adds the Hermite multiplication law**, the letter-level dictionary Module 3's expansion
+  consumes: `mulHermite` is the symmetrised one-mode word `(1/√2)(a_j† + a_j)` on the coefficient
+  core, **`mulHermite_eq_ladderWords`** splits it into its two ladder words `(1/√2)a_j†` and
+  `(1/√2)a_j`, and **`driftOpCoeff_eq_ladderWords`** separates `∇Φ`'s coefficient operator
+  symmetrically into the lowering sum `−(b_j/√2)` and the raising sum `+(b_j/√2)`.  What is *not*
+  The linear structure the expansion needs is proved too: `hopStep_add`/`hopStep_smul` make a
+  ladder letter `ℂ`-linear on the core (`hopStep_sum` for finite families), `hopWord_append`
+  composes words (`hopWord (w₁ ++ w₂) = hopWord w₂ ∘ hopWord w₁`, with `hopWord_two`/`hopWord_single`
+  the spelled-out cases), and `mulHermite_add`/`mulHermite_smul` give the same for the
+  multiplication law.  **`mulHermite_comp`** is the first multimode case: `x_k x_j` is `1/2` times
+  the sum of the four length-two ladder words `hopWord [(j,ε),(k,δ)]`, i.e. the `2^2` word family
+  with the amplitudes carried by the `hopStep`s.
+  **§9.2 closes the general case (2026-11-04).**  `mulWords js` is the word family of a mode list
+  (one ladder letter per mode, both raise and lower), **`sum_mulWords_cons`** splits its sum at a
+  leading mode — the two words are distinct and the families over different tails are disjoint
+  because `List.tail` recovers the tail, so the `Finset.biUnion` is a genuine direct sum and no
+  reindexing is assumed — **`mulWords_card`** is the `2^k` count
+  `(mulWords js).card = 2 ^ js.length`, `hopWord_add`/`hopWord_smul` are linearity of a word, and
+  **`mulHermiteList_eq_ladderWords`** is the expansion itself: for every mode list `js`,
+  `mulHermiteList js c = (2^{-length js/2}) • ∑_{w ∈ mulWords js} hopWord w c`.
+  So a product of `k` multiplication laws — hence every monomial of the potential `Φ` — is the
+  `2^k`-word family, with the Hermite amplitudes `√(nⱼ+1)`, `√(nⱼ)` carried by the letters
+  (`mulHermiteList_pair` recovers the `k = 2` case of §9.1).  What remains of Module 3's expansion
+  is the induction that *feeds* it: a general `Φ` is a sum of monomials `∏ⱼ xⱼ^{mⱼ}`, so
+  interpolating a polynomial from its monomial expansions is an `MvPolynomial` induction the
+  corpus does not yet carry — bookkeeping of the same kind, on a different object.
+  **§9.3–9.4 carry it out (2026-11-08), so that sentence is now closed.**  §9.3 proves the
+  *mathematical* input the bookkeeping needs — that distinct modes commute: `stepIdx_comm` (the
+  two occupation updates touch disjoint coordinates), `stepAmp_stepIdx_of_ne` (a letter's
+  amplitude is untouched by a letter at another mode), hence `hopStep_comm` and
+  **`mulHermite_comm`**; then `mulHermiteList_perm` (a product of laws depends only on the
+  *multiset* of its modes, by `List.Perm.recOnSwap'`), the mode list `monomialList` (mode `j`
+  repeated `m j` times), `monomialList_append_perm` / `mulHermiteList_monomialList_add`
+  (exponents add: `m + n` is `m` then `n`), `mulHermiteList_monomialList_comm`, and
+  `monomialList_single` (`X j ↦ mulHermite j` at the generators).  §9.4 is the `MvPolynomial`
+  induction itself: `polyMul Φ` is the weighted sum of the monomial word families over
+  `Φ.support` — Module 3's `xⱼ = (aⱼ + aⱼ†)/√2` expansion for an arbitrary potential, with every
+  monomial expanded into its `2^{deg}` ladder words by §9.2 — and `polyMul_add`, `polyMul_sum`,
+  `polyMul_monomial`, `polyMul_X`, `polyMul_add_arg`, `polyMul_smul_arg` are its structural
+  lemmas, culminating in **`polyMul_mul`**: `polyMul` is multiplicative, i.e. the algebra
+  homomorphism `X j ↦ mulHermite j` on `MvPolynomial (Fin d) ℂ`.  §9.4 states as its boundary
+  the same interpolation for the *derivative* polynomials `∂ⱼ Φ` that `K_drift = −Σⱼ bⱼ ∂ⱼ`
+  needs, and `K_reject`, which is not finite-band at all.
+  **§9.5 closes the derivative boundary (2026-11-08).**  Mathlib's algebraic `∂ⱼ` is
+  `MvPolynomial.pderiv` (there is no `MvPolynomial.derivative` in this pin), and `polyMul`
+  applies to it verbatim: `pderiv_monomial` sends `monomial m a` to `monomial (m − single j 1)
+  (a · m j)`, so `polyMul_derivative_monomial` expands one monomial of the gradient with the
+  exponent lowered (`lowerExp m j`, an `abbrev` — `Finsupp` subtraction on `ℕ`-valued families is
+  truncated, which is right: an absent mode leaves the exponent and `m j = 0` kills the term),
+  **`polyMul_derivative`** is the full `Φ.support` interpolation
+  `polyMul (pderiv j Φ) c = ∑ m ∈ Φ.support, (coeff m Φ · m j) • mulHermiteList (monomialList
+  (lowerExp m j)) c`, **`polyMul_derivative_eq_ladderWords`** spells the same sum out as §9.2's
+  explicit `∑_{w ∈ mulWords js} hopWord w c` family, and `polyMul_derivative_X` checks
+  `∂ⱼ xₖ = δⱼₖ` against `polyMul_X`'s `X j ↦ mulHermite j`.  So `∂ⱼ Φ` — like `Φ` itself — is a
+  finite sum of ladder words, with `polyMul_C`/`polyMul_one`/`monomialList_zero` for the constant
+  case.  The chapter remains `sorry`-free — `lake build BookProof.MCMC.FockLangevinOperator` is
+  green and `#print axioms` on the new theorems gives only `propext, Classical.choice,
+  Quot.sound` — and **Module 3's expansion is now complete in both directions**.  What was still
+  missing after that turn: the *composition* `−Σⱼ (β²σ²/2)(∂ⱼ Φ)(x)·∂ⱼ` of §9.5's operator with the
+  ladder letter `∂ⱼ = (aⱼ − aⱼ†)/√2` of §5, and `K_reject`.
+  **§9.6–9.7 close the composition (2026-11-08, same day).**  §9.6 is the *band* half of the
+  expansion — `mulHermite_band` (one law is two ladder letters), `mulHermiteList_band` (a product
+  of `k` laws maps `{N ≤ N₀}` into `{N ≤ N₀ + k}`), `monomialList_length` (a monomial's mode list
+  has one letter per unit of degree, via `Fin.sum_univ_def`), `natDeg_ofFinsupp`,
+  `polyMul_monomial_band`, and **`polyMul_band`**: a potential of degree `≤ K` maps `{N ≤ N₀}`
+  into `{N ≤ N₀ + K}` (`polyMul_band_sector` is the sector form), so truncating at degree `N₀`
+  couples only to degrees `≤ N₀ + K` — §2.2's finite-band property for an *arbitrary* `Φ`, not only
+  for the linear potentials of §5.  §9.7 is the operator itself: `diffHermite` is the letter
+  `∂ⱼ = (aⱼ − aⱼ†)/√2` on the core, **`polyDrift Φ`** is the composition
+  `−Σⱼ polyMul (∂ⱼ Φ) ∘ diffHermite j` (the derivative applied first, then multiplication by
+  `∂ⱼ Φ`), and its ladder-word family is proved twice — `polyDrift_eq_ladderWords` (one sum per
+  mode and monomial, the derivative's letters still inside `hopWord w (diffHermite j c)`) and
+  **`polyDrift_eq_hopWords`** (genuine ladder words, via `hopWord_diffHermite`: the letter `∂ⱼ` at
+  the head of the derivative's word `w`, the two halves subtracting with the `1/√2`
+  normalizations explicit).  `driftOpCoeff_eq_neg_sum_diffHermite` shows the linear case collapses
+  to §5's `driftOpCoeff`, so §9.7 generalizes that drift rather than replacing it.  **§9.8 is the
+  band of the drift itself (2026-11-08, third landing that day).**  `diffHermite_band` (the letter
+  moves `N` by at most one), `natDeg_lowerExp` (a *lowered* exponent loses exactly one degree —
+  the equality form `natDeg_lowerIdx_of_pos` of §1's `natDeg_lowerIdx_le`), and
+  **`polyDrift_band`**: a potential of degree `≤ K` maps `{N ≤ N₀}` into `{N ≤ N₀ + K}`, the
+  derivative's loss and the letter's gain cancelling, so `K_drift` has band `K`
+  (`polyDrift_band_sector` is the sector form).  That is §2.2's finite-band property for the drift
+  the plan actually uses, with the sharp constant — a truncation at `N₀` couples only to
+  `≤ N₀ + K`, not `≤ N₀ + K + 1`.
+  **§9.9–9.10 add the estimate and the operator (2026-11-08, fourth landing that day).**  §9.9 is
+  the *size* of the drift, in the `ℓ¹` mass `coreL1 c = ∑ₙ ‖c n‖`: `hopStep_l1_le` (one letter
+  multiplies the mass by at most `√(N+1)` on `{N ≤ N}`, straight from `stepAmp_norm_le`),
+  `hopWord_l1_sector` (a word of length `k` multiplies it by at most `(√(M+1))^k`, where
+  `M ≥ N + k` bounds the degrees the word meets), and **`polyDrift_l1_le`**:
+  `coreL1 (polyDrift Φ c) ≤ driftL1Bound Φ M * coreL1 c` with an *explicit* sector constant,
+  built from §9.2's `2^k` word count and the degree bound `k ≤ deg Φ`.  §9.10 is the pCNL shape
+  for a polynomial potential: **`pcnlPolyHamiltonian Φ = numberOp + polyDrift Φ`** with
+  **`pcnlPolyHamiltonian_band`** (degree `≤ K` maps `{N ≤ N₀}` into `{N ≤ N₀ + K}` — the same
+  finite-band property §4 proves for a word list, now for the drift operator itself) and
+  `polyDrift_linear` (a linear `Φ` gives exactly §5's `driftOpCoeff b`, so the new Hamiltonian
+  generalizes the `driftOpCoeff` one rather than replacing it).  What is still missing is the
+  *`ℓ²`* step that would turn that size estimate into `DriftFormBound`.
+  **§10 supplies the analytic half of that step (same day).**  The *coordinates* of one letter come
+  first — `hopStep_coord_lower` (`(aⱼc)(m) = √(mⱼ+1)·c(m+eⱼ)`, with the saturation case `mⱼ = 0`
+  folded in because the extra preimage carries amplitude `√0 = 0`) and `hopStep_coord_raise`
+  (`√(mⱼ)·c(m−eⱼ)`, one preimage since raising is injective, `raiseIdx_injective`) — then the
+  letter norms, by a support bijection in each direction: **`coreNormSq_hopStep_lower`**
+  (`‖aⱼc‖² = ∑ₙ nⱼ‖c n‖²`) and **`coreNormSq_hopStep_raise`** (`∑ₙ (nⱼ+1)‖c n‖²`).  Their mode
+  sums give `∑ⱼ ‖aⱼc‖² = ⟪c, Nc⟫` and `∑ⱼ ‖aⱼ†c‖² = ⟪c, Nc⟫ + d‖c‖²`, and hence the
+  **oscillator identity** `Σⱼ (‖aⱼc‖² + ‖aⱼ†c‖²) = 2⟪c, Nc⟫ + d‖c‖²` — the input the plan's chain
+  calls analytic rather than bookkeeping.  What remains of `DriftFormBound` is therefore only the
+  assembly: Cauchy–Schwarz in the core pairing `corePair` and the `2ab ≤ δa² + b²/δ` step with the
+  plan's constant.  `K_reject`, a multiplication operator and not finite-band at all, stays outside
+  the model.
+  **§11 supplies the assembly, so `DriftFormBound` is a theorem (2026-11-08, fifth landing that
+  day).**  `coreNorm` is the core `ℓ²` norm, `corePair_eq_sum` makes the pairing's ambient finset
+  bookkeeping, `corePair_smul`/`corePair_add`/`corePair_finset_sum` give conjugate-linearity in the
+  second slot, and **`norm_corePair_le`** is Cauchy–Schwarz, `‖⟪c, c'⟫‖ ≤ ‖c‖·‖c'‖`.  Cauchy–Schwarz
+  in the *mode* index (`sum_coreNorm_hopStep_le`) reads §10's oscillator identity as
+  `∑ⱼ ‖aⱼc‖ ≤ √d·√⟪c, Nc⟫`, and `sqrt_add_le` with `two_mul_le_add_div`
+  (`√(x+y) ≤ √x + √y`, `2uv ≤ δu² + v²/δ`) spend the free parameter on the number form.
+  **`driftOpCoeff_form_bound`** is the estimate with the plan's constant,
+  `‖⟪c, K_drift c⟫‖ ≤ δ·⟪c, Nc⟫ + (B²d/(2δ) + Bd)·‖c‖²` for every `δ > 0`, and
+  **`driftFormBound_holds`** is §5's `DriftFormBound` itself: `K_drift` is infinitesimally
+  form-small with respect to `N`, the KLMN hypothesis that makes `N + K_drift` self-adjoint and
+  bounded below.  Outside the model only `K_reject` (a multiplication operator, not finite-band)
+  and the *identification* `bⱼ = (β²σ²/2)·∂ⱼΦ_ε` remain — the latter being exactly where the
+  `ε`-dependence enters, through `B`.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the
@@ -372,13 +511,24 @@ product formula on the sphere) is not formalised, and — as `pcnZonalEigen_two_
 its eigenvalue cannot be `ρⁿ`.  For Module 3, what
 is missing is
 the identification of a given potential's `∇Φ` with a concrete ladder-word family (that is the
-Hermite expansion, needing `x_j = (a_j + a_j†)/√2` and the Mehler measure), the relative form
+Hermite expansion, needing `x_j = (a_j + a_j†)/√2` and the Mehler measure) — both expansions are
+now proved (`polyMul_mul` for the multiplication laws, §9.4; `polyMul_derivative` and
+`polyMul_derivative_eq_ladderWords` for the derivative polynomials, §9.5), so what remains here is
+the *composition* of those two operators rather than either expansion — the relative form
 bound that makes `K_drift` a bounded perturbation of `P₀` — stated for the `ε`-regularized
 potential in the subsection above, with the constant `(β²σ²M_ε)²P/(8δ) + (β²σ²M_ε)P/2` and the
 reason that constant cannot supply the gap; stated in Lean as `DriftFormBound`
-(`FockLangevinOperator` §5, a `Prop` on the coefficient core) and **proved** in Lean in the Fock
-model as `driftField_relative_form_bound` (`FockLangevinOperator` §6) — the remaining distance
-between the two being the model identification, not the analysis —
+(  `FockLangevinOperator` §5, a `Prop` on the coefficient core), **proved** in Lean on the core in
+  `FockLangevinOperator` §11 (`driftFormBound_holds`, 2026-11-08) and independently in the Fock
+  model as `driftField_relative_form_bound` (`FockLangevinOperator` §6), with the model
+  identification now carried out as well (§7–§8, 2026-11-04: `idxEquiv` (occupation vectors on
+  `d` modes *are* finite multisets), `natDeg_idxEquiv` (the grading is the particle number),
+  `reindex` / `sum_sq_reindex` / `numberForm_reindex` (the core `ℓ²` and its number form read in
+  the multiset indexing), `sectorVec` / `l2norm_sectorVec` (a `Fin d` coupling as a one-particle
+  vector on the first `d` modes) and **`driftField_sector_relative_form_bound`** (the §6 bound with
+  the `Fin d` constants), plus `InSector`, `numberQuad_eq_sum_fin`, `annA_eq_zero_of_sector` and
+  `InSector.driftField` for the sector) — what still separates the two statements is the Hermite
+  expansion, not the model —
 and the Metropolis filter
 `K_reject` — the last is a multiplication operator and is not finite-band at all, so nothing in
 `FockLangevinOperator` describes it.  The pCNL operator's own gap therefore remains a hypothesis
@@ -423,10 +573,10 @@ the exact normalization is undefined (the same M4+ test records the NaN), so "su
 `β = 0.3, σ = 0.35`, two orders above the shell it is supposed to confine.  (*Adaptation:*
 "vacuous" is too strong — the bound is finite; what fails is that it is not small where it
 matters, and it is attained only in the compact region `‖W‖ ≲ ε`.)  **Consequence for this plan:** `K_drift` cannot be called a *small* bounded
-perturbation of `P₀` on the strength of a gradient bound.  Module 3's missing relative form bound
-is the load-bearing item, and it has to be stated for the `ε`-regularized potential with a constant
-`∝ 1/ε` — or relativized against the number operator, so that the bound is useful only in the
-low-number sector.
+perturbation of `P₀` on the strength of a gradient bound.  Module 3's relative form bound — now
+proved in `BookProof.MCMC.FockLangevinOperator` §11 — is the load-bearing item, and it holds for the
+`ε`-regularized potential with a constant `∝ 1/ε`; relative *to the number operator* it is the
+sharper reading, useful in the low-number sector.
 
 **(3) The prior-width sweep measures nothing about the posterior.**  Verified: `σ` enters only
 through the noise scale `βξ` and the drift coefficient `β²σ²/2`, and because the potential is
@@ -549,9 +699,9 @@ seven seeds the family that splits changes (pCNL max 1.235, SGLD 4.385, MH 2.816
 noise stream, not the transition.  For this plan the consequence is that "chain mixing across
 modes" is the binding open item — not a footnote to the gap: a fixed-`β` spectral gap of §3 says
 nothing about an ensemble that has not left its mode, and the BMA numbers the plan quotes must be
-read as "one mode" values.  Nothing in Modules 1–5 changes, and the `DriftFormBound` target of
-Module 3 (stated in `FockLangevinOperator` §5) is unaffected: it is a statement about the operator,
-not about where the chain sits.
+read as "one mode" values.  Nothing in Modules 1–5 changes, and `DriftFormBound` (stated in
+`FockLangevinOperator` §5, proved in §11) is unaffected: it is a statement about the operator, not
+about where the chain sits.
 
 ---
 

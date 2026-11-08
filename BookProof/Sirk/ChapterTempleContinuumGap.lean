@@ -515,6 +515,164 @@ theorem samePointProduct_form_eq_momentum (F G f : ZMod n → ℂ) :
   have h := sum_conj_dft_mul_dft f (fun x => samePointProduct F G x * f x)
   simpa only [mul_assoc] using h
 
+/-- **The momentum-transfer matrix preserves the `ℓ²` mass of the symbol.**  Each entry is
+`n⁻¹ V̂ (k − i)`, and `(k, i) ↦ k − i` is `n`-to-one, so the double sum of `‖momentumCol V k i‖²`
+is `n⁻¹ ∑_l ‖V̂ l‖²`, which Plancherel turns back into `∑_x ‖V x‖²`.  So the passage from a symbol
+to its momentum-transfer matrix loses nothing: the Hilbert–Schmidt mass is carried over unchanged,
+which is what lets the `σ` of a position-space symbol be read off in the momentum picture. -/
+theorem momentumCol_hs_mass (V : ZMod n → ℂ) :
+    ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol V k i‖ ^ 2 = ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+  have hcol : ∀ k : ZMod n, ∑ i : ZMod n, ‖momentumCol V k i‖ ^ 2
+      = ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2 := by
+    intro k
+    refine Finset.sum_bij (fun i _ => k - i) (fun _ _ => Finset.mem_univ _) ?_ ?_ ?_
+    · intro a _ b _ hab
+      have h' : k - a = k - b := hab
+      exact neg_inj.mp (add_left_cancel (a := k) (by simpa using h'))
+    · intro b _
+      exact ⟨k - b, Finset.mem_univ _, by simp⟩
+    · intro a _
+      simp [momentumCol]
+  have hnorm : ∀ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2
+      = (n : ℝ)⁻¹ ^ 2 * ‖ZMod.dft V l‖ ^ 2 := by
+    intro l
+    rw [norm_mul, mul_pow, norm_inv, Complex.norm_natCast]
+  have hsq : ∀ z : ℂ, (conj z * z).re = ‖z‖ ^ 2 := by
+    intro z
+    rw [Complex.mul_re, Complex.conj_re, Complex.conj_im, ← Complex.normSq_eq_norm_sq,
+      Complex.normSq_apply]
+    ring
+  have hplan : ∑ l : ZMod n, ‖ZMod.dft V l‖ ^ 2 = (n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+    have h := congrArg Complex.re (sum_conj_dft_mul_dft V V)
+    have hW : ((n : ℂ) * ∑ x : ZMod n, conj (V x) * V x).re
+        = (n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+      rw [Complex.mul_re]
+      simp [Complex.re_sum, hsq]
+    rw [Complex.re_sum, hW] at h
+    simpa [hsq] using h
+  have hn : (n : ℝ) ≠ 0 := by
+    have := NeZero.ne n
+    exact_mod_cast this
+  calc ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol V k i‖ ^ 2
+      = ∑ _k : ZMod n, ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2 :=
+        Finset.sum_congr rfl fun k _ => hcol k
+    _ = (n : ℝ) * ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2 := by
+        rw [Finset.sum_const, Finset.card_univ, ZMod.card, nsmul_eq_mul]
+    _ = ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+        have hsplit : ∑ l : ZMod n, ‖(n : ℂ)⁻¹ * ZMod.dft V l‖ ^ 2
+            = (n : ℝ)⁻¹ ^ 2 * ∑ l : ZMod n, ‖ZMod.dft V l‖ ^ 2 := by
+          rw [Finset.sum_congr rfl (fun l _ => hnorm l), ← Finset.mul_sum]
+        rw [hsplit, hplan]
+        have hnum : (n : ℝ) * ((n : ℝ)⁻¹ ^ 2 * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2))
+            = ∑ x : ZMod n, ‖V x‖ ^ 2 := by
+          calc (n : ℝ) * ((n : ℝ)⁻¹ ^ 2 * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2))
+              = ((n : ℝ) * (n : ℝ)⁻¹)
+                  * ((n : ℝ)⁻¹ * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2)) := by ring
+            _ = (n : ℝ)⁻¹ * ((n : ℝ) * ∑ x : ZMod n, ‖V x‖ ^ 2) := by
+                rw [mul_inv_cancel₀ hn, one_mul]
+            _ = ∑ x : ZMod n, ‖V x‖ ^ 2 := by rw [inv_mul_cancel_left₀ hn]
+        rw [hnum]
+
+/-- **The coincident-point product carries the product symbol's mass.**  Composing
+`momentumCol_hs_mass` with `V = F·G`: the momentum convolution of two outer fields at the same point
+has Hilbert–Schmidt mass exactly `∑_x ‖F x‖²‖G x‖²`, the `ℓ²` mass of the pointwise product — so a
+bound on the coincident-point product in position space *is* a bound on the momentum-transfer
+matrix in the momentum picture, with no loss. -/
+theorem momentumCol_samePointProduct_hs_mass (F G : ZMod n → ℂ) :
+    ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol (samePointProduct F G) k i‖ ^ 2
+      = ∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2 := by
+  rw [momentumCol_hs_mass]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [samePointProduct, norm_mul, mul_pow]
+
+/-- **The `σ` transfers to the outer-Fock form.**  For a finite one-particle matrix `T`,
+`|∑_{k,i} conj(f k) T k i f i| ≤ ‖T‖_HS ‖f‖²`; in the momentum picture of a coincident-point
+product `T = momentumCol (F·G)`, whose mass is `∑_x ‖F x‖²‖G x‖²` by
+`momentumCol_samePointProduct_hs_mass`.  So the form of the product field is bounded by
+`√(∑_x ‖F x‖²‖G x‖²) · ‖f̂‖²` — the Hilbert–Schmidt constant of the position-space symbol, read on
+the momentum-transfer form. -/
+theorem samePointProduct_form_hs_bound (F G f : ZMod n → ℂ) :
+    ‖∑ k : ZMod n, conj (ZMod.dft f k)
+        * ∑ i : ZMod n, momentumCol (samePointProduct F G) k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2) * ∑ k : ZMod n, ‖ZMod.dft f k‖ ^ 2 := by
+  set T : ZMod n → ZMod n → ℂ := momentumCol (samePointProduct F G) with hT
+  have hsq : ∑ k : ZMod n, ∑ i : ZMod n, ‖T k i‖ ^ 2
+      = ∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2 := by
+    rw [hT]
+    exact momentumCol_samePointProduct_hs_mass F G
+  set σ := Real.sqrt (∑ x : ZMod n, ‖F x‖ ^ 2 * ‖G x‖ ^ 2) with hσ
+  have hσ0 : 0 ≤ σ := Real.sqrt_nonneg _
+  have hσ2 : σ ^ 2 = ∑ k : ZMod n, ∑ i : ZMod n, ‖T k i‖ ^ 2 := by
+    rw [hσ, Real.sq_sqrt (Finset.sum_nonneg fun x _ => by positivity), hsq]
+  -- Cauchy–Schwarz on the finite matrix, with the coefficient weight on both sides
+  have hrow : ∀ k : ZMod n, ‖∑ i : ZMod n, T k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)
+        * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := by
+    intro k
+    have hCS := Finset.sum_mul_sq_le_sq_mul_sq (Finset.univ) (fun i : ZMod n => ‖T k i‖)
+      (fun i : ZMod n => ‖ZMod.dft f i‖)
+    have hnorm : ‖∑ i : ZMod n, T k i * ZMod.dft f i‖
+        ≤ ∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖ := by
+      refine (norm_sum_le (s := Finset.univ) (f := fun i : ZMod n => T k i * ZMod.dft f i)).trans ?_
+      exact Finset.sum_le_sum fun i _ => le_of_eq (norm_mul _ _)
+    refine hnorm.trans ?_
+    have hsq2 : (∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖) ^ 2
+        ≤ (∑ i : ZMod n, ‖T k i‖ ^ 2) * (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := hCS
+    have hna : (0 : ℝ) ≤ ∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖ := by positivity
+    calc ∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖
+        = Real.sqrt ((∑ i : ZMod n, ‖T k i‖ * ‖ZMod.dft f i‖) ^ 2) := (Real.sqrt_sq hna).symm
+      _ ≤ Real.sqrt ((∑ i : ZMod n, ‖T k i‖ ^ 2)
+            * (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2)) := Real.sqrt_le_sqrt hsq2
+      _ = Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)
+            * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := Real.sqrt_mul (by positivity) _
+  have hwhole := norm_sum_le (s := Finset.univ) (f := fun k : ZMod n =>
+    conj (ZMod.dft f k) * ∑ i : ZMod n, T k i * ZMod.dft f i)
+  refine hwhole.trans ?_
+  have hterm : ∀ k : ZMod n, ‖conj (ZMod.dft f k) * ∑ i : ZMod n, T k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2) * ‖ZMod.dft f k‖
+        * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) := by
+    intro k
+    rw [norm_mul, Complex.norm_conj]
+    have := hrow k
+    have h0 : (0 : ℝ) ≤ ‖ZMod.dft f k‖ := norm_nonneg _
+    calc ‖ZMod.dft f k‖ * ‖∑ i : ZMod n, T k i * ZMod.dft f i‖
+        ≤ ‖ZMod.dft f k‖ * (Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)
+            * Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2)) :=
+          mul_le_mul_of_nonneg_left this h0
+      _ = _ := by ring
+  refine (Finset.sum_le_sum fun k _ => hterm k).trans ?_
+  set Sf := Real.sqrt (∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2) with hSf
+  set M := ∑ k : ZMod n, Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2) * ‖ZMod.dft f k‖ with hM
+  have hfac : ∑ k : ZMod n, Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2) * ‖ZMod.dft f k‖ * Sf
+      = Sf * M := by
+    rw [hM, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun k _ => by ring
+  rw [hfac]
+  -- ∑_k a_k b_k ≤ σ √(∑ b_k²) with ∑ a_k² = σ²
+  have hCS := Finset.sum_mul_sq_le_sq_mul_sq (Finset.univ)
+    (fun k : ZMod n => Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2))
+    (fun k : ZMod n => ‖ZMod.dft f k‖)
+  have hsumsq : ∑ k : ZMod n, (Real.sqrt (∑ i : ZMod n, ‖T k i‖ ^ 2)) ^ 2 = σ ^ 2 := by
+    rw [hσ2]
+    exact Finset.sum_congr rfl fun k _ => Real.sq_sqrt (by positivity)
+  have hM0 : (0 : ℝ) ≤ M := by
+    rw [hM]
+    exact Finset.sum_nonneg fun k _ => mul_nonneg (Real.sqrt_nonneg _) (norm_nonneg _)
+  have hSf2 : Sf ^ 2 = ∑ i : ZMod n, ‖ZMod.dft f i‖ ^ 2 := by
+    rw [hSf, Real.sq_sqrt (by positivity)]
+  rw [hsumsq] at hCS
+  have hMle : M ^ 2 ≤ σ ^ 2 * Sf ^ 2 := by
+    rw [hM, hSf2]
+    exact hCS
+  have hMle' : M ≤ σ * Sf := by
+    calc M = Real.sqrt (M ^ 2) := (Real.sqrt_sq hM0).symm
+      _ ≤ Real.sqrt (σ ^ 2 * Sf ^ 2) := Real.sqrt_le_sqrt hMle
+      _ = σ * Sf := by
+          rw [Real.sqrt_mul (by positivity), Real.sqrt_sq hσ0, Real.sqrt_sq (Real.sqrt_nonneg _)]
+  calc Sf * M ≤ Sf * (σ * Sf) := mul_le_mul_of_nonneg_left hMle' (Real.sqrt_nonneg _)
+    _ = σ * Sf ^ 2 := by ring
+    _ = σ * ∑ k : ZMod n, ‖ZMod.dft f k‖ ^ 2 := by rw [hSf2]
+
 /-- **The squared field at a coincident point is a nonnegative form.**  For a real field `F`,
 `∑ x, conj (f x) (F·F)(x) f x` is a sum of `F(x)²‖f x‖²`, hence nonnegative.  This is the
 positivity input of the gap chain (`IsPosCol`-shaped, through `isPosCol_opCol`), and it is read
@@ -542,6 +700,44 @@ theorem samePointProduct_real_self_form_nonneg (F : ZMod n → ℝ) (f : ZMod n 
   exact Finset.sum_nonneg fun x _ => by
     rw [Complex.ofReal_re]
     exact mul_nonneg (sq_nonneg (F x)) (Complex.normSq_nonneg (f x))
+
+/-- **A finite chain of coincident-point factors keeps the mass multiplicative.**  Iterating
+`samePointProduct`: the `ℓ²` mass of the product of `r` fields at one point is the sum of
+`∏ j, ‖F j x‖²`, because `‖∏ j, F j x‖ = ∏ j, ‖F j x‖`. -/
+theorem chain_hs_mass {r : ℕ} (F : Fin r → ZMod n → ℂ) :
+    ∑ x : ZMod n, ‖∏ j, F j x‖ ^ 2 = ∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2 := by
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [norm_prod, Finset.prod_pow]
+
+/-- **The momentum-transfer matrix of a finite chain preserves the product mass.**
+`momentumCol_hs_mass` applied to the chain symbol `∏ j, F j x`, with `chain_hs_mass` making the
+mass multiplicative: the momentum convolution of `r` coincident-point factors has Hilbert–Schmidt
+mass exactly `∑_x ∏ j, ‖F j x‖²`. -/
+theorem momentumCol_chain_hs_mass {r : ℕ} (F : Fin r → ZMod n → ℂ) :
+    ∑ k : ZMod n, ∑ i : ZMod n, ‖momentumCol (fun x => ∏ j, F j x) k i‖ ^ 2
+      = ∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2 := by
+  rw [momentumCol_hs_mass, chain_hs_mass]
+
+/-- **The `σ` of a finite chain of outer fields at one point.**  The binary bound
+`samePointProduct_form_hs_bound` extends to any finite chain: the form of `∏ j, F j` is bounded by
+`√(∑_x ∏ j ‖F j x‖²) · ‖f̂‖²`, the Hilbert–Schmidt constant of the chain read on the
+momentum-transfer form.  No coincident-point product is formed at any stage, so the same reading
+applies to every finite order of the product. -/
+theorem chain_form_hs_bound {r : ℕ} (F : Fin r → ZMod n → ℂ) (f : ZMod n → ℂ) :
+    ‖∑ k : ZMod n, conj (ZMod.dft f k)
+        * ∑ i : ZMod n, momentumCol (fun x => ∏ j, F j x) k i * ZMod.dft f i‖
+      ≤ Real.sqrt (∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2) * ∑ k : ZMod n, ‖ZMod.dft f k‖ ^ 2 := by
+  have h := samePointProduct_form_hs_bound (fun x => ∏ j, F j x) (fun _ => (1 : ℂ)) f
+  have hsym : samePointProduct (fun x => ∏ j, F j x) (fun _ => (1 : ℂ))
+      = fun x => ∏ j, F j x := by
+    funext x
+    simp [samePointProduct]
+  have hmass : ∑ x : ZMod n, ‖(fun x => ∏ j, F j x) x‖ ^ 2 * ‖(fun _ => (1 : ℂ)) x‖ ^ 2
+      = ∑ x : ZMod n, ∏ j, ‖F j x‖ ^ 2 := by
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [norm_one, one_pow, mul_one, norm_prod, Finset.prod_pow]
+  rw [hsym, hmass] at h
+  exact h
 
 end MomentumProduct
 
@@ -797,6 +993,84 @@ theorem momentumColT4_samePointProductT4 (F G : Torus4 (n := n) → ℂ) (k i : 
   rw [momentumColT4, show samePointProductT4 F G = (fun x => F x * G x) from rfl,
     dftT4_mul_eq_convolution, ← mul_assoc, ← pow_add]
 
+/-- Reindexing a sum over the 4-torus by a translation: `∑_k f (k − i) = ∑_p f p`. -/
+theorem sum_sub_right_t4 (i : Torus4 (n := n)) (f : Torus4 (n := n) → ℝ) :
+    ∑ k : Torus4 (n := n), f (k - i) = ∑ p : Torus4 (n := n), f p := by
+  refine Fintype.sum_equiv
+    { toFun := fun k => k - i
+      invFun := fun p => p + i
+      left_inv := fun k => by simp
+      right_inv := fun p => by simp } (fun k => f (k - i)) f (fun k => rfl)
+
+/-- **Plancherel on the 4-torus, in norm form**: `∑_p ‖f̂ p‖² = n⁴ ∑_x ‖f x‖²`.  This is
+`sum_conj_dftT4_mul_dftT4` with `g = f`, read through `conj z * z = ↑‖z‖²`. -/
+theorem sum_norm_sq_dftT4 (f : Torus4 (n := n) → ℂ) :
+    ∑ p : Torus4 (n := n), ‖dftT4 f p‖ ^ 2
+      = (n : ℝ) ^ 4 * ∑ x : Torus4 (n := n), ‖f x‖ ^ 2 := by
+  have hc : ∀ z : ℂ, conj z * z = ((‖z‖ ^ 2 : ℝ) : ℂ) := by
+    intro z
+    rw [← Complex.normSq_eq_conj_mul_self, Complex.normSq_eq_norm_sq]
+  have h := sum_conj_dftT4_mul_dftT4 f f
+  rw [Finset.sum_congr rfl (fun k _ => hc (dftT4 f k)),
+    Finset.sum_congr rfl (fun x _ => hc (f x))] at h
+  have hcast : ((∑ k : Torus4 (n := n), ‖dftT4 f k‖ ^ 2 : ℝ) : ℂ)
+      = ((n : ℝ) ^ 4 * ∑ x : Torus4 (n := n), ‖f x‖ ^ 2 : ℝ) := by
+    rw [Complex.ofReal_sum, Complex.ofReal_mul, Complex.ofReal_pow, Complex.ofReal_sum]
+    simpa using h
+  exact Complex.ofReal_injective hcast
+
+/-- The norm factor of the momentum column: `‖n⁻⁴ V̂(k−i)‖² = (n⁸)⁻¹ ‖V̂(k−i)‖²`. -/
+theorem norm_sq_momentumColT4 (V : Torus4 (n := n) → ℂ) (k i : Torus4 (n := n)) :
+    ‖momentumColT4 V k i‖ ^ 2
+      = ((n : ℝ) ^ 8)⁻¹ * ‖dftT4 V (k - i)‖ ^ 2 := by
+  rw [momentumColT4, norm_mul, mul_pow, norm_pow]
+  have hn : ‖(((n : ℂ))⁻¹)‖ = ((n : ℝ))⁻¹ := by
+    rw [norm_inv, Complex.norm_natCast]
+  rw [hn]
+  have h8 : ((((n : ℝ))⁻¹) ^ 4) ^ 2 = ((n : ℝ) ^ 8)⁻¹ := by
+    rw [← pow_mul, ← inv_pow]
+  rw [h8]
+
+/-- **The momentum-transfer matrix on the 4-torus has the mass of the field.**
+`momentumColT4 V k i = n⁻⁴ V̂(k−i)`, each transfer `k − i` is hit `n⁴` times, and Plancherel on
+`(ℤ/n)⁴` gives `∑_p ‖V̂ p‖² = n⁴ ∑_x ‖V x‖²`; the `(n⁸)⁻¹` of the squared entries then cancels
+exactly, so the mass is `∑_x ‖V x‖²` — the identity of `momentumCol_hs_mass` on the four-torus. -/
+theorem momentumColT4_hs_mass (V : Torus4 (n := n) → ℂ) :
+    ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n), ‖momentumColT4 V k i‖ ^ 2
+      = ∑ x : Torus4 (n := n), ‖V x‖ ^ 2 := by
+  have hpair : ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n), ‖dftT4 V (k - i)‖ ^ 2
+      = (n : ℝ) ^ 4 * ∑ p : Torus4 (n := n), ‖dftT4 V p‖ ^ 2 := by
+    rw [Finset.sum_comm]
+    have hinner : ∀ i : Torus4 (n := n),
+        ∑ k : Torus4 (n := n), ‖dftT4 V (k - i)‖ ^ 2
+          = ∑ p : Torus4 (n := n), ‖dftT4 V p‖ ^ 2 :=
+      fun i => sum_sub_right_t4 i (fun x => ‖dftT4 V x‖ ^ 2)
+    rw [Finset.sum_congr rfl fun i _ => hinner i]
+    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+    congr 1
+    have hcard : Fintype.card (Torus4 (n := n)) = n ^ 4 := by
+      change Fintype.card (ZMod n × ZMod n × ZMod n × ZMod n) = n ^ 4
+      rw [Fintype.card_prod, Fintype.card_prod, Fintype.card_prod, ZMod.card]
+      ring
+    rw [hcard, Nat.cast_pow]
+  calc ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n), ‖momentumColT4 V k i‖ ^ 2
+      = ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n),
+          ((n : ℝ) ^ 8)⁻¹ * ‖dftT4 V (k - i)‖ ^ 2 :=
+        Finset.sum_congr rfl fun k _ =>
+          Finset.sum_congr rfl fun i _ => norm_sq_momentumColT4 V k i
+    _ = ((n : ℝ) ^ 8)⁻¹ * ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n),
+          ‖dftT4 V (k - i)‖ ^ 2 := by
+        rw [Finset.mul_sum]
+        exact Finset.sum_congr rfl fun k _ => by rw [Finset.mul_sum]
+    _ = ((n : ℝ) ^ 8)⁻¹ * ((n : ℝ) ^ 4 * ∑ p : Torus4 (n := n), ‖dftT4 V p‖ ^ 2) := by
+        rw [hpair]
+    _ = ((n : ℝ) ^ 8)⁻¹ * ((n : ℝ) ^ 4
+          * ((n : ℝ) ^ 4 * ∑ x : Torus4 (n := n), ‖V x‖ ^ 2)) := by
+        rw [sum_norm_sq_dftT4]
+    _ = ∑ x : Torus4 (n := n), ‖V x‖ ^ 2 := by
+        have hn : (n : ℝ) ≠ 0 := by exact_mod_cast NeZero.ne n
+        field_simp
+
 /-- **The form of the two-field same-point product on the 4-torus is the momentum
 convolution.** -/
 theorem samePointProductT4_form_eq_momentum (F G f : Torus4 (n := n) → ℂ) :
@@ -895,6 +1169,46 @@ theorem samePointProductT4_real_self_form_nonneg (F : Torus4 (n := n) → ℝ)
   exact Finset.sum_nonneg fun x _ => by
     rw [Complex.ofReal_re]
     exact mul_nonneg (sq_nonneg (F x)) (Complex.normSq_nonneg (f x))
+
+/-- **A finite chain of coincident-point factors on the 4-torus keeps the mass multiplicative.**
+The four-torus reading of `chain_hs_mass`: `‖∏ j, F j x‖ = ∏ j, ‖F j x‖` pointwise, so the `ℓ²` mass
+of the chain at one point of `(ℤ/n)⁴` is the sum of the products of the squared pointwise norms. -/
+theorem chain_hs_massT4 {r : ℕ} (F : Fin r → Torus4 (n := n) → ℂ) :
+    ∑ x : Torus4 (n := n), ‖∏ j, F j x‖ ^ 2
+      = ∑ x : Torus4 (n := n), ∏ j, ‖F j x‖ ^ 2 := by
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [norm_prod, Finset.prod_pow]
+
+/-- **The form of a finite chain at a point of the 4-torus is its momentum-transfer form.**  The
+four-torus version of the `σ` reading in `chain_form_hs_bound`: the chain `∏ j, F j` enters the form
+only through `momentumColT4 (∏ j, F j)`, whose entries are the transform of the chain at the
+momentum transfer `k − i`, and `chain_hs_massT4` makes the mass multiplicative.  (This section
+carries the form identity rather than a Hilbert–Schmidt *bound*: `momentumCol_hs_mass` has no
+two-factor analogue in `MomentumProductTorus4`, so the four-torus chain is read through the form
+rather than through `momentumCol`'s mass.) -/
+theorem chain_form_eq_momentumT4 {r : ℕ} (F : Fin r → Torus4 (n := n) → ℂ)
+    (f : Torus4 (n := n) → ℂ) :
+    ∑ k : Torus4 (n := n), conj (dftT4 f k)
+        * ∑ i : Torus4 (n := n), momentumColT4 (fun x => ∏ j, F j x) k i * dftT4 f i
+      = (n : ℂ) ^ 4 * ∑ x : Torus4 (n := n), conj (f x) * (∏ j, F j x) * f x := by
+  have h := samePointProductT4_form_eq_momentum (fun x => ∏ j : Fin r, F j x)
+    (fun _ => (1 : ℂ)) f
+  have hsym : samePointProductT4 (fun x => ∏ j : Fin r, F j x) (fun _ => (1 : ℂ))
+      = fun x => ∏ j : Fin r, F j x := by
+    funext x
+    simp [samePointProductT4]
+  rw [hsym] at h
+  exact h
+
+/-- **The 4-torus chain mass bound.**  Composing `momentumColT4_hs_mass` with
+`chain_hs_massT4`: the momentum-transfer matrix of a chain of `r` coincident-point factors has mass
+`∑_x ∏_j ‖F_j x‖²`, exactly as `chain_form_hs_bound` reads the chain in one dimension.  So the chain
+has a genuine Hilbert–Schmidt constant on `(ℤ/n)⁴`, not merely a form identity. -/
+theorem momentumColT4_chain_hs_mass {r : ℕ} (F : Fin r → Torus4 (n := n) → ℂ) :
+    ∑ k : Torus4 (n := n), ∑ i : Torus4 (n := n),
+        ‖momentumColT4 (fun x => ∏ j, F j x) k i‖ ^ 2
+      = ∑ x : Torus4 (n := n), ∏ j, ‖F j x‖ ^ 2 := by
+  rw [momentumColT4_hs_mass, chain_hs_massT4]
 
 end MomentumProductTorus4
 

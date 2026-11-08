@@ -177,6 +177,28 @@ theorem gaugeReduce_extTorsionCoef (k : Mom) (mu nu i : Fin 3) (x : CMode) :
   · simp only [gaugeReduce, extTorsionCoef, if_neg hk, mul_zero, Finset.sum_const_zero,
       add_zero]
 
+/-- **The gauge-reduced torsion has no off-diagonal momentum transfer.**
+`gaugeReduce_extTorsionCoef`
+writes every reduced coefficient as `if x.1 = k then … else 0`: the one-particle matrix of the
+reduced torsion is *diagonal* in momentum, so its momentum-transfer (`k' ≠ k`) block vanishes
+identically.  That is the honest answer to whether the reduced sector's off-diagonal part can be
+identified with an occupation-raising ladder: **it cannot, in this model**, because the reduced
+Yang–Mills potential is momentum-diagonal here (the derivative gauge condition substitutes
+`D_{μν}^i(k) = k_μ e_ν^i(k)`, which conserves momentum).
+
+What does carry an off-diagonal momentum block is multiplication by a *symbol*, whose matrix is
+`momentumCol V k i = n⁻¹ V̂(k − i)` in `ChapterTempleContinuumGap`; there the transfer block is the
+off-diagonal part, and `momentumCol_hs_mass` shows its Hilbert–Schmidt mass is the symbol's `ℓ²`
+mass.  So the off-diagonal part of the reduced one-particle operator and the ladder of
+`YangMillsFormClosureND` are different objects: the former is momentum transfer at fixed particle
+number, the latter moves one quantum between modes. -/
+theorem gaugeReduce_extTorsionCoef_offDiag_eq_zero {k k' : Mom} (h : k' ≠ k) (mu nu i : Fin 3)
+    (x : CMode) (hx : x.1 = k') :
+    gaugeReduce (extTorsionCoef k mu nu i) x = 0 := by
+  rw [gaugeReduce_extTorsionCoef, if_neg]
+  intro hc
+  exact h (hx ▸ hc)
+
 /-- **The gauge-fixed Gram matrix of the extended torsion terms is the vielbein
 self-interaction of the continuum model.**  Gauge fixing the auxiliary derivative variables
 to the spatial derivatives of the vielbein turns the extended, derivative-free torsion

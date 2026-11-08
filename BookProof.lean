@@ -588,10 +588,21 @@ import BookProof.OSReconstruction.Hamiltonian
 -- operator at rate `m` off the vacuum, and `O(4)` invariance turns temporal decay into spatial.
 import BookProof.OSReconstruction.Clustering
 import BookProof.OSReconstruction.HilbertSpace
+import BookProof.OSReconstruction.Generator
+import BookProof.OSReconstruction.KallenLehmannModel
+import BookProof.OSReconstruction.GeneratorClosed
+import BookProof.OSReconstruction.TransferSelfAdjoint
+import BookProof.OSReconstruction.SemigroupContinuity
+import BookProof.OSReconstruction.TransferSemigroupRight
+import BookProof.OSReconstruction.SemigroupGenerator
+import BookProof.OSReconstruction.L2Multiplier
+import BookProof.OSReconstruction.MultiplierGenerator
+import BookProof.OSReconstruction.MultiplierSelfAdjoint
 import BookProof.OSReconstruction.ReflectionKernel
 import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
 import BookProof.OSReconstruction.YangMillsBridge
+import BookProof.OSReconstruction.FockIntertwining
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
@@ -1518,6 +1529,18 @@ import BookProof.ChapterBrstYmCommute
 -- non-abelian commutator are not claimed; the observation half is
 -- `ChapterBrstHarmonicDecomposition.no_longitudinal_zero_mode`.
 import BookProof.ChapterBrstLongitudinal
+
+-- 2026-11-06: the *equality* `closure (range Ω) = span{∂ᵢφ}` in a model that has both a
+-- derivative and a Hilbert space (`BookProof.BrstLongitudinalExact`): fields on the periodic
+-- lattice `Fin (n+1) → ℂ`, the cyclic difference `∂f(j) = f(j+1) − f(j)`, and the nilpotent
+-- charge `Ω(x, y) = (0, ∂x)` (ghost-raised derivative; the abelian derivative-gauge charge with
+-- the ghost dressing kept).  `range_derivLin` proves `range ∂ = {f | ∑ⱼ f(j) = 0}` — the Hodge
+-- content, with the converse given explicitly by the cumulative sum (`derivLin_cumFun`) — and
+-- `exactStates_eq_longitudinal` is the identification: `exactStates Ω = ⊥ × {f | ∑ f = 0}`.
+-- The surviving gauge-field mode is the constant one (`physicalStates_eq`), so no longitudinal
+-- mode is left in the cohomology.  The 3+1 continuum statement still needs the unbounded charge
+-- and the field Hilbert space; that boundary is in the module docstring.
+import BookProof.BrstLongitudinalExact
 
 -- Wave (2026-08-25h, plan §10.6.2 item 4 / QG Part F — the concrete 3D gauge-fixed
 -- *gravity* Hamiltonian and its BRST charge).
@@ -3450,6 +3473,59 @@ import BookProof.YangMillsFormDomination
 -- and the Yang–Mills form of record is covered too (`yangMillsForm_eq_diagonalForm`,
 -- `yangMillsForm_closed`, `closed_yangMillsGap`).
 import BookProof.YangMillsFormClosure
+-- 2026-11-04 (`softmodes.md` Phases 1 and 4, the non-diagonal open items): Faris–Lavine for an
+-- interaction that mixes multi-indices.  `kernelForm K` is the kernel form on the core,
+-- `abs_kernelForm_le_of_hs` bounds it by the Hilbert–Schmidt constant times the core norm
+-- (two-index Cauchy–Schwarz, `kernelForm_sq_le`), and `farisLavine_domination` shows the sum form
+-- `q' + qK` still dominates the reference form with ratio `(1 − a)c₁ > 0` when the interaction is
+-- form bounded with relative bound `a < 1`.  `hopping_farisLavine` instantiates it with the matrix
+-- unit at `(m₀, n₀)` and keeps the ratio `c₁` unchanged, so the certified separation survives the
+-- coupling; §4 gives the same constant as a bottom: `sector_bottom_ge_interacting` shows that no
+-- sector of the core sees a bottom below `θ − σ`, i.e. that eliminating directions cannot remove
+-- the weight the bottoms of Phases 2–5 bound (`hopping_sector_bottom`: `σ = 1`).  §5 lifts the
+-- interaction to `L²`: `closedKernelForm` is the absolutely convergent weighted double series,
+-- `abs_closedKernelForm_le` bounds it by `σ‖x‖²` on the whole space (Hölder with exponents 2, 2),
+-- `closedKernelForm_coreEmbed` identifies it with `kernelForm` on the core, and
+-- `closed_diagonal_add_kernelForm_ge` / `closed_sector_bottom_ge_interacting` are the bottom
+-- bounds on the form domain — so the interaction is a bounded, hence continuous, perturbation of
+-- the closed diagonal form.  §6 carries the ratio over as well: `closed_farisLavine_domination` is
+-- the `L²` comparison with relative bound `a < 1` (ratio `(1 − a)c₁`), its finiteness hypothesis
+-- derived in `closed_dom_of_scaled_symbol` from a symbolwise inequality.  §7 measures the price of
+-- the cut-off: `magCutoffKernel_hs_mass` bounds the magnetic ladder's Hilbert–Schmidt mass by
+-- `d² C Λ^(d+1)`, i.e. a constant of order `Λ^{(d+1)/2}` — a power, not a uniform bound.  §8
+-- separates the two halves: the relative bound `a` is uniform (`ladder_relative_bound_uniform`), the
+-- additive constant is what grows.  §9 instantiates §6's finiteness hypothesis with the concrete
+-- magnetic symbol of `YangMillsMagneticQuartic` (`magSymbol`, `magnetic_closed_dom_of_scaled`);
+-- `closed_dom_of_scaled_symbol_auto` shows that for a positive ratio it follows from the symbol
+-- comparison.  The continuum itself is formalized elsewhere (outer-Fock `dGamma`, and the
+-- coincident-point product as the momentum convolution `samePointProduct_form_eq_momentum`); what the
+-- coefficient model has is a diagonal magnetic slot, so the ladder is a model of the coupling.
+-- §10 proves the sharp uniform bound at the cut-off, `‖q_K‖ ≤ ½Q + ½(ΣAᵢ²)‖x‖²` with `Q(x) =
+-- Σₙ (Σᵢ(nᵢ+1))‖x n‖²` and **no `Λ` in the constants**: the ladder is a sum of √(nᵢ+1)-weighted
+-- raises, each a partial isometry, so unit-weight AM–GM puts the occupation piece on the form with
+-- ratio 1/2 and the shift piece is bounded by `Aᵢ²‖x‖²` because raising is injective.  On the
+-- momentum side `momentumCol_hs_mass` shows the transfer matrix preserves the symbol's ℓ² mass
+-- (`∑_k∑_i ‖momentumCol V k i‖² = ∑_x ‖V x‖²`), so a position-space `σ` reads on the momentum form
+-- (`momentumCol_samePointProduct_hs_mass`, `samePointProduct_form_hs_bound`).  On the BRST side the
+-- identification is not available and the reason is proved: `gaugeReduce_extTorsionCoef` makes the
+-- reduced one-particle matrix momentum-diagonal, so its off-diagonal block vanishes
+-- (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`) while the ladder moves one quantum between modes.
+import BookProof.YangMillsFormClosureNonDiagonal
+import BookProof.YangMillsLadderTransport
+import BookProof.YangMillsLadderOperator
+import BookProof.YangMillsLadderL2
+-- 2026-11-05: Kato–Rellich at relative bound `a < 1` **at form level** (`BookProof.YangMillsFormKLMN`).
+-- §23 proves the KLMN theorem for diagonal forms: the form norm is finite exactly on `formDom`
+-- (`formENN_ne_top_iff`), it is lower semicontinuous (`formENN_le_of_tendsto`, `formTsum_lsc`),
+-- the sum form has the *unperturbed* form domain whenever `|b n| ≤ a c n + β` with `a < 1`
+-- (`formDom_add_of_relativeBound`, `formDom_of_relativeBound_add`), it is bounded below by
+-- `(1 − a)θ − β` on that domain (`formSum_ge_formDom`), and it is the quadratic form of the
+-- self-adjoint `diagUnb (c + b)` (`klmn`).  §24 identifies the **reduced (transverse) sector's
+-- magnetic slot** with §22's diagonal one: the sector is invariant under the diagonal operator
+-- (`diagUnb_mem_reducedSector`), the barrier is the constant vacuum value there
+-- (`yangMillsSymbol_on_sector`), and the gap `2` survives the restriction (`sector_gap`,
+-- `sector_gap_pos`).
+import BookProof.YangMillsFormKLMN
 -- 2026-10-30 (`softmodes.md` Phase 2): Simon's transverse zero-point energy on the Cartan flat
 -- directions.  `parallelDegree`/`perpDegree`/`rootCount` split the degree form into Cartan and
 -- root parts; `zeroPoint g N = ½ g √(N + ½)` is the per-mode barrier, nonnegative, strictly

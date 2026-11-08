@@ -29,19 +29,45 @@ The assembly is performed here:
   `physEvol_contractive` — `‖physEvol τ x‖ ≤ ‖x‖`;
 * `physEvolCompletion` — `LinearMap.extendOfNorm` extends the evolution to `ℋ`, with
   `norm_physEvolCompletion_le : ‖physEvolCompletion τ‖ ≤ 1` and `physEvolCompletion_coe` — it
-  agrees with the evolution on the dense image.
+  agrees with the evolution on the dense image;
+* **strong continuity at `0`** — `tendsto_physEvolCompletion`: if `τ ↦ ⟨T(τ)F, F⟩` is continuous
+  (the OS axiom of time-translation continuity, carried as a hypothesis), then `τ ↦ T(τ)z` is
+  continuous at `0` for every `z ∈ ℋ`, so the transfer semigroup is strongly continuous.  The
+  ingredients are `osBilin_evol_self` (the evolution preserves the OS norm, because it is a
+  contraction in both time directions) and the identity
+  `‖T(τ)x − x‖² = 2(⟨x,x⟩ − ⟨T(τ)x,x⟩)` (`continuous_norm_physEvol_sub`), followed by density plus
+  contractivity.  `continuousAt_inner_physEvolCompletion` is the matrix element form the
+  Källén–Lehmann representation consumes.
 
 ## Boundary
 
-What is assembled is the Hilbert space as a type with its structure, and the contractive
-extension of a given one-parameter family of evolutions.  The *generator* `H = −log P`, its
-self-adjointness and its boundedness below need the spectral theorem for unbounded operators and
-Stone's theorem; neither is in Mathlib, as the header of `OSReconstruction.Hamiltonian` records.
+What is assembled is the Hilbert space as a type with its structure, the contractive extension of
+a given one-parameter family of evolutions, and its strong continuity at `0` from matrix element
+continuity.  `OSReconstruction.Generator` attaches the generator to the semigroup: `z` is in its
+domain when `τ⁻¹ • (P(τ)z − z)` converges along the punctured filter `𝓝[≠] 0`, the value is that
+limit, and — if each `P(τ)` is self-adjoint — the resulting `LinearPMap` is symmetric and commutes
+with `P(t)`.  `OSReconstruction.GeneratorClosed` closes the graph: if `uₙ → z₀` and `A uₙ → y`,
+then `z₀` lies in the domain and `A z₀ = y`.  The integral representation
+`P(τ)z − z = ∫₀^τ P(s)(A z) ds` is used only for *fixed* domain vectors, and the resulting identity
+is passed to the limit by contractivity, so no Bochner integration of `ℋ`-valued functions is
+needed.  What remains open is self-adjointness of the closed symmetric operator — deficiency
+indices, or a resolvent representation identifying it with the realization's `H`.  Symmetry is what
+the Källén–Lehmann representation of matrix elements consumes.
+
+One consequence of the two-sided contractivity above deserves emphasis: it makes `P(τ)` an
+isometry, and `OSReconstruction.TransferSelfAdjoint` shows that a self-adjoint isometry is an
+involution, so the hypothesis `∀ τ, IsSelfAdjoint (P τ)` holds only for the trivial evolution
+`P ≡ 1`, where the closed symmetric operator is `0` on all of `ℋ`.  A nontrivial `P(τ) = e^{−τH}`
+needs contractivity for `τ ≥ 0` only — the physical OS transfer matrix — and then `P(τ)` is not
+unitary.
 -/
 
 namespace BookProof.OSReconstruction
 
 open BookProof.ReflectionPositivity
+open Filter
+open scoped Topology
+open RealInnerProductSpace
 
 noncomputable section
 
@@ -227,6 +253,24 @@ theorem physEvol_contractive (Λ : OSState) (T : TimeTranslation)
   rw [physEvol_mk, physNorm_mk, physNorm_mk]
   exact Real.sqrt_le_sqrt (hinv τ F)
 
+/-- **The evolution is the identity at time `0`**, read off the quotient from
+`timeTranslation_zero`. -/
+theorem physEvol_zero (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (x : PhysSpace Λ) : physEvol Λ T hinv 0 x = x := by
+  refine Submodule.Quotient.induction_on _ x fun F => ?_
+  rw [physEvol_mk, timeTranslation_zero]
+
+/-- **The evolution is a semigroup on the physical space**: `P(s + t) = P(s) ∘ P(t)`.  This is
+`timeTranslation_semigroup` under the quotient — the algebraic half of Phase 4.2's semigroup,
+before any topology is used. -/
+theorem physEvol_add (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (s t : ℝ) (x : PhysSpace Λ) :
+    physEvol Λ T hinv (s + t) x = physEvol Λ T hinv s (physEvol Λ T hinv t x) := by
+  refine Submodule.Quotient.induction_on _ x fun F => ?_
+  rw [physEvol_mk, physEvol_mk, physEvol_mk, timeTranslation_semigroup]
+
 /-- **The evolution extends to the completion** as a continuous linear map, by
 `LinearMap.extendOfNorm` along the dense embedding `𝔄/𝔑 ↪ ℋ`. -/
 def physEvolCompletion (Λ : OSState) (T : TimeTranslation)
@@ -266,6 +310,194 @@ theorem physEvolCompletion_contractive (Λ : OSState) (T : TimeTranslation)
         refine mul_le_mul_of_nonneg_right (norm_physEvolCompletion_le Λ T hinv τ) ?_
         exact norm_nonneg _
     _ = ‖z‖ := one_mul _
+
+/-! ## The semigroup law on the completion
+
+Contractivity is not a semigroup: `P(0) = 1` and `P(s + t) = P(s) P(t)` are separate statements,
+and on `ℋ` they hold because both sides are continuous and agree on the dense image of `𝔄 / 𝔑`,
+where they are `physEvol_zero` and `physEvol_add`.  This is the algebraic content Phase 4.2's
+Hille–Yosida step consumes.  Strong continuity at `0` is supplied further down
+(`tendsto_physEvolCompletion`), from continuity of the two-point function — the OS axiom — rather
+than assumed of `T`. -/
+
+/-- **`P(0) = 1` on `ℋ`.** -/
+theorem physEvolCompletion_zero (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F) :
+    physEvolCompletion Λ T hinv 0 = ContinuousLinearMap.id ℝ (Hphys Λ) := by
+  refine ContinuousLinearMap.ext fun z => ?_
+  refine UniformSpace.Completion.induction_on z
+    (isClosed_eq (ContinuousLinearMap.continuous _) continuous_id) (fun a => ?_)
+  rw [ContinuousLinearMap.id_apply, physEvolCompletion_coe, physEvol_zero]
+
+/-- **`P(s + t) = P(s) ∘ P(t)` on `ℋ`.**  Together with `physEvolCompletion_zero` this makes the
+time evolution a one-parameter contraction semigroup on the reconstructed Hilbert space, i.e. the
+object Hille–Yosida/Stone theory takes a generator of. -/
+theorem physEvolCompletion_add (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (s t : ℝ) :
+    physEvolCompletion Λ T hinv (s + t)
+      = (physEvolCompletion Λ T hinv s).comp (physEvolCompletion Λ T hinv t) := by
+  refine ContinuousLinearMap.ext fun z => ?_
+  refine UniformSpace.Completion.induction_on z
+    (isClosed_eq (ContinuousLinearMap.continuous (physEvolCompletion Λ T hinv (s + t)))
+      ((physEvolCompletion Λ T hinv s).comp
+        (physEvolCompletion Λ T hinv t)).continuous)
+    (fun a => ?_)
+  rw [ContinuousLinearMap.comp_apply, physEvolCompletion_coe, physEvolCompletion_coe,
+    physEvolCompletion_coe, physEvol_add]
+
+/-! ## Strong continuity at `0`
+
+Phase 4.2's remaining input is strong continuity of the transfer semigroup.  It is not an extra
+assumption on `T` as an abstract group: the OS axiom is continuity of the two-point function
+`τ ↦ ⟨T(τ)F, F⟩`, and everything else follows.  Contractivity in *both* time directions, together
+with the group law, makes `‖T(τ)F‖` independent of `τ` (`osBilin_evol_self`), so
+`‖T(τ)F − F‖² = 2(⟨F,F⟩ − ⟨T(τ)F,F⟩)` is a continuous function of `τ` vanishing at `0`; density of
+`𝔄/𝔑` in `ℋ` and contractivity then carry this to all of `ℋ` by an `ε/3` argument
+(`tendsto_physEvolCompletion`).
+
+Where the continuity hypothesis comes from, in the corpus's Fock realization: the inner
+Hamiltonian is sandwiched between outer creation and annihilation operators, the closed form of
+`BookProof.YangMillsFormClosureNonDiagonal` dominates that interaction
+(`closed_farisLavine_boxKernel`, `abs_closedKernelForm_boxKernel_le`), and the ESA/Faris–Lavine
+route turns the form sum into a self-adjoint (Friedrichs) operator whose Stone group is strongly
+continuous by construction, so `τ ↦ ⟨T(τ)F,F⟩` is a matrix element of a strongly continuous
+family.  That realization-level derivation is *not* repeated here: this section takes matrix
+element continuity as its hypothesis and produces the semigroup's strong continuity on `ℋ`.
+
+The proof below uses contractivity at `τ` *and* at `−τ`, i.e. the isometry.
+`OSReconstruction.SemigroupContinuity` re-derives the same conclusion from the contraction
+*inequality* `‖P(τ)x − x‖² ≤ 2(⟨x,x⟩ − ⟨P(τ)x,x⟩)` and the one-sided filter `𝓝[>] 0`
+(`tendsto_physEvolCompletion_right`), which is the form that survives restricting the hypothesis to
+`τ ≥ 0`. -/
+
+/-- **The evolution preserves the OS norm.**  Contractivity at `τ` and at `−τ` sandwich
+`‖T(τ)F‖` between `‖F‖` and itself, since the group law returns `T(−τ)(T(τ)F) = F`. -/
+theorem osBilin_evol_self (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (τ : ℝ) (F : Observable) :
+    osBilin Λ.ω (T τ F) (T τ F) = osBilin Λ.ω F F := by
+  refine le_antisymm (hinv τ F) ?_
+  have h : T (-τ) (T τ F) = F := by
+    rw [← timeTranslation_semigroup, neg_add_cancel, timeTranslation_zero]
+  calc osBilin Λ.ω F F = osBilin Λ.ω (T (-τ) (T τ F)) (T (-τ) (T τ F)) := by rw [h]
+    _ ≤ osBilin Λ.ω (T τ F) (T τ F) := hinv (-τ) (T τ F)
+
+/-- Quotient form of `osBilin_evol_self`: the OS form on `𝔄/𝔑` is invariant under the evolution,
+so `T(τ)` is not merely a contraction there but an isometry. -/
+theorem physForm_evol_self (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (τ : ℝ) (x : PhysSpace Λ) :
+    physForm Λ.ω (physEvol Λ T hinv τ x) (physEvol Λ T hinv τ x) = physForm Λ.ω x x := by
+  refine Submodule.Quotient.induction_on _ x fun F => ?_
+  rw [physEvol_mk, physForm_mk, physForm_mk, osBilin_evol_self Λ T hinv τ F]
+
+/-- Expansion of the OS form of a difference: `⟨a−b, a−b⟩ = ⟨a,a⟩ − ⟨a,b⟩ − ⟨b,a⟩ + ⟨b,b⟩`. -/
+theorem physForm_sub_sub (Λ : OSState) (a b : PhysSpace Λ) :
+    physForm Λ.ω (a - b) (a - b)
+      = physForm Λ.ω a a - physForm Λ.ω a b - physForm Λ.ω b a + physForm Λ.ω b b := by
+  simp only [map_sub, LinearMap.sub_apply]
+  ring
+
+/-- **The distance to the evolved state is continuous in `τ`**, on `𝔄/𝔑`, from continuity of the
+two-point function: `‖T(τ)x − x‖² = 2(⟨x,x⟩ − ⟨T(τ)x,x⟩)`. -/
+theorem continuous_norm_physEvol_sub (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (x : PhysSpace Λ)
+    (hcont : Continuous fun τ : ℝ => physForm Λ.ω (physEvol Λ T hinv τ x) x) :
+    Continuous fun τ : ℝ => ‖physEvol Λ T hinv τ x - x‖ := by
+  have hexp : ∀ τ : ℝ,
+      2 * (physForm Λ.ω x x - physForm Λ.ω (physEvol Λ T hinv τ x) x)
+        = physForm Λ.ω (physEvol Λ T hinv τ x - x) (physEvol Λ T hinv τ x - x) := by
+    intro τ
+    rw [physForm_sub_sub, physForm_evol_self Λ T hinv τ x,
+      physForm_symm Λ.ω x (physEvol Λ T hinv τ x)]
+    ring
+  have hquad : Continuous fun τ : ℝ =>
+      physForm Λ.ω (physEvol Λ T hinv τ x - x) (physEvol Λ T hinv τ x - x) :=
+    Continuous.congr (continuous_const.mul (continuous_const.sub hcont)) hexp
+  simpa [physNorm_eq] using Real.continuous_sqrt.comp hquad
+
+/-- Matrix element continuity on `𝔄/𝔑`, for a general quotient vector: the hypothesis is stated
+for observables, so this is the `Quotient` induction that reads it there. -/
+theorem continuous_physForm_physEvol (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (hcont : ∀ F : Observable, Continuous fun τ : ℝ => osBilin Λ.ω (T τ F) F)
+    (x : PhysSpace Λ) :
+    Continuous fun τ : ℝ => physForm Λ.ω (physEvol Λ T hinv τ x) x := by
+  refine Submodule.Quotient.induction_on _ x fun F => ?_
+  simpa [physForm_mk] using hcont F
+
+/-- **Strong continuity of the transfer semigroup on `ℋ`.**
+
+Given matrix element continuity of the evolution, `τ ↦ T(τ)z` is continuous at `0` for *every*
+`z ∈ ℋ`: approximate `z` by a vector of the dense subspace, use contractivity to control the two
+outer terms and `continuous_norm_physEvol_sub` for the middle one.  This is the hypothesis
+Hille–Yosida/Stone theory takes a generator of, now derived rather than assumed. -/
+theorem tendsto_physEvolCompletion (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (hcont : ∀ F : Observable, Continuous fun τ : ℝ => osBilin Λ.ω (T τ F) F)
+    (z : Hphys Λ) :
+    Tendsto (fun τ : ℝ => physEvolCompletion Λ T hinv τ z) (𝓝 0) (𝓝 z) := by
+  rw [Metric.tendsto_nhds]
+  intro ε hε
+  obtain ⟨x, hzx⟩ := (denseRange_physCoe Λ).exists_dist_lt z (show (0 : ℝ) < ε / 4 by linarith)
+  have hnorm := continuous_norm_physEvol_sub Λ T hinv x
+    (continuous_physForm_physEvol Λ T hinv hcont x)
+  have hzero : ‖physEvol Λ T hinv 0 x - x‖ = 0 := by
+    rw [physEvol_zero, sub_self, norm_zero]
+  have hev : ∀ᶠ τ in 𝓝 (0 : ℝ), ‖physEvol Λ T hinv τ x - x‖ < ε / 2 := by
+    have ht : Tendsto (fun τ : ℝ => ‖physEvol Λ T hinv τ x - x‖) (𝓝 0) (𝓝 0) := by
+      have hca : Tendsto (fun τ : ℝ => ‖physEvol Λ T hinv τ x - x‖) (𝓝 0)
+          (𝓝 ‖physEvol Λ T hinv 0 x - x‖) := hnorm.tendsto 0
+      rwa [hzero] at hca
+    simpa using Metric.tendsto_nhds.mp ht (ε / 2) (by linarith)
+  filter_upwards [hev] with τ hτ
+  have hmid : dist (physEvolCompletion Λ T hinv τ ((x : PhysSpace Λ) : Hphys Λ))
+      ((x : PhysSpace Λ) : Hphys Λ) = ‖physEvol Λ T hinv τ x - x‖ := by
+    rw [physEvolCompletion_coe, dist_eq_norm, ← UniformSpace.Completion.coe_sub,
+      UniformSpace.Completion.norm_coe]
+  have hout : dist (physEvolCompletion Λ T hinv τ z)
+      (physEvolCompletion Λ T hinv τ ((x : PhysSpace Λ) : Hphys Λ))
+      ≤ dist z ((x : PhysSpace Λ) : Hphys Λ) := by
+    rw [dist_eq_norm, ← map_sub, dist_eq_norm]
+    exact physEvolCompletion_contractive Λ T hinv τ _
+  have hfin : dist (physEvolCompletion Λ T hinv τ z) z
+      ≤ dist z ((x : PhysSpace Λ) : Hphys Λ)
+        + (‖physEvol Λ T hinv τ x - x‖ + dist ((x : PhysSpace Λ) : Hphys Λ) z) := by
+    calc dist (physEvolCompletion Λ T hinv τ z) z
+        ≤ dist (physEvolCompletion Λ T hinv τ z)
+            (physEvolCompletion Λ T hinv τ ((x : PhysSpace Λ) : Hphys Λ))
+          + dist (physEvolCompletion Λ T hinv τ ((x : PhysSpace Λ) : Hphys Λ)) z :=
+          dist_triangle _ _ _
+      _ ≤ dist z ((x : PhysSpace Λ) : Hphys Λ)
+          + (dist (physEvolCompletion Λ T hinv τ ((x : PhysSpace Λ) : Hphys Λ))
+              ((x : PhysSpace Λ) : Hphys Λ) + dist ((x : PhysSpace Λ) : Hphys Λ) z) := by
+          have h2 := dist_triangle (physEvolCompletion Λ T hinv τ ((x : PhysSpace Λ) : Hphys Λ))
+            ((x : PhysSpace Λ) : Hphys Λ) z
+          linarith
+      _ = _ := by rw [hmid]
+  have hle : dist ((x : PhysSpace Λ) : Hphys Λ) z < ε / 4 := by
+    rw [dist_comm]
+    exact hzx
+  linarith
+
+/-- **Strong continuity, as a statement about the parameter**: `τ ↦ ⟪z, T(τ)z⟫` is continuous at
+`0`.  This is the KL input — the two-point function whose Laplace transform the representation
+takes — now a theorem on `ℋ`. -/
+theorem continuousAt_inner_physEvolCompletion (Λ : OSState) (T : TimeTranslation)
+    (hinv : ∀ (τ : ℝ) (F : Observable), osBilin Λ.ω (T τ F) (T τ F) ≤ osBilin Λ.ω F F)
+    (hcont : ∀ F : Observable, Continuous fun τ : ℝ => osBilin Λ.ω (T τ F) F)
+    (z : Hphys Λ) :
+    ContinuousAt (fun τ : ℝ => ⟪z, physEvolCompletion Λ T hinv τ z⟫) 0 := by
+  have h := tendsto_physEvolCompletion Λ T hinv hcont z
+  have hz : physEvolCompletion Λ T hinv 0 z = z := by
+    rw [physEvolCompletion_zero]
+    rfl
+  have hinner : Tendsto (fun τ : ℝ => ⟪z, physEvolCompletion Λ T hinv τ z⟫) (𝓝 0)
+      (𝓝 ⟪z, z⟫) := tendsto_const_nhds.inner h
+  rw [ContinuousAt, hz]
+  exact hinner
 
 end
 

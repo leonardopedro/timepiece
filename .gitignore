@@ -18,6 +18,8 @@ repomix-output.xml
 *.ilean
 *.c
 *.c.tmp
+*.ndjson
+*.mmb
 
 # Aeneas/Charon intermediates at the model crate root (the committed
 # `.llbc`/`.lean` under unfer_contracts/ are tracked explicitly)
@@ -36,4 +38,7 @@ Book.lean.bak
 # copied 2026-10-20; owner decision: untracked. Provenance is rowed in
 # ATTRIBUTION.md, the attribution gate scans it on disk, and the conversion
 # lane lives in CONSOLIDATED_PLAN.md's 2026-10-20 wave)
+/math/
+/.freebuff/
+/.github/
 /math/

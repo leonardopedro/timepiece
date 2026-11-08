@@ -46,25 +46,48 @@ direction is equivalent to exponential decay in the *spatial* direction at the s
 * **`genForm_ge_of_contraction`** and **`genForm_gap_of_clustering`** — for every `ε ∈ (0,1)`
   there is `τ > 0` with `m(1 − ε)‖F‖² ≤ (‖F‖² − ⟨F, T_τ F⟩)/τ`: the clustering rate `m` is the
   bottom of the *generator's* form spectrum off the vacuum, which is the `SpectralSeparation`
-  hypothesis of the Temple/SIRK chain in bounded form.
+  hypothesis of the Temple/SIRK chain in bounded form;
+* §6, the Källén–Lehmann step in the other direction: `klCorr w lam τ = ∑' k, w k e^{−τ lam k}` is
+  the two-point function of an atomic spectral measure; **`klCorr_decay_of_gap`** says masses above
+  `m` decay it at rate `m` with the *sharp* constant `∑' w`, **`le_mass_of_klCorr_decay`** says
+  conversely that decay at rate `m` forces every positively weighted mass to be at least `m` — so
+  the rate *is* the bottom of the mass spectrum — and **`schwingerClustering_of_kl`** turns such a
+  representation of every connected correlator into `SchwingerClustering ω T m C`.  The clustering
+  hypothesis of §1 is then a consequence of the gap, not an independent input;
+* §7, the same two implications **without atomicity**: for an arbitrary finite Borel measure `ρ`
+  on `ℝ`, `laplace ρ τ = ∫ e^{−τλ} dρ(λ)` decays at rate `m` whenever `ρ` vanishes below `m`
+  (`laplace_le_of_massGap`), and an exponential bound at rate `m` forces `ρ` to vanish on `[0, m)`
+  (`measure_Iio_eq_zero_of_laplace_decay`) — so the rate is the bottom of the *support* of a general
+  spectral measure.  `laplace_map_withDensity` gives the representation itself in a multiplication
+  model: `ρ = (μ.withDensity w).map f` has Laplace transform `∫ w x e^{−τ f x} ∂μ`, which is the
+  measurable functional calculus `e^{−τM_f} = M_{e^{−τ f}}` read as a KL representation.
 
 ## Honest boundary
 
 The exponential clustering hypothesis is **not** proved: it is the Euclidean mass-gap input
 (Bałaban's infrared analysis / the cluster expansion), and `cftproof.md` lists it as the open
 analytic content of Phase 5.  What is proved here is the *equivalence machinery*: clustering
-⇔ decay of the transfer operator off the vacuum, and temporal ⇔ spatial decay under `O(4)`
-invariance.  Two further things are not claimed: the identification of the decay rate with the bottom of the spectrum via Källén–Lehmann, which
-needs the physical Hilbert space's spectral measure, and the identification of the bounded
-separation proved in §4 with a `SpectralSeparation` of the *unbounded* generator `H_phys`
-itself (needs the generator, which is not constructed).  The spectral theorem
-itself is **not** missing: `BookProof.ChapterSpectralMultiplication` /
-`ChapterSpectralDirectSum` give it for bounded normal operators, `ChapterUnboundedSpectralModel`
-for unbounded self-adjoint ones (Cayley route), `ChapterStoneConverse` gives the generator of a
-unitary group, and `physlib/` carries the same theorem (`SelfAdjointSpectralTheorem.lean`,
-`CayleySpectralData/SpecTheorem.lean`).  On the bounded side this file's output is consumed by
-`BookProof.TempleContinuumGap`, which turns a separation into a quantitative gap and carries it
-across an operator-norm limit.
+⇔ decay of the transfer operator off the vacuum, temporal ⇔ spatial decay under `O(4)`
+invariance, and the Källén–Lehmann direction of §6 — the rate is the bottom of the mass spectrum,
+and a gap in the masses gives clustering.
+
+The Källén–Lehmann step of §6 is stated for **atomic** spectral measures, which is what the diagonal
+models of this repository produce (`BookProof.YangMillsFormClosureNonDiagonal` §20–§22: the
+spectrum is the closure of a symbol's range on an `ℓ²` basis); §7 removes that restriction and
+proves the gap ⇔ decay equivalence for an arbitrary finite Borel measure, and gives the
+representation in a multiplication model — the shape `ChapterSpectralMultiplication` produces for a
+normal bounded operator with a cyclic vector, with `e^{−τ f}` as the measurable functional calculus.
+What remains not claimed is the *generator*: identifying the physical spectral measure `dρ(λ)` with
+such a model needs `H_phys` and the strong continuity of the transfer semigroup, which
+`OSReconstruction.Hamiltonian` records as unbuilt; and the bounded separation proved in §4 is not
+identified with a `SpectralSeparation` of the *unbounded* `H_phys` itself (needs the generator).
+The spectral theorem itself is **not** missing:
+`BookProof.ChapterSpectralMultiplication` / `ChapterSpectralDirectSum` give it for bounded normal
+operators, `ChapterUnboundedSpectralModel` for unbounded self-adjoint ones (Cayley route),
+`ChapterStoneConverse` gives the generator of a unitary group, and `physlib/` carries the same
+theorem (`SelfAdjointSpectralTheorem.lean`, `CayleySpectralData/SpecTheorem.lean`).  On the bounded
+side this file's output is consumed by `BookProof.TempleContinuumGap`, which turns a separation
+into a quantitative gap and carries it across an operator-norm limit.
 -/
 
 namespace BookProof.OSReconstruction
@@ -394,6 +417,409 @@ theorem genForm_gap_of_clustering {ω : LinearFunctional}
           mul_le_mul_of_nonneg_right hsqrt (by positivity)
         nlinarith
     _ = Real.exp (-(m * τ)) * osNorm ω G := one_mul _
+
+/-! ## 6. Källén–Lehmann: the decay rate is the bottom of the mass spectrum
+
+§2–§4 took clustering as input and read a spectral separation off it.  This section supplies the
+other direction — the one `cftproof.md` Phase 5 lists as the Källén–Lehmann input: *why* a gap in
+the spectrum produces exponential clustering, and *why* the rate is exactly the bottom of the mass
+spectrum rather than a number to be fitted.
+
+The Källén–Lehmann representation of a two-point function is a spectral measure `dρ(λ)` integrated
+against the Euclidean kernel `e^{−τλ}`.  The diagonal models of this repository — `diagUnb` in
+`BookProof.YangMillsFormClosureNonDiagonal`, whose spectrum is the closure of its symbol's range —
+have *atomic* spectral measures, so the representation is a weighted sum:
+
+`klCorr w lam τ = ∑' k, w k · e^{−τ lam k}`.
+
+Both directions are proved for that form, and they are exact:
+
+* **`klCorr_decay_of_gap`** — masses bounded below by `m` decay the two-point function at rate `m`
+  with the **sharp** constant `∑' w`, with no loss: the constant is the total spectral weight, not a
+  norm bound;
+* **`le_mass_of_klCorr_decay`** — conversely, decay at rate `m` forces every *mass with positive
+  weight* to be at least `m`: a mass below the rate would make the rescaled ratio
+  `w k₀ e^{(lam − m)τ}` grow without bound, contradicting the bound.  So the largest admissible rate
+  is the bottom of the mass support — the identification `cftproof.md` asks for;
+* **`schwingerClustering_of_kl`** — the transfer: a KL representation of every connected
+  two-point function, with masses above `m` and total weight bounded by `C ‖F‖ ‖G‖`, *is*
+  `SchwingerClustering ω T m C`.  The clustering hypothesis of §1 is therefore not an extra
+  assumption when the spectral measure is known; it is a consequence of the gap.
+
+What is still not claimed: the *physical* spectral measure is not atomic, and the measurable
+functional calculus that would turn a general `dρ(λ)` into `e^{−τH}` for the emergent Hamiltonian is
+not constructed (`OSReconstruction.Hamiltonian` records why: `H_phys` itself is not built).  The
+section is therefore the KL step for the diagonal spectral models used in this repository, stated
+at that strength.
+-/
+
+section KallenLehmann
+
+variable {ι : Type*}
+
+/-- **An atomic Källén–Lehmann two-point function**: the spectral weight `w` over the masses `lam`,
+integrated against the Euclidean kernel `e^{−τλ}`. -/
+noncomputable def klCorr (w lam : ι → ℝ) (τ : ℝ) : ℝ :=
+  ∑' k, w k * Real.exp (-(τ * lam k))
+
+theorem klCorr_nonneg {w lam : ι → ℝ} (hw : ∀ k, 0 ≤ w k) (τ : ℝ) : 0 ≤ klCorr w lam τ :=
+  tsum_nonneg fun k => mul_nonneg (hw k) (Real.exp_nonneg _)
+
+/-- The spectral summands are summable as soon as the weight and the masses are, because
+`e^{−τλ} ≤ 1` for nonnegative `τ` and `λ`. -/
+theorem summable_klCorr {w lam : ι → ℝ} (hw : ∀ k, 0 ≤ w k) (hws : Summable w)
+    (hlam0 : ∀ k, 0 ≤ lam k) {τ : ℝ} (hτ : 0 ≤ τ) :
+    Summable fun k => w k * Real.exp (-(τ * lam k)) := by
+  refine Summable.of_nonneg_of_le (fun k => mul_nonneg (hw k) (Real.exp_nonneg _))
+    (fun k => ?_) hws
+  have h1 : Real.exp (-(τ * lam k)) ≤ 1 := by
+    rw [← Real.exp_zero]
+    refine Real.exp_le_exp.mpr ?_
+    have : 0 ≤ τ * lam k := mul_nonneg hτ (hlam0 k)
+    linarith
+  calc w k * Real.exp (-(τ * lam k)) ≤ w k * 1 := mul_le_mul_of_nonneg_left h1 (hw k)
+    _ = w k := mul_one _
+
+/-- **A gap in the masses decays the two-point function at the gap's rate**, with the sharp
+constant `∑' w`: the spectral weight above the gap is weighted by `e^{−mτ}` and no more. -/
+theorem klCorr_decay_of_gap {w lam : ι → ℝ} {m : ℝ} (hw : ∀ k, 0 ≤ w k)
+    (hlam0 : ∀ k, 0 ≤ lam k) (hg : ∀ k, m ≤ lam k) (hws : Summable w) {τ : ℝ} (hτ : 0 ≤ τ) :
+    klCorr w lam τ ≤ Real.exp (-(m * τ)) * ∑' k, w k := by
+  have hexp : ∀ k, Real.exp (-(τ * lam k)) ≤ Real.exp (-(m * τ)) := by
+    intro k
+    refine Real.exp_le_exp.mpr ?_
+    have hle : τ * m ≤ τ * lam k := mul_le_mul_of_nonneg_left (hg k) hτ
+    linarith
+  have hf : Summable fun k => w k * Real.exp (-(τ * lam k)) := summable_klCorr hw hws hlam0 hτ
+  have hsum : Summable fun k => w k * Real.exp (-(m * τ)) := hws.mul_right _
+  calc klCorr w lam τ = ∑' k, w k * Real.exp (-(τ * lam k)) := rfl
+    _ ≤ ∑' k, w k * Real.exp (-(m * τ)) :=
+        hf.tsum_le_tsum (fun k => mul_le_mul_of_nonneg_left (hexp k) (hw k)) hsum
+    _ = Real.exp (-(m * τ)) * ∑' k, w k := by rw [tsum_mul_right, mul_comm]
+
+/-- **No mass below the decay rate has positive weight** — the converse of
+`klCorr_decay_of_gap`, and the reason the rate *is* the bottom of the spectrum rather than a bound
+for it.  A mass `lam k₀ < m` with `w k₀ > 0` makes the rescaled ratio
+`w k₀ e^{(lam k₀ − m)τ}` diverge, contradicting any exponential bound. -/
+theorem le_mass_of_klCorr_decay {w lam : ι → ℝ} {m C : ℝ} (hw : ∀ k, 0 ≤ w k)
+    (hws : Summable w) (hlam0 : ∀ k, 0 ≤ lam k)
+    (hbound : ∀ τ : ℝ, 0 ≤ τ → klCorr w lam τ ≤ C * Real.exp (-(m * τ))) {k₀ : ι}
+    (hk₀ : 0 < w k₀) : m ≤ lam k₀ := by
+  by_contra hcon
+  push_neg at hcon
+  have hpos : 0 < m - lam k₀ := by linarith
+  -- the rescaled bound tends to zero
+  have hlim : Tendsto (fun τ : ℝ => C * Real.exp (τ * (lam k₀ - m))) atTop (𝓝 0) := by
+    have harg : Tendsto (fun τ : ℝ => τ * (m - lam k₀)) atTop atTop := by
+      have h1 : Tendsto (fun τ : ℝ => (m - lam k₀) * τ) atTop atTop :=
+        Tendsto.const_mul_atTop hpos tendsto_id
+      exact h1.congr' (Eventually.of_forall fun τ => mul_comm _ _)
+    have h2 : Tendsto (fun τ : ℝ => C * Real.exp (-(τ * (m - lam k₀)))) atTop (𝓝 0) := by
+      have h := (Real.tendsto_exp_neg_atTop_nhds_zero.comp harg).const_mul C
+      simpa using h
+    refine h2.congr' (Eventually.of_forall fun τ => ?_)
+    have : -(τ * (m - lam k₀)) = τ * (lam k₀ - m) := by ring
+    rw [this]
+  obtain ⟨τ, hlt, hτ0⟩ := (hlim.eventually (Iio_mem_nhds hk₀)).and
+    (eventually_ge_atTop (0 : ℝ)) |>.exists
+  -- the single term is bounded by the whole spectral sum
+  have hsm := summable_klCorr hw hws hlam0 hτ0
+  have hsingle : w k₀ * Real.exp (-(τ * lam k₀)) ≤ klCorr w lam τ := by
+    have h := hsm.sum_le_tsum {k₀} (fun i _ => mul_nonneg (hw i) (Real.exp_nonneg _))
+    simpa [klCorr] using h
+  have hkey : w k₀ * Real.exp (-(τ * lam k₀)) ≤ C * Real.exp (-(m * τ)) :=
+    hsingle.trans (hbound τ hτ0)
+  -- divide by the positive kernel value
+  have hkpos : 0 < Real.exp (-(τ * lam k₀)) := Real.exp_pos _
+  have hdiv : w k₀ ≤ C * Real.exp (τ * (lam k₀ - m)) := by
+    have hsplit : w k₀ = (w k₀ * Real.exp (-(τ * lam k₀))) / Real.exp (-(τ * lam k₀)) := by
+      field_simp
+    rw [hsplit]
+    refine (div_le_iff₀ hkpos).mpr ?_
+    have hexp : (C * Real.exp (τ * (lam k₀ - m))) * Real.exp (-(τ * lam k₀))
+        = C * Real.exp (-(m * τ)) := by
+      rw [mul_assoc, ← Real.exp_add, show τ * (lam k₀ - m) + -(τ * lam k₀) = -(m * τ) from by ring]
+    rw [hexp]
+    exact hkey
+  linarith
+
+/-- **Källén–Lehmann implies clustering.**  If every connected two-point function has an atomic KL
+representation whose masses are bounded below by `m` and whose total weight is at most
+`C ‖F‖ ‖G‖`, then the Schwinger functions cluster at mass `m` with constant `C`.  The clustering
+hypothesis of §1 is then a *consequence* of the gap, and the rate needs no fitting. -/
+theorem schwingerClustering_of_kl {ω : LinearFunctional} {T : TimeTranslation} {m C : ℝ}
+    (w : Observable → Observable → ι → ℝ) (lam : ι → ℝ)
+    (hw : ∀ F G k, 0 ≤ w F G k) (hws : ∀ F G, Summable (w F G))
+    (hlam0 : ∀ k, 0 ≤ lam k) (hm : ∀ k, m ≤ lam k)
+    (hrep : ∀ (F G : Observable) (τ : ℝ), 0 ≤ τ → |connectedCorr ω T F G τ| ≤ klCorr (w F G) lam τ)
+    (hC : ∀ F G, (∑' k, w F G k) ≤ C * osNorm ω F * osNorm ω G) :
+    SchwingerClustering ω T m C := by
+  intro F G τ hτ
+  calc |connectedCorr ω T F G τ| ≤ klCorr (w F G) lam τ := hrep F G τ hτ
+    _ ≤ Real.exp (-(m * τ)) * ∑' k, w F G k :=
+        klCorr_decay_of_gap (hw F G) hlam0 hm (hws F G) hτ
+    _ ≤ Real.exp (-(m * τ)) * (C * osNorm ω F * osNorm ω G) :=
+        mul_le_mul_of_nonneg_left (hC F G) (Real.exp_nonneg _)
+    _ = C * Real.exp (-(m * τ)) * osNorm ω F * osNorm ω G := by ring
+
+end KallenLehmann
+
+/-! ## 7. Källén–Lehmann without atomicity
+
+§6 reads the mass spectrum off an *atomic* spectral measure: a sum over eigenvalues.  The physical
+`dρ` is not atomic, and the representation `⟪φ, e^{−τH}φ⟫ = ∫ e^{−τλ} dρ(λ)` is then an integral,
+not a series.  This section proves the same two implications for an **arbitrary finite Borel measure
+on `ℝ`** — no atomicity anywhere — and then gives the representation itself for the multiplication
+model that the repository's spectral theorem produces.
+
+* `laplace` — the Euclidean kernel `∫ e^{−τλ} dρ(λ)` of a measure;
+* **`laplace_le_of_massGap`** — if `ρ` vanishes below `m`, the transform decays at rate `m` with
+  the constant `ρ(ℝ)`, and no eigenvalue decomposition is used: the kernel is compared with
+  `e^{−mτ}` almost everywhere, which is Fatou's-side of the statement and therefore insensitive to
+  the measure's atomicity;
+* **`measure_Iio_eq_zero_of_laplace_decay`** — conversely, an exponential bound at rate `m` forces
+  `ρ` to vanish on `[0, m)`: the rate *is* the bottom of the support of the spectral measure, again
+  for any finite measure;
+* **`continuousOn_laplace`** — on `[0, ∞)` the transform is Lipschitz in `τ` with constant the
+  first moment `∫ λ dρ`, hence continuous there: time continuity of the KL two-point function
+  without any functional calculus;
+* **`laplace_map_withDensity`** — the representation: for a measure `μ`, a measurable symbol `f` and
+  a weight `w`, the pushforward `ρ = (μ.withDensity w).map f` satisfies
+  `∫ e^{−τλ} dρ = ∫ w x e^{−τ f x} ∂μ`.  This is the measurable functional calculus
+  `e^{−τ M_f} = M_{e^{−τ f}}` read as a KL representation, and `ρ` is atomic only if `f` has
+  atomic fibres.
+
+`ChapterSpectralMultiplication` supplies exactly such a model for a normal bounded operator with a
+cyclic vector (`spectral_multiplication_model`, `integral_spectralMeasure`), so the KL step applies
+to it verbatim; §6 is the case where `μ` is counting measure on the eigenvalues.
+
+What is still not claimed: `H_phys` itself.  Identifying the physical spectral measure with a
+multiplication model needs the generator of the transfer semigroup, which
+`OSReconstruction.Hamiltonian` records as unbuilt.  What is removed here is the *atomicity* of the
+measure, not the construction of the Hamiltonian.
+-/
+
+section KallenLehmannGeneral
+
+open MeasureTheory
+
+open scoped ENNReal
+
+/-- The **Laplace transform of a finite measure**: the Euclidean two-point function of a spectral
+measure, `∫ e^{−τλ} dρ(λ)`. -/
+noncomputable def laplace (ρ : Measure ℝ) (τ : ℝ) : ℝ :=
+  ∫ l, Real.exp (-(τ * l)) ∂ρ
+
+theorem laplace_nonneg (ρ : Measure ℝ) (τ : ℝ) : 0 ≤ laplace ρ τ :=
+  integral_nonneg fun _ => Real.exp_nonneg _
+
+/-- **The kernel is `1`-Lipschitz in its exponent** on the nonnegative half-line: writing
+`e^{−a} − e^{−b} = e^{−a}(1 − e^{−(b−a)})`, the first factor is `≤ 1` and the second is `≤ b − a`,
+which is `Real.add_one_le_exp` at `−(b−a)`. -/
+private theorem exp_neg_sub_exp_neg_le_of_le {a b : ℝ} (ha : 0 ≤ a) (hle : a ≤ b) :
+    |Real.exp (-a) - Real.exp (-b)| ≤ b - a := by
+  have hy : Real.exp (-b) ≤ Real.exp (-a) := Real.exp_le_exp.2 (by linarith)
+  have hnonneg : 0 ≤ Real.exp (-a) - Real.exp (-b) := by linarith
+  have hfac : Real.exp (-a) - Real.exp (-b)
+      = Real.exp (-a) * (1 - Real.exp (-(b - a))) := by
+    rw [mul_sub, mul_one, ← Real.exp_add]
+    congr 2
+    ring
+  have ha1 : Real.exp (-a) ≤ 1 := by
+    have := Real.exp_le_exp.2 (show -a ≤ 0 by linarith)
+    simpa using this
+  have hle1 : 1 - Real.exp (-(b - a)) ≤ b - a := by
+    have := Real.add_one_le_exp (-(b - a))
+    linarith
+  rw [abs_of_nonneg hnonneg, hfac]
+  calc Real.exp (-a) * (1 - Real.exp (-(b - a)))
+      ≤ 1 * (1 - Real.exp (-(b - a))) :=
+        mul_le_mul_of_nonneg_right ha1 (by
+          have h1 : Real.exp (-(b - a)) ≤ 1 := by
+            have := Real.exp_le_exp.2 (show -(b - a) ≤ 0 by linarith)
+            simpa using this
+          linarith)
+    _ = 1 - Real.exp (-(b - a)) := one_mul _
+    _ ≤ b - a := hle1
+
+/-- **The kernel is `1`-Lipschitz in the exponent**, both orders. -/
+theorem abs_exp_neg_sub_exp_neg_le {a b : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) :
+    |Real.exp (-a) - Real.exp (-b)| ≤ |a - b| := by
+  rcases le_total a b with hle | hle
+  · rw [abs_sub_comm a, abs_of_nonneg (show (0 : ℝ) ≤ b - a by linarith)]
+    exact exp_neg_sub_exp_neg_le_of_le ha hle
+  · have h := exp_neg_sub_exp_neg_le_of_le hb hle
+    rw [abs_of_nonneg (show (0 : ℝ) ≤ a - b by linarith)]
+    rwa [abs_sub_comm (Real.exp (-b)) (Real.exp (-a))] at h
+
+/-- **Pointwise difference bound** for two time parameters: `|e^{−τλ} − e^{−τ'λ}| ≤ |τ − τ'| λ` for
+`λ ≥ 0`, by the `1`-Lipschitz bound on the kernel. -/
+theorem abs_exp_mul_sub_le {l τ τ' : ℝ} (hl : 0 ≤ l) (hτ : 0 ≤ τ) (hτ' : 0 ≤ τ') :
+    |Real.exp (-(τ * l)) - Real.exp (-(τ' * l))| ≤ |τ - τ'| * l := by
+  have h := abs_exp_neg_sub_exp_neg_le (a := τ * l) (b := τ' * l)
+    (mul_nonneg hτ hl) (mul_nonneg hτ' hl)
+  calc |Real.exp (-(τ * l)) - Real.exp (-(τ' * l))| ≤ |τ * l - τ' * l| := h
+    _ = |(τ - τ') * l| := by ring_nf
+    _ = |τ - τ'| * l := by rw [abs_mul, abs_of_nonneg hl]
+
+/-- **`laplace` is Lipschitz in time** on the nonnegative half-line, with constant the first moment
+of the measure — no dominated convergence, and no hypothesis that `ρ` is atomic.  Only two things
+are used about `ρ`: it is finite and supported on `[0, ∞)`. -/
+theorem abs_laplace_sub_le {ρ : Measure ℝ} [IsFiniteMeasure ρ] {M : ℝ}
+    (hint : Integrable (fun l : ℝ => l) ρ) (hM : (∫ l, l ∂ρ) = M)
+    (hsupp : ρ (Set.Iio 0) = 0) {τ τ' : ℝ} (hτ : 0 ≤ τ) (hτ' : 0 ≤ τ') :
+    |laplace ρ τ - laplace ρ τ'| ≤ |τ - τ'| * M := by
+  have hae : ∀ᵐ l ∂ρ, 0 ≤ l := by
+    have hset : {l : ℝ | ¬ 0 ≤ l} = Set.Iio 0 := by
+      ext l
+      simp only [Set.mem_setOf_eq, Set.mem_Iio, not_le]
+    refine ae_iff.2 ?_
+    rw [hset]
+    exact hsupp
+  have hInt : ∀ {τ : ℝ}, 0 ≤ τ → Integrable (fun l : ℝ => Real.exp (-(τ * l))) ρ := by
+    intro τ hτ
+    refine Integrable.mono' (g := fun _ : ℝ => (1 : ℝ)) (integrable_const 1) ?_ ?_
+    · exact (Real.measurable_exp.comp
+        ((measurable_const.mul measurable_id).neg)).aestronglyMeasurable
+    · filter_upwards [hae] with l hl
+      have h1 : Real.exp (-(τ * l)) ≤ 1 := by
+        have h2 : -(τ * l) ≤ 0 := by nlinarith [mul_nonneg hτ hl]
+        simpa using Real.exp_le_exp.2 h2
+      have hnorm : ‖Real.exp (-(τ * l))‖ = Real.exp (-(τ * l)) := by
+        rw [Real.norm_eq_abs, abs_of_nonneg (Real.exp_nonneg _)]
+      rw [hnorm]
+      exact h1
+  have hIntτ := hInt hτ
+  have hIntτ' := hInt hτ'
+  have hdiff : Integrable
+      (fun l : ℝ => Real.exp (-(τ * l)) - Real.exp (-(τ' * l))) ρ := hIntτ.sub hIntτ'
+  calc |laplace ρ τ - laplace ρ τ'|
+      = |∫ l, (Real.exp (-(τ * l)) - Real.exp (-(τ' * l))) ∂ρ| := by
+        rw [laplace, laplace, ← integral_sub hIntτ hIntτ']
+    _ ≤ ∫ l, |Real.exp (-(τ * l)) - Real.exp (-(τ' * l))| ∂ρ := abs_integral_le_integral_abs
+    _ ≤ ∫ l, |τ - τ'| * l ∂ρ := by
+        refine integral_mono_ae hdiff.abs (hint.const_mul |τ - τ'|) ?_
+        filter_upwards [hae] with l hl
+        exact abs_exp_mul_sub_le hl hτ hτ'
+    _ = |τ - τ'| * M := by rw [integral_const_mul, hM]
+
+/-- **Continuity of the Källén–Lehmann transform in its time variable.**  On `[0, ∞)` the transform
+is `M`-Lipschitz, where `M` is the first moment of the spectral measure. -/
+theorem lipschitzOnWith_laplace {ρ : Measure ℝ} [IsFiniteMeasure ρ] {M : ℝ} (hM0 : 0 ≤ M)
+    (hint : Integrable (fun l : ℝ => l) ρ) (hM : (∫ l, l ∂ρ) = M)
+    (hsupp : ρ (Set.Iio 0) = 0) :
+    LipschitzOnWith M.toNNReal (fun τ => laplace ρ τ) (Set.Ici 0) := by
+  refine LipschitzOnWith.of_dist_le_mul ?_
+  intro τ hτ τ' hτ'
+  rw [Real.dist_eq, Real.dist_eq, Real.coe_toNNReal M hM0]
+  simpa [mul_comm] using abs_laplace_sub_le hint hM hsupp hτ hτ'
+
+theorem continuousOn_laplace {ρ : Measure ℝ} [IsFiniteMeasure ρ] {M : ℝ} (hM0 : 0 ≤ M)
+    (hint : Integrable (fun l : ℝ => l) ρ) (hM : (∫ l, l ∂ρ) = M)
+    (hsupp : ρ (Set.Iio 0) = 0) :
+    ContinuousOn (fun τ => laplace ρ τ) (Set.Ici 0) :=
+  (lipschitzOnWith_laplace hM0 hint hM hsupp).continuousOn
+
+/-- **A mass gap decays the transform at the gap's rate, for any finite measure.**  If `ρ` has no
+mass below `m`, then `e^{−τλ} ≤ e^{−mτ}` `ρ`-almost everywhere, and integrating gives the bound with
+the total mass `ρ(ℝ)` as constant.  Nothing here is a sum over eigenvalues. -/
+theorem laplace_le_of_massGap {ρ : Measure ℝ} [IsFiniteMeasure ρ] {m τ : ℝ} (hτ : 0 ≤ τ)
+    (hint : Integrable (fun l : ℝ => Real.exp (-(τ * l))) ρ) (hsupp : ρ (Set.Iio m) = 0) :
+    laplace ρ τ ≤ (ρ Set.univ).toReal * Real.exp (-(m * τ)) := by
+  have hsupp' : ρ {l : ℝ | ¬ m ≤ l} = 0 := by
+    have hset : {l : ℝ | ¬ m ≤ l} = Set.Iio m := by ext l; simp [not_le]
+    rw [hset]
+    exact hsupp
+  have hmono : (fun l : ℝ => Real.exp (-(τ * l))) ≤ᵐ[ρ] fun _ => Real.exp (-(m * τ)) := by
+    filter_upwards [ae_iff.2 hsupp'] with l hl
+    have hle : m ≤ l := hl
+    refine Real.exp_le_exp.2 ?_
+    nlinarith
+  have hInt : Integrable (fun _ : ℝ => Real.exp (-(m * τ))) ρ := integrable_const _
+  have h := integral_mono_ae hint hInt hmono
+  rw [integral_const] at h
+  simpa only [laplace, Measure.real, smul_eq_mul] using h
+
+/-- **The rate is the bottom of the mass spectrum, for any finite measure.**  If the transform
+decays at rate `m`, then `ρ` has no mass on `[0, m)` — in particular none at `0`.  The proof takes a
+strictly smaller threshold `m' < m` and lets `τ → ∞`: the mass below `m'` is bounded by
+`C e^{−τ(m−m')}`, which vanishes. -/
+theorem measure_Iio_eq_zero_of_laplace_decay {ρ : Measure ℝ} [IsFiniteMeasure ρ] {m C : ℝ}
+    (hint : ∀ τ : ℝ, 0 ≤ τ → Integrable (fun l : ℝ => Real.exp (-(τ * l))) ρ)
+    (hdecay : ∀ τ : ℝ, 0 ≤ τ → laplace ρ τ ≤ C * Real.exp (-(m * τ))) {m' : ℝ} (hm' : m' < m) :
+    ρ (Set.Iio m') = 0 := by
+  by_contra hne
+  have hpos : 0 < ρ (Set.Iio m') := lt_of_le_of_ne (zero_le _) (Ne.symm hne)
+  -- the lower bound `e^{−τm'} ρ(Iio m') ≤ laplace ρ τ`
+  have hlower : ∀ τ : ℝ, 0 ≤ τ →
+      Real.exp (-(τ * m')) * (ρ (Set.Iio m')).toReal ≤ laplace ρ τ := by
+    intro τ hτ
+    have hInt := hint τ hτ
+    have hconst : IntegrableOn (fun _ : ℝ => Real.exp (-(τ * m'))) (Set.Iio m') ρ :=
+      integrableOn_const (measure_ne_top _ _)
+    have hmono : ∀ l ∈ Set.Iio m', Real.exp (-(τ * m')) ≤ Real.exp (-(τ * l)) := by
+      intro l hl
+      refine Real.exp_le_exp.2 ?_
+      have : τ * l ≤ τ * m' := mul_le_mul_of_nonneg_left (le_of_lt hl) hτ
+      linarith
+    have hset := setIntegral_mono_on (μ := ρ) (s := Set.Iio m')
+      (f := fun _ : ℝ => Real.exp (-(τ * m'))) (g := fun l : ℝ => Real.exp (-(τ * l)))
+      hconst hInt.integrableOn measurableSet_Iio hmono
+    rw [setIntegral_const, smul_eq_mul, Measure.real, mul_comm] at hset
+    refine hset.trans ?_
+    exact setIntegral_le_integral hInt (Eventually.of_forall fun _ => Real.exp_nonneg _)
+  -- divide by the positive kernel value
+  have hmass : ∀ τ : ℝ, 0 ≤ τ →
+      (ρ (Set.Iio m')).toReal ≤ C * Real.exp (-(τ * (m - m'))) := by
+    intro τ hτ
+    have hk : 0 < Real.exp (-(τ * m')) := Real.exp_pos _
+    have hle := (hlower τ hτ).trans (hdecay τ hτ)
+    have hexpfac : Real.exp (-(m * τ))
+        = Real.exp (-(τ * m')) * Real.exp (-(τ * (m - m'))) := by
+      rw [← Real.exp_add]
+      congr 1
+      ring
+    have hsplit : C * Real.exp (-(m * τ))
+        = Real.exp (-(τ * m')) * (C * Real.exp (-(τ * (m - m')))) := by
+      rw [hexpfac]
+      ring
+    rw [hsplit] at hle
+    exact le_of_mul_le_mul_left hle hk
+  -- the bound tends to zero
+  have hlim : Tendsto (fun τ : ℝ => C * Real.exp (-(τ * (m - m')))) atTop (𝓝 0) := by
+    have harg : Tendsto (fun τ : ℝ => τ * (m - m')) atTop atTop :=
+      (Tendsto.const_mul_atTop (by linarith : (0 : ℝ) < m - m') tendsto_id).congr'
+        (Eventually.of_forall fun τ => mul_comm _ _)
+    have h := (Real.tendsto_exp_neg_atTop_nhds_zero.comp harg).const_mul C
+    simpa using h
+  have hzero : (ρ (Set.Iio m')).toReal = 0 := by
+    refine le_antisymm ?_ (by positivity)
+    refine le_of_tendsto_of_tendsto tendsto_const_nhds hlim ?_
+    filter_upwards [eventually_ge_atTop (0 : ℝ)] with τ hτ
+    exact hmass τ hτ
+  rcases (ENNReal.toReal_eq_zero_iff _).1 hzero with h | h
+  · exact hne h
+  · exact (measure_ne_top ρ (Set.Iio m')) h
+
+/-- **The Källén–Lehmann representation in a multiplication model.**  For a measure `μ`, a
+measurable symbol `f` and a weight `w`, the pushed-forward weighted measure is the spectral measure
+of multiplication by `f`, and its Laplace transform is the two-point function of the weight: the
+measurable functional calculus `e^{−τM_f} = M_{e^{−τf}}`, integrated against `w`.  This is the
+non-atomic form of `klCorr`: `ρ` is atomic only when `f` has atomic fibres. -/
+theorem laplace_map_withDensity {X : Type*} [MeasurableSpace X] {μ : Measure X} {f : X → ℝ}
+    (hf : Measurable f) {w : X → ENNReal} (hw : Measurable w)
+    (hwtop : ∀ᵐ x ∂μ, w x < ∞) (τ : ℝ) :
+    laplace ((μ.withDensity w).map f) τ
+      = ∫ x, (w x).toReal * Real.exp (-(τ * f x)) ∂μ := by
+  have hmeas : AEStronglyMeasurable (fun l : ℝ => Real.exp (-(τ * l)))
+      ((μ.withDensity w).map f) :=
+    (Real.measurable_exp.comp ((measurable_const.mul measurable_id).neg)).aestronglyMeasurable
+  rw [laplace, integral_map hf.aemeasurable hmeas]
+  rw [integral_withDensity_eq_integral_toReal_smul hw hwtop]
+  refine integral_congr_ae (Eventually.of_forall fun x => ?_)
+  simp only [smul_eq_mul]
+
+end KallenLehmannGeneral
 
 end
 

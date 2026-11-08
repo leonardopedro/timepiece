@@ -18,6 +18,14 @@ jobs:
       # the link names.
       - name: workspace-root ATTRIBUTION (mirrored)
         run: curl -fsSL https://raw.githubusercontent.com/leonardopedro/emthin/main/workspace-backup/ATTRIBUTION.md -o ../ATTRIBUTION.md
+      # The gate's scope is which documents it checks: git-tracked ones by
+      # default (a git-ignored PDF dump is not the repository's contract), and
+      # any document named explicitly. These are the regression tests for that
+      # rule, so a future "just check every *.md" edit fails here instead of in
+      # the next unrelated PR.
+      - name: check-links scope tests
+        run: python3 scripts/test_check_links.py
+
       - name: check-links
         run: |
           set -o pipefail

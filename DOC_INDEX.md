@@ -6,29 +6,30 @@
 >
 > A reference is counted when it *resolves to a file that exists in the repo*. Four forms qualify: a markdown link `[t](p.md)`, a `[[wikilink]]`, a backticked `` `p.md` ``, and a bare `p.md` on its own line. The backticked form is this corpus's dominant convention (~2400 references vs ~120 markdown links), and reading only markdown links is what previously made a heavily cross-referenced corpus report zero backlinks.
 
-## Documents (79)
+## Documents (83)
 
 | Document | Title | Lines | Out | In |
 |---|---|---:|---:|---:|
-| [AGENTS.md](AGENTS.md) | AGENTS.md - Developer Guide for AI Coding Agents | 319 | 8 | 9 |
+| [AGENTS.md](AGENTS.md) | AGENTS.md - Developer Guide for AI Coding Agents | 320 | 8 | 9 |
 | [ARISTOTLE_SUMMARY.md](ARISTOTLE_SUMMARY.md) | Summary of changes for run d5df5823-3d2d-4b85-95ec-175932ea4f8f | 27 | 0 | 8 |
-| [ATTRIBUTION.md](ATTRIBUTION.md) | Attribution | 25 | 1 | 1 |
+| [ATTRIBUTION.md](ATTRIBUTION.md) | Attribution | 28 | 1 | 1 |
 | [BOOKPROOF_PHASE1_MOVES.md](BOOKPROOF_PHASE1_MOVES.md) | BookProof Phase 1 move map | 102 | 0 | 2 |
 | [BOOKPROOF_PHASE2B_MOVES.md](BOOKPROOF_PHASE2B_MOVES.md) | BookProof Phase 2.2b move map | 242 | 0 | 3 |
 | [BOOKPROOF_PHASE2_MOVES.md](BOOKPROOF_PHASE2_MOVES.md) | BookProof Phase 2.2 move map | 398 | 0 | 2 |
-| [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md) | BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory | 661 | 9 | 3 |
+| [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md) | BOOKPROOF_SPLIT_PLAN.md — splitting `BookProof/` into logically independent parts, and the redundancy / legacy / dead-end inventory | 661 | 10 | 3 |
 | [BOOK_PROOF_PLAN.md](BOOK_PROOF_PLAN.md) | BOOK_PROOF_PLAN.md — Tasks for the LLM Lean 4 Specialist (Aristotle) | 439 | 1 | 4 |
 | [BUILD_COMPONENTS.md](BUILD_COMPONENTS.md) | The independent parts of the development, and how to compile them separately | 109 | 0 | 5 |
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | Project layout and how to build as little as possible | 234 | 1 | 2 |
 | [CFT_REVIEW.md](CFT_REVIEW.md) | Review of `cft.md`: machine-checked claims and assessment | 331 | 1 | 0 |
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18328 | 59 | 18 |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18775 | 63 | 18 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 1 |
-| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 32 | 3 |
+| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 33 | 3 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 1 |
 | [DISPROVED_PLATFORM_AUDIT.md](DISPROVED_PLATFORM_AUDIT.md) | Audit: the 19 `BookProof.*` nodes marked **Disproved** on prove2.me | 277 | 0 | 0 |
+| [Downloads/_deps/README.md](Downloads/_deps/README.md) | `_deps/` — prove2.me platform library (2026-10-19) | 134 | 0 | 4 |
 | [EXPPOT.md](EXPPOT.md) | EXPPOT | 174 | 0 | 0 |
 | [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md) | FEDERATION DEEP REVIEW & IMPROVEMENT PLAN | 201 | 1 | 0 |
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | Formalization Roadmap for `book.tex` | 3817 | 6 | 8 |
@@ -38,11 +39,12 @@
 | [HERMITE_CORE_STRICHARTZ.md](HERMITE_CORE_STRICHARTZ.md) | The Hermite core of `L²(ℝ)` and a Strichartz-type theorem on it | 69 | 0 | 1 |
 | [HERMITE_GALERKIN_FRIEDRICHS.md](HERMITE_GALERKIN_FRIEDRICHS.md) | Hermite-basis Galerkin truncation and the Friedrichs extension — what was formalized | 69 | 0 | 1 |
 | [HONEST_BOUNDARIES_SM.md](HONEST_BOUNDARIES_SM.md) | The Standard-Model honest boundaries: what is now a Lean theorem, and what is not | 316 | 1 | 3 |
+| [Hashimoto.md](Hashimoto.md) | Shift-invert Rational Krylov method for an operator $\phi$-function of an unbounded linear operator | 425 | 0 | 2 |
 | [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | Implementation Plan: The Rectangle Strategy via Gaussian Euler Products | 616 | 0 | 3 |
 | [IMPLEMENTATION_PLAN_RCP.md](IMPLEMENTATION_PLAN_RCP.md) | Implementation Plan: RH via a bounded-coefficient prior + regular conditional probability (radius-`1+ε` ball, multiplicative Euler product `exp(prime series)·E_X` with `X₂=1`, ZFC-direct) | 1913 | 2 | 3 |
 | [IMPLEMENTED.md](IMPLEMENTED.md) | PnpProof — Implementation report | 408 | 1 | 2 |
 | [Issues.md](Issues.md) | Issues, Uncertainties, and Constructive Criticism | 491 | 3 | 6 |
-| [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md) | The QCD Mass Gap from Certified Hashimoto Uncertainty Bands | 710 | 1 | 5 |
+| [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md) | The QCD Mass Gap from Certified Hashimoto Uncertainty Bands | 710 | 2 | 5 |
 | [NS_LAGRANGIAN_OUTER_FOCK_ESA.md](NS_LAGRANGIAN_OUTER_FOCK_ESA.md) | Lagrangian Navier–Stokes: from the one-particle ESA proof to the outer Fock space | 182 | 0 | 1 |
 | [PLAN_A_BOOK_FORMALIZATION.md](PLAN_A_BOOK_FORMALIZATION.md) | PLAN A — Book Proof Formalization (Track A) | 243 | 1 | 2 |
 | [PLAN_A_EXECUTION_REPORT.md](PLAN_A_EXECUTION_REPORT.md) | Plan A Book Formalization — execution report | 88 | 0 | 2 |
@@ -54,7 +56,7 @@
 | [PLAN_LEAN_SPECIALIST_SIRK_NESTED.md](PLAN_LEAN_SPECIALIST_SIRK_NESTED.md) | Plan for the LLM–Lean 4 Specialist: The Hashimoto SIRK Approximation Orders Nest | 225 | 1 | 3 |
 | [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md) | Plan for the LLM–Lean 4 Specialist: Proving Remaining `book.tex` / `Book/` Statements | 395 | 2 | 4 |
 | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) | Reuse map for the three plans — `cftproof.md`, `softmodes.md`, `pcnl.md` | 241 | 3 | 0 |
-| [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) | Implementation Plan: Lean 4 Formalization of `pnp.tex` | 4164 | 4 | 2 |
+| [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) | Implementation Plan: Lean 4 Formalization of `pnp.tex` | 4164 | 5 | 2 |
 | [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md) | Reusable theorems from prove2me — frozen search for the offline Lean specialist | 637 | 1 | 1 |
 | [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) | PnpProof — Implementation report | 408 | 1 | 1 |
 | [README.md](README.md) | README | 42 | 0 | 1 |
@@ -71,26 +73,28 @@
 | [SINGULARITY_DETECTION_PLAN.md](SINGULARITY_DETECTION_PLAN.md) | Implementation Plan: ODE→Hamiltonian Self-Adjointness & Singularity Detection via Hashimoto SIRK | 179 | 0 | 4 |
 | [SPECIALIST_PLAN_MERGE.md](SPECIALIST_PLAN_MERGE.md) | Specialist Plan — Aristotle Merge Verification + Pauli–Grover (§11) | 155 | 1 | 0 |
 | [SPECIALIST_PLAN_REMAINING.md](SPECIALIST_PLAN_REMAINING.md) | Specialist Plan — Remaining Lean Work | 594 | 2 | 3 |
-| [STATUS.md](STATUS.md) | `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md` | 12805 | 14 | 7 |
+| [STATUS.md](STATUS.md) | `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md` | 12834 | 14 | 7 |
 | [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md) | Essential self-adjointness of the wave operator — plan ↦ Lean map | 306 | 1 | 2 |
 | [TODO_LEDGER.md](TODO_LEDGER.md) | TODO ledger — reviewed code markers | 15 | 0 | 1 |
 | [bkPrompts.md](bkPrompts.md) | Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap | 702 | 3 | 0 |
 | [cft.md](cft.md) | cft | 172 | 0 | 1 |
-| [cftproof.md](cftproof.md) | cftproof | 301 | 2 | 2 |
+| [cftproof.md](cftproof.md) | cftproof | 602 | 2 | 3 |
 | [coherent.md](coherent.md) | Chapter: The Coherent State of Attention | 165 | 0 | 1 |
-| [converted/GAPS.md](converted/GAPS.md) | Remaining gaps of the converted prove2.me downloads | 164 | 0 | 3 |
-| [converted/README.md](converted/README.md) | `converted/` — prove2.me downloads converted to Lean 4.28.0 | 129 | 2 | 3 |
-| [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT | 207 | 1 | 1 |
+| [converted/GAPS.md](converted/GAPS.md) | Remaining gaps of the converted prove2.me downloads | 164 | 1 | 3 |
+| [converted/README.md](converted/README.md) | `converted/` — prove2.me downloads converted to Lean 4.28.0 | 129 | 3 | 3 |
+| [converted/mm0/README.md](converted/mm0/README.md) | `mm0/` — the Solovay–Kopperman conversion to MM0 (the mm0web platform) | 155 | 0 | 0 |
+| [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT | 222 | 1 | 1 |
+| [lopez99.md](lopez99.md) | APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS | 783 | 0 | 2 |
 | [math28/README.md](math28/README.md) | `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 | 48 | 0 | 2 |
 | [newproof.md](newproof.md) | newproof | 285 | 0 | 6 |
-| [pcnl.md](pcnl.md) | pcnl | 215 | 0 | 1 |
+| [pcnl.md](pcnl.md) | pcnl | 668 | 1 | 3 |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | handedits | 21 | 0 | 0 |
-| [softmodes.md](softmodes.md) | softmodes | 290 | 0 | 2 |
+| [softmodes.md](softmodes.md) | softmodes | 1400 | 0 | 2 |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | Self-contained mass-gap regeneration bundle | 219 | 2 | 4 |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | MASS_GAP_SPEC — the proof-facing seam of the certified mass gap | 150 | 1 | 5 |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9) | 88 | 2 | 1 |
 
-## Backlinks (207 links)
+## Backlinks (218 links)
 
 | Document | Linked from |
 |---|---|
@@ -113,6 +117,7 @@
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [DISPROVED_PLATFORM_AUDIT.md](DISPROVED_PLATFORM_AUDIT.md) | — |
+| [Downloads/_deps/README.md](Downloads/_deps/README.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [converted/GAPS.md](converted/GAPS.md), [converted/README.md](converted/README.md) |
 | [EXPPOT.md](EXPPOT.md) | — |
 | [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md) | — |
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md), [RandomMap2.md](RandomMap2.md), [RandomMap_old.md](RandomMap_old.md), [STATUS.md](STATUS.md) |
@@ -122,6 +127,7 @@
 | [HERMITE_CORE_STRICHARTZ.md](HERMITE_CORE_STRICHARTZ.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [HERMITE_GALERKIN_FRIEDRICHS.md](HERMITE_GALERKIN_FRIEDRICHS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [HONEST_BOUNDARIES_SM.md](HONEST_BOUNDARIES_SM.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md) |
+| [Hashimoto.md](Hashimoto.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md) |
 | [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [IMPLEMENTATION_PLAN_RCP.md](IMPLEMENTATION_PLAN_RCP.md) |
 | [IMPLEMENTATION_PLAN_RCP.md](IMPLEMENTATION_PLAN_RCP.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
 | [IMPLEMENTED.md](IMPLEMENTED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
@@ -160,14 +166,16 @@
 | [TODO_LEDGER.md](TODO_LEDGER.md) | [AGENTS.md](AGENTS.md) |
 | [bkPrompts.md](bkPrompts.md) | — |
 | [cft.md](cft.md) | [CFT_REVIEW.md](CFT_REVIEW.md) |
-| [cftproof.md](cftproof.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) |
+| [cftproof.md](cftproof.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md), [pcnl.md](pcnl.md) |
 | [coherent.md](coherent.md) | [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
 | [converted/GAPS.md](converted/GAPS.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [converted/README.md](converted/README.md) |
 | [converted/README.md](converted/README.md) | [ATTRIBUTION.md](ATTRIBUTION.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
+| [converted/mm0/README.md](converted/mm0/README.md) | — |
 | [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | [cftproof.md](cftproof.md) |
+| [lopez99.md](lopez99.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
 | [math28/README.md](math28/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [newproof.md](newproof.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [Issues.md](Issues.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [RandomMap.md](RandomMap.md), [RandomMap_old.md](RandomMap_old.md) |
-| [pcnl.md](pcnl.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) |
+| [pcnl.md](pcnl.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | — |
 | [softmodes.md](softmodes.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [cftproof.md](cftproof.md) |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
@@ -352,6 +360,16 @@
 - ## Why the corrected statements cannot be published under their own names
 - ## Re-running this audit
 
+### `_deps/` — prove2.me platform library (2026-10-19) (`Downloads/_deps/README.md`)
+
+- # `_deps/` — prove2.me platform library (2026-10-19)
+- ## Layout
+- ## Why the `Thm_` files end in `:= by sorry`
+- ## Local normalizations (3, recorded per item in `manifest.json`)
+- ## Environments
+- ## Verification (2026-10-19)
+- ## Use
+
 ### FEDERATION DEEP REVIEW & IMPROVEMENT PLAN (`FEDERATION_DEEP_REVIEW.md`)
 
 - # FEDERATION DEEP REVIEW & IMPROVEMENT PLAN
@@ -460,6 +478,17 @@
 - ## 5.4 From the original §1 sentence, only this remains open
 - ## 5.5 Accounting identity (2026-09-23d): no extra gauge-fixing/ghost summand in `h` or `N`
 - ## Module map (closed boundaries → files)
+
+### Shift-invert Rational Krylov method for an operator $\phi$-function of an unbounded linear operator (`Hashimoto.md`)
+
+- # Shift-invert Rational Krylov method for an operator $\phi$-function of an unbounded linear operator
+- ## Abstract
+- ## 1 Introduction
+- ## 2 The definition of the operator function
+- ## 4 Shift-invert rational Krylov method
+- ## 5 Numerical experiments
+- ## 6 Conclusion
+- # References
 
 ### Implementation Plan: The Rectangle Strategy via Gaussian Euler Products (`IMPLEMENTATION_PLAN.md`)
 
@@ -932,6 +961,15 @@
 - ## The one file that is not compiled
 - ## Routing note (BOOKPROOF_SPLIT_PLAN.md §8)
 
+### `mm0/` — the Solovay–Kopperman conversion to MM0 (the mm0web platform) (`converted/mm0/README.md`)
+
+- # `mm0/` — the Solovay–Kopperman conversion to MM0 (the mm0web platform)
+- ## Files
+- ## Trust split
+- ## What is *not* yet converted
+- ## MM0/mmr syntax notes (pinned by test, for the next conversion)
+- ## Publishing record
+
 ### Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT (`docs/euclidean_cft_proof.md`)
 
 - # Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT
@@ -940,6 +978,18 @@
 - ## Boundary (recorded, never assumed)
 - ## MM0 emission: what this pipeline can and cannot carry
 - ## Reproducing
+
+### APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS (`lopez99.md`)
+
+- # APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS
+- # 1. Introduction
+- ## 2. Expansions in terms of Hermite polynomials
+- ## 3. Gegenbauer polynomials
+- ## APPROXIMATION OF ORTHOGONAL POLYNOMIALS
+- ## 4. Laguerre polynomials
+- ## 5 The Tricomi-Carlitz polynomials
+- ## 6. Jacobi polynomials
+- ## References
 
 ### `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 (`math28/README.md`)
 
@@ -990,7 +1040,7 @@
 - ## Integrating the generated model (Lean 4 specialist)
 
 
-## Never linked (10)
+## Never linked (11)
 
 - CFT_REVIEW.md
 - CHANGELOG.md
@@ -1001,5 +1051,6 @@
 - PLAN_REUSE_MAP.md
 - SPECIALIST_PLAN_MERGE.md
 - bkPrompts.md
+- converted/mm0/README.md
 - scripts/notes/handedits.md
 
