@@ -1299,6 +1299,20 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     continuous), but Mathlib has no continuous functional calculus on a real Hilbert space; the
     conjugation above gives the same family and the laws above verify it.
 
+    The flow is now an operator family, not just a family of vectors: `flowOfHCLM D τ : ℋ →L[ℝ] ℋ`,
+    with `flowOfHCLM_apply` and `norm_flowOfHCLM_le_one`.  Strong continuity needs no
+    generator-domain hypothesis — for *every* `x`, `τ ↦ e^{−τH} x` is continuous at every `τ ≥ 0`
+    (`continuousOn_flowOfHCLM`), because `‖e^{−τf}u − u‖ → 0` is dominated convergence with the
+    bound `4 (u x)²` (`tendsto_expFlow_nhdsGE_zero`; the older `tendsto_expFlow_zero` needed
+    `f·u ∈ L²`, which generic semigroup theory must not assume).  Symmetry is the reality of the
+    multiplier: `inner_mulL2_comm` gives `⟪W u, v⟫ = ⟪u, W v⟫` for real `W`, and the bridge is an
+    isometry, so `IsSelfAdjoint (flowOfHCLM D τ)` for `τ ≥ 0` (`isSelfAdjoint_flowOfHCLM`) and the
+    bundle `flowOfHCLM_isContractionSelfAdjointSemigroup` records identity, semigroup law, norm
+    bound and self-adjointness together.  Finally the generator statement now reads from the flow
+    side: `tendsto_flowOfH_slope` proves `τ⁻¹ • (e^{−τH}(R a) − R a) → −H (R a)` directly from the
+    model's `tendsto_expFlow_slope` carried through the bridge, without passing through
+    `physEvolCompletionRightFun` or `HasGenRight`.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the

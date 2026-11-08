@@ -38,12 +38,23 @@ The construction is the classical shift-invert one, done in `ℝ`:
 * `flowOfH` — `e^{−τH}` on `ℋ`, built from the model rather than postulated, with `U_flowOfH`,
   `flowOfH_zero`, `flowOfH_add`, `flowOfH_contractive`, and `physEvol_eq_flowOfH` identifying it
   with the physical semigroup (that identification is the multiplier law, nothing more);
+* `flowOfHCLM` — the same family as a bounded operator `ℋ →L[ℝ] ℋ` at every time, with
+  `flowOfHCLM_apply`, `norm_flowOfHCLM_le_one` and the bundled
+  `flowOfHCLM_isContractionSelfAdjointSemigroup`; `continuousOn_flowOfHCLM` is the strong
+  continuity on `[0, ∞)` — it needs no generator-domain hypothesis, because the `L²` limit is
+  dominated convergence (`tendsto_expFlow_nhdsGE_zero`);
+* `isSelfAdjoint_flowOfHCLM` — each `e^{−τH}`, `τ ≥ 0`, is self-adjoint: the multiplier
+  `e^{−τf}` is real, so `inner_mulL2_comm` makes the Fock side symmetric and the bridge is an
+  isometry.  So the flow is a *contractive self-adjoint* semigroup;
+* `tendsto_flowOfH_slope` — the flow's difference quotient converges to `−H` on `dom H`, proved
+  from the model's own slope rather than from the transfer semigroup;
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
 
 So the explicit family `(λ + f)⁻¹` is indeed the resolvent of a self-adjoint nonnegative operator,
-and the generator it produces is the transfer generator of `MultiplierGenerator`.
+the flow it generates is a strongly continuous contraction semigroup of self-adjoint operators, and
+the generator it produces is the transfer generator of `MultiplierGenerator`.
 
 ## Boundary
 
@@ -659,9 +670,10 @@ The natural home for this family is the functional calculus of the *bounded* res
 bounded, self-adjoint and nonnegative with `‖R‖ ≤ λ⁻¹`, so `e^{−τH} = φ_τ(R)` for the bounded
 continuous `φ_τ : [0, λ⁻¹] → ℝ`, `φ_τ r = exp(−τ(1/r − λ))`.  Mathlib has no continuous functional
 calculus for real Hilbert spaces, so that route is not available here; conjugating the model's
-multiplier flow gives the same family, and the laws below verify the properties a flow of `H` must
-have.  What is *not* removed by this definition is the multiplier law: identifying `flowOfH` with
-the physical semigroup `physEvolCompletionRightFun` is exactly `MulModel.hlaw`. -/
+multiplier flow gives the same family, and the laws below verify the properties a flow of `H`
+*has*: boundedness, the semigroup law, contractivity, strong continuity and self-adjointness.  What
+is *not* removed by this definition is the multiplier law: identifying `flowOfH` with the physical
+semigroup `physEvolCompletionRightFun` is exactly `MulModel.hlaw`. -/
 def flowOfH (D : MulModel X ν Λ T) (τ : ℝ) (x : Hphys Λ) : Hphys Λ :=
   D.bridge.toIsometryEquiv.symm (expFlow D.f D.hf D.hpos τ (D.U x))
 
@@ -737,6 +749,317 @@ theorem generatorRight_eq_neg_hamiltonianMulModel (D : MulModel X ν Λ T) {lam 
   refine ⟨hz, ?_⟩
   rw [hgen, hamiltonianMulModel_image D hlam a (mem_domain_hamiltonianMulModel D hlam a),
     hclass]
+
+/-! ## The flow as a bounded operator -/
+
+/-- The multiplier flow is contractive at *every* real time: for `τ ≥ 0` because the multiplier
+`e^{−τf}` is bounded by one, and for `τ < 0` because the flow is extended there by the identity. -/
+theorem norm_expFlow_apply_le (D : MulModel X ν Λ T) (τ : ℝ) (u : Lp ℝ 2 ν) :
+    ‖expFlow D.f D.hf D.hpos τ u‖ ≤ ‖u‖ := by
+  by_cases hτ : 0 ≤ τ
+  · exact expFlow_contractive D.hf D.hpos hτ u
+  · rw [expFlow, dif_neg hτ]
+    simp
+
+/-- **`e^{−τH}` as a bounded linear operator.**  The bridge is an isometry and the multiplier flow
+is contractive in the essential supremum, so conjugating `expFlow τ` back to `ℋ` is bounded; the
+bound proof is `1` because both factors are contractions. -/
+def flowOfHCLM (D : MulModel X ν Λ T) (τ : ℝ) : Hphys Λ →L[ℝ] Hphys Λ :=
+  LinearMap.mkContinuous
+    { toFun := fun x => D.bridge.toIsometryEquiv.symm (expFlow D.f D.hf D.hpos τ (D.U x))
+      map_add' := by intro x y; simp only [map_add]
+      map_smul' := by intro c x; simp }
+    1 (by
+      intro x
+      have h := norm_expFlow_apply_le D τ (D.U x)
+      calc ‖D.bridge.toIsometryEquiv.symm (expFlow D.f D.hf D.hpos τ (D.U x))‖
+          = ‖expFlow D.f D.hf D.hpos τ (D.U x)‖ := by simp
+        _ ≤ ‖D.U x‖ := h
+        _ = ‖x‖ := D.U.norm_map x
+        _ = 1 * ‖x‖ := (one_mul _).symm)
+
+/-- The bounded operator is the flow of `H`. -/
+@[simp]
+theorem flowOfHCLM_apply (D : MulModel X ν Λ T) (τ : ℝ) (x : Hphys Λ) :
+    flowOfHCLM D τ x = flowOfH D τ x := rfl
+
+/-- The flow is contractive as an operator, at every real time. -/
+theorem flowOfHCLM_contractive (D : MulModel X ν Λ T) (τ : ℝ) (x : Hphys Λ) :
+    ‖flowOfHCLM D τ x‖ ≤ ‖x‖ := by
+  have h : ‖flowOfHCLM D τ x‖ = ‖expFlow D.f D.hf D.hpos τ (D.U x)‖ := by
+    rw [flowOfHCLM_apply, ← U_flowOfH, D.U.norm_map]
+  rw [h]
+  calc ‖expFlow D.f D.hf D.hpos τ (D.U x)‖ ≤ ‖D.U x‖ := norm_expFlow_apply_le D τ _
+    _ = ‖x‖ := D.U.norm_map x
+
+/-- The operator norm is at most one. -/
+theorem norm_flowOfHCLM_le_one (D : MulModel X ν Λ T) (τ : ℝ) : ‖flowOfHCLM D τ‖ ≤ 1 :=
+  ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => by
+    simpa using flowOfHCLM_contractive D τ x
+
+/-! ## Strong continuity -/
+
+/-- For a real `L²` class the square of the norm is the integral of the pointwise square.  This is
+how the `L²` strong continuity below is read off an integral statement. -/
+theorem norm_sq_eq_integral (v : Lp ℝ 2 ν) : ‖v‖ ^ 2 = ∫ x, (v x) ^ 2 ∂ν := by
+  rw [← real_inner_self_eq_norm_sq v, L2.inner_def]
+  refine integral_congr_ae (Eventually.of_forall fun x => ?_)
+  change (v x) * (v x) = (v x) ^ 2
+  ring
+
+/-- **Strong continuity of the multiplier flow at `0⁺`, for every `L²` class.**  No hypothesis on
+`f·u` is needed: dominated convergence with the bound `4 (u x)²` gives `‖e^{−τf} u − u‖ → 0`. -/
+theorem tendsto_expFlow_nhdsGE_zero (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    Tendsto (fun τ : ℝ => expFlow D.f D.hf D.hpos τ u) (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 u) := by
+  have hInt : Integrable (fun x => 4 * (u x) ^ 2) ν :=
+    (MemLp.integrable_sq (Lp.memLp u)).const_mul 4
+  have hF_meas : ∀ᶠ τ in 𝓝[Set.Ici 0] (0 : ℝ), AEStronglyMeasurable
+      (fun x => ((Real.exp (-(τ * D.f x)) - 1) * u x) ^ 2) ν :=
+    Eventually.of_forall fun τ =>
+      ((((measurable_const.mul D.hf).neg.exp.sub_const 1).aestronglyMeasurable.mul
+        (Lp.aestronglyMeasurable u))).pow 2
+  have h_bound : ∀ᶠ τ in 𝓝[Set.Ici 0] (0 : ℝ), ∀ᵐ x ∂ν,
+      ‖((Real.exp (-(τ * D.f x)) - 1) * u x) ^ 2‖ ≤ 4 * (u x) ^ 2 := by
+    filter_upwards [self_mem_nhdsWithin] with τ hτ
+    filter_upwards [D.hpos] with x hfx
+    have hτ0 : 0 ≤ τ := hτ
+    have h1 : Real.exp (-(τ * D.f x)) ≤ 1 := by
+      rw [← Real.exp_zero]
+      exact Real.exp_le_exp.2 (by nlinarith)
+    have h3 : |Real.exp (-(τ * D.f x)) - 1| ≤ 2 := by
+      rw [abs_le]
+      constructor
+      · linarith [Real.exp_pos (-(τ * D.f x))]
+      · linarith [Real.exp_pos (-(τ * D.f x))]
+    have hsq : (Real.exp (-(τ * D.f x)) - 1) ^ 2 ≤ 4 := by
+      have h4 : (Real.exp (-(τ * D.f x)) - 1) ^ 2 ≤ (2 : ℝ) ^ 2 := by
+        rw [sq_le_sq]
+        simpa using h3
+      norm_num at h4
+      exact h4
+    rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
+    have hsplit : ((Real.exp (-(τ * D.f x)) - 1) * u x) ^ 2
+        = (Real.exp (-(τ * D.f x)) - 1) ^ 2 * (u x) ^ 2 := by ring
+    rw [hsplit]
+    nlinarith [sq_nonneg (u x)]
+  have h_lim : ∀ᵐ x ∂ν, Tendsto (fun τ : ℝ => ((Real.exp (-(τ * D.f x)) - 1) * u x) ^ 2)
+      (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 0) := by
+    refine Eventually.of_forall fun x => ?_
+    have hexp : Tendsto (fun τ : ℝ => Real.exp (-(τ * D.f x))) (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 1) := by
+      have hc : Continuous fun τ : ℝ => Real.exp (-(τ * D.f x)) :=
+        Real.continuous_exp.comp (continuous_id.mul continuous_const).neg
+      simpa using (hc.tendsto 0).mono_left nhdsWithin_le_nhds
+    have h := ((hexp.sub_const 1).mul_const (u x)).pow 2
+    simpa using h
+  have hint : Tendsto (fun τ : ℝ => ∫ x, ((Real.exp (-(τ * D.f x)) - 1) * u x) ^ 2 ∂ν)
+      (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 0) := by
+    have h := tendsto_integral_filter_of_dominated_convergence (μ := ν)
+      (l := 𝓝[Set.Ici 0] (0 : ℝ)) (f := fun _ => (0 : ℝ)) (fun x => 4 * (u x) ^ 2)
+      hF_meas h_bound hInt h_lim
+    simpa using h
+  have hsq : ∀ᶠ τ in 𝓝[Set.Ici 0] (0 : ℝ),
+      ‖expFlow D.f D.hf D.hpos τ u - u‖ ^ 2
+        = ∫ x, ((Real.exp (-(τ * D.f x)) - 1) * u x) ^ 2 ∂ν := by
+    filter_upwards [self_mem_nhdsWithin] with τ hτ
+    rw [norm_sq_eq_integral]
+    refine integral_congr_ae ?_
+    filter_upwards [expFlow_coeFn D.hf D.hpos hτ u,
+      Lp.coeFn_sub (expFlow D.f D.hf D.hpos τ u) u] with x h1 h2
+    rw [h2, Pi.sub_apply, h1]
+    ring
+  have hnorm2 : Tendsto (fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u - u‖ ^ 2)
+      (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 0) := hint.congr' (hsq.mono fun _ h => h.symm)
+  have hnorm : Tendsto (fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u - u‖)
+      (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 0) := by
+    have hsqrt : Tendsto (fun τ : ℝ => Real.sqrt (‖expFlow D.f D.hf D.hpos τ u - u‖ ^ 2))
+        (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 (Real.sqrt 0)) :=
+      Real.continuous_sqrt.continuousAt.tendsto.comp hnorm2
+    have hfun : (fun τ : ℝ => Real.sqrt (‖expFlow D.f D.hf D.hpos τ u - u‖ ^ 2))
+        = fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u - u‖ := by
+      funext τ
+      exact Real.sqrt_sq (norm_nonneg _)
+    rw [hfun] at hsqrt
+    simpa using hsqrt
+  exact tendsto_iff_norm_sub_tendsto_zero.mpr hnorm
+
+/-- **Strong continuity of `e^{−τH}` at `0⁺`** for every vector of `ℋ`. -/
+theorem tendsto_flowOfHCLM_nhdsGE_zero (D : MulModel X ν Λ T) (x : Hphys Λ) :
+    Tendsto (fun τ : ℝ => flowOfHCLM D τ x) (𝓝[Set.Ici 0] (0 : ℝ)) (𝓝 x) := by
+  have h := tendsto_expFlow_nhdsGE_zero D (D.U x)
+  have h2 := (D.bridge.toIsometryEquiv.symm.continuous.tendsto (D.U x)).comp h
+  have hx : D.bridge.toIsometryEquiv.symm (D.U x) = x :=
+    D.bridge.toIsometryEquiv.symm_apply_apply x
+  rw [hx] at h2
+  simpa [flowOfHCLM, flowOfH, LinearMap.mkContinuous_apply] using h2
+
+/-- **Continuity at a positive time**, from the semigroup law: a step of size `h` is
+`e^{−(τ±h)H}` applied to `e^{−|h|H} x − x`, and the flow is contractive. -/
+theorem continuousAt_flowOfHCLM_of_pos (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 < τ)
+    (x : Hphys Λ) :
+    ContinuousAt (fun σ : ℝ => flowOfHCLM D σ x) τ := by
+  have hsmall : ∀ᶠ h in 𝓝 (0 : ℝ), |h| < τ := by
+    filter_upwards [Iio_mem_nhds hτ, Ioi_mem_nhds (neg_lt_zero.2 hτ)] with h h1 h2
+    exact abs_lt.2 ⟨h2, h1⟩
+  have hbound : ∀ᶠ h in 𝓝 (0 : ℝ),
+      ‖flowOfHCLM D (τ + h) x - flowOfHCLM D τ x‖ ≤ ‖flowOfHCLM D |h| x - x‖ := by
+    filter_upwards [hsmall] with h hh
+    rcases le_or_gt 0 h with h0 | h0
+    · have hstep : flowOfHCLM D (τ + h) x = flowOfHCLM D τ (flowOfHCLM D h x) := by
+        rw [flowOfHCLM_apply, flowOfHCLM_apply, flowOfHCLM_apply,
+          flowOfH_add D hτ.le h0 x]
+      rw [hstep, abs_of_nonneg h0, ← map_sub]
+      exact flowOfHCLM_contractive D τ (flowOfHCLM D h x - x)
+    · have hpos : 0 < -h := by linarith
+      have hτh : 0 ≤ τ + h := by linarith [(abs_lt.1 hh).1]
+      have hstep : flowOfHCLM D τ x = flowOfHCLM D (τ + h) (flowOfHCLM D (-h) x) := by
+        have hgen := flowOfH_add D hτh hpos.le x
+        have harg : τ + h + -h = τ := by ring
+        rw [harg] at hgen
+        simpa only [flowOfHCLM_apply] using hgen
+      rw [hstep, abs_of_neg h0, ← map_sub, norm_sub_rev]
+      exact flowOfHCLM_contractive D (τ + h) (x - flowOfHCLM D (-h) x)
+  have hcomp : Tendsto (fun h : ℝ => flowOfHCLM D (τ + h) x) (𝓝 (0 : ℝ))
+      (𝓝 (flowOfHCLM D τ x)) := by
+    rw [tendsto_iff_norm_sub_tendsto_zero]
+    have ha : Tendsto (fun h : ℝ => |h|) (𝓝 (0 : ℝ)) (𝓝[Set.Ici 0] (0 : ℝ)) := by
+      rw [tendsto_nhdsWithin_iff]
+      exact ⟨by simpa using continuous_abs.tendsto (0 : ℝ),
+        Eventually.of_forall fun h => abs_nonneg h⟩
+    have hb : Tendsto (fun h : ℝ => ‖flowOfHCLM D |h| x - x‖) (𝓝 (0 : ℝ)) (𝓝 0) :=
+      tendsto_iff_norm_sub_tendsto_zero.mp ((tendsto_flowOfHCLM_nhdsGE_zero D x).comp ha)
+    exact squeeze_zero' (Eventually.of_forall fun h => norm_nonneg _) hbound hb
+  have hshift : 𝓝 (τ : ℝ) = map (fun h : ℝ => τ + h) (𝓝 (0 : ℝ)) := by
+    rw [map_add_left_nhds_zero]
+  have hgoal : Tendsto (fun σ : ℝ => flowOfHCLM D σ x) (𝓝 τ) (𝓝 (flowOfHCLM D τ x)) := by
+    rw [hshift, tendsto_map'_iff]
+    simpa using hcomp
+  exact hgoal
+
+/-- **Strong continuity on `[0, ∞)`**: `τ ↦ e^{−τH} x` is continuous at every `τ ≥ 0`, for every
+`x`. -/
+theorem continuousOn_flowOfHCLM (D : MulModel X ν Λ T) (x : Hphys Λ) :
+    ContinuousOn (fun τ : ℝ => flowOfHCLM D τ x) (Set.Ici 0) := by
+  intro τ hτ
+  have hτ0 : 0 ≤ τ := hτ
+  rcases eq_or_lt_of_le hτ0 with rfl | hpos
+  · change Tendsto (fun τ : ℝ => flowOfHCLM D τ x) (𝓝[Set.Ici 0] (0 : ℝ))
+      (𝓝 (flowOfHCLM D 0 x))
+    simpa [flowOfH_zero] using tendsto_flowOfHCLM_nhdsGE_zero D x
+  · exact (continuousAt_flowOfHCLM_of_pos D hpos x).continuousWithinAt
+
+/-! ## The flow is self-adjoint -/
+
+/-- **A real multiplier is symmetric on `L²(ν)`**: `⟪W u, v⟫ = ⟪u, W v⟫`.  This is where the
+symmetry of the flow comes from — the multiplier `e^{−τ f}` is real, so it commutes with the
+integral. -/
+theorem inner_mulL2_comm (W : Lp ℝ (⊤ : ℝ≥0∞) ν) (u v : Lp ℝ 2 ν) :
+    ⟪mulL2 W u, v⟫ = ⟪u, mulL2 W v⟫ := by
+  rw [L2.inner_def, L2.inner_def]
+  refine integral_congr_ae ?_
+  filter_upwards [mulL2_coeFn W u, mulL2_coeFn W v] with x h1 h2
+  rw [h1, h2]
+  change (v x) * (W x * u x) = (W x * v x) * (u x)
+  ring
+
+/-- **Each `e^{−τH}` is self-adjoint.**  The bridge is an isometry and the multiplier flow is
+symmetric, so `⟪e^{−τH} x, y⟫ = ⟪x, e^{−τH} y⟫`. -/
+theorem isSelfAdjoint_flowOfHCLM (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) :
+    IsSelfAdjoint (flowOfHCLM D τ) := by
+  refine LinearMap.IsSymmetric.isSelfAdjoint fun x y => ?_
+  calc ⟪flowOfHCLM D τ x, y⟫ = ⟪D.U (flowOfHCLM D τ x), D.U y⟫ := (D.U.inner_map_map _ _).symm
+    _ = ⟪expFlow D.f D.hf D.hpos τ (D.U x), D.U y⟫ := by
+        rw [flowOfHCLM_apply, U_flowOfH]
+    _ = ⟪D.U x, expFlow D.f D.hf D.hpos τ (D.U y)⟫ := by
+        rw [expFlow_of_nonneg D.hf D.hpos hτ]
+        exact inner_mulL2_comm _ _ _
+    _ = ⟪D.U x, D.U (flowOfHCLM D τ y)⟫ := by
+        rw [flowOfHCLM_apply, U_flowOfH]
+    _ = ⟪x, flowOfHCLM D τ y⟫ := D.U.inner_map_map _ _
+
+/-- **The flow of `H` is a contractive self-adjoint semigroup.**  The identity at `0`, the
+semigroup law, the operator-norm bound and self-adjointness at every `τ ≥ 0`, together. -/
+theorem flowOfHCLM_isContractionSelfAdjointSemigroup (D : MulModel X ν Λ T) :
+    flowOfHCLM D 0 = 1 ∧
+      (∀ (τ σ : ℝ), 0 ≤ τ → 0 ≤ σ →
+        flowOfHCLM D (τ + σ) = flowOfHCLM D τ ∘L flowOfHCLM D σ) ∧
+      (∀ τ : ℝ, ‖flowOfHCLM D τ‖ ≤ 1) ∧
+      (∀ τ : ℝ, 0 ≤ τ → IsSelfAdjoint (flowOfHCLM D τ)) := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · ext x
+    simp [flowOfH_zero]
+  · intro τ σ hτ hσ
+    ext x
+    simp [flowOfH_add D hτ hσ x]
+  · exact norm_flowOfHCLM_le_one D
+  · exact fun τ hτ => isSelfAdjoint_flowOfHCLM D hτ
+
+/-! ## The flow's difference quotient is `−H` -/
+
+/-- **The difference quotient of the flow tends to `−H` on `dom H`**, with no reference to the
+transfer semigroup: `τ⁻¹ • (e^{−τH} y − y) → −H y` for `y = R a`.  The proof is the model's own
+slope `tendsto_expFlow_slope` carried back through the bridge, so it closes the generator statement
+from the flow side; the limit is `−(H y)` because `U (H y) = f (λ + f)⁻¹ (U a)` (`mulImage`). -/
+theorem tendsto_flowOfH_slope (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam) (a : Hphys Λ) :
+    Tendsto (fun τ : ℝ => τ⁻¹ • (flowOfH D τ (resolventMulModel D hlam a)
+        - resolventMulModel D hlam a)) (𝓝[>] 0)
+      (𝓝 (-(hamiltonianMulModel D hlam
+        ⟨resolventMulModel D hlam a, mem_domain_hamiltonianMulModel D hlam a⟩))) := by
+  have hcoef : (D.U (resolventMulModel D hlam a) : X → ℝ) =ᵐ[ν]
+      fun t => resolventFun D lam t * (D.U a : X → ℝ) t :=
+    resolventMulModel_coeFn D hlam a
+  set z : X → ℝ := fun t => (D.U (resolventMulModel D hlam a) : X → ℝ) t with hz_def
+  have hz : MemLp z 2 ν := by
+    rw [hz_def]
+    simpa only using Lp.memLp (D.U (resolventMulModel D hlam a))
+  have hfz : MemLp (fun t => D.f t * z t) 2 ν := by
+    rw [hz_def]
+    simpa only using
+      (MemLp.ae_eq (by
+        filter_upwards [hcoef] with t ht
+        rw [ht]
+        ring) (memLp_f_resolventFun_mul D hlam a) :
+        MemLp (fun t => D.f t * (D.U (resolventMulModel D hlam a) : X → ℝ) t) 2 ν)
+  have hUy : D.U (resolventMulModel D hlam a) = hz.toLp z := by
+    refine Lp.ext ?_
+    filter_upwards [MemLp.coeFn_toLp hz] with t ht
+    rw [ht, hz_def]
+  have hslope : Tendsto (fun τ : ℝ => τ⁻¹ • (expFlow D.f D.hf D.hpos τ
+        (D.U (resolventMulModel D hlam a)) - D.U (resolventMulModel D hlam a)))
+      (𝓝[>] 0) (𝓝 (-(hfz.toLp (fun t => D.f t * z t)))) := by
+    have h := tendsto_expFlow_slope hz D.hf D.hpos hfz
+    refine h.congr' (Eventually.of_forall fun τ => ?_)
+    rw [hUy]
+  have hconv : Tendsto (fun τ : ℝ => D.bridge.toIsometryEquiv.symm
+      (τ⁻¹ • (expFlow D.f D.hf D.hpos τ (D.U (resolventMulModel D hlam a))
+        - D.U (resolventMulModel D hlam a)))) (𝓝[>] 0)
+      (𝓝 (D.bridge.toIsometryEquiv.symm (-(hfz.toLp (fun t => D.f t * z t))))) :=
+    (D.bridge.toIsometryEquiv.symm.continuous.tendsto _).comp hslope
+  have hclass : hfz.toLp (fun t => D.f t * z t) = mulImage D hlam a :=
+    MemLp.toLp_congr hfz (memLp_f_resolventFun_mul D hlam a) (by
+      rw [hz_def]
+      filter_upwards [hcoef] with t ht
+      rw [ht]
+      ring)
+  have hH : D.bridge.toIsometryEquiv.symm (mulImage D hlam a) =
+      hamiltonianMulModel D hlam
+        ⟨resolventMulModel D hlam a, mem_domain_hamiltonianMulModel D hlam a⟩ := by
+    rw [← hamiltonianMulModel_image D hlam a (mem_domain_hamiltonianMulModel D hlam a)]
+    exact D.bridge.toIsometryEquiv.symm_apply_apply _
+  have hlim : D.bridge.toIsometryEquiv.symm (-(hfz.toLp (fun t => D.f t * z t)))
+      = -(hamiltonianMulModel D hlam
+        ⟨resolventMulModel D hlam a, mem_domain_hamiltonianMulModel D hlam a⟩) := by
+    rw [map_neg, hclass, hH]
+  rw [hlim] at hconv
+  have hsymm : D.bridge.toIsometryEquiv.symm (D.U (resolventMulModel D hlam a))
+      = resolventMulModel D hlam a :=
+    D.bridge.toIsometryEquiv.symm_apply_apply _
+  refine hconv.congr' (Eventually.of_forall fun τ => ?_)
+  change D.bridge.toIsometryEquiv.symm
+      (τ⁻¹ • (expFlow D.f D.hf D.hpos τ (D.U (resolventMulModel D hlam a))
+        - D.U (resolventMulModel D hlam a)))
+      = τ⁻¹ • (flowOfH D τ (resolventMulModel D hlam a) - resolventMulModel D hlam a)
+  rw [map_smul, map_sub, hsymm]
+  rfl
 end
 
 end BookProof.OSReconstruction
