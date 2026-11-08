@@ -266,6 +266,31 @@ and an explicit S2 theorem signature for the selected target, not another abstra
 and audit final theorem axioms and binders. For this documentation revision, verify paths,
 formula consistency, relative links and doc-index freshness; no book HTML build is needed.
 
+### Status after the S0 bridge (2026-11-08)
+
+`BookProof/Qym/ChapterYangMillsMehlerBridge.lean` now carries the part of S0 that the
+“Corrections” section gates on, together with the S2 signature:
+
+* **U** — `gaussRoot_sq` (`(γ^{1/2})² = γ`, the isometry input), `hasDerivAt_gaussRoot`,
+  `deriv_gaussRoot`, `hasDerivAt_invGauss`, `hasDerivAt_invGauss_mul`, **`conj_deriv`**
+  (`U ∂ U⁻¹ = ∂ + x/2`), **`gaussRoot_vacuum`** (`a = ∂ + x/2` kills the weight, so the corpus's
+  `momOp = −i • (pderiv − ½ X ·)` is the Gaussian convention), `hasDerivAt_deriv_gaussRoot`, and
+  **`gaussRoot_oscillator_ground`** (`−(γ^{1/2})'' + x²/4·γ^{1/2} − ½·γ^{1/2} = 0`): the Gaussian
+  Dirichlet operator is unitarily the oscillator, so the reference gap `½` is the oscillator's and
+  never a gap of `q_h`.
+* **S2 signature** — `HasOneParticleFormGap e fabc m` states target 1 as a named `Prop` on the
+  concrete Gauss–polynomial core. `abelian_no_one_particle_form_gap` shows it is false for
+  `fabc = 0`, so it is not a vacuous wrapper, and `no_absolute_gap_of_kernel_vector` records that a
+  nonzero kernel vector defeats every positive constant: target 2 does not imply target 1.
+* **C, unchanged by this module** — the second-order identity `U (−∂² + x∂) U⁻¹ = −∂² + x²/4 − ½`
+  on a dense core and its `99`-coordinate product form; the `L²` isometry itself (only its
+  pointwise input `gaussRoot_sq` is here); the form core and the self-adjoint-extension inputs. The
+  module is one-coordinate analysis plus one abstract linear-algebra statement: it makes no
+  spectral claim about `h` and does not by itself move S2.
+
+Axioms audited: `propext`, `Classical.choice`, `Quot.sound` only. The module builds with no
+warnings and no line over 100 characters.
+
 ## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

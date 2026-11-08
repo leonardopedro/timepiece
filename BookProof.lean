@@ -2063,6 +2063,17 @@ import BookProof.ChapterSqueezedGaussStates
 -- no proof of the hypothesis can be uniform in the structure constants.
 import BookProof.Qym.ChapterYangMillsAbelianNoGap
 
+-- `ChapterYangMillsMehlerBridge` (work package S0 of `softmodes.md`): the half of the Mehler
+-- representation bridge that the plan's corrections gate on.  With `γ^{1/2}(x) = exp(−x²/4)` and
+-- `U f = γ^{1/2} · f`, the derivative transports as `U ∂ U⁻¹ = ∂ + x/2` (`conj_deriv`), so the
+-- annihilation convention `a = ∂ + x/2` kills the weight (`gaussRoot_vacuum`) — the convention
+-- the corpus's `momOp` uses — and the Gaussian Dirichlet operator is unitarily the oscillator
+-- (`gaussRoot_oscillator_ground`), so the reference gap `½` is the oscillator's, never `q_h`'s.
+-- The module also fixes the S2 signature `HasOneParticleFormGap`, proves it false for `fabc = 0`,
+-- and records that a nonzero kernel vector defeats every absolute constant (target 2 does not
+-- imply target 1).
+import BookProof.Qym.ChapterYangMillsMehlerBridge
+
 -- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
 -- derivative-variable fixing `E = ∂e` on the coordinate algebra of
 -- `ChapterQuantumGravity3DGauge`.  A tetrad field polynomial in the spacetime coordinates
