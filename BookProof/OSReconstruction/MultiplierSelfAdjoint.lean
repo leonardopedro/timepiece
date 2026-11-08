@@ -2067,6 +2067,237 @@ theorem tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop (D : MulModel X ν �
   filter_upwards [Ici_mem_atTop (0 : ℝ)] with τ hτ
   exact norm_flowOfHCLM_sub_limitProjection D hgap hτ
 
+/-! ### A quantitative rate for the strong convergence
+
+Operator-norm convergence needs a gap, but the *strong* convergence has a two-scale rate with no
+hypothesis at all.  On `{f ≥ δ}` the multiplier `g_τ = e^{−τ f} − 1_{f = 0}` is at most `e^{−τ δ}`;
+on `{0 < f < δ}` it is at most one; on `{f = 0}` it vanishes.  So for every `δ > 0`
+
+  `‖e^{−τH} y − P y‖ ≤ e^{−τ δ} ‖y‖ + ‖1_{0 < f < δ} · U y‖`,
+
+the second term being the part of `y` that the split at `δ` cannot resolve.  It does not depend on
+`τ` and disappears as `δ ↓ 0`, because `{0 < f < δ} ↓ ∅` and `U y ∈ L²` — dominated convergence,
+so the tail is a modulus of continuity that the density itself supplies.  Choosing `δ` first and
+then the time turns the rate into the explicit bound
+`T = max 0 (-log (ε / (2 (‖y‖ + 1))) / δ)`: for `τ ≥ T` the flow is within `ε` of the projection.
+This is what is left of the asymptotic statement once the operator norm is known to be out of
+reach: pointwise in `y` there *is* a rate, and it is this one.
+-/
+
+/-- The indicator of `{0 < f < δ}` is bounded by one, so the tail is `L²`. -/
+theorem memLp_tail_mul (D : MulModel X ν Λ T) (δ : ℝ) (u : Lp ℝ 2 ν) :
+    MemLp (fun x => (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) * (u : X → ℝ) x) 2 ν := by
+  have hs : MeasurableSet {x : X | 0 < D.f x ∧ D.f x < δ} :=
+    (D.hf measurableSet_Ioi).inter (D.hf measurableSet_Iio)
+  refine memLp_mul_of_abs_bound (Lp.memLp u) ?_ zero_le_one ?_
+  · exact Measurable.ite hs measurable_const measurable_const
+  · filter_upwards with x
+    split_ifs <;> simp
+
+/-- **The tail of a class at `δ`**: `1_{0 < f < δ} · u`. -/
+noncomputable def tailMul (D : MulModel X ν Λ T) (δ : ℝ) (u : Lp ℝ 2 ν) : Lp ℝ 2 ν :=
+  (memLp_tail_mul D δ u).toLp _
+
+/-- The tail acts pointwise by the indicator. -/
+theorem tailMul_coeFn (D : MulModel X ν Λ T) (δ : ℝ) (u : Lp ℝ 2 ν) :
+    (tailMul D δ u : X → ℝ) =ᵐ[ν]
+      fun x => (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) * (u : X → ℝ) x :=
+  MemLp.coeFn_toLp _
+
+/-- **The pointwise two-scale bound.**  Above the split the multiplier is at most `e^{−τ δ}`, below
+it it is at most one, and on `{f = 0}` both sides vanish. -/
+theorem abs_exp_neg_sub_kernelIndicator_le_two_scale (D : MulModel X ν Λ T) {δ : ℝ}
+    {τ : ℝ} (hτ : 0 ≤ τ) {x : X} (hfx0 : 0 ≤ D.f x) :
+    |Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0)|
+      ≤ Real.exp (-(τ * δ)) + (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) := by
+  have hexpδ : 0 ≤ Real.exp (-(τ * δ)) := (Real.exp_pos _).le
+  by_cases h : D.f x = 0
+  · rw [if_pos h, h, mul_zero, neg_zero, Real.exp_zero, sub_self, abs_zero,
+      show (if 0 < (0 : ℝ) ∧ (0 : ℝ) < δ then (1 : ℝ) else 0) = 0 by simp, add_zero]
+    exact hexpδ
+  · rw [if_neg h, sub_zero, abs_of_nonneg (Real.exp_nonneg _)]
+    by_cases hlt : D.f x < δ
+    · have hcond : 0 < D.f x ∧ D.f x < δ := ⟨lt_of_le_of_ne hfx0 (Ne.symm h), hlt⟩
+      rw [if_pos hcond]
+      have h1 : Real.exp (-(τ * D.f x)) ≤ 1 := by
+        rw [← Real.exp_zero]
+        exact Real.exp_le_exp.2 (by nlinarith)
+      linarith
+    · have hcond : ¬ (0 < D.f x ∧ D.f x < δ) := fun hc => hlt hc.2
+      rw [if_neg hcond, add_zero]
+      refine Real.exp_le_exp.2 ?_
+      have hge : δ ≤ D.f x := le_of_not_gt hlt
+      nlinarith [mul_le_mul_of_nonneg_left hge hτ]
+
+/-- **The two-scale estimate on `L²(ν)`**: the deviation from the limit is bounded by the gapped term
+plus the tail below the split. -/
+theorem norm_expFlow_sub_limitMulL2_le_two_scale (D : MulModel X ν Λ T) {δ : ℝ}
+    {τ : ℝ} (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν) :
+    ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖
+      ≤ Real.exp (-(τ * δ)) * ‖u‖ + ‖tailMul D δ u‖ := by
+  have hnorm : ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖
+      ≤ ‖Real.exp (-(τ * δ)) • u + tailMul D δ u‖ := by
+    refine Lp.norm_le_norm_of_ae_le ?_
+    filter_upwards [expFlow_coeFn D.hf D.hpos hτ u, limitMulL2_coeFn D u,
+      Lp.coeFn_sub (expFlow D.f D.hf D.hpos τ u) (limitMulL2 D u),
+      Lp.coeFn_add (Real.exp (-(τ * δ)) • u) (tailMul D δ u),
+      Lp.coeFn_smul (Real.exp (-(τ * δ))) u, tailMul_coeFn D δ u, D.hpos]
+      with x h1 h2 h3 h4 h5 h6 h7
+    have hpt : ((expFlow D.f D.hf D.hpos τ u - limitMulL2 D u : Lp ℝ 2 ν) : X → ℝ) x
+        = (Real.exp (-(τ * D.f x)) - (if D.f x = 0 then (1 : ℝ) else 0)) * (u : X → ℝ) x := by
+      rw [h3, Pi.sub_apply, h1, h2, sub_mul]
+    have hptw : ((Real.exp (-(τ * δ)) • u + tailMul D δ u : Lp ℝ 2 ν) : X → ℝ) x
+        = (Real.exp (-(τ * δ)) + (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0))
+            * (u : X → ℝ) x := by
+      rw [h4, Pi.add_apply, h5, Pi.smul_apply, smul_eq_mul, h6]
+      ring
+    have hnn : (0 : ℝ) ≤ Real.exp (-(τ * δ)) + (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) := by
+      split_ifs
+      · have := (Real.exp_pos (-(τ * δ))).le
+        linarith
+      · simpa using (Real.exp_pos (-(τ * δ))).le
+    rw [hpt, hptw, Real.norm_eq_abs, Real.norm_eq_abs, abs_mul, abs_mul, abs_of_nonneg hnn]
+    exact mul_le_mul_of_nonneg_right (abs_exp_neg_sub_kernelIndicator_le_two_scale D hτ h7)
+      (abs_nonneg _)
+  calc ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖
+      ≤ ‖Real.exp (-(τ * δ)) • u + tailMul D δ u‖ := hnorm
+    _ ≤ ‖Real.exp (-(τ * δ)) • u‖ + ‖tailMul D δ u‖ := norm_add_le _ _
+    _ = Real.exp (-(τ * δ)) * ‖u‖ + ‖tailMul D δ u‖ := by
+        rw [norm_smul, Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le]
+
+/-- **The two-scale estimate on `ℋ`**, through the isometry. -/
+theorem norm_flowOfHCLM_sub_limitProjection_le_two_scale (D : MulModel X ν Λ T) {δ : ℝ}
+    {τ : ℝ} (hτ : 0 ≤ τ) (y : Hphys Λ) :
+    ‖flowOfHCLM D τ y - limitProjection D y‖
+      ≤ Real.exp (-(τ * δ)) * ‖y‖ + ‖tailMul D δ (D.U y)‖ := by
+  have hdiff : ‖flowOfHCLM D τ y - limitProjection D y‖
+      = ‖expFlow D.f D.hf D.hpos τ (D.U y) - limitMulL2 D (D.U y)‖ := by
+    rw [← D.U.norm_map (flowOfHCLM D τ y - limitProjection D y), map_sub, flowOfHCLM_apply,
+      U_flowOfH, U_limitProjection]
+  rw [hdiff, ← D.U.norm_map y]
+  exact norm_expFlow_sub_limitMulL2_le_two_scale D hτ (D.U y)
+
+/-- **The tail vanishes as `δ ↓ 0`.**  Pointwise `1_{0 < f < δ} → 0` (on `{f = 0}` it is already
+zero, and on `{f > 0}` it is zero once `δ < f`), and it is dominated by `u²`, so the squared tail
+norm tends to zero. -/
+theorem tendsto_norm_sq_tailMul (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    Tendsto (fun δ : ℝ => ‖tailMul D δ u‖ ^ 2) (𝓝[>] (0 : ℝ)) (𝓝 0) := by
+  have hInt : Integrable (fun x => (u : X → ℝ) x ^ 2) ν := MemLp.integrable_sq (Lp.memLp u)
+  have hfun : ∀ δ : ℝ, ‖tailMul D δ u‖ ^ 2
+      = ∫ x, (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) * (u : X → ℝ) x ^ 2 ∂ν := by
+    intro δ
+    rw [norm_sq_eq_integral]
+    refine integral_congr_ae ?_
+    filter_upwards [tailMul_coeFn D δ u] with x hx
+    rw [hx]
+    by_cases h : 0 < D.f x ∧ D.f x < δ
+    · rw [if_pos h]; ring
+    · rw [if_neg h]; ring
+  have hF_meas : ∀ᶠ δ in 𝓝[>] (0 : ℝ), AEStronglyMeasurable
+      (fun x => (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) * (u : X → ℝ) x ^ 2) ν :=
+    Eventually.of_forall fun δ =>
+      (Measurable.ite ((D.hf measurableSet_Ioi).inter (D.hf measurableSet_Iio))
+        measurable_const measurable_const).aestronglyMeasurable.mul
+        ((Lp.aestronglyMeasurable u).pow 2)
+  have h_bound : ∀ᶠ δ in 𝓝[>] (0 : ℝ), ∀ᵐ x ∂ν,
+      ‖(if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) * (u : X → ℝ) x ^ 2‖
+        ≤ (u : X → ℝ) x ^ 2 := by
+    filter_upwards with δ
+    filter_upwards with x
+    by_cases h : 0 < D.f x ∧ D.f x < δ
+    · rw [if_pos h, one_mul, Real.norm_eq_abs,
+        abs_of_nonneg (sq_nonneg ((u : X → ℝ) x))]
+    · rw [if_neg h, zero_mul, Real.norm_eq_abs, abs_zero]
+      exact sq_nonneg _
+  have h_lim : ∀ᵐ x ∂ν, Tendsto (fun δ : ℝ =>
+      (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0) * (u : X → ℝ) x ^ 2)
+        (𝓝[>] (0 : ℝ)) (𝓝 0) := by
+    filter_upwards [D.hpos] with x hfx0
+    by_cases h : D.f x = 0
+    · have hzero : (fun δ : ℝ => (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0)
+          * (u : X → ℝ) x ^ 2) = fun _ => (0 : ℝ) := by
+        funext δ
+        rw [h]
+        simp
+      rw [hzero]
+      exact tendsto_const_nhds
+    · have hposx : 0 < D.f x := lt_of_le_of_ne hfx0 (Ne.symm h)
+      have hev : ∀ᶠ δ in 𝓝[>] (0 : ℝ), ¬ (0 < D.f x ∧ D.f x < δ) := by
+        filter_upwards [nhdsWithin_le_nhds (Iio_mem_nhds hposx)] with δ hδ
+        exact fun hc => absurd hc.2 (not_lt.mpr hδ.le)
+      have heq : (fun δ : ℝ => (if 0 < D.f x ∧ D.f x < δ then (1 : ℝ) else 0)
+          * (u : X → ℝ) x ^ 2) =ᶠ[𝓝[>] (0 : ℝ)] fun _ => (0 : ℝ) := by
+        filter_upwards [hev] with δ hδ
+        rw [if_neg hδ, zero_mul]
+      rw [tendsto_congr' heq]
+      exact tendsto_const_nhds
+  simp_rw [hfun]
+  have h := tendsto_integral_filter_of_dominated_convergence (μ := ν) (l := 𝓝[>] (0 : ℝ))
+    (f := fun _ => (0 : ℝ)) (fun x => (u : X → ℝ) x ^ 2) hF_meas h_bound hInt h_lim
+  simpa using h
+
+/-- The tail norm itself tends to zero at `0⁺`. -/
+theorem tendsto_norm_tailMul (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) :
+    Tendsto (fun δ : ℝ => ‖tailMul D δ u‖) (𝓝[>] (0 : ℝ)) (𝓝 0) := by
+  have h2 := tendsto_norm_sq_tailMul D u
+  have hsqrt : Tendsto (fun δ : ℝ => Real.sqrt (‖tailMul D δ u‖ ^ 2))
+      (𝓝[>] (0 : ℝ)) (𝓝 (Real.sqrt 0)) :=
+    Real.continuous_sqrt.continuousAt.tendsto.comp h2
+  have hfun : (fun δ : ℝ => Real.sqrt (‖tailMul D δ u‖ ^ 2))
+      = fun δ : ℝ => ‖tailMul D δ u‖ := by
+    funext δ
+    exact Real.sqrt_sq (norm_nonneg _)
+  rw [hfun] at hsqrt
+  simpa using hsqrt
+
+/-- **A tail smaller than `η` exists at some positive split.** -/
+theorem exists_tailMul_norm_lt (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) {η : ℝ} (hη : 0 < η) :
+    ∃ δ : ℝ, 0 < δ ∧ ‖tailMul D δ u‖ < η := by
+  have h : ∀ᶠ δ in 𝓝[>] (0 : ℝ), ‖tailMul D δ u‖ < η :=
+    (tendsto_norm_tailMul D u).eventually (Iio_mem_nhds hη)
+  have hpos : ∀ᶠ δ in 𝓝[>] (0 : ℝ), 0 < δ := self_mem_nhdsWithin
+  obtain ⟨δ, hδlt, hδpos⟩ := (h.and hpos).exists
+  exact ⟨δ, hδpos, hδlt⟩
+
+/-- **An explicit time.**  If the split `δ` resolves all but `ε/2` of the tail, then from
+`T = max 0 (-log (ε / (2 (‖y‖ + 1))) / δ)` on, the flow is within `ε` of the projection.  The
+time is explicit in `δ`, `ε` and `‖y‖`; the only non-explicit ingredient is the split itself,
+which the density supplies through `exists_tailMul_norm_lt`. -/
+theorem norm_flowOfHCLM_sub_limitProjection_lt_of_time (D : MulModel X ν Λ T) {δ : ℝ}
+    (hδ : 0 < δ) (y : Hphys Λ) {ε : ℝ} (hε : 0 < ε) {τ : ℝ}
+    (hτ : max 0 (-(Real.log (ε / (2 * (‖y‖ + 1)))) / δ) ≤ τ)
+    (htail : ‖tailMul D δ (D.U y)‖ < ε / 2) :
+    ‖flowOfHCLM D τ y - limitProjection D y‖ < ε := by
+  have hτ0 : 0 ≤ τ := le_trans (le_max_left _ _) hτ
+  have hτT : -(Real.log (ε / (2 * (‖y‖ + 1)))) / δ ≤ τ := le_trans (le_max_right _ _) hτ
+  have hc : 0 < ε / (2 * (‖y‖ + 1)) := by positivity
+  have hexp : Real.exp (-(τ * δ)) ≤ ε / (2 * (‖y‖ + 1)) := by
+    rw [← Real.exp_log hc]
+    refine Real.exp_le_exp.2 ?_
+    have hmul := mul_le_mul_of_nonneg_right hτT hδ.le
+    rw [div_mul_cancel₀ _ hδ.ne'] at hmul
+    nlinarith
+  have hstep : Real.exp (-(τ * δ)) * ‖y‖ ≤ ε / 2 := by
+    calc Real.exp (-(τ * δ)) * ‖y‖ ≤ (ε / (2 * (‖y‖ + 1))) * ‖y‖ :=
+          mul_le_mul_of_nonneg_right hexp (norm_nonneg _)
+      _ ≤ ε / 2 := by
+          rw [div_mul_eq_mul_div, div_le_iff₀ (by positivity)]
+          nlinarith [norm_nonneg y, hε.le]
+  have hmain := norm_flowOfHCLM_sub_limitProjection_le_two_scale D hτ0 y
+  linarith
+
+/-- **Strong convergence with an explicit time.**  For every `ε > 0` the flow is within `ε` of the
+projection after a time that the proof names: `max 0 (-log (ε / (2 (‖y‖ + 1))) / δ)`, where `δ > 0`
+is any split for which the unresolved tail `1_{0 < f < δ} · U y` has norm below `ε/2`.  Such a
+split exists because the tail tends to zero as `δ ↓ 0` — so the asymptotic statement is quantified,
+not merely asserted. -/
+theorem exists_time_norm_flowOfHCLM_sub_limitProjection_lt (D : MulModel X ν Λ T) (y : Hphys Λ)
+    {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : ℝ, ∀ τ : ℝ, T ≤ τ → ‖flowOfHCLM D τ y - limitProjection D y‖ < ε := by
+  obtain ⟨δ, hδpos, hδtail⟩ := exists_tailMul_norm_lt D (D.U y) (η := ε / 2) (by linarith)
+  exact ⟨max 0 (-(Real.log (ε / (2 * (‖y‖ + 1)))) / δ), fun τ hτ =>
+    norm_flowOfHCLM_sub_limitProjection_lt_of_time D hδpos y hε hτ hδtail⟩
+
 /-- **The large-time limit is the orthogonal projection onto the kernel of the density.**  The
 operator statement: the flow converges strongly to `limitProjection`, which is self-adjoint and
 idempotent, is the identity exactly on the vectors whose chart lives on `{f = 0}`, is zero exactly

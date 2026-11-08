@@ -18,6 +18,8 @@ repomix-output.xml
 *.ilean
 *.c
 *.c.tmp
+*.ndjson
+*.mmb
 
 # Aeneas/Charon intermediates at the model crate root (the committed
 # `.llbc`/`.lean` under unfer_contracts/ are tracked explicitly)
@@ -39,3 +41,4 @@ Book.lean.bak
 /math/
 /.freebuff/
 /.github/
+/math/
