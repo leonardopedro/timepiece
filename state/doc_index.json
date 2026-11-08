@@ -1,11 +1,11 @@
 {
  "version": 1,
- "generated_at": "2026-10-30T11:26:53+00:00",
+ "generated_at": "2026-11-08T20:41:46+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
    "title": "AGENTS.md - Developer Guide for AI Coding Agents",
-   "lines": 319,
+   "lines": 320,
    "headings": [
     "# AGENTS.md - Developer Guide for AI Coding Agents",
     "## Workspace Layout & File Map",
@@ -38,7 +38,7 @@
   {
    "path": "ATTRIBUTION.md",
    "title": "Attribution",
-   "lines": 25,
+   "lines": 28,
    "headings": [
     "# Attribution",
     "## Notes"
@@ -153,7 +153,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 18328,
+   "lines": 18775,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -447,6 +447,20 @@
    ]
   },
   {
+   "path": "Downloads/_deps/README.md",
+   "title": "`_deps/` — prove2.me platform library (2026-10-19)",
+   "lines": 134,
+   "headings": [
+    "# `_deps/` — prove2.me platform library (2026-10-19)",
+    "## Layout",
+    "## Why the `Thm_` files end in `:= by sorry`",
+    "## Local normalizations (3, recorded per item in `manifest.json`)",
+    "## Environments",
+    "## Verification (2026-10-19)",
+    "## Use"
+   ]
+  },
+  {
    "path": "EXPPOT.md",
    "title": "EXPPOT",
    "lines": 174,
@@ -597,6 +611,21 @@
     "## 5.4 From the original §1 sentence, only this remains open",
     "## 5.5 Accounting identity (2026-09-23d): no extra gauge-fixing/ghost summand in `h` or `N`",
     "## Module map (closed boundaries → files)"
+   ]
+  },
+  {
+   "path": "Hashimoto.md",
+   "title": "Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
+   "lines": 425,
+   "headings": [
+    "# Shift-invert Rational Krylov method for an operator $\\phi$-function of an unbounded linear operator",
+    "## Abstract",
+    "## 1 Introduction",
+    "## 2 The definition of the operator function",
+    "## 4 Shift-invert rational Krylov method",
+    "## 5 Numerical experiments",
+    "## 6 Conclusion",
+    "# References"
    ]
   },
   {
@@ -1181,7 +1210,7 @@
   {
    "path": "STATUS.md",
    "title": "`BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`",
-   "lines": 12805,
+   "lines": 12834,
    "headings": [
     "# `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md`",
     "## Latest wave — 2026-09-23: **BRST implemented as `book.tex` defines it** — the charge",
@@ -1435,7 +1464,7 @@
   {
    "path": "cftproof.md",
    "title": "cftproof",
-   "lines": 301,
+   "lines": 602,
    "headings": [
     "## Implementation status (2026-10-29)"
    ]
@@ -1473,9 +1502,22 @@
    ]
   },
   {
+   "path": "converted/mm0/README.md",
+   "title": "`mm0/` — the Solovay–Kopperman conversion to MM0 (the mm0web platform)",
+   "lines": 155,
+   "headings": [
+    "# `mm0/` — the Solovay–Kopperman conversion to MM0 (the mm0web platform)",
+    "## Files",
+    "## Trust split",
+    "## What is *not* yet converted",
+    "## MM0/mmr syntax notes (pinned by test, for the next conversion)",
+    "## Publishing record"
+   ]
+  },
+  {
    "path": "docs/euclidean_cft_proof.md",
    "title": "Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT",
-   "lines": 207,
+   "lines": 222,
    "headings": [
     "# Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT",
     "## Modules",
@@ -1483,6 +1525,22 @@
     "## Boundary (recorded, never assumed)",
     "## MM0 emission: what this pipeline can and cannot carry",
     "## Reproducing"
+   ]
+  },
+  {
+   "path": "lopez99.md",
+   "title": "APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
+   "lines": 783,
+   "headings": [
+    "# APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS",
+    "# 1. Introduction",
+    "## 2. Expansions in terms of Hermite polynomials",
+    "## 3. Gegenbauer polynomials",
+    "## APPROXIMATION OF ORTHOGONAL POLYNOMIALS",
+    "## 4. Laguerre polynomials",
+    "## 5 The Tricomi-Carlitz polynomials",
+    "## 6. Jacobi polynomials",
+    "## References"
    ]
   },
   {
@@ -1516,7 +1574,7 @@
   {
    "path": "pcnl.md",
    "title": "pcnl",
-   "lines": 215,
+   "lines": 668,
    "headings": []
   },
   {
@@ -1528,7 +1586,7 @@
   {
    "path": "softmodes.md",
    "title": "softmodes",
-   "lines": 290,
+   "lines": 1400,
    "headings": []
   },
   {
@@ -1635,6 +1693,10 @@
   },
   {
    "source": "BOOKPROOF_SPLIT_PLAN.md",
+   "target": "Downloads/_deps/README.md"
+  },
+  {
+   "source": "BOOKPROOF_SPLIT_PLAN.md",
    "target": "converted/GAPS.md"
   },
   {
@@ -1727,6 +1789,10 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "Downloads/_deps/README.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "FORMALIZATION_ROADMAP.md"
   },
   {
@@ -1748,6 +1814,10 @@
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "HONEST_BOUNDARIES_SM.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "Hashimoto.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -1879,11 +1949,19 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "lopez99.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "math28/README.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
    "target": "newproof.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
+   "target": "pcnl.md"
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
@@ -2019,6 +2097,10 @@
   },
   {
    "source": "CURRENT_WORK_ORDER.md",
+   "target": "pcnl.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
    "target": "unfer_contracts/MASS_GAP_REGENERATION.md"
   },
   {
@@ -2112,6 +2194,10 @@
   {
    "source": "MASS_GAP_CERTIFIED.md",
    "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "MASS_GAP_CERTIFIED.md",
+   "target": "Hashimoto.md"
   },
   {
    "source": "PLAN_A_BOOK_FORMALIZATION.md",
@@ -2212,6 +2298,10 @@
   {
    "source": "PNP_IMPLEMENTATION_PLAN.md",
    "target": "PnpProof/IMPLEMENTED.md"
+  },
+  {
+   "source": "PNP_IMPLEMENTATION_PLAN.md",
+   "target": "lopez99.md"
   },
   {
    "source": "PROVE2ME_REUSABLE_THEOREMS.md",
@@ -2370,8 +2460,16 @@
    "target": "softmodes.md"
   },
   {
+   "source": "converted/GAPS.md",
+   "target": "Downloads/_deps/README.md"
+  },
+  {
    "source": "converted/README.md",
    "target": "BOOKPROOF_SPLIT_PLAN.md"
+  },
+  {
+   "source": "converted/README.md",
+   "target": "Downloads/_deps/README.md"
   },
   {
    "source": "converted/README.md",
@@ -2379,6 +2477,10 @@
   },
   {
    "source": "docs/euclidean_cft_proof.md",
+   "target": "cftproof.md"
+  },
+  {
+   "source": "pcnl.md",
    "target": "cftproof.md"
   },
   {

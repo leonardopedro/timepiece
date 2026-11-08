@@ -116,7 +116,8 @@ bare NixOS shell, so python entry points carry their `nix-shell -p python3
 | :--- | :--- |
 | `health.sh` | one-command gate (exit 0 ⇔ healthy): doc-index freshness, `import_components --check`, GitBook drift. Calls `python3` itself — run it *through* the wrapper below. |
 | `verify-invariants` | invariant/drift gate; a missing tool is an explained `[gap]`, never a false failure. |
-| `check-links` | relative markdown links resolve (CI: `.github/workflows/linkcheck.yml`). |
+| `check-links` | relative markdown links resolve (CI: `.github/workflows/linkcheck.yml`); the default scan is git-tracked `*.md`, an explicit `FILE` is always checked. |
+| `test_check_links.py` | the scope tests for `check-links` (tracked vs untracked vs git-ignored vs explicit, and the no-git fallback); CI runs it in `linkcheck.yml`. |
 | `check-gitbook-drift` | identifiers cited by `../test`'s GitBook pages still exist here (skips when `../test` is absent). |
 | `pending-lemmas.txt` | data, not a script: the reviewed forward-reference ledger the drift gate consults. A MISS listed there is `[pending]` (a planned lemma for the Lean4 specialist, not rot); an unlisted MISS fails; a listed identifier that now resolves is `[stale]` — remove it in the change that lands the lemma. |
 | `check-book-sync` | `unfer/`'s synced copy of the LaTeX corpus still matches this repo (the source of record). |
