@@ -97,6 +97,19 @@ The construction is the classical shift-invert one, done in `ℝ`:
   `max 0 (-log (ε / (2(‖y‖+1))) / δ)` the flow is within `ε` of the projection.  The unresolved tail
   is chosen first and vanishes as `δ ↓ 0` (`tendsto_norm_tailMul`, dominated convergence); the rate
   is therefore explicit in `δ, ε, ‖y‖`, and only `δ` is supplied by a limit;
+* `norm_flowOfHCLM_sub_limitProjection_eq_two_scale` — the same bound is **attained**, not merely
+  an upper estimate: if the density equals the split on the support of the vector
+  (`(D.U y) x ≠ 0 → f x = δ`), the tail is empty (`tailMul_eq_zero_of_eq_on_support`) and the
+  multiplier is exactly `e^{−τδ}` there, so the two-scale estimate is an equality
+  (`norm_expFlow_sub_limitMulL2_eq_of_eq_on_support` on `L²(ν)`).  The explicit witness is
+  `barrier_sharp`: the barrier density `δ` on `[0, 1]`, tested on the class of its own indicator,
+  gives equality for every `τ ≥ 0`.  So the gapped rate is the truth wherever it applies, and the
+  no-gap hypothesis above is a hypothesis on the density, not on the proof;
+* `not_exists_uniform_rate_of_noGap` — the same failure in the form it is usually wanted: there is
+  no rate function `r τ → 0` bounding `‖(e^{−τH} − P)y‖` for **all** `‖y‖ ≤ 1`.  A bound on the
+  unit ball is a bound on the operator norm (`opNorm_le_of_unit_ball_bound`, by homogeneity), so such
+  an `r` would make the norm converge, which the no-gap theorem forbids.  The two-scale rate is
+  therefore pointwise in `y` and cannot be made uniform;
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
@@ -2453,6 +2466,216 @@ at least `1/2` at every time `τ ≥ 1`: it cannot converge to `0`, even though 
 to the projection *strongly* (`tendsto_flowOfHCLM_atTop`).  The gap in the rate theorem is
 therefore not an artefact of the proof — without it the statement is false.
 -/
+
+/-! ### Sharpness of the rate, and the absence of a uniform one
+
+The two-scale bound is *attained*, and it is the only uniform statement available.  Sharpness: when
+the density is exactly the split `δ` on the support of the vector, nothing carries `0 < f < δ`, so
+the tail vanishes, and the multiplier is exactly `e^{−τ δ}` there — the estimate becomes an
+identity.  The barrier density `δ` on `[0, 1]`, tested on its own indicator, is an explicit
+witness.  Non-uniformity: a rate on the unit ball is a rate on the operator norm, so the absence
+of norm convergence is exactly the absence of a uniform schedule of accuracy; the last theorem
+states that without mentioning operator norms at all.
+-/
+
+/-- The indicator of `{f = 0}` for an arbitrary measurable density. -/
+theorem memLp_kernelIndicator_of_measurable {f : X → ℝ} (hf : Measurable f) :
+    MemLp (fun x => if f x = 0 then (1 : ℝ) else 0) (⊤ : ℝ≥0∞) ν := by
+  refine memLp_top_of_bound ?_ 1 ?_
+  · exact (Measurable.ite (hf (measurableSet_singleton 0)) measurable_const
+      measurable_const).aestronglyMeasurable
+  · filter_upwards with x
+    split_ifs <;> simp
+
+/-- The kernel indicator of a measurable density, as an `L^∞` class. -/
+noncomputable def kernelWeight {f : X → ℝ} (hf : Measurable f) : Lp ℝ (⊤ : ℝ≥0∞) ν :=
+  (memLp_kernelIndicator_of_measurable hf).toLp _
+
+/-- It acts as the indicator function. -/
+theorem kernelWeight_coeFn {f : X → ℝ} (hf : Measurable f) :
+    (kernelWeight (ν := ν) hf : X → ℝ) =ᵐ[ν] fun x => if f x = 0 then (1 : ℝ) else 0 :=
+  MemLp.coeFn_toLp _
+
+/-- **The limit operator is multiplication by the kernel weight.**  The two presentations differ
+only in the proof that the indicator is essentially bounded, which is not definitional, so the
+identification is propositional. -/
+theorem limitMulL2_eq_mulL2_kernelWeight (D : MulModel X ν Λ T) :
+    limitMulL2 D = mulL2 (kernelWeight (ν := ν) D.hf) := by
+  refine ContinuousLinearMap.ext fun u => Lp.ext ?_
+  filter_upwards [limitMulL2_coeFn D u, mulL2_coeFn (kernelWeight (ν := ν) D.hf) u,
+    kernelWeight_coeFn D.hf] with x h1 h2 h3
+  rw [h1, h2, h3]
+
+/-- **The two-scale bound is attained on a density constant at the split.**  If every nonzero value
+of the vector sits where `f = δ`, the tail is empty and the multiplier equals `e^{−τ δ}` there, so
+the deviation is exactly `e^{−τ δ}‖u‖` at every time. -/
+theorem norm_expFlow_sub_mulL2_kernel_eq_of_eq_on_support {f : X → ℝ} (hf : Measurable f)
+    (hpos : ∀ᵐ x ∂ν, 0 ≤ f x) {δ τ : ℝ} (hδ : 0 < δ) (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν)
+    (hu : ∀ᵐ x ∂ν, (u : X → ℝ) x ≠ 0 → f x = δ) :
+    ‖expFlow f hf hpos τ u - mulL2 (kernelWeight (ν := ν) hf) u‖
+      = Real.exp (-(τ * δ)) * ‖u‖ := by
+  have hEq : expFlow f hf hpos τ u - mulL2 (kernelWeight (ν := ν) hf) u
+      = Real.exp (-(τ * δ)) • u := by
+    refine Lp.ext ?_
+    filter_upwards [expFlow_coeFn hf hpos hτ u, mulL2_coeFn (kernelWeight (ν := ν) hf) u,
+      kernelWeight_coeFn hf, Lp.coeFn_sub (expFlow f hf hpos τ u)
+        (mulL2 (kernelWeight (ν := ν) hf) u), Lp.coeFn_smul (Real.exp (-(τ * δ))) u, hu]
+      with x h1 h2 h3 h4 h5 h6
+    rw [h4, Pi.sub_apply, h1, h2, h3, ← sub_mul, h5, Pi.smul_apply, smul_eq_mul]
+    by_cases hx : (u : X → ℝ) x = 0
+    · rw [hx, mul_zero, mul_zero]
+    · have hfδ : f x = δ := h6 hx
+      rw [hfδ, if_neg (ne_of_gt hδ), sub_zero]
+  rw [hEq, norm_smul, Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le]
+
+/-- **Sharpness in the multiplier model.** -/
+theorem norm_expFlow_sub_limitMulL2_eq_of_eq_on_support (D : MulModel X ν Λ T) {δ τ : ℝ}
+    (hδ : 0 < δ) (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν)
+    (hu : ∀ᵐ x ∂ν, (u : X → ℝ) x ≠ 0 → D.f x = δ) :
+    ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖ = Real.exp (-(τ * δ)) * ‖u‖ := by
+  rw [limitMulL2_eq_mulL2_kernelWeight]
+  exact norm_expFlow_sub_mulL2_kernel_eq_of_eq_on_support D.hf D.hpos hδ hτ u hu
+
+/-- **The tail is empty when the density is constant on the support.** -/
+theorem tailMul_eq_zero_of_eq_on_support (D : MulModel X ν Λ T) {δ : ℝ} (_hδ : 0 < δ)
+    (u : Lp ℝ 2 ν) (hu : ∀ᵐ x ∂ν, (u : X → ℝ) x ≠ 0 → D.f x = δ) :
+    tailMul D δ u = 0 := by
+  refine Lp.ext ?_
+  filter_upwards [tailMul_coeFn D δ u, hu, Lp.coeFn_zero ℝ 2 ν] with x hx h h0
+  rw [hx, h0]
+  by_cases hux : (u : X → ℝ) x = 0
+  · rw [hux, mul_zero]
+    simp
+  · have hfδ : D.f x = δ := h hux
+    have hnot : ¬ (0 < D.f x ∧ D.f x < δ) := by
+      rw [hfδ]
+      exact fun hc => lt_irrefl δ hc.2
+    rw [if_neg hnot, zero_mul]
+    simp
+
+/-- **The two-scale estimate is an equality**, not merely an inequality, on such a density. -/
+theorem norm_expFlow_sub_limitMulL2_eq_two_scale_of_eq_on_support (D : MulModel X ν Λ T)
+    {δ τ : ℝ} (hδ : 0 < δ) (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν)
+    (hu : ∀ᵐ x ∂ν, (u : X → ℝ) x ≠ 0 → D.f x = δ) :
+    ‖expFlow D.f D.hf D.hpos τ u - limitMulL2 D u‖
+      = Real.exp (-(τ * δ)) * ‖u‖ + ‖tailMul D δ u‖ := by
+  rw [norm_expFlow_sub_limitMulL2_eq_of_eq_on_support D hδ hτ u hu,
+    tailMul_eq_zero_of_eq_on_support D hδ u hu, norm_zero, add_zero]
+
+/-- **Sharpness on `ℋ`**, through the isometry: the rate is attained by any `y` whose chart sits
+where the density equals the split. -/
+theorem norm_flowOfHCLM_sub_limitProjection_eq_two_scale (D : MulModel X ν Λ T) {δ τ : ℝ}
+    (hδ : 0 < δ) (hτ : 0 ≤ τ) (y : Hphys Λ)
+    (hy : ∀ᵐ x ∂ν, (D.U y : X → ℝ) x ≠ 0 → D.f x = δ) :
+    ‖flowOfHCLM D τ y - limitProjection D y‖
+      = Real.exp (-(τ * δ)) * ‖y‖ + ‖tailMul D δ (D.U y)‖ := by
+  have hdiff : ‖flowOfHCLM D τ y - limitProjection D y‖
+      = ‖expFlow D.f D.hf D.hpos τ (D.U y) - limitMulL2 D (D.U y)‖ := by
+    rw [← D.U.norm_map (flowOfHCLM D τ y - limitProjection D y), map_sub, flowOfHCLM_apply,
+      U_flowOfH, U_limitProjection]
+  rw [hdiff, norm_expFlow_sub_limitMulL2_eq_two_scale_of_eq_on_support D hδ hτ (D.U y) hy,
+    D.U.norm_map]
+
+/-- **A bound on the unit ball is a bound on the operator norm.**  The unit ball controls the
+operator norm by homogeneity, so a pointwise-in-`y` estimate with a constant `r` is an estimate of
+`‖S‖` by `r`. -/
+theorem opNorm_le_of_unit_ball_bound (D : MulModel X ν Λ T) {r τ : ℝ} (hr : 0 ≤ r)
+    (h : ∀ y : Hphys Λ, ‖y‖ ≤ 1 →
+      ‖(flowOfHCLM D τ - limitProjection D) y‖ ≤ r) :
+    ‖flowOfHCLM D τ - limitProjection D‖ ≤ r := by
+  refine ContinuousLinearMap.opNorm_le_bound _ hr fun y => ?_
+  rcases eq_or_ne y 0 with h0 | hy
+  · subst h0
+    rw [map_zero, norm_zero]
+    simp
+  · have hypos : 0 < ‖y‖ := norm_pos_iff.2 hy
+    have hunit : ‖(‖y‖⁻¹ : ℝ) • y‖ = 1 := by
+      rw [norm_smul, Real.norm_eq_abs, abs_of_pos (inv_pos.2 hypos)]
+      exact inv_mul_cancel₀ hypos.ne'
+    have h1 := h ((‖y‖⁻¹ : ℝ) • y) hunit.le
+    rw [map_smul, norm_smul, Real.norm_eq_abs, abs_of_pos (inv_pos.2 hypos)] at h1
+    have h2 := mul_le_mul_of_nonneg_left h1 hypos.le
+    calc ‖(flowOfHCLM D τ - limitProjection D) y‖
+        = ‖y‖ * (‖y‖⁻¹ * ‖(flowOfHCLM D τ - limitProjection D) y‖) :=
+          (mul_inv_cancel_left₀ hypos.ne' _).symm
+      _ ≤ ‖y‖ * r := h2
+      _ = r * ‖y‖ := mul_comm _ _
+
+/-- **There is no uniform rate on the unit ball without a gap.**  A function `r` with `r τ → 0`
+bounding the deviation on the unit ball would drive the operator norm to zero, which
+`not_tendsto_opNorm_flowOfHCLM_of_noGap` forbids.  This is the form the failure is usually wanted
+in: not "the operator norm does not converge", but "no schedule of accuracy `r` works uniformly
+in the vector". -/
+theorem not_exists_uniform_rate_of_noGap (D : MulModel X ν Λ T)
+    (hno : ∀ δ : ℝ, 0 < δ → ∃ s : Set X, MeasurableSet s ∧ ν s ≠ 0 ∧ ν s ≠ ∞ ∧
+      ∀ x ∈ s, 0 < D.f x ∧ D.f x < δ) :
+    ¬ ∃ r : ℝ → ℝ, Tendsto r atTop (𝓝 0) ∧ ∀ (τ : ℝ), 0 ≤ τ → ∀ y : Hphys Λ, ‖y‖ ≤ 1 →
+      ‖(flowOfHCLM D τ - limitProjection D) y‖ ≤ r τ := by
+  rintro ⟨r, hr, hbound⟩
+  apply not_tendsto_opNorm_flowOfHCLM_of_noGap D hno
+  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hr
+    (Eventually.of_forall fun τ => norm_nonneg _) ?_
+  filter_upwards [eventually_ge_atTop (0 : ℝ)] with τ hτ
+  have h0 : 0 ≤ r τ := by
+    have hle := hbound τ hτ 0 (by simp)
+    have hnn : (0 : ℝ) ≤ ‖(flowOfHCLM D τ - limitProjection D) 0‖ := norm_nonneg _
+    linarith
+  exact opNorm_le_of_unit_ball_bound D h0 fun y hy => hbound τ hτ y hy
+
+/-! #### A density and a vector where the bound is attained
+
+The barrier density `δ` on `[0, 1]` and zero elsewhere, tested on the class of its own indicator.
+Nothing carries `0 < f < δ`, so the tail is zero, and on the support the multiplier is exactly
+`e^{−τ δ}`: the two-scale bound is an equality for every `τ ≥ 0`.  The density does have a gap,
+which is the point — the gapped rate is the truth when it applies, and the no-gap regime is
+exactly where no rate can be uniform. -/
+
+/-- The barrier density: `δ` on `[0, 1]`, zero elsewhere. -/
+def barrierDensity (δ : ℝ) : ℝ → ℝ := Set.indicator (Set.Icc (0 : ℝ) 1) fun _ => δ
+
+/-- It is measurable. -/
+theorem measurable_barrierDensity (δ : ℝ) : Measurable (barrierDensity δ) :=
+  measurable_const.indicator measurableSet_Icc
+
+/-- It is nonnegative for `δ ≥ 0`. -/
+theorem barrierDensity_nonneg {δ : ℝ} (hδ : 0 ≤ δ) :
+    ∀ᵐ x ∂(volume : Measure ℝ), 0 ≤ barrierDensity δ x := by
+  filter_upwards with x
+  unfold barrierDensity
+  by_cases h : x ∈ Set.Icc (0 : ℝ) 1
+  · rw [Set.indicator_of_mem h]
+    simpa using hδ
+  · rw [Set.indicator_of_notMem h]
+
+/-- The indicator of `[0, 1]` is in `L²` of Lebesgue measure. -/
+theorem memLp_barrierIndicator :
+    MemLp (Set.indicator (Set.Icc (0 : ℝ) 1) fun _ => (1 : ℝ)) 2 (volume : Measure ℝ) := by
+  refine memLp_indicator_const 2 measurableSet_Icc (1 : ℝ) (Or.inr ?_)
+  simp [Real.volume_Icc]
+
+/-- The test vector: the class of the indicator of `[0, 1]`. -/
+noncomputable def barrierVector : Lp ℝ 2 (volume : Measure ℝ) :=
+  memLp_barrierIndicator.toLp _
+
+/-- It is the indicator function. -/
+theorem barrierVector_coeFn : (barrierVector : ℝ → ℝ) =ᵐ[volume]
+    Set.indicator (Set.Icc (0 : ℝ) 1) fun _ => (1 : ℝ) :=
+  MemLp.coeFn_toLp _
+
+/-- **The two-scale bound is attained by this density and vector**: equality for every `τ ≥ 0`. -/
+theorem barrier_sharp {δ : ℝ} (hδ : 0 < δ) {τ : ℝ} (hτ : 0 ≤ τ) :
+    ‖expFlow (barrierDensity δ) (measurable_barrierDensity δ) (barrierDensity_nonneg hδ.le) τ
+        barrierVector - mulL2 (kernelWeight (ν := volume) (measurable_barrierDensity δ))
+          barrierVector‖
+      = Real.exp (-(τ * δ)) * ‖barrierVector‖ := by
+  refine norm_expFlow_sub_mulL2_kernel_eq_of_eq_on_support (ν := volume)
+    (measurable_barrierDensity δ) (barrierDensity_nonneg hδ.le) hδ hτ barrierVector ?_
+  filter_upwards [barrierVector_coeFn] with x hx hne
+  unfold barrierDensity
+  by_cases h : x ∈ Set.Icc (0 : ℝ) 1
+  · rw [Set.indicator_of_mem h]
+  · rw [Set.indicator_of_notMem h] at hx
+    exact absurd hx hne
 
 /-- **The large-time limit is the orthogonal projection onto the kernel of the density.**  The
 operator statement: the flow converges strongly to `limitProjection`, which is self-adjoint and

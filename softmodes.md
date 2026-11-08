@@ -1451,6 +1451,20 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     statement.  The rate is explicit in `δ, ε, ‖y‖`; only `δ` comes from a limit, and that is the
     sense in which a rate exists without a gap — pointwise in `y`, never uniformly.
 
+    (iv) Two refinements close the pair.  Sharpness: the two-scale bound is attained, not merely an
+    upper estimate.  If the density equals the split on the support of the vector,
+    `tailMul_eq_zero_of_eq_on_support` empties the tail and the multiplier is exactly `e^{−τδ}`
+    there, so `norm_expFlow_sub_limitMulL2_eq_of_eq_on_support`, and its flow-side form
+    `norm_flowOfHCLM_sub_limitProjection_eq_two_scale`, turn the estimate into an equality.  The
+    explicit witness is `barrier_sharp`: the barrier density `δ` on `[0,1]`, zero elsewhere
+    (`barrierDensity`), tested on the class of its own indicator (`barrierVector`), gives equality
+    for every `τ ≥ 0` — the gapped rate is the truth where it applies.  No uniformity:
+    `not_exists_uniform_rate_of_noGap` shows there is no rate function `r` with `r τ → 0` bounding
+    `‖(e^{−τH} − P)y‖` for every `‖y‖ ≤ 1`, because a unit-ball bound is a bound on the operator
+    norm (`opNorm_le_of_unit_ball_bound`, by homogeneity) and such an `r` would make the norm
+    converge.  The rate of (iii) is therefore pointwise in `y` by necessity, not because of the
+    shape of the proof.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the
