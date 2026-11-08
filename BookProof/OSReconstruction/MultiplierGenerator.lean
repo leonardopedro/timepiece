@@ -54,10 +54,16 @@ The other half of Lumer–Phillips — the **range condition** `ran(λ − A) = 
 proved too, in the last section: the candidate is written down rather than postulated, as the
 preimage under the bridge of `(λ + f)⁻¹(U x)`.  So `λ − A` is onto with an explicit inverse
 (`exists_resolvent_mulModel`, `range_sub_generatorRight_mulModel`), and the inverse is bounded by
-`1/λ` (`norm_resolvent_mulModel`), which is the estimate `SemigroupGenerator` already had.  What is
-*not* claimed is that the self-adjoint `H` with `A = −H` exists as an operator: `(λ + f)⁻¹` is a
-bounded multiplier and `λ − A` is onto, but no unbounded self-adjoint operator is constructed here,
-and the multiplier law itself is still the hypothesis that supplies the flow.
+`1/λ` (`norm_resolvent_mulModel`), which is the estimate `SemigroupGenerator` already had.
+
+The operator itself is now constructed, in `OSReconstruction.MultiplierSelfAdjoint`:
+`hamiltonianMulModel` is `H = R⁻¹ − λ` on `ran R`, with `R = (λ + f)⁻¹` acting through the bridge;
+it is densely defined and symmetric, the abstract von Neumann criterion
+`le_adjoint_of_shift_surjective` turns the range condition above into `H† = H`, and
+`hamiltonianMulModel_inner_nonneg` gives `H ≥ 0` as `⟪H y, y⟫ = ∫ f (U y)²`.  So `R` is *the*
+resolvent of a self-adjoint nonnegative `H`, as this module's boundary paragraph asked for.  What
+remains open is the multiplier law itself — the flow is still the hypothesis that supplies
+`expFlow`, and deriving it from the OS axioms is the next step, not a consequence of this file.
 -/
 
 namespace BookProof.OSReconstruction

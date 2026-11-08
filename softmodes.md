@@ -1247,14 +1247,55 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
 
     **Boundary.**  The multiplier law is still the hypothesis, and it is the spectral theorem for
     `P`: the module identifies the generator and its resolvent *given* the flow, it does not build
-    the flow from the OS axioms.  Also not claimed: that an unbounded self-adjoint `H` with
-    `A = −H` exists as an operator.  What is proved is that `λ − A` is onto with a bounded inverse
-    of norm at most `1/λ` — the range condition — which is the statement `SemigroupGenerator`
-    needed, and `H` is then the `M_f` of the model, not an operator built here.
+    the flow from the OS axioms.  Also open at the time of writing was the existence of an
+    unbounded self-adjoint `H` with `A = −H`; that half is now closed in `MultiplierSelfAdjoint`
+    (see the 2026-11-08 bullet), which builds `H` from `(λ + f)⁻¹` and proves `H† = H`, `H ≥ 0`.
+    What this module proves on its own is that `λ − A` is onto with a bounded inverse of norm at
+    most `1/λ` — the range condition — which is the statement `SemigroupGenerator` needed.
     `../physlib`'s multiplication-operator module was checked first and does not transfer: its
     `mulOperator`/`mulOperator_isSelfAdjoint_ofReal` live on the complex `SpaceDHilbertSpace d μ`
     over `Space d` with no exp flow, so the reusable input was instead the in-repo
     `tendsto_physEvol_slope` of `L2Multiplier`.
+  - *The multiplier resolvent is the resolvent of a self-adjoint `H ≥ 0` (2026-11-08).*
+    `BookProof/OSReconstruction/MultiplierSelfAdjoint.lean` (no `sorry`, registered in
+    `BookProof.lean`) closes the operator-level half of the previous bullet's boundary, by the
+    classical shift-invert route in `ℝ`.  `resolventMulModel` is the bounded `R = (λ + f)⁻¹` read
+    through the bridge — multiplication by `resolventFun`, with `‖R‖ ≤ 1/λ` from
+    `‖(λ + f)⁻¹‖ ≤ 1/λ` in the essential supremum — and `resolventMulModel_law`,
+    `λ·U(R x) + f·U(R x) = U x` in `L²(ν)`, is what makes it an inverse.  Symmetry of `R` is the
+    real-multiplier calculation `resolventMulModel_inner_comm`; injectivity and dense range follow
+    from the same law.
+
+    The Hamiltonian is then `hamiltonianMulModel = R⁻¹ − λ` on `ran R`:
+    `hamiltonianMulModel_apply` reads `H (R x) = x − λ R x`, and `hamiltonianMulModel_image` gives
+    `U (H (R x)) = mulImage D λ x` — the vector `exists_generatorRight_mulModel` names as
+    `−U (generatorRight (R x))`.  So `H` is symmetric (`hamiltonianMulModel_isFormalAdjoint`) with
+    dense domain (the range of `R`), i.e. `H ≤ H†`.  The reverse inclusion is the von Neumann
+    argument, isolated once for an abstract real Hilbert space:
+    `le_adjoint_of_shift_surjective` — a symmetric `T` with `ran(λ + T) = ℋ`, `λ > 0`, satisfies
+    `T† ≤ T`, because `z` solving `λ z + T z = T† v + λ v` makes `v − z` orthogonal to
+    `ran(λ + T)`.  Instantiated at `hamiltonianMulModel_resolvent` (`λ + H` is onto by
+    construction) it gives `hamiltonianMulModel_isSelfAdjoint`, `H† = H`.  The lemma is kept
+    generic on purpose: the same argument written against `ℋ` unfolds the
+    `UniformSpace.Completion` in every tactic step and hits the heartbeat limit at a million,
+    while at the abstract level it is immediate.  Positivity is quantitative:
+    `hamiltonianMulModel_inner_nonneg`, `⟪H y, y⟫ = ∫ f (U y)² ≥ 0`, so `H ≥ 0`.  Finally
+    `hamiltonianMulModel_resolvent` and `resolvent_hamiltonianMulModel` say `R` is *the* resolvent
+    of `H` at `λ` in both directions, so the explicit family `(λ + f)⁻¹` is a genuine resolvent,
+    not a formal analogue.
+
+    **Boundary.**  `generatorRight = −H` is identified only up to the `MemLp` presentation (the two
+    modules carry `f · U y` with different membership proofs, so they meet in `mulImage` rather
+    than in one equality), and the multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
+    hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
+    a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the
+    law says that `U` diagonalizes its generator with the simple spectrum given by `f`.  Two
+    different `f` (or a multiplicity `> 1`) give the same OS axioms with different `H`, so the
+    identification is model data — the choice of the KL multiplier realization — and the missing
+    ingredient for deriving it is the spectral theorem for the generator (equivalently Stone's
+    theorem), not another estimate.  What the corpus does derive *from* the law is the whole
+    matrix-element layer (`klMeasure`, `inner_physEvol_eq_inner_expFlow`,
+    `expFlow_twoPoint_nonneg`), and the 2026-11-08 bullet derives the operator behind it.
   - *What is still open.*  Two things, plus one identification.  (i) **The Euclidean generator**, not the Hamiltonian.  Closedness is proved in the semi-group
     setting (`generatorRight_isClosed` on `genDomainRight`), as are dissipativity
     (`generatorRight_inner_le_zero`), the a priori estimate `λ‖z‖ ≤ ‖λ z − A z‖`
@@ -1271,8 +1312,12 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     Fock space whose sector operators are inner Hamiltonians sandwiched between outer creation
     and annihilation (`sandwich`, `secHam_matrix_element`).  The degeneracy of the previous
     bullet concerns the Euclidean family at *all* real times, not `H`, so deficiency indices are
-    not needed for `H` and remain blocked on Mathlib (no adjoint for unbounded operators on real
-    inner product spaces) only for the abstract Euclidean `A`.    What is genuinely missing is a unitary `U` from the abstract `ℋ` onto the nested Fock space
+    not needed for `H`.  An earlier version of this bullet added that the adjoint of an unbounded
+    operator was *blocked on Mathlib* on real inner product spaces; that is wrong —
+    `LinearPMap.adjoint` is real-valued and is what the 2026-11-08 bullet below uses to prove
+    `H† = H`.  What Mathlib does lack is the spectral theorem for an unbounded self-adjoint
+    operator (equivalently Stone's theorem for a unitary group), which is the step the multiplier
+    law needs.    What is genuinely missing is a unitary `U` from the abstract `ℋ` onto the nested Fock space
     intertwining `P(τ)` with `e^{−τH}` for a self-adjoint `H ≥ 0`.  The condition is now a formal
     hypothesis bundle rather than a slogan: `OsFockBridge`
     (`OSReconstruction.FockIntertwining`) has exactly three fields — an isometry
