@@ -1836,6 +1836,164 @@ theorem hamiltonianMulModel_eq_zero_iff_limitProjection (D : MulModel X ν Λ T)
       limitProjection D (resolventMulModel D hlam a) = resolventMulModel D hlam a :=
   (hamiltonianMulModel_eq_zero_iff D hlam a ha).trans (limitProjection_eq_iff D _).symm
 
+/-! ### `ker H` is the range of the projection, as submodules
+
+`hamiltonianMulModel_eq_zero_iff_limitProjection` matched `H y = 0` with `P y = y` for the domain
+vectors `y = R a`.  That is a statement about `dom H`, and `dom H` is the range of a bounded
+operator — dense in `ℋ` but *proper*, since `y ∈ dom H` asks the chart `(λ + f)·U y` to be a chart
+of `ℋ` and `U` is only dense.  So the pointwise form does not yet say that the two submodules of
+`ℋ` agree.
+
+They do agree, and the missing half is one observation: if `U y` vanishes where `f ≠ 0` — which is
+exactly `P y = y` — then `(λ + f)·U y = λ·U y`, and `λ • U y` is again a chart of `ℋ` because the
+range of an isometry is a subspace.  Hence the range of `P` is contained in `dom H` after all, and
+the comparison of the two submodules can be made with no intersection or closure:
+`kerHamiltonianMulModel_eq_range_limitProjection` is an equality in `Submodule ℝ ℋ`.
+-/
+
+/-- **The resolvent multiplier undoes `λ •` on a chart living where `f = 0`.**  This is the
+arithmetic that puts the range of the projection inside the domain of `H`. -/
+theorem resolventFun_mul_smul_of_eq_zero {f lam v : ℝ} (hlam : lam ≠ 0)
+    (h : f ≠ 0 → v = 0) : (lam + f)⁻¹ * (lam * v) = v := by
+  by_cases hf : f = 0
+  · rw [hf, add_zero, ← mul_assoc, inv_mul_cancel₀ hlam, one_mul]
+  · rw [h hf, mul_zero, mul_zero]
+
+/-- Conversely, a chart that is a fixed point of `λ (λ + f)⁻¹` away from `f = 0` vanishes there.
+So `H y = 0` does force `U y` to live on `{f = 0}`. -/
+theorem eq_zero_of_eq_mul_resolventFun {f lam v : ℝ} (hne : lam + f ≠ 0) (hf : f ≠ 0)
+    (hv : v = (lam + f)⁻¹ * (lam * v)) : v = 0 := by
+  have hmul : (lam + f) * v = lam * v := by
+    conv_lhs => rw [hv]
+    rw [← mul_assoc, mul_inv_cancel₀ hne, one_mul]
+  have hfv : v * f = 0 := by nlinarith [hmul]
+  rcases mul_eq_zero.mp hfv with h | h
+  · exact h
+  · exact absurd h hf
+
+/-- **The kernel of `H` as a submodule of `ℋ`**: the vectors of the domain that `H` annihilates.
+The domain is carried in the carrier instead of being intersected afterwards, so that the
+comparison with the range of the projection is an equality of submodules of `ℋ`. -/
+def kerHamiltonianMulModel (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam) :
+    Submodule ℝ (Hphys Λ) where
+  carrier := {y | ∃ hy : y ∈ (hamiltonianMulModel D hlam).domain,
+    hamiltonianMulModel D hlam ⟨y, hy⟩ = 0}
+  zero_mem' := ⟨(hamiltonianMulModel D hlam).domain.zero_mem, by
+    rw [show (⟨0, (hamiltonianMulModel D hlam).domain.zero_mem⟩
+      : (hamiltonianMulModel D hlam).domain) = 0 from rfl]
+    exact LinearPMap.map_zero _⟩
+  add_mem' := by
+    rintro y z ⟨hy, hHy⟩ ⟨hz, hHz⟩
+    refine ⟨(hamiltonianMulModel D hlam).domain.add_mem hy hz, ?_⟩
+    have h : (⟨y + z, (hamiltonianMulModel D hlam).domain.add_mem hy hz⟩
+        : (hamiltonianMulModel D hlam).domain) = ⟨y, hy⟩ + ⟨z, hz⟩ := by
+      exact Subtype.ext rfl
+    rw [h, LinearPMap.map_add, hHy, hHz, add_zero]
+  smul_mem' := by
+    rintro c y ⟨hy, hHy⟩
+    refine ⟨(hamiltonianMulModel D hlam).domain.smul_mem c hy, ?_⟩
+    have h : (⟨c • y, (hamiltonianMulModel D hlam).domain.smul_mem c hy⟩
+        : (hamiltonianMulModel D hlam).domain) = c • ⟨y, hy⟩ := by
+      exact Subtype.ext rfl
+    rw [h, LinearPMap.map_smul, hHy, smul_zero]
+
+/-- Membership in the kernel submodule, in the `dom H` form that the pointwise lemmas use. -/
+theorem mem_kerHamiltonianMulModel (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam)
+    (y : Hphys Λ) :
+    y ∈ kerHamiltonianMulModel D hlam ↔
+      ∃ hy : y ∈ (hamiltonianMulModel D hlam).domain,
+        hamiltonianMulModel D hlam ⟨y, hy⟩ = 0 :=
+  Iff.rfl
+
+/-- **An explicit preimage of a fixed point of the projection.**  If `P y = y` then the chart of `y`
+vanishes where `f ≠ 0`, so `λ • U y` is still a chart of `ℋ` and `a := U⁻¹(λ • U y)` is a preimage
+of `y` under the resolvent.  Both halves are recorded — the resolvent equation `R a = y` and the
+chart equation `U a = λ • U y` — because together they say that `y` is in the domain of `H` *and*
+that `H` annihilates it. -/
+theorem exists_resolventMulModel_eq_of_limitProjection (D : MulModel X ν Λ T) {lam : ℝ}
+    (hlam : 0 < lam) {y : Hphys Λ} (hy : limitProjection D y = y) :
+    ∃ a : Hphys Λ, resolventMulModel D hlam a = y ∧ D.U a = lam • D.U y := by
+  have hsupp : ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U y : X → ℝ) x = 0 :=
+    (limitProjection_eq_iff D y).mp hy
+  set a : Hphys Λ := D.bridge.toIsometryEquiv.symm (lam • D.U y) with ha_def
+  have hUa : D.U a = lam • D.U y := D.bridge_apply_symm (lam • D.U y)
+  have hsm : (D.U a : X → ℝ) =ᵐ[ν] fun x => lam * (D.U y : X → ℝ) x := by
+    have h := Lp.coeFn_smul lam (D.U y)
+    rw [← hUa] at h
+    filter_upwards [h] with x hx
+    rw [hx, Pi.smul_apply, smul_eq_mul]
+  refine ⟨a, ?_, hUa⟩
+  refine D.U.injective ?_
+  refine Lp.ext ?_
+  filter_upwards [resolventMulModel_coeFn D hlam a, hsm, hsupp] with x hx hc hs
+  calc (D.U (resolventMulModel D hlam a) : X → ℝ) x
+      = resolventFun D lam x * (D.U a : X → ℝ) x := hx
+    _ = resolventFun D lam x * (lam * (D.U y : X → ℝ) x) := by rw [hc]
+    _ = (D.U y : X → ℝ) x := resolventFun_mul_smul_of_eq_zero hlam.ne' hs
+
+/-- **The range of the limit projection is contained in the domain of `H`.**  The witness is the
+one `exists_resolventMulModel_eq_of_limitProjection` constructs, so this needs no extra work: the
+chart `λ • U y` of a vector living on `{f = 0}` is again a chart of `ℋ`.  This is what makes the
+kernel of `H` comparable with the range of `P` as submodules of `ℋ`, with no intersection with the
+domain. -/
+theorem range_limitProjection_subset_domain (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam)
+    {y : Hphys Λ} (hy : limitProjection D y = y) :
+    y ∈ (hamiltonianMulModel D hlam).domain := by
+  obtain ⟨a, ha, _⟩ := exists_resolventMulModel_eq_of_limitProjection D hlam hy
+  exact ⟨a, ha⟩
+
+/-- **`ker H` is the range of the limit projection**, as an equality of submodules of `ℋ`.
+
+Neither side needs an intersection with the domain: `range_limitProjection_subset_domain` places
+the range inside `dom H`, and on `dom H` the two conditions `H y = 0` and `P y = y` are equivalent
+(`hamiltonianMulModel_eq_zero_iff_limitProjection`).  So the subspace the flow projects onto in the
+large-time limit is not merely "the same set on the domain" — it is `ker H`. -/
+theorem kerHamiltonianMulModel_eq_range_limitProjection (D : MulModel X ν Λ T) {lam : ℝ}
+    (hlam : 0 < lam) :
+    kerHamiltonianMulModel D hlam = LinearMap.range (limitProjection D : Hphys Λ →ₗ[ℝ] Hphys Λ) :=
+  Submodule.ext fun y => by
+    rw [mem_kerHamiltonianMulModel, LinearMap.mem_range]
+    constructor
+    · rintro ⟨hy, hHy⟩
+      -- `H y = 0` makes `λ • y` a fixed vector of the resolvent
+      have hRy : resolventMulModel D hlam (lam • y) = y := by
+        have h := resolvent_hamiltonianMulModel D hlam ⟨y, hy⟩
+        rw [hHy, zero_add] at h
+        exact h
+      -- hence `U y = (λ + f)⁻¹ (λ U y)` and it vanishes where `f ≠ 0`
+      have hsupp : ∀ᵐ x ∂ν, D.f x ≠ 0 → (D.U y : X → ℝ) x = 0 := by
+        have h := resolventMulModel_coeFn D hlam (lam • y)
+        rw [hRy] at h
+        have hsm : (D.U (lam • y) : X → ℝ) =ᵐ[ν]
+            fun x => lam * (D.U y : X → ℝ) x := by
+          have h1 := Lp.coeFn_smul lam (D.U y)
+          rw [← map_smul] at h1
+          filter_upwards [h1] with x hx
+          rw [hx, Pi.smul_apply, smul_eq_mul]
+        filter_upwards [h, hsm, D.hpos] with x hx hc hposx
+        intro hfx
+        refine eq_zero_of_eq_mul_resolventFun (f := D.f x) (lam := lam)
+          (v := (D.U y : X → ℝ) x) ?_ hfx ?_
+        · nlinarith
+        · calc (D.U y : X → ℝ) x
+              = resolventFun D lam x * (D.U (lam • y) : X → ℝ) x := hx
+            _ = resolventFun D lam x * (lam * (D.U y : X → ℝ) x) := by rw [hc]
+            _ = (lam + D.f x)⁻¹ * (lam * (D.U y : X → ℝ) x) := by rw [resolventFun]
+      exact ⟨y, show (limitProjection D : Hphys Λ →ₗ[ℝ] Hphys Λ) y = y from
+        (limitProjection_eq_iff D y).mpr hsupp⟩
+    · rintro ⟨z, hz⟩
+      have hy' : y = limitProjection D z := hz.symm
+      rw [hy']
+      obtain ⟨a, ha, hUa⟩ := exists_resolventMulModel_eq_of_limitProjection D hlam
+        (limitProjection_idem D z)
+      have hdom : limitProjection D z ∈ (hamiltonianMulModel D hlam).domain := ⟨a, ha⟩
+      have hay : a = lam • limitProjection D z := by
+        refine D.U.injective ?_
+        rw [hUa, map_smul]
+      refine ⟨hdom, ?_⟩
+      rw [hamiltonianMulModel_apply_of_eq D hlam (y := ⟨limitProjection D z, hdom⟩) ha.symm,
+        ha, hay, sub_self]
+
 /-! ### Operator-norm convergence needs a spectral gap
 
 Strong convergence (`tendsto_flowOfHCLM_atTop`) does **not** upgrade to operator-norm convergence

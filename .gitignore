@@ -37,3 +37,5 @@ Book.lean.bak
 # ATTRIBUTION.md, the attribution gate scans it on disk, and the conversion
 # lane lives in CONSOLIDATED_PLAN.md's 2026-10-20 wave)
 /math/
+/.freebuff/
+/.github/
