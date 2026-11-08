@@ -50,11 +50,24 @@ The construction is the classical shift-invert one, done in `ℝ`:
   from the model's own slope rather than from the transfer semigroup;
 * `tendsto_flowOfH_slope_of_hasGenRight` and `hasGenRight_iff_tendsto_flowOfH_slope` — the same on
   the **whole forward domain**: the flow's forward domain *is* the transfer generator's, so the
-  flow generates `generatorRight` and not a larger operator, and `tendsto_flowOfH_slope_of_mem_domainH`
+  flow generates `generatorRight` and not a larger operator, and
+  `tendsto_flowOfH_slope_of_mem_domainH`
   recovers the `dom H` value `−H` from that general statement;
 * `flowOfH_nonneg` — positivity preservation: `e^{−τ f} ≥ 0` on the chart, so a vector with a.e.
   nonnegative chart image stays nonnegative, and `flowOfH_apply_le_of_nonneg` says it is pulled
   down (`e^{−τ f} ≤ 1`, i.e. `f ≥ 0`);
+* `dense_flowForwardDomain` and `closed_flowForwardDomain` — the forward domain is dense (it
+  contains the dense `dom H`), and the generator's graph is closed on it;
+  `flowGenerator_dense_domain_closed` bundles the two.  The closedness half inherits
+  `generatorRight_isClosed`'s matrix-element continuity hypothesis: `LinearFunctional` carries no
+  continuity, so it is an OS input and not readable from the model;
+* `expFlow_support`, `expFlow_apply_lt_of_pos`, `tendsto_expFlow_apply_atTop` — what large time does
+  to a strictly positive vector: the flow is **not** positivity improving (the support is preserved
+  exactly), a.e. positivity is preserved, the chart is strictly smaller where `f > 0` and decays to
+  `0` there at rate `f`, while `expFlow_apply_of_f_eq_zero` freezes the part over `{f = 0}` — so the
+  large-time limit is the projection onto the kernel of the density;
+* `tendsto_norm_flowOfH_atTop` — the quantitative form, `‖e^{−τH}y‖ → 0` for every `y` when the
+  density is a.e. strictly positive, by dominated convergence against the bound `(u x)²`;
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
@@ -82,6 +95,7 @@ Mathlib has no continuous functional calculus on a real Hilbert space.
 namespace BookProof.OSReconstruction
 
 open Filter MeasureTheory
+open BookProof.ReflectionPositivity
 open scoped Topology RealInnerProductSpace ENNReal
 
 noncomputable section
@@ -1178,6 +1192,229 @@ theorem flowOfH_apply_le_of_nonneg (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 
     ∀ᵐ x ∂ν, (D.U (flowOfH D τ y) : X → ℝ) x ≤ (D.U y : X → ℝ) x := by
   rw [U_flowOfH]
   exact expFlow_apply_le_of_nonneg D hτ hy
+
+/-! ## The forward domain is dense and the generator's graph is closed
+
+`hasGenRight_iff_tendsto_flowOfH_slope` identifies the flow's forward domain with the transfer
+generator's, so the two structural properties of a generator can be stated for the flow itself:
+`dense_flowForwardDomain` (the domain contains `dom H = ran R`, which is dense because `R` has dense
+range) and `closed_flowForwardDomain` (the quotient map has closed graph on it).
+
+The closedness half is inherited from `generatorRight_isClosed` and therefore carries that theorem's
+matrix-element continuity hypothesis.  `LinearFunctional` has no continuity field, so `hcont` is an
+OS input that cannot be read off the model, and it is not something the flow's extra regularity can
+replace: the strong continuity of `e^{−τH}` (`continuousOn_flowOfHCLM`) is available, but the graph
+argument integrates the transfer integral representation, which assumes `hcont`. -/
+
+/-- **The flow's forward domain is dense in `ℋ`.**  It is dense because it contains `dom H`, and
+`dom H` is dense: on `dom H` the flow's slope converges (`tendsto_flowOfH_slope`), so `dom H` is
+contained in the forward domain. -/
+theorem dense_flowForwardDomain (D : MulModel X ν Λ T) {lam : ℝ} (hlam : 0 < lam) :
+    Dense (genDomainRight D.hinv : Set (Hphys Λ)) := by
+  refine (hamiltonianMulModel_dense D hlam).mono ?_
+  rintro z ⟨a, rfl⟩
+  exact (mem_genDomainRight D.hinv _).mpr
+    (hasGenRight_of_tendsto_flowOfH_slope D (tendsto_flowOfH_slope D hlam a))
+
+/-- **The flow's generator has closed graph on the forward domain.**  If vectors of the forward
+domain converge, and so do the generator's values, then the limit is again in the forward domain and
+the flow's quotient converges there to the limit value.  The last conjunct is the flow-side reading:
+closedness is inherited from `generatorRight_isClosed`, and
+`tendsto_flowOfH_slope_of_hasGenRight` carries it back to the flow's own slopes. -/
+theorem closed_flowForwardDomain (D : MulModel X ν Λ T)
+    (hcont : ∀ F : Observable, Continuous fun τ : ℝ => osBilin Λ.ω (T τ F) F) :
+    ∀ (u : ℕ → genDomainRight D.hinv) {z₀ y : Hphys Λ},
+      Tendsto (fun n => (u n : Hphys Λ)) atTop (𝓝 z₀) →
+      Tendsto (fun n => generatorRight D.hinv (u n)) atTop (𝓝 y) →
+      ∃ h : HasGenRight D.hinv z₀, generatorRight D.hinv ⟨z₀, h⟩ = y ∧
+        Tendsto (fun τ : ℝ => τ⁻¹ • (flowOfH D τ z₀ - z₀)) (𝓝[>] 0) (𝓝 y) := by
+  intro u z₀ y hu hv
+  obtain ⟨h, heq⟩ := generatorRight_isClosed D.hinv hcont u hu hv
+  refine ⟨h, heq, ?_⟩
+  rw [← heq]
+  exact tendsto_flowOfH_slope_of_hasGenRight D h
+
+/-- **The flow's generator is densely defined and closed on its forward domain.** -/
+theorem flowGenerator_dense_domain_closed (D : MulModel X ν Λ T)
+    (hcont : ∀ F : Observable, Continuous fun τ : ℝ => osBilin Λ.ω (T τ F) F)
+    {lam : ℝ} (hlam : 0 < lam) :
+    Dense (genDomainRight D.hinv : Set (Hphys Λ)) ∧
+      ∀ (u : ℕ → genDomainRight D.hinv) {z₀ y : Hphys Λ},
+        Tendsto (fun n => (u n : Hphys Λ)) atTop (𝓝 z₀) →
+        Tendsto (fun n => generatorRight D.hinv (u n)) atTop (𝓝 y) →
+        ∃ h : HasGenRight D.hinv z₀, generatorRight D.hinv ⟨z₀, h⟩ = y ∧
+          Tendsto (fun τ : ℝ => τ⁻¹ • (flowOfH D τ z₀ - z₀)) (𝓝[>] 0) (𝓝 y) :=
+  ⟨dense_flowForwardDomain D hlam, closed_flowForwardDomain D hcont⟩
+
+/-! ## Large time: strict positivity, no improving, and where the mass goes
+
+The multiplier `e^{−τf}` is *strictly* positive everywhere (`Real.exp_pos`) and `≤ 1`, so the flow
+never creates a zero and never fills one in: at every `τ ≥ 0` the chart of `e^{−τH}u` vanishes
+exactly where the chart of `u` does (`expFlow_support`).  A diagonal flow cannot be positivity
+improving, and this is the sharp form of that: the support is preserved exactly, so mass never
+spreads into a set the initial vector vanished on.
+
+What *does* happen at large time is pointwise and complete: where `f x > 0` the factor
+`e^{−τ f x} → 0` (`tendsto_expFlow_mul_atTop`), and where `f x = 0` the value is frozen
+(`expFlow_apply_of_f_eq_zero`).
+So the large-time limit is the projection onto `{f = 0}`: the flow is ergodic on the part of the
+space where the Hamiltonian density is strictly positive, and trivial on its kernel.  Read through
+`expFlow_coeFn`, this is the a.e. law for a strictly positive multiplier
+(`tendsto_expFlow_apply_atTop`).  The quantitative `L²` form, `‖e^{−τH}u‖ → 0`, then follows by
+dominated convergence against the bound `(u x)²` — the same estimate as contractivity — and is
+`tendsto_norm_flowOfH_atTop` below; the one hypothesis it adds is `0 < f` a.e., which is exactly
+what rules out a surviving kernel. -/
+
+/-- **The flow preserves strict positivity**: on the chart the multiplier is `e^{−τf} > 0`, so an
+a.e. strictly positive class stays a.e. strictly positive at every `τ ≥ 0`. -/
+theorem expFlow_pos_of_pos (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) {u : Lp ℝ 2 ν}
+    (hu : ∀ᵐ x ∂ν, 0 < (u : X → ℝ) x) :
+    ∀ᵐ x ∂ν, 0 < (expFlow D.f D.hf D.hpos τ u : X → ℝ) x := by
+  filter_upwards [expFlow_coeFn D.hf D.hpos hτ u, hu] with x hx hu'
+  rw [hx]
+  exact mul_pos (Real.exp_pos _) hu'
+
+/-- **The flow is not positivity improving**: it preserves the support exactly.  A chart value is
+zero after the flow exactly when it was zero before, so `e^{−τH}` never spreads mass into a set the
+initial vector vanished on. -/
+theorem expFlow_support (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν) :
+    ∀ᵐ x ∂ν, ((expFlow D.f D.hf D.hpos τ u : X → ℝ) x = 0 ↔ (u : X → ℝ) x = 0) := by
+  filter_upwards [expFlow_coeFn D.hf D.hpos hτ u] with x hx
+  rw [hx, mul_eq_zero]
+  simp
+
+/-- The same two facts on `ℋ`, through the bridge. -/
+theorem flowOfH_pos (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) {y : Hphys Λ}
+    (hy : ∀ᵐ x ∂ν, 0 < (D.U y : X → ℝ) x) :
+    ∀ᵐ x ∂ν, 0 < (D.U (flowOfH D τ y) : X → ℝ) x := by
+  rw [U_flowOfH]
+  exact expFlow_pos_of_pos D hτ hy
+
+/-- **Strict decrease where the density is positive**: for `τ > 0` and `f x > 0` the chart value is
+strictly smaller than it was, because `e^{−τ f x} < 1`.  Together with `expFlow_support` this is the
+whole large-time picture on the chart. -/
+theorem expFlow_apply_lt_of_pos (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 < τ) {u : Lp ℝ 2 ν} :
+    ∀ᵐ x ∂ν, 0 < D.f x → 0 < (u : X → ℝ) x →
+      (expFlow D.f D.hf D.hpos τ u : X → ℝ) x < (u : X → ℝ) x := by
+  filter_upwards [expFlow_coeFn D.hf D.hpos hτ.le u] with x hx hf₀ hu₀
+  rw [hx]
+  have hexp : Real.exp (-(τ * D.f x)) < 1 := by
+    have hneg : -(τ * D.f x) < 0 := by nlinarith [mul_pos hτ hf₀]
+    simpa using Real.exp_lt_exp.mpr hneg
+  calc Real.exp (-(τ * D.f x)) * u x < 1 * u x := mul_lt_mul_of_pos_right hexp hu₀
+    _ = u x := one_mul _
+
+/-- **The flow freezes the kernel of the density**: where `f x = 0` the multiplier is `e^0 = 1`, so
+the chart value is unchanged at every time. -/
+theorem expFlow_apply_of_f_eq_zero (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) (u : Lp ℝ 2 ν) :
+    ∀ᵐ x ∂ν, D.f x = 0 → (expFlow D.f D.hf D.hpos τ u : X → ℝ) x = (u : X → ℝ) x := by
+  filter_upwards [expFlow_coeFn D.hf D.hpos hτ u] with x hx hf₀
+  rw [hx, hf₀, mul_zero, neg_zero, Real.exp_zero, one_mul]
+
+/-- **Pointwise decay where the density is positive**: `e^{−τ f x} · u x → 0` as `τ → ∞`.  This is
+the large-time statement on the chart, exponential in `τ` at rate `f x`. -/
+theorem tendsto_expFlow_mul_atTop (D : MulModel X ν Λ T) (u : Lp ℝ 2 ν) {x : X}
+    (hfx : 0 < D.f x) :
+    Tendsto (fun τ : ℝ => Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) atTop (𝓝 0) := by
+  have hneg : Tendsto (fun τ : ℝ => τ * (-D.f x)) atTop atBot :=
+    tendsto_id.atTop_mul_const_of_neg' (by linarith)
+  have hexp : Tendsto (fun τ : ℝ => Real.exp (τ * (-D.f x))) atTop (𝓝 0) :=
+    Real.tendsto_exp_atBot.comp hneg
+  simpa [mul_neg] using hexp.mul_const ((u : X → ℝ) x)
+
+/-- **The chart of a strictly positive multiplier decays to `0` at large time**, a.e. in `x`.
+With `expFlow_coeFn` this is the a.e. large-time law for the flow: every chart component over
+`{f > 0}` decays to `0`, and `expFlow_apply_of_f_eq_zero` says the components over `{f = 0}` are
+the ones that stay. -/
+theorem tendsto_expFlow_apply_atTop (D : MulModel X ν Λ T)
+    (hstrict : ∀ᵐ x ∂ν, 0 < D.f x) (u : Lp ℝ 2 ν) :
+    ∀ᵐ x ∂ν, Tendsto (fun τ : ℝ => Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) atTop (𝓝 0) := by
+  filter_upwards [hstrict] with x hx
+  exact tendsto_expFlow_mul_atTop D u hx
+
+/-! ### The quantitative form: `‖e^{−τH}u‖ → 0`
+
+The pointwise law upgrades to a norm statement by dominated convergence, and the domination is the
+same estimate as contractivity: `e^{−τ f x} ≤ 1` for `τ ≥ 0`, so the integrand is dominated by
+`(u x)²`, which is integrable because `u ∈ L²`.  Strict positivity of the density is exactly what
+rules out a surviving kernel: if `f = 0` on a set of positive measure, `e^{−τH}u` freezes there
+(`expFlow_apply_of_f_eq_zero`) and the norm has that part as a nonzero limit.  So `0 < f` a.e. is
+not a technical convenience here — it is the hypothesis that makes the norm limit `0`. -/
+
+/-- **The squared norm of the flow tends to `0` at large time**, by dominated convergence against
+the bound `(u x)²`. -/
+theorem tendsto_norm_sq_expFlow_atTop (D : MulModel X ν Λ T)
+    (hstrict : ∀ᵐ x ∂ν, 0 < D.f x) (u : Lp ℝ 2 ν) :
+    Tendsto (fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u‖ ^ 2) atTop (𝓝 0) := by
+  have hInt : Integrable (fun x => (u : X → ℝ) x ^ 2) ν := MemLp.integrable_sq (Lp.memLp u)
+  have hF_meas : ∀ᶠ τ in atTop, AEStronglyMeasurable
+      (fun x => (Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) ^ 2) ν :=
+    Eventually.of_forall fun τ =>
+      (((measurable_const.mul D.hf).neg.exp.aestronglyMeasurable.mul
+        (Lp.aestronglyMeasurable u))).pow 2
+  have h_bound : ∀ᶠ τ in atTop, ∀ᵐ x ∂ν,
+      ‖(Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) ^ 2‖ ≤ (u : X → ℝ) x ^ 2 := by
+    filter_upwards [Ici_mem_atTop (0 : ℝ)] with τ hτ
+    filter_upwards [D.hpos] with x hfx
+    have hτ0 : 0 ≤ τ := hτ
+    have hτf : 0 ≤ τ * D.f x := mul_nonneg hτ0 hfx
+    have he0 : 0 ≤ Real.exp (-(τ * D.f x)) := (Real.exp_pos _).le
+    have he1 : Real.exp (-(τ * D.f x)) ≤ 1 := by
+      rw [← Real.exp_zero]
+      exact Real.exp_le_exp.2 (by linarith)
+    have he2 : Real.exp (-(τ * D.f x)) ^ 2 ≤ 1 := by
+      have h := mul_le_mul he1 he1 he0 zero_le_one
+      simpa [pow_two, mul_one] using h
+    rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
+    have hsplit : (Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) ^ 2
+        = Real.exp (-(τ * D.f x)) ^ 2 * (u : X → ℝ) x ^ 2 := by ring
+    rw [hsplit]
+    calc Real.exp (-(τ * D.f x)) ^ 2 * (u : X → ℝ) x ^ 2
+        ≤ 1 * (u : X → ℝ) x ^ 2 := by
+          simpa using mul_le_of_le_one_left (sq_nonneg ((u : X → ℝ) x)) he2
+      _ = (u : X → ℝ) x ^ 2 := one_mul _
+  have h_lim : ∀ᵐ x ∂ν, Tendsto (fun τ : ℝ => (Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) ^ 2)
+      atTop (𝓝 0) := by
+    filter_upwards [hstrict] with x hx
+    simpa using (tendsto_expFlow_mul_atTop D u hx).pow 2
+  have hint : Tendsto (fun τ : ℝ => ∫ x, (Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) ^ 2 ∂ν)
+      atTop (𝓝 0) := by
+    have h := tendsto_integral_filter_of_dominated_convergence (μ := ν) (l := atTop)
+      (f := fun _ => (0 : ℝ)) (fun x => (u : X → ℝ) x ^ 2) hF_meas h_bound hInt h_lim
+    simpa using h
+  have hsq : ∀ᶠ τ in atTop, ‖expFlow D.f D.hf D.hpos τ u‖ ^ 2
+      = ∫ x, (Real.exp (-(τ * D.f x)) * (u : X → ℝ) x) ^ 2 ∂ν := by
+    filter_upwards [Ici_mem_atTop (0 : ℝ)] with τ hτ
+    rw [norm_sq_eq_integral]
+    refine integral_congr_ae ?_
+    filter_upwards [expFlow_coeFn D.hf D.hpos hτ u] with x hx
+    rw [hx]
+  exact hint.congr' (hsq.mono fun _ h => h.symm)
+
+/-- **The flow decays to zero in `L²`** for an a.e. strictly positive density. -/
+theorem tendsto_norm_expFlow_atTop (D : MulModel X ν Λ T)
+    (hstrict : ∀ᵐ x ∂ν, 0 < D.f x) (u : Lp ℝ 2 ν) :
+    Tendsto (fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u‖) atTop (𝓝 0) := by
+  have h2 := tendsto_norm_sq_expFlow_atTop D hstrict u
+  have hsqrt : Tendsto (fun τ : ℝ => Real.sqrt (‖expFlow D.f D.hf D.hpos τ u‖ ^ 2))
+      atTop (𝓝 (Real.sqrt 0)) :=
+    Real.continuous_sqrt.continuousAt.tendsto.comp h2
+  have hfun : (fun τ : ℝ => Real.sqrt (‖expFlow D.f D.hf D.hpos τ u‖ ^ 2))
+      = fun τ : ℝ => ‖expFlow D.f D.hf D.hpos τ u‖ := by
+    funext τ
+    exact Real.sqrt_sq (norm_nonneg _)
+  rw [hfun] at hsqrt
+  simpa using hsqrt
+
+/-- **`‖e^{−τH}y‖ → 0` in `ℋ`**: the bridge is an isometry, so the `L²` decay transfers back. -/
+theorem tendsto_norm_flowOfH_atTop (D : MulModel X ν Λ T)
+    (hstrict : ∀ᵐ x ∂ν, 0 < D.f x) (y : Hphys Λ) :
+    Tendsto (fun τ : ℝ => ‖flowOfH D τ y‖) atTop (𝓝 0) := by
+  have h := tendsto_norm_expFlow_atTop D hstrict (D.U y)
+  have hnorm : ∀ τ : ℝ, ‖flowOfH D τ y‖ = ‖expFlow D.f D.hf D.hpos τ (D.U y)‖ := by
+    intro τ
+    rw [← U_flowOfH, D.U.norm_map]
+  simpa [hnorm] using h
 
 end
 

@@ -1333,6 +1333,39 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     has no order on `ℋ` other than the chart cone, which is why the statement is phrased through
     `U`.
 
+    The forward domain is now *densely defined and closed*, the two structural properties of a
+    generator.  Density is `dense_flowForwardDomain`: the domain contains `dom H = ran R`, which is
+    dense because `R` has dense range (`dense_range_resolventMulModel`), and `dom H` lies inside it
+    by `tendsto_flowOfH_slope`.  Closedness is `closed_flowForwardDomain`: if `uₙ` in the forward
+    domain converge and the generator's values `A uₙ` converge, the limit is again in the domain
+    with value the limit, and — read flow-side — the flow's quotient at the limit point converges
+    to that value.  It is inherited from `generatorRight_isClosed` and keeps that theorem's
+    matrix-element continuity hypothesis `hcont` (`∀ F, Continuous (τ ↦ ⟪T τ F, F⟫)`):
+    `LinearFunctional` has no continuity field, so `hcont` is an OS input that cannot be read off
+    the model.  The flow's *strong* continuity does not replace it, because the graph argument
+    integrates the transfer representation `physEvol_sub_eq_integral_right`, which assumes `hcont`.
+    `flowGenerator_dense_domain_closed` bundles the two.
+
+    Large time is answered pointwise, which is what the chart can give.  `e^{−τf}` is *strictly*
+    positive, so the flow is **not** positivity improving: `expFlow_support` proves the support is
+    preserved exactly — `e^{−τH}u` vanishes precisely where `u` did, so mass never spreads into a
+    set the initial vector missed.  Strict positivity is preserved (`expFlow_pos_of_pos`,
+    `flowOfH_pos`), and where `f x > 0` the chart decreases strictly (`expFlow_apply_lt_of_pos`) and
+    decays to zero, `e^{−τ f x} u x → 0` (`tendsto_expFlow_mul_atTop`, a.e. under `0 < f` in
+    `tendsto_expFlow_apply_atTop`), while `expFlow_apply_of_f_eq_zero` freezes the part over
+    `{f = 0}`.  So the large-time limit is the projection onto the kernel of the density: ergodic on
+    `{f > 0}`, trivial on `{f = 0}`.
+
+    The pointwise law upgrades to a norm statement by dominated convergence, and the domination is
+    the same estimate as contractivity: `e^{−τf x} ≤ 1` for `τ ≥ 0`, so
+    `(e^{−τf x} u x)² ≤ (u x)²`, and `(u x)²` is integrable because `u ∈ L²`.  That gives
+    `‖e^{−τH}u‖² = ∫ (e^{−τf}u)² → 0` (`tendsto_norm_sq_expFlow_atTop`), hence
+    `‖e^{−τH}u‖ → 0` by `√` of the squared norm (`tendsto_norm_expFlow_atTop`), and on `ℋ` the same
+    through the isometry bridge (`tendsto_norm_flowOfH_atTop`).  The one extra hypothesis is
+    `0 < f` a.e., and it is not a technical convenience: where `f = 0` the flow freezes
+    (`expFlow_apply_of_f_eq_zero`), so a density vanishing on a set of positive measure leaves a
+    nonzero part in the limit and the norm cannot tend to `0`.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the
