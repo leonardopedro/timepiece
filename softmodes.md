@@ -1756,6 +1756,20 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     converge.  The rate of (iii) is therefore pointwise in `y` by necessity, not because of the
     shape of the proof.
 
+    (v) The two halves are now a single equivalence: `tendsto_opNorm_flowOfHCLM_sub_limitProjection_iff_gap`
+    says `‖e^{−τH} − P‖ → 0` iff `∃ δ > 0, f ≠ 0 → δ ≤ f` a.e.  The gap direction is the existing
+    `tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop`; the converse is the contrapositive of
+    `not_tendsto_opNorm_flowOfHCLM_of_noGap`, and the only new ingredient is measure-theoretic: the
+    a.e. failure of the gap is turned into the split form's positive *finite*-measure set by
+    `Measure.exists_subset_measure_lt_top`, which is where `σ`-finiteness of `ν` enters.  This is
+    the general spectral fact in the normal form the spectral theorem supplies (multiplication by
+    `f` on `L²(X, ν)`, spectrum = essential range of `f`); what is formal is the normal form, not
+    the spectral theorem itself — `ChapterSpectralMultiplication` has the multiplication model only
+    for a bounded normal operator with a cyclic vector, and Mathlib has no unbounded spectral
+    theorem.  Note the direction of the inference this fixes: norm convergence *is* the gap, so a
+    proof of norm convergence for Yang–Mills would be a proof of the mass gap, not a consequence of
+    the reconstruction.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the

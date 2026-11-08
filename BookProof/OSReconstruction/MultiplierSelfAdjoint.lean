@@ -110,6 +110,13 @@ The construction is the classical shift-invert one, done in `ℝ`:
   is a bound on the operator norm (`opNorm_le_of_unit_ball_bound`, by homogeneity), so such an `r`
   would make the norm converge, which the no-gap theorem forbids.  The rate is therefore pointwise
   in `y` and cannot be made uniform;
+* `tendsto_opNorm_flowOfHCLM_sub_limitProjection_iff_gap` — the criterion as an equivalence: the
+  operator norm of `e^{−τH} − P` tends to zero **iff** the density is bounded away from zero off
+  its zero set (`∃ δ > 0, ∀ᵐ x, f x ≠ 0 → δ ≤ f x`).  This is the general spectral fact in the
+  normal form the spectral theorem supplies — for a self-adjoint `H ≥ 0` it reads "`‖e^{−τH} − P‖`
+  tends to zero iff `σ(H)` has a gap above zero".  `σ`-finiteness of the measure is used exactly
+  once, to turn the a.e. no-gap condition into the split form
+  (`Measure.exists_subset_measure_lt_top`);
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
@@ -2756,7 +2763,7 @@ theorem tendsto_opNorm_flowOfHCLM_sub_limitProjection_iff_gap (D : MulModel X ν
     apply propext
     constructor
     · intro h
-      have hne0 : D.f x ≠ 0 := fun h0 => h fun hp => absurd hp h0
+      have hne0 : D.f x ≠ 0 := fun h0 => h fun hp => absurd h0 hp
       have hlt : ¬ (δ ≤ D.f x) := fun hle => h fun _ => hle
       exact ⟨lt_of_le_of_ne hx (Ne.symm hne0), not_le.mp hlt⟩
     · intro h hq
