@@ -1284,9 +1284,22 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     of `H` at `λ` in both directions, so the explicit family `(λ + f)⁻¹` is a genuine resolvent,
     not a formal analogue.
 
-    **Boundary.**  `generatorRight = −H` is identified only up to the `MemLp` presentation (the two
-    modules carry `f · U y` with different membership proofs, so they meet in `mulImage` rather
-    than in one equality), and the multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
+    `generatorRight_eq_neg_hamiltonianMulModel` then puts the two halves together: on `dom H` the
+    forward generator exists and `U (generatorRight y) = −U (H y)`, both sides being
+    `mulImage D λ a`.  The two modules carried `f · U y` with different membership proofs; the
+    theorem exists because those presentations differ only by associativity, so they are a.e. equal
+    and `MemLp.toLp_congr` identifies them.
+
+    The flow itself is now *defined* rather than postulated: `flowOfH D τ x = U⁻¹ (e^{−τf} · U x)`,
+    with `U_flowOfH`, `flowOfH_zero`, the semigroup law `flowOfH_add`, contractivity
+    `flowOfH_contractive`, and `physEvol_eq_flowOfH` — which is exactly the multiplier law read
+    back, so the physical semigroup is this flow precisely when `MulModel.hlaw` holds.  The natural
+    definition would be the functional calculus of the *bounded* resolvent (`R` is bounded,
+    self-adjoint, `‖R‖ ≤ λ⁻¹`, so `e^{−τH} = φ_τ(R)` with `φ_τ r = exp(−τ(1/r − λ))` bounded and
+    continuous), but Mathlib has no continuous functional calculus on a real Hilbert space; the
+    conjugation above gives the same family and the laws above verify it.
+
+    **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the
     law says that `U` diagonalizes its generator with the simple spectrum given by `f`.  Two

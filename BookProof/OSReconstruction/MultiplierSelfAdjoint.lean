@@ -34,9 +34,16 @@ The construction is the classical shift-invert one, done in `ℝ`:
   `hamiltonianMulModel_isSelfAdjoint`, i.e. `H† = H`;
 * `hamiltonianMulModel_inner_nonneg` — `H ≥ 0`, quantitatively `⟪H y, y⟫ = ∫ f (U y)²`;
 * `hamiltonianMulModel_resolvent` and `resolvent_hamiltonianMulModel` — `R` is *the* resolvent of
-  `H` at `λ`: `λ x + H x` and `R` are mutually inverse on `ℋ` and on `dom H` respectively.
+  `H` at `λ`: `λ x + H x` and `R` are mutually inverse on `ℋ` and on `dom H` respectively;
+* `flowOfH` — `e^{−τH}` on `ℋ`, built from the model rather than postulated, with `U_flowOfH`,
+  `flowOfH_zero`, `flowOfH_add`, `flowOfH_contractive`, and `physEvol_eq_flowOfH` identifying it
+  with the physical semigroup (that identification is the multiplier law, nothing more);
+* `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
+  forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
+  `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
 
-So the explicit family `(λ + f)⁻¹` is indeed the resolvent of a self-adjoint nonnegative operator.
+So the explicit family `(λ + f)⁻¹` is indeed the resolvent of a self-adjoint nonnegative operator,
+and the generator it produces is the transfer generator of `MultiplierGenerator`.
 
 ## Boundary
 
@@ -48,10 +55,10 @@ with simple spectrum `f`; two different `f` satisfy the same axioms with differe
 identification is the choice of KL multiplier realization.  What is missing for a derivation is
 the spectral theorem for the generator (equivalently Stone's theorem), which Mathlib does not have.
 
-The identification `generatorRight = −H` is proved only up to the `MemLp` presentation: the two
-modules carry the vector `f · U y` with different membership proofs, so `hamiltonianMulModel_image`
-and `exists_generatorRight_mulModel` name the same `L²` class through `mulImage` rather than by a
-single equality in this file.
+`flowOfH` is defined by conjugating the multiplier flow, not by a functional calculus of the bounded
+resolvent `R`, which would be the natural home: `R` is bounded, self-adjoint and nonnegative with
+`‖R‖ ≤ λ⁻¹`, so `e^{−τH} = φ_τ(R)` for the bounded continuous `φ_τ r = exp(−τ(1/r − λ))`, but
+Mathlib has no continuous functional calculus on a real Hilbert space.
 -/
 
 namespace BookProof.OSReconstruction
@@ -643,6 +650,93 @@ theorem resolvent_hamiltonianMulModel (D : MulModel X ν Λ T) {lam : ℝ} (hlam
       = a := by abel
   rw [h1]
 
+/-! ## The Euclidean flow of `H` -/
+
+/-- **`e^{−τH}`, defined from the model instead of postulated.**  The bridge conjugates the
+multiplier flow back to `ℋ`: `flowOfH D τ x = U⁻¹ (e^{−τ f} · U x)`.
+
+The natural home for this family is the functional calculus of the *bounded* resolvent: `R` is
+bounded, self-adjoint and nonnegative with `‖R‖ ≤ λ⁻¹`, so `e^{−τH} = φ_τ(R)` for the bounded
+continuous `φ_τ : [0, λ⁻¹] → ℝ`, `φ_τ r = exp(−τ(1/r − λ))`.  Mathlib has no continuous functional
+calculus for real Hilbert spaces, so that route is not available here; conjugating the model's
+multiplier flow gives the same family, and the laws below verify the properties a flow of `H` must
+have.  What is *not* removed by this definition is the multiplier law: identifying `flowOfH` with
+the physical semigroup `physEvolCompletionRightFun` is exactly `MulModel.hlaw`. -/
+def flowOfH (D : MulModel X ν Λ T) (τ : ℝ) (x : Hphys Λ) : Hphys Λ :=
+  D.bridge.toIsometryEquiv.symm (expFlow D.f D.hf D.hpos τ (D.U x))
+
+/-- The defining property: `U` intertwines `flowOfH` with the multiplier flow. -/
+theorem U_flowOfH (D : MulModel X ν Λ T) (τ : ℝ) (x : Hphys Λ) :
+    D.U (flowOfH D τ x) = expFlow D.f D.hf D.hpos τ (D.U x) :=
+  D.bridge.apply_toIsometryEquiv_symm_apply _
+
+/-- **`flowOfH` is the physical semigroup**: the multiplier law read back through the bridge. -/
+theorem physEvol_eq_flowOfH (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) (x : Hphys Λ) :
+    physEvolCompletionRightFun D.hinv τ x = flowOfH D τ x := by
+  refine D.U.injective ?_
+  rw [D.hlaw τ hτ, U_flowOfH]
+
+/-- The flow starts at the identity. -/
+theorem flowOfH_zero (D : MulModel X ν Λ T) (x : Hphys Λ) : flowOfH D 0 x = x := by
+  refine D.U.injective ?_
+  rw [U_flowOfH, expFlow_zero]
+  rfl
+
+/-- The semigroup law. -/
+theorem flowOfH_add (D : MulModel X ν Λ T) {τ σ : ℝ} (hτ : 0 ≤ τ) (hσ : 0 ≤ σ)
+    (x : Hphys Λ) : flowOfH D (τ + σ) x = flowOfH D τ (flowOfH D σ x) := by
+  refine D.U.injective ?_
+  simp only [U_flowOfH]
+  exact (expFlow_comp D.hf D.hpos hτ hσ (D.U x)).symm
+
+/-- The flow is contractive on nonnegative time. -/
+theorem flowOfH_contractive (D : MulModel X ν Λ T) {τ : ℝ} (hτ : 0 ≤ τ) (x : Hphys Λ) :
+    ‖flowOfH D τ x‖ ≤ ‖x‖ := by
+  have h : ‖D.U (flowOfH D τ x)‖ ≤ ‖D.U x‖ := by
+    rw [U_flowOfH]
+    exact expFlow_contractive D.hf D.hpos hτ (D.U x)
+  rwa [D.U.norm_map, D.U.norm_map] at h
+
+/-! ## The generator of the semigroup is `−H` -/
+
+/-- **`generatorRight = −H`**, as a single statement.  On the domain of `H` — the range of the
+resolvent — the forward-time generator of the transfer semigroup exists, and its image is minus the
+image of `H` under the same `L²` presentation: `U (A (R a)) = −U (H (R a))`.
+
+Both sides are the class `mulImage D λ a`.  `hamiltonianMulModel_image` names it on the Hamiltonian
+side, `exists_generatorRight_mulModel` on the semigroup side, and the two meet here because the two
+`MemLp` presentations of `f · U (R a)` differ only by associativity of multiplication, so they are
+a.e. equal and `MemLp.toLp_congr` identifies them. -/
+theorem generatorRight_eq_neg_hamiltonianMulModel (D : MulModel X ν Λ T) {lam : ℝ}
+    (hlam : 0 < lam) (a : Hphys Λ) :
+    ∃ hz : HasGenRight D.hinv (resolventMulModel D hlam a),
+      D.U (generatorRight D.hinv ⟨resolventMulModel D hlam a, hz⟩)
+        = -D.U (hamiltonianMulModel D hlam
+            ⟨resolventMulModel D hlam a, mem_domain_hamiltonianMulModel D hlam a⟩) := by
+  have hcoef : (D.U (resolventMulModel D hlam a) : X → ℝ) =ᵐ[ν]
+      fun t => resolventFun D lam t * (D.U a : X → ℝ) t :=
+    resolventMulModel_coeFn D hlam a
+  have hfzy : MemLp (fun t => D.f t * (D.U (resolventMulModel D hlam a) : X → ℝ) t) 2 ν :=
+    MemLp.ae_eq (by
+      filter_upwards [hcoef] with t ht
+      rw [ht]
+      ring) (memLp_f_resolventFun_mul D hlam a)
+  have hzy : MemLp (fun t => (D.U (resolventMulModel D hlam a) : X → ℝ) t) 2 ν :=
+    Lp.memLp (D.U (resolventMulModel D hlam a))
+  have hUy : D.U (resolventMulModel D hlam a)
+      = hzy.toLp (fun t => (D.U (resolventMulModel D hlam a) : X → ℝ) t) :=
+    (Lp.toLp_coeFn (D.U (resolventMulModel D hlam a)) hzy).symm
+  obtain ⟨hz, hgen⟩ := exists_generatorRight_mulModel D.hinv D.hf D.hpos D.U D.hdense
+    D.hlaw (resolventMulModel D hlam a) hzy hUy hfzy
+  have hclass : hfzy.toLp (fun t => D.f t * (D.U (resolventMulModel D hlam a) : X → ℝ) t)
+      = mulImage D hlam a :=
+    MemLp.toLp_congr hfzy (memLp_f_resolventFun_mul D hlam a) (by
+      filter_upwards [hcoef] with t ht
+      rw [ht]
+      ring)
+  refine ⟨hz, ?_⟩
+  rw [hgen, hamiltonianMulModel_image D hlam a (mem_domain_hamiltonianMulModel D hlam a),
+    hclass]
 end
 
 end BookProof.OSReconstruction
