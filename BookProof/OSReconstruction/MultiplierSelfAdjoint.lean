@@ -106,10 +106,10 @@ The construction is the classical shift-invert one, done in `ℝ`:
   gives equality for every `τ ≥ 0`.  So the gapped rate is the truth wherever it applies, and the
   no-gap hypothesis above is a hypothesis on the density, not on the proof;
 * `not_exists_uniform_rate_of_noGap` — the same failure in the form it is usually wanted: there is
-  no rate function `r τ → 0` bounding `‖(e^{−τH} − P)y‖` for **all** `‖y‖ ≤ 1`.  A bound on the
-  unit ball is a bound on the operator norm (`opNorm_le_of_unit_ball_bound`, by homogeneity), so such
-  an `r` would make the norm converge, which the no-gap theorem forbids.  The two-scale rate is
-  therefore pointwise in `y` and cannot be made uniform;
+  no rate function `r τ → 0` bounding `‖(e^{−τH} − P)y‖` for **all** `‖y‖ ≤ 1`.  A unit-ball bound
+  is a bound on the operator norm (`opNorm_le_of_unit_ball_bound`, by homogeneity), so such an `r`
+  would make the norm converge, which the no-gap theorem forbids.  The rate is therefore pointwise
+  in `y` and cannot be made uniform;
 * `generatorRight_eq_neg_hamiltonianMulModel` — `A = −H` as a single theorem: on `dom H` the
   forward generator exists and `U (A y) = −U (H y)`.  The two modules name the same class through
   `mulImage`, and `MemLp.toLp_congr` bridges the two presentations of `f · U y`.
@@ -2699,6 +2699,80 @@ theorem limitProjection_isOrthogonalProjectionOntoDensity (D : MulModel X ν Λ 
       rw [real_inner_comm _ _]
       exact inner_limitProjection_ker D hz hy,
     range_limitProjection D⟩
+
+/-! ### The gap criterion: norm convergence `⟺` gap
+
+`tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop` gives gap `⟹` convergence, and
+`not_tendsto_opNorm_flowOfHCLM_of_noGap` the contrapositive of the converse, with the no-gap
+hypothesis in the split form "every `δ > 0` is realised on a set of positive finite measure".  The
+two together give the criterion, and only one measure-theoretic step is missing: the a.e. form of
+no-gap has to produce such a set.  Under `σ`-finiteness a set of positive measure contains a set of
+positive *finite* measure (`Measure.exists_subset_measure_lt_top`), so the split form follows — and
+that is the only place where `σ`-finiteness is used.
+
+**This is the general spectral fact, in the normal form the spectral theorem supplies.**  A
+self-adjoint `H ≥ 0` on a Hilbert space is unitarily equivalent to multiplication by a nonnegative
+measurable `f` on some `L²(X, ν)`; under that equivalence `e^{−τH}` becomes multiplication by
+`e^{−τ f}`, the projection `P` onto `ker H` becomes multiplication by `1_{f = 0}`, and operator
+norms are unchanged.  The spectrum of the multiplication operator is the essential range of `f`, so
+the criterion below reads
+
+  `‖e^{−τH} − P‖ → 0` as `τ → ∞`  `⟺`  `∃ δ > 0, σ(H) ∩ (0, δ) = ∅`,
+
+which is the general statement: the semigroup converges to its limit *in norm* exactly when the
+Hamiltonian has a gap above zero.  Without a gap the norm stays bounded away from zero at every
+time, while the strong convergence (and the pointwise two-scale rate above) is unaffected.
+
+What is formal here is the normal form, not the spectral theorem itself: the corpus's
+`BookProof.ChapterSpectralMultiplication` proves the multiplication model for a *bounded* normal
+operator with a cyclic vector, and Mathlib has no spectral theorem for unbounded self-adjoint
+operators, so the passage from an abstract `H` to this model is not itself in the corpus.  The
+criterion is therefore stated for the model `MulModel`, which is exactly the normal form — not for
+an arbitrary abstract `H`.
+-/
+
+section GapCriterion
+
+variable [SigmaFinite ν]
+
+/-- **The gap criterion.**  The operator norm of `e^{−τH} − P` tends to zero if and only if the
+density is bounded away from zero off its zero set.  The forward direction is the contrapositive of
+`not_tendsto_opNorm_flowOfHCLM_of_noGap`, made available by extracting a set of positive finite
+measure from `{0 < f < δ}` — which is where `σ`-finiteness enters. -/
+theorem tendsto_opNorm_flowOfHCLM_sub_limitProjection_iff_gap (D : MulModel X ν Λ T) :
+    Tendsto (fun τ : ℝ => ‖flowOfHCLM D τ - limitProjection D‖) atTop (𝓝 0) ↔
+      ∃ δ : ℝ, 0 < δ ∧ ∀ᵐ x ∂ν, D.f x ≠ 0 → δ ≤ D.f x := by
+  refine ⟨?_, fun ⟨δ, hδ, hgap⟩ =>
+    tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop D hδ hgap⟩
+  intro hconv
+  by_contra hnoGap
+  refine not_tendsto_opNorm_flowOfHCLM_of_noGap D (fun δ hδ => ?_) hconv
+  have hnot : ¬ ∀ᵐ x ∂ν, (D.f x ≠ 0 → δ ≤ D.f x) := fun hae => hnoGap ⟨δ, hδ, hae⟩
+  have hne : ν {x : X | ¬(D.f x ≠ 0 → δ ≤ D.f x)} ≠ 0 :=
+    fun h0 => hnot (MeasureTheory.ae_iff.mpr h0)
+  have hset : {x : X | ¬(D.f x ≠ 0 → δ ≤ D.f x)} =ᵐ[ν]
+      {x : X | 0 < D.f x ∧ D.f x < δ} := by
+    filter_upwards [D.hpos] with x hx
+    apply propext
+    constructor
+    · intro h
+      have hne0 : D.f x ≠ 0 := fun h0 => h fun hp => absurd hp h0
+      have hlt : ¬ (δ ≤ D.f x) := fun hle => h fun _ => hle
+      exact ⟨lt_of_le_of_ne hx (Ne.symm hne0), not_le.mp hlt⟩
+    · intro h hq
+      exact not_le.mpr h.2 (hq (ne_of_gt h.1))
+  have hpos : ν {x : X | 0 < D.f x ∧ D.f x < δ} ≠ 0 := by
+    rw [← MeasureTheory.measure_congr hset]
+    exact hne
+  have hmeas : MeasurableSet {x : X | 0 < D.f x ∧ D.f x < δ} :=
+    (D.hf measurableSet_Ioi).inter (D.hf measurableSet_Iio)
+  have hpos' : (0 : ℝ≥0∞) < ν {x : X | 0 < D.f x ∧ D.f x < δ} :=
+    lt_of_le_of_ne (zero_le _) (Ne.symm hpos)
+  obtain ⟨t, htm, hts, htpos, htfin⟩ :=
+    Measure.exists_subset_measure_lt_top (μ := ν) (r := 0) hmeas hpos'
+  exact ⟨t, htm, htpos.ne', htfin.ne, fun x hx => hts hx⟩
+
+end GapCriterion
 
 end
 

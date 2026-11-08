@@ -1,4 +1,344 @@
-Here is a detailed, modular research plan for formalizing **Bałaban’s constructive Euclidean approach** in **Lean 4**, utilizing the **nested Fock-space framework** (from *Timepiece*) to construct a 4D Euclidean statistical field theory **without an *a priori* Hamiltonian**, and verifying **reflection positivity** to enable the Osterwalder–Schrader reconstruction to physical Minkowski spacetime.
+# Euclidean fields, Mehler coordinates and nested-Fock reconstruction
+
+## Revised work order (2026-11-08)
+
+This section supersedes the architecture, priority list and completion claims below **as a
+reading guide for this file**. The earlier dated material is retained as implementation
+history. It does not change the programme priorities in `CURRENT_WORK_ORDER.md` or claim
+a continuum Yang–Mills construction, a mass gap, or conformal invariance. “4D Euclidean
+to 3D” means reconstruction on a spatial slice with real-time evolution in $3+1$
+dimensions; it is not a reduction to a three-dimensional spacetime theory.
+
+This is a source-level documentation audit, not a fresh Lean build. Use **U** for an
+existing result within its stated model, **C** for a missing hypothesis/identification,
+**N** for an invalid inference, and **B** for a boundary of scope. Existing theorem
+names such as `continuum` or `unconditional` do not erase their binders.
+
+### Sources and conventions
+
+* [book.tex](book.tex): the recursive second-quantization paragraph beginning “Since the
+  second-quantization procedure can be applied recursively”, “Relation with the BRST
+  formalism”, and “Pure SU(3) Yang-Mills theory”. These fix the nested field algebra
+  and the role of observables; they do not identify an arbitrary Euclidean measure
+  with the manuscript's Hamiltonian realization.
+* [Book/FreeField.lean](Book/FreeField.lean), the Mehler-limit section, and
+  [Book/SolovayTensor.lean](Book/SolovayTensor.lean), “Only the Mehler Measure on the
+  Infinite Part”: Gaussian coordinate laws and Hilbert-space parametrization.
+* [Book/YangMillsQuantization.lean](Book/YangMillsQuantization.lean), “The Weyl-Gauge
+  Quadratic Form and the Friedrichs Route”: the inner Hamiltonian and its outer lift.
+* [Hashimoto–Nodera](../papers/Hashimoto.md), Definition 2.4 and Theorem 4.1: bounded
+  resolvents and approximation of operator $\phi$-functions, not an infrared gap theorem.
+* [softmodes.md](softmodes.md), “Revised work package (2026-11-08)”: representation
+  bridges, independent spectral exclusion, and the distinction between the absolute
+  inner edge and inner excitation separation. Its S0–S4 obligations apply here too.
+* [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md): the detailed implementation
+  record. Its older absence claims must be read against the newer modules listed here.
+
+Keep four spaces distinct: the Euclidean configuration measure space $\mathscr X_E$;
+its reference amplitude space $L^2(\gamma)$; the reconstructed OS space $\mathcal H_{OS}$;
+and the manuscript's outer graded Fock space $\mathcal F_{out}$ over an inner space
+$\mathcal K$. A Gaussian-chaos Fock representation of $L^2(\gamma)$, when constructed,
+is another identification to prove, not a synonym for all four spaces.
+
+Use $\theta$ for geometric reflection and
+$\Theta F=\overline{F\circ\theta}$ for its action on complex observables. Reserve
+$\Omega_{OS}=[1]$ for the reconstructed vacuum, $\Omega_{out}$ for the outer vacuum,
+and $Q_{BRST}$ for the auxiliary charge. Neither vacuum is identified with an inner
+ground/squeezed state without a theorem. BRST observable cohomology and the OS null-space
+quotient serve different purposes and cannot replace one another.
+
+### Corrections that govern the route
+
+**N — finite coordinate rotation is not Euclidean field invariance.**
+`EuclideanFock4D.mehlerMeasure4D = gaussianE 4` is a law on $\mathbb R^4$.
+`mehler4D_O4_invariant` proves orthogonal invariance of that law, not invariance of a
+random connection $A_\mu(x)$ under spacetime translations and rotations. Specify the
+covariance and the action on spacetime, vector and colour indices. Rotational symmetry
+alone also says nothing about reflection positivity of that covariance.
+
+**N — nesting, scale decomposition and direct sum are different constructions.**
+The manuscript's nested lift is $H=d\Gamma(h)$ with an interacting **inner** $h$.
+A decomposition $\mathfrak h=\bigoplus_k\mathfrak h_k$ has a Fock tensor-factorization
+only after the appropriate Fock functor and reference vacua have been specified.
+It does not identify $\bigoplus_k\mathcal F_k$ with
+$\bigotimes_k\mathcal F_k$ or with recursively nested Fock space. In the current
+`BalabanRG` model, `Sector k` is the same $64$-dimensional real coordinate space at
+every scale. `blockAveragingOp` projects the four component slots at each cell to
+their common value; it is not yet physical gauge-covariant spatial block averaging.
+
+**N — contraction does not preserve Born normalization.** Conditional expectation is
+an $L^2$ contraction, not generally an isometry. For a coarse sigma-algebra $\mathcal G$,
+the coarse density of $|\Psi|^2d\gamma$ is
+$E_\gamma[|\Psi|^2\mid\mathcal G]$, not
+$|E_\gamma[\Psi\mid\mathcal G]|^2$. The positive square-root amplitude update is
+generally nonlinear. RG pushforward is linear on measures, while an effective-action
+update involving a logarithm is not linear on amplitudes.
+
+**N — commutation with reflection alone does not preserve RP.** To push RP through a
+coarse map, prove its pullback sends the coarse positive-time algebra into the fine
+positive-time algebra, intertwines reflection and preserves products/conjugation; then
+identify the coarse state with the pushed-forward state. A bounded vector operator
+$Q\Theta=\Theta Q$ alone supplies none of these state identities.
+
+**N — the Wick obstruction is not a degree-three threshold.** The historical example
+$\theta X=-X$ gives $E[(\theta X)X]=-E[X^2]<0$ already at degree one. For a centred
+real Gaussian with compatible reflection symmetry, positivity of the **reflected
+covariance on positive-time test functions** supports RP on the whole polynomial
+algebra via Wick/chaos decomposition. There is no universal failure at degree three.
+For ordinary quadratic monomials retain the same-half/disconnected contractions;
+a formula containing only cross-plane contractions needs Wick ordering or centering.
+The Markov/Feynman–Kac route remains a useful sufficient proof, not the only possible one.
+
+**N — full-algebra RP is stronger than physical OS positivity.**
+`ReflectionPositivity.IsReflectionPositive` quantifies over every `Observable`.
+`OSReconstruction.OSState` consumes that stronger predicate and `Hphys` quotients the
+full algebra. `ReflectionKernel.mk_thetaObs_eq_mk` shows the reflection becomes the
+identity in that quotient under its hypotheses. Physical reconstruction instead uses
+$\mathcal A_+$ only. Do not feed a theorem of RP **on** `PositiveTimeAlgebra` into
+`OSState` as if it proved the stronger predicate. Reuse the quotient proof patterns
+after restricting their carrier and hypotheses.
+
+**N — Euclidean time is a forward semigroup.** Contractivity at every real time plus
+the group law forces isometries; adding self-adjoint transfer maps makes the family
+trivial (`TransferSelfAdjoint.physEvolCompletion_eq_one`). Use $\tau\ge0$,
+$P(\tau)=e^{-\tau H}$ and the right generator $A=-H$, not a two-sided contractive
+group or Stone's unitary-group converse. Real-time unitarity comes after identifying $H$.
+
+### E0 — select and identify the concrete Euclidean model
+
+Start with a finite-volume lattice benchmark with a specified compact gauge group,
+links, plaquettes, boundary conditions and normalized Haar product measure. Define
+$\mu_{a,L}=Z_{a,L}^{-1}e^{-S_{a,L}}\nu_{a,L}$ and the gauge-invariant observable
+algebra. Separate this from a scalar Gaussian benchmark with a chosen covariance $C$.
+A Gaussian coordinate prior does not by itself define the interacting measure or its
+gauge-invariant correlations; a gauge-fixed vector Gaussian need not be RP on all components.
+
+For a Mehler description choose a nuclear test space/cylindrical coordinate system,
+a positive covariance and compatible finite marginals. If using a distribution-valued
+field, prove the realization there. Standard independent Gaussian coordinates do not
+produce identity-covariance Gaussian probability on $\ell^2$, and a pointwise “uniform
+measure on the unit sphere of a Hilbert space” is not the needed construction.
+At each finite cutoff establish the unitary chart and field identities. Hermite **functions**
+need their Gaussian weights and normalization; bare Hermite polynomials are not an
+orthonormal basis for Lebesgue $L^2$. A Gaussian chart does not add an oscillator
+confinement term to the physical Hamiltonian (softmodes S0).
+
+**Acceptance:** a model contract giving the measure, expectation, reflection, positive-time
+test functions, field/loop observables and embeddings. Distinguish spatial volume $L$,
+lattice spacing $a$, basis cutoff $\Lambda$ and RG depth $n$.
+
+### E1 — assemble finite-model RP, then preserve it under actual coarse maps
+
+Use a site-reflection/conditional-boundary benchmark first. With past/future conditional
+laws matched by reflection, prove
+
+$$d\mu(z,y_-,y_+)=d\rho(z)\,d\nu_z(y_-)\,d\nu_z(y_+),\qquad
+\omega((\Theta F)F)=\int\left|\int F(z,y)\,d\nu_z(y)\right|^2d\rho(z)\ge0.$$
+
+Supply integrability, positivity and normalization of the boundary law. For link-plane
+reflections or actions with cross-plane plaquettes, prove the appropriate positive-kernel
+or character-expansion identity; pointwise positivity of a Boltzmann weight is insufficient.
+Transport vector signs for $A_0$ and reversal/inversion of oriented links explicitly.
+
+Existing building blocks are `LatticeFreeField`, `HalfSpaceSplit`, `WilsonLattice`,
+`WilsonLinkLattice`, `WilsonPastClass`, `HaarReference`, `GFFNormalization` and
+`WilsonPartition` under `BookProof/ReflectionPositivity/`. Read their actual parameters:
+`WilsonLinkLattice.Site L = Fin 3 → Fin L` is a three-coordinate box, not yet a
+four-dimensional Euclidean gauge lattice. `HaarReference` is parametric in a compact
+group and a measurable matrix representation; instantiate the intended non-abelian group
+and prove the required a.e. unitarity/integrability. `WilsonPartition` proves normalized
+probability and RP under its reference-probability and holonomy hypotheses. A closed-form
+partition function is unnecessary; $0<Z<\infty$ suffices.
+
+**Acceptance:** RP on the actual positive-time observable algebra for the normalized
+finite model, including its concrete measure/geometry identification. Then prove each RG
+pullback satisfies the algebra, support and state identities above. No full-algebra RP
+assumption is allowed as a substitute.
+
+### E2 — construct continuum expectations with the right convergence topology
+
+Define coarse-graining maps and gauge transport before invoking Bałaban-type estimates.
+State the bare coupling/counterterm trajectory and the precise norm in which the
+small-field/large-field polymer estimate is sought. The existing
+`BalabanRG.Convergence.balaban_rg_convergence` is the implication from a summable
+increment estimate to a limit; it does not prove that estimate for Yang–Mills RG.
+
+Prefer compatible expectations/Schwinger distributions on a common test algebra, with
+tightness and uniform moment bounds where needed. A global amplitude $\Psi_\infty$ in
+one reference $L^2(\gamma)$ is optional and needs absolute-continuity and embedding
+proofs. Infinite-volume or continuum laws may be singular with respect to that reference.
+Even when $\Psi_n\to\Psi$ in $L^2$ and all are normalized, the resulting $L^1$ density
+convergence controls bounded observables; polynomial observables need additional moment
+or uniform-integrability bounds. An unspecified vector norm limit does not imply all
+Schwinger-function limits.
+
+Pass RP through convergence of each reflected product $(\Theta F)G$ on a common
+positive-time algebra. Prove limiting Euclidean translation/rotation covariance,
+regularity and nontriviality separately; a finite regulator generally preserves only a
+discrete subgroup. State which order of UV and thermodynamic limits is justified and
+which constants are uniform. Existence and uniqueness of the limit for one Cauchy
+sequence is not universality across regulators, boundary conditions or RG trajectories.
+
+**Acceptance:** a normalized nontrivial limiting functional with half-space RP and
+documented moment, covariance and continuity estimates. UV stability alone is not an
+infrared clustering estimate. Keep the missing analytic estimates as named hypotheses.
+
+### E3 — reconstruct on the positive-time algebra and build forward evolution
+
+Construct the complex sesquilinear form
+$\langle F,G\rangle_{OS}=\omega((\Theta F)G)$ on $\mathcal A_+$, its null
+**subspace** $\mathcal N$, and the completion of $\mathcal A_+/\mathcal N$.
+Do not call $\mathcal N$ an algebra ideal without proving ideal stability. Include the
+unit to define $\Omega_{OS}=[1]$ and prove $\|\Omega_{OS}\|=1$.
+The existing real bilinear quotient/completion is a reusable prototype; complexification
+and the restriction to the half-space carrier remain explicit bridge work.
+
+On positive-time smearings prove forward translation preserves support and the null
+space. Derive symmetry, contractivity and strong continuity from the concrete state's
+translation/reflection/regularity properties. These are inputs beyond RP in isolation.
+Require $P(0)=I$, $P(s+t)=P(s)P(t)$ for $s,t\ge0$ and $P(t)^*=P(t)$.
+Construct the dense right-generator domain, prove its range condition and identify the
+positive self-adjoint $H=-A$. Use the symmetric contraction-semigroup theorem or a
+verified resolvent/multiplication model; Hille–Yosida without symmetry gives a generator,
+not automatically a self-adjoint Hamiltonian.
+
+**Newer existing results:** `TransferSemigroupRight` and `SemigroupGenerator` provide
+forward evolution, right derivatives, closedness/dissipativity and a resolvent estimate
+under their bundled hypotheses. `MultiplierGenerator` and `MultiplierSelfAdjoint`
+construct a positive self-adjoint `hamiltonianMulModel`, its resolvent and transfer flow
+**given `MulModel`**. That bundle assumes a nonnegative measurable density, an isometry
+onto a dense range in $L^2(\nu)$ and the exponential multiplier law. Producing those data
+for the concrete half-space theory is still required. Thus “no generator exists anywhere
+in the corpus” is stale, while “the physical interacting generator is identified” is unproved.
+
+**Acceptance:** a half-space state/space and a nontrivial strongly continuous symmetric
+forward contraction semigroup, with its generator domain and resolvent identified.
+Full Wightman reconstruction additionally needs the selected OS theorem's regularity,
+Euclidean covariance, permutation/locality and clustering hypotheses, distributional
+fields and analytic continuation. A Hilbert space and a heat semigroup alone do not
+establish Lorentz covariance or locality.
+
+### E4 — identify the reconstructed theory with the manuscript's nested fields
+
+Construct an isometry with dense range $U:\mathcal H_{OS}\to\mathcal F_{out}$
+(or a specified physical cyclic subspace), prove vacuum alignment, and intertwine
+the smeared observable representations and heat semigroups:
+
+$$U\Omega_{OS}=\Omega_{out},\qquad
+UP(\tau)=e^{-\tau H_{out}}U\quad(\tau\ge0),\qquad
+H_{out}=d\Gamma(h_F).$$
+
+`OSReconstruction/FockIntertwining.lean` defines `OsFockBridge` and proves consequences
+of an assumed flow intertwiner. It does not construct this $U$. A real-linear bridge
+also needs complex-structure compatibility before claiming a complex unitary field
+identification. Gauge fixing or agreement of formal Hamiltonian expressions does not
+identify the spaces, their domains, vacua or correlations. If the Euclidean construction
+is not equivalent to this nested model, retain the two results as separate theories.
+
+Keep inner composition and outer multiplication separate:
+$d\Gamma(B^2)\ne d\Gamma(B)^2$ in general; likewise
+$d\Gamma(I)=N_{out}$ while its square is $N_{out}^2$.
+The inner interactions remain inside $h_F$ when its outer lift is quadratic. A density
+for a non-Gaussian interacting measure does not become a free Gaussian field merely
+because its Hilbert space has a Fock representation.
+
+**Acceptance:** the concrete unitary/observable/flow diagram, or an explicit statement
+that the bridge remains conditional. Do not transfer a gap or clustering rate before it.
+
+### E5 — prove an infrared gap and only then attach certified numerics
+
+Choose the spectral target and vacuum first. For an OS vacuum gap, prove
+$\ker H=\mathbb C\Omega_{OS}$ (or state the full ground projection $P_0$) and
+
+$$\|e^{-\tau H}(I-P_0)\|\le e^{-m\tau},\qquad m>0.$$
+
+Equivalently, after constructing the spectral measure, prove it has no support in
+$(0,m)$ off the ground space. Pointwise strong convergence of the heat flow to $P_0$
+does not give operator-norm convergence or a gap: positive masses can accumulate at zero.
+`MultiplierSelfAdjoint` proves both the conditional norm-decay theorem and no-gap
+obstructions in the multiplier model. Its symbol gap is an analytic input, not a result
+about the Yang–Mills measure.
+
+To infer a gap from clustering require a uniform estimate on a dense vacuum-complement
+class, controlled by Hilbert norms, not decay of one chosen two-point function. With
+a self-adjoint generator and a fixed finite prefactor, large-time decay excludes spectral
+support below $m$. Do not discard that prefactor in a small-time difference quotient.
+`Clustering` and `KallenLehmannModel` supply conditional Laplace-transform machinery;
+the interacting infrared estimate remains open. Scalar radial time/space transfer requires
+actual limiting $O(4)$ covariance; tensor/loop observables must be transformed with it.
+The Mehler coordinate rotation theorem alone cannot supply that hypothesis.
+
+If using softmodes S2 to prove $h_F\ge mI$ on **all** inner states, its outer lift
+gives the outer-vacuum bound. An inner excitation gap above $E_0$ instead needs the
+correct ground projection and the E4 identification. Shifting $h_F\mapsto h_F+\mu I$
+adds $\mu N_{out}$, changes the model and does not manufacture physical inner clustering.
+Never subtract two lower spectral bounds; use an independent ground upper bound or
+direct coercivity. The occupation-diagonal surrogate still needs its physical form bridge.
+
+For Hashimoto set $A=-H$ (or a declared time-rescaled version), so
+$X_\gamma=(\gamma I+H)^{-1}$ has norm at most $1/\gamma$ for $\gamma>0$.
+For the paper's Theorem 4.1 retain $\gamma_j=N_{shift}-sj>0$,
+$m_{Krylov}<N_{shift}/s$, matrix invertibility, numerical-range and function-admissibility
+hypotheses, and the full rational approximation factor:
+
+$$\|\phi_k(A)v-u_{m_{Krylov}}\|\le2C\|v\|e^{-s m_{Krylov}}
+\inf_{r\in\mathcal R^{SIRK}_{m_{Krylov}-1}}
+\|f_{k,N_{shift}}-r\|_{\infty,\Sigma}.$$
+
+The exponential alone is not an unlimited-depth convergence bound with fixed shift budget.
+Carry rational approximation, inexact solve, rounding, basis-tail and continuum errors
+separately. A solve defect $r$ yields inverse-action error at most $\|r\|/\gamma$;
+a compressed-matrix eigenvector residual still omits $(I-P_\Lambda)Hu$.
+Resolvent compression is not the inverse of Hamiltonian compression in general.
+Strong resolvent convergence does not turn a finite gap into a continuum gap without
+the independent uniform exclusion/form estimate. Keep the mass-gap sector gate §M4.9
+in `CURRENT_WORK_ORDER.md` before any continuum interpretation of certificates.
+
+**Temple acceptance:** an operator/domain/sector identification, normalized trial vector,
+full residual $\eta$, and independently justified $\beta>\theta$ excluding the rest
+of that sector's spectrum. Then $\theta-\eta^2/(\beta-\theta)\le E_0\le\theta$.
+The operator-function approximation theorem does not supply that exclusion.
+
+### Execution and validation
+
+| Gate | Existing reusable content | Missing concrete input |
+|---|---|---|
+| E0 | Gaussian laws, Hermite bases | Euclidean field law and chart |
+| E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
+| E2 | Summable increments imply convergence | Actual RG estimates and limits |
+| E3 | Quotients, forward semigroups, multiplier generators | Half-space realization |
+| E4 | `OsFockBridge` consequences | Concrete field/vacuum/flow bridge |
+| E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
+
+Execute **E0 → E1 → E2 → E3 → E4 → E5** as dependency gates; abstract E3 work and E5
+error bookkeeping can progress before the continuum estimates. The first concrete task
+is a **half-space state/quotient interface** and a finite-model measure/RP contract;
+reuse the existing conditional machinery rather than add another full-algebra wrapper.
+Proposed new modules, not existing proofs, are
+`BookProof/OSReconstruction/HalfSpaceState.lean` and
+`BookProof/OSReconstruction/HalfSpaceHilbert.lean`.
+
+Use the local `lean-toolchain` (currently v4.28.0). A proof port from another toolchain
+must compile here before it is counted as implemented; verify sibling paths rather than
+relying on the historical `../timepiee331/` spelling. MM0 export is a separate deliverable
+requiring supported statement and proof translation; emitting theorems as new axioms is
+not proof conversion.
+
+For a later implementation, build affected modules, audit final theorem binders and
+axioms, and distinguish abstract tests from instantiations of the interacting model.
+For this documentation-only revision, check relative links, whitespace and doc-index
+freshness. No numerical certificate, Lean compilation or book-rendering result is claimed.
+
+## Historical architecture and status (2026-10-29 to 2026-11-05)
+
+The revised work order above controls the interpretation of all completion claims below.
+In particular the full-algebra OS receiver, the Wick degree-threshold claim, the old
+generator absence claims and the proposed softmodes separation are superseded by the
+specific corrections and dependencies above.
+
+The original proposal was a modular research plan for formalizing **Bałaban’s constructive
+Euclidean approach** using the **nested Fock-space framework**, constructing a Euclidean
+statistical theory before deriving its Hamiltonian by reflection-positive reconstruction.
 
 Note that you can produce the proofs in any version  of Lean4 it is more convenient to you , you can also use the the 4.33.1 version of these proofs in ../timepiee331/ , since the end goal is to convert everything to MM0.
 
@@ -191,6 +531,9 @@ With the 4D Euclidean theory reconstructed into Minkowski spacetime, the mass ga
 | `BookProof/OSReconstruction/Hamiltonian.lean` | `emergent_hamiltonian_selfAdjoint` | Hille–Yosida / Stone generator of time shifts [1.1] |
 
 ### Why This Research Plan Works
+**Superseded rationale:** the claims in this historical subsection are objectives, not
+established compatibility or existence theorems. E0–E5 state their missing inputs.
+
 * **Eliminates the Gauge-Fixing Conflict:** Working in 4D Euclidean space avoids the temporal gauge $A_0 = 0$ (which ruins 4D Euclidean covariance) while avoiding non-local Coulomb gauges [1.1].
 * **No Premature Hamiltonian:** The physical Hamiltonian $H_{\text{phys}}$ is not constructed by hand with operator ordering problems; it **emerges dynamically** from the Euclidean translation semigroup via reflection positivity.
 * **Direct Compatibility with *Timepiece*:** The entire construction relies solely on objects already validated in `BookProof`: separable Hilbert spaces, the Mehler measure, Riesz–Fischer completions, and Stone's flow machinery [1.1].
@@ -341,7 +684,11 @@ Ordered by what unblocks the rest; each item names the module it lands in.
      *form*: the weight multiplies the **square of the bilinear pairing of two modes**, not a single
      `|Σ_p F p u_a p|²`.  The degree-1 statement is the diagonal `x = y` picture; it does not lift
      verbatim, and this is the correct degree-2 statement instead.
-   * **From degree 3 the Wick route fails, and cannot be repaired.**  At degree `2m` the same
+   * **Correction (2026-11-08): the following obstruction claim is superseded.**
+     Its example fails linear RP already; with a reflection-positive Gaussian covariance,
+     an all-degree Wick/chaos proof remains possible. See the revised correction above.
+     Historical claim: **from degree 3 the Wick route fails, and cannot be repaired.**
+     At degree `2m` the same
      substitution gives products of `m` pairings with no collapse into one square, and positivity
      genuinely fails for a `θ`-invariant Gaussian: on the odd subspace, where the reflection acts
      as `φ(θp) = −φ(p)` and the covariance is `θ`-invariant by construction, the cubic half-space
@@ -584,7 +931,12 @@ Ordered by what unblocks the rest; each item names the module it lands in.
    Temple feed, whose arithmetic is done in `ChapterTempleSeparationBound.continuum_gap_unconditional`
    with `c₁ Δ_ref` from `softmodes.md`.
 
-   **(iii) is not a plumbing step — checked 2026-11-04.**  `softmodes.md` Phase 4 now certifies
+   **Correction (2026-11-08):** this paragraph's claim that the physical separation constant
+   is established is superseded by softmodes S0–S2. Its comparison thresholds do not
+   identify actual spectral levels; the concrete form, sector and margin remain inputs.
+   The newer multiplier/operator results also supersede generic absence claims below.
+
+   **Historical (iii) assessment — 2026-11-04.** `softmodes.md` Phase 4 now certifies
    `c₁ Δ_ref` on the `L²` form of record (`closed_yangMillsGap`) *and*, for an off-diagonal
    interaction, on the core (`hopping_farisLavine`), so the constant is no longer the obstruction.
    What `continuum_gap_unconditional` consumes is different in kind: its hypothesis is

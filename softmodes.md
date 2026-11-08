@@ -1,4 +1,280 @@
-A comprehensive, mathematically rigorous research plan to establish an **analytical lower bound for the spectral separation $\beta_\infty > \theta_\infty$** within the *Timepiece* framework requires addressing the exact failure point identified in `ChapterTempleSeparationNecessary.lean`: **Rayleigh data and local residuals alone cannot prevent unseen eigenvalues from accumulating near the bottom of the spectrum.**
+# Soft modes in the Mehler / nested-Fock Yang–Mills formalism
+
+## Revised work package (2026-11-08)
+
+This revision supersedes the roadmap and completion claims of the dated phases below **as a
+reading guide for this file**. Those notes remain implementation history. It does not replace
+the programme ordering in `CURRENT_WORK_ORDER.md`: the non-abelian one-particle form bound
+remains open, and the mass-gap certificate route still has its sector gate (§M4.9 before M4.3).
+No Lean proof was compiled for this revision. **U** below denotes an existing mathematical
+interface/result within its stated model, **C** a missing hypothesis or bridge, **N** an invalid
+inference, and **B** a scope boundary. A theorem's binders, not its name, determine its scope.
+
+### Sources and the object to be bounded
+
+Read these sources by heading rather than by mutable line number:
+
+* [book.tex](book.tex): the recursive second-quantization paragraph beginning “Since the
+  second-quantization procedure can be applied recursively”; “Relation with the BRST
+  formalism”; “Pure SU(3) Yang-Mills theory”. These fix the nested construction, the
+  auxiliary role of BRST, and the $99=3+24+72$ continuous coordinates with ghost grading.
+* [Book/FreeField.lean](Book/FreeField.lean): “Why the Gaussian Is the Uniform Measure on
+  the Infinite Sphere: the Mehler Limit”; [Book/SolovayTensor.lean](Book/SolovayTensor.lean):
+  “Only the Mehler Measure on the Infinite Part”. These supply the Gaussian coordinate
+  substrate, not a dynamical Yang–Mills gap.
+* [Book/YangMillsQuantization.lean](Book/YangMillsQuantization.lean): “The Weyl-Gauge
+  Quadratic Form and the Friedrichs Route”. Read its energy-origin discussion together
+  with the $\mu N$ boundary below; a change of one-particle origin changes outer dynamics.
+* [Hashimoto–Nodera](../papers/Hashimoto.md), Definition 2.4, §4 and Theorem 4.1:
+  bounded resolvents and rational approximation of operator $\phi$-functions.
+* [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md): a generated corpus snapshot,
+  not a proof of its introductory claims. Check its declarations against the source
+  modules and distinguish abstract implications from concrete instantiations.
+
+Use $\mathcal K$ for the inner field/configuration Hilbert space and $h$ for its
+gauge-fixed Hamiltonian. Its implemented bosonic core is the Gauss–polynomial core in
+$L^2(\mathbb R^{99})$. The manuscript also has discrete ghost/graded factors; the bosonic
+core alone does not implement the entire graded theory. Use $C^\dagger,A$ for the **outer**
+ladders, $\Omega_{\rm out}$ for their vacuum, and $Q$ for the BRST charge. The final
+number-preserving operator of record is
+
+$$H=d\Gamma(h)=\sum_{j,k}\langle e_j,h e_k\rangle C^\dagger(e_j)A(e_k),
+\qquad H\Omega_{\rm out}=0.$$
+
+The inner Hamiltonian retains its pair terms and interactions. Making the outer expression
+quadratic does not diagonalize $h$. On the implemented core its positive convention is
+$q_h(u)=\tfrac12\sum\|\pi u\|^2+\tfrac12\sum\|B u\|^2$; reconcile signs and coupling
+normalizations with the manuscript when identifying operators.
+
+There are **two distinct targets**:
+
+1. **Outer-vacuum gap:** prove $q_h(u)\ge m\|u\|^2$ for **all** inner core vectors,
+   with $m>0$, extend to the Friedrichs form domain, then lift to
+   $H\ge m N_{\rm out}\ge m(I-P_{\Omega_{\rm out}})$. Here the target is the absolute
+   bottom of $h$, including any inner ground/squeezed state.
+2. **Inner excitation separation:** identify a ground eigenspace $G$ at $E_0$ and prove
+   $q_h(u)-E_0\|u\|^2\ge\Delta\|u\|^2$ for $u\perp G$, $\Delta>0$.
+   This can support Temple certificates for that inner sector. It does not imply target 1
+   when $E_0=0$: an inner zero mode is a non-vacuum zero-energy outer one-particle state.
+
+**B:** replacing $h$ by $h+\mu I$ replaces $H$ by $H+\mu N_{\rm out}$, not by a scalar
+vacuum offset. The resulting artificial gap must be labeled a modified model.
+`RequestProject/NestedFock.lean` makes this distinction explicit. Even/odd Ritz separation
+also requires a proof that those sectors exhaust the relevant low spectral subspace;
+reflection symmetry alone does not establish this.
+
+### Corrections that gate every later phase
+
+**N — lower bounds cannot be subtracted.** From
+$\lambda_0(h)\ge L_0=c_1\mu_0-c_2$ and
+$\lambda_1(h)\ge L_1=c_1\mu_1-c_2$, one cannot conclude
+$\lambda_1(h)-\lambda_0(h)\ge L_1-L_0$. For example,
+$h_{\rm ref}=\operatorname{diag}(0,1)$ and $h=\operatorname{diag}(M,M+\varepsilon)$
+with $M\ge1$, $0<\varepsilon<1$ satisfy $h\ge h_{\rm ref}$ but have gap $\varepsilon$.
+In `BookProof/YangMillsFormDomination.lean`, `certified_separation` is an algebraic equality
+between comparison thresholds and `certified_gap_pos` proves positivity of their difference.
+Neither identifies the actual interacting ground level or its orthogonal complement.
+
+Valid alternatives are: an absolute bound $L_0>0$ for target 1; a min–max lower bound $L_1$
+and independent ground **upper** bound $U_0<L_1$ for target 2; or a direct coercive estimate
+on the complement of an identified invariant ground space. If using the reference vacuum's
+complement, prove that it is the correct invariant sector. A condition `c 0 = 0` alone does
+not identify the interacting ground complement.
+
+**N — Gaussian representation is not confinement.** Multiplication by the square root of
+a Gaussian density is a unitary representation change. In one coordinate, with
+$d\gamma=(2\pi)^{-1/2}e^{-x^2/2}dx$ and $Uf=\gamma^{1/2}f$,
+$U\partial U^{-1}=\partial+x/2$. Thus the Gaussian Dirichlet operator
+$\partial^*\partial=-\partial^2+x\partial$ transports to
+$-\partial^2+x^2/4-1/2$, an oscillator number operator, **not** the free Laplacian.
+The Hermite degree form is not automatically the physical $\tfrac12\sum\pi^2$ form.
+Prove the conjugation identity for the actual momentum convention before comparing forms.
+
+**N — lift products after inner composition.** On the outer one-particle sector
+$d\Gamma(M)d\Gamma(N)=d\Gamma(MN)$, but on general bosonic sectors their difference
+has a normally ordered two-particle contribution. Already
+$d\Gamma(I)^2=N_{\rm out}^2\ne N_{\rm out}=d\Gamma(I^2)$.
+Use $d\Gamma(B^2)$ when lifting an inner magnetic square; do not replace it by
+$d\Gamma(B)^2$. A defined inner-composition algebra must be explicitly distinguished
+from ordinary outer operator multiplication. The historical sandwich statements below
+do not remove this obligation.
+
+**C — a diagonal surrogate needs an intertwiner.** The occupation forms `degreeForm`,
+`quarticDegreeForm` and `yangMillsForm T g`, and the identity
+`sandwich_diag_magComp`, are useful models. The split of the concrete `magPoly` into
+derivative and commutator pieces does not prove that its square is diagonal, or equal to
+$:N^2:$. Require a unitary/core map $J$, its domain properties, and either
+$q_h(Jc)=q_{\rm model}(c)$ or a proved inequality with explicit error constants.
+No equality of those forms follows just from both being called “Yang–Mills”.
+
+### Work package S0 — identify the Mehler realization and its domains (first)
+
+Specify the Gaussian finite-coordinate measures, inner Hilbert space, graded factors,
+cylindrical core and the Lebesgue/Gaussian/Hermite unitary maps. Distinguish a Hermite
+**basis cutoff** $\Lambda$ in a fixed $99$-coordinate realization from adding field/spatial
+degrees of freedom, changing volume $L$, or removing a regulator $a$. Give embeddings
+and a form core for each limit actually claimed. Infinite product Gaussian sequences are
+not an identity-covariance Gaussian probability on $\ell^2$; use the coordinate measure
+space and its $L^2$ space rather than asserting that its samples lie in $\ell^2$.
+
+**Existing U:** `ChapterMehlerUniqueness.mehler_unique_by_finite_marginals` identifies the
+coordinate law under its Gaussian-marginal hypothesis. It is not uniqueness of a vacuum,
+a Hamiltonian, or its self-adjoint extension. A Mehler/Ornstein–Uhlenbeck reference semigroup
+can organize estimates, but its reference gap is not yet a gap of $h$.
+
+**Acceptance:** a diagram of the concrete core embeddings with norm, momentum and magnetic
+operator identities; an explicit list of form-domain and self-adjoint-extension inputs.
+Proposed deliverable: `BookProof/Qym/ChapterYangMillsMehlerBridge.lean` (new work, not
+an existing declaration). Reuse `ChapterHermiteProductCore` and `ChapterYangMillsHermite`.
+
+### Work package S1 — classify soft directions on the actual configuration space
+
+Work with the full $B=B_{\rm deriv}+gB_{\rm comm}$, independent derivative coordinates
+and any imposed tie/compatibility conditions. For a non-abelian theory a general pure
+gauge is a gauge transform of zero, not an arbitrary $A_i=\partial_i\phi$; the latter
+description is abelian/linearized. Commuting constant Cartan fields are candidate valleys
+only after boundary conditions and the derivative constraints have been specified.
+
+The book uses BRST primarily to simplify **observable** equivalence classes, without
+quotienting its gauge-variant wave-function. Do not impose a Hilbert cohomology quotient
+as an automatic definition of the manuscript's state space. If choosing that route, state
+the additional realization, positive Hilbert norm, closed charge, domain invariance and
+strong commutation assumptions. Algebraic nilpotency and constant-gauge commutators alone
+do not prove those analytic assumptions for the full dynamics.
+
+For a channel argument, separate Cartan, root, spatial translation and jet directions.
+Prove a transverse oscillator estimate on each chart, including root hyperplanes with
+enhanced stabilizer; then an IMS/localization bound paying for partition gradients.
+Do not assume
+$\|B_{\rm deriv}+gB_{\rm comm}\|^2\ge g^2\|B_{\rm comm}\|^2$:
+the cross term can be negative. A valid starting estimate is
+$\|X+Y\|^2\ge(1-\epsilon)\|X\|^2-(\epsilon^{-1}-1)\|Y\|^2$
+for $0<\epsilon<1$, with the loss controlled separately.
+
+**Acceptance:** a global estimate for the concrete $q_h$, with all localization and
+domain errors accounted for. Finite-dimensional channel confinement can prove compactness
+only under its extra hypotheses; it supplies neither an explicit separation constant nor
+uniformity under new degrees of freedom or infinite volume. Spatial translations may
+leave continuous spectrum even when internal channels are confined.
+
+### Work package S2 — prove the bound needed by the chosen target
+
+For target 1 seek $q_h\ge m\|\cdot\|^2$ on the entire inner core. For target 2 seek
+$q_h-E_0\|\cdot\|^2\ge\Delta\|(I-P_G)\cdot\|^2$, with $G$ identified and reducing.
+A reference estimate $q_h\ge c_1q_{\rm ref}-c_2\|\cdot\|^2$ gives
+$m=c_1\mu_0-c_2$ for target 1 only if this number is positive. For target 2 one may use
+$\Delta\ge c_1\mu_1-c_2-U_0>0$ under the min–max hypotheses and a certified $U_0$.
+Record dependence on coupling, volume, coordinate count and cutoffs; fix the physical
+energy origin before interpreting $m$ as an outer mass scale.
+
+Retain the oscillator reference with the consistent normalization
+$h_{\rm ref}=\sum_i\omega_i(N_i+1/2)$, gap $\min_i\omega_i$. Its Schrödinger realization
+is $\tfrac12\sum_i(-\partial_i^2+\omega_i^2x_i^2)$ in units $\hbar=1$.
+Do not add a parity penalty or oscillator potential to $h$ to obtain the desired answer.
+For off-diagonal terms a bound $|q_K|\le a q_{\rm ref}+b\|\cdot\|^2$, $a<1$, must
+apply to the **actual** interaction; the ladder model's sharp constants are not yet that
+estimate. Extend core inequalities to closed forms and identify their Friedrichs operators.
+ESA and a commutator estimate establish operator control, not a positive gap by themselves.
+
+**Acceptance:** a concrete positive $m$, or $L_1-U_0$, with a theorem connecting it to
+the selected operator and sector. This is the analytic gate before claiming Temple separation.
+
+### Work package S3 — use Hashimoto for approximation, with a separate spectral gate
+
+Take the paper's generator to be $A=-h_F$ (or a declared rescaling $-t h_F$), where $h_F$
+is the chosen positive self-adjoint realization. For $\gamma>0$,
+$X_\gamma=(\gamma I-A)^{-1}=(\gamma I+h_F)^{-1}$ is bounded with norm at most
+$1/\gamma$, irrespective of whether a positive mass gap has been proved.
+The paper's Definition 2.4 uses $f_\gamma(z)=f(\gamma-z^{-1})$ on the bounded
+resolvent; verify the functional-calculus admissibility for the function being used.
+For Theorem 4.1 retain the real shifts $\gamma_j=N_{\rm shift}-sj>0$ and
+$m_{\rm Krylov}<N_{\rm shift}/s$. Use different notation for these parameters and
+the outer number operator. Its estimate has the form
+
+$$\|\phi_k(A)v-u_m\|\le
+2C\|v\|e^{-sm}\inf_{r\in\mathcal R^{\rm SIRK}_{m-1}}
+\|f_{k,N_{\rm shift}}-r\|_{\infty,\Sigma}.$$
+
+This includes the rational best-approximation factor and invertibility/numerical-range
+hypotheses. The exponential factor alone is not a convergence proof as $m\to\infty$:
+the fixed shift budget bounds admissible $m$. A changing budget requires new uniform
+estimates. Complex shifts in the Lean corpus are a separate extension, not this paper's
+§4 schedule. Neither a $\phi_k(A)v$ error nor a semigroup approximation error is
+automatically a Temple eigenvector residual or a certificate excluding unseen spectrum.
+
+For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
+$\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
+rounding enclosures and basis tails into the final residual bound. For a Galerkin vector,
+$\|(h_F-\theta)u\|$ includes $(I-P_\Lambda)h_Fu$; the residual inside the compressed
+matrix omits that tail. Also distinguish $P_\Lambda X_\gamma P_\Lambda$ from
+$(P_\Lambda h_F P_\Lambda+\gamma)^{-1}$; their equality is not automatic.
+
+After S2 supplies a genuine lower bound $\beta$ for the rest of the relevant spectrum,
+verify $\theta<\beta$ and apply Temple:
+
+$$\theta-\frac{\eta^2}{\beta-\theta}\le E_0\le\theta.$$
+
+Use an independently established $\beta-\theta\ge d>0$ for a uniform error estimate.
+Never define $\beta=\theta+c_1\Delta_{\rm ref}$ solely from reference domination.
+Strong resolvent convergence alone does not turn a finite matrix gap into a limit gap;
+transfer a uniform continuum form/spectral estimate with its explicit hypotheses.
+
+### Work package S4 — lift and verify without changing the model
+
+Use `ym_fock_gap_of_one_particle_form_gap` and the Friedrichs extension machinery only
+after the concrete S2 bound covers all inner states used by that lift. If a physical
+reduction is used, prove its compatibility with the outer lift. A zero inner ground space
+requires an explicitly changed one-particle space or a different ground-sector theorem;
+it cannot be silently removed to obtain the outer-vacuum statement.
+
+For the certificate campaign, retain the current §M4.9 sector gate and label existing
+finite-truncation results as diagnostics until the sector and continuum inputs are met.
+Keep an error budget by source (form comparison, basis tail, rational approximation,
+linear solve, floating-point enclosure). Numerical agreement checks the implementation;
+it does not discharge S2. Follow the repository regeneration/nanoda workflow only when
+solver, Hamiltonian or certificate artifacts change.
+
+### Lean reuse and completion ledger
+
+Source paths below are relative to `BookProof/`.
+
+* `ChapterMehlerUniqueness.mehler_unique_by_finite_marginals`: U, Gaussian coordinate
+  law; C, concrete dynamical intertwiner.
+* `Qym/ChapterYangMillsHermite.lean`, `ymHamiltonian`: U, positive symmetric concrete
+  core operator; C, coercive bound for this operator.
+* `ChapterReferenceGap.lean`, `href_spectral_gap`: U, oscillator reference form gap;
+  C, sector alignment and comparison margin.
+* `YangMillsFormDomination.lean`, `ground_bound`, `excited_bound`: U, model form
+  inequalities; N, subtracting their lower thresholds as actual levels.
+* `YangMillsFormClosureNonDiagonal.lean`: U, model relative-form estimates;
+  C, identify physical kernel and close its realization.
+* `Qym/ChapterYangMillsFieldStrengthSplit.lean`: U, concrete polynomial split;
+  C, global channel estimate, not equality to a diagonal symbol.
+* `Sirk/ChapterHashimotoShiftInvert.lean`, `exists_isShiftInvert`: U, bounded inverse
+  under extension hypotheses; C, verified rational approximation/solve errors.
+* `Sirk/ChapterTempleSeparationNecessary.lean`: N, residual-only edge inference;
+  C, independent full-space separation.
+* `Qym/ChapterYangMillsFockGapChain.lean`: U, conditional concrete outer lift;
+  C, positive one-particle form input.
+* `Qym/ChapterYangMillsOuterFockFL.lean`: U, abelian parcel ESA result;
+  B, not the non-abelian gap theorem.
+
+Execution order is **S0 → S1 → S2 → S3 → S4**; approximation bookkeeping in S3 can proceed
+while S2 remains open. The next reviewable deliverable is the S0 representation bridge
+and an explicit S2 theorem signature for the selected target, not another abstract
+“domination implies gap” wrapper. For any later Lean change, build the affected modules
+and audit final theorem axioms and binders. For this documentation revision, verify paths,
+formula consistency, relative links and doc-index freshness; no book HTML build is needed.
+
+## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
+
+The revised work package above governs their interpretation. In particular, “DONE”,
+“unconditional”, “form of record” and “certified gap” below describe the cited model's
+actual theorem statements only; they do not discharge its missing physical bridges.
+
+The original motivation is to establish an **analytical lower bound for the spectral
+separation $\beta_\infty>\theta_\infty$**. `ChapterTempleSeparationNecessary.lean` shows
+that **Rayleigh data and local residuals alone cannot exclude unseen lower eigenvalues.**
 
 To prevent the Temple uncertainty $\delta = \frac{\eta^2}{\beta - \theta}$ from blowing up as the basis/truncation order $n \to \infty$, the separation $\beta_\infty - \theta_\infty \ge c > 0$ must be derived **analytically from the structural geometry of the continuous Hamiltonian**, rather than extracted numerically from truncated matrices.
 
@@ -37,7 +313,8 @@ $$H_W = \frac{1}{2} \sum_{i, a} \pi_{ia}^2 + \frac{1}{2} \sum_{i, a} B_{ia}^2$$
 the magnetic potential is:
 $$V(A) = \frac{1}{2} \sum_{i, a} \left( \epsilon_{ijk} \partial_j A_{ka} - \frac{1}{2} g f_{abc} \epsilon_{ijk} A_{jb} A_{kc} \right)^2$$
 The potential $V(A)$ vanishes along the classical **flat directions**:
-1. **Longitudinal gradients (pure gauge):** $A_i = \partial_i \phi$ (handled by the BRST charge $\Omega$).
+1. **Longitudinal gradients:** $A_i=\partial_i\phi$ in the abelian/linearized theory.
+   A general non-abelian pure gauge is a gauge transform of zero, not an arbitrary gradient.
 2. **Abelian constant fields:** $A_i \in \mathfrak{t}$ (the Cartan subalgebra of $\mathfrak{su}(N)$), where $[A_j, A_k] = 0$.
 
 Along the Cartan flat directions, $V(A) = 0$ extends to infinity in configuration space. In naive classical mechanics, this would allow particles to escape to infinity with zero potential energy, threatening a continuous spectrum starting at $\theta_\infty$ (i.e., $\beta_\infty - \theta_\infty = 0$).
@@ -535,6 +812,11 @@ For non-Abelian gauge models, classical flat directions do **not** imply a conti
 * The "cross-sectional width" of the valley shrinks so rapidly ($w(x) \sim 1/\sqrt{g|x|}$) that quantum wave-packets cannot penetrate deeply into the valley without paying an infinite kinetic energy penalty.
 
 #### 2.2. Mathematical Formulation for $SU(N)$ Field Space
+**Correction (2026-11-08):** items 2–4 below are the original channel ansatz, not a proved
+global inequality for `magPoly`. In particular the derivative/commutator cross term
+prevents dropping the derivative piece from the square. S1 specifies the missing
+localization, root-chart and error estimates.
+
 For Yang–Mills on the product Hermite core $L^2(\mathbb{R}^{d_N})$:
 1. Split the gauge fields into **Cartan modes** $A_{\parallel} \in \mathfrak{t}$ and **off-diagonal root modes** $A_{\perp} \in \mathfrak{su}(N) \setminus \mathfrak{t}$.
 2. Expand the magnetic potential:
@@ -717,8 +999,12 @@ By the variational minimax principle (Courant–Fischer):
 * Ground state: $\lambda_0(H_W) \ge c_1 \mu_0 - c_2$.
 * First excited state (or lowest state in the orthogonal/odd sector): 
   $$\lambda_1(H_W) \ge c_1 \mu_1 - c_2$$
-* Subtracting the two yields the **rigorous, parameter-independent lower bound on the spectral separation**:
-  $$\beta_\infty - \theta_\infty \ge \lambda_1(H_W) - \lambda_0(H_W) \ge c_1 (\mu_1 - \mu_0) = c_1 \Delta_{\text{ref}} > 0$$
+* **Correction (2026-11-08): these two lower bounds cannot be subtracted.** With an
+  independent ground upper bound $\lambda_0(H_W)\le U_0$, min–max instead gives
+  $$\lambda_1(H_W)-\lambda_0(H_W)\ge c_1\mu_1-c_2-U_0.$$
+  This is useful only when its right-hand side is positive and the relevant min–max
+  levels and invariant sector have been identified. See S2 for the separate absolute
+  one-particle bound needed by the outer-vacuum gap theorem.
 
 #### 4.2. Leveraging Existing *Timepiece* Modules
 This step directly integrates into existing modules:
@@ -860,7 +1146,9 @@ This step directly integrates into existing modules:
 
 ### Phase 5: Discharging Hypotheses in the Verification Pipeline
 
-With $c_{\text{sep}} = c_1 \Delta_{\text{ref}} > 0$ established analytically:
+Assume an actual continuum spectral exclusion and positive Temple denominator have
+been established analytically (S2–S3), rather than inferred from reference thresholds.
+The formulas below require that additional input; they do not construct it.
 
 #### 5.1. Supplying the Missing Input to Temple's Inequality
 In `BookProof.ChapterRitzCertificate.lean`, replace the open hypothesis with the analytical bound:
@@ -907,7 +1195,10 @@ Because $H_n \to H_F$ strongly in the resolvent sense (`weyl_hashimoto_selects_f
 theorem continuum_gap_unconditional :
   gap(H_F) ≥ (θ_odd - θ_even) - (2 * η_max² / (c₁ * Δ_ref)) > 0
 ```
-This lifts through `ChapterFockNumberPreservingGap.lean` (`dGamma`), formally establishing that the full interacting continuum Hamiltonian possesses a strictly positive mass gap.
+**Correction (2026-11-08):** this is a historical schematic target, not an unconditional
+continuum theorem. Its separation, residual, sector and limit hypotheses must be supplied.
+The outer `dGamma` lift additionally needs a strictly positive absolute one-particle form
+bound; an even/odd inner excitation gap alone does not supply it. See S2–S4.
 
 * **Status (2026-10-31): the nested-Fock lift, the coincident-point product and both convergence
 modes (operator-norm and strong-resolvent) are now proved; the analytic separation and the fact
@@ -1541,6 +1832,9 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
 
 ### Summary of Tasks and Timeline
 
+**Historical summary only:** use S0–S4 above for the revised execution order and acceptance
+criteria. In particular Phase 4's shifted comparison is not by itself a spectral gap.
+
 | Phase | Mathematical Objective | Lean 4 Target Module | Key Tools / References |
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | Project out longitudinal gauge zero-modes via BRST cohomology | `BookProof.BrstReducedTransfer` | Nilpotent BRST charge $\Omega^2 = 0$ |
@@ -1549,4 +1843,6 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
 | **Phase 4** | Establish form-domination $q_{H_W} \ge c_1 q_{H_{\text{ref}}} - c_2$ | `BookProof.YangMillsFormDomination` | `ChapterFockFieldPerturbation.lean` |
 | **Phase 5** | Inject analytical $\beta_\infty$ into SIRK/Temple certificate | `BookProof.SpectralGapStability` | `ChapterRitzCertificate.lean`, Trotter–Kato |
 
-By following this plan, you replace the fragile numerical search for a separation constant with a **classical, non-perturbative coercive barrier** (the Simon mechanism on flat directions), providing the missing analytic constant that prevents the Temple uncertainty from blowing up in the infinite limit.
+The open task is to derive a coercive estimate for the concrete inner Hamiltonian, with
+the sector and margin required by the selected target. The model barrier calculations
+and numerical approximations support that task but do not yet provide its constant.
