@@ -1313,6 +1313,158 @@ that the truncations converge are not.**  `BookProof.TempleContinuumGap`
     model's `tendsto_expFlow_slope` carried through the bridge, without passing through
     `physEvolCompletionRightFun` or `HasGenRight`.
 
+    That last point is where the two routes part.  `dom H = ran R` is where the multiplier chart can
+    compute the slope itself; the *forward* domain of the transfer generator is larger, and there
+    `f · u` need not be square-integrable, so the model slope need not converge.  The flow still
+    generates the same operator there: `tendsto_flowOfH_slope_of_hasGenRight` shows the flow's
+    quotient converges on every `z` with `HasGenRight D.hinv z`, with limit
+    `generatorRight D.hinv z`, and `hasGenRight_iff_tendsto_flowOfH_slope` gives the converse, so
+    the flow's forward domain *equals* the transfer generator's — the flow generates nothing
+    larger.  `tendsto_flowOfH_slope_of_mem_domainH` then recovers the `dom H` value `−H` from that
+    general statement via `generatorRight_eq_neg_hamiltonianMulModel` and injectivity of `U`.
+    The single ingredient this route borrows is the multiplier law (`physEvol_eq_flowOfH`); the
+    `dom H` route does not borrow it.
+
+    Positivity is the semigroup face of `f ≥ 0`.  On the chart the flow is multiplication by
+    `e^{−τf} ≥ 0`, so it preserves the a.e. nonnegative cone (`expFlow_nonneg`, `flowOfH_nonneg`),
+    and since `τ ≥ 0` and `f ≥ 0` force `e^{−τf} ≤ 1` it also pulls a nonnegative vector down
+    (`expFlow_apply_le_of_nonneg`, `flowOfH_apply_le_of_nonneg`).  Together with
+    `hamiltonianMulModel_inner_nonneg` (`H ≥ 0`) this is the order theory of the model; the corpus
+    has no order on `ℋ` other than the chart cone, which is why the statement is phrased through
+    `U`.
+
+    The forward domain is now *densely defined and closed*, the two structural properties of a
+    generator.  Density is `dense_flowForwardDomain`: the domain contains `dom H = ran R`, which is
+    dense because `R` has dense range (`dense_range_resolventMulModel`), and `dom H` lies inside it
+    by `tendsto_flowOfH_slope`.  Closedness is `closed_flowForwardDomain`: if `uₙ` in the forward
+    domain converge and the generator's values `A uₙ` converge, the limit is again in the domain
+    with value the limit, and — read flow-side — the flow's quotient at the limit point converges
+    to that value.  It is inherited from `generatorRight_isClosed` and keeps that theorem's
+    matrix-element continuity hypothesis `hcont` (`∀ F, Continuous (τ ↦ ⟪T τ F, F⟫)`):
+    `LinearFunctional` has no continuity field, so `hcont` is an OS input that cannot be read off
+    the model.  The flow's *strong* continuity does not replace it, because the graph argument
+    integrates the transfer representation `physEvol_sub_eq_integral_right`, which assumes `hcont`.
+    `flowGenerator_dense_domain_closed` bundles the two.
+
+    Large time is answered pointwise, which is what the chart can give.  `e^{−τf}` is *strictly*
+    positive, so the flow is **not** positivity improving: `expFlow_support` proves the support is
+    preserved exactly — `e^{−τH}u` vanishes precisely where `u` did, so mass never spreads into a
+    set the initial vector missed.  Strict positivity is preserved (`expFlow_pos_of_pos`,
+    `flowOfH_pos`), and where `f x > 0` the chart decreases strictly (`expFlow_apply_lt_of_pos`) and
+    decays to zero, `e^{−τ f x} u x → 0` (`tendsto_expFlow_mul_atTop`, a.e. under `0 < f` in
+    `tendsto_expFlow_apply_atTop`), while `expFlow_apply_of_f_eq_zero` freezes the part over
+    `{f = 0}`.  So the large-time limit is the projection onto the kernel of the density: ergodic on
+    `{f > 0}`, trivial on `{f = 0}`.
+
+    The pointwise law upgrades to a norm statement by dominated convergence, and the domination is
+    the same estimate as contractivity: `e^{−τf x} ≤ 1` for `τ ≥ 0`, so
+    `(e^{−τf x} u x)² ≤ (u x)²`, and `(u x)²` is integrable because `u ∈ L²`.  That gives
+    `‖e^{−τH}u‖² = ∫ (e^{−τf}u)² → 0` (`tendsto_norm_sq_expFlow_atTop`), hence
+    `‖e^{−τH}u‖ → 0` by `√` of the squared norm (`tendsto_norm_expFlow_atTop`), and on `ℋ` the same
+    through the isometry bridge (`tendsto_norm_flowOfH_atTop`).  The one extra hypothesis is
+    `0 < f` a.e., and it is not a technical convenience: where `f = 0` the flow freezes
+    (`expFlow_apply_of_f_eq_zero`), so a density vanishing on a set of positive measure leaves a
+    nonzero part in the limit and the norm cannot tend to `0`.
+
+    That caveat points at the sharper statement, which needs no hypothesis on the density at all:
+    the flow's limit is the *projection* rather than `0`.  Pointwise, `e^{−τ f x} → 1` where
+    `f x = 0` and `→ 0` where `f x > 0`, so the multiplier converges to the indicator of
+    `{f = 0}`, and that indicator is bounded by one, so dominated convergence applies to the
+    differences too — with the same bound `(u x)²`, since `|e^{−τ f x} − 1_{f = 0}| ≤ 1`
+    (`abs_exp_neg_sub_kernelIndicator_le_one`).  Thus `‖expFlow τ u − limitMulL2 D u‖ → 0`
+    (`tendsto_norm_expFlow_sub_limitMulL2_atTop`), where `limitMulL2` is multiplication by the
+    indicator class (`kernelIndicator`).  On `ℋ` the same gives
+    `tendsto_flowOfHCLM_atTop : flowOfHCLM D τ y → limitProjection D y`, and `limitProjection` is
+    an **orthogonal projection**: idempotent (`limitProjection_idem`, from the indicator's `w² = w`)
+    and self-adjoint (`isSelfAdjoint_limitProjection`, the same symmetry argument as the flow, via
+    `inner_mulL2_comm`), bundled in `limitProjection_isOrthogonalProjection`.  So the large-time
+    limit *is* the projection onto the kernel of the density, and the `‖·‖ → 0` statement is its
+    special case where that kernel is negligible.
+
+    Self-adjoint plus idempotent does not by itself say *which* subspace is projected onto, so the
+    next step identifies it on the chart.  `limitProjection_eq_iff` says `limitProjection D y = y`
+    exactly when `U y` vanishes where `f ≠ 0` — the vectors living on the kernel of the density —
+    and `limitProjection_eq_zero_iff` says `limitProjection D y = 0` exactly when `U y` vanishes
+    where `f = 0`, so the kernel is the complementary part of `ℋ`.  The residual is orthogonal to
+    the range (`inner_sub_limitProjection_limitProjection`: on the chart the residual carries
+    `1_{f ≠ 0}` and the projection `1_{f = 0}`, so the pointwise product is zero), hence range and
+    kernel are orthogonal (`inner_limitProjection_ker`), and the range is characterised as a set in
+    `range_limitProjection` with the kernel in `mem_ker_limitProjection`; the residual is itself a
+    kernel vector (`residual_mem_ker_limitProjection`), so every vector splits as
+    `limitProjection D y` plus a kernel vector — an orthogonal direct sum.
+    `limitProjection_isOrthogonalProjectionOntoDensity` bundles the whole operator statement: the
+    flow converges strongly to the orthogonal projection onto the part of `ℋ` supported where the
+    Hamiltonian density vanishes.
+
+    That subspace is literally `ker H`.  `H` is multiplication by `f` on the chart,
+    `U (H (R a)) = f · U (R a)` (`hamiltonianMulModel_image`), so `mulImage_eq_zero_iff` turns
+    `H (R a) = 0` into the a.e. condition that `U (R a)` vanish where `f ≠ 0`
+    (`hamiltonianMulModel_eq_zero_iff`), which by `limitProjection_eq_iff` is exactly the fixed
+    space of the limit (`hamiltonianMulModel_eq_zero_iff_limitProjection`).  So the flow's
+    asymptotic state is the `ker H` component, and the `‖·‖ → 0` statement is the case `ker H = 0`.
+
+    Operator-norm convergence is a different matter and needed a correction: it holds with rate
+    `e^{−τδ}` when the density has a gap `δ > 0` above zero
+    (`norm_flowOfHCLM_sub_limitProjection`, `tendsto_opNorm_flowOfHCLM_sub_limitProjection_atTop`),
+    but it is **false** without a gap.  The norm of multiplication by `g_τ = e^{−τf} − 1_{f = 0}` is
+    the essential supremum of `|g_τ|`, and a density with values arbitrarily close to zero —
+    Lebesgue measure on `(0, 1)` with `f x = x`, for instance — keeps `|g_τ|` at `1` on sets of
+    positive measure for every `τ`, so `‖e^{−τH} − P‖ = 1` for all `τ` while `e^{−τH} → P` still
+    holds strongly.  The section header records this, so the corpus does not claim an
+    unconditional operator-norm limit it cannot have.
+
+    Three follow-ups turn that caveat into theorems about the same operator.  (i) The
+    `ker H` identification is now an equality of **submodules**, not a pointwise statement on the
+    domain: `kerHamiltonianMulModel` carries the domain in its carrier, and
+    `kerHamiltonianMulModel_eq_range_limitProjection` proves `ker H = range P` in
+    `Submodule ℝ ℋ`.  The pointwise form alone cannot give this, because `dom H = ran R` is dense
+    but proper; the missing half is `range_limitProjection_subset_domain` — a chart living on
+    `{f = 0}` satisfies `(λ + f)·U y = λ·U y`, and `λ • U y` is again a chart because the range of
+    an isometry is a subspace — so the range of `P` sits inside the domain after all.  The witness
+    is explicit (`exists_resolventMulModel_eq_of_limitProjection` records both `R a = y` and
+    `U a = λ • U y`), and `resolventFun_mul_smul_of_eq_zero` / `eq_zero_of_eq_mul_resolventFun`
+    are the two halves of the scalar arithmetic `(λ + f)⁻¹(λ v) = v` that make it work in both
+    directions.
+
+    (ii) The counterexample is now a theorem rather than prose.
+    `not_tendsto_opNorm_flowOfHCLM_of_noGap` takes the negation of a gap — every `δ > 0` has a set
+    of positive finite measure carrying `0 < f < δ` — and proves that
+    `‖flowOfHCLM D τ − limitProjection D‖` does not tend to `0`.  The estimate is
+    `norm_expFlow_sub_limitMulL2_ge`: the indicator of that set is a nonzero `L²` class and the
+    multiplier is at least `e^{−τδ}` on it, so the model-side norm is at least `e^{−τδ}`; with
+    `δ = log 2/(2τ)` the bound is `1/2` at every `τ ≥ 1`.  It transfers to `ℋ` only because the two
+    operator norms are equal, `norm_flowOfHCLM_sub_limitProjection_eq`, which needs the density of
+    `ran U` (`‖S‖ ≤ ‖T‖` is immediate from the isometry; density upgrades it to equality).  So the
+    gap in the rate theorem is a hypothesis on the truth, not on the proof.
+
+    (iii) Strong convergence is quantified.  The two-scale bound splits at `δ > 0`: where `f ≥ δ`
+    the multiplier is at most `e^{−τδ}`, where `0 < f < δ` it is at most one, and where `f = 0` it
+    vanishes, so `‖e^{−τH}y − P y‖ ≤ e^{−τδ}‖y‖ + ‖1_{0<f<δ}·U y‖`
+    (`norm_flowOfHCLM_sub_limitProjection_le_two_scale`, via the pointwise
+    `abs_exp_neg_sub_kernelIndicator_le_two_scale` and `Lp.norm_le_norm_of_ae_le`).  The tail
+    `tailMul D δ u` is a genuine `L²` class that does not depend on `τ`, and it vanishes as
+    `δ ↓ 0` (`tendsto_norm_tailMul`, dominated convergence with `{0 < f < δ} ↓ ∅`, and
+    `exists_tailMul_norm_lt` picks the split).  Choosing the split first and then the time gives
+    the explicit bound `norm_flowOfHCLM_sub_limitProjection_lt_of_time`: from
+    `max 0 (-log (ε / (2(‖y‖+1))) / δ)` on, the flow is within `ε` of the projection, so
+    `exists_time_norm_flowOfHCLM_sub_limitProjection_lt` is the quantified form of the asymptotic
+    statement.  The rate is explicit in `δ, ε, ‖y‖`; only `δ` comes from a limit, and that is the
+    sense in which a rate exists without a gap — pointwise in `y`, never uniformly.
+
+    (iv) Two refinements close the pair.  Sharpness: the two-scale bound is attained, not merely an
+    upper estimate.  If the density equals the split on the support of the vector,
+    `tailMul_eq_zero_of_eq_on_support` empties the tail and the multiplier is exactly `e^{−τδ}`
+    there, so `norm_expFlow_sub_limitMulL2_eq_of_eq_on_support`, and its flow-side form
+    `norm_flowOfHCLM_sub_limitProjection_eq_two_scale`, turn the estimate into an equality.  The
+    explicit witness is `barrier_sharp`: the barrier density `δ` on `[0,1]`, zero elsewhere
+    (`barrierDensity`), tested on the class of its own indicator (`barrierVector`), gives equality
+    for every `τ ≥ 0` — the gapped rate is the truth where it applies.  No uniformity:
+    `not_exists_uniform_rate_of_noGap` shows there is no rate function `r` with `r τ → 0` bounding
+    `‖(e^{−τH} − P)y‖` for every `‖y‖ ≤ 1`, because a unit-ball bound is a bound on the operator
+    norm (`opNorm_le_of_unit_ball_bound`, by homogeneity) and such an `r` would make the norm
+    converge.  The rate of (iii) is therefore pointwise in `y` by necessity, not because of the
+    shape of the proof.
+
     **Boundary.**  The multiplier law `U (P(τ)x) = expFlow τ (U x)` remains the
     hypothesis that supplies the flow.  That law is *not* an OS consequence: the axioms supply only
     a one-parameter contractive semigroup on `ℋ` together with its two-point functions, and the
