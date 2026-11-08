@@ -584,7 +584,16 @@ import BookProof.ReflectionPositivity.LatticeFreeField
 import BookProof.OSReconstruction.PhysicalSpace
 import BookProof.OSReconstruction.Hamiltonian
 
--- Wave (`cftproof.md` Phase 5): Euclidean clustering at mass `m` is decay of the transfer
+-- Interpretation contract (2026-11-08): physical QYM/QED/QG/NS all use H = dΓ(h),
+-- creation left and outer annihilation right. Inner interactions are retained inside h.
+-- QG means R² vielbein/TEGR with exact exponential and interactions; scalaron fibers
+-- and densitized/metric charts require separate transfer proofs. NS encloses positive H_sp;
+-- its signed KvN generator is a comparison/dynamics track. Spatial-derivative convolution
+-- belongs to NS/QG only. HΩ = 0 is structural; ground status needs h ≥ 0, and an outer-vacuum
+-- gap needs an absolute positive inner bound. h + cI lifts to H + c N_out, changing the model.
+-- Statistical Hermite ladders and physical outer ladders need an explicit intertwiner.
+
+-- Wave (`cftproof.md` Phase 5): conditional Euclidean clustering at mass `m` is transfer
 -- operator at rate `m` off the vacuum, and `O(4)` invariance turns temporal decay into spatial.
 import BookProof.OSReconstruction.Clustering
 import BookProof.OSReconstruction.HilbertSpace
@@ -619,10 +628,11 @@ import BookProof.MCMC.UnadjustedPCNGap
 import BookProof.MCMC.FockLangevinOperator
 
 -- Wave (`pcnl.md` Module 1 proper, and Module 2 through it): the pCN step *is* diagonalised by
--- the Fock number states in the `d → ∞` limit — `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
+-- Hermite states already in finite Gaussian dimension:
+-- `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
 import BookProof.MCMC.MehlerEigenfunction
--- Wave, `pcnl.md` Module 1 in its *finite-`d`* form: the zonal spectrum of one pCN step on
--- `S^{d-1}` is `Cₙ^{(λ)}(ρ)/Cₙ^{(λ)}(1)` (`pcnZonalEigen`), not `ρⁿ` (`pcnZonalEigen_two_ne_pow_two`,
+-- Wave: algebraic candidate zonal ratios for a spherical averaging kernel (kernel not built):
+-- `Cₙ^{(λ)}(ρ)/Cₙ^{(λ)}(1)` (`pcnZonalEigen`), not `ρⁿ` (`pcnZonalEigen_two_ne_pow_two`,
 -- `d = 3`), and it tends to `ρⁿ` as `d → ∞` (`pcnZonalEigen_tendsto`).
 import BookProof.MCMC.GegenbauerEigenvalue
 import BookProof.Toolbox.PhysMehler

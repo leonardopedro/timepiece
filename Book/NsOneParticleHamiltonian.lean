@@ -68,6 +68,19 @@ Friedrichs realization is a legitimate comparison operator, and that the outer H
 its second quantization — no further square, no perturbation, no regularization.
 :::
 
+The enclosure proves zero outer-vacuum energy. A ground statement also uses
+the positivity of the specified $`H_{\rm sp}`; a gap above the unique outer
+vacuum needs a strict absolute bound on its entire inner space. A lower bound
+only off an inner zero mode is a different statement. Adding a scalar inside
+$`h` adds a number term outside and changes the model.
+
+The spatial Fourier substitution retains the derivative on its own convolution
+leg: a symbol on one leg is not a diagonalization of the whole nonlinear term.
+The NS/QG derivative-elimination convention does not apply to the QYM/QED
+realizations. Recent polynomial coefficient bands and OS multiplier gap criteria
+are reusable tools only after identifying the relevant spaces and operators;
+they do not by themselves discharge this chapter's physical comparisons.
+
 # The Momentum Variables: a Diagonal Derivative and a Partial Transform
 
 :::paragraph

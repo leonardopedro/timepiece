@@ -3,7 +3,7 @@ import BookProof.ChapterReferenceGap
 import BookProof.Sirk.ChapterTempleContinuumGap
 
 /-!
-# Chapter YangMillsFormDomination — from a form-domination certificate to a certified gap
+# Chapter YangMillsFormDomination — form domination and comparison thresholds
 
 `softmodes.md` Phase 4 asks for the step that turns a *comparison of quadratic forms* into a
 *gap*: if the Yang–Mills form `q_W` dominates the reference form `q_ref` of
@@ -11,9 +11,9 @@ import BookProof.Sirk.ChapterTempleContinuumGap
 
 `q_W(c) ≥ c₁ · q_ref(c) − c₂ · ‖c‖²   (c₁ > 0, c₂ ∈ ℝ)`   on the Gauss–polynomial core,
 
-then the two lowest levels of `q_W` are separated by at least `c₁ · Δ_ref`, uniformly in every
-parameter of the truncation.  This chapter proves that implication, in full, for the core on
-which the reference gap of Phase 3 is stated.
+then this chapter bounds the form below on the whole core and on the reference-vacuum
+complement. The difference of those LOWER thresholds is `c₁ · Δ_ref`; this alone does not
+separate the two actual lowest eigenvalues of `q_W`.
 
 ## What is proved, and what is not
 
@@ -23,16 +23,16 @@ Proved here:
   multi-index `n`), so domination bounds the *ground* level too, not only the excited one;
 * `ground_bound`, `excited_bound` — the two level bounds
   `c₁μ₀ − c₂` and `c₁(μ₀ + Δ_ref) − c₂`, the second one on the vacuum-orthogonal sector;
-* `certified_separation` — their difference is exactly `c₁ · Δ_ref > 0`, hence the certified
-  parameter-independent spectral separation `β_∞ − θ_∞ ≥ c₁ Δ_ref`;
+* `certified_separation` — the algebraic identity between these comparison thresholds;
+  `certified_gap_pos` proves their difference positive, not a physical spectral gap;
 * `formDomination_self` — the certificate is inhabited (`q_ref` dominates itself), so the
   structure is not vacuous;
 * `FormDomination.add_nonneg` — the Phase-4 monotonicity step in the form the interaction
   enters it: domination survives the addition of any pointwise nonnegative form;
 * `magneticColForm`, `magneticColForm_eq_position`, `magneticColForm_nonneg` — the magnetic
   two-field term read through the **momentum column** `momentumCol` of
-  `BookProof.TempleContinuumGap` (§4): the same-point product of two outer fields is consumed
-  as a momentum convolution, and that form is nonnegative, so it is exactly the `q_mag` that
+  `BookProof.TempleContinuumGap` (§4): a model product is expressed as a momentum convolution
+  and its form is nonnegative, giving a candidate comparison `q_mag` that
   `FormDomination.add_nonneg` absorbs.  No position-space product of distributions is formed
   anywhere in the chain;
 * `magneticColFormT4`, `magneticColFormT4_eq_position`, `magneticColFormT4_nonneg` — the same
@@ -44,8 +44,11 @@ Proved here:
 in `softmodes.md` §4.3, deliverable `BookProof.YangMillsFormDomination.lean`): it needs the
 magnetic potential's coercivity of Phase 2 and the polymer/perturbation control of
 `ChapterFockFieldPerturbation`/`ChapterFockInteractionStability` on the same core.  What this
-chapter supplies is the implication from such a certificate to the gap, with no loss, so that
-the remaining work is exactly one inequality with two constants.
+chapter supplies is comparison-threshold arithmetic. An actual inner excitation-gap theorem
+also needs an upper bound on the target ground energy and control of the target ground
+projection. For the final outer-vacuum gap, prove an absolute `h ≥ m I`, `m > 0`, instead.
+The convolution models here do not identify the physical QYM field-strength polynomial;
+spatial-derivative elimination by convolution is the NS/QG device only.
 -/
 
 noncomputable section
@@ -94,8 +97,8 @@ theorem coreForm_ge_vacuum (ω : Fin d → ℝ) (hω : ∀ i, 0 < ω i) (c : Cor
 
 /-! ## The two level bounds -/
 
-/-- **Ground level.**  Under domination, the bottom of the spectrum of `q` is at least
-`c₁μ₀ − c₂`. -/
+/-- Whole-core lower threshold. Transferring this to a spectral lower bound requires the
+form/closure realization; it is not an upper bound on the target ground energy. -/
 theorem ground_bound (ω : Fin d → ℝ) (hω : ∀ i, 0 < ω i) {q : CoreCoeff d → ℝ}
     (D : FormDomination ω q) (c : CoreCoeff d) :
     (D.c₁ * refEnergy ω 0 - D.c₂) * coreNormSq c ≤ q c := by
@@ -116,18 +119,15 @@ theorem excited_bound [Nonempty (Fin d)] (ω : Fin d → ℝ) (hω : ∀ i, 0 < 
 
 /-! ## The certified separation -/
 
-/-- **The certified spectral separation.**  The two level bounds differ by exactly
-`c₁ · Δ_ref`, which is positive: every state orthogonal to the vacuum sits at least `c₁Δ_ref`
-above the ground level certified by `ground_bound`.  This is the `β_∞ − θ_∞` bound of
-`softmodes.md` §4.1 — it holds uniformly in the truncation, since the only inputs are the
-positive frequencies `ω` and the certificate's constants. -/
+/-- The two comparison thresholds differ by `c₁ · Δ_ref`. This algebraic identity does not
+bound a spectral gap: `ground_bound` is a lower bound, not a ground-energy upper bound. -/
 theorem certified_separation [Nonempty (Fin d)] {ω : Fin d → ℝ} {q : CoreCoeff d → ℝ}
     (D : FormDomination ω q) :
     (D.c₁ * refEnergy ω 0 - D.c₂) + D.c₁ * refGap ω
       = D.c₁ * (refEnergy ω 0 + refGap ω) - D.c₂ := by
   ring
 
-/-- The certified gap is positive whenever the reference gap is. -/
+/-- The difference of comparison thresholds is positive whenever the reference gap is. -/
 theorem certified_gap_pos [Nonempty (Fin d)] {ω : Fin d → ℝ} (hω : ∀ i, 0 < ω i)
     {q : CoreCoeff d → ℝ} (D : FormDomination ω q) :
     0 < D.c₁ * (refEnergy ω 0 + refGap ω) - D.c₂

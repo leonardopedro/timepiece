@@ -6,7 +6,7 @@
 >
 > A reference is counted when it *resolves to a file that exists in the repo*. Four forms qualify: a markdown link `[t](p.md)`, a `[[wikilink]]`, a backticked `` `p.md` ``, and a bare `p.md` on its own line. The backticked form is this corpus's dominant convention (~2400 references vs ~120 markdown links), and reading only markdown links is what previously made a heavily cross-referenced corpus report zero backlinks.
 
-## Documents (82)
+## Documents (81)
 
 | Document | Title | Lines | Out | In |
 |---|---|---:|---:|---:|
@@ -22,9 +22,9 @@
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | Project layout and how to build as little as possible | 234 | 1 | 2 |
 | [CFT_REVIEW.md](CFT_REVIEW.md) | Review of `cft.md`: machine-checked claims and assessment | 331 | 1 | 0 |
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 18775 | 60 | 19 |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 19024 | 62 | 18 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 1 |
-| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 33 | 6 |
+| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 234 | 34 | 6 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 1 |
@@ -34,7 +34,7 @@
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | Formalization Roadmap for `book.tex` | 3817 | 6 | 8 |
 | [GPU_FEDERATION_PLAN.md](GPU_FEDERATION_PLAN.md) | GPU Federation Improvement Plan | 275 | 1 | 0 |
 | [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md) | Hamiltonian audit — what the proofs actually use, and the Faris–Lavine `N` of each theory | 681 | 3 | 2 |
-| [HANDOUT.md](HANDOUT.md) | HANDOUT — paused work on the flow of `H` (multiplier model) | 254 | 2 | 1 |
+| [HANDOUT.md](HANDOUT.md) | HANDOUT — paused work on the flow of `H` (multiplier model) | 254 | 1 | 0 |
 | [HASHIMOTO_COMPLEX_SHIFTS.md](HASHIMOTO_COMPLEX_SHIFTS.md) | Complex (non-real) shifts and many shifts in the shift-invert theory | 96 | 0 | 1 |
 | [HERMITE_CORE_STRICHARTZ.md](HERMITE_CORE_STRICHARTZ.md) | The Hermite core of `L²(ℝ)` and a Strichartz-type theorem on it | 69 | 0 | 1 |
 | [HERMITE_GALERKIN_FRIEDRICHS.md](HERMITE_GALERKIN_FRIEDRICHS.md) | Hermite-basis Galerkin truncation and the Friedrichs extension — what was formalized | 69 | 0 | 1 |
@@ -43,15 +43,15 @@
 | [IMPLEMENTATION_PLAN_RCP.md](IMPLEMENTATION_PLAN_RCP.md) | Implementation Plan: RH via a bounded-coefficient prior + regular conditional probability (radius-`1+ε` ball, multiplicative Euler product `exp(prime series)·E_X` with `X₂=1`, ZFC-direct) | 1913 | 2 | 3 |
 | [IMPLEMENTED.md](IMPLEMENTED.md) | PnpProof — Implementation report | 408 | 1 | 2 |
 | [Issues.md](Issues.md) | Issues, Uncertainties, and Constructive Criticism | 491 | 3 | 6 |
-| [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md) | The QCD Mass Gap from Certified Hashimoto Uncertainty Bands | 710 | 1 | 6 |
+| [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md) | The QCD Mass Gap from Certified Hashimoto Uncertainty Bands | 710 | 1 | 5 |
 | [NS_LAGRANGIAN_OUTER_FOCK_ESA.md](NS_LAGRANGIAN_OUTER_FOCK_ESA.md) | Lagrangian Navier–Stokes: from the one-particle ESA proof to the outer Fock space | 182 | 0 | 1 |
 | [PLAN_A_BOOK_FORMALIZATION.md](PLAN_A_BOOK_FORMALIZATION.md) | PLAN A — Book Proof Formalization (Track A) | 243 | 1 | 2 |
 | [PLAN_A_EXECUTION_REPORT.md](PLAN_A_EXECUTION_REPORT.md) | Plan A Book Formalization — execution report | 88 | 0 | 2 |
 | [PLAN_B_PROSE_VERIFICATION.md](PLAN_B_PROSE_VERIFICATION.md) | PLAN B — Prose Verification & Book Build (Track B) | 232 | 2 | 2 |
 | [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) | Plan for the LLM–Lean 4 Specialist: Formalizing `Book/CoherentState.lean` and the Project | 1005 | 6 | 4 |
 | [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md) | Plan for the LLM–Lean 4 Specialist: The Navier–Stokes Hamiltonian Has a Complete Flow | 979 | 2 | 6 |
-| [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md) | PLAN_LEAN_SPECIALIST_QG_FLOW.md — Quantum Gravity: the densitized route | 517 | 2 | 4 |
-| [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md) | PLAN_LEAN_SPECIALIST_QYM_FLOW.md — Quantum Yang–Mills: the Friedrichs route | 296 | 2 | 4 |
+| [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md) | PLAN_LEAN_SPECIALIST_QG_FLOW.md — Quantum Gravity: the densitized route | 517 | 2 | 3 |
+| [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md) | PLAN_LEAN_SPECIALIST_QYM_FLOW.md — Quantum Yang–Mills: the Friedrichs route | 296 | 2 | 3 |
 | [PLAN_LEAN_SPECIALIST_SIRK_NESTED.md](PLAN_LEAN_SPECIALIST_SIRK_NESTED.md) | Plan for the LLM–Lean 4 Specialist: The Hashimoto SIRK Approximation Orders Nest | 225 | 1 | 3 |
 | [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md) | Plan for the LLM–Lean 4 Specialist: Proving Remaining `book.tex` / `Book/` Statements | 395 | 2 | 4 |
 | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) | Reuse map for the three plans — `cftproof.md`, `softmodes.md`, `pcnl.md` | 241 | 3 | 0 |
@@ -59,7 +59,7 @@
 | [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md) | Reusable theorems from prove2me — frozen search for the offline Lean specialist | 637 | 1 | 1 |
 | [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) | PnpProof — Implementation report | 408 | 1 | 1 |
 | [README.md](README.md) | README | 42 | 0 | 1 |
-| [REVIEW_AND_PLAN_20260907.md](REVIEW_AND_PLAN_20260907.md) | Full review and plan — QYM, NS, QG, the gauge-fixed Hamiltonians, the outer Fock layer, | 233 | 0 | 3 |
+| [REVIEW_AND_PLAN_20260907.md](REVIEW_AND_PLAN_20260907.md) | Full review and plan — QYM, NS, QG, the gauge-fixed Hamiltonians, the outer Fock layer, | 233 | 0 | 2 |
 | [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) | Self-adjointness of the three Hamiltonians on the outer Fock space — review and execution | 408 | 2 | 2 |
 | [REVIEW_GAUGE_DEFINITION_20260912.md](REVIEW_GAUGE_DEFINITION_20260912.md) | How a gauge symmetry is *defined* in `book.tex`, and what is now proved | 121 | 2 | 1 |
 | [REVIEW_GAUGE_SYMMETRY_20260912.md](REVIEW_GAUGE_SYMMETRY_20260912.md) | Gauge symmetry in `book.tex`: what is formalized, and what was added (2026‑09‑12) | 110 | 0 | 1 |
@@ -75,10 +75,9 @@
 | [STATUS.md](STATUS.md) | `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md` | 12834 | 14 | 7 |
 | [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md) | Essential self-adjointness of the wave operator — plan ↦ Lean map | 306 | 1 | 2 |
 | [TODO_LEDGER.md](TODO_LEDGER.md) | TODO ledger — reviewed code markers | 15 | 0 | 1 |
-| [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) | Yang--Mills, nested Fock space, and the mass gap: Lean corpus | 41544 | 10 | 2 |
 | [bkPrompts.md](bkPrompts.md) | Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap | 702 | 3 | 0 |
-| [cft.md](cft.md) | cft | 172 | 0 | 2 |
-| [cftproof.md](cftproof.md) | Euclidean fields, Mehler coordinates and nested-Fock reconstruction | 954 | 3 | 4 |
+| [cft.md](cft.md) | cft | 172 | 0 | 1 |
+| [cftproof.md](cftproof.md) | Euclidean fields, Mehler coordinates and nested-Fock reconstruction | 954 | 3 | 5 |
 | [coherent.md](coherent.md) | Chapter: The Coherent State of Attention | 165 | 0 | 1 |
 | [converted/GAPS.md](converted/GAPS.md) | Remaining gaps of the converted prove2.me downloads | 164 | 0 | 3 |
 | [converted/README.md](converted/README.md) | `converted/` — prove2.me downloads converted to Lean 4.28.0 | 129 | 2 | 3 |
@@ -86,14 +85,14 @@
 | [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT | 222 | 1 | 1 |
 | [math28/README.md](math28/README.md) | `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 | 48 | 0 | 2 |
 | [newproof.md](newproof.md) | newproof | 285 | 0 | 6 |
-| [pcnl.md](pcnl.md) | pCNL: Mehler operators, nested Fock representations and convergence certificates | 1288 | 3 | 4 |
+| [pcnl.md](pcnl.md) | pCNL: Mehler operators, nested Fock representations and convergence certificates | 1288 | 3 | 3 |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | handedits | 21 | 0 | 0 |
-| [softmodes.md](softmodes.md) | Soft modes in the Mehler / nested-Fock Yang–Mills formalism | 1862 | 2 | 5 |
+| [softmodes.md](softmodes.md) | Soft modes in the Mehler / nested-Fock Yang–Mills formalism | 1887 | 1 | 5 |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | Self-contained mass-gap regeneration bundle | 219 | 2 | 4 |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | MASS_GAP_SPEC — the proof-facing seam of the certified mass gap | 150 | 1 | 5 |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9) | 88 | 2 | 1 |
 
-## Backlinks (227 links)
+## Backlinks (218 links)
 
 | Document | Linked from |
 |---|---|
@@ -109,7 +108,7 @@
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [STATUS.md](STATUS.md) |
 | [CFT_REVIEW.md](CFT_REVIEW.md) | — |
 | [CHANGELOG.md](CHANGELOG.md) | — |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md), [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [HONEST_BOUNDARIES_SM.md](HONEST_BOUNDARIES_SM.md), [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md), [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md), [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md), [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md), [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md), [REVIEW_THREADS_20260906.md](REVIEW_THREADS_20260906.md), [STATUS.md](STATUS.md), [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md), [bkPrompts.md](bkPrompts.md), [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md), [FEDERATION_DEEP_REVIEW.md](FEDERATION_DEEP_REVIEW.md), [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md), [HONEST_BOUNDARIES_SM.md](HONEST_BOUNDARIES_SM.md), [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md), [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md), [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md), [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md), [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md), [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md), [REVIEW_THREADS_20260906.md](REVIEW_THREADS_20260906.md), [STATUS.md](STATUS.md), [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md), [bkPrompts.md](bkPrompts.md), [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [cftproof.md](cftproof.md), [pcnl.md](pcnl.md), [softmodes.md](softmodes.md) |
 | [Contention.md](Contention.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
@@ -121,7 +120,7 @@
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md), [RandomMap2.md](RandomMap2.md), [RandomMap_old.md](RandomMap_old.md), [STATUS.md](STATUS.md) |
 | [GPU_FEDERATION_PLAN.md](GPU_FEDERATION_PLAN.md) | — |
 | [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) |
-| [HANDOUT.md](HANDOUT.md) | [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) |
+| [HANDOUT.md](HANDOUT.md) | — |
 | [HASHIMOTO_COMPLEX_SHIFTS.md](HASHIMOTO_COMPLEX_SHIFTS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [HERMITE_CORE_STRICHARTZ.md](HERMITE_CORE_STRICHARTZ.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [HERMITE_GALERKIN_FRIEDRICHS.md](HERMITE_GALERKIN_FRIEDRICHS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -130,15 +129,15 @@
 | [IMPLEMENTATION_PLAN_RCP.md](IMPLEMENTATION_PLAN_RCP.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
 | [IMPLEMENTED.md](IMPLEMENTED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
 | [Issues.md](Issues.md) | [BOOK_PROOF_PLAN.md](BOOK_PROOF_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_A_BOOK_FORMALIZATION.md](PLAN_A_BOOK_FORMALIZATION.md), [PLAN_B_PROSE_VERIFICATION.md](PLAN_B_PROSE_VERIFICATION.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [SPECIALIST_PLAN_REMAINING.md](SPECIALIST_PLAN_REMAINING.md) |
-| [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md), [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md), [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) |
+| [MASS_GAP_CERTIFIED.md](MASS_GAP_CERTIFIED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md), [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md), [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) |
 | [NS_LAGRANGIAN_OUTER_FOCK_ESA.md](NS_LAGRANGIAN_OUTER_FOCK_ESA.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [PLAN_A_BOOK_FORMALIZATION.md](PLAN_A_BOOK_FORMALIZATION.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [PLAN_A_EXECUTION_REPORT.md](PLAN_A_EXECUTION_REPORT.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [PLAN_B_PROSE_VERIFICATION.md](PLAN_B_PROSE_VERIFICATION.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md), [STATUS.md](STATUS.md) |
 | [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md), [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md), [PLAN_LEAN_SPECIALIST_SIRK_NESTED.md](PLAN_LEAN_SPECIALIST_SIRK_NESTED.md), [STATUS.md](STATUS.md) |
-| [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) |
-| [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) |
+| [PLAN_LEAN_SPECIALIST_QG_FLOW.md](PLAN_LEAN_SPECIALIST_QG_FLOW.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md) |
+| [PLAN_LEAN_SPECIALIST_QYM_FLOW.md](PLAN_LEAN_SPECIALIST_QYM_FLOW.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [STATUS.md](STATUS.md) |
 | [PLAN_LEAN_SPECIALIST_SIRK_NESTED.md](PLAN_LEAN_SPECIALIST_SIRK_NESTED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_LEAN_SPECIALIST_NS_FLOW.md](PLAN_LEAN_SPECIALIST_NS_FLOW.md), [STATUS.md](STATUS.md) |
 | [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [STATUS.md](STATUS.md) |
 | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) | — |
@@ -146,7 +145,7 @@
 | [PROVE2ME_REUSABLE_THEOREMS.md](PROVE2ME_REUSABLE_THEOREMS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [PnpProof/IMPLEMENTED.md](PnpProof/IMPLEMENTED.md) | [PNP_IMPLEMENTATION_PLAN.md](PNP_IMPLEMENTATION_PLAN.md) |
 | [README.md](README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
-| [REVIEW_AND_PLAN_20260907.md](REVIEW_AND_PLAN_20260907.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) |
+| [REVIEW_AND_PLAN_20260907.md](REVIEW_AND_PLAN_20260907.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [REVIEW_FARIS_LAVINE_20260911.md](REVIEW_FARIS_LAVINE_20260911.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) |
 | [REVIEW_GAUGE_DEFINITION_20260912.md](REVIEW_GAUGE_DEFINITION_20260912.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [REVIEW_GAUGE_SYMMETRY_20260912.md](REVIEW_GAUGE_SYMMETRY_20260912.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -162,10 +161,9 @@
 | [STATUS.md](STATUS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md), [Issues.md](Issues.md), [RandomMap2.md](RandomMap2.md), [bkPrompts.md](bkPrompts.md), [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) |
 | [STRICHARTZ_WAVE_ESA.md](STRICHARTZ_WAVE_ESA.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [STATUS.md](STATUS.md) |
 | [TODO_LEDGER.md](TODO_LEDGER.md) | [AGENTS.md](AGENTS.md) |
-| [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) | [HANDOUT.md](HANDOUT.md), [softmodes.md](softmodes.md) |
 | [bkPrompts.md](bkPrompts.md) | — |
-| [cft.md](cft.md) | [CFT_REVIEW.md](CFT_REVIEW.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) |
-| [cftproof.md](cftproof.md) | [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md), [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md), [pcnl.md](pcnl.md) |
+| [cft.md](cft.md) | [CFT_REVIEW.md](CFT_REVIEW.md) |
+| [cftproof.md](cftproof.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md), [pcnl.md](pcnl.md) |
 | [coherent.md](coherent.md) | [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md) |
 | [converted/GAPS.md](converted/GAPS.md) | [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [converted/README.md](converted/README.md) |
 | [converted/README.md](converted/README.md) | [ATTRIBUTION.md](ATTRIBUTION.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -173,9 +171,9 @@
 | [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | [cftproof.md](cftproof.md) |
 | [math28/README.md](math28/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) |
 | [newproof.md](newproof.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [Issues.md](Issues.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [RandomMap.md](RandomMap.md), [RandomMap_old.md](RandomMap_old.md) |
-| [pcnl.md](pcnl.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md) |
+| [pcnl.md](pcnl.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | — |
-| [softmodes.md](softmodes.md) | [HANDOUT.md](HANDOUT.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md), [cftproof.md](cftproof.md), [pcnl.md](pcnl.md) |
+| [softmodes.md](softmodes.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [HANDOUT.md](HANDOUT.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [cftproof.md](cftproof.md), [pcnl.md](pcnl.md) |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -931,50 +929,6 @@
 - ## Singular quadratic forms and explicit dynamics, 2026-08-21g
 - ## Fourier multipliers with a real symbol, 2026-08-21g
 
-### Yang--Mills, nested Fock space, and the mass gap: Lean corpus (`YANG_MILLS_MASS_GAP_LEAN.md`)
-
-- # Yang--Mills, nested Fock space, and the mass gap: Lean corpus
-- ## Selection
-- ## Table of contents
-- # "Longitudinal = exact" in the periodic derivative-gauge model
-- ## What is proved
-- ## Honest boundary
-- # The gauge-fixing fermion of `book.tex` and the gauge-fixing term it generates
-- ## What is proved
-- # Instances of the book's BRST charge: `su(2)`, the Standard Model, and inner derivations
-- ## What is proved
-- # The BRST charge **exactly as defined in `book.tex`**
-- ## The gauge algebra and the derivative term
-- ## What is proved
-- # The harmonic decomposition of the BRST charge, and the BRST quotient norm
-- ## What this does *not* do (the rest of Phase 1 is still open)
-- # "Longitudinal = exact": the pure-gauge directions are the ones the BRST charge produces
-- ## 1. The identification, in the realization of `book.tex`
-- ## 1b. The non-abelian case: `[Ω, A_{μa}]` in full
-- ## 2. The conclusion, in the abstract Hilbert space
-- ## Honest boundary
-- # Chapter *"Quantization due to time-evolution: Yang-Mills and Classical Statistical Field Theory"*,
-- # The BRST-reduced transfer: the unitary evolution descends to BRST cohomology
-- ## What is proved
-- ## Honest boundary
-- # The BRST-reduced transfer for a *closed densely defined* charge
-- ## The unbounded form of `[H, Ω] = 0`
-- ## What is proved here
-- ## Honest boundary
-- # BRST leakage under Krylov truncation: a quantitative bound
-- ## What is new here
-- ## The statement
-- ## Honest boundary
-- # BRST leakage of the truncated dynamics for an **unbounded** Hamiltonian
-- ## What is proved
-- ## Honest boundary
-- # The BRST harmonic decomposition for a closed densely defined charge
-- ## What is proved
-- ## The third summand is the adjoint's range (von Neumann)
-- # `[H, Ω] = 0` for the concrete Yang–Mills Hamiltonian
-- ## The realization, stated precisely
-- … (160 more)
-
 ### Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap (`bkPrompts.md`)
 
 - # Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap
@@ -1067,7 +1021,7 @@
 - ## Integrating the generated model (Lean 4 specialist)
 
 
-## Never linked (11)
+## Never linked (12)
 
 - CFT_REVIEW.md
 - CHANGELOG.md
@@ -1075,6 +1029,7 @@
 - EXPPOT.md
 - FEDERATION_DEEP_REVIEW.md
 - GPU_FEDERATION_PLAN.md
+- HANDOUT.md
 - PLAN_REUSE_MAP.md
 - SPECIALIST_PLAN_MERGE.md
 - bkPrompts.md

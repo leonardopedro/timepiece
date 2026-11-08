@@ -26,7 +26,40 @@ proof wave.
 :::
 
 
-# The New Spectral-Gap Proof Layer
+# Current Specialist Work Order: Identify the Operator Before Its Gap
+
+This source/prose audit adds no compiled proof. `CONSOLIDATED_PLAN.md`'s
+2026-11-08f entry supersedes older interpretations of the sampler, multiplier
+and book tracks; the established NS/QG/QYM analytic obligations remain open.
+
+1. Verify the new chapter citations and axioms, then render through
+   `patches/build-book.sh` and check KaTeX. These checks are deferred to the
+   specialist; a source identifier lookup is not a Lean elaboration result.
+2. Preserve the four-sector operator contract in
+   {ref "second-quantization-esa"}[second quantization]. Prove the absolute
+   inner lower bound for the specified physical $`h` before lifting a vacuum
+   gap. Separate inner excitation gaps, scalaron fibers, and shifted models.
+3. Reuse the multiplier-model self-adjoint generator and its new norm-gap
+   equivalence. Construct the positive-time OS quotient and concrete physical
+   intertwiner before claiming an interacting Euclidean reconstruction.
+4. Execute `pcnl.md` packets T0–T3: actual measurable kernel and $`L^2` action,
+   exact Gaussian bias benchmarks, informed-subspace tensor example, then
+   reversible MH-pCN density/Dirichlet-form comparison. The existing polynomial
+   bands and constant-coefficient pairing bound are reusable lemmas, not a
+   finite-step posterior-gap theorem.
+5. Execute T4 only after full-space tail and off-block bounds are available;
+   then T5 for predictive error and approximate-update bias. A small Ritz
+   residual cannot exclude unseen low-energy modes.
+
+The new source theorems are explained in
+{ref "free-field"}[the Gaussian/transfer chapter] and
+{ref "bayesian-transformer"}[the sampler chapter]. In particular, strong
+convergence to the full zero-space projection does not imply operator norm
+convergence. Nor can `YangMillsFormDomination.certified_separation`, an identity
+between two lower thresholds, be used as a target spectral gap: supply a ground
+upper bound and projection control, or prove the required absolute inner bound.
+
+# The Spectral-Gap Toolbox and Its Physical Boundaries
 
 The following modules are now part of the proof architecture:
 
@@ -44,8 +77,8 @@ The following modules are now part of the proof architecture:
   number-preserving second quantization.
 * `ChapterFockFieldPerturbation.lean` (now `sorry`-free) and
   `ChapterFockInteractionStability.lean`: control bounded or relatively
-  form-bounded perturbations, with the unbounded physical interaction
-  explicitly left as a specialist obligation — until the new ladder closed it:
+  form-bounded perturbations. The later ladder results below treat specified
+  model couplings; identification with a physical inner interaction is separate:
 * `ChapterFockPairPerturbation.lean`: the quadratic, pair-creating unbounded
   coupling `P(f,g) = a†(f)a†(g) + a(g)a(f)` keeps the gap
   `(μ − 2√2‖f‖‖g‖)‖u‖²` under the smallness condition `2√2‖f‖‖g‖ < μ`.

@@ -38,6 +38,28 @@ chapters, and the quadratic/Hermite/Carleman operator chapters that the
 field-space Hamiltonian rests on.
 :::
 
+# The Record and the Comparison Charts
+
+The final operator is $`H=d\Gamma(h)` with the complete $`R^2` vielbein/TEGR
+one-particle operator inside: exact exponential scalaron wall and all retained
+vielbein interactions and couplings. A densitized base-kinetic chart, a metric
+scalaron comparison, and the full coupled operator are different proof objects.
+The full exponential is never replaced by its Taylor expansion in the record.
+
+The new multiplier-model generator and norm-gap criterion discussed in
+{ref "free-field"}[the transfer-flow chapter] can be used only after constructing
+the appropriate representation and intertwiner. Scalaron ESA, formal symmetry
+or a frame determinant identity does not supply that map or a full coupled gap.
+In particular, scaling the determinant of a three-by-three vielbein matrix is
+not yet computing the Jacobian of a change of independent field coordinates.
+
+NS/QG spatial derivative products are Fourier convolutions inside $`h`, with
+the differentiated-leg weight retained. The outer vacuum then has energy zero;
+its ground status needs $`h\ge0`, and a gap above the unique vacuum needs a
+strict absolute inner bound. See
+{ref "second-quantization-esa"}[the enclosure consequences] and
+{ref "qg-elimination"}[the eliminated full-mode construction].
+
 # The Question
 
 :::paragraph

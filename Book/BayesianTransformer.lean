@@ -3,152 +3,152 @@ import VersoManual
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 
-#doc (Manual) "Dimension-Robust Bayesian Adaptation: Hyperspherical nGPT Geometry and SG-pCNL" =>
+#doc (Manual) "Bayesian Adaptation: Geometry, Mehler Modes, and the Sampler Proof" =>
 %%%
 tag := "bayesian-transformer"
 %%%
 
-# Orientation and Status
+# Three Questions, Three Different Proofs
 
-This chapter reads the `BayesianTransformer/` development pedagogically: a
-formalization of *Dimension-Robust Bayesian Adaptation of Transformers via
-Hyperspherical Geometry and Unadjusted SG-pCNL* (Milestones 1–5), imported into
-this repository on 2026-10-21 from the specialist's export. The tree is a Lean
-library in its own right (Lake target `BayesianTransformer`, namespace
-`BayesianTransformer`), *not* a `BookProof/` chapter: it has not been compiled
-in this snapshot, and step 0 of the specialist work order in
-`CONSOLIDATED_PLAN.md` is its name-level check.
+Normalized transformer geometry, Gaussian proposal mixing, and posterior sampling
+ask different questions. `BayesianTransformer/` supplies conditional geometric
+and gradient-noise estimates. `BookProof/MCMC/` supplies Gaussian eigenfunctions,
+coefficient estimates, and convergence implications. The remaining task is to
+identify the actual kernel in `../unfer/pcnl` with an operator satisfying those
+implications. This chapter records a source audit; the new citations and prose
+await the specialist's compilation and book-render checks.
 
-:::paragraph
-In the tour this chapter is the *learned-systems* face of the same thesis the
-{ref "aligned-deep-learning"}[aligned-deep-learning] and
-{ref "coherent-state-attention"}[coherent-state-attention] chapters state in
-other registers: a system you train is a system you put a prior on. What is new
-here is that the architecture itself — normalized embeddings, cosine attention,
-geodesic residuals — is designed so that the *geometry* does the statistical
-work: every weight lives on a sphere, every logit is clamped, and every
-stochastic-gradient step stays in a ball of radius $`\sigma\sqrt{P}`. The proofs
-below are the exact content of those three sentences.
-:::
+Normalization removes a radial degree of freedom where the normalization map is
+defined. `scaleInvariant_gradient_orthogonal` expresses gradient tangency.
+`sphereProj_deriv_opNorm_le` has a reciprocal-radius bound, which grows near zero.
+Cosine logits have bounded range; `softmax_lipschitzWith_two` bounds softmax.
+Network estimates still carry their layer constants and domain hypotheses. They
+neither keep a flat Gaussian parameter vector on a sphere nor establish a
+uniform gradient bound for every transformer. The noise estimates similarly
+require their sampling and covariance hypotheses. An unbiased gradient does
+not imply that a finite-step unadjusted sampler preserves the posterior.
 
-:::paragraph
-The sibling import `math28/` (Lake target `Math28`) is unrelated in subject —
-named hypotheses transcribed from the `math/OAI` snapshot, with proved bridges
-into this repository's chapters — and is not discussed here.
-:::
+# The Gaussian Benchmark: Mehler Diagonalization
 
-# Scale Invariance and the Sphere
+For a centered Gaussian reference the proposal is
+$`Y=\rho X+\sqrt{1-\rho^2}\,\xi`, with an independent reference draw $`\xi`.
+Hermite degree $`n` has eigenvalue $`\rho^n`. This holds already in finite
+Gaussian dimension. `MehlerEigenfunction` uses the physicists' Gaussian
+$`e^{-x^2}/\sqrt\pi`, of variance $`1/2`; a variance-one implementation needs
+an explicit change of variables.
 
-The foundational observation (`Analysis/ScaleInvariance.lean`) is that
-normalization makes the loss *blind to radius*: if $`\Phi` is scale-invariant
-(`IsScaleInvariant`) then its gradient is orthogonal to the position
-(`scaleInvariant_gradient_orthogonal`, `scaleInvariant_inner_grad_zero`). The
-radial direction carries no information, so a gradient flow on the sphere is
-not a restriction of the flow — it *is* the flow, up to the discarded radial
-gauge.
+```
+#check @BookProof.MCMC.mehlerOp_physHermite
+#check @BookProof.MCMC.UnadjustedPCN.pcn_gap_uniform
+#check @BookProof.MCMC.UnadjustedPCN.pcn_norm_le
+```
 
-`Analysis/SphereProj.lean` makes the projection onto the unit sphere a
-differentiable map with sharp constants: `norm_sphereProj` (the image is on the
-sphere), `sphereProj_hasFDerivAt` and `sphereProj_deriv_opNorm_le` (its
-derivative is the tangent-space projection, with a $`1/\|v\|` bound that blows up
-exactly at the origin), and `sphereProj_smul_pos` (the map is homogeneous of
-degree zero — the invariance again, now as a identity).
+The coefficient model bounds the squared norm by $`\rho^2` off the constant
+mode. For $`0\le\rho<1`, the contraction factor is $`\rho`, the Markov gap
+is $`1-\rho`, and the squared-norm defect is $`1-\rho^2`. Tensorization and
+completeness must connect the integral identity to a Hilbert-space realization.
 
-# Cosine Attention Is a Clamped, Lipschitz Kernel
+Spherical kernels require a separate construction. The Gegenbauer ratios have
+the expected fixed-degree limit, but the degree-two ratio differs from
+$`\rho^2` at finite dimension. These polynomial identities do not construct a
+spherical Markov kernel or prove its complete spectrum.
 
-The attention mechanism (`Transformer/CosineAttention.lean`) replaces
-dot-product logits with cosine logits. The verified facts are the ones a
-probabilist needs: on the sphere the logit $`q\cdot k` is bounded
-(`cosineSimilarity_bounds`), so the scaled logit lies in a fixed window
-$`[-\tau,\tau]` (`scaled_logit_bounds`); the softmax is a genuine distribution
-(`softmax_pos`, `softmax_sum_eq_one`, `softmax_le_one`); and the softmax map is
-Lipschitz with constant 2 in the $`\ell^\infty\to\ell^1` comparison
-(`softmax_lipschitzWith_two`, `softmax_lipschitz`). Clamping is what makes the
-subsequent noise and Lipschitz bookkeeping *uniform in the context length*: no
-logit can spike, so no attention row can concentrate harder than $`e^{2\tau}`
-permits.
+```
+#check @BookProof.MCMC.pcnZonalEigen_two_ne_pow_two
+#check @BookProof.MCMC.pcnZonalEigen_tendsto
+```
 
-# The Gradient-Noise Channel
+# What the New Ladder Proofs Achieve
 
-`Probability/GradientNoise.lean` is the formal face of the stochastic-gradient
-hypothesis that the sampler plan rests on. For a mini-batch of size $`B` drawn
-from a dataset of size $`N`, the covariance of the stochastic gradient is
-bounded by the full-gradient covariance scaled by $`N/B`
-(`sg_pcnl_noise_covariance_bound`), and the *trace* of that covariance — the
-quantity that actually enters a Langevin step's mean-square displacement — is
-bounded by `sg_pcnl_noise_trace_bound` / `noiseCovTrace_le`. This is the
-milestone the sibling repository's numerics test directly: the $`N/B` scaling is
-what lets one backward pass per step stand in for the exact gradient without
-changing the invariant measure to first order.
+On finitely supported occupation coefficients, polynomial multiplication is a
+finite sum of ladder words. `polyMul_mul` proves multiplicativity;
+`polyMul_derivative` expands derivative polynomials. Composing with `diffHermite`
+gives `polyDrift`, the differential core expression
+$`-\sum_j(\partial_j\Phi)\partial_j` in the module's Hermite dictionary.
 
-# The Whole Network, Lipschitz-Uniformly
+```
+#check @BookProof.MCMC.FockLangevin.polyMul_mul
+#check @BookProof.MCMC.FockLangevin.polyMul_derivative
+#check @BookProof.MCMC.FockLangevin.polyDrift_band
+#check @BookProof.MCMC.FockLangevin.polyDrift_l1_le
+```
 
-Two chapters compose the local bounds into global ones.
-`Transformer/LipschitzCalculus.lean` bounds each building block — contractions
-(`norm_clm_apply_le_one`), attention (`norm_attnOut_le`), the geodesic residual
-step (`norm_residualNorm`, `norm_ngptLayer`), the hidden-state stack
-(`norm_hiddenStates`) — and then the loss itself as a function of the logits
-(`dist_crossEntropy_le`). `Transformer/GlobalLipschitz.lean` upgrades these to
-one constant for the entire architecture: `lipOn_ngptLayer` and
-`lipOn_hiddenStates` exhibit the network as Lipschitz with an explicit constant
-built from the per-layer moduli (`attnConst_nonneg`, `layerConst_nonneg`).
+For a potential of degree at most $`K`, the drift sends degrees at most $`N_0`
+into degrees at most $`N_0+K`. A finite band specifies which entries can be
+nonzero, not a global norm bound. The proved $`\ell^1` bound depends on the
+sector cutoff. The oscillator identity supplies the analytic input
+$`\sum_j(\|a_jc\|^2+\|a_j^\dagger c\|^2)
+=2\langle c,Nc\rangle+d\|c\|^2`.
 
-:::paragraph
-The honest boundary: a global Lipschitz constant bounds *perturbations of the
-loss*, not commutators of unbounded operators. It is therefore the analyst's
-input to the numerical layer — step-size ceilings, noise ceilings, robustness
-of the BMA estimate — and not an ingredient of any Faris–Lavine argument in
-this book. The distinction is the same one the field-theory chapters make
-between a relative bound and a comparison operator.
-:::
+```
+#check @BookProof.MCMC.FockLangevin.oscillator_identity
+#check @BookProof.MCMC.FockLangevin.driftOpCoeff_form_bound
+#check @BookProof.MCMC.FockLangevin.driftFormBound_holds
+```
 
-# Where This Sits Under the Final-Hamiltonian Convention
+The last two results concern constant coefficients
+$`b:\mathrm{Fin}\ d\to\mathbb R`. When $`|b_j|\le B`, they give
+$`|\langle c,K_bc\rangle|\le\delta\langle c,Nc\rangle+
+(B^2d/(2\delta)+Bd)\|c\|^2` for $`\delta>0`.
+A general loss gradient is an operator-valued multiplication coefficient; it
+cannot be substituted for the scalar $`b_j`. Nonpolynomial normalization and
+cross-entropy need further estimates.
 
-Nothing in `BayesianTransformer/` is a Hamiltonian statement: no operator is
-enclosed in creation and annihilation ladders, and none should be read in. The
-convention the rest of the book states — the final Hamiltonian of each theory
-is the *one-particle* operator enclosed creation-left / annihilation-right
-($`d\Gamma(h) = \sum_{i,j} h_{ij}\,C^\dagger(e_i)A(e_j)`), with quantum gravity
-in its $`R^2` vielbein form carrying the exact exponential Einstein-frame wall
-(no Taylor truncation) and the interaction terms inside $`h`, and with the
-NS/QG products-involving-field-derivatives disposed of by momentum-space
-convolution ({ref "ns-one-particle-hamiltonian"}[the one-particle chapter],
-{ref "second-quantization-esa"}[second quantization], the
-{ref "qg-elimination"}[gravity elimination chapter]) — constrains only the
-*bridges*: any future lemma placing a Bayesian prior over field configurations,
-or comparing a learned sampler's invariant measure with a Fock-space state,
-must enclose $`h` in that form, and must not re-derive a convolution identity in
-coordinates where the momentum-space form is the one with the uniform bound.
+For real couplings the field $`a^\dagger(f)-a(f)` is skew-symmetric. A bound
+on its quadratic pairing does not make $`N+K` a symmetric KLMN perturbation.
+A reversible Langevin generator needs a verified ground-state transform,
+including domains, potential and divergence terms. `pcnlPolyHamiltonian`
+names a core model; it does not assert these identifications.
 
-What the two developments genuinely share is structural. The nGPT architecture
-achieves its uniform constants by making every weight a *bounded* object (a
-point on the sphere, a logit in a window) and every layer a *contraction-like*
-map; the Faris–Lavine certificates in `BookProof/` achieve theirs by making the
-comparison operator a *positive* object whose commutator is bounded in its
-quadratic form. In both cases the uniformity is bought at the definition, not
-extracted from a perturbative estimate — which is why both survive composition
-over arbitrarily many layers (or particle-number sectors).
+# Mixing and Correctness Are Separate
 
-# The Numerical Face of the Same Plan
+Take reference $`N(0,1)`, potential $`\Phi(x)=-x`, and update
+$`X'=\rho X-h\Phi'(X)+\beta\xi`, with $`\rho^2+\beta^2=1`.
+For $`\rho=0.8`, $`\beta=0.6`, $`h=0.18`, the chain converges geometrically
+to $`N(0.9,1)`, whereas the intended posterior is $`N(1,1)`.
+Its stationary mean solves $`m=\rho m+h`. A positive mixing gap therefore
+coexists with posterior bias; read each implementation's step convention first.
 
-The sibling repository `../unfer/pcnl` implements the sampler this
-formalization accompanies — unadjusted stochastic-gradient pCNL on the flat
-parameter vector of the normalized architecture — and its milestone tests
-(`pcnl/tests/numerics.rs`) are the empirical counterparts of the statements
-above: the prior draws sit on the shell $`\sigma\sqrt{P}`
-(`prior_draws_sit_on_the_shell_sigma_sqrt_p`), the OU drift term matches the
-second-moment identity (`drift_term_matches_the_ou_second_moment_identity`), the
-mini-batch gradient recovers the full potential at rate $`N/B`
-(`n_over_b_scaling_recovers_the_full_potential_gradient` — the numeric twin of
-`sg_pcnl_noise_covariance_bound`), and the schedule satisfies the
-Robbins–Monro conditions (`robbins_monro_partial_sums_diverge_and_converge`).
-The full comparison run (seed 20261020, $`P = 16672`, $`10^4` steps × 4 chains)
-reports the plan's central empirical claim: Bayesian model averaging over the
-thinned posterior beats every point estimate on the shifted task — 54.7 % for
-pCNL and 58.2 % for the SGLD comparator against 41.3 % for the last chain state
-and 32.4 % for Adam — while the two samplers' loss chains agree across
-algorithms (`cross-Rhat` 1.110, one target), the cosine variant holds the shell
-(45.7 against $`\sigma\sqrt{P} = 45.2`), and the standard softmax variant
-explodes at step 3. The book's claim is not that these numbers are theorem and
-proof; it is that the theorem side now names, one for one, the properties the
-numbers depend on.
+`pcnl.md` packets T0–T5 start with affine and quadratic Gaussian benchmarks,
+then require the measurable kernel, invariance or its defect, adjoint and
+Dirichlet form, and an actual comparison estimate. Metropolis correction needs
+the full forward/reverse proposal density ratio. Rejection includes both an
+accepted-move integral and a holding term; only the holding term is simply
+multiplication. An infinitesimal differential drift is not an exact additive
+decomposition of the finite-step transition.
+
+```
+#check @BookProof.MCMC.norm_iterate_sub_invariant_le
+#check @BookProof.MCMC.tvDist_le_half_l2
+#check @BookProof.MCMC.pcnl_mcmc_geometric_convergence
+```
+
+These theorems transfer an assumed absolute contraction to iteration decay,
+then an assumed density decay to total variation. A top spectral gap alone
+does not exclude eigenvalues near $`-1`. The specialist must supply the
+probability measure, density evolution, invariance and absolute contraction.
+
+# Relation to the Physical Nested Fock Space
+
+Gaussian chaos occupation counts polynomial degree. Physical outer occupation
+counts copies of an inner field state. A coefficient isometry does not identify
+their generators or vacua. The physical record remains
+$`H=d\Gamma(h)=\sum_{i,j}h_{ij}C^\dagger(e_i)A(e_j)`.
+QYM retains the full magnetic polynomial inside $`h`; QED retains its massless
+infrared boundary. QG uses the $`R^2` vielbein/TEGR operator, exact exponential
+wall and scalaron–vielbein interactions. NS uses the positive Fourier-eliminated
+sum-of-squares one-particle operator. Momentum convolution for spatial
+derivative products belongs to NS and QG only. These conventions constrain
+physical bridges; they do not establish a sampler's invariant measure.
+See {ref "second-quantization-esa"}[second quantization] for the vacuum,
+positivity and scalar-shift consequences.
+
+# Reading the Numerical Evidence
+
+The implementation, experiments and research work order live in `../unfer/pcnl`,
+its `RESEARCH_PLAN.md`, and `../test/unfer/ngpt.md`. Read timings, accuracy,
+finite-run diagnostics and stationarity tests separately. Gaussian shell
+concentration is probabilistic, not a bound on every sampler step. Agreement of
+selected loss traces does not prove equality of stationary laws. The earlier
+single-run accuracy comparison is superseded by the controlled comparisons and
+budget ledger in those documents; no new numerical run is claimed here.

@@ -7,14 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-08e):** **§11 Addendum of “State of the project — 2026-11-08b”**, at the
-> very end of this file — `FockLangevinOperator` §11 **proves `DriftFormBound`**: Cauchy–Schwarz
-> in the core pairing (`norm_corePair_le`), Cauchy–Schwarz in the mode index
-> (`sum_coreNorm_hopStep_le`, reading §10's oscillator identity as an average over modes), and the
-> `2uv ≤ δu² + v²/δ` step give
-> `‖⟪c, K_drift c⟫‖ ≤ δ·⟪c, N c⟫ + (B²d/(2δ) + Bd)·‖c‖²` (`driftOpCoeff_form_bound`), with
-> `driftFormBound_holds` closing §5's `Prop` for every `B` and `b`.  Module 3's estimate is a
-> theorem; what stays outside the model is `K_reject` and the identification `bⱼ = (β²σ²/2)∂ⱼΦ_ε`.
+> **Newest entry (2026-11-08f):** “State of the project — 2026-11-08f: source audit,
+> nested-Fock interpretation, and specialist handoff”, at the end of this file.
+> It inventories the new Mehler/polynomial/OS multiplier results, corrects their
+> physical and kernel interpretation, fixes the four-sector `H=dΓ(h)` contract,
+> and orders specialist packets S0–S6. No compilation or numerical run was made
+> in this editorial wave. The earlier drift theorem has constant scalar `b`;
+> symmetry, nonconstant coefficients and finite-step kernel identification remain open.
+> **Earlier newest entry (2026-11-08e):** §11 addendum of the 2026-11-08b entry
+> proves `DriftFormBound` in its constant-coefficient model; read its interpretation
+> under the supersession in 2026-11-08f.
 > **Earlier newest entry (2026-11-08d):** **§10 Addendum of “State of the project — 2026-11-08b”**, at
 > the very end of this file — `FockLangevinOperator` §10 proves the *coordinates* of one ladder
 > letter (`hopStep_coord_lower`, `hopStep_coord_raise`), the letter norms
@@ -18773,3 +18775,250 @@ opener are updated in the same change, so no stale "target" claim remains anywhe
 **What stays open.**  `K_reject` — a multiplication operator, not finite-band at all — and the
 *identification* `bⱼ = (β²σ²/2)·∂ⱼΦ_ε`, which is where the `ε`-dependence enters, through `B`.
 The estimate itself, which is what the KLMN argument consumes, is a theorem.
+
+---
+
+## State of the project — 2026-11-08f: source audit, nested-Fock interpretation, and specialist handoff
+
+**Scope and supersession.** This entry is the current reading guide for the book,
+OS/multiplier interpretation and Bayesian/pCNL proof tasks. It supersedes the
+2026-10-21 book/import work order and the interpretive claims in the 2026-11-08,
+08b and 08c–e addenda where they suggest that only rejection and scalar coefficient
+identification remain. Their proof statements and recorded build results remain
+historical evidence. The NS/QG/QYM analytic priorities in §09-25 remain in force;
+this entry refines their operator identification and acceptance conditions.
+`pcnl.md` packets T0–T5, `softmodes.md`, `cftproof.md` and the sibling research
+plan remain detailed work orders under these boundaries. Do not redo proved
+polynomial expansions or infer that an imported hypothesis has been discharged.
+
+**Verification status of this wave: source/prose audit only.** No Lean compilation,
+book rendering, Cadabra execution, Rust tests, certificate regeneration or numerical
+experiment is claimed. Specialist checks below are future work. Source names and
+signatures were inspected; newly added book citations still need elaboration.
+
+### 1. Operator contract: apply before choosing a proof route
+
+For QYM, QED, QG and NS the final Hamiltonian is
+
+```text
+H = dΓ(h) = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ).
+```
+
+The inner operator is enclosed with creation left and annihilation right. All
+inner interactions remain inside `h`. Outer quadraticity is a structural fact,
+not a small-coupling, Gaussianity, diagonalization or perturbative claim.
+
+| Sector | Inner object to identify | Boundary to preserve |
+|---|---|---|
+| QYM | Weyl-gauge `½Σπ² + ½ΣB²`, full nonabelian magnetic polynomial on the physical core | `B` has linear and quadratic parts; `B²` includes quadratic, cubic cross and quartic terms. The occupation-diagonal `magComp` and two-mode numerical builder need explicit comparison maps. |
+| QED | Abelian photon operator with its actual infrared mode space | Massless modes accumulating at zero give no uniform positive gap. Massive/IR-regulated examples do not prove an unregulated gap. |
+| QG | R² vielbein/TEGR realization with the full exponential wall, scalaron–vielbein coupling and other retained inner terms; `qgFullModes` / rebuilt `qgElimFullModes` | Neither the metric/densitized base kinetic nor an uncoupled scalaron fiber replaces the record. Chart, Fourier elimination and canonical-frame transfers require explicit domains and intertwining. |
+| NS | Positive Fourier-eliminated `H_sp = H_visc + H_advect` on the specified parcel, then its outer lift | The signed KvN/Liouville generator is a separate dynamics/comparison track; a sum-of-squares model must not be silently identified with it. |
+
+The QG wall remains `V(φ)=M⁴/(16α)(1-exp(-sqrt(2/3)φ/M))²` with the
+stated conventions and `α>0`. No Taylor truncation enters the record. Retaining
+an exponential potential in an isolated scalaron comparison does not retain
+the full vielbein coupling. Existing Rust builders and symbolic Jordan/Einstein
+charts must be named by what they actually include; no equivalence is inferred
+from a shared “full” label. In particular, `qg3d_full_hamiltonian` supplies the
+legacy coupled base-gravity diagnostic, whereas the full-exponential vielbein
+builder supplies a scalaron fiber comparison. A joint implementation/transfer
+must account for both coupling and exact wall before a physical QG gap claim.
+
+Spatial Fourier convolution eliminates products with spatial derivatives in
+**NS and QG only**, inside `h` before lifting. With the `exp(-2πikx)` convention,
+
+```text
+F[u_j ∂_m u_i](Q) = ∫ (2π i q_m) û_i(q) û_j(Q-q) dq.
+```
+
+The derivative symbol belongs to the differentiated leg `q`, not the total `Q`.
+Discrete normalization, zero-padding/aliasing and operator domains need their
+own statements. This is variable elimination, not a BRST projection. The generic
+product-convolution identity may also be tested on SM polynomials; that does not
+extend this derivative-elimination work order to QYM/QED/SM.
+
+**Consequences that every proof and exposition must carry:**
+
+* `HΩ=0` is structural. Ground-state status needs `h≥0`. In bosonic outer Fock
+  space a repeatable negative inner state drives many-particle energies down.
+* A gap above the unique outer vacuum follows from an **absolute** inner bound
+  `h≥mI`, `m>0`, on the entire inner space. An inner excitation difference,
+  a reflection-sector difference, or `h≥0` alone does not supply it.
+* If `ker h` is nontrivial, its outer occupations also have zero energy. A
+  positive gap above the full ground space is distinct from vacuum uniqueness.
+* `dΓ(h+cI)=dΓ(h)+c N_out`. Fix and document `c`: a tunable inner shift changes
+  the theory. It cannot prove a mass gap for the unshifted record.
+* Form products inside `h` first: `dΓ(B²)≠dΓ(B)²` in general. The latter has
+  cross-particle terms. `dΓ(M)dΓ(N)=dΓ(MN)` holds on the one-outer-particle
+  restriction, not on general outer sectors (`N_out²≠N_out`).
+* A toolbox coupling that changes occupation must declare its Fock level.
+  Inner pair terms are compatible with number-preserving outer `dΓ(h)`;
+  adding an outer pair-creation perturbation would change the record.
+
+### 2. New proof inventory, with exact interpretation
+
+Status letters follow the routing table: U = theorem within its defined model,
+C = conditional physical/kernel bridge, N = obstruction, B = uncovered scope.
+
+| Source and result | Status and use | What it does not establish |
+|---|---|---|
+| `Qym/ChapterYangMillsMehlerBridge`: `conj_deriv`, `gaussRoot_oscillator_ground`, `HasOneParticleFormGap`, `no_absolute_gap_of_kernel_vector` | U/B: newly present source gives a pointwise Gaussian conjugation, oscillator zero-eigenfunction identity and the absolute inner target/zero-mode obstruction | Not the `L²` isometry, second-order operator/core transfer, product realization, oscillator gap or QYM coercivity; this wave does not rerun its reported builds |
+| `MCMC/MehlerEigenfunction.mehlerOp_physHermite` | U: one-dimensional Gaussian Mehler integral, physicists' Gaussian variance `1/2` | Tensorized complete `L²` realization or the implemented pCNL posterior kernel |
+| `MCMC/GegenbauerEigenvalue.pcnZonalEigen_two_ne_pow_two`, `pcnZonalEigen_tendsto` | U/N: finite-dimensional algebraic ratios differ from Gaussian powers; fixed-degree limit | Spherical transition construction, addition theorem or complete spherical spectrum |
+| `MCMC/UnadjustedPCNGap.pcn_gap_uniform`, `pcn_norm_le` | U: diagonal Hermite coefficient contraction; squared-norm defect `1-ρ²`, norm factor `ρ` | MH/pCNL invariance or a target posterior gap; Markov gap is `1-ρ` |
+| `MCMC/FockLangevinOperator.polyMul_mul`, `polyMul_derivative`, `polyDrift_band` | U: polynomial core calculus and finite-degree band | An exact finite-step Markov-operator decomposition or nonpolynomial loss calculus |
+| Same module: `polyDrift_l1_le`, `pcnlPolyHamiltonian_band` | U: sector-dependent size and band for the named core model | Global `L²` relative boundedness, symmetry or dimension-independent constants |
+| Same module: `oscillator_identity`, `driftOpCoeff_form_bound`, `driftFormBound_holds` | U: oscillator norms and relative pairing estimate for scalar constants `b : Fin d → ℝ` | Substitution of multiplication operators `∂jΦ`, or a symmetric KLMN application |
+| `MCMC/GeometricErgodicity.norm_iterate_sub_invariant_le` | C: iteration bound given self-adjointness, invariant vector and absolute contraction | Proof of those assumptions for a real sampler |
+| `MCMC/ConvergenceTheorem.tvDist_le_half_l2`, `pcnl_mcmc_geometric_convergence` | U/C: density-to-TV and assumed-decay transfer | A probability law, invariance, density evolution, warm start or positivity of a supplied gap |
+| `OSReconstruction/MultiplierSelfAdjoint.hamiltonianMulModel_isSelfAdjoint`, `generatorRight_eq_neg_hamiltonianMulModel` | C: self-adjoint nonnegative Hamiltonian and right generator in an assumed `MulModel` | Constructing that representation from interacting OS data |
+| Same module: `kerHamiltonianMulModel_eq_range_limitProjection`, `tendsto_opNorm_flowOfHCLM_sub_limitProjection_iff_gap` | C: complete zero-space projection; norm convergence iff the nonzero density is essentially bounded away from zero (sigma-finite measure) | Uniqueness of the physical vacuum or a gap of the interacting full QYM/QG model |
+| `YangMillsFieldStrength.sandwich` and diagonal component results | U/B: ordinary finite-matrix second quantization and a diagonal model | Multiplicativity on full outer Fock space or identification of the full physical magnetic polynomial |
+| `YangMillsLadderL2.magCore_single_apply`, `magKernel_asymm` (namespace `YangMillsFormClosureND`) | U/N: untruncated core ladder identity; nonzero bare creation kernel is asymmetric | A self-adjoint physical magnetic operator or global relative bound |
+| `YangMillsFormKLMN.formDom_of_relativeBound_add`, `klmn` (same namespace) | U/C: diagonal-symbol form-domain stability and self-adjoint sum realization under the named relative-bound hypotheses | A non-diagonal physical QYM KLMN theorem or cutoff-uniform magnetic bound |
+| `YangMillsFormDomination.certified_separation`, `certified_gap_pos` | U/B: arithmetic and positivity of the difference of two comparison lower thresholds | A target spectral separation; two lower bounds cannot be subtracted into a gap |
+
+The scalar field `creVec-annVec` is skew-symmetric for real couplings. Its size
+bound does not make `N+K` symmetric. A diffusion ground-state transform must
+include its prior, divergence and potential terms and the closed-form/domain
+identification. Differential `polyDrift` is not automatically `P-P₀` for a
+finite-step chain. MH involves an accepted integral and a holding probability;
+only the holding piece alone is multiplication. Full proposal ratios are needed
+for gradient-shifted proposals. Older statements collapsing these obligations
+into “identify b and estimate K_reject” are superseded.
+
+The multiplier results distinguish strong convergence from operator-norm
+convergence. Small positive energies can defeat the latter without defeating
+the former. Use the full zero-space projection, not an assumed rank-one vacuum.
+The repository has spectral/Stone tools; the missing work is constructing the
+particular physical representation and matching domains and operators.
+
+### 3. Executable work packets for the LLM-Lean4-specialist
+
+Execute the following in dependency order; parallel proof tracks remain logically
+separate. Proposed deliverables below are targets, not declarations already present.
+
+**S0 — validate this handoff and protect the interpretation.** Inspect diffs and
+check imports and every new `#check` in `Book/`. Compile affected targets, inspect
+`#print axioms`, then use `./patches/build-book.sh` and `./patches/check-katex.sh`.
+Use the repository wrapper, not `lake exe book` alone. Keep source-status claims
+separate from fresh successful runs. Check `CURRENT_WORK_ORDER.md`, doc index,
+relative links and cross-repo identifier drift. Do not change theorem bodies to
+fit the old prose; report any type-level mismatch first.
+
+**S1 — outer algebra and absolute positivity.** Reuse existing sector-sum,
+vacuum and ESA lift theorems. Add small reusable core identities for the scalar
+shift (`+c N_out`) and the one-particle composition restriction, plus the
+multi-particle composition defect. State uniqueness only with a strict absolute
+bound. Separate an inner excitation-gap packet (ground upper bound, complement
+and projection control) from the physical outer-vacuum packet (`h≥mI`). Preserve
+M4.9 before M4.3: numerical sector/extraction repair precedes the gap table.
+Acceptance: no form-domination threshold identity is consumed as spectral separation.
+
+**S2 — actual QYM/QG/NS operator bridges.** The newly present
+`ChapterYangMillsMehlerBridge` and its `softmodes.md` status addendum are
+preserved, including their separately reported verification. Complete its
+`L²` isometry, normalized/unnormalized measure convention, second-order dense
+core conjugation and 99-coordinate product transfer. A pointwise zero-eigenfunction
+identity alone proves no oscillator gap; match frequency and number-form
+normalizations before importing the reference gap constant. Then map the full field-strength
+polynomial and physical core into the comparison calculation, then prove coercivity
+and any cutoff-uniform absolute lower bound. Do not delete cubic/quartic terms or
+replace the magnetic polynomial by `magComp`. For QG, reuse the eliminated
+vielbein mode family with its nonzero trace coupling and exact wall; complete the
+remaining canonical-density/chart identification with a unitary, graph cores,
+and term-by-term intertwining. Scalaron positivity and ESA do not prove a full
+coupled gap. For NS, discharge the record positive-operator hypotheses and keep
+KvN energy-comparison obligations on their separate track; check existing
+non-surjectivity obstructions before proposing a surjectivity proof. Acceptance:
+name the exact input operator and show every retained interaction survives the map.
+
+**S3 — positive-time OS construction and multiplier specialization.** The current
+full-algebra `OSState` interface is stronger/different from positive-time OS
+reflection positivity. Build the half-space observable quotient, null-space
+stability and completion, forward translations (`τ≥0`), strong continuity and
+right generator. Do not impose a two-sided contractive self-adjoint group, which
+forces a trivial theory. Construct the actual spectral representation, then the
+`OsFockBridge` to the physical nested space and its heat flow. Reuse the existing
+conditional generator and norm-gap theorem. Acceptance: all measure, real/complex,
+density/isometry/onto, projection and domain assumptions are discharged for the
+named model; physical clustering remains conditional until its analytic input lands.
+
+**S4 — sampler correctness before sampler-gap transfer.** Execute `pcnl.md`
+**T0 → T1 → T2 → T3**: actual kernel API and `L²` action; affine/quadratic
+Gaussian stationary laws and finite-step bias; informed-subspace benchmark with
+an exact Gaussian complement; bounded-oscillation MH-pCN Dirichlet comparison.
+Use the variance convention explicitly. A gap for convergence to the wrong law
+is not posterior correctness: for `ρ=.8, β=.6, h=.18, Φ=-x`, the scalar update
+`X'=ρX-hΦ'(X)+βξ` has stationary mean `.9`, not the target mean `1`.
+Give a genuine absolute-contraction or lazification argument before TV decay.
+Acceptance: invariance/detailed balance or an explicit bias bound, followed by a
+proved operator estimate, with dimension and regularization dependence visible.
+Reuse the polynomial and oscillator proofs; do not recast their scalar `b` as a
+nonconstant multiplication operator without a new theorem.
+
+**S5 — full-space certificates, then predictive error.** Execute T4 only when
+low-block, high-block and cross-block bounds apply on the same ground complement
+and form domain. Bound high-degree growth and off-block coupling; a finite band
+alone does not do this. Charge cutoff, rational approximation, solve, residual,
+whitening, rounding and representation errors separately, retaining an independent
+spectral exclusion input. Then execute T5: asymptotic variance/MCSE and predictive
+error, discretization and mini-batch bias, and approximate-update residual budgets.
+Acceptance: a positive certified lower bound for the identified full operator,
+or a precise obstruction; no fabricated certificate or “mixing implies accuracy”.
+
+**S6 — Cadabra2 and numerical seam (planner/CI, separate from Lean specialist).**
+The sibling `.cdb` modules now distinguish inner derivations, outer lifts and
+comparison charts. Run their existing CHECK/truncation guards and the new enclosure
+checks in the Cadabra-equipped environment; preserve stdout handles used by Rust.
+Keep QG exact-wall and coupling checks separate until a frame/canonical transfer is
+proved. Match NS/QG convolution leg weights and discrete normalization to the
+implementation. On any actual Hamiltonian/solver/certificate change, rerun the
+regeneration workflow (SIRK NDJSON, Aeneas, Lean export and nanoda), then update
+vendored references through the approved sync workflow. Comment/contract updates
+alone do not justify changing numerical fixtures or reporting renewed certificates.
+
+### 4. Pedagogical and repository changes in this wave
+
+`Book/BayesianTransformer`, `FreeField`, `SecondQuantizationEsa`,
+`YangMillsQuantization`, `ProofPlans`, `DiffeomorphismsGravity`, `QgElimination`
+and `NsOneParticleHamiltonian` explain the new lemmas and their boundaries.
+`BookProof/` comments now distinguish the diagonal sandwich model, form thresholds,
+constant drift pairing, and conditional OS representation from physical conclusions;
+this editorial wave changes no proof bodies. The concurrently added
+`ChapterYangMillsMehlerBridge`, its aggregator import and `softmodes.md` status
+are preserved and included in the reading guide. Sibling site pages and the numerical guide use the
+same operator and positivity convention. Cadabra source contracts and a dedicated
+enclosure-check module carry the symbolic side. Execution and elaboration are
+explicitly deferred; the specialist should record the actual results in a later
+append-only entry, including any failed obligation rather than promoting prose to proof.
+
+### 5. Static validation results and maintenance follow-up
+
+The source/prose checks in this editorial wave found the new Book citations in
+source, unchanged executable text in the six edited proof modules, and no new
+Lean lines over 100 characters. This does not certify elaboration or theorem
+axioms. The installed sibling site passes its checker at **86 pages / 604
+internal links**. Its README census was updated while preserving prior edits.
+Existing Cadabra expression handles and stdout markers are preserved; only the
+new YMH reflection/expansion checks and the new enclosure module add algebra.
+`cadabra2-cli` is absent, so their runtime validation remains explicitly pending.
+
+The Markdown link gate exposed the missing generated
+`YANG_MILLS_MASS_GAP_LEAN.md` snapshot; `softmodes.md` now links to the live
+`BookProof.lean` inventory instead. The cross-repo citation check also caught
+statistical target-law notation formatted as a code identifier; that is now
+mathematical notation, not an asserted Lean declaration.
+
+**S0 maintenance prerequisite:** `scripts/import_components.py BookProof --check`
+fails on stale component target-root lists and an unnamed nine-module component
+containing `BookProof.ReflectionPositivity.ChainPartition`. This is import-target
+metadata drift, not evidence of a Lean compilation failure. The specialist should
+inspect the proposed component partition, name/route the new component deliberately,
+update the maintained part/target roots, then compile the affected targets and rerun
+the check. Do not hide this failure by dropping imports. The citation gate also
+reports reviewed forward references; its token scan sees `realize_injective` in the
+ignored `math/OAI` corpus. That token occurrence must not be promoted to a compiled
+BookProof theorem or used to discharge a named hypothesis. Scope that maintenance
+check to the intended source surface before interpreting its stale-ledger warning.
