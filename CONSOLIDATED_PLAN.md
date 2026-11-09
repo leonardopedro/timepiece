@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-08f):** “State of the project — 2026-11-08f: source audit,
+> **Newest entry (2026-11-09c):** “State of the project — 2026-11-09c: complete
+> SM E1 numerical assembly and joint rational Hashimoto integration”, at the end.
+> Execute [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) P0–P8, coordinated
+> with `../unfer/docs/SM_HAMILTONIAN_AUDIT.md` N0–N5. Bosonic ESA is proved;
+> complete matter/core/physical-sector assembly remains open. Numerical acceptance
+> targets Hashimoto approximation of the same full nested operator, not simplified
+> replacement models. E1 numerical assembly and joint rational integration are
+> implemented and tested; formal physical identification/ESA remains P0–P8.
+> No Lean compilation.
+> **Earlier newest entry (2026-11-08f):** “State of the project — 2026-11-08f: source audit,
 > nested-Fock interpretation, and specialist handoff”, at the end of this file.
 > It inventories the new Mehler/polynomial/OS multiplier results, corrects their
 > physical and kernel interpretation, fixes the four-sector `H=dΓ(h)` contract,
@@ -19022,3 +19031,269 @@ reports reviewed forward references; its token scan sees `realize_injective` in 
 ignored `math/OAI` corpus. That token occurrence must not be promoted to a compiled
 BookProof theorem or used to discharge a named hypothesis. Scope that maintenance
 check to the intended source surface before interpreting its stale-ledger warning.
+
+---
+
+## State of the project — 2026-11-09: full SM ESA completion and Hashimoto validation work order
+
+**Current SM work order:** [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md),
+proof packets P0–P8, with numerical/symbolic packets N0–N5 in
+`../unfer/docs/SM_HAMILTONIAN_AUDIT.md`. This supersedes §09-25 §5 item 6's
+“SM refinements” as the execution order and any stronger reading of the
+fixed-background/two-Higgs-component assembly results. Their exact theorems
+and historical successful builds remain valid within their defined models.
+The other tracks and the 2026-11-08f operator conventions remain in force.
+
+The reference is `book.tex`, “Majorana spinors in the Standard Model”, with
+all weak/Higgs, quark and analogous lepton terms, including three right-handed
+neutrinos without Majorana masses. Real/Majorana spinor representation and a
+Majorana mass term are different matters. The target remains the manuscript's
+Hashimoto/Mehler/nested-Fock formalism, not a replacement mainstream Hamiltonian.
+
+### 1. Exact target and actual proof frontier
+
+```text
+h_SM = h_B + spatial Dirac + operator-valued gauge–matter + full Yukawa,
+H_SM = dΓ_out(h_SM) = Σᵢⱼ (h_SM)ᵢⱼ C†(eᵢ) A(eⱼ).
+```
+
+All inner interactions and the specified energy constant are retained before
+outer enclosure. The bosonic source has 163 coordinates, 40 active momenta,
+and 49 squared forms. SM retains its independent jet coordinates; the NS/QG
+spatial-derivative convolution elimination does not redefine the SM operator.
+The internal matter/CAR component count needs the manuscript's actual reality,
+chirality and complex-structure identification, not an assumed mode count.
+
+**Source-present results to reuse:** bosonic `SmComparisonEsa.sm_h_esa`,
+comparison `smFlN_esa`, and `SmFockEsa` enclosure results; finite CAR/bilinear
+bounds; fixed-background `SmFullEnclosure.smFull_h_esa` and its outer lift;
+operator-valued `SmYukawaCoupling.smYukawa_h_esa` and lift for two real Higgs
+components, finite fermionic factor and fixed Dirac matrix; constant-background
+`SmGaugeConnection.dirac_gauge_field_esa`; continuum smeared CAR identities.
+No new Lean compilation or axiom audit is claimed in this planning wave.
+
+**Still open for the full manuscript operator:** all four real Higgs/Yukawa
+matrices and physical chiral/charge data, dynamical gauge-coordinate coupling,
+unbounded spatial Dirac derivative, their common-core norm/commutator estimates,
+strong physical-sector reduction and outer statistics/enclosure of that same
+operator. A continuum CAR representation alone does not define an infinite-mode
+interacting Hamiltonian. The new boundary-ledger L12 records this explicitly.
+
+### 2. Specialist execution order
+
+* **P0–P2:** fix the manuscript term ledger and representation; instantiate all
+  internal gauge/chiral/generation data; assemble the complete inner operator
+  on the Mehler/Gaussian polynomial core with its actual canonical dictionary.
+* **P3–P4:** investigate and prove the comparison
+  `N_SM = [2h_B + Σ_active q² + Σ_spatial(p_x²+x²) + c] ⊗ I`, `c≥1`.
+  Reuse the degenerate Kato/Hermite graph-core route on the 43-coordinate
+  kinetic subset. Prove the full norm bound and form commutator estimate,
+  including spatial independence and the bounded internal matrices; then
+  apply Faris–Lavine on the core. This is a proposed proof route, not a theorem.
+  First identify whether the manuscript's spatial derivative is represented at
+  fixed collective coordinates or needs total jet-derivative terms. Any extra
+  jet–momentum terms must be retained and controlled by a proved comparison;
+  do not assume spatial independence to simplify the physical operator.
+  Do not assume gauge coordinates are relatively bounded by `h_B` just from
+  “quartic magnetic potential”: commuting gauge directions obstruct that shortcut.
+* **P5–P6:** identify a strongly reducing physical Hilbert realization and its
+  graph core, lift the same inner operator to the required outer/statistics
+  sectors, and identify its closure, Stone flow and Hashimoto resolvents.
+  Check the generator (`A=-i h̄` for unitary evolution), admissible shifts,
+  function/numerical-range hypotheses and all approximation/domain conditions.
+* **P7:** where an infinite inner fermion-mode realization is intended, construct
+  its Hamiltonian/core/infinite sums and uniform estimates; report an actual
+  divergence or missing kernel estimate instead of inferring a limit theorem
+  from finite-mode ESA. This is distinct from completing the manuscript's
+  finite internal species bookkeeping.
+* **P8:** compile/audit the concrete endpoint theorem binders and axioms,
+  imports/components, book rendering and documentation only after the relevant
+  packets land. A wrapper assuming physical equivalence or comparison ESA is
+  still conditional, not completion.
+
+A comparison oscillator is never inserted into the physical `h_SM`. ESA does
+not imply positivity or a mass gap. Outer annihilation gives zero energy;
+inner shifts change outer occupied sectors by `c N_out`.
+
+### 3. Numerical priority and bounded `unfer` corrections
+
+The physical numerical acceptance tests are **Hashimoto approximations of the
+complete nested operator**, with every interaction retained. Occupation cutoffs,
+Krylov windows and pruning are controlled approximations, not permission to
+remove fields or replace the theory by radial/free/decoupled models. Small
+matrix and CCR/CAR checks are supporting construction/error oracles only.
+N4 specifies full inner/outer action, sector structure, Ritz/complete residual
+references, independent budget/cutoff refinements, restarted full-generator
+evolution and interaction/sign/contraction mutation tests.
+
+The audit found concrete reasons existing reduced tests cannot yet satisfy
+that gate: field and momentum use different inner modes; the legacy compiler
+sorts strings while discarding non-scalar contraction branches and fermionic
+reordering signs; separate bosonic/fermionic outer backgrounds do not identify
+a joint inner state. The old quartic comparison is not the proved `smFlN`.
+A finite Ritz threshold is not semiboundedness, and a whole-line scalar
+coherent state is not established gauge-invariant by naming it radial.
+
+N0 corrects scope labels, the magnetic curl indices/nonabelian control and
+combined-sector predicates. It adds three construction contracts. The SMGF
+Cadabra assembly now includes distinct gauge, Higgs kinetic/covariant and
+Dirac slots; the U(1) coefficient check is an actual Legendre identity, with
+new normalization/constant/omission probes. The comparison module now identifies
+the failed historical candidate and adds live cancellation/linear templates.
+These templates do not replace the full chiral-matrix operator derivation.
+
+N1–N5 specify the time-consuming exact CCR/CAR/canonical builder, full matter
+assembly, joint-state enclosure and full-operator Hashimoto implementation.
+Legacy APIs/experiments are preserved as labeled comparisons, not silently
+changed into new spectra or advertised as full-SM validation. No production
+builder or solver/certificate semantics are changed in this bounded pass.
+
+### 4. Documentation and verification boundary
+
+The SM boundary ledger, `Book/StandardModel.lean`, and the gauge-connection
+module's interpretation now point at the complete work order. `../test/` has
+a dedicated SM theory page, rewritten proof/numerical accounts, and corrected
+SM assumptions/prediction/Cadabra descriptions. Their navigation and census
+are validated separately. Prior QYM/QG/NS documentation work is preserved.
+
+**Actual runtime evidence:** the exact staged Rust algebra source compiled
+with cached `num_complex` and all **11 construction tests passed**. This is
+not a rebuilt `fock_sirk` or a full-SM SIRK run. The workspace Cargo attempt
+stopped before compilation because offline cache lacks `ahash v0.8.12`.
+The edited SIRK suites receive source/format checks only. `cadabra2-cli` is
+unavailable; changed/new symbolic checks and extraction integration remain
+pending. No Lean compilation, new full-Hamiltonian proof, physical SM numerical
+acceptance result or regenerated certificate is claimed by this planning wave.
+
+Post-installation documentation checks passed: 87 GitBook pages / 609 internal
+links, no warnings; no unreviewed source-citation misses; root relative links
+and all three repositories' whitespace checks. The documentation index was
+regenerated. The citation gate's existing reviewed forward references and
+`realize_injective` ledger warning retain the prior maintenance boundary.
+
+---
+
+## State of the project — 2026-11-09b: ordered joint inner action and single outer enclosure
+
+This refines the 2026-11-09 SM implementation status; its full physical operator,
+proof packets P0–P8 and numerical acceptance contracts remain the work order.
+[SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) §8 records this continuation.
+The existing proofs and the other project tracks are unchanged.
+
+### Implemented foundation and new source finding
+
+`../unfer/nested_fock_algebra/src/exact_inner.rs` now supplies ordered, factorized
+inner action on joint boson/fermion occupation labels. Coordinates and momenta
+act on the same inner mode, products apply right to left, and contractions,
+fermionic signs and constants are retained. The completed inner expression is
+then enclosed once by outer creation on the left and annihilation on the right.
+Ordinary symmetric/antisymmetric joint sectors are supported; the physical
+statistics/reduction identification remains P5 work.
+
+A further runtime-confirmed legacy boundary matters on multiparticle states:
+each old `Operator::Inner*` letter is already a one-body lift. A product of
+those letters gives a product of lifts and therefore can contain cross-particle
+terms absent from the lift of the completed inner product. Likewise, an empty
+old operator word is outer identity, whereas enclosing inner identity gives
+outer particle number. New tests reproduce both distinctions using the actual
+legacy API. Legacy executable behavior is preserved and documented explicitly.
+
+The new action has support/work budgets that return errors rather than prune
+or simplify the model. Floating-point coefficients/square roots are not an
+interval arithmetic certificate. No solver/certificate semantics or physical
+SM spectrum has been regenerated by adding this construction API.
+
+### Evidence and remaining order
+
+The complete staged algebra library, LaTeX feature included, compiled directly
+against compatible cached Rust dependencies. Its integration test executable
+linked against that rebuilt library and **10 tests passed**. References include
+independent ladder/Jordan–Wigner matrices, all 1,365 two-mode CAR words of length
+zero through five, and symmetric/exterior two-particle tensor sums. The ordinary
+offline Cargo command remains blocked before compilation by missing
+`ahash v0.8.12`. This direct-library check is not a Cargo workspace or SIRK run.
+No Lean compilation or Cadabra execution was performed.
+
+N1/N3's algebra/action foundation is available, but N1's complete physical
+bosonic builder, N2's chiral/four-Higgs/matter dictionary and N3's physical
+comparison/statistics identification remain open. N4 must accept joint vectors
+and a bijective joint registry, propagate action errors, and budget all support
+deletion. The old solver is typed to the separate-universe `QuantumState`;
+its `scale_and_add` threshold is also an implicit deletion that cannot be ignored
+in recurrence/residual claims. Recompute full residuals or include each pruning
+defect before using them as enclosures.
+
+Then run the six primary full-SM Hashimoto contracts, retaining every interaction.
+Small construction references do not satisfy that physical acceptance gate.
+`../unfer/docs/ORDERED_JOINT_FOCK.md`, the SM audit/validation guide and
+`../test/numerical-physics/sm-validation.md` describe the implementation and this
+boundary. No mainstream or reduced physical substitute has been introduced.
+
+Post-installation checks passed: 87 GitBook pages / 610 internal links, no
+warnings; no unreviewed source-citation misses; all three repositories'
+whitespace checks. The existing reviewed forward references and ledger warning
+retain their prior maintenance boundary. The documentation index was regenerated.
+
+---
+
+## State of the project — 2026-11-09c: complete SM E1 numerical assembly and joint rational Hashimoto integration
+
+This supersedes the 2026-11-09/09b numerical-implementation deferrals. The
+proof work order remains [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md)
+P0–P8; its §9 records this execution and its analytic boundary. The source,
+Majorana dictionary, symbolic import and commands are in
+[SM_FULL_IMPLEMENTATION.md](../unfer/docs/SM_FULL_IMPLEMENTATION.md).
+The other proof tracks are unchanged. No Lean compilation was performed.
+
+**Implemented operator:** all 163 bosonic coordinates, 40 field momenta,
+49 squared forms, 96 independent complex CAR coordinates (192 real Majorana
+components), spatial Dirac derivatives, every gauge–matter coupling and all
+four Higgs/Yukawa components, full complex generation matrices and h.c. The
+inner expression is completed before its single joint outer enclosure. Inner
+constants are retained. The spatial derivative is the stated independent-
+collective-coordinate E1 derivative; a different total-jet interpretation
+requires its own operator/intertwining theorem. E2 infinite inner modes are
+not inferred from this implementation.
+
+The actual manuscript Majorana kinetic matrices have a fixed-integer-matrix
+bridge regression; no conventional spin frame is silently substituted.
+Cadabra2 independently derives all components, verifies its Legendre and
+all-entry Hermiticity identities and exports 1,241 LaTeX expressions. The
+existing mathhook calculus imports them, with strict termwise checks against
+an independent native dictionary before exact ordered action. Old SM template
+runtime defects were repaired and their 19/49 CHECK rows executed within their
+stated scalar scopes. The old uncoupled comparison remains analytically invalid.
+
+**Actual Hashimoto integration:** joint vectors/registry, genuine shifted
+resolvents, positive shift budgets and the compressed bounded-resolvent function
+`B=V†(gamma+i h)^-1 V`, `G=gamma I-B^-1`. Hamiltonian Ritz compression is kept
+separate. Declared numerical windows reuse complete operator images; internal
+solves use their finite compression, while full tails remain available for
+resolvent/Ritz residuals. Physical vectors are reorthogonalized after Gram
+whitening. Restart diagnostics retain norms, energies and solve/function/tail
+error data. Cache/action budgets fail explicitly; pruning is disabled.
+Parity-graded outer states support mixed even bosonic and odd fermionic
+occupations; the primary SM tests use this representation.
+
+**Runtime evidence:** locked Cargo provisioning resolved `ahash`; normal Cargo
+runs pass **37 unique tests** (13 exact-action, 7 full dictionary/Majorana/Cadabra,
+6 primary full-SM rational and 11 supporting SM algebra). The fresh-engine
+fixture equality test ran. At `t=0.01`, four rational vectors give about
+`4.18e-7` error against the same declared finite compression. Full action tails
+remain about `9.78` at occupation 1 and `4.04` at occupation 2; these are exposed
+separately, so the small finite-reference error is not a full unbounded-operator
+accuracy or cutoff-removal certificate. No mass gap, EWSB or new ESA theorem
+is inferred. Roundoff/interval certification remains a separate task.
+
+**Next specialist inputs:** formalize the executable coordinate/spinor/CAR and
+physical component dictionary in P0/P1, identify the common-core operator in
+P2, discharge the full comparison/core bounds and ESA in P3/P4, then construct
+physical/graded reduction and the outer lift in P5 and the resolvent/function
+error seam in P6. The runnable numerical implementation supplies concrete data
+for those proofs; it does not discharge their hypotheses by computation.
+
+**Final integration checks:** the runnable Cadabra-imported joint SM example
+passed (70-state window; complete tails/errors in its JSON). The symbolic gate
+reproduced the full LaTeX fixture and passed both repaired legacy modules.
+GitBook validation passed 87 pages / 611 links / 452 source–target pairs with
+no warnings. The dependency lockfile is unchanged.

@@ -52,14 +52,14 @@ set the frame: `BookProof/Sm/ChapterSmOneParticle.lean` (the collective
 coordinates and the mixing algebra), `BookProof/Sm/ChapterSmHamiltonian.lean` (the
 one-particle operator), `BookProof/Sm/ChapterSmComparison.lean` (the comparison
 operator of the Faris–Lavine route) and `BookProof/Sm/ChapterSmOuterFock.lean` (the
-enclosure). The second generation completes the fermions:
+enclosure). The second generation formalizes finite fermionic models:
 `BookProof/Sm/ChapterSmCarAlgebra.lean` (the CAR algebra over a finite mode set),
 `BookProof/Sm/ChapterSmDiracYukawa.lean` (the Dirac and Yukawa operators and the
 three Faris–Lavine hypotheses for them),
 `BookProof/Sm/ChapterSmDiracSpinor.lean` (the relativistic spinor content) and
 `BookProof/Sm/ChapterSmComparisonFull.lean` (every summand of the comparison
-operator, derivative coordinates included). The third generation closes the
-honest boundaries of the first: `BookProof/Sm/ChapterSmCarContinuum.lean` (the
+operator, derivative coordinates included). The third generation extends the
+algebraic inventory: `BookProof/Sm/ChapterSmCarContinuum.lean` (the
 continuum CAR algebra over an infinite-dimensional one-particle space),
 `BookProof/Sm/ChapterSmGaugeConnection.lean` (the gauge connection inside the
 covariant derivative),
@@ -88,6 +88,46 @@ pedagogical face of that chain. Every chapter named here is `sorry`-free and
 `Work/SmHonestBoundariesAudit.lean`, `Work/BookBrstAudit.lean`,
 `Work/SmFarisLavineAudit.lean` and `Work/SmComparisonEsaAudit.lean`; the ledger
 of what moved and what did not is `HONEST_BOUNDARIES_SM.md`.
+
+# Completing the Full Matter Operator: Current Work Order
+
+The bosonic ESA proof is complete for the defined 163-coordinate operator.
+`smFull_h_esa` adds a fixed-background fermionic tensor summand;
+`smYukawa_h_esa` treats a genuine coupling but uses two real Higgs components,
+a finite CAR factor and a fixed Dirac matrix. The constant-background gauge
+connection theorem is another model result. These do not yet identify the
+complete manuscript matter Hamiltonian with all four Higgs components,
+operator-valued gauge couplings and the spatial Dirac derivative.
+
+`SM_ESA_COMPLETION_PLAN.md` now orders that assembly, its comparison estimates,
+physical-sector reduction and outer ESA lift. The proposed comparison extends
+the proved $`2h_B+\sum_{active}q^2+c` by a spatial oscillator; it is an
+analytic tool, not a new term in the physical Hamiltonian. The old uncoupled
+quartic comparison is not the live Faris–Lavine comparison.
+
+The numerical objective is Hashimoto approximation of the same complete
+$`H_{SM}=d\Gamma(h_{SM})`, with all inner interactions retained. A controlled
+finite compression is numerical data; deleting gauge families or replacing the
+doublet by a radial scalar changes the operator. The Rust implementation now
+assembles the complete independent-coordinate operator on a joint inner space
+with 96 complex CAR coordinates, representing 192 real Majorana components.
+Cadabra exports its full component dictionary to LaTeX, imported through the
+existing symbolic calculus. The spinor dictionary is checked against the
+manuscript's explicit Majorana matrices. These executable identities supply
+concrete inputs to the remaining Lean representation and domain proofs.
+
+The joint-state solver uses actual resolvents and the bounded-resolvent
+operator-function compression of Hashimoto–Nodera. Its Hamiltonian Ritz
+compression is a separate diagnostic. Complete operator images, occupation
+tails and shifted-solve residuals are retained; a declared numerical window
+does not remove interactions. Historical Rust comparisons retain their
+independent-momentum and contraction-dropping conventions and their narrower
+scope. The current implementation account is `../unfer/docs/SM_FULL_IMPLEMENTATION.md`.
+
+Outer annihilation gives zero vacuum energy without deleting inner constants.
+Positivity and a mass gap are separate questions from ESA. An inner shift
+adds an outer-number term. This planning wave compiles no Lean code and does
+not promote a model theorem to a stronger physical identification.
 
 # Counting the Coordinates
 

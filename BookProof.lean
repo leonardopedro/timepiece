@@ -2082,11 +2082,24 @@ import BookProof.Qym.ChapterYangMillsAbelianNoGap
 -- `U f = γ^{1/2} · f`, the derivative transports as `U ∂ U⁻¹ = ∂ + x/2` (`conj_deriv`), so the
 -- annihilation convention `a = ∂ + x/2` kills the weight (`gaussRoot_vacuum`) — the convention
 -- the corpus's `momOp` uses — and the Gaussian Dirichlet operator is unitarily the oscillator
--- (`gaussRoot_oscillator_ground`), so the reference gap `½` is the oscillator's, never `q_h`'s.
+-- (`gaussRoot_oscillator_ground`, and `conj_dirichlet` for the second-order identity
+-- `U(−∂² + x∂)U⁻¹ = −∂² + x²/4 − 1/2` on the smooth core), so the reference gap `½` is the
+-- oscillator's, never `q_h`'s.  `conj_mult` is the matching multiplication identity: the transform
+-- cannot move a potential, which is the plan's "no confinement from a Gaussian".
+-- `lintegral_norm_sq_conj` is the squared norm identity `∫|γ^{1/2}f|² = ∫|f|² d(γdx)`.
 -- The module also fixes the S2 signature `HasOneParticleFormGap`, proves it false for `fabc = 0`,
 -- and records that a nonzero kernel vector defeats every absolute constant (target 2 does not
 -- imply target 1).
 import BookProof.Qym.ChapterYangMillsMehlerBridge
+
+-- `ChapterYangMillsSoftDirections` (work package S1 of `softmodes.md`): the coupling split
+-- `B = B_deriv + g B_comm` and its cross term.  `norm_add_sq_ge_split` proves the plan's valid
+-- starting estimate `‖X + Y‖² ≥ (1 − ε)‖X‖² − (ε⁻¹ − 1)‖Y‖²` (Cauchy–Schwarz plus AM–GM), and
+-- `no_norm_add_smul_lower_bound` is the one-dimensional counterexample that the naive
+-- `‖B_deriv + g B_comm‖² ≥ g²‖B_comm‖²` is false, so the plan's warning is a theorem here rather
+-- than a caveat.  The loss term is still unpaid: it must be dominated by the reference form, which
+-- is the `a < 1` relative-bound input S2 owes.
+import BookProof.Qym.ChapterYangMillsSoftDirections
 
 -- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
 -- derivative-variable fixing `E = ∂e` on the coordinate algebra of

@@ -1,5 +1,30 @@
 # The Standard-Model honest boundaries: what is now a Lean theorem, and what is not
 
+> **Current work order — 2026-11-09:**
+> [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md), P0–P8, supersedes
+> “SM refinements” and any reading of the model assembly results below as a proof
+> for the complete manuscript matter interaction. Bosonic ESA and its enclosure
+> are proved. The existing coupled matter theorem uses only two real Higgs
+> components, a finite CAR factor and fixed Dirac matrix; the constant-background
+> gauge theorem is separate. Full four-component/chiral data, operator-valued
+> gauge coupling, spatial Dirac derivative, physical reduction and their common
+> outer lift remain to be assembled and proved. Continuum CAR alone does not
+> supply the corresponding infinite-mode Hamiltonian.
+>
+> Physical numerical acceptance means Hashimoto-SIRK approximation of that same
+> complete inner operator and its actual joint-state outer enclosure. Legacy
+> independent-momentum, contraction-dropping, scalar and decoupled builders are
+> comparisons, not full-SM validation. See `../unfer/docs/SM_HAMILTONIAN_AUDIT.md`.
+> The source audit below is not a new compilation or renewed numerical run.
+
+**Numerical execution — 2026-11-09c:** the complete E1 component assembly
+and graded joint-state rational Hashimoto solver now run in `unfer`, with
+37 targeted Cargo tests and actual Cadabra export/import verification. See
+[the implementation account](../unfer/docs/SM_FULL_IMPLEMENTATION.md).
+This closes numerical implementation deferrals; L12 remains the formal
+common-core, full-matter ESA and physical/graded lift work. No Lean compilation
+was performed for this update.
+
 **Current state of record** (updated 2026-09-23 after the closure wave, the book-BRST wave,
 and the accounting identity of §2026-09-23d in `CONSOLIDATED_PLAN.md`).  Every theorem
 cited here is intended to compile inside `lake build BookProof` with no `sorry` and no
@@ -31,9 +56,10 @@ either a closed boundary (theorem now in tree) or a historical quote.
 | L6 | **Continuum local Gauss law** | The local gauge algebra is a finite-dimensional Lie algebra with derivations `∂_μ` (book’s totally antisymmetric `SU(N)` structure constants); Gauss law closes in that algebra, not at every point of continuum space. |
 | L7 | **Faddeev–Popov determinant (SM/book formalism)** | The book’s BRST formalism uses none and none is constructed. (The separate QYM abelian FP sector is `ChapterYangMillsGhostSector.lean`, not part of the SM `h`/`N` record.) |
 | L8 | **Continuum CAR beyond the Fock representation** | `ChapterSmCarContinuum` builds the Fock rep on the vacuum over `ℓ²(ℕ)` / arbitrary separable one-particle space; nothing about inequivalent representations, the C\*-completion, or a Hamiltonian on that space. |
-| L9 | **Gauge-field dynamics / continuum limit of `D`** | Connection in `ChapterSmGaugeConnection` is a constant collective-coordinate background: `D_j = i(k_j + A_j)` carries `ik_j`, not an unbounded derivative, so that module’s `[D_j, D_l]` sees only the non-abelian part of `F` (`∂A = 0` by construction). The **full** `F_{μν} = ∂_μ A_ν − ∂_ν A_μ + [A_μ, A_ν]` (curl **and** `f^{abc}AA`) is in the tree as `smMagG`/`smMagW`/`smMagB` — but no gauge-field dynamics (time evolution of `A`) and no continuum limit of `D` on `L²(ℝ³)` is claimed. **Route note:** the curl/continuum half is reachable by the **momentum-space convolution already used for NS and QG** (`fourier_mul_eq_convolution`, `fourier_advection_convolution` in `ChapterNsAdvectionConvolution` — products with spatial derivatives become convolutions with weight `2π i ⟨q,m⟩`); this device is **not** part of QYM (QYM proofs do not need it) and is only invoked here for proofs of this type. |
+| L9 | **Gauge-field dynamics / continuum limit of `D`** | Connection in `ChapterSmGaugeConnection` is a constant collective-coordinate background: `D_j = i(k_j + A_j)` carries `ik_j`, not an unbounded derivative, so that module’s `[D_j, D_l]` sees only the non-abelian part of `F` (`∂A = 0` by construction). The **full** `F_{μν} = ∂_μ A_ν − ∂_ν A_μ + [A_μ, A_ν]` (curl **and** `f^{abc}AA`) is in the tree as `smMagG`/`smMagW`/`smMagB` — but no gauge-field dynamics (time evolution of `A`) and no continuum limit of `D` on `L²(ℝ³)` is claimed. **Route correction (2026-11-09):** retain the stated SM jet coordinates. The NS/QG derivative-convolution elimination does not redefine this operator; its missing full matter bridge is P0–P4 in the current completion plan. |
 | L10 | **Finite mode set for the SM BRST multiplet** | One plane-wave matter multiplet + twelve ghosts (and the book’s `N`-colour realization); not a full continuum field BRST. |
 | L11 | **QG accounting identity in the SM form** | QG 3D reduction is **non-ADM** (`book.tex` ~8226–8244): `v^μ = δ^μ_0`, ghosts constant in the timepiece, charge with 4D functional form; frame fermion `{G, i b_j A_0^j}` is **not** covered by `bookGfTerm_eq_zero_of_Afield0`. |
+| L12 | **ESA of the complete manuscript matter assembly and physical outer lift** | The model results in L2 remain valid within their scope. Full four-real-Higgs/chiral data, operator-valued gauge coupling, spatial Dirac derivative and the common-core physical reduction/lift require `SM_ESA_COMPLETION_PLAN.md` P0–P6. The infinite-mode operator requires P7 where intended. |
 
 ---
 
@@ -227,11 +253,7 @@ Minimal coupling in the constant collective-coordinate background:
 *Still open here (L9):* constant background (`ik_j`, not ∂), so this module’s
 `[D_j, D_l]` sees only the non-abelian part of `F` (`∂A = 0`); the full
 `F = ∂A − ∂A + [A,A]` lives in `smMagG`/`smMagW`/`smMagB`; no gauge-field
-dynamics, no continuum limit of `D`. **Route note:** the curl/continuum half is
-reachable by the momentum-space convolution already used for NS and QG
-(`ChapterNsAdvectionConvolution.fourier_mul_eq_convolution` /
-`fourier_advection_convolution`) — not a QYM device, only invoked for proofs
-of this type.
+dynamics, no continuum limit of `D`. **Route correction (2026-11-09):** the SM realization retains its independent jet coordinates. The current completion plan P0–P4 supplies the missing operator-valued connection and spatial Dirac assembly; no NS/QG jet elimination is used.
 
 ## 5.3 Closed: ghost / BRST sector — `ChapterSmBrstGhost.lean` + `ChapterSmGaugeRepresentation.lean`
 
