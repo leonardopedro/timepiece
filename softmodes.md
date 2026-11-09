@@ -485,34 +485,38 @@ item 1 of the acceptance list at the form level, deliberately below any domain c
   inside `L²(γ dx)`: multiplying by `γ^{1/2}` swaps the weighted norm for the Lebesgue norm
   (`memLp_gaussRoot_mul`), and `γ^{1/2}·gaussDirichlet f` is continuous with compact support, hence
   square-integrable against `volume`.
+* **`gaussOp` is `T` as a `LinearPMap` on `L²(γ dx)`.**  `gaussCore` is the core as a submodule of
+  `L²(γ dx)` (a class is in it when it has a `C²`-compactly-supported representative) and
+  `gaussCoreRep` chooses a representative; the value on a class is
+  `gaussOpFun f = toLp (T (gaussCoreRep f))`.  The choice is invisible:
+  `gaussOpFun_eq_toLp` computes `toLp (T F)` for *any* admissible representative `F`, because
+  `gaussDirichlet_congr_ae` upgrades a.e. equality of continuous representatives to equality of
+  images.  Linearity at the function level is `gaussDirichlet_add`/`gaussDirichlet_smul`; at the
+  `Lp` level addition is `MemLp.toLp_add` (in mathlib, `rfl`), and the one glue lemma mathlib lacks
+  is `memLp_toLp_const_smul`.  Then `gaussOpFun_add`/`gaussOpFun_smul` make `gaussOpFun` a linear
+  map on the core and `gaussOp` the resulting `LinearPMap` (domain `gaussCore`).
 
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
 
-**What item 1 still needs.** Three gaps, none closed by the above:
+**What item 1 still needs.** Two gaps, neither closed by the above:
 
-0. *The operator as a `LinearPMap`.*  The definition is now possible — a representative can be
-   chosen (`Classical.choose` of the `C²`-compactly-supported witness) and the image is independent
-   of that choice by `gaussDirichlet_eq_zero_of_ae_eq_zero` — but the `LinearMap` bookkeeping across
-   chosen representatives (`MemLp.coeFn_toLp` plus the a.e.-congruence lemma for additivity and
-   homogeneity) is unwritten.
-1. *Closability proper.*  The route is short once `T` is a `LinearPMap`: `T.adjoint_isClosed` makes
-   `T†` closable and `LinearPMap.IsClosable.leIsClosable` carries that to `T` as soon as `T ≤ T†`,
-   i.e. as soon as the symmetry is read as `⟪T x, y⟫ = ⟪x, T y⟫`.  That bookkeeping on `toLp`
-   images (`inner_def`, integrability of the products) is what is missing — not the mathematics of
-   closability, which mathlib has.  `LinearPMap.IsClosable` and `LinearPMap.closure` exist in mathlib, but the
-   domain would have to be a subspace of `L²(γ dx)` on which `−Δ + x·∇` is well defined as a class
-   — i.e. weak derivatives and `H¹(γ)`, for which mathlib has no API.  The `Lp` chapter gives the
-   transport (`mehlerLpEquiv`) that would carry a domain across, not a domain.
+1. *Closability proper.*  The route is short now that `T` is a `LinearPMap`:
+   `T.adjoint_isClosed` makes `T†` closable and `LinearPMap.IsClosable.leIsClosable` carries that to
+   `T` as soon as `T ≤ T†`, i.e. as soon as the symmetry is read as `⟪T x, y⟫ = ⟪x, T y⟫`.  The
+   missing piece is that pairing bookkeeping on `toLp` images (`inner_def` plus integrability of the
+   products) — not the mathematics of closability, which mathlib has.  Note that this route needs
+   no weak-derivative or `H¹(γ)` API: it is exactly why the adjoint is the cheap way in.
 2. *Density of the smooth core.*  Only the `volume` version is in mathlib; the density-weighted
    transport is again `mehlerLpEquiv` plus the a.e.-equality lemmas it already contains, but the
-   density statement itself is not written.
+   density statement itself is not written.  Density is also what makes `gaussOp` densely defined,
+   so it is part of the acceptance item and not only of the form-domain story.
 
 So acceptance item 1 is now "form defined, symmetry and nonnegativity proved, **operator identity
-proved** on the `C²`-compactly-supported core, closability and core density open"; item 2 is
-discharged at the `Lp` level, item 3 is discharged, and item 4 (Friedrichs /
-`ChapterYangMillsFriedrichs`) now has an operator to close — what it still lacks is the closedness of
-the form, i.e. exactly the two items above.
+proved** on the `C²`-compactly-supported core, **the operator packaged as `gaussOp : LinearPMap`**,
+closability and core density open"; item 2 is discharged at the `Lp` level, item 3 is discharged,
+and item 4 (Friedrichs / `ChapterYangMillsFriedrichs`) now has an operator to close — what it still
+lacks is the closedness of the form, i.e. exactly the two items above.
 
 #### S3 — the solve-error bookkeeping
 

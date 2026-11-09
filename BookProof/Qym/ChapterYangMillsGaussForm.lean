@@ -36,21 +36,26 @@ domain.  That item has three separable parts; the first and the operator half of
   `memLp_gaussDirichlet` (so `T` maps the core into `L²(γ dx)`; the proof multiplies by `γ^{1/2}`,
   uses `memLp_gaussRoot_mul` to swap the weighted norm for the Lebesgue one, and closes with
   square-integrability of a continuous compactly supported function against `volume`).
+* **`gaussOp` is `T` as a `LinearPMap` on `L²(γ dx)`.**  `gaussCore` is the core as a submodule of
+  `L²(γ dx)` (a class is in it when it has a `C²`-compactly-supported representative), and
+  `gaussCoreRep` chooses one.  The value on a class is `gaussOpFun f = toLp (T (gaussCoreRep f))`,
+  and `gaussOpFun_eq_toLp` says it computes `toLp (T F)` for *any* admissible representative `F` —
+  the choice never appears in a statement.  Linearity at the function level is
+  `gaussDirichlet_add`/`gaussDirichlet_smul`, the congruence `gaussDirichlet_congr_ae` upgrades a.e.
+  equality of representatives to equality of images, and the one `Lp` glue lemma mathlib lacks is
+  `memLp_toLp_const_smul` (for addition `MemLp.toLp_add` already exists, and is even `rfl`).
+  Finally `gaussOpFun_add`/`gaussOpFun_smul` make `gaussOpFun` a linear map on the core, and
+  `gaussOp` is the resulting `LinearPMap`.
 
 **Not done here, and the shape of what is left.**
 
-1. *The operator as a `LinearPMap`.*  `memLp_gaussDirichlet` and
-   `gaussDirichlet_eq_zero_of_ae_eq_zero` are what make the definition possible (a representative of
-   a class may be chosen, and the image does not depend on it), but the `LinearMap` bookkeeping on
-   the core submodule — additivity and homogeneity of `T` across chosen representatives, via
-   `MemLp.coeFn_toLp` and the a.e.-congruence lemma — is not written yet.
-2. *Closability proper.*  Once `T` is a `LinearPMap`, the *route* is short: a symmetric operator
+1. *Closability proper.*  Once `T` is a `LinearPMap`, the *route* is short: a symmetric operator
    contained in its adjoint is closable, because `T.adjoint_isClosed` makes the adjoint closable
    and `LinearPMap.IsClosable.leIsClosable` transfers that to `T ≤ T†`.
    `integral_gaussDirichlet_mul_comm` supplies the symmetry; what is missing is the pairing
    bookkeeping that turns the integral form of the symmetry into `⟪T x, y⟫ = ⟪x, T y⟫` in
    `L²(γ dx)` (it needs both directions of `inner_def` on `toLp` images).
-3. *Density.*  `C_c^∞` is dense in `L²(γ dx)`; mathlib has the `volume` version
+2. *Density.*  `C_c^∞` is dense in `L²(γ dx)`; mathlib has the `volume` version
    (`MeasureTheory.MemLp.exists_hasCompactSupport_eLpNorm_sub_le` for `C_c`, and
    `MeasureTheory.Lp.boundedContinuousFunction_dense`) but not the density-weighted transport,
    though `ChapterYangMillsMehlerLp.mehlerLpEquiv` is an isometry between the two spaces and would
@@ -277,6 +282,177 @@ theorem memLp_gaussDirichlet {f : ℝ → ℝ} (hf : ContDiff ℝ 2 f) (hfc : Ha
     (hprod.pow 2).integrable_of_hasCompactSupport hcsSq
   rw [← memLp_gaussRoot_mul hcont.measurable]
   exact (memLp_two_iff_integrable_sq hprod.aestronglyMeasurable).2 hsq
+
+/-! ## The operator as a partially defined linear map
+
+The well-definedness facts above are what let `T = −Δ + x·∇` become a `LinearPMap` on `L²(γ dx)`.
+The domain is the `C²`-compactly-supported core; the value on a class is `T` of a chosen
+representative, and every change of representative is an a.e. equality upgraded to pointwise
+equality by `eq_of_ae_eq_gaussMeasure`, so the choice never shows up in a statement. -/
+
+/-- The `C²`-compactly-supported core, as a submodule of `L²(γ dx)`: a class is in the core when it
+has a representative of class `C²` with compact support. -/
+def gaussCore : Submodule ℝ (Lp ℝ 2 gaussMeasure) where
+  carrier := {f | ∃ F : ℝ → ℝ, ContDiff ℝ 2 F ∧ HasCompactSupport F ∧ ⇑f =ᵐ[gaussMeasure] F}
+  zero_mem' := ⟨0, contDiff_const, HasCompactSupport.zero, by
+    filter_upwards [Lp.coeFn_zero (μ := gaussMeasure) (p := 2) (E := ℝ)] with x hx using hx⟩
+  add_mem' := by
+    rintro f g ⟨F, hF, hFc, hFe⟩ ⟨G, hG, hGc, hGe⟩
+    exact ⟨F + G, hF.add hG, hFc.add hGc, (Lp.coeFn_add f g).trans (hFe.add hGe)⟩
+  smul_mem' := by
+    rintro c f ⟨F, hF, hFc, hFe⟩
+    exact ⟨c • F, hF.const_smul c, hFc.smul_left,
+      (Lp.coeFn_smul c f).trans (hFe.const_smul c)⟩
+
+/-- A chosen representative of a core class: `C²` with compact support. -/
+noncomputable def gaussCoreRep (f : gaussCore) : ℝ → ℝ :=
+  Classical.choose (show ∃ F : ℝ → ℝ, ContDiff ℝ 2 F ∧ HasCompactSupport F
+    ∧ ⇑(f : Lp ℝ 2 gaussMeasure) =ᵐ[gaussMeasure] F from f.2)
+
+/-- The chosen representative has the three properties the core promises. -/
+theorem gaussCoreRep_spec (f : gaussCore) :
+    ContDiff ℝ 2 (gaussCoreRep f) ∧ HasCompactSupport (gaussCoreRep f)
+      ∧ (f : Lp ℝ 2 gaussMeasure) =ᵐ[gaussMeasure] gaussCoreRep f :=
+  Classical.choose_spec (show ∃ F : ℝ → ℝ, ContDiff ℝ 2 F ∧ HasCompactSupport F
+    ∧ ⇑(f : Lp ℝ 2 gaussMeasure) =ᵐ[gaussMeasure] F from f.2)
+
+/-- **`gaussDirichlet` respects a.e. equality.**  Two continuous representatives of the same
+`L²(γ dx)` class have the same image: `gaussMeasure` is open-positive, so a.e. equality of
+continuous functions is equality (`eq_of_ae_eq_gaussMeasure`), and the operator is a function of
+the function.  This is well-definedness on classes, the representative choice being isolated in
+`gaussCoreRep`. -/
+theorem gaussDirichlet_congr_ae {F G : ℝ → ℝ} (hF : Continuous F) (hG : Continuous G)
+    (h : F =ᵐ[gaussMeasure] G) : gaussDirichlet F = gaussDirichlet G := by
+  rw [eq_of_ae_eq_gaussMeasure h hF hG]
+
+/-- **The operator is additive** on `C²` functions: the second derivative and the drift are each
+additive, the drift because `deriv_add` is. -/
+theorem gaussDirichlet_add {F G : ℝ → ℝ} (hF : ContDiff ℝ 2 F) (hG : ContDiff ℝ 2 G) :
+    gaussDirichlet (F + G) = gaussDirichlet F + gaussDirichlet G := by
+  have hdF : Differentiable ℝ F := hF.differentiable (by norm_num)
+  have hdG : Differentiable ℝ G := hG.differentiable (by norm_num)
+  have hdF' : Differentiable ℝ (deriv F) :=
+    (hF.deriv' : ContDiff ℝ 1 (deriv F)).differentiable (by norm_num)
+  have hdG' : Differentiable ℝ (deriv G) :=
+    (hG.deriv' : ContDiff ℝ 1 (deriv G)).differentiable (by norm_num)
+  funext x
+  have hd : deriv (F + G) = deriv F + deriv G :=
+    funext fun y => deriv_add (hdF y) (hdG y)
+  have h2 : deriv (fun y => deriv (F + G) y) x
+      = deriv (fun y => deriv F y) x + deriv (fun y => deriv G y) x := by
+    rw [show (fun y => deriv (F + G) y) = deriv F + deriv G from hd]
+    exact deriv_add (hdF' x) (hdG' x)
+  simp only [gaussDirichlet, Pi.add_apply, h2, deriv_add (hdF x) (hdG x)]
+  ring
+
+/-- **The operator is homogeneous** on `C²` functions. -/
+theorem gaussDirichlet_smul {F : ℝ → ℝ} (hF : ContDiff ℝ 2 F) (c : ℝ) :
+    gaussDirichlet (c • F) = c • gaussDirichlet F := by
+  have hdF : Differentiable ℝ F := hF.differentiable (by norm_num)
+  have hdF' : Differentiable ℝ (deriv F) :=
+    (hF.deriv' : ContDiff ℝ 1 (deriv F)).differentiable (by norm_num)
+  have hd1 : deriv (c • F) = fun y => c * deriv F y := by
+    funext y
+    exact deriv_const_smul c (hdF y)
+  have hd2 : (fun y => deriv (c • F) y) = fun y => c * deriv F y := hd1
+  funext x
+  have h1x : deriv (c • F) x = c * deriv F x := congrFun hd1 x
+  have h2 : deriv (fun y => deriv (c • F) y) x = c * deriv (fun y => deriv F y) x := by
+    rw [hd2]
+    exact deriv_const_smul c (hdF' x)
+  simp only [gaussDirichlet, Pi.smul_apply, h2, h1x, smul_eq_mul]
+  ring
+
+/-- The operator applied to a core class: `T` of the chosen representative. -/
+noncomputable def gaussOpFun (f : gaussCore) : Lp ℝ 2 gaussMeasure :=
+  MemLp.toLp (gaussDirichlet (gaussCoreRep f))
+    (memLp_gaussDirichlet (gaussCoreRep_spec f).1 (gaussCoreRep_spec f).2.1)
+
+/-- **`gaussOpFun` computes `T` on any admissible representative**, so the choice inside
+`gaussCoreRep` is invisible: for any `C²`-compactly-supported `F` representing the class, the image
+is `toLp (T F)`. -/
+theorem gaussOpFun_eq_toLp {f : gaussCore} {F : ℝ → ℝ} (hF : ContDiff ℝ 2 F)
+    (hFc : HasCompactSupport F) (hFe : (f : Lp ℝ 2 gaussMeasure) =ᵐ[gaussMeasure] F) :
+    gaussOpFun f = MemLp.toLp (gaussDirichlet F) (memLp_gaussDirichlet hF hFc) := by
+  have hds : gaussDirichlet (gaussCoreRep f) = gaussDirichlet F :=
+    gaussDirichlet_congr_ae (gaussCoreRep_spec f).1.continuous hF.continuous
+      ((gaussCoreRep_spec f).2.2.symm.trans hFe)
+  exact MemLp.toLp_congr _ _ (Filter.Eventually.of_forall (congrFun hds))
+
+/-- `toLp` commutes with scalar multiplication.  (Mathlib has the additive version
+`MemLp.toLp_add` but not this one for `MemLp`.) -/
+theorem memLp_toLp_const_smul (c : ℝ) {G : ℝ → ℝ} (hG : MemLp G 2 gaussMeasure)
+    (h : MemLp (c • G) 2 gaussMeasure) : h.toLp (c • G) = c • hG.toLp G := by
+  apply Lp.ext
+  have h1 : ⇑(h.toLp (c • G)) =ᵐ[gaussMeasure] (c • G : ℝ → ℝ) := MemLp.coeFn_toLp h
+  have h2 : ⇑(c • hG.toLp G) =ᵐ[gaussMeasure] c • ⇑(hG.toLp G) := Lp.coeFn_smul c _
+  have h3 : c • ⇑(hG.toLp G) =ᵐ[gaussMeasure] c • G := (MemLp.coeFn_toLp hG).const_smul c
+  exact h1.trans (h2.trans h3).symm
+
+/-- **The operator is additive on the core**, hence is a linear map there.  Each step trades the
+chosen representative for a concrete witness (`gaussOpFun_eq_toLp`), applies
+`gaussDirichlet_add`, and reassembles with `MemLp.toLp_add`. -/
+theorem gaussOpFun_add (f g : gaussCore) : gaussOpFun (f + g) = gaussOpFun f + gaussOpFun g := by
+  have hf := gaussCoreRep_spec f
+  have hg := gaussCoreRep_spec g
+  have hsum : ((f + g : gaussCore) : Lp ℝ 2 gaussMeasure) =ᵐ[gaussMeasure]
+      gaussCoreRep f + gaussCoreRep g := by
+    have h1 : ((f + g : gaussCore) : Lp ℝ 2 gaussMeasure)
+        = (f : Lp ℝ 2 gaussMeasure) + g := Submodule.coe_add f g
+    rw [h1]
+    exact (Lp.coeFn_add _ _).trans (hf.2.2.add hg.2.2)
+  calc gaussOpFun (f + g)
+      = MemLp.toLp (gaussDirichlet (gaussCoreRep f + gaussCoreRep g))
+          (memLp_gaussDirichlet (hf.1.add hg.1) (hf.2.1.add hg.2.1)) :=
+        gaussOpFun_eq_toLp (f := f + g) (F := gaussCoreRep f + gaussCoreRep g)
+          (hf.1.add hg.1) (hf.2.1.add hg.2.1) hsum
+    _ = MemLp.toLp (gaussDirichlet (gaussCoreRep f) + gaussDirichlet (gaussCoreRep g))
+          ((memLp_gaussDirichlet hf.1 hf.2.1).add (memLp_gaussDirichlet hg.1 hg.2.1)) :=
+        MemLp.toLp_congr _ _
+          (Filter.Eventually.of_forall (congrFun (gaussDirichlet_add hf.1 hg.1)))
+    _ = MemLp.toLp (gaussDirichlet (gaussCoreRep f)) (memLp_gaussDirichlet hf.1 hf.2.1)
+          + MemLp.toLp (gaussDirichlet (gaussCoreRep g)) (memLp_gaussDirichlet hg.1 hg.2.1) :=
+        MemLp.toLp_add _ _
+    _ = gaussOpFun f + gaussOpFun g := by
+        rw [gaussOpFun_eq_toLp (f := f) (F := gaussCoreRep f) hf.1 hf.2.1 hf.2.2,
+          gaussOpFun_eq_toLp (f := g) (F := gaussCoreRep g) hg.1 hg.2.1 hg.2.2]
+
+/-- **The operator is homogeneous on the core.** -/
+theorem gaussOpFun_smul (c : ℝ) (f : gaussCore) : gaussOpFun (c • f) = c • gaussOpFun f := by
+  have hf := gaussCoreRep_spec f
+  have hsm : ((c • f : gaussCore) : Lp ℝ 2 gaussMeasure) =ᵐ[gaussMeasure] c • gaussCoreRep f := by
+    have h1 : ((c • f : gaussCore) : Lp ℝ 2 gaussMeasure) = c • (f : Lp ℝ 2 gaussMeasure) :=
+      Submodule.coe_smul c f
+    rw [h1]
+    exact (Lp.coeFn_smul c _).trans (hf.2.2.const_smul c)
+  calc gaussOpFun (c • f)
+      = MemLp.toLp (gaussDirichlet (c • gaussCoreRep f))
+          (memLp_gaussDirichlet (hf.1.const_smul c) hf.2.1.smul_left) :=
+        gaussOpFun_eq_toLp (f := c • f) (F := c • gaussCoreRep f)
+          (hf.1.const_smul c) hf.2.1.smul_left hsm
+    _ = MemLp.toLp (c • gaussDirichlet (gaussCoreRep f))
+          ((memLp_gaussDirichlet hf.1 hf.2.1).const_smul c) :=
+        MemLp.toLp_congr _ _
+          (Filter.Eventually.of_forall (congrFun (gaussDirichlet_smul hf.1 c)))
+    _ = c • MemLp.toLp (gaussDirichlet (gaussCoreRep f)) (memLp_gaussDirichlet hf.1 hf.2.1) :=
+        memLp_toLp_const_smul c _ _
+    _ = c • gaussOpFun f := by
+        rw [gaussOpFun_eq_toLp (f := f) (F := gaussCoreRep f) hf.1 hf.2.1 hf.2.2]
+
+/-- The operator as a linear map on its core. -/
+noncomputable def gaussOpLinearMap : gaussCore →ₗ[ℝ] Lp ℝ 2 gaussMeasure where
+  toFun := gaussOpFun
+  map_add' := gaussOpFun_add
+  map_smul' := gaussOpFun_smul
+
+/-- **`T = −Δ + x·∇` as a partially defined operator on `L²(γ dx)`**, with the `C²`-compactly-
+supported core as domain.  Closability of this `LinearPMap` is the remaining S0 content. -/
+noncomputable def gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ] Lp ℝ 2 gaussMeasure where
+  domain := gaussCore
+  toFun := gaussOpLinearMap
+
+/-- On the core, `gaussOp` is `gaussOpFun`, by definition. -/
+theorem gaussOp_apply (f : gaussCore) : gaussOp f = gaussOpFun f := rfl
 
 end
 
