@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09d):** **§18 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-09e):** **§19 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `BookProof/MCMC/PositivityCone` §23 drops the uniform-target restriction of §22:
+> with a prescribed target `π`, a Doeblin condition `ε π b ≤ Q a b` and stationarity
+> (`Target`, `Minorant`, `Stationary`), the `ℓ¹` mass contracts by `1 − ε`
+> (`sum_abs_sub_minorant`, `l1_apply_le`) and **`tendsto_iter_target`** gives
+> `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ‖f − π‖₁ → 0`; the concrete `targetKernel ε π` instantiates it
+> (`tendsto_iter_targetKernel`) and `uniformStep_eq_targetKernel` identifies §22's kernel as the
+> flat-target case.
+> **Earlier newest entry (2026-11-09d):** **§18 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `FockLangevinOperator` §21 computes the drift's sign against the flat `ℓ¹` measure
 > and finds it is *positive* at every basis vector (`coreL1_single_lt_add_drift_X`: the linear
 > potential's drift adds `(β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ)`) to the mass), so that pairing cannot
@@ -19182,3 +19190,36 @@ of `pcnl.md` (§"the gap has to come from the sign structure") remains the targe
 `tendsto_iter_uniformStep`, `coreL1_single_lt_add_drift_X`, `module45_hypotheses_cited` →
 `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no
 trailing whitespace.
+
+### 19. Addendum (2026-11-09e) — the target is `π`, not the flat density
+
+**§18's "what is still open".**  §18 proved convergence in a cone model whose invariant state is the
+*uniform* density, because its kernel is doubly stochastic; the pCNL invariant measure is not flat.
+§23 (`BookProof/MCMC/PositivityCone`) removes that limitation.
+
+* **The hypotheses, read off the Metropolis structure**: `Target π` (`π ≥ 0`, `∑ π = 1`),
+  `Minorant Q π ε` — the Doeblin condition `ε π b ≤ Q a b` *relative to* `π`, which a Metropolis
+  kernel with proposal `π` and acceptance bounded below by `ε` satisfies — and `Stationary Q π`
+  (`∑ₐ π a Q a b = π b`).  Column stochasticity is gone.
+* **The `ℓ¹` contraction**: on a signed measure of zero total mass the constant part of the minorant
+  cancels (`apply_eq_sum_sub`), so `sum_abs_sub_minorant` gives `∑_b |Q a b − ε π b| = 1 − ε` and
+  `l1_apply_le` gives one-step contraction by `1 − ε` (`l1_apply_iter_le` for `n` steps).
+* **Convergence to `π`**: stationarity transfers the contraction to the iterates —
+  **`tendsto_iter_target`**: `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ ‖f − π‖₁ → 0` for every starting probability
+  vector — with `tendsto_iter_target_pointwise` the coordinatewise form.
+* **A concrete kernel**: `targetKernel ε π` (hold with mass `1 − ε`, otherwise draw from `π`) is row
+  stochastic, has minorant `ε` and is stationary at `π` (`targetKernel_rowStoch`,
+  `targetKernel_minorant`, `targetKernel_stationary`), so **`tendsto_iter_targetKernel`** and
+  `tendsto_iter_targetKernel_apply` are its convergence theorem.  `uniformStep_eq_targetKernel`
+  shows §22's kernel is the flat-target special case of this one.
+
+**What is still open.**  The Doeblin condition is *assumed*, not derived: showing that the
+Metropolis-filtered pCNL kernel on occupations satisfies `ε π b ≤ Q a b` with the `ε` the
+architecture's numbers give is the remaining step, together with the core's weighted `ℓ¹` and the
+operator's own gap (unchanged).
+
+**Verification.**  `lake build BookProof.MCMC.PositivityCone` → **8077 jobs**, green.
+`#print axioms` on `tendsto_iter_target`, `tendsto_iter_targetKernel`,
+`tendsto_iter_targetKernel_apply`, `targetKernel_stationary`, `sum_abs_sub_minorant`,
+`uniformStep_eq_targetKernel` → `propext, Classical.choice, Quot.sound` only, no `sorry`.
+Style: 0 lines over 100 characters, no trailing whitespace.

@@ -1262,15 +1262,34 @@ invariant state of a doubly stochastic kernel, independent of the start — at r
 `tendsto_iter_uniformStep` is the instance for the concrete kernel `uniformStep t`
 (`uniformStep_one` states `P 1 = 1` for it).
 
+**The target replaces the flat density (2026-11-09, §23).**  §22's limit is the *uniform* density
+because its kernel is doubly stochastic, while the pCNL invariant measure is not flat.  §23
+therefore drops column stochasticity and replaces it with a prescribed target: `Target π`
+(`π ≥ 0`, `∑ π = 1`), the Doeblin condition `Minorant Q π ε` (`ε π b ≤ Q a b`, what a Metropolis
+kernel with acceptance bounded below by `ε` supplies) and `Stationary Q π` (`∑ₐ π a Q a b = π b`).
+The `ℓ¹` computation is unchanged in form: on a signed measure of zero total mass the constant part
+of the minorant cancels (`apply_eq_sum_sub`), so `∑_b |Q a b − ε π b| = 1 − ε`
+(`sum_abs_sub_minorant`) and one step contracts the `ℓ¹` mass by `1 − ε` (`l1_apply_le`,
+`l1_apply_iter_le`).  Stationarity makes that a statement about the *iterates*:
+**`tendsto_iter_target`** gives `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ‖f − π‖₁ → 0` for every starting probability
+vector, and `tendsto_iter_target_pointwise` reads it coordinatewise.  `targetKernel ε π` — hold with
+mass `1 − ε`, otherwise draw from `π` — is the concrete instance (`targetKernel_rowStoch`,
+`targetKernel_minorant`, `targetKernel_stationary`, **`tendsto_iter_targetKernel`**,
+`tendsto_iter_targetKernel_apply`), and `uniformStep_eq_targetKernel` shows §22's kernel is exactly
+the flat-target case, so the two models are one family.
+
 **Module 4–5 cites the operator facts.**  `module45_hypotheses_cited` packages the three hypotheses
 `pcn_geometric_ergodicity` consumes — sector contraction `coreNorm_baseOp_sector_le`, invariant
 state `baseOp_vac`, gap `1 − ρ > 0` — so the gap hypothesis in the Module 4–5 bound is discharged
 from §18 rather than assumed, and `module45_iterate_bound` is the resulting `‖P₀ᵐ c‖ ≤ ρᵐ‖c‖`.
 
-What this does **not** do: it does not identify the cone model's invariant state with the pCNL
-invariant measure on the unbounded Fock space — the model is finite, its kernel is the symmetric
-proposal written on occupations, and the weighted `ℓ¹` of the core (the weight that makes
-`K_drift` contract) is not named.  It also does not prove the pCNL operator's own gap; the
+What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
+measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
+written on occupations, and the weighted `ℓ¹` of the core (the weight that makes `K_drift` contract)
+is not named.  §23 removes the "uniform only" limitation: the target is an arbitrary `π` and
+convergence to it is proved, but the kernel is still *assumed* to satisfy the Doeblin condition
+relative to `π`, so what remains is showing the Metropolis-filtered pCNL kernel satisfies
+`ε π b ≤ Q a b` with the `ε` the architecture's numbers give.  It also does not prove the pCNL operator's own gap; the
 Bakry–Émery/Hessian route above is untouched, and `pcnl_spectral_gap_of_hessian` stays a target.
 
 #### Review of the implementation's empirical claims (2026-11-03)

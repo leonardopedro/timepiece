@@ -34,7 +34,16 @@ Dobrushin/Doeblin argument consumes.
 * **the concrete pCNL kernel** — `uniformStep t` (hold with the Metropolis mass, jump with proposal
   mass `t`), with `uniformStep_rowStoch`, `uniformStep_colStoch`, `uniformStep_pos`,
   `uniformStep_cone`, **`uniformStep_one`** and the instance of the convergence theorem
-  **`tendsto_iter_uniformStep`**.
+  **`tendsto_iter_uniformStep`**;
+* **the prescribed target (§23)** — the pCNL invariant measure is not flat, so the section replaces
+  column stochasticity by a target `π` with a Doeblin condition `ε π b ≤ Q a b`
+  (`Target`, `Minorant`, `Stationary`): `sum_abs_sub_minorant` gives `∑_b |Q a b − ε π b| = 1 − ε`,
+  `l1_apply_le` the one-step `ℓ¹` contraction, and **`tendsto_iter_target`** proves
+  `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ ‖f − π‖₁ → 0`.  The concrete kernel `targetKernel ε π` (hold with
+  `1 − ε`, else draw from `π`) satisfies all hypotheses (`targetKernel_rowStoch`,
+  `targetKernel_minorant`, `targetKernel_stationary`) and instantiates the theorem
+  (`tendsto_iter_targetKernel`, `tendsto_iter_targetKernel_apply`); `uniformStep_eq_targetKernel`
+  identifies §22's kernel as the flat-target special case.
 
 ## Where the `ℓ²` core and this model meet
 
@@ -354,6 +363,278 @@ theorem tendsto_iter_uniformStep (m : ℕ) {t : ℝ} (ht0 : 0 < t) (ht1 : ((m : 
       (𝓝 (mass f / ((m : ℝ) + 1))) :=
   tendsto_iter_step (uniformStep_rowStoch m t) (uniformStep_colStoch m t) ht0
     (uniformStep_pos m ht0.le ht1) f a
+
+/-! ## 23. The prescribed target: convergence to `π`, not to the flat density
+
+§22's conclusion is uniform because its kernel is doubly stochastic.  The pCNL chain's invariant
+measure is not flat, so this section replaces the column-stochastic hypothesis by three facts about
+a **prescribed target** `π`:
+
+* `Target π` — `π ≥ 0` and `∑ π = 1`;
+* `Minorant Q π ε` — the Doeblin condition `ε · π b ≤ Q a b` *relative to* `π` (what a Metropolis
+  kernel with proposal `π` and acceptance bounded below by `ε` supplies);
+* `Stationary Q π` — `∑ₐ π a Q a b = π b`.
+
+The `ℓ¹` step is the same computation as §22 with `π` in place of the uniform density: on a signed
+measure of zero total mass the constant part of the minorant cancels (`apply_eq_sum_sub`), so
+`∑_b |Q a b − ε π b| = 1 − ε` (`sum_abs_sub_minorant`) and one step scales the `ℓ¹` mass by at most
+`1 − ε` (`l1_apply_le`, iterated in `l1_apply_iter_le`).  Stationarity turns that into convergence
+of the *iterates* to `π` — **`tendsto_iter_target`**: `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ ‖f − π‖₁ → 0` for
+every starting probability vector — and `tendsto_iter_target_pointwise` reads it coordinatewise.
+
+`targetKernel ε π` is the concrete kernel: hold with mass `1 − ε`, otherwise draw from `π`.  It is
+row stochastic (`targetKernel_rowStoch`), has minorant `ε` (`targetKernel_minorant`), is stationary
+at `π` (`targetKernel_stationary`), and **`tendsto_iter_targetKernel`** is the convergence theorem
+for it (`tendsto_iter_targetKernel_apply` coordinatewise).  `uniformStep_eq_targetKernel` shows
+§22's kernel is the special case of a flat target, so the two models are one. -/
+
+/-- The `ℓ¹` norm of a signed measure. -/
+def l1 (f : Fin (m + 1) → ℝ) : ℝ := ∑ a, |f a|
+
+/-- The action of a kernel on a measure: `(μ Q) b = ∑ₐ μ a · Q a b`. -/
+def apply (Q : Fin (m + 1) → Fin (m + 1) → ℝ) (μ : Fin (m + 1) → ℝ) :
+    Fin (m + 1) → ℝ :=
+  fun b => ∑ a, μ a * Q a b
+
+/-- A probability vector. -/
+def Target (π : Fin (m + 1) → ℝ) : Prop := (∀ b, 0 ≤ π b) ∧ ∑ b, π b = 1
+
+/-- The Doeblin minorant relative to `π`. -/
+def Minorant (Q : Fin (m + 1) → Fin (m + 1) → ℝ) (π : Fin (m + 1) → ℝ) (ε : ℝ) : Prop :=
+  ∀ a b, ε * π b ≤ Q a b
+
+/-- `π` is stationary for `Q` (`π Q = π`). -/
+def Stationary (Q : Fin (m + 1) → Fin (m + 1) → ℝ) (π : Fin (m + 1) → ℝ) : Prop :=
+  ∀ b, ∑ a, π a * Q a b = π b
+
+theorem l1_nonneg (f : Fin (m + 1) → ℝ) : 0 ≤ l1 f :=
+  Finset.sum_nonneg fun _ _ => abs_nonneg _
+
+theorem abs_le_l1 (f : Fin (m + 1) → ℝ) (b : Fin (m + 1)) : |f b| ≤ l1 f := by
+  refine Finset.single_le_sum (f := fun a => |f a|) (fun a _ => abs_nonneg _) (mem_univ b)
+
+/-- The constant part of the minorant cancels: on a signed measure of zero total mass, the kernel
+acts through `Q a b − ε π b`. -/
+theorem apply_eq_sum_sub {π : Fin (m + 1) → ℝ} (Q : Fin (m + 1) → Fin (m + 1) → ℝ)
+    (ε : ℝ) {σ : Fin (m + 1) → ℝ} (hσ : ∑ a, σ a = 0) (b : Fin (m + 1)) :
+    apply Q σ b = ∑ a, σ a * (Q a b - ε * π b) := by
+  simp only [apply]
+  have : ∑ a, σ a * (Q a b - ε * π b) = ∑ a, σ a * Q a b - ε * π b * ∑ a, σ a := by
+    rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl fun a _ => by ring
+  rw [this, hσ, mul_zero, sub_zero]
+
+/-- The one-step Doeblin estimate: the kernel scales the `ℓ¹` mass of a zero-total signed measure
+by at most `1 − ε`. -/
+theorem sum_abs_sub_minorant {Q : Fin (m + 1) → Fin (m + 1) → ℝ}
+    {π : Fin (m + 1) → ℝ} {ε : ℝ} (hrow : RowStoch Q) (hmin : Minorant Q π ε)
+    (hπ : Target π) (a : Fin (m + 1)) :
+    ∑ b, |Q a b - ε * π b| = 1 - ε := by
+  have hnn : ∀ b, 0 ≤ Q a b - ε * π b := fun b => by
+    have := hmin a b
+    linarith
+  calc ∑ b, |Q a b - ε * π b| = ∑ b, (Q a b - ε * π b) := by
+        exact Finset.sum_congr rfl fun b _ => abs_of_nonneg (hnn b)
+    _ = 1 - ε := by
+        rw [Finset.sum_sub_distrib, hrow a, ← Finset.mul_sum, hπ.2, mul_one]
+
+theorem eps_le_one {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ} {ε : ℝ}
+    (hrow : RowStoch Q) (hmin : Minorant Q π ε) (hπ : Target π) : ε ≤ 1 := by
+  have h1 : ε * (∑ b, π b) ≤ ∑ b, Q 0 b := by
+    rw [Finset.mul_sum]
+    exact Finset.sum_le_sum fun b _ => hmin 0 b
+  rwa [hπ.2, hrow 0, mul_one] at h1
+
+theorem l1_apply_le {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ} {ε : ℝ}
+    (hrow : RowStoch Q) (hmin : Minorant Q π ε) (hπ : Target π)
+    {σ : Fin (m + 1) → ℝ} (hσ : ∑ a, σ a = 0) :
+    l1 (apply Q σ) ≤ (1 - ε) * l1 σ := by
+  have hstep : ∀ b, |apply Q σ b| ≤ ∑ a, |σ a| * |Q a b - ε * π b| := by
+    intro b
+    rw [apply_eq_sum_sub Q ε hσ b]
+    refine (Finset.abs_sum_le_sum_abs _ _).trans (Finset.sum_le_sum fun a _ => ?_)
+    rw [abs_mul]
+  calc l1 (apply Q σ) = ∑ b, |apply Q σ b| := rfl
+    _ ≤ ∑ b, ∑ a, |σ a| * |Q a b - ε * π b| := Finset.sum_le_sum fun b _ => hstep b
+    _ = ∑ a, ∑ b, |σ a| * |Q a b - ε * π b| := Finset.sum_comm
+    _ = ∑ a, |σ a| * ∑ b, |Q a b - ε * π b| := by
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [Finset.mul_sum]
+    _ = ∑ a, |σ a| * (1 - ε) := by
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [sum_abs_sub_minorant hrow hmin hπ a]
+    _ = (∑ a, |σ a|) * (1 - ε) := (Finset.sum_mul _ _ _).symm
+    _ = (1 - ε) * l1 σ := by rw [l1, mul_comm]
+
+/-- A row-stochastic kernel preserves the total mass. -/
+theorem sum_apply {Q : Fin (m + 1) → Fin (m + 1) → ℝ} (hrow : RowStoch Q)
+    (μ : Fin (m + 1) → ℝ) : ∑ b, apply Q μ b = ∑ a, μ a := by
+  simp only [apply]
+  rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [← Finset.mul_sum, hrow a, mul_one]
+
+theorem l1_apply_iter_le {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ} {ε : ℝ}
+    (hrow : RowStoch Q) (hmin : Minorant Q π ε) (hπ : Target π)
+    {σ : Fin (m + 1) → ℝ} (hσ : ∑ a, σ a = 0) (n : ℕ) :
+    l1 ((apply Q)^[n] σ) ≤ (1 - ε) ^ n * l1 σ := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    have hσn : ∑ a, ((apply Q)^[n] σ) a = 0 := by
+      rw [show (∑ a, ((apply Q)^[n] σ) a) = ∑ a, σ a from ?_, hσ]
+      clear hσ ih
+      induction n with
+      | zero => simp
+      | succ n ih' => rw [Function.iterate_succ_apply', sum_apply hrow, ih']
+    rw [Function.iterate_succ_apply', pow_succ]
+    calc l1 (apply Q ((apply Q)^[n] σ))
+        ≤ (1 - ε) * l1 ((apply Q)^[n] σ) := l1_apply_le hrow hmin hπ hσn
+      _ ≤ (1 - ε) * ((1 - ε) ^ n * l1 σ) := by
+          refine mul_le_mul_of_nonneg_left ih ?_
+          linarith [eps_le_one hrow hmin hπ]
+      _ = (1 - ε) ^ n * (1 - ε) * l1 σ := by ring
+
+theorem apply_stationary {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hstat : Stationary Q π) : apply Q π = π :=
+  funext hstat
+
+theorem apply_sub (Q : Fin (m + 1) → Fin (m + 1) → ℝ) (f g : Fin (m + 1) → ℝ) :
+    apply Q (f - g) = apply Q f - apply Q g := by
+  funext b
+  simp only [apply, Pi.sub_apply, sub_mul, Finset.sum_sub_distrib]
+
+theorem iterate_sub_stationary {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hstat : Stationary Q π) (f : Fin (m + 1) → ℝ) (n : ℕ) :
+    (apply Q)^[n] (f - π) = (apply Q)^[n] f - π := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Function.iterate_succ_apply', Function.iterate_succ_apply', ih, apply_sub,
+      apply_stationary hstat]
+
+/-- **Convergence to the prescribed target.**  A row-stochastic kernel with a Doeblin minorant
+`ε π` relative to `π`, for which `π` is stationary, drives every starting probability vector to
+`π` in `ℓ¹`, at the geometric rate `1 − ε`. -/
+theorem tendsto_iter_target {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ} {ε : ℝ}
+    (hrow : RowStoch Q) (hmin : Minorant Q π ε) (hπ : Target π) (hstat : Stationary Q π)
+    (hε0 : 0 < ε) {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => l1 ((apply Q)^[n] f - π)) atTop (𝓝 0) := by
+  have hσ : ∑ a, (f - π) a = 0 := by
+    simp only [Pi.sub_apply]
+    rw [Finset.sum_sub_distrib, hf, hπ.2, sub_self]
+  have hnonneg : 0 ≤ 1 - ε := by linarith [eps_le_one hrow hmin hπ]
+  have hlt : 1 - ε < 1 := by linarith
+  have hbound : ∀ n, l1 ((apply Q)^[n] f - π) ≤ (1 - ε) ^ n * l1 (f - π) := by
+    intro n
+    rw [← iterate_sub_stationary hstat f n]
+    exact l1_apply_iter_le hrow hmin hπ hσ n
+  refine squeeze_zero (fun n => l1_nonneg _) hbound ?_
+  simpa using (tendsto_pow_atTop_nhds_zero_of_lt_one hnonneg hlt).mul_const (l1 (f - π))
+
+/-- `ℓ¹` convergence implies pointwise convergence. -/
+theorem tendsto_iter_target_pointwise {Q : Fin (m + 1) → Fin (m + 1) → ℝ}
+    {π : Fin (m + 1) → ℝ} {ε : ℝ} (hrow : RowStoch Q) (hmin : Minorant Q π ε)
+    (hπ : Target π) (hstat : Stationary Q π) (hε0 : 0 < ε) {f : Fin (m + 1) → ℝ}
+    (hf : ∑ a, f a = 1) (b : Fin (m + 1)) :
+    Tendsto (fun n => ((apply Q)^[n] f) b) atTop (𝓝 (π b)) := by
+  have h0 := tendsto_iter_target hrow hmin hπ hstat hε0 hf
+  have hb : ∀ n, |((apply Q)^[n] f - π) b| ≤ l1 ((apply Q)^[n] f - π) := by
+    intro n
+    rw [← iterate_sub_stationary hstat f n]
+    exact abs_le_l1 ((apply Q)^[n] (f - π)) b
+  have habs : Tendsto (fun n => |((apply Q)^[n] f - π) b|) atTop (𝓝 0) :=
+    squeeze_zero (fun n => abs_nonneg _) hb h0
+  have hz : Tendsto (fun n => ((apply Q)^[n] f - π) b) atTop (𝓝 0) := by
+    rw [tendsto_zero_iff_norm_tendsto_zero]
+    simpa [Real.norm_eq_abs] using habs
+  have hfin : Tendsto (fun n => ((apply Q)^[n] f - π) b + π b) atTop (𝓝 (0 + π b)) :=
+    hz.add_const (π b)
+  simpa [sub_add_cancel] using hfin
+
+/-! ### The concrete pCNL-type kernel with a prescribed target -/
+
+/-- The Metropolis-type kernel of the proposal `π` with hold mass `1 − ε`: at each step hold with
+probability `1 − ε`, otherwise draw from `π`.  Since every entry is at least `ε π b`, its Doeblin
+minorant is `ε` by construction. -/
+def targetKernel (ε : ℝ) (π : Fin (m + 1) → ℝ) : Fin (m + 1) → Fin (m + 1) → ℝ :=
+  fun a b => ε * π b + if b = a then 1 - ε else 0
+
+theorem targetKernel_rowStoch {π : Fin (m + 1) → ℝ} (hπ : Target π) (ε : ℝ) :
+    RowStoch (targetKernel ε π) := by
+  intro a
+  have h1 : (∑ b : Fin (m + 1), (if b = a then 1 - ε else (0 : ℝ))) = 1 - ε := by
+    rw [Finset.sum_ite_eq']
+    simp
+  calc ∑ b : Fin (m + 1), targetKernel ε π a b
+      = ∑ b : Fin (m + 1), (ε * π b + if b = a then 1 - ε else (0 : ℝ)) := rfl
+    _ = ε * (∑ b, π b) + ∑ b : Fin (m + 1), (if b = a then 1 - ε else (0 : ℝ)) := by
+        rw [Finset.sum_add_distrib, Finset.mul_sum]
+    _ = ε * 1 + (1 - ε) := by rw [hπ.2, h1]
+    _ = 1 := by ring
+
+theorem targetKernel_minorant {π : Fin (m + 1) → ℝ} (hπ : Target π) {ε : ℝ} (hε1 : ε ≤ 1) :
+    Minorant (targetKernel ε π) π ε := by
+  intro a b
+  have hp := hπ.1 b
+  simp only [targetKernel]
+  split_ifs with h
+  · linarith
+  · linarith
+
+theorem targetKernel_stationary {π : Fin (m + 1) → ℝ} (hπ : Target π) (ε : ℝ) :
+    Stationary (targetKernel ε π) π := by
+  intro b
+  have h1 : ∑ a : Fin (m + 1), π a * (if b = a then 1 - ε else (0 : ℝ)) = π b * (1 - ε) := by
+    have hsplit : ∀ a : Fin (m + 1),
+        π a * (if b = a then 1 - ε else (0 : ℝ)) = if b = a then π a * (1 - ε) else 0 := by
+      intro a
+      split_ifs <;> ring
+    rw [Finset.sum_congr rfl fun a _ => hsplit a, Finset.sum_ite_eq]
+    simp
+  calc ∑ a : Fin (m + 1), π a * targetKernel ε π a b
+      = ∑ a : Fin (m + 1),
+          (π a * (ε * π b) + π a * (if b = a then 1 - ε else (0 : ℝ))) := by
+        refine Finset.sum_congr rfl fun a _ => ?_
+        simp only [targetKernel]
+        ring
+    _ = ε * π b * (∑ a, π a) + ∑ a : Fin (m + 1), π a * (if b = a then 1 - ε else (0 : ℝ)) := by
+        rw [Finset.sum_add_distrib, Finset.mul_sum]
+        congr 1
+        refine Finset.sum_congr rfl fun a _ => by ring
+    _ = ε * π b * 1 + π b * (1 - ε) := by rw [hπ.2, h1]
+    _ = π b := by ring
+
+/-- **Convergence to the pCNL invariant measure `π`.**  For the kernel that holds with mass
+`1 − ε` and otherwise draws from `π`, every starting probability vector converges to `π` in `ℓ¹` at
+the geometric rate `1 − ε`. -/
+theorem tendsto_iter_targetKernel {π : Fin (m + 1) → ℝ} (hπ : Target π) {ε : ℝ}
+    (hε0 : 0 < ε) (hε1 : ε ≤ 1) {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => l1 ((apply (targetKernel ε π))^[n] f - π)) atTop (𝓝 0) :=
+  tendsto_iter_target (targetKernel_rowStoch hπ ε) (targetKernel_minorant hπ hε1) hπ
+    (targetKernel_stationary hπ ε) hε0 hf
+
+/-- The pointwise form of the same convergence. -/
+theorem tendsto_iter_targetKernel_apply {π : Fin (m + 1) → ℝ} (hπ : Target π) {ε : ℝ}
+    (hε0 : 0 < ε) (hε1 : ε ≤ 1) {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1)
+    (b : Fin (m + 1)) :
+    Tendsto (fun n => (((apply (targetKernel ε π))^[n] f) b)) atTop (𝓝 (π b)) :=
+  tendsto_iter_target_pointwise (targetKernel_rowStoch hπ ε) (targetKernel_minorant hπ hε1) hπ
+    (targetKernel_stationary hπ ε) hε0 hf b
+
+/-- **§22 is the uniform-target case of this kernel.**  With `π` uniform and `ε = (m+1)t` the
+targeted kernel *is* `uniformStep t`, so the doubly stochastic cone model is the special case in
+which the target happens to be flat. -/
+theorem uniformStep_eq_targetKernel (m : ℕ) (t : ℝ) :
+    uniformStep (m := m) t
+      = targetKernel (m := m) (((m : ℝ) + 1) * t) (fun _ => 1 / ((m : ℝ) + 1)) := by
+  funext a b
+  have hne : ((m : ℝ) + 1) ≠ 0 := by positivity
+  have hc : ((m : ℝ) + 1) * t * (1 / ((m : ℝ) + 1)) = t := by
+    field_simp
+  simp only [uniformStep, targetKernel, hc]
+
+
 
 end BookProof.MCMC.PositivityCone
 
