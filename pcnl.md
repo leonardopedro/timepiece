@@ -1291,6 +1291,16 @@ plus row stochasticity), and **`tendsto_iter_mhKernel`** is the resulting `ℓ¹
 rate `1 − δ/supv π`.  What is left is not the condition but the constants: `δ` and `supv π` for the
 architecture's proposal and target on the occupation space, i.e. the numbers in `1 − δ/supv π`.
 
+**The constant drops out of the target (§25).**  §24's minorant is `δ/supv π`, and on a probability
+target `supv π ≤ 1` (`target_le_one`), so the minorant is `δ` itself — **`mhKernel_minorant_one`** —
+and the rate is `1 − δ` (`tendsto_iter_mhKernel_delta`, with the explicit bound
+`‖f Qⁿ − π‖₁ ≤ (1 − δ)ⁿ‖f − π‖₁`) regardless of which target `π` is.  With the concrete symmetric
+proposal `uniformStep t` (`uniformStep_symm`) the chain therefore mixes at rate `1 − t` to *any*
+probability target: **`tendsto_iter_metropolis_uniformStep`** /
+`l1_iter_metropolis_uniformStep_le`.  The only constant left is the proposal's floor `δ`, i.e. the
+minimum of the pCN Gaussian increment over the occupation box — an estimate in the architecture's own
+numbers, not a hypothesis about the chain.
+
 **Module 4–5 cites the operator facts.**  `module45_hypotheses_cited` packages the three hypotheses
 `pcn_geometric_ergodicity` consumes — sector contraction `coreNorm_baseOp_sector_le`, invariant
 state `baseOp_vac`, gap `1 − ρ > 0` — so the gap hypothesis in the Module 4–5 bound is discharged
@@ -1299,11 +1309,13 @@ from §18 rather than assumed, and `module45_iterate_bound` is the resulting `�
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
 written on occupations, and the weighted `ℓ¹` of the core (the weight that makes `K_drift` contract)
-is not named.  §23 removes the "uniform only" limitation (the target is an arbitrary `π`) and §24
+is not named.  §23 removes the "uniform only" limitation (the target is an arbitrary `π`), §24
 derives the Doeblin condition for the Metropolis kernel of a symmetric proposal
-(`mhKernel_minorant`, `ε = δ/supv π`), so what remains is neither the target nor the condition but
-the *constants*: `δ` and `supv π` for the architecture's proposal and target on the occupation
-space, i.e. the numerical rate `1 − δ/supv π`.  It also does not prove the pCNL operator's own gap; the
+(`mhKernel_minorant`), and §25 removes the target from the constant altogether
+(`mhKernel_minorant_one`: on a probability target the minorant is the proposal's floor `δ`, so the
+rate is `1 − δ`; `tendsto_iter_metropolis_uniformStep` instantiates it).  What remains is the single
+number `δ` — the minimum of the pCN Gaussian increment over the occupation box — as an estimate in
+the architecture's parameters.  It also does not prove the pCNL operator's own gap; the
 Bakry–Émery/Hessian route above is untouched, and `pcnl_spectral_gap_of_hessian` stays a target.
 
 #### Review of the implementation's empirical claims (2026-11-03)

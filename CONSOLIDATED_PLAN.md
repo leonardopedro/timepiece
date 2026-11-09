@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09f):** **§20 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-09g):** **§21 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `BookProof/MCMC/PositivityCone` §25 removes the target from §24's Doeblin constant:
+> `supv π ≤ 1` on a probability target (`target_le_one`), so the minorant is the proposal's floor
+> `δ` (**`mhKernel_minorant_one`**) and the rate is `1 − δ`
+> (`tendsto_iter_mhKernel_delta`, `l1_iter_mhKernel_le`); for the concrete symmetric proposal
+> `uniformStep t`, **`tendsto_iter_metropolis_uniformStep`** mixes at rate `1 − t` to any probability
+> target.
+> **Earlier newest entry (2026-11-09f):** **§20 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `BookProof/MCMC/PositivityCone` §24 derives §23's Doeblin condition for the actual
 > Metropolis kernel: `mhKernel q π` is row stochastic by construction (`mhKernel_rowStoch`),
 > satisfies `Minorant (mhKernel q π) π (δ/supv π)` for a symmetric proposal with entries `≥ δ`
@@ -19258,3 +19265,28 @@ architecture's proposal and `supv π` for its target on the occupation space, i.
 `#print axioms` on `mhKernel_rowStoch`, `mhKernel_minorant`, `mhKernel_detailed`,
 `mhKernel_stationary`, `tendsto_iter_mhKernel`, `mul_mhAcc` → `propext, Classical.choice,
 Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing whitespace.
+
+### 21. Addendum (2026-11-09g) — the target leaves the constant
+
+**§20's "what is still open".**  §20 left "the constants `δ` and `supv π`".  §25
+(`BookProof/MCMC/PositivityCone`) removes `supv π`.
+
+* **`target_le_one`**: a probability vector satisfies `π b ≤ 1` at every state, so `supv π ≤ 1`.
+* **`mhKernel_minorant_one`**: the minorant of §24 is therefore `δ` itself, not `δ/supv π` — the
+  Doeblin constant depends only on the proposal.
+* **The rate**: `tendsto_iter_mhKernel_delta` (convergence) and `l1_iter_mhKernel_le`
+  (`‖f Qⁿ − π‖₁ ≤ (1 − δ)ⁿ‖f − π‖₁`).
+* **A concrete proposal**: `uniformStep t` is symmetric (`uniformStep_symm`), row stochastic and
+  uniformly positive, so **`tendsto_iter_metropolis_uniformStep`** gives convergence of the Metropolis
+  chain to any probability target at rate `1 − t` (`l1_iter_metropolis_uniformStep_le`).
+
+**What is still open.**  One number: `δ`, the proposal's floor on the occupation box — for the pCN
+Gaussian increment, the minimum of a positive density on a compact occupation range, which is an
+estimate in the architecture's own parameters.  Beyond the finite model: the core's weighted `ℓ¹` and
+the operator's own gap (unchanged).
+
+**Verification.**  `lake build BookProof.MCMC.PositivityCone` → **8077 jobs**, green.
+`#print axioms` on `target_le_one`, `mhKernel_minorant_one`, `tendsto_iter_mhKernel_delta`,
+`l1_iter_mhKernel_le`, `uniformStep_symm`, `tendsto_iter_metropolis_uniformStep`,
+`l1_iter_metropolis_uniformStep_le` → `propext, Classical.choice, Quot.sound` only, no `sorry`.
+Style: 0 lines over 100 characters, no trailing whitespace.

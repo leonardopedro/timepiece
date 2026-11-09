@@ -50,7 +50,13 @@ Dobrushin/Doeblin argument consumes.
   `Minorant (mhKernel q π) π (δ / supv π)` when every proposal entry is at least `δ`
   (**`mhKernel_minorant`**), is reversible (`mhKernel_detailed`, `mul_mhAcc`) and stationary
   (`mhKernel_stationary`), so **`tendsto_iter_mhKernel`** gives `ℓ¹` convergence to `π` at rate
-  `1 − δ/supv π`.
+  `1 − δ/supv π`;
+* **the constant is the proposal's floor (§25)** — `supv π ≤ 1` on a probability target
+  (`target_le_one`), so the minorant is `δ` itself (**`mhKernel_minorant_one`**) and the rate is
+  `1 − δ` (`tendsto_iter_mhKernel_delta`, `l1_iter_mhKernel_le`) — independent of `π`.  For the
+  concrete symmetric proposal `uniformStep t` (`uniformStep_symm`) this gives
+  **`tendsto_iter_metropolis_uniformStep`**: the Metropolis chain reaches any probability target at
+  rate `1 − t` (`l1_iter_metropolis_uniformStep_le`).
 
 ## Where the `ℓ²` core and this model meet
 
@@ -800,6 +806,124 @@ theorem tendsto_iter_mhKernel {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fi
   have hM : 0 < supv π := lt_of_lt_of_le (hπpos 0) (le_supv π 0)
   exact tendsto_iter_target (mhKernel_rowStoch q π) (mhKernel_minorant hqrow hπpos hδ hqmin)
     hπ (mhKernel_stationary hq hπpos) (div_pos hδ hM) hf
+
+
+
+/-! ## 25. The constant is the proposal's floor, and a concrete proposal
+
+§24's minorant is `δ / supv π`.  On a probability target `supv π ≤ 1` (`target_le_one`), so the
+minorant is `δ` itself — **`mhKernel_minorant_one`** — and the rate is `1 − δ`
+(`tendsto_iter_mhKernel_delta`, and `l1_iter_mhKernel_le` with the explicit bound
+`‖f Qⁿ − π‖₁ ≤ (1 − δ)ⁿ ‖f − π‖₁`).  The constant depends only on the proposal, not on the target,
+which is the form the architecture's numbers supply.
+
+`uniformStep t` is a concrete such proposal: symmetric (`uniformStep_symm`), row stochastic
+(`uniformStep_rowStoch`) and uniformly positive (`uniformStep_pos`), so the Metropolis chain on it
+converges to any probability target at rate `1 − t`
+(**`tendsto_iter_metropolis_uniformStep`**, `l1_iter_metropolis_uniformStep_le`). -/
+
+/-- A probability vector never exceeds `1` at any state. -/
+theorem target_le_one {π : Fin (m + 1) → ℝ} (hπ : Target π) (b : Fin (m + 1)) : π b ≤ 1 := by
+  have h := Finset.single_le_sum (f := π) (fun a _ => hπ.1 a) (mem_univ b)
+  rwa [hπ.2] at h
+
+/-- **The Doeblin constant is the proposal's floor.**  The `supv π` of `mhKernel_minorant` is at
+most `1` on a probability target, so the minorant is `δ` itself: no knowledge of `π` beyond
+`∑ π = 1` is needed. -/
+theorem mhKernel_minorant_one {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hqrow : RowStoch q) (hπpos : ∀ a, 0 < π a) (hπ : Target π) {δ : ℝ} (hδ : 0 < δ)
+    (hqmin : ∀ a b, δ ≤ q a b) : Minorant (mhKernel q π) π δ := by
+  intro a b
+  have hpb : π b ≤ 1 := target_le_one hπ b
+  have hpa : π a ≤ 1 := target_le_one hπ a
+  have hb0 : 0 ≤ π b := le_of_lt (hπpos b)
+  by_cases hba : b = a
+  · rw [mhKernel, if_pos hba, hba]
+    have hS : ∑ c ∈ univ.erase a, q a c = 1 - q a a := by
+      have h := Finset.add_sum_erase (univ : Finset (Fin (m + 1))) (fun c => q a c) (mem_univ a)
+      rw [hqrow a] at h
+      linarith
+    have hSle : ∑ c ∈ univ.erase a, q a c * mhAcc π a c ≤ ∑ c ∈ univ.erase a, q a c :=
+      Finset.sum_le_sum fun c _ => by
+        have hq0 : 0 ≤ q a c := le_trans hδ.le (hqmin a c)
+        exact mul_le_of_le_one_right hq0 (mhAcc_le_one hπpos a c)
+    have hgap : δ ≤ 1 - ∑ c ∈ univ.erase a, q a c * mhAcc π a c := by
+      have : δ ≤ 1 - ∑ c ∈ univ.erase a, q a c := by rw [hS]; linarith [hqmin a a]
+      linarith
+    exact (mul_le_of_le_one_right hδ.le hpa).trans hgap
+  · rw [mhKernel, if_neg hba]
+    rcases le_total (π b) (π a) with hle | hle
+    · have hacc : mhAcc π a b = π b / π a := by unfold mhAcc; rw [if_pos hle]
+      rw [hacc]
+      have hge : π b ≤ π b / π a := by
+        rw [le_div_iff₀ (hπpos a)]
+        nlinarith [hpa, hb0]
+      have h1 : δ * π b ≤ q a b * (π b / π a) := by
+        calc δ * π b ≤ δ * (π b / π a) := mul_le_mul_of_nonneg_left hge hδ.le
+          _ ≤ q a b * (π b / π a) :=
+            mul_le_mul_of_nonneg_right (hqmin a b) (div_nonneg hb0 (le_of_lt (hπpos a)))
+      exact h1
+    · have hacc : mhAcc π a b = 1 := by
+        unfold mhAcc
+        by_cases h' : π b ≤ π a
+        · rw [if_pos h', show π b = π a from le_antisymm h' hle, div_self (ne_of_gt (hπpos a))]
+        · rw [if_neg h']
+      rw [hacc, mul_one]
+      exact (mul_le_of_le_one_right hδ.le hpb).trans (hqmin a b)
+
+/-- **The pCNL chain mixes at rate `1 − δ`.**  A symmetric proposal with a uniform floor `δ` drives
+every starting probability vector to *any* probability target `π` in `ℓ¹`, at the rate `1 − δ` — the
+constant depending only on the proposal, not on the target. -/
+theorem tendsto_iter_mhKernel_delta {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq : ∀ a b, q a b = q b a) (hπpos : ∀ a, 0 < π a) (hπ : Target π) {δ : ℝ} (hδ : 0 < δ)
+    (hqmin : ∀ a b, δ ≤ q a b) (hqrow : RowStoch q)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => l1 ((apply (mhKernel q π))^[n] f - π)) atTop (𝓝 0) :=
+  tendsto_iter_target (mhKernel_rowStoch q π) (mhKernel_minorant_one hqrow hπpos hπ hδ hqmin)
+    hπ (mhKernel_stationary hq hπpos) hδ hf
+
+/-- The floor is `1 − δ`, so the iterates contract by `1 − δ`: the explicit rate. -/
+theorem l1_iter_mhKernel_le {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq : ∀ a b, q a b = q b a) (hπpos : ∀ a, 0 < π a) (hπ : Target π) {δ : ℝ} (hδ : 0 < δ)
+    (hqmin : ∀ a b, δ ≤ q a b) (hqrow : RowStoch q)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) (n : ℕ) :
+    l1 ((apply (mhKernel q π))^[n] f - π) ≤ (1 - δ) ^ n * l1 (f - π) := by
+  have hσ : ∑ a, (f - π) a = 0 := by
+    simp only [Pi.sub_apply]
+    rw [Finset.sum_sub_distrib, hf, hπ.2, sub_self]
+  rw [← iterate_sub_stationary (mhKernel_stationary hq hπpos) f n]
+  exact l1_apply_iter_le (mhKernel_rowStoch q π) (mhKernel_minorant_one hqrow hπpos hπ hδ hqmin)
+    hπ hσ n
+
+/-! ### The concrete proposal -/
+
+theorem uniformStep_symm (m : ℕ) (t : ℝ) :
+    ∀ a b : Fin (m + 1), uniformStep (m := m) t a b = uniformStep t b a := by
+  intro a b
+  simp only [uniformStep]
+  by_cases h : b = a
+  · rw [if_pos h, if_pos h.symm]
+  · rw [if_neg h, if_neg (fun h' => h h'.symm)]
+
+/-- **The concrete pCN-type chain.**  With the uniformly positive symmetric proposal
+`uniformStep t`, the Metropolis chain converges to *any* probability target `π` in `ℓ¹` at the
+explicit rate `1 − t`, and its iterates obey `‖f Qⁿ − π‖₁ ≤ (1 − t)ⁿ‖f − π‖₁`. -/
+theorem tendsto_iter_metropolis_uniformStep (m : ℕ) {π : Fin (m + 1) → ℝ}
+    (hπpos : ∀ a, 0 < π a) (hπ : Target π) {t : ℝ} (ht0 : 0 < t)
+    (ht1 : ((m : ℝ) + 1) * t ≤ 1) {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => l1 ((apply (mhKernel (uniformStep (m := m) t) π))^[n] f - π)) atTop
+      (𝓝 0) :=
+  tendsto_iter_mhKernel_delta (uniformStep_symm m t) hπpos hπ ht0
+    (uniformStep_pos m ht0.le ht1) (uniformStep_rowStoch m t) hf
+
+/-- The same convergence with its explicit `n`-step bound. -/
+theorem l1_iter_metropolis_uniformStep_le (m : ℕ) {π : Fin (m + 1) → ℝ}
+    (hπpos : ∀ a, 0 < π a) (hπ : Target π) {t : ℝ} (ht0 : 0 < t)
+    (ht1 : ((m : ℝ) + 1) * t ≤ 1) {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) (n : ℕ) :
+    l1 ((apply (mhKernel (uniformStep (m := m) t) π))^[n] f - π)
+      ≤ (1 - t) ^ n * l1 (f - π) :=
+  l1_iter_mhKernel_le (uniformStep_symm m t) hπpos hπ ht0
+    (uniformStep_pos m ht0.le ht1) (uniformStep_rowStoch m t) hf n
 
 
 
