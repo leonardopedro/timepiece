@@ -56,7 +56,11 @@ Dobrushin/Doeblin argument consumes.
   `1 − δ` (`tendsto_iter_mhKernel_delta`, `l1_iter_mhKernel_le`) — independent of `π`.  For the
   concrete symmetric proposal `uniformStep t` (`uniformStep_symm`) this gives
   **`tendsto_iter_metropolis_uniformStep`**: the Metropolis chain reaches any probability target at
-  rate `1 − t` (`l1_iter_metropolis_uniformStep_le`).
+  rate `1 − t` (`l1_iter_metropolis_uniformStep_le`);
+* **total variation (§26)** — Module 5's distance is half the `ℓ¹` one (`tv`, `tv_le_l1`), so the
+  same contraction gives `l1_iter_target_le` and **`tendsto_iter_target_tv`**
+  (`tv_iter_le` for the rate), with the Metropolis instances `tendsto_iter_mhKernel_tv` and
+  `tendsto_iter_metropolis_uniformStep_tv`.
 
 ## Where the `ℓ²` core and this model meet
 
@@ -924,6 +928,85 @@ theorem l1_iter_metropolis_uniformStep_le (m : ℕ) {π : Fin (m + 1) → ℝ}
       ≤ (1 - t) ^ n * l1 (f - π) :=
   l1_iter_mhKernel_le (uniformStep_symm m t) hπpos hπ ht0
     (uniformStep_pos m ht0.le ht1) (uniformStep_rowStoch m t) hf n
+
+
+
+/-! ## 26. Module 5's distance: total variation, at the Doeblin rate
+
+`pcnl.md`'s Module 5 asks for convergence in total variation.  In the finite model that is half the
+`ℓ¹` distance (`tv`), so §23's contraction gives it directly:
+
+* `tv_nonneg`, `tv_le_l1` — the basic comparisons with `l1`;
+* `l1_iter_target_le` — the iterate bound `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ‖f − π‖₁`;
+* **`tendsto_iter_target_tv`** — `tv (f Qⁿ) π → 0` at the Doeblin rate, and `tv_iter_le` the same
+  with the explicit bound;
+* the Metropolis instances: `tendsto_iter_mhKernel_tv` (rate `1 − δ`) and
+  `tendsto_iter_metropolis_uniformStep_tv` (rate `1 − t`).
+
+So Module 5's distance is reached by the same minorant as Module 4's `ℓ¹`; the two are not separate
+arguments. -/
+
+/-- The total-variation distance between two signed measures: half the `ℓ¹` distance. -/
+noncomputable def tv (μ ν : Fin (m + 1) → ℝ) : ℝ := l1 (μ - ν) / 2
+
+theorem tv_nonneg (μ ν : Fin (m + 1) → ℝ) : 0 ≤ tv μ ν :=
+  div_nonneg (l1_nonneg _) (by norm_num)
+
+theorem tv_le_l1 (μ ν : Fin (m + 1) → ℝ) : tv μ ν ≤ l1 (μ - ν) := by
+  have h := l1_nonneg (μ - ν)
+  simp only [tv]
+  linarith
+
+/-- The `ℓ¹` distance of the iterates to `π` contracts at the Doeblin rate. -/
+theorem l1_iter_target_le {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ} {ε : ℝ}
+    (hrow : RowStoch Q) (hmin : Minorant Q π ε) (hπ : Target π) (hstat : Stationary Q π)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) (n : ℕ) :
+    l1 ((apply Q)^[n] f - π) ≤ (1 - ε) ^ n * l1 (f - π) := by
+  have hσ : ∑ a, (f - π) a = 0 := by
+    simp only [Pi.sub_apply]
+    rw [Finset.sum_sub_distrib, hf, hπ.2, sub_self]
+  rw [← iterate_sub_stationary hstat f n]
+  exact l1_apply_iter_le hrow hmin hπ hσ n
+
+/-- **Module 5 in the finite model.**  A row-stochastic kernel with the Doeblin minorant `ε π`,
+stationary at `π`, drives every starting probability vector to `π` in total variation, at the
+geometric rate `1 − ε`. -/
+theorem tendsto_iter_target_tv {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ} {ε : ℝ}
+    (hrow : RowStoch Q) (hmin : Minorant Q π ε) (hπ : Target π) (hstat : Stationary Q π)
+    (hε0 : 0 < ε) {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => tv ((apply Q)^[n] f) π) atTop (𝓝 0) := by
+  have h0 := tendsto_iter_target hrow hmin hπ hstat hε0 hf
+  have hle : ∀ n, tv ((apply Q)^[n] f) π ≤ l1 ((apply Q)^[n] f - π) :=
+    fun n => tv_le_l1 _ _
+  exact squeeze_zero (fun n => tv_nonneg _ _) hle h0
+
+/-- The same convergence with its explicit `n`-step bound. -/
+theorem tv_iter_le {Q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ} {ε : ℝ}
+    (hrow : RowStoch Q) (hmin : Minorant Q π ε) (hπ : Target π) (hstat : Stationary Q π)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) (n : ℕ) :
+    tv ((apply Q)^[n] f) π ≤ (1 - ε) ^ n * l1 (f - π) / 2 := by
+  have h := l1_iter_target_le hrow hmin hπ hstat hf n
+  simp only [tv]
+  linarith
+
+/-- **The pCNL chain in total variation.**  For the Metropolis kernel of a symmetric proposal with
+floor `δ`, the iterates converge to any probability target in total variation at rate `1 − δ`. -/
+theorem tendsto_iter_mhKernel_tv {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq : ∀ a b, q a b = q b a) (hπpos : ∀ a, 0 < π a) (hπ : Target π) {δ : ℝ} (hδ : 0 < δ)
+    (hqmin : ∀ a b, δ ≤ q a b) (hqrow : RowStoch q)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => tv ((apply (mhKernel q π))^[n] f) π) atTop (𝓝 0) :=
+  tendsto_iter_target_tv (mhKernel_rowStoch q π) (mhKernel_minorant_one hqrow hπpos hπ hδ hqmin)
+    hπ (mhKernel_stationary hq hπpos) hδ hf
+
+/-- The concrete proposal's total-variation convergence, at rate `1 − t`. -/
+theorem tendsto_iter_metropolis_uniformStep_tv (m : ℕ) {π : Fin (m + 1) → ℝ}
+    (hπpos : ∀ a, 0 < π a) (hπ : Target π) {t : ℝ} (ht0 : 0 < t)
+    (ht1 : ((m : ℝ) + 1) * t ≤ 1) {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => tv ((apply (mhKernel (uniformStep (m := m) t) π))^[n] f) π) atTop
+      (𝓝 0) :=
+  tendsto_iter_mhKernel_tv (uniformStep_symm m t) hπpos hπ ht0
+    (uniformStep_pos m ht0.le ht1) (uniformStep_rowStoch m t) hf
 
 
 

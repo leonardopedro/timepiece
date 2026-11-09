@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09g):** **§21 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-09h):** **§22 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `BookProof/MCMC/PositivityCone` §26 gives Module 5's total variation from the same
+> contraction: `tv` is half the `ℓ¹` distance (`tv_le_l1`), `l1_iter_target_le` is the iterate bound
+> and **`tendsto_iter_target_tv`** gives `tv (f Qⁿ) π → 0` at the Doeblin rate, with the Metropolis
+> instances `tendsto_iter_mhKernel_tv` (rate `1 − δ`) and `tendsto_iter_metropolis_uniformStep_tv`
+> (rate `1 − t`).
+> **Earlier newest entry (2026-11-09g):** **§21 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `BookProof/MCMC/PositivityCone` §25 removes the target from §24's Doeblin constant:
 > `supv π ≤ 1` on a probability target (`target_le_one`), so the minorant is the proposal's floor
 > `δ` (**`mhKernel_minorant_one`**) and the rate is `1 − δ`
@@ -19290,3 +19296,26 @@ the operator's own gap (unchanged).
 `l1_iter_mhKernel_le`, `uniformStep_symm`, `tendsto_iter_metropolis_uniformStep`,
 `l1_iter_metropolis_uniformStep_le` → `propext, Classical.choice, Quot.sound` only, no `sorry`.
 Style: 0 lines over 100 characters, no trailing whitespace.
+
+### 22. Addendum (2026-11-09h) — Module 5's total variation, at the same rate
+
+**What §21 left.**  §21 closed Module 4's `ℓ¹` bound and left Module 5's total-variation statement
+to its own argument.  It does not need one: `tv` is half the `ℓ¹` distance.
+
+* `tv_nonneg`, `tv_le_l1` — the comparisons with `l1`.
+* `l1_iter_target_le` — `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ‖f − π‖₁` for the general Doeblin kernel.
+* **`tendsto_iter_target_tv`** — `tv (f Qⁿ) π → 0` at the Doeblin rate; `tv_iter_le` the same with
+  the explicit bound.
+* The Metropolis instances: `tendsto_iter_mhKernel_tv` (rate `1 − δ`) and
+  `tendsto_iter_metropolis_uniformStep_tv` (rate `1 − t`).
+
+**What is still open.**  Unchanged: the proposal's floor `δ` as a number in the architecture's
+parameters; the core's weighted `ℓ¹`; the operator's own gap.  `GeometricErgodicity`'s
+Born-to-variation step (the `L²`-to-TV inequality on the infinite-dimensional space) is a separate
+target and is untouched by this.
+
+**Verification.**  `lake build BookProof.MCMC.PositivityCone` → **8077 jobs**, green.
+`#print axioms` on `tv_nonneg`, `tv_le_l1`, `l1_iter_target_le`, `tendsto_iter_target_tv`,
+`tv_iter_le`, `tendsto_iter_mhKernel_tv`, `tendsto_iter_metropolis_uniformStep_tv` → `propext,
+Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing
+whitespace.

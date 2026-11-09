@@ -1301,6 +1301,15 @@ probability target: **`tendsto_iter_metropolis_uniformStep`** /
 minimum of the pCN Gaussian increment over the occupation box — an estimate in the architecture's own
 numbers, not a hypothesis about the chain.
 
+**Module 5's distance (§26).**  The plan's Module 5 asks for convergence in *total variation*, and in
+the finite model that is half the `ℓ¹` distance (`tv`, `tv_le_l1`), so no separate argument is
+needed: `l1_iter_target_le` states `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ‖f − π‖₁` and
+**`tendsto_iter_target_tv`** reads it as `tv (f Qⁿ) π → 0` at the Doeblin rate (`tv_iter_le` with the
+explicit bound).  The Metropolis instances are `tendsto_iter_mhKernel_tv` (rate `1 − δ`) and
+`tendsto_iter_metropolis_uniformStep_tv` (rate `1 − t`).  This is Module 5's statement in the finite
+model; the Born-to-variation step `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` of `GeometricErgodicity` is the
+infinite-dimensional counterpart and is untouched.
+
 **Module 4–5 cites the operator facts.**  `module45_hypotheses_cited` packages the three hypotheses
 `pcn_geometric_ergodicity` consumes — sector contraction `coreNorm_baseOp_sector_le`, invariant
 state `baseOp_vac`, gap `1 − ρ > 0` — so the gap hypothesis in the Module 4–5 bound is discharged
