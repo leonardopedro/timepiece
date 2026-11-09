@@ -620,3 +620,103 @@ JSON includes the substantial full-action tails and conditional resolvent
 error bounds. The symbolic regeneration gate passed (19/49 legacy CHECK rows
 and exact full LaTeX fixture). The GitBook checker passed 87 pages / 611 links /
 452 source–target pairs with no warnings. Cargo.lock was unchanged.
+
+## 10. P0 executed (2026-11-09d)
+
+`BookProof/Sm/ChapterSmPhysicalData.lean` now carries the P0 ledger and its proved identities;
+it builds (`lake build BookProof.Sm.ChapterSmPhysicalData`, and through `BookProof.lean`).
+
+* **Ledger data.** `SmLedgerEntry` and `smLedger` (six rows: `h_B` gauge, `h_B` Higgs, `h_Dirac`,
+  `h_gauge–matter`, `h_Yukawa`, `dΓ_out`), each row naming the manuscript place, the Lean
+  declaration, the Cadabra check/export, the Rust contract and an honest status. Only the
+  bosonic row is `PROVED`; the Dirac, gauge–matter and Yukawa rows are `NOT AN OPERATOR` here, so
+  no occurrence of "full" in the module does the work of an unproved operator identity.
+* **Endpoints.** `SmEndpointSpec`, `smE1` (finite internal factor: 96 complex CAR coordinates,
+  192 real Majorana components, fixed-collective-coordinate spatial derivative) and `smE2`
+  (`SmCarContinuum.CFock`, no declared mode counts), with `smE1_ne_smE2`, `smE1_complexModes`,
+  `smE1_realComponents`, `smE1_real_eq_two_mul_complex`, `smE2_noModeCount`.
+* **Coordinate partition and disjointness.** `card_smJet` (72+27+9+12 = 120), `card_partition`
+  (3+40+120 = 163), `kinetic_card` (40+3 = 43), `kinetic_partition` (43+120 = 163),
+  `smCoord_partition`; the jet family `smJetCoord` is new; `smMomCoord_injective`,
+  `smJetCoord_injective`, and the three disjointness theorems `smMom_disjoint_spatial`,
+  `smMom_disjoint_jet`, `spatial_disjoint_jet` are proved, so the active, spatial and jet index
+  families are pairwise disjoint subsets of `Fin 163`.
+* **No empty mode set.** `smMom_nonempty`, `smForm_nonempty`, `smForm_blocks`
+  (36+13 = 49, splitting the forms into the 24+9+3 magnetic block and the 12+1 Higgs block); the
+  bosonic operator theorems already hold for **arbitrary** `SmParams`, so no zero coupling or
+  fixed background discharges them.
+* **Conventions.** `higgsVacuumEnergy` (`c_H = μ⁴/(4λ)`) with `higgsVacuumEnergy_eq`
+  (`= μ²v²/4` under `v² = μ²/λ`, `λ ≠ 0`), `higgsVacuumEnergy_pos`, `higgsVacuumEnergy_zero`.
+* **Matter recount is arithmetic, not modes.** `quark_leftReal`/`quark_rightReal`
+  (36+36 = 72), `lepton_leftReal`/`lepton_rightReal` (12+12 = 24),
+  `quark_real_eq`, `lepton_real_eq`, `matterReal_eq` (72+24 = 96). The identification of these
+  real components with CAR annihilation modes is explicitly left to P1.
+
+Not done by this packet: no `h_Dirac`, `h_gauge–matter` or `h_Yukawa` operator, no common core,
+no comparison operator, no ESA statement, and no import-component metadata repair (the
+`import_components` gate still reports its known split-wave drift, unchanged by this module).
+
+## 11. P1 executed (2026-11-09e)
+
+`BookProof/Sm/ChapterSmMatterRepresentation.lean` and `BookProof/Sm/ChapterSmFullYukawaData.lean`
+now carry P1; both build (`lake build BookProof.Sm.ChapterSmFullYukawaData`) and are imported by
+`BookProof.lean` after `ChapterSmPhysicalData`.
+
+### The internal representation (`BookProof.SmMatter`)
+
+* **Chiral content.** `SmWeylField` is the explicit 16-field content of one generation
+  (`Q c s`, `uR c`, `dR c`, `L s`, `eR`, `nuR`), with `SmWeylField.card_field` (`6+3+3+2+1+1 = 16`);
+  `SmMatterIndex = SmGen × SmWeylField × Fin 2` is the 96-complex-coordinate index
+  (`card_matterIndex`, `matterIndex_complexModes` naming `smE1.innerComplexModes`) and
+  `SmMajoranaIndex = SmMatterIndex × Fin 2` the 192 real Majorana components
+  (`card_majoranaIndex`, `card_majoranaIndex_eq_two_mul`, `majoranaIndex_realComponents` naming
+  `smE1.innerRealComponents`). Both counts are the E1 endpoint's, in the endpoint's own vocabulary.
+* **Independent-component identification.** `smMatterMode : SmMatterIndex ≃ Fin 96` and
+  `smMajoranaMode : SmMajoranaIndex ≃ Fin 192` (`Fintype.equivFinOfCardEq`), with
+  `smMatterMode_injective`/`smMatterMode_ne`: the 96 coordinates are 96 distinct CAR modes, not a
+  coarse-grained recount.
+* **CAR representation.** `MatterFock = FermiFock 96`, `matterVac`, `matterAnnih`, `matterCreat`,
+  and the transported relations `matter_car_annih_creat_self`, `matter_car_annih_creat_of_ne`,
+  `matter_inner_creat_left`, `matter_norm_annih_le`, `matter_norm_creat_le`; the second quantized
+  internal matrix `matterBilin` with `matterBilin_apply`, `matterBilin_symmetric` (Hermitian `M`
+  gives a symmetric operator) and `matterBilin_norm_le` (the `ℓ¹` bound).
+* **Charge conjugation.** `eps = iσ₂ = !![0, 1; -1, 0]` with `eps_transpose`, `eps_conjTranspose`,
+  `eps_mul_self` (`ε² = -1`), `eps_unitary`, `eps_mul_unitary`; `chargeConj` (`ψ ↦ ε ψ̅`) with
+  `chargeConj_zero`/`chargeConj_one`, `chargeConj_chargeConj` (**`C² = -1`**),
+  `chargeConj_smul` (conjugate-linear), `chargeConj_add`, `chargeConj_injective`. Boundary: the
+  doubling `SmMajoranaIndex` is a counting statement, not an identification with Majorana fields,
+  and no Majorana mass term is implicit.
+
+### The four-component Yukawa dictionary (`BookProof.SmFullYukawa`)
+
+* **Higgs realification.** `higgsGen = ![1, σ₁, σ₂, σ₃]` built from
+  `BookProof.SmGaugeRep.pauli`, with `pauli_conjTranspose`, `su2gen_hermitian`,
+  `higgsGen_hermitian`, `higgsField φ = Σ_a φ_a • higgsGen a` and `higgsField_hermitian`;
+  `higgsField_apply` gives the entries, `higgsCharged`/`higgsNeutral` the charged and neutral
+  doublet components (`higgsCharged_nonzero`), `higgsField_injective` and
+  `higgsField_surjective` (`higgsCoeff`, `eq_ofReal_re_of_conjTranspose_eq`) give
+  **`higgsField_existsUnique`**: the four real components coordinatize exactly the Hermitian
+  `2 × 2` matrices — the realification is onto, and no generator is redundant.
+* **The h.c. dictionary.** `yukawaPair A Y = A Y + (A Y)ᴴ`, `yukawaPair_hermitian`;
+  `yukawaPair_ofReal_smul_higgs` and **`yukawaPair_sum_higgs`**:
+  `yukawaPair (higgsField φ) Y = Σ_a φ_a • yukawaPair (higgsGen a) Y` — **the full h.c.
+  expression is the sum over the four real Higgs components**, each summand Hermitian
+  (`yukawaPair_higgs_gen_hermitian`).
+* **Specializations.** `yukawaPair_one` (`1` background), `yukawaPair_fixed_background`
+  (`φ = e₀` and Hermitian `Y` give the mass term `2 • Y`), `yukawaPair_one_pauli` (a single `σ₁`
+  component), `yukawaPair_zero`.
+* **Gauge covariance and charge conservation.** `yukawaPair_gauge`: for `Uᴴ U = 1`,
+  `yukawaPair (U A Uᴴ) (U Y Uᴴ) = U · yukawaPair A Y · Uᴴ`; `yukawaPair_charge`: a Hermitian `T`
+  commuting with `A` and `Y` commutes with the insertion.
+* **Four mass/Yukawa matrices with phases.** `SmYukawaData` carries `Yu, Yd, Ye, Yν` and four
+  unit phases (`c c̄ = 1`; `SmYukawaData.upBlock`, `upBlock_phase_unit`), with the nontrivial
+  complex-mixing example `exampleYukawa` (`exampleYukawa_mixing`: the `(0,1)` entry is `I`),
+  **`exampleYukawa_not_hermitian`** (independent Hermiticity check: `Y` itself need not be
+  Hermitian, the hermitianization does the work) and `exampleYukawa_pair_hermitian`.
+* **Bounded currents.** `gaugeCurrent_bounded` and `yukawaCurrent_bounded` reuse
+  `BookProof.SmCar.norm_fermiBilin_le` to give the `ℓ¹` operator bound P2's comparison consumes.
+
+Not done by this packet: the 96-mode assembly `Σ_{x,y} M_{xy} a†_x a_y` of the full matter
+Hamiltonian, the spinor action of `γ·∂` (so `h_Dirac` is still not an operator), the connection
+between the free internal `U` and the gauge generators `smGen`, the gauge-field sector, any common
+core, and the ESA/Faris–Lavine comparison. P2 is the next packet.

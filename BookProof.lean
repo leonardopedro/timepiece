@@ -616,6 +616,9 @@ import BookProof.OSReconstruction.FockIntertwining
 -- the half-space OS form, its vacuum, and the forward transfer semigroup on its completion.
 import BookProof.OSReconstruction.HalfSpaceState
 import BookProof.OSReconstruction.HalfSpaceHilbert
+import BookProof.OSReconstruction.HalfSpaceGenerator
+import BookProof.OSReconstruction.HalfSpaceFreeState
+import BookProof.OSReconstruction.HalfSpaceComplex
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
@@ -3285,6 +3288,18 @@ import BookProof.Toolbox.ChapterTensorSumChain
 -- self-adjoint extension with its Stone flow, and conserves the particle number.
 import BookProof.Sm.ChapterSmOneParticle
 import BookProof.Sm.ChapterSmHamiltonian
+import BookProof.Sm.ChapterSmPhysicalData
+-- `ChapterSmMatterRepresentation` / `ChapterSmFullYukawaData` (2026-11-09e,
+-- `SM_ESA_COMPLETION_PLAN` §4 P1): the explicit chiral matter content (16 Weyl fields per
+-- generation, 96 complex CAR
+-- coordinates, 192 real Majorana components — matching `smE1`), its finite-CAR identification with
+-- the charge-conjugation structure `ε = iσ₂` (`C² = -1`), and the four-real-component Higgs
+-- dictionary: the generators `1, σ₁, σ₂, σ₃` realify the Hermitian `2 × 2` matrices, and the
+-- hermitianized Yukawa insertion `A Y + (A Y)ᴴ` is the sum over the four real components, with
+-- gauge covariance and charge conservation.  The 96-mode assembly of the full Hamiltonian, the
+-- spinor action of `γ·∂` and any Majorana mass term are not covered.
+import BookProof.Sm.ChapterSmMatterRepresentation
+import BookProof.Sm.ChapterSmFullYukawaData
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 
