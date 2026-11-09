@@ -612,6 +612,10 @@ import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
 import BookProof.OSReconstruction.YangMillsBridge
 import BookProof.OSReconstruction.FockIntertwining
+-- Half-space OS reconstruction (`cftproof.md` E3): the quotient of `𝔄₊` by the null space of
+-- the half-space OS form, its vacuum, and the forward transfer semigroup on its completion.
+import BookProof.OSReconstruction.HalfSpaceState
+import BookProof.OSReconstruction.HalfSpaceHilbert
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as

@@ -3,7 +3,7 @@
 This note records what was built for `timepiece/cftproof.md`, module by module, with the
 distinction that matters for the MM0 pipeline: **what is a theorem**, and **what is boundary**.
 
-No declaration in the eleven new modules contains `sorry`; every statement is proved, and every
+No declaration in the modules below contains `sorry`; every statement is proved, and every
 statement that could not be proved is *stated as a hypothesis* with the reason recorded in the
 module docstring, not silently assumed.
 
@@ -28,6 +28,22 @@ module docstring, not silently assumed.
 | 3.3 + 4.1 + 5 | `BookProof/OSReconstruction/MomentumBasis.lean` | **`dft_convolution`**, **`dft_mul_eq_convolution`** (products of fields in space are convolutions in momentum), **`reflection_positivity_momentum`** (the transfer-factorised reflected two-point form is a weighted sum of modulus squares), **`covarianceForm_eq_dft`** (a translation-invariant covariance's form is the weighted Plancherel sum `∑ k, w k * ‖𝓕F k‖²`), the momentum/lattice overlap `overlap` with **`overlap_orthonormal`** and **`overlap_orthonormal_pos`**, **`cellLatticeOverlap_unitary`** (orthonormal momentum cells have orthonormal lattice profiles), **`exactHamiltonian`** and **`exactHamiltonian_eigenvector`** (the exact Hamiltonian in the lattice basis, transported with no truncation), **`compressed_hamiltonian_tendsto`** (the compressed lattice Hamiltonian converges strongly to the exact one), **`freePropagator_reflect_eq_transfer`** (the Källén–Lehmann factorization derives `transferKernel` for the explicit free propagator), **`freeOSForm_eq_momentum`** / `free_reflection_positive` (the half-space free OS form is a sum of modulus squares), **`compressed_flow_tendsto`** / **`bounded_flow_tendsto_unbounded`** (the SIRK/Trotter–Kato transfer: the bounded lattice flows converge to the unbounded generator in the limit), **`compressed_strongResolventConvergence`** (the SIRK resolvent hypothesis for the compressions), and **`galerkin_strongResolventConvergence`** / `galerkin_compressed_flow_tendsto` (the instantiation with a common-space nested block/Galerkin refinement) |
 | 3.3 + 4.1 (bridge) | `BookProof/OSReconstruction/YangMillsBridge.lean` | `loopProd`, `thetaObs_loopProd`, **`osBilin_gram`** (the Gram identity), `osBilin_gram_nonneg`, **`complex_sum_quadform`** (a complex quadratic form of a symmetric real matrix is real; imaginary part cancels), **`isReflectionPositive_yangMills`**, `isReflectionPositiveOn_loopProd` — the dictionary to `Definitions.Def_YangMills`'s `YangMills.IsReflectionPositive` |
 | 4.1 + 4.2 | `BookProof/OSReconstruction/HilbertSpace.lean` | `OSState`, `physForm` (descent via `LinearMap.liftQ₂`), `physCore` (**definiteness**), **`physInnerProductSpace`** (`InnerProductSpace.ofCore`), **`Hphys`** (`UniformSpace.Completion`, `HilbertSpace`), `physNorm_mk`, `physNorm_eq_zero_iff`, `physEvol`, **`physEvol_contractive`**, **`physEvolCompletion` with `norm_physEvolCompletion_le`** |
+
+### Half-space quotient and forward semigroup (2026-11-09, `cftproof.md` E3)
+
+| Plan phase | Module | Contents |
+|---|---|---|
+| 3.3 + 4.1 | `BookProof/OSReconstruction/HalfSpaceState.lean` | `HalfSpaceState` (θ-invariant functional, reflection positive **on `PositiveTimeAlgebra` only**, `ω 1 = 1`), `hsBilin` with bilinearity / symmetry / `hsBilin_expand` / **`hsBilin_cauchy_schwarz`**, the null **subspace** `HsRadical` (`mem_hsRadical_of_self_eq_zero`, `hsBilin_well_defined`), the quotient `HsSpace` with its inner product (`hsForm_mk`, `hsForm_self_eq_zero_iff`), the completion `Hhalf`, and `hsVacuum = [1]` with **`hsVacuum_norm : ‖Ω_OS‖ = 1`** |
+| 4.2 | `BookProof/OSReconstruction/HalfSpaceHilbert.lean` | `PreservesPositiveTime`, `hsEvol`, `HsHinv`, **`hsRadical_invariant`** (forward translation preserves `𝔑₊`), `hsQuotMap` and `hsQuotMap_contractive`, `P(0) = I` (`hsEvolCompletion_zero`), `P(s+t) = P(s)P(t)` (`hsEvolCompletion_add`), `hsEvolCompletionFun_contractive`, **`tendsto_hsEvolCompletionFun`** (strong continuity at `0⁺` from matrix-element continuity), and **`hsEvolCompletion_isSelfAdjoint`** (`P(τ)* = P(τ)`) from the two-point symmetry hypothesis `HsSymmetric` |
+
+These are the first declarations in the corpus whose carrier is the **positive-time** algebra
+rather than the full observable algebra, which is the correction `ReflectionKernel.mk_thetaObs_eq_mk`
+forces. `PreservesPositiveTime`, `HsHinv`, `HsSymmetric` and matrix-element continuity are
+hypotheses, not theorems: the corpus has no concrete lattice `TimeTranslation`, no measure on
+`Config = Fin latticeDim → ℝ`, and no instantiated two-point function. The quotient is used as a
+vector space (no ideal claim), and the space is real — the complexification is not built. The
+generator domain/resolvent on `𝔄₊/𝔑₊` remains open; `SemigroupGenerator` proves the corresponding
+statements for `Hphys` under `HinvRight`.
 
 ## The five statements that carry the mathematics
 
