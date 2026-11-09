@@ -2124,6 +2124,18 @@ import BookProof.Qym.ChapterYangMillsMehlerProduct
 -- two absolute-continuity lemmas that carry a.e. equality between `volume` and `gaussMeasure`.
 import BookProof.Qym.ChapterYangMillsMehlerLp
 
+-- `ChapterYangMillsGaussForm` (work package S0, closability start): the Gaussian-weighted Dirichlet
+-- form.  `gaussWeight` is the density `γ^{1/2}² = exp(−x²/2)`, `hasDerivAt_gaussWeight` is
+-- `(γ^{1/2}²)' = −x γ^{1/2}²` (the origin of the drift in `−Δ + x·∇`, and the identity the eventual
+-- integration by parts consumes), and `gaussForm f g = ∫ γ^{1/2}² f' g'` is the one-coordinate form
+-- with `gaussForm_comm` (symmetry) and `gaussForm_self_nonneg` (nonnegative diagonal) proved for
+-- *all* functions — the Bochner integral is total, so neither fact needs a domain.  `MemGaussForm`
+-- is the integrability domain predicate.  What is *not* here, and why, is listed in the module
+-- header: the operator identity `gaussForm f g = ∫ γ^{1/2}² (−f'' + x f') g` (needs the `C²`
+-- differentiability bookkeeping around `integral_deriv_mul_eq_sub`) and closability proper (needs
+-- weak derivatives and `H¹(γ)` as a `LinearPMap` domain, neither of which mathlib provides).
+import BookProof.Qym.ChapterYangMillsGaussForm
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`

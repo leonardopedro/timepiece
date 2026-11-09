@@ -374,9 +374,10 @@ S2 is unchanged (no positive `m`, no `L₁ − U₀`); S3 and S4 are untouched.
 
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 
-This section supersedes the previous section on two points: the coordinate-count factor `−99/2`
-**is** now proved (so the product form is no longer `C`), and acceptance item 2 — the `Lp`-level
-statement — now has its bundled `LinearIsometryEquiv`, not merely the integral identity.
+This section supersedes the previous section on three points: the coordinate-count factor `−99/2`
+**is** now proved (so the product form is no longer `C`), acceptance item 2 — the `Lp`-level
+statement — now has its bundled `LinearIsometryEquiv`, not merely the integral identity, and
+acceptance item 1 has been *started*: the Dirichlet form itself is now in the corpus.
 
 #### S0 — the product form, with `−99/2`
 
@@ -432,6 +433,52 @@ for `map_add'` and `map_smul'` (this mathlib has no `MemLp.toLp_smul`), `gaussRo
 and `invGauss * gaussRoot = 1` on the nose for the inverse laws, and `Lp.norm_def` plus the
 `eLpNorm` identity for `norm_map'`.  It says nothing about domains, forms or spectra — items 1 and 4
 of the acceptance list are still open.
+
+#### S0 — the Dirichlet form, started (acceptance item 1)
+
+`BookProof/Qym/ChapterYangMillsGaussForm.lean` (namespace `BookProof.YangMillsGaussForm`) begins
+item 1 of the acceptance list at the form level, deliberately below any domain choice:
+
+* `gaussWeight` is the density `γ^{1/2}² = exp(−x²/2)` of `γ dx`, with `gaussWeight_pos`, and
+  `hasDerivAt_gaussWeight` is `(γ^{1/2}²)' = −x γ^{1/2}²`.  That identity is the reason the drift
+  `x·∇` sits in `−Δ + x·∇` at all: the `x` is the weight's, and the sequence is
+  `γ^{1/2}² f' g' = −(γ^{1/2}² f')' g + γ^{1/2}² f'' g`, so the operator that the form represents is
+  `gaussDirichlet f = −f'' + x f'` (`ChapterYangMillsMehlerBridge`), while the form is the
+  *positively* signed `∫ γ^{1/2}² f' g'`.
+* `gaussForm f g = ∫ x, γ^{1/2}(x)² · f'(x) · g'(x) dx` is the one-coordinate form;
+  `gaussForm_comm` is symmetry and `gaussForm_self_nonneg` the nonnegative diagonal.  Both hold for
+  *every* pair of functions, because the Bochner integral is total: symmetry is a pointwise `ring`
+  identity under `∫`, and the diagonal integrand is the density times a square.  So these are
+  statements about the form, not about a form domain — an integrability hypothesis would be needed
+  only to say the value is not the `0`-by-convention integral.
+* `MemGaussForm` names that integrability domain (`γ^{1/2}² f'² ∈ L¹`), and `gaussForm_self_of_mem`
+  records the finiteness obligation on it.
+
+The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
+`ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
+
+**What item 1 still needs, and why it is not merely unwritten.** Three separate gaps, none closed by
+the above:
+
+1. *The operator identity.* `gaussForm f g = ∫ x, γ^{1/2}(x)² · (−f''(x) + x f'(x)) · g(x) dx` on
+   `C_c^∞`.  The ingredients exist — `MeasureTheory.integral_deriv_mul_eq_sub` (improper integration
+   by parts on `ℝ`), `Continuous.integrable_of_hasCompactSupport`, and `hasDerivAt_gaussWeight` —
+   but the missing piece is the differentiability bookkeeping of `u = γ^{1/2}² f'` and its
+   derivative at every point of a `C²` compactly supported `f`, plus the vanishing of `u·g` at
+   `±∞`.  Until it is written, the corpus proves that the form is symmetric and nonnegative, not
+   that it is *the* form of `−Δ + x·∇`.
+2. *Closability proper.*  `LinearPMap.IsClosable` and `LinearPMap.closure` exist in mathlib, but the
+   domain would have to be a subspace of `L²(γ dx)` on which `−Δ + x·∇` is well defined as a class
+   — i.e. weak derivatives and `H¹(γ)`, for which mathlib has no API.  The `Lp` chapter gives the
+   transport (`mehlerLpEquiv`) that would carry a domain across, not a domain.
+3. *Density of the smooth core.*  Only the `volume` version is in mathlib; the density-weighted
+   transport is again `mehlerLpEquiv` plus the a.e.-equality lemmas it already contains, but the
+   density statement itself is not written.
+
+So acceptance item 1 moves from "not started" to "form defined, symmetry and nonnegativity proved,
+operator identity and closability open"; item 2 is discharged at the `Lp` level, item 3 is
+discharged, item 4 (Friedrichs/`ChapterYangMillsFriedrichs`) is untouched and still needs item 1's
+operator identity before it has anything to close.
 
 #### S3 — the solve-error bookkeeping
 
