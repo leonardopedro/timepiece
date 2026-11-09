@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09c):** **§17 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-09d):** **§18 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `FockLangevinOperator` §21 computes the drift's sign against the flat `ℓ¹` measure
+> and finds it is *positive* at every basis vector (`coreL1_single_lt_add_drift_X`: the linear
+> potential's drift adds `(β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ)`) to the mass), so that pairing cannot
+> supply a contraction; `BookProof/MCMC/PositivityCone` (§22) is the model where convergence *is*
+> proved — a row/column-stochastic pCNL kernel with a Doeblin minorant, `P 1 = 1` (`step_one`), the
+> contraction `osc (P f) ≤ (1 − (m+1)δ)·osc f` (`osc_step_le`) and **`tendsto_iter_step`**: iterates
+> converge to the invariant state `mass f / (m+1)` at rate `1 − (m+1)δ`.  The Module 4–5 gap
+> hypotheses are now cited from §18 (`module45_hypotheses_cited`).
+> **Earlier newest entry (2026-11-09c):** **§17 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `FockLangevinOperator` §20 shows the Markov normalisation is in the model: with the
 > Metropolis complement `rejectComplement ρ = 1 − ρ^N` one has `P₀ + K_reject = 1`
 > (`baseOp_add_rejectOp_complement`, so `pcnlKernel = 1 + K_drift`), the diagonal half is positive
@@ -19124,3 +19133,52 @@ outside the model.  A proof would need the drift's action on the positive cone �
 Style: 0 lines over 100 characters, no trailing whitespace.  Gates: `check-links` OK,
 `test_check_links.py` **10 tests OK**, `test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn,
 0 fail**, `check-todo-ledger` green, `doc_index --check` fresh.
+
+### 18. Addendum (2026-11-09d) — the drift's sign, computed, and the positivity-cone model
+
+**§17's "what is still open".**  §17 located the remaining gap at the drift's *sign* — its negative
+part, the acceptance/rejection balance at each occupation — and said a proof would need "the `ℓ¹`
+pairing of `K_drift c` with the sign of `c`".  §21 computes that pairing.  It is not negative, and the
+convergence is then proved in the model where it does hold.
+
+* **The drift's image of a basis vector.**  `FockLangevinOperator` §21: `polyDrift_X` gives
+  `polyDrift (Xⱼ) c = −∂ⱼc`, `driftOperator_X` reads the drift of the linear potential as the ladder
+  letter `w·(aⱼ − aⱼ†)c` with `w = (β²σ²/2)·2⁻¹ᐟ²`, and `drift_X_single_eq` gives the two-term image
+  `w√(nⱼ+1)·e_{n+eⱼ} − w√(nⱼ)·e_{n−eⱼ}`.
+* **It raises the flat `ℓ¹` mass.**  `coreL1_single_add_sub_single_of_ne` sums the three pairwise
+  disjoint occupations, and **`coreL1_single_lt_add_drift_X`** concludes
+  `ℓ¹(e_n) < ℓ¹(e_n + K_drift e_n)`, with the exact value
+  `1 + (β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ))`.  So at *every* occupation the drift adds mass: the flat
+  `ℓ¹` is not a dissipative pairing for `K_drift`, and §20's strict contraction cannot come from it.
+  What is needed is a **weighted** `ℓ¹` — one the drift contracts — not another operator norm.
+* **The cone model** (`BookProof/MCMC/PositivityCone`, new, §22).  The pCNL step is a transition
+  kernel `step Q f = Q·f` on `Fin (m+1)`, with the four hypotheses the pCNL proposal satisfies: row
+  stochastic (**`step_one`**: `P 1 = 1`), column stochastic (`mass_step`, `mass_iter`: the `ℓ¹` mass
+  is invariant), positive (`step_nonneg`: the cone is preserved) and uniformly positive
+  (`UniformPos`: the Doeblin minorant read off the Gaussian increment's positive density).
+  * **Doeblin estimate**: `sum_abs_row_diff_le` gives `∑ₖ |Q a k − Q b k| ≤ 2(1 − (m+1)δ)` from the
+    minorant alone, `abs_step_sub_step_le` converts it to the pointwise bound, and **`osc_step_le`**
+    is the contraction `osc (P f) ≤ (1 − (m+1)δ)·osc f` (`osc_iter_le` for `n` steps).
+  * **Convergence**: **`tendsto_iter_step`** — for every density `f` and every state `a`, the
+    iterates converge to the single limit `mass f / (m+1)`, at rate `1 − (m+1)δ`.  The limit is the
+    uniform density (the invariant state of a doubly stochastic kernel) and does not depend on the
+    start.  `tendsto_iter_uniformStep` is the instance for the concrete kernel `uniformStep t`
+    (hold with the Metropolis mass, jump with proposal mass `t`), whose `P 1 = 1` is
+    `uniformStep_one`.
+* **Module 4–5 cites §18.**  `module45_hypotheses_cited` packages the three inputs
+  `pcn_geometric_ergodicity` consumes — sector contraction `coreNorm_baseOp_sector_le`, invariant
+  state `baseOp_vac`, gap `1 − ρ > 0` — so the Module 4–5 gap hypothesis is discharged from the
+  operator module rather than assumed; `module45_iterate_bound` is the iterate bound
+  `‖P₀ᵐ c‖ ≤ ρᵐ‖c‖` they produce.
+
+**What is still open.**  The identification of the cone model's invariant state with the pCNL
+invariant measure on the unbounded Fock space: the model is finite and its kernel is the symmetric
+proposal written on occupations, so the core's weighted `ℓ¹` (the weight for which `K_drift`
+contracts) is not named.  The pCNL operator's own gap is untouched — the Bakry–Émery/Hessian route
+of `pcnl.md` (§"the gap has to come from the sign structure") remains the target.
+
+**Verification.**  `lake build BookProof.MCMC.PositivityCone` → **8077 jobs**, green (includes
+`FockLangevinOperator` §21).  `#print axioms` on `step_one`, `osc_step_le`, `tendsto_iter_step`,
+`tendsto_iter_uniformStep`, `coreL1_single_lt_add_drift_X`, `module45_hypotheses_cited` →
+`propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no
+trailing whitespace.

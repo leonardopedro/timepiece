@@ -623,6 +623,12 @@ import BookProof.MCMC.FockLangevinOperator
 -- (`linCoeff`, `linPart`, `gradCoeffBound_epsProj`), closing §16's last reading gap.
 import BookProof.MCMC.CoeffMap
 
+-- Wave (`pcnl.md` Modules 4–5): the pCNL step on the positivity cone — `P 1 = 1`, the Doeblin
+-- contraction `osc (P f) ≤ (1 − (m+1)δ)·osc f`, and convergence of the iterates to the invariant
+-- state (`tendsto_iter_step`, `tendsto_iter_uniformStep`), plus the Module 4–5 gap hypotheses cited
+-- from `FockLangevinOperator` §18 (`module45_hypotheses_cited`).
+import BookProof.MCMC.PositivityCone
+
 -- Wave (`pcnl.md` Module 1 proper, and Module 2 through it): the pCN step *is* diagonalised by
 -- the Fock number states in the `d → ∞` limit — `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
 import BookProof.MCMC.MehlerEigenfunction

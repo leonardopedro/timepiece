@@ -174,7 +174,13 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   `1 + K_drift`; the diagonal half is positive (`re_baseOp_nonneg`, `re_rejectOp_nonneg`) and
   `ℓ¹`-bounded (`coreL1_baseOp_le`, `coreL1_rejectOp_le`), and
   `coreL1_pcnlKernel_complement_le` shows it contributes **no** `ℓ¹` contraction — the step's mass
-  grows by at most `1 + driftWeight · driftL1Bound`.
+  grows by at most `1 + driftWeight · driftL1Bound`;
+* **§21, the drift's sign against the flat `ℓ¹` measure** — §20's remaining gap was the drift's
+  *negative* part.  The computation says there is none: on a basis vector the linear potential's
+  drift adds mass (`drift_X_single_eq`, `coreL1_single_lt_add_drift_X`, value
+  `1 + (β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ))`), so the pairing of `K_drift` with the flat `ℓ¹` is
+  positive everywhere and cannot supply the contraction.  The structure a convergence theorem
+  uses is a *weighted* `ℓ¹`/cone model, supplied in `BookProof.MCMC.PositivityCone` (§22).
 
 ## Honest boundary
 
@@ -240,10 +246,15 @@ invariant measure.  §20 sharpens the statement: the normalisation is *in* the m
 acceptance probability is the complement of `P₀` (`baseOp_add_rejectOp_complement`:
 `P₀ + K_reject = 1`, hence `pcnlKernel = 1 + K_drift`), and the diagonal half is positive and
 `ℓ¹`-bounded (`re_baseOp_nonneg`, `re_rejectOp_nonneg`, `coreL1_baseOp_le`).  So what is actually
-missing for a convergence theorem is the drift's **sign** structure — its negative part, the
-acceptance/rejection balance that removes mass at each occupation — which the norm estimates of
-§14–§18 cannot supply (§20's `coreL1_pcnlKernel_complement_le` shows the normalised step's `ℓ¹`
-size is `1 + driftWeight · driftL1Bound`, i.e. no decay at all).
+missing for a convergence theorem is a **weighted** `ℓ¹` in which the drift is a contraction — not
+the flat one.  §21 rules the flat pairing out by computation: `coreL1_single_lt_add_drift_X` shows
+the linear potential's drift *raises* the flat `ℓ¹` mass on every basis vector, and §20's
+`coreL1_pcnlKernel_complement_le` shows the normalised step's `ℓ¹` size is
+`1 + driftWeight · driftL1Bound`, i.e. no decay at all.  The cone model — `P 1 = 1`, a Doeblin
+minorant, and the oscillation contraction `osc (P f) ≤ (1 − (m+1)δ)·osc f` — is
+`BookProof.MCMC.PositivityCone` (§22), which proves the iterates converge to the invariant state
+there (`tendsto_iter_step`).  Translating that model back to the core's unbounded `numberOp` (i.e.
+naming the weighted norm) is what remains in this file.
 -/
 
 noncomputable section
@@ -4998,5 +5009,214 @@ theorem coreL1_pcnlKernel_complement_le (β σ : ℝ) {Φ : MvPolynomial (Fin d)
     _ ≤ coreL1 c + driftWeight β σ * driftL1Bound Φ M * coreL1 c :=
         add_le_add le_rfl hdrift
     _ = (1 + driftWeight β σ * driftL1Bound Φ M) * coreL1 c := by ring
+
+/-! ## 21. The drift's sign against the flat `ℓ¹` measure
+
+§20 sharpened the remaining gap to a *sign*: on the normalised step `1 + K_drift` the only way mass
+leaves is through the drift's negative part, and the norm estimates of §14–§18 bound `K_drift` from
+above, so they cannot see it.  This section computes that sign on the core's basis vectors and finds
+there is none to use.
+
+* **The linear potential's drift is a ladder letter**: `polyDrift_X` gives
+  `polyDrift (Xⱼ) c = −∂ⱼc` and `driftOperator_X` reads it as `w·(aⱼ − aⱼ†)c` with
+  `w = (β²σ²/2)·2⁻¹ᐟ²`.
+* **On a basis vector it raises the `ℓ¹` mass**, and by an explicit amount:
+  `drift_X_single_eq` (the image is the two-term vector
+  `w√(nⱼ+1) e_{n+eⱼ} − w√(nⱼ) e_{n−eⱼ}`) and `coreL1_single_lt_add_drift_X`, whose value
+  `1 + (β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ))` is computed by
+  `coreL1_single_add_sub_single_of_ne` from the pairwise disjointness of the three occupation
+  vectors.
+
+So the drift's pairing with the flat `ℓ¹` measure is *positive* at every basis vector: there is no
+state at which `ℓ¹` mass is destroyed, and the strict contraction §20 identified as the missing
+ingredient cannot come from the drift's sign on this model.  The pair `(K_drift, ℓ¹)` is not a
+dissipative pair; what is missing is a *weighted* `ℓ¹` (one the drift contracts), and the cone model
+of `BookProof.MCMC.PositivityCone` (§22) is where that structure is supplied.
+-/
+
+/-! ## §21 The drift's sign against the flat ℓ¹ measure -/
+
+/-- The drift of the linear potential `Φ = Xⱼ` is `−∂ⱼ`: `∂ₖ Xⱼ = δₖⱼ` and `polyMul 1 = id`. -/
+theorem polyDrift_X (j : Fin d) (c : CoreCoeff d) :
+    polyDrift (MvPolynomial.X j) c = -diffHermite j c := by
+  classical
+  rw [polyDrift, Finset.sum_eq_single j]
+  · rw [MvPolynomial.pderiv_X_self, polyMul_one]
+  · intro k _ hne
+    have hzero : (Pi.single k (1 : MvPolynomial (Fin d) ℂ) : Fin d → MvPolynomial (Fin d) ℂ) j
+        = 0 := by
+      rw [Pi.single_eq_of_ne (Ne.symm hne)]
+    rw [MvPolynomial.pderiv_X, hzero]
+    simp [polyMul]
+  · intro hj
+    exact absurd (Finset.mem_univ j) hj
+
+/-- The drift operator of a linear potential, in ladder letters. -/
+theorem driftOperator_X (β σ : ℝ) (j : Fin d) (c : CoreCoeff d) :
+    driftOperator β σ (MvPolynomial.X j) c
+      = ((driftWeight β σ * invSqrtTwo : ℝ) : ℂ) •
+          (hopStep (j, true) c - hopStep (j, false) c) := by
+  rw [driftOperator, polyDrift_X, smul_neg, diffHermite, smul_smul, ← Complex.ofReal_mul,
+    ← smul_neg, neg_sub]
+
+theorem raiseIdx_ne_self (j : Fin d) (n : Fin d → ℕ) : raiseIdx j n ≠ n := by
+  intro h
+  have h1 := congrFun h j
+  rw [raiseIdx_apply_same] at h1
+  omega
+
+theorem lowerIdx_ne_self {j : Fin d} {n : Fin d → ℕ} (hn : 0 < n j) : lowerIdx j n ≠ n := by
+  intro h
+  have h1 := congrFun h j
+  rw [lowerIdx_apply_same] at h1
+  omega
+
+theorem invSqrtTwo_pos : (0 : ℝ) < invSqrtTwo := by
+  rw [invSqrtTwo]
+  positivity
+
+/-- The raising half of the letter is orthogonal to the state it came from. -/
+theorem corePair_single_hopStep_raise (j : Fin d) (n : Fin d → ℕ) :
+    corePair (Finsupp.single n 1) (hopStep (j, true) (Finsupp.single n 1)) = 0 := by
+  have hraise : hopStep (j, true) (Finsupp.single n 1)
+      = Finsupp.single (raiseIdx j n) (((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ)) := by
+    rw [hopStep_single, stepAmp_raise, stepIdx]
+    simp
+  rw [hraise, corePair_single_single, if_neg (raiseIdx_ne_self j n).symm]
+
+/-- The lowering half is orthogonal too — and vanishes outright at a saturated mode. -/
+theorem corePair_single_hopStep_lower (j : Fin d) (n : Fin d → ℕ) :
+    corePair (Finsupp.single n 1) (hopStep (j, false) (Finsupp.single n 1)) = 0 := by
+  have hlower : hopStep (j, false) (Finsupp.single n 1)
+      = Finsupp.single (lowerIdx j n) (((Real.sqrt (n j : ℝ) : ℝ) : ℂ)) := by
+    rw [hopStep_single, stepAmp_lower, stepIdx]
+    simp
+  rw [hlower]
+  by_cases hn : n j = 0
+  · have hz : ((Real.sqrt (n j : ℝ) : ℝ) : ℂ) = 0 := by
+      rw [hn]
+      simp
+    rw [hz, Finsupp.single_zero, corePair_zero_right]
+  · rw [corePair_single_single, if_neg (lowerIdx_ne_self (by omega)).symm]
+
+/-- **The drift is mass-neutral against the state** (`ℓ²` pairing): on a basis vector both ladder
+images live at other occupations, so `⟪eₙ, K_drift eₙ⟫ = 0`. -/
+theorem corePair_drift_X_single (β σ : ℝ) (j : Fin d) (n : Fin d → ℕ) :
+    corePair (Finsupp.single n 1) (driftOperator β σ (MvPolynomial.X j)
+      (Finsupp.single n 1)) = 0 := by
+  have hstar : star (((driftWeight β σ * invSqrtTwo : ℝ)) : ℂ)
+      = (((driftWeight β σ * invSqrtTwo : ℝ)) : ℂ) := by
+    rw [Complex.star_def, Complex.conj_ofReal]
+  rw [driftOperator_X, corePair_smul, hstar, corePair_sub,
+    corePair_single_hopStep_raise, corePair_single_hopStep_lower, sub_zero, mul_zero]
+
+/-- `coreL1` of a basis vector. -/
+theorem coreL1_single (m : Fin d → ℕ) (a : ℂ) :
+    coreL1 (Finsupp.single m a) = ‖a‖ := by
+  classical
+  rw [coreL1, Finset.sum_subset Finsupp.support_single_subset (fun x hx hx' => ?_)]
+  · simp
+  · rw [Finsupp.notMem_support_iff.mp hx', norm_zero]
+
+/-- `coreL1` is additive on states with disjoint supports. -/
+theorem coreL1_add_of_disjoint {x y : CoreCoeff d}
+    (h : Disjoint x.support y.support) : coreL1 (x + y) = coreL1 x + coreL1 y := by
+  classical
+  have h1 : ∑ n ∈ (x + y).support, ‖(x + y) n‖
+      = ∑ n ∈ x.support ∪ y.support, ‖(x + y) n‖ := by
+    refine Finset.sum_subset Finsupp.support_add (fun z _ hz => ?_)
+    rw [Finsupp.notMem_support_iff.mp hz, norm_zero]
+  rw [coreL1, coreL1, coreL1, h1, Finset.sum_union h]
+  congr 1
+  · refine Finset.sum_congr rfl fun n hn => ?_
+    rw [Finsupp.add_apply, Finsupp.notMem_support_iff.mp (Finset.disjoint_left.mp h hn),
+      add_zero]
+  · refine Finset.sum_congr rfl fun n hn => ?_
+    rw [Finsupp.add_apply, Finsupp.notMem_support_iff.mp (Finset.disjoint_right.mp h hn),
+      zero_add]
+
+theorem disjoint_single_single {m n : Fin d → ℕ} (h : m ≠ n) (a b : ℂ) :
+    Disjoint (Finsupp.single m a).support (Finsupp.single n b).support := by
+  refine Finset.disjoint_left.mpr fun x hx hy => ?_
+  have hx' : x = m := by simpa using Finsupp.support_single_subset hx
+  have hy' : x = n := by simpa using Finsupp.support_single_subset hy
+  exact h (hx'.symm.trans hy')
+
+theorem coreL1_single_add_single_of_ne {m n : Fin d → ℕ} (h : m ≠ n) (a b : ℂ) :
+    coreL1 (Finsupp.single m a + Finsupp.single n b) = ‖a‖ + ‖b‖ := by
+  rw [coreL1_add_of_disjoint (disjoint_single_single h a b), coreL1_single, coreL1_single]
+
+theorem coreL1_single_sub_single_of_ne {m n : Fin d → ℕ} (h : m ≠ n) (a b : ℂ) :
+    coreL1 (Finsupp.single m a - Finsupp.single n b) = ‖a‖ + ‖b‖ := by
+  rw [sub_eq_add_neg, ← Finsupp.single_neg, coreL1_single_add_single_of_ne h, norm_neg]
+
+/-- **The drift's action on a basis vector**, with the two ladder images at distinct occupations. -/
+theorem drift_X_single_eq {β σ : ℝ} {j : Fin d} {n : Fin d → ℕ} (_hn : 0 < n j) :
+    driftOperator β σ (MvPolynomial.X j) (Finsupp.single n 1)
+      = ((driftWeight β σ * invSqrtTwo : ℝ) : ℂ) •
+          (Finsupp.single (raiseIdx j n)
+              (((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ))
+            - Finsupp.single (lowerIdx j n) (((Real.sqrt (n j : ℝ) : ℝ) : ℂ))) := by
+  rw [driftOperator_X, hopStep_single, hopStep_single, stepAmp_raise, stepAmp_lower, stepIdx,
+    stepIdx]
+  simp
+
+/-- **The drift raises the flat `ℓ¹` mass.**  On a basis vector the linear potential's drift adds
+`(β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ))` to the mass — it never removes any.  So there is no state at
+which the drift's pairing with the flat `ℓ¹` measure is negative: the strict contraction §20 asks
+for cannot come from this sign. -/
+theorem coreL1_single_add_sub_single_of_ne {m k l : Fin d → ℕ} (hmk : m ≠ k) (hml : m ≠ l)
+    (hkl : k ≠ l) (a b c : ℂ) :
+    coreL1 (Finsupp.single m a + (Finsupp.single k b - Finsupp.single l c))
+      = ‖a‖ + ‖b‖ + ‖c‖ := by
+  have h1 : Finsupp.single k b - Finsupp.single l c
+      = Finsupp.single k b + Finsupp.single l (-c) := by
+    rw [sub_eq_add_neg, ← Finsupp.single_neg]
+  have hdisj : Disjoint (Finsupp.single m a + Finsupp.single k b).support
+      (Finsupp.single l (-c)).support := by
+    refine Finset.disjoint_left.mpr fun x hx hy => ?_
+    have hy' : x = l := by simpa using Finsupp.support_single_subset hy
+    rcases Finset.mem_union.mp (Finsupp.support_add hx) with hx1 | hx1
+    · have hx2 : x = m := by simpa using Finsupp.support_single_subset hx1
+      exact hml (hx2.symm.trans hy')
+    · have hx2 : x = k := by simpa using Finsupp.support_single_subset hx1
+      exact hkl (hx2.symm.trans hy')
+  rw [h1, ← add_assoc, coreL1_add_of_disjoint hdisj,
+    coreL1_single_add_single_of_ne hmk a b, coreL1_single, norm_neg]
+
+/-- **The drift raises the flat `ℓ¹` mass.**  On a basis vector the linear potential's drift adds
+`(β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ))` to the mass — it never removes any.  So there is no state at
+which the drift's pairing with the flat `ℓ¹` measure is negative: the strict contraction §20 asks
+for cannot come from this sign. -/
+theorem coreL1_single_lt_add_drift_X (β σ : ℝ) (j : Fin d) (n : Fin d → ℕ) (hn : 1 ≤ n j)
+    (hw : 0 < driftWeight β σ) :
+    coreL1 (Finsupp.single n 1)
+      < coreL1 (Finsupp.single n 1 + driftOperator β σ (MvPolynomial.X j)
+          (Finsupp.single n 1)) := by
+  have hn0 : 0 < n j := hn
+  have hw0 : ‖((driftWeight β σ * invSqrtTwo : ℝ) : ℂ)‖ = driftWeight β σ * invSqrtTwo := by
+    rw [Complex.norm_real, Real.norm_eq_abs,
+      abs_of_nonneg (mul_nonneg (driftWeight_nonneg β σ) invSqrtTwo_nonneg)]
+  have hs1 : ‖((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ)‖ = Real.sqrt ((n j : ℝ) + 1) := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+  have hs2 : ‖((Real.sqrt (n j : ℝ) : ℝ) : ℂ)‖ = Real.sqrt (n j : ℝ) := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+  have hmain : coreL1 (Finsupp.single n 1 + driftOperator β σ (MvPolynomial.X j)
+        (Finsupp.single n 1))
+      = 1 + driftWeight β σ * invSqrtTwo
+          * (Real.sqrt ((n j : ℝ) + 1) + Real.sqrt (n j : ℝ)) := by
+    rw [drift_X_single_eq hn0, smul_sub, Finsupp.smul_single, Finsupp.smul_single]
+    simp only [smul_eq_mul]
+    rw [coreL1_single_add_sub_single_of_ne (raiseIdx_ne_self j n).symm
+        (lowerIdx_ne_self hn0).symm (raiseIdx_ne_lowerIdx j n) 1,
+      norm_mul, hw0, hs1, norm_mul, hw0, hs2, norm_one]
+    ring
+  rw [hmain, coreL1_single, norm_one]
+  have hpos : 0 < invSqrtTwo * (Real.sqrt ((n j : ℝ) + 1) + Real.sqrt (n j : ℝ)) := by
+    have h1 : 0 < Real.sqrt ((n j : ℝ) + 1) := Real.sqrt_pos.mpr (by positivity)
+    have h2 : 0 ≤ Real.sqrt (n j : ℝ) := Real.sqrt_nonneg _
+    nlinarith [invSqrtTwo_pos]
+  nlinarith [hw, hpos]
+
 
 end BookProof.MCMC.FockLangevin

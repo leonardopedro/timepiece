@@ -817,9 +817,12 @@ Metropolis complement `rejectComplement ρ = 1 − ρ^N` the diagonal half is th
 (`pcnlKernel_complement`) — the normalisation `P 1 = 1` holds exactly, and the diagonal half is
 positive (`re_baseOp_nonneg`, `re_rejectOp_nonneg`) and `ℓ¹`-bounded (`coreL1_baseOp_le`,
 `coreL1_rejectOp_le`, `coreL1_pcnlKernel_complement_le`: the step's mass is at most
-`1 + driftWeight · driftL1Bound`).  So what a convergence theorem still needs is the drift's
-**sign** — its negative part, the acceptance/rejection balance — and not the normalisation, which the
-norms of §14–§18 cannot see.)*
+`1 + driftWeight · driftL1Bound`).  §21 then computes the drift's **sign** against that measure and
+finds it points the wrong way — the linear potential's drift *adds* mass on every basis vector
+(`drift_X_single_eq`, `coreL1_single_lt_add_drift_X`), so the flat `ℓ¹` is not a dissipative pairing
+for `K_drift` and no norm estimate of §14–§18 can turn it into one.  What a convergence theorem
+needs is therefore a *weighted* `ℓ¹`; §22 (`PositivityCone`) supplies the model and proves the
+convergence there.)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
@@ -1211,12 +1214,64 @@ decay like `ρⁿ` off the vacuum (`coreNorm_iter_baseOp_le`) and converge to th
 convergence of the full step: the product in `coreNorm_pcnlKernel_iter_le` is `≥ (1 + r)ⁿ` because
 `driftStepBound` grows with the level, and the drift lowers the band too, so mass reaches the
 vacuum where `P₀` is the identity.  A convergence theorem for `P_pCNL` therefore needs the Markov
-structure the core `ℓ²` model does not carry — positivity and `P 1 = 1` on the completed space —
-rather than a further operator estimate.  The pCNL operator's own gap therefore remains a
-hypothesis of the Module 4–5 bound, as §2 anticipates; and no total-variation bound is derived —
+structure rather than a further operator estimate.  §20 shows half of that structure is already in
+the model — with the Metropolis complement `P₀ + K_reject = 1`, so `pcnlKernel = 1 + K_drift` and
+`P 1 = 1` holds exactly — and §21 kills the shortcut: the flat `ℓ¹` pairing of `K_drift` is
+positive on every basis vector (`coreL1_single_lt_add_drift_X`), so the contraction has to be read
+in a weighted norm.  §22 (`BookProof/MCMC/PositivityCone`) builds the model in which the question
+is answered — a row- and column-stochastic pCNL kernel on the finite occupation space with a
+Doeblin minorant `δ > 0`, `P 1 = 1` (`step_one`), cone preservation (`step_nonneg`), mass
+preservation (`mass_step`) and the oscillation contraction
+`osc (P f) ≤ (1 − (m+1)δ)·osc f` (`osc_step_le`), from which **`tendsto_iter_step`** gives
+convergence of every starting density to the invariant state `mass f / (m+1)` at the geometric rate
+`1 − (m+1)δ`, and `tendsto_iter_uniformStep` is the instance for the concrete kernel.  With §18,
+the Module 4–5 *hypotheses* are no longer assumed either: `module45_hypotheses_cited` bundles the
+sector contraction `coreNorm_baseOp_sector_le`, the fixed vacuum `baseOp_vac` and the gap
+`1 − ρ > 0`, and `module45_iterate_bound` is the iterate bound they produce.  What remains open is
+the pCNL operator's *own* gap — translating the cone model's weighted `ℓ¹` back through the core's
+unbounded `numberOp` — as §2 anticipates; and no total-variation bound is derived —
 §3.B's
 Born-to-variation step `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` is stated as the boundary in
 `GeometricErgodicity`'s docstring.
+
+#### The drift's sign, computed — and the cone model (2026-11-09)
+
+The previous status ended at "the gap has to come from the sign structure of the drift".  That is now
+settled two ways.
+
+**The flat sign is the wrong sign.**  `FockLangevinOperator` §21 reads the drift of the linear
+potential `Φ = Xⱼ` in ladder letters (`polyDrift_X`, `driftOperator_X`) and evaluates it on a basis
+vector: `drift_X_single_eq` gives the two-term image
+`w√(nⱼ+1)·e_{n+eⱼ} − w√(nⱼ)·e_{n−eⱼ}`, and `coreL1_single_add_sub_single_of_ne` sums the three
+pairwise-disjoint occupations, so **`coreL1_single_lt_add_drift_X`** computes
+`ℓ¹(e_n + K_drift e_n) = 1 + (β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ)) > ℓ¹(e_n)`.  The drift never destroys
+flat `ℓ¹` mass, at any occupation: `(K_drift, ℓ¹)` is not a dissipative pair, and the strict
+contraction §20 asked for cannot be a statement about that pairing.
+
+**The convergence is proved in the cone model** (`BookProof/MCMC/PositivityCone`, §22).  There the
+pCNL step is a transition kernel `step Q f = Q·f` on `Fin (m+1)` with four hypotheses the pCNL
+proposal satisfies — row stochastic (`P 1 = 1`, `step_one`), column stochastic (`mass_step`,
+`mass_iter`), positive (`step_nonneg`) and uniformly positive (`UniformPos`, the Doeblin minorant
+read off the Gaussian increment's positive density).  The Doeblin argument then goes through in
+three lemmas: `sum_abs_row_diff_le` bounds the row difference by `2(1 − (m+1)δ)` using only the
+minorant, `abs_step_sub_step_le` turns it into the oscillation bound, and **`osc_step_le`** gives
+`osc (P f) ≤ (1 − (m+1)δ)·osc f` (`osc_iter_le` for the iterates).  Mass preservation turns the
+oscillation decay into convergence: **`tendsto_iter_step`** proves that for every density and every
+state the iterates converge to the single limit `mass f / (m+1)` — the uniform density, the
+invariant state of a doubly stochastic kernel, independent of the start — at rate `1 − (m+1)δ`, and
+`tendsto_iter_uniformStep` is the instance for the concrete kernel `uniformStep t`
+(`uniformStep_one` states `P 1 = 1` for it).
+
+**Module 4–5 cites the operator facts.**  `module45_hypotheses_cited` packages the three hypotheses
+`pcn_geometric_ergodicity` consumes — sector contraction `coreNorm_baseOp_sector_le`, invariant
+state `baseOp_vac`, gap `1 − ρ > 0` — so the gap hypothesis in the Module 4–5 bound is discharged
+from §18 rather than assumed, and `module45_iterate_bound` is the resulting `‖P₀ᵐ c‖ ≤ ρᵐ‖c‖`.
+
+What this does **not** do: it does not identify the cone model's invariant state with the pCNL
+invariant measure on the unbounded Fock space — the model is finite, its kernel is the symmetric
+proposal written on occupations, and the weighted `ℓ¹` of the core (the weight that makes
+`K_drift` contract) is not named.  It also does not prove the pCNL operator's own gap; the
+Bakry–Émery/Hessian route above is untouched, and `pcnl_spectral_gap_of_hessian` stays a target.
 
 #### Review of the implementation's empirical claims (2026-11-03)
 
