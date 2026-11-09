@@ -2116,11 +2116,12 @@ import BookProof.Qym.ChapterYangMillsMehlerProduct
 -- `ChapterYangMillsMehlerLp` (work package S0, `Lp` level): the squared integral identity lifted
 -- to `Lp`.  `eLpNorm_gaussRoot_mul` is `‖γ^{1/2}f‖_{L²(dx)} = ‖f‖_{L²(γ dx)}` for the density
 -- measure `gaussMeasure`, `memLp_gaussRoot_mul` is the matching membership equivalence, and
--- `norm_toLp_mehler` is the norm equality on `Lp` elements.  A bundled `LinearIsometryEquiv` is
--- *not* constructed: mathlib's `Lp` isometry API is `compMeasurePreserving`, which needs a
--- measure-preserving map and so cannot see a density change, and the quotient-level construction
--- that would replace it is documented in the module header, together with the observation that
--- `norm_toLp_mehler` supplies exactly the `norm_map'` field such an equivalence would need.
+-- `norm_toLp_mehler` is the norm equality on `Lp` elements.  `mehlerLpEquiv` bundles it as a
+-- `LinearIsometryEquiv (Lp ℝ 2 gaussMeasure) (Lp ℝ 2 volume)` with forward map multiplication by
+-- `γ^{1/2}` and inverse multiplication by `γ^{-1/2}`; because mathlib's `Lp` isometry API is the
+-- `compMeasurePreserving` family (a measure-preserving *map*, not a density), every field of the
+-- equivalence is paid for by hand, including the reverse identity `eLpNorm_invGauss_mul` and the
+-- two absolute-continuity lemmas that carry a.e. equality between `volume` and `gaussMeasure`.
 import BookProof.Qym.ChapterYangMillsMehlerLp
 
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping

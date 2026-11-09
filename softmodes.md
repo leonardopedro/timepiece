@@ -374,8 +374,9 @@ S2 is unchanged (no positive `m`, no `L₁ − U₀`); S3 and S4 are untouched.
 
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 
-This section supersedes the `N` paragraph of the previous section on one point: the
-coordinate-count factor `−99/2` **is** now proved, and the product form is no longer `C`.
+This section supersedes the previous section on two points: the coordinate-count factor `−99/2`
+**is** now proved (so the product form is no longer `C`), and acceptance item 2 — the `Lp`-level
+statement — now has its bundled `LinearIsometryEquiv`, not merely the integral identity.
 
 #### S0 — the product form, with `−99/2`
 
@@ -405,29 +406,32 @@ statement about `L²` domains, form cores or self-adjoint extensions, so accepta
 the list above are untouched, item 3 is discharged, and item 2 is addressed at the level now
 noted.
 
-#### S0 — the `Lp` level, and why the bundled equivalence is not here
+#### S0 — the `Lp` level, now including the bundled equivalence
 
-`BookProof/Qym/ChapterYangMillsMehlerLp.lean` lifts the squared integral identity to `Lp`:
+`BookProof/Qym/ChapterYangMillsMehlerLp.lean` lifts the squared integral identity to `Lp` and
+bundles it:
 
 * `gaussMeasure` is `volume.withDensity (ofReal ∘ γ^{1/2}²)`, i.e. `γ dx`;
   `enorm_sq_eq_ofReal_sq` converts `‖y‖ₑ ^ 2` into `ofReal (y²)`.
 * `eLpNorm_gaussRoot_mul`: `‖γ^{1/2}f‖_{L²(dx)} = ‖f‖_{L²(γ dx)}`, with no integrability
-  hypothesis (both sides are `∞` together).
-* `memLp_gaussRoot_mul`: `γ^{1/2}f ∈ L²(dx)` **iff** `f ∈ L²(γ dx)` — the map is a bijection of
-  the two `Lp` spaces.
-* `norm_toLp_mehler`: for `f ∈ L²(γ dx)`, `‖toLp (γ^{1/2}f)‖ = ‖toLp f‖` — the metric content of
-  the equivalence, at the level of `Lp` elements.
+  hypothesis (both sides are `∞` together); `eLpNorm_gaussRoot_mul_ae` is the a.e.-measurable form.
+* `memLp_gaussRoot_mul`: `γ^{1/2}f ∈ L²(dx)` **iff** `f ∈ L²(γ dx)`; `memLp_gaussRoot_mul_lp` and
+  `memLp_invGauss_mul_lp` are the two membership maps on `Lp` elements.
+* `eLpNorm_invGauss_mul` is the reverse weight identity
+  `‖γ^{-1/2}g‖_{L²(γ dx)} = ‖g‖_{L²(dx)}` (the pointwise step is `γ^{1/2}²·(γ^{-1/2}g)² = g²`,
+  read through `withDensity`).
+* `norm_toLp_mehler` is the norm equality on `Lp` elements, and **`mehlerLpEquiv` is the bundled
+  `LinearIsometryEquiv (Lp ℝ 2 gaussMeasure) (Lp ℝ 2 volume)`** — forward map multiplication by
+  `γ^{1/2}`, inverse by `γ^{-1/2}`.  Axioms: `propext`, `Classical.choice`, `Quot.sound`.
 
-A bundled `LinearIsometryEquiv (Lp ℝ 2 gaussMeasure) (Lp ℝ 2 volume)` is **not** built.  This is a
-mathlib gap, not a mathematical one: the `Lp`-space isometry API in
-`MeasureTheory/Function/LpSpace/` is the `compMeasurePreserving` family, which produces an isometry
-from a *measure-preserving map* (`ν = μ.map f`); a density is not an image measure, so it does not
-apply.  Replacing it means defining a map on the quotient `Lp ℝ 2 gaussMeasure` through
-`MemLp.toLp`, proving well-definedness on a.e. classes, additivity (`toLp_add` after `toLp_congr`),
-ℝ-linearity (there is no `MemLp.toLp_smul` in this mathlib), both inverse laws and `norm_map'` —
-the last of which is exactly `norm_toLp_mehler`.  That quotient-level construction is scoped in the
-module header as the remaining work on acceptance item 2; nothing about the isometry itself is
-open.
+Acceptance item 2 is discharged at the `Lp` level.  What remains true is that mathlib has no
+*generic* density-change isometry: its `Lp` isometry API is the `compMeasurePreserving` family, which
+needs a measure-preserving map `α → β` (`ν = μ.map f`), and a density is not an image measure.
+So the equivalence here is bespoke, with every field paid for: `Lp.ext` plus pointwise identities
+for `map_add'` and `map_smul'` (this mathlib has no `MemLp.toLp_smul`), `gaussRoot * invGauss = 1`
+and `invGauss * gaussRoot = 1` on the nose for the inverse laws, and `Lp.norm_def` plus the
+`eLpNorm` identity for `norm_map'`.  It says nothing about domains, forms or spectra — items 1 and 4
+of the acceptance list are still open.
 
 #### S3 — the solve-error bookkeeping
 
