@@ -616,7 +616,18 @@ and ℂ inner-product symmetry must be built directly.  The derivative decomposi
 `(deriv f x).re = deriv (fun y => (f y).re) x` (from `Complex.reCLM.comp_hasDerivAt`), and the ℂ
 symmetry then splits into four applications of the real symmetry `integral_gaussDirichlet_mul_comm`;
 the ℂ integrals must be split with `integral`-`re`/`im` lemmas and integrability side conditions.
-Estimated at 250–350 lines, all of it mechanical, none of it existing yet.
+
+**Done** in `BookProof/Qym/ChapterYangMillsGaussFormComplex.lean` (no `sorry`; the only axioms are
+`propext`, `Classical.choice`, `Quot.sound`): `gaussDirichletC`, the componentwise splitting
+`gaussDirichletC_re`/`_im`, `memLp_gaussDirichletC`, the weighted ℂ symmetry
+`integral_gaussWeight_innerC_comm`, and — on classes — the ℂ-linear partial map `gaussOpC` with
+`gaussOpC_inner_comm` (symmetry), `gaussOpC_inner_self_eq_re` + `gaussOpC_quadForm_nonneg`
+(positivity) and `gaussOpC_symmetric` + `gaussOpC_form_closable` (the Friedrichs handoff).
+Two API traps cost the time: `⟪_,_⟫_ℂ` **does not exist** in this mathlib (the complex notation is
+plain `⟪x, y⟫` under `open scoped ComplexInnerProductSpace`, and opening `RealInnerProductSpace`
+too makes `⟪gaussDirichletC F x, G x⟫` ambiguous), and `integral_re`/`integral_im` are unusable as
+rewrites against `z.re` — `RCLike.re_to_complex` keys on `reC` and `RCLike.re` does not match it
+syntactically — so the split uses `Complex.reCLM`/`imCLM.integral_comp_comm` instead.
 
 Item 2 is discharged at the `Lp` level and item 3 is discharged.
 
@@ -630,16 +641,16 @@ gap list, in order of difficulty:
 1. **Real-to-complex shim.**  `gaussOp` lives on `Lp ℝ 2 gaussMeasure`; the chapter is `ℂ`-valued
    (`SymmetricOn D H`, `quadForm H x = (⟪x, H x⟫ : ℂ).re`, `IsPositiveSelfAdjointExtension`).  Either
    complexify (`Lp ℂ 2 gaussMeasure` with the `ℂ`-linear extension of `gaussOp`) or port Part B of
-   the chapter to `ℝ`.  Nothing mathematical is hidden here.
-2. **`SymmetricOn gaussCore gaussOp`** — immediate now: `gaussOp_inner_comm` *is* the symmetry, and
-   `quadForm`/`formInner` are its inner-product form.
-3. **Positivity on the core**, `0 ≤ quadForm gaussOp x`, i.e. `0 ≤ ⟪x, T x⟫_γ` — available from the
-   corpus' form positivity (`0 ≤ gaussForm f f`) plus `gaussForm_eq_integral_gaussDirichlet` and
-   `integral_gaussMeasure_eq_integral_gaussWeight`, the same translation `gaussOp_inner_comm` already
-   performs with `g = f`.
-4. **Closure of the form** — `form_closable` is proved abstractly and would apply once (1)–(3) are
-   in place; note it is stated for a *symmetric positive* operator, and our operator is symmetric
-   and positive on its core.
+   the chapter to `ℝ`.  **Closed** by the first route:
+   `ChapterYangMillsGaussFormComplex.gaussOpC : Lp ℂ 2 gaussMeasure →ₗ.[ℂ] Lp ℂ 2 gaussMeasure`
+   with the ℂ-valued `C²` core `gaussCoreC`.
+2. **`SymmetricOn gaussCore gaussOp`** — **closed**: `gaussOpC_inner_comm`, in the `SymmetricOn`
+   form as `gaussOpC_symmetric`.
+3. **Positivity on the core**, `0 ≤ quadForm gaussOp x`, i.e. `0 ≤ ⟪x, T x⟫_γ` — **closed**:
+   `gaussOpC_quadForm_nonneg`, from `gaussOpC_inner_self_eq_re` (the real part of the diagonal is
+   `gaussForm F.re F.re + gaussForm F.im F.im`) and the corpus' `gaussForm_self_nonneg`.
+4. **Closure of the form** — **closed**: `gaussOpC_form_closable` is `form_closable` applied to
+   (2) and (3), already instantiated on this operator.
 5. **Identification** — the extension Friedrichs produces is *some* positive self-adjoint extension;
    calling it `gaussOp.closure` needs exactly the essential-self-adjointness statement above (or the
    domain identification “form domain of `gaussForm` = `H¹(γ)`”, which is the same gap in another

@@ -2138,6 +2138,24 @@ import BookProof.Qym.ChapterYangMillsMehlerLp
 -- derivatives and `H¹(γ)` as a `LinearPMap` domain, neither of which mathlib provides.
 import BookProof.Qym.ChapterYangMillsGaussForm
 
+-- `ChapterYangMillsGaussFormComplex` (work package S0, the `ℂ` lift): mathlib has no
+-- complexification of real Hilbert spaces and no bundled `Lp.re`/`Lp.im`, so the complex
+-- operator is defined by the same formula on `ℂ`-valued representatives
+-- (`gaussDirichletC f = −f'' + x f'`,
+-- real `deriv`, hence `ℂ`-linear) and related to the real one componentwise: `gaussDirichletC_re`
+-- and `_im` give `(T f).re = T f.re` and `(T f).im = T f.im`, and `memLp_gaussDirichletC` assembles
+-- the `L²(γ dx)` membership from the real chapter through `memLp_re_im_iff`.
+-- `integral_gaussWeight_innerC_comm` is the weighted symmetry `∫ γ ⟪T F, G⟫ = ∫ γ ⟪F, T G⟫`,
+-- obtained by splitting both sides into real and imaginary parts (`Complex.reCLM`/`imCLM` commute
+-- with the Bochner integral) so that each of the four real pairings is the real
+-- `integral_gaussDirichlet_mul_comm`.  On classes this becomes
+-- `gaussOpC_inner_comm` for the `ℂ`-linear partial operator `gaussOpC` on the `C²` core, and
+-- `gaussOpC_inner_self_eq_re` identifies the real part of the diagonal with
+-- `gaussForm F.re F.re + gaussForm F.im F.im`, whence `gaussOpC_quadForm_nonneg`.  With
+-- `gaussOpC_symmetric` those are exactly the hypotheses of `ChapterYangMillsFriedrichs`,
+-- and `gaussOpC_form_closable` is its `form_closable` applied to this operator.
+import BookProof.Qym.ChapterYangMillsGaussFormComplex
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
