@@ -44,32 +44,38 @@ domain.  That item has three separable parts; the first and the operator half of
   `gaussDirichlet_add`/`gaussDirichlet_smul`, the congruence `gaussDirichlet_congr_ae` upgrades a.e.
   equality of representatives to equality of images, and the one `Lp` glue lemma mathlib lacks is
   `memLp_toLp_const_smul` (for addition `MemLp.toLp_add` already exists, and is even `rfl`).
-  Finally `gaussOpFun_add`/`gaussOpFun_smul` make `gaussOpFun` a linear map on the core, and
+  Finally  `gaussOpFun_add`/`gaussOpFun_smul` make `gaussOpFun` a linear map on the core, and
   `gaussOp` is the resulting `LinearPMap`.
-
-**Not done here, and the shape of what is left.**
-
-1. *Closability proper.*  Once `T` is a `LinearPMap`, the *route* is short: a symmetric operator
-   contained in its adjoint is closable, because `T.adjoint_isClosed` makes the adjoint closable
-   and `LinearPMap.IsClosable.leIsClosable` transfers that to `T ≤ T†`.
-   `integral_gaussDirichlet_mul_comm` supplies the symmetry; what is missing is the pairing
-   bookkeeping that turns the integral form of the symmetry into `⟪T x, y⟫ = ⟪x, T y⟫` in
-   `L²(γ dx)` (it needs both directions of `inner_def` on `toLp` images).
-2. *Density.*  `C_c^∞` is dense in `L²(γ dx)`; mathlib has the `volume` version
-   (`MeasureTheory.MemLp.exists_hasCompactSupport_eLpNorm_sub_le` for `C_c`, and
-   `MeasureTheory.Lp.boundedContinuousFunction_dense`) but not the density-weighted transport,
-   though `ChapterYangMillsMehlerLp.mehlerLpEquiv` is an isometry between the two spaces and would
-   carry a
-   `volume`-density statement across.  Smoothing `C_c` to `C_c^∞` is the remaining gap.
+* **`gaussOp` is densely defined, symmetric as a pairing, and closable.**  Density is
+  `dense_gaussCore`, and it is the only non-elementary input: `C_c` is dense in `L²(dx)`
+  (`MemLp.exists_hasCompactSupport_eLpNorm_sub_le`), a compactly supported continuous function is
+  uniformly continuous, `UniformContinuous.exists_contDiff_dist_le` smooths it in the sup norm,
+  and a `ContDiffBump` that is `1` on its support cuts the smooth approximation back to compact
+  (`exists_contDiff_hasCompactSupport_eLpNorm_sub_lt`); the Mehler isometry then carries that dense
+  family into `L²(γ dx)`, where its members are the classes of `γ^{-1/2} φ` for smooth compactly
+  supported `φ` — smooth and compactly supported, so in the core
+  (`mehlerMapInv_toLp_mem_gaussCore`).
+  Symmetry as an inner-product identity is `gaussOp_inner_comm`: the integral symmetry
+  `integral_gaussDirichlet_mul_comm` read through `inner_def` on `toLp` images, with
+  `integral_gaussMeasure_eq_integral_gaussWeight` performing the density-to-weight translation.  So
+  `gaussOp.IsFormalAdjoint gaussOp`, hence `gaussOp ≤ gaussOp.adjoint`; the adjoint of a densely
+  defined operator is closed (`adjoint_isClosed`), and `IsClosable.leIsClosable` transfers that, so
+  `gaussOp.IsClosable`.
 
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so nothing here is coordinate-count specific.
+
+What is *not* here: the closure `gaussOp.closure` itself, its self-adjointness, and the
+identification of its domain with the form domain of `gaussForm` — those are the S0/Friedrichs
+content that `ChapterYangMillsFriedrichs` consumes, not the operator bookkeeping.
 -/
 import BookProof.Qym.ChapterYangMillsMehlerLp
 
 namespace BookProof.YangMillsGaussForm
 
 open BookProof.YangMillsMehlerBridge BookProof.YangMillsMehlerLp MeasureTheory
+
+open scoped RealInnerProductSpace
 
 noncomputable section
 
@@ -453,6 +459,305 @@ noncomputable def gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ] Lp ℝ 2 gaussMea
 
 /-- On the core, `gaussOp` is `gaussOpFun`, by definition. -/
 theorem gaussOp_apply (f : gaussCore) : gaussOp f = gaussOpFun f := rfl
+
+/-! ## Density of the smooth core
+
+`gaussCore` is dense in `L²(γ dx)`, and this is what makes `gaussOp` densely defined — the
+hypothesis mathlib's adjoint construction and every closability statement ask for.
+
+The proof is a chain of approximations, all of it in `L²(dx)` where density is available:
+
+* `C_c` is dense in `L²(dx)` (`MemLp.exists_hasCompactSupport_eLpNorm_sub_le`), so a class is
+  approximated by a continuous compactly supported `g`;
+* `g` is uniformly continuous (compact support plus continuity, via
+  `Continuous.uniformContinuous_of_tendsto_cocompact`), so
+  `UniformContinuous.exists_contDiff_dist_le` gives a smooth `u` uniformly close to it;
+* multiplying by a `ContDiffBump` that is `1` on `tsupport g` makes `u` compactly supported while
+  keeping it close to `g`, and the norm of the difference is bounded by the sup bound times
+  `(volume (tsupport χ))^{1/2}`;
+* the Mehler isometry `mehlerLpEquiv` carries the resulting dense family into `L²(γ dx)`, where its
+  members are exactly the classes represented by `γ^{-1/2} φ` for smooth compactly supported `φ` —
+  smooth and compactly supported, so in the core.
+
+This section proves the metric facts; the membership in `gaussCore` and the final `Dense` statement
+follow below. -/
+
+/-- **A bounded function vanishing outside a set has small `eLpNorm`.**  The pointwise bound
+`|u| ≤ c` is compared with the indicator of the supporting set `K`, whose `eLpNorm` is
+`c · (volume K)^{1/2}` by `eLpNorm_indicator_const_le`.  Compactness of `K` is not used here —
+it enters only once the bound is compared with a target, which needs `volume K < ∞`. -/
+theorem eLpNorm_le_of_forall_notMem {u : ℝ → ℝ} {K : Set ℝ} {c : ℝ}
+    (hc : 0 ≤ c) (hzero : ∀ x, x ∉ K → u x = 0) (hsup : ∀ x, |u x| ≤ c) :
+    eLpNorm u 2 (volume : Measure ℝ) ≤ ENNReal.ofReal c * (volume K) ^ (1 / 2 : ℝ) := by
+  have hind : ∀ x, ‖u x‖ ≤ ‖K.indicator (fun _ => c) x‖ := by
+    intro x
+    by_cases hx : x ∈ K
+    · simpa only [Set.indicator_of_mem hx, Real.norm_eq_abs, abs_of_nonneg hc] using hsup x
+    · rw [Set.indicator_of_notMem hx, hzero x hx, norm_zero]
+  refine (eLpNorm_mono_ae (μ := (volume : Measure ℝ)) (p := 2)
+    (Filter.Eventually.of_forall hind)).trans ?_
+  have h2 : (1 : ℝ) / (2 : ENNReal).toReal = 1 / 2 := by norm_num
+  have h := eLpNorm_indicator_const_le (μ := (volume : Measure ℝ)) (s := K) c (p := 2)
+  rw [h2] at h
+  rw [← ofReal_norm, Real.norm_eq_abs, abs_of_nonneg hc] at h
+  exact h
+
+/-- **Smooth compactly supported classes are dense in `L²(dx)`.**  For a class `F` and any target
+`η > 0` there is a `C²` compactly supported `φ` whose class is within `η` of `F` in `L²(dx)`.
+
+`C_c` supplies the first approximation, uniform continuity of a compactly supported continuous
+function turns it into a smooth `u` that is small in the *sup* norm, and the `ContDiffBump` that is
+`1` on `tsupport g` cuts `u` down to compact support without spoiling that bound.  The sup bound is
+then integrated with `eLpNorm_le_of_forall_notMem`. -/
+theorem exists_contDiff_hasCompactSupport_eLpNorm_sub_lt (F : Lp ℝ 2 (volume : Measure ℝ))
+    {η : ℝ} (hη : 0 < η) :
+    ∃ φ : ℝ → ℝ, ContDiff ℝ 2 φ ∧ HasCompactSupport φ ∧
+      eLpNorm ((F : ℝ → ℝ) - φ) 2 (volume : Measure ℝ) < ENNReal.ofReal η := by
+  -- a continuous compactly supported approximation of `F`
+  obtain ⟨g, hgcpt, hgclose, hgcont, _hgmem⟩ :=
+    MemLp.exists_hasCompactSupport_eLpNorm_sub_le (p := 2) (μ := (volume : Measure ℝ))
+      (by norm_num) (Lp.memLp F) (ε := ENNReal.ofReal (η / 3))
+      (ENNReal.ofReal_pos.mpr (by linarith : (0 : ℝ) < η / 3)).ne'
+  -- it is uniformly continuous
+  have hguc : UniformContinuous g :=
+    hgcont.uniformContinuous_of_tendsto_cocompact hgcpt.is_zero_at_infty
+  -- a radius for its support
+  obtain ⟨r, hrs⟩ := hgcpt.isCompact.isBounded.subset_closedBall (0 : ℝ)
+  have hRs : tsupport g ⊆ Metric.closedBall (0 : ℝ) (max r 0) :=
+    hrs.trans (Metric.closedBall_subset_closedBall (le_max_left r 0))
+  -- the bump that is `1` on it and vanishes outside a slightly larger ball
+  have hr0 : (0 : ℝ) ≤ max r 0 := le_max_right r 0
+  set b : ContDiffBump (0 : ℝ) :=
+    ⟨max r 0 + 1, max r 0 + 2, by linarith, by linarith⟩ with hb
+  have hχsmooth : ContDiff ℝ 2 (⇑b) := by simpa using b.contDiff (n := 2)
+  have hχcpt : HasCompactSupport (⇑b) := b.hasCompactSupport
+  have hχone : ∀ x ∈ tsupport g, b x = 1 := fun x hx =>
+    b.one_of_mem_closedBall (hRs.trans (Metric.closedBall_subset_closedBall (by linarith)) hx)
+  have hχsupport : tsupport (⇑b) = Metric.closedBall (0 : ℝ) (max r 0 + 2) := b.tsupport_eq
+  set c : ℝ := (volume (tsupport (⇑b))).toReal ^ (1 / 2 : ℝ) with hc
+  have hc0 : 0 ≤ c := Real.rpow_nonneg ENNReal.toReal_nonneg _
+  set ε' : ℝ := η / 3 / (c + 1) with hε'
+  have hε'pos : 0 < ε' := by
+    rw [hε']
+    exact div_pos (by linarith) (by linarith)
+  -- the smooth approximation, uniformly close
+  obtain ⟨u, huSmooth, hudist⟩ := hguc.exists_contDiff_dist_le hε'pos
+  have hu2 : ContDiff ℝ 2 u := huSmooth.of_le (WithTop.coe_le_coe.mpr le_top)
+  -- cut it down to compact support
+  set u' : ℝ → ℝ := fun x => b x * u x with hu'
+  have hu'2 : ContDiff ℝ 2 u' := by rw [hu']; exact hχsmooth.mul hu2
+  have hu'cpt : HasCompactSupport u' := by
+    rw [hu']
+    simpa only [Pi.mul_apply, mul_comm] using hχcpt.mul_left (f := u)
+  -- the pointwise bound where `χ = 1`, and the trivial one outside `tsupport χ`
+  have hbabs : ∀ x, |b x| ≤ 1 := by
+    intro x
+    rw [abs_of_nonneg (b.nonneg)]
+    exact b.le_one
+  have hu'close : ∀ x, |u' x - g x| ≤ ε' := by
+    intro x
+    show |b x * u x - g x| ≤ ε'
+    by_cases hxg : x ∈ tsupport g
+    · have hd : |u x - g x| < ε' := by
+        rw [← Real.dist_eq]
+        exact hudist x
+      rw [hχone x hxg, one_mul]
+      exact hd.le
+    · have hg0 : g x = 0 := image_eq_zero_of_notMem_tsupport hxg
+      have hd : |u x| < ε' := by
+        have h := hudist x
+        rwa [Real.dist_eq, hg0, sub_zero] at h
+      calc |b x * u x - g x| = |b x * u x| := by rw [hg0, sub_zero]
+        _ = |b x| * |u x| := abs_mul _ _
+        _ ≤ 1 * |u x| := mul_le_mul_of_nonneg_right (hbabs x) (abs_nonneg _)
+        _ = |u x| := one_mul _
+        _ ≤ ε' := hd.le
+  -- and the values it keeps are supported in `tsupport χ`
+  have hsub : tsupport g ⊆ tsupport (⇑b) :=
+    fun x hx => subset_tsupport _ (Function.mem_support.mpr (by rw [hχone x hx]; exact one_ne_zero))
+  have hu'zero : ∀ x, x ∉ tsupport (⇑b) → u' x - g x = 0 := by
+    intro x hx
+    have hg0 : g x = 0 := by
+      by_contra hne
+      exact hx (hsub (subset_tsupport g (Function.mem_support.mpr hne)))
+    show b x * u x - g x = 0
+    rw [image_eq_zero_of_notMem_tsupport hx, zero_mul, hg0, sub_zero]
+  have hχfin : volume (tsupport (⇑b)) ≠ ⊤ := by
+    rw [hχsupport]
+    exact (isCompact_closedBall (0 : ℝ) (max r 0 + 2)).measure_lt_top.ne
+  -- the sup bound integrated
+  have hsmall : eLpNorm (u' - g) 2 (volume : Measure ℝ) ≤ ENNReal.ofReal (η / 3) := by
+    have hpow : volume (tsupport (⇑b)) ^ (1 / 2 : ℝ) = ENNReal.ofReal c := by
+      rw [← ENNReal.ofReal_toReal hχfin,
+        ENNReal.ofReal_rpow_of_nonneg ENNReal.toReal_nonneg (by norm_num : (0 : ℝ) ≤ 1 / 2),
+        hc]
+    calc eLpNorm (u' - g) 2 (volume : Measure ℝ)
+        ≤ ENNReal.ofReal ε' * volume (tsupport (⇑b)) ^ (1 / 2 : ℝ) :=
+          eLpNorm_le_of_forall_notMem hε'pos.le hu'zero (fun x => by
+            simpa only [Pi.sub_apply] using hu'close x)
+      _ = ENNReal.ofReal ε' * ENNReal.ofReal c := by rw [hpow]
+      _ = ENNReal.ofReal (ε' * c) := (ENNReal.ofReal_mul hε'pos.le).symm
+      _ ≤ ENNReal.ofReal (η / 3) := by
+          refine ENNReal.ofReal_le_ofReal ?_
+          rw [hε', div_mul_eq_mul_div, div_le_iff₀ (by linarith : (0 : ℝ) < c + 1)]
+          nlinarith [hc0]
+  -- the triangle inequality
+  have hFmeas : AEStronglyMeasurable ((F : ℝ → ℝ) - g) (volume : Measure ℝ) :=
+    ((Lp.memLp F).1).sub hgcont.aestronglyMeasurable
+  have hgmeas : AEStronglyMeasurable (g - u') (volume : Measure ℝ) :=
+    hgcont.aestronglyMeasurable.sub hu'2.continuous.aestronglyMeasurable
+  have hsplit : ((F : ℝ → ℝ) - u') =ᵐ[volume] ((F : ℝ → ℝ) - g) + (g - u') :=
+    Filter.Eventually.of_forall fun x => by
+      simp only [Pi.sub_apply, Pi.add_apply]
+      ring
+  have hsmall' : eLpNorm (g - u') 2 (volume : Measure ℝ) ≤ ENNReal.ofReal (η / 3) := by
+    rw [eLpNorm_congr_ae (show (g - u') =ᵐ[volume] -(u' - g) from
+      Filter.Eventually.of_forall fun x => by
+        simp only [Pi.sub_apply, Pi.neg_apply]
+        ring), eLpNorm_neg]
+    exact hsmall
+  have htri : eLpNorm ((F : ℝ → ℝ) - u') 2 (volume : Measure ℝ)
+      ≤ ENNReal.ofReal (η / 3) + ENNReal.ofReal (η / 3) := by
+    rw [eLpNorm_congr_ae hsplit]
+    exact (eLpNorm_add_le hFmeas hgmeas (by norm_num)).trans (add_le_add hgclose hsmall')
+  refine ⟨u', hu'2, hu'cpt, lt_of_le_of_lt htri ?_⟩
+  rw [← ENNReal.ofReal_add (by linarith) (by linarith)]
+  exact ENNReal.ofReal_lt_ofReal_iff hη |>.mpr (by linarith)
+
+/-- A continuous compactly supported real function is in `L²(dx)`. -/
+theorem memLp_of_hasCompactSupport {f : ℝ → ℝ} (hf : Continuous f) (hfc : HasCompactSupport f) :
+    MemLp f 2 (volume : Measure ℝ) := by
+  have hcs : HasCompactSupport (fun x => f x ^ 2) := by
+    have h := hfc.mul_left (f := f)
+    simpa only [Pi.mul_apply, pow_two] using h
+  exact (memLp_two_iff_integrable_sq hf.aestronglyMeasurable).2
+    ((hf.pow 2).integrable_of_hasCompactSupport hcs)
+
+/-- **The smooth `γ^{-1/2}` family sits in the core.**  For smooth compactly supported `φ` the class
+`toLp_γ (γ^{-1/2} φ)` has the representative `γ^{-1/2} φ` itself, which is `C²` and compactly
+supported, so it is in `gaussCore`.  This is the membership half of the density statement: the
+Mehler isometry's inverse sends smooth compactly supported `L²(dx)` classes into the core. -/
+theorem mehlerMapInv_toLp_mem_gaussCore {φ : ℝ → ℝ} (hφ : ContDiff ℝ 2 φ)
+    (hφc : HasCompactSupport φ) (hφmem : MemLp φ 2 (volume : Measure ℝ)) :
+    mehlerMapInv (MemLp.toLp φ hφmem) ∈ gaussCore := by
+  refine ⟨fun x => invGauss x * φ x, ?_, ?_, ?_⟩
+  · have hinv : ContDiff ℝ 2 invGauss := by
+      unfold invGauss
+      fun_prop
+    exact hinv.mul hφ
+  · exact hφc.mul_left (f := invGauss)
+  · refine (MemLp.coeFn_toLp (memLp_invGauss_mul_lp (MemLp.toLp φ hφmem))).trans ?_
+    filter_upwards [absolutelyContinuous_gaussMeasure_volume.ae_eq
+      (MemLp.coeFn_toLp hφmem)] with x hx
+    rw [hx]
+
+/-- **The smooth core is dense in `L²(γ dx)`.**  Approximate `mehlerLpEquiv F` by a smooth
+compactly supported `L²(dx)` class, pull the approximation back through the Mehler isometry (an
+isometry, so distances are preserved), and note that what comes back lies in `gaussCore` by
+`mehlerMapInv_toLp_mem_gaussCore`. -/
+theorem dense_gaussCore : Dense (gaussCore : Set (Lp ℝ 2 gaussMeasure)) := by
+  intro F
+  rw [Metric.mem_closure_iff]
+  intro ε hε
+  obtain ⟨φ, hφ2, hφc, hφclose⟩ :=
+    exists_contDiff_hasCompactSupport_eLpNorm_sub_lt (mehlerLpEquiv F) (by linarith : 0 < ε / 2)
+  have hφmem : MemLp φ 2 (volume : Measure ℝ) := memLp_of_hasCompactSupport hφ2.continuous hφc
+  refine ⟨mehlerLpEquiv.symm (MemLp.toLp φ hφmem),
+    mehlerMapInv_toLp_mem_gaussCore hφ2 hφc hφmem, ?_⟩
+  have hdist : dist (mehlerLpEquiv F) (MemLp.toLp φ hφmem)
+      = (eLpNorm ((mehlerLpEquiv F : ℝ → ℝ) - φ) 2 (volume : Measure ℝ)).toReal := by
+    rw [Lp.dist_def]
+    congr 1
+    refine eLpNorm_congr_ae ?_
+    filter_upwards [MemLp.coeFn_toLp hφmem] with x hx
+    simp only [Pi.sub_apply, hx]
+  have hlt : (eLpNorm ((mehlerLpEquiv F : ℝ → ℝ) - φ) 2 (volume : Measure ℝ)).toReal < ε := by
+    have hfin : ENNReal.ofReal (ε / 2) ≠ ⊤ := ENNReal.ofReal_ne_top
+    have ha : eLpNorm ((mehlerLpEquiv F : ℝ → ℝ) - φ) 2 (volume : Measure ℝ) ≠ ⊤ :=
+      ne_top_of_lt hφclose
+    have h := (ENNReal.toReal_lt_toReal ha hfin).mpr hφclose
+    rw [ENNReal.toReal_ofReal (by linarith : (0 : ℝ) ≤ ε / 2)] at h
+    linarith
+  calc dist F (mehlerLpEquiv.symm (MemLp.toLp φ hφmem))
+      = dist (mehlerLpEquiv F) (MemLp.toLp φ hφmem) := by
+        rw [← LinearIsometryEquiv.dist_map mehlerLpEquiv F
+            (mehlerLpEquiv.symm (MemLp.toLp φ hφmem)),
+          LinearIsometryEquiv.apply_symm_apply]
+    _ = (eLpNorm ((mehlerLpEquiv F : ℝ → ℝ) - φ) 2 (volume : Measure ℝ)).toReal := hdist
+    _ < ε := hlt
+
+/-- `gaussOp` is densely defined: its domain is the core, which is dense by `dense_gaussCore`. -/
+theorem dense_gaussOp_domain : Dense (gaussOp.domain : Set (Lp ℝ 2 gaussMeasure)) :=
+  dense_gaussCore
+
+/-! ## Symmetry as an inner-product identity, and closability
+
+The integral symmetry `integral_gaussDirichlet_mul_comm` is a statement about integrals over `dx`
+against the weight.  Read through `inner_def` on `toLp` images it becomes
+`⟪T f, g⟫ = ⟪f, T g⟫` on the core, i.e. `gaussOp.IsFormalAdjoint gaussOp`.  Mathlib's
+`IsFormalAdjoint.le_adjoint` then gives `gaussOp ≤ gaussOp†`, and since the adjoint is closed
+(`adjoint_isClosed`, using density) `IsClosable.leIsClosable` makes `gaussOp` closable. -/
+
+/-- **Integration against `γ dx` is a weighted Lebesgue integral.** -/
+theorem integral_gaussMeasure_eq_integral_gaussWeight (h : ℝ → ℝ) :
+    ∫ x, h x ∂gaussMeasure = ∫ x, gaussWeight x * h x ∂(volume : Measure ℝ) := by
+  rw [gaussMeasure, integral_withDensity_eq_integral_toReal_smul measurable_gaussDensity
+    (Filter.Eventually.of_forall fun x => ENNReal.ofReal_lt_top)]
+  refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+  simp only [gaussWeight, ENNReal.toReal_ofReal (sq_nonneg (gaussRoot x)), smul_eq_mul]
+
+/-- **Symmetry of `gaussOp` on its core, as an inner-product identity.**  The left matrix element is
+`∫ γ · T f · g`, the right one `∫ γ · f · T g`, and `integral_gaussDirichlet_mul_comm` identifies
+them. -/
+theorem gaussOp_inner_comm (f g : gaussCore) :
+    ⟪gaussOp f, (g : Lp ℝ 2 gaussMeasure)⟫ = ⟪(f : Lp ℝ 2 gaussMeasure), gaussOp g⟫ := by
+  have hf := gaussCoreRep_spec f
+  have hg := gaussCoreRep_spec g
+  have hmemf := memLp_gaussDirichlet hf.1 hf.2.1
+  have hmemg := memLp_gaussDirichlet hg.1 hg.2.1
+  have hL : ⟪gaussOp f, (g : Lp ℝ 2 gaussMeasure)⟫
+      = ∫ x, gaussWeight x * gaussDirichlet (gaussCoreRep f) x * gaussCoreRep g x :=
+    calc ⟪gaussOp f, (g : Lp ℝ 2 gaussMeasure)⟫
+        = ∫ x, ⟪⇑(MemLp.toLp (gaussDirichlet (gaussCoreRep f)) hmemf) x,
+            ⇑(g : Lp ℝ 2 gaussMeasure) x⟫ ∂gaussMeasure := by
+          rw [gaussOp_apply,
+            gaussOpFun_eq_toLp (f := f) (F := gaussCoreRep f) hf.1 hf.2.1 hf.2.2, L2.inner_def]
+      _ = ∫ x, gaussWeight x * ⟪⇑(MemLp.toLp (gaussDirichlet (gaussCoreRep f)) hmemf) x,
+            ⇑(g : Lp ℝ 2 gaussMeasure) x⟫ :=
+          integral_gaussMeasure_eq_integral_gaussWeight _
+      _ = ∫ x, gaussWeight x * gaussDirichlet (gaussCoreRep f) x * gaussCoreRep g x := by
+          refine integral_congr_ae ?_
+          filter_upwards [absolutelyContinuous_volume_gaussMeasure.ae_eq (MemLp.coeFn_toLp hmemf),
+            absolutelyContinuous_volume_gaussMeasure.ae_eq hg.2.2] with x hx hy
+          rw [hx, hy, RCLike.inner_apply', RCLike.conj_to_real, mul_assoc]
+  have hR : ⟪(f : Lp ℝ 2 gaussMeasure), gaussOp g⟫
+      = ∫ x, gaussWeight x * gaussCoreRep f x * gaussDirichlet (gaussCoreRep g) x :=
+    calc ⟪(f : Lp ℝ 2 gaussMeasure), gaussOp g⟫
+        = ∫ x, ⟪⇑(f : Lp ℝ 2 gaussMeasure) x,
+            ⇑(MemLp.toLp (gaussDirichlet (gaussCoreRep g)) hmemg) x⟫ ∂gaussMeasure := by
+          rw [gaussOp_apply,
+            gaussOpFun_eq_toLp (f := g) (F := gaussCoreRep g) hg.1 hg.2.1 hg.2.2, L2.inner_def]
+      _ = ∫ x, gaussWeight x * ⟪⇑(f : Lp ℝ 2 gaussMeasure) x,
+            ⇑(MemLp.toLp (gaussDirichlet (gaussCoreRep g)) hmemg) x⟫ :=
+          integral_gaussMeasure_eq_integral_gaussWeight _
+      _ = ∫ x, gaussWeight x * gaussCoreRep f x * gaussDirichlet (gaussCoreRep g) x := by
+          refine integral_congr_ae ?_
+          filter_upwards [absolutelyContinuous_volume_gaussMeasure.ae_eq hf.2.2,
+            absolutelyContinuous_volume_gaussMeasure.ae_eq (MemLp.coeFn_toLp hmemg)] with x hx hy
+          rw [hx, hy, RCLike.inner_apply', RCLike.conj_to_real, mul_assoc]
+  rw [hL, hR, integral_gaussDirichlet_mul_comm hf.1 hf.2.1 hg.1 hg.2.1]
+
+/-- `gaussOp` is a formal adjoint of itself: it is symmetric on its core. -/
+theorem gaussOp_isFormalAdjoint : gaussOp.IsFormalAdjoint gaussOp := gaussOp_inner_comm
+
+/-- **`gaussOp` is contained in its adjoint.**  This is the symmetry plus density, nothing else. -/
+theorem gaussOp_le_adjoint : gaussOp ≤ gaussOp.adjoint :=
+  LinearPMap.IsFormalAdjoint.le_adjoint dense_gaussOp_domain gaussOp_isFormalAdjoint
+
+/-- **`gaussOp` is closable.**  A symmetric operator contained in its adjoint is closable, since the
+adjoint of a densely defined operator is closed. -/
+theorem gaussOp_isClosable : gaussOp.IsClosable :=
+  (LinearPMap.adjoint_isClosed dense_gaussOp_domain).isClosable.leIsClosable gaussOp_le_adjoint
 
 end
 

@@ -495,28 +495,43 @@ item 1 of the acceptance list at the form level, deliberately below any domain c
   `Lp` level addition is `MemLp.toLp_add` (in mathlib, `rfl`), and the one glue lemma mathlib lacks
   is `memLp_toLp_const_smul`.  Then `gaussOpFun_add`/`gaussOpFun_smul` make `gaussOpFun` a linear
   map on the core and `gaussOp` the resulting `LinearPMap` (domain `gaussCore`).
+* **`gaussOp` is densely defined**: `dense_gaussCore`, i.e. `dense_gaussOp_domain`.  This is the one
+  place where genuine analysis is needed, and none of it is specific to `γ`:
+  `MemLp.exists_hasCompactSupport_eLpNorm_sub_le` gives a continuous compactly supported
+  approximation in `L²(dx)`; such a function is uniformly continuous
+  (`Continuous.uniformContinuous_of_tendsto_cocompact`), so
+  `UniformContinuous.exists_contDiff_dist_le` smooths it in the sup norm; a `ContDiffBump` that is
+  `1` on `tsupport g` (and `≤ 1` everywhere) cuts the smooth approximation back to compact support
+  without losing that bound, and `eLpNorm_le_of_forall_notMem` integrates the sup bound to
+  `ε · (volume (tsupport χ))^{1/2}` — this is
+  `exists_contDiff_hasCompactSupport_eLpNorm_sub_lt`.  Then `mehlerMapInv_toLp_mem_gaussCore` says
+  the Mehler isometry's inverse sends those classes into the core (their representative is
+  `γ^{-1/2} φ`, smooth and compactly supported because `φ` is), and `dense_gaussCore` carries the
+  density across `mehlerLpEquiv` by isometry plus `memLp_of_hasCompactSupport`.
+* **`gaussOp` is symmetric as a pairing and closable.**  `gaussOp_inner_comm` is
+  `⟪T f, g⟫ = ⟪f, T g⟫` on the core: `integral_gaussDirichlet_mul_comm` read through `L2.inner_def`
+  on `toLp` images, with `integral_gaussMeasure_eq_integral_gaussWeight`
+  (`∫ · d(γ dx) = ∫ γ · dx`) doing the measure translation.  So
+  `gaussOp_isFormalAdjoint : gaussOp.IsFormalAdjoint gaussOp`, hence
+  `gaussOp_le_adjoint : gaussOp ≤ gaussOp†`, and since the adjoint of a densely defined operator is
+  closed (`LinearPMap.adjoint_isClosed`), `IsClosable.leIsClosable` gives
+  `gaussOp_isClosable : gaussOp.IsClosable`.  Note that this route needs **no** weak-derivative or
+  `H¹(γ)` API — it is exactly why the adjoint is the cheap way in.
 
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
 
-**What item 1 still needs.** Two gaps, neither closed by the above:
-
-1. *Closability proper.*  The route is short now that `T` is a `LinearPMap`:
-   `T.adjoint_isClosed` makes `T†` closable and `LinearPMap.IsClosable.leIsClosable` carries that to
-   `T` as soon as `T ≤ T†`, i.e. as soon as the symmetry is read as `⟪T x, y⟫ = ⟪x, T y⟫`.  The
-   missing piece is that pairing bookkeeping on `toLp` images (`inner_def` plus integrability of the
-   products) — not the mathematics of closability, which mathlib has.  Note that this route needs
-   no weak-derivative or `H¹(γ)` API: it is exactly why the adjoint is the cheap way in.
-2. *Density of the smooth core.*  Only the `volume` version is in mathlib; the density-weighted
-   transport is again `mehlerLpEquiv` plus the a.e.-equality lemmas it already contains, but the
-   density statement itself is not written.  Density is also what makes `gaussOp` densely defined,
-   so it is part of the acceptance item and not only of the form-domain story.
-
-So acceptance item 1 is now "form defined, symmetry and nonnegativity proved, **operator identity
-proved** on the `C²`-compactly-supported core, **the operator packaged as `gaussOp : LinearPMap`**,
-closability and core density open"; item 2 is discharged at the `Lp` level, item 3 is discharged,
-and item 4 (Friedrichs / `ChapterYangMillsFriedrichs`) now has an operator to close — what it still
-lacks is the closedness of the form, i.e. exactly the two items above.
+**Where S0 acceptance item 1 stands.**  Everything the item asks for except the closure itself is
+now proved: the form is defined, symmetric and nonnegative; the operator identity holds on the
+`C²`-compactly-supported core; the operator is packaged as `gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ]
+Lp ℝ 2 gaussMeasure` with domain `gaussCore`; the domain is dense; and the operator is closable, so
+`LinearPMap.closure` exists and is closed.  What is *not* proved: that the closure is self-adjoint
+(it needs the core to be a core for the adjoint as well, i.e. `gaussOp†` symmetric on a dense
+subcore, or a Friedrichs argument), that `gaussOp.closure` is the Friedrichs extension of
+`gaussForm` (identification of domains, which is where `H¹(γ)`-type descriptions would enter), and
+the spectral statement the S0 item is ultimately for.  Item 2 is discharged at the `Lp` level,
+item 3 is discharged, and item 4 (`ChapterYangMillsFriedrichs`) now has a closable, densely defined
+operator to extend — what it still lacks is the domain identification, not closability.
 
 #### S3 — the solve-error bookkeeping
 
