@@ -2101,6 +2101,37 @@ import BookProof.Qym.ChapterYangMillsMehlerBridge
 -- is the `a < 1` relative-bound input S2 owes.
 import BookProof.Qym.ChapterYangMillsSoftDirections
 
+-- `ChapterYangMillsMehlerProduct` (work package S0, product form): the `d`-coordinate Mehler
+-- identity summed over all coordinates.  Rather than invoking the Laplacian Leibniz rule (which
+-- mathlib's `Laplacian` does not provide together with a gradient), it conjugates a *coordinate*
+-- derivative twice: `U ∂ᵢ U⁻¹ = ∂ᵢ + xᵢ/2` (`conj_partial`), hence `U ∂ᵢ² U⁻¹`
+-- (`pd2_invGaussVec_mul`), hence `U (−∂ᵢ² + xᵢ∂ᵢ) U⁻¹ = −∂ᵢ² + xᵢ²/4 − ½` in each coordinate
+-- (`conj_dirichletVec_coord`) and, summed, `U (Σᵢ Dᵢ) U⁻¹ = −Δ + |x|²/4 − d/2`
+-- (`conj_dirichletVec`).  `conj_dirichletVec99` is the `d = 99` instance with its `−99/2`, which
+-- supersedes the bridge chapter's earlier statement that the coordinate-count factor was not
+-- proved.  The weight factorization along a coordinate line is `gaussRootVec_update` /
+-- `invGaussVec_update`.
+import BookProof.Qym.ChapterYangMillsMehlerProduct
+
+-- `ChapterYangMillsMehlerLp` (work package S0, `Lp` level): the squared integral identity lifted
+-- to `Lp`.  `eLpNorm_gaussRoot_mul` is `‖γ^{1/2}f‖_{L²(dx)} = ‖f‖_{L²(γ dx)}` for the density
+-- measure `gaussMeasure`, `memLp_gaussRoot_mul` is the matching membership equivalence, and
+-- `norm_toLp_mehler` is the norm equality on `Lp` elements.  A bundled `LinearIsometryEquiv` is
+-- *not* constructed: mathlib's `Lp` isometry API is `compMeasurePreserving`, which needs a
+-- measure-preserving map and so cannot see a density change, and the quotient-level construction
+-- that would replace it is documented in the module header, together with the observation that
+-- `norm_toLp_mehler` supplies exactly the `norm_map'` field such an equivalence would need.
+import BookProof.Qym.ChapterYangMillsMehlerLp
+
+-- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
+-- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
+-- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
+-- is the two-dimensional counterexample distinguishing the *compressed* operator from the
+-- *compressed resolvent*: the compressed solve and the exact solve of the compressed problem differ
+-- by `(A+1)⁻¹` applied to the defect, so the `1/6` gap is the defect's image, not a numerical
+-- artifact (`compressed_solve_error_eq_defect_image`).
+import BookProof.Sirk.ChapterShiftInvertBookkeeping
+
 -- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
 -- derivative-variable fixing `E = ∂e` on the coordinate algebra of
 -- `ChapterQuantumGravity3DGauge`.  A tetrad field polynomial in the spacetime coordinates

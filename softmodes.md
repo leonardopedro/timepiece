@@ -372,6 +372,80 @@ the inequality is agnostic between the abelian and non-abelian readings, and the
 
 S2 is unchanged (no positive `m`, no `L₁ − U₀`); S3 and S4 are untouched.
 
+### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
+
+This section supersedes the `N` paragraph of the previous section on one point: the
+coordinate-count factor `−99/2` **is** now proved, and the product form is no longer `C`.
+
+#### S0 — the product form, with `−99/2`
+
+`BookProof/Qym/ChapterYangMillsMehlerProduct.lean` (namespace
+`BookProof.YangMillsMehlerProduct`) builds the `d`-coordinate statement without the Laplacian
+Leibniz rule — and therefore without needing `Δγ^{1/2} = (|x|²/4 + d/2)γ^{1/2}` as an input.  It
+conjugates a *coordinate derivative* twice, exactly as the one-coordinate chapter does:
+
+* `gaussRootVec` / `invGaussVec` are `exp(−|x|²/4)` and `exp(|x|²/4)` on `Fin d → ℝ`;
+  `sum_sq_update` is `Σⱼ (update y i t)ⱼ² = Σⱼ yⱼ² − yᵢ² + t²`, and `gaussRootVec_update` /
+  `invGaussVec_update` are the resulting factorization of the weight along a coordinate line into a
+  one-dimensional Gaussian root times a constant.
+* `pd` / `pd2` are the partial derivatives along the line `xᵢ ↦ t`, so they are ordinary
+  one-variable `deriv`s; `pd_update` and `pd_pd` record that moving the base point does not change
+  the line and that `pd2` is `pd` of `pd`.
+* `conj_partial` is `U ∂ᵢ U⁻¹ = ∂ᵢ + xᵢ/2` in `d` coordinates; `pd2_invGaussVec_mul` is
+  `U ∂ᵢ² U⁻¹`; `conj_dirichletVec_coord` is `U (−∂ᵢ² + xᵢ∂ᵢ) U⁻¹ = −∂ᵢ² + xᵢ²/4 − ½`.
+* `conj_dirichletVec` sums these: `U (Σᵢ Dᵢ) U⁻¹ = −Δ + |x|²/4 − d/2` with
+  `laplaceVec F = Σᵢ ∂ᵢ²F`, and `conj_dirichletVec99` is the `d = 99` instance with its `−99/2`.
+  `sum_drift` is the step where the per-coordinate `−½` becomes `−d/2`; the coordinate count enters
+  nowhere else.
+
+Hypotheses: one-variable differentiability of `F` along every coordinate line (`h1`) and of `pd F i`
+along the same lines (`h2`).  All proofs are `sorry`-free with axioms `propext`,
+`Classical.choice`, `Quot.sound`.  The module proves the identity on functions; it is still not a
+statement about `L²` domains, form cores or self-adjoint extensions, so acceptance items 1 and 4 of
+the list above are untouched, item 3 is discharged, and item 2 is addressed at the level now
+noted.
+
+#### S0 — the `Lp` level, and why the bundled equivalence is not here
+
+`BookProof/Qym/ChapterYangMillsMehlerLp.lean` lifts the squared integral identity to `Lp`:
+
+* `gaussMeasure` is `volume.withDensity (ofReal ∘ γ^{1/2}²)`, i.e. `γ dx`;
+  `enorm_sq_eq_ofReal_sq` converts `‖y‖ₑ ^ 2` into `ofReal (y²)`.
+* `eLpNorm_gaussRoot_mul`: `‖γ^{1/2}f‖_{L²(dx)} = ‖f‖_{L²(γ dx)}`, with no integrability
+  hypothesis (both sides are `∞` together).
+* `memLp_gaussRoot_mul`: `γ^{1/2}f ∈ L²(dx)` **iff** `f ∈ L²(γ dx)` — the map is a bijection of
+  the two `Lp` spaces.
+* `norm_toLp_mehler`: for `f ∈ L²(γ dx)`, `‖toLp (γ^{1/2}f)‖ = ‖toLp f‖` — the metric content of
+  the equivalence, at the level of `Lp` elements.
+
+A bundled `LinearIsometryEquiv (Lp ℝ 2 gaussMeasure) (Lp ℝ 2 volume)` is **not** built.  This is a
+mathlib gap, not a mathematical one: the `Lp`-space isometry API in
+`MeasureTheory/Function/LpSpace/` is the `compMeasurePreserving` family, which produces an isometry
+from a *measure-preserving map* (`ν = μ.map f`); a density is not an image measure, so it does not
+apply.  Replacing it means defining a map on the quotient `Lp ℝ 2 gaussMeasure` through
+`MemLp.toLp`, proving well-definedness on a.e. classes, additivity (`toLp_add` after `toLp_congr`),
+ℝ-linearity (there is no `MemLp.toLp_smul` in this mathlib), both inverse laws and `norm_map'` —
+the last of which is exactly `norm_toLp_mehler`.  That quotient-level construction is scoped in the
+module header as the remaining work on acceptance item 2; nothing about the isometry itself is
+open.
+
+#### S3 — the solve-error bookkeeping
+
+`BookProof/Sirk/ChapterShiftInvertBookkeeping.lean` (namespace
+`BookProof.HashimotoShiftInvertBookkeeping`) supplies the two S3 pieces that the shift-invert
+estimates presuppose, and no spectral claim:
+
+* **Solve error.** `norm_solve_error_le` bounds the error of an inexact linear solve by the
+  residual; `IsShiftInvert.solve_error_le` specializes it to the shift-invert operator, so a
+  residual-level solve is enough for the approximation S3 asks for.
+* **Compressed ≠ compressed resolvent.** `exactSolve` is `(2/3, −1/3)` and `compressedSolve` is
+  `(1/2, 0)` for the `2 × 2` model with `X = (A+1)⁻¹`; both solve their own problems
+  (`exactSolve_solves`, `compressedSolve_solves`) yet differ by `X` applied to the defect
+  (`defect_image_eq_error`, `compressed_solve_error_eq_defect_image`), so
+  `compression_ne_resolvent` is not a numerical artifact.  This is the S3 bookkeeping the plan's
+  "approximation, with a separate spectral gate" wording depends on: the gate is still separate,
+  and no Hashimoto-band statement (S42) is claimed here.
+
 ## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
