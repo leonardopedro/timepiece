@@ -7,8 +7,9 @@ import BookProof.Qym.ChapterYangMillsAbelianNoGap
 `softmodes.md` (work package S0) asks for the representation bridge before anything is bounded, and
 its "Corrections" section makes one demand concrete: *prove the conjugation identity for the actual
 momentum convention before comparing forms*, because the Gaussian representation change is unitary
-and therefore says nothing about confinement by itself.  This module supplies that half of S0 and
-fixes the S2 theorem signature.
+and therefore says nothing about confinement by itself.  This module supplies that half of S0 — the
+first- and second-order conjugation identities, the invariance of multiplication operators and the
+norm identity — and fixes the S2 theorem signature.
 
 ## The bridge, in one coordinate
 
@@ -35,17 +36,36 @@ operator — which is exactly why the magnetic field `B = ε ∂ A` needs a sepa
 
 ## What is proved and what is not
 
-* **U:** `gaussRoot_sq`, `hasDerivAt_gaussRoot`, `deriv_gaussRoot`, `gaussRoot_vacuum`,
-  `hasDerivAt_invGauss_mul`, `conj_deriv`, `hasDerivAt_deriv_gaussRoot`,
-  `gaussRoot_oscillator_ground`.
-* **C:** the second-order core identity `U (−∂² + x∂) U⁻¹ = −∂² + x²/4 − 1/2` on a dense core, and
-  the product version over all `99` coordinates.  What is proved below is its ingredient: the
-  ground state with its eigenvalue, and the first-order identity.  The product statement follows by
-  applying the one-coordinate identity coordinatewise, which the corpus's `99 = 3 + 24 + 72`
-  coordinate split (`idxA`, `idxD`) supports but which is not assembled here.
-* **B:** the module is one-dimensional analysis plus one abstract linear-algebra statement.  It does
-  not identify the inner Hilbert space, does not construct a form core, and makes no spectral claim
-  about `h`.
+* **U — weights and first order:** `gaussRoot_sq`, `hasDerivAt_gaussRoot`, `deriv_gaussRoot`,
+  `gaussRoot_vacuum`, `hasDerivAt_invGauss_mul`, **`conj_deriv`** (`U ∂ U⁻¹ = ∂ + x/2`),
+  `hasDerivAt_deriv_gaussRoot`, `gaussRoot_oscillator_ground`.
+* **U — second order:** **`conj_dirichlet`** is `U (−∂² + x∂) U⁻¹ = −∂² + x²/4 − 1/2` for any `f`
+  with two derivatives, and **`conj_dirichlet_smooth`** is the same on the smooth core, where the
+  derivatives are `deriv f` and `deriv (deriv f)`.  The proof is `conj_deriv` applied twice: the
+  drift `x/2` in the first-order identity is exactly what supplies the `x²/4`, and its derivative
+  supplies the `−1/2`.
+* **U — multiplication:** **`conj_mult`** (`U (mult V) U⁻¹ = mult V`) and **`conj_mult_deriv`** (a
+  potential is not differentiated by the drift).  These are the reason a magnetic term cannot be
+  produced or destroyed by the representation change, which is the plan's
+  "N — Gaussian representation is not confinement" as a pair of identities.
+* **U — norm:** **`lintegral_norm_sq_conj`** is the squared form of the isometry,
+  `∫ |γ^{1/2} f|² dx = ∫ |f|² d(γ dx)`, with `γ dx` realized as `volume.withDensity`.
+* **C:** the product version over all `99` coordinates.  This does *not* follow by applying the
+  one-coordinate identity coordinatewise: coordinatewise application covers only functions that
+  depend on a single coordinate, while the `99`-coordinate statement needs the operator to be a sum
+  of one-coordinate operators that survives the conjugation — either the tensor decomposition
+  `U_{99} = ⨂_i U_i` on `⨂_i L²(γ)` with `D_{99} = Σ_i D_i` commuting with it, or the Laplacian
+  Leibniz rule `Δ(gF) = gΔF + 2⟨∇g, ∇F⟩ + FΔg` together with the `d`-dimensional Gaussian identity
+  `Δ γ^{1/2} = (|x|²/4 + d/2) γ^{1/2}`.  Neither is assembled here, so the coordinate-count factor
+  `−99/2` is not proved in this module.
+* **C — space level and extension inputs:** `lintegral_norm_sq_conj` is an identity of integrals,
+  not the statement that multiplication by `γ^{1/2}` is a `LinearIsometryEquiv` between `Lp` spaces;
+  and the module has no closability, form-core or Friedrichs-extension input.  The plan's S0
+  acceptance list is exactly these: the closure of the Dirichlet form on the smooth core, the
+  identification of its Friedrichs operator with `−Δ + x·∇` on the weighted space, and the same for
+  the `99`-coordinate sum.  They are *inputs*, not consequences of the identities above.
+* **B:** the module is one-dimensional analysis plus abstract linear algebra.  It does not identify
+  the inner Hilbert space, does not construct a form core, and makes no spectral claim about `h`.
 
 ## The S2 signature
 
@@ -62,6 +82,7 @@ namespace BookProof.YangMillsMehlerBridge
 
 open BookProof.HermiteProductCore BookProof.YangMillsHermite BookProof.HermiteGalerkin
   BookProof.FarisLavine
+open MeasureTheory
 open scoped RealInnerProductSpace
 
 noncomputable section
@@ -169,6 +190,139 @@ theorem gaussRoot_oscillator_ground (x : ℝ) :
         - (1 / 2) * gaussRoot x = 0 := by
   rw [(hasDerivAt_deriv_gaussRoot x).deriv]
   ring
+
+/-! ## The second-order identity `U (−∂² + x∂) U⁻¹ = −∂² + x²/4 − 1/2` -/
+
+/-- The weighted Dirichlet operator of the Gaussian measure, in one coordinate: the plan's
+`∂*∂ = −∂² + x∂`.  The drift is `∇ log γ = −x`, so `∂` has `L²(γ)`-adjoint `−∂ + x` at the level of
+functions and `∂*∂ = −∂² + x∂`. -/
+def gaussDirichlet (f : ℝ → ℝ) : ℝ → ℝ :=
+  fun x => -(deriv (fun y => deriv f y) x) + x * deriv f x
+
+/-- **The second-order conjugation identity.**  Conjugating the weighted Dirichlet operator
+`−∂² + x∂` by `U f = γ^{1/2} f` gives the oscillator `−∂² + x²/4 − 1/2`.
+
+The proof is `conj_deriv` twice, and that is the point the plan makes: the first application turns
+`U ∂ U⁻¹` into `∂ + x/2`, so the drift `x∂` of `∂*∂` is what supplies the `x²/4`, and the `−1/2`
+comes from the derivative of the drift.  Nothing here involves the potential: the identity is a
+statement about derivatives only, which is why a magnetic term cannot be obtained from it. -/
+theorem conj_dirichlet {f f' f'' : ℝ → ℝ} (hf : ∀ y, HasDerivAt f (f' y) y)
+    (hf' : ∀ y, HasDerivAt f' (f'' y) y) (x : ℝ) :
+    gaussRoot x * gaussDirichlet (fun z => invGauss z * f z) x
+      = -f'' x + (x ^ 2 / 4 - 1 / 2) * f x := by
+  have hfirst : ∀ y, deriv (fun z => invGauss z * f z) y
+      = invGauss y * (f' y + (y / 2) * f y) := by
+    intro y
+    have h : gaussRoot y * deriv (fun z => invGauss z * f z) y = f' y + (y / 2) * f y :=
+      conj_deriv (hf y)
+    calc deriv (fun z => invGauss z * f z) y
+        = invGauss y * (gaussRoot y * deriv (fun z => invGauss z * f z) y) := by
+          rw [← mul_assoc, invGauss_mul_gaussRoot, one_mul]
+      _ = invGauss y * (f' y + (y / 2) * f y) := by rw [h]
+  have hF' : ∀ y, HasDerivAt (fun z => f' z + (z / 2) * f z)
+      (f'' y + ((1 / 2) * f y + (y / 2) * f' y)) y := by
+    intro y
+    have hlin : HasDerivAt (fun z : ℝ => z / 2) (1 / 2) y := (hasDerivAt_id y).div_const 2
+    have hprod : HasDerivAt (fun z => (z / 2) * f z) ((1 / 2) * f y + (y / 2) * f' y) y :=
+      hlin.mul (hf y)
+    have hsum := (hf' y).add hprod
+    simpa only [Pi.add_apply] using hsum
+  have hsecond : deriv (fun y => deriv (fun z => invGauss z * f z) y) x
+      = deriv (fun y => invGauss y * (f' y + (y / 2) * f y)) x := by
+    rw [funext hfirst]
+  have h1 : gaussRoot x * deriv (fun z => invGauss z * f z) x = f' x + (x / 2) * f x :=
+    conj_deriv (hf x)
+  have h2 : gaussRoot x * deriv (fun y => invGauss y * (f' y + (y / 2) * f y)) x
+      = (f'' x + ((1 / 2) * f x + (x / 2) * f' x)) + (x / 2) * (f' x + (x / 2) * f x) :=
+    conj_deriv (hF' x)
+  simp only [gaussDirichlet, hsecond]
+  have hexpand : gaussRoot x *
+      (-(deriv (fun y => invGauss y * (f' y + (y / 2) * f y)) x) +
+        x * deriv (fun z => invGauss z * f z) x)
+      = -(gaussRoot x * deriv (fun y => invGauss y * (f' y + (y / 2) * f y)) x) +
+        x * (gaussRoot x * deriv (fun z => invGauss z * f z) x) := by
+    ring
+  rw [hexpand, h2, h1]
+  ring
+
+/-- **The second-order identity on the smooth core.**  For a smooth `f` the two derivatives are
+`deriv f` and `deriv (deriv f)`, so the abstract statement above reads exactly as the plan writes
+it: `U (−∂² + x∂) U⁻¹ f = −f'' + (x²/4 − 1/2) f`. -/
+theorem conj_dirichlet_smooth {f : ℝ → ℝ} (hf : ContDiff ℝ ⊤ f) (x : ℝ) :
+    gaussRoot x * gaussDirichlet (fun z => invGauss z * f z) x
+      = -deriv (fun y => deriv f y) x + (x ^ 2 / 4 - 1 / 2) * f x := by
+  have hd : Differentiable ℝ f := hf.differentiable (by simp)
+  have hd2 : Differentiable ℝ (deriv f) := (hf.of_le (le_top)).differentiable_deriv_two
+  exact conj_dirichlet (fun y => (hd y).hasDerivAt) (fun y => (hd2 y).hasDerivAt) x
+
+/-! ## Multiplication operators are fixed by the conjugation -/
+
+/-- **The conjugation does not touch a potential.**  `U (mult V) U⁻¹ = mult V`: multiplication by
+`γ^{1/2}` and its inverse cancel, so a multiplication operator — in particular the magnetic term
+`½|B|²`, which is a function of `A`, not of `∂` — is transported to itself.  This is the exact
+content of the plan's "N — Gaussian representation is not confinement": the representation change
+can create the oscillator `x²/4` out of the *derivative*, and cannot move a magnetic gap, in either
+direction. -/
+theorem conj_mult (V f : ℝ → ℝ) (x : ℝ) :
+    gaussRoot x * (V x * (invGauss x * f x)) = V x * f x := by
+  calc gaussRoot x * (V x * (invGauss x * f x))
+      = V x * (gaussRoot x * invGauss x) * f x := by ring
+    _ = V x * f x := by rw [gaussRoot_mul_invGauss]; ring
+
+/-- The mixed case: the Dirichlet operator of a multiplication operator is `x` times its gradient,
+so `U(V ·)U⁻¹` keeps `V` and gains no drift — the drift `x/2` of `conj_deriv` multiplies `V`, it
+does not differentiate it. -/
+theorem conj_mult_deriv {V f : ℝ → ℝ} (hV : ∀ y, HasDerivAt V (deriv V y) y) {f' x : ℝ}
+    (hf : HasDerivAt f f' x) :
+    gaussRoot x * deriv (fun y => V y * (invGauss y * f y)) x
+      = V x * (f' + (x / 2) * f x) + deriv V x * f x := by
+  have h := (hV x).mul (hasDerivAt_invGauss_mul hf)
+  have hmul : HasDerivAt (fun y => V y * (invGauss y * f y))
+      (deriv V x * (invGauss x * f x) + V x * (invGauss x * (f' + (x / 2) * f x))) x :=
+    h
+  rw [hmul.deriv]
+  have h2 : gaussRoot x * (V x * (invGauss x * (f' + (x / 2) * f x)))
+      = V x * (f' + (x / 2) * f x) := conj_mult V (fun _ => f' + (x / 2) * f x) x
+  have hexp : gaussRoot x *
+      (deriv V x * (invGauss x * f x) + V x * (invGauss x * (f' + (x / 2) * f x)))
+      = deriv V x * (gaussRoot x * (invGauss x * f x)) +
+        gaussRoot x * (V x * (invGauss x * (f' + (x / 2) * f x))) := by
+    ring
+  rw [hexp, h2]
+  have h3 : gaussRoot x * (invGauss x * f x) = f x := by
+    rw [← mul_assoc, gaussRoot_mul_invGauss, one_mul]
+  rw [h3]
+  ring
+
+/-! ## The norm identity: `U` is an isometry `L²(γ dx) → L²(dx)` -/
+
+/-- **The norm identity**, in squared form: multiplying by `γ^{1/2}` moves the density from the
+function to the measure, `∫ |γ^{1/2} f|² dx = ∫ |f|² d(γ dx)`.  This is the "norm" arrow of the S0
+diagram, and it is why `U` is a *unitary* between `L²(γ dx)` and `L²(dx)` rather than a map with a
+constant: the two spaces are isometric, so no estimate can be transported from one to the other
+with a gain. -/
+theorem lintegral_norm_sq_conj {f : ℝ → ℝ} (hf : Measurable f) :
+    ∫⁻ x, ENNReal.ofReal ((gaussRoot x * f x) ^ 2) ∂(volume : Measure ℝ)
+      = ∫⁻ x, ENNReal.ofReal (f x ^ 2)
+          ∂((volume : Measure ℝ).withDensity (fun x => ENNReal.ofReal (gaussRoot x ^ 2))) := by
+  have hdens : Measurable (fun x : ℝ => ENNReal.ofReal (gaussRoot x ^ 2)) := by
+    have hcont : Continuous fun x : ℝ => gaussRoot x ^ 2 := by
+      unfold gaussRoot
+      fun_prop
+    exact ENNReal.measurable_ofReal.comp hcont.measurable
+  have hg : Measurable (fun x : ℝ => ENNReal.ofReal (f x ^ 2)) := by
+    have hsq : Measurable fun x : ℝ => f x ^ 2 := by
+      simpa only [pow_two] using hf.mul hf
+    exact ENNReal.measurable_ofReal.comp hsq
+  have hkey := lintegral_withDensity_eq_lintegral_mul (volume : Measure ℝ)
+    (f := fun x => ENNReal.ofReal (gaussRoot x ^ 2)) hdens
+    (g := fun x => ENNReal.ofReal (f x ^ 2)) hg
+  rw [hkey]
+  refine lintegral_congr fun x => ?_
+  simp only [Pi.mul_apply]
+  show ENNReal.ofReal ((gaussRoot x * f x) ^ 2)
+      = ENNReal.ofReal (gaussRoot x ^ 2) * ENNReal.ofReal (f x ^ 2)
+  rw [← ENNReal.ofReal_mul (by positivity), mul_pow]
 
 /-! ## The S2 signature and its two checks -/
 
