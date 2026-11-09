@@ -43,7 +43,14 @@ Dobrushin/Doeblin argument consumes.
   `1 − ε`, else draw from `π`) satisfies all hypotheses (`targetKernel_rowStoch`,
   `targetKernel_minorant`, `targetKernel_stationary`) and instantiates the theorem
   (`tendsto_iter_targetKernel`, `tendsto_iter_targetKernel_apply`); `uniformStep_eq_targetKernel`
-  identifies §22's kernel as the flat-target special case.
+  identifies §22's kernel as the flat-target special case;
+* **the Doeblin condition derived (§24)** — §23 assumed the minorant, and for the Metropolis kernel
+  of a symmetric proposal it is a theorem: `mhKernel q π` (acceptance `min 1 (π b/π a)` via `mhAcc`,
+  remainder on the diagonal) is row stochastic by construction (`mhKernel_rowStoch`), satisfies
+  `Minorant (mhKernel q π) π (δ / supv π)` when every proposal entry is at least `δ`
+  (**`mhKernel_minorant`**), is reversible (`mhKernel_detailed`, `mul_mhAcc`) and stationary
+  (`mhKernel_stationary`), so **`tendsto_iter_mhKernel`** gives `ℓ¹` convergence to `π` at rate
+  `1 − δ/supv π`.
 
 ## Where the `ℓ²` core and this model meet
 
@@ -633,6 +640,166 @@ theorem uniformStep_eq_targetKernel (m : ℕ) (t : ℝ) :
   have hc : ((m : ℝ) + 1) * t * (1 / ((m : ℝ) + 1)) = t := by
     field_simp
   simp only [uniformStep, targetKernel, hc]
+
+
+
+/-! ## 24. The Doeblin condition, derived: the Metropolis kernel of a symmetric proposal
+
+§23 *assumed* the minorant `ε · π b ≤ Q a b`.  For the actual Metropolis kernel it is a theorem,
+with the `ε` the proposal supplies.
+
+* **The acceptance**: `mhAcc π a b = min 1 (π b / π a)` written case-wise, with `mhAcc_nonneg`,
+  `mhAcc_le_one`, and `mul_mhAcc`: `π a · mhAcc π a b = min (π a) (π b)`.
+* **The kernel**: `mhKernel q π` is the proposal times the acceptance off the diagonal and the
+  remaining mass on it, so it is row stochastic **by construction** (`mhKernel_rowStoch`).
+* **`mhKernel_minorant`**: for a symmetric proposal whose entries are all at least `δ` and a target
+  bounded by `M = supv π`, the kernel satisfies the Doeblin condition with `ε = δ / M` — off the
+  diagonal the acceptance is at least `π b / M` (`div_supv_mul_le`), and on it the remaining mass is
+  at least `q a a ≥ δ ≥ (δ/M) π a`.  So §23's hypothesis is discharged by the proposal's own
+  positivity, which is what the pCNL Gaussian increment has.
+* **Reversibility**: `mhKernel_detailed` (`π a Q a b = π b Q b a`) and `mhKernel_stationary`
+  (`π Q = π`, from detailed balance plus row stochasticity).
+* **Convergence**: `tendsto_iter_mhKernel` — every starting probability vector reaches `π` in `ℓ¹`
+  at rate `1 − δ / supv π`, by §23's `tendsto_iter_target`. -/
+
+/-- Metropolis acceptance for a symmetric proposal: `min 1 (π b / π a)`, written case-wise. -/
+noncomputable def mhAcc (π : Fin (m + 1) → ℝ) (a b : Fin (m + 1)) : ℝ :=
+  if π b ≤ π a then π b / π a else 1
+
+theorem mhAcc_nonneg {π : Fin (m + 1) → ℝ} (hπ : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    0 ≤ mhAcc π a b := by
+  unfold mhAcc
+  split_ifs with h
+  · exact div_nonneg (le_of_lt (hπ b)) (le_of_lt (hπ a))
+  · norm_num
+
+theorem mhAcc_le_one {π : Fin (m + 1) → ℝ} (hπ : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    mhAcc π a b ≤ 1 := by
+  unfold mhAcc
+  split_ifs with h
+  · exact (div_le_one (hπ a)).mpr h
+  · exact le_rfl
+
+/-- The Metropolis kernel of a symmetric proposal `q` for the target `π`: off the diagonal the
+proposal times the acceptance, on the diagonal the remaining mass.  It is row stochastic by
+construction, which is what makes it a genuine Markov kernel. -/
+noncomputable def mhKernel (q : Fin (m + 1) → Fin (m + 1) → ℝ) (π : Fin (m + 1) → ℝ)
+    (a b : Fin (m + 1)) : ℝ :=
+  if b = a then 1 - ∑ c ∈ univ.erase a, q a c * mhAcc π a c else q a b * mhAcc π a b
+
+theorem mhKernel_rowStoch (q : Fin (m + 1) → Fin (m + 1) → ℝ) (π : Fin (m + 1) → ℝ) :
+    RowStoch (mhKernel q π) := by
+  intro a
+  have hsum : ∑ b ∈ univ.erase a, mhKernel q π a b = ∑ c ∈ univ.erase a, q a c * mhAcc π a c := by
+    refine Finset.sum_congr rfl fun c hc => ?_
+    rw [mhKernel, if_neg (Finset.ne_of_mem_erase hc)]
+  rw [← Finset.add_sum_erase (univ : Finset (Fin (m + 1))) (fun b => mhKernel q π a b)
+    (mem_univ a), hsum, mhKernel, if_pos rfl]
+  ring
+
+/-- `(δ/M)·π b ≤ δ` when `M` dominates `π`: the minorant never exceeds the proposal's own atom. -/
+theorem div_supv_mul_le {π : Fin (m + 1) → ℝ} (hπpos : ∀ a, 0 < π a) {δ : ℝ} (hδ : 0 ≤ δ)
+    (b : Fin (m + 1)) : δ / supv π * π b ≤ δ := by
+  have hM : 0 < supv π := lt_of_lt_of_le (hπpos 0) (le_supv π 0)
+  have hPb : π b ≤ supv π := le_supv π b
+  rw [show δ / supv π * π b = δ * π b / supv π from by ring, div_le_iff₀ hM]
+  nlinarith [hPb, hδ]
+
+/-- `π a · mhAcc π a b = min (π a) (π b)`: the acceptance times the target is the pair minimum. -/
+theorem mul_mhAcc {π : Fin (m + 1) → ℝ} (hπpos : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    π a * mhAcc π a b = min (π a) (π b) := by
+  unfold mhAcc
+  by_cases h : π b ≤ π a
+  · rw [if_pos h, min_eq_right h, mul_div_cancel₀ _ (ne_of_gt (hπpos a))]
+  · rw [if_neg h, mul_one, min_eq_left (le_of_lt (lt_of_not_ge h))]
+
+/-- **The Doeblin condition is derived, not assumed.**  For a symmetric proposal whose entries are
+all at least `δ` and a target bounded by `M = supv π`, the Metropolis kernel satisfies
+`(δ/M)·π b ≤ Q a b`: off the diagonal, the acceptance is at least `π b/M`; on it, the remaining mass
+is at least `q a a ≥ δ ≥ (δ/M) π a`. -/
+theorem mhKernel_minorant {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hqrow : RowStoch q) (hπpos : ∀ a, 0 < π a) {δ : ℝ} (hδ : 0 < δ)
+    (hqmin : ∀ a b, δ ≤ q a b) : Minorant (mhKernel q π) π (δ / supv π) := by
+  intro a b
+  have hM : 0 < supv π := lt_of_lt_of_le (hπpos 0) (le_supv π 0)
+  by_cases hba : b = a
+  · rw [mhKernel, if_pos hba, hba]
+    have hS : ∑ c ∈ univ.erase a, q a c = 1 - q a a := by
+      have h := Finset.add_sum_erase (univ : Finset (Fin (m + 1))) (fun c => q a c) (mem_univ a)
+      rw [hqrow a] at h
+      linarith
+    have hSle : ∑ c ∈ univ.erase a, q a c * mhAcc π a c ≤ ∑ c ∈ univ.erase a, q a c :=
+      Finset.sum_le_sum fun c _ => by
+        have hq0 : 0 ≤ q a c := le_trans hδ.le (hqmin a c)
+        exact mul_le_of_le_one_right hq0 (mhAcc_le_one hπpos a c)
+    have hgap : δ ≤ 1 - ∑ c ∈ univ.erase a, q a c * mhAcc π a c := by
+      have : δ ≤ 1 - ∑ c ∈ univ.erase a, q a c := by rw [hS]; linarith [hqmin a a]
+      linarith
+    exact (div_supv_mul_le hπpos hδ.le a).trans hgap
+  · rw [mhKernel, if_neg hba]
+    have hPb : 0 ≤ π b := le_of_lt (hπpos b)
+    rcases le_total (π b) (π a) with hle | hle
+    · have hacc : mhAcc π a b = π b / π a := by unfold mhAcc; rw [if_pos hle]
+      rw [hacc]
+      have hmul : δ * π b * π a ≤ q a b * π b * supv π := by
+        have h1 : δ * π b ≤ q a b * π b :=
+          mul_le_mul_of_nonneg_right (hqmin a b) hPb
+        exact mul_le_mul h1 (le_supv π a) (le_of_lt (hπpos a))
+          (mul_nonneg (le_trans hδ.le (hqmin a b)) hPb)
+      have hlift : δ * π b / supv π ≤ q a b * π b / π a := by
+        rw [div_le_iff₀ hM,
+          show q a b * π b / π a * supv π = q a b * π b * supv π / π a from by ring,
+          le_div_iff₀ (hπpos a)]
+        exact hmul
+      calc δ / supv π * π b = δ * π b / supv π := by ring
+        _ ≤ q a b * π b / π a := hlift
+        _ = q a b * (π b / π a) := by ring
+    · have hacc : mhAcc π a b = 1 := by
+        unfold mhAcc
+        by_cases h' : π b ≤ π a
+        · rw [if_pos h', show π b = π a from le_antisymm h' hle,
+            div_self (ne_of_gt (hπpos a))]
+        · rw [if_neg h']
+      rw [hacc, mul_one]
+      exact (div_supv_mul_le hπpos hδ.le b).trans (hqmin a b)
+
+/-- **Detailed balance.**  The Metropolis kernel is reversible: `π a Q a b = π b Q b a`. -/
+theorem mhKernel_detailed {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq : ∀ a b, q a b = q b a) (hπpos : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    π a * mhKernel q π a b = π b * mhKernel q π b a := by
+  by_cases hba : b = a
+  · subst hba
+    ring
+  calc π a * mhKernel q π a b
+      = q a b * (π a * mhAcc π a b) := by rw [mhKernel, if_neg hba]; ring
+    _ = q a b * min (π a) (π b) := by rw [mul_mhAcc hπpos a b]
+    _ = q a b * min (π b) (π a) := by rw [min_comm]
+    _ = q a b * (π b * mhAcc π b a) := by rw [mul_mhAcc hπpos b a]
+    _ = π b * mhKernel q π b a := by rw [mhKernel, if_neg (Ne.symm hba), hq a b]; ring
+
+/-- **Stationarity from reversibility.**  Detailed balance plus row stochasticity gives
+`π Q = π`. -/
+theorem mhKernel_stationary {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq : ∀ a b, q a b = q b a) (hπpos : ∀ a, 0 < π a) : Stationary (mhKernel q π) π := by
+  intro b
+  calc ∑ a, π a * mhKernel q π a b
+      = ∑ a, π b * mhKernel q π b a :=
+        Finset.sum_congr rfl fun a _ => mhKernel_detailed hq hπpos a b
+    _ = π b * (∑ a, mhKernel q π b a) := (Finset.mul_sum _ _ _).symm
+    _ = π b * 1 := by rw [mhKernel_rowStoch q π b]
+    _ = π b := mul_one _
+
+/-- **The pCNL chain converges to `π`.**  A symmetric proposal with a uniform Doeblin minorant `δ`
+drives every starting probability vector to the target `π` in `ℓ¹`, at rate `1 − δ/supv π` — the
+Doeblin condition of §23 is now a theorem (`mhKernel_minorant`) rather than a hypothesis. -/
+theorem tendsto_iter_mhKernel {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq : ∀ a b, q a b = q b a) (hπpos : ∀ a, 0 < π a) (hπ : Target π) {δ : ℝ}
+    (hδ : 0 < δ) (hqmin : ∀ a b, δ ≤ q a b) (hqrow : RowStoch q)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => l1 ((apply (mhKernel q π))^[n] f - π)) atTop (𝓝 0) := by
+  have hM : 0 < supv π := lt_of_lt_of_le (hπpos 0) (le_supv π 0)
+  exact tendsto_iter_target (mhKernel_rowStoch q π) (mhKernel_minorant hqrow hπpos hδ hqmin)
+    hπ (mhKernel_stationary hq hπpos) (div_pos hδ hM) hf
 
 
 

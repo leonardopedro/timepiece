@@ -1278,6 +1278,19 @@ mass `1 − ε`, otherwise draw from `π` — is the concrete instance (`targetK
 `tendsto_iter_targetKernel_apply`), and `uniformStep_eq_targetKernel` shows §22's kernel is exactly
 the flat-target case, so the two models are one family.
 
+**The Doeblin condition is derived, not assumed (§24).**  §23 took `ε π b ≤ Q a b` as a hypothesis;
+for the Metropolis kernel of a symmetric proposal it is a theorem.  The acceptance is
+`mhAcc π a b = min 1 (π b/π a)` (with `mhAcc_nonneg`, `mhAcc_le_one` and the reduction
+`mul_mhAcc`: `π a · mhAcc π a b = min (π a) (π b)`), and `mhKernel q π` is the proposal times the
+acceptance off the diagonal and the remaining mass on it — hence row stochastic **by construction**
+(`mhKernel_rowStoch`, no normalisation assumed).  **`mhKernel_minorant`** then gives the minorant
+with `ε = δ/supv π` for any proposal whose entries are at least `δ`: off the diagonal the acceptance
+is at least `π b/M` (`div_supv_mul_le`), on it the remaining mass is `≥ q a a ≥ δ ≥ (δ/M) π a`.
+Reversibility (`mhKernel_detailed`) yields stationarity (`mhKernel_stationary` from detailed balance
+plus row stochasticity), and **`tendsto_iter_mhKernel`** is the resulting `ℓ¹` convergence to `π` at
+rate `1 − δ/supv π`.  What is left is not the condition but the constants: `δ` and `supv π` for the
+architecture's proposal and target on the occupation space, i.e. the numbers in `1 − δ/supv π`.
+
 **Module 4–5 cites the operator facts.**  `module45_hypotheses_cited` packages the three hypotheses
 `pcn_geometric_ergodicity` consumes — sector contraction `coreNorm_baseOp_sector_le`, invariant
 state `baseOp_vac`, gap `1 − ρ > 0` — so the gap hypothesis in the Module 4–5 bound is discharged
@@ -1286,10 +1299,11 @@ from §18 rather than assumed, and `module45_iterate_bound` is the resulting `�
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
 written on occupations, and the weighted `ℓ¹` of the core (the weight that makes `K_drift` contract)
-is not named.  §23 removes the "uniform only" limitation: the target is an arbitrary `π` and
-convergence to it is proved, but the kernel is still *assumed* to satisfy the Doeblin condition
-relative to `π`, so what remains is showing the Metropolis-filtered pCNL kernel satisfies
-`ε π b ≤ Q a b` with the `ε` the architecture's numbers give.  It also does not prove the pCNL operator's own gap; the
+is not named.  §23 removes the "uniform only" limitation (the target is an arbitrary `π`) and §24
+derives the Doeblin condition for the Metropolis kernel of a symmetric proposal
+(`mhKernel_minorant`, `ε = δ/supv π`), so what remains is neither the target nor the condition but
+the *constants*: `δ` and `supv π` for the architecture's proposal and target on the occupation
+space, i.e. the numerical rate `1 − δ/supv π`.  It also does not prove the pCNL operator's own gap; the
 Bakry–Émery/Hessian route above is untouched, and `pcnl_spectral_gap_of_hessian` stays a target.
 
 #### Review of the implementation's empirical claims (2026-11-03)

@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09e):** **§19 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-09f):** **§20 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `BookProof/MCMC/PositivityCone` §24 derives §23's Doeblin condition for the actual
+> Metropolis kernel: `mhKernel q π` is row stochastic by construction (`mhKernel_rowStoch`),
+> satisfies `Minorant (mhKernel q π) π (δ/supv π)` for a symmetric proposal with entries `≥ δ`
+> (**`mhKernel_minorant`**), is reversible and stationary (`mhKernel_detailed`,
+> `mhKernel_stationary`), and **`tendsto_iter_mhKernel`** gives `ℓ¹` convergence to `π` at rate
+> `1 − δ/supv π`.  What remains is the constants, not the hypotheses.
+> **Earlier newest entry (2026-11-09e):** **§19 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `BookProof/MCMC/PositivityCone` §23 drops the uniform-target restriction of §22:
 > with a prescribed target `π`, a Doeblin condition `ε π b ≤ Q a b` and stationarity
 > (`Target`, `Minorant`, `Stationary`), the `ℓ¹` mass contracts by `1 − ε`
@@ -19223,3 +19230,31 @@ operator's own gap (unchanged).
 `tendsto_iter_targetKernel_apply`, `targetKernel_stationary`, `sum_abs_sub_minorant`,
 `uniformStep_eq_targetKernel` → `propext, Classical.choice, Quot.sound` only, no `sorry`.
 Style: 0 lines over 100 characters, no trailing whitespace.
+
+### 20. Addendum (2026-11-09f) — the Doeblin condition is a theorem for the Metropolis kernel
+
+**§19's "what is still open".**  §19 left the Doeblin condition `ε π b ≤ Q a b` as a hypothesis.
+§24 (`BookProof/MCMC/PositivityCone`) derives it from the proposal.
+
+* **The acceptance**: `mhAcc π a b = min 1 (π b/π a)`, case-wise, with `mhAcc_nonneg`,
+  `mhAcc_le_one`, and `mul_mhAcc`: `π a · mhAcc π a b = min (π a) (π b)`.
+* **The kernel**: `mhKernel q π` — the proposal times the acceptance off the diagonal, the remaining
+  mass on it — is row stochastic **by construction** (`mhKernel_rowStoch`), so no normalisation is
+  assumed.
+* **`mhKernel_minorant`**: for a symmetric proposal with entries at least `δ` and a target bounded by
+  `M = supv π`, the kernel satisfies `Minorant (mhKernel q π) π (δ/M)`: off the diagonal the
+  acceptance is at least `π b / M` (`div_supv_mul_le`), on it the remaining mass is at least
+  `q a a ≥ δ ≥ (δ/M) π a`.  This is the `ε` the pCNL proposal's positive density supplies.
+* **Reversibility and stationarity**: `mhKernel_detailed` (`π a Q a b = π b Q b a`) and
+  `mhKernel_stationary` (`π Q = π`), the latter from detailed balance plus row stochasticity.
+* **Convergence**: **`tendsto_iter_mhKernel`** — every starting probability vector converges to `π`
+  in `ℓ¹` at rate `1 − δ/supv π`, by §23's `tendsto_iter_target`.
+
+**What is still open.**  Not the target and not the condition, but the **constants**: `δ` for the
+architecture's proposal and `supv π` for its target on the occupation space, i.e. the numerical rate
+`1 − δ/supv π`; plus the core's weighted `ℓ¹` and the operator's own gap (unchanged).
+
+**Verification.**  `lake build BookProof.MCMC.PositivityCone` → **8077 jobs**, green.
+`#print axioms` on `mhKernel_rowStoch`, `mhKernel_minorant`, `mhKernel_detailed`,
+`mhKernel_stationary`, `tendsto_iter_mhKernel`, `mul_mhAcc` → `propext, Classical.choice,
+Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing whitespace.
