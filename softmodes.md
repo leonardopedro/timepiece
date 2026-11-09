@@ -521,17 +521,73 @@ item 1 of the acceptance list at the form level, deliberately below any domain c
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
 
-**Where S0 acceptance item 1 stands.**  Everything the item asks for except the closure itself is
-now proved: the form is defined, symmetric and nonnegative; the operator identity holds on the
-`C²`-compactly-supported core; the operator is packaged as `gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ]
-Lp ℝ 2 gaussMeasure` with domain `gaussCore`; the domain is dense; and the operator is closable, so
-`LinearPMap.closure` exists and is closed.  What is *not* proved: that the closure is self-adjoint
-(it needs the core to be a core for the adjoint as well, i.e. `gaussOp†` symmetric on a dense
-subcore, or a Friedrichs argument), that `gaussOp.closure` is the Friedrichs extension of
-`gaussForm` (identification of domains, which is where `H¹(γ)`-type descriptions would enter), and
-the spectral statement the S0 item is ultimately for.  Item 2 is discharged at the `Lp` level,
-item 3 is discharged, and item 4 (`ChapterYangMillsFriedrichs`) now has a closable, densely defined
-operator to extend — what it still lacks is the domain identification, not closability.
+**Where S0 acceptance item 1 stands.**  Everything the item asks for except self-adjointness of the
+closure is now proved: the form is defined, symmetric and nonnegative; the operator identity holds on
+the `C²`-compactly-supported core; the operator is packaged as `gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ]
+Lp ℝ 2 gaussMeasure` with domain `gaussCore`; the domain is dense; the operator is closable, so
+`LinearPMap.closure` exists.
+
+What the closure itself is known to satisfy (`ChapterYangMillsGaussForm`):
+
+* `gaussOp_closure_isClosed` — it is closed (by construction);
+* `dense_gaussOp_closure_domain` — its domain contains the dense core;
+* `gaussOp_closure_hasCore` — the `C²` core is a **core for the closure**: the closure of the
+  restriction `gaussOp.closure.domRestrict gaussCore` is `gaussOp.closure` itself
+  (`LinearPMap.closureHasCore` applied to `gaussOp`);
+* `gaussOp_closure_le_adjoint` — it is contained in the adjoint, `gaussOp.closure ≤ gaussOp†`: the
+  adjoint is a closed extension and the closure is the smallest one.
+
+**The one statement left, and why it is out of reach here.**  Self-adjointness of the closure is
+`gaussOp.closure = gaussOp†`: given the containment above, it is exactly the *reverse* containment
+`gaussOp† ≤ gaussOp.closure`, i.e. every element of the adjoint's domain already lies in the
+closure's graph.  Equivalent forms: `HasCore gaussOp† gaussCore` (the core is a core for the
+**adjoint**), or “`gaussOp†` is symmetric”.  This is the essential-self-adjointness theorem for
+`−Δ + x·∇` in `L²(γ dx)`, and it is genuine analysis rather than bookkeeping:
+
+* the ODE route needs the deficiency spaces of `−f'' + x f' = ±i f` (a second-order ODE with
+  decaying solutions — no ODE existence/uniqueness theory of this kind is set up here);
+* the elliptic route needs weak derivatives and `H¹(γ)`/`H²(γ)` regularity, and mathlib has **no**
+  weak-derivative or distribution API, so there is no way to state “`T†h = g` weakly implies
+  `h ∈ H²`”;
+* the form route (Friedrichs) produces *some* self-adjoint extension, not the *closure*, unless one
+  first knows the form is closable and its operator is `gaussOp.closure`;
+* the analytic-vector/Hermite route would need a self-adjointness theorem for the oscillator.  The
+  corpus' `Toolbox/ChapterHermiteFunctions.lean` has Hermite polynomials, the ODE and the inner
+  products, but no Hilbert basis of Hermite functions and no oscillator spectral theorem, and
+  mathlib's `LinearPMap` adjoint API has no closure/symmetry or deficiency-index lemmas at all
+  (`adjoint_adjoint`, `closure_adjoint` do not exist).
+
+Item 2 is discharged at the `Lp` level and item 3 is discharged.
+
+**What `ChapterYangMillsFriedrichs` still needs.**  That chapter is a self-contained Friedrichs
+construction over an *abstract* complex Hilbert space (`F`, `D : Submodule ℂ F`), with
+`formInner H x y = ⟪x,y⟫ + ⟪x, H y⟫`, `formNormSq`, `form_closable`, and the classical Friedrichs
+theorem entering as the explicit hypothesis `friedrichs` of
+`friedrichs_extension_of_semibounded`.  It has never been instantiated on the Gaussian operator.  The
+gap list, in order of difficulty:
+
+1. **Real-to-complex shim.**  `gaussOp` lives on `Lp ℝ 2 gaussMeasure`; the chapter is `ℂ`-valued
+   (`SymmetricOn D H`, `quadForm H x = (⟪x, H x⟫ : ℂ).re`, `IsPositiveSelfAdjointExtension`).  Either
+   complexify (`Lp ℂ 2 gaussMeasure` with the `ℂ`-linear extension of `gaussOp`) or port Part B of
+   the chapter to `ℝ`.  Nothing mathematical is hidden here.
+2. **`SymmetricOn gaussCore gaussOp`** — immediate now: `gaussOp_inner_comm` *is* the symmetry, and
+   `quadForm`/`formInner` are its inner-product form.
+3. **Positivity on the core**, `0 ≤ quadForm gaussOp x`, i.e. `0 ≤ ⟪x, T x⟫_γ` — available from the
+   corpus' form positivity (`0 ≤ gaussForm f f`) plus `gaussForm_eq_integral_gaussDirichlet` and
+   `integral_gaussMeasure_eq_integral_gaussWeight`, the same translation `gaussOp_inner_comm` already
+   performs with `g = f`.
+4. **Closure of the form** — `form_closable` is proved abstractly and would apply once (1)–(3) are
+   in place; note it is stated for a *symmetric positive* operator, and our operator is symmetric
+   and positive on its core.
+5. **Identification** — the extension Friedrichs produces is *some* positive self-adjoint extension;
+   calling it `gaussOp.closure` needs exactly the essential-self-adjointness statement above (or the
+   domain identification “form domain of `gaussForm` = `H¹(γ)`”, which is the same gap in another
+   dress).  And the classical theorem itself stays a hypothesis: the chapter documents it as an
+   admitted theorem (Reed–Simon II, Thm X.23), never as an axiom.
+
+So `ChapterYangMillsFriedrichs` does not lack closability any more — it lacks the instantiation
+(1)–(3) on `gaussOp` and, for the *identification* of its output with `gaussOp.closure`, the same
+essential-self-adjointness theorem that S0 item 1 still needs.
 
 #### S3 — the solve-error bookkeeping
 

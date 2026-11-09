@@ -759,6 +759,44 @@ adjoint of a densely defined operator is closed. -/
 theorem gaussOp_isClosable : gaussOp.IsClosable :=
   (LinearPMap.adjoint_isClosed dense_gaussOp_domain).isClosable.leIsClosable gaussOp_le_adjoint
 
+/-! ### What the closure inherits, and the one statement it does not
+
+`gaussOp.closure` is closed by construction, its domain is dense, the `C²` core is a core of it, and
+it is contained in `gaussOp†` (the adjoint is a closed extension, and the closure is the smallest
+closed extension).  Self-adjointness of the closure would need the *reverse* containment
+`gaussOp† ≤ gaussOp.closure` — equivalently, that every element of the adjoint's domain already lies
+in the closure's graph, i.e. that the `C²` core is a core for the adjoint as well as for `gaussOp`.
+That is the essential-self-adjointness statement, and it is **not** proved here: it is a genuine
+analytic theorem about `−Δ + x·∇` (deficiency spaces of the ODE `−f'' + x f' = ±i f`, or elliptic
+regularity in `H¹(γ)`), whereas mathlib has no weak-derivative, `H¹(γ)` or deficiency-index API, and
+the corpus' Hermite chapter stops at the Hermite polynomials and their ODE — it has no Hilbert-basis
+or oscillator spectral theorem to lean on.  See the S0 entry of `softmodes.md`. -/
+
+/-- The closure of a closable operator is closed. -/
+theorem gaussOp_closure_isClosed : gaussOp.closure.IsClosed :=
+  gaussOp_isClosable.closure_isClosed
+
+/-- The closure is densely defined: its domain contains the core. -/
+theorem dense_gaussOp_closure_domain : Dense (gaussOp.closure.domain : Set (Lp ℝ 2 gaussMeasure)) :=
+  Dense.mono (LinearPMap.le_closure gaussOp).1 dense_gaussOp_domain
+
+/-- **The `C²` core is a core of the closure**: the restriction of `gaussOp` to `gaussCore`
+already has `gaussOp.closure` as its closure.  (This is the general `LinearPMap.closureHasCore`; the
+only input specific to this operator is that `gaussOp.domain` is `gaussCore` by definition.) -/
+theorem gaussOp_closure_hasCore : gaussOp.closure.HasCore gaussCore :=
+  LinearPMap.closureHasCore gaussOp
+
+/-- **The closure is contained in the adjoint.**  `gaussOp.adjoint` is closed and contains
+`gaussOp`, so — the closure being the smallest closed extension — it contains `gaussOp.closure`. -/
+theorem gaussOp_closure_le_adjoint : gaussOp.closure ≤ gaussOp.adjoint := by
+  have hclosed : gaussOp.adjoint.IsClosed := LinearPMap.adjoint_isClosed dense_gaussOp_domain
+  have hfix : gaussOp.adjoint.closure = gaussOp.adjoint := by
+    apply LinearPMap.eq_of_eq_graph
+    rw [LinearPMap.closure_def hclosed.isClosable, ← hclosed.isClosable.choose_spec,
+      hclosed.submodule_topologicalClosure_eq]
+  have h := LinearPMap.IsClosable.closure_mono hclosed.isClosable gaussOp_le_adjoint
+  rwa [hfix] at h
+
 end
 
 end BookProof.YangMillsGaussForm
