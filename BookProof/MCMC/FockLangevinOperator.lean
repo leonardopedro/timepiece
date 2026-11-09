@@ -166,7 +166,15 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   `coreNorm_pcnlKernel_iter_le` (the norm is bounded by the product of the level constants), and
   the convergence that *does* hold: `coreNorm_iter_baseOp_le` / **`tendsto_iter_baseOp`** — `P₀`
   contracts the non-vacuum core by `ρⁿ` and fixes the vacuum, so its iterates converge to the
-  invariant state `e₀` at the plan's rate `λ_n = ρⁿ`.
+  invariant state `e₀` at the plan's rate `λ_n = ρⁿ`;
+* **§20, the stochastic split** — `rejectComplement ρ n = 1 − ρ^{natDeg n}` is the Metropolis
+  complement of `P₀`, in `[0,1]` for `0 ≤ ρ ≤ 1` (`rejectComplement_nonneg`,
+  `rejectComplement_le_one`); **`baseOp_add_rejectOp_complement`**: with it, `P₀ + K_reject = 1`,
+  so the normalisation `P 1 = 1` holds exactly and `pcnlKernel_complement` reads the step as
+  `1 + K_drift`; the diagonal half is positive (`re_baseOp_nonneg`, `re_rejectOp_nonneg`) and
+  `ℓ¹`-bounded (`coreL1_baseOp_le`, `coreL1_rejectOp_le`), and
+  `coreL1_pcnlKernel_complement_le` shows it contributes **no** `ℓ¹` contraction — the step's mass
+  grows by at most `1 + driftWeight · driftL1Bound`.
 
 ## Honest boundary
 
@@ -228,7 +236,14 @@ contraction follows.  What a convergence theorem for `P_pCNL` still needs is the
 operator estimate but the Markov structure the core `ℓ²` model does not carry: positivity and the
 normalisation `P 1 = 1` on the completed space, where `numberOp`'s unboundedness (§14) no longer
 blocks the argument.  In particular the model's own invariant state is the vacuum, not the pCNL
-invariant measure.
+invariant measure.  §20 sharpens the statement: the normalisation is *in* the model once the
+acceptance probability is the complement of `P₀` (`baseOp_add_rejectOp_complement`:
+`P₀ + K_reject = 1`, hence `pcnlKernel = 1 + K_drift`), and the diagonal half is positive and
+`ℓ¹`-bounded (`re_baseOp_nonneg`, `re_rejectOp_nonneg`, `coreL1_baseOp_le`).  So what is actually
+missing for a convergence theorem is the drift's **sign** structure — its negative part, the
+acceptance/rejection balance that removes mass at each occupation — which the norm estimates of
+§14–§18 cannot supply (§20's `coreL1_pcnlKernel_complement_le` shows the normalised step's `ℓ¹`
+size is `1 + driftWeight · driftL1Bound`, i.e. no decay at all).
 -/
 
 noncomputable section
@@ -4844,5 +4859,144 @@ theorem coreNorm_pcnlKernel_iter_le {r : ℝ} (β σ : ℝ) {Φ : MvPolynomial (
             linarith)
       _ = ((∏ k ∈ Finset.range n, (1 + driftStepBound β σ Φ (N₀ + k * K) + r))
             * (1 + driftStepBound β σ Φ (N₀ + n * K) + r)) * coreNorm c := by ring
+
+/-! ## 20. The stochastic split: `P₀ + K_reject = 1`
+
+§19 left one gap in the iteration story: it said a convergence theorem needs the Markov structure
+"positivity and `P 1 = 1`" that the core model does not carry.  This section shows the
+normalisation is *in* the model — it is what pins the acceptance probability to the complement of
+`P₀` — and that what is actually missing is the drift's *sign*, not its normalisation.
+
+* `rejectComplement ρ n = 1 − ρ^{natDeg n}` is the Metropolis complement of `P₀ = ρ^N`; it lies in
+  `[0, 1]` for `0 ≤ ρ ≤ 1` (`rejectComplement_nonneg`, `rejectComplement_le_one`).
+* **`baseOp_add_rejectOp_complement`**: `P₀ + K_reject = 1`.  The diagonal half of the step is the
+  identity, i.e. the normalisation `P 1 = 1` holds exactly, and `pcnlKernel_complement` reads the
+  step as `1 + K_drift` — the shape the Markov argument consumes.
+* **Positivity**: `re_baseOp_nonneg` and `re_rejectOp_nonneg` — the diagonal half preserves
+  nonnegative real parts, so it is a positive operator.
+* **The `ℓ¹` side**: `coreL1_baseOp_le` and `coreL1_rejectOp_le` (diagonal parts scale the mass by
+  at most their coefficient size), and `coreL1_pcnlKernel_complement_le`: with the normalisation the
+  step's `ℓ¹` size is exactly `1 + driftWeight · driftL1Bound`, i.e. the diagonal half contributes
+  **no** contraction.
+
+What the `ℓ¹` normalisation therefore rules out is a contraction by *norm*: on the probability
+simplex the step is `1 + K_drift`, and only the drift's negative part can remove mass.  A
+convergence theorem for `P_pCNL` needs that sign structure — the acceptance/rejection balance at
+each occupation — and the norm estimates of §14–§18 cannot supply it.
+-/
+
+/-! ### 20.1 The complementary acceptance probability -/
+
+/-- The acceptance probability complementary to `P₀ = ρ^N`: the Metropolis rule's `1 − ρ^N`. -/
+def rejectComplement (ρ : ℝ) : (Fin d → ℕ) → ℝ :=
+  fun n => 1 - ρ ^ natDeg n
+
+theorem rejectComplement_nonneg {ρ : ℝ} (h0 : 0 ≤ ρ) (h1 : ρ ≤ 1) (n : Fin d → ℕ) :
+    0 ≤ rejectComplement ρ n := by
+  have h := pow_le_one₀ h0 h1 (n := natDeg n)
+  simp only [rejectComplement]
+  linarith
+
+theorem rejectComplement_le_one {ρ : ℝ} (h0 : 0 ≤ ρ) (n : Fin d → ℕ) :
+    rejectComplement ρ n ≤ 1 := by
+  have h := pow_nonneg h0 (natDeg n)
+  simp only [rejectComplement]
+  linarith
+
+/-- **The accept/reject split is the identity.**  With `ρ_acc = 1 − ρ^N` — the Metropolis
+complement of `P₀` — the diagonal half of the step is `P₀ + K_reject = 1`. -/
+theorem baseOp_add_rejectOp_complement (ρ : ℝ) (c : CoreCoeff d) :
+    baseOp ρ c + rejectOp (rejectComplement ρ) c = c := by
+  refine Finsupp.ext fun n => ?_
+  rw [Finsupp.add_apply, baseOp_apply, rejectOp_apply, rejectComplement]
+  push_cast
+  ring
+
+/-- **The normalised step is `1 + K_drift`.**  With the complementary acceptance probability the
+pCNL operator's diagonal half cancels, so the step is the identity plus the drift — the shape the
+Markov argument needs. -/
+theorem pcnlKernel_complement (ρ β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) (c : CoreCoeff d) :
+    pcnlKernel ρ β σ Φ (rejectComplement ρ) c = c + driftOperator β σ Φ c := by
+  rw [pcnlKernel, add_assoc, add_comm (driftOperator β σ Φ c), ← add_assoc,
+    baseOp_add_rejectOp_complement]
+
+/-! ### 20.2 Positivity of the diagonal half -/
+
+/-- The diagonal half preserves nonnegative real parts — it is a positive (Markov) operator. -/
+theorem re_baseOp_nonneg {ρ : ℝ} (hρ : 0 ≤ ρ) {c : CoreCoeff d}
+    (hc : ∀ n, 0 ≤ (c n).re) (n : Fin d → ℕ) : 0 ≤ (baseOp ρ c n).re := by
+  have h : (baseOp ρ c n).re = ρ ^ natDeg n * (c n).re := by
+    rw [baseOp_apply, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im]
+    ring
+  rw [h]
+  exact mul_nonneg (pow_nonneg hρ _) (hc n)
+
+theorem re_rejectOp_nonneg {ρ : (Fin d → ℕ) → ℝ} (hρ : ∀ n, 0 ≤ ρ n) {c : CoreCoeff d}
+    (hc : ∀ n, 0 ≤ (c n).re) (n : Fin d → ℕ) : 0 ≤ (rejectOp ρ c n).re := by
+  have h : (rejectOp ρ c n).re = ρ n * (c n).re := by
+    rw [rejectOp_apply, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im]
+    ring
+  rw [h]
+  exact mul_nonneg (hρ n) (hc n)
+
+/-! ### 20.3 The `ℓ¹` side: no contraction from the diagonal half -/
+
+/-- Mass over any superset of the support. -/
+theorem coreL1_eq_sum {c : CoreCoeff d} {s : Finset (Fin d → ℕ)} (h : c.support ⊆ s) :
+    ∑ n ∈ s, ‖c n‖ = coreL1 c :=
+  (Finset.sum_subset h fun x _ hx => by
+    rw [Finsupp.notMem_support_iff.mp hx]; simp).symm
+
+theorem coreL1_baseOp_le {ρ r : ℝ} {c : CoreCoeff d}
+    (h : ∀ n ∈ c.support, ‖ρ ^ natDeg n‖ ≤ r) : coreL1 (baseOp ρ c) ≤ r * coreL1 c := by
+  classical
+  rw [← coreL1_eq_sum (c := baseOp ρ c) (s := c.support) fun x hx => mem_support_baseOp hx]
+  calc ∑ n ∈ c.support, ‖baseOp ρ c n‖
+      = ∑ n ∈ c.support, ‖ρ ^ natDeg n‖ * ‖c n‖ := by
+        refine Finset.sum_congr rfl fun n _ => ?_
+        rw [baseOp_apply, norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    _ ≤ ∑ n ∈ c.support, r * ‖c n‖ :=
+        Finset.sum_le_sum fun n hn => mul_le_mul_of_nonneg_right (h n hn) (norm_nonneg _)
+    _ = r * coreL1 c := by rw [coreL1, Finset.mul_sum]
+
+theorem coreL1_rejectOp_le {ρ : (Fin d → ℕ) → ℝ} {r : ℝ} (hr : ∀ n, ‖ρ n‖ ≤ r)
+    (c : CoreCoeff d) : coreL1 (rejectOp ρ c) ≤ r * coreL1 c := by
+  classical
+  rw [← coreL1_eq_sum (c := rejectOp ρ c) (s := c.support) fun x hx => mem_support_rejectOp hx]
+  calc ∑ n ∈ c.support, ‖rejectOp ρ c n‖
+      = ∑ n ∈ c.support, ‖ρ n‖ * ‖c n‖ := by
+        refine Finset.sum_congr rfl fun n _ => ?_
+        rw [rejectOp_apply, norm_mul, Complex.norm_real, Real.norm_eq_abs]
+    _ ≤ ∑ n ∈ c.support, r * ‖c n‖ :=
+        Finset.sum_le_sum fun n _ => mul_le_mul_of_nonneg_right (hr n) (norm_nonneg _)
+    _ = r * coreL1 c := by rw [coreL1, Finset.mul_sum]
+
+/-- **The normalised step does not contract the `ℓ¹` mass.**  With `P₀ + K_reject = 1` the only
+factor is the drift: on a sector the iterated step's `ℓ¹` size is `1 + driftL1Bound`.  This is the
+precise sense in which the stochastic normalisation rules out a *norm* contraction: what remains to
+be used is the drift's sign (its negative part), not its size. -/
+theorem coreL1_pcnlKernel_complement_le (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {N M : ℕ}
+    (hNM : N + Φ.totalDegree + 1 ≤ M) {ρ : ℝ} (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreL1 (pcnlKernel ρ β σ Φ (rejectComplement ρ) c)
+      ≤ (1 + driftWeight β σ * driftL1Bound Φ M) * coreL1 c := by
+  rw [pcnlKernel_complement]
+  have hdrift : coreL1 (driftOperator β σ Φ c)
+      ≤ driftWeight β σ * driftL1Bound Φ M * coreL1 c := by
+    rw [driftOperator]
+    refine (coreL1_smul_le _ _).trans ?_
+    have h := polyDrift_l1_le (Φ := Φ) hNM c hc
+    have hw : (0 : ℝ) ≤ driftWeight β σ * coreL1 c :=
+      mul_nonneg (driftWeight_nonneg β σ) (coreL1_nonneg c)
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (driftWeight_nonneg β σ)]
+    calc driftWeight β σ * coreL1 (polyDrift Φ c)
+        ≤ driftWeight β σ * (driftL1Bound Φ M * coreL1 c) :=
+          mul_le_mul_of_nonneg_left h (driftWeight_nonneg β σ)
+      _ = driftWeight β σ * driftL1Bound Φ M * coreL1 c := by ring
+  calc coreL1 (c + driftOperator β σ Φ c)
+      ≤ coreL1 c + coreL1 (driftOperator β σ Φ c) := coreL1_add_le _ _
+    _ ≤ coreL1 c + driftWeight β σ * driftL1Bound Φ M * coreL1 c :=
+        add_le_add le_rfl hdrift
+    _ = (1 + driftWeight β σ * driftL1Bound Φ M) * coreL1 c := by ring
 
 end BookProof.MCMC.FockLangevin

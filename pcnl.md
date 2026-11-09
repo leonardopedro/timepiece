@@ -811,7 +811,15 @@ the constant `driftStepBound`), and the assembled operator
 **`P₀`'s iterates converge to the invariant state `e₀`** at rate `ρ` (`coreNorm_iter_baseOp_le`,
 `tendsto_iter_baseOp`) — the plan's `λ_n = ρⁿ` on the core.  The full step does *not* converge by
 this route: the product's factors grow with the level, and the drift can move mass into the vacuum
-where `P₀` acts as the identity.)*
+where `P₀` acts as the identity.  §20 then locates the Markov structure precisely: with the
+Metropolis complement `rejectComplement ρ = 1 − ρ^N` the diagonal half is the identity —
+**`baseOp_add_rejectOp_complement`**: `P₀ + K_reject = 1`, so `pcnlKernel = 1 + K_drift`
+(`pcnlKernel_complement`) — the normalisation `P 1 = 1` holds exactly, and the diagonal half is
+positive (`re_baseOp_nonneg`, `re_rejectOp_nonneg`) and `ℓ¹`-bounded (`coreL1_baseOp_le`,
+`coreL1_rejectOp_le`, `coreL1_pcnlKernel_complement_le`: the step's mass is at most
+`1 + driftWeight · driftL1Bound`).  So what a convergence theorem still needs is the drift's
+**sign** — its negative part, the acceptance/rejection balance — and not the normalisation, which the
+norms of §14–§18 cannot see.)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with

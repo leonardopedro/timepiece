@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09b):** **§16 of “State of the project — 2026-11-08b”**, at the very
+> **Newest entry (2026-11-09c):** **§17 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `FockLangevinOperator` §20 shows the Markov normalisation is in the model: with the
+> Metropolis complement `rejectComplement ρ = 1 − ρ^N` one has `P₀ + K_reject = 1`
+> (`baseOp_add_rejectOp_complement`, so `pcnlKernel = 1 + K_drift`), the diagonal half is positive
+> (`re_baseOp_nonneg`, `re_rejectOp_nonneg`) and `ℓ¹`-bounded (`coreL1_baseOp_le`,
+> `coreL1_pcnlKernel_complement_le`).  What remains for a convergence theorem is the drift's *sign*
+> structure (its negative part), not the normalisation.
+> **Earlier newest entry (2026-11-09b):** **§16 of “State of the project — 2026-11-08b”**, at the very
 > end of this file — `BookProof/MCMC/CoeffMap` (§17) derives §16's `GradCoeffBound (2K/ε)` from
 > `epsProj_fderiv_le` via the coefficient map `linCoeff F x j = D F(x)[eⱼ]` (`gradCoeffBound_epsProj`),
 > at the linear order that a first-derivative bound controls; `FockLangevinOperator` §18 models the
@@ -19085,3 +19092,35 @@ this model the only invariant state in reach is the vacuum, not the pCNL invaria
 trailing whitespace.  Gates: `check-links` OK, `test_check_links.py` **10 tests OK**,
 `test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**, `check-todo-ledger` green,
 `doc_index --check` fresh.
+
+### 17. Addendum (2026-11-09c) — the stochastic split: `P₀ + K_reject = 1`
+
+**§19's "what remains".**  §19 said a convergence theorem for `P_pCNL` needs the Markov structure —
+positivity and `P 1 = 1` — that the core `ℓ²` model does not carry.  §20 shows the normalisation *is*
+in the model once the acceptance probability is the Metropolis complement of `P₀`, and re-locates the
+gap precisely.
+
+* **`rejectComplement ρ n = 1 − ρ^{natDeg n}`** is that complement, in `[0,1]` for `0 ≤ ρ ≤ 1`
+  (`rejectComplement_nonneg`, `rejectComplement_le_one`).
+* **`baseOp_add_rejectOp_complement`**: `P₀ + K_reject = 1`.  The diagonal half of the step is the
+  identity — the normalisation `P 1 = 1` exactly — and `pcnlKernel_complement` therefore reads
+  `pcnlKernel` as `1 + K_drift`, the shape the Markov argument consumes.
+* **Positivity**: `re_baseOp_nonneg`, `re_rejectOp_nonneg` — the diagonal half preserves nonnegative
+  real parts (the coefficients `ρ^{natDeg n}` and `ρ_acc n` are real, so `Re (wₙ cₙ) = wₙ Re cₙ`).
+* **The `ℓ¹` side**: `coreL1_baseOp_le`, `coreL1_rejectOp_le` (a diagonal part scales the mass by at
+  most its coefficient size), and **`coreL1_pcnlKernel_complement_le`**: the normalised step's `ℓ¹`
+  size is at most `(1 + driftWeight · driftL1Bound)‖c‖₁` — the diagonal half contributes *no*
+  contraction.
+
+**What is therefore still open.**  Not the normalisation and not positivity, but the drift's **sign**
+structure: on the normalised step the only way mass leaves is through the drift's negative part, the
+acceptance/rejection balance at each occupation.  The norm estimates of §14–§18 bound `K_drift` above
+and cannot see that sign, which is why no strict contraction follows and the invariant measure stays
+outside the model.  A proof would need the drift's action on the positive cone — the `ℓ¹` pairing of
+`K_drift c` with the sign of `c` — not a further operator norm.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**;
+`#print axioms` on the new declarations → `propext, Classical.choice, Quot.sound` only, no `sorry`.
+Style: 0 lines over 100 characters, no trailing whitespace.  Gates: `check-links` OK,
+`test_check_links.py` **10 tests OK**, `test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn,
+0 fail**, `check-todo-ledger` green, `doc_index --check` fresh.
