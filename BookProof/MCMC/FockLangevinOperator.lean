@@ -112,7 +112,16 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   `δ ≤ 1` gives `−C‖c‖² ≤ ⟪c, (N + K)c⟫`, the KLMN conclusion taken before any completion; and
   its two instances **`numberOp_add_driftOpCoeff_semibounded`** (`−B²d/(2δ) − Bd`) and
   **`pcnlDrift_semibounded_eps`**, whose lower bound is
-  `−((β²σ²M_ε)²d/(8δ) + β²σ²M_ε·d/2)·‖c‖²` for `M_ε = K/ε`.
+  `−((β²σ²M_ε)²d/(8δ) + β²σ²M_ε·d/2)·‖c‖²` for `M_ε = K/ε`;
+* **§14, the gradient bound is a sector statement** — the core norm calculus (`coreNorm_add_le`,
+  `coreNorm_smul`, `coreNorm_finset_sum_le`), the letters and the multiplication law with their
+  `ℓ²` sizes on a sector (`coreNorm_hopStep_sector_le`, `coreNorm_mulHermite_sector_le`,
+  `coreNorm_mulHermiteList_sector_le`), **`polyMul_norm_sector_le`** with the explicit constant
+  `polyMulSectorBound`, and **`gradSectorBound`** — the `hgrad` of §12 as a theorem on the sector
+  `{N ≤ N₀ + 1}`; `polyDrift_form_bound_sector`, `driftOperator_form_bound_sector` and
+  **`pcnlDrift_semibounded_sector`** are §11–§13 with that constant in place of the hypothesis;
+  and **`polyMul_X_unbounded`** shows the global form is unattainable — `xⱼ` raises the
+  occupation, so `polyMul (X j) eₙ` grows like `√n`.
 
 ## Honest boundary
 
@@ -139,12 +148,15 @@ The identification of the two models is a modelling step that remains: `CoreCoef
 occupation *vectors* `Fin d → ℕ`, the Fock toolbox by finite *multisets* of modes, and §7–§8 now
 carry the isometry between them.  The *coefficient family* is §12: `bⱼ = (β²σ²/2)·∂ⱼΦ` is the
 weighted gradient, `driftOperator_linear` is the dictionary back to §5's constant-coefficient
-drift, and the `ε`-dependence is isolated in `B = (β²σ²/2)M_ε` with `M_ε = K/ε`.  What is left
-open is the *core-side* half of that identification — that the weight-space gradient of `Φ_ε`
-(`BayesianTransformer.epsProj_fderiv_le`, now proved: `‖∇Φ_ε‖ ≤ 2K/ε` for the `ε`-regularized
-normalization) realizes as the multiplication operator `polyMul (∂ⱼ Φ_ε)` on the core with
-the same bound, i.e. the hypothesis `hgrad` of `driftOperator_form_bound_eps` and
-`pcnlDrift_semibounded_eps` — and the Metropolis filter `K_reject`.
+drift, and the `ε`-dependence is isolated in `B = (β²σ²/2)M_ε` with `M_ε = K/ε`.  The core-side
+bound that identification needs is §14: §12's `hgrad` — "multiplication by `∂ⱼΦ` is bounded by a
+constant `M` on the whole core" — cannot hold (`polyMul_X_unbounded`), but on every sector it
+does, with the explicit constant `gradSectorBound Φ N`, and §11–§13 then need no hypothesis at all
+on a truncated sector (`pcnlDrift_semibounded_sector`).  What is still missing is the
+*coefficient-level* comparison of that sector constant with the architecture's weight-space
+`M_ε = 2K/ε` (`BayesianTransformer.epsProj_fderiv_le`) — the two bounds live in different models,
+so relating them is a bound on the coefficients of `∂ⱼΦ_ε`, not on operators — and the Metropolis
+filter `K_reject`.
 -/
 
 noncomputable section
@@ -3224,4 +3236,662 @@ theorem pcnlDrift_semibounded_eps (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} 
       ≤ (corePair c (numberOp c + driftOperator β σ Φ c)).re :=
   semibounded_of_form_bound hδ1
     (fun c => driftOperator_form_bound_eps β σ (Φ := Φ) hK hε hgrad δ hδ c) c
+/-! ## 14. The gradient bound is a sector statement, not a global one
+
+§12–§13 carried the gradient bound `M` of a potential into the drift's constant and into its lower
+bound.  That `M` was a hypothesis (`hgrad`): "multiplication by `∂ⱼΦ` is bounded by `M` on the
+core".  This section says what that hypothesis can and cannot be.
+
+* **It cannot hold globally.**  Multiplication by `xⱼ` raises the occupation, and on the basis
+  vector `eₙ` the image already has norm `√(nⱼ + 1)/√2` (`polyMul_X_unbounded` chooses, for every
+  `M`, a state whose image exceeds `M‖c‖`).  A non-constant potential is therefore not a bounded
+  multiplier, so §12's `hgrad` is unattainable as stated — the level is part of the statement, not
+  an artefact of the proof.
+* **It holds on every sector, with an explicit constant.**  On `{N ≤ N₀}` a degree-`K` polynomial
+  acts through `≤ 2^k` ladder words of length `≤ K`, and each letter costs at most `√(N₀ + K + 1)`
+  by §10's letter norms: `polyMul_norm_sector_le` gives `‖polyMul Φ c‖ ≤ polyMulSectorBound Φ M·‖c‖`
+  for `M ≥ N₀ + deg Φ`, and `pderiv_norm_sector_le` reads it for `∂ⱼΦ` at the level `N₀ + 1` the
+  drift actually reaches.  `gradSectorBound Φ N` is the resulting constant.
+* **The estimate and the lower bound then need no hypothesis.**  `polyDrift_form_bound_sector`,
+  `driftOperator_form_bound_sector` and `pcnlDrift_semibounded_sector` restate §11–§13 with
+  `M := gradSectorBound Φ N`; the only input is that the state lies in the sector, which is exactly
+  the truncation a finite-band computation works on.
+
+The chain is the `ℓ²` mirror of §9.9's `ℓ¹` estimate: `coreNorm_add_le` (Cauchy–Schwarz in the core
+pairing) for the triangle inequality, §10's letter norms on the sector for the powers, and the
+sector band `hopStep_band`/`mulHermite_band` to know which sector the intermediate states reach.
+-/
+
+/-! ### 14.1 The norm calculus of the core -/
+
+theorem coreNorm_zero : coreNorm (0 : CoreCoeff d) = 0 := by
+  simp [coreNorm, coreNormSq]
+
+theorem coreNormSq_neg (c : CoreCoeff d) : coreNormSq (-c) = coreNormSq c := by
+  rw [coreNormSq, coreNormSq, Finsupp.support_neg]
+  exact Finset.sum_congr rfl fun n _ => by rw [Finsupp.neg_apply, norm_neg]
+
+theorem coreNorm_neg (c : CoreCoeff d) : coreNorm (-c) = coreNorm c := by
+  simp only [coreNorm, coreNormSq_neg]
+
+theorem coreNormSq_smul (r : ℂ) (c : CoreCoeff d) :
+    coreNormSq (r • c) = ‖r‖ ^ 2 * coreNormSq c := by
+  classical
+  rw [← sum_sq_subset (c := r • c) Finsupp.support_smul, coreNormSq, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [Finsupp.smul_apply, smul_eq_mul, norm_mul, mul_pow]
+
+theorem coreNorm_smul (r : ℂ) (c : CoreCoeff d) : coreNorm (r • c) = ‖r‖ * coreNorm c := by
+  rw [coreNorm, coreNormSq_smul, Real.sqrt_mul (by positivity), coreNorm,
+    Real.sqrt_sq (norm_nonneg r)]
+
+theorem coreNormSq_add_le_sq (x y : CoreCoeff d) :
+    coreNormSq (x + y) ≤ (coreNorm x + coreNorm y) ^ 2 := by
+  classical
+  set s := x.support ∪ y.support with hs
+  have hx : x.support ⊆ s := Finset.subset_union_left
+  have hy : y.support ⊆ s := Finset.subset_union_right
+  have h1 : coreNormSq (x + y) ≤ ∑ n ∈ s, (‖x n‖ + ‖y n‖) ^ 2 := by
+    refine (Finset.sum_le_sum_of_subset_of_nonneg Finsupp.support_add
+      (fun _ _ _ => by positivity)).trans ?_
+    refine Finset.sum_le_sum fun n _ => ?_
+    have hval : ‖(x + y) n‖ = ‖x n + y n‖ := by rw [Finsupp.add_apply]
+    rw [hval]
+    nlinarith [norm_nonneg (x n + y n), norm_nonneg (x n), norm_nonneg (y n),
+      norm_add_le (x n) (y n)]
+  have h2 : ∑ n ∈ s, (‖x n‖ + ‖y n‖) ^ 2
+      = coreNormSq x + 2 * (∑ n ∈ s, ‖x n‖ * ‖y n‖) + coreNormSq y := by
+    have hstep : ∀ n ∈ s, (‖x n‖ + ‖y n‖) ^ 2
+        = ‖x n‖ ^ 2 + 2 * (‖x n‖ * ‖y n‖) + ‖y n‖ ^ 2 := fun n _ => by ring
+    rw [Finset.sum_congr rfl hstep, Finset.sum_add_distrib, Finset.sum_add_distrib,
+      ← Finset.mul_sum, sum_sq_subset hx, sum_sq_subset hy]
+  have h3 : ∑ n ∈ s, ‖x n‖ * ‖y n‖ ≤ coreNorm x * coreNorm y := by
+    have hcs := Real.sum_mul_le_sqrt_mul_sqrt s (fun n => ‖x n‖) (fun n => ‖y n‖)
+    rw [sum_sq_subset hx, sum_sq_subset hy] at hcs
+    simpa [coreNorm] using hcs
+  rw [h2] at h1
+  rw [← coreNorm_sq x, ← coreNorm_sq y] at h1
+  nlinarith [coreNorm_nonneg x, coreNorm_nonneg y]
+
+/-- **The triangle inequality in the core `ℓ²` norm**, `‖x + y‖ ≤ ‖x‖ + ‖y‖`, from
+Cauchy–Schwarz in the pairing.  It is what turns the `2^k` word family into one estimate. -/
+theorem coreNorm_add_le (x y : CoreCoeff d) : coreNorm (x + y) ≤ coreNorm x + coreNorm y := by
+  have h := coreNormSq_add_le_sq x y
+  have hnn : 0 ≤ coreNorm x + coreNorm y := add_nonneg (coreNorm_nonneg x) (coreNorm_nonneg y)
+  calc coreNorm (x + y) = Real.sqrt (coreNormSq (x + y)) := rfl
+    _ ≤ Real.sqrt ((coreNorm x + coreNorm y) ^ 2) := Real.sqrt_le_sqrt h
+    _ = coreNorm x + coreNorm y := Real.sqrt_sq hnn
+
+theorem coreNorm_finset_sum_le {ι : Type*} (s : Finset ι) (g : ι → CoreCoeff d) :
+    coreNorm (∑ i ∈ s, g i) ≤ ∑ i ∈ s, coreNorm (g i) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp [coreNorm_zero]
+  | insert a s ha ih =>
+    rw [Finset.sum_insert ha, Finset.sum_insert ha]
+    exact (coreNorm_add_le _ _).trans (add_le_add le_rfl ih)
+
+/-! ### 14.2 The letters and the multiplication law on a sector -/
+
+/-- **One letter costs `√(N + 1)` in `ℓ²` on the sector**: §10's letter norms with `nⱼ ≤ N`. -/
+theorem coreNormSq_hopStep_sector_le (p : Fin d × Bool) {N : ℕ} (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNormSq (hopStep p c) ≤ ((N : ℝ) + 1) * coreNormSq c := by
+  classical
+  obtain ⟨j, b⟩ := p
+  have hcoord : ∀ n ∈ c.support, (n j : ℝ) + 1 ≤ (N : ℝ) + 1 := by
+    intro n hn
+    have hle : n j ≤ N :=
+      le_trans (Finset.single_le_sum (f := n) (fun i _ => Nat.zero_le _) (Finset.mem_univ j))
+        (hc n hn)
+    have hR : (n j : ℝ) ≤ (N : ℝ) := by exact_mod_cast hle
+    linarith
+  cases b with
+  | true =>
+    rw [coreNormSq_hopStep_raise]
+    refine (Finset.sum_le_sum fun n hn =>
+      mul_le_mul_of_nonneg_right (hcoord n hn) (by positivity)).trans (le_of_eq ?_)
+    rw [← Finset.mul_sum, coreNormSq]
+  | false =>
+    rw [coreNormSq_hopStep_lower]
+    calc ∑ n ∈ c.support, (n j : ℝ) * ‖c n‖ ^ 2
+        ≤ ∑ n ∈ c.support, ((N : ℝ) + 1) * ‖c n‖ ^ 2 := by
+          refine Finset.sum_le_sum fun n hn => ?_
+          exact mul_le_mul_of_nonneg_right (by linarith [hcoord n hn]) (by positivity)
+      _ = ((N : ℝ) + 1) * coreNormSq c := by rw [← Finset.mul_sum, coreNormSq]
+
+/-- The square-root form of `coreNormSq_hopStep_sector_le`. -/
+theorem coreNorm_hopStep_sector_le (p : Fin d × Bool) {N : ℕ} (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (hopStep p c) ≤ Real.sqrt ((N : ℝ) + 1) * coreNorm c := by
+  have h := coreNormSq_hopStep_sector_le p c hc
+  calc coreNorm (hopStep p c) = Real.sqrt (coreNormSq (hopStep p c)) := rfl
+    _ ≤ Real.sqrt (((N : ℝ) + 1) * coreNormSq c) := Real.sqrt_le_sqrt h
+    _ = Real.sqrt ((N : ℝ) + 1) * coreNorm c := by
+        rw [Real.sqrt_mul (by positivity)]
+        rfl
+
+/-- **The multiplication law `xⱼ` costs `2√(N + 1)` on the sector**: it is the sum of its two
+ladder letters, with the Hermite normalization `1/√2 ≤ 1` dropped. -/
+theorem coreNorm_mulHermite_sector_le (j : Fin d) {N : ℕ} (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (mulHermite j c) ≤ 2 * Real.sqrt ((N : ℝ) + 1) * coreNorm c := by
+  have h1 := coreNorm_hopStep_sector_le (j, true) c hc
+  have h2 := coreNorm_hopStep_sector_le (j, false) c hc
+  have hsum : coreNorm (hopStep (j, true) c + hopStep (j, false) c)
+      ≤ 2 * Real.sqrt ((N : ℝ) + 1) * coreNorm c := by
+    have := coreNorm_add_le (hopStep (j, true) c) (hopStep (j, false) c)
+    linarith
+  have hnorm : coreNorm (mulHermite j c)
+      = invSqrtTwo * coreNorm (hopStep (j, true) c + hopStep (j, false) c) := by
+    rw [mulHermite, coreNorm_smul, Complex.norm_real, Real.norm_eq_abs,
+      abs_of_nonneg invSqrtTwo_nonneg]
+  rw [hnorm]
+  refine (mul_le_mul invSqrtTwo_le_one hsum (coreNorm_nonneg _) (by norm_num)).trans (le_of_eq ?_)
+  ring
+
+/-- **A word of `k` multiplication laws costs `(2√(M + 1))^k`** on `{N ≤ N}`, where `M ≥ N + k`
+bounds the degrees the word meets (`mulHermite_band`). -/
+theorem coreNorm_mulHermiteList_sector_le (js : List (Fin d)) :
+    ∀ (c : CoreCoeff d) (N M : ℕ), N + js.length ≤ M →
+      (∀ n ∈ c.support, natDeg n ≤ N) →
+      coreNorm (mulHermiteList js c)
+        ≤ (2 * Real.sqrt ((M : ℝ) + 1)) ^ js.length * coreNorm c := by
+  induction js with
+  | nil =>
+    intro c N M _ _
+    simp
+  | cons j js ih =>
+    intro c N M hM hc
+    rw [mulHermiteList_cons, List.length_cons]
+    have hNM : N + 1 + js.length ≤ M := by
+      rw [List.length_cons] at hM
+      omega
+    have hband : ∀ n ∈ (mulHermite j c).support, natDeg n ≤ N + 1 :=
+      fun n hn => mulHermite_band hc hn
+    refine (ih (mulHermite j c) (N + 1) M hNM hband).trans ?_
+    have hstep := coreNorm_mulHermite_sector_le j c hc
+    have hroot : Real.sqrt ((N : ℝ) + 1) ≤ Real.sqrt ((M : ℝ) + 1) := by
+      refine Real.sqrt_le_sqrt ?_
+      have hR : (N : ℝ) ≤ (M : ℝ) := by exact_mod_cast (by omega : N ≤ M)
+      linarith
+    have hstep' : coreNorm (mulHermite j c) ≤ 2 * Real.sqrt ((M : ℝ) + 1) * coreNorm c :=
+      hstep.trans (mul_le_mul_of_nonneg_right
+        (mul_le_mul_of_nonneg_left hroot (by norm_num)) (coreNorm_nonneg c))
+    calc (2 * Real.sqrt ((M : ℝ) + 1)) ^ js.length * coreNorm (mulHermite j c)
+        ≤ (2 * Real.sqrt ((M : ℝ) + 1)) ^ js.length
+            * (2 * Real.sqrt ((M : ℝ) + 1) * coreNorm c) :=
+          mul_le_mul_of_nonneg_left hstep' (by positivity)
+      _ = (2 * Real.sqrt ((M : ℝ) + 1)) ^ (js.length + 1) * coreNorm c := by
+          rw [pow_succ]
+          ring
+
+
+/-! ### 14.3 The polynomial operator on a sector -/
+
+/-- A monomial of degree `k` costs `‖a‖·(2√(M + 1))^k` on the sector. -/
+theorem coreNorm_polyMul_monomial_le {m : Fin d →₀ ℕ} (a : ℂ) {N M : ℕ}
+    (hNM : N + natDeg (fun j => m j) ≤ M) (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (polyMul (MvPolynomial.monomial m a) c)
+      ≤ ‖a‖ * (2 * Real.sqrt ((M : ℝ) + 1)) ^ natDeg (fun j => m j) * coreNorm c := by
+  rw [polyMul_monomial, coreNorm_smul]
+  refine (mul_le_mul_of_nonneg_left
+    (coreNorm_mulHermiteList_sector_le (monomialList fun j => m j) c N M
+      (by rw [monomialList_length]; exact hNM) hc) (norm_nonneg a)).trans (le_of_eq ?_)
+  rw [monomialList_length]
+  ring
+
+/-- The sector constant of the multiplication operator: the coefficients of `Φ` times the word
+constant `(2√(M+1))^{deg Φ}`.  It is the mirror of §9.9's `driftL1Bound`, with the `ℓ²` norm of
+the letters instead of the `ℓ¹` mass. -/
+def polyMulSectorBound (Φ : MvPolynomial (Fin d) ℂ) (M : ℕ) : ℝ :=
+  ∑ m ∈ Φ.support,
+    ‖MvPolynomial.coeff m Φ‖ * (2 * Real.sqrt ((M : ℝ) + 1)) ^ Φ.totalDegree
+
+theorem polyMulSectorBound_nonneg (Φ : MvPolynomial (Fin d) ℂ) (M : ℕ) :
+    0 ≤ polyMulSectorBound Φ M :=
+  Finset.sum_nonneg fun _ _ => by positivity
+
+/-- **The multiplication operator is bounded on every sector**, with the explicit constant
+`polyMulSectorBound Φ M` for `M ≥ N + deg Φ`: the `ℓ²` mirror of §9.9's `driftL1Bound`. -/
+theorem polyMul_norm_sector_le {Φ : MvPolynomial (Fin d) ℂ} {N M : ℕ}
+    (hNM : N + Φ.totalDegree ≤ M) (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (polyMul Φ c) ≤ polyMulSectorBound Φ M * coreNorm c := by
+  classical
+  have hsum : polyMul Φ c
+      = ∑ m ∈ Φ.support,
+          polyMul (MvPolynomial.monomial m (MvPolynomial.coeff m Φ)) c := by
+    conv_lhs => rw [MvPolynomial.as_sum Φ]
+    exact polyMul_sum Φ.support _ c
+  rw [hsum]
+  have hterm : ∀ m ∈ Φ.support,
+      coreNorm (polyMul (MvPolynomial.monomial m (MvPolynomial.coeff m Φ)) c)
+        ≤ ‖MvPolynomial.coeff m Φ‖ * (2 * Real.sqrt ((M : ℝ) + 1)) ^ Φ.totalDegree
+            * coreNorm c := by
+    intro m hm
+    have hdeg : natDeg (fun j => m j) ≤ Φ.totalDegree := by
+      rw [natDeg_ofFinsupp]
+      exact MvPolynomial.le_totalDegree hm
+    have hNM' : N + natDeg (fun j => m j) ≤ M := by omega
+    refine (coreNorm_polyMul_monomial_le (MvPolynomial.coeff m Φ) hNM' c hc).trans ?_
+    refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left ?_
+      (norm_nonneg (MvPolynomial.coeff m Φ))) (coreNorm_nonneg c)
+    refine pow_le_pow_right₀ ?_ hdeg
+    have h1 : (1 : ℝ) ≤ Real.sqrt ((M : ℝ) + 1) := by
+      refine Real.one_le_sqrt.mpr ?_
+      have : (0 : ℝ) ≤ (M : ℝ) := Nat.cast_nonneg M
+      linarith
+    linarith
+  refine (coreNorm_finset_sum_le _ _).trans ?_
+  rw [polyMulSectorBound, Finset.sum_mul]
+  exact Finset.sum_le_sum hterm
+
+/-- **The gradient bound on a sector.**  The multiplier `polyMul (∂ⱼΦ)` is bounded by the
+explicit constant `gradSectorBound Φ N` on states of degree `≤ N + 1`.  The level `N + 1` is one
+letter above the state's own sector: that is where the drift sends a state of sector `N`. -/
+def gradSectorBound (Φ : MvPolynomial (Fin d) ℂ) (N : ℕ) : ℝ :=
+  ∑ j : Fin d, polyMulSectorBound (MvPolynomial.pderiv j Φ)
+    (N + 1 + (MvPolynomial.pderiv j Φ).totalDegree)
+
+theorem gradSectorBound_nonneg (Φ : MvPolynomial (Fin d) ℂ) (N : ℕ) :
+    0 ≤ gradSectorBound Φ N :=
+  Finset.sum_nonneg fun _ _ => polyMulSectorBound_nonneg _ _
+
+/-- **The `hgrad` of §12, on a sector**: `∂ⱼΦ` acts as a bounded multiplier at the level the
+drift reaches, `{N ≤ N₀ + 1}`, with the constant `gradSectorBound Φ N₀`. -/
+theorem pderiv_norm_sector_le {Φ : MvPolynomial (Fin d) ℂ} {N : ℕ} (j : Fin d)
+    (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N + 1) :
+    coreNorm (polyMul (MvPolynomial.pderiv j Φ) c) ≤ gradSectorBound Φ N * coreNorm c := by
+  have h := polyMul_norm_sector_le (Φ := MvPolynomial.pderiv j Φ) (N := N + 1)
+    (M := N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) (by omega) c hc
+  refine h.trans ?_
+  refine mul_le_mul_of_nonneg_right ?_ (coreNorm_nonneg c)
+  exact Finset.single_le_sum (f := fun i => polyMulSectorBound (MvPolynomial.pderiv i Φ)
+    (N + 1 + (MvPolynomial.pderiv i Φ).totalDegree))
+    (fun i _ => polyMulSectorBound_nonneg _ _) (Finset.mem_univ j)
+
+/-! ### 14.4 The estimate and the lower bound, on a sector -/
+
+/-- §11's closing arithmetic at a single state: the uniform hypothesis of
+`form_bound_of_sqrt_sum` weakened to the one state the estimate is about. -/
+theorem form_bound_of_pointwise {T : CoreCoeff d → CoreCoeff d} {B : ℝ} (hB0 : 0 ≤ B)
+    {c : CoreCoeff d}
+    (hbound : ‖corePair c (T c)‖
+      ≤ B * invSqrtTwo * coreNorm c * (Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+          + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)))
+    (δ : ℝ) (hδ : 0 < δ) :
+    ‖corePair c (T c)‖
+      ≤ δ * numberForm c + (B ^ 2 * (d : ℝ) / (2 * δ) + B * (d : ℝ)) * coreNormSq c := by
+  have hinv0 : (0 : ℝ) ≤ invSqrtTwo := invSqrtTwo_nonneg
+  have hinv1 : invSqrtTwo ≤ 1 := invSqrtTwo_le_one
+  have hX0 : 0 ≤ numberForm c := numberForm_nonneg c
+  have hN0 : 0 ≤ coreNormSq c := coreNormSq_nonneg c
+  have hR0 : 0 ≤ coreNorm c := coreNorm_nonneg c
+  have hd0 : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
+  have hbracket : Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+        + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)
+      ≤ 2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c := by
+    have hdN : 0 ≤ (d : ℝ) * coreNormSq c := mul_nonneg hd0 hN0
+    have hs := sqrt_add_le hX0 hdN
+    have hmul : Real.sqrt ((d : ℝ) * coreNormSq c) = Real.sqrt (d : ℝ) * coreNorm c := by
+      rw [Real.sqrt_mul hd0]; rfl
+    have hdd : Real.sqrt (d : ℝ) * Real.sqrt (d : ℝ) = (d : ℝ) :=
+      Real.mul_self_sqrt hd0
+    have step1 : Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)
+        ≤ Real.sqrt (d : ℝ)
+          * (Real.sqrt (numberForm c) + Real.sqrt ((d : ℝ) * coreNormSq c)) :=
+      mul_le_mul_of_nonneg_left hs (Real.sqrt_nonneg _)
+    rw [hmul, mul_add, ← mul_assoc, hdd] at step1
+    linarith
+  have hstep5 : B * invSqrtTwo * coreNorm c * (Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+        + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c))
+      ≤ B * invSqrtTwo * coreNorm c
+        * (2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c) :=
+    mul_le_mul_of_nonneg_left hbracket (mul_nonneg (mul_nonneg hB0 hinv0) hR0)
+  have hxsq : Real.sqrt (numberForm c) ^ 2 = numberForm c := Real.sq_sqrt hX0
+  have hv : 2 * Real.sqrt (numberForm c) * (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ))
+      ≤ δ * numberForm c + B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ) := by
+    have ham := two_mul_le_add_div δ (Real.sqrt (numberForm c))
+      (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) hδ
+    have hv2 : (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) ^ 2 / δ
+        = B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ) := by
+      have e : (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) ^ 2
+          = B ^ 2 * invSqrtTwo ^ 2 * coreNorm c ^ 2 * (Real.sqrt (d : ℝ)) ^ 2 := by ring
+      rw [e, invSqrtTwo_sq, Real.sq_sqrt hd0]
+      ring
+    calc 2 * Real.sqrt (numberForm c) * (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ))
+          ≤ δ * Real.sqrt (numberForm c) ^ 2
+              + (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) ^ 2 / δ := ham
+      _ = δ * numberForm c + B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ) := by
+          rw [hxsq, hv2]
+  have hslack : B * invSqrtTwo * (d : ℝ) * coreNorm c ^ 2 ≤ B * (d : ℝ) * coreNorm c ^ 2 := by
+    have hle : B * invSqrtTwo ≤ B := by
+      have := mul_le_mul_of_nonneg_left hinv1 hB0
+      simpa using this
+    have := mul_le_mul_of_nonneg_right hle (mul_nonneg hd0 (sq_nonneg (coreNorm c)))
+    calc B * invSqrtTwo * (d : ℝ) * coreNorm c ^ 2
+        = (B * invSqrtTwo) * ((d : ℝ) * coreNorm c ^ 2) := by ring
+      _ ≤ B * ((d : ℝ) * coreNorm c ^ 2) := this
+      _ = B * (d : ℝ) * coreNorm c ^ 2 := by ring
+  have hfinal : B * invSqrtTwo * coreNorm c
+        * (2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c)
+      ≤ δ * numberForm c + (B ^ 2 * (d : ℝ) / (2 * δ) + B * (d : ℝ)) * coreNormSq c := by
+    have e : B * invSqrtTwo * coreNorm c
+          * (2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c)
+        = 2 * Real.sqrt (numberForm c) * (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ))
+          + B * invSqrtTwo * (d : ℝ) * coreNorm c ^ 2 := by ring
+    rw [e, ← coreNorm_sq]
+    have hsum := add_le_add hv hslack
+    have harith : (δ * numberForm c + B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ))
+          + B * (d : ℝ) * coreNorm c ^ 2
+        = δ * numberForm c + (B ^ 2 * (d : ℝ) / (2 * δ) + B * (d : ℝ)) * coreNorm c ^ 2 := by
+      field_simp
+      ring
+    linarith
+  exact hbound.trans (hstep5.trans hfinal)
+
+/-- One derivative letter, bounded on a sector: `corePair_polyMul_diffHermite_le` with the
+multiplier bound taken at the sector `{N ≤ N₀ + 1}` its two ladder images land in. -/
+theorem corePair_polyMul_diffHermite_sector_le {Ψ : Fin d → MvPolynomial (Fin d) ℂ} {M : ℝ}
+    {N : ℕ}
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d, (∀ n ∈ c.support, natDeg n ≤ N + 1) →
+      coreNorm (polyMul (Ψ j) c) ≤ M * coreNorm c)
+    (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) (j : Fin d) :
+    ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖
+      ≤ invSqrtTwo * (M * coreNorm c)
+        * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by
+  have hinv0 : (0 : ℝ) ≤ invSqrtTwo := invSqrtTwo_nonneg
+  have hmain : ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c - hopStep (j, true) c))‖
+      ≤ M * coreNorm c
+        * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by
+    rw [polyMul_sub, corePair_sub]
+    calc ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c))
+            - corePair c (polyMul (Ψ j) (hopStep (j, true) c))‖
+          ≤ ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c))‖
+            + ‖corePair c (polyMul (Ψ j) (hopStep (j, true) c))‖ := norm_sub_le _ _
+      _ ≤ coreNorm c * (M * coreNorm (hopStep (j, false) c))
+            + coreNorm c * (M * coreNorm (hopStep (j, true) c)) := by
+          refine add_le_add ?_ ?_
+          · exact (norm_corePair_le c _).trans (mul_le_mul_of_nonneg_left
+              (hgrad j _ (fun n hn => hopStep_band hc hn)) (coreNorm_nonneg c))
+          · exact (norm_corePair_le c _).trans (mul_le_mul_of_nonneg_left
+              (hgrad j _ (fun n hn => hopStep_band hc hn)) (coreNorm_nonneg c))
+      _ = M * coreNorm c
+            * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by ring
+  have hsplit : diffHermite j c
+      = ((invSqrtTwo : ℝ) : ℂ) • (hopStep (j, false) c - hopStep (j, true) c) := rfl
+  have hstar : star ((invSqrtTwo : ℝ) : ℂ) = ((invSqrtTwo : ℝ) : ℂ) := by
+    rw [Complex.star_def, Complex.conj_ofReal]
+  rw [hsplit, polyMul_smul_arg, corePair_smul, hstar, norm_mul, Complex.norm_real,
+    Real.norm_eq_abs, abs_of_nonneg hinv0]
+  calc invSqrtTwo
+        * ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c - hopStep (j, true) c))‖
+      ≤ invSqrtTwo * (M * coreNorm c
+          * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c))) :=
+        mul_le_mul_of_nonneg_left hmain hinv0
+    _ = invSqrtTwo * (M * coreNorm c)
+          * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by ring
+
+/-- **§11's letter-family estimate from a sector hypothesis**: the same constant,
+`δ·⟪c, N c⟫ + (M²d/(2δ) + Md)‖c‖²`, with `hgrad` required only on `{N ≤ N₀ + 1}`. -/
+theorem form_bound_of_letter_family_sector {Ψ : Fin d → MvPolynomial (Fin d) ℂ} {M : ℝ}
+    (hM0 : 0 ≤ M) {N : ℕ}
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d, (∀ n ∈ c.support, natDeg n ≤ N + 1) →
+      coreNorm (polyMul (Ψ j) c) ≤ M * coreNorm c)
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    ‖corePair c (∑ j : Fin d, polyMul (Ψ j) (diffHermite j c))‖
+      ≤ δ * numberForm c + (M ^ 2 * (d : ℝ) / (2 * δ) + M * (d : ℝ)) * coreNormSq c := by
+  classical
+  have hletter : ∀ j : Fin d, ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖
+      ≤ invSqrtTwo * (M * coreNorm c)
+        * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) :=
+    fun j => corePair_polyMul_diffHermite_sector_le hgrad c hc j
+  have hstep : ‖corePair c (∑ j : Fin d, polyMul (Ψ j) (diffHermite j c))‖
+      ≤ ∑ j : Fin d, ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖ := by
+    rw [corePair_finset_sum]
+    exact norm_sum_le _ _
+  have hsum1 : ∑ j : Fin d, ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖
+      ≤ invSqrtTwo * (M * coreNorm c)
+          * (∑ j : Fin d, coreNorm (hopStep (j, false) c)
+            + ∑ j : Fin d, coreNorm (hopStep (j, true) c)) := by
+    refine (Finset.sum_le_sum fun j _ => hletter j).trans (le_of_eq ?_)
+    rw [← Finset.mul_sum, Finset.sum_add_distrib]
+  have hsum2 : ∑ j : Fin d, coreNorm (hopStep (j, false) c)
+        + ∑ j : Fin d, coreNorm (hopStep (j, true) c)
+      ≤ Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+        + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c) :=
+    add_le_add (sum_coreNorm_hopStep_le false c) (sum_coreNorm_hopStep_le true c)
+  have hshape : invSqrtTwo * (M * coreNorm c)
+        * (∑ j : Fin d, coreNorm (hopStep (j, false) c)
+          + ∑ j : Fin d, coreNorm (hopStep (j, true) c))
+      = M * invSqrtTwo * coreNorm c
+        * (∑ j : Fin d, coreNorm (hopStep (j, false) c)
+          + ∑ j : Fin d, coreNorm (hopStep (j, true) c)) := by ring
+  have hbound : ‖corePair c (∑ j : Fin d, polyMul (Ψ j) (diffHermite j c))‖
+      ≤ M * invSqrtTwo * coreNorm c * (Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+          + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)) := by
+    refine hstep.trans (hsum1.trans ?_)
+    rw [hshape]
+    exact mul_le_mul_of_nonneg_left hsum2
+      (mul_nonneg (mul_nonneg hM0 invSqrtTwo_nonneg) (coreNorm_nonneg c))
+  exact form_bound_of_pointwise (T := fun c => ∑ j : Fin d, polyMul (Ψ j) (diffHermite j c))
+    hM0 hbound δ hδ
+
+/-- **`polyDrift_form_bound` without `hgrad`**: on `{N ≤ N₀}` the drift's form is dominated by
+the number form with `M := gradSectorBound Φ N₀`, no hypothesis on the potential. -/
+theorem polyDrift_form_bound_sector {Φ : MvPolynomial (Fin d) ℂ} {N : ℕ} (δ : ℝ)
+    (hδ : 0 < δ) (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    ‖corePair c (polyDrift Φ c)‖
+      ≤ δ * numberForm c
+        + (gradSectorBound Φ N ^ 2 * (d : ℝ) / (2 * δ) + gradSectorBound Φ N * (d : ℝ))
+            * coreNormSq c := by
+  have hmain := form_bound_of_letter_family_sector (Ψ := fun j => MvPolynomial.pderiv j Φ)
+    (gradSectorBound_nonneg Φ N) (fun j _ hc' => pderiv_norm_sector_le j _ hc') δ hδ c hc
+  have hnorm : ‖corePair c (polyDrift Φ c)‖
+      = ‖corePair c (∑ j : Fin d, polyMul (MvPolynomial.pderiv j Φ) (diffHermite j c))‖ := by
+    rw [polyDrift, corePair_neg, norm_neg]
+  rw [hnorm]
+  exact hmain
+
+
+/-- `semibounded_of_form_bound` from a form bound at the single state — the KLMN conclusion a
+sector estimate supports. -/
+theorem semibounded_of_pointwise {T : CoreCoeff d → CoreCoeff d} {δ C : ℝ} (hδ1 : δ ≤ 1)
+    {c : CoreCoeff d}
+    (h : ‖corePair c (T c)‖ ≤ δ * numberForm c + C * coreNormSq c) :
+    -C * coreNormSq c ≤ (corePair c (numberOp c + T c)).re := by
+  rw [corePair_add, Complex.add_re, corePair_numberOp_re]
+  have hre : -(‖corePair c (T c)‖) ≤ (corePair c (T c)).re := by
+    have h1 := Complex.abs_re_le_norm (corePair c (T c))
+    have h2 := neg_abs_le (corePair c (T c)).re
+    linarith
+  have hbound : -(δ * numberForm c + C * coreNormSq c) ≤ -(‖corePair c (T c)‖) := by
+    linarith
+  have hnonneg : 0 ≤ (1 - δ) * numberForm c := by
+    have := numberForm_nonneg c
+    nlinarith
+  linarith
+
+/-- **The plan's drift bound on a sector**, with `B = driftScale β σ (gradSectorBound Φ N₀)`. -/
+theorem driftOperator_form_bound_sector (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {N : ℕ}
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    ‖corePair c (driftOperator β σ Φ c)‖
+      ≤ δ * numberForm c
+        + (driftScale β σ (gradSectorBound Φ N) ^ 2 * (d : ℝ) / (2 * δ)
+          + driftScale β σ (gradSectorBound Φ N) * (d : ℝ)) * coreNormSq c := by
+  classical
+  have hw0 : 0 ≤ driftWeight β σ := driftWeight_nonneg β σ
+  have hnorm : ‖corePair c (driftOperator β σ Φ c)‖
+      = driftWeight β σ * ‖corePair c (polyDrift Φ c)‖ := by
+    rw [driftOperator, corePair_smul]
+    have hstar : star ((driftWeight β σ : ℝ) : ℂ) = ((driftWeight β σ : ℝ) : ℂ) := by
+      rw [Complex.star_def, Complex.conj_ofReal]
+    rw [hstar, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hw0]
+  rcases lt_or_eq_of_le hw0 with hwpos | hwzero
+  · have hδw : 0 < δ / driftWeight β σ := div_pos hδ hwpos
+    have hbound := polyDrift_form_bound_sector (Φ := Φ) (N := N) (δ / driftWeight β σ)
+      hδw c hc
+    rw [hnorm]
+    refine (mul_le_mul_of_nonneg_left hbound (le_of_lt hwpos)).trans (le_of_eq ?_)
+    show driftWeight β σ * (δ / driftWeight β σ * numberForm c
+          + (gradSectorBound Φ N ^ 2 * (d : ℝ) / (2 * (δ / driftWeight β σ))
+            + gradSectorBound Φ N * (d : ℝ)) * coreNormSq c)
+        = δ * numberForm c + (driftScale β σ (gradSectorBound Φ N) ^ 2 * (d : ℝ) / (2 * δ)
+            + driftScale β σ (gradSectorBound Φ N) * (d : ℝ)) * coreNormSq c
+    rw [show driftScale β σ (gradSectorBound Φ N) = driftWeight β σ * gradSectorBound Φ N
+      from rfl]
+    field_simp
+  · have hdrift : driftOperator β σ Φ c = 0 := by
+      rw [driftOperator, ← hwzero]
+      simp
+    have hB0 : driftScale β σ (gradSectorBound Φ N) = 0 := by
+      rw [driftScale, ← hwzero, zero_mul]
+    rw [hdrift, corePair_zero_right, norm_zero, hB0]
+    have hzero : (0 : ℝ) ^ 2 * (d : ℝ) / (2 * δ) + 0 * (d : ℝ) = 0 := by ring
+    rw [hzero, zero_mul, add_zero]
+    exact mul_nonneg (le_of_lt hδ) (numberForm_nonneg c)
+
+/-- **`N + K_drift` is bounded below on each sector**, with the sector constant and no gradient
+hypothesis: §13's `pcnlDrift_semibounded_eps` with `M` read off the sector instead of assumed. -/
+theorem pcnlDrift_semibounded_sector (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {N : ℕ}
+    (δ : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤ 1) (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    -((driftScale β σ (gradSectorBound Φ N) ^ 2 * (d : ℝ) / (2 * δ)
+        + driftScale β σ (gradSectorBound Φ N) * (d : ℝ))) * coreNormSq c
+      ≤ (corePair c (numberOp c + driftOperator β σ Φ c)).re :=
+  semibounded_of_pointwise hδ1
+    (driftOperator_form_bound_sector β σ (Φ := Φ) (N := N) δ hδ c hc)
+
+/-! ### 14.5 The global hypothesis is not attainable -/
+
+theorem coreNormSq_single (m : Fin d → ℕ) (a : ℂ) :
+    coreNormSq (Finsupp.single m a) = ‖a‖ ^ 2 := by
+  rw [← sum_sq_subset (c := Finsupp.single m a) (s := {m}) (by
+    intro x hx
+    simpa using Finsupp.support_single_subset hx)]
+  simp
+
+/-- A basis vector has the norm of its coefficient, the computation the refutation uses. -/
+theorem coreNorm_single (m : Fin d → ℕ) (a : ℂ) :
+    coreNorm (Finsupp.single m a) = ‖a‖ := by
+  rw [coreNorm, coreNormSq_single, Real.sqrt_sq (norm_nonneg a)]
+
+/-- Basis vectors pair to `a·conj b` at equal indices and to `0` at distinct ones — the
+orthogonality that lets `corePair_raise_polyMul_X` read one ladder letter at a time. -/
+theorem corePair_single_single (m m' : Fin d → ℕ) (a b : ℂ) :
+    corePair (Finsupp.single m a) (Finsupp.single m' b) = if m = m' then a * star b else 0 := by
+  classical
+  by_cases h : m = m'
+  · subst h
+    rw [if_pos rfl,
+      corePair_eq_sum (c := Finsupp.single m a) (c' := Finsupp.single m b) (s := {m})
+        Finsupp.support_single_subset Finsupp.support_single_subset]
+    simp
+  · rw [if_neg h,
+      corePair_eq_sum (c := Finsupp.single m a) (c' := Finsupp.single m' b) (s := {m, m'})
+        (fun x hx => by
+          have hx1 := Finsupp.support_single_subset hx
+          simp only [Finset.mem_singleton] at hx1
+          subst hx1
+          exact Finset.mem_insert_self _ _)
+        (fun x hx => by
+          have hx1 := Finsupp.support_single_subset hx
+          simp only [Finset.mem_singleton] at hx1
+          rw [hx1]
+          exact Finset.mem_insert_of_mem (Finset.mem_singleton_self m'))]
+    refine Finset.sum_eq_zero fun x hx => ?_
+    rcases Finset.mem_insert.mp hx with hm | hx
+    · rw [hm, Finsupp.single_eq_same, Finsupp.single_eq_of_ne (a := m') (a' := m) h]
+      simp
+    · rw [Finset.mem_singleton.mp hx, Finsupp.single_eq_of_ne (a := m) (a' := m') (Ne.symm h)]
+      simp
+
+theorem raiseIdx_ne_lowerIdx (j : Fin d) (n : Fin d → ℕ) : raiseIdx j n ≠ lowerIdx j n := by
+  intro h
+  have h1 := congrFun h j
+  rw [raiseIdx_apply_same, lowerIdx_apply_same] at h1
+  omega
+
+/-- **The value of `xⱼ` on a basis vector.**  Pairing `polyMul (X j) eₙ` against the raised test
+vector `e_{n + eⱼ}` isolates the raising letter: the value is `√(nⱼ + 1)/√2`. -/
+theorem corePair_raise_polyMul_X (j : Fin d) (n : Fin d → ℕ) :
+    corePair (Finsupp.single (raiseIdx j n) (1 : ℂ))
+        (polyMul (MvPolynomial.X j) (Finsupp.single n (1 : ℂ)))
+      = ((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ) * ((invSqrtTwo : ℝ) : ℂ) := by
+  have hstar : star ((invSqrtTwo : ℝ) : ℂ) = ((invSqrtTwo : ℝ) : ℂ) := by
+    rw [Complex.star_def, Complex.conj_ofReal]
+  have hraise : hopStep (j, true) (Finsupp.single n (1 : ℂ))
+      = Finsupp.single (raiseIdx j n) (((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ)) := by
+    rw [hopStep_single, stepAmp_raise, stepIdx]
+    simp
+  have hlower : hopStep (j, false) (Finsupp.single n (1 : ℂ))
+      = Finsupp.single (lowerIdx j n) (((Real.sqrt (n j : ℝ) : ℝ) : ℂ)) := by
+    rw [hopStep_single, stepAmp_lower, stepIdx]
+    simp
+  have hzero : corePair (Finsupp.single (raiseIdx j n) (1 : ℂ))
+      (hopStep (j, false) (Finsupp.single n (1 : ℂ))) = 0 := by
+    rw [hlower, corePair_single_single, if_neg (raiseIdx_ne_lowerIdx j n)]
+  rw [polyMul_X, mulHermite, corePair_smul, hstar, corePair_add, hzero, add_zero, hraise,
+    corePair_single_single, if_pos rfl, one_mul, Complex.star_def, Complex.conj_ofReal]
+  ring
+
+
+/-- **The growth of `xⱼ`**: `‖polyMul (X j) eₙ‖ ≥ √(nⱼ + 1)/√2`, by Cauchy–Schwarz read
+backwards from the pairing value. -/
+theorem sqrt_invSqrtTwo_le_coreNorm_polyMul_X {j : Fin d} (n : Fin d → ℕ) :
+    Real.sqrt ((n j : ℝ) + 1) * invSqrtTwo
+      ≤ coreNorm (polyMul (MvPolynomial.X j) (Finsupp.single n (1 : ℂ))) := by
+  have hle := norm_corePair_le (Finsupp.single (raiseIdx j n) (1 : ℂ))
+    (polyMul (MvPolynomial.X j) (Finsupp.single n (1 : ℂ)))
+  rw [corePair_raise_polyMul_X] at hle
+  have hval : ‖((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ) * ((invSqrtTwo : ℝ) : ℂ)‖
+      = Real.sqrt ((n j : ℝ) + 1) * invSqrtTwo := by
+    rw [norm_mul, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs, Real.norm_eq_abs,
+      abs_of_nonneg (Real.sqrt_nonneg _), abs_of_nonneg invSqrtTwo_nonneg]
+  rw [hval, coreNorm_single, norm_one, one_mul] at hle
+  exact hle
+
+/-- **The global `hgrad` is unattainable.**  For every `M` some state has
+`M‖c‖ < ‖polyMul (X j) c‖`: multiplication by a non-constant polynomial is unbounded on the core,
+so the sector level of §14.1–§14.4 is part of the statement. -/
+theorem polyMul_X_unbounded (j : Fin d) (M : ℝ) :
+    ∃ c : CoreCoeff d, M * coreNorm c < coreNorm (polyMul (MvPolynomial.X j) c) := by
+  obtain ⟨n, hn⟩ := exists_nat_gt (max (2 * M ^ 2) 1)
+  have hn2 : 2 * M ^ 2 < (n : ℝ) := lt_of_le_of_lt (le_max_left _ _) hn
+  have hn1 : (1 : ℝ) < (n : ℝ) := lt_of_le_of_lt (le_max_right _ _) hn
+  have hnpos : 0 < n := by exact_mod_cast (by linarith : (0 : ℝ) < (n : ℝ))
+  refine ⟨Finsupp.single (Function.update (fun _ => 0 : Fin d → ℕ) j (n - 1)) (1 : ℂ), ?_⟩
+  have hidx : (Function.update (fun _ => 0 : Fin d → ℕ) j (n - 1)) j = n - 1 := by simp
+  have hbound := sqrt_invSqrtTwo_le_coreNorm_polyMul_X (j := j)
+    (Function.update (fun _ => 0 : Fin d → ℕ) j (n - 1))
+  have hMlt : M < Real.sqrt (n : ℝ) * invSqrtTwo := by
+    have hsq : Real.sqrt (2 * M ^ 2) < Real.sqrt (n : ℝ) := Real.sqrt_lt_sqrt (by positivity) hn2
+    have habs : Real.sqrt (2 * M ^ 2) = Real.sqrt 2 * |M| := by
+      rw [Real.sqrt_mul (by norm_num), Real.sqrt_sq_eq_abs]
+    have hle : Real.sqrt 2 * M ≤ Real.sqrt 2 * |M| :=
+      mul_le_mul_of_nonneg_left (le_abs_self M) (Real.sqrt_nonneg 2)
+    have h2 : Real.sqrt 2 * M < Real.sqrt (n : ℝ) := by rw [habs] at hsq; linarith
+    have hpos2 : 0 < Real.sqrt 2 := Real.sqrt_pos.mpr (by norm_num)
+    calc M = (Real.sqrt 2 * M) / Real.sqrt 2 := by field_simp
+      _ < Real.sqrt (n : ℝ) / Real.sqrt 2 := div_lt_div_of_pos_right h2 hpos2
+      _ = Real.sqrt (n : ℝ) * invSqrtTwo := by
+          rw [invSqrtTwo, one_div, div_eq_mul_inv]
+  have hsqrt : Real.sqrt (((Function.update (fun _ => 0 : Fin d → ℕ) j (n - 1)) j : ℝ) + 1)
+      = Real.sqrt (n : ℝ) := by
+    rw [hidx]
+    congr 1
+    have hcast : (((n - 1 : ℕ)) : ℝ) = (n : ℝ) - 1 := by
+      rcases n with _ | k
+      · exact absurd hnpos (Nat.lt_irrefl 0)
+      · simp
+    linarith
+  have hc : coreNorm (Finsupp.single (Function.update (fun _ => 0 : Fin d → ℕ) j (n - 1))
+      (1 : ℂ)) = 1 := by rw [coreNorm_single, norm_one]
+  rw [hc, mul_one]
+  rw [← hsqrt] at hMlt
+  exact lt_of_lt_of_le hMlt hbound
+
+
 end BookProof.MCMC.FockLangevin

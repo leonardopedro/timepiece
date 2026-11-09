@@ -768,9 +768,13 @@ the three core identities the chain uses (adjoint pairing, Cauchy–Schwarz in `
 `bⱼ = (β²σ²/2)·∂ⱼΦ` with the `ε` isolated in `B = (β²σ²/2)M_ε`, and §13 the semiboundedness
 corollary, `−C‖c‖² ≤ ⟪c, (N + K_drift)c⟫`.  The hypothesis's `M_ε` is itself a theorem for the
 additive normalization: `BayesianTransformer.epsProj_fderiv_le` proves `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on
-`‖W‖ ≥ ε`, and `driftScale_eps_arch` reads it as `B = β²σ²K/ε`.  What remains outside the
-formalization is the *core-side* realization of that gradient as the multiplication operator
-`polyMul (∂ⱼΦ_ε)` with the same bound.)*
+`‖W‖ ≥ ε`, and `driftScale_eps_arch` reads it as `B = β²σ²K/ε`.  The core-side counterpart is
+§14: a non-constant potential is *not* a bounded multiplier on the core (`polyMul_X_unbounded`:
+`xⱼ` raises the occupation, so `polyMul (X j) eₙ` grows like `√n`), but on the sector `{N ≤ N₀}`
+it is one, with the explicit constant `gradSectorBound Φ N₀`, and §11–§13 then hold with no
+hypothesis at all on each truncated sector (`pcnlDrift_semibounded_sector`).  What remains outside
+the formalization is the coefficient-level comparison of that sector constant with
+`M_ε = 2K/ε`.)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
@@ -1057,8 +1061,14 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   is bounded below by a constant of order `ε⁻²`.  The `M_ε` that enters that constant is itself a
   theorem for the concrete potential: `BayesianTransformer.epsProj_fderiv_le` gives
   `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on `‖W‖ ≥ ε` for `Ŵ = W/(‖W‖ + ε)`, and `driftScale_eps_arch` turns it into
-  `B = β²σ²K/ε`.  Outside the model only `K_reject` (a multiplication operator, not finite-band)
-  and the core-side realization of that gradient as `polyMul (∂ⱼΦ_ε)` remain.
+  `B = β²σ²K/ε`.  **§14 settles the core side.**  `hgrad` cannot hold globally
+  (`polyMul_X_unbounded` — `xⱼ` raises the occupation, so the image of `eₙ` grows like `√n`), it
+  does hold on every sector with the explicit constant `gradSectorBound Φ N`
+  (`polyMul_norm_sector_le`, `pderiv_norm_sector_le`), and `polyDrift_form_bound_sector`,
+  `driftOperator_form_bound_sector` and `pcnlDrift_semibounded_sector` are §11–§13 with that
+  constant in place of the hypothesis.  Outside the model only `K_reject` remains (a
+  multiplication operator, not finite-band), together with the coefficient-level comparison of
+  `gradSectorBound Φ_ε` with the weight-space `M_ε`.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the
@@ -1124,9 +1134,11 @@ reason that constant cannot supply the gap; stated in Lean as `DriftFormBound`
   `InSector.driftField` for the sector).  The gradient bound itself is in Lean:
 `BayesianTransformer.epsProj_fderiv_le` proves `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on `‖W‖ ≥ ε` for the additive
 normalization `Ŵ = W/(‖W‖ + ε)`, and `driftScale_eps_arch` reads it as the drift's
-`B = β²σ²K/ε`.  What is *not* in Lean is its core-side realization — that the same number bounds
-the multiplication operator `polyMul (∂ⱼΦ_ε)` on `CoreCoeff`, which is the explicit hypothesis
-`hgrad` of §12 and §13 —
+`B = β²σ²K/ε`.  The core-side counterpart is §14: the multiplier is *not* bounded on the whole
+core (`polyMul_X_unbounded`), but it is bounded on every sector with the explicit constant
+`gradSectorBound Φ N`, which is the form §11–§13's estimates take there
+(`pcnlDrift_semibounded_sector`).  What is *not* in Lean is the comparison of that sector constant
+with the weight-space `M_ε` — the two live in different models —
 and the Metropolis filter
 `K_reject` — the last is a multiplication operator and is not finite-band at all, so nothing in
 `FockLangevinOperator` describes it.  The pCNL operator's own gap therefore remains a hypothesis

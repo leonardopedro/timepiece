@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-08g):** **§13 Addendum of “State of the project — 2026-11-08b”**, at the
+> **Newest entry (2026-11-08h):** **§14 of “State of the project — 2026-11-08b”**, at the very
+> end of this file — `FockLangevinOperator` §14 shows the gradient bound `hgrad` of §12–§13 is a
+> *sector* statement: it cannot hold globally (`polyMul_X_unbounded`, since `xⱼ` raises the
+> occupation), it holds on `{N ≤ N₀}` with the explicit constant `gradSectorBound Φ N₀`
+> (`polyMul_norm_sector_le`, `pderiv_norm_sector_le`), and `polyDrift_form_bound_sector` /
+> `driftOperator_form_bound_sector` / `pcnlDrift_semibounded_sector` are §11–§13 with that
+> constant in place of the hypothesis.
+> **Earlier newest entry (2026-11-08g):** **§13 Addendum of “State of the project — 2026-11-08b”**, at the
 > very end of this file — the `ε`-gradient bound pcnl.md's hypothesis states is now a theorem for
 > the additive normalization: `epsProj ε v = (‖v‖ + ε)⁻¹ • v`, `epsProj_fderiv_opNorm_le`
 > (`‖dŴ‖ ≤ 2/ε`, the factor 2 being the price of not being scale invariant) and
@@ -18907,3 +18914,47 @@ Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 charact
 count in both files, no trailing whitespace.  Gates: `check-links` **OK**, `test_check_links.py`
 **10 tests OK**, `test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**,
 `check-todo-ledger` green, `doc_index --check` fresh.
+
+### 14. Addendum (same day) — the gradient bound is a sector statement
+
+**§12's last hypothesis.**  §12 carried a potential's gradient bound `M` into the drift's constant
+(`driftOperator_form_bound`) and §13 turned it into the lower bound
+(`pcnlDrift_semibounded_eps`), but both took it as a hypothesis (`hgrad`): "multiplication by `∂ⱼΦ`
+is bounded by `M` on the core".  `FockLangevinOperator` §14 says what that hypothesis can and cannot
+be.
+
+* **It cannot hold globally.**  `polyMul_X_unbounded` — for every `M` there is a core state with
+  `M‖c‖ < ‖polyMul (X j) c‖` — is the multiplication law `xⱼ` raising the occupation: on the basis
+  vector `eₙ` the raised part alone has coefficient `√(nⱼ + 1)/√2`, so `‖xⱼ eₙ‖` grows like `√n`.  A
+  non-constant potential is therefore not a bounded multiplier, and the sector level is part of the
+  statement rather than a weakening introduced by the proof.  The route is
+  `corePair_raise_polyMul_X` (pairing the image with the raised test vector) and `norm_corePair_le`
+  read backwards.
+* **It holds on every sector, with an explicit constant.**  `coreNorm_add_le` (Cauchy–Schwarz in the
+  core pairing, giving the `ℓ²` triangle inequality the word chain needs), `coreNorm_smul` and
+  `coreNorm_finset_sum_le`; the letters on the sector (`coreNorm_hopStep_sector_le`, from §10's
+  `coreNormSq_hopStep_raise`/`_lower` plus `nⱼ ≤ N`), the multiplication law
+  (`coreNorm_mulHermite_sector_le`) and a word of them (`coreNorm_mulHermiteList_sector_le`); then
+  **`polyMul_norm_sector_le`**: `‖polyMul Φ c‖ ≤ polyMulSectorBound Φ M·‖c‖` on `{N ≤ N₀}` for
+  `M ≥ N₀ + deg Φ`, the `ℓ²` mirror of §9.9's `ℓ¹` `driftL1Bound`; and **`gradSectorBound Φ N`**, the
+  same constant for the derivative family at the level `N₀ + 1` that the drift reaches
+  (`pderiv_norm_sector_le`).
+* **The consequences need no hypothesis.**  `polyDrift_form_bound_sector`,
+  `driftOperator_form_bound_sector` and **`pcnlDrift_semibounded_sector`** restate §11, §12 and §13
+  with `M := gradSectorBound Φ N`; the only input is that the state lies in the sector.  The chain
+  reuses §11's arithmetic through pointwise variants (`form_bound_of_pointwise`,
+  `semibounded_of_pointwise`), since the estimate only needs the letter family at one state.
+
+What the corpus still does not have is the *coefficient-level* comparison between
+`gradSectorBound Φ_ε` and the architecture's weight-space `M_ε = 2K/ε`
+(`BayesianTransformer.epsProj_fderiv_le`): the two bounds live in different models, so relating them
+is a statement about the coefficients of `∂ⱼΦ_ε`, not about operators.  `K_reject` is untouched — it
+is a multiplication operator and not finite-band at all.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, success;
+`lake build BookProof.YangMillsFieldStrength` → **8095 jobs**, success.  `#print axioms` on all 33
+new declarations → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over
+100 characters, no trailing whitespace in the module.  Gates: `check-links` **OK — 81 documents,
+401 links resolve** (14 external skipped), `test_check_links.py` **10 tests OK**, `test_health.py`
+**9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**, `check-todo-ledger` green, `doc_index
+--check` fresh (83 docs, 223 links).
