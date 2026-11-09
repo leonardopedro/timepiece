@@ -211,6 +211,13 @@ onto a dense range in $L^2(\nu)$ and the exponential multiplier law. Producing t
 for the concrete half-space theory is still required. Thus “no generator exists anywhere
 in the corpus” is stale, while “the physical interacting generator is identified” is unproved.
 
+**2026-11-09:** `HalfSpaceState` / `HalfSpaceHilbert` now cover the half-space half of this
+list — the quotient of `𝔄₊` with `Ω_OS = [1]`, `‖Ω_OS‖ = 1`, forward support and null-space
+preservation (as hypotheses), and `P(0)=I`, `P(s+t)=P(s)P(t)`, `P(t)*=P(t)` with strong
+continuity at `0⁺` on the completion. The concrete state (a measure on the lattice
+configurations) and the generator domain/resolvent on `𝔄₊/𝔑₊` are still open, and the
+constructed space is real.
+
 **Acceptance:** a half-space state/space and a nontrivial strongly continuous symmetric
 forward contraction semigroup, with its generator domain and resolvent identified.
 Full Wightman reconstruction additionally needs the selected OS theorem's regularity,
@@ -306,7 +313,7 @@ The operator-function approximation theorem does not supply that exclusion.
 | E0 | Gaussian laws, Hermite bases | Euclidean field law and chart |
 | E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
 | E2 | Summable increments imply convergence | Actual RG estimates and limits |
-| E3 | Quotients, forward semigroups, multiplier generators | Half-space realization |
+| E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), quotients, multiplier generators | Concrete half-space state, its generator, complexification |
 | E4 | `OsFockBridge` consequences | Concrete field/vacuum/flow bridge |
 | E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
 
@@ -317,6 +324,27 @@ reuse the existing conditional machinery rather than add another full-algebra wr
 Proposed new modules, not existing proofs, are
 `BookProof/OSReconstruction/HalfSpaceState.lean` and
 `BookProof/OSReconstruction/HalfSpaceHilbert.lean`.
+
+**2026-11-09: both modules exist and build** (`lake build BookProof`).
+`HalfSpaceState` supplies the half-space state (`HalfSpaceState`: `θ`-invariant linear
+functional, reflection positive on `PositiveTimeAlgebra` only, `ω 1 = 1`), the OS form
+`hsBilin` on `𝔄₊ × 𝔄₊` with bilinearity, symmetry (from `θ`-invariance, not positivity),
+quadratic expansion and Cauchy–Schwarz, the null **subspace** `HsRadical` (no ideal claim)
+with `mem_hsRadical_of_self_eq_zero` and descent, the quotient `HsSpace`, its inner-product
+structure, the completion `Hhalf`, and the vacuum `hsVacuum = [1]` with `hsVacuum_norm`.
+`HalfSpaceHilbert` supplies `PreservesPositiveTime`, the restricted evolution `hsEvol`, the
+one-sided hypothesis `HsHinv`, `hsRadical_invariant` (forward translation preserves the null
+space), the descended `hsQuotMap` with contractivity, `P(0) = I`, `P(s+t) = P(s)P(t)`, the
+completion `hsEvolCompletion`, strong continuity at `0⁺` from matrix-element continuity, and
+`hsEvolCompletion_isSelfAdjoint` — **`P(τ)* = P(τ)`** — from the dense two-point symmetry
+hypothesis `HsSymmetric`.
+
+Still missing at E3: a *concrete* half-space state (the corpus has no measure on
+`Config = Fin latticeDim → ℝ`), the complexification of the real Hilbert space, and the
+generator domain/resolvent on `𝔄₊/𝔑₊` (`SemigroupGenerator` proves these for the
+full-algebra `Hphys` under `HinvRight`; the half-space version is a deferred copy, not a
+new theorem). Support preservation, contractivity and two-point symmetry are named
+hypotheses, as `HinvRight` and `∀ τ, IsSelfAdjoint (P τ)` already are in the corpus.
 
 Use the local `lean-toolchain` (currently v4.28.0). A proof port from another toolchain
 must compile here before it is counted as implemented; verify sibling paths rather than

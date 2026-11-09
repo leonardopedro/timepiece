@@ -6,7 +6,7 @@
 >
 > A reference is counted when it *resolves to a file that exists in the repo*. Four forms qualify: a markdown link `[t](p.md)`, a `[[wikilink]]`, a backticked `` `p.md` ``, and a bare `p.md` on its own line. The backticked form is this corpus's dominant convention (~2400 references vs ~120 markdown links), and reading only markdown links is what previously made a heavily cross-referenced corpus report zero backlinks.
 
-## Documents (81)
+## Documents (80)
 
 | Document | Title | Lines | Out | In |
 |---|---|---:|---:|---:|
@@ -34,7 +34,6 @@
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | Formalization Roadmap for `book.tex` | 3817 | 6 | 8 |
 | [GPU_FEDERATION_PLAN.md](GPU_FEDERATION_PLAN.md) | GPU Federation Improvement Plan | 275 | 1 | 0 |
 | [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md) | Hamiltonian audit — what the proofs actually use, and the Faris–Lavine `N` of each theory | 681 | 3 | 2 |
-| [HANDOUT.md](HANDOUT.md) | HANDOUT — paused work on the flow of `H` (multiplier model) | 254 | 1 | 0 |
 | [HASHIMOTO_COMPLEX_SHIFTS.md](HASHIMOTO_COMPLEX_SHIFTS.md) | Complex (non-real) shifts and many shifts in the shift-invert theory | 96 | 0 | 1 |
 | [HERMITE_CORE_STRICHARTZ.md](HERMITE_CORE_STRICHARTZ.md) | The Hermite core of `L²(ℝ)` and a Strichartz-type theorem on it | 69 | 0 | 1 |
 | [HERMITE_GALERKIN_FRIEDRICHS.md](HERMITE_GALERKIN_FRIEDRICHS.md) | Hermite-basis Galerkin truncation and the Friedrichs extension — what was formalized | 69 | 0 | 1 |
@@ -77,22 +76,22 @@
 | [TODO_LEDGER.md](TODO_LEDGER.md) | TODO ledger — reviewed code markers | 15 | 0 | 1 |
 | [bkPrompts.md](bkPrompts.md) | Chapter SirkRitzMinMax — the higher Rayleigh–Ritz levels and the Ritz gap | 702 | 3 | 0 |
 | [cft.md](cft.md) | cft | 172 | 0 | 1 |
-| [cftproof.md](cftproof.md) | Euclidean fields, Mehler coordinates and nested-Fock reconstruction | 954 | 3 | 5 |
+| [cftproof.md](cftproof.md) | Euclidean fields, Mehler coordinates and nested-Fock reconstruction | 982 | 3 | 5 |
 | [coherent.md](coherent.md) | Chapter: The Coherent State of Attention | 165 | 0 | 1 |
 | [converted/GAPS.md](converted/GAPS.md) | Remaining gaps of the converted prove2.me downloads | 164 | 0 | 3 |
 | [converted/README.md](converted/README.md) | `converted/` — prove2.me downloads converted to Lean 4.28.0 | 129 | 2 | 3 |
 | [converted/mm0/README.md](converted/mm0/README.md) | `mm0/` — the Solovay–Kopperman conversion to MM0 (the mm0web platform) | 155 | 0 | 0 |
-| [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT | 222 | 1 | 1 |
+| [docs/euclidean_cft_proof.md](docs/euclidean_cft_proof.md) | Executing `cftproof.md`: Euclidean 4D CFT → 3D CFT | 238 | 1 | 1 |
 | [math28/README.md](math28/README.md) | `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 | 48 | 0 | 2 |
 | [newproof.md](newproof.md) | newproof | 285 | 0 | 6 |
 | [pcnl.md](pcnl.md) | pCNL: Mehler operators, nested Fock representations and convergence certificates | 1288 | 3 | 3 |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | handedits | 21 | 0 | 0 |
-| [softmodes.md](softmodes.md) | Soft modes in the Mehler / nested-Fock Yang–Mills formalism | 1887 | 1 | 5 |
+| [softmodes.md](softmodes.md) | Soft modes in the Mehler / nested-Fock Yang–Mills formalism | 1887 | 1 | 4 |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | Self-contained mass-gap regeneration bundle | 219 | 2 | 4 |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | MASS_GAP_SPEC — the proof-facing seam of the certified mass gap | 150 | 1 | 5 |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | sirk_core_model — the Aeneas seam for the SIRK numeric core (mass-gap plan T9) | 88 | 2 | 1 |
 
-## Backlinks (218 links)
+## Backlinks (217 links)
 
 | Document | Linked from |
 |---|---|
@@ -120,7 +119,6 @@
 | [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [PLAN_LEAN_SPECIALIST_UNPROVED.md](PLAN_LEAN_SPECIALIST_UNPROVED.md), [RandomMap2.md](RandomMap2.md), [RandomMap_old.md](RandomMap_old.md), [STATUS.md](STATUS.md) |
 | [GPU_FEDERATION_PLAN.md](GPU_FEDERATION_PLAN.md) | — |
 | [HAMILTONIAN_AUDIT_20260918.md](HAMILTONIAN_AUDIT_20260918.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) |
-| [HANDOUT.md](HANDOUT.md) | — |
 | [HASHIMOTO_COMPLEX_SHIFTS.md](HASHIMOTO_COMPLEX_SHIFTS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [HERMITE_CORE_STRICHARTZ.md](HERMITE_CORE_STRICHARTZ.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
 | [HERMITE_GALERKIN_FRIEDRICHS.md](HERMITE_GALERKIN_FRIEDRICHS.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -173,7 +171,7 @@
 | [newproof.md](newproof.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [Issues.md](Issues.md), [PLAN_LEAN_SPECIALIST_COHERENT.md](PLAN_LEAN_SPECIALIST_COHERENT.md), [RandomMap.md](RandomMap.md), [RandomMap_old.md](RandomMap_old.md) |
 | [pcnl.md](pcnl.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md) |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | — |
-| [softmodes.md](softmodes.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [HANDOUT.md](HANDOUT.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [cftproof.md](cftproof.md), [pcnl.md](pcnl.md) |
+| [softmodes.md](softmodes.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [PLAN_REUSE_MAP.md](PLAN_REUSE_MAP.md), [cftproof.md](cftproof.md), [pcnl.md](pcnl.md) |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | [AGENTS.md](AGENTS.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [FORMALIZATION_ROADMAP.md](FORMALIZATION_ROADMAP.md) |
 | [unfer_contracts/MASS_GAP_SPEC.md](unfer_contracts/MASS_GAP_SPEC.md) | [AGENTS.md](AGENTS.md), [BOOKPROOF_SPLIT_PLAN.md](BOOKPROOF_SPLIT_PLAN.md), [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md), [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md), [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) |
 | [unfer_contracts/sirk_core_model/README.md](unfer_contracts/sirk_core_model/README.md) | [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) |
@@ -427,17 +425,6 @@
 - ## 9. Why these are the intended Hamiltonians, and how they sit on the nested space
 - # symbolic (Cadabra2 2.5.14, via the ../unfer nix flake)
 - # arithmetic (no dependencies)
-
-### HANDOUT — paused work on the flow of `H` (multiplier model) (`HANDOUT.md`)
-
-- # HANDOUT — paused work on the flow of `H` (multiplier model)
-- ## 1. Snapshot
-- ## 2. What is already done (commit `0018f95`, pushed)
-- ## 3. The two paused tasks
-- ## 4. Pitfalls that cost time last round
-- ## 5. The mass-gap question (asked, answered in prose, not formalized)
-- ## 6. The Lean corpus bundle
-- ## 7. Files touched by this pause
 
 ### Complex (non-real) shifts and many shifts in the shift-invert theory (`HASHIMOTO_COMPLEX_SHIFTS.md`)
 
@@ -1021,7 +1008,7 @@
 - ## Integrating the generated model (Lean 4 specialist)
 
 
-## Never linked (12)
+## Never linked (11)
 
 - CFT_REVIEW.md
 - CHANGELOG.md
@@ -1029,7 +1016,6 @@
 - EXPPOT.md
 - FEDERATION_DEEP_REVIEW.md
 - GPU_FEDERATION_PLAN.md
-- HANDOUT.md
 - PLAN_REUSE_MAP.md
 - SPECIALIST_PLAN_MERGE.md
 - bkPrompts.md
