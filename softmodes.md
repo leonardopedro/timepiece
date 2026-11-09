@@ -537,25 +537,86 @@ What the closure itself is known to satisfy (`ChapterYangMillsGaussForm`):
 * `gaussOp_closure_le_adjoint` — it is contained in the adjoint, `gaussOp.closure ≤ gaussOp†`: the
   adjoint is a closed extension and the closure is the smallest one.
 
-**The one statement left, and why it is out of reach here.**  Self-adjointness of the closure is
-`gaussOp.closure = gaussOp†`: given the containment above, it is exactly the *reverse* containment
-`gaussOp† ≤ gaussOp.closure`, i.e. every element of the adjoint's domain already lies in the
-closure's graph.  Equivalent forms: `HasCore gaussOp† gaussCore` (the core is a core for the
-**adjoint**), or “`gaussOp†` is symmetric”.  This is the essential-self-adjointness theorem for
-`−Δ + x·∇` in `L²(γ dx)`, and it is genuine analysis rather than bookkeeping:
+**`gaussOp` is bounded below in the form sense** (`gaussOp_inner_self_eq`, `gaussOp_quadForm_nonneg`):
+`⟪f, gaussOp f⟫ = gaussForm (gaussCoreRep f) (gaussCoreRep f) ≥ 0` for every `f` in the core, because
+the operator identity at `g = f` plus the measure translation `∫ · d(γ dx) = ∫ γ · dx` exhibit the
+quadratic form as the Dirichlet form, whose integrand is a density times a square
+(`gaussForm_self_nonneg`).  Together with `gaussOp_inner_comm` this is exactly the `SymmetricOn` +
+`0 ≤ quadForm` pair that the Friedrichs construction consumes.
 
-* the ODE route needs the deficiency spaces of `−f'' + x f' = ±i f` (a second-order ODE with
-  decaying solutions — no ODE existence/uniqueness theory of this kind is set up here);
-* the elliptic route needs weak derivatives and `H¹(γ)`/`H²(γ)` regularity, and mathlib has **no**
-  weak-derivative or distribution API, so there is no way to state “`T†h = g` weakly implies
-  `h ∈ H²`”;
-* the form route (Friedrichs) produces *some* self-adjoint extension, not the *closure*, unless one
-  first knows the form is closable and its operator is `gaussOp.closure`;
-* the analytic-vector/Hermite route would need a self-adjointness theorem for the oscillator.  The
-  corpus' `Toolbox/ChapterHermiteFunctions.lean` has Hermite polynomials, the ODE and the inner
-  products, but no Hilbert basis of Hermite functions and no oscillator spectral theorem, and
-  mathlib's `LinearPMap` adjoint API has no closure/symmetry or deficiency-index lemmas at all
-  (`adjoint_adjoint`, `closure_adjoint` do not exist).
+### Open problem: essential self-adjointness of `−Δ + x·∇` in `L²(γ dx)`
+
+**The statement.**  `gaussOp.adjoint ≤ gaussOp.closure` — equivalently, every pair `(h, g)` with
+`h ∈ D(gaussOp†)` and `g = gaussOp† h` lies in the closure of the graph of `gaussOp`; equivalently
+`HasCore gaussOp† gaussCore` (the `C²` core is a core for the **adjoint** as well as for
+`gaussOp.closure`); equivalently `gaussOp.closure.IsSelfAdjoint`, i.e.
+`gaussOp.closure = gaussOp†`.  What is *proved* is one half: `gaussOp.closure ≤ gaussOp†`
+(`gaussOp_closure_le_adjoint`).  The missing half is the classical theorem “`−Δ + x·∇` is essentially
+self-adjoint on `C_c^∞` in `L²(γ dx)`”.
+
+Nothing in the repo or in mathlib currently reaches it, and each of the three standard routes is
+blocked by a specific missing API.  Recording them precisely, since the gap is one theorem and three
+plausible proofs:
+
+**Route A — deficiency indices (the classical route; Weidmann, *Linear Operators in Hilbert
+Spaces*, §3.3).**  Complexify (`L²(γ) ⊗ ℂ`), take `T = −Δ + x·∇` with domain `C_c^∞`, and show
+`ker(T† − z) = 0` for `z = ±i`.  Concretely, `f ∈ ker(T† − z)` solves, in the weak sense and then
+classically (the coefficients are smooth, so distributional solutions are classical),
+
+    −f'' + x f' = z f,     z = ± i,
+
+and essential self-adjointness is the assertion that the only `L²(γ dx)` solution is `0`.  The
+standard reduction: substitute `f = γ^{-1/2} u`, i.e. `u = γ^{1/2} f = e^{-x²/4} f`; then `u ∈ L²(dx)`
+and the equation becomes the Hermite-type equation
+
+    −u'' + (x²/4) u = (1/2 + z) u,
+
+whose solutions for `Im z ≠ 0` behave like `exp(∓x²/4)` at `±∞` — one decaying, one growing, so each
+end admits a one-dimensional space of `L²` solutions, and both deficiency indices vanish once one
+checks that no solution is square-integrable at *both* ends (equivalently `Im z ≠ 0` forces
+`Im(z ‖f‖²) = 0` from the integration-by-parts identity for `⟪T†f, f⟫`).  *What is missing to
+formalize:* the analytic theory of second-order ODEs with a complex parameter (existence,
+uniqueness, asymptotics of the two fundamental solutions), which mathlib does not have at all —
+`Mathlib/Analysis/ODE` is only the basic `IsPicardLindelof`/`IsIntegralCurve` layer.
+
+**Route B — elliptic regularity.**  `h ∈ D(gaussOp†)` means `∫ γ h · (−Δφ + x·∇φ) = ∫ γ g φ` for all
+test `φ ∈ C_c^∞`: the weak form of `−Δh + x·∇h = g`.  Elliptic regularity gives `h ∈ H²_loc` with the
+local estimate `‖h‖²_{H²(K)} ≤ C_K(‖h‖² + ‖g‖²)`, and then a cut-off plus mollification shows
+`h` is a graph-norm limit of `C_c^∞` functions, which is exactly
+`gaussOp.adjoint ≤ gaussOp.closure`.  *What is missing to formalize:* weak derivatives, `H¹`/`H²`,
+`L²`-mollification and the interior `H²` estimate.  Mathlib has **no** weak-derivative or
+distribution API, so the hypothesis “`T†h = g` weakly” cannot even be stated; this route is furthest
+away.
+
+**Route C — analytic vectors (Nelson's theorem, the route the corpus is closest to).**  In `L²(γ dx)`
+the Hermite polynomials are eigenfunctions of `T`: with `A = U T U^{-1} = −∂² + x²/4 − 1/2` under
+`U = ` multiplication by `γ^{1/2}` (the conjugation `U ∂ U^{-1} = ∂ + x/2` is
+`ChapterYangMillsMehlerBridge.conj_deriv`), the eigenfunctions `H_n(x/√2)` of `A` with eigenvalue `n`
+correspond to the polynomials `H_n(x/√2)` in `L²(γ dx)`, and the eigen-relation is exactly the
+Hermite ODE `−H_n'' + x H_n' = 2n H_n` (`ChapterHermiteFunctions.hermiteR_ode`).  Polynomials are
+dense in `L²(γ dx)` and they are analytic vectors for `T` (`Σ t^n ‖T^n p‖/n! < ∞` since
+`T^n p` is a polynomial of degree `n`), so `T` is essentially self-adjoint by
+Nelson's analytic-vector theorem.  *What is missing to formalize:* (i) the eigen-relation as a lemma
+about `gaussDirichlet` on `fun x => hermiteR n (x / Real.sqrt 2)` (a clean computation from
+`hermiteR_ode`, feasible); (ii) density of polynomials in `L²(γ dx)` (a `Lp`-density argument, similar
+in shape to `dense_gaussCore`); (iii) **Nelson's theorem itself** — mathlib has no analytic-vector or
+semigroup-generated self-adjointness theory.  This is the route with the least analysis and the most
+bookkeeping, but (iii) is unavoidable.
+
+**Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
+no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)
+speaks about a complex Hilbert space, which is why the missing ℂ lift of `gaussOp` (below) and this
+open problem are the same piece of work.
+
+**Why the ℂ lift is not just bookkeeping either.**  Mathlib has no complexification of real Hilbert
+spaces (`Complexification` does not exist in this version) and no bundled `Lp.re`/`Lp.im` maps, only
+the function-level `MeasureTheory.memLp_re_im_iff`.  So `Lp ℂ 2 gaussMeasure` cannot be reached from
+`gaussOp` by transport: a ℂ-valued `gaussDirichlet`, ℂ `MemLp` of its image, ℂ-linear well-definedness
+and ℂ inner-product symmetry must be built directly.  The derivative decomposition needed is
+`(deriv f x).re = deriv (fun y => (f y).re) x` (from `Complex.reCLM.comp_hasDerivAt`), and the ℂ
+symmetry then splits into four applications of the real symmetry `integral_gaussDirichlet_mul_comm`;
+the ℂ integrals must be split with `integral`-`re`/`im` lemmas and integrability side conditions.
+Estimated at 250–350 lines, all of it mechanical, none of it existing yet.
 
 Item 2 is discharged at the `Lp` level and item 3 is discharged.
 

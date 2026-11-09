@@ -772,6 +772,46 @@ regularity in `H¹(γ)`), whereas mathlib has no weak-derivative, `H¹(γ)` or d
 the corpus' Hermite chapter stops at the Hermite polynomials and their ODE — it has no Hilbert-basis
 or oscillator spectral theorem to lean on.  See the S0 entry of `softmodes.md`. -/
 
+/-! ### The quadratic form of `gaussOp` on the core
+
+`⟪f, gaussOp f⟫` *is* the Gaussian Dirichlet form of the representative, so the operator is bounded
+below by `0` in the form sense — the positivity hypothesis of the Friedrichs construction.  This is
+the same measure translation as `gaussOp_inner_comm`, with `g = f`; the only extra input is
+`gaussForm f f = ∫ γ · T f · f` (the operator identity read at `g = f`). -/
+
+/-- **The diagonal of the operator's quadratic form is the Gaussian Dirichlet form.** -/
+theorem gaussOp_inner_self_eq (f : gaussCore) :
+    ⟪(f : Lp ℝ 2 gaussMeasure), gaussOp f⟫ = gaussForm (gaussCoreRep f) (gaussCoreRep f) := by
+  have hf := gaussCoreRep_spec f
+  have hmemf := memLp_gaussDirichlet hf.1 hf.2.1
+  have hform : gaussForm (gaussCoreRep f) (gaussCoreRep f)
+      = ∫ x, gaussWeight x * gaussDirichlet (gaussCoreRep f) x * gaussCoreRep f x :=
+    gaussForm_eq_integral_gaussDirichlet hf.1 hf.2.1 (hf.1.of_le (by norm_num))
+  calc ⟪(f : Lp ℝ 2 gaussMeasure), gaussOp f⟫
+      = ∫ x, ⟪⇑(f : Lp ℝ 2 gaussMeasure) x,
+          ⇑(MemLp.toLp (gaussDirichlet (gaussCoreRep f)) hmemf) x⟫ ∂gaussMeasure := by
+        rw [gaussOp_apply, gaussOpFun_eq_toLp (f := f) (F := gaussCoreRep f) hf.1 hf.2.1 hf.2.2,
+          L2.inner_def]
+    _ = ∫ x, gaussWeight x * ⟪⇑(f : Lp ℝ 2 gaussMeasure) x,
+          ⇑(MemLp.toLp (gaussDirichlet (gaussCoreRep f)) hmemf) x⟫ :=
+        integral_gaussMeasure_eq_integral_gaussWeight _
+    _ = ∫ x, gaussWeight x * gaussCoreRep f x * gaussDirichlet (gaussCoreRep f) x := by
+        refine integral_congr_ae ?_
+        filter_upwards [absolutelyContinuous_volume_gaussMeasure.ae_eq hf.2.2,
+          absolutelyContinuous_volume_gaussMeasure.ae_eq (MemLp.coeFn_toLp hmemf)] with x hx hy
+        rw [hx, hy, RCLike.inner_apply', RCLike.conj_to_real]
+        ring
+    _ = gaussForm (gaussCoreRep f) (gaussCoreRep f) := by
+        rw [hform]
+        exact integral_congr_ae (Filter.Eventually.of_forall fun x => by ring)
+
+/-- **`gaussOp` is bounded below by `0` in the form sense.**  The quadratic form on the core is
+nonnegative, so the Friedrichs positivity hypothesis holds on the `C²`-compactly-supported core. -/
+theorem gaussOp_quadForm_nonneg (f : gaussCore) :
+    0 ≤ ⟪(f : Lp ℝ 2 gaussMeasure), gaussOp f⟫ := by
+  rw [gaussOp_inner_self_eq]
+  exact gaussForm_self_nonneg (gaussCoreRep f)
+
 /-- The closure of a closable operator is closed. -/
 theorem gaussOp_closure_isClosed : gaussOp.closure.IsClosed :=
   gaussOp_isClosable.closure_isClosed
