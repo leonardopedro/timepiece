@@ -61,9 +61,10 @@ The background is constant (one plane-wave matter mode, collective gauge coordin
 `[D_j, D_l]` sees only the non-abelian part of `F` — the `∂_j A_l − ∂_l A_j` term vanishes
 because the field is constant by construction (the full `F = ∂A − ∂A + [A,A]` is the
 magnetic energy `B^G`/`B^W`/`B^B` of `ChapterSmHamiltonian`).  No dynamics of the gauge
-field and no continuum limit of `D` is claimed here.  (The curl/continuum half is reachable
-by the momentum-space convolution already used for NS and QG — `fourier_mul_eq_convolution`
-/ `fourier_advection_convolution` — not a QYM device, only for proofs of this type.)
+field and no continuum limit of `D` is claimed here. The SM record retains its stated
+independent jet coordinates; the NS/QG spatial-derivative convolution elimination does not
+redefine it. The full operator-valued connection and spatial Dirac derivative require the
+common-core assembly and estimates in `SM_ESA_COMPLETION_PLAN.md` P0–P4.
 
 Everything is `sorry`-free and `axiom`-free.
 -/

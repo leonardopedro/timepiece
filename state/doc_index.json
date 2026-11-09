@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-08T22:57:43+00:00",
+ "generated_at": "2026-11-09T02:51:38+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -153,7 +153,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 19024,
+   "lines": 19299,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -594,7 +594,7 @@
   {
    "path": "HONEST_BOUNDARIES_SM.md",
    "title": "The Standard-Model honest boundaries: what is now a Lean theorem, and what is not",
-   "lines": 316,
+   "lines": 338,
    "headings": [
     "# The Standard-Model honest boundaries: what is now a Lean theorem, and what is not",
     "## §L. Still open, and explicitly not claimed",
@@ -1146,6 +1146,23 @@
    ]
   },
   {
+   "path": "SM_ESA_COMPLETION_PLAN.md",
+   "title": "Full Standard-Model ESA: completion plan and implementation audit",
+   "lines": 622,
+   "headings": [
+    "# Full Standard-Model ESA: completion plan and implementation audit",
+    "## 1. Fix the mathematical endpoint before proving it",
+    "## 2. Reuse inventory: exact source scope",
+    "## 3. Preferred analytic route: a comparison controlling the whole operator",
+    "## 4. Proof packets for the LLM-Lean4-specialist",
+    "## 5. `unfer` findings and required corrections",
+    "## 6. Order, deliverables and completion gate",
+    "## 7. Validation record for this planning wave",
+    "## 8. Executed continuation — ordered joint action (2026-11-09b)",
+    "## 9. Full numerical E1 assembly and joint rational integration (2026-11-09c)"
+   ]
+  },
+  {
    "path": "SPECIALIST_PLAN_MERGE.md",
    "title": "Specialist Plan — Aristotle Merge Verification + Pauli–Grover (§11)",
    "lines": 155,
@@ -1563,7 +1580,7 @@
   {
    "path": "softmodes.md",
    "title": "Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
-   "lines": 1887,
+   "lines": 1968,
    "headings": [
     "# Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
     "## Revised work package (2026-11-08)",
@@ -1898,6 +1915,10 @@
   },
   {
    "source": "CONSOLIDATED_PLAN.md",
+   "target": "SM_ESA_COMPLETION_PLAN.md"
+  },
+  {
+   "source": "CONSOLIDATED_PLAN.md",
    "target": "SPECIALIST_PLAN_REMAINING.md"
   },
   {
@@ -2054,6 +2075,10 @@
   },
   {
    "source": "CURRENT_WORK_ORDER.md",
+   "target": "SM_ESA_COMPLETION_PLAN.md"
+  },
+  {
+   "source": "CURRENT_WORK_ORDER.md",
    "target": "SPECIALIST_PLAN_REMAINING.md"
   },
   {
@@ -2147,6 +2172,10 @@
   {
    "source": "HONEST_BOUNDARIES_SM.md",
    "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "HONEST_BOUNDARIES_SM.md",
+   "target": "SM_ESA_COMPLETION_PLAN.md"
   },
   {
    "source": "IMPLEMENTATION_PLAN_RCP.md",
@@ -2339,6 +2368,18 @@
   {
    "source": "RandomMap_old.md",
    "target": "newproof.md"
+  },
+  {
+   "source": "SM_ESA_COMPLETION_PLAN.md",
+   "target": "CONSOLIDATED_PLAN.md"
+  },
+  {
+   "source": "SM_ESA_COMPLETION_PLAN.md",
+   "target": "HONEST_BOUNDARIES_SM.md"
+  },
+  {
+   "source": "SM_ESA_COMPLETION_PLAN.md",
+   "target": "softmodes.md"
   },
   {
    "source": "SPECIALIST_PLAN_MERGE.md",
