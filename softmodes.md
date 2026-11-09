@@ -472,13 +472,35 @@ item 1 of the acceptance list at the form level, deliberately below any domain c
   core: `⟨−Δf + x·∇f, g⟩_{L²(γ)} = ⟨f, −Δg + x·∇g⟩_{L²(γ)}`.  It is form symmetry read through the
   operator identity in both orders, and it is the hypothesis a closability argument consumes —
   symmetry of the operator, not only of the form.
+* **The operator lives on `L²(γ dx)` classes, not just on functions.**  A closure argument needs
+  three things from the core, and all three are now proved:
+  `isOpenPosMeasure_gaussMeasure` (the density is strictly positive, so `gaussMeasure` is positive
+  on nonempty opens — `AbsolutelyContinuous.isOpenPosMeasure` applied to
+  `absolutelyContinuous_volume_gaussMeasure`); `eq_of_ae_eq_gaussMeasure` (a continuous function
+  that is zero `γ`-a.e. *is* zero, i.e. `Measure.eq_of_ae_eq` plus that open-positivity, so "zero
+  a.e." becomes "zero on a dense set"); and `gaussDirichlet_eq_zero_of_ae_eq_zero`, which is the
+  well-definedness statement `T` needs — the operator kills a.e.-zero functions, so its value does
+  not depend on the representative chosen.  On the image side, `hasCompactSupport_gaussDirichlet`
+  (both summands are supported in `supp f' ∪ supp f''`) and `memLp_gaussDirichlet` put the core
+  inside `L²(γ dx)`: multiplying by `γ^{1/2}` swaps the weighted norm for the Lebesgue norm
+  (`memLp_gaussRoot_mul`), and `γ^{1/2}·gaussDirichlet f` is continuous with compact support, hence
+  square-integrable against `volume`.
 
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
 
-**What item 1 still needs.** Two gaps, neither closed by the above:
+**What item 1 still needs.** Three gaps, none closed by the above:
 
-1. *Closability proper.*  `LinearPMap.IsClosable` and `LinearPMap.closure` exist in mathlib, but the
+0. *The operator as a `LinearPMap`.*  The definition is now possible — a representative can be
+   chosen (`Classical.choose` of the `C²`-compactly-supported witness) and the image is independent
+   of that choice by `gaussDirichlet_eq_zero_of_ae_eq_zero` — but the `LinearMap` bookkeeping across
+   chosen representatives (`MemLp.coeFn_toLp` plus the a.e.-congruence lemma for additivity and
+   homogeneity) is unwritten.
+1. *Closability proper.*  The route is short once `T` is a `LinearPMap`: `T.adjoint_isClosed` makes
+   `T†` closable and `LinearPMap.IsClosable.leIsClosable` carries that to `T` as soon as `T ≤ T†`,
+   i.e. as soon as the symmetry is read as `⟪T x, y⟫ = ⟪x, T y⟫`.  That bookkeeping on `toLp`
+   images (`inner_def`, integrability of the products) is what is missing — not the mathematics of
+   closability, which mathlib has.  `LinearPMap.IsClosable` and `LinearPMap.closure` exist in mathlib, but the
    domain would have to be a subspace of `L²(γ dx)` on which `−Δ + x·∇` is well defined as a class
    — i.e. weak derivatives and `H¹(γ)`, for which mathlib has no API.  The `Lp` chapter gives the
    transport (`mehlerLpEquiv`) that would carry a domain across, not a domain.

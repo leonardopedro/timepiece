@@ -27,25 +27,44 @@ domain.  That item has three separable parts; the first and the operator half of
   `⟨−Δf + x·∇f, g⟩_{L²(γ)} = ⟨f, −Δg + x·∇g⟩_{L²(γ)}`.  It is the form symmetry read through the
   operator identity in both orders, and it is what a closability argument actually consumes —
   symmetry of the *operator*, not only of the quadratic form.
+* **The operator is defined on `L²(γ dx)` classes, not just on functions** — the three facts a
+  closure argument needs from the core:
+  `isOpenPosMeasure_gaussMeasure` (the density is strictly positive, so "zero a.e." implies "zero on
+  a dense set"), `eq_of_ae_eq_gaussMeasure` (a continuous function that is zero `γ`-a.e. *is* zero:
+  `Measure.eq_of_ae_eq` plus that open-positivity), `gaussDirichlet_eq_zero_of_ae_eq_zero` (so `T`
+  is well defined on classes, not on representatives), `hasCompactSupport_gaussDirichlet` and
+  `memLp_gaussDirichlet` (so `T` maps the core into `L²(γ dx)`; the proof multiplies by `γ^{1/2}`,
+  uses `memLp_gaussRoot_mul` to swap the weighted norm for the Lebesgue one, and closes with
+  square-integrability of a continuous compactly supported function against `volume`).
 
 **Not done here, and the shape of what is left.**
 
-1. *Closability proper.*  This needs the graph norm and the identification of the form domain with
-   `H¹(γ)`; mathlib has `LinearPMap.IsClosable` and `LinearPMap.closure`, but no weak-derivative or
-   Sobolev-space API, so the domain is not available as a `LinearPMap` domain yet.
-2. *Density.*  `C_c^∞` is dense in `L²(γ dx)`; mathlib has the `volume` version
-   (`MeasureTheory.MemLp` + `ContDiff.dense`-style results) but not the density-weighted transport,
-   though `ChapterYangMillsMehlerLp.absolutelyContinuous_volume_gaussMeasure` is the piece that
-   makes the transport routine.
+1. *The operator as a `LinearPMap`.*  `memLp_gaussDirichlet` and
+   `gaussDirichlet_eq_zero_of_ae_eq_zero` are what make the definition possible (a representative of
+   a class may be chosen, and the image does not depend on it), but the `LinearMap` bookkeeping on
+   the core submodule — additivity and homogeneity of `T` across chosen representatives, via
+   `MemLp.coeFn_toLp` and the a.e.-congruence lemma — is not written yet.
+2. *Closability proper.*  Once `T` is a `LinearPMap`, the *route* is short: a symmetric operator
+   contained in its adjoint is closable, because `T.adjoint_isClosed` makes the adjoint closable
+   and `LinearPMap.IsClosable.leIsClosable` transfers that to `T ≤ T†`.
+   `integral_gaussDirichlet_mul_comm` supplies the symmetry; what is missing is the pairing
+   bookkeeping that turns the integral form of the symmetry into `⟪T x, y⟫ = ⟪x, T y⟫` in
+   `L²(γ dx)` (it needs both directions of `inner_def` on `toLp` images).
+3. *Density.*  `C_c^∞` is dense in `L²(γ dx)`; mathlib has the `volume` version
+   (`MeasureTheory.MemLp.exists_hasCompactSupport_eLpNorm_sub_le` for `C_c`, and
+   `MeasureTheory.Lp.boundedContinuousFunction_dense`) but not the density-weighted transport,
+   though `ChapterYangMillsMehlerLp.mehlerLpEquiv` is an isometry between the two spaces and would
+   carry a
+   `volume`-density statement across.  Smoothing `C_c` to `C_c^∞` is the remaining gap.
 
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so nothing here is coordinate-count specific.
 -/
-import BookProof.Qym.ChapterYangMillsMehlerBridge
+import BookProof.Qym.ChapterYangMillsMehlerLp
 
 namespace BookProof.YangMillsGaussForm
 
-open BookProof.YangMillsMehlerBridge MeasureTheory
+open BookProof.YangMillsMehlerBridge BookProof.YangMillsMehlerLp MeasureTheory
 
 noncomputable section
 
@@ -193,6 +212,71 @@ theorem integral_gaussDirichlet_mul_comm {f g : ℝ → ℝ} (hf : ContDiff ℝ 
     _ = ∫ x, gaussWeight x * f x * gaussDirichlet g x := by
         refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
         ring
+
+/-! ## The operator on classes
+
+The form-level statements above are about *functions*.  The operator that a closure argument acts on
+lives on `L²(γ dx)` *classes*, so two more things are needed, and both are here: the operator sends
+the compactly supported `C²` core into `L²(γ dx)`, and it kills functions that vanish a.e., so it
+descends to classes without choosing a representative. -/
+
+/-- **`gaussMeasure` is positive on nonempty open sets.**  The density `γ^{1/2}²` is strictly
+positive, and `volume ≪ gaussMeasure` (`absolutelyContinuous_volume_gaussMeasure`) already puts the
+measure in `IsOpenPosMeasure` — that is what turns "zero a.e." into "zero on a dense set". -/
+instance isOpenPosMeasure_gaussMeasure : Measure.IsOpenPosMeasure gaussMeasure :=
+  Measure.AbsolutelyContinuous.isOpenPosMeasure absolutelyContinuous_volume_gaussMeasure
+
+/-- **A continuous function that is zero `γ`-a.e. is zero.**  `{x | f x = 0}` is closed, so its
+complement is an open null set, and `gaussMeasure` is positive on nonempty opens. -/
+theorem eq_of_ae_eq_gaussMeasure {f g : ℝ → ℝ} (h : f =ᵐ[gaussMeasure] g) (hf : Continuous f)
+    (hg : Continuous g) : f = g :=
+  Measure.eq_of_ae_eq h hf hg
+
+/-- **The operator vanishes on a.e.-zero functions**, so it is well defined on `L²(γ dx)` classes:
+if a core function is zero `γ`-a.e. it is zero, and hence so are its derivatives and `gaussDirichlet
+f`.  Without this, `T` would depend on the chosen representative of a class. -/
+theorem gaussDirichlet_eq_zero_of_ae_eq_zero {f : ℝ → ℝ} (hf : Continuous f)
+    (h : f =ᵐ[gaussMeasure] 0) : gaussDirichlet f = 0 := by
+  have hz : f = 0 := eq_of_ae_eq_gaussMeasure h hf continuous_const
+  subst hz
+  funext x
+  simp [gaussDirichlet]
+
+/-- **`gaussDirichlet` preserves compact support.**  Both summands are supported in `supp f'` and
+`supp f''`, so the operator never spreads a core function past the support of its second derivative.
+This is what keeps `γ^{1/2}·gaussDirichlet f` compactly supported, and hence in `L²(dx)`. -/
+theorem hasCompactSupport_gaussDirichlet {f : ℝ → ℝ} (hf : HasCompactSupport f) :
+    HasCompactSupport (gaussDirichlet f) := by
+  have h2 : HasCompactSupport (fun x => -(deriv (fun y => deriv f y) x)) :=
+    (HasCompactSupport.deriv (HasCompactSupport.deriv hf)).neg
+  have h1 : HasCompactSupport (fun x => x * deriv f x) :=
+    (HasCompactSupport.deriv hf).mul_left (f := fun x : ℝ => x)
+  have hsum := h2.add h1
+  simpa only [gaussDirichlet, Pi.add_apply] using hsum
+
+/-- **The operator maps the core into `L²(γ dx)`.**  Multiplying by `γ^{1/2}` turns the `γ`-norm
+into the `volume`-norm (`memLp_gaussRoot_mul`), and `γ^{1/2}·gaussDirichlet f` is continuous with
+compact support, hence square-integrable against Lebesgue measure. -/
+theorem memLp_gaussDirichlet {f : ℝ → ℝ} (hf : ContDiff ℝ 2 f) (hfc : HasCompactSupport f) :
+    MemLp (gaussDirichlet f) 2 gaussMeasure := by
+  have hcont : Continuous (gaussDirichlet f) := by
+    have hd2 : Continuous (fun x => deriv (fun y => deriv f y) x) :=
+      (hf.deriv' : ContDiff ℝ 1 (deriv f)).continuous_deriv (le_refl 1)
+    have hd1 : Continuous (deriv f) :=
+      hf.continuous_deriv (by norm_num)
+    exact (hd2.neg.add (continuous_id.mul hd1))
+  have hgauss : Continuous gaussRoot :=
+    continuous_iff_continuousAt.2 fun x => (hasDerivAt_gaussRoot x).continuousAt
+  have hprod : Continuous (fun x => gaussRoot x * gaussDirichlet f x) := hgauss.mul hcont
+  have hcs : HasCompactSupport (fun x => gaussRoot x * gaussDirichlet f x) :=
+    (hasCompactSupport_gaussDirichlet hfc).mul_left (f := gaussRoot)
+  have hcsSq : HasCompactSupport (fun x => (gaussRoot x * gaussDirichlet f x) ^ 2) := by
+    have h := hcs.mul_left (f := fun x => gaussRoot x * gaussDirichlet f x)
+    simpa only [Pi.mul_apply, pow_two] using h
+  have hsq : Integrable (fun x => (gaussRoot x * gaussDirichlet f x) ^ 2) (volume : Measure ℝ) :=
+    (hprod.pow 2).integrable_of_hasCompactSupport hcsSq
+  rw [← memLp_gaussRoot_mul hcont.measurable]
+  exact (memLp_two_iff_integrable_sq hprod.aestronglyMeasurable).2 hsq
 
 end
 
