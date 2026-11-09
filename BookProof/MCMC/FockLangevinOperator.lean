@@ -121,16 +121,40 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   `{N ≤ N₀ + 1}`; `polyDrift_form_bound_sector`, `driftOperator_form_bound_sector` and
   **`pcnlDrift_semibounded_sector`** are §11–§13 with that constant in place of the hypothesis;
   and **`polyMul_X_unbounded`** shows the global form is unattainable — `xⱼ` raises the
-  occupation, so `polyMul (X j) eₙ` grows like `√n`.
+  occupation, so `polyMul (X j) eₙ` grows like `√n`;
+* **§15, the Metropolis rejection filter `K_reject`** — `rejectOp` (multiplication of the
+  occupation-`n` coefficient by an acceptance probability, hence `rejectOp_apply`,
+  `rejectOp_single` and `rejectOp_comp`: a diagonal damping, not a hopping matrix), the
+  Metropolis probability `metropolisReject ΔV = min 1 (exp(−ΔV))` with
+  `metropolisReject_nonneg`/`metropolisReject_le_one`, the filter's band and size
+  (`rejectOp_band`: band `0`, so `{N ≤ N₀} ↦ {N ≤ N₀}`; `coreNormSq_rejectOp_le`,
+  `coreNorm_rejectOp_le`: a contraction for `0 ≤ ρ ≤ 1`), its form (`corePair_rejectOp`,
+  **`re_corePair_rejectOp_nonneg`**: the filter only adds to `Re ⟪c, K_reject c⟫`), and the
+  assembled step **`pcnlFull` = `N + K_drift + K_reject`** with **`pcnlFull_band`** (band `K`,
+  the drift's — rejection contributes none) and **`pcnlFull_semibounded_sector`** /
+  **`pcnlFull_metropolis_semibounded`** (the KLMN bound survives, with the Metropolis
+  probability discharging the positivity hypothesis);
+* **§16, the sector constant as a coefficient bound** — `coeffMass` (the `ℓ¹` mass of a
+  polynomial's coefficients) with `polyMulSectorBound_eq_coeffMass`, its algebra
+  (`coeffMass_monomial`, `coeffMass_add_le`, `coeffMass_finset_sum_le`), the automatic
+  coefficient bound **`coeffMass_pderiv_le`** (`coeffMass (∂ⱼΦ) ≤ deg Φ · coeffMass Φ`, via
+  `totalDegree_pderiv_le`) and **`gradCoeffBound_totalDegree_mul_coeffMass`** (`GradCoeffBound`
+  holds for every `Φ`), and the comparison with the architecture:
+  `gradSectorBound_le_of_gradCoeffBound`, `driftScale_gradSectorBound_le` and
+  **`driftScale_gradSectorBound_le_eps`** — `GradCoeffBound Φ (2K/ε)` gives
+  `B ≤ β²σ²K/ε` times the level factor `d·(2√(N+2+deg Φ))^{deg Φ}`, so the architecture's
+  `ε⁻¹` is the drift constant's `ε⁻¹`; `driftScale_gradSectorBound_le_coeffMass` is the
+  unconditional case `K = deg Φ · coeffMass Φ`.
 
 ## Honest boundary
 
 What is proved is the *band structure* — the combinatorial content of "the drift is a
 finite-band hopping matrix" — together with the size of the hopping amplitudes, the Hermite
 expansion of an arbitrary polynomial potential as a finite family of ladder words (§9.4), and
-the `ε`-regularized relative form bound on the core (§11).  Of the plan's Module 3 inputs one is
-still **not** proved: the Metropolis step `K_reject`.  The rejection filter is not a finite-band
-operator at all — it is a multiplication operator — so nothing here says anything about it.
+the `ε`-regularized relative form bound on the core (§11).  The plan's Module 3 inputs are now
+covered: the drift band and its size (§9.6–§9.9), the form bound and semiboundedness (§11–§13)
+without the unattainable global `hgrad` (§14), the Metropolis step `K_reject` (§15) and the
+coefficient-level comparison with the architecture's `M_ε = 2K/ε` (§16).
 
 The relative form bound is stated in §5 (`DriftFormBound`, the plan's constant `B²d/(2δ) + Bd`),
 proved in the Fock model in §6, and **proved on the core in §11**.  The inputs it needed are all
@@ -152,11 +176,23 @@ drift, and the `ε`-dependence is isolated in `B = (β²σ²/2)M_ε` with `M_ε 
 bound that identification needs is §14: §12's `hgrad` — "multiplication by `∂ⱼΦ` is bounded by a
 constant `M` on the whole core" — cannot hold (`polyMul_X_unbounded`), but on every sector it
 does, with the explicit constant `gradSectorBound Φ N`, and §11–§13 then need no hypothesis at all
-on a truncated sector (`pcnlDrift_semibounded_sector`).  What is still missing is the
-*coefficient-level* comparison of that sector constant with the architecture's weight-space
-`M_ε = 2K/ε` (`BayesianTransformer.epsProj_fderiv_le`) — the two bounds live in different models,
-so relating them is a bound on the coefficients of `∂ⱼΦ_ε`, not on operators — and the Metropolis
-filter `K_reject`.
+on a truncated sector (`pcnlDrift_semibounded_sector`).  §16 supplies the *coefficient-level*
+comparison of that sector constant with the architecture's weight-space `M_ε = 2K/ε`
+(`BayesianTransformer.epsProj_fderiv_le`): the two bounds live in different models, so the link is
+a bound on the coefficients of `∂ⱼΦ_ε`, and `coeffMass_pderiv_le` makes it automatic — every
+polynomial satisfies `GradCoeffBound Φ (deg Φ · coeffMass Φ)`, and with the architecture's `2K/ε`
+the drift constant is `β²σ²K/ε` (§16.3).  What remains outside the formalization is the *reading*
+of the architecture's weight-space gradient as this coefficient data: `epsProj_fderiv_le` bounds
+`‖∇(g ∘ Ŵ)‖` on the weight space, and identifying that bound with `GradCoeffBound Φ_ε (2K/ε)`
+requires the coefficient map `Φ_ε ↩→ (coefficients of ∂ⱼΦ_ε)`, not a further operator estimate.
+
+§15 closes the other open input: `K_reject` is a multiplication operator, so it has band `0`
+(`rejectOp_band`), it is a contraction for a Metropolis acceptance probability
+(`coreNorm_rejectOp_le`), and its form is nonnegative (`re_corePair_rejectOp_nonneg`) — which is
+why `pcnlFull_band` and `pcnlFull_semibounded_sector` are the drift's statements unchanged.  The
+one thing §15 does **not** show is that iterating `pcnlFull` converges to the pCNL invariant
+measure: the filter here is a single-step damping on the core, not the transition kernel's
+ergodicity.
 -/
 
 noncomputable section
@@ -3893,5 +3929,477 @@ theorem polyMul_X_unbounded (j : Fin d) (M : ℝ) :
   rw [← hsqrt] at hMlt
   exact lt_of_lt_of_le hMlt hbound
 
+/-! ## 15. The Metropolis rejection filter `K_reject`
+
+Plan `pcnl.md` §2.2 writes the pCNL step as `P₀ + K_drift + K_reject`, and §14 settled the middle
+term.  This section supplies the third.  The filter is **not** a hopping operator — it multiplies
+the occupation-`n` coefficient by an acceptance probability `ρ n` — so its band is `0` and it acts
+as a diagonal damping.  The two facts the step actually needs are that the band is the drift's
+(`pcnlFull_band`: `N₀ ↦ N₀ + K`, unaffected by the filter) and that the KLMN lower bound survives
+(`pcnlFull_semibounded_sector`: the filter's contribution to the form is nonnegative).
+-/
+
+/-! ### 15.1 The filter as a diagonal multiplication -/
+
+/-- The rejection filter: multiply the coefficient at occupation `n` by the acceptance
+probability `ρ n`, leaving every other coefficient alone.  This is `K_reject` of the plan. -/
+def rejectOp (ρ : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) : CoreCoeff d :=
+  c.sum fun n a => Finsupp.single n (((ρ n : ℝ) : ℂ) * a)
+
+theorem rejectOp_apply (ρ : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) (n : Fin d → ℕ) :
+    rejectOp ρ c n = ((ρ n : ℝ) : ℂ) * c n := by
+  classical
+  rw [rejectOp, Finsupp.sum_apply, Finsupp.sum]
+  simp only [Finsupp.single_apply]
+  rw [Finset.sum_ite_eq']
+  by_cases hn : n ∈ c.support
+  · simp [hn]
+  · rw [if_neg hn, Finsupp.notMem_support_iff.mp hn, mul_zero]
+
+/-- The filter is diagonal: on a basis vector it only rescales the coefficient, so it never moves
+the occupation. -/
+theorem rejectOp_single (ρ : (Fin d → ℕ) → ℝ) (n : Fin d → ℕ) (a : ℂ) :
+    rejectOp ρ (Finsupp.single n a) = Finsupp.single n (((ρ n : ℝ) : ℂ) * a) := by
+  classical
+  rw [rejectOp, Finsupp.sum_single_index]
+  simp
+
+/-- Acceptance probability `1` everywhere is the identity filter. -/
+theorem rejectOp_one (c : CoreCoeff d) : rejectOp (fun _ => 1) c = c := by
+  refine Finsupp.ext fun n => ?_
+  rw [rejectOp_apply]
+  simp
+
+/-- Two filters compose to the product filter — the diagonal structure that makes the rejection
+step a multiplication operator rather than a hopping one. -/
+theorem rejectOp_comp (ρ ρ' : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) :
+    rejectOp ρ (rejectOp ρ' c) = rejectOp (fun n => ρ n * ρ' n) c := by
+  refine Finsupp.ext fun n => ?_
+  rw [rejectOp_apply, rejectOp_apply, rejectOp_apply, ← mul_assoc, ← Complex.ofReal_mul]
+
+/-! ### 15.2 The acceptance probability -/
+
+/-- The Metropolis acceptance probability of a move whose potential energy changes by `ΔV`:
+`min 1 (exp(−ΔV))`.  This is the `ρ` of the rejection filter. -/
+def metropolisReject (ΔV : (Fin d → ℕ) → ℝ) : (Fin d → ℕ) → ℝ :=
+  fun n => min 1 (Real.exp (-(ΔV n)))
+
+theorem metropolisReject_nonneg (ΔV : (Fin d → ℕ) → ℝ) (n : Fin d → ℕ) :
+    0 ≤ metropolisReject ΔV n :=
+  le_min zero_le_one (Real.exp_pos _).le
+
+theorem metropolisReject_le_one (ΔV : (Fin d → ℕ) → ℝ) (n : Fin d → ℕ) :
+    metropolisReject ΔV n ≤ 1 :=
+  min_le_left _ _
+
+/-! ### 15.3 The band and the size of the filter -/
+
+/-- The filter never enlarges the support of a state. -/
+theorem mem_support_rejectOp {ρ : (Fin d → ℕ) → ℝ} {c : CoreCoeff d} {m : Fin d → ℕ}
+    (hm : m ∈ (rejectOp ρ c).support) : m ∈ c.support := by
+  rw [Finsupp.mem_support_iff] at hm ⊢
+  intro hc
+  rw [rejectOp_apply, hc, mul_zero] at hm
+  exact hm rfl
+
+/-- **The filter has band `0`**: it maps the sector `{N ≤ N₀}` into itself. -/
+theorem rejectOp_band {ρ : (Fin d → ℕ) → ℝ} (c : CoreCoeff d) {N : ℕ}
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) {m : Fin d → ℕ}
+    (hm : m ∈ (rejectOp ρ c).support) : natDeg m ≤ N :=
+  hc m (mem_support_rejectOp hm)
+
+/-- The `ℓ²` mass of a filtered state, as an explicit sum over the original support. -/
+theorem coreNormSq_rejectOp (ρ : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) :
+    coreNormSq (rejectOp ρ c) = ∑ n ∈ c.support, (ρ n) ^ 2 * ‖c n‖ ^ 2 := by
+  classical
+  rw [← sum_sq_subset (c := rejectOp ρ c) (s := c.support) fun x hx => mem_support_rejectOp hx]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [rejectOp_apply, norm_mul, Complex.norm_real, Real.norm_eq_abs, mul_pow, sq_abs]
+
+/-- **A filter with `0 ≤ ρ ≤ 1` is a contraction** in the core `ℓ²` norm — the stability the
+pCNL step needs from its rejection half. -/
+theorem coreNormSq_rejectOp_le {ρ : (Fin d → ℕ) → ℝ} (h0 : ∀ n, 0 ≤ ρ n)
+    (h1 : ∀ n, ρ n ≤ 1) (c : CoreCoeff d) : coreNormSq (rejectOp ρ c) ≤ coreNormSq c := by
+  rw [coreNormSq_rejectOp, coreNormSq]
+  refine Finset.sum_le_sum fun n _ => ?_
+  have hsq : (ρ n) ^ 2 ≤ 1 := by nlinarith [h0 n, h1 n]
+  calc (ρ n) ^ 2 * ‖c n‖ ^ 2 ≤ 1 * ‖c n‖ ^ 2 :=
+        mul_le_mul_of_nonneg_right hsq (by positivity)
+    _ = ‖c n‖ ^ 2 := one_mul _
+
+theorem coreNorm_rejectOp_le {ρ : (Fin d → ℕ) → ℝ} (h0 : ∀ n, 0 ≤ ρ n)
+    (h1 : ∀ n, ρ n ≤ 1) (c : CoreCoeff d) : coreNorm (rejectOp ρ c) ≤ coreNorm c := by
+  calc coreNorm (rejectOp ρ c) = Real.sqrt (coreNormSq (rejectOp ρ c)) := rfl
+    _ ≤ Real.sqrt (coreNormSq c) := Real.sqrt_le_sqrt (coreNormSq_rejectOp_le h0 h1 c)
+    _ = coreNorm c := rfl
+
+/-! ### 15.4 The filter's contribution to the form -/
+
+/-- The pairing of a state with its own filtered image is the `ρ`-weighted mass. -/
+theorem corePair_rejectOp (ρ : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) :
+    corePair c (rejectOp ρ c) = ∑ n ∈ c.support, (((ρ n * ‖c n‖ ^ 2 : ℝ)) : ℂ) := by
+  classical
+  rw [corePair_eq_sum (c' := rejectOp ρ c) (s := c.support) Finset.Subset.rfl
+    fun x hx => mem_support_rejectOp hx]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [rejectOp_apply]
+  have hz : c n * star (c n) = ((‖c n‖ ^ 2 : ℝ) : ℂ) := by
+    rw [Complex.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq]
+  have hcast : star (((ρ n : ℝ) : ℂ)) = ((ρ n : ℝ) : ℂ) := by
+    rw [Complex.star_def, Complex.conj_ofReal]
+  rw [star_mul, hcast, ← mul_assoc, hz, ← Complex.ofReal_mul, mul_comm (‖c n‖ ^ 2) (ρ n)]
+
+/-- **The filter only adds to the form.**  With a nonnegative acceptance probability,
+`0 ≤ Re ⟪c, K_reject c⟫`, which is why it cannot spoil §13's lower bound. -/
+theorem re_corePair_rejectOp_nonneg {ρ : (Fin d → ℕ) → ℝ} (h0 : ∀ n, 0 ≤ ρ n)
+    (c : CoreCoeff d) : 0 ≤ (corePair c (rejectOp ρ c)).re := by
+  rw [corePair_rejectOp, Complex.re_sum]
+  refine Finset.sum_nonneg fun n _ => ?_
+  rw [Complex.ofReal_re]
+  exact mul_nonneg (h0 n) (by positivity)
+
+/-! ### 15.5 The full pCNL step -/
+
+/-- The whole step `P₀ + K_drift + K_reject` on the core: the number operator, the polynomial
+drift of §12, and the rejection filter. -/
+def pcnlFull (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) (ρ : (Fin d → ℕ) → ℝ)
+    (c : CoreCoeff d) : CoreCoeff d :=
+  numberOp c + driftOperator β σ Φ c + rejectOp ρ c
+
+/-- **The full step is finite-band.**  Rejection contributes band `0`, so one step maps the sector
+`{N ≤ N₀}` into `{N ≤ N₀ + K}` when the potential has degree `≤ K`: the band is the drift's. -/
+theorem pcnlFull_band {K : ℕ} {Φ : MvPolynomial (Fin d) ℂ} (hK : Φ.totalDegree ≤ K)
+    (β σ : ℝ) (ρ : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) {N : ℕ}
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) {m : Fin d → ℕ}
+    (hm : m ∈ (pcnlFull β σ Φ ρ c).support) : natDeg m ≤ N + K := by
+  classical
+  rw [pcnlFull] at hm
+  rcases Finset.mem_union.mp (Finsupp.support_add hm) with h | h
+  · rcases Finset.mem_union.mp (Finsupp.support_add h) with h1 | h2
+    · exact le_trans (hc m (mem_support_numberOp h1)) (Nat.le_add_right N K)
+    · rw [driftOperator] at h2
+      exact polyDrift_band hK c hc (mem_support_smul h2)
+  · exact le_trans (rejectOp_band c hc h) (Nat.le_add_right N K)
+
+/-- **The KLMN lower bound for the full step.**  §14's sector semiboundedness
+(`pcnlDrift_semibounded_sector`) plus §15.4's positivity: the filter only shifts the form up. -/
+theorem pcnlFull_semibounded_sector (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ}
+    {ρ : (Fin d → ℕ) → ℝ} {N : ℕ} (hρ0 : ∀ n, 0 ≤ ρ n)
+    (δ : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤ 1) (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    -((driftScale β σ (gradSectorBound Φ N) ^ 2 * (d : ℝ) / (2 * δ)
+        + driftScale β σ (gradSectorBound Φ N) * (d : ℝ))) * coreNormSq c
+      ≤ (corePair c (pcnlFull β σ Φ ρ c)).re := by
+  have hbase := pcnlDrift_semibounded_sector β σ (Φ := Φ) (N := N) δ hδ hδ1 c hc
+  have hpos := re_corePair_rejectOp_nonneg hρ0 c
+  rw [pcnlFull, corePair_add, Complex.add_re]
+  linarith
+
+/-- **The pCNL step with the Metropolis filter is semibounded with no hypothesis.**
+`ρ = metropolisReject ΔV` discharges §15.5's positivity condition outright: acceptance
+probabilities are nonnegative by construction. -/
+theorem pcnlFull_metropolis_semibounded (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ}
+    (ΔV : (Fin d → ℕ) → ℝ) {N : ℕ} (δ : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤ 1)
+    (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    -((driftScale β σ (gradSectorBound Φ N) ^ 2 * (d : ℝ) / (2 * δ)
+        + driftScale β σ (gradSectorBound Φ N) * (d : ℝ))) * coreNormSq c
+      ≤ (corePair c (pcnlFull β σ Φ (metropolisReject ΔV) c)).re :=
+  pcnlFull_semibounded_sector β σ (metropolisReject_nonneg ΔV) δ hδ hδ1 c hc
+
+/-- **The Metropolis filter is a contraction** on the core, so the step's rejection half costs
+nothing when iterated. -/
+theorem coreNorm_pcnlFull_reject_le (ΔV : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) :
+    coreNorm (rejectOp (metropolisReject ΔV) c) ≤ coreNorm c :=
+  coreNorm_rejectOp_le (metropolisReject_nonneg ΔV) (metropolisReject_le_one ΔV) c
+
+/-! ## 16. The sector constant is a coefficient bound
+
+§14 replaced the unattainable global `hgrad` by the sector constant `gradSectorBound Φ N`.  What
+that constant has to be compared with is the architecture's weight-space bound `M_ε = 2K/ε`
+(`BayesianTransformer.epsProj_fderiv_le`); the two live in different models, so the comparison is
+a statement about **coefficients**.  `coeffMass (∂ⱼΦ)` is the `ℓ¹` mass of the derivative's
+coefficients and `GradCoeffBound Φ M` says every one of them is at most `M`.  §16.1 computes the
+sector constant in those terms, §16.2 shows the coefficient bound is automatic
+(`M = deg Φ · coeffMass Φ`), and §16.3 carries it through §14's constant into §12's `B`, giving
+`B ≤ β²σ²K/ε` times the explicit level factor: the `ε⁻¹` of the architecture's Theorem 1, with the
+truncation level entering only polynomially.
+-/
+
+/-! ### 16.1 The coefficient mass -/
+
+/-- The `ℓ¹` mass of a polynomial's coefficients. -/
+def coeffMass (Φ : MvPolynomial (Fin d) ℂ) : ℝ :=
+  ∑ m ∈ Φ.support, ‖MvPolynomial.coeff m Φ‖
+
+theorem coeffMass_nonneg (Φ : MvPolynomial (Fin d) ℂ) : 0 ≤ coeffMass Φ :=
+  Finset.sum_nonneg fun _ _ => norm_nonneg _
+
+/-- §14's `polyMulSectorBound` is the coefficient mass times the level factor — the constant is a
+coefficient quantity already, this reads it as one. -/
+theorem polyMulSectorBound_eq_coeffMass (Φ : MvPolynomial (Fin d) ℂ) (M : ℕ) :
+    polyMulSectorBound Φ M
+      = coeffMass Φ * (2 * Real.sqrt ((M : ℝ) + 1)) ^ Φ.totalDegree := by
+  rw [polyMulSectorBound, coeffMass, Finset.sum_mul]
+
+theorem polyMulSectorBound_mono (Φ : MvPolynomial (Fin d) ℂ) {M M' : ℕ} (h : M ≤ M') :
+    polyMulSectorBound Φ M ≤ polyMulSectorBound Φ M' := by
+  rw [polyMulSectorBound_eq_coeffMass, polyMulSectorBound_eq_coeffMass]
+  refine mul_le_mul_of_nonneg_left ?_ (coeffMass_nonneg Φ)
+  have hR : (M : ℝ) ≤ (M' : ℝ) := by exact_mod_cast h
+  have h2 : Real.sqrt ((M : ℝ) + 1) ≤ Real.sqrt ((M' : ℝ) + 1) := by
+    refine Real.sqrt_le_sqrt ?_
+    linarith
+  exact pow_le_pow_left₀ (by positivity) (by linarith) _
+
+/-- A monomial's coefficient mass is the size of its coefficient. -/
+theorem coeffMass_monomial (m : Fin d →₀ ℕ) (a : ℂ) :
+    coeffMass (MvPolynomial.monomial m a) = ‖a‖ := by
+  classical
+  rw [coeffMass]
+  by_cases ha : a = 0
+  · simp [ha]
+  · rw [MvPolynomial.support_monomial, if_neg ha, Finset.sum_singleton]
+    simp
+
+/-- The mass over any finset of exponents is at most the mass of the support. -/
+theorem sum_norm_coeff_le (Φ : MvPolynomial (Fin d) ℂ) (s : Finset (Fin d →₀ ℕ)) :
+    ∑ m ∈ s, ‖MvPolynomial.coeff m Φ‖ ≤ coeffMass Φ := by
+  classical
+  rw [coeffMass]
+  refine (Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_union_left :
+    s ⊆ s ∪ Φ.support) (fun _ _ _ => norm_nonneg _)).trans_eq ?_
+  refine (Finset.sum_subset (Finset.subset_union_right :
+    Φ.support ⊆ s ∪ Φ.support) ?_).symm
+  intro x hx hxΦ
+  have hzero : MvPolynomial.coeff x Φ = 0 := by
+    by_contra h
+    exact hxΦ (MvPolynomial.mem_support_iff.mpr h)
+  rw [hzero, norm_zero]
+
+theorem coeffMass_add_le (Φ Ψ : MvPolynomial (Fin d) ℂ) :
+    coeffMass (Φ + Ψ) ≤ coeffMass Φ + coeffMass Ψ := by
+  classical
+  have h1 : (∑ m ∈ (Φ + Ψ).support, ‖MvPolynomial.coeff m (Φ + Ψ)‖)
+      ≤ ∑ m ∈ (Φ + Ψ).support,
+          (‖MvPolynomial.coeff m Φ‖ + ‖MvPolynomial.coeff m Ψ‖) :=
+    Finset.sum_le_sum fun m _ => by
+      rw [MvPolynomial.coeff_add]
+      exact norm_add_le _ _
+  have h2 : (∑ m ∈ (Φ + Ψ).support,
+        (‖MvPolynomial.coeff m Φ‖ + ‖MvPolynomial.coeff m Ψ‖))
+      ≤ coeffMass Φ + coeffMass Ψ := by
+    rw [Finset.sum_add_distrib]
+    refine add_le_add ?_ ?_
+    · exact sum_norm_coeff_le Φ _
+    · exact sum_norm_coeff_le Ψ _
+  rw [coeffMass]
+  exact h1.trans h2
+
+theorem coeffMass_finset_sum_le {ι : Type*} (s : Finset ι)
+    (g : ι → MvPolynomial (Fin d) ℂ) :
+    coeffMass (∑ i ∈ s, g i) ≤ ∑ i ∈ s, coeffMass (g i) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp [coeffMass]
+  | insert a s ha ih =>
+    rw [Finset.sum_insert ha, Finset.sum_insert ha]
+    exact (coeffMass_add_le _ _).trans (add_le_add (le_refl _) ih)
+
+/-! ### 16.2 A derivative's coefficient mass: the bound is automatic -/
+
+/-- The coefficient form of the architecture's gradient bound: every coefficient of `∂ⱼΦ` is at
+most `M`, uniformly in `j`.  This is the hypothesis `M_ε = 2K/ε` reads as. -/
+def GradCoeffBound (Φ : MvPolynomial (Fin d) ℂ) (M : ℝ) : Prop :=
+  ∀ j : Fin d, coeffMass (MvPolynomial.pderiv j Φ) ≤ M
+
+/-- One exponent is at most the total degree of its monomial. -/
+theorem apply_le_finsupp_sum (m : Fin d →₀ ℕ) (j : Fin d) :
+    m j ≤ m.sum (fun _ e => e) := by
+  classical
+  rw [Finsupp.sum]
+  by_cases h : m j = 0
+  · simp [h]
+  · refine Finset.single_le_sum (f := fun a => m a) (fun _ _ => Nat.zero_le _) ?_
+    rw [Finsupp.mem_support_iff]
+    exact h
+
+theorem totalDegree_finset_sum_le {ι : Type*} (s : Finset ι)
+    (g : ι → MvPolynomial (Fin d) ℂ) {K : ℕ} (hg : ∀ i ∈ s, (g i).totalDegree ≤ K) :
+    (∑ i ∈ s, g i).totalDegree ≤ K := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp
+  | insert a s ha ih =>
+    rw [Finset.sum_insert ha]
+    refine (MvPolynomial.totalDegree_add _ _).trans ?_
+    rw [max_le_iff]
+    exact ⟨hg a (Finset.mem_insert_self a s),
+      ih fun i hi => hg i (Finset.mem_insert_of_mem hi)⟩
+
+theorem sum_sub_single_le (m : Fin d →₀ ℕ) (j : Fin d) :
+    ((m - Finsupp.single j 1).sum fun _ e => e) ≤ m.sum fun _ e => e := by
+  classical
+  have hpt : ∀ a ∈ (m - Finsupp.single j 1).support,
+      ((m - Finsupp.single j 1 : Fin d →₀ ℕ) a) ≤ m a := by
+    intro a _
+    rw [Finsupp.tsub_apply]
+    exact tsub_le_self
+  calc (m - Finsupp.single j 1).sum (fun _ e => e)
+      = ∑ a ∈ (m - Finsupp.single j 1).support,
+          ((m - Finsupp.single j 1 : Fin d →₀ ℕ) a) := rfl
+    _ ≤ ∑ a ∈ (m - Finsupp.single j 1).support, m a := Finset.sum_le_sum hpt
+    _ ≤ ∑ a ∈ m.support, m a :=
+        Finset.sum_le_sum_of_subset_of_nonneg Finsupp.support_tsub
+          (fun _ _ _ => Nat.zero_le _)
+    _ = m.sum (fun _ e => e) := rfl
+
+/-- Differentiation does not raise the total degree. -/
+theorem totalDegree_pderiv_le (j : Fin d) (Φ : MvPolynomial (Fin d) ℂ) :
+    (MvPolynomial.pderiv j Φ).totalDegree ≤ Φ.totalDegree := by
+  classical
+  have hmono : ∀ m ∈ Φ.support,
+      (MvPolynomial.pderiv j (MvPolynomial.monomial m (MvPolynomial.coeff m Φ))).totalDegree
+        ≤ Φ.totalDegree := by
+    intro m hm
+    rw [MvPolynomial.pderiv_monomial]
+    refine (MvPolynomial.totalDegree_monomial_le _ _).trans ?_
+    exact (sum_sub_single_le m j).trans (MvPolynomial.le_totalDegree hm)
+  have hexp : MvPolynomial.pderiv j Φ
+      = ∑ m ∈ Φ.support,
+          MvPolynomial.pderiv j (MvPolynomial.monomial m (MvPolynomial.coeff m Φ)) := by
+    conv_lhs => rw [MvPolynomial.as_sum Φ]
+    simp only [map_sum]
+  rw [hexp]
+  exact totalDegree_finset_sum_le _ _ hmono
+
+/-- **The derivative's coefficient mass is bounded by the degree times the mass.**  This is the
+coefficient-level content of a Lipschitz gradient: differentiating multiplies each coefficient by
+its exponent, and no exponent exceeds the degree. -/
+theorem coeffMass_pderiv_le (j : Fin d) (Φ : MvPolynomial (Fin d) ℂ) :
+    coeffMass (MvPolynomial.pderiv j Φ) ≤ (Φ.totalDegree : ℝ) * coeffMass Φ := by
+  classical
+  have hexp : MvPolynomial.pderiv j Φ
+      = ∑ m ∈ Φ.support,
+          MvPolynomial.monomial (m - Finsupp.single j 1)
+            (MvPolynomial.coeff m Φ * (m j : ℂ)) := by
+    conv_lhs => rw [MvPolynomial.as_sum Φ]
+    simp only [map_sum, MvPolynomial.pderiv_monomial]
+  rw [hexp]
+  have hstep : ∀ m ∈ Φ.support,
+      coeffMass (MvPolynomial.monomial (m - Finsupp.single j 1)
+        (MvPolynomial.coeff m Φ * (m j : ℂ))) = ‖MvPolynomial.coeff m Φ‖ * (m j : ℝ) := by
+    intro m _
+    rw [coeffMass_monomial, norm_mul, Complex.norm_natCast]
+  refine (coeffMass_finset_sum_le _ _).trans ?_
+  rw [Finset.sum_congr rfl hstep]
+  calc ∑ m ∈ Φ.support, ‖MvPolynomial.coeff m Φ‖ * (m j : ℝ)
+      ≤ ∑ m ∈ Φ.support, ‖MvPolynomial.coeff m Φ‖ * (Φ.totalDegree : ℝ) := by
+        refine Finset.sum_le_sum fun m hm => ?_
+        refine mul_le_mul_of_nonneg_left ?_ (norm_nonneg _)
+        have h1 : m j ≤ Φ.totalDegree :=
+          (apply_le_finsupp_sum m j).trans (MvPolynomial.le_totalDegree hm)
+        exact_mod_cast h1
+    _ = (Φ.totalDegree : ℝ) * coeffMass Φ := by
+        rw [coeffMass, Finset.mul_sum]
+        exact Finset.sum_congr rfl fun m _ => by ring
+
+/-- **The coefficient bound is automatic.**  Every polynomial satisfies `GradCoeffBound` with
+`M = deg Φ · coeffMass Φ`, so §16.3 applies with no hypothesis on `Φ`. -/
+theorem gradCoeffBound_totalDegree_mul_coeffMass (Φ : MvPolynomial (Fin d) ℂ) :
+    GradCoeffBound Φ ((Φ.totalDegree : ℝ) * coeffMass Φ) :=
+  fun j => coeffMass_pderiv_le j Φ
+
+/-! ### 16.3 The comparison with the architecture's `M_ε = 2K/ε` -/
+
+/-- §14's sector constant, in coefficient terms: `d` derivative masses, each at most `M`, times
+the level factor `(2√(N + 2 + deg Φ))^{deg Φ}`. -/
+theorem gradSectorBound_le_of_gradCoeffBound {Φ : MvPolynomial (Fin d) ℂ} {M : ℝ}
+    (hM : 0 ≤ M) (h : GradCoeffBound Φ M) (N : ℕ) :
+    gradSectorBound Φ N
+      ≤ (d : ℝ) * M * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree := by
+  classical
+  have hterm : ∀ j : Fin d, polyMulSectorBound (MvPolynomial.pderiv j Φ)
+        (N + 1 + (MvPolynomial.pderiv j Φ).totalDegree)
+      ≤ M * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree := by
+    intro j
+    have hdeg := totalDegree_pderiv_le j Φ
+    have hd : ((MvPolynomial.pderiv j Φ).totalDegree : ℝ) ≤ (Φ.totalDegree : ℝ) := by
+      exact_mod_cast hdeg
+    have hbase : 2 * Real.sqrt ((↑(N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) : ℝ) + 1)
+        ≤ 2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ)) := by
+      have harg : ((↑(N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) : ℝ) + 1)
+          ≤ (N : ℝ) + 2 + (Φ.totalDegree : ℝ) := by
+        push_cast
+        linarith
+      have := Real.sqrt_le_sqrt harg
+      linarith
+    have hone : (1 : ℝ)
+        ≤ 2 * Real.sqrt ((↑(N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) : ℝ) + 1) := by
+      have h1 : (1 : ℝ)
+          ≤ Real.sqrt ((↑(N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) : ℝ) + 1) := by
+        refine Real.one_le_sqrt.mpr ?_
+        push_cast
+        have : (0 : ℝ) ≤ (N : ℝ) := Nat.cast_nonneg N
+        linarith
+      linarith
+    rw [polyMulSectorBound_eq_coeffMass]
+    refine mul_le_mul (h j) ?_ (by positivity) hM
+    calc (2 * Real.sqrt ((↑(N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) : ℝ) + 1))
+          ^ (MvPolynomial.pderiv j Φ).totalDegree
+        ≤ (2 * Real.sqrt ((↑(N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) : ℝ) + 1))
+            ^ Φ.totalDegree := pow_le_pow_right₀ hone hdeg
+      _ ≤ (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree :=
+          pow_le_pow_left₀ (by positivity) hbase _
+  calc gradSectorBound Φ N
+      = ∑ j : Fin d, polyMulSectorBound (MvPolynomial.pderiv j Φ)
+          (N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) := rfl
+    _ ≤ ∑ _j : Fin d, M * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree :=
+        Finset.sum_le_sum fun j _ => hterm j
+    _ = (d : ℝ) * M * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree := by
+        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+        ring
+
+/-- **The drift constant is `(β²σ²/2)` times the coefficient bound.**  A coefficient-level
+gradient bound `GradCoeffBound Φ M` turns §14's sector constant `gradSectorBound Φ N` into §12's
+`B = (β²σ²/2)·M`, up to the explicit level factor `d·(2√(N+2+deg Φ))^{deg Φ}`. -/
+theorem driftScale_gradSectorBound_le (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {M : ℝ}
+    (hM : 0 ≤ M) (h : GradCoeffBound Φ M) (N : ℕ) :
+    driftScale β σ (gradSectorBound Φ N)
+      ≤ β ^ 2 * σ ^ 2 / 2 * M
+        * ((d : ℝ) * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree) := by
+  have hb := gradSectorBound_le_of_gradCoeffBound hM h N
+  have hw : 0 ≤ β ^ 2 * σ ^ 2 / 2 := by positivity
+  rw [driftScale, driftWeight]
+  calc β ^ 2 * σ ^ 2 / 2 * gradSectorBound Φ N
+      ≤ β ^ 2 * σ ^ 2 / 2 * ((d : ℝ) * M
+          * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree) :=
+        mul_le_mul_of_nonneg_left hb hw
+    _ = β ^ 2 * σ ^ 2 / 2 * M
+          * ((d : ℝ) * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree) := by
+        ring
+
+/-- **The `ε`-scaling, read on the sector.**  With the architecture's gradient bound in
+coefficient form, `GradCoeffBound Φ (2K/ε)`, §12's drift constant `B` is at most `β²σ²K/ε` times
+the explicit level factor.  So the `ε⁻¹` of the architecture's Theorem 1 is exactly the `ε⁻¹` of
+the drift's constant, with the truncation level entering as a separate polynomial factor. -/
+theorem driftScale_gradSectorBound_le_eps (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {K ε : ℝ}
+    (hK : 0 ≤ K) (hε : 0 < ε) (h : GradCoeffBound Φ (2 * K / ε)) (N : ℕ) :
+    driftScale β σ (gradSectorBound Φ N)
+      ≤ β ^ 2 * σ ^ 2 * K / ε
+        * ((d : ℝ) * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree) := by
+  have hM : 0 ≤ 2 * K / ε := by positivity
+  have hstep := driftScale_gradSectorBound_le β σ hM h N
+  refine hstep.trans (le_of_eq ?_)
+  field_simp
+
+/-- The drift constant with no hypothesis on `Φ` at all: the coefficient bound is
+`M = deg Φ · (coefficient mass)`, which every polynomial satisfies. -/
+theorem driftScale_gradSectorBound_le_coeffMass (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) (N : ℕ) :
+    driftScale β σ (gradSectorBound Φ N)
+      ≤ β ^ 2 * σ ^ 2 / 2 * ((Φ.totalDegree : ℝ) * coeffMass Φ)
+        * ((d : ℝ) * (2 * Real.sqrt ((N : ℝ) + 2 + (Φ.totalDegree : ℝ))) ^ Φ.totalDegree) :=
+  driftScale_gradSectorBound_le β σ
+    (mul_nonneg (Nat.cast_nonneg _) (coeffMass_nonneg Φ))
+    (gradCoeffBound_totalDegree_mul_coeffMass Φ) N
 
 end BookProof.MCMC.FockLangevin

@@ -772,9 +772,25 @@ additive normalization: `BayesianTransformer.epsProj_fderiv_le` proves `‖∇(g
 §14: a non-constant potential is *not* a bounded multiplier on the core (`polyMul_X_unbounded`:
 `xⱼ` raises the occupation, so `polyMul (X j) eₙ` grows like `√n`), but on the sector `{N ≤ N₀}`
 it is one, with the explicit constant `gradSectorBound Φ N₀`, and §11–§13 then hold with no
-hypothesis at all on each truncated sector (`pcnlDrift_semibounded_sector`).  What remains outside
-the formalization is the coefficient-level comparison of that sector constant with
-`M_ε = 2K/ε`.)*
+hypothesis at all on each truncated sector (`pcnlDrift_semibounded_sector`).  The coefficient-level
+comparison of that sector constant with `M_ε = 2K/ε` is §16 — see below.)*
+
+*(§15–§16, 2026-11-09: the two inputs this section still listed are now theorems.*  §15 models
+`K_reject` as `rejectOp ρ`, the multiplication of the occupation-`n` coefficient by an acceptance
+probability: `rejectOp_apply`, `rejectOp_single`, `rejectOp_comp` say it is diagonal,
+`rejectOp_band` gives it band `0`, `coreNorm_rejectOp_le` makes it a contraction for a Metropolis
+probability `ρ = min 1 (exp(−ΔV))` (`metropolisReject_nonneg`, `metropolisReject_le_one`), and
+**`re_corePair_rejectOp_nonneg`** shows `0 ≤ Re ⟪c, K_reject c⟫`.  The assembled step
+**`pcnlFull` = `N + K_drift + K_reject`** therefore inherits §14's statements: `pcnlFull_band`
+(band `K`, the drift's) and `pcnlFull_semibounded_sector`, with
+`pcnlFull_metropolis_semibounded` discharging the positivity hypothesis by construction.  §16
+makes the comparison a coefficient statement: `coeffMass` is the `ℓ¹` mass of a polynomial's
+coefficients, `coeffMass_pderiv_le` proves `coeffMass (∂ⱼΦ) ≤ deg Φ · coeffMass Φ` (so
+`GradCoeffBound` holds for *every* `Φ`, `gradCoeffBound_totalDegree_mul_coeffMass`), and
+**`driftScale_gradSectorBound_le_eps`** turns `GradCoeffBound Φ_ε (2K/ε)` into
+`B ≤ β²σ²K/ε · d·(2√(N+2+deg Φ))^{deg Φ}`: the architecture's `ε⁻¹` is the drift constant's
+`ε⁻¹`, with the truncation level entering only polynomially
+(`driftScale_gradSectorBound_le_coeffMass` is the hypothesis-free case).)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
@@ -1066,9 +1082,13 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   does hold on every sector with the explicit constant `gradSectorBound Φ N`
   (`polyMul_norm_sector_le`, `pderiv_norm_sector_le`), and `polyDrift_form_bound_sector`,
   `driftOperator_form_bound_sector` and `pcnlDrift_semibounded_sector` are §11–§13 with that
-  constant in place of the hypothesis.  Outside the model only `K_reject` remains (a
-  multiplication operator, not finite-band), together with the coefficient-level comparison of
-  `gradSectorBound Φ_ε` with the weight-space `M_ε`.
+  constant in place of the hypothesis.  **§15 supplies `K_reject`** (`rejectOp`, a diagonal
+  multiplication by the Metropolis acceptance probability: band `0` by `rejectOp_band`, a
+  contraction by `coreNorm_rejectOp_le`, and nonnegative in the form by
+  `re_corePair_rejectOp_nonneg`, so `pcnlFull` keeps §14's band and lower bound), and **§16 the
+  comparison** of `gradSectorBound Φ_ε` with the weight-space `M_ε`: `coeffMass_pderiv_le` gives
+  the coefficient bound for every potential, and `driftScale_gradSectorBound_le_eps` reads
+  `GradCoeffBound Φ_ε (2K/ε)` as `B ≤ β²σ²K/ε` times the level factor `d·(2√(N+2+deg Φ))^{deg Φ}`.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the
@@ -1137,12 +1157,20 @@ normalization `Ŵ = W/(‖W‖ + ε)`, and `driftScale_eps_arch` reads it as the
 `B = β²σ²K/ε`.  The core-side counterpart is §14: the multiplier is *not* bounded on the whole
 core (`polyMul_X_unbounded`), but it is bounded on every sector with the explicit constant
 `gradSectorBound Φ N`, which is the form §11–§13's estimates take there
-(`pcnlDrift_semibounded_sector`).  What is *not* in Lean is the comparison of that sector constant
-with the weight-space `M_ε` — the two live in different models —
-and the Metropolis filter
-`K_reject` — the last is a multiplication operator and is not finite-band at all, so nothing in
-`FockLangevinOperator` describes it.  The pCNL operator's own gap therefore remains a hypothesis
-of the Module 4–5 bound, as §2 anticipates; and no total-variation bound is derived — §3.B's
+(`pcnlDrift_semibounded_sector`).  The comparison of that sector constant with the weight-space
+`M_ε` is §16: `coeffMass_pderiv_le` bounds the coefficient mass of `∂ⱼΦ_ε` by `deg Φ` times
+`coeffMass Φ`, so `GradCoeffBound` is automatic, and `driftScale_gradSectorBound_le_eps` reads it as
+`B ≤ β²σ²K/ε` times the level factor — the `ε⁻¹` matches the architecture's `2K/ε`.  The
+Metropolis filter `K_reject` is §15: a multiplication operator, so band `0` (`rejectOp_band`), a
+contraction (`coreNorm_rejectOp_le`), and nonnegative in the form
+(`re_corePair_rejectOp_nonneg`), which is why `pcnlFull_band` and `pcnlFull_semibounded_sector`
+are §14's statements unchanged.  What is *not* in Lean is the *reading* of the architecture's
+weight-space gradient as this coefficient data — `epsProj_fderiv_le` bounds `‖∇(g ∘ Ŵ)‖` on the
+weight space, and matching it to `GradCoeffBound Φ_ε (2K/ε)` needs the coefficient map, not a
+further operator estimate — nor any statement that iterating `pcnlFull` converges to the
+invariant measure (the filter is modelled as a one-step damping on the core, not as an ergodic
+kernel).  The pCNL operator's own gap therefore remains a hypothesis of the Module 4–5 bound, as §2
+anticipates; and no total-variation bound is derived — §3.B's
 Born-to-variation step `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` is stated as the boundary in
 `GeometricErgodicity`'s docstring.
 

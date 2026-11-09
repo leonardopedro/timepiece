@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-08h):** **§14 of “State of the project — 2026-11-08b”**, at the very
+> **Newest entry (2026-11-09a):** **§15 of “State of the project — 2026-11-08b”**, at the very
+> end of this file — `FockLangevinOperator` §15–§16 close the two inputs §14 still listed: the
+> Metropolis filter `K_reject` is `rejectOp ρ`, a *diagonal* multiplication by the acceptance
+> probability `min 1 (exp(−ΔV))` (band `0` by `rejectOp_band`, contraction by `coreNorm_rejectOp_le`,
+> nonnegative in the form by `re_corePair_rejectOp_nonneg`), so the assembled step
+> `pcnlFull = N + K_drift + K_reject` keeps §14's band and lower bound; and the coefficient-level
+> comparison with the architecture's `M_ε = 2K/ε` is a theorem — `coeffMass_pderiv_le` gives the
+> coefficient bound for *every* potential, and `driftScale_gradSectorBound_le_eps` reads
+> `GradCoeffBound Φ_ε (2K/ε)` as `B ≤ β²σ²K/ε` times the level factor `d·(2√(N+2+deg Φ))^{deg Φ}`.
+> **Earlier newest entry (2026-11-08h):** **§14 of “State of the project — 2026-11-08b”**, at the very
 > end of this file — `FockLangevinOperator` §14 shows the gradient bound `hgrad` of §12–§13 is a
 > *sector* statement: it cannot hold globally (`polyMul_X_unbounded`, since `xⱼ` raises the
 > occupation), it holds on `{N ≤ N₀}` with the explicit constant `gradSectorBound Φ N₀`
@@ -18958,3 +18967,60 @@ new declarations → `propext, Classical.choice, Quot.sound` only, no `sorry`.  
 401 links resolve** (14 external skipped), `test_check_links.py` **10 tests OK**, `test_health.py`
 **9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**, `check-todo-ledger` green, `doc_index
 --check` fresh (83 docs, 223 links).
+
+### 15. Addendum (2026-11-09a) — `K_reject` as a diagonal filter, and the coefficient-level `M_ε` comparison
+
+**§14's closing paragraph.**  §14 ended with two items still outside: the Metropolis filter
+`K_reject`, "a multiplication operator and not finite-band at all", and the *coefficient-level*
+comparison between `gradSectorBound Φ_ε` and the architecture's weight-space `M_ε = 2K/ε`, which
+lives in a different model.  `FockLangevinOperator` §15–§16 supply both.
+
+* **The filter has band `0`, and that is the point.**  `rejectOp ρ` multiplies the coefficient at
+  occupation `n` by `ρ n` (`rejectOp_apply`), so on a basis vector it only rescales
+  (`rejectOp_single`) and two filters compose to the product filter (`rejectOp_comp`): it is
+  diagonal, not a hopping matrix.  `rejectOp_one` is the identity and `mem_support_rejectOp` shows
+  it never enlarges a support, so **`rejectOp_band`** maps the sector `{N ≤ N₀}` into itself.
+* **Metropolis acceptance supplies the `ρ`.**  `metropolisReject ΔV = min 1 (exp(−ΔV))` is the
+  acceptance probability of a move whose potential energy changes by `ΔV`, and the two facts the
+  estimates need are `metropolisReject_nonneg` and `metropolisReject_le_one`.
+* **It is a contraction, and it only adds to the form.**  `coreNormSq_rejectOp` writes the filtered
+  mass as `∑ₙ ρₙ²‖c n‖²`, so `coreNormSq_rejectOp_le` / **`coreNorm_rejectOp_le`** give
+  `‖K_reject c‖ ≤ ‖c‖` for `0 ≤ ρ ≤ 1`.  On the form side `corePair_rejectOp` computes
+  `⟪c, K_reject c⟫ = ∑ₙ ρₙ‖c n‖²` and **`re_corePair_rejectOp_nonneg`** reads it as `0 ≤ Re ⟪c,
+  K_reject c⟫` — the reason the step's lower bound survives a rejection half.
+* **The full step.**  `pcnlFull β σ Φ ρ = N + K_drift + K_reject`, and §14's two statements hold
+  verbatim: **`pcnlFull_band`** (band `K`, the drift's; rejection contributes none) and
+  **`pcnlFull_semibounded_sector`** / **`pcnlFull_metropolis_semibounded`** (the KLMN bound with
+  `gradSectorBound Φ N`, the Metropolis probability discharging the positivity hypothesis by
+  construction).
+* **The comparison is about coefficients.**  `coeffMass Φ = ∑_{m ∈ Φ.support} ‖coeff m Φ‖` is the
+  `ℓ¹` mass, and §14's `polyMulSectorBound` is exactly `coeffMass` times the level factor
+  (`polyMulSectorBound_eq_coeffMass`), so the sector constant was a coefficient quantity all along.
+  `coeffMass_monomial`, `coeffMass_add_le` and `coeffMass_finset_sum_le` give the algebra;
+  `totalDegree_pderiv_le` gives the degree half, and **`coeffMass_pderiv_le`** the bound
+  `coeffMass (∂ⱼΦ) ≤ deg Φ · coeffMass Φ` — differentiating multiplies each coefficient by its
+  exponent, and no exponent exceeds the degree.  Hence `GradCoeffBound Φ M` — "every coefficient of
+  every `∂ⱼΦ` is at most `M`", the coefficient reading of `M_ε = 2K/ε` — is **automatic**:
+  `gradCoeffBound_totalDegree_mul_coeffMass` gives it with `M = deg Φ · coeffMass Φ`.
+* **The `ε` matches.**  `gradSectorBound_le_of_gradCoeffBound` puts the coefficient bound into
+  §14's constant (`d` derivative masses times `(2√(N + 2 + deg Φ))^{deg Φ}`),
+  `driftScale_gradSectorBound_le` carries it through the SG-pCNL weight to `B = (β²σ²/2)M`, and
+  **`driftScale_gradSectorBound_le_eps`** reads `GradCoeffBound Φ_ε (2K/ε)` as
+  `B ≤ β²σ²K/ε · d·(2√(N+2+deg Φ))^{deg Φ}`.  So the architecture's `ε⁻¹` is the drift constant's
+  `ε⁻¹`, with the truncation level entering only polynomially;
+  `driftScale_gradSectorBound_le_coeffMass` is the hypothesis-free case `K = deg Φ · coeffMass Φ`.
+
+**What stays open.**  The remaining gap is not an operator estimate but a *reading*: the
+architecture bounds `‖∇(g ∘ Ŵ)‖` on the weight space (`BayesianTransformer.epsProj_fderiv_le`), and
+identifying that bound with `GradCoeffBound Φ_ε (2K/ε)` requires the coefficient map
+`Φ_ε ↦ (coefficients of ∂ⱼΦ_ε)` — which potential `Φ_ε` is, and why its derivative's coefficient
+mass is `2K/ε`.  §15 also models `K_reject` as a one-step damping on the core, not as an ergodic
+kernel: no statement here says that iterating `pcnlFull` converges to the invariant measure, and the
+plan's `P₀` (`ρ^N`, diagonal) is still the separate §2.2 object.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, success.
+`#print axioms` on the new declarations → `propext, Classical.choice, Quot.sound` only, no `sorry`.
+Style: 0 lines over 100 characters, no trailing whitespace.  Gates: `check-links` **OK — 81
+documents, 401 links resolve** (14 external skipped), `test_check_links.py` **10 tests OK**,
+`test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**, `check-todo-ledger` green,
+`doc_index --check` fresh.
