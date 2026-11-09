@@ -377,7 +377,8 @@ S2 is unchanged (no positive `m`, no `L₁ − U₀`); S3 and S4 are untouched.
 This section supersedes the previous section on three points: the coordinate-count factor `−99/2`
 **is** now proved (so the product form is no longer `C`), acceptance item 2 — the `Lp`-level
 statement — now has its bundled `LinearIsometryEquiv`, not merely the integral identity, and
-acceptance item 1 has been *started*: the Dirichlet form itself is now in the corpus.
+acceptance item 1 is most of the way in: the Dirichlet form **and** its operator identity are now in
+the corpus, with only closability proper and core density open.
 
 #### S0 — the product form, with `−99/2`
 
@@ -453,32 +454,39 @@ item 1 of the acceptance list at the form level, deliberately below any domain c
   only to say the value is not the `0`-by-convention integral.
 * `MemGaussForm` names that integrability domain (`γ^{1/2}² f'² ∈ L¹`), and `gaussForm_self_of_mem`
   records the finiteness obligation on it.
+* **`gaussForm_eq_integral_gaussDirichlet` is the operator identity**: for `f` of class `C²` with
+  compact support and `g` of class `C¹`,
+  `gaussForm f g = ∫ x, γ^{1/2}(x)² · (−f''(x) + x f'(x)) · g(x) dx`, with `gaussDirichlet` the
+  operator of the bridge chapter.  So the form *is* the form of `−Δ + x·∇` on the compactly
+  supported core, not merely a quadratic functional; the proof is one
+  `integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable` (integrability of the three products comes
+  from compact support of `f`, so no growth condition on `g`), plus `deriv_mul` and
+  `deriv_gaussWeight`.
+  The regularity is `C²`/`C¹` rather than `C^∞` because the corpus's `ContDiff ℝ ⊤` is mathlib's
+  *analytic* order `ω`: an analytic function on `ℝ` with compact support is identically zero, so a
+  `ContDiff ℝ ⊤` hypothesis with `HasCompactSupport` would make the identity vacuous.  (The same
+  observation applies to `Toolbox/ChapterDegEnergyEstimate.integral_dcoord_mul` and
+  `Toolbox/ChapterHermiteGraphApprox.integral_conj_dd_mul`, which do use `ContDiff ℝ ⊤` with a
+  compact-support hypothesis; they are not touched here, and it is recorded as an open audit item.)
 
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
 
-**What item 1 still needs, and why it is not merely unwritten.** Three separate gaps, none closed by
-the above:
+**What item 1 still needs.** Two gaps, neither closed by the above:
 
-1. *The operator identity.* `gaussForm f g = ∫ x, γ^{1/2}(x)² · (−f''(x) + x f'(x)) · g(x) dx` on
-   `C_c^∞`.  The ingredients exist — `MeasureTheory.integral_deriv_mul_eq_sub` (improper integration
-   by parts on `ℝ`), `Continuous.integrable_of_hasCompactSupport`, and `hasDerivAt_gaussWeight` —
-   but the missing piece is the differentiability bookkeeping of `u = γ^{1/2}² f'` and its
-   derivative at every point of a `C²` compactly supported `f`, plus the vanishing of `u·g` at
-   `±∞`.  Until it is written, the corpus proves that the form is symmetric and nonnegative, not
-   that it is *the* form of `−Δ + x·∇`.
-2. *Closability proper.*  `LinearPMap.IsClosable` and `LinearPMap.closure` exist in mathlib, but the
+1. *Closability proper.*  `LinearPMap.IsClosable` and `LinearPMap.closure` exist in mathlib, but the
    domain would have to be a subspace of `L²(γ dx)` on which `−Δ + x·∇` is well defined as a class
    — i.e. weak derivatives and `H¹(γ)`, for which mathlib has no API.  The `Lp` chapter gives the
    transport (`mehlerLpEquiv`) that would carry a domain across, not a domain.
-3. *Density of the smooth core.*  Only the `volume` version is in mathlib; the density-weighted
+2. *Density of the smooth core.*  Only the `volume` version is in mathlib; the density-weighted
    transport is again `mehlerLpEquiv` plus the a.e.-equality lemmas it already contains, but the
    density statement itself is not written.
 
-So acceptance item 1 moves from "not started" to "form defined, symmetry and nonnegativity proved,
-operator identity and closability open"; item 2 is discharged at the `Lp` level, item 3 is
-discharged, item 4 (Friedrichs/`ChapterYangMillsFriedrichs`) is untouched and still needs item 1's
-operator identity before it has anything to close.
+So acceptance item 1 is now "form defined, symmetry and nonnegativity proved, **operator identity
+proved** on the `C²`-compactly-supported core, closability and core density open"; item 2 is
+discharged at the `Lp` level, item 3 is discharged, and item 4 (Friedrichs /
+`ChapterYangMillsFriedrichs`) now has an operator to close — what it still lacks is the closedness of
+the form, i.e. exactly the two items above.
 
 #### S3 — the solve-error bookkeeping
 

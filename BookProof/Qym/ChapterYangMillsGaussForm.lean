@@ -1,34 +1,36 @@
 /-
-# S0 (start): the Gaussian-weighted Dirichlet form
+# S0: the Gaussian-weighted Dirichlet form and its operator
 
 The last open S0 acceptance item is closability: `−Δ + x·∇`, densely defined on `C_c^∞` and closable
 in `L²(γ dx)`, with the Dirichlet form `∫ γ |∇f|² dx` as its closed form and `H¹(γ)` as its form
-domain.  That item has three separable parts, and only the first is done here.
+domain.  That item has three separable parts; the first and the operator half of it are done here.
 
-**Done here (no domain choice, no integrability assumption).**
+**Done here.**
 
 * `gaussWeight` is the density `γ^{1/2}² = exp(−x²/2)` of `γ dx`, and `hasDerivAt_gaussWeight` is
-  `(γ^{1/2}²)' = −x γ^{1/2}²` — the identity that the eventual integration by parts consumes, and
-  the reason the drift `x·∇` appears in `−Δ + x·∇` rather than `−Δ` alone.
+  `(γ^{1/2}²)' = −x γ^{1/2}²` — the identity the integration by parts consumes, and the reason the
+  drift `x·∇` appears in `−Δ + x·∇` rather than `−Δ` alone.
 * `gaussForm f g = ∫ x, γ^{1/2}(x)² · f'(x) · g'(x) dx` is the one-coordinate form.
 * `gaussForm_comm` (symmetry) and `gaussForm_self_nonneg` (nonnegativity of the diagonal).  Both are
   statements about the integrand and `∫`, so they hold for *every* pair of functions: the Bochner
   integral is total, and a non-integrable integrand contributes `0` on both sides of the symmetry,
   while the diagonal is an integral of a nonnegative integrand.
+* **`gaussForm_eq_integral_gaussDirichlet` is the operator identity**: for `f` of class `C²` with
+  compact support and `g` of class `C¹`,
+  `gaussForm f g = ∫ x, γ^{1/2}(x)² · (−f''(x) + x f'(x)) · g(x) dx`, the operator on the right
+  being `gaussDirichlet` of the bridge chapter.  So the symmetric form is the form of `−Δ + x·∇`,
+  on the compactly supported core, and not merely a quadratic functional.  The proof is one
+  application of
+  mathlib's `integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable` (integration by parts with
+  integrability of the three products supplied by compact support) plus `deriv_mul` and
+  `deriv_gaussWeight`.
 
 **Not done here, and the shape of what is left.**
 
-1. *The operator identity.*  On `C_c^∞`, integration by parts gives
-   `gaussForm f g = ∫ x, γ^{1/2}(x)² · (−f''(x) + x f'(x)) · g(x) dx`, i.e. the form of the operator
-   `gaussDirichlet f = −f'' + x f'` of the bridge chapter.  The ingredients exist
-   (`MeasureTheory.integral_deriv_mul_eq_sub` for the improper integral on `ℝ`,
-   `Continuous.integrable_of_hasCompactSupport` for the integrability, and
-   `hasDerivAt_gaussWeight` above); what is missing is the differentiability bookkeeping of `u` and
-   `u'` for a `C²` compactly supported `f`.
-2. *Closability proper.*  This needs the graph norm and the identification of the form domain with
+1. *Closability proper.*  This needs the graph norm and the identification of the form domain with
    `H¹(γ)`; mathlib has `LinearPMap.IsClosable` and `LinearPMap.closure`, but no weak-derivative or
    Sobolev-space API, so the domain is not available as a `LinearPMap` domain yet.
-3. *Density.*  `C_c^∞` is dense in `L²(γ dx)`; mathlib has the `volume` version
+2. *Density.*  `C_c^∞` is dense in `L²(γ dx)`; mathlib has the `volume` version
    (`MeasureTheory.MemLp` + `ContDiff.dense`-style results) but not the density-weighted transport,
    though `ChapterYangMillsMehlerLp.absolutelyContinuous_volume_gaussMeasure` is the piece that
    makes the transport routine.
@@ -62,6 +64,18 @@ theorem hasDerivAt_gaussWeight (x : ℝ) :
   convert h using 1
   ring
 
+/-- The Gaussian density is smooth: `γ^{1/2}² = exp(−x²/2)`. -/
+theorem contDiff_gaussWeight : ContDiff ℝ ⊤ gaussWeight := by
+  have h : gaussWeight = fun x : ℝ => Real.exp (-(x ^ 2) / 2) := by
+    funext x
+    exact gaussRoot_sq x
+  rw [h]
+  exact Real.contDiff_exp.comp (((contDiff_id.pow 2).neg).div_const 2)
+
+/-- The derivative of the density, as a function. -/
+theorem deriv_gaussWeight (x : ℝ) : deriv gaussWeight x = -(x * gaussWeight x) :=
+  (hasDerivAt_gaussWeight x).deriv
+
 /-- The Gaussian Dirichlet form, in one coordinate: `∫ γ^{1/2}² f' g' dx`.  It is the one-coordinate
 summand of `∫ γ |∇f|² dx`; the Bochner integral makes it total, so no integrability hypothesis is
 needed to state it. -/
@@ -93,6 +107,68 @@ isolated from any statement about `H¹(γ)`. -/
 theorem gaussForm_self_of_mem {f : ℝ → ℝ} (hf : MemGaussForm f) :
     Integrable (fun x => gaussWeight x * deriv f x * deriv f x) ∧ 0 ≤ gaussForm f f :=
   ⟨hf, gaussForm_self_nonneg f⟩
+
+/-! ## The operator identity: the form *is* the form of `−Δ + x·∇`
+
+Integration by parts once, against the compactly supported factor.  The weight puts the drift in,
+because `(γ^{1/2}²)' = −x γ^{1/2}²`, so
+
+`∫ γ^{1/2}² f' g' = −∫ (γ^{1/2}² f')' g = ∫ γ^{1/2}² (−f'' + x f') g`,
+
+and the operator on the right is `gaussDirichlet`.  The single integration-by-parts step is
+mathlib's `integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable`, which needs the three products
+integrable: `f` of class `C²` and `g` of class `C¹`, with `f` compactly supported, supplies exactly
+that, and the boundary terms are absent because the support of `f` is, so nothing is assumed about
+the growth of `g`. -/
+
+/-- **The form of the weighted Dirichlet operator.**  For `f` of class `C²` and compactly supported
+and `g` of class `C¹`, `gaussForm f g` is the `L²(dx)` pairing of `gaussDirichlet f` against `g`
+with the weight `γ^{1/2}²` — the operator identity that turns the symmetric form into the operator
+`−Δ + x·∇`.
+
+The regularity is `C²`/`C¹`, not `C^∞`: the corpus's `ContDiff ℝ ⊤` is mathlib's *analytic* order
+`ω`, and an analytic function with compact support on `ℝ` is identically zero, so a `ContDiff ℝ ⊤`
+hypothesis here would make the statement vacuous. -/
+theorem gaussForm_eq_integral_gaussDirichlet {f g : ℝ → ℝ} (hf : ContDiff ℝ 2 f)
+    (hfc : HasCompactSupport f) (hg : ContDiff ℝ 1 g) :
+    gaussForm f g = ∫ x, gaussWeight x * gaussDirichlet f x * g x := by
+  have hws : ContDiff ℝ 1 gaussWeight := contDiff_gaussWeight.of_le (by simp)
+  have hd1 : ContDiff ℝ 1 (deriv f) := ContDiff.deriv' hf
+  have hF : ContDiff ℝ 1 (fun x => gaussWeight x * deriv f x) := hws.mul hd1
+  have hFdiff : Differentiable ℝ (fun x => gaussWeight x * deriv f x) :=
+    hF.differentiable (by simp)
+  have hFc : HasCompactSupport (fun x => gaussWeight x * deriv f x) := hfc.deriv.mul_left
+  have hFd : Continuous (deriv (fun x => gaussWeight x * deriv f x)) :=
+    hF.continuous_deriv le_rfl
+  have hg' : Continuous (deriv g) := hg.continuous_deriv le_rfl
+  have hI1 : Integrable
+      (fun x => deriv (fun y => gaussWeight y * deriv f y) x * g x) :=
+    (hFd.mul hg.continuous).integrable_of_hasCompactSupport (hFc.deriv.mul_right)
+  have hI2 : Integrable (fun x => gaussWeight x * deriv f x * deriv g x) :=
+    (hF.continuous.mul hg').integrable_of_hasCompactSupport (hFc.mul_right)
+  have hI3 : Integrable (fun x => gaussWeight x * deriv f x * g x) :=
+    (hF.continuous.mul hg.continuous).integrable_of_hasCompactSupport (hFc.mul_right)
+  have hbp := integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable
+    (μ := (volume : Measure ℝ)) (f := fun x => gaussWeight x * deriv f x) (g := g)
+    (v := (1 : ℝ)) (by simpa only [fderiv_apply_one_eq_deriv] using hI1)
+    (by simpa only [fderiv_apply_one_eq_deriv] using hI2)
+    (by simpa only [fderiv_apply_one_eq_deriv] using hI3) hFdiff (hg.differentiable (by simp))
+  have hderivF : ∀ x, deriv (fun y => gaussWeight y * deriv f y) x
+      = -(x * gaussWeight x) * deriv f x
+        + gaussWeight x * deriv (fun y => deriv f y) x := by
+    intro x
+    have h := deriv_mul (hasDerivAt_gaussWeight x).differentiableAt
+      (hd1.differentiable (by simp) x)
+    rw [deriv_gaussWeight] at h
+    simpa only [Pi.mul_apply] using h
+  have hleft : gaussForm f g
+      = -∫ x, deriv (fun y => gaussWeight y * deriv f y) x * g x := by
+    rw [gaussForm]
+    simpa only [fderiv_apply_one_eq_deriv] using hbp
+  rw [hleft, ← integral_neg]
+  refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+  simp only [hderivF x, gaussDirichlet]
+  ring
 
 end
 
