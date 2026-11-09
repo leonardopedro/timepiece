@@ -20,10 +20,13 @@ domain.  That item has three separable parts; the first and the operator half of
   `gaussForm f g = ∫ x, γ^{1/2}(x)² · (−f''(x) + x f'(x)) · g(x) dx`, the operator on the right
   being `gaussDirichlet` of the bridge chapter.  So the symmetric form is the form of `−Δ + x·∇`,
   on the compactly supported core, and not merely a quadratic functional.  The proof is one
-  application of
-  mathlib's `integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable` (integration by parts with
-  integrability of the three products supplied by compact support) plus `deriv_mul` and
+  application of mathlib's `integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable` (integration by
+  parts, the integrability of the three products supplied by compact support) plus `deriv_mul` and
   `deriv_gaussWeight`.
+* **`integral_gaussDirichlet_mul_comm` is the symmetry of the operator** in `L²(γ dx)` on that core:
+  `⟨−Δf + x·∇f, g⟩_{L²(γ)} = ⟨f, −Δg + x·∇g⟩_{L²(γ)}`.  It is the form symmetry read through the
+  operator identity in both orders, and it is what a closability argument actually consumes —
+  symmetry of the *operator*, not only of the quadratic form.
 
 **Not done here, and the shape of what is left.**
 
@@ -169,6 +172,27 @@ theorem gaussForm_eq_integral_gaussDirichlet {f g : ℝ → ℝ} (hf : ContDiff 
   refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
   simp only [hderivF x, gaussDirichlet]
   ring
+
+/-- **The operator is symmetric in `L²(γ dx)`.**  On the compactly supported `C²` core, the pairing
+`⟨−Δf + x·∇f, g⟩_{L²(γ)}` is symmetric in `f` and `g`: both sides are `gaussForm f g`, read through
+the operator identity once in each order, with form symmetry `gaussForm_comm` in between.
+
+This is the hypothesis a closability argument needs — symmetry *of the operator*, not only of the
+quadratic form — so it is stated separately rather than folded into the identity. -/
+theorem integral_gaussDirichlet_mul_comm {f g : ℝ → ℝ} (hf : ContDiff ℝ 2 f)
+    (hfc : HasCompactSupport f) (hg : ContDiff ℝ 2 g) (hgc : HasCompactSupport g) :
+    ∫ x, gaussWeight x * gaussDirichlet f x * g x
+      = ∫ x, gaussWeight x * f x * gaussDirichlet g x := by
+  have hf1 : ContDiff ℝ 1 f := hf.of_le (by norm_num)
+  have hg1 : ContDiff ℝ 1 g := hg.of_le (by norm_num)
+  calc ∫ x, gaussWeight x * gaussDirichlet f x * g x
+      = gaussForm f g := (gaussForm_eq_integral_gaussDirichlet hf hfc hg1).symm
+    _ = gaussForm g f := gaussForm_comm f g
+    _ = ∫ x, gaussWeight x * gaussDirichlet g x * f x :=
+        gaussForm_eq_integral_gaussDirichlet hg hgc hf1
+    _ = ∫ x, gaussWeight x * f x * gaussDirichlet g x := by
+        refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+        ring
 
 end
 

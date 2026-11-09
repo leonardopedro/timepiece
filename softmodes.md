@@ -468,6 +468,10 @@ item 1 of the acceptance list at the form level, deliberately below any domain c
   observation applies to `Toolbox/ChapterDegEnergyEstimate.integral_dcoord_mul` and
   `Toolbox/ChapterHermiteGraphApprox.integral_conj_dd_mul`, which do use `ContDiff ℝ ⊤` with a
   compact-support hypothesis; they are not touched here, and it is recorded as an open audit item.)
+* **`integral_gaussDirichlet_mul_comm` is the symmetry of the operator** in `L²(γ dx)` on that
+  core: `⟨−Δf + x·∇f, g⟩_{L²(γ)} = ⟨f, −Δg + x·∇g⟩_{L²(γ)}`.  It is form symmetry read through the
+  operator identity in both orders, and it is the hypothesis a closability argument consumes —
+  symmetry of the operator, not only of the form.
 
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
