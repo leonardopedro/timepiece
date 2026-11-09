@@ -144,7 +144,29 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   **`driftScale_gradSectorBound_le_eps`** — `GradCoeffBound Φ (2K/ε)` gives
   `B ≤ β²σ²K/ε` times the level factor `d·(2√(N+2+deg Φ))^{deg Φ}`, so the architecture's
   `ε⁻¹` is the drift constant's `ε⁻¹`; `driftScale_gradSectorBound_le_coeffMass` is the
-  unconditional case `K = deg Φ · coeffMass Φ`.
+  unconditional case `K = deg Φ · coeffMass Φ`;
+* **§17, the coefficient map** (separate module `BookProof.MCMC.CoeffMap`) — the reading §16 left
+  open, at the order the architecture bounds: `linCoeff F x j = D F(x)[eⱼ]` and its polynomial
+  `linPart F x` (`pderiv_linPart`, `coeffMass_pderiv_linPart`), the `ℓ²`-to-`ℓ¹` step
+  `norm_linCoeff_le`, **`gradCoeffBound_linPart`** and **`gradCoeffBound_epsProj`** (`‖dŴ‖ ≤ 2K/ε`
+  gives `GradCoeffBound (linPart (g ∘ Ŵ) W) (2K/ε)` with no hypothesis), the drift corollary
+  `driftScale_linPart_le_eps_proj`, and the units match `eval_pderiv_norm_le_coeffMass` (a
+  coefficient mass bounds the derivative on the unit cube), so `GradCoeffBound` and
+  `epsProj_fderiv_le` are statements of the same kind;
+* **§18, the plan's `P₀` and the full step** — `baseOp` (the diagonal `ρ^N`, `baseOp_apply`,
+  `baseOp_band` band `0`, `baseOp_comp`, and `baseOp_vac`: it fixes the vacuum, `λ_0 = 1`), the
+  contraction `coreNorm_baseOp_le` and its strict form off the vacuum
+  `coreNorm_baseOp_sector_le` (`‖P₀ c‖ ≤ ρ‖c‖` on `{N ≥ 1}`, the spectral gap `1 − ρ`); the drift's
+  norm on a sector (`coreNorm_diffHermite_sector_le`, `coreNorm_polyDrift_sector_le`,
+  `coreNorm_driftOperator_sector_le'`, with the constant `driftStepBound`); and the assembled
+  operator **`pcnlKernel ρ_H β σ Φ ρ_acc = P₀ + K_drift + K_reject`** with `pcnlKernel_band`
+  (band `K`, the drift's) and the contractions `coreNorm_pcnlKernel_le` /
+  `coreNorm_pcnlKernel_sector_le`;
+* **§19, iterating the step** — `pcnlKernel_iter_band` (n steps widen the band by `n·K`),
+  `coreNorm_pcnlKernel_iter_le` (the norm is bounded by the product of the level constants), and
+  the convergence that *does* hold: `coreNorm_iter_baseOp_le` / **`tendsto_iter_baseOp`** — `P₀`
+  contracts the non-vacuum core by `ρⁿ` and fixes the vacuum, so its iterates converge to the
+  invariant state `e₀` at the plan's rate `λ_n = ρⁿ`.
 
 ## Honest boundary
 
@@ -153,8 +175,10 @@ finite-band hopping matrix" — together with the size of the hopping amplitudes
 expansion of an arbitrary polynomial potential as a finite family of ladder words (§9.4), and
 the `ε`-regularized relative form bound on the core (§11).  The plan's Module 3 inputs are now
 covered: the drift band and its size (§9.6–§9.9), the form bound and semiboundedness (§11–§13)
-without the unattainable global `hgrad` (§14), the Metropolis step `K_reject` (§15) and the
-coefficient-level comparison with the architecture's `M_ε = 2K/ε` (§16).
+without the unattainable global `hgrad` (§14), the Metropolis step `K_reject` (§15), the
+coefficient-level comparison with the architecture's `M_ε = 2K/ε` (§16) and the coefficient map
+that derives it from `epsProj_fderiv_le` (§17, `CoeffMap`), plus the plan's diagonal `P₀` and the
+assembled operator with its band and contraction facts (§18–§19).
 
 The relative form bound is stated in §5 (`DriftFormBound`, the plan's constant `B²d/(2δ) + Bd`),
 proved in the Fock model in §6, and **proved on the core in §11**.  The inputs it needed are all
@@ -181,18 +205,30 @@ comparison of that sector constant with the architecture's weight-space `M_ε = 
 (`BayesianTransformer.epsProj_fderiv_le`): the two bounds live in different models, so the link is
 a bound on the coefficients of `∂ⱼΦ_ε`, and `coeffMass_pderiv_le` makes it automatic — every
 polynomial satisfies `GradCoeffBound Φ (deg Φ · coeffMass Φ)`, and with the architecture's `2K/ε`
-the drift constant is `β²σ²K/ε` (§16.3).  What remains outside the formalization is the *reading*
-of the architecture's weight-space gradient as this coefficient data: `epsProj_fderiv_le` bounds
-`‖∇(g ∘ Ŵ)‖` on the weight space, and identifying that bound with `GradCoeffBound Φ_ε (2K/ε)`
-requires the coefficient map `Φ_ε ↩→ (coefficients of ∂ⱼΦ_ε)`, not a further operator estimate.
+the drift constant is `β²σ²K/ε` (§16.3).  §17 (`BookProof/MCMC/CoeffMap`) supplies the *reading*
+that link needed: `linCoeff F x j` is the coefficient functional `D F(x)[eⱼ]`, `linPart` its
+polynomial, and `gradCoeffBound_epsProj` derives `GradCoeffBound (linPart (g ∘ Ŵ) W) (2K/ε)` from
+`epsProj_fderiv_le` — at the **linear** order, which is the only order a bound on `∇Φ_ε` controls.
+A general nonlinear `Φ_ε` would need bounds on its higher derivatives, which the architecture's
+Theorem 1 does not supply; that is the boundary §17 states.
 
-§15 closes the other open input: `K_reject` is a multiplication operator, so it has band `0`
+§15 closes the rejection input: `K_reject` is a multiplication operator, so it has band `0`
 (`rejectOp_band`), it is a contraction for a Metropolis acceptance probability
 (`coreNorm_rejectOp_le`), and its form is nonnegative (`re_corePair_rejectOp_nonneg`) — which is
-why `pcnlFull_band` and `pcnlFull_semibounded_sector` are the drift's statements unchanged.  The
-one thing §15 does **not** show is that iterating `pcnlFull` converges to the pCNL invariant
-measure: the filter here is a single-step damping on the core, not the transition kernel's
-ergodicity.
+why `pcnlFull_band` and `pcnlFull_semibounded_sector` are the drift's statements unchanged.
+
+§18–§19 assemble the plan's operator `P₀ + K_drift + K_reject` and say exactly how far its
+iteration goes.  `P₀ = ρ^N` is diagonal, has band `0`, fixes the vacuum (`baseOp_vac`, i.e.
+`λ_0 = 1`) and contracts the rest by `ρ` (`coreNorm_baseOp_sector_le`), so **its iterates converge
+to the invariant state `e₀` at the plan's rate** (`coreNorm_iter_baseOp_le`, `tendsto_iter_baseOp`).
+The full step's band is the drift's (`pcnlKernel_band`) and its iterates widen it linearly
+(`pcnlKernel_iter_band`), but its norm is only bounded by the product of the *level* constants
+(`coreNorm_pcnlKernel_iter_le`, with `driftStepBound β σ Φ N` growing in `N`), so no uniform
+contraction follows.  What a convergence theorem for `P_pCNL` still needs is therefore not an
+operator estimate but the Markov structure the core `ℓ²` model does not carry: positivity and the
+normalisation `P 1 = 1` on the completed space, where `numberOp`'s unboundedness (§14) no longer
+blocks the argument.  In particular the model's own invariant state is the vacuum, not the pCNL
+invariant measure.
 -/
 
 noncomputable section
@@ -4401,5 +4437,412 @@ theorem driftScale_gradSectorBound_le_coeffMass (β σ : ℝ) (Φ : MvPolynomial
   driftScale_gradSectorBound_le β σ
     (mul_nonneg (Nat.cast_nonneg _) (coeffMass_nonneg Φ))
     (gradCoeffBound_totalDegree_mul_coeffMass Φ) N
+
+/-! ## 18. The plan's diagonal `P₀ = ρ^N`, and the full `P₀ + K_drift + K_reject`
+
+§15 modelled the step's rejection half and §14 the drift's band; the plan's §2.2 operator is
+`P_pCNL = P₀ + K_drift + K_reject` with `P₀` the *diagonal* `ρ^N` — the unadjusted pCN kernel, whose
+spectrum is `λ_n = ρⁿ` (Module 1).  This section adds `P₀` and assembles the plan's operator on the
+core.
+
+* **`P₀` is diagonal with eigenvalue `ρ^{natDeg n}`** (`baseOp`, `baseOp_apply`), fixes the vacuum
+  (`baseOp_vac`: `natDeg 0 = 0`, so `λ_0 = 1`) and composes (`baseOp_comp`), so it moves no
+  occupation: `baseOp_band` gives it band `0`.
+* **It is a contraction, and a strict one off the vacuum**: `coreNorm_baseOp_le` for `0 ≤ ρ ≤ 1`,
+  and `coreNorm_baseOp_sector_le` — `‖P₀ c‖ ≤ ρ‖c‖` on `{N ≥ 1}`, the spectral gap `1 − ρ` read on
+  the core.
+* **The drift's norm on a sector** (§18.2): `coreNorm_diffHermite_sector_le` and
+  `coreNorm_polyDrift_sector_le` give `‖K_drift c‖ ≤ driftStepBound β σ Φ N · ‖c‖`
+  (`coreNorm_driftOperator_sector_le'`), the norm counterpart of §14's form bound, with
+  `driftStepBound β σ Φ N = (β²σ²/2)·2√(N+1)·gradSectorBound Φ N`.
+* **The assembled operator** (§18.3): `pcnlKernel ρ_H β σ Φ ρ_acc = P₀ + K_drift + K_reject`, with
+  `pcnlKernel_band` (band `K`, the drift's — `P₀` and the filter contribute none) and the two
+  contraction statements `coreNorm_pcnlKernel_le` (any sector, `P₀` at most `1`) and
+  `coreNorm_pcnlKernel_sector_le` (`P₀` at most `ρ` off the vacuum).
+
+§19 then iterates the operator: the band widens by `n·K` (`pcnlKernel_iter_band`), the norm is
+bounded by the product of the level constants (`coreNorm_pcnlKernel_iter_le`), and `P₀` alone
+converges to the invariant state geometrically at rate `ρ` (`coreNorm_iter_baseOp_le`,
+`tendsto_iter_baseOp`).
+-/
+
+/-! ### 18.1 The diagonal, its vacuum, and its gap -/
+
+/-- The plan's `P₀`: the diagonal `ρ^N`, multiplication by `ρ^{natDeg n}`. -/
+def baseOp (ρ : ℝ) (c : CoreCoeff d) : CoreCoeff d :=
+  c.sum fun n a => Finsupp.single n (((ρ ^ natDeg n : ℝ) : ℂ) * a)
+
+theorem baseOp_apply (ρ : ℝ) (c : CoreCoeff d) (n : Fin d → ℕ) :
+    baseOp ρ c n = ((ρ ^ natDeg n : ℝ) : ℂ) * c n := by
+  classical
+  rw [baseOp, Finsupp.sum_apply, Finsupp.sum]
+  simp only [Finsupp.single_apply]
+  rw [Finset.sum_ite_eq']
+  by_cases hn : n ∈ c.support
+  · simp [hn]
+  · rw [if_neg hn, Finsupp.notMem_support_iff.mp hn, mul_zero]
+
+theorem mem_support_baseOp {ρ : ℝ} {c : CoreCoeff d} {m : Fin d → ℕ}
+    (hm : m ∈ (baseOp ρ c).support) : m ∈ c.support := by
+  rw [Finsupp.mem_support_iff] at hm ⊢
+  intro hc
+  rw [baseOp_apply, hc, mul_zero] at hm
+  exact hm rfl
+
+theorem baseOp_band {ρ : ℝ} (c : CoreCoeff d) {N : ℕ}
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) {m : Fin d → ℕ}
+    (hm : m ∈ (baseOp ρ c).support) : natDeg m ≤ N :=
+  hc m (mem_support_baseOp hm)
+
+/-- `P₀` does not move the support. -/
+theorem support_iter_baseOp (ρ : ℝ) (c : CoreCoeff d) :
+    ∀ n : ℕ, ∀ m ∈ ((baseOp ρ)^[n] c).support, m ∈ c.support := by
+  intro n
+  induction n with
+  | zero => intro m hm; simpa using hm
+  | succ n ih =>
+    intro m hm
+    rw [Function.iterate_succ_apply'] at hm
+    exact ih m (mem_support_baseOp hm)
+
+theorem baseOp_one (c : CoreCoeff d) : baseOp 1 c = c := by
+  refine Finsupp.ext fun n => ?_
+  rw [baseOp_apply]
+  simp
+
+theorem baseOp_comp (ρ ρ' : ℝ) (c : CoreCoeff d) :
+    baseOp ρ (baseOp ρ' c) = baseOp (ρ * ρ') c := by
+  refine Finsupp.ext fun n => ?_
+  rw [baseOp_apply, baseOp_apply, baseOp_apply, mul_pow, ← mul_assoc, ← Complex.ofReal_mul]
+
+/-- **`P₀` fixes the vacuum**: `natDeg 0 = 0`, so `ρ^0 = 1` on `e₀` for every `ρ`.  This is the
+plan's `λ_0 = 1` — the reason `P₀` is a contraction but never a strict one on the whole core. -/
+theorem baseOp_vac (ρ : ℝ) :
+    baseOp ρ (Finsupp.single (0 : Fin d → ℕ) 1) = Finsupp.single (0 : Fin d → ℕ) 1 := by
+  refine Finsupp.ext fun n => ?_
+  rw [baseOp_apply]
+  by_cases hn : n = 0
+  · subst hn
+    rw [Finsupp.single_eq_same, natDeg_zero, pow_zero]
+    simp
+  · simp [Ne.symm hn]
+
+theorem coreNormSq_baseOp (ρ : ℝ) (c : CoreCoeff d) :
+    coreNormSq (baseOp ρ c) = ∑ n ∈ c.support, (ρ ^ natDeg n) ^ 2 * ‖c n‖ ^ 2 := by
+  classical
+  rw [← sum_sq_subset (c := baseOp ρ c) (s := c.support) fun x hx => mem_support_baseOp hx]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [baseOp_apply, norm_mul, Complex.norm_real, Real.norm_eq_abs, mul_pow, sq_abs]
+
+/-- A diagonal with coefficients `aₙ` of size at most `a` is a contraction by `a`. -/
+theorem coreNorm_baseOp_le_of_bound {ρ a : ℝ} {c : CoreCoeff d} (ha : 0 ≤ a)
+    (h : ∀ n ∈ c.support, ‖ρ ^ natDeg n‖ ≤ a) :
+    coreNorm (baseOp ρ c) ≤ a * coreNorm c := by
+  have hsq : coreNormSq (baseOp ρ c) ≤ a ^ 2 * coreNormSq c := by
+    rw [coreNormSq_baseOp, coreNormSq, Finset.mul_sum]
+    refine Finset.sum_le_sum fun n hn => ?_
+    have hb := h n hn
+    have h1 : (ρ ^ natDeg n) ^ 2 ≤ a ^ 2 := by
+      rw [← sq_abs (ρ ^ natDeg n)]
+      exact pow_le_pow_left₀ (abs_nonneg _) (by simpa [Real.norm_eq_abs] using hb) 2
+    calc (ρ ^ natDeg n) ^ 2 * ‖c n‖ ^ 2 ≤ a ^ 2 * ‖c n‖ ^ 2 :=
+          mul_le_mul_of_nonneg_right h1 (by positivity)
+      _ = a ^ 2 * ‖c n‖ ^ 2 := rfl
+  calc coreNorm (baseOp ρ c) = Real.sqrt (coreNormSq (baseOp ρ c)) := rfl
+    _ ≤ Real.sqrt (a ^ 2 * coreNormSq c) := Real.sqrt_le_sqrt hsq
+    _ = a * coreNorm c := by
+        rw [Real.sqrt_mul (sq_nonneg a), Real.sqrt_sq ha]
+        rfl
+
+theorem coreNorm_baseOp_le {ρ : ℝ} (h0 : 0 ≤ ρ) (h1 : ρ ≤ 1) (c : CoreCoeff d) :
+    coreNorm (baseOp ρ c) ≤ coreNorm c := by
+  refine (coreNorm_baseOp_le_of_bound (ρ := ρ) (a := 1) zero_le_one fun n _ => ?_).trans_eq
+    (one_mul _)
+  rw [Real.norm_eq_abs, abs_of_nonneg (pow_nonneg h0 _)]
+  exact pow_le_one₀ h0 h1
+
+/-- **`P₀` contracts the non-vacuum core by `ρ`.**  The spectral gap `1 − ρ` of the pCN step, read
+on the core: on `{N ≥ 1}` the eigenvalue `ρ^N` is at most `ρ`. -/
+theorem coreNorm_baseOp_sector_le {ρ : ℝ} (h0 : 0 ≤ ρ) (h1 : ρ ≤ 1) {c : CoreCoeff d}
+    (hc : ∀ n ∈ c.support, 1 ≤ natDeg n) :
+    coreNorm (baseOp ρ c) ≤ ρ * coreNorm c := by
+  refine coreNorm_baseOp_le_of_bound (a := ρ) h0 fun n hn => ?_
+  have hdeg := hc n hn
+  have hle : ρ ^ natDeg n ≤ ρ ^ 1 := pow_le_pow_of_le_one h0 h1 hdeg
+  rw [Real.norm_eq_abs, abs_of_nonneg (pow_nonneg h0 _), pow_one] at *
+  exact hle
+
+/-- A diagonal with coefficients of size at most `r` scales the norm by `r` — the general form of
+the rejection filter's contraction, with `r` the largest acceptance probability. -/
+theorem coreNorm_rejectOp_le_of_bound {ρ : (Fin d → ℕ) → ℝ} {r : ℝ} (hr : ∀ n, ‖ρ n‖ ≤ r)
+    (c : CoreCoeff d) : coreNorm (rejectOp ρ c) ≤ r * coreNorm c := by
+  classical
+  have hsq : coreNormSq (rejectOp ρ c) ≤ r ^ 2 * coreNormSq c := by
+    rw [coreNormSq_rejectOp, coreNormSq, Finset.mul_sum]
+    refine Finset.sum_le_sum fun n _ => ?_
+    have h1 : (ρ n) ^ 2 ≤ r ^ 2 := by
+      rw [← sq_abs (ρ n)]
+      exact pow_le_pow_left₀ (abs_nonneg _) (by simpa [Real.norm_eq_abs] using hr n) 2
+    calc (ρ n) ^ 2 * ‖c n‖ ^ 2 ≤ r ^ 2 * ‖c n‖ ^ 2 :=
+          mul_le_mul_of_nonneg_right h1 (by positivity)
+      _ = r ^ 2 * ‖c n‖ ^ 2 := rfl
+  have hr0 : 0 ≤ r := le_trans (norm_nonneg _) (hr 0)
+  calc coreNorm (rejectOp ρ c) = Real.sqrt (coreNormSq (rejectOp ρ c)) := rfl
+    _ ≤ Real.sqrt (r ^ 2 * coreNormSq c) := Real.sqrt_le_sqrt hsq
+    _ = r * coreNorm c := by
+        rw [Real.sqrt_mul (sq_nonneg r), Real.sqrt_sq hr0]
+        rfl
+
+/-! ### 18.2 The drift's norm on a sector -/
+
+theorem coreNorm_sub_le (x y : CoreCoeff d) :
+    coreNorm (x - y) ≤ coreNorm x + coreNorm y := by
+  rw [sub_eq_add_neg]
+  exact (coreNorm_add_le x (-y)).trans (le_of_eq (by rw [coreNorm_neg]))
+
+/-- The letter's norm on a sector: `‖∂ⱼ c‖ ≤ 2√(N+1)·‖c‖` for `c` in `{N ≤ N₀}`. -/
+theorem coreNorm_diffHermite_sector_le {j : Fin d} {N : ℕ} (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (diffHermite j c) ≤ 2 * Real.sqrt ((N : ℝ) + 1) * coreNorm c := by
+  have hR : (0 : ℝ) ≤ Real.sqrt ((N : ℝ) + 1) := Real.sqrt_nonneg _
+  have hstep : ∀ p : Fin d × Bool,
+      coreNorm (hopStep p c) ≤ Real.sqrt ((N : ℝ) + 1) * coreNorm c := fun p =>
+    coreNorm_hopStep_sector_le p c hc
+  have hcoef : ‖(((invSqrtTwo : ℝ) : ℂ))‖ = invSqrtTwo := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg invSqrtTwo_nonneg]
+  have h2 : invSqrtTwo * (2 * Real.sqrt ((N : ℝ) + 1)) ≤
+      2 * Real.sqrt ((N : ℝ) + 1) := by
+    have h1 : invSqrtTwo ≤ 1 := invSqrtTwo_le_one
+    nlinarith [hR]
+  calc coreNorm (diffHermite j c)
+      = coreNorm (((invSqrtTwo : ℝ) : ℂ) •
+          (hopStep (j, false) c - hopStep (j, true) c)) := rfl
+    _ = invSqrtTwo * coreNorm (hopStep (j, false) c - hopStep (j, true) c) := by
+        rw [coreNorm_smul, hcoef]
+    _ ≤ invSqrtTwo *
+          (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by
+        refine mul_le_mul_of_nonneg_left (coreNorm_sub_le _ _) invSqrtTwo_nonneg
+    _ ≤ invSqrtTwo * (2 * (Real.sqrt ((N : ℝ) + 1) * coreNorm c)) := by
+        refine mul_le_mul_of_nonneg_left ?_ invSqrtTwo_nonneg
+        have h1 := hstep (j, false)
+        have h2' := hstep (j, true)
+        linarith
+    _ = (invSqrtTwo * (2 * Real.sqrt ((N : ℝ) + 1))) * coreNorm c := by ring
+    _ ≤ (2 * Real.sqrt ((N : ℝ) + 1)) * coreNorm c := by
+        refine mul_le_mul_of_nonneg_right h2 (coreNorm_nonneg c)
+
+/-- **`K_drift`'s norm on a sector**, with the constant `driftStepBound`. -/
+theorem coreNorm_polyDrift_sector_le (Φ : MvPolynomial (Fin d) ℂ) {N : ℕ} (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (polyDrift Φ c)
+      ≤ 2 * Real.sqrt ((N : ℝ) + 1) * gradSectorBound Φ N * coreNorm c := by
+  have hR : (0 : ℝ) ≤ Real.sqrt ((N : ℝ) + 1) := Real.sqrt_nonneg _
+  have hterm : ∀ j : Fin d,
+      coreNorm (polyMul (MvPolynomial.pderiv j Φ) (diffHermite j c))
+        ≤ polyMulSectorBound (MvPolynomial.pderiv j Φ)
+            (N + 1 + (MvPolynomial.pderiv j Φ).totalDegree)
+          * (2 * Real.sqrt ((N : ℝ) + 1) * coreNorm c) := by
+    intro j
+    refine (polyMul_norm_sector_le (Φ := MvPolynomial.pderiv j Φ) (N := N + 1)
+      (M := N + 1 + (MvPolynomial.pderiv j Φ).totalDegree) (by omega)
+      (diffHermite j c) (fun m hm => diffHermite_band hc hm)).trans ?_
+    refine mul_le_mul_of_nonneg_left (coreNorm_diffHermite_sector_le c hc) ?_
+    exact polyMulSectorBound_nonneg _ _
+  calc coreNorm (polyDrift Φ c)
+      = coreNorm (-∑ j : Fin d, polyMul (MvPolynomial.pderiv j Φ) (diffHermite j c)) := by
+        rw [polyDrift]
+    _ = coreNorm (∑ j : Fin d, polyMul (MvPolynomial.pderiv j Φ) (diffHermite j c)) := by
+        rw [coreNorm_neg]
+    _ ≤ ∑ j : Fin d,
+          coreNorm (polyMul (MvPolynomial.pderiv j Φ) (diffHermite j c)) :=
+        coreNorm_finset_sum_le _ _
+    _ ≤ ∑ j : Fin d, polyMulSectorBound (MvPolynomial.pderiv j Φ)
+            (N + 1 + (MvPolynomial.pderiv j Φ).totalDegree)
+          * (2 * Real.sqrt ((N : ℝ) + 1) * coreNorm c) := Finset.sum_le_sum fun j _ => hterm j
+    _ = (∑ j : Fin d, polyMulSectorBound (MvPolynomial.pderiv j Φ)
+            (N + 1 + (MvPolynomial.pderiv j Φ).totalDegree))
+          * (2 * Real.sqrt ((N : ℝ) + 1) * coreNorm c) := by
+        rw [Finset.sum_mul]
+    _ = 2 * Real.sqrt ((N : ℝ) + 1) * gradSectorBound Φ N * coreNorm c := by
+        rw [gradSectorBound]
+        ring
+
+theorem coreNorm_driftOperator_sector_le (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) {N : ℕ}
+    (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (driftOperator β σ Φ c)
+      ≤ driftWeight β σ * (2 * Real.sqrt ((N : ℝ) + 1) * gradSectorBound Φ N)
+        * coreNorm c := by
+  have hcoef : ‖(((driftWeight β σ : ℝ) : ℂ))‖ = driftWeight β σ := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (driftWeight_nonneg β σ)]
+  rw [driftOperator, coreNorm_smul, hcoef]
+  calc driftWeight β σ * coreNorm (polyDrift Φ c)
+      ≤ driftWeight β σ * (2 * Real.sqrt ((N : ℝ) + 1) * gradSectorBound Φ N
+          * coreNorm c) :=
+        mul_le_mul_of_nonneg_left (coreNorm_polyDrift_sector_le Φ c hc) (driftWeight_nonneg β σ)
+    _ = driftWeight β σ * (2 * Real.sqrt ((N : ℝ) + 1) * gradSectorBound Φ N)
+          * coreNorm c := by ring
+
+/-- The drift's sector constant in §18's shape. -/
+def driftStepBound (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) (N : ℕ) : ℝ :=
+  driftWeight β σ * (2 * Real.sqrt ((N : ℝ) + 1) * gradSectorBound Φ N)
+
+theorem driftStepBound_nonneg (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) (N : ℕ) :
+    0 ≤ driftStepBound β σ Φ N := by
+  rw [driftStepBound]
+  exact mul_nonneg (driftWeight_nonneg β σ)
+    (mul_nonneg (by positivity) (gradSectorBound_nonneg Φ N))
+
+theorem coreNorm_driftOperator_sector_le' (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) {N : ℕ}
+    (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (driftOperator β σ Φ c) ≤ driftStepBound β σ Φ N * coreNorm c :=
+  coreNorm_driftOperator_sector_le β σ Φ c hc
+
+/-! ### 18.3 The plan's `P₀ + K_drift + K_reject` -/
+
+/-- The plan's transition operator `P_pCNL = P₀ + K_drift + K_reject` on the core, with `P₀` the
+diagonal `ρ^N` of §18 and `K_reject` the Metropolis filter of §15. -/
+def pcnlKernel (ρH : ℝ) (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ)
+    (ρacc : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) : CoreCoeff d :=
+  baseOp ρH c + driftOperator β σ Φ c + rejectOp ρacc c
+
+/-- **The band of the plan's step is the drift's**: `P₀` and `K_reject` are diagonal, so a step
+maps `{N ≤ N₀}` into `{N ≤ N₀ + K}` when `deg Φ ≤ K`. -/
+theorem pcnlKernel_band {K : ℕ} {Φ : MvPolynomial (Fin d) ℂ} (hK : Φ.totalDegree ≤ K)
+    (ρH β σ : ℝ) (ρacc : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) {N : ℕ}
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) {m : Fin d → ℕ}
+    (hm : m ∈ (pcnlKernel ρH β σ Φ ρacc c).support) : natDeg m ≤ N + K := by
+  classical
+  rw [pcnlKernel] at hm
+  rcases Finset.mem_union.mp (Finsupp.support_add hm) with h | h
+  · rcases Finset.mem_union.mp (Finsupp.support_add h) with h1 | h2
+    · exact le_trans (baseOp_band c hc h1) (Nat.le_add_right N K)
+    · rw [driftOperator] at h2
+      exact polyDrift_band hK c hc (mem_support_smul h2)
+  · exact le_trans (rejectOp_band c hc h) (Nat.le_add_right N K)
+
+/-- **The step is a contraction on the non-vacuum sector.**  The diagonal part contributes `ρ^N ≤ ρ`
+(§18), the filter `r`, and the drift `driftStepBound β σ Φ N`. -/
+theorem coreNorm_pcnlKernel_sector_le {ρH r : ℝ} (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ}
+    {ρacc : (Fin d → ℕ) → ℝ} {N : ℕ} (hρ0 : 0 ≤ ρH) (hρ1 : ρH ≤ 1)
+    (hr : ∀ n, ‖ρacc n‖ ≤ r) (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) (hc1 : ∀ n ∈ c.support, 1 ≤ natDeg n) :
+    coreNorm (pcnlKernel ρH β σ Φ ρacc c)
+      ≤ (ρH + driftStepBound β σ Φ N + r) * coreNorm c := by
+  set D := driftStepBound β σ Φ N with hD
+  have hbase := coreNorm_baseOp_sector_le hρ0 hρ1 hc1
+  have hdrift := coreNorm_driftOperator_sector_le' β σ Φ c hc
+  have hrej := coreNorm_rejectOp_le_of_bound hr c
+  have hsum : coreNorm (pcnlKernel ρH β σ Φ ρacc c)
+      ≤ ρH * coreNorm c + D * coreNorm c + r * coreNorm c := by
+    rw [pcnlKernel]
+    exact (coreNorm_add_le _ _).trans (add_le_add ((coreNorm_add_le _ _).trans
+      (add_le_add hbase hdrift)) hrej)
+  calc coreNorm (pcnlKernel ρH β σ Φ ρacc c)
+      ≤ ρH * coreNorm c + D * coreNorm c + r * coreNorm c := hsum
+    _ = (ρH + D + r) * coreNorm c := by ring
+
+/-! ## 19. Iterating the step
+
+The band and the norm of the iterates, and the part of the picture that *does* converge.  §19 is
+where the pCNL track's remaining gap is stated precisely: `P₀` alone converges to the vacuum at the
+plan's rate `ρ`, while the full step's sector constants grow with the level — so a convergence
+theorem for `P_pCNL` needs the Markov structure (positivity and `P 1 = 1`) that the core `ℓ²`
+model does not carry.
+-/
+
+/-! ### 19.1 The iterates' band and norm -/
+
+/-- `n` steps widen the band by `n·K`. -/
+theorem pcnlKernel_iter_band {K : ℕ} {Φ : MvPolynomial (Fin d) ℂ} (hK : Φ.totalDegree ≤ K)
+    (ρH β σ : ℝ) (ρacc : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) {N : ℕ}
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    ∀ n : ℕ, ∀ m ∈ ((pcnlKernel ρH β σ Φ ρacc)^[n] c).support, natDeg m ≤ N + n * K := by
+  intro n
+  induction n with
+  | zero =>
+    intro m hm
+    simpa using hc m hm
+  | succ n ih =>
+    intro m hm
+    rw [Function.iterate_succ_apply'] at hm
+    have := pcnlKernel_band hK ρH β σ ρacc ((pcnlKernel ρH β σ Φ ρacc)^[n] c)
+      (fun m' hm' => ih m' hm') hm
+    simpa [Nat.succ_mul, Nat.add_assoc] using this
+
+/-! ### 19.2 `P₀` converges to the invariant state -/
+
+/-- **Geometric decay of `P₀` off the vacuum.**  `n` iterates of `P₀` contract the non-vacuum
+sector by `ρⁿ`, so the iterates converge to the unique invariant state `e₀` at rate `ρ` — the
+plan's `λ_n = ρⁿ` read on the core. -/
+theorem coreNorm_iter_baseOp_le {ρ : ℝ} (h0 : 0 ≤ ρ) (h1 : ρ ≤ 1) {c : CoreCoeff d}
+    (hc : ∀ n ∈ c.support, 1 ≤ natDeg n) (n : ℕ) :
+    coreNorm ((baseOp ρ)^[n] c) ≤ ρ ^ n * coreNorm c := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Function.iterate_succ_apply', pow_succ]
+    have hsupp : ∀ m ∈ ((baseOp ρ)^[n] c).support, 1 ≤ natDeg m :=
+      fun m hm => hc m (support_iter_baseOp ρ c n m hm)
+    calc coreNorm (baseOp ρ ((baseOp ρ)^[n] c))
+        ≤ ρ * coreNorm ((baseOp ρ)^[n] c) := coreNorm_baseOp_sector_le h0 h1 hsupp
+      _ ≤ ρ * (ρ ^ n * coreNorm c) := mul_le_mul_of_nonneg_left ih h0
+      _ = ρ ^ n * ρ * coreNorm c := by ring
+
+theorem tendsto_iter_baseOp {ρ : ℝ} (h0 : 0 ≤ ρ) (h1 : ρ < 1) {c : CoreCoeff d}
+    (hc : ∀ n ∈ c.support, 1 ≤ natDeg n) :
+    Filter.Tendsto (fun n : ℕ => coreNorm ((baseOp ρ)^[n] c)) Filter.atTop (nhds 0) := by
+  refine squeeze_zero (fun n => coreNorm_nonneg _)
+    (fun n => coreNorm_iter_baseOp_le h0 h1.le hc n) ?_
+  simpa using (tendsto_pow_atTop_nhds_zero_of_lt_one h0 h1).mul_const (coreNorm c)
+
+/-- The one-step bound without the non-vacuum hypothesis: `P₀` contributes at most `1`. -/
+theorem coreNorm_pcnlKernel_le {r : ℝ} (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ}
+    {ρH : ℝ} {ρacc : (Fin d → ℕ) → ℝ} {N : ℕ} (hρ0 : 0 ≤ ρH) (hρ1 : ρH ≤ 1)
+    (hr : ∀ n, ‖ρacc n‖ ≤ r) (c : CoreCoeff d) (hc : ∀ n ∈ c.support, natDeg n ≤ N) :
+    coreNorm (pcnlKernel ρH β σ Φ ρacc c)
+      ≤ (1 + driftStepBound β σ Φ N + r) * coreNorm c := by
+  set D := driftStepBound β σ Φ N with hD
+  have hbase := coreNorm_baseOp_le hρ0 hρ1 c
+  have hdrift := coreNorm_driftOperator_sector_le' β σ Φ c hc
+  have hrej := coreNorm_rejectOp_le_of_bound hr c
+  have hsum : coreNorm (pcnlKernel ρH β σ Φ ρacc c)
+      ≤ coreNorm c + D * coreNorm c + r * coreNorm c := by
+    rw [pcnlKernel]
+    exact (coreNorm_add_le _ _).trans (add_le_add ((coreNorm_add_le _ _).trans
+      (add_le_add hbase hdrift)) hrej)
+  calc coreNorm (pcnlKernel ρH β σ Φ ρacc c)
+      ≤ coreNorm c + D * coreNorm c + r * coreNorm c := hsum
+    _ = (1 + D + r) * coreNorm c := by ring
+
+/-- **The iterated step's growth bound.**  `n` steps widen the band by `n·K` and multiply the norm
+by the product of the level constants; this is the exact shape a convergence theorem would consume.
+It cannot decay for a non-constant potential: `driftStepBound β σ Φ N` grows with `N`, so the
+product is `≥ (1 + r)^n`. -/
+theorem coreNorm_pcnlKernel_iter_le {r : ℝ} (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ}
+    {K N₀ : ℕ} (hK : Φ.totalDegree ≤ K) {ρH : ℝ} {ρacc : (Fin d → ℕ) → ℝ}
+    (hρ0 : 0 ≤ ρH) (hρ1 : ρH ≤ 1) (hr : ∀ n, ‖ρacc n‖ ≤ r) (c : CoreCoeff d)
+    (hc : ∀ n ∈ c.support, natDeg n ≤ N₀) (n : ℕ) :
+    coreNorm ((pcnlKernel ρH β σ Φ ρacc)^[n] c)
+      ≤ (∏ k ∈ Finset.range n, (1 + driftStepBound β σ Φ (N₀ + k * K) + r)) * coreNorm c := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Function.iterate_succ_apply', Finset.prod_range_succ]
+    have hsec : ∀ m ∈ ((pcnlKernel ρH β σ Φ ρacc)^[n] c).support,
+        natDeg m ≤ N₀ + n * K := pcnlKernel_iter_band hK ρH β σ ρacc c hc n
+    have hstep := coreNorm_pcnlKernel_le (Φ := Φ) β σ hρ0 hρ1 hr
+      ((pcnlKernel ρH β σ Φ ρacc)^[n] c) hsec
+    calc coreNorm (pcnlKernel ρH β σ Φ ρacc ((pcnlKernel ρH β σ Φ ρacc)^[n] c))
+        ≤ (1 + driftStepBound β σ Φ (N₀ + n * K) + r)
+            * coreNorm ((pcnlKernel ρH β σ Φ ρacc)^[n] c) := hstep
+      _ ≤ (1 + driftStepBound β σ Φ (N₀ + n * K) + r)
+            * ((∏ k ∈ Finset.range n,
+                (1 + driftStepBound β σ Φ (N₀ + k * K) + r)) * coreNorm c) :=
+          mul_le_mul_of_nonneg_left ih (by
+            have h1 := driftStepBound_nonneg β σ Φ (N₀ + n * K)
+            have h2 : (0 : ℝ) ≤ r := le_trans (norm_nonneg _) (hr 0)
+            linarith)
+      _ = ((∏ k ∈ Finset.range n, (1 + driftStepBound β σ Φ (N₀ + k * K) + r))
+            * (1 + driftStepBound β σ Φ (N₀ + n * K) + r)) * coreNorm c := by ring
 
 end BookProof.MCMC.FockLangevin

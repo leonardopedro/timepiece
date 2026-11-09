@@ -792,6 +792,27 @@ coefficients, `coeffMass_pderiv_le` proves `coeffMass (∂ⱼΦ) ≤ deg Φ · c
 `ε⁻¹`, with the truncation level entering only polynomially
 (`driftScale_gradSectorBound_le_coeffMass` is the hypothesis-free case).)*
 
+*(§17–§19, 2026-11-09: the reading, the plan's `P₀`, and how far iteration goes.*  §17 lives in
+`BookProof/MCMC/CoeffMap` because it needs the architecture's own gradient bound: `linCoeff F x j`
+is the coefficient functional `D F(x)[eⱼ]`, `linPart F x` the linear polynomial with those
+coefficients (`pderiv_linPart`, `coeffMass_pderiv_linPart`), and **`gradCoeffBound_epsProj`**
+derives `GradCoeffBound (linPart (g ∘ Ŵ) W) (2K/ε)` from
+`BayesianTransformer.epsProj_fderiv_le` — so §16's hypothesis is *derived* at the linear order,
+which is the only order `‖∇Φ_ε‖ ≤ 2K/ε` controls.  `driftScale_linPart_le_eps_proj` carries it into
+the drift constant, and `eval_pderiv_norm_le_coeffMass` shows a coefficient mass bounds the
+derivative on the unit cube, i.e. the two sides are in the same units.  §18 adds the plan's diagonal
+`P₀ = ρ^N` (`baseOp`, `baseOp_apply`, `baseOp_band`, `baseOp_comp`, `baseOp_vac`: `λ_0 = 1`), its
+contraction `coreNorm_baseOp_le` and its strict form off the vacuum `coreNorm_baseOp_sector_le`
+(`‖P₀c‖ ≤ ρ‖c‖` on `{N ≥ 1}`), the drift's norm on a sector (`coreNorm_polyDrift_sector_le`, with
+the constant `driftStepBound`), and the assembled operator
+**`pcnlKernel = P₀ + K_drift + K_reject`** with `pcnlKernel_band` and the contractions
+`coreNorm_pcnlKernel_le` / `coreNorm_pcnlKernel_sector_le`.  §19 iterates it: the band widens by
+`n·K` (`pcnlKernel_iter_band`), the norm obeys the product bound `coreNorm_pcnlKernel_iter_le`, and
+**`P₀`'s iterates converge to the invariant state `e₀`** at rate `ρ` (`coreNorm_iter_baseOp_le`,
+`tendsto_iter_baseOp`) — the plan's `λ_n = ρⁿ` on the core.  The full step does *not* converge by
+this route: the product's factors grow with the level, and the drift can move mass into the vacuum
+where `P₀` acts as the identity.)*
+
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
 constant
@@ -1164,13 +1185,28 @@ core (`polyMul_X_unbounded`), but it is bounded on every sector with the explici
 Metropolis filter `K_reject` is §15: a multiplication operator, so band `0` (`rejectOp_band`), a
 contraction (`coreNorm_rejectOp_le`), and nonnegative in the form
 (`re_corePair_rejectOp_nonneg`), which is why `pcnlFull_band` and `pcnlFull_semibounded_sector`
-are §14's statements unchanged.  What is *not* in Lean is the *reading* of the architecture's
-weight-space gradient as this coefficient data — `epsProj_fderiv_le` bounds `‖∇(g ∘ Ŵ)‖` on the
-weight space, and matching it to `GradCoeffBound Φ_ε (2K/ε)` needs the coefficient map, not a
-further operator estimate — nor any statement that iterating `pcnlFull` converges to the
-invariant measure (the filter is modelled as a one-step damping on the core, not as an ergodic
-kernel).  The pCNL operator's own gap therefore remains a hypothesis of the Module 4–5 bound, as §2
-anticipates; and no total-variation bound is derived — §3.B's
+are §14's statements unchanged.  The *reading* that §16 needed is the separate module
+`BookProof/MCMC/CoeffMap` (§17): `linCoeff F x j = D F(x)[eⱼ]` is the coefficient functional,
+`linPart` its polynomial, and `gradCoeffBound_epsProj` derives
+`GradCoeffBound (linPart (g ∘ Ŵ) W) (2K/ε)` from `epsProj_fderiv_le` with no hypothesis — at the
+**linear** order, which is the only order a bound on `∇Φ_ε` controls (a general nonlinear `Φ_ε`
+would need its higher derivative bounds, which Theorem 1 does not supply).  `eval_pderiv_norm_le_coeffMass`
+puts the two sides in the same units: on the unit cube the derivative is at most the coefficient
+mass.  The plan's own operator is §18–§19: `P₀ = ρ^N` is `baseOp`, diagonal with band `0`, fixing
+the vacuum (`baseOp_vac`, `λ_0 = 1`) and contracting the rest by `ρ`
+(`coreNorm_baseOp_sector_le`); `pcnlKernel = P₀ + K_drift + K_reject` has the drift's band
+(`pcnlKernel_band`) and the contraction bounds `coreNorm_pcnlKernel_le` /
+`coreNorm_pcnlKernel_sector_le`; its iterates widen the band by `n·K` (`pcnlKernel_iter_band`) and
+satisfy the product bound `coreNorm_pcnlKernel_iter_le`.  **What converges is `P₀`**: its iterates
+decay like `ρⁿ` off the vacuum (`coreNorm_iter_baseOp_le`) and converge to the invariant state `e₀`
+(`tendsto_iter_baseOp`) — Module 1's `λ_n = ρⁿ` read on the core.  What does *not* follow is
+convergence of the full step: the product in `coreNorm_pcnlKernel_iter_le` is `≥ (1 + r)ⁿ` because
+`driftStepBound` grows with the level, and the drift lowers the band too, so mass reaches the
+vacuum where `P₀` is the identity.  A convergence theorem for `P_pCNL` therefore needs the Markov
+structure the core `ℓ²` model does not carry — positivity and `P 1 = 1` on the completed space —
+rather than a further operator estimate.  The pCNL operator's own gap therefore remains a
+hypothesis of the Module 4–5 bound, as §2 anticipates; and no total-variation bound is derived —
+§3.B's
 Born-to-variation step `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` is stated as the boundary in
 `GeometricErgodicity`'s docstring.
 

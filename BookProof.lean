@@ -618,6 +618,11 @@ import BookProof.MCMC.UnadjustedPCNGap
 -- hopping matrix with step amplitudes bounded by `√(N+1)` on the degree-`N` sector.
 import BookProof.MCMC.FockLangevinOperator
 
+-- Wave (`pcnl.md` §2.2, `FockLangevinOperator` §16–§17): the coefficient map that reads the
+-- architecture's weight-space bound `M_ε = 2K/ε` off the ε-normalized potential
+-- (`linCoeff`, `linPart`, `gradCoeffBound_epsProj`), closing §16's last reading gap.
+import BookProof.MCMC.CoeffMap
+
 -- Wave (`pcnl.md` Module 1 proper, and Module 2 through it): the pCN step *is* diagonalised by
 -- the Fock number states in the `d → ∞` limit — `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
 import BookProof.MCMC.MehlerEigenfunction

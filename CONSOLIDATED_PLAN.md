@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09a):** **§15 of “State of the project — 2026-11-08b”**, at the very
+> **Newest entry (2026-11-09b):** **§16 of “State of the project — 2026-11-08b”**, at the very
+> end of this file — `BookProof/MCMC/CoeffMap` (§17) derives §16's `GradCoeffBound (2K/ε)` from
+> `epsProj_fderiv_le` via the coefficient map `linCoeff F x j = D F(x)[eⱼ]` (`gradCoeffBound_epsProj`),
+> at the linear order that a first-derivative bound controls; `FockLangevinOperator` §18 models the
+> plan's diagonal `P₀ = ρ^N` (band `0`, fixes the vacuum, contracts the rest by `ρ`) and assembles
+> `pcnlKernel = P₀ + K_drift + K_reject` with its band and contraction bounds; §19 iterates it and
+> proves `P₀`'s iterates converge to the invariant state at rate `ρ`, and states precisely why the
+> full step's iteration needs the Markov structure the core lacks.
+> **Earlier newest entry (2026-11-09a):** **§15 of “State of the project — 2026-11-08b”**, at the very
 > end of this file — `FockLangevinOperator` §15–§16 close the two inputs §14 still listed: the
 > Metropolis filter `K_reject` is `rejectOp ρ`, a *diagonal* multiplication by the acceptance
 > probability `min 1 (exp(−ΔV))` (band `0` by `rejectOp_band`, contraction by `coreNorm_rejectOp_le`,
@@ -19022,5 +19030,58 @@ plan's `P₀` (`ρ^N`, diagonal) is still the separate §2.2 object.
 `#print axioms` on the new declarations → `propext, Classical.choice, Quot.sound` only, no `sorry`.
 Style: 0 lines over 100 characters, no trailing whitespace.  Gates: `check-links` **OK — 81
 documents, 401 links resolve** (14 external skipped), `test_check_links.py` **10 tests OK**,
+`test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**, `check-todo-ledger` green,
+`doc_index --check` fresh.
+
+### 16. Addendum (2026-11-09b) — the coefficient map, the plan's `P₀`, and how far iteration goes
+
+**§16's closing paragraph.**  §16 ended with a reading it could not do: `epsProj_fderiv_le` bounds
+`‖∇(g ∘ Ŵ)‖` on the weight space, while `GradCoeffBound` is a statement about coefficients.  §17
+closes that at the order the architecture bounds, and §18–§19 assemble the plan's operator
+`P₀ + K_drift + K_reject` and locate exactly where iteration stops converging.
+
+* **The coefficient map (§17, `BookProof/MCMC/CoeffMap`).**  `linCoeff F x j = D F(x)[eⱼ]` on the
+  weight space `EuclideanSpace ℝ (Fin d)` is the coefficient functional; `linPart F x` is the linear
+  polynomial `∑ⱼ linCoeff·Xⱼ` with it, and `pderiv_linPart` / `coeffMass_pderiv_linPart` say the
+  model's `∂ⱼ` of that polynomial *is* `linCoeff`, in coefficient mass exactly its norm.  Then
+  `norm_linCoeff_le` (`‖D F(x)[eⱼ]‖ ≤ ‖D F(x)‖`, since `‖eⱼ‖ = 1`), **`gradCoeffBound_linPart`**,
+  and **`gradCoeffBound_epsProj`**: for `Ŵ = W/(‖W‖ + ε)` and `‖W‖ ≥ ε`,
+  `GradCoeffBound (linPart (g ∘ Ŵ) W) (2K/ε)` — §16's hypothesis *derived* from
+  `epsProj_fderiv_le`.  `driftScale_linPart_le_eps_proj` carries it into `B ≤ β²σ²K/ε` times the
+  level factor.  The units match: `eval_pderiv_norm_le_coeffMass` shows a coefficient mass bounds
+  the derivative on the unit cube, so `GradCoeffBound` and `epsProj_fderiv_le` are the same kind of
+  statement.
+* **The limit of the reading.**  `epsProj_fderiv_le` bounds the *first* derivative, so the map is
+  the linear one: a general nonlinear `Φ_ε` would need bounds on its higher derivatives, which the
+  architecture's Theorem 1 does not supply.  §17 says so in its honest boundary rather than
+  presenting the linear case as the general one.
+* **The plan's `P₀ = ρ^N` (§18).**  `baseOp` is diagonal with eigenvalue `ρ^{natDeg n}`
+  (`baseOp_apply`), has band `0` (`baseOp_band`), composes (`baseOp_comp`) and **fixes the vacuum**
+  (`baseOp_vac`, `λ_0 = 1`); it is a contraction (`coreNorm_baseOp_le`) and a strict one off the
+  vacuum (`coreNorm_baseOp_sector_le`: `‖P₀c‖ ≤ ρ‖c‖` on `{N ≥ 1}`) — the spectral gap `1 − ρ` read
+  on the core.  The drift gets a norm bound on sectors (`coreNorm_diffHermite_sector_le`,
+  `coreNorm_polyDrift_sector_le`, `coreNorm_driftOperator_sector_le'`) with the constant
+  `driftStepBound β σ Φ N = (β²σ²/2)·2√(N+1)·gradSectorBound Φ N`, and the assembled operator is
+  **`pcnlKernel ρ_H β σ Φ ρ_acc = P₀ + K_drift + K_reject`** with `pcnlKernel_band` (band `K`) and
+  the contractions `coreNorm_pcnlKernel_le` (any sector, `P₀` at most `1`) /
+  `coreNorm_pcnlKernel_sector_le` (off the vacuum, `P₀` at most `ρ`).
+* **Iteration (§19).**  `pcnlKernel_iter_band`: `n` steps map `{N ≤ N₀}` into `{N ≤ N₀ + nK}`.
+  `coreNorm_pcnlKernel_iter_le`: `‖Tⁿ c‖ ≤ (∏_{k<n} (1 + driftStepBound (N₀ + kK) + r))·‖c‖`.
+  What *does* converge is `P₀`: `coreNorm_iter_baseOp_le` gives `‖P₀ⁿ c‖ ≤ ρⁿ‖c‖` off the vacuum,
+  and **`tendsto_iter_baseOp`** gives `‖P₀ⁿ c‖ → 0` — the iterates converge to the invariant state
+  `e₀` at the plan's rate `λ_n = ρⁿ`.
+
+**What precisely remains.**  The product bound cannot decay: its factors are `≥ 1 + r`, and
+`driftStepBound` grows with the level (it carries `gradSectorBound`).  The drift also *lowers* the
+band, so mass reaches the vacuum, where `P₀` is the identity and no contraction is available.  A
+convergence theorem for `P_pCNL` therefore needs the Markov structure the core `ℓ²` model does not
+carry — positivity and the normalisation `P 1 = 1` on the completed space (where `numberOp`'s
+unboundedness, §14, no longer blocks the argument) — rather than a further operator estimate.  In
+this model the only invariant state in reach is the vacuum, not the pCNL invariant measure.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**;
+`lake build BookProof.MCMC.CoeffMap` → green.  `#print axioms` on the new declarations →
+`propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no
+trailing whitespace.  Gates: `check-links` OK, `test_check_links.py` **10 tests OK**,
 `test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**, `check-todo-ledger` green,
 `doc_index --check` fresh.
