@@ -7,7 +7,24 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-08e):** **§11 Addendum of “State of the project — 2026-11-08b”**, at the
+> **Newest entry (2026-11-08g):** **§13 Addendum of “State of the project — 2026-11-08b”**, at the
+> very end of this file — the `ε`-gradient bound pcnl.md's hypothesis states is now a theorem for
+> the additive normalization: `epsProj ε v = (‖v‖ + ε)⁻¹ • v`, `epsProj_fderiv_opNorm_le`
+> (`‖dŴ‖ ≤ 2/ε`, the factor 2 being the price of not being scale invariant) and
+> `epsProj_fderiv_le` (`‖∇(g ∘ Ŵ)‖ ≤ 2K/ε`), with `driftScale_eps_arch` reading it into the
+> drift's `B = β²σ²K/ε`.  Same entry: `check-links` now treats out-of-root targets as out of scope
+> (three new tests), and `scripts/test_health.py` pins the `health.sh` baseline rule in CI (G7).
+> **Earlier newest entry (2026-11-08f):** **§12 Addendum of “State of the project — 2026-11-08b”**, at the
+> very end of this file — `FockLangevinOperator` §12 fixes the coefficient family
+> `bⱼ = (β²σ²/2)·∂ⱼΦ_ε` (`driftOperator β σ Φ = (β²σ²/2) • polyDrift Φ`, with
+> `driftOperator_linear` recovering §5's `driftOpCoeff` for a linear `Φ`) and carries the
+> potential's gradient bound into the constant (`driftOperator_form_bound`, and
+> `driftOperator_form_bound_eps` with `M_ε = K/ε`, which is where the `ε` enters); §13 turns the
+> form bound into semiboundedness (`corePair_numberOp_re`, `semibounded_of_form_bound`,
+> `numberOp_add_driftOpCoeff_semibounded`, `pcnlDrift_semibounded_eps`), so `N + K_drift` is
+> bounded below by a constant of order `ε⁻²`.  What stays open is `K_reject` and the analytic
+> gradient bound for the concrete `Φ_ε`.
+> **Earlier newest entry (2026-11-08e):** **§11 Addendum of “State of the project — 2026-11-08b”**, at the
 > very end of this file — `FockLangevinOperator` §11 **proves `DriftFormBound`**: Cauchy–Schwarz
 > in the core pairing (`norm_corePair_le`), Cauchy–Schwarz in the mode index
 > (`sum_coreNorm_hopStep_le`, reading §10's oscillator identity as an average over modes), and the
@@ -18773,3 +18790,120 @@ opener are updated in the same change, so no stale "target" claim remains anywhe
 **What stays open.**  `K_reject` — a multiplication operator, not finite-band at all — and the
 *identification* `bⱼ = (β²σ²/2)·∂ⱼΦ_ε`, which is where the `ε`-dependence enters, through `B`.
 The estimate itself, which is what the KLMN argument consumes, is a theorem.
+
+### 12. Addendum (same day) — §12–§13 of the chapter: `bⱼ = (β²σ²/2)·∂ⱼΦ_ε`, and
+`N + K_drift` bounded below
+
+§11 proved the estimate with `B` and `b` as free parameters.  §12 supplies them from the potential
+and §13 takes the step the estimate exists for.
+
+**The coefficients.**  `driftWeight β σ = β²σ²/2` is the SG-pCNL drift weight of `pcnl.md` §2.2 and
+`driftScale β σ M = driftWeight · M` is the constant the form bound consumes, with
+`driftScale_nonneg`.  The drift itself is a *definition*, not a hypothesis:
+
+    driftOperator β σ Φ = (β²σ²/2) • polyDrift Φ,
+
+i.e. `−Σⱼ bⱼ ∂ⱼ` with `bⱼ = (β²σ²/2)·∂ⱼΦ` — §9.7's potential drift scaled by the weight.  The
+scaling law it rests on is `driftOpCoeff_smul` (the coefficient drift of a scaled family is the
+scaled coefficient drift, from `Finset.smul_sum`), and **`driftOperator_linear`** is the dictionary
+back to §5: for a linear `Φ = Σₖ aₖxₖ`, `driftOperator β σ Φ = driftOpCoeff (fun j =>
+driftScale β σ (a j))`, and since `∂ⱼΦ = aⱼ` for a linear `Φ`, that *is* `bⱼ = (β²σ²/2)·∂ⱼΦ`.  The
+identification is therefore closed on the operator side: the assumed `|bⱼ| ≤ B` becomes a gradient
+bound on the potential.
+
+**The constant, with the `ε` in it.**  `polyDrift_form_bound` replaces §11's `|bⱼ| ≤ B` by the
+multiplication-operator gradient bound `coreNorm (polyMul (∂ⱼΦ) c) ≤ M·coreNorm c`, giving
+`δ·⟪c, Nc⟫ + (M²d/(2δ) + Md)·‖c‖²`; `driftOperator_form_bound` scales it by `driftWeight`, using
+`δ/driftWeight` as the free parameter, so the constant becomes `B = driftScale β σ M` — exactly
+§11's, with `B` no longer assumed.  **`driftOperator_form_bound_eps`** specializes to the
+`ε`-regularized architecture's `M_ε = K/ε` (`driftScale_eps`: `driftScale β σ (K/ε) = β²σ²K/(2ε)`):
+
+    ‖⟪c, K_drift c⟫‖ ≤ δ·⟪c, Nc⟫ + ((β²σ²K)²/(8δε²) + β²σ²K/(2ε))·d·‖c‖²,
+
+the formula `pcnl.md` displays, `field_simp` + `ring` away from §12's general statement.  The `ε` of
+the drift enters through `M_ε` and nowhere else; the estimate is quadratic in it.
+
+**Semiboundedness.**  §13 connects the bound to the operator it bounds.  `numberOp_apply` makes the
+number operator diagonal with eigenvalue `natDeg`, and **`corePair_numberOp_re`** identifies the
+pairing with §5's number form: `⟪c, Nc⟫ = Σₙ (Σᵢ nᵢ)‖c n‖² = numberForm c`.  Then
+**`semibounded_of_form_bound`** is the KLMN conclusion on the core: if
+`‖⟪c, Kc⟫‖ ≤ δ·⟪c, Nc⟫ + C‖c‖²` with `δ ≤ 1`, then `−C‖c‖² ≤ ⟪c, (N + K)c⟫`, because
+`(−‖⟪c, Kc⟫‖) ≤ re ⟪c, Kc⟫` (`Complex.abs_re_le_norm`, `neg_abs_le`) and `(1 − δ)·⟪c, Nc⟫ ≥ 0`
+absorbs the `δ` — no self-adjointness, no closure, no spectral theorem.  Its two instances:
+**`numberOp_add_driftOpCoeff_semibounded`** (`−B²d/(2δ) − Bd` for `|bⱼ| ≤ B`) and
+**`pcnlDrift_semibounded_eps`**, whose lower bound is
+`−((β²σ²M_ε)²d/(8δ) + β²σ²M_ε·d/2)·‖c‖²` for `M_ε = K/ε`: `N + K_drift` is bounded below by a
+constant of order `ε⁻²`, with the plan's constant.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **Build completed
+successfully**; `lake build BookProof.YangMillsFieldStrength` (the importer) green; `#print axioms` on
+`driftWeight`, `driftScale`, `driftOperator_linear`, `driftOperator_linear_form_bound`,
+`polyDrift_form_bound`, `driftOperator_form_bound`, `driftOperator_form_bound_eps`,
+`numberOp_apply`, `corePair_numberOp_re`, `semibounded_of_form_bound`,
+`numberOp_add_driftOpCoeff_semibounded`, `pcnlDrift_semibounded_eps` → `propext,
+Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters by character
+count, no trailing whitespace.  The module's Contents and honest boundary, and `pcnl.md`'s Module 3
+bullet and "not proved" section, are updated in the same change.
+
+**What stays open.**  `K_reject` — a multiplication operator, not finite-band — and the *analytic*
+input that the concrete `Φ_ε` of the regularized architecture satisfies `‖∂ⱼΦ_ε‖ ≤ K/ε`: in Lean it
+is the hypothesis `hgrad` of `driftOperator_form_bound_eps` and `pcnlDrift_semibounded_eps`, not a
+consequence of the operator theory.  Given it, both the estimate and the lower bound are theorems.
+
+### 13. Addendum (same day) — the `ε`-gradient bound `M_ε = K/ε`, and two gate repairs
+
+**The last hypothesis of §12–§13, on the architecture side.**  `pcnl.md`'s Module 3 hypothesis
+writes the potential of the `ε`-regularized architecture as `Ŵ = W/(‖W‖_F + ε)` and asserts the
+implementation's Theorem 1 for it with constant `M_ε = K/ε`.  The corpus had the *sphere* form of
+that bound (`normalized_fderiv_le_uniform`: `‖d(g ∘ Π)(W)‖ ≤ K/ε` on `‖W‖ ≥ ε`, Π = `W/‖W‖`); the
+additive normalization the hypothesis actually writes had no differential at all.
+
+`BayesianTransformer/Transformer/GlobalLipschitz.lean` now has it, in the `EpsNormalization`
+section:
+
+* `epsProj ε v = (‖v‖ + ε)⁻¹ • v`, with `norm_epsProj_le` (`‖Ŵ‖ ≤ 1` — the normalized weight stays
+  in the closed unit ball, so a block that sees only `Ŵ` is evaluated inside it);
+* `norm_add_inv_hasFDerivAt` (the scalar factor `x ↦ (‖x‖ + ε)⁻¹`, by the norm-squared route and
+  `hasDerivAt_inv`), then `epsProj_hasFDerivAt`: `dŴ = (‖v‖ + ε)⁻¹ • I − ((‖v‖ + ε)²)⁻¹‖v‖⁻¹ • v⊗v`,
+  and `epsProj_differentiableAt`;
+* **`epsProj_fderiv_opNorm_le`**: `‖dŴ(v)‖ ≤ 2/ε` on `‖v‖ ≥ ε`.  The two terms are each at most
+  `ε⁻¹` — the identity scaled by `(‖v‖ + ε)⁻¹`, and the radial correction whose norm is
+  `‖v‖/(‖v‖ + ε)² ≤ ε⁻¹`.  The factor `2` is the price of not being scale invariant: `W/‖W‖` costs
+  `1/ε` precisely because parameter growth cannot change it;
+* **`epsProj_fderiv_le`** — the gradient bound itself: for a block `g` with `‖dg‖ ≤ K` on the unit
+  ball, `‖d(g ∘ Ŵ)(W)‖ ≤ 2K/ε` on `‖W‖ ≥ ε`.  That is `M_ε = K_ε/ε` with `K_ε = 2K`, exactly the
+  form the hypothesis states with `K` absorbing the factor.
+
+The drift side then reads it: `BookProof.MCMC.FockLangevin.driftScale_eps_arch` is
+`driftScale β σ (2K/ε) = β²σ²K/ε`, so the `ε` bounds §12's form constant by `ε⁻¹` and §13's lower
+bound by `ε⁻²`.  What the Lean development still does *not* have is the **core-side realization** —
+that the same number bounds the multiplication operator `polyMul (∂ⱼΦ_ε)` on `CoreCoeff`, which is
+`hgrad` in `driftOperator_form_bound_eps`.  The module's honest boundary, `pcnl.md`'s hypothesis
+paragraph and its "not proved" section all say so in the same words.
+
+**Gate repair: `check-links` scope.**  The gate failed on six links that point at sibling
+workspaces (`../papers/Hashimoto.md`, `../test/unfer/ngpt.md`, `../unfer/pcnl/RESEARCH_PLAN.md`) —
+files this checkout cannot contain.  `check-links` now treats a target that resolves **outside the
+repository root** as out of scope (`inside_root`), counting it with the external skips; `..` that
+stays inside the root is still checked, and the rule is guarded by three new tests in
+`scripts/test_check_links.py` (out-of-root passes, out-of-root cannot mask an in-root failure, an
+in-root `..` reference still fails).  `softmodes.md`'s link to the *generated* corpus snapshot
+`YANG_MILLS_MASS_GAP_LEAN.md` was the one genuinely in-root miss; it is now a code span, since the
+snapshot is generated on demand and not tracked.  Result: **81 documents, 401 links resolve**
+(14 skipped).
+
+**Gate repair: `health.sh` has a regression test.**  `scripts/test_health.py` (new, 9 tests,
+stdlib only) drives every branch of the baseline rule against stub checks in a temporary repo:
+clean → 3 `[pass]`; at baseline (6 unnamed components, 86 stale roots, 11 uncited identifiers) →
+`[warn]`, exit 0; one over → `[FAIL]`, exit 1; a hard structural error → `[FAIL]` regardless of the
+counts; a stale doc index → `[FAIL]`; no `../test` → `[gap]`, never a pass.  CI runs it as job
+`health-baseline` (G7) in `ci.yml`, and `AGENTS.md`'s script table lists it.
+
+**Verification.**  `lake build BayesianTransformer BookProof.MCMC.FockLangevinOperator` → **Build
+completed successfully (8086 jobs)**; `lake build BookProof.YangMillsFieldStrength` green.
+`#print axioms` on `epsProj`, `norm_epsProj_le`, `norm_add_inv_hasFDerivAt`, `epsProj_hasFDerivAt`,
+`epsProj_fderiv_opNorm_le`, `epsProj_fderiv_le`, `driftScale_eps_arch` → `propext,
+Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters by character
+count in both files, no trailing whitespace.  Gates: `check-links` **OK**, `test_check_links.py`
+**10 tests OK**, `test_health.py` **9 tests OK**, `health.sh` **1 pass, 2 warn, 0 fail**,
+`check-todo-ledger` green, `doc_index --check` fresh.

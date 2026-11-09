@@ -27,9 +27,9 @@ Read these sources by heading rather than by mutable line number:
   with the $\mu N$ boundary below; a change of one-particle origin changes outer dynamics.
 * [Hashimoto–Nodera](../papers/Hashimoto.md), Definition 2.4, §4 and Theorem 4.1:
   bounded resolvents and rational approximation of operator $\phi$-functions.
-* [YANG_MILLS_MASS_GAP_LEAN.md](YANG_MILLS_MASS_GAP_LEAN.md): a generated corpus snapshot,
-  not a proof of its introductory claims. Check its declarations against the source
-  modules and distinguish abstract implications from concrete instantiations.
+* `YANG_MILLS_MASS_GAP_LEAN.md`: a generated corpus snapshot (generated on demand, not
+  tracked in this repository), not a proof of its introductory claims. Check its declarations
+  against the source modules and distinguish abstract implications from concrete instantiations.
 
 Use $\mathcal K$ for the inner field/configuration Hilbert space and $h$ for its
 gauge-fixed Hamiltonian. Its implemented bosonic core is the Gauss–polynomial core in

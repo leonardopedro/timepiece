@@ -174,3 +174,24 @@ jobs:
             echo "--dry-run modified CONSOLIDATED_PLAN.md" >&2
             exit 1
           fi
+
+  # ---------------------------------------------------------------------------
+  # G7: `health.sh`'s baseline rule is what makes the gate usable, so it gets a
+  # gate of its own.
+  #
+  # health.sh classifies findings against recorded baselines: at or below is
+  # [warn] (exit 0), above is [FAIL] (exit 1), and a skipped check is [gap]
+  # (exit 0) rather than a pass. A baseline that silently absorbs a new finding
+  # is the same as no gate at all, and one that fails on its own recorded counts
+  # is unusable. `test_health.py` drives every branch — clean, at baseline,
+  # one over, hard structural, stale doc index, no ../test — against stub
+  # checks in a temporary repo. Stdlib only: no Lean, no network, no real gate.
+  # ---------------------------------------------------------------------------
+  health-baseline:
+    name: G7 health.sh baseline classification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
+
+      - name: unit tests (python stdlib only)
+        run: python3 scripts/test_health.py

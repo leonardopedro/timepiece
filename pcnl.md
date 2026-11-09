@@ -764,8 +764,13 @@ the three core identities the chain uses (adjoint pairing, Cauchy–Schwarz in `
 `Σⱼ(‖aⱼc‖² + ‖aⱼ†c‖²) = 2⟪c,Nc⟫ + d‖c‖²`).
 
 *(Proved 2026-11-08: §10 of the chapter supplies the three identities and §11 the assembly, so
-`DriftFormBound` is a theorem — `driftFormBound_holds`.  What remains outside the formalization is
-the identification `bⱼ = (β²σ²/2)·∂ⱼΦ_ε`, which is where the `ε`-dependence enters.)*
+`DriftFormBound` is a theorem — `driftFormBound_holds`; §12 then supplies the coefficient family
+`bⱼ = (β²σ²/2)·∂ⱼΦ` with the `ε` isolated in `B = (β²σ²/2)M_ε`, and §13 the semiboundedness
+corollary, `−C‖c‖² ≤ ⟪c, (N + K_drift)c⟫`.  The hypothesis's `M_ε` is itself a theorem for the
+additive normalization: `BayesianTransformer.epsProj_fderiv_le` proves `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on
+`‖W‖ ≥ ε`, and `driftScale_eps_arch` reads it as `B = β²σ²K/ε`.  What remains outside the
+formalization is the *core-side* realization of that gradient as the multiplication operator
+`polyMul (∂ⱼΦ_ε)` with the same bound.)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
@@ -773,7 +778,11 @@ constant
 $$
 M_\varepsilon = K/\varepsilon ,
 $$
-`K` depending only on the depth, the sequence length and the `ε`-scaled hyperparameters.  The
+`K` depending only on the depth, the sequence length and the `ε`-scaled hyperparameters.  In Lean
+this is `BayesianTransformer.epsProj_fderiv_le` for the additive form `Ŵ = W/(‖W‖ + ε)`, with the
+constant `2K/ε` (`K` absorbing the factor 2 — the sphere projection `W/‖W‖` costs `1/ε` because it
+is scale invariant, the additive map does not), and `normalized_fderiv_le_uniform` for the
+scale-invariant form on `‖W‖ ≥ ε`.  The
 *exact* normalization (`ε = 0`) is excluded: `d(W/‖W‖_F)` carries a factor `1/‖W‖`, unbounded at
 `W = 0`, so there `M = ∞` (the implementation's M4+ test records the NaN at `θ = 0`).  Write
 $$
@@ -1033,9 +1042,23 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   `‖⟪c, K_drift c⟫‖ ≤ δ·⟪c, Nc⟫ + (B²d/(2δ) + Bd)·‖c‖²` for every `δ > 0`, and
   **`driftFormBound_holds`** is §5's `DriftFormBound` itself: `K_drift` is infinitesimally
   form-small with respect to `N`, the KLMN hypothesis that makes `N + K_drift` self-adjoint and
-  bounded below.  Outside the model only `K_reject` (a multiplication operator, not finite-band)
-  and the *identification* `bⱼ = (β²σ²/2)·∂ⱼΦ_ε` remain — the latter being exactly where the
-  `ε`-dependence enters, through `B`.
+  bounded below.  **§12 supplies the coefficient family and §13 the boundedness below (sixth landing
+  that day).**  `driftWeight` is the SG-pCNL weight `β²σ²/2` and `driftScale β σ M = (β²σ²/2)M` the
+  constant the form bound consumes; `driftOperator β σ Φ` is `polyDrift Φ` scaled by that weight,
+  and **`driftOperator_linear`** says a linear `Φ` is exactly §5's `driftOpCoeff` with
+  `bⱼ = (β²σ²/2)·∂ⱼΦ` — the identification `bⱼ = (β²σ²/2)·∂ⱼΦ_ε` closed on the operator side, where
+  the assumed `|bⱼ| ≤ B` becomes the potential's gradient bound `M`.  **`driftOperator_form_bound`**
+  carries that `M` into the constant, and **`driftOperator_form_bound_eps`** with `M_ε = K/ε` is the
+  formula this document displays, `(β²σ²M_ε)²/(8δ) + β²σ²M_ε/2` times `d‖c‖²`: the `ε` enters
+  through `M_ε` and nowhere else.  §13 then takes the KLMN step the bound exists for:
+  `corePair_numberOp_re` identifies the pairing with the number form,
+  **`semibounded_of_form_bound`** turns a form bound with `δ ≤ 1` into
+  `−C‖c‖² ≤ ⟪c, (N + K)c⟫`, and **`pcnlDrift_semibounded_eps`** instantiates it, so `N + K_drift`
+  is bounded below by a constant of order `ε⁻²`.  The `M_ε` that enters that constant is itself a
+  theorem for the concrete potential: `BayesianTransformer.epsProj_fderiv_le` gives
+  `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on `‖W‖ ≥ ε` for `Ŵ = W/(‖W‖ + ε)`, and `driftScale_eps_arch` turns it into
+  `B = β²σ²K/ε`.  Outside the model only `K_reject` (a multiplication operator, not finite-band)
+  and the core-side realization of that gradient as `polyMul (∂ⱼΦ_ε)` remain.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the
@@ -1081,14 +1104,12 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
 
 **Not proved, and how the files say so.**  The finite-`d` *operator* diagonalisation (the Gegenbauer
 product formula on the sphere) is not formalised, and — as `pcnZonalEigen_two_ne_pow_two` shows —
-its eigenvalue cannot be `ρⁿ`.  For Module 3, what
-is missing is
-the identification of a given potential's `∇Φ` with a concrete ladder-word family (that is the
-Hermite expansion, needing `x_j = (a_j + a_j†)/√2` and the Mehler measure) — both expansions are
-now proved (`polyMul_mul` for the multiplication laws, §9.4; `polyMul_derivative` and
-`polyMul_derivative_eq_ladderWords` for the derivative polynomials, §9.5), so what remains here is
-the *composition* of those two operators rather than either expansion — the relative form
-bound that makes `K_drift` a bounded perturbation of `P₀` — stated for the `ε`-regularized
+its eigenvalue cannot be `ρⁿ`.  For Module 3, the Hermite expansion of a given potential's `∇Φ`
+into a concrete ladder-word family (needing `x_j = (a_j + a_j†)/√2` and the Mehler measure) is no
+longer missing: both expansions are proved (`polyMul_mul` for the multiplication laws, §9.4;
+`polyMul_derivative` and `polyMul_derivative_eq_ladderWords` for the derivative polynomials, §9.5),
+and their *composition* is `polyDrift` (§9.7), weighted to `driftOperator` (§12).  The relative
+form bound that makes `K_drift` a bounded perturbation of `P₀` is stated for the `ε`-regularized
 potential in the subsection above, with the constant `(β²σ²M_ε)²P/(8δ) + (β²σ²M_ε)P/2` and the
 reason that constant cannot supply the gap; stated in Lean as `DriftFormBound`
 (  `FockLangevinOperator` §5, a `Prop` on the coefficient core), **proved** in Lean on the core in
@@ -1100,8 +1121,12 @@ reason that constant cannot supply the gap; stated in Lean as `DriftFormBound`
   the multiset indexing), `sectorVec` / `l2norm_sectorVec` (a `Fin d` coupling as a one-particle
   vector on the first `d` modes) and **`driftField_sector_relative_form_bound`** (the §6 bound with
   the `Fin d` constants), plus `InSector`, `numberQuad_eq_sum_fin`, `annA_eq_zero_of_sector` and
-  `InSector.driftField` for the sector) — what still separates the two statements is the Hermite
-  expansion, not the model —
+  `InSector.driftField` for the sector).  The gradient bound itself is in Lean:
+`BayesianTransformer.epsProj_fderiv_le` proves `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on `‖W‖ ≥ ε` for the additive
+normalization `Ŵ = W/(‖W‖ + ε)`, and `driftScale_eps_arch` reads it as the drift's
+`B = β²σ²K/ε`.  What is *not* in Lean is its core-side realization — that the same number bounds
+the multiplication operator `polyMul (∂ⱼΦ_ε)` on `CoreCoeff`, which is the explicit hypothesis
+`hgrad` of §12 and §13 —
 and the Metropolis filter
 `K_reject` — the last is a multiplication operator and is not finite-band at all, so nothing in
 `FockLangevinOperator` describes it.  The pCNL operator's own gap therefore remains a hypothesis

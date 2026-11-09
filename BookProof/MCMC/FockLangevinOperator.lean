@@ -95,7 +95,24 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   **`norm_corePair_le`** (Cauchy–Schwarz), `sum_coreNorm_hopStep_le` (Cauchy–Schwarz in the mode
   index), `sqrt_add_le` / `two_mul_le_add_div`, and
   **`driftOpCoeff_form_bound`** with `driftFormBound_holds`: `‖⟪c, K c⟫‖ ≤ δ·⟪c, N c⟫ +
-  (B²d/(2δ) + Bd)·‖c‖²` for every `δ > 0`, so §5's `DriftFormBound` is a theorem, not a target.
+  (B²d/(2δ) + Bd)·‖c‖²` for every `δ > 0`, so §5's `DriftFormBound` is a theorem, not a target;
+* **§12, the coefficients come from the potential** — `driftWeight` (the SG-pCNL weight `β²σ²/2`)
+  and `driftScale` (`B = (β²σ²/2)·M`), the drift `driftOperator β σ Φ` as `polyDrift Φ` scaled by
+  that weight (`driftOpCoeff_smul` is the scaling law it rests on), and
+  **`driftOperator_linear`**: for a linear `Φ` the operator is exactly §5's `driftOpCoeff`, with
+  `bⱼ = (β²σ²/2)·∂ⱼΦ`.  `driftOperator_form_bound` carries a potential's gradient bound `M` into
+  the constant `B = driftScale β σ M`, and **`driftOperator_form_bound_eps`** specializes it to
+  `M_ε = K/ε`, where the constant is the plan's displayed
+  `(β²σ²M_ε)²/(8δ) + β²σ²M_ε/2` times `d‖c‖²` — the `ε` of the drift enters only here; the
+  architecture supplies that `M_ε` (`BayesianTransformer.epsProj_fderiv_le`: `2K/ε` for the
+  `ε`-regularized normalization), and `driftScale_eps_arch` reads it through the weight as
+  `B = β²σ²K/ε`;
+* **§13, semiboundedness** — `numberOp_apply` and **`corePair_numberOp_re`** (the pairing
+  `⟪c, N c⟫` *is* §5's number form), **`semibounded_of_form_bound`**: a relative form bound with
+  `δ ≤ 1` gives `−C‖c‖² ≤ ⟪c, (N + K)c⟫`, the KLMN conclusion taken before any completion; and
+  its two instances **`numberOp_add_driftOpCoeff_semibounded`** (`−B²d/(2δ) − Bd`) and
+  **`pcnlDrift_semibounded_eps`**, whose lower bound is
+  `−((β²σ²M_ε)²d/(8δ) + β²σ²M_ε·d/2)·‖c‖²` for `M_ε = K/ε`.
 
 ## Honest boundary
 
@@ -115,13 +132,19 @@ and `polyDrift_l1_le` for the sector size), §10 supplies the letter norms
 `Σ_j (‖a_j c‖² + ‖a_j† c‖²) = 2⟪c, N c⟫ + d‖c‖²` — the input the plan calls analytic rather than
 bookkeeping — and §11 supplies Cauchy–Schwarz in the core pairing `corePair`, Cauchy–Schwarz in the
 mode index, and the `2ab ≤ δa² + b²/δ` chain that assemble those norms into the stated constant.
+Semiboundedness is not a further hypothesis: §13 turns that bound into
+`−C‖c‖² ≤ ⟪c, (N + K_drift)c⟫`.
 
 The identification of the two models is a modelling step that remains: `CoreCoeff d` indexes by
 occupation *vectors* `Fin d → ℕ`, the Fock toolbox by finite *multisets* of modes, and §7–§8 now
-carry the isometry between them.  What is still missing is the *coefficient family itself*: that
-`b_j = (β²σ²/2)·∂_jΦ_ε`, i.e. that the `ε`-regularized potential's gradient supplies these `b_j`
-through the Hermite expansion.  That is where the `ε`-dependence enters, through
-`B = β²σ²M_ε/2` with `M_ε = K/ε`; the estimate itself is a theorem.
+carry the isometry between them.  The *coefficient family* is §12: `bⱼ = (β²σ²/2)·∂ⱼΦ` is the
+weighted gradient, `driftOperator_linear` is the dictionary back to §5's constant-coefficient
+drift, and the `ε`-dependence is isolated in `B = (β²σ²/2)M_ε` with `M_ε = K/ε`.  What is left
+open is the *core-side* half of that identification — that the weight-space gradient of `Φ_ε`
+(`BayesianTransformer.epsProj_fderiv_le`, now proved: `‖∇Φ_ε‖ ≤ 2K/ε` for the `ε`-regularized
+normalization) realizes as the multiplication operator `polyMul (∂ⱼ Φ_ε)` on the core with
+the same bound, i.e. the hypothesis `hgrad` of `driftOperator_form_bound_eps` and
+`pcnlDrift_semibounded_eps` — and the Metropolis filter `K_reject`.
 -/
 
 noncomputable section
@@ -2801,4 +2824,404 @@ theorem driftFormBound_holds (B : ℝ) (b : Fin d → ℝ) : DriftFormBound B b 
     rw [hdrift, corePair_zero_right, norm_zero, hnum]
     simp
 
+/-! ## 12. The coefficients come from the potential: `bⱼ = (β²σ²/2)·∂ⱼΦ_ε` -/
+
+/-- The SG-pCNL drift weight `β²σ²/2` of `pcnl.md` §2.2. -/
+def driftWeight (β σ : ℝ) : ℝ := β ^ 2 * σ ^ 2 / 2
+
+/-- The plan's `B = (β²σ²/2)·M`: the constant `driftOpCoeff_form_bound` consumes, when the
+gradient bound `M` comes from the potential rather than from an assumption on `b`. -/
+def driftScale (β σ M : ℝ) : ℝ := driftWeight β σ * M
+
+theorem driftWeight_nonneg (β σ : ℝ) : 0 ≤ driftWeight β σ := by
+  simp only [driftWeight]; positivity
+
+theorem driftScale_nonneg {β σ M : ℝ} (hM : 0 ≤ M) : 0 ≤ driftScale β σ M :=
+  mul_nonneg (driftWeight_nonneg β σ) hM
+
+/-- With the gradient bound `M_ε = K/ε` of the `ε`-regularized architecture, the drift's constant is
+`β²σ²K/(2ε)`: the `ε` of the drift enters *only* here. -/
+theorem driftScale_eps {β σ K ε : ℝ} (hε : ε ≠ 0) :
+    driftScale β σ (K / ε) = β ^ 2 * σ ^ 2 * K / (2 * ε) := by
+  simp only [driftScale, driftWeight]
+  field_simp
+
+/-- **The architecture's gradient bound, in the drift's own constant.**  The `ε`-regularized
+normalization `Ŵ = W/(‖W‖ + ε)` has `‖dŴ‖ ≤ 2/ε`, so a potential that sees `W` only through `Ŵ`
+has `‖∇Φ_ε‖ ≤ 2K/ε` (`BayesianTransformer.epsProj_fderiv_le`).  With `M_ε = 2K/ε`, §12's weight
+is `B = β²σ²K/ε`: the `ε` bounds the drift's form by `ε⁻¹` and §13's lower bound by `ε⁻²`,
+which is why the regularization cannot be dropped (`ε = 0` is the unbounded case). -/
+theorem driftScale_eps_arch {β σ K ε : ℝ} (hε : ε ≠ 0) :
+    driftScale β σ (2 * K / ε) = β ^ 2 * σ ^ 2 * K / ε := by
+  simp only [driftScale, driftWeight]
+  field_simp
+
+/-- **The plan's `K_drift` for a potential**: `−Σⱼ bⱼ ∂ⱼ` with `bⱼ = (β²σ²/2)·∂ⱼ Φ`, i.e. §9.7's
+`polyDrift Φ` scaled by the drift weight. -/
+def driftOperator (β σ : ℝ) (Φ : MvPolynomial (Fin d) ℂ) (c : CoreCoeff d) : CoreCoeff d :=
+  ((driftWeight β σ : ℝ) : ℂ) • polyDrift Φ c
+
+theorem driftOpCoeff_smul (r : ℝ) (a : Fin d → ℝ) (c : CoreCoeff d) :
+    driftOpCoeff (fun j => r * a j) c = ((r : ℝ) : ℂ) • driftOpCoeff a c := by
+  simp only [driftOpCoeff, smul_add, Finset.smul_sum]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  have h1 : (((-(r * a j)) * invSqrtTwo : ℝ) : ℂ)
+      = ((r : ℝ) : ℂ) * (((-(a j)) * invSqrtTwo : ℝ) : ℂ) := by push_cast; ring
+  have h2 : (((r * a j) * invSqrtTwo : ℝ) : ℂ)
+      = ((r : ℝ) : ℂ) * (((a j) * invSqrtTwo : ℝ) : ℂ) := by push_cast; ring
+  rw [h1, h2, smul_smul, smul_smul]
+
+theorem driftOperator_linear (β σ : ℝ) (a : Fin d → ℝ) (c : CoreCoeff d) :
+    driftOperator β σ (∑ k : Fin d, MvPolynomial.C ((a k : ℝ) : ℂ) * MvPolynomial.X k) c
+      = driftOpCoeff (fun j => driftScale β σ (a j)) c := by
+  rw [driftOperator, polyDrift_linear, ← driftOpCoeff_smul]
+  rfl
+
+theorem driftOperator_linear_form_bound (β σ : ℝ) {a : Fin d → ℝ} {M : ℝ}
+    (hM : 0 ≤ M) (ha : ∀ j, |a j| ≤ M)
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) :
+    ‖corePair c (driftOperator β σ (∑ k : Fin d, MvPolynomial.C ((a k : ℝ) : ℂ)
+          * MvPolynomial.X k) c)‖
+      ≤ δ * numberForm c + (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ)
+          + driftScale β σ M * (d : ℝ)) * coreNormSq c := by
+  rw [driftOperator_linear]
+  refine driftOpCoeff_form_bound (driftScale β σ M) _ (driftScale_nonneg hM) ?_ δ hδ c
+  intro j
+  have h1 : |driftScale β σ (a j)| = driftWeight β σ * |a j| := by
+    rw [driftScale, abs_mul, abs_of_nonneg (driftWeight_nonneg β σ)]
+  rw [h1]
+  exact mul_le_mul_of_nonneg_left (ha j) (driftWeight_nonneg β σ)
+
+/-- **The end of the chain, factored out.**  If a drift's letter sum is bounded by
+`(B/√2)·‖c‖·(√X + √(X + d‖c‖²))` with `X = ⟪c, N c⟫`, then the plan's constant follows:
+`√(x + y) ≤ √x + √y` splits the radical, `2uv ≤ δu² + v²/δ` spends the free parameter on the
+number form, and `1/√2 ≤ 1` absorbs the normalization's slack. -/
+theorem form_bound_of_sqrt_sum {T : CoreCoeff d → CoreCoeff d} {B : ℝ} (hB0 : 0 ≤ B)
+    (hbound : ∀ c : CoreCoeff d, ‖corePair c (T c)‖
+      ≤ B * invSqrtTwo * coreNorm c * (Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+          + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)))
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) :
+    ‖corePair c (T c)‖
+      ≤ δ * numberForm c + (B ^ 2 * (d : ℝ) / (2 * δ) + B * (d : ℝ)) * coreNormSq c := by
+  have hinv0 : (0 : ℝ) ≤ invSqrtTwo := invSqrtTwo_nonneg
+  have hinv1 : invSqrtTwo ≤ 1 := invSqrtTwo_le_one
+  have hX0 : 0 ≤ numberForm c := numberForm_nonneg c
+  have hN0 : 0 ≤ coreNormSq c := coreNormSq_nonneg c
+  have hR0 : 0 ≤ coreNorm c := coreNorm_nonneg c
+  have hd0 : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
+  have hbracket : Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+        + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)
+      ≤ 2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c := by
+    have hdN : 0 ≤ (d : ℝ) * coreNormSq c := mul_nonneg hd0 hN0
+    have hs := sqrt_add_le hX0 hdN
+    have hmul : Real.sqrt ((d : ℝ) * coreNormSq c) = Real.sqrt (d : ℝ) * coreNorm c := by
+      rw [Real.sqrt_mul hd0]; rfl
+    have hdd : Real.sqrt (d : ℝ) * Real.sqrt (d : ℝ) = (d : ℝ) :=
+      Real.mul_self_sqrt hd0
+    have step1 : Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)
+        ≤ Real.sqrt (d : ℝ)
+          * (Real.sqrt (numberForm c) + Real.sqrt ((d : ℝ) * coreNormSq c)) :=
+      mul_le_mul_of_nonneg_left hs (Real.sqrt_nonneg _)
+    rw [hmul, mul_add, ← mul_assoc, hdd] at step1
+    linarith
+  have hstep5 : B * invSqrtTwo * coreNorm c * (Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+        + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c))
+      ≤ B * invSqrtTwo * coreNorm c
+        * (2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c) :=
+    mul_le_mul_of_nonneg_left hbracket (mul_nonneg (mul_nonneg hB0 hinv0) hR0)
+  have hxsq : Real.sqrt (numberForm c) ^ 2 = numberForm c := Real.sq_sqrt hX0
+  have hv : 2 * Real.sqrt (numberForm c) * (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ))
+      ≤ δ * numberForm c + B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ) := by
+    have ham := two_mul_le_add_div δ (Real.sqrt (numberForm c))
+      (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) hδ
+    have hv2 : (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) ^ 2 / δ
+        = B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ) := by
+      have e : (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) ^ 2
+          = B ^ 2 * invSqrtTwo ^ 2 * coreNorm c ^ 2 * (Real.sqrt (d : ℝ)) ^ 2 := by ring
+      rw [e, invSqrtTwo_sq, Real.sq_sqrt hd0]
+      ring
+    calc 2 * Real.sqrt (numberForm c) * (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ))
+          ≤ δ * Real.sqrt (numberForm c) ^ 2
+              + (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ)) ^ 2 / δ := ham
+      _ = δ * numberForm c + B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ) := by
+          rw [hxsq, hv2]
+  have hslack : B * invSqrtTwo * (d : ℝ) * coreNorm c ^ 2 ≤ B * (d : ℝ) * coreNorm c ^ 2 := by
+    have hle : B * invSqrtTwo ≤ B := by
+      have := mul_le_mul_of_nonneg_left hinv1 hB0
+      simpa using this
+    have := mul_le_mul_of_nonneg_right hle (mul_nonneg hd0 (sq_nonneg (coreNorm c)))
+    calc B * invSqrtTwo * (d : ℝ) * coreNorm c ^ 2
+        = (B * invSqrtTwo) * ((d : ℝ) * coreNorm c ^ 2) := by ring
+      _ ≤ B * ((d : ℝ) * coreNorm c ^ 2) := this
+      _ = B * (d : ℝ) * coreNorm c ^ 2 := by ring
+  have hfinal : B * invSqrtTwo * coreNorm c
+        * (2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c)
+      ≤ δ * numberForm c + (B ^ 2 * (d : ℝ) / (2 * δ) + B * (d : ℝ)) * coreNormSq c := by
+    have e : B * invSqrtTwo * coreNorm c
+          * (2 * Real.sqrt (d : ℝ) * Real.sqrt (numberForm c) + (d : ℝ) * coreNorm c)
+        = 2 * Real.sqrt (numberForm c) * (B * invSqrtTwo * coreNorm c * Real.sqrt (d : ℝ))
+          + B * invSqrtTwo * (d : ℝ) * coreNorm c ^ 2 := by ring
+    rw [e, ← coreNorm_sq]
+    have hsum := add_le_add hv hslack
+    have harith : (δ * numberForm c + B ^ 2 * (d : ℝ) * coreNorm c ^ 2 / (2 * δ))
+          + B * (d : ℝ) * coreNorm c ^ 2
+        = δ * numberForm c + (B ^ 2 * (d : ℝ) / (2 * δ) + B * (d : ℝ)) * coreNorm c ^ 2 := by
+      field_simp
+      ring
+    linarith
+  exact (hbound c).trans (hstep5.trans hfinal)
+
+/-- The pairing of a negated state is the negated pairing. -/
+theorem corePair_neg (c x : CoreCoeff d) : corePair c (-x) = -corePair c x := by
+  have h := corePair_smul c (-1) x
+  simpa using h
+
+/-- The pairing is additive for differences. -/
+theorem corePair_sub (c x y : CoreCoeff d) : corePair c (x - y) = corePair c x - corePair c y := by
+  rw [sub_eq_add_neg, sub_eq_add_neg, corePair_add, corePair_neg]
+
+/-- Multiplication by a polynomial is additive for differences. -/
+theorem polyMul_sub (Φ : MvPolynomial (Fin d) ℂ) (x y : CoreCoeff d) :
+    polyMul Φ (x - y) = polyMul Φ x - polyMul Φ y := by
+  rw [sub_eq_add_neg, sub_eq_add_neg, polyMul_add_arg]
+  congr 1
+  have := polyMul_smul_arg Φ (-1) y
+  simpa using this
+
+/-- One derivative letter, bounded: `‖⟪c, Ψⱼ ∂ⱼ c⟫‖ ≤ (1/√2)·M·‖c‖·(‖aⱼc‖ + ‖aⱼ†c‖)`. -/
+theorem corePair_polyMul_diffHermite_le {Ψ : Fin d → MvPolynomial (Fin d) ℂ} {M : ℝ}
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d, coreNorm (polyMul (Ψ j) c) ≤ M * coreNorm c)
+    (c : CoreCoeff d) (j : Fin d) :
+    ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖
+      ≤ invSqrtTwo * (M * coreNorm c)
+        * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by
+  have hinv0 : (0 : ℝ) ≤ invSqrtTwo := invSqrtTwo_nonneg
+  have hmain : ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c - hopStep (j, true) c))‖
+      ≤ M * coreNorm c
+        * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by
+    rw [polyMul_sub, corePair_sub]
+    calc ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c))
+            - corePair c (polyMul (Ψ j) (hopStep (j, true) c))‖
+          ≤ ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c))‖
+            + ‖corePair c (polyMul (Ψ j) (hopStep (j, true) c))‖ := norm_sub_le _ _
+      _ ≤ coreNorm c * (M * coreNorm (hopStep (j, false) c))
+            + coreNorm c * (M * coreNorm (hopStep (j, true) c)) := by
+          refine add_le_add ?_ ?_
+          · exact (norm_corePair_le c _).trans
+              (mul_le_mul_of_nonneg_left (hgrad j _) (coreNorm_nonneg c))
+          · exact (norm_corePair_le c _).trans
+              (mul_le_mul_of_nonneg_left (hgrad j _) (coreNorm_nonneg c))
+      _ = M * coreNorm c
+            * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by ring
+  have hsplit : diffHermite j c
+      = ((invSqrtTwo : ℝ) : ℂ) • (hopStep (j, false) c - hopStep (j, true) c) := rfl
+  have hstar : star ((invSqrtTwo : ℝ) : ℂ) = ((invSqrtTwo : ℝ) : ℂ) := by
+    rw [Complex.star_def, Complex.conj_ofReal]
+  rw [hsplit, polyMul_smul_arg, corePair_smul, hstar, norm_mul, Complex.norm_real,
+    Real.norm_eq_abs, abs_of_nonneg hinv0]
+  calc invSqrtTwo
+        * ‖corePair c (polyMul (Ψ j) (hopStep (j, false) c - hopStep (j, true) c))‖
+      ≤ invSqrtTwo * (M * coreNorm c
+          * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c))) :=
+        mul_le_mul_of_nonneg_left hmain hinv0
+    _ = invSqrtTwo * (M * coreNorm c)
+          * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) := by ring
+
+/-- **The form bound of a family of derivative letters**: the `ℓ²` step of
+`−Σⱼ polyMul (Ψⱼ) ∘ ∂ⱼ` when each `Ψⱼ` is bounded by `M` as a multiplication operator.  Stated for
+a family rather than for `pderiv j Φ` so the proof's terms stay small; the potential's case is
+`polyDrift_form_bound` below. -/
+theorem form_bound_of_letter_family {Ψ : Fin d → MvPolynomial (Fin d) ℂ} {M : ℝ} (hM0 : 0 ≤ M)
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d, coreNorm (polyMul (Ψ j) c) ≤ M * coreNorm c)
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) :
+    ‖corePair c (∑ j : Fin d, polyMul (Ψ j) (diffHermite j c))‖
+      ≤ δ * numberForm c + (M ^ 2 * (d : ℝ) / (2 * δ) + M * (d : ℝ)) * coreNormSq c := by
+  classical
+  have hbound : ∀ c : CoreCoeff d,
+      ‖corePair c (∑ j : Fin d, polyMul (Ψ j) (diffHermite j c))‖
+      ≤ M * invSqrtTwo * coreNorm c * (Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+          + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c)) := by
+    intro c
+    have hletter : ∀ j : Fin d, ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖
+        ≤ invSqrtTwo * (M * coreNorm c)
+          * (coreNorm (hopStep (j, false) c) + coreNorm (hopStep (j, true) c)) :=
+      fun j => corePair_polyMul_diffHermite_le hgrad c j
+    have hstep : ‖corePair c (∑ j : Fin d, polyMul (Ψ j) (diffHermite j c))‖
+        ≤ ∑ j : Fin d, ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖ := by
+      rw [corePair_finset_sum]
+      exact norm_sum_le _ _
+    have hsum1 : ∑ j : Fin d, ‖corePair c (polyMul (Ψ j) (diffHermite j c))‖
+        ≤ invSqrtTwo * (M * coreNorm c)
+            * (∑ j : Fin d, coreNorm (hopStep (j, false) c)
+              + ∑ j : Fin d, coreNorm (hopStep (j, true) c)) := by
+      refine (Finset.sum_le_sum fun j _ => hletter j).trans (le_of_eq ?_)
+      rw [← Finset.mul_sum, Finset.sum_add_distrib]
+    have hsum2 : ∑ j : Fin d, coreNorm (hopStep (j, false) c)
+          + ∑ j : Fin d, coreNorm (hopStep (j, true) c)
+        ≤ Real.sqrt (d : ℝ) * Real.sqrt (numberForm c)
+          + Real.sqrt (d : ℝ) * Real.sqrt (numberForm c + (d : ℝ) * coreNormSq c) :=
+      add_le_add (sum_coreNorm_hopStep_le false c) (sum_coreNorm_hopStep_le true c)
+    refine hstep.trans (hsum1.trans ?_)
+    have hshape : invSqrtTwo * (M * coreNorm c)
+          * (∑ j : Fin d, coreNorm (hopStep (j, false) c)
+            + ∑ j : Fin d, coreNorm (hopStep (j, true) c))
+        = M * invSqrtTwo * coreNorm c
+          * (∑ j : Fin d, coreNorm (hopStep (j, false) c)
+            + ∑ j : Fin d, coreNorm (hopStep (j, true) c)) := by ring
+    rw [hshape]
+    exact mul_le_mul_of_nonneg_left hsum2
+      (mul_nonneg (mul_nonneg hM0 invSqrtTwo_nonneg) (coreNorm_nonneg c))
+  exact form_bound_of_sqrt_sum hM0 hbound δ hδ c
+
+/-- **The form bound of a potential's drift.**  If the gradient `∂ⱼ Φ` is bounded by `M` as a
+multiplication operator on the core, then `polyDrift Φ` is dominated by the number form with the
+plan's constant — the `ℓ²` step for a potential that is *not* linear, with the gradient bound
+entering only through `M`. -/
+theorem polyDrift_form_bound {Φ : MvPolynomial (Fin d) ℂ} {M : ℝ} (hM0 : 0 ≤ M)
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d,
+      coreNorm (polyMul (MvPolynomial.pderiv j Φ) c) ≤ M * coreNorm c)
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) :
+    ‖corePair c (polyDrift Φ c)‖
+      ≤ δ * numberForm c + (M ^ 2 * (d : ℝ) / (2 * δ) + M * (d : ℝ)) * coreNormSq c := by
+  have hmain := form_bound_of_letter_family (Ψ := fun j => MvPolynomial.pderiv j Φ) hM0
+    (fun j c => hgrad j c) δ hδ c
+  have hnorm : ‖corePair c (polyDrift Φ c)‖
+      = ‖corePair c (∑ j : Fin d, polyMul (MvPolynomial.pderiv j Φ) (diffHermite j c))‖ := by
+    rw [polyDrift, corePair_neg, norm_neg]
+  rw [hnorm]
+  exact hmain
+
+/-- **The plan's drift for a potential, with the plan's constant.**  `K_drift = −Σⱼ bⱼ ∂ⱼ` with
+`bⱼ = (β²σ²/2)·∂ⱼ Φ` is `driftOperator β σ Φ`, and its form bound has `B = (β²σ²/2)·M` — the
+`ε`-dependence of `M_ε = K/ε` is the only place `ε` enters. -/
+theorem driftOperator_form_bound (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {M : ℝ} (hM0 : 0 ≤ M)
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d,
+      coreNorm (polyMul (MvPolynomial.pderiv j Φ) c) ≤ M * coreNorm c)
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) :
+    ‖corePair c (driftOperator β σ Φ c)‖
+      ≤ δ * numberForm c + (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ)
+          + driftScale β σ M * (d : ℝ)) * coreNormSq c := by
+  classical
+  have hw0 : 0 ≤ driftWeight β σ := driftWeight_nonneg β σ
+  have hnorm : ‖corePair c (driftOperator β σ Φ c)‖
+      = driftWeight β σ * ‖corePair c (polyDrift Φ c)‖ := by
+    rw [driftOperator, corePair_smul]
+    have hstar : star ((driftWeight β σ : ℝ) : ℂ) = ((driftWeight β σ : ℝ) : ℂ) := by
+      rw [Complex.star_def, Complex.conj_ofReal]
+    rw [hstar, norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hw0]
+  rcases lt_or_eq_of_le hw0 with hwpos | hwzero
+  · have hδw : 0 < δ / driftWeight β σ := div_pos hδ hwpos
+    have hbound := polyDrift_form_bound hM0 hgrad (δ / driftWeight β σ) hδw c
+    rw [hnorm]
+    refine (mul_le_mul_of_nonneg_left hbound (le_of_lt hwpos)).trans (le_of_eq ?_)
+    show driftWeight β σ * (δ / driftWeight β σ * numberForm c
+          + (M ^ 2 * (d : ℝ) / (2 * (δ / driftWeight β σ)) + M * (d : ℝ)) * coreNormSq c)
+        = δ * numberForm c + (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ)
+            + driftScale β σ M * (d : ℝ)) * coreNormSq c
+    rw [show driftScale β σ M = driftWeight β σ * M from rfl]
+    field_simp
+  · have hdrift : driftOperator β σ Φ c = 0 := by
+      rw [driftOperator, ← hwzero]
+      simp
+    have hB0 : driftScale β σ M = 0 := by
+      rw [driftScale, ← hwzero, zero_mul]
+    rw [hdrift, corePair_zero_right, norm_zero, hB0]
+    have hzero : (0 : ℝ) ^ 2 * (d : ℝ) / (2 * δ) + 0 * (d : ℝ) = 0 := by ring
+    rw [hzero, zero_mul, add_zero]
+    exact mul_nonneg (le_of_lt hδ) (numberForm_nonneg c)
+
+/-- **The `ε`-dependence is exactly quadratic.**  With the gradient bound `M_ε = K/ε` of the
+`ε`-regularized architecture, the drift's constant is `(β²σ²M_ε)²·d/(8δ) + (β²σ²M_ε)·d/2` — the
+formula `pcnl.md` displays, with the `ε` in it. -/
+theorem driftOperator_form_bound_eps (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {K ε : ℝ}
+    (hK : 0 ≤ K) (hε : 0 < ε)
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d,
+      coreNorm (polyMul (MvPolynomial.pderiv j Φ) c) ≤ (K / ε) * coreNorm c)
+    (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) :
+    ‖corePair c (driftOperator β σ Φ c)‖
+      ≤ δ * numberForm c
+        + ((β ^ 2 * σ ^ 2 * K) ^ 2 / (8 * δ * ε ^ 2) + β ^ 2 * σ ^ 2 * K / (2 * ε))
+          * (d : ℝ) * coreNormSq c := by
+  have hM0 : 0 ≤ K / ε := div_nonneg hK (le_of_lt hε)
+  have hεne : ε ≠ 0 := ne_of_gt hε
+  have hδne : δ ≠ 0 := ne_of_gt hδ
+  refine (driftOperator_form_bound β σ (Φ := Φ) hM0 hgrad δ hδ c).trans (le_of_eq ?_)
+  rw [driftScale_eps hεne]
+  field_simp
+  ring
+
+
+/-! ## 13. Semiboundedness: `N + K_drift` is bounded below -/
+
+/-- The number operator is diagonal, with eigenvalue the occupation degree. -/
+theorem numberOp_apply (c : CoreCoeff d) (m : Fin d → ℕ) : numberOp c m = (natDeg m : ℂ) * c m := by
+  classical
+  rw [numberOp, Finsupp.sum_apply]
+  rw [Finsupp.sum]
+  simp only [Finsupp.single_apply]
+  rw [Finset.sum_ite_eq']
+  by_cases hm : m ∈ c.support
+  · simp [hm]
+  · rw [if_neg hm, Finsupp.notMem_support_iff.mp hm, mul_zero]
+
+/-- **The number operator's pairing is the number form**: `⟪c, N c⟫ = ∑ₙ (∑ᵢ nᵢ)‖c n‖²`. -/
+theorem corePair_numberOp_re (c : CoreCoeff d) : (corePair c (numberOp c)).re = numberForm c := by
+  classical
+  have hsub : (numberOp c).support ⊆ c.support := fun m hm => mem_support_numberOp hm
+  rw [corePair_eq_sum (c' := numberOp c) Finset.Subset.rfl hsub, Complex.re_sum]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [numberOp_apply]
+  have hz : c n * star (c n) = ((‖c n‖ ^ 2 : ℝ) : ℂ) := by
+    rw [Complex.star_def, Complex.mul_conj, Complex.normSq_eq_norm_sq]
+  have hst : star ((natDeg n : ℂ)) = ((natDeg n : ℝ) : ℂ) := by
+    rw [show ((natDeg n : ℂ)) = ((natDeg n : ℝ) : ℂ) by push_cast; ring, Complex.star_def,
+      Complex.conj_ofReal]
+  have h : c n * star ((natDeg n : ℂ) * c n) = (((natDeg n : ℝ) * ‖c n‖ ^ 2 : ℝ) : ℂ) := by
+    rw [star_mul, hst, ← mul_assoc, hz, ← Complex.ofReal_mul]
+    congr 1
+    ring
+  rw [h, Complex.ofReal_re]
+
+/-- **Semiboundedness from a relative form bound.**  If a drift's form is dominated by
+`δ·⟪c, N c⟫ + C‖c‖²` with `δ ≤ 1`, then the quadratic form of `N + K` is bounded below by `−C‖c‖²`
+— the KLMN conclusion, taken before any completion. -/
+theorem semibounded_of_form_bound {K : CoreCoeff d → CoreCoeff d} {δ C : ℝ} (hδ1 : δ ≤ 1)
+    (h : ∀ c : CoreCoeff d, ‖corePair c (K c)‖ ≤ δ * numberForm c + C * coreNormSq c)
+    (c : CoreCoeff d) :
+    -C * coreNormSq c ≤ (corePair c (numberOp c + K c)).re := by
+  rw [corePair_add, Complex.add_re, corePair_numberOp_re]
+  have hre : -(‖corePair c (K c)‖) ≤ (corePair c (K c)).re := by
+    have := Complex.abs_re_le_norm (corePair c (K c))
+    have := neg_abs_le (corePair c (K c)).re
+    linarith
+  have hbound : -(δ * numberForm c + C * coreNormSq c) ≤ -(‖corePair c (K c)‖) := by
+    have := h c
+    linarith
+  have hnonneg : 0 ≤ (1 - δ) * numberForm c := by
+    have := numberForm_nonneg c
+    nlinarith
+  linarith
+
+/-- **`N + K_drift` is bounded below**, with the plan's constant: for `|bⱼ| ≤ B` and every
+`δ ∈ (0, 1]`, the quadratic form of `numberOp + driftOpCoeff b` is at least
+`−(B²d/(2δ) + Bd)·‖c‖²`. -/
+theorem numberOp_add_driftOpCoeff_semibounded (b : Fin d → ℝ) {B : ℝ} (hB0 : 0 ≤ B)
+    (hB : ∀ j, |b j| ≤ B) (δ : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤ 1) (c : CoreCoeff d) :
+    -(B ^ 2 * (d : ℝ) / (2 * δ) + B * (d : ℝ)) * coreNormSq c
+      ≤ (corePair c (numberOp c + driftOpCoeff b c)).re :=
+  semibounded_of_form_bound hδ1 (fun c => driftOpCoeff_form_bound B b hB0 hB δ hδ c) c
+
+/-- **The plan's drift is semibounded, with the `ε` in the constant**: for the gradient bound
+`M_ε = K/ε`, the form of `numberOp + driftOperator β σ Φ_ε` is bounded below by
+`−((β²σ²M_ε)²d/(8δ) + β²σ²M_ε·d/2)·‖c‖²`, hence by a constant of order `ε⁻²`. -/
+theorem pcnlDrift_semibounded_eps (β σ : ℝ) {Φ : MvPolynomial (Fin d) ℂ} {K ε : ℝ}
+    (hK : 0 ≤ K) (hε : 0 < ε)
+    (hgrad : ∀ j : Fin d, ∀ c : CoreCoeff d,
+      coreNorm (polyMul (MvPolynomial.pderiv j Φ) c) ≤ (K / ε) * coreNorm c)
+    (δ : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤ 1) (c : CoreCoeff d) :
+    -(((β ^ 2 * σ ^ 2 * K) ^ 2 / (8 * δ * ε ^ 2) + β ^ 2 * σ ^ 2 * K / (2 * ε))
+        * (d : ℝ)) * coreNormSq c
+      ≤ (corePair c (numberOp c + driftOperator β σ Φ c)).re :=
+  semibounded_of_form_bound hδ1
+    (fun c => driftOperator_form_bound_eps β σ (Φ := Φ) hK hε hgrad δ hδ c) c
 end BookProof.MCMC.FockLangevin
