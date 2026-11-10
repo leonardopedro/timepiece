@@ -591,17 +591,29 @@ away.
 **Route C — analytic vectors (Nelson's theorem, the route the corpus is closest to).**  In `L²(γ dx)`
 the Hermite polynomials are eigenfunctions of `T`: with `A = U T U^{-1} = −∂² + x²/4 − 1/2` under
 `U = ` multiplication by `γ^{1/2}` (the conjugation `U ∂ U^{-1} = ∂ + x/2` is
-`ChapterYangMillsMehlerBridge.conj_deriv`), the eigenfunctions `H_n(x/√2)` of `A` with eigenvalue `n`
-correspond to the polynomials `H_n(x/√2)` in `L²(γ dx)`, and the eigen-relation is exactly the
-Hermite ODE `−H_n'' + x H_n' = 2n H_n` (`ChapterHermiteFunctions.hermiteR_ode`).  Polynomials are
-dense in `L²(γ dx)` and they are analytic vectors for `T` (`Σ t^n ‖T^n p‖/n! < ∞` since
-`T^n p` is a polynomial of degree `n`), so `T` is essentially self-adjoint by
-Nelson's analytic-vector theorem.  *What is missing to formalize:* (i) the eigen-relation as a lemma
-about `gaussDirichlet` on `fun x => hermiteR n (x / Real.sqrt 2)` (a clean computation from
-`hermiteR_ode`, feasible); (ii) density of polynomials in `L²(γ dx)` (a `Lp`-density argument, similar
-in shape to `dense_gaussCore`); (iii) **Nelson's theorem itself** — mathlib has no analytic-vector or
+`ChapterYangMillsMehlerBridge.conj_deriv`), the eigenfunctions `H_n` of `A` with eigenvalue `n`
+correspond to the polynomials `H_n` in `L²(γ dx)`, and the eigen-relation is exactly the Hermite ODE
+`−H_n'' + x H_n' = n H_n` (`ChapterHermiteFunctions.hermiteR_ode`).  Polynomials are dense in
+`L²(γ dx)` and they are analytic vectors for `T` (`Σ t^n ‖T^n p‖/n! < ∞` since `T^n p` is a
+polynomial of degree `n`), so `T` is essentially self-adjoint by Nelson's analytic-vector theorem.
+*What is missing to formalize:* (iii) **Nelson's theorem itself** — mathlib has no analytic-vector or
 semigroup-generated self-adjointness theory.  This is the route with the least analysis and the most
 bookkeeping, but (iii) is unavoidable.
+
+*Done* for (i) and (ii) in `BookProof/Qym/ChapterYangMillsHermiteSpectrum.lean` (no `sorry`; axioms
+`propext`, `Classical.choice`, `Quot.sound`): `gaussDirichlet_hermiteR` is the eigen-relation as an
+identity of functions on the real weighted Dirichlet operator of `ChapterYangMillsMehlerBridge`, and
+`dense_span_polyLp` is the density of the polynomial classes `polyLp p` in `Lp ℝ 2 gaussMeasure`.
+`integral_moment_eq` + `ae_eq_zero_of_moments_gaussMeasure` are the moment problem for `γ dx` in
+closed form.  Three traps: (a) the eigenvalue is `n` and the eigenfunction is `hermiteR n` itself,
+**not** `H_n(x/√2)` with eigenvalue `2n` — that is the physicists' convention, while `hermiteR` is
+the probabilists' `Polynomial.hermite`, so no rescaling belongs in the statement; (b) `rw [gaussMeasure]`
+*fails* in any goal that mentions an `Lp ℝ 2 gaussMeasure` element (the coercion's instance
+arguments carry the measure), so the measure is moved with
+`integral_withDensity_eq_integral_toReal_smul` applied to a zero-defeq `volume.withDensity …`;
+(c) the moment hypothesis must be moved to `volume` *before*
+`HermiteCore.ae_eq_zero_of_moments` applies, and the resulting `γ^{1/2} w = 0` divides through by the
+nowhere-vanishing `gaussRoot`.
 
 **Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
 no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)

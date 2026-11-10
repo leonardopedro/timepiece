@@ -2169,6 +2169,21 @@ import BookProof.Qym.ChapterYangMillsGaussFormComplex
 -- leaf module and not an import in either direction.
 import BookProof.Qym.ChapterYangMillsGaussFormReal
 
+-- `ChapterYangMillsHermiteSpectrum` (work package S0, Route C of the self-adjointness gap): the two
+-- analytic inputs of the Nelson route that do not need missing theory.  `gaussDirichlet_hermiteR`
+-- is the eigen-relation `−H_n'' + x H_n' = n H_n` as an identity of functions — note the eigenvalue
+-- is `n` and the eigenfunction is `hermiteR n` itself, not `H_n(x/√2)` with eigenvalue `2n`, because
+-- the corpus uses the probabilists' `Polynomial.hermite`; `deriv_eval_hermiteR` and
+-- `deriv_deriv_eval_hermiteR` are the polynomial-derivative steps that connect `deriv` to `eval`.
+-- `dense_span_polyLp` is the density of the polynomial classes in `L²(γ dx)`, proved with the same
+-- moment argument as `HermiteCore.hermiteLp_span_dense` after `integral_moment_eq` moves
+-- `∫ xᵏ w d(γ dx)` to the Lebesgue integral of `(xᵏ γ^{1/2}) · (γ^{1/2} w)`; the measure is moved by
+-- `integral_withDensity_eq_integral_toReal_smul` rather than by rewriting `gaussMeasure`, since `rw`
+-- cannot unfold the measure in a goal mentioning an `Lp ℝ 2 gaussMeasure` element.
+-- `ae_eq_zero_of_moments_gaussMeasure` is the moment problem in closed form.  Nelson's theorem
+-- itself (input (iii)) is still missing.
+import BookProof.Qym.ChapterYangMillsHermiteSpectrum
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
