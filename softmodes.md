@@ -769,7 +769,14 @@ analytic input left.
 difference of representatives, squared into a `lintegral` of `ofReal` — the shape
 `exists_lintegral_tail_lt` bounds.  `polyOp_closure_le_gaussOp_closure` and
 `polyOp_closure_eq_gaussOp_closure` restate the identification over `polyOp.closure`, since
-essential self-adjointness makes the *closure* self-adjoint and not `polyOp` itself.
+essential self-adjointness makes the *closure* self-adjoint and not `polyOp` itself.  That
+hypothesis is still a parameter: `polyCore_essentiallySelfAdjoint` is a statement over `ℂ` about
+`polyOpC` on `Cx (Lp ℝ 2 γ)`, while `IsSelfAdjoint polyOp.closure` is a statement about the real
+`LinearPMap`, and no complexification equivalence for `LinearPMap`/adjoint has been built to
+transport one to the other.  The alternative route — an orthogonal Hermite basis of
+`Lp ℝ 2 γ` with its diagonal eigenvalues — needs `hermiteInner_eq` for orthogonality, the
+`HilbertBasis.mk` completeness condition from `dense_hermiteSpanSet`, and a sequential closure
+argument for the adjoint inclusion, and is not written yet.
 
 The `ℂ` form is a transport: `polyOpC` and `gaussOpC` live on
 `Cx (Lp ℝ 2 γ)` and `Lp ℂ 2 γ`, and no equivalence between the two has been built, so the
