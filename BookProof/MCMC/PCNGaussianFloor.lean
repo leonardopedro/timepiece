@@ -50,7 +50,9 @@ the architecture's own proposal rather than an unknown number.
 * **§6, the Metropolis step as a probability** — `pcnProbabilityStep` (accepted density plus its
   rejection atom), **`pcnMetropolisStep_le_pcnProbabilityStep`**,
   **`pcnProbabilityStep_univ`** (mass `1` once the accepted mass is a real in `[0,1]`) and
-  **`pcnProbabilityStep_rate`** (the whole chain: minorant → probability step → rate).
+  **`pcnProbabilityStep_rate`** (the whole chain: minorant → probability step → rate);
+* **§7, the increment's mass** — `lintegral_exp_neg_sq_div` (`∫ exp (−(y−a)²/s) = √(π s)`) and
+  **`pcnGaussMass_one`** (the normalised increment is a probability density on the line).
 
 ## Honest boundary
 
@@ -579,6 +581,73 @@ theorem pcnProbabilityStep_rate {c s ρ R m : ℝ} {τ : (Fin d → ℝ) → ℝ
     exact pcnProbabilityStep_univ (hAc x) (hA0 x) (hA1 x)
   · intro x
     exact le_trans (hmin x) (pcnMetropolisStep_le_pcnProbabilityStep c s ρ R τ A x)
+
+
+/-! ## 7. The increment's mass: the one-dimensional normalisation
+
+§6's step is a probability measure once the accepted mass is known to be at most `1`; that bound
+is an integral of the accepted density.  This section computes the first such integral — the mass of
+the *unnormalised* increment on the line:
+
+* **`lintegral_exp_neg_sq_div`** — `∫ exp (−(y − a)²/s) dy = √(π s)` for `s > 0`;
+* **`pcnGaussMass_one`** — the normalised increment `(√(π s))⁻¹ exp (−(y − a)²/s)` is a probability
+  density on `ℝ`.
+
+The `d`-dimensional statement is the product of these over the coordinates — `Measure.pi` and
+Fubini — and is not written out here; nor is the *box-restricted, acceptance-weighted* integral that
+§6's `A` actually is.
+-/
+
+/-- **The one-dimensional Gaussian integral in the pCN's own scaling**: for `s > 0`,
+`∫ exp (−(y − a)²/s) dy = √(π s)`. -/
+theorem lintegral_exp_neg_sq_div {s : ℝ} (hs : 0 < s) (a : ℝ) :
+    ∫⁻ y : ℝ, ENNReal.ofReal (Real.exp (-((y - a) ^ 2) / s))
+      = ENNReal.ofReal (Real.sqrt (Real.pi * s)) := by
+  set v : NNReal := ⟨s / 2, by positivity⟩ with hvdef
+  have hvcast : (v : ℝ) = s / 2 := rfl
+  have hvc : (v : ℝ) ≠ 0 := by rw [hvcast]; positivity
+  have hv : v ≠ 0 := fun h => hvc (by rw [h]; rfl)
+  have hgauss : ∫⁻ y : ℝ,
+      ENNReal.ofReal (ProbabilityTheory.gaussianPDFReal a v y) = 1 :=
+    ProbabilityTheory.lintegral_gaussianPDF_eq_one a hv
+  have hpt : ∀ y : ℝ, ENNReal.ofReal (Real.exp (-((y - a) ^ 2) / s))
+      = ENNReal.ofReal (Real.sqrt (Real.pi * s))
+        * ENNReal.ofReal (ProbabilityTheory.gaussianPDFReal a v y) := by
+    intro y
+    have h2 : (2 : ℝ) * (v : ℝ) = s := by rw [hvcast]; ring
+    have hsq : Real.sqrt (2 * Real.pi * (v : ℝ)) = Real.sqrt (Real.pi * s) := by
+      rw [show 2 * Real.pi * (v : ℝ) = Real.pi * s from by
+        calc 2 * Real.pi * (v : ℝ) = Real.pi * (2 * (v : ℝ)) := by ring
+          _ = Real.pi * s := by rw [h2]]
+    rw [ProbabilityTheory.gaussianPDFReal, hsq, show -((y - a) ^ 2) / (2 * (v : ℝ))
+      = -((y - a) ^ 2) / s by rw [h2], ← ENNReal.ofReal_mul (Real.sqrt_nonneg _)]
+    congr 1
+    field_simp
+  calc ∫⁻ y : ℝ, ENNReal.ofReal (Real.exp (-((y - a) ^ 2) / s))
+      = ∫⁻ y : ℝ, ENNReal.ofReal (Real.sqrt (Real.pi * s))
+          * ENNReal.ofReal (ProbabilityTheory.gaussianPDFReal a v y) := by
+        simp_rw [hpt]
+    _ = ENNReal.ofReal (Real.sqrt (Real.pi * s)) * 1 := by
+        rw [lintegral_const_mul _ (by fun_prop), hgauss]
+    _ = ENNReal.ofReal (Real.sqrt (Real.pi * s)) := mul_one _
+
+/-- **The normalised pCN increment is a probability density on the line**: with `s > 0`,
+`(√(π s))⁻¹ exp (−(y − a)²/s)` integrates to `1`. -/
+theorem pcnGaussMass_one {s : ℝ} (hs : 0 < s) (a : ℝ) :
+    (volume.withDensity fun y : ℝ => ENNReal.ofReal
+        ((Real.sqrt (Real.pi * s))⁻¹ * Real.exp (-((y - a) ^ 2) / s))) Set.univ = 1 := by
+  rw [withDensity_apply _ MeasurableSet.univ]
+  have hc : 0 ≤ (Real.sqrt (Real.pi * s))⁻¹ := by positivity
+  have hsplit : ∀ y : ℝ,
+      ENNReal.ofReal ((Real.sqrt (Real.pi * s))⁻¹ * Real.exp (-((y - a) ^ 2) / s))
+        = ENNReal.ofReal ((Real.sqrt (Real.pi * s))⁻¹)
+          * ENNReal.ofReal (Real.exp (-((y - a) ^ 2) / s)) := by
+    intro y
+    exact ENNReal.ofReal_mul hc
+  simp_rw [hsplit, setLIntegral_univ]
+  rw [lintegral_const_mul _ (by fun_prop), lintegral_exp_neg_sq_div hs a]
+  rw [← ENNReal.ofReal_mul hc,
+    inv_mul_cancel₀ (ne_of_gt (Real.sqrt_pos.mpr (mul_pos Real.pi_pos hs))), ENNReal.ofReal_one]
 
 
 end BookProof.MCMC.PCNGaussianFloor

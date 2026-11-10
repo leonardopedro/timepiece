@@ -1493,6 +1493,15 @@ is then the whole chain in one theorem: §38's minorant + §40's normalisation +
 `(1 − (1−c)^n)·π(S) ≤ (pcnIter step n x)(S)` for the Metropolis step itself.  What remains is one
 number — the accepted mass, an integral of §38's density — and the invariance of `π`.
 
+**The increment's mass — the first closed normalisation (§41).**  §40's probability step needed the
+accepted mass only to be *at most* `1`, and that bound is an integral.  §7 of `PCNGaussianFloor`
+computes the first one: **`lintegral_exp_neg_sq_div`**, `∫ exp (−(y − a)²/s) dy = √(π s)` — the
+one-dimensional Gaussian in the pCN's own scaling `s = 2σ²(1 − ρ²)` (obtained from Mathlib's
+`gaussianPDF` integral by `2·(s/2) = s`) — and **`pcnGaussMass_one`**, that the normalised increment
+`(√(π s))⁻¹ exp (−(y − a)²/s)` is a probability density on `ℝ`.  So the track now has one exact mass;
+what remains is the product over the `d` coordinates (`Measure.pi` + Fubini) and, after that, the
+box-restricted acceptance-weighted integral that `A` really is.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1536,7 +1545,8 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   (`pcnAccept_floor`, `pcnMetropolis_floor`, `pcnMetropolis_minorant`), and the rate itself
   (`pcnIter_rate`, and `pcnIter_rate_of_minorant` from the minorant alone) — §39; and the Metropolis
   step itself as a probability measure with the rate attached (`pcnProbabilityStep_univ`,
-  `pcnProbabilityStep_rate`) — §40.
+  `pcnProbabilityStep_rate`) — §40; and the one-dimensional increment's mass
+  (`lintegral_exp_neg_sq_div`, `pcnGaussMass_one`) — §41.
 
 *Not proved, and not claimed.*
 
@@ -1552,8 +1562,9 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   the raw and the Metropolis-adjusted step alike (§38), and the rate `(1 − (1−c)^n)` is proved for
   any probability step family that dominates `c • μ` (§39), and §40 builds the probability step
   (accepted density + rejection atom) and proves its mass is `1`.  What is left is the *value* of the
-  accepted mass — an integral of the density that the corpus does not compute — and the invariance
-  the rate assumes, which is stated rather than proved from reversibility.
+  accepted mass — an integral of the density, of which only the one-dimensional unnormalised case is
+  computed (§41) — and the invariance the rate assumes, which is stated rather than proved from
+  reversibility.
 * **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
   invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
 * **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;

@@ -7,7 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10k):** **§33 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10l):** **§34 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the increment's mass on the line: `lintegral_exp_neg_sq_div`
+> (`∫ exp (−(y−a)²/s) = √(π s)`) and **`pcnGaussMass_one`**, the first exact normalisation the track
+> has.  The `d`-dimensional product and the acceptance-weighted box integral remain.
+> **Earlier newest entry (2026-11-10k):** **§33 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the Metropolis step as a probability measure (`pcnProbabilityStep`,
 > **`pcnProbabilityStep_univ`**) and **`pcnProbabilityStep_rate`**, the rate attached to the step a
 > chain actually takes.  The accepted mass's value and invariance are the remaining links.
@@ -19779,3 +19783,17 @@ assembles the chain: §31's minorant + the normalisation + §32's contraction gi
 **Still open.**  The value of the accepted mass `A` — the integral of §31's accepted density, which
 the corpus does not compute — and the invariance of `π` under the step, which a reversibility proof
 would supply.
+
+### 34. Addendum (2026-11-10l) — the increment's mass on the line
+
+`lintegral_exp_neg_sq_div` — for `s > 0`, `∫ exp (−(y − a)²/s) dy = √(π s)`, via Mathlib's
+`lintegral_gaussianPDF_eq_one` at variance `s/2` (the substitution `2·(s/2) = s` is the whole
+content) — and **`pcnGaussMass_one`** — the normalised increment `(√(π s))⁻¹ exp (−(y − a)²/s)` is a
+probability density on `ℝ` (`withDensity_apply` + `lintegral_const_mul` + `inv_mul_cancel₀`).
+
+**Still open.**  The product over the `d` coordinates (`Measure.pi`, `measurePreserving_piFinSuccAbove`,
+`lintegral_prod_mul`), the box-restricted acceptance-weighted integral that §33's `A` is, and the
+invariance hypothesis.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
+on both → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.
