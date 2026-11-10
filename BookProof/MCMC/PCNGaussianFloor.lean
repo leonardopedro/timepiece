@@ -46,7 +46,11 @@ the architecture's own proposal rather than an unknown number.
   **`pcnIter_rate`** (the Doeblin bound `(1 − (1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`),
   **`exists_split_of_minorant`** (a probability step dominating `c • μ` splits as
   `c·μ + (1−c)·ν`), **`pcnIter_rate_of_minorant`** (so the minorant alone yields the rate), and
-  `pcnMetropolisStep` (the §4 step as a step family).
+  `pcnMetropolisStep` (the §4 step as a step family);
+* **§6, the Metropolis step as a probability** — `pcnProbabilityStep` (accepted density plus its
+  rejection atom), **`pcnMetropolisStep_le_pcnProbabilityStep`**,
+  **`pcnProbabilityStep_univ`** (mass `1` once the accepted mass is a real in `[0,1]`) and
+  **`pcnProbabilityStep_rate`** (the whole chain: minorant → probability step → rate).
 
 ## Honest boundary
 
@@ -56,9 +60,10 @@ space is not one.  What §2 adds is that the floor is a statement about the *pro
 `ℝ^d`, uniformly in the starting point, which is the form a minorant consumes; what it does not do
 is name the target measure on `ℝ^d`, pass the Metropolis filter through the density, or produce a
 rate — §3–§5 do all three, and the rate is the classical `1 − (1 − c)^n` — but the step family
-the rate applies to must be a family of probability measures, and the chapter's measures are
-densities on a box whose total mass it does not compute.  Normalising the Metropolis step is the
-remaining link, as is proving the invariance hypothesis rather than stating it.
+the rate applies to must be a family of probability measures — §6 builds that family (accepted
+density plus rejection atom) and proves its mass is `1`.  What stays open is the *value* of the
+accepted mass: an integral of §4's density that the chapter does not compute.  Proving the
+invariance hypothesis rather than stating it is the other open link.
 -/
 
 noncomputable section
@@ -508,6 +513,72 @@ def pcnMetropolisStep (c s ρ R : ℝ) (π : (Fin d → ℝ) → ℝ) (x : Fin d
     Measure (Fin d → ℝ) :=
   (volume.restrict (pcnBox d R)).withDensity
     fun y => ENNReal.ofReal (pcnMetropolisDensity c s ρ π x y)
+
+
+/-! ## 6. The Metropolis step as a probability measure
+
+§5's rate applies to a family of *probability* measures; §4's adjusted step is a density on a box
+and carries no rejection mass.  This section supplies the missing part: the Metropolis step is the
+accepted density plus the atom at the starting point holding the mass that was rejected, and *that*
+is a probability measure — with one analytic input, the accepted mass `A x`.
+
+* `pcnProbabilityStep` — `accepted density + (1 − A x)·δ_x`;
+* **`pcnMetropolisStep_le_pcnProbabilityStep`** — the accepted part is dominated by the full step,
+  so a minorant for the accepted part is one for the step;
+* **`pcnProbabilityStep_univ`** — if the accepted part's mass is `A x ∈ [0,1]`, the step's total
+  mass is `1`;
+* **`pcnProbabilityStep_rate`** — the assembly: §4's minorant plus §6's normalisation plus §5's
+  contraction give the `1 − (1−c)^n` bound for the Metropolis step.
+-/
+
+/-- The Metropolis-adjusted pCN step of §4 *with its rejection atom*: the accepted density plus the
+rejected mass as an atom at the starting point.  This is the step a chain actually takes. -/
+def pcnProbabilityStep (c s ρ R : ℝ) (π : (Fin d → ℝ) → ℝ)
+    (A : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) : Measure (Fin d → ℝ) :=
+  pcnMetropolisStep c s ρ R π x + ENNReal.ofReal (1 - A x) • Measure.dirac x
+
+/-- The rejection atom only adds mass: the accepted part is dominated by the full step, so any
+minorant of the accepted part is a minorant of the step. -/
+theorem pcnMetropolisStep_le_pcnProbabilityStep (c s ρ R : ℝ) (π : (Fin d → ℝ) → ℝ)
+    (A : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) :
+    pcnMetropolisStep c s ρ R π x ≤ pcnProbabilityStep c s ρ R π A x := by
+  rw [pcnProbabilityStep]
+  exact Measure.le_add_right (le_refl _)
+
+/-- **The Metropolis step is a probability measure.**  If the accepted part has mass `A x`, real and
+in `[0,1]`, then accepted and rejected masses add to `1`.  The normalisation is therefore
+bookkeeping; what is analytic is the value of `A`, i.e. the integral of the accepted density. -/
+theorem pcnProbabilityStep_univ {c s ρ R : ℝ} {π : (Fin d → ℝ) → ℝ}
+    {A : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hmass : (pcnMetropolisStep c s ρ R π x) Set.univ = ENNReal.ofReal (A x))
+    (hA0 : 0 ≤ A x) (hA1 : A x ≤ 1) :
+    pcnProbabilityStep c s ρ R π A x Set.univ = 1 := by
+  rw [pcnProbabilityStep, Measure.add_apply, hmass, Measure.smul_apply,
+    Measure.dirac_apply' x MeasurableSet.univ, Set.indicator_of_mem (Set.mem_univ x),
+    Pi.one_apply, smul_eq_mul, mul_one]
+  rw [← ENNReal.ofReal_add hA0 (by linarith), show A x + (1 - A x) = 1 by ring,
+    ENNReal.ofReal_one]
+
+/-- **The pCN rate, end to end.**  The accepted density of §4 together with its rejection atom is a
+probability measure, the accepted part's minorant transfers to it, and §5's contraction yields the
+`1 − (1−c)^n` bound for the Metropolis step itself.  What remains as hypothesis is the accepted mass
+`A` (an integral of §4's density) and the invariance of `π` under the step. -/
+theorem pcnProbabilityStep_rate {c s ρ R m : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    {π : Measure (Fin d → ℝ)} {A : (Fin d → ℝ) → ℝ}
+    (hm0 : 0 < m) (hm1 : m < 1)
+    (hmeas : Measurable (pcnProbabilityStep c s ρ R τ A))
+    (hAc : ∀ x, (pcnMetropolisStep c s ρ R τ x) Set.univ = ENNReal.ofReal (A x))
+    (hA0 : ∀ x, 0 ≤ A x) (hA1 : ∀ x, A x ≤ 1) [IsProbabilityMeasure π]
+    (hmin : ∀ x, ENNReal.ofReal m • π ≤ pcnMetropolisStep c s ρ R τ x)
+    (hstat : ∀ n, π.bind (pcnIter (pcnProbabilityStep c s ρ R τ A) n) = π)
+    (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
+    ENNReal.ofReal (1 - (1 - m) ^ n) * π S
+      ≤ pcnIter (pcnProbabilityStep c s ρ R τ A) n x S := by
+  refine pcnIter_rate_of_minorant hm0 hm1 hmeas ?_ ?_ hstat n x hS
+  · intro x
+    exact pcnProbabilityStep_univ (hAc x) (hA0 x) (hA1 x)
+  · intro x
+    exact le_trans (hmin x) (pcnMetropolisStep_le_pcnProbabilityStep c s ρ R τ A x)
 
 
 end BookProof.MCMC.PCNGaussianFloor

@@ -1483,6 +1483,16 @@ the chapter's measures are densities on a box whose total mass it does not compu
 `pcnMetropolisStep` is finite but not yet a probability, and the invariance hypothesis is stated
 rather than proved.
 
+**The Metropolis step as a probability, and the rate end to end (§40).**  §39's rate applies to
+probability measures; §38's adjusted step is a density on a box and carries no rejection mass.  §6 of
+`PCNGaussianFloor` supplies the rest: `pcnProbabilityStep` is the accepted density *plus the atom at the
+starting point* holding the rejected mass, `pcnMetropolisStep_le_pcnProbabilityStep` says the atom only
+adds mass (so a minorant of the accepted part is one of the step), and **`pcnProbabilityStep_univ`**
+proves the total mass is `1` once the accepted mass is a real `A x ∈ [0,1]`.  **`pcnProbabilityStep_rate`**
+is then the whole chain in one theorem: §38's minorant + §40's normalisation + §39's contraction give
+`(1 − (1−c)^n)·π(S) ≤ (pcnIter step n x)(S)` for the Metropolis step itself.  What remains is one
+number — the accepted mass, an integral of §38's density — and the invariance of `π`.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1524,7 +1534,9 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   point), the Doeblin condition against a named target `pcnDoeblin` (`(F/B) • π ≤ P(x, ·)`) and its
   set-level form `pcnDoeblin_apply`, the Metropolis-adjusted version
   (`pcnAccept_floor`, `pcnMetropolis_floor`, `pcnMetropolis_minorant`), and the rate itself
-  (`pcnIter_rate`, and `pcnIter_rate_of_minorant` from the minorant alone) — §39.
+  (`pcnIter_rate`, and `pcnIter_rate_of_minorant` from the minorant alone) — §39; and the Metropolis
+  step itself as a probability measure with the rate attached (`pcnProbabilityStep_univ`,
+  `pcnProbabilityStep_rate`) — §40.
 
 *Not proved, and not claimed.*
 
@@ -1538,9 +1550,10 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   coefficient families, not positivity of a Markov kernel.
 * **The continuum chain.**  The target is named (§36), the minorant `(F/B) • π ≤ P(x, ·)` holds for
   the raw and the Metropolis-adjusted step alike (§38), and the rate `(1 − (1−c)^n)` is proved for
-  any probability step family that dominates `c • μ` (§39).  The one link left is normalisation: the
-  pCN/Metropolis measures here are densities on a box, not probability measures, and the invariance
-  the rate assumes is not proved from reversibility.
+  any probability step family that dominates `c • μ` (§39), and §40 builds the probability step
+  (accepted density + rejection atom) and proves its mass is `1`.  What is left is the *value* of the
+  accepted mass — an integral of the density that the corpus does not compute — and the invariance
+  the rate assumes, which is stated rather than proved from reversibility.
 * **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
   invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
 * **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;

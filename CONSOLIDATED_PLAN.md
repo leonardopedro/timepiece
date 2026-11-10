@@ -7,7 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10j):** **§32 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10k):** **§33 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the Metropolis step as a probability measure (`pcnProbabilityStep`,
+> **`pcnProbabilityStep_univ`**) and **`pcnProbabilityStep_rate`**, the rate attached to the step a
+> chain actually takes.  The accepted mass's value and invariance are the remaining links.
+> **Earlier newest entry (2026-11-10j):** **§32 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the iterate on `ℝ^d` (`pcnIter`, `pcnStat_iter`, `pcnIter_univ`) and the Doeblin
 > rate **`pcnIter_rate`** (`(1−(1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`), with
 > **`exists_split_of_minorant`** and **`pcnIter_rate_of_minorant`** so the minorant alone yields it.
@@ -19762,3 +19766,16 @@ supply.
 on `pcnIter_rate`, `pcnIter_rate_of_minorant`, `exists_split_of_minorant`, `pcnStat_iter`,
 `pcnIter_univ` → `propext, Classical.choice, Quot.sound` only, no `sorry`; 0 lines over 100
 characters, no trailing whitespace.
+
+### 33. Addendum (2026-11-10k) — the Metropolis step as a probability measure
+
+`pcnProbabilityStep` is §31's accepted density plus the atom at the starting point carrying the
+rejected mass; `pcnMetropolisStep_le_pcnProbabilityStep` (the atom only adds mass, so a minorant of
+the accepted part transfers) and **`pcnProbabilityStep_univ`** (the two masses add to `1` once the
+accepted mass is a real `A x ∈ [0,1]`) make it a probability measure.  **`pcnProbabilityStep_rate`**
+assembles the chain: §31's minorant + the normalisation + §32's contraction give
+`(1 − (1−c)^n)·π(S) ≤ (pcnIter step n x)(S)` for the Metropolis step itself.
+
+**Still open.**  The value of the accepted mass `A` — the integral of §31's accepted density, which
+the corpus does not compute — and the invariance of `π` under the step, which a reversibility proof
+would supply.
