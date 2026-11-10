@@ -2262,6 +2262,13 @@ import BookProof.Qym.ChapterYangMillsPolyTail
 -- `‖T(χ p) - T p‖ → 0`.
 import BookProof.Qym.ChapterYangMillsPolyGraphNorm
 
+-- `ChapterYangMillsPolyCutoff` (S0 Route C, the cutoff): the smooth `χ_R(x) = smoothTransition
+-- (2 - x²/R²)` used by the annulus estimate.  `cutFn_eq_one` / `cutFn_eq_zero` place the collar, and
+-- `cutFn_deriv_bound` / `cutFn_deriv2_bound` give `|χ_R'| ≤ C|x|/R²` and `|χ_R''| ≤ C|x|²/R⁴ + C/R²`,
+-- which is the `O(1/R)` and `O(1/R²)` scaling the tail estimate needs.  The constants come from
+-- compactness (`sDerivBound`, `sDerivBound2`), since `smoothTransition` has no `deriv` formula.
+import BookProof.Qym.ChapterYangMillsPolyCutoff
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
