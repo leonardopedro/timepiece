@@ -2289,6 +2289,26 @@ import BookProof.Qym.ChapterYangMillsPolyLpNorm
 -- longer has an unproved analytic input.
 import BookProof.Qym.ChapterYangMillsPolyAnnulus
 
+-- `ChapterYangMillsPolyBasis` (S0 Route C, the basis): the Hermite classes in `L²(γ dx)`, taken
+-- orthonormal and completed to a Hilbert basis.  `inner_polyLp_hermiteR` reads the inner product of
+-- two classes as `hermiteInner m n`, so `hermiteInner_eq` gives orthogonality with norms
+-- `n!·√(2π)` (`inner_polyLp_hermiteR_eq`); normalizing gives `orthonormal_hermiteLpR`, rescaling
+-- leaves the span unchanged (`span_hermiteLpR`), and `HilbertBasis.mk` turns `dense_hermiteSpanSet`
+-- into `hermiteBasisR`.
+import BookProof.Qym.ChapterYangMillsPolyBasis
+
+-- `ChapterYangMillsPolySelfAdjoint` (S0 Route C, the closure is self-adjoint): the diagonal-basis
+-- argument, over `ℝ` and so without any deficiency-space test.  `polyOp` is symmetric because
+-- `polyOp b_n = n b_n` in an orthonormal family (`coreExt_inner_comm_span`), and
+-- `closure_isFormalAdjoint` carries that to the closure with a two-sequence limit.  For `y` in the
+-- adjoint's domain the adjoint relation forces `⟪b_n, T† y⟫ = n ⟪b_n, y⟫
+-- (`inner_adjoint_hermiteLpR`), so the partial sums of the expansion of `y` lie in the domain and
+-- map to the partial sums of the expansion of `T† y` (`exists_seq_of_mem_adjointDomain`);
+-- closedness then gives `T† ≤ T` (`closure_adjoint_le`).  Hence `isSelfAdjoint_polyOp_closure`, and
+-- with `gaussOp_closure_isSymmetric` maximality yields `polyOp_closure_eq_gaussOp_closure'` with no
+-- hypotheses at all.
+import BookProof.Qym.ChapterYangMillsPolySelfAdjoint
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`

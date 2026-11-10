@@ -769,14 +769,28 @@ analytic input left.
 difference of representatives, squared into a `lintegral` of `ofReal` — the shape
 `exists_lintegral_tail_lt` bounds.  `polyOp_closure_le_gaussOp_closure` and
 `polyOp_closure_eq_gaussOp_closure` restate the identification over `polyOp.closure`, since
-essential self-adjointness makes the *closure* self-adjoint and not `polyOp` itself.  That
-hypothesis is still a parameter: `polyCore_essentiallySelfAdjoint` is a statement over `ℂ` about
-`polyOpC` on `Cx (Lp ℝ 2 γ)`, while `IsSelfAdjoint polyOp.closure` is a statement about the real
-`LinearPMap`, and no complexification equivalence for `LinearPMap`/adjoint has been built to
-transport one to the other.  The alternative route — an orthogonal Hermite basis of
-`Lp ℝ 2 γ` with its diagonal eigenvalues — needs `hermiteInner_eq` for orthogonality, the
-`HilbertBasis.mk` completeness condition from `dense_hermiteSpanSet`, and a sequential closure
-argument for the adjoint inclusion, and is not written yet.
+essential self-adjointness makes the *closure* self-adjoint and not `polyOp` itself.  That route
+left `IsSelfAdjoint polyOp.closure` as a parameter — `polyCore_essentiallySelfAdjoint` is a
+statement over `ℂ` about `polyOpC` on `Cx (Lp ℝ 2 γ)`, while the conclusion is about the real
+`LinearPMap`, and no complexification equivalence for `LinearPMap`/adjoint exists to transport one
+to the other.  The diagonal route now closes it, and needs no transport: over `ℝ` there is no `i`
+to test against, so the operator is diagonalized instead.  `BookProof.YangMillsPolyBasis` reads
+`⟪H_m, H_n⟫` as `hermiteInner m n` (`inner_polyLp_hermiteR`), applies `hermiteInner_eq`
+(`inner_polyLp_hermiteR_eq`), normalizes to `orthonormal_hermiteLpR`, notes that rescaling does
+not change the span (`span_hermiteLpR`) and hands `dense_hermiteSpanSet` to `HilbertBasis.mk`,
+obtaining `hermiteBasisR`.  `BookProof.YangMillsPolySelfAdjoint` then runs the two halves.
+Symmetry is the diagonal one — `polyOp b_n = n b_n` in an orthonormal family, so
+`⟪T b_m, b_n⟫ = m δ_{mn} = ⟪b_m, T b_n⟫`, and `coreExt_inner_comm_span` propagates it through
+`Submodule.span_induction₂`; `closure_isFormalAdjoint` transfers it to the closure by taking two
+graph sequences and letting both indices go to infinity in `⟪T xₖ, yₗ⟫`.  The adjoint inclusion is
+the diagonal argument: the adjoint relation at `b_n` gives `⟪b_n, T† y⟫ = n ⟪b_n, y⟫`
+(`inner_adjoint_hermiteLpR`), so the partial sums of the basis expansion of `y` lie in the domain
+and their images are the partial sums of the expansion of `T† y`
+(`exists_seq_of_mem_adjointDomain`); both converge, and the closed graph gives `T† ≤ T`
+(`closure_adjoint_le`).  With `SymmetricOp.le_adjoint` this is `isSelfAdjoint_polyOp_closure`, and
+since `gaussOp.closure` is symmetric by the same sequence argument
+(`gaussOp_closure_isSymmetric`), maximality gives `polyOp_closure_eq_gaussOp_closure'` — the
+identification of the two cores with no hypotheses at all.
 
 The `ℂ` form is a transport: `polyOpC` and `gaussOpC` live on
 `Cx (Lp ℝ 2 γ)` and `Lp ℂ 2 γ`, and no equivalence between the two has been built, so the
