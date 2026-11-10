@@ -625,6 +625,38 @@ consumes, and the only nontrivial quantitative condition left is `quarticShift <
 Axioms audited on the six theorems of this subsection: `propext`, `Classical.choice`,
 `Quot.sound` only.
 
+#### S2 — the root-sector structure, with the obstruction isolated
+
+The abelian refutation and the vacuum value `1/2` per component say *where* the obstruction lives;
+§3d.3 of `Qym/ChapterYangMillsFieldStrengthSplit` turns that into a structure and an isolation
+theorem.
+
+* `rootSector c : Prop := c 0 = 0` — no vacuum component: the sector where the `:N²:` weight pays for
+  the norm.
+* `RootModeIdentification` — the same data as `ModeIdentification` (`toCore`, the isometry), with
+  `mag_eq` required only on the root sector.  `toRootModeIdentification` shows every unrestricted
+  identification restricts, so the structure is not a weakening invented for convenience: it is
+  exactly `ModeIdentification` minus the vacuum case.
+* `vacuumCoeff_not_rootSector` — the witness of `not_modeIdentification_abelian` is the vacuum
+  coefficient, which is outside the sector.  So the abelian argument cannot be replayed against the
+  restricted structure: its only counterexample is excluded by hypothesis.
+* `magneticEnergyForm_ge_normSq` (in `YangMillsMagneticQuartic`) — off the vacuum the `:N²:` weight
+  dominates the norm, because a nonzero mode has some occupied coordinate, whose square is `≥ 1`.
+  Hence `root_sector_magnetic_pos`: no nonzero root-sector state has vanishing weight, i.e. there is
+  no root-sector analogue of the obstruction.
+* `magEnergy_ge_of_rootIdentification` — the S2 barrier transfer (`1/24` of degree + barrier − shift)
+  only ever applies the form identity to one `c`, so it holds on the root sector with the *weaker*
+  structure.  The vacuum case is needed only to state the identification globally, not for the
+  analytic chain.
+
+**Boundary.**  `RootModeIdentification` still has no inhabitant: the remaining content is the same
+assembly of the `24` components onto the core (`coeffToCore`), and the sector restriction only
+removes the case that is already known to be impossible to identify.  The gain is that the target
+is now stated where it can be true, and that the S2 transfer is known not to depend on the vacuum.
+
+Axioms audited on the five theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
 #### S2 — the cross weight is dominated by the count factor `d − 1`
 
 The split `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n` becomes useful when one weight can pay for

@@ -551,6 +551,14 @@ above.  This section states that identification and proves what it yields.
   driven through the chapter's gap chain: ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`,
   separation `c₁Δ_ref/48 > 0`, the excited-sector bound in the `quartic_certified_gap` shape, and
   positivity of the threshold exactly when `quarticShift < c₁ Δ_ref`.
+* **`rootSector`**, **`RootModeIdentification`**, **`toRootModeIdentification`** — the
+  identification restricted to the root sector (no vacuum component): every unrestricted one
+  restricts, and this is the structure the abelian argument does not refute;
+* **`vacuumCoeff_not_rootSector`**, **`root_sector_magnetic_pos`** — the obstruction is isolated at
+  the vacuum: the `not_modeIdentification_abelian` witness lies outside the root sector, and on it
+  every nonzero state has strictly positive `:N²:` weight (`magneticEnergyForm_ge_normSq`);
+* **`magEnergy_ge_of_rootIdentification`** — the S2 barrier transfer needs only the root-sector
+  identity, so the vacuum case is not needed for the analytic chain;
 * **The root-sector half of the form expansion** is proved in the sibling modules rather than
   here: `YangMillsMagneticQuartic.rootCrossWeight`,
   `YangMillsMagneticQuartic.quarticDegreeForm_eq_magnetic_add_root` (the `:N²:` weight is the
@@ -866,6 +874,81 @@ theorem s2_excited_threshold (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin
       - (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
       = (c₁ * refGap ω - quarticShift (d := 24) T g) / 48 := by ring
   rwa [hc'] at h
+
+/-! ### 3d.3 The root-sector structure, with the obstruction isolated
+
+§3d.1 shows that the abelian sector cannot inhabit `ModeIdentification`, and the witness it uses is
+the *vacuum* coefficient.  The quantitative form of that witness is the `1/2` per component of
+`YangMillsFieldStrength.abelian_vacuum_energy`, and the complementary fact is
+`magneticEnergyForm_ge_normSq`: off the vacuum the `:N²:` weight pays for the norm itself.  So the
+honest structure is the identification *restricted to the root sector* — no vacuum component —
+which is exactly `ModeIdentification` minus the state where the abelian defect lives. -/
+
+/-- The **root sector** of the coefficient model: no vacuum component. -/
+def rootSector (c : CoreCoeff 24) : Prop := c 0 = 0
+
+/-- **The mode identification off the vacuum.**  Same data as `ModeIdentification`, but the form
+identity is required only on the root sector.  This is the structure the abelian argument does *not*
+refute, and it is where the non-abelian identification has to be built
+(`root_sector_magnetic_pos`: the `:N²:` weight is strictly positive on every nonzero root-sector
+state, so the obstruction — a state with vanishing weight — has no root-sector instance). -/
+structure RootModeIdentification (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) where
+  /-- the identification of coefficient vectors with core vectors. -/
+  toCore : CoreCoeff 24 → D
+  /-- it is an isometry for the two norms. -/
+  norm_sq : ∀ c : CoreCoeff 24, ‖((toCore c : D) : L2d 99)‖ ^ 2 = coreNormSq c
+  /-- the form identity, on the root sector only. -/
+  mag_eq_root : ∀ c : CoreCoeff 24, rootSector c →
+    (∑ m : Fin 24, ‖(((magOps Φ fabc m) (toCore c) : D) : L2d 99)‖ ^ 2)
+      = magneticEnergyForm (d := 24) diagA c
+
+/-- Every unrestricted identification restricts to the root sector. -/
+def toRootModeIdentification (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) : RootModeIdentification Φ fabc where
+  toCore := MI.toCore
+  norm_sq := MI.norm_sq
+  mag_eq_root := fun c _ => MI.mag_eq c
+
+/-- **The abelian witness is outside the root sector**: the vacuum coefficient has component `1`,
+so the state where `not_modeIdentification_abelian` bites is not available to the restricted
+structure. -/
+theorem vacuumCoeff_not_rootSector : ¬ rootSector (vacuumCoeff 24) := by
+  intro h
+  have h1 : vacuumCoeff 24 (fun _ => (0 : ℕ)) = 1 := vacuumCoeff_zero
+  have h2 : vacuumCoeff 24 (fun _ => (0 : ℕ)) = 0 := h
+  rw [h1] at h2
+  norm_num at h2
+
+/-- **No obstruction on the root sector**: every nonzero root-sector state has a strictly positive
+`:N²:` weight, so no state there can be the `not_modeIdentification_abelian` witness. -/
+theorem root_sector_magnetic_pos (c : CoreCoeff 24) (hc : c ≠ 0) (h : rootSector c) :
+    0 < magneticEnergyForm (d := 24) diagA c :=
+  magneticEnergyForm_pos_of_root hc h
+
+/-- **The S2 transfer only needs the root-sector identification.**  The barrier bound
+(`magEnergy_ge_of_identification`) is applied to a single `c`; restricting `mag_eq` to the root
+sector therefore costs nothing on that sector: on every root-sector coefficient the core's magnetic
+energy is at least `(degreeForm + barrierForm − shift ‖·‖²)/24`.  So the vacuum case is not needed
+for S2 — it is needed only to state the identification globally. -/
+theorem magEnergy_ge_of_rootIdentification (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (RI : RootModeIdentification Φ fabc)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) (c : CoreCoeff 24) (hc : rootSector c) :
+    1 / 24 * (degreeForm c + barrierForm T g c - quarticShift (d := 24) T g * coreNormSq c)
+      ≤ ∑ m : Fin 24, ‖(((magOps Φ fabc m) (RI.toCore c) : D) : L2d 99)‖ ^ 2 := by
+  rw [RI.mag_eq_root c hc]
+  have hquart := quarticDegreeForm_le_magnetic (d := 24) c
+  have hbar := (barrierBound_quartic (d := 24) T hg).bound c
+  have hsh : (barrierBound_quartic (d := 24) T hg).shift = quarticShift (d := 24) T g := rfl
+  rw [hsh] at hbar
+  have hstep : 1 / 24 * (degreeForm c + barrierForm T g c
+      - quarticShift (d := 24) T g * coreNormSq c) ≤ 1 / 24 * quarticDegreeForm c :=
+    mul_le_mul_of_nonneg_left hbar (by norm_num)
+  have hq24 : 1 / 24 * quarticDegreeForm c ≤ magneticEnergyForm (d := 24) diagA c := by
+    have h1 := mul_le_mul_of_nonneg_left hquart (by norm_num : (0 : ℝ) ≤ 1 / 24)
+    calc 1 / 24 * quarticDegreeForm c
+        ≤ 1 / 24 * (24 * magneticEnergyForm (d := 24) diagA c) := h1
+      _ = magneticEnergyForm (d := 24) diagA c := by ring
+  exact hstep.trans hq24
 
 /-! #### The certificate inside the gap chain
 

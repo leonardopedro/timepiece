@@ -187,6 +187,52 @@ theorem magneticEnergyForm_vacuum : magneticEnergyForm (d := d) diagA (vacuumCoe
   rw [magneticEnergyForm_diag, vacuumCoeff_support, Finset.sum_singleton, vacuumCoeff_zero]
   simp
 
+/-- **A nonzero mode has squared-occupation sum at least one**: some coordinate is occupied, and its
+square alone is `≥ 1`. -/
+theorem one_le_sum_sq_of_ne_zero {n : Fin d → ℕ} (hn : n ≠ 0) :
+    1 ≤ ∑ a, (n a : ℝ) ^ 2 := by
+  obtain ⟨a, ha⟩ := Function.ne_iff.mp hn
+  have hne : n a ≠ 0 := by
+    intro h
+    exact ha (by simpa using h)
+  have h1 : (1 : ℝ) ≤ (n a : ℝ) := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.mpr hne
+  have hsq : (1 : ℝ) ≤ (n a : ℝ) ^ 2 := by nlinarith
+  exact le_trans hsq (Finset.single_le_sum (f := fun a => (n a : ℝ) ^ 2)
+    (fun _ _ => by positivity) (Finset.mem_univ a))
+
+/-- **On the root sector the magnetic weight pays for the norm.**  If the vacuum coefficient
+vanishes, every mode in the support is non-vacuum, so its magnetic weight `∑ a, n_a²` is at least
+`1`; hence `coreNormSq c ≤ magneticEnergyForm diagA c`.  This is the positivity that the abelian
+sector lacks: it is exactly where the `1/2` per component of the vacuum is excluded. -/
+theorem magneticEnergyForm_ge_normSq {c : CoreCoeff d} (h0 : c 0 = 0) :
+    coreNormSq c ≤ magneticEnergyForm diagA c := by
+  rw [magneticEnergyForm_diag, coreNormSq]
+  refine Finset.sum_le_sum fun n hn => ?_
+  have hne : n ≠ 0 := by
+    intro h
+    have hc : c n ≠ 0 := Finsupp.mem_support_iff.mp hn
+    rw [h, h0] at hc
+    exact hc rfl
+  have h1 := one_le_sum_sq_of_ne_zero (d := d) hne
+  have hnn : (0 : ℝ) ≤ ‖c n‖ ^ 2 := by positivity
+  calc ‖c n‖ ^ 2 = (1 : ℝ) * ‖c n‖ ^ 2 := (one_mul _).symm
+    _ ≤ (∑ a, (n a : ℝ) ^ 2) * ‖c n‖ ^ 2 := mul_le_mul_of_nonneg_right h1 hnn
+
+/-- A nonzero coefficient vector has strictly positive norm. -/
+theorem coreNormSq_pos {c : CoreCoeff d} (hc : c ≠ 0) : 0 < coreNormSq c := by
+  obtain ⟨n, hn⟩ := Finsupp.support_nonempty_iff.mpr hc
+  have hc0 : c n ≠ 0 := Finsupp.mem_support_iff.mp hn
+  have hpos : 0 < ‖c n‖ ^ 2 := pow_pos (norm_pos_iff.mpr hc0) 2
+  exact Finset.sum_pos' (fun m _ => by positivity) ⟨n, hn, hpos⟩
+
+/-- **The magnetic weight is strictly positive off the vacuum**: on the root sector every nonzero
+state has `0 < magneticEnergyForm diagA c`.  So the abelian obstruction — a state whose `:N²:`
+weight vanishes — cannot be produced there. -/
+theorem magneticEnergyForm_pos_of_root {c : CoreCoeff d} (hc : c ≠ 0) (h0 : c 0 = 0) :
+    0 < magneticEnergyForm diagA c :=
+  lt_of_lt_of_le (coreNormSq_pos hc) (magneticEnergyForm_ge_normSq (d := d) h0)
+
 /-- **The normal-ordering identity of the two-component magnetic model.**  For two components the
 quartic `:N²:` weight splits into the normal-ordered magnetic energy plus the cross term:
 `(n₀ + n₁)² = n₀² + n₁² + 2 n₀ n₁`.  The magnetic energy is the normal-ordered part — the

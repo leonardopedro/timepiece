@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10h):** “State of the project — 2026-11-10h: the cross weight against the
+> **Newest entry (2026-11-10i):** “State of the project — 2026-11-10i: the root-sector structure”,
+> at the end.  `rootSector` and `RootModeIdentification` state the identification off the vacuum
+> (every unrestricted one restricts to one); `vacuumCoeff_not_rootSector` puts the abelian witness
+> outside the sector; `magneticEnergyForm_ge_normSq` and `root_sector_magnetic_pos` show there is no
+> root-sector analogue of the obstruction; and `magEnergy_ge_of_rootIdentification` shows the S2
+> transfer needs the weaker structure only.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10h):** “State of the project — 2026-11-10h: the cross weight against the
 > count factor”, at the end.  `rootCrossWeight_le_sq_sum` proves the sharp `d − 1` bound
 > (`rootCrossForm_le_magnetic` at form level), `magnetic_quartic_count_sandwich` gives
 > `q_mag ≤ (∑ n)² ≤ d · q_mag`, and `not_sq_sum_le_rootCross` shows the converse fails, so the
@@ -19702,3 +19708,37 @@ behind "dropping the cross term is what makes `:N²:` coercive", now with no fre
 `magneticEnergyForm_le_quartic`, `magnetic_quartic_count_sandwich` and `not_sq_sum_le_rootCross`
 reports `propext, Classical.choice, Quot.sound` only; no line of the touched file exceeds 100
 characters.
+
+## State of the project — 2026-11-10i: the root-sector structure
+
+This entry records the follow-up to 2026-11-10h (and the "root-sector structure" suggestion).  All of
+it is `sorry`-free, `axiom`-free and compiled with `lake build +BookProof`.
+
+`ChapterYangMillsFieldStrengthSplit` §3d.3 states the identification where it can hold, and pins the
+obstruction to the vacuum:
+
+* `rootSector c : Prop := c 0 = 0` — the root sector: no vacuum component.
+* `RootModeIdentification` — `toCore`, the isometry `norm_sq`, and `mag_eq` only on the root
+  sector.  `toRootModeIdentification` proves that every `ModeIdentification` restricts to one, so
+  the restricted structure is exactly the unrestricted one minus the vacuum case.
+* `vacuumCoeff_not_rootSector` — the witness of `not_modeIdentification_abelian` is the vacuum
+  coefficient, which is outside the sector; the abelian argument cannot be replayed against
+  `RootModeIdentification`.
+* `YangMillsMagneticQuartic.magneticEnergyForm_ge_normSq` — off the vacuum the `:N²:` weight
+  dominates the norm (`one_le_sum_sq_of_ne_zero`: a nonzero mode has an occupied coordinate whose
+  square is `≥ 1`), hence `root_sector_magnetic_pos`: every nonzero root-sector state has strictly
+  positive weight, so there is no root-sector analogue of the obstruction.
+* `magEnergy_ge_of_rootIdentification` — the S2 barrier transfer holds on the root sector with the
+  weaker structure, since it applies `mag_eq` to one `c` at a time.  So the vacuum case is not
+  needed by the analytic chain.
+
+**Boundary.**  `RootModeIdentification` has no inhabitant: the remaining content is the assembly of
+the `24` components onto the core through `coeffToCore`, unchanged by the restriction.  The gain is
+a target that is not already known to be impossible, plus the fact that the S2 transfer does not
+depend on the vacuum.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`rootSector`-adjacent theorems, `toRootModeIdentification`, `vacuumCoeff_not_rootSector`,
+`root_sector_magnetic_pos`, `magEnergy_ge_of_rootIdentification`, `one_le_sum_sq_of_ne_zero`,
+`magneticEnergyForm_ge_normSq`, `coreNormSq_pos` and `magneticEnergyForm_pos_of_root` reports
+`propext, Classical.choice, Quot.sound` only; no line of the touched files exceeds 100 characters.
