@@ -1396,6 +1396,19 @@ the Hessian's `λ` sits entirely in the constant and the number-form coefficient
 every `δ ∈ (0,1]`: P3's diagnosis with the quadratic case isolated, and the reason the `ε`-dependence
 of `driftScale ≈ 1/ε` degrades the constant rather than the gap.
 
+**The form bound is not a gap (§32).**  §31 left `δ` free, so the natural question is whether some
+`δ` certifies a gap.  §21.8 of `FockLangevinOperator` optimises and answers no.  The AM-GM step
+`√(2A) ≤ δ + A/(2δ)` (`sqrt_two_mul_le_add_div`, from `(A − 2δ²)² ≥ 0`) turns §31's bound into
+**`affineForm_coefficient_le`**: for *every* `δ > 0` the coefficient of `‖c‖²` is at most
+`1 + E₀ − driftScale·d − driftScale·√(2d)`.  The free parameter is spent against itself, so
+minimising over `δ` cancels it — there is no better choice than `δ = √(A/2)`.  Consequently, when
+`1 + E₀ < driftScale·(d + √(2d))` the best constant is negative (`affineForm_best_coefficient_neg`),
+and at the implementation's numbers (`β = 0.3`, `σ = 0.35`, `M = 2·10⁶`, `d = 16672`, `λ = 1`) it is
+below `−10⁷` (`affineForm_architecture_coefficient`).  So the relative-form bound is what it was
+always used for — a licence that `pcnlHamiltonian` is semibounded — and not a gap certificate:
+coercivity everywhere and a positive spectral gap are different claims, and the `ε`-blowup of the
+gradient is what separates them here.
+
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
 written on occupations, and the weighted `ℓ¹` of the core is now closed as a *route* (§29: no
@@ -1450,7 +1463,9 @@ matters, and it is attained only in the compact region `‖W‖ ≲ ε`.)  **Con
 perturbation of `P₀` on the strength of a gradient bound.  Module 3's relative form bound — now
 proved in `BookProof.MCMC.FockLangevinOperator` §11 — is the load-bearing item, and it holds for the
 `ε`-regularized potential with a constant `∝ 1/ε`; relative *to the number operator* it is the
-sharper reading, useful in the low-number sector.
+sharper reading, useful in the low-number sector — but §32 (`affineForm_coefficient_le`) shows the
+constant it yields, optimised over `δ`, is negative at the architecture's numbers, so what the bound
+buys is semiboundedness of the Hamiltonian and not a gap.
 
 **(3) The prior-width sweep measures nothing about the posterior.**  Verified: `σ` enters only
 through the noise scale `βξ` and the drift coefficient `β²σ²/2`, and because the potential is

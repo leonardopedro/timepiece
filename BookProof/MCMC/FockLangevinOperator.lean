@@ -204,7 +204,14 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   describes — the exact quadratic form of §21.6 combines with §12's
   `driftOperator_linear_form_bound`: **`re_corePair_affineHamiltonian`** bounds the form below by
   `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²`, and `affineForm_gap` reads it off the vacuum.  The Hessian's
-  `λ` is entirely in the constant; the number-form coefficient stays `1 − δ`.
+  `λ` is entirely in the constant; the number-form coefficient stays `1 − δ`;
+* **§21.8, the best constant and the crossover** — the `δ`-optimisation is `√(2A) ≤ δ + A/(2δ)`
+  (`sqrt_two_mul_le_add_div`), so the coefficient of `‖c‖²` is at most
+  `1 + E₀ − driftScale·d − driftScale·√(2d)` for *every* `δ` (**`affineForm_coefficient_le`**); when
+  `1 + E₀ < driftScale·(d + √(2d))` the best constant is negative
+  (`affineForm_best_coefficient_neg`), and at the implementation's numbers it is below `−10⁷`
+  (`affineForm_architecture_coefficient`).  The form bound is a licence for the Hamiltonian, not a
+  gap certificate.
 
 ## Honest boundary
 
@@ -5888,6 +5895,88 @@ theorem affineForm_gap (β σ lam M : ℝ) (a : Fin d → ℝ) (hM0 : 0 ≤ M)
   have hmain := re_corePair_affineHamiltonian β σ lam M a hM0 ha δ hδ c
   have hnum := numberForm_ge_of_vac hc
   nlinarith
+
+
+
+/-! ## 21.8 The best constant of the affine form bound, and the crossover
+
+§21.7 bounded the affine class's form by `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²` with
+`C_δ = A/(2δ) + driftScale·d` and `A = driftScale²·d`.  That leaves `δ` free, and P3 asks whether
+*some* `δ` certifies a gap.  The answer is a computation:
+
+* `sqrt_two_mul_le_add_div` — `√(2A) ≤ δ + A/(2δ)` for `δ > 0`, from `(A − 2δ²)² ≥ 0`;
+* **`affineForm_coefficient_le`** — the coefficient of `‖c‖²` is at most
+  `1 + E₀ − driftScale·d − driftScale·√(2d)` for *every* `δ`: the AM-GM step cancels the free
+  parameter, so no choice of `δ` recovers more;
+* **`affineForm_best_coefficient_neg`** — hence, whenever `1 + E₀ < driftScale·(d + √(2d))`, the
+  best constant is negative and the §11 route certifies no gap off the vacuum for this class;
+* **`affineForm_architecture_coefficient`** — at the implementation's numbers
+  (`β = 0.3`, `σ = 0.35`, `M = 2·10⁶`, `d = 16672`, `λ = 1`) the best constant is below `−10⁷`.
+
+So the relative-form bound is a licence for `pcnlHamiltonian` and not a gap certificate — P3's
+observation, with the `δ`-optimisation done and the architecture's numbers checked.
+-/
+
+/-- **The AM-GM step behind the constant**: `√(2A) ≤ δ + A/(2δ)` for `δ > 0`, by
+`(A − 2δ²)² ≥ 0`. -/
+theorem sqrt_two_mul_le_add_div {A δ : ℝ} (hA : 0 ≤ A) (hδ : 0 < δ) :
+    Real.sqrt (2 * A) ≤ δ + A / (2 * δ) := by
+  rw [Real.sqrt_le_iff]
+  refine ⟨?_, ?_⟩
+  · have h1 : 0 ≤ A / (2 * δ) := by positivity
+    linarith
+  · have h1 : 0 ≤ A / (2 * δ) := by positivity
+    field_simp
+    nlinarith [sq_nonneg (A - 2 * δ ^ 2), hδ, hA]
+
+/-- **The best constant of the affine form bound.**  For every `δ > 0` the coefficient of `‖c‖²` in
+`re_corePair_affineHamiltonian` is at most `1 + E₀ − driftScale·d − driftScale·√(2d)`: the AM-GM
+step spends `δ` against `δ + A/(2δ) ≥ √(2A)`, so no choice of `δ` recovers more. -/
+theorem affineForm_coefficient_le (β σ M lam : ℝ) (hM0 : 0 ≤ M) (δ : ℝ) (hδ : 0 < δ) :
+    (1 - δ) + driftWeight β σ * (lam * (d : ℝ) / 2)
+        - (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ) + driftScale β σ M * (d : ℝ))
+      ≤ 1 + driftWeight β σ * (lam * (d : ℝ) / 2)
+        - driftScale β σ M * (d : ℝ) - driftScale β σ M * Real.sqrt (2 * (d : ℝ)) := by
+  have hdw : 0 ≤ driftScale β σ M := driftScale_nonneg hM0
+  have hA : 0 ≤ driftScale β σ M ^ 2 * (d : ℝ) := by positivity
+  have h := sqrt_two_mul_le_add_div (A := driftScale β σ M ^ 2 * (d : ℝ)) (δ := δ) hA hδ
+  have hsq : Real.sqrt (2 * (driftScale β σ M ^ 2 * (d : ℝ)))
+      = driftScale β σ M * Real.sqrt (2 * (d : ℝ)) := by
+    rw [show (2 * (driftScale β σ M ^ 2 * (d : ℝ)))
+      = (driftScale β σ M) ^ 2 * (2 * (d : ℝ)) by ring,
+      Real.sqrt_mul (by positivity), Real.sqrt_sq hdw]
+  rw [hsq] at h
+  linarith
+
+/-- **The crossover.**  When `1 + E₀ < driftScale·(d + √(2d))` the best constant is negative, so the
+§11 route to a gap — with *any* `δ` — certifies nothing off the vacuum for this class. -/
+theorem affineForm_best_coefficient_neg (β σ M lam : ℝ) (hM0 : 0 ≤ M)
+    (hcross : 1 + driftWeight β σ * (lam * (d : ℝ) / 2)
+      < driftScale β σ M * ((d : ℝ) + Real.sqrt (2 * (d : ℝ))))
+    (δ : ℝ) (hδ : 0 < δ) :
+    (1 - δ) + driftWeight β σ * (lam * (d : ℝ) / 2)
+        - (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ) + driftScale β σ M * (d : ℝ)) < 0 := by
+  have := affineForm_coefficient_le (d := d) β σ M lam hM0 δ hδ
+  linarith
+
+/-- **The implementation's numbers.**  With `β = 0.3`, `σ = 0.35`, `M = 2·10⁶` (the `K/ε` gradient
+bound at `ε = 10⁻⁶`, `K = 1`), `d = 16672` and `λ = 1`, the best constant of the form bound is below
+`−10⁷`: at these parameters *no* `δ` certifies a gap, which is P3's point (2) as an inequality. -/
+theorem affineForm_architecture_coefficient :
+    1 + driftWeight (3 / 10) (7 / 20) * ((1 : ℝ) * (16672 : ℝ) / 2)
+        - driftScale (3 / 10) (7 / 20) 2000000
+            * ((16672 : ℝ) + Real.sqrt (2 * (16672 : ℝ)))
+      < -(10000000 : ℝ) := by
+  set s : ℝ := Real.sqrt (2 * (16672 : ℝ)) with hdef
+  have hsb : (182 : ℝ) ≤ s := by
+    rw [hdef, Real.le_sqrt (by norm_num) (by norm_num)]
+    norm_num
+  have hval : driftScale (3 / 10) (7 / 20) 2000000 = 11025 := by
+    norm_num [driftScale, driftWeight]
+  have hE : driftWeight (3 / 10) (7 / 20) * ((1 : ℝ) * 16672 / 2) = 459522 / 10000 := by
+    norm_num [driftWeight]
+  rw [hval, hE]
+  nlinarith [hsb]
 
 
 

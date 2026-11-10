@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10e):** **§27 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10f):** **§28 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `FockLangevinOperator` §21.8 optimises §27's free `δ` and closes P3's question:
+> `√(2A) ≤ δ + A/(2δ)` (`sqrt_two_mul_le_add_div`) gives **`affineForm_coefficient_le`** — the
+> coefficient of `‖c‖²` is at most `1 + E₀ − driftScale·d − driftScale·√(2d)` for *every* `δ`, so
+> the free parameter cancels; when `1 + E₀ < driftScale·(d + √(2d))` the best constant is negative
+> (`affineForm_best_coefficient_neg`) and at the architecture's numbers it is below `−10⁷`
+> (`affineForm_architecture_coefficient`).  The relative-form bound is a semiboundedness licence,
+> not a gap certificate.
+> **Earlier newest entry (2026-11-10e):** **§27 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `FockLangevinOperator` §21.7 composes the two halves of the drift for an
 > affine-gradient potential `Φ = Φ_λ + Σⱼ aⱼxⱼ` (the class a Hessian bound describes):
 > `polyDrift_add` / `driftOperator_add` split it, §26's exact quadratic form supplies
@@ -19548,3 +19556,35 @@ floor.
 `#print axioms` on `polyDrift_add`, `driftOperator_add`, `re_corePair_affineHamiltonian`,
 `affineForm_gap` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over
 100 characters, no trailing whitespace.
+
+### 28. Addendum (2026-11-10f) — the affine constant, optimised: the form bound is not a gap
+
+**What §27 left.**  §27's form bound `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²` carries a free `δ`
+(`C_δ = A/(2δ) + driftScale·d`, `A = driftScale²·d`).  P3's next question is whether *some* `δ`
+certifies a gap.  §21.8 settles it by optimising.
+
+* **`sqrt_two_mul_le_add_div`** — `√(2A) ≤ δ + A/(2δ)` for `δ > 0`, from `(A − 2δ²)² ≥ 0`.
+* **`affineForm_coefficient_le`** — for *every* `δ > 0` the coefficient of `‖c‖²` in
+  `re_corePair_affineHamiltonian` is at most `1 + E₀ − driftScale·d − driftScale·√(2d)`.  The AM-GM
+  step spends the free parameter against itself: minimising over `δ` cancels it, so no choice of
+  `δ` recovers more than the value at `δ = √(A/2)`.
+* **`affineForm_best_coefficient_neg`** — hence if
+  `1 + E₀ < driftScale·(d + √(2d))` the best constant is *negative*: the §11 relative-form route
+  certifies nothing off the vacuum for this class, at any `δ`.
+* **`affineForm_architecture_coefficient`** — at the implementation's numbers (`β = 0.3`,
+  `σ = 0.35`, `M = 2·10⁶` from `K/ε` at `ε = 10⁻⁶`, `d = 16672`, `λ = 1`) the best constant is
+  below `−10⁷`.
+
+**What this says.**  The relative-form bound is a licence for `pcnlHamiltonian` — the operator is
+semibounded — and not a gap certificate.  Coercivity on the whole core and a positive spectral gap
+are different claims, and this is the arithmetic that separates them: no `δ` in §27's family
+recovers a positive constant once the gradient's `ε`-blowup makes `driftScale·(d + √(2d))` exceed
+`1 + E₀`, which at the architecture's parameters it does by seven orders of magnitude.  What is
+still open is unchanged: the `L²(π)`-side gap for a general `V_eff` (P3's own route, where the
+ground-state transform changes the operator) and the continuum passage of §24's density floor.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, green.
+`#print axioms` on `sqrt_two_mul_le_add_div`, `affineForm_coefficient_le`,
+`affineForm_best_coefficient_neg`, `affineForm_architecture_coefficient` →
+`propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no
+trailing whitespace.
