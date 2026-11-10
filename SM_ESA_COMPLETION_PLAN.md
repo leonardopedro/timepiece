@@ -1867,3 +1867,183 @@ supply the inclusion.  §32's `FormDomainComparison` — the graph norm of `−�
 remains a hypothesis.  Note that the SM's *essential self-adjointness* is unaffected: `sm_h_esa` is
 proved unconditionally (§13), and `PotSelfBound` is the hypothesis of the P1/P2 **relative-bound**
 transfer (`smNormalForm_norm_le_of_pot_self_bound`), a different estimate from ESA.
+
+---
+
+## §40. The Hessian gap at `p = 1`: a Gaussian-moment test
+
+### 40.1. What `p = 1` reduces to
+
+By §38, `PotSelfBound P c₀ 1` is equivalent to
+
+```
+hessForm(W)  ≤  ‖Δ_S p‖²  +  2 · weightedDirichlet(W + 1)        (all p)
+```
+
+with `W = smPotPoly P c₀` and `S = smS`.  At `p = 1` the kinetic term `‖Δ_S 1‖² = 0` and
+`weightedDirichlet(W + 1)` at `p = 1` is `∑_{j∈S} ∫ (W+1) |∇_j 1|² = 0`.  Hence the whole
+inequality collapses to a single Gaussian moment:
+
+```
+PotSelfBound at p = 1  ⟺   ∫_{ℝ^163} (Σ_{m=1}^{40} ∂_{q_m}² W)(x) e^{-‖x‖²/2} dx ≤ 0 .
+```
+
+So the first test of any candidate proof is whether the Gaussian expectation of the
+momentum-Laplacian of `W` is non-positive.  It is a *necessary* condition.
+
+### 40.2. Decomposition of `Δ_S W`
+
+`W = ∑_{r=0}^{48} Φ_r² + ∑_{m=0}^{39} q_m² + c₀`, with `Φ_r = smFormPoly P id r`.  Therefore
+
+```
+Δ_S W  =  Δ_S(∑ q_m²)  +  ∑_r Δ_S(Φ_r²)
+        =  80  +  ∑_r [ 2 |∇_S Φ_r|² + 2 Φ_r Δ_S Φ_r ] .
+```
+
+The family-by-family sign:
+
+* **`smQPoly` part (`∑ q_m²`).**  Contributes the constant `80` (each of the 40
+  momentum coordinates contributes `2`).
+
+* **`smMagB` (3 forms, hypercharge).**  Each `Φ` is linear in the momentum
+  coordinates `B_i`, so `Δ_S Φ = 0` and the contribution is `2 |∇Φ|²`, a
+  **constant**.  Summing the three gives `12` (each form contributes `4`).
+
+* **`smMagG` (24 forms) and `smMagW` (9 forms).**  Each `Φ = L (spatial) + Q`
+  where `Q` is quadratic in the gauge momentum coordinates with a harmonic
+  (zero-Laplacian) quadratic part; the structure constants sit in `Q` but
+  `levi(i,j,k)` forces `j ≠ k`, so no coordinate is squared and `Δ_S Q = 0`.
+  Contribution `2 |∇_S Q|²`, a **non-negative** polynomial (zero at the origin).
+
+* **`smCovD` (12 forms).**  `Φ = (spatial linear) + (bilinear in two distinct
+  momentum coordinates)`, so again `Δ_S Φ = 0`; contribution `2 |∇_S Φ|²`,
+  **non-negative** (zero at the origin).
+
+* **`smWall` (1 form).**  `Φ = c (S − v₀²)` with `c = √(λ/2)` and
+  `S = ∑_{a=0}^{3} φ_a²` (the four Higgs components are momentum coordinates).
+  Here the Laplacian is non-zero and the contribution is
+
+```
+  Δ_S(Φ²)  =  24 c² S  −  16 c² v₀² .
+```
+
+  (Verified by direct differentiation: `∂²/∂φ_a²` of `c²(S−v₀²)²` sums to
+  `4 c² (S − v₀² + 2 φ_a²)` over `a`, i.e. `24 c² S − 16 c² v₀²`.)
+
+### 40.3. The Gaussian moment
+
+Under the (unnormalised) Gaussian `e^{-‖x‖²/2}`, the momentum coordinates are
+independent standard normals, so `E[X²] = 1` and `E[S] = 4`.  The non-negative
+contributions have expectations `≥ 0` (and the `smMagB` part is exactly `12`).
+Therefore
+
+```
+E[Δ_S W]  ≥  80 + 12 + 16 c² (6 − v₀²)
+          =  92 + 8 λ (6 − v₀²)            (since 16 c² = 8 λ)
+          =  92 + 48 λ − 8 λ v₀² .
+```
+
+(using `c² = λ/2`, so `16 c² = 8 λ` and `24 c² · 4 = 96 c² = 48 λ`? Let me recompute:
+`E[wall] = 24 c² · E[S] − 16 c² v₀² = 24 c² · 4 − 16 c² v₀² = 96 c² − 16 c² v₀²
+= 48 λ − 8 λ v₀²`.  Plus 92 gives `92 + 48 λ − 8 λ v₀²`.  Yes.)
+
+### 40.4. Verdict of the test
+
+The necessary condition `E[Δ_S W] ≤ 0` becomes
+
+```
+8 λ v₀²  ≥  92 + 48 λ     ⟺     λ v₀²  ≥  (92 + 48 λ)/8  =  11.5 + 6 λ .
+```
+
+This is a **condition on the data**, not a theorem:
+
+* If `λ v₀² ≤ 11.5 + 6 λ` (in particular for `v₀² ≤ 6` or small `λ`), then
+  `E[Δ_S W] > 0` and the `p = 1` gap **fails**.  In that regime `PotSelfBound`
+  cannot hold with any constant, and the cross-term upper bound of §38 is not
+  available at `p = 1`.
+
+* The `smMagG`/`smMagW`/`smCovD` non-negative terms raise the threshold further,
+  so `11.5 + 6 λ` is a **lower bound** on the required `λ v₀²`.
+
+* The origin is the worst point: `Δ_S W|₀ = 92 − 8 λ v₀²`, negative exactly when
+  `λ v₀² > 11.5`.
+
+Hence the Hessian gap is **not** a consequence of positivity of `W` (cf. §26's
+warning that `one_le_polyW_smPotPoly` does not imply `PotSelfBound`); it is a
+genuine quantitative condition on the Higgs vev and quartic.  `PotSelfBound`
+remains a hypothesis, and the `p = 1` case is the first place a proof would have
+to discharge it.
+
+### 40.5. What this does not settle
+
+The test only rules out regimes; it does not prove `PotSelfBound` in any regime,
+because `PotSelfBound` must hold for *all* `p`, not just `p = 1`, and the
+`H²`/form-domain comparison (§32) is untouched.  It does, however, convert the
+abstract gap into an explicit data inequality, which is the honest content of
+the hypothesis.
+
+---
+
+## §41. Sign of the Hessian trace (momentum Laplacian) of `smPotPoly`
+
+### 41.1. The Laplacian polynomial
+
+From §40.2,
+
+```
+Δ_S W(x)  =  80
+            + 2 ∑_{magB} |∇Φ|²            (= 12 as a constant, in fact 4 per form)
+            + 2 ∑_{magG,magW,covD} |∇_S Φ_r|²   (non-negative polynomials, zero at 0)
+            + 24 c² S  −  16 c² v₀² .
+```
+
+The only term that can be negative is the wall piece, and only where the Higgs
+field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
+
+### 41.2. Where it changes sign
+
+* **At the origin** (`x = 0`, all fields zero): `S = 0` and the non-negative
+  `|∇|²` terms vanish for `magG`/`magW`/`covD` (their gradients are linear in
+  the fields), leaving
+
+```
+  Δ_S W|₀  =  92 − 8 λ v₀² .
+```
+
+  This is negative iff `λ v₀² > 11.5`.  So for strong coupling/large vev the
+  Laplacian is negative at the origin; for weak data it is positive everywhere
+  near the origin.
+
+* **For large fields**: the `24 c² S` term and the `|∇|²` quadratics grow, so
+  `Δ_S W → +∞` along any ray.  Hence the negative region (if any) is a bounded
+  neighbourhood of the origin in field space.
+
+* **`magB` is the only always-positive contributor**: its `4` per form is a
+  constant, independent of the fields, so even at the origin the hypercharge
+  sector contributes `+12`.
+
+### 41.3. Consequences
+
+1. **`hessForm` is not sign-definite.**  `hessForm(W)` integrates
+   `Δ_S W · |p|²` against the Gaussian; for `p` supported in the negative
+   region the integral can be negative.  Thus `crossTerm_upper` (§38) is not
+   automatic: its hypothesis `hessForm ≥ 0` is a condition on `p` and the data,
+   not a consequence of `W ≥ 0`.
+
+2. **The `p = 1` test (§40) is the integrated version of this pointwise fact.**
+   `E[Δ_S W] ≤ 0` requires the negative lobe near the origin to outweigh the
+   positive tails; equivalently `λ v₀² ≥ 11.5 + 6 λ` (plus the magG/magW/covD
+   tails).
+
+3. **No proof of `PotSelfBound` is available from this calculus.**  The gap
+   requires either (a) a regime restriction on `(λ, v₀)` plus a proof that the
+   integral stays non-positive for all `p`, or (b) elliptic regularity supplying
+   the form-domain comparison of §32 directly.  Neither is in this corpus.
+
+### 41.4. Recorded status
+
+* `hessForm_eq_trace` / `hessForm_nonneg` (§38) reduce the question to the sign
+  of `∫ Δ_S W |p|²`; this section records that the sign is **data- and
+  point-dependent**, and gives the explicit origin value `92 − 8 λ v₀²`.
+* `PotSelfBound` and `FormDomainComparison` remain hypotheses.  `sm_h_esa` (ESA)
+  is unaffected.
