@@ -3351,6 +3351,16 @@ import BookProof.Sm.ChapterSmFullFamilyBounds
 -- `sq_norm_comp_le_sum`, and `smPi_sq_norm_le_kineticSum` / `smKinetic_norm_le_shift`, which
 -- reduce the kinetic `hkin` of `smNormalForm_norm_le` to one bound on the kinetic sum.
 import BookProof.Sm.ChapterSmFullNormalFormBounds
+-- `ChapterSmFullCommFormDiagonal` (2026-11-10c, `SM_ESA_COMPLETION_PLAN` §17): the commutator
+-- bound with support-restricted family hypotheses (`smNormalForm_commForm_le_support`, from the
+-- separated engine `abs_commForm_le_of_norm_le`), its P1 instantiation
+-- `SmInternalData.toNormalForm_commForm_le` and the canonical one
+-- `SmInternalData.canonical_toNormalForm_commForm_le` (no family and no placement hypothesis
+-- left), and the diagonal-coefficient specialization `coupledOp_diagonal_commForm_eq` /
+-- `coupledOp_diagonal_commForm_le` / `smHamiltonian_diagonal_commForm_le`, which gives the
+-- commutator bound at the quadratic-form level.  The module docstring records why the elliptic
+-- (Gårding) estimate for the kinetic sum is still a named input of `hkin`.
+import BookProof.Sm.ChapterSmFullCommFormDiagonal
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 

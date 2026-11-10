@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T08:48:35+00:00",
+ "generated_at": "2026-11-10T10:18:02+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 1030,
+   "lines": 1110,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1166,7 +1166,9 @@
     "## 13. P3 executed, scalar half (2026-11-09g)",
     "## 14. P3 remainder, P4 transfer engine and the P1 coefficient matrices (2026-11-09h)",
     "## 15. The per-family relative bounds, and the P1 normal-form bound (2026-11-10a)",
-    "## 16. The commutator form with general matrices, the canonical placement, and the second-order"
+    "## 16. The commutator form with general matrices, the canonical placement, and the second-order",
+    "## 17. The support-restricted commutator bound, the canonical P1 data at the commutator level,",
+    "## and diagonal coefficients (2026-11-10c)"
    ]
   },
   {

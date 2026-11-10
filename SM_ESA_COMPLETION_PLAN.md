@@ -1028,3 +1028,83 @@ i.e. the elliptic (Gårding) step: `Σₘ πₘ²` is the kinetic part of `N`, a
 kinetic energy and `N` is the quartic potential, which does not commute with `∂ⱼ`.  Neither this
 module nor `smNormalForm_norm_le` assumes it; both state it as a hypothesis, so the second-order
 family is now a *single* unproved elliptic input rather than `163` independent ones.
+
+## 17. The support-restricted commutator bound, the canonical P1 data at the commutator level,
+## and diagonal coefficients (2026-11-10c)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormDiagonal.lean`.  Registered in `BookProof.lean`.
+
+The two follow-ups requested after §16 — the commutator bound without family hypotheses, and the
+diagonal-coefficient specialization at the quadratic-form level — close here unconditionally.  The
+third item, the elliptic estimate for the kinetic sum, does not close: it is recorded below as the
+named gap it is, not restated as a hypothesis under a different name.
+
+### The commutator bound with support-restricted hypotheses
+
+§16's `smNormalForm_commForm_le` asks for the scalar relative bound at **every** index of the three
+bosonic families, which the P1 dictionary — whose two derivative families are zero — cannot
+supply.  §15 already fixed the shape of the hypothesis for the norm bound
+(`smNormalForm_norm_le_support`); §17 does the same for the commutator bound.
+
+* **`abs_commForm_le_of_norm_le`** — the engine separated out of §16: from
+  `‖H f‖ ≤ C ‖(N ⊗ 1 + 1) f‖` and `‖(N ⊗ 1) f‖ ≤ 2 ‖(N ⊗ 1 + 1) f‖` (the second is
+  `coupledOp_self_norm_le`, from componentwise `norm_le_norm_shift`) it concludes
+  `|commForm H (N ⊗ 1) f| ≤ 4 C ‖(N ⊗ 1 + 1) f‖²`.  The mechanism is
+  `commForm_eq : commForm H N x = −2 Im ⟪H x, N x⟫`, so the imaginary part of one inner product
+  is controlled by the product of two norms.
+* **`smNormalForm_commForm_le_support`** — the support-restricted version, obtained by feeding
+  `smNormalForm_norm_le_support` into the engine; the constant is again
+  `4 c normalFormConst D`.
+
+### The canonical P1 data at the commutator level
+
+* **`SmInternalData.toNormalForm_commForm_le`** — the P1 dictionary: derivative families on the
+  empty support, the four Higgs coordinates on `univ.image D.pos`, the mass slot from
+  `norm_le_norm_shift`, and `c = 1` from `smPos_smCoord_norm_le_shift`.  This is the commutator
+  analogue of §15's `toNormalForm_norm_le`.
+* **`SmInternalData.canonical_toNormalForm_commForm_le`** — the same at §16's canonical placement,
+  so **no** family hypothesis and **no** placement hypothesis remains:
+  `|commForm h_P1 (N ⊗ 1) f| ≤ 4 normalFormConst · ‖(N ⊗ 1 + 1) f‖²`.
+
+### Diagonal coefficient matrices: the quadratic-form level
+
+§16 recorded the obstruction in its own text: with a general `Mⱼ`, the components `T f_B` are
+paired with `N f_A`, and "a `quadForm`-level bound would need the coefficient matrices diagonal".
+For a diagonal matrix that level is reached.
+
+* **`coupledOp_diagonal_apply`** — `(T ⊗ diag d) f` has `A`-th component `d_A • T f_A`: a diagonal
+  matrix pairs each component with itself.
+* **`coupledOp_diagonal_commForm_eq`** —
+  `commForm (T ⊗ diag d) (N ⊗ 1) f = Σ_A d_A · commForm T N f_A`, from `PiLp.inner_apply`,
+  `inner_smul_left` and the scalarity of `d_A ∈ ℝ`.  This is the identity that makes the
+  componentwise quadratic-form bound possible.
+* **`coupledOp_diagonal_commForm_le`** — from the scalar input
+  `|commForm T N y| ≤ c quadForm N y`, positivity of `quadForm N` and `d_A ≥ 0`:
+  `|commForm (T ⊗ diag d) (N ⊗ 1) f| ≤ c (Σ_A d_A) quadForm (N ⊗ 1) f`, using
+  `coupledOp_one_quadForm` for the right-hand side.  No shifted-graph-norm-squared factor remains.
+* **`smHamiltonian_diagonal_commForm_le`** — the specialization to the canonical operator `h`,
+  with `sm_commForm_le` (`c = 1`) as the scalar input:
+  `|commForm (h ⊗ diag d) (N ⊗ 1) f| ≤ (Σ_A d_A) quadForm (N ⊗ 1) f`.
+
+### The elliptic step: status
+
+The single estimate §16 left open,
+
+```text
+‖(Σₘ πₘ²) x‖ ≤ c ‖N x + x‖,        N = 2h + Σ q² + c₀,
+```
+
+is **not** proved here, and the module says so.  It is not a formal consequence of the
+quadratic-form bounds the corpus owns (`smPi_sq_le_quadForm_smFlN`, `smField_sq_le_quadForm_smFlN`):
+those bound `‖πₘ x‖²` by `quadForm N x`, while the estimate is at the level of `‖πₘ² x‖`, i.e.
+Kato relative boundedness of the second-order part with respect to `N`.  The corpus's *second-order
+norm* bounds are all for the twisted derivative `coreD = ∂ − x/2` of the oscillator picture —
+`norm_kinPoly_le_shiftNorm`, `‖pgLp (kinPoly p)‖ ≤ 3 ‖pgLp (harmP p) + pgLp p‖`, together with
+`norm_harmPoly_mul_le_shiftNorm` and `norm_weighted_kin_le` in
+`BookProof/ChapterGaussCoreQuadBounds.lean` — because there `kinPoly` *is* the Gaussian Laplacian.
+The SM momenta are plain derivatives `∂`, and the substitution `∂ = coreD + x / 2` multiplies by a
+coordinate: each such factor costs one power of the graph norm, so the twisted bound does not
+transport.  The remaining options are (a) an interpolation (Gårding) inequality for the quartic
+`W`, or (b) a norm-level bound for the twisted model written for *plain* `∂` in the Gaussian
+picture, which the corpus does not have.  Until one of them lands, `hkin` stays a hypothesis of
+`smNormalForm_norm_le` in the `40` momentum directions and nothing downstream assumes it.
