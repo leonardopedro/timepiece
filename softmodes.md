@@ -438,6 +438,55 @@ magnetic split and isolates the remaining analytic input.
 
 Axioms audited on the seven new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
 
+#### S2 — the mode identification, and why the relative bound is not the route
+
+§3c's assembly takes a quartic relative bound as its hypothesis.  That hypothesis is **false** on
+the coefficient model, and `Qym/ChapterYangMillsFieldStrengthSplit` §3d proves it:
+
+* **N — `not_quartic_relativeBound`.**  For every `κ` and `b`, some `c : CoreCoeff d` has
+  `quarticDegreeForm c > κ · degreeForm c + b · ‖c‖²` (take one mode of occupation `N`:
+  quartic `(dN)²` against degree `dN`).  The quartic `:N²:` form grows like `N²` where the degree
+  form grows like `N`, so no relative bound in the direction `quartic ≤ κ·quadratic + b‖·‖²`
+  exists.  Since §3c needs exactly that direction to pay for the cross term, the norm-inequality
+  route cannot produce coercivity; the quartic has to enter through a *lower* bound.
+
+**The genuine half of the mode identification.**  `softmodes.md` and
+`YangMillsMagneticQuartic` both recorded "the mode expansion is not formalised".  Two pieces of it
+are now proved:
+
+* `modeVec`, `modeIndex`, **`coeffToCore_norm_sq`** — the adapted product-Hermite basis
+  `coreBasis e` is indexed by `ℕ ≃ (Fin d →₀ ℕ)`, and the coefficient vector `c` is sent to
+  `∑ n, c n · ψ_n`; that map is an isometry, `‖coeffToCore c‖² = coreNormSq c`.  So the model's
+  coefficient space *is* a subspace of `L²(ℝᵈ)` with the model's norm, concretely and without
+  hypotheses.
+* **`totalDegree_occMonomial`** — the monomial of a mode, `∏ i, X i ^ nᵢ`, has total degree
+  `∑ i, nᵢ`: the model's multi-index is the field-space degree vector.
+
+**The interface, and what it yields.**
+
+* `ModeIdentification Φ fabc` bundles an isometric map of coefficient vectors into the core whose
+  magnetic-energy form is the model's `magneticEnergyForm diagA`.  The form half is the remaining
+  mode-expansion step (the Wick/Mehler identification of the multiplication form)
+  `∑_m ‖[A,A]_m x‖²` with the diagonal `:N²:` weight `∑_n (∑_a B_a(n)²)‖c n‖²`); the structure has
+  no inhabitant in the corpus.
+* **`magEnergy_ge_of_identification`** — given one, the coefficient model's barrier bound transfers
+  to the core: `1/24 · (degreeForm + barrierForm − quarticShift ‖x‖²) ≤ ∑_m ‖B_m x‖²`.  The factor
+  `24` is `quarticDegreeForm_le_magnetic` (Cauchy–Schwarz), read in the useful direction.
+* **`ymHamiltonian_quadForm_ge_of_identification`** — the S2 shape on the core, with no further
+  hypothesis on the interaction: `1/48 · (degreeForm + barrierForm − shift ‖x‖²) ≤ ⟪x, H₁x⟫`.
+* **`s2_gap_constant`** — the derived constant: on the identified core
+  `c₁/48 · q_ref − ((c₁ μ₀ + quarticShift)/48) ‖x‖² ≤ ⟪x, H₁x⟫`, i.e. the certification ratio is
+  `c₁/48` and the shift is `(c₁ μ₀ + K + (1+K)²/4)/48`, `K = rootCount T · g/2`, where `c₁` is
+  the free/oscillator ratio with `0 < c₁` and `c₁ωᵢ ≤ 1`; with `c₁ = 1`, `ω ≡ 1` that is
+  `m = 1/48 ≈ 0.0208` on the reference form.
+
+So S2's *constant* is now an explicit number rather than an existence claim, and the only missing
+input is a single identification statement — not an estimate.  What is still not claimed: that
+`ModeIdentification` holds (the form half is unformalised), and hence not any unconditional
+`m > 0` for the core.
+
+Axioms audited on the six new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
+
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 
 This section supersedes the previous section on three points: the coordinate-count factor `−99/2`

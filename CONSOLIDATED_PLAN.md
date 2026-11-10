@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10):** “State of the project — 2026-11-10: S1 outer-Fock
+> **Newest entry (2026-11-10b):** “State of the project — 2026-11-10b: the mode
+> identification, the falsity of the S2 relative bound, and the derived constant 1/48”,
+> at the end.  It proves the coefficient-model isometry (`coeffToCore_norm_sq`), that no
+> quartic relative bound exists (`not_quartic_relativeBound`), and derives the S2 ratio
+> `c₁/48` from the barrier bound through the `ModeIdentification` interface, which itself
+> has no inhabitant.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10):** “State of the project — 2026-11-10: S1 outer-Fock
 > identities, S2 relative bound, and the energy decomposition”, at the end.  It records
 > the committed S1 packet and the S2 cross-term relative bound, the physical-core energy
 > identity and the conditional coercivity assembly, with the quartic relative bound named
@@ -19361,3 +19367,65 @@ uniformity, no IMS/localisation and no Temple separation is claimed.
 `#print axioms` on the S1 and §3c theorems reports `propext, Classical.choice,
 Quot.sound` only; no touched Lean file has a line over 100 characters;
 `doc_index.py --check` and `check-links` pass.
+
+## State of the project — 2026-11-10b: the mode identification, the falsity of the S2 relative bound, and the derived constant 1/48
+
+This entry records the Yang–Mills S2 follow-up that the 2026-11-10 entry left as
+"the quartic relative bound plus its mode identification"; it supersedes that
+entry's statement that the gap constant is conditional on an *upper* bound of the
+quartic.  Everything below is in `BookProof/Qym/ChapterYangMillsFieldStrengthSplit`
+§3d and was compiled with `lake build +BookProof`.
+
+**The §3c hypothesis is false, and this is now a theorem.**
+`not_quartic_relativeBound`: for every `κ, b : ℝ` and every `d > 0` there is a core
+coefficient `c` with
+
+`quarticDegreeForm c > κ · degreeForm c + b · ‖c‖²`
+
+— take a single mode of occupation `N`, where the quartic weight is `(dN)²` and the
+degree weight is `dN`.  So no bound `quartic ≤ κ·quadratic + b‖·‖²` exists on the
+coefficient model, and the 2026-11-10 conditional assembly cannot be discharged in
+that direction.  Coercivity must instead use the *lower* bound of the quartic
+(`YangMillsEffectiveBarrier.barrierBound_quartic`), which is unconditional.
+
+**The identification, in the part that is provable.**
+
+* `modeVec`, `modeIndex`, `modeVec_orthonormal`, `coeffToCore`, and
+  `coeffToCore_norm_sq`: the adapted product-Hermite basis `coreBasis e` is indexed
+  by `ℕ ≃ (Fin d →₀ ℕ)`, the coefficient vector `c` maps to `∑ n, c n · ψ_n`, and
+  `‖coeffToCore c‖² = coreNormSq c`.  This is a concrete isometry, no hypothesis.
+* `totalDegree_occMonomial`: the mode monomial `∏ i, X i ^ nᵢ` has total degree
+  `∑ i, nᵢ`, i.e. the model's multi-index is the field-space degree vector.
+* `ModeIdentification Φ fabc`: the interface — an isometric map of coefficient
+  vectors into the core whose magnetic form is `magneticEnergyForm diagA`.  The form
+  half is the mode-expansion step (occupation ↔ field amplitude, the Wick/Mehler
+  identification of `∑_m ‖[A,A]_m x‖²` with the diagonal `:N²:` weight).  It has no
+  inhabitant in the corpus; the theorems below are what it is for.
+
+**The transfers, and the derived S2 constant.**
+
+* `magEnergy_ge_of_identification`:
+  `1/24 · (degreeForm + barrierForm − quarticShift‖x‖²) ≤ ∑_m ‖B_m x‖²` — the
+  barrier bound of the coefficient model, with the Cauchy–Schwarz factor `24` of
+  `quarticDegreeForm_le_magnetic` read in the useful direction.
+* `ymHamiltonian_quadForm_ge_of_identification`:
+  `1/48 · (degreeForm + barrierForm − quarticShift‖x‖²) ≤ ⟪x, H₁x⟫`, the S2 shape
+  with no hypothesis on the interaction.
+* `s2_gap_constant`:
+  `c₁/48 · q_ref(x) − ((c₁μ₀ + quarticShift)/48)·‖x‖² ≤ ⟪x, H₁x⟫` for `0 < c₁`,
+  `c₁ωᵢ ≤ 1`.  The certification ratio is `c₁/48`; with `c₁ = 1` and `ω ≡ 1` it is
+  `m = 1/48 ≈ 0.0208`, the shift `(μ₀ + K + (1+K)²/4)/48` with
+  `K = rootCount T · g/2`.  The `2` in `48 = 2·24` is the kinetic/magnetic split of
+  `H₁ = ½Σπ² + ½ΣB²`; the `24` is the component count.
+
+**Boundary.**  `ModeIdentification` is not proved, so no unconditional `m > 0` is
+claimed for the core; the normal-ordering content of the magnetic energy (the cross
+term `2ΣRe⟪∂A,[A,A]⟫` is absent from the `:N²:` model, which is exactly what makes
+the model coercive) is part of that missing step.  No cutoff uniformity, IMS,
+localisation or Temple separation is claimed.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms`
+on `totalDegree_occMonomial`, `coeffToCore_norm_sq`, `not_quartic_relativeBound`,
+`magEnergy_ge_of_identification`, `ymHamiltonian_quadForm_ge_of_identification` and
+`s2_gap_constant` reports `propext, Classical.choice, Quot.sound` only; no line of
+the touched Lean file exceeds 100 characters.

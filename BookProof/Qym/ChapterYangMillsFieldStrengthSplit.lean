@@ -1,6 +1,7 @@
 import Mathlib
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsSoftDirections
+import BookProof.YangMillsMagneticQuartic
 
 /-!
 # The field strength `F = ∂A + g[A,A]`: derivative part, commutator part, and the root sector
@@ -47,7 +48,18 @@ structural facts the magnetic-quartic analysis needs:
    relative bound with ratio `κ < 1` then leaves `1 − ε − (ε⁻¹ − 1)κ` of the quadratic energy, and
    the choice `ε = 1/2`, `κ = 1/4` leaves a quarter (`magEnergy_form_ge_quarter`, and
    `ymHamiltonian_quadForm_ge_of_quart_bound` for the Hamiltonian).
-4. **The root sector is quartic.**  In the two-dimensional root plane of `su(2)`
+6. **The mode identification** (§3d).  The product-Hermite basis `coreBasis e` is enumerated by the
+   occupation multi-index, so `coeffToCore` embeds the coefficient model `CoreCoeff d` isometrically
+   into `L²(ℝᵈ)` (`coeffToCore_norm_sq`), and the occupation of a mode is the total degree of its
+   monomial (`totalDegree_occMonomial`).  With the *magnetic-energy* form identified with
+   `magneticEnergyForm` (`ModeIdentification`), the coefficient model's quartic bound transfers:
+   `Σ‖Bx‖² ≥ (degreeForm + barrierForm − shift ‖x‖²)/24`, hence the Hamiltonian's form is at least
+   `(1/48)` of `degreeForm + barrierForm − shift ‖x‖²`
+   (`ymHamiltonian_quadForm_ge_of_identification`) and a certified gap with the constant `c₁/48`
+   (`s2_gap_constant`).  The §3c hypothesis itself is
+   *not* available: `not_quartic_relativeBound` shows the quartic `:N²:` form is not relatively
+   bounded by the degree form plus a norm shift in the coefficient model.
+7. **The root sector is quartic.**  In the two-dimensional root plane of `su(2)`
    (`rootPlus = E₊`, `rootMinus = E₋`, `cartanH = diag(1,−1)`) the bracket of two off-diagonal
    fields is again Cartan, with the *determinant* of the root amplitudes as its coefficient
    (`rootField_commutator`), and the magnetic energy of that component is the square of that
@@ -500,6 +512,219 @@ theorem ymHamiltonian_quadForm_ge_of_quart_bound (Φ : CoreRep 99 D)
   have h := magEnergy_form_ge_of_quart_bound Φ fabc hε0 hε1 hbound x
   have heq := magEnergy_form_eq Φ fabc x
   linarith
+
+/-! ## 3d. The mode identification with the coefficient model
+
+§3c relates the two halves of `Σ B²`, but it needs a *quartic relative bound* in the direction
+`quartic ≤ κ · quadratic + b‖·‖²` to convert the estimate into a coercivity statement.  That
+direction is not available: on the coefficient model of `BookProof.YangMillsFormDomination` the
+quartic slot is the normal-ordered `:N²:` form `quarticDegreeForm`, and
+**`not_quartic_relativeBound`** shows that no `κ, b` make it small against `degreeForm` — the
+quartic grows like `N²` where the degree form grows like `N`, so the ratio is unbounded.
+
+What the coefficient model *does* supply is the reverse inequality
+(`YangMillsEffectiveBarrier.barrierBound_quartic`): the quartic form dominates the degree form
+plus Simon's barrier, up to an explicit shift.  So coercivity is reached by *identifying* the
+core's magnetic energy with the model's `magneticEnergyForm`, not by bounding the quartic from
+above.  This section states that identification and proves what it yields.
+
+* **`modeVec`**, **`coeffToCore`**, **`coeffToCore_norm_sq`** — the concrete half.  The adapted
+  orthonormal basis `coreBasis e` is indexed by `ℕ ≃ (Fin d →₀ ℕ)`, so a coefficient vector is
+  sent to `∑ n, c n • ψ_n` and that map is an isometry: `‖coeffToCore c‖² = coreNormSq c`.
+* **`totalDegree_occMonomial`** — the occupation of a mode is the degree of its monomial,
+  `totalDegree (∏ i, X i ^ nᵢ) = ∑ i, nᵢ`; this is the sense in which the model's multi-index *is*
+  the degree vector of the field-space polynomial.
+* **`ModeIdentification`** — the interface: an isometric map of coefficient vectors into the core
+  whose magnetic form is `magneticEnergyForm diagA`.  This is the mode-expansion step
+  (occupation ↔ field amplitude) that the earlier chapters record as unformalised; the theorems
+  below are what it is *for*.
+* **`magEnergy_ge_of_identification`**, **`ymHamiltonian_quadForm_ge_of_identification`**,
+  **`s2_gap_constant`** — the transfers: the barrier bound becomes coercivity of the core's form,
+  with the explicit constants `1/24` and `1/48` and the certified gap `c₁ Δ_ref / 48`.
+-/
+
+section ModeIdentification
+
+variable {d : ℕ}
+
+open BookProof.ReferenceGap BookProof.YangMillsFormDomination
+open BookProof.YangMillsEffectiveBarrier BookProof.YangMillsMagneticQuartic
+
+/-- The monomial of a mode: the coordinate monomial `∏ i, X i ^ nᵢ`, i.e. the monomial with
+exponent vector `n`. -/
+def occMonomial (n : Fin d → ℕ) : MvPolynomial (Fin d) ℂ :=
+  MvPolynomial.monomial (Finsupp.equivFunOnFinite.symm n) 1
+
+/-- **Occupation is degree**: the total degree of the mode monomial is the total occupation
+`∑ i, nᵢ`.  This is the identification of the model's multi-index with the field-space degree. -/
+theorem totalDegree_occMonomial (n : Fin d → ℕ) :
+    (occMonomial n).totalDegree = ∑ i, n i := by
+  rw [occMonomial, MvPolynomial.totalDegree_monomial _ one_ne_zero, Finsupp.sum]
+  refine Finset.sum_subset (Finset.subset_univ _) ?_
+  intro i _ hi
+  simpa using hi
+
+/-- The index of the occupation multi-index `n` in the adapted basis `coreBasis e`. -/
+def modeIndex (e : ℕ ≃ (Fin d →₀ ℕ)) (n : Fin d → ℕ) : ℕ :=
+  e.symm (Finsupp.equivFunOnFinite.symm n)
+
+/-- Distinct occupations give distinct basis indices. -/
+theorem modeIndex_injective (e : ℕ ≃ (Fin d →₀ ℕ)) : Function.Injective (modeIndex e) := by
+  intro n m h
+  exact Finsupp.equivFunOnFinite.symm.injective (e.symm.injective h)
+
+/-- The product-Hermite basis vector of a mode. -/
+def modeVec (e : ℕ ≃ (Fin d →₀ ℕ)) : (Fin d → ℕ) → L2d d :=
+  fun n => (coreBasis e) (modeIndex e n)
+
+/-- The mode vectors are orthonormal, being a subfamily of the adapted basis. -/
+theorem modeVec_orthonormal (e : ℕ ≃ (Fin d →₀ ℕ)) : Orthonormal ℂ (modeVec e) :=
+  (coreBasis e).orthonormal.comp _ (modeIndex_injective e)
+
+/-- **The coefficient model as a subspace of `L²(ℝᵈ)`**, through the adapted product-Hermite
+basis. -/
+def coeffToCore (e : ℕ ≃ (Fin d →₀ ℕ)) (c : CoreCoeff d) : L2d d :=
+  ∑ n ∈ c.support, c n • modeVec e n
+
+/-- **The embedding is an isometry**: `‖∑ n, c n ψ_n‖² = ∑ n, ‖c n‖²`. -/
+theorem coeffToCore_norm_sq (e : ℕ ≃ (Fin d →₀ ℕ)) (c : CoreCoeff d) :
+    ‖coeffToCore e c‖ ^ 2 = coreNormSq c := by
+  have hv := modeVec_orthonormal (d := d) e
+  have hinner := hv.inner_sum (v := modeVec e) (fun n => c n) (fun n => c n) c.support
+  rw [coeffToCore]
+  rw [← inner_self_eq_norm_sq (𝕜 := ℂ) (x := ∑ n ∈ c.support, c n • modeVec e n)]
+  rw [hinner, map_sum]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [RCLike.conj_mul]
+  exact RCLike.re_ofReal_pow (‖c n‖) 2
+
+/-- **The quartic `:N²:` form is not relatively bounded by the degree form.**  For every `κ` and
+`b` there is a core coefficient with `quarticDegreeForm c > κ · degreeForm c + b · ‖c‖²`: taking a
+single mode of occupation `N` gives `(dN)² > κ (dN) + b` for `N` large.  So the §3c hypothesis
+cannot be discharged on this core, and the coercivity of the magnetic form has to come from the
+barrier inequality (`barrierBound_quartic`), not from a relative bound in this direction. -/
+theorem not_quartic_relativeBound {d : ℕ} (hd : 0 < d) (κ b : ℝ) :
+    ¬ ∀ c : CoreCoeff d, quarticDegreeForm c ≤ κ * degreeForm c + b * coreNormSq c := by
+  intro h
+  set M : ℝ := |κ| + |b| + 2 with hM
+  have hM2 : (2 : ℝ) ≤ M := by
+    have h1 : (0 : ℝ) ≤ |κ| := abs_nonneg κ
+    have h2 : (0 : ℝ) ≤ |b| := abs_nonneg b
+    rw [hM]
+    linarith
+  have hdR : (0 : ℝ) < (d : ℝ) := by exact_mod_cast hd
+  obtain ⟨N, hN⟩ := exists_nat_gt (M / (d : ℝ))
+  set s : ℝ := (d : ℝ) * N with hs
+  have hMs : M < s := by
+    have hpos : (d : ℝ) * (M / (d : ℝ)) < (d : ℝ) * N :=
+      mul_lt_mul_of_pos_left hN hdR
+    rw [mul_div_cancel₀ M (ne_of_gt hdR)] at hpos
+    exact hpos
+  have hs1 : (1 : ℝ) ≤ s := by linarith
+  have hs0 : (0 : ℝ) < s := by linarith
+  set n₀ : Fin d → ℕ := fun _ => N with hn₀
+  set c : CoreCoeff d := Finsupp.single n₀ (1 : ℂ) with hc
+  have hsupp : c.support = {n₀} := by
+    rw [hc, Finsupp.support_single_ne_zero _ one_ne_zero]
+  have hdeg : (∑ i : Fin d, ((n₀ i : ℕ) : ℝ)) = s := by
+    rw [hn₀, hs]
+    simp [Finset.sum_const, nsmul_eq_mul]
+  have hc_one : c n₀ = 1 := by
+    rw [hc]
+    exact Finsupp.single_eq_same
+  have hq : quarticDegreeForm c = s ^ 2 := by
+    rw [quarticDegreeForm, hsupp, Finset.sum_singleton, hdeg, hc_one, norm_one]
+    ring
+  have hdform : degreeForm c = s := by
+    rw [degreeForm, hsupp, Finset.sum_singleton, hdeg, hc_one, norm_one]
+    ring
+  have hnorm : coreNormSq c = 1 := by
+    rw [coreNormSq, hsupp, Finset.sum_singleton, hc_one, norm_one]
+    norm_num
+  have hbound := h c
+  rw [hq, hdform, hnorm] at hbound
+  have hk : κ * s ≤ |κ| * s := mul_le_mul_of_nonneg_right (le_abs_self κ) (le_of_lt hs0)
+  have hb : b ≤ |b| := le_abs_self b
+  have hbs : |b| ≤ |b| * s := by nlinarith [abs_nonneg b]
+  have hMs' : M * s ≤ s * s := mul_le_mul_of_nonneg_right (le_of_lt hMs) (le_of_lt hs0)
+  have hsum : (|κ| + |b|) * s ≤ s * s - 2 * s := by
+    have : M * s = (|κ| + |b|) * s + 2 * s := by rw [hM]; ring
+    linarith
+  nlinarith [hbound, hk, hb, hbs, hsum, hs0]
+
+/-- **The mode identification.**  An isometric map of coefficient vectors into the core whose
+magnetic-energy form is the coefficient model's `magneticEnergyForm diagA`.  The isometry half is
+proved by `coeffToCore_norm_sq`; the form half is the mode-expansion step (occupation ↔ field
+amplitude), which is the content this structure isolates. -/
+structure ModeIdentification (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) where
+  /-- the identification of coefficient vectors with core vectors. -/
+  toCore : CoreCoeff 24 → D
+  /-- it is an isometry for the two norms. -/
+  norm_sq : ∀ c : CoreCoeff 24, ‖((toCore c : D) : L2d 99)‖ ^ 2 = coreNormSq c
+  /-- the core's magnetic energy is the coefficient model's magnetic form. -/
+  mag_eq : ∀ c : CoreCoeff 24,
+    (∑ m : Fin 24, ‖(((magOps Φ fabc m) (toCore c) : D) : L2d 99)‖ ^ 2)
+      = magneticEnergyForm (d := 24) diagA c
+
+/-- **Coercivity of the core's magnetic form, transferred from the barrier bound.**  The model's
+quartic `:N²:` form dominates the degree form plus Simon's barrier up to `quarticShift`, and the
+canonical-background magnetic form is at least a `1/24` fraction of that quartic form, so
+`Σ‖Bx‖² ≥ (degreeForm + barrierForm − shift ‖x‖²)/24`.  No relative-bound hypothesis is used. -/
+theorem magEnergy_ge_of_identification (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (MI : ModeIdentification Φ fabc)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) (c : CoreCoeff 24) :
+    1 / 24 * (degreeForm c + barrierForm T g c - quarticShift (d := 24) T g * coreNormSq c)
+      ≤ ∑ m : Fin 24, ‖(((magOps Φ fabc m) (MI.toCore c) : D) : L2d 99)‖ ^ 2 := by
+  rw [MI.mag_eq c]
+  have hquart := quarticDegreeForm_le_magnetic (d := 24) c
+  have hbar := (barrierBound_quartic (d := 24) T hg).bound c
+  have hsh : (barrierBound_quartic (d := 24) T hg).shift = quarticShift (d := 24) T g := rfl
+  rw [hsh] at hbar
+  have hstep : 1 / 24 * (degreeForm c + barrierForm T g c
+      - quarticShift (d := 24) T g * coreNormSq c) ≤ 1 / 24 * quarticDegreeForm c :=
+    mul_le_mul_of_nonneg_left hbar (by norm_num)
+  have hq24 : 1 / 24 * quarticDegreeForm c ≤ magneticEnergyForm (d := 24) diagA c := by
+    have h1 := mul_le_mul_of_nonneg_left hquart (by norm_num : (0 : ℝ) ≤ 1 / 24)
+    calc 1 / 24 * quarticDegreeForm c
+        ≤ 1 / 24 * (24 * magneticEnergyForm (d := 24) diagA c) := h1
+      _ = magneticEnergyForm (d := 24) diagA c := by ring
+  exact hstep.trans hq24
+
+/-- **The S2 shape on the core, unconditionally in the interaction**: the Hamiltonian's form is at
+least `(1/48)(degreeForm + barrierForm − shift ‖x‖²)`, because the kinetic square is nonnegative
+and the magnetic square is at least the transferred bound of
+`magEnergy_ge_of_identification`. -/
+theorem ymHamiltonian_quadForm_ge_of_identification (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (MI : ModeIdentification Φ fabc)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) (c : CoreCoeff 24) :
+    1 / 48 * (degreeForm c + barrierForm T g c - quarticShift (d := 24) T g * coreNormSq c)
+      ≤ quadForm (ymHamiltonian Φ fabc) (MI.toCore c) := by
+  rw [ymHamiltonian_quadForm_split]
+  have hmag := magEnergy_ge_of_identification Φ fabc MI (T := T) (g := g) hg c
+  have heq := magEnergy_form_eq Φ fabc (MI.toCore c)
+  have hpi : (0 : ℝ) ≤ ∑ m : Fin 24, ‖(((piOps Φ m) (MI.toCore c) : D) : L2d 99)‖ ^ 2 :=
+    Finset.sum_nonneg fun _ _ => sq_nonneg _
+  linarith
+
+/-- **The S2 gap constant**: on the identified core the form dominates the reference oscillator
+form with the explicit ratio `c₁/48` and the explicit shift
+`(c₁ μ₀ + quarticShift)/48`.  The constant is `1/48 = 1/(2 · 24)` for `c₁ = 1`: the factor `2` is
+the kinetic-plus-magnetic split of `H₁`, the `24` the Cauchy–Schwarz count of the field
+components. -/
+theorem s2_gap_constant (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ} {T : Finset (Fin 24)} {g : ℝ}
+    (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁) (hω₁ : ∀ i, c₁ * ω i ≤ 1) (c : CoreCoeff 24) :
+    c₁ / 48 * coreForm ω c
+        - ((c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (MI.toCore c) := by
+  have hdom := (freeFormDomination (d := 24) ω hc₁ hω₁).dom c
+  have hdom' : c₁ * coreForm ω c - c₁ * refEnergy ω 0 * coreNormSq c ≤ degreeForm c := by
+    simpa using hdom
+  have hbase := ymHamiltonian_quadForm_ge_of_identification Φ fabc MI (T := T) (g := g) hg c
+  have hbar := barrierForm_nonneg hg T c
+  linarith
+
+end ModeIdentification
 
 /-! ## 4. The root sector: the quartic magnetic energy
 
