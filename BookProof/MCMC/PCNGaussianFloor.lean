@@ -1073,9 +1073,10 @@ instance under an explicit return estimate, and — the part that matters — re
   `∀ y, ofReal c0 ≤ pcnAbsorbingStep y (box)`.
 
 §11's return mass cannot discharge the hypothesis on its own: the density floor needs `|xᵢ| ≤ R` for
-the starting point, and a Gaussian proposal started outside the box puts exponentially little mass in
-it.  §13 supplies the missing start-dependence — a return mass decaying like `exp (−2ρ²‖x‖²/s)` — so
-the hypothesis holds at every start, with a constant that is uniform only on balls.
+the starting point, and a Gaussian proposal started outside the box puts exponentially little mass
+in it.  §13 supplies the missing start-dependence — a return mass decaying like
+`exp (−2ρ²‖x‖²/s)` — so the hypothesis holds at every start, with a constant that is uniform only on
+balls; §15 then shows where the chain actually goes.
 -/
 
 
@@ -1326,5 +1327,234 @@ theorem pcnPrior_ne_one :
   have h2 : Real.exp 0 = Real.exp (-(3 / 4)) := by rw [Real.exp_zero]; exact h
   have h3 := Real.exp_injective h2
   norm_num at h3
+
+/-! ## 15. Confinement: the step stays in the box or at the start
+
+§13 bounded the start's dependence but could not say where the chain *goes*.  This section does: the
+accepted part is a density against `volume.restrict box`, so it lives in the box, and the rejection
+atom lives at the start.  One step from `x` therefore never leaves `box ∪ {x}`, and neither does any
+iterate.
+
+* **`pcnAbsorbingStep_eq_zero_of_disjoint`** — a set measurable, disjoint from the box and not
+  containing `x` gets no mass;
+* **`pcnAbsorbingStep_confined`** — hence `K x (box ∪ {x})ᶜ = 0`;
+* **`bind_eq_zero_of_support`** — a measure supported in `S` whose steps from `S` stay in `S` has
+  its `bind` supported in `S`;
+* **`pcnIter_confined`** — the `n`-step measure from `x` lives in `box ∪ {x}`;
+* **`pcnSumSq_le_of_mem_box`**, **`pcnIter_confined_ball`** — in the radius `‖z‖²`, the iterate
+  stays below `max (dR²) ‖x‖²`: the chain never drifts outwards;
+* **`pcnBallConst`**, **`pcnAbsorbingStep_box_ge_ball`** — so the §13 return constant is *uniform*
+  over the starts in a ball `‖x‖² ≤ M²`, at the price of replacing `‖x‖²` by `M²`;
+* **`pcnAbsorbingStep_twoStep_minorant_ball`** — §12's two-step minorant with that uniform constant.
+
+**What this is, and is not.**  Confinement here is confinement to `box ∪ {x}`: the chain cannot
+drift further out than where it started, so the return estimate is uniform on each ball of starting
+points rather than on `ℝ^d`.  It is not a uniform estimate over all starts — §13's constant
+genuinely decays in `‖x‖²` — and it does not give the contraction a single constant; what it gives
+is that the constant depends on the start only through the ball containing it.
+-/
+
+/-- The step has no mass outside the box and the starting point. -/
+theorem pcnAbsorbingStep_eq_zero_of_disjoint {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    {x : Fin d → ℝ} {A : Set (Fin d → ℝ)} (hA : MeasurableSet A)
+    (hbox : Disjoint A (pcnBox d R)) (hx : x ∉ A) :
+    pcnAbsorbingStep (d := d) s ρ R τ x A = 0 := by
+  have hvol : (volume.restrict (pcnBox d R)) A = 0 := by
+    rw [Measure.restrict_apply hA, Set.disjoint_iff_inter_eq_empty.mp hbox, measure_empty]
+  have hacc : pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R τ x A = 0 := by
+    rw [pcnMetropolisStep]
+    exact (withDensity_absolutelyContinuous (volume.restrict (pcnBox d R))
+      fun y => ENNReal.ofReal (pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ x y)) hvol
+  rw [pcnAbsorbingStep, Measure.add_apply, hacc, zero_add, Measure.smul_apply,
+    Measure.dirac_apply' x hA, Set.indicator_of_notMem hx, smul_eq_mul, mul_zero]
+
+/-- **The step is confined to the box and its own starting point.** -/
+theorem pcnAbsorbingStep_confined {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ} (x : Fin d → ℝ) :
+    pcnAbsorbingStep (d := d) s ρ R τ x (pcnBox d R ∪ {x})ᶜ = 0 := by
+  refine pcnAbsorbingStep_eq_zero_of_disjoint
+    ((measurableSet_pcnBox (d := d) R).union (measurableSet_singleton x)).compl ?_ ?_
+  · rw [Set.disjoint_compl_left_iff_subset]
+    exact Set.subset_union_left
+  · simp
+
+/-- A measure that vanishes on `S` and whose steps vanish outside `S` stays inside `S`. -/
+theorem bind_eq_zero_of_support {α : Type*} [MeasurableSpace α] {μ : Measure α}
+    {K : α → Measure α} {S : Set α} (hS : MeasurableSet S) (hμ : μ Sᶜ = 0)
+    (hK : AEMeasurable K μ) (hstep : ∀ y ∈ S, K y Sᶜ = 0) :
+    (μ.bind K) Sᶜ = 0 := by
+  rw [Measure.bind_apply hS.compl hK]
+  have hcompl : ∀ᵐ y ∂μ, y ∈ S := by
+    rw [MeasureTheory.ae_iff]
+    simpa using hμ
+  have hae : (fun y => K y Sᶜ) =ᵐ[μ] 0 := by
+    filter_upwards [hcompl] with y hy
+    exact hstep y hy
+  rw [lintegral_congr_ae hae]
+  simp
+
+/-- **The iterates are confined too**: the `n`-step measure from `x` lives in `box ∪ {x}`. -/
+theorem pcnIter_confined {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) (n : ℕ) (x : Fin d → ℝ) :
+    pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x (pcnBox d R ∪ {x})ᶜ = 0 := by
+  induction n generalizing x with
+  | zero =>
+      rw [pcnIter_zero, Measure.dirac_apply' x
+        ((measurableSet_pcnBox (d := d) R).union (measurableSet_singleton x)).compl]
+      simp
+  | succ n ih =>
+      rw [pcnIter_succ]
+      refine bind_eq_zero_of_support ((measurableSet_pcnBox (d := d) R).union
+        (measurableSet_singleton x)) (pcnAbsorbingStep_confined (d := d) (s := s) (ρ := ρ)
+          (R := R) (τ := τ) x) (measurable_pcnIter hmeas n).aemeasurable ?_
+      intro y hy
+      have hsub : (pcnBox d R ∪ {x})ᶜ ⊆ (pcnBox d R ∪ {y})ᶜ := by
+        intro z hz
+        simp only [Set.mem_compl_iff, Set.mem_union, Set.mem_singleton_iff] at hz ⊢
+        rintro (hzb | hzy)
+        · exact hz (Or.inl hzb)
+        · exact hz (hzy ▸ hy)
+      exact measure_mono_null hsub (ih y)
+
+/-- The return constant at a uniform radius `M`: `(√(π s))^d · exp (−(2ρ²M² + 2dR²)/s)`. -/
+noncomputable def pcnBallConst (s ρ R M : ℝ) : ℝ :=
+  pcnNorm1 s ^ d * Real.exp (-(2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s)
+
+theorem pcnBallConst_pos {s ρ R M : ℝ} (hs : 0 < s) :
+    0 < pcnBallConst (d := d) s ρ R M :=
+  mul_pos (pow_pos (pcnNorm1_pos hs) _) (Real.exp_pos _)
+
+/-- **The return mass is uniform on a ball of starting points**: if `‖x‖² ≤ M²`, the step returns
+to the box with mass at least `m · pcnBallConst s ρ R M · (2R)^d`. -/
+theorem pcnAbsorbingStep_box_ge_ball {s ρ R B m M : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    {x : Fin d → ℝ} (hs : 0 < s) (hR : 0 ≤ R) (hm0 : 0 ≤ m) (hm1 : m ≤ 1)
+    (hτx : 0 < τ x) (hτxB : τ x ≤ B) (hτfloor : ∀ y ∈ pcnBox d R, m * B ≤ τ y)
+    (hxM : pcnSumSq x ≤ M ^ 2) :
+    ENNReal.ofReal (m * pcnBallConst (d := d) s ρ R M * (2 * R) ^ d)
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ x (pcnBox d R) := by
+  have hle : pcnBallConst (d := d) s ρ R M ≤ pcnReturnConst (d := d) s ρ R x := by
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_)
+      (pow_nonneg (pcnNorm1_pos hs).le d)
+    have hsq : 2 * ρ ^ 2 * pcnSumSq x ≤ 2 * ρ ^ 2 * M ^ 2 :=
+      mul_le_mul_of_nonneg_left hxM (by nlinarith [sq_nonneg ρ])
+    rw [neg_div, neg_div, neg_le_neg_iff, div_le_div_iff_of_pos_right hs]
+    linarith
+  refine le_trans (ENNReal.ofReal_le_ofReal ?_)
+    (pcnAbsorbingStep_box_ge_start (d := d) (s := s) (ρ := ρ) (R := R) (B := B) (m := m)
+      (τ := τ) (x := x) hs hR hm0 hm1 hτx hτxB hτfloor)
+  refine mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hle hm0) ?_
+  positivity
+
+theorem pcnSumSq_le_of_mem_box {R : ℝ} {y : Fin d → ℝ} (hy : y ∈ pcnBox d R) :
+    pcnSumSq y ≤ (d : ℝ) * R ^ 2 := by
+  have hb : ∀ i : Fin d, |y i| ≤ R := mem_pcnBox.mp hy
+  calc pcnSumSq y = ∑ i, y i ^ 2 := rfl
+    _ ≤ ∑ _i : Fin d, R ^ 2 := Finset.sum_le_sum fun i _ => by
+        have hi := abs_le.mp (hb i)
+        nlinarith [hi.1, hi.2]
+    _ = (d : ℝ) * R ^ 2 := by
+        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+
+/-- **The chain stays in the ball of its start.**  Every point the `n`-step measure can reach has
+`‖z‖² ≤ max (dR²) ‖x‖²`, so a start with `‖x‖² ≤ M²` keeps the chain inside `‖z‖² ≤ max (dR²) M²`.
+That is the confinement the return constant `pcnBallConst` is uniform on. -/
+theorem pcnIter_confined_ball {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) (n : ℕ) (x : Fin d → ℝ) :
+    pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x
+      {z : Fin d → ℝ | max ((d : ℝ) * R ^ 2) (pcnSumSq x) < pcnSumSq z} = 0 := by
+  refine measure_mono_null ?_
+    (pcnIter_confined (d := d) (s := s) (ρ := ρ) (R := R) (τ := τ) hmeas n x)
+  intro z hz
+  simp only [Set.mem_setOf_eq, Set.mem_compl_iff, Set.mem_union, Set.mem_singleton_iff,
+    not_or] at hz ⊢
+  refine ⟨?_, ?_⟩
+  · intro hzb
+    exact absurd (pcnSumSq_le_of_mem_box hzb)
+      (not_le.mpr (lt_of_le_of_lt (le_max_left _ _) hz))
+  · intro hzx
+    rw [hzx] at hz
+    exact absurd (le_max_right _ _) (not_le.mpr hz)
+
+/-! ## 16. The reversible reference: `τ · pcnPrior`
+
+§14 showed that the step's reversibility is with respect to `volume.withDensity (τ · pcnPrior)`, not
+§3–§13's `volume.withDensity τ`.  This section restates what carries over: the minorant, its
+prior-referenced form, and the rate, with the corrected reference named.
+
+* **`pcnPriorTarget`** — the reference measure `volume.withDensity (τ · pcnPrior)` on the box;
+* **`pcnAbsorbingStep_minorant_prior`** — the §10 minorant for that reference: the acceptance floors
+  stay on `τ` (the likelihood), while the ceiling `B` and the target are on `τ · pcnPrior`;
+* **`pcnAbsorbingStep_rate_prior`** — §9's rate with the corrected reference.
+-/
+
+/-- The reversible reference on the box: `volume.withDensity (τ · pcnPrior)`. -/
+noncomputable def pcnPriorTarget (s ρ R : ℝ) (τ : (Fin d → ℝ) → ℝ) : Measure (Fin d → ℝ) :=
+  pcnTargetMeasure (d := d) R fun y => τ y * pcnPrior s ρ y
+
+/-- **The Doeblin minorant against the reversible reference.**  The acceptance floor is a statement
+about the *likelihood* `τ`; the ceiling and the target are about `τ · pcnPrior`. -/
+theorem pcnAbsorbingStep_minorant_prior {s ρ R F B m : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    {x : Fin d → ℝ} (hF : 0 ≤ F) (hB : 0 < B) (hm0 : 0 ≤ m) (hm1 : m ≤ 1)
+    (hB' : ∀ y ∈ pcnBox d R, τ y * pcnPrior s ρ y ≤ B) (hτx : 0 < τ x)
+    (hτxy : ∀ y ∈ pcnBox d R, m * τ x ≤ τ y)
+    (hdens : ∀ y ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s ρ x y) :
+    ENNReal.ofReal (m * F / B) • pcnPriorTarget (d := d) s ρ R τ
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ x := by
+  have hmF0 : 0 ≤ m * F := mul_nonneg hm0 hF
+  have hfloor : ∀ y ∈ pcnBox d R,
+      m * F ≤ pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ x y :=
+    fun y hy => pcnMetropolis_floor hm0 hF (pcnAccept_floor hm1 hτx (hτxy y hy)) (hdens y hy)
+  have hπ : pcnPriorTarget (d := d) s ρ R τ
+      ≤ ENNReal.ofReal B • (volume.restrict (pcnBox d R)) :=
+    pcnTargetMeasure_le_smul hB'
+  have hμ : ENNReal.ofReal (m * F) • (volume.restrict (pcnBox d R))
+      ≤ pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R τ x :=
+    pcnMetropolis_minorant hfloor
+  calc ENNReal.ofReal (m * F / B) • pcnPriorTarget (d := d) s ρ R τ
+      ≤ ENNReal.ofReal (m * F / B) •
+          (ENNReal.ofReal B • (volume.restrict (pcnBox d R))) := smul_measure_mono hπ
+    _ = ENNReal.ofReal (m * F) • (volume.restrict (pcnBox d R)) := by
+        rw [smul_smul, ofReal_div_mul_ofReal hmF0 hB]
+    _ ≤ pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R τ x := hμ
+    _ ≤ pcnAbsorbingStep (d := d) s ρ R τ x :=
+        pcnMetropolisStep_le_pcnAbsorbingStep s ρ R τ x
+
+/-- **The rate with the reversible reference.**  §9's contraction with `π` the prior-referenced
+target: the two remaining hypotheses are the minorant (supplied by
+`pcnAbsorbingStep_minorant_prior` on the box) and invariance of `pcnPriorTarget` under the step. -/
+theorem pcnAbsorbingStep_rate_prior {s ρ R c : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s)
+    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ))
+    [IsProbabilityMeasure (pcnPriorTarget (d := d) s ρ R τ)]
+    (hmin : ∀ x, ENNReal.ofReal c • pcnPriorTarget (d := d) s ρ R τ
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ x)
+    (hstat : ∀ n, (pcnPriorTarget (d := d) s ρ R τ).bind
+      (pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n) = pcnPriorTarget (d := d) s ρ R τ)
+    (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
+    ENNReal.ofReal (1 - (1 - c) ^ n) * pcnPriorTarget (d := d) s ρ R τ S
+      ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S :=
+  pcnAbsorbingStep_rate hc0 hc1 hs hmeas hmin hstat n x hS
+
+/-- **Two steps with a constant uniform on a ball of starts.**  §12's two-step minorant with §15's
+uniform return mass: for every start with `‖x‖² ≤ M²` the constant is the same,
+`m · pcnBallConst s ρ R M · (2R)^d · (mF/B)`. -/
+theorem pcnAbsorbingStep_twoStep_minorant_ball {s ρ R F B m M : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    {x : Fin d → ℝ} (hF : 0 ≤ F) (hB : 0 < B) (hm0 : 0 ≤ m) (hm1 : m ≤ 1)
+    (hτB : ∀ y ∈ pcnBox d R, τ y ≤ B)
+    (hτpos : ∀ y ∈ pcnBox d R, 0 < τ y)
+    (hτxy : ∀ y ∈ pcnBox d R, ∀ z ∈ pcnBox d R, m * τ y ≤ τ z)
+    (hdens : ∀ y ∈ pcnBox d R, ∀ z ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s ρ y z)
+    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ))
+    (hs : 0 < s) (hR : 0 ≤ R) (hτx0 : 0 < τ x) (hτxB : τ x ≤ B)
+    (hτfloor : ∀ y ∈ pcnBox d R, m * B ≤ τ y)
+    (hxM : pcnSumSq x ≤ M ^ 2) :
+    (ENNReal.ofReal (m * pcnBallConst (d := d) s ρ R M * (2 * R) ^ d)
+        * ENNReal.ofReal (m * F / B)) • pcnTargetMeasure (d := d) R τ
+      ≤ (pcnAbsorbingStep (d := d) s ρ R τ x).bind
+          (pcnAbsorbingStep (d := d) s ρ R τ) :=
+  bind_minorant_of_set (measurableSet_pcnBox (d := d) R) hmeas.aemeasurable
+    (pcnAbsorbingStep_box_ge_ball (d := d) (s := s) (ρ := ρ) (R := R) (B := B) (m := m)
+      (M := M) (τ := τ) (x := x) hs hR hm0 hm1 hτx0 hτxB hτfloor hxM)
+    (fun y hy => pcnAbsorbingStep_minorant hF hB hm0 hm1 hτB (hτpos y hy) (hτxy y hy)
+      (hdens y hy))
 
 end BookProof.MCMC.PCNGaussianFloor

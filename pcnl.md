@@ -1600,6 +1600,34 @@ is to replace `τ` by `x ↦ τ x · pcnPrior s ρ x`.  What is still not writte
 detailed balance on pairs to stationarity of the kernel — so "invariance" is proved in the
 pointwise sense and not yet as `π.bind K = π`.
 
+**Confinement: where the chain actually goes (§49).**  §47 made the return constant depend on the
+start; §15 of `PCNGaussianFloor` says the chain never wanders.  The accepted part is a density against
+`volume.restrict box`, so it lives in the box, and the rejection atom lives at the start:
+**`pcnAbsorbingStep_eq_zero_of_disjoint`** — a measurable set disjoint from the box and not containing
+`x` gets no mass; **`pcnAbsorbingStep_confined`** — `K x (box ∪ {x})ᶜ = 0`; and with
+**`bind_eq_zero_of_support`** (a measure supported in `S` whose steps from `S` stay in `S` has its
+`bind` supported in `S`) the same holds for every iterate, **`pcnIter_confined`**.  In the radius
+`∑zᵢ²` that reads **`pcnIter_confined_ball`** (via `pcnSumSq_le_of_mem_box`): every reachable `z`
+satisfies `‖z‖² ≤ max (dR²) ‖x‖²`, i.e. the chain never drifts outwards, and a start with
+`‖x‖² ≤ M²` keeps it in `‖z‖² ≤ max (dR²) M²`.
+
+That is what turns §47's decaying constant into a uniform one: `pcnBallConst s ρ R M` and
+**`pcnAbsorbingStep_box_ge_ball`** give `m · pcnBallConst s ρ R M · (2R)^d` of box mass for *every*
+start with `‖x‖² ≤ M²`, and **`pcnAbsorbingStep_twoStep_minorant_ball`** is §12's two-step minorant
+with that constant.  The honest limit is unchanged in kind: the constant is uniform on each ball of
+starts, not on `ℝ^d`.  That is not a defect of the proof — §47's constant genuinely decays in `‖x‖²`,
+so no single Doeblin constant can hold over all starts; what confinement buys is that within a ball
+the contraction's hypothesis is discharged by one number.
+
+**The corrected reference, restated (§50).**  §48 corrected the target; §16 of `PCNGaussianFloor`
+restates what carries over.  **`pcnPriorTarget s ρ R τ`** is `volume.withDensity (τ · pcnPrior)` on
+the box, and **`pcnAbsorbingStep_minorant_prior`** is the §10 minorant for it: the ceiling `B` and the
+target are statements about `τ · pcnPrior`, while the acceptance floor `m · τ x ≤ τ y` stays a
+statement about the *likelihood* `τ` — which is the point of the correction, since the acceptance
+filters `τ`, not `τ · pcnPrior`.  **`pcnAbsorbingStep_rate_prior`** is §9's rate with that reference,
+so the remaining hypotheses there are the minorant and invariance of `pcnPriorTarget` under the step,
+not of `pcnTargetMeasure`.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1656,7 +1684,11 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   (`pcnQuad_le_of_mem_box`, `pcnReturnConst`, `pcnProposalMeasure_box_ge_start`,
   `pcnAbsorbingStep_box_ge_start`) — §47; and reversibility (`pcnPrior`,
   `pcnPrior_mul_density_comm`, `pcnMetropolisDensity_detailed`, `pcnPrior_ne_one`) — §48, where the
-  reference measure turns out to be `τ · pcnPrior` and not `τ`.
+  reference measure turns out to be `τ · pcnPrior` and not `τ`; the confinement that makes §47's
+  constant uniform on balls (`pcnAbsorbingStep_confined`, `pcnIter_confined`,
+  `pcnIter_confined_ball`, `pcnBallConst`, `pcnAbsorbingStep_box_ge_ball`,
+  `pcnAbsorbingStep_twoStep_minorant_ball`) — §49; and the prior-referenced restatement
+  (`pcnPriorTarget`, `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior`) — §50.
 
 *Not proved, and not claimed.*
 

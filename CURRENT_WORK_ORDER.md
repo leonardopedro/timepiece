@@ -69,9 +69,16 @@ campaign measured a diagnostic, and §M4.9 gates §M4.3".
   `exp(−2ρ²‖x‖²/s)`, so §39's hypothesis holds at every start, uniformly only on balls) and
   reversibility (`pcnPrior_mul_density_comm`, `pcnMetropolisDensity_detailed`), which finds that the
   reversible reference is `τ · pcnPrior` and not `τ` — §3–§39's `pcnTargetMeasure R τ` is the
-  symmetric-proposal target, and `τ` must be read as a likelihood against the Gaussian prior.  What
-  remains: the uniform confinement (the chain stays in a bounded ball) and the integral passage from
-  detailed balance to stationarity.  Its predecessor is the 2026-11-08 entry (`§9.3–§9.5`: the mode calculus, `polyMul_mul`, the derivative side), and the 2026-10-21 steps 0–3 are **not** superseded and remain open | `pcnl.md`'s Module 3 status prose — "the induction that *feeds*" §9.2, "the derivative polynomials `∂_j Φ` … not carried out here", and the operator composition with `∂ⱼ` — is superseded as a reading guide by the 2026-11-08 and 2026-11-08b entries for the pCNL/Module 3 track only; the rest of `pcnl.md` (Modules 1–2, 4–5, the review of the empirical claims) stands | — |
+  symmetric-proposal target, and `τ` must be read as a likelihood against the Gaussian prior.  Then
+  confinement (`pcnAbsorbingStep_confined`, `pcnIter_confined`, `pcnIter_confined_ball`,
+  `pcnBallConst`, `pcnAbsorbingStep_box_ge_ball`, `pcnAbsorbingStep_twoStep_minorant_ball`): the
+  accepted part lives in the box and the rejection atom at the start, so one step from `x` never
+  leaves `box ∪ {x}`, every iterate satisfies `‖z‖² ≤ max (dR²) ‖x‖²`, and the `exp(−2ρ²‖x‖²/s)`
+  constant becomes a single number on each ball of starts — uniform on balls, not on `ℝ^d`, which is
+  the best available since the constant genuinely decays; and the prior-referenced restatement
+  (`pcnPriorTarget`, `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior`), where the
+  ceiling and the target are about `τ · pcnPrior` while the acceptance floor stays about `τ`.  What
+  remains: the integral passage from detailed balance to stationarity.  Its predecessor is the 2026-11-08 entry (`§9.3–§9.5`: the mode calculus, `polyMul_mul`, the derivative side), and the 2026-10-21 steps 0–3 are **not** superseded and remain open | `pcnl.md`'s Module 3 status prose — "the induction that *feeds*" §9.2, "the derivative polynomials `∂_j Φ` … not carried out here", and the operator composition with `∂ⱼ` — is superseded as a reading guide by the 2026-11-08 and 2026-11-08b entries for the pCNL/Module 3 track only; the rest of `pcnl.md` (Modules 1–2, 4–5, the review of the empirical claims) stands | — |
 
 **The single most load-bearing supersession sentence for the book track** is buried inside
 the 2026-08-27 wave block, not in any header: *"One plan that supersedes the per-thread

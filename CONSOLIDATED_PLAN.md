@@ -19929,3 +19929,38 @@ integral passage to `π.bind K = π` is not written.
 warnings on the file; `#print axioms` on `pcnQuad_le_of_mem_box`, `pcnAbsorbingStep_box_ge_start`,
 `pcnPrior_mul_density_comm`, `pcnMetropolisDensity_detailed`, `pcnPrior_ne_one` →
 `propext, Classical.choice, Quot.sound` only, no `sorryAx`; 0 lines over 100 characters.
+
+### 41. Addendum (2026-11-10s) — confinement to `box ∪ {x}`, and the reference restated
+
+Two items in `PCNGaussianFloor` §15–§16, both following from §40.
+
+**Where the chain goes (§15).**  §40 left the uniform question as "does the chain stay in a bounded
+ball".  It does, and for a structural reason: the accepted part of the step is a density against
+`volume.restrict box`, so it is supported in the box, and the rejection atom sits at the start.
+
+* **`pcnAbsorbingStep_eq_zero_of_disjoint`** — a measurable set disjoint from the box and not
+  containing `x` has no mass; **`pcnAbsorbingStep_confined`** — hence `K x (box ∪ {x})ᶜ = 0`;
+* **`bind_eq_zero_of_support`** — a measure supported in `S` whose steps from `S` stay in `S` has its
+  `bind` supported in `S`, so **`pcnIter_confined`** gives the same for every iterate;
+* **`pcnSumSq_le_of_mem_box`**, **`pcnIter_confined_ball`** — every reachable `z` has
+  `‖z‖² ≤ max (dR²) ‖x‖²`, i.e. the chain never drifts outwards;
+* **`pcnBallConst s ρ R M`** and **`pcnAbsorbingStep_box_ge_ball`** — so §40's decaying constant is
+  bounded below by one number for all starts with `‖x‖² ≤ M²`, and
+  **`pcnAbsorbingStep_twoStep_minorant_ball`** is §39's two-step minorant with that constant.
+
+The honest limit stays: uniform on balls, not on `ℝ^d`.  That is not a gap in the proof — §40's
+constant decays like `exp (−2ρ²‖x‖²/s)`, so no single Doeblin constant can hold over all starts; what
+confinement supplies is that inside a ball the contraction's hypothesis is one number.
+
+**The reversible reference, restated (§16).**  §40 corrected the target to `τ · pcnPrior`; §16 makes
+the corrected statements available: **`pcnPriorTarget s ρ R τ`** (`volume.withDensity (τ · pcnPrior)`
+on the box), **`pcnAbsorbingStep_minorant_prior`** (the §37 minorant for it: the ceiling `B` and the
+target are about `τ · pcnPrior`, the acceptance floor `m · τ x ≤ τ y` about the likelihood `τ`, which
+is the point — the acceptance filters `τ`, not `τ · pcnPrior`), and **`pcnAbsorbingStep_rate_prior`**
+(§38's rate with that reference).
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green, no linter
+warnings on the file; `#print axioms` on `pcnAbsorbingStep_confined`, `pcnIter_confined`,
+`pcnIter_confined_ball`, `pcnAbsorbingStep_box_ge_ball`, `pcnAbsorbingStep_twoStep_minorant_ball`,
+`pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior` → `propext, Classical.choice,
+Quot.sound` only, no `sorryAx`; 0 lines over 100 characters, no trailing whitespace.
