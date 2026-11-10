@@ -1553,9 +1553,52 @@ does prove is the reduction, so that only the missing estimate is missing:
 dominates `c1 • π`, then `ρ.bind K ≥ c0·c1 • π` — and its pCN instance
 **`pcnAbsorbingStep_twoStep_minorant`**, which concludes
 `(c0 · mF/B) • π ≤ (pcnAbsorbingStep x).bind pcnAbsorbingStep` *from* a return estimate
-`∀ y, ofReal c0 ≤ pcnAbsorbingStep y (box)` at every starting point.  Discharging that hypothesis is
-a confinement (Lyapunov / drift) estimate several steps deep, not an algebraic consequence of the
-one-step mass — a different argument, which is the honest remaining item of this track.
+`∀ y, ofReal c0 ≤ pcnAbsorbingStep y (box)` at every starting point.  Discharging it needs a bound on
+the return mass from a start *outside* the box; §13 below supplies exactly that, with a constant that
+decays like `exp (−2ρ²‖x‖²/s)`.  That settles the per-start case; what it does not do is make the
+constant uniform, so the *global* Doeblin constant still needs the chain to be confined to a ball of
+bounded radius — the genuinely missing statement.
+
+**The confinement estimate (§47).**  §12's hypothesis is dischargeable after all, with the honest
+dependence made explicit: what §45 could not do was bound the *return* mass from a start outside the
+box, and that bound exists with a decaying constant.  §13 of `PCNGaussianFloor` proves it:
+**`pcnQuad_le_of_mem_box`** — for every start `x` and every `y` in the box,
+`pcnQuad ρ x y ≤ 2ρ²‖x‖² + 2dR²` (the per-coordinate `(yᵢ − ρxᵢ)² ≤ 2yᵢ² + 2ρ²xᵢ²` plus
+`∑yᵢ² ≤ dR²`); `pcnDensity_start_floor` and **`pcnReturnConst`** — the resulting floor
+`(√(π s))^d exp (−(2ρ²‖x‖² + 2dR²)/s)`; **`pcnProposalMeasure_box_ge_start`** — the proposal's box
+mass from *any* start; and **`pcnAbsorbingStep_box_ge_start`** — the same for the step the chain
+takes, needing only `τ x ≤ B` at the start and `τ ≥ mB` on the box.  So §12's `c0` is
+`m · pcnReturnConst s ρ R x · (2R)^d`, positive at every `x`.
+
+What that is and is not: the constant decays like `exp (−2ρ²‖x‖²/s)`, so this is *local* Doeblin data
+— on any ball `‖x‖² ≤ M²` it is bounded below uniformly, but nothing here says the chain stays in
+such a ball, and §32's contraction still wants one constant over the whole space.  The gain is that
+the missing input is now a single numerical function of the start rather than an unproved
+universal statement.
+
+**Reversibility, and a correction to §44's target (§48).**  `pcnl.md` and §3–§45 compared the step
+with `volume.withDensity τ`, the reference of a *symmetric* Metropolis proposal.  The pCN increment is
+not symmetric: `y = ρx + √(1−ρ²)ξ` has density `exp (−(yᵢ − ρxᵢ)²/s)` forwards and
+`exp (−(xᵢ − ρyᵢ)²/s)` backwards.  §14 of `PCNGaussianFloor` states the exact truth and the
+correction:
+
+* **`pcnPrior`** — the Gaussian the increment leaves alone, unnormalised density
+  `exp (−(1 − ρ²)‖x‖²/s)`, i.e. `N(0, s/(2(1−ρ²)))`;
+* **`pcnPrior_mul_density_comm`** — `pcnPrior x · q_x(y) = pcnPrior y · q_y(x)`: detailed balance for
+  the unfiltered proposal against the prior (per coordinate
+  `(1−ρ²)xᵢ² + (yᵢ − ρxᵢ)² = (1−ρ²)yᵢ² + (xᵢ − ρyᵢ)²`);
+* **`pcnMetropolisDensity_detailed`** — with the prior factor carried, `τ · pcnPrior` *is* reversible
+  under the chapter's acceptance `min 1 (τ y/τ x)`; the algebra is `pcnAccept_mul_self`,
+  `π x · min 1 (π y/π x) = min (π x) (π y)`;
+* **`pcnPrior_ne_one`** — and the factor is not constant (`1` at the origin, `exp(−3/4)` at `x = 1`
+  for `ρ = 1/2`, `s = 1`), so the two measures differ.
+
+So `τ` in §3–§45 plays the role of a *likelihood* against the prior, not of a Lebesgue density, and
+`pcnTargetMeasure R τ` is the target a symmetric proposal would have.  The box floors are unaffected
+(they bound `pcnDensity` and the acceptance, not the reference measure); the repair in the statements
+is to replace `τ` by `x ↦ τ x · pcnPrior s ρ x`.  What is still not written is the integral passage —
+detailed balance on pairs to stationarity of the kernel — so "invariance" is proved in the
+pointwise sense and not yet as `π.bind K = π`.
 
 #### The track's honest boundary — one summary
 
@@ -1609,7 +1652,11 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   (`pcnAbsorbingStep_minorant`) — §44; and the return mass (`pcnBox_volume`,
   `pcnAbsorbingStep_box_ge`) — §45; and the small-set Doeblin reduction
   (`bind_minorant_of_set`, `pcnAbsorbingStep_twoStep_minorant`) — §46, with the explicit finding that
-  §45's return mass is box-local and cannot discharge it.
+  §45's return mass is box-local and cannot discharge it.; the confinement estimate that does discharge it
+  (`pcnQuad_le_of_mem_box`, `pcnReturnConst`, `pcnProposalMeasure_box_ge_start`,
+  `pcnAbsorbingStep_box_ge_start`) — §47; and reversibility (`pcnPrior`,
+  `pcnPrior_mul_density_comm`, `pcnMetropolisDensity_detailed`, `pcnPrior_ne_one`) — §48, where the
+  reference measure turns out to be `τ · pcnPrior` and not `τ`.
 
 *Not proved, and not claimed.*
 

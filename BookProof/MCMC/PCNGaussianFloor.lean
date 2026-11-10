@@ -71,6 +71,16 @@ the architecture's own proposal rather than an unknown number.
   **`pcnAbsorbingStep_twoStep_minorant`** (two steps dominate the target *given* a return
   estimate at every starting point), with the explicit note that §11 supplies that estimate only
   inside the box.
+* **§13, confinement** — `pcnSumSq`, **`pcnQuad_le_of_mem_box`**
+  (`pcnQuad ρ x y ≤ 2ρ²‖x‖² + 2dR²` on the box, for *every* start), `pcnDensity_start_floor`,
+  `pcnReturnConst`, **`pcnProposalMeasure_box_ge_start`** and
+  **`pcnAbsorbingStep_box_ge_start`**: the return mass from an arbitrary start, decaying like
+  `exp (−2ρ²‖x‖²/s)` — §12's hypothesis, discharged start by start;
+* **§14, reversibility** — `pcnPrior` (the Gaussian the increment leaves alone),
+  **`pcnPrior_mul_density_comm`** (`pcnPrior x · q_x(y) = pcnPrior y · q_y(x)`),
+  **`pcnMetropolisDensity_detailed`** (`τ · pcnPrior`, not `τ`, is the reversible reference for
+  `min 1 (τ y/τ x)`) and **`pcnPrior_ne_one`** — the factor is not constant, so §3–§13's named
+  target is the symmetric-proposal one.  The integral passage to stationarity is not written.
 
 ## Honest boundary
 
@@ -82,8 +92,11 @@ is name the target measure on `ℝ^d`, pass the Metropolis filter through the de
 rate — §3–§5 do all three, and the rate is the classical `1 − (1 − c)^n` — but the step family
 the rate applies to must be a family of probability measures — §6 builds that family (accepted
 density plus rejection atom) and proves its mass is `1`.  What stays open is the *value* of the
-accepted mass: an integral of §4's density that the chapter does not compute.  Proving the
-invariance hypothesis rather than stating it is the other open link.
+accepted mass: an integral of §4's density that the chapter does not compute.  Reversibility is now
+proved as the pointwise identity of §14, and that is also the finding: the pCN increment is not
+symmetric, so the measure `τ` of §3–§13 must be read as a likelihood against the prior `pcnPrior`,
+and the target those sections name is the symmetric-proposal one.  Turning detailed balance into
+stationarity — integrating the joint density — is the remaining link.
 -/
 
 noncomputable section
@@ -1059,10 +1072,10 @@ instance under an explicit return estimate, and — the part that matters — re
 * **`pcnAbsorbingStep_twoStep_minorant`** — the pCN instance, *given* a return estimate
   `∀ y, ofReal c0 ≤ pcnAbsorbingStep y (box)`.
 
-Why the hypothesis cannot be discharged from §11: the density floor needs `|xᵢ| ≤ R` for the
-starting point, and a Gaussian proposal started outside the box puts exponentially little mass in
-it.  A genuine repair needs a confinement (Lyapunov) estimate — several steps back, not one — and
-that is a different argument, not an algebraic corollary.
+§11's return mass cannot discharge the hypothesis on its own: the density floor needs `|xᵢ| ≤ R` for
+the starting point, and a Gaussian proposal started outside the box puts exponentially little mass in
+it.  §13 supplies the missing start-dependence — a return mass decaying like `exp (−2ρ²‖x‖²/s)` — so
+the hypothesis holds at every start, with a constant that is uniform only on balls.
 -/
 
 
@@ -1110,5 +1123,208 @@ theorem pcnAbsorbingStep_twoStep_minorant {s ρ R F B m c0 : ℝ} {τ : (Fin d �
     (fun y hy => pcnAbsorbingStep_minorant hF hB hm0 hm1 hτB (hτpos y hy) (hτxy y hy)
       (hdens y hy))
 
+/-! ## 13. Confinement: the return mass from an arbitrary starting point
+
+§11's return mass needs the *start* in the box, and §12 showed that this is exactly what blocks the
+two-step composition.  This section removes the restriction on the start and replaces it with the
+honest dependence: the increment's exponent grows at most like `2ρ²‖x‖² + 2dR²` on the box, so the
+step returns to the box with mass bounded below by a constant that decays like `exp(−2ρ²‖x‖²/s)`.
+
+* `pcnSumSq` — the start's squared radius `∑ᵢ xᵢ²`;
+* **`pcnQuad_le_of_mem_box`** — on the box, `pcnQuad ρ x y ≤ 2ρ²·‖x‖² + 2dR²`, for every start `x`;
+* **`pcnDensity_start_floor`**, `pcnReturnConst` — the resulting density floor, named;
+* **`pcnProposalMeasure_box_ge_start`** — the proposal's box mass from any start;
+* **`pcnAbsorbingStep_box_ge_start`** — the same for the step the chain takes (acceptance floor `m`
+  enters through `τ x ≤ B` at the start only);
+* and so §12's hypothesis is discharged by the constant `m · pcnReturnConst s ρ R x · (2R)^d` at
+  every start: instantiate `pcnAbsorbingStep_twoStep_minorant`'s `c0` with it and its `hret` with
+  `pcnAbsorbingStep_box_ge_start`.
+
+**What is confinement here, and what is not.**  The constant is *not* uniform in `x`: it decays like
+`exp (−2ρ²‖x‖²/s)`, which is the confinement content — on any fixed ball `‖x‖² ≤ M²` it is bounded
+below by `exp (−(2ρ²M² + 2dR²)/s)`, positive, but the estimate alone does not say the chain stays in
+such a ball, nor does it produce a rate uniform over starting points.  It does make §12's hypothesis
+dischargeable, which a box-local return mass could not.
+-/
+
+/-- The start's squared radius `∑ᵢ xᵢ²`. -/
+def pcnSumSq (x : Fin d → ℝ) : ℝ := ∑ i, x i ^ 2
+
+theorem pcnSumSq_nonneg (x : Fin d → ℝ) : 0 ≤ pcnSumSq x :=
+  Finset.sum_nonneg fun i _ => sq_nonneg (x i)
+
+/-- **The increment's exponent from an arbitrary start**: on the box the increment is at most
+`2ρ²‖x‖² + 2dR²`.  Each coordinate contributes `(yᵢ − ρxᵢ)² ≤ 2yᵢ² + 2ρ²xᵢ²`, and on the box
+`∑ᵢ yᵢ² ≤ dR²`. -/
+theorem pcnQuad_le_of_mem_box {ρ R : ℝ} {x y : Fin d → ℝ} (hy : y ∈ pcnBox d R) :
+    pcnQuad ρ x y ≤ 2 * ρ ^ 2 * pcnSumSq x + 2 * (d : ℝ) * R ^ 2 := by
+  have hb : ∀ i : Fin d, |y i| ≤ R := mem_pcnBox.mp hy
+  have hcoord : ∀ i : Fin d,
+      (y i - ρ * x i) ^ 2 ≤ 2 * (y i) ^ 2 + 2 * ρ ^ 2 * (x i) ^ 2 := by
+    intro i
+    nlinarith [sq_nonneg (y i + ρ * x i)]
+  have hy2 : (∑ i, (y i) ^ 2) ≤ (d : ℝ) * R ^ 2 := by
+    calc (∑ i, (y i) ^ 2) ≤ ∑ _i : Fin d, R ^ 2 :=
+          Finset.sum_le_sum fun i _ => by
+            have hi := abs_le.mp (hb i)
+            nlinarith [hi.1, hi.2]
+      _ = (d : ℝ) * R ^ 2 := by
+          rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  calc pcnQuad ρ x y = ∑ i, (y i - ρ * x i) ^ 2 := rfl
+    _ ≤ ∑ i, (2 * (y i) ^ 2 + 2 * ρ ^ 2 * (x i) ^ 2) := Finset.sum_le_sum fun i _ => hcoord i
+    _ = 2 * (∑ i, (y i) ^ 2) + 2 * ρ ^ 2 * pcnSumSq x := by
+        simp only [pcnSumSq, Finset.sum_add_distrib, ← Finset.mul_sum]
+    _ ≤ 2 * ((d : ℝ) * R ^ 2) + 2 * ρ ^ 2 * pcnSumSq x := by nlinarith
+    _ = 2 * ρ ^ 2 * pcnSumSq x + 2 * (d : ℝ) * R ^ 2 := by ring
+
+/-- **The density's floor from an arbitrary start** — §1's floor with `2ρ²‖x‖² + 2dR²` in place of
+the box-only bound. -/
+theorem pcnDensity_start_floor {c s ρ R : ℝ} (hc : 0 ≤ c) (hs : 0 < s)
+    {x y : Fin d → ℝ} (hy : y ∈ pcnBox d R) :
+    c * Real.exp (-(2 * ρ ^ 2 * pcnSumSq x + 2 * (d : ℝ) * R ^ 2) / s)
+      ≤ pcnDensity c s ρ x y :=
+  pcnDensity_le_of_quad_le hc hs (pcnQuad_le_of_mem_box hy)
+
+/-- The proposal's box mass from the start `x`: `(√(π s))^d · exp (−(2ρ²‖x‖² + 2dR²)/s)`. -/
+def pcnReturnConst (s ρ R : ℝ) (x : Fin d → ℝ) : ℝ :=
+  pcnNorm1 s ^ d * Real.exp (-(2 * ρ ^ 2 * pcnSumSq x + 2 * (d : ℝ) * R ^ 2) / s)
+
+theorem pcnNorm1_pos {s : ℝ} (hs : 0 < s) : 0 < pcnNorm1 s := by
+  unfold pcnNorm1
+  exact inv_pos.mpr (Real.sqrt_pos.mpr (by positivity))
+
+theorem pcnReturnConst_pos {s : ℝ} (hs : 0 < s) (ρ R : ℝ) (x : Fin d → ℝ) :
+    0 < pcnReturnConst (d := d) s ρ R x := by
+  unfold pcnReturnConst
+  exact mul_pos (pow_pos (pcnNorm1_pos hs) _) (Real.exp_pos _)
+
+/-- **The return mass from any starting point**: the proposal puts at least
+`pcnReturnConst s ρ R x · (2R)^d` of mass in the box. -/
+theorem pcnProposalMeasure_box_ge_start {s ρ R : ℝ} (hs : 0 < s) (hR : 0 ≤ R)
+    (x : Fin d → ℝ) :
+    ENNReal.ofReal (pcnReturnConst (d := d) s ρ R x * (2 * R) ^ d)
+      ≤ pcnProposalMeasure (d := d) (pcnNorm1 s ^ d) s ρ R x (pcnBox d R) :=
+  pcnProposalMeasure_box_ge (pcnReturnConst_pos hs ρ R x).le hR
+    (fun _y hy => pcnDensity_start_floor (pow_nonneg (pcnNorm1_pos hs).le d) hs hy)
+
+/-- **The step returns to the box from any start.**  The acceptance floor `m` needs the target's
+density at the start bounded by `B` (`τ x ≤ B`) and at least `m·B` throughout the box; nothing else
+about the start is needed. -/
+theorem pcnAbsorbingStep_box_ge_start {s ρ R B m : ℝ} {τ : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hs : 0 < s) (hR : 0 ≤ R) (hm0 : 0 ≤ m) (hm1 : m ≤ 1)
+    (hτx : 0 < τ x) (hτxB : τ x ≤ B) (hτfloor : ∀ y ∈ pcnBox d R, m * B ≤ τ y) :
+    ENNReal.ofReal (m * pcnReturnConst (d := d) s ρ R x * (2 * R) ^ d)
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ x (pcnBox d R) := by
+  refine pcnAbsorbingStep_box_ge (hF := mul_nonneg hm0 (pcnReturnConst_pos hs ρ R x).le) hR ?_
+  intro y hy
+  exact pcnMetropolis_floor hm0 (pcnReturnConst_pos hs ρ R x).le
+    (pcnAccept_floor hm1 hτx (by
+      calc m * τ x ≤ m * B := mul_le_mul_of_nonneg_left hτxB hm0
+        _ ≤ τ y := hτfloor y hy))
+    (pcnDensity_start_floor (pow_nonneg (pcnNorm1_pos hs).le d) hs hy)
+/-! ## 14. Reversibility: the prior the increment leaves alone
+
+§3–§13 compare the step with `pcnTargetMeasure R τ = volume.withDensity τ` on the box.  That is the
+reference measure of a *symmetric* Metropolis proposal, and the pCN increment is not symmetric:
+`y = ρ x + √(1 − ρ²) ξ` has density `exp (−(yᵢ − ρxᵢ)²/s)` in the forward direction and
+`exp (−(xᵢ − ρyᵢ)²/s)` in the reverse one.  The measure it does leave alone is the Gaussian prior.
+This section states that exactly, and the consequence for the filter:
+
+* **`pcnPrior`** — the prior's unnormalised density `exp (−(1 − ρ²)∑ᵢxᵢ²/s)`, i.e.
+  `N(0, s/(2(1 − ρ²)))`;
+* **`pcnPrior_mul_density_comm`** — the symmetry `pcnPrior x · q_x(y) = pcnPrior y · q_y(x)`:
+  detailed balance for the *unfiltered* proposal against the prior;
+* **`pcnMetropolisDensity_detailed`** — with the prior factor carried along, `τ · pcnPrior` is
+  reversible under the chapter's acceptance `min 1 (τ y / τ x)`;
+* **`pcnPrior_ne_one`** — and that factor is not constant, so `volume.withDensity τ` is not the
+  measure the step is reversible for.
+
+**What this changes in §3–§13.**  Their conclusions are about `volume.withDensity τ`; for the pCN
+proposal the reversible measure is `volume.withDensity (τ · pcnPrior)`, so `τ` there plays the role
+of a *likelihood* (a density with respect to the prior), not of a density against Lebesgue.  The box
+floors are untouched — they bound `pcnDensity` and the acceptance, not the reference measure — and
+the repair in the statements is to carry the factor, replacing `τ` by
+`x ↦ τ x * pcnPrior s ρ x`.  The integral passage from detailed balance to stationarity is not
+written here.
+-/
+
+/-- The pCN prior's unnormalised density: `exp (−(1 − ρ²)∑ᵢxᵢ² / s)`, i.e. the Gaussian
+`N(0, s/(2(1−ρ²)))` the increment leaves invariant. -/
+def pcnPrior (s ρ : ℝ) (x : Fin d → ℝ) : ℝ :=
+  Real.exp (-((1 - ρ ^ 2) * pcnSumSq x) / s)
+
+theorem pcnPrior_pos (s ρ : ℝ) (x : Fin d → ℝ) : 0 < pcnPrior s ρ x :=
+  Real.exp_pos _
+
+/-- **The increment is reversible with respect to its prior**: the forward and reverse joint
+densities agree.  Per coordinate the identity is
+`(1 − ρ²)xᵢ² + (yᵢ − ρxᵢ)² = (1 − ρ²)yᵢ² + (xᵢ − ρyᵢ)²`, whose difference is `(1 − ρ²)` times
+`xᵢ² − yᵢ²` from both directions. -/
+theorem pcnPrior_mul_density_comm {s : ℝ} (hs : s ≠ 0) (c ρ : ℝ) (x y : Fin d → ℝ) :
+    pcnPrior s ρ x * pcnDensity c s ρ x y = pcnPrior s ρ y * pcnDensity c s ρ y x := by
+  have hsum : (1 - ρ ^ 2) * pcnSumSq x + pcnQuad ρ x y
+      = (1 - ρ ^ 2) * pcnSumSq y + pcnQuad ρ y x := by
+    unfold pcnSumSq pcnQuad
+    rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib,
+      ← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    ring
+  have harg : -((1 - ρ ^ 2) * pcnSumSq x) / s + -(pcnQuad ρ x y) / s
+      = -((1 - ρ ^ 2) * pcnSumSq y) / s + -(pcnQuad ρ y x) / s := by
+    field_simp
+    linarith
+  calc pcnPrior s ρ x * pcnDensity c s ρ x y
+      = c * (Real.exp (-((1 - ρ ^ 2) * pcnSumSq x) / s)
+          * Real.exp (-(pcnQuad ρ x y) / s)) := by
+        simp only [pcnPrior, pcnDensity]; ring
+    _ = c * Real.exp (-((1 - ρ ^ 2) * pcnSumSq x) / s + -(pcnQuad ρ x y) / s) := by
+        rw [Real.exp_add]
+    _ = c * Real.exp (-((1 - ρ ^ 2) * pcnSumSq y) / s + -(pcnQuad ρ y x) / s) := by
+        rw [harg]
+    _ = pcnPrior s ρ y * pcnDensity c s ρ y x := by
+        rw [Real.exp_add]; simp only [pcnPrior, pcnDensity]; ring
+
+/-- The acceptance times the target's density at the start is the minimum of the two densities: the
+algebra that turns `min 1 (π y / π x)` into an object symmetric in `x` and `y`. -/
+theorem pcnAccept_mul_self {π : (Fin d → ℝ) → ℝ} {x y : Fin d → ℝ} (hx : 0 < π x) :
+    π x * pcnAccept π x y = min (π x) (π y) := by
+  by_cases h : π y ≤ π x
+  · have h1 : min (π x) (π y) = π y := min_eq_right h
+    have h2 : π y / π x ≤ 1 := (div_le_one hx).mpr h
+    rw [pcnAccept, min_eq_right h2, h1, mul_div_cancel₀ _ hx.ne']
+  · have h1 : min (π x) (π y) = π x := min_eq_left (le_of_lt (lt_of_not_ge h))
+    have h2 : 1 ≤ π y / π x := (one_le_div hx).mpr (le_of_lt (lt_of_not_ge h))
+    rw [pcnAccept, min_eq_left h2, h1, mul_one]
+
+/-- **Detailed balance with the prior carried along.**  For any target density `τ`, the accepted
+step is reversible for the measure whose density is `τ · pcnPrior` — not for `τ` alone. -/
+theorem pcnMetropolisDensity_detailed {c s ρ : ℝ} {τ : (Fin d → ℝ) → ℝ} {x y : Fin d → ℝ}
+    (hs : s ≠ 0) (hx : 0 < τ x) (hy : 0 < τ y) :
+    (τ x * pcnPrior s ρ x) * pcnMetropolisDensity c s ρ τ x y
+      = (τ y * pcnPrior s ρ y) * pcnMetropolisDensity c s ρ τ y x := by
+  have hcomm := pcnPrior_mul_density_comm (c := c) (ρ := ρ) hs x y
+  have h1 := pcnAccept_mul_self (π := τ) (x := x) (y := y) hx
+  have h2 := pcnAccept_mul_self (π := τ) (x := y) (y := x) hy
+  calc (τ x * pcnPrior s ρ x) * pcnMetropolisDensity c s ρ τ x y
+      = (τ x * pcnAccept τ x y) * (pcnPrior s ρ x * pcnDensity c s ρ x y) := by
+        simp only [pcnMetropolisDensity]; ring
+    _ = min (τ x) (τ y) * (pcnPrior s ρ y * pcnDensity c s ρ y x) := by rw [h1, hcomm]
+    _ = (τ y * pcnAccept τ y x) * (pcnPrior s ρ y * pcnDensity c s ρ y x) := by
+        rw [h2, min_comm]
+    _ = (τ y * pcnPrior s ρ y) * pcnMetropolisDensity c s ρ τ y x := by
+        simp only [pcnMetropolisDensity]; ring
+
+/-- The prior factor carried by the reversible measure is not constant: at `ρ = 1/2`, `s = 1` it is
+`1` at the origin and `exp (−3/4)` at `x = 1`.  So `volume.withDensity τ` and
+`volume.withDensity (τ · pcnPrior)` differ, and §3–§13's named target is the one a symmetric
+proposal would have. -/
+theorem pcnPrior_ne_one :
+    pcnPrior (d := 1) 1 (1 / 2) 0 ≠ pcnPrior (d := 1) 1 (1 / 2) 1 := by
+  simp only [pcnPrior, pcnSumSq, Pi.zero_apply, Pi.one_apply, Fin.sum_univ_one]
+  norm_num
+  intro h
+  have h2 : Real.exp 0 = Real.exp (-(3 / 4)) := by rw [Real.exp_zero]; exact h
+  have h3 := Real.exp_injective h2
+  norm_num at h3
 
 end BookProof.MCMC.PCNGaussianFloor

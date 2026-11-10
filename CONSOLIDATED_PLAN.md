@@ -19899,3 +19899,33 @@ with its hypothesis explicit rather than silently global.
 **Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green;
 `#print axioms` on both new lemmas → `propext, Classical.choice, Quot.sound` only; 0 lines over
 100 characters.
+
+### 40. Addendum (2026-11-10r) — confinement, and the pCN's reversible measure
+
+Two items, both in `PCNGaussianFloor` §13–§14.
+
+**Confinement (§13).**  `pcnQuad_le_of_mem_box` bounds the increment's exponent on the box by
+`2ρ²‖x‖² + 2dR²` for *every* start (per coordinate `(yᵢ − ρxᵢ)² ≤ 2yᵢ² + 2ρ²xᵢ²`, plus `∑yᵢ² ≤ dR²`),
+giving `pcnDensity_start_floor` and the named constant `pcnReturnConst s ρ R x`.  Then
+**`pcnProposalMeasure_box_ge_start`** and **`pcnAbsorbingStep_box_ge_start`** give the return mass
+from an arbitrary start, so §39's hypothesis holds with `c0 = m · pcnReturnConst s ρ R x · (2R)^d`.
+The constant decays like `exp (−2ρ²‖x‖²/s)`: uniform on any ball, not on the space, so this is local
+Doeblin data — §39's reduction now has its hypothesis discharged start by start, and the uniform
+question is exactly "does the chain stay in a bounded ball".
+
+**Reversibility, and a correction (§14).**  The chapter's acceptance `min 1 (τ y/τ x)` is the filter
+for a symmetric proposal, and the pCN increment is not symmetric.  What holds is
+**`pcnPrior_mul_density_comm`**: with the prior density `pcnPrior s ρ x = exp (−(1 − ρ²)‖x‖²/s)`,
+`pcnPrior x · q_x(y) = pcnPrior y · q_y(x)` — the per-coordinate identity
+`(1 − ρ²)xᵢ² + (yᵢ − ρxᵢ)² = (1 − ρ²)yᵢ² + (xᵢ − ρyᵢ)²` summed.  With the prior factor carried,
+**`pcnMetropolisDensity_detailed`** is detailed balance for `τ · pcnPrior` under that acceptance
+(`pcnAccept_mul_self`: `π x · min 1 (π y/π x) = min (π x) (π y)`), and **`pcnPrior_ne_one`** shows the
+factor is not constant.  So §3–§39's `pcnTargetMeasure R τ` is the symmetric-proposal target: `τ`
+there is a likelihood against the prior, and the repair is to replace it by
+`x ↦ τ x · pcnPrior s ρ x`.  Invariance is thus proved in the pointwise (detailed balance) sense; the
+integral passage to `π.bind K = π` is not written.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green, no linter
+warnings on the file; `#print axioms` on `pcnQuad_le_of_mem_box`, `pcnAbsorbingStep_box_ge_start`,
+`pcnPrior_mul_density_comm`, `pcnMetropolisDensity_detailed`, `pcnPrior_ne_one` →
+`propext, Classical.choice, Quot.sound` only, no `sorryAx`; 0 lines over 100 characters.
