@@ -820,9 +820,10 @@ positive (`re_baseOp_nonneg`, `re_rejectOp_nonneg`) and `ℓ¹`-bounded (`coreL1
 `1 + driftWeight · driftL1Bound`).  §21 then computes the drift's **sign** against that measure and
 finds it points the wrong way — the linear potential's drift *adds* mass on every basis vector
 (`drift_X_single_eq`, `coreL1_single_lt_add_drift_X`), so the flat `ℓ¹` is not a dissipative pairing
-for `K_drift` and no norm estimate of §14–§18 can turn it into one.  What a convergence theorem
-needs is therefore a *weighted* `ℓ¹`; §22 (`PositivityCone`) supplies the model and proves the
-convergence there.)*
+for `K_drift` and no norm estimate of §14–§18 can turn it into one.  A *weighted* `ℓ¹` is what that
+suggested, and §29 closes it: no strictly positive weight makes the step nonexpansive
+(`no_weighted_nonexpansive`).  §22 (`PositivityCone`) supplies the model and proves the convergence
+there.)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
@@ -1217,8 +1218,8 @@ vacuum where `P₀` is the identity.  A convergence theorem for `P_pCNL` therefo
 structure rather than a further operator estimate.  §20 shows half of that structure is already in
 the model — with the Metropolis complement `P₀ + K_reject = 1`, so `pcnlKernel = 1 + K_drift` and
 `P 1 = 1` holds exactly — and §21 kills the shortcut: the flat `ℓ¹` pairing of `K_drift` is
-positive on every basis vector (`coreL1_single_lt_add_drift_X`), so the contraction has to be read
-in a weighted norm.  §22 (`BookProof/MCMC/PositivityCone`) builds the model in which the question
+positive on every basis vector (`coreL1_single_lt_add_drift_X`), and §21.5 shows no weighted `ℓ¹`
+repairs it (`no_weighted_nonexpansive`).  §22 (`BookProof/MCMC/PositivityCone`) builds the model in which the question
 is answered — a row- and column-stochastic pCNL kernel on the finite occupation space with a
 Doeblin minorant `δ > 0`, `P 1 = 1` (`step_one`), cone preservation (`step_nonneg`), mass
 preservation (`mass_step`) and the oscillation contraction
@@ -1228,8 +1229,9 @@ convergence of every starting density to the invariant state `mass f / (m+1)` at
 the Module 4–5 *hypotheses* are no longer assumed either: `module45_hypotheses_cited` bundles the
 sector contraction `coreNorm_baseOp_sector_le`, the fixed vacuum `baseOp_vac` and the gap
 `1 − ρ > 0`, and `module45_iterate_bound` is the iterate bound they produce.  What remains open is
-the pCNL operator's *own* gap — translating the cone model's weighted `ℓ¹` back through the core's
-unbounded `numberOp` — as §2 anticipates; and no total-variation bound is derived —
+the pCNL operator's *own* gap — the cone model's Doeblin contraction is *not* a weighted `ℓ¹` the
+core carries (§21.5: no weight works), so the gap is the Bakry–Émery/Hessian route §2 anticipates;
+and no total-variation bound is derived —
 §3.B's
 Born-to-variation step `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` is stated as the boundary in
 `GeometricErgodicity`'s docstring.
@@ -1345,10 +1347,28 @@ parameter is now an inequality in the architecture's own `ρ`, `σ`, `R` on both
 chapter does *not* do is turn this density bound into a Doeblin theorem on the weight space: §22–§26's
 machinery is stated on a finite state space, and `ℝ^d` is not one.
 
+**The weighted `ℓ¹` route is closed (§29).**  §21 left one candidate for the core: a *weighted* `ℓ¹` in
+which `K_drift` contracts.  §21.5 of `FockLangevinOperator` settles it in both directions.  The
+weighted mass is `coreW1 w c = ∑ₙ w n·‖c n‖` (`coreW1_one`: the flat §9.9 mass is `w ≡ 1`), and the
+diagonal acts on the weight as `w ↦ w·ρ^{natDeg n}` (`coreW1_baseOp`), so in
+`wInv ρ n = (ρ^{natDeg n})⁻¹` it costs nothing: **`coreW1_baseOp_wInv`** gives
+`coreW1 (wInv ρ) (P₀ c) = coreL1 c`, and the flat mass is the smaller one in that weight
+(`coreL1_le_coreW1_wInv`).  That is the norm a Markov argument would choose, and the drift breaks
+it: on a basis vector the two ladder images sit off `n` and enter the weighted sum with strictly
+positive coefficients while the source term `w n` is untouched, so the weighted mass grows for
+*every* strictly positive weight (`coreW1_single_lt_add_drift_X`) — in the cancelling weight by the
+explicit factor `1 + q(√(nⱼ+1)/ρ + ρ√(nⱼ))`, `q = (β²σ²/2)/√2` (**`coreW1_wInv_add_drift_X`**).
+Hence **`no_weighted_nonexpansive`**: no strictly positive weight makes the normalised step
+`1 + K_drift` nonexpansive, and since a contraction in a weighted `ℓ¹` would be nonexpansive there,
+reweighting cannot supply the decay §20 asked the drift's sign for.  What remains on this side is
+therefore not a norm but the operator's own gap (the Bakry–Émery/Hessian route, with
+`pcnl_spectral_gap_of_hessian` the target) and, on the weight space, the kernel-level passage of
+§28's density floor.
+
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
-written on occupations, and the weighted `ℓ¹` of the core (the weight that makes `K_drift` contract)
-is not named.  §23 removes the "uniform only" limitation (the target is an arbitrary `π`), §24
+written on occupations, and the weighted `ℓ¹` of the core is now closed as a *route* (§29: no
+weight works) rather than named.  §23 removes the "uniform only" limitation (the target is an arbitrary `π`), §24
 derives the Doeblin condition for the Metropolis kernel of a symmetric proposal
 (`mhKernel_minorant`), and §25 removes the target from the constant altogether
 (`mhKernel_minorant_one`: on a probability target the minorant is the proposal's floor `δ`, so the

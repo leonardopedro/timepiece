@@ -7,7 +7,17 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10b):** **§24 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10c):** **§25 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `BookProof/MCMC/FockLangevinOperator` §21.5 closes the weighted-`ℓ¹` route rather
+> than leaving it as the next thing to try: `coreW1 w c = ∑ₙ w n·‖c n‖` (the flat mass is `w ≡ 1`,
+> `coreW1_one`), the diagonal cancels exactly in the weight `wInv ρ n = (ρ^{natDeg n})⁻¹`
+> (`coreW1_baseOp`, **`coreW1_baseOp_wInv`**: `coreW1 (wInv ρ) (P₀ c) = coreL1 c`,
+> `coreL1_le_coreW1_wInv`), and the drift breaks *every* weight on every basis vector
+> (`coreW1_single_lt_add_drift_X`), with the excess explicit in the cancelling weight
+> (`coreW1_wInv_add_drift_X`), so **`no_weighted_nonexpansive`**: no strictly positive weight makes
+> `1 + K_drift` nonexpansive.  The remaining pCNL items are the operator's own gap and the
+> continuum passage of §24's density floor.
+> **Earlier newest entry (2026-11-10b):** **§24 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the new chapter `BookProof/MCMC/PCNGaussianFloor` proves the weight-space pCN
 > increment's density floor: `pcnQuad ρ x y = ∑ᵢ (yᵢ − ρxᵢ)²`, `pcnDensity c s ρ x y = c·exp(−pcnQuad/s)`
 > with `s = 2σ²(1 − ρ²)`, the box bound **`pcnQuad_box_le`** (`≤ d(R(1+ρ))²`) and the resulting
@@ -19398,4 +19408,44 @@ weighted `ℓ¹` and the pCNL operator's own gap are unchanged.
 **Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green.
 `#print axioms` on `pcnQuad_box_le`, `pcnDensity_le_of_quad_le`, `pcnDensity_floor`, `pcnScale_pos`,
 `pcnNorm_pos`, `pcnGaussian_floor`, `pcnGaussian_floor_pos` → `propext, Classical.choice,
+Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing whitespace.
+
+### 25. Addendum (2026-11-10c) — the weighted `ℓ¹` route is closed, by computation
+
+**What §24 left.**  §20–§21 showed the flat `ℓ¹` does not contract (`coreL1_single_lt_add_drift_X`)
+and named the fix the track had been carrying: a *weighted* `ℓ¹` in which the drift's sign returns.
+`FockLangevinOperator` §21.5 settles it — the weight that cancels the diagonal exists and is unique
+in the sense that matters, and no weight makes the step contract.
+
+* **The weighted mass** — `coreW1 w c = ∑ₙ w n · ‖c n‖`, with `coreW1_one` (the flat §9.9 mass is
+  `w ≡ 1`), `coreW1_single`, `coreW1_add_of_disjoint`, `coreW1_single_add_sub_single_of_ne`.
+* **The diagonal is cancelled exactly** — `coreW1_baseOp`: `P₀` acts on the weight as
+  `w ↦ w · ρ^{natDeg n}`, so in the weight `wInv ρ n = (ρ^{natDeg n})⁻¹` the diagonal costs nothing,
+  **`coreW1_baseOp_wInv`**: `coreW1 (wInv ρ) (P₀ c) = coreL1 c`, and the flat mass is the smaller
+  one there (`coreL1_le_coreW1_wInv` for `0 < ρ ≤ 1`).  This is the norm a Markov argument would
+  choose, and §9.9's `coreL1` is its `ρ = 1` shadow.
+* **The drift breaks every weight** — `coreW1_single_lt_add_drift_X`: on a basis vector the two
+  ladder images sit off `n` and enter the weighted sum with strictly positive coefficients while
+  the source term `w n` is untouched, so the weighted mass grows for *every* strictly positive `w`
+  — the source term is not something a weight can rescale.  In the cancelling weight the excess is
+  explicit: **`coreW1_wInv_add_drift_X`**,
+  `wInv ρ n · (1 + q(√(nⱼ+1)/ρ + ρ√(nⱼ)))` with `q = (β²σ²/2)/√2` (and `natDeg_lowerIdx` the
+  degree bookkeeping: annihilation drops the total degree by one).
+* **`no_weighted_nonexpansive`** — therefore no strictly positive weight makes the normalised step
+  `1 + K_drift` nonexpansive (`exists_coreW1_lt_pcnlKernel`).  A contraction in *any* weighted `ℓ¹`
+  would be nonexpansive in that weight, so the route is closed: reweighting cannot recover the
+  strict decay §20 asked the drift's sign for.
+
+**What this changes in the plan.**  The `ℓ¹` chapter of the track ends here rather than at "name
+the weight".  The convergence theorem's content is the stochastic structure already proved in
+`BookProof.MCMC.PositivityCone` — positivity, `P 1 = 1`, the Doeblin minorant, the oscillation
+contraction — and the analytic content of the pCNL operator is the relative form bound (§11) and
+the gap.  **What is still open:** the pCNL operator's *own* gap (`pcnl_spectral_gap_of_hessian`,
+the Bakry–Émery/Hessian route) and the kernel-level passage of §24's density floor on `ℝ^d`.  The
+weighted `ℓ¹` is no longer on the list.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, green.
+`#print axioms` on `coreW1_one`, `coreW1_baseOp`, `coreW1_baseOp_wInv`, `coreL1_le_coreW1_wInv`,
+`coreW1_wInv_add_drift_X`, `natDeg_lowerIdx`, `coreW1_single_lt_add_drift_X`,
+`exists_coreW1_lt_pcnlKernel`, `no_weighted_nonexpansive` → `propext, Classical.choice,
 Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing whitespace.

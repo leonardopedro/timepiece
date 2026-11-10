@@ -180,7 +180,15 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   drift adds mass (`drift_X_single_eq`, `coreL1_single_lt_add_drift_X`, value
   `1 + (β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ))`), so the pairing of `K_drift` with the flat `ℓ¹` is
   positive everywhere and cannot supply the contraction.  The structure a convergence theorem
-  uses is a *weighted* `ℓ¹`/cone model, supplied in `BookProof.MCMC.PositivityCone` (§22).
+  uses is a *weighted* `ℓ¹`/cone model, supplied in `BookProof.MCMC.PositivityCone` (§22);
+* **§21.5, the weighted `ℓ¹` route closed** — `coreW1` is the weighted mass (`coreW1_one`: the
+  flat one is `w ≡ 1`), the diagonal cancels exactly in the weight `wInv ρ n = (ρ^{natDeg n})⁻¹`
+  (`coreW1_baseOp`, **`coreW1_baseOp_wInv`**: `coreW1 (wInv ρ) (P₀ c) = coreL1 c`, with
+  `coreL1_le_coreW1_wInv`), and the drift breaks that weight on *every* basis vector
+  (`coreW1_single_lt_add_drift_X`), the excess being explicit in the cancelling weight
+  (`coreW1_wInv_add_drift_X`).  Hence **`no_weighted_nonexpansive`**: no strictly positive weight
+  makes the normalised step `1 + K_drift` nonexpansive, so the `ℓ¹` route is closed by the
+  computation rather than left as the next thing to try.
 
 ## Honest boundary
 
@@ -5217,6 +5225,249 @@ theorem coreL1_single_lt_add_drift_X (β σ : ℝ) (j : Fin d) (n : Fin d → �
     have h2 : 0 ≤ Real.sqrt (n j : ℝ) := Real.sqrt_nonneg _
     nlinarith [invSqrtTwo_pos]
   nlinarith [hw, hpos]
+
+
+/-! ## 21.5 The weighted `ℓ¹`: what the diagonal cancels, the drift breaks
+
+§20–§21 left one candidate open: a *weighted* `ℓ¹` in which the drift term becomes a contraction.
+This section closes it in both directions.
+
+* `coreW1 w c = ∑ₙ w n · ‖c n‖`, the weighted mass (`coreW1_single`, `coreW1_add_of_disjoint`,
+  `coreW1_single_add_sub_single_of_ne`, and `coreW1_one`: the flat §9.9 mass is the `w ≡ 1`
+  instance);
+* **`coreW1_baseOp`** — the diagonal acts on the weight as `w ↦ w·ρ^{natDeg n}`, so with
+  `wInv ρ n = (ρ^{natDeg n})⁻¹` the diagonal cancels exactly (**`coreW1_baseOp_wInv`**:
+  `coreW1 (wInv ρ) (P₀ c) = coreL1 c`), and `coreL1_le_coreW1_wInv` says the flat mass is the
+  smaller one in that weight.  This is the norm a Markov argument would choose;
+* **`coreW1_single_lt_add_drift_X`** — the drift breaks it: on a basis vector the two ladder
+  images sit off `n` and enter the weighted sum with strictly positive coefficients, while the
+  source term `w n` is untouched, so the weighted mass grows for *every* weight;
+  **`coreW1_wInv_add_drift_X`** computes the excess in the cancelling weight,
+  `wInv ρ n · (1 + q(√(nⱼ+1)/ρ + ρ√(nⱼ)))` with `q = (β²σ²/2)/√2`, and `natDeg_lowerIdx` is the
+  degree bookkeeping behind it;
+* **`no_weighted_nonexpansive`** — hence no strictly positive weight makes the normalised step
+  `1 + K_drift` nonexpansive (`exists_coreW1_lt_pcnlKernel`).  The strict decay §20 asked the
+  drift's sign for cannot be recovered by reweighting; the convergence theorem comes from the
+  stochastic structure (§20's positivity and `P 1 = 1`, and `PositivityCone`'s Doeblin minorant)
+  or from the form bound, not from a norm.
+-/
+
+/-- The weighted `ℓ¹` mass of a core state: `coreL1` with the coefficients weighted by `w`. -/
+def coreW1 (w : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) : ℝ :=
+  ∑ n ∈ c.support, w n * ‖c n‖
+
+theorem coreW1_nonneg {w : (Fin d → ℕ) → ℝ} (hw : ∀ n, 0 ≤ w n) (c : CoreCoeff d) :
+    0 ≤ coreW1 w c :=
+  Finset.sum_nonneg fun _ _ => mul_nonneg (hw _) (norm_nonneg _)
+
+/-- The flat weight recovers `coreL1`. -/
+theorem coreW1_one (c : CoreCoeff d) : coreW1 (fun _ => 1) c = coreL1 c := by
+  rw [coreW1, coreL1]
+  exact Finset.sum_congr rfl fun _ _ => one_mul _
+
+theorem coreW1_eq_sum {w : (Fin d → ℕ) → ℝ} {c : CoreCoeff d}
+    {s : Finset (Fin d → ℕ)} (h : c.support ⊆ s) : ∑ n ∈ s, w n * ‖c n‖ = coreW1 w c :=
+  (Finset.sum_subset h fun x _ hx => by
+    rw [Finsupp.notMem_support_iff.mp hx]; simp).symm
+
+theorem coreW1_single (w : (Fin d → ℕ) → ℝ) (m : Fin d → ℕ) (a : ℂ) :
+    coreW1 w (Finsupp.single m a) = w m * ‖a‖ := by
+  classical
+  rw [coreW1, Finset.sum_subset Finsupp.support_single_subset (fun x _ hx => ?_)]
+  · simp
+  · rw [Finsupp.notMem_support_iff.mp hx, norm_zero, mul_zero]
+
+theorem coreW1_add_of_disjoint {w : (Fin d → ℕ) → ℝ} {x y : CoreCoeff d}
+    (h : Disjoint x.support y.support) : coreW1 w (x + y) = coreW1 w x + coreW1 w y := by
+  classical
+  have hzero : ∀ (z : CoreCoeff d) {n : Fin d → ℕ}, n ∉ z.support → z n = 0 :=
+    fun z _ hn => Finsupp.notMem_support_iff.mp hn
+  have h1 : ∑ n ∈ (x + y).support, w n * ‖(x + y) n‖
+      = ∑ n ∈ x.support ∪ y.support, w n * ‖(x + y) n‖ := by
+    refine Finset.sum_subset Finsupp.support_add (fun z _ hz => ?_)
+    rw [Finsupp.notMem_support_iff.mp hz, norm_zero, mul_zero]
+  rw [coreW1, coreW1, coreW1, h1, Finset.sum_union h]
+  congr 1
+  · refine Finset.sum_congr rfl fun n hn => ?_
+    rw [Finsupp.add_apply, Finsupp.notMem_support_iff.mp (Finset.disjoint_left.mp h hn),
+      add_zero]
+  · refine Finset.sum_congr rfl fun n hn => ?_
+    rw [Finsupp.add_apply, Finsupp.notMem_support_iff.mp (Finset.disjoint_right.mp h hn),
+      zero_add]
+
+theorem coreW1_single_add_single_of_ne {w : (Fin d → ℕ) → ℝ} {m n : Fin d → ℕ} (h : m ≠ n)
+    (a b : ℂ) : coreW1 w (Finsupp.single m a + Finsupp.single n b) = w m * ‖a‖ + w n * ‖b‖ := by
+  rw [coreW1_add_of_disjoint (disjoint_single_single h a b), coreW1_single, coreW1_single]
+
+theorem coreW1_single_sub_single_of_ne {w : (Fin d → ℕ) → ℝ} {m n : Fin d → ℕ} (h : m ≠ n)
+    (a b : ℂ) : coreW1 w (Finsupp.single m a - Finsupp.single n b) = w m * ‖a‖ + w n * ‖b‖ := by
+  rw [sub_eq_add_neg, ← Finsupp.single_neg, coreW1_single_add_single_of_ne h, norm_neg]
+
+theorem coreW1_single_add_sub_single_of_ne {w : (Fin d → ℕ) → ℝ} {m k l : Fin d → ℕ}
+    (hmk : m ≠ k) (hml : m ≠ l) (hkl : k ≠ l) (a b c : ℂ) :
+    coreW1 w (Finsupp.single m a + (Finsupp.single k b - Finsupp.single l c))
+      = w m * ‖a‖ + w k * ‖b‖ + w l * ‖c‖ := by
+  have h1 : Finsupp.single k b - Finsupp.single l c
+      = Finsupp.single k b + Finsupp.single l (-c) := by
+    rw [sub_eq_add_neg, ← Finsupp.single_neg]
+  have hdisj : Disjoint (Finsupp.single m a + Finsupp.single k b).support
+      (Finsupp.single l (-c)).support := by
+    refine Finset.disjoint_left.mpr fun x hx hy => ?_
+    have hy' : x = l := by simpa using Finsupp.support_single_subset hy
+    rcases Finset.mem_union.mp (Finsupp.support_add hx) with hx1 | hx1
+    · have hx2 : x = m := by simpa using Finsupp.support_single_subset hx1
+      exact hml (hx2.symm.trans hy')
+    · have hx2 : x = k := by simpa using Finsupp.support_single_subset hx1
+      exact hkl (hx2.symm.trans hy')
+  rw [h1, ← add_assoc, coreW1_add_of_disjoint hdisj,
+    coreW1_single_add_single_of_ne hmk a b, coreW1_single, norm_neg]
+
+/-- **The diagonal computed in a weight**: `coreW1 w (P₀ c)` is the mass of `c` under the weight
+`w n · ρ^{natDeg n}`. -/
+theorem coreW1_baseOp {ρ : ℝ} (hρ : 0 ≤ ρ) (w : (Fin d → ℕ) → ℝ) (c : CoreCoeff d) :
+    coreW1 w (baseOp ρ c) = coreW1 (fun n => w n * ρ ^ natDeg n) c := by
+  classical
+  rw [← coreW1_eq_sum (c := baseOp ρ c) (s := c.support) fun x hx => mem_support_baseOp hx]
+  rw [coreW1]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [baseOp_apply, norm_mul, Complex.norm_real, Real.norm_eq_abs,
+    abs_of_nonneg (pow_nonneg hρ _)]
+  ring
+
+/-- The weight that cancels the diagonal: `(ρ^{natDeg n})⁻¹`. -/
+def wInv (ρ : ℝ) (n : Fin d → ℕ) : ℝ := (ρ ^ natDeg n)⁻¹
+
+theorem wInv_pos {ρ : ℝ} (hρ : 0 < ρ) (n : Fin d → ℕ) : 0 < wInv ρ n := by
+  rw [wInv]
+  exact inv_pos.mpr (pow_pos hρ _)
+
+/-- **The weight `wInv ρ` cancels the diagonal exactly**: in it, `P₀`'s weighted mass is the *flat*
+mass of the source, `∑ₙ ‖c n‖`.  This is the norm in which the diagonal `ρ^N` costs nothing — the
+weight a Markov argument would choose. -/
+theorem coreW1_baseOp_wInv {ρ : ℝ} (hρ : 0 < ρ) (c : CoreCoeff d) :
+    coreW1 (wInv ρ) (baseOp ρ c) = coreL1 c := by
+  rw [coreW1_baseOp (le_of_lt hρ), ← coreW1_one]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  simp only [wInv]
+  rw [inv_mul_cancel₀ (ne_of_gt (pow_pos hρ _)), one_mul]
+
+/-- In the cancelling weight the flat mass is the smaller one: `wInv ρ n ≥ 1` for `ρ ≤ 1`. -/
+theorem coreL1_le_coreW1_wInv {ρ : ℝ} (hρ0 : 0 < ρ) (hρ1 : ρ ≤ 1) (c : CoreCoeff d) :
+    coreL1 c ≤ coreW1 (wInv ρ) c := by
+  rw [coreL1, coreW1]
+  refine Finset.sum_le_sum fun n _ => ?_
+  have h1 : (1 : ℝ) ≤ wInv ρ n := by
+    rw [wInv, one_le_inv₀ (pow_pos hρ0 _)]
+    exact pow_le_one₀ (le_of_lt hρ0) hρ1
+  calc ‖c n‖ = 1 * ‖c n‖ := (one_mul _).symm
+    _ ≤ wInv ρ n * ‖c n‖ := mul_le_mul_of_nonneg_right h1 (norm_nonneg _)
+
+/-- **The drift raises every weighted `ℓ¹` mass**, not just the flat one: on a basis vector the
+two ladder images sit off `n` and enter the weighted sum with positive coefficients, while the
+source term itself is unchanged. -/
+theorem coreW1_single_lt_add_drift_X {β σ : ℝ} {j : Fin d} {n : Fin d → ℕ}
+    (w : (Fin d → ℕ) → ℝ) (hw : ∀ m, 0 < w m) (hn : 1 ≤ n j)
+    (hD : 0 < driftWeight β σ) :
+    coreW1 w (Finsupp.single n 1)
+      < coreW1 w (Finsupp.single n 1 + driftOperator β σ (MvPolynomial.X j)
+          (Finsupp.single n 1)) := by
+  have hn0 : 0 < n j := hn
+  set q : ℝ := driftWeight β σ * invSqrtTwo with hq
+  have hqpos : 0 < q := by rw [hq]; exact mul_pos hD invSqrtTwo_pos
+  have hqnorm : ‖(((driftWeight β σ * invSqrtTwo : ℝ)) : ℂ)‖ = q := by
+    rw [hq, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (le_of_lt hqpos)]
+  have hA : ‖(((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ))‖ = Real.sqrt ((n j : ℝ) + 1) := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+  have hB : ‖(((Real.sqrt (n j : ℝ) : ℝ) : ℂ))‖ = Real.sqrt (n j : ℝ) := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+  have hmain : coreW1 w (Finsupp.single n 1 + driftOperator β σ (MvPolynomial.X j)
+        (Finsupp.single n 1))
+      = w n * 1 + w (raiseIdx j n) * (q * Real.sqrt ((n j : ℝ) + 1))
+        + w (lowerIdx j n) * (q * Real.sqrt (n j : ℝ)) := by
+    rw [drift_X_single_eq hn0, smul_sub, Finsupp.smul_single, Finsupp.smul_single]
+    simp only [smul_eq_mul]
+    rw [coreW1_single_add_sub_single_of_ne (raiseIdx_ne_self j n).symm
+      (lowerIdx_ne_self hn0).symm (raiseIdx_ne_lowerIdx j n) 1]
+    rw [norm_one, norm_mul, norm_mul, hqnorm, hA, hB]
+  rw [hmain, coreW1_single, norm_one]
+  have hp1 : 0 < w (raiseIdx j n) * (q * Real.sqrt ((n j : ℝ) + 1)) :=
+    mul_pos (hw _) (mul_pos hqpos (Real.sqrt_pos.mpr (by positivity)))
+  have hp2 : 0 < w (lowerIdx j n) * (q * Real.sqrt (n j : ℝ)) :=
+    mul_pos (hw _) (mul_pos hqpos (Real.sqrt_pos.mpr (by positivity)))
+  nlinarith [hw n]
+
+/-- The total degree after annihilation is one less. -/
+theorem natDeg_lowerIdx {j : Fin d} {n : Fin d → ℕ} (hn : 1 ≤ n j) :
+    natDeg (lowerIdx j n) = natDeg n - 1 := by
+  have h1 := sum_erase n j
+  have h2 := sum_erase (Function.update n j (n j - 1)) j
+  have h3 := sum_erase_update n j (n j - 1)
+  have h4 : Function.update n j (n j - 1) j = n j - 1 := by simp
+  unfold natDeg lowerIdx
+  omega
+
+/-- **The excess, computed in the cancelling weight.**  In the weight `wInv ρ` that removes the
+diagonal, the drift's two images weigh `ρ⁻¹` and `ρ` times the source weight, so the step's
+weighted mass is `wInv ρ n · (1 + q(√(nⱼ+1)/ρ + ρ√(nⱼ)))` with `q = (β²σ²/2)/√2` — strictly more
+than the source, by that explicit factor. -/
+theorem coreW1_wInv_add_drift_X {β σ ρ : ℝ} (hρ : 0 < ρ) {j : Fin d} {n : Fin d → ℕ}
+    (hn : 1 ≤ n j) :
+    coreW1 (wInv ρ) (Finsupp.single n 1 + driftOperator β σ (MvPolynomial.X j)
+        (Finsupp.single n 1))
+      = wInv ρ n * (1 + driftWeight β σ * invSqrtTwo *
+          (ρ⁻¹ * Real.sqrt ((n j : ℝ) + 1) + ρ * Real.sqrt (n j : ℝ))) := by
+  have hn0 : 0 < n j := hn
+  have hN : 1 ≤ natDeg n := le_trans hn (Finset.single_le_sum (f := n)
+    (fun i _ => Nat.zero_le _) (Finset.mem_univ j))
+  have hqnorm : ‖(((driftWeight β σ * invSqrtTwo : ℝ)) : ℂ)‖
+      = driftWeight β σ * invSqrtTwo := by
+    rw [Complex.norm_real, Real.norm_eq_abs,
+      abs_of_nonneg (mul_nonneg (driftWeight_nonneg β σ) invSqrtTwo_nonneg)]
+  have hA : ‖(((Real.sqrt ((n j : ℝ) + 1) : ℝ) : ℂ))‖ = Real.sqrt ((n j : ℝ) + 1) := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+  have hB : ‖(((Real.sqrt (n j : ℝ) : ℝ) : ℂ))‖ = Real.sqrt (n j : ℝ) := by
+    rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (Real.sqrt_nonneg _)]
+  have hraise : wInv ρ (raiseIdx j n) = ρ⁻¹ * wInv ρ n := by
+    rw [wInv, wInv, natDeg_raiseIdx, pow_succ, mul_inv_rev]
+  have hpow : ρ ^ natDeg n = ρ ^ (natDeg n - 1) * ρ := by
+    rw [← pow_succ, Nat.sub_add_cancel hN]
+  have hlower : ρ * wInv ρ n = wInv ρ (lowerIdx j n) := by
+    rw [wInv, wInv, natDeg_lowerIdx hn, hpow, mul_inv_rev, ← mul_assoc,
+      mul_inv_cancel₀ (ne_of_gt hρ), one_mul]
+  have hmain : coreW1 (wInv ρ) (Finsupp.single n 1 + driftOperator β σ (MvPolynomial.X j)
+        (Finsupp.single n 1))
+      = wInv ρ n * 1 + wInv ρ (raiseIdx j n) * (driftWeight β σ * invSqrtTwo
+          * Real.sqrt ((n j : ℝ) + 1))
+        + wInv ρ (lowerIdx j n) * (driftWeight β σ * invSqrtTwo * Real.sqrt (n j : ℝ)) := by
+    rw [drift_X_single_eq hn0, smul_sub, Finsupp.smul_single, Finsupp.smul_single]
+    simp only [smul_eq_mul]
+    rw [coreW1_single_add_sub_single_of_ne (raiseIdx_ne_self j n).symm
+      (lowerIdx_ne_self hn0).symm (raiseIdx_ne_lowerIdx j n) 1]
+    rw [norm_one, norm_mul, norm_mul, hqnorm, hA, hB]
+  rw [hmain, hraise, ← hlower]
+  ring
+
+/-- **The failure is not a choice of norm.**  For every strictly positive weight there is a state
+whose weighted mass the normalised step *increases* — the input to `no_weighted_nonexpansive`. -/
+theorem exists_coreW1_lt_pcnlKernel {ρ β σ : ℝ} (j : Fin d) (w : (Fin d → ℕ) → ℝ)
+    (hw : ∀ m, 0 < w m) (hD : 0 < driftWeight β σ) :
+    ∃ c : CoreCoeff d, coreW1 w c
+      < coreW1 w (pcnlKernel ρ β σ (MvPolynomial.X j) (rejectComplement ρ) c) := by
+  refine ⟨Finsupp.single (Function.update (0 : Fin d → ℕ) j 1) 1, ?_⟩
+  rw [pcnlKernel_complement]
+  exact coreW1_single_lt_add_drift_X w hw (by simp) hD
+
+/-- **The weighted `ℓ¹` route is closed.**  The normalised pCNL step `1 + K_drift` is not
+nonexpansive in *any* strictly positive weight, so there is no weighted `ℓ¹` in which the step is a
+contraction — the strict decay §20 asked the drift's sign for cannot be recovered by reweighting.
+The convergence theorem has to come from the stochastic structure (positivity, `P 1 = 1`, the
+Doeblin minorant of the cone model) or from the form bound, not from a norm. -/
+theorem no_weighted_nonexpansive {ρ β σ : ℝ} (j : Fin d) (hD : 0 < driftWeight β σ) :
+    ¬ ∃ w : (Fin d → ℕ) → ℝ, (∀ m, 0 < w m) ∧ ∀ c : CoreCoeff d,
+      coreW1 w (pcnlKernel ρ β σ (MvPolynomial.X j) (rejectComplement ρ) c) ≤ coreW1 w c := by
+  rintro ⟨w, hw, hle⟩
+  obtain ⟨c, hc⟩ := exists_coreW1_lt_pcnlKernel j w hw hD
+  exact absurd (hle c) (not_le.mpr hc)
 
 
 end BookProof.MCMC.FockLangevin
