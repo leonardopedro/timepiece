@@ -216,3 +216,80 @@ Parlett-width assembly gave `0.189913148`. Scope: `H_N` only. The witness is a
 dense `n × n` matrix (`n = 80` for the odd block at `N ≤ 6`), unusable at
 production truncations, and the unbounded `H` still has no lowest eigenvalue
 for any of this to bound. The continuum mass gap remains unproven.
+
+### 6b. The campaign verdicts, and two traps (2026-11-10b)
+
+`fock_sirk/tests/mass_gap_exclusion_campaign.rs` runs the campaign grid
+(`g ∈ {0, 0.5, 1, 2, 3}`, `N ∈ {6, 8}`, `m = 12`) through the §6a assembly, with
+`β ≤ λ₂` from `certify_spectrum` on an explicitly built reflection sector, and
+every bound checked against the exact spectrum of the same `H_N`.
+
+With the Ritz pair from the truncated SIRK solve, 3 of 10 rows certify. With the
+pair from matvec-only Lanczos on the *same* `H_N` (`certificate::lanczos_ritz`,
+40 steps, same sector starts), **6 of 10 rows certify**, and each bound equals the
+exact truncated gap to the last printed digit:
+
+| `g` | `N≤` | `θᵉ₀` | `θᵒ₀` | `rᵒ` | certified | exact |
+|---|---|---|---|---|---|---|
+| 0 | 6 | −1.114923508 | −1.114923508 | 2.0e-15 | **0.189927963** | 0.189927963 |
+| 0 | 8 | −1.304851471 | −1.304851471 | 7.3e-15 | **0.122434177** | 0.122434177 |
+| 0.5 | 6 | −1.343008908 | −1.307966783 | 5.4e-15 | **0.035042125** | 0.035042125 |
+| 1 | 6 | −2.024960357 | −1.933887157 | 1.5e-14 | **0.091073200** | 0.091073200 |
+| 1 | 8 | −2.743629504 | −2.652468280 | 1.6e-14 | **0.091161224** | 0.091161224 |
+| 2 | 6 | −5.217666264 | −4.367552423 | 2.2e-14 | **0.850113842** | 0.850113842 |
+
+The other four rows are the cells where the odd ground sits *below* the even one
+inside `H_N`, so `θᵒ₀ − θᵉ₀` is the **negative of the truncated gap**, to machine
+precision:
+
+| `g` | `N≤` | λ₀(even) | λ₁(odd) | `H_N` gap (even − odd) | T6 bound |
+|---|---|---|---|---|---|
+| 0.5 | 8 | −1.545550924 | −1.576008527 | 0.030457603 | −0.030457603 |
+| 2 | 8 | −6.511130065 | −7.754776632 | 1.243646566 | −1.243646566 |
+| 3 | 6 | −9.214246967 | −9.236287521 | 0.022040554 | −0.022040554 |
+| 3 | 8 | −13.610338101 | −14.566593782 | 0.956255682 | −0.956255682 |
+
+T6's orientation (odd above even) does not hold in those cells at all. **6 is the
+ceiling on this grid**, and the test asserts both halves: every cell whose
+truncated ordering matches T6's certifies, and the certified count equals the
+number of such cells — so a "7 of 10" claim would have to break a test first.
+
+The `g = 0` rows are the **control**: they certify a positive gap on a theory
+with no continuum gap, which is the sharpest statement of what a truncation
+certificate can and cannot mean. And `θᵉ₀` is consumed only as an upper bound on
+`λ₀`: the even side needs no witness, only a better `θᵉ₀`.
+
+Two findings worth keeping:
+
+* **The truncated chain stagnates, and `m` does not fix it.** At `g = 1, N ≤ 6`
+  the even excess over `λ₀` is `3.71e-1` at `m = 12`, `3.97e-1` at `m = 24` and
+  `3.99e-1` at `m = 40`, with the residual flat at `~8e-1`: the forward chain's
+  span stops growing, so extra shifts buy nothing. The SIRK rows remain *valid*,
+  merely loose — this is a property of the truncated solve, not of the
+  certificate.
+* **Lanczos belongs on the even side** for the same reason: 40 matvecs reach
+  `r ≤ 3e-11` at every cell (usually `1e-14`) where 40 SIRK steps leave `~8e-1`.
+
+#### `(n₀+n₁)` parity is not the reflection sector
+
+The first version of the sweep classified states by `(n₀+n₁) % 2` and certified
+`0.322254` at `g = 2, N ≤ 6` against a true gap of `0.044450` — a soundness
+violation the exact check caught. `R` flips modes 0↔1 times `(−1)^(n₀+n₁)`, so
+for `n₀ ≠ n₁` its eigenvectors are the ± *combinations*
+`(|n₀,n₁⟩ ± (−1)^(n₀+n₁)|n₁,n₀⟩)/√2`, not the states themselves; and at `g > 0`
+the `(n₀+n₁)` parity is not even `H`-invariant, because `B²` carries the
+three-operator products `A₀²A₁` and `A₀A₁²`, which change that parity. The
+corrected construction pairs each `R`-orbit and asserts
+`‖(I − P_sector) H u‖ < 1e-9‖Hu‖` for every sector vector — an explicit residual,
+because subtracting `Σdot²` from `‖Hu‖²` cancels catastrophically and reports a
+spurious `2e-8` leak on an exactly invariant sector.
+
+#### The `g = 0`-only parity-block helper refuses a nonzero coupling
+
+`truncated_parity_block` in `qcd_mass_gap_certified.rs` filters by
+`(n₀+n₁) % 2`, which at `g = 0` *is* a reflection sector (both parities are
+preserved by the quadratic `H`). It now takes the coupling and refuses to run at
+`g ≠ 0`, a `#[should_panic]` test pins the refusal, and the `H`-invariance of the
+returned block is measured (`‖(1−P) H P‖_F < 1e-10`). Never reuse it at `g > 0`:
+a `β` read from a non-invariant block is not a `λ₂` witness, and that is exactly
+how this run's `0.322254` violation would have entered as a "result".
