@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10c):** **§25 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10d):** **§26 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `BookProof/MCMC/FockLangevinOperator` §21.6 computes the quadratic potential
+> `Φ_λ = (λ/2)∑ⱼ xⱼ²` (the equality case `Hess Φ = λ·I` of the plan's Bakry–Émery hypothesis) and
+> finds the Hessian's `λ` in the *constant*, not the gap: `a_j†` is the right adjoint of `a_j`
+> (`corePair_hopStep_adjoint`), `Re⟪c, x_j∂_j c⟫ = −½‖c‖²` (the double letters cancel,
+> `corePair_double_raise_re_eq`), so the pCNL form is `numberForm + E₀‖c‖²` with
+> `E₀ = (β²σ²/2)·λd/2` (**`re_corePair_quadHamiltonian`**) and **`quadForm_gap`** gives the gap
+> `1` off the vacuum, sharp at `quadForm_degree_one`.  So the plan's `pcnl_spectral_gap_of_hessian`
+> (`γ = λ`) is the wrong target for this form: the Hessian buys coercivity, not the gap.
+> **Earlier newest entry (2026-11-10c):** **§25 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `BookProof/MCMC/FockLangevinOperator` §21.5 closes the weighted-`ℓ¹` route rather
 > than leaving it as the next thing to try: `coreW1 w c = ∑ₙ w n·‖c n‖` (the flat mass is `w ≡ 1`,
 > `coreW1_one`), the diagonal cancels exactly in the weight `wInv ρ n = (ρ^{natDeg n})⁻¹`
@@ -19449,3 +19458,54 @@ weighted `ℓ¹` is no longer on the list.
 `coreW1_wInv_add_drift_X`, `natDeg_lowerIdx`, `coreW1_single_lt_add_drift_X`,
 `exists_coreW1_lt_pcnlKernel`, `no_weighted_nonexpansive` → `propext, Classical.choice,
 Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing whitespace.
+
+### 26. Addendum (2026-11-10d) — the Hessian's `λ` is the constant, the gap is the degree
+
+**What §25 left.**  §25 closed the `ℓ¹` chapter and left two items: the pCNL operator's own gap and
+the continuum passage.  The plan's gap target (`pcnl_spectral_gap_of_hessian`, §P3) reads
+
+```
+theorem pcnl_spectral_gap_of_hessian (λ : ℝ) (hλ : 0 < λ)
+    (hHess : ∀ θ, λ • (1 : H) ≤ Hessian Φ_ε θ) :
+    ∃ γ, γ = λ ∧ ∀ ψ ⊥ groundState, ⟪ψ, pcnlHamiltonian ψ⟫ ≥ γ * ‖ψ‖ ^ 2
+```
+
+i.e. "the Hessian bound *is* the gap".  `FockLangevinOperator` §21.6 computes the case that
+hypothesis singles out — the quadratic potential, where `Hess Φ = λ·I` holds with equality — and
+finds the `γ = λ` claim false for this operator: the Hessian bound shifts the *constant*, and the
+gap is the number operator's.
+
+* **Adjunction** — `corePair_hopStep_adjoint`: `⟪a_j c, c'⟫ = ⟪c, a_j† c'⟫`, because raising is a
+  bijection onto the occupied part of the support and the amplitudes `√(nⱼ+1)` match.  This is the
+  `ℓ²` statement the `ℓ¹` computations of §9.9–§21 never needed.
+* **The `a†a` / `aa†` letters** — `corePair_raise_lower_re`: `Re⟪c, a†a c⟫ = ‖a c‖²`;
+  `corePair_lower_raise_re`: `Re⟪c, aa† c⟫ = ‖a† c‖²`.
+* **The double letters cancel** — `corePair_double_raise_re_eq`: `Re⟪c, a†²c⟫ = Re⟪c, a²c⟫`, the
+  two being complex conjugates of each other.  So in `x_j∂_j = (a² − a†²)/2 − 1/2` only the `−1/2`
+  survives.
+* **The form of the letter product** — `re_corePair_mulHermite_diffHermite`:
+  `Re⟪c, x_j∂_j c⟫ = −½‖c‖²`, since `‖a_j c‖² − ‖a_j† c‖² = −‖c‖²` (`coreNormSq_lower_sub_raise`);
+  summed over the modes (`re_corePair_sum_mulHermite_diffHermite`): `−(d/2)‖c‖²`.
+* **The quadratic potential** — `quadPotential λ = C(λ/2)·∑ⱼ Xⱼ²`, with `pderiv_quadPotential`:
+  `∂ⱼ Φ_λ = λ X j` (from `pderiv_sum_squares` and `polyMul_smul_poly`), hence
+  `polyDrift_quadPotential` / `driftOperator_quadPotential`: `K_drift = −λ Σⱼ xⱼ ∂ⱼ`.
+* **The form** — **`re_corePair_quadHamiltonian`**: `Re⟪c, (N + K_drift)c⟫ = numberForm c + E₀‖c‖²`
+  with `E₀ = (β²σ²/2)·λd/2`; `quadForm_vac` puts the bottom at `E₀` (the vacuum), and
+  **`quadForm_gap`** gives `Re⟪c, (N + K_drift)c⟫ ≥ (E₀ + 1)‖c‖²` off the vacuum — sharp at
+  `quadForm_degree_one`.
+
+**What this changes in the plan.**  `pcnl_spectral_gap_of_hessian` is not the right target in the
+form it is written: for the Fock Hamiltonian the Hessian's `λ` sets the ground energy `E₀ ∝ λd` and
+the gap is `1` (the degree gap of the number operator).  The `γ = λ` statement belongs to the generator on `L²(π_Φ)` after the ground-state transform
+`V_eff = ¼|∇Φ|² − ½ΔΦ`, which is P3's own analysis.  What is now proved is the direction that
+matters for the corpus: **a Hessian bound makes the pCNL form coercive, and it does not supply the
+gap.**  The two open items of §25 are unchanged otherwise: the continuum passage of §24's density
+floor, and the `L²(π)`-side gap that P3's `V_eff` analysis would give.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, green.
+`#print axioms` on `corePair_hopStep_adjoint`, `corePair_double_raise_re_eq`,
+`re_corePair_mulHermite_diffHermite`, `re_corePair_sum_mulHermite_diffHermite`,
+`pderiv_quadPotential`, `polyDrift_quadPotential`, `driftOperator_quadPotential`,
+`re_corePair_quadHamiltonian`, `numberForm_ge_of_vac`, `quadForm_gap`, `quadForm_vac`,
+`quadForm_degree_one` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines
+over 100 characters, no trailing whitespace.

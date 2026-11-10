@@ -1365,6 +1365,26 @@ therefore not a norm but the operator's own gap (the Bakry–Émery/Hessian rout
 `pcnl_spectral_gap_of_hessian` the target) and, on the weight space, the kernel-level passage of
 §28's density floor.
 
+**The Hessian is a constant, not the gap (§30).**  §21.5 closed the `ℓ¹` route and left the
+operator's own gap, whose plan target (`pcnl_spectral_gap_of_hessian`, P3) reads "`Hess Φ ≥ λ I`
+gives gap `γ = λ`".  §21.6 of `FockLangevinOperator` computes the case that hypothesis singles out —
+the quadratic potential `Φ_λ = (λ/2)Σⱼ xⱼ²`, where `Hess Φ = λ·I` with equality — and the claim is
+false for this operator.  The input is adjunction: **`corePair_hopStep_adjoint`** proves
+`⟪a_j c, c'⟫ = ⟪c, a_j† c'⟫` (raising is a bijection onto the occupied part of the support, and the
+amplitudes `√(nⱼ+1)` match), so `Re⟪c, a†a c⟫ = ‖a c‖²` (`corePair_raise_lower_re`) and
+`Re⟪c, aa† c⟫ = ‖a† c‖²` (`corePair_lower_raise_re`); the double letters are complex conjugates of
+each other (`corePair_double_raise_re_eq`), so `x_j∂_j = (a² − a†²)/2 − 1/2` contributes only its
+`−1/2`: **`re_corePair_mulHermite_diffHermite`** gives `Re⟪c, x_j∂_j c⟫ = −½‖c‖²`, and summing over
+the modes `−(d/2)‖c‖²` (`re_corePair_sum_mulHermite_diffHermite`).  The potential's gradient is `λx`
+(`pderiv_quadPotential`, from `pderiv_sum_squares` and `polyMul_smul_poly`), so
+`K_drift = −λ Σⱼ xⱼ∂ⱼ` (`polyDrift_quadPotential`, `driftOperator_quadPotential`), and the pCNL form
+is exact — **`re_corePair_quadHamiltonian`**: `Re⟪c, (N + K_drift)c⟫ = numberForm c + E₀‖c‖²` with
+`E₀ = (β²σ²/2)·λd/2`.  Hence `quadForm_gap`: off the vacuum the form is at least `(E₀ + 1)‖c‖²`,
+with the bottom at `E₀` (`quadForm_vac`) and the bound sharp (`quadForm_degree_one`).  So the
+Hessian bound buys coercivity with constant `E₀ ∝ λd` and leaves the gap at the number operator's
+`1`; `γ = λ` is a statement about the generator on `L²(π_Φ)` after the ground-state transform
+`V_eff = ¼|∇Φ|² − ½ΔΦ`, which is P3's own analysis and is not what this Fock model computes.
+
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
 written on occupations, and the weighted `ℓ¹` of the core is now closed as a *route* (§29: no

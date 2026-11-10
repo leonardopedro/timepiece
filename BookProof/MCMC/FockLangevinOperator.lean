@@ -188,7 +188,17 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   (`coreW1_single_lt_add_drift_X`), the excess being explicit in the cancelling weight
   (`coreW1_wInv_add_drift_X`).  Hence **`no_weighted_nonexpansive`**: no strictly positive weight
   makes the normalised step `1 + K_drift` nonexpansive, so the `ℓ¹` route is closed by the
-  computation rather than left as the next thing to try.
+  computation rather than left as the next thing to try;
+* **§21.6, the Hessian's `λ` is a constant, the gap is the degree** — `a_j†` is the right adjoint of
+  `a_j` in the core pairing (**`corePair_hopStep_adjoint`**), so `Re⟪c, a†a c⟫ = ‖a c‖²`,
+  `Re⟪c, aa† c⟫ = ‖a† c‖²` and the double letters cancel in real part
+  (`corePair_double_raise_re_eq`); hence `Re⟪c, x_j∂_j c⟫ = −½‖c‖²`
+  (`re_corePair_mulHermite_diffHermite`) and `Re⟪c, Σⱼ x_j∂_j c⟫ = −(d/2)‖c‖²`.  For the
+  quadratic potential `Φ_λ = (λ/2)Σⱼ xⱼ²` (`pderiv_quadPotential`, `polyDrift_quadPotential`,
+  `driftOperator_quadPotential`) the pCNL form is `numberForm + E₀‖c‖²` with
+  `E₀ = (β²σ²/2)·λd/2` (**`re_corePair_quadHamiltonian`**), so off the vacuum it is
+  `≥ (E₀ + 1)‖c‖²` (**`quadForm_gap`**, sharp at `quadForm_degree_one`, bottom `quadForm_vac`):
+  the Bakry–Émery bound shifts the constant and leaves the gap at the number operator's `1`.
 
 ## Honest boundary
 
@@ -5468,6 +5478,330 @@ theorem no_weighted_nonexpansive {ρ β σ : ℝ} (j : Fin d) (hD : 0 < driftWei
   rintro ⟨w, hw, hle⟩
   obtain ⟨c, hc⟩ := exists_coreW1_lt_pcnlKernel j w hw hD
   exact absurd (hle c) (not_le.mpr hc)
+
+
+/-! ## 21.6 The quadratic potential: the Hessian's `λ` is a constant, the gap is the degree
+
+§21 named the gap's source: not the drift's size but its sign structure.  This section computes the
+case the plan's Bakry–Émery hypothesis singles out — `Φ_λ(u) = (λ/2)∑ⱼ uⱼ²`, the equality case
+`Hess Φ = λ·I` — and finds that the Hessian enters the *constant*, not the gap.
+
+The one ingredient is adjunction.  `corePair_hopStep_adjoint` proves `a_j†` is the right adjoint of
+`a_j` in the core pairing (raising is a bijection onto the occupied part of the support and the
+amplitudes `√(nⱼ + 1)` match), which is the `ℓ²` statement the `ℓ¹` computations of §9.9–§21 never
+needed.  From it:
+
+* `corePair_raise_lower_re`, `corePair_lower_raise_re` — `⟪c, a†a c⟫ = ‖a c‖²` and
+  `⟪c, aa† c⟫ = ‖a† c‖²`;
+* **`corePair_double_raise_re_eq`** — the double letters have equal real pairing,
+  `Re⟪c, a†²c⟫ = Re⟪c, a²c⟫` (they are complex conjugates), so `x_j∂_j = (a² − a†²)/2 − 1/2`
+  contributes only its `−1/2`;
+* **`re_corePair_mulHermite_diffHermite`** — therefore `Re⟪c, x_j∂_j c⟫ = −½‖c‖²`, and
+  `re_corePair_sum_mulHermite_diffHermite` sums it to `−(d/2)‖c‖²`;
+* **`pderiv_quadPotential`** — the potential's gradient is `λx` (`pderiv` of `∑ X k²` is `2X j`,
+  and `polyMul_smul_poly` is the `ℂ`-homogeneity of the polynomial operator), so
+  **`polyDrift_quadPotential`** / **`driftOperator_quadPotential`** give `K_drift = −λ Σⱼ xⱼ∂ⱼ`;
+* **`re_corePair_quadHamiltonian`** — the pCNL form is `numberForm c + E₀‖c‖²` with
+  `E₀ = (β²σ²/2)·λd/2`;
+* **`quadForm_gap`** — off the vacuum it is at least `(E₀ + 1)‖c‖²` (`numberForm_ge_of_vac`), so the
+  gap is the number operator's `1`; `quadForm_vac` shows the bottom is `E₀` and
+  `quadForm_degree_one` that the bound is sharp.
+
+So a Hessian bound `λ I` makes the form coercive with constant `E₀ ∝ λ d` and leaves the Fock gap at
+`1`: the plan's `γ = λ` is a statement about the generator on `L²(π_Φ)`, not about this form.
+-/
+
+/-- The pairing is conjugation-symmetric: `⟪c, c'⟫ = conj ⟪c', c⟫`. -/
+theorem corePair_comm_conj (c c' : CoreCoeff d) : corePair c c' = star (corePair c' c) := by
+  classical
+  have hunion : c.support ∪ c'.support = c'.support ∪ c.support := Finset.union_comm _ _
+  rw [corePair, corePair, hunion]
+  simp only [star_sum]
+  exact Finset.sum_congr rfl fun n _ => by rw [star_mul, star_star]
+
+/-- `⟪c, c⟫` is the `ℓ²` mass. -/
+theorem corePair_self_re (x : CoreCoeff d) : (corePair x x).re = coreNormSq x := by
+  classical
+  rw [corePair_eq_sum (s := x.support) (Finset.Subset.refl _) (Finset.Subset.refl _),
+    coreNormSq, Complex.re_sum]
+  exact Finset.sum_congr rfl fun n _ => by
+    rw [Complex.star_def, Complex.mul_conj, Complex.ofReal_re, Complex.normSq_eq_norm_sq]
+
+/-- **`a_j†` is the right adjoint of `a_j`** in the core pairing:
+`⟪a_j c, c'⟫ = ⟪c, a_j† c'⟫`.  Raising is a bijection onto the occupied part of the support, and
+the amplitudes `√(nⱼ + 1)` match on the two sides. -/
+theorem corePair_hopStep_adjoint (j : Fin d) (c c' : CoreCoeff d) :
+    corePair (hopStep (j, false) c) c' = corePair c (hopStep (j, true) c') := by
+  classical
+  have hL : corePair (hopStep (j, false) c) c'
+      = ∑ n ∈ (hopStep (j, false) c).support, hopStep (j, false) c n * star (c' n) := by
+    rw [corePair_eq_sum (s := (hopStep (j, false) c).support ∪ c'.support)
+      Finset.subset_union_left Finset.subset_union_right]
+    exact (Finset.sum_subset Finset.subset_union_left fun x _ hx => by
+      rw [Finsupp.notMem_support_iff.mp hx, zero_mul]).symm
+  have hR : corePair c (hopStep (j, true) c')
+      = ∑ n ∈ c.support, c n * star (hopStep (j, true) c' n) := by
+    rw [corePair_eq_sum (s := c.support ∪ (hopStep (j, true) c').support)
+      Finset.subset_union_left Finset.subset_union_right]
+    exact (Finset.sum_subset Finset.subset_union_left fun x _ hx => by
+      rw [Finsupp.notMem_support_iff.mp hx, zero_mul]).symm
+  rw [hL, hR]
+  have hdrop : ∑ m ∈ c.support.filter (fun m => m j ≠ 0), c m * star (hopStep (j, true) c' m)
+      = ∑ m ∈ c.support, c m * star (hopStep (j, true) c' m) := by
+    rw [Finset.sum_filter]
+    refine Finset.sum_congr rfl fun m _ => ?_
+    by_cases hm : m j = 0
+    · rw [if_neg (by simp [hm]), hopStep_coord_raise, hm]
+      simp
+    · rw [if_pos (by simp [hm])]
+  rw [← hdrop]
+  refine Finset.sum_bij (fun n _ => raiseIdx j n) ?_ ?_ ?_ ?_
+  · intro n hn
+    exact Finset.mem_filter.mpr (mem_support_hopStep_lower hn)
+  · intro a _ b _ h
+    exact raiseIdx_injective j h
+  · intro m hm
+    obtain ⟨hmc, hmj⟩ := Finset.mem_filter.mp hm
+    refine ⟨lowerIdx j m, ?_, raiseIdx_lowerIdx_of_pos j hmj⟩
+    rw [Finsupp.mem_support_iff, hopStep_coord_lower_at j c hmj]
+    refine mul_ne_zero ?_ (Finsupp.mem_support_iff.mp hmc)
+    have hpos : (0 : ℝ) < Real.sqrt (m j : ℝ) := by
+      exact Real.sqrt_pos.mpr (by exact_mod_cast Nat.pos_of_ne_zero hmj)
+    exact_mod_cast ne_of_gt hpos
+  · intro n hn
+    dsimp only
+    rw [hopStep_coord_lower, hopStep_coord_raise, lowerIdx_raiseIdx, raiseIdx_apply_same]
+    have hcast : ∀ x : ℝ, star ((Real.sqrt x : ℝ) : ℂ) = ((Real.sqrt x : ℝ) : ℂ) := fun x => by
+      rw [Complex.star_def, Complex.conj_ofReal]
+    rw [star_mul, hcast]
+    have harg : ((n j + 1 : ℕ) : ℝ) = (n j : ℝ) + 1 := by push_cast; ring
+    rw [harg]
+    ring
+
+/-- **`⟪c, a_j† a_j c⟫ = ‖a_j c‖²`**, from the adjunction. -/
+theorem corePair_raise_lower_re (j : Fin d) (c : CoreCoeff d) :
+    (corePair c (hopStep (j, true) (hopStep (j, false) c))).re
+      = coreNormSq (hopStep (j, false) c) := by
+  rw [← corePair_hopStep_adjoint j c (hopStep (j, false) c), corePair_self_re]
+
+/-- **`⟪c, a_j a_j† c⟫ = ‖a_j† c‖²`**, from the adjunction read the other way. -/
+theorem corePair_lower_raise_re (j : Fin d) (c : CoreCoeff d) :
+    (corePair c (hopStep (j, false) (hopStep (j, true) c))).re
+      = coreNormSq (hopStep (j, true) c) := by
+  rw [corePair_comm_conj, corePair_hopStep_adjoint j (hopStep (j, true) c) c,
+    Complex.star_def, Complex.conj_re, corePair_self_re]
+
+/-- **The double letters have equal real pairing**: `Re⟪c, a_j†² c⟫ = Re⟪c, a_j² c⟫`, because the
+two are complex conjugates of each other. -/
+theorem corePair_double_raise_re_eq (j : Fin d) (c : CoreCoeff d) :
+    (corePair c (hopStep (j, true) (hopStep (j, true) c))).re
+      = (corePair c (hopStep (j, false) (hopStep (j, false) c))).re := by
+  have h1 : corePair (hopStep (j, false) c) (hopStep (j, true) c)
+      = corePair c (hopStep (j, true) (hopStep (j, true) c)) :=
+    corePair_hopStep_adjoint j c (hopStep (j, true) c)
+  have h2 : corePair c (hopStep (j, false) (hopStep (j, false) c))
+      = star (corePair (hopStep (j, false) c) (hopStep (j, true) c)) := by
+    rw [corePair_comm_conj, corePair_hopStep_adjoint j (hopStep (j, false) c) c]
+  have hkey : corePair c (hopStep (j, true) (hopStep (j, true) c))
+      = star (corePair c (hopStep (j, false) (hopStep (j, false) c))) := by
+    calc corePair c (hopStep (j, true) (hopStep (j, true) c))
+        = corePair (hopStep (j, false) c) (hopStep (j, true) c) := h1.symm
+      _ = star (star (corePair (hopStep (j, false) c) (hopStep (j, true) c))) :=
+          (star_star _).symm
+      _ = star (corePair c (hopStep (j, false) (hopStep (j, false) c))) := by rw [← h2]
+  rw [hkey, Complex.star_def, Complex.conj_re]
+
+
+/-! ## The form of `x_j ∂_j` -/
+
+/-- The mode's lowering in the `ℓ²` mass exceeds its raising by exactly the mass. -/
+theorem coreNormSq_lower_sub_raise (j : Fin d) (c : CoreCoeff d) :
+    coreNormSq (hopStep (j, false) c) - coreNormSq (hopStep (j, true) c) = -coreNormSq c := by
+  rw [coreNormSq_hopStep_lower, coreNormSq_hopStep_raise_eq, coreNormSq]
+  ring
+
+/-- **The letters `x_j` and `∂_j` composed**, expanded into the four double letters. -/
+theorem mulHermite_diffHermite_eq (j : Fin d) (c : CoreCoeff d) :
+    mulHermite j (diffHermite j c)
+      = (((invSqrtTwo * invSqrtTwo : ℝ)) : ℂ) •
+          (hopStep (j, true) (hopStep (j, false) c)
+            - hopStep (j, true) (hopStep (j, true) c)
+            + hopStep (j, false) (hopStep (j, false) c)
+            - hopStep (j, false) (hopStep (j, true) c)) := by
+  rw [mulHermite, diffHermite, hopStep_smul, hopStep_smul, hopStep_sub, hopStep_sub]
+  module
+
+/-- **`x_j ∂_j` has a strictly negative real pairing**: only the `a†a` and `aa†` letters survive
+(the double letters cancel in real part) and their norms differ by the mass. -/
+theorem re_corePair_mulHermite_diffHermite (j : Fin d) (c : CoreCoeff d) :
+    (corePair c (mulHermite j (diffHermite j c))).re = -(1 / 2) * coreNormSq c := by
+  rw [mulHermite_diffHermite_eq]
+  have hk : star (((invSqrtTwo * invSqrtTwo : ℝ)) : ℂ)
+      = (((invSqrtTwo * invSqrtTwo : ℝ)) : ℂ) := by
+    rw [Complex.star_def, Complex.conj_ofReal]
+  rw [corePair_smul, hk, corePair_sub, corePair_add, corePair_sub]
+  simp only [Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, Complex.sub_re,
+    Complex.add_re, zero_mul, sub_zero]
+  rw [corePair_raise_lower_re, corePair_lower_raise_re, ← corePair_double_raise_re_eq]
+  have hsq : invSqrtTwo * invSqrtTwo = 1 / 2 := by
+    rw [← sq]; exact invSqrtTwo_sq
+  have hgrp : coreNormSq (hopStep (j, false) c)
+        - (corePair c (hopStep (j, true) (hopStep (j, true) c))).re
+        + (corePair c (hopStep (j, true) (hopStep (j, true) c))).re
+        - coreNormSq (hopStep (j, true) c)
+      = coreNormSq (hopStep (j, false) c) - coreNormSq (hopStep (j, true) c) := by ring
+  rw [hgrp, hsq, coreNormSq_lower_sub_raise]
+  ring
+
+/-- **The sum over the modes**: `Re⟪c, Σ_j x_j ∂_j c⟫ = −(d/2)‖c‖²`. -/
+theorem re_corePair_sum_mulHermite_diffHermite (c : CoreCoeff d) :
+    (corePair c (∑ j : Fin d, mulHermite j (diffHermite j c))).re
+      = -((d : ℝ) / 2) * coreNormSq c := by
+  classical
+  rw [corePair_finset_sum, Complex.re_sum]
+  simp only [re_corePair_mulHermite_diffHermite]
+  rw [← Finset.sum_mul, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  ring
+
+/-! ## The quadratic potential: the Hessian's `λ` is a constant, not a gap -/
+
+/-- The quadratic potential `Φ_λ(u) = (λ/2)∑ⱼ uⱼ²` — the equality case `Hess Φ = λ·I` of the
+Bakry–Émery hypothesis. -/
+def quadPotential (lam : ℝ) : MvPolynomial (Fin d) ℂ :=
+  MvPolynomial.C (((lam / 2 : ℝ)) : ℂ) * ∑ j : Fin d, MvPolynomial.X j ^ 2
+
+theorem pderiv_sum_squares (j : Fin d) :
+    MvPolynomial.pderiv j (∑ k : Fin d, (MvPolynomial.X k : MvPolynomial (Fin d) ℂ) ^ 2)
+      = (2 : MvPolynomial (Fin d) ℂ) * MvPolynomial.X j := by
+  rw [map_sum]
+  rw [Finset.sum_eq_single j]
+  · rw [MvPolynomial.pderiv_pow, MvPolynomial.pderiv_X, Pi.single_eq_same]
+    simp
+  · intro k _ hk
+    rw [MvPolynomial.pderiv_pow, MvPolynomial.pderiv_X, Pi.single_apply, if_neg hk]
+    simp
+  · intro h; exact absurd (Finset.mem_univ j) h
+
+/-- **The quadratic potential's gradient is `λx`** — the Hessian bound in its equality case. -/
+theorem pderiv_quadPotential (lam : ℝ) (j : Fin d) :
+    MvPolynomial.pderiv j (quadPotential lam) = ((lam : ℂ)) • MvPolynomial.X j := by
+  rw [quadPotential, MvPolynomial.pderiv_mul, MvPolynomial.pderiv_C, zero_mul, zero_add,
+    pderiv_sum_squares, MvPolynomial.smul_eq_C_mul]
+  have h2 : (2 : MvPolynomial (Fin d) ℂ) = MvPolynomial.C (2 : ℂ) :=
+    (map_ofNat MvPolynomial.C 2).symm
+  rw [← mul_assoc, h2, ← MvPolynomial.C_mul]
+  congr 1
+  push_cast
+  ring_nf
+
+/-- The polynomial operator is `ℂ`-homogeneous in the potential. -/
+theorem polyMul_smul_poly (r : ℂ) (Φ : MvPolynomial (Fin d) ℂ) (c : CoreCoeff d) :
+    polyMul (r • Φ) c = r • polyMul Φ c := by
+  rw [MvPolynomial.smul_eq_C_mul, polyMul_mul, polyMul_C]
+
+/-- **The drift of the quadratic potential**: `K_drift = −λ Σⱼ xⱼ ∂ⱼ`. -/
+theorem polyDrift_quadPotential (lam : ℝ) (c : CoreCoeff d) :
+    polyDrift (quadPotential lam) c
+      = -(((lam : ℝ)) : ℂ) • ∑ j : Fin d, mulHermite j (diffHermite j c) := by
+  unfold polyDrift
+  have hterm : ∀ j : Fin d,
+      polyMul (MvPolynomial.pderiv j (quadPotential lam)) (diffHermite j c)
+        = ((lam : ℂ)) • mulHermite j (diffHermite j c) := by
+    intro j
+    rw [pderiv_quadPotential, polyMul_smul_poly, polyMul_X]
+  rw [Finset.sum_congr rfl fun j _ => hterm j, ← Finset.smul_sum, ← neg_smul]
+
+
+/-- **The drift operator of the quadratic potential**: `K_drift = −(β²σ²/2)λ Σⱼ xⱼ ∂ⱼ`. -/
+theorem driftOperator_quadPotential (β σ lam : ℝ) (c : CoreCoeff d) :
+    driftOperator β σ (quadPotential lam) c
+      = -(((driftWeight β σ * lam : ℝ)) : ℂ) •
+          ∑ j : Fin d, mulHermite j (diffHermite j c) := by
+  rw [driftOperator, polyDrift_quadPotential, smul_smul]
+  congr 1
+  push_cast
+  ring
+
+/-- **The pCNL form of the quadratic potential**: the number form plus a constant.  The Hessian
+`Hess Φ_λ = λ·I` enters only through `E₀ = (β²σ²/2)·λd/2`; the degree grading supplies the rest. -/
+theorem re_corePair_quadHamiltonian (β σ lam : ℝ) (c : CoreCoeff d) :
+    (corePair c (numberOp c + driftOperator β σ (quadPotential lam) c)).re
+      = numberForm c + driftWeight β σ * (lam * (d : ℝ) / 2) * coreNormSq c := by
+  rw [corePair_add, Complex.add_re, corePair_numberOp_re, driftOperator_quadPotential]
+  have hneg : star (-(((driftWeight β σ * lam : ℝ)) : ℂ))
+      = -(((driftWeight β σ * lam : ℝ)) : ℂ) := by
+    rw [star_neg, Complex.star_def, Complex.conj_ofReal]
+  rw [corePair_smul, hneg, Complex.mul_re,
+    re_corePair_sum_mulHermite_diffHermite]
+  simp only [Complex.ofReal_re, Complex.ofReal_im, Complex.neg_re, Complex.neg_im]
+  ring
+
+/-- The total degree is positive away from the vacuum. -/
+theorem natDeg_pos_of_ne_zero {n : Fin d → ℕ} (hn : n ≠ 0) : 0 < natDeg n := by
+  by_contra h
+  have h0 : natDeg n = 0 := Nat.eq_zero_of_not_pos h
+  refine hn (funext fun i => ?_)
+  simp only [Pi.zero_apply]
+  have hi : n i ≤ natDeg n :=
+    Finset.single_le_sum (f := n) (fun k _ => Nat.zero_le _) (Finset.mem_univ i)
+  omega
+
+/-- Away from the vacuum the number form dominates the `ℓ²` mass. -/
+theorem numberForm_ge_of_vac {c : CoreCoeff d} (h : c (0 : Fin d → ℕ) = 0) :
+    coreNormSq c ≤ numberForm c := by
+  classical
+  rw [coreNormSq, numberForm]
+  refine Finset.sum_le_sum fun n hn => ?_
+  have hn0 : n ≠ 0 := by
+    intro hz
+    exact Finsupp.mem_support_iff.mp hn (by rw [hz]; exact h)
+  have hge : (1 : ℝ) ≤ (natDeg n : ℝ) := by
+    exact_mod_cast natDeg_pos_of_ne_zero hn0
+  calc ‖c n‖ ^ 2 = 1 * ‖c n‖ ^ 2 := (one_mul _).symm
+    _ ≤ (natDeg n : ℝ) * ‖c n‖ ^ 2 := mul_le_mul_of_nonneg_right hge (by positivity)
+
+/-- **The Hessian's `λ` is not the gap.**  For the quadratic potential — the equality case
+`Hess Φ = λ·I` of the Bakry–Émery hypothesis — the pCNL form is `numberForm + E₀‖c‖²`, so off the
+vacuum it is at least `(E₀ + 1)‖c‖²`: the Hessian bound shifts the bottom of the spectrum by
+`E₀ = (β²σ²/2)·λd/2` and leaves the gap at the number operator's `1`.  The plan's `γ = λ` is a
+statement about the generator on `L²(π)`, not about this form. -/
+theorem quadForm_gap (β σ lam : ℝ) {c : CoreCoeff d} (h : c (0 : Fin d → ℕ) = 0) :
+    (1 + driftWeight β σ * (lam * (d : ℝ) / 2)) * coreNormSq c
+      ≤ (corePair c (numberOp c + driftOperator β σ (quadPotential lam) c)).re := by
+  rw [re_corePair_quadHamiltonian]
+  have hn := numberForm_ge_of_vac h
+  nlinarith
+
+theorem numberForm_single (m : Fin d → ℕ) (a : ℂ) :
+    numberForm (Finsupp.single m a) = (natDeg m : ℝ) * ‖a‖ ^ 2 := by
+  rw [numberForm, Finset.sum_subset Finsupp.support_single_subset (fun x _ hx => ?_)]
+  · simp
+  · rw [Finsupp.notMem_support_iff.mp hx, norm_zero]
+    ring
+
+/-- The bottom of the form is `E₀ = (β²σ²/2)·λd/2`, attained at the vacuum. -/
+theorem quadForm_vac (β σ lam : ℝ) :
+    (corePair (Finsupp.single (0 : Fin d → ℕ) 1)
+      (numberOp (Finsupp.single (0 : Fin d → ℕ) 1)
+        + driftOperator β σ (quadPotential lam) (Finsupp.single (0 : Fin d → ℕ) 1))).re
+      = driftWeight β σ * (lam * (d : ℝ) / 2) := by
+  rw [re_corePair_quadHamiltonian, numberForm_single, coreNormSq_single, norm_one,
+    natDeg_zero]
+  push_cast
+  ring
+
+/-- The gap is sharp: on the first excited sector the form equals `E₀ + 1`. -/
+theorem quadForm_degree_one (β σ lam : ℝ) (j : Fin d) :
+    (corePair (Finsupp.single (raiseIdx j 0) 1)
+      (numberOp (Finsupp.single (raiseIdx j 0) 1)
+        + driftOperator β σ (quadPotential lam) (Finsupp.single (raiseIdx j 0) 1))).re
+      = 1 + driftWeight β σ * (lam * (d : ℝ) / 2) := by
+  rw [re_corePair_quadHamiltonian, numberForm_single, coreNormSq_single, norm_one,
+    natDeg_raiseIdx, natDeg_zero]
+  push_cast
+  ring
+
+
 
 
 end BookProof.MCMC.FockLangevin

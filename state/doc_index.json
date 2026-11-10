@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T06:36:18+00:00",
+ "generated_at": "2026-11-10T08:02:50+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -153,7 +153,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 19451,
+   "lines": 19511,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -1577,7 +1577,7 @@
   {
    "path": "pcnl.md",
    "title": "pCNL: Mehler operators, nested Fock representations and convergence certificates",
-   "lines": 1558,
+   "lines": 1578,
    "headings": [
     "# pCNL: Mehler operators, nested Fock representations and convergence certificates",
     "## Revised research and formalization work order (2026-11-08)",
