@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T14:38:45+00:00",
+ "generated_at": "2026-11-10T15:34:57+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 1317,
+   "lines": 1406,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1174,7 +1174,10 @@
     "## (2026-11-10e)",
     "## 20. Block-diagonal operators with Hermitian block interiors (2026-11-10f)",
     "## 21. The P1 Yukawa dictionary's four Higgs coefficient matrices (2026-11-10g)",
-    "## 22. The quartic Gårding step: what the attempt produced (2026-11-10h)"
+    "## 22. The quartic Gårding step: what the attempt produced (2026-11-10h)",
+    "## 23. The weighted integration-by-parts identity on the Gauss–polynomial core (2026-11-10k)",
+    "## 24. The Schur constants of the four P1 Higgs matrices, made explicit (2026-11-10i)",
+    "## 25. The operator-valued Schur test: no block-diagonal support condition (2026-11-10j)"
    ]
   },
   {
@@ -1618,7 +1621,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_SPEC.md",
    "title": "MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
-   "lines": 295,
+   "lines": 358,
    "headings": [
     "# MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
     "## 1. The theorem of record (T6)",

@@ -3387,6 +3387,19 @@ import BookProof.Sm.ChapterSmFullCommFormBlockHermitian
 -- entry bound `fockMatrix_entry_norm_le` that makes the Schur sums finite, and the commutator bound
 -- `smPos_p1Higgs_commForm_le` / `smCanonical_smPos_p1Higgs_commForm_le`.
 import BookProof.Sm.ChapterSmFullCommFormBlockP1
+-- `ChapterSmFullCommFormBlockP1Schur` (2026-11-10i, `SM_ESA_COMPLETION_PLAN` §24): the two Schur
+-- sums of the four P1 matrices as **explicit numbers** rather than hypotheses — the `ℓ¹` masses
+-- `p1HiggsMass`/`p1HiggsMassTotal`, the basis mass `fockMass`, and the radii `p1HiggsRowRadius`,
+-- `p1HiggsColRadius`, with `rowSum_p1Higgs_le`/`colSum_p1Higgs_le` proving the Schur bounds and
+-- `smCanonical_smPos_p1Higgs_commForm_le_radius` the commutator bound at those radii.
+import BookProof.Sm.ChapterSmFullCommFormBlockP1Schur
+-- `ChapterSmFullCommFormBlockGeneral` (2026-11-10j, plan §25): the Schur test with
+-- **no block-diagonal support condition** — the weight `weightSum M A B = Σ_a ‖M_a A B‖`
+-- and the Schur sums `rowSumGen`/`colSumGen` (`weightSum_eq_of_supp` shows §20's bound is the
+-- special case), the component formula `blockOpMat_apply_general`, `blockOpMat_norm_sq_le_general`,
+-- `blockOpMat_norm_le_general`, and the payoff `smCanonical_p1Higgs_commForm_le_unconditional`: the
+-- P1 Higgs commutator bound with no hypothesis beyond `0 ≤ c₀`.
+import BookProof.Sm.ChapterSmFullCommFormBlockGeneral
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 
@@ -3500,6 +3513,15 @@ import BookProof.Sm.ChapterSmKineticElliptic
 -- module docstring records why (no integration by parts on the Gaussian core, and the corpus's only
 -- uncertainty bound is quadratic).
 import BookProof.Sm.ChapterSmKineticGarding
+-- `ChapterSmGaussWeightedIbp` (2026-11-10k, `SM_ESA_COMPLETION_PLAN` §23): the weighted
+-- integration-by-parts identity on the Gauss–polynomial core, `⟪Q u, −Δ_S u⟫` = weighted Dirichlet
+-- energy + commutator term (`gaussInt_weighted_kinPolyS`, `inner_weighted_kinPolyS`), the pointwise
+-- form `eval_weighted_self_re`, the non-negativity `gaussInt_weighted_self_nonneg` /
+-- `inner_weighted_kinPolyS_dirichlet_nonneg`, the sign `inner_weighted_kinPolyS_ge`, and the SM
+-- instance at the quartic potential (`sm_weighted_kinetic_ibp`, `_ge`).  It supplies the
+-- first ingredient of §22's `PotSelfBound`; the interpolation of `∇` is still missing, so
+-- `PotSelfBound` stays a hypothesis.
+import BookProof.Sm.ChapterSmGaussWeightedIbp
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator

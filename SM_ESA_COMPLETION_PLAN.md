@@ -1315,3 +1315,92 @@ and one is tempted to conclude `PotSelfBound` from positivity.  It does not foll
 concentrating at high frequency where `W` is of order one has a huge `‖Δp‖` and a moderate `‖Wp‖`, so
 the self-bound needs the elliptic bootstrap itself.  `hpoly` (§19) and `PotSelfBound` (§22) are two
 equivalent spellings of one open problem, and neither is assumed downstream.
+
+## 23. The weighted integration-by-parts identity on the Gauss–polynomial core (2026-11-10k)
+
+Module: `BookProof/Sm/ChapterSmGaussWeightedIbp.lean`.  Registered in `BookProof.lean`.
+
+§22 named the missing tool for the quartic step: the sign of the cross term,
+`Re ⟪W u, −Δ u⟫ = ‖√W ∇u‖² + Re ⟪u ∇W, ∇u⟫`, whose first term is non-negative.  This section
+supplies that identity on the core where the corpus computes — the Gauss–polynomial core, where every
+inner product is a Gaussian integral `gaussInt` of polynomials.
+
+The statement is the discrete form of the identity, in the corpus's own conventions: `−Δ_S` realized
+by `kinPolyS S`, `∇` by the twisted derivative `coreD j = ∂_j − x_j/2`, and the weight `Q` a
+real-coefficient polynomial.
+
+* **`gaussInt_weighted_kinPolyS`** — the identity in integral form:
+  `⟪Q u, −Δ_S u⟫ = ∑_{j∈S} (⟪∂_j Q · u, ∇_j u⟫ + ⟪Q ∇_j u, ∇_j u⟫)`.  Proof: `gaussInt_kinPolyS`
+  (the corpus's integration by parts) plus `coreD_mul` (its Leibniz rule) — the weight moves inside
+  the derivative and leaves exactly the two terms.  There is nothing else in the proof, which is why
+  the identity was missing rather than hard.
+* **`inner_weighted_kinPolyS`** — the same identity with the left-hand side written
+  `Re ⟪Q u, −Δ_S u⟫` for `u = pgLp p`.
+* **`eval_cpoly_self_eq`, `eval_weighted_self_re`** — pointwise, the weighted self-pairing is the
+  weight times the squared modulus, `(Q q, q) ↦ Q(x)‖q(x)‖²`.
+* **`gaussInt_weighted_self_nonneg`, `inner_weighted_kinPolyS_dirichlet_nonneg`** — hence
+  `‖√Q ∇u‖² ≥ 0` whenever `Q ≥ 0` pointwise.  This is the sign the elliptic argument needs, and it is
+  now a theorem instead of an appeal to positivity.
+* **`inner_weighted_kinPolyS_ge`** — the resulting semi-boundedness direction:
+  `Re ⟪Q u, −Δ_S u⟫ ≥ ∑_{j∈S} Re ⟪u ∇_j Q, ∇_j u⟫`.
+* **`smPotPoly_nonneg`, `sm_weighted_kinetic_ibp`, `sm_weighted_kinetic_ibp_ge`** — the instance at
+  the SM comparison, where the weight is the quartic potential `smPotPoly P c₀` and `S = smS`.  The
+  non-negativity of the weight comes from `polyW_smPotPoly` and `c₀ ≥ 0`, so the instance carries only
+  `0 ≤ c₀`.
+
+**What this does not do.**  It is the first ingredient of §22's `PotSelfBound` and not a proof of it.
+The identity gives the sign; the estimate `‖W p + p‖ ≤ β ‖Δ_S p + W p + p‖` additionally needs the
+commutator term controlled by the graph norm of `−Δ_S + W + 1`, which requires interpolating `∇`
+between `L²` and the graph norm.  The corpus has no bound of that shape for a quartic weight, so
+`PotSelfBound` remains a hypothesis downstream — but it now has one fewer unproved ingredient than
+§22 left it with.
+
+## 24. The Schur constants of the four P1 Higgs matrices, made explicit (2026-11-10i)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormBlockP1Schur.lean`.  Registered in `BookProof.lean`.
+
+§21 proved the P1 commutator bound with the two Schur sums `ρ`, `κ` as hypotheses and recorded that
+they are finite because the matrices live on a finite type.  "Finite" is not a number, so the bound
+could not be applied without supplying them by hand.  This section supplies them.
+
+* **`p1HiggsMass D a = ∑_{ij} ‖D.higgs a i j‖`**, **`p1HiggsMassTotal D = ∑_a p1HiggsMass D a`**,
+  **`fockMass = ∑_T ‖fockBasis T‖`** — the three numbers everything is built from.
+* **`p1Higgs_entry_le`** — `‖p1HiggsMat D a S T‖ ≤ p1HiggsMassTotal D * ‖fockBasis T‖`, uniform in the
+  component `a`; this is `fockMatrix_entry_norm_le` of §21 with the component's mass replaced by the
+  total.
+* **`p1HiggsRowRadius D = p1HiggsMassTotal D * fockMass`** and
+  **`p1HiggsColRadius D = card (Finset (Fin 96)) * p1HiggsRowRadius D`** — the two radii, with
+  `rowSum_p1Higgs_le` and `colSum_p1Higgs_le` proving the Schur bounds.
+* **`smCanonical_smPos_p1Higgs_commForm_le_radius`**, **`smPos_p1Higgs_commForm_le_radius`** — §21's
+  commutator bounds at those radii: no Schur hypothesis left.
+
+**Honesty about the size.**  These constants are crude on purpose: `ℓ¹` mass is not the operator norm,
+`fockMass` is not `1` because the corpus records no normalisation of `fockBasis`, and the column count
+is the full cardinality of `Finset (Fin 96)` rather than the number of occupied sectors.  Their role is
+to be explicit and finite — what a Schur hypothesis needs in order to be discharged.  A sharp constant
+is a computation on the dictionary, not a theorem about it.
+
+## 25. The operator-valued Schur test: no block-diagonal support condition (2026-11-10j)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormBlockGeneral.lean`.  Registered in `BookProof.lean`.
+
+§20's bound assumed `hsupp : M a A B ≠ 0 → blk A = a`: the `a`-th matrix may only reach the block `a`.
+That covers block-diagonal families, in particular the P1 dictionary, but not one that mixes blocks —
+and the SM's Yukawa couplings do mix them.
+
+* **`weightSum M A B = ∑_a ‖M_a A B‖`**, **`rowSumGen`**, **`colSumGen`** — the Schur weight and the two
+  general Schur sums.
+* **`weightSum_eq_of_supp`** — under §20's `hsupp` the weight collapses to a single term, so
+  `rowSumGen`/`colSumGen` are §20's `rowSum`/`colSum`.  The general bound is therefore a strict
+  extension, not a weaker parallel theory, and the diagonal constant is recovered exactly.
+* **`blockOpMat_apply_general`** — component `A` is `∑_a ∑_B (M_a)_{A B} • T_a f_B`, with no support
+  hypothesis.
+* **`blockOpMat_component_le_general`, `blockOpMat_norm_sq_le_general`, `blockOpMat_norm_le_general`** —
+  Schur's test with the constant `c √(ρ κ)` from the two general sums.
+* **`smPos_blockMat_norm_le_general`, `smPos_blockMat_commForm_le_general`** — the SM Higgs family for an
+  arbitrary coefficient family that may mix blocks.
+* **`p1HiggsGeneralRowRadius`, `p1HiggsGeneralColRadius`, `rowSumGen_p1Higgs_le`,
+  `colSumGen_p1Higgs_le`** — §24's radii with the one factor the mixing costs, `card (Fin 4) = 4`.
+* **`smCanonical_p1Higgs_commForm_le_unconditional`** — the payoff: the commutator bound for the P1
+  Yukawa dictionary with **no hypothesis at all** beyond `0 ≤ c₀`.  The support condition is gone, the
+  Schur data is explicit, and the placement is canonical.
