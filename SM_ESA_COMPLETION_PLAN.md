@@ -1580,3 +1580,94 @@ interpolation lands on that condition, so a proof of `PotSelfBound` cannot come 
 all.  It must compare **form domains** — the domain of the closed form of `−Δ_S + W` with the `H²`
 domain — which is elliptic regularity, absent from this corpus.  `PotSelfBound` remains a hypothesis
 downstream, and this section assumes nothing away.
+
+## 32. The form-domain comparison, named (2026-11-10n)
+
+Module: `BookProof/Sm/ChapterSmFormDomainComparison.lean`.  Registered in `BookProof.lean`.
+
+§31 localised the reverse estimate as an exact residual and left the missing input in prose.  This
+section gives it a name, because the missing input is a **domain** statement and the corpus should be
+able to cite it:
+
+```text
+FormDomainComparison P c₀ c  :=  ∀ p, ‖−Δ_S p‖ ≤ c ‖(−Δ_S + W + 1) p‖,
+```
+
+i.e. the graph norm of the comparison dominates the `H²` norm: the domain of the closed form of
+`−Δ_S + W + 1` sits inside the `H²` domain, with bounded inclusion.  That inclusion is what elliptic
+regularity supplies for a polynomial potential, and it is precisely what the corpus does not have.
+
+* **`FormDomainComparison`**, `formDomainComparison_iff` — the definition, in the domain reading.
+* **`formDomainComparison_of_potSelfBound`** — `PotSelfBound` with constant `β` gives the comparison
+  with `1 + β`, through §22's triangle inequality `‖Δ p‖ ≤ ‖N p‖ + ‖W p + p‖`.  The hypothesis
+  `0 ≤ β` is *not* needed for this direction.
+* **`potSelfBound_of_formDomainComparison`** — the converse, at `1 + c`: §26's
+  `potSelfBound_of_kinetic_bound`, stated for the named object.
+* **`exists_potSelfBound_iff_exists_formDomainComparison`** — therefore a non-negative self-bound
+  exists iff the comparison does.  **The name is not a weaker hypothesis**, and that is proved rather
+  than claimed: whoever discharges one discharges both.  Nothing here narrows the gap; it makes the
+  gap quotable and pins what a proof must produce.
+* **`form_coercive`** — the half the quadratic form does give: `‖p‖² ≤ ℜ⟪p, N p⟫`, from §31's
+  `ℜ⟪−Δ_S p, p⟫ = ∑_j ‖∇_j p‖² ≥ 0` and the pointwise non-negativity of `W` (§23).
+* **`norm_le_shiftNorm_of_coercive`** — hence `‖p‖ ≤ ‖N p‖`, by Cauchy–Schwarz.
+
+So `H¹ ∩ L²(W) ⊆ D(N)` with a norm bound is available and is all the form gives; the named input is
+one derivative higher, and no amount of coercivity reaches it.  `FormDomainComparison` is **not**
+proved for the SM's quartic `W`.
+
+## 33. The quadratic weight: the case the corpus does prove (2026-11-10n)
+
+Module: `BookProof/Sm/ChapterSmHarmonicReverseEstimate.lean`.  Registered in `BookProof.lean`.
+
+The follow-up question was whether the corpus's harmonic-potential ellipticity already gives the
+reverse estimate for a *quadratic* weight.  It does, and the answer is in
+`ChapterGaussCoreQuadBounds`:
+
+| ingredient | corpus lemma |
+| :--- | :--- |
+| graph norm of the comparison | `shiftNorm p = ‖pgLp (harmP p) + pgLp p‖` |
+| potential by graph norm | `norm_harmPoly_mul_le_shiftNorm` (constant `2`) |
+| identity by graph norm | `norm_pgLp_le_shiftNorm` (constant `1`) |
+| **reverse (`H²`) estimate** | `norm_kinPoly_le_shiftNorm` (constant `3`) |
+| coercivity | `dim_mul_norm_le_shiftNorm` (`D/2 + 1`) |
+
+This section records them under the SM chapter's naming, so that the two cases can be compared
+statement for statement:
+
+* **`reverseEstimate_harm`** — the `FormDomainComparison` of §32 at the harmonic weight, `c = 3`;
+* **`potentialBound_harm`**, **`identityBound_harm`** — the two addition terms;
+* **`selfBound_harm`** — the `PotSelfBound` of §22 at the harmonic weight, `β = 3`.  For a quadratic
+  weight the self-bound is a **theorem**, not an input;
+* **`coercive_harm`** — the coercivity with its explicit constant.
+
+**Why nothing transfers.**  The harmonic instance is a statement about `−Δ + harmPoly + 1`, not about
+`−Δ_S + W + 1`; transferring it needs `‖N_harm p‖ ≤ κ ‖N_W p‖`, a comparison of two graph norms and
+therefore the same kind of form-domain statement as §32.  The corpus proves the quadratic case
+because `norm_sq_harmPoly_mul_le` — the uncertainty bound — controls a quadratic weight against the
+oscillator's graph norm; that bound has **no quartic analogue**, and `W` is not pointwise dominated by
+`harmPoly` (degree four against degree two).  So §33 is the shape of a complete argument in the only
+case the corpus's uncertainty bound covers, and it is not a step towards `PotSelfBound`.
+
+## 34. The degenerate doublet's Schur sums, evaluated (2026-11-10n)
+
+Module: `BookProof/Sm/ChapterSmDegenerateDoubletConstant.lean`.  Registered in `BookProof.lean`.
+
+§30 showed that `degHiggsData` admits no per-component block function, so §25's general Schur test is
+the one that applies; §28's constant `8` was for a hand-written family, not for this dictionary.
+This section evaluates the test for `degHiggsData` itself.
+
+* **`degHiggsCanonical`** — the same dictionary at the canonical placement, so §25's general test
+  needs no hypothesis on `pos`; `p1HiggsMat_degHiggsCanonical` records that the coefficient matrices
+  are those of §30, and `p1HiggsMat_degHiggsCanonical_apply` their values.
+* **`weightSum_degHiggs`** — the Schur weight is `4 * A.card` on the diagonal and `0` off it: the
+  four components coincide with the number operator.
+* **`rowSumGen_degHiggs`**, **`colSumGen_degHiggs`** — both equal `4 * card`; **`rowSumGen_degHiggs_le`**,
+  **`colSumGen_degHiggs_le`** — both at most `4 * 96 = 384`.
+* **`degHiggs_constant`** — `4 √(384 · 384) = 1536`, and **`degHiggs_commForm_le`** — §25's
+  commutator bound for the degenerate doublet at that constant.
+
+The number is the expected one (occupation number `≤` mode count, times the number of degenerate
+components) and it is a *bound*, not the sharp Schur constant: `A.card ≤ 96` is used sector by
+sector, while the number operator's rows are concentrated.  Sharpening it is a computation on the
+sector sizes, not a theorem about the method.  What is now settled is that the support-free test is
+not merely applicable to a dictionary §20 provably cannot accept, but **quantified** on it.

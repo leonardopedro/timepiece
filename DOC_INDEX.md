@@ -70,7 +70,7 @@
 | [RandomMap2LegacyDraft.md](RandomMap2LegacyDraft.md) | Historical `RandomMap2.lean` Phase 5–10 draft | 951 | 1 | 2 |
 | [RandomMap_old.md](RandomMap_old.md) | Lean 4 Formalization Plan: The Decoupled Kopperman-Mehler Framework | 1292 | 2 | 2 |
 | [SINGULARITY_DETECTION_PLAN.md](SINGULARITY_DETECTION_PLAN.md) | Implementation Plan: ODE→Hamiltonian Self-Adjointness & Singularity Detection via Hashimoto SIRK | 179 | 0 | 4 |
-| [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) | Full Standard-Model ESA: completion plan and implementation audit | 1582 | 3 | 3 |
+| [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) | Full Standard-Model ESA: completion plan and implementation audit | 1673 | 3 | 3 |
 | [SPECIALIST_PLAN_MERGE.md](SPECIALIST_PLAN_MERGE.md) | Specialist Plan — Aristotle Merge Verification + Pauli–Grover (§11) | 155 | 1 | 0 |
 | [SPECIALIST_PLAN_REMAINING.md](SPECIALIST_PLAN_REMAINING.md) | Specialist Plan — Remaining Lean Work | 594 | 2 | 3 |
 | [STATUS.md](STATUS.md) | `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md` | 12834 | 14 | 7 |
@@ -866,6 +866,9 @@
 - ## 29. The occupation basis is orthonormal (2026-11-10m)
 - ## 30. The block structure of `p1HiggsMat`, and a dictionary with none (2026-11-10m)
 - ## 31. The reverse elliptic estimate: its exact residual (2026-11-10m)
+- ## 32. The form-domain comparison, named (2026-11-10n)
+- ## 33. The quadratic weight: the case the corpus does prove (2026-11-10n)
+- ## 34. The degenerate doublet's Schur sums, evaluated (2026-11-10n)
 
 ### Specialist Plan — Aristotle Merge Verification + Pauli–Grover (§11) (`SPECIALIST_PLAN_MERGE.md`)
 

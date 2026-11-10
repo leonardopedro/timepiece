@@ -3568,6 +3568,25 @@ import BookProof.Sm.ChapterSmP1BlockStructure
 -- `potSelfBound_one_of_grad_residual` (`∑_j ‖(∂_j W)p‖² ≤ ‖Δ_S p‖² + 3 ∑_j ‖∇_j p‖²`), which is not
 -- proved; the module states that a proof must compare form domains, and `PotSelfBound` stays open.
 import BookProof.Sm.ChapterSmReverseEllipticResidual
+-- `ChapterSmFormDomainComparison` (2026-11-10n, `SM_ESA_COMPLETION_PLAN` §32): the form-domain
+-- comparison as a **named input** — `FormDomainComparison P c₀ c`, i.e. the graph norm of
+-- `−Δ_S + W + 1` dominates the `H²` norm — with its reductions both ways:
+-- `formDomainComparison_of_potSelfBound`, `potSelfBound_of_formDomainComparison` and
+-- `exists_potSelfBound_iff_exists_formDomainComparison` (so the name is not a weaker hypothesis).
+-- The half the form does give is `form_coercive` / `norm_le_shiftNorm_of_coercive`.
+import BookProof.Sm.ChapterSmFormDomainComparison
+-- `ChapterSmHarmonicReverseEstimate` (2026-11-10n, `SM_ESA_COMPLETION_PLAN` §33): the **quadratic**
+-- weight, where the corpus already proves the whole package — `reverseEstimate_harm` (the
+-- `H²` estimate, `c = 3`), `potentialBound_harm`, `identityBound_harm`, `selfBound_harm` (the
+-- `PotSelfBound` shape, `β = 3`) and `coercive_harm`.  It does not transfer to the quartic `W`:
+-- `W` is not dominated by `harmPoly` and the corpus has no quartic uncertainty bound.
+import BookProof.Sm.ChapterSmHarmonicReverseEstimate
+-- `ChapterSmDegenerateDoubletConstant` (2026-11-10n, `SM_ESA_COMPLETION_PLAN` §34): the degenerate
+-- doublet's Schur sums evaluated — `weightSum_degHiggs`, `rowSumGen_degHiggs` and
+-- `colSumGen_degHiggs` (all `4 * card`), both sums `≤ 384`, `degHiggs_constant`
+-- (`4√(384·384) = 1536`) and `degHiggs_commForm_le`, §25's commutator bound at `ρ = κ = 384` for
+-- the dictionary §30 showed admits no block function.
+import BookProof.Sm.ChapterSmDegenerateDoubletConstant
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator
