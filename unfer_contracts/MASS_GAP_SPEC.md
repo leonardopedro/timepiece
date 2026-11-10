@@ -249,10 +249,44 @@ precision:
 | 3 | 6 | −9.214246967 | −9.236287521 | 0.022040554 | −0.022040554 |
 | 3 | 8 | −13.610338101 | −14.566593782 | 0.956255682 | −0.956255682 |
 
-T6's orientation (odd above even) does not hold in those cells at all. **6 is the
-ceiling on this grid**, and the test asserts both halves: every cell whose
-truncated ordering matches T6's certifies, and the certified count equals the
-number of such cells — so a "7 of 10" claim would have to break a test first.
+T6's orientation (odd above even) does not hold in those cells at all — so
+there is no gap *in that direction* there, and no accuracy can make the
+expression positive. But it is not a ceiling on the grid: Temple's inequality is
+sector-local, and nothing in it prefers the odd sector.
+
+#### The other orientation, the sectors exchanged (2026-11-10c)
+
+Exchanging the roles certifies the other quantity, `λ₀(even) − λ₁(odd)`:
+
+```text
+  λ₀(even) ≥ temple(θᵉ₀, rᵉ, β_even)      λ₁(odd) ≤ θᵒ₀   (Rayleigh–Ritz)
+  ⟹ λ₀(even) − λ₁(odd) ≥ temple(θᵉ₀, rᵉ, β_even) − θᵒ₀
+```
+
+The odd side then needs **no witness at all**, and the only extra work is one
+more `certify_spectrum` pass, on the even block, for `β_even ≤ λ₂(even)`:
+
+| `g` | `N≤` | `θᵉ₀` | `rᵉ` | `λ₂(even)` | `β(even)` | certified⇄ | exact⇄ |
+|---|---|---|---|---|---|---|---|
+| 0.5 | 8 | −1.545550924 | 6.6e-6 | −1.445385952 | −1.445386066 | **0.030457603** | 0.030457603 |
+| 2 | 8 | −6.511130065 | 2.8e-10 | −5.396349662 | −5.396350050 | **1.243646566** | 1.243646566 |
+| 3 | 6 | −9.214246967 | 3.2e-14 | −5.126287367 | −5.126287397 | **0.022040554** | 0.022040554 |
+| 3 | 8 | −13.610338101 | 1.3e-11 | −11.921429604 | −11.921430269 | **0.956255682** | 0.956255682 |
+
+All four certify, each bound equal to the exact gap to the last printed digit:
+**10 of 10 grid cells now carry a certified gap**, with the sector that owns the
+ground reported beside it rather than assumed. In T6's own cells the swapped
+bound is exactly the negative of the same number (`−0.189927963` at `g = 0,
+N ≤ 6`), so the orientations are complements; the test asserts that each
+certifies exactly the cells whose ordering matches it.
+
+Two limits on that reading. It is **not ten rows of one theorem**: the paper's
+statement is certified on 6 cells, the exchanged one on 4. And in a crossing cell
+the bound is the gap of `H_N` only because no odd level lies between the two
+grounds — asserted per cell (`λ₂(odd) > λ₀(even)`) — which is what makes the two
+sector grounds the two lowest levels of the truncation. A truncated ground that
+is *odd* is the finite-`N` artifact to flag: the continuum vacuum is even, so a
+crossing cell says `N` is too small, not that the theory has no gap.
 
 The `g = 0` rows are the **control**: they certify a positive gap on a theory
 with no continuum gap, which is the sharpest statement of what a truncation
@@ -269,6 +303,35 @@ Two findings worth keeping:
   certificate.
 * **Lanczos belongs on the even side** for the same reason: 40 matvecs reach
   `r ≤ 3e-11` at every cell (usually `1e-14`) where 40 SIRK steps leave `~8e-1`.
+
+#### One count-free `λ₂` bound measured, and why the family cannot reach the window
+
+`certificate::MatchingExclusion` is the tightest count-free witness the crate
+can build: colour the sparsity graph's edges into **matchings** `V = Σ_c V_c`
+(greedy edge colouring, `C ≤ max degree`), so each `V_c` is a disjoint union of
+`2×2` blocks `[[0,v],[v,0]]` and `λ_min(V_c) = −max |H_e|` in closed form; Weyl
+class by class gives `λ₂ ≥ d₂ − Σ_c max |H_e|`. That trades the Frobenius split's
+`√(#edges)` for `#classes`, so the slack is degree-bounded rather than
+`√n`-bounded:
+
+| `N≤` | `n` | classes | colouring slack | `‖V‖_F` | `β` colouring | `β` diagonal |
+|---|---|---|---|---|---|---|
+| 6 | 80 | 13 | 42.7 | 34.5 | −41.74 | −33.49 |
+| 8 | 200 | 17 | 92.6 | 86.4 | −91.64 | −85.39 |
+| 12 | 1820 | 28 | 313.5 | 553.8 | −312.49 | −552.78 |
+
+At the two smaller sizes the colouring is *looser* than one Frobenius term
+(charging each class's largest entry beats the `l2` norm of ~600 edges only once
+the graph is dense enough); by `N ≤ 12` it is 1.8× tighter — the first
+count-free bound whose slack does not explode with `n`. It is still nowhere near
+a witness, and the obstacle is structural, not a matter of a cleverer split:
+`d₂ = 1` while `θ ≈ −2.8 … −1.9`, so the entire off-diagonal budget is
+`d₂ − θ < 4`, whereas any splitting bound charges at least one entry per class
+against a degree of 13–28. Fewer, larger classes would mean needing `λ_min` of a
+large block — the eigenvalue problem again. So the measured answer is: no `λ₂`
+witness in the splitting family, at any `N`. The untried route is the count
+itself without a full diagonalization — inertia of a sparse factorization of
+`H − βI`.
 
 #### `(n₀+n₁)` parity is not the reflection sector
 
