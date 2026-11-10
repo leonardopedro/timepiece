@@ -625,6 +625,38 @@ consumes, and the only nontrivial quantitative condition left is `quarticShift <
 Axioms audited on the six theorems of this subsection: `propext`, `Classical.choice`,
 `Quot.sound` only.
 
+#### S2 — the two-pair amplitude on a single mode
+
+The one-pair amplitude left the *product* of two root pairs as the outstanding piece of the mode
+expansion.  `YangMillsFieldStrength` §6 computes it.
+
+* `hopWord_two_pairs` — for four distinct indices, `c_i† c_j c_k† c_l` acts on `|n⟩` by two hops
+  with amplitude
+
+  `√((nᵢ+1)nⱼ) · √((n_k+1)n_l)`,
+
+  the **product** of the two one-pair amplitudes (the second evaluated at the mode reached by the
+  first).  Distinctness is the only hypothesis: it is what makes the intermediate occupations
+  independent of the hops.
+* `two_pairs_normSq` — the squared amplitude: `(nᵢ+1)nⱼ · (n_k+1)n_l · ‖z‖²`.  So the quartic weight
+  of two distinct pairs **factorises** into the root weights of §4.
+* `hopWord_two_pairs_same` — the same pair twice is *not* the square: the second hop sees the
+  shifted mode, giving `√((nᵢ+2)(nⱼ−1))·√((nᵢ+1)nⱼ)`, and `two_pairs_same_normSq` squares it.  The
+  `−1` is the quantum the first pair removed from mode `j` — this is where the two-particle
+  structure actually enters, and where a commutation argument would go wrong.
+* `hopWord_two_pairs_diag` — the diagonal pair twice acts by `nⱼ · nⱼ = nⱼ²`, which is exactly one
+  summand of the per-mode magnetic weight `∑ a, n_a²` in `magneticEnergyForm_diag`.
+
+So the diagonal part of the mode expansion reproduces the `:N²:` weight *as an operator statement*
+(not merely as a formula for a form), and the off-diagonal part contributes the cross weight
+`∑_{i≠j} nᵢ nⱼ` of `quarticDegreeForm_eq_magnetic_add_root`.  **Boundary.**  What remains for
+`ModeIdentification` is the assembly: summing over the `24` components with the `ε`/`f` weights and
+matching to `magneticEnergyForm diagA` through the isometry `coeffToCore`.  The amplitudes are now
+proved; the colour contraction over the core is not.
+
+Axioms audited on the six theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 
 This section supersedes the previous section on three points: the coordinate-count factor `−99/2`

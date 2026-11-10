@@ -61,7 +61,15 @@ lacks (`YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`);
   with the oscillator normalisation `A_j = (a_j + a_j†)/√2` the vacuum magnetic energy is `1/2`
   per field component (`d/2` in total), while the normal-ordered `:N²:` form
   (`YangMillsMagneticQuartic.magneticEnergyForm_vacuum`) is `0` there: the `1/2` per component is
-  the normal-ordering constant in explicit numerical form.
+  the normal-ordering constant in explicit numerical form;
+* **`hopWord_two_pairs`**, **`two_pairs_normSq`** — the two-pair amplitude on a single mode is the
+  **product** of the two one-pair amplitudes, `√((nᵢ+1)nⱼ)·√((n_k+1)n_l)`, so the quartic weight of
+  two distinct pairs factorises into the root weights of §4;
+* **`hopWord_two_pairs_same`**, **`two_pairs_same_normSq`** — the same pair twice gives the shifted
+  weight `(nᵢ+2)(nⱼ−1)(nᵢ+1)nⱼ`: the second hop sees the mode after the first, which is where the
+  two-particle structure (and the `−1`) enters;
+* **`hopWord_two_pairs_diag`** — the diagonal pair twice acts by `nⱼ²`, i.e. exactly one summand of
+  the per-mode magnetic weight `∑ a, n_a²` of `magneticEnergyForm_diag`.
 
 ## Honest boundary
 
@@ -69,15 +77,18 @@ The derivative term `∂_μ A_ν` is not modelled here: the module derives the *
 structure* of the nested algebra and the Cartan eigenvalue, which is what fixes the components
 `B_a` as linear forms, but the assembly `F = ∂A + g[A,A]` as an operator identity (and hence
 `commutator_cartan`) is stated only through the inner matrices.  The off-diagonal (root) sector is
-now analysed at the level of the *one-pair amplitude* — `hopWord_pair_offdiag`, its squared weight
-`nᵢ nⱼ + nⱼ`, and the summed form `sum_offdiag_amp_sq` — which is the mode expansion of a single
-root component in the occupation basis; what is still not done is the *product* of two root pairs
-(the quartic term's amplitude on a mode), i.e. the passage from the amplitude of `c_i† c_j` to
-`∑_m ‖[A,A]_m ψ_n‖²`.  That is the same form-level identification `ModeIdentification` isolates in
-`BookProof.Qym.ChapterYangMillsFieldStrengthSplit`; here only the one-pair half is proved.  The
-polynomial side of the same story is proved there for the field strength the corpus actually uses
-(`magPoly_eq_deriv_add`, the bracket identity `two_smul_levi_contract`, and the root-sector quartic
-energy `root_energy`), which is the operator the form half still has to be matched against.
+now analysed at the level of the *amplitudes in the occupation basis*: one pair
+(`hopWord_pair_offdiag`, its weight `nᵢ nⱼ + nⱼ`, and the summed form `sum_offdiag_amp_sq`) and two
+pairs
+(`hopWord_two_pairs`, the factorised weight of `two_pairs_normSq`, the same-pair shift
+`hopWord_two_pairs_same`, and the diagonal `hopWord_two_pairs_diag`, which is the `:N²:` weight per
+component).  What is still not done is the **assembly over the core**: summing the `24` components
+with the `ε`/`f` weights and matching the result to `magneticEnergyForm diagA` through the
+isometry `coeffToCore` — that is the form-level identification `ModeIdentification` isolates in
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit`.  The polynomial side is proved there for the
+field strength the corpus uses (`magPoly_eq_deriv_add`, the bracket identity
+`two_smul_levi_contract`, and the root-sector quartic energy `root_energy`); the amplitudes here and
+that polynomial are the two halves still to be matched.
 -/
 
 noncomputable section
@@ -402,5 +413,125 @@ theorem abelian_vacuum_energy (j : Fin d) :
     coreNormSq (fieldOp j (vacuumCoeff d)) = 1 / 2 ∧
       magneticEnergyForm (d := d) diagA (vacuumCoeff d) = 0 :=
   ⟨fieldOp_vacuum j, magneticEnergyForm_vacuum⟩
+
+/-! ## 6. The two-pair amplitude on a single mode -/
+
+/-- The squared modulus of a product of two square-root amplitudes:
+`‖√A (√B z)‖² = A B ‖z‖²`. -/
+theorem normSq_sqrt_mul_sqrt {A B : ℝ} (hA : 0 ≤ A) (hB : 0 ≤ B) (z : ℂ) :
+    ‖(((Real.sqrt A : ℝ) : ℂ) * ((((Real.sqrt B : ℝ) : ℂ)) * z))‖ ^ 2
+      = A * B * ‖z‖ ^ 2 := by
+  rw [norm_mul, mul_pow, norm_mul, mul_pow, Complex.norm_real, Complex.norm_real,
+    Real.norm_eq_abs, Real.norm_eq_abs, sq_abs, sq_abs, Real.sq_sqrt hA, Real.sq_sqrt hB]
+  ring
+
+/-- **The two-pair amplitude.**  The product of two root pairs `c_i† c_j c_k† c_l` acts on a single
+mode by a pair of hops with the *product* of the two one-pair amplitudes
+(`hopWord_pair_offdiag_sqrt_mul`): `√((nᵢ+1) nⱼ) · √((n_k+1) n_l)`, the first factor evaluated at
+the mode reached by the second pair.  The hypotheses are only the distinctness of the four indices,
+which is what makes the intermediate occupations independent of the hops. -/
+theorem hopWord_two_pairs {i j k l : Fin d} (hij : i ≠ j) (hkl : k ≠ l) (hik : i ≠ k)
+    (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) (n : Fin d → ℕ) (z : ℂ) :
+    hopWord (pairWord k l ++ pairWord i j) (Finsupp.single n z)
+      = Finsupp.single (raiseIdx i (lowerIdx j (raiseIdx k (lowerIdx l n))))
+          (((Real.sqrt (((n i : ℝ) + 1) * (n j : ℝ)) : ℝ) : ℂ) *
+            (((Real.sqrt (((n k : ℝ) + 1) * (n l : ℝ)) : ℝ) : ℂ) * z)) := by
+  change hopStep (i, true) (hopStep (j, false)
+    (hopStep (k, true) (hopStep (l, false) (Finsupp.single n z)))) = _
+  rw [show hopStep (k, true) (hopStep (l, false) (Finsupp.single n z))
+      = hopWord [(l, false), (k, true)] (Finsupp.single n z) from rfl]
+  rw [hopWord_pair_offdiag_sqrt_mul hkl n z]
+  rw [show hopStep (i, true) (hopStep (j, false)
+      (Finsupp.single (raiseIdx k (lowerIdx l n))
+        (((Real.sqrt (((n k : ℝ) + 1) * (n l : ℝ)) : ℝ) : ℂ) * z)))
+      = hopWord [(j, false), (i, true)] (Finsupp.single (raiseIdx k (lowerIdx l n))
+        (((Real.sqrt (((n k : ℝ) + 1) * (n l : ℝ)) : ℝ) : ℂ) * z)) from rfl]
+  rw [hopWord_pair_offdiag_sqrt_mul hij]
+  have hi : raiseIdx k (lowerIdx l n) i = n i := by
+    simp [raiseIdx, lowerIdx, hik, hil]
+  have hj : raiseIdx k (lowerIdx l n) j = n j := by
+    simp [raiseIdx, lowerIdx, hjk, hjl]
+  rw [hi, hj]
+
+/-- **The two-pair weight**: the squared modulus of the two-pair amplitude is the product of the two
+one-pair weights, `(nᵢ+1)nⱼ · (n_k+1)n_l`.  So the quartic weight of two distinct pairs factorises
+into the root weights of §4 — the algebraic content the mode expansion needs. -/
+theorem two_pairs_normSq {i j k l : Fin d} (hij : i ≠ j) (hkl : k ≠ l) (hik : i ≠ k)
+    (hil : i ≠ l) (hjk : j ≠ k) (hjl : j ≠ l) (n : Fin d → ℕ) (z : ℂ) :
+    coreNormSq (hopWord (pairWord k l ++ pairWord i j) (Finsupp.single n z))
+      = ((n i : ℝ) + 1) * (n j : ℝ) * (((n k : ℝ) + 1) * (n l : ℝ)) * ‖z‖ ^ 2 := by
+  rw [hopWord_two_pairs hij hkl hik hil hjk hjl n z, coreNormSq_single,
+    normSq_sqrt_mul_sqrt (by positivity) (by positivity)]
+
+/-- **The same pair twice.**  For `c_i† c_j c_i† c_j` the second hop sees the mode *after* the
+first, so its weight is the shifted one: the amplitude is `√((nᵢ+2)(nⱼ−1))·√((nᵢ+1)nⱼ)`.  Nothing
+commutes here — the two factors differ, and the `−1` is the quantum the first pair removed from mode
+`j`. -/
+theorem hopWord_two_pairs_same {i j : Fin d} (hij : i ≠ j) (n : Fin d → ℕ)
+    (hn : n j ≠ 0) (z : ℂ) :
+    hopWord (pairWord i j ++ pairWord i j) (Finsupp.single n z)
+      = Finsupp.single (raiseIdx i (lowerIdx j (raiseIdx i (lowerIdx j n))))
+          (((Real.sqrt (((n i : ℝ) + 2) * ((n j : ℝ) - 1)) : ℝ) : ℂ) *
+            (((Real.sqrt (((n i : ℝ) + 1) * (n j : ℝ)) : ℝ) : ℂ) * z)) := by
+  change hopStep (i, true) (hopStep (j, false)
+    (hopStep (i, true) (hopStep (j, false) (Finsupp.single n z)))) = _
+  rw [show hopStep (i, true) (hopStep (j, false) (Finsupp.single n z))
+      = hopWord [(j, false), (i, true)] (Finsupp.single n z) from rfl]
+  rw [hopWord_pair_offdiag_sqrt_mul hij n z]
+  rw [show hopStep (i, true) (hopStep (j, false)
+      (Finsupp.single (raiseIdx i (lowerIdx j n))
+        (((Real.sqrt (((n i : ℝ) + 1) * (n j : ℝ)) : ℝ) : ℂ) * z)))
+      = hopWord [(j, false), (i, true)] (Finsupp.single (raiseIdx i (lowerIdx j n))
+        (((Real.sqrt (((n i : ℝ) + 1) * (n j : ℝ)) : ℝ) : ℂ) * z)) from rfl]
+  rw [hopWord_pair_offdiag_sqrt_mul hij]
+  have hpos : 1 ≤ n j := Nat.one_le_iff_ne_zero.mpr hn
+  have hi : raiseIdx i (lowerIdx j n) i = n i + 1 := by
+    simp [raiseIdx, lowerIdx, hij]
+  have hj : raiseIdx i (lowerIdx j n) j = n j - 1 := by
+    simp [lowerIdx, raiseIdx, Ne.symm hij]
+  have hcast : (((n j - 1 : ℕ)) : ℝ) = (n j : ℝ) - 1 := by
+    rw [Nat.cast_sub hpos]
+    norm_num
+  have harg : (((raiseIdx i (lowerIdx j n) i : ℕ) : ℝ) + 1)
+      * (((raiseIdx i (lowerIdx j n) j : ℕ)) : ℝ)
+      = ((n i : ℝ) + 2) * ((n j : ℝ) - 1) := by
+    rw [hi, hj, hcast]
+    push_cast
+    ring
+  rw [harg]
+
+/-- The squared modulus of the same-pair amplitude: `(nᵢ+2)(nⱼ−1)·(nᵢ+1)nⱼ`. -/
+theorem two_pairs_same_normSq {i j : Fin d} (hij : i ≠ j) (n : Fin d → ℕ)
+    (hn : n j ≠ 0) (z : ℂ) :
+    coreNormSq (hopWord (pairWord i j ++ pairWord i j) (Finsupp.single n z))
+      = (((n i : ℝ) + 2) * ((n j : ℝ) - 1)) * (((n i : ℝ) + 1) * (n j : ℝ)) * ‖z‖ ^ 2 := by
+  rw [hopWord_two_pairs_same hij n hn z, coreNormSq_single,
+    normSq_sqrt_mul_sqrt (A := ((n i : ℝ) + 2) * ((n j : ℝ) - 1))
+      (B := ((n i : ℝ) + 1) * (n j : ℝ))
+      (by
+        have h1 : (1 : ℝ) ≤ (n j : ℝ) := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr hn
+        exact mul_nonneg (by positivity) (by linarith))
+      (by positivity)]
+
+/-- **The diagonal two-pair amplitude is the `:N²:` weight of the component.**  For the Cartan pair
+applied twice, `(c_j† c_j)²` acts on the mode by `nⱼ · nⱼ = nⱼ²` — exactly the `j`-th summand of the
+per-mode magnetic weight `∑ a, n_a²` of `magneticEnergyForm_diag`.  This is the precise sense in
+which the diagonal part of the mode expansion reproduces the normal-ordered `:N²:` weight, and why
+the root part of §4 (the cross weight) is the only piece left over. -/
+theorem hopWord_two_pairs_diag (j : Fin d) (n : Fin d → ℕ) (z : ℂ) :
+    hopWord (pairWord j j ++ pairWord j j) (Finsupp.single n z)
+      = Finsupp.single n (((((n j : ℝ) ^ 2) : ℝ) : ℂ) * z) := by
+  change hopStep (j, true) (hopStep (j, false)
+    (hopStep (j, true) (hopStep (j, false) (Finsupp.single n z)))) = _
+  rw [show hopStep (j, true) (hopStep (j, false) (Finsupp.single n z))
+      = hopWord [(j, false), (j, true)] (Finsupp.single n z) from rfl]
+  rw [hopWord_pair_same j n z]
+  rw [show hopStep (j, true) (hopStep (j, false)
+      (Finsupp.single n ((n j : ℂ) * z)))
+      = hopWord [(j, false), (j, true)] (Finsupp.single n ((n j : ℂ) * z)) from rfl]
+  rw [hopWord_pair_same j n ((n j : ℂ) * z)]
+  congr 1
+  push_cast
+  ring
 
 end BookProof.YangMillsFieldStrength

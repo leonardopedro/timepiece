@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10f):** “State of the project — 2026-11-10f: `s2FormDomination` inside
+> **Newest entry (2026-11-10g):** “State of the project — 2026-11-10g: the two-pair amplitude on
+> a single mode”, at the end.  `hopWord_two_pairs` gives `c_i† c_j c_k† c_l |n⟩` the amplitude
+> `√((nᵢ+1)nⱼ)·√((n_k+1)n_l)`, the product of the two one-pair amplitudes (`two_pairs_normSq` for
+> its weight); the same pair twice shifts its arguments (`hopWord_two_pairs_same`), and the diagonal
+> pair twice acts by `nⱼ²` (`hopWord_two_pairs_diag`), which is the `:N²:` weight per component.  What
+> remains is the colour contraction over the `24` components onto the core.
+> `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10f):** “State of the project — 2026-11-10f: `s2FormDomination` inside
 > the gap chain”, at the end.  `s2FormDomination` is now driven through the existing chain:
 > `s2FormDomination_c₁`/`_c₂` (ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`, by `rfl`),
 > `s2_certified_separation` (`certified_separation`), `s2_separation_pos`,
@@ -19626,3 +19633,36 @@ certificate leaves is now isolated as `quarticShift < c₁ Δ_ref`, in the same 
 `s2FormDomination_c₁`, `s2FormDomination_c₂`, `s2_certified_separation`, `s2_separation_pos`,
 `s2_certified_gap` and `s2_gap_threshold_pos` reports `propext, Classical.choice, Quot.sound` only;
 no line of the touched file exceeds 100 characters.
+
+## State of the project — 2026-11-10g: the two-pair amplitude on a single mode
+
+This entry records the follow-up to 2026-11-10f (and 2026-11-10d).  All of it is `sorry`-free,
+`axiom`-free and compiled with `lake build +BookProof`.
+
+The one-pair amplitude left the *product* of two root pairs as the outstanding piece of the
+magnetic-energy mode expansion.  `YangMillsFieldStrength` §6 now computes it.
+
+* `hopWord_two_pairs` — for four distinct indices `i, j, k, l`,
+  `c_i† c_j c_k† c_l |n⟩` is a double hop with amplitude `√((nᵢ+1)nⱼ) · √((n_k+1)n_l)`: the product
+  of the two one-pair amplitudes (`hopWord_pair_offdiag_sqrt_mul`), the second evaluated at the mode
+  the first reached.  Distinctness is the only hypothesis, and it is exactly what makes the
+  intermediate occupations independent of the hops.
+* `two_pairs_normSq` — the squared weight `(nᵢ+1)nⱼ · (n_k+1)n_l · ‖z‖²`: the quartic weight of two
+  distinct pairs **factorises** into the root weights of §4.
+* `hopWord_two_pairs_same`, `two_pairs_same_normSq` — the same pair twice is *not* the square: the
+  second hop sees the shifted mode, so the amplitude is `√((nᵢ+2)(nⱼ−1))·√((nᵢ+1)nⱼ)`.  The `−1` is
+  the quantum the first pair removed; this is where the two-particle structure enters and where a
+  naive commutation would be wrong.
+* `hopWord_two_pairs_diag` — `(c_j† c_j)²` acts by `nⱼ²`, one summand of the per-mode magnetic
+  weight `∑ a, n_a²` of `magneticEnergyForm_diag`.  So the diagonal part of the mode expansion
+  reproduces the `:N²:` weight as an operator statement.
+
+**Boundary.**  What remains of `ModeIdentification` is the assembly over the core: summing the `24`
+components with the `ε`/`f` weights and matching the result to `magneticEnergyForm diagA` through
+the isometry `coeffToCore`.  The amplitudes are proved; the colour contraction over the core is not.
+No claim about inhabiting `ModeIdentification` is made (and the abelian sector provably cannot).
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`normSq_sqrt_mul_sqrt`, `hopWord_two_pairs`, `two_pairs_normSq`, `hopWord_two_pairs_same`,
+`two_pairs_same_normSq` and `hopWord_two_pairs_diag` reports `propext, Classical.choice,
+Quot.sound` only; no line of the touched file exceeds 100 characters.
