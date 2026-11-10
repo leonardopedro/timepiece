@@ -1215,3 +1215,103 @@ turns a bound on a square into a bound on the operator itself:
 For a quartic `W`, applying the ε-form requires `‖W²x‖` dominated by `‖N x + x‖`, which is the
 elliptic estimate itself; there is no circular shortcut and none is taken.  §19's gap is `hpoly`;
 everything else in the SM chain above is proved, `sorry`-free and `axiom`-free.
+
+## 20. Block-diagonal operators with Hermitian block interiors (2026-11-10f)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormBlockHermitian.lean`.  Registered in `BookProof.lean`.
+
+§18 let the four blocks carry four different *operators* while the interior of each block stayed a
+scalar `d A`, and said so in its closing note.  This section reaches a full matrix interior at the
+norm level — the level the commutator bound is assembled from — so a block may now be any complex
+matrix, in particular a Hermitian one.
+
+* **`blockOpMat T M = Σ_a T_a ⊗ M_a`** — no block index is needed, because the support of `M a` *is*
+  the block.  The condition that makes it block-diagonal is
+  `hsupp : M a A B ≠ 0 → blk A = a`; with `M a = blockMat blk d a` it holds by construction, and
+  `blockOp_eq_blockOpMat` records `blockOp` as the special case.
+* **`blockOpMat_apply_of_supp`** — component `A` is met only by its own block's matrix, so
+  `(blockOpMat T M f).ofLp A = Σ_B M_{blk A} A B • T_{blk A} f_B`.
+* **`sq_sum_mul_le_sum_mul_sq`** — the weighted Cauchy–Schwarz step `(Σ w g)² ≤ (Σ w)(Σ w g²)`.
+* **`blockOpMat_norm_sq_le`, `blockOpMat_norm_le`** — **Schur's test**:
+  `‖blockOpMat T M f‖ ≤ c √(ρ κ) ‖N⊗1 f + f‖`, where `ρ` and `κ` bound the row sums
+  `rowSum M blk A = Σ_B |M_{blk A} A B|` and the column sums `colSum M blk B = Σ_A |M_{blk A} A B|`.
+  For a diagonal interior both equal `sup_A |d A|` (`rowSum_blockMat`, `colSum_blockMat`), so the
+  constant is exactly §18's `c K`: the generalization degrades nothing.  A plain Cauchy–Schwarz over
+  the pair `(A, B)` would instead have cost `√96` — the number of internal components — which is why
+  the bound is stated with the two Schur sums rather than a Hilbert–Schmidt norm.  That choice is the
+  technical content of the section.
+* **The Higgs family with Hermitian interiors** — `smPos_blockMat_norm_le`,
+  `smPos_blockMat_commForm_le` (through §17's engine `abs_commForm_le_of_norm_le`) and
+  `smCanonical_smPos_blockMat_commForm_le` at the canonical placement.
+
+**Still not claimed:** the *form-level* identity `commForm = Σ_A d_A commForm` of §18 does not survive
+a non-diagonal interior.  Component `A` then pairs `T f_B` with `N f_A` for `B ≠ A`, and the imaginary
+part of that cross pairing is not a scalar form bound of `T` — it would need a bound on
+`Im ⟪T f_B, N f_A⟧` for `B ≠ A`, which no module of the corpus states.  The commutator bound is
+therefore obtained from the norm bound, exactly as §18 did for the multiplication families.
+
+## 21. The P1 Yukawa dictionary's four Higgs coefficient matrices (2026-11-10g)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormBlockP1.lean`.  Registered in `BookProof.lean`.
+
+§20 is abstract in its matrix family; this section instantiates it at the dictionary that the SM
+actually uses.
+
+* **`p1HiggsMat D a = fockMatrix (matterBilin (D.higgs a))`** — the `a`-th Higgs generator of the P1
+  dictionary in the occupation basis.  These are the matrices §18 had to leave as scalar weights.
+* **`SmInternalData.toNormalForm_coord_eq`** — the normal form's coordinate family is built from
+  exactly these four matrices: `D.toNormalForm.coord j = Σ_a [D.pos a = j] · p1HiggsMat D a`.
+* **`toNormalForm_coord_eq_p1HiggsMat`** — for an injective placement the coordinate matrix at
+  `D.pos a` *is* `p1HiggsMat D a`, so the four blocks carry one Higgs component each and no mixing.
+* **`p1HiggsMat_hermitian`** — the four matrices are Hermitian, from `D.higgsHermitian` through
+  `matterBilin_symmetric` and `fockMatrix_star`.  This is what makes the interiors admissible for §20:
+  they are genuinely non-diagonal, since `matterBilin` sums over the `96²` mode pairs.
+* **`fockMatrix_entry_norm_le`** — the only uniform entry bound available, the `ℓ¹` bound of
+  `matterBilin` read in the occupation basis, which makes the Schur sums finite.
+* **`smPos_p1Higgs_commForm_le`, `smCanonical_smPos_p1Higgs_commForm_le`** — the §20 commutator bound
+  for `Σ_a u_{pos a} ⊗ p1HiggsMat D a`, with no hypothesis on the placement left at `smCanonicalPos`.
+
+**The constant is data, and this section says so rather than inventing a number.**  The Schur data
+`ρ`, `κ` are the row and column sums of the four P1 matrices; they are finite but their values belong
+to the dictionary, and unlike the four Higgs *coordinates* — whose relative bound is §15's constant
+`1` — the non-diagonal interiors admit no uniform constant.  They therefore stay as hypotheses of the
+concrete bound.
+
+## 22. The quartic Gårding step: what the attempt produced (2026-11-10h)
+
+Module: `BookProof/Sm/ChapterSmKineticGarding.lean`.  Registered in `BookProof.lean`.
+
+§19 reduced §16's `hkin` to the one polynomial inequality `hpoly`.  This section reports the outcome
+of attempting `hpoly` itself: **it is still not proved**, and the section pins down exactly what is
+missing instead of renaming the gap.
+
+* **`kinetic_le_shift_add_pot`** — the Gårding factorization
+  `‖Δ p‖ ≤ ‖Δp + Wp + p‖ + ‖Wp + p‖`.  Nothing but the potential stands between `hpoly` and the
+  elliptic estimate.
+* **`PotSelfBound P c₀ β`** — the self-bound of the potential:
+  `∀ p, ‖W p + p‖ ≤ β ‖Δ_S p + W p + p‖`.  This is the Kato-type self-boundedness of `W` with respect
+  to `−Δ_S + W`, the standard first step of every ellipticity proof for a polynomial potential.
+* **`kineticSum_norm_le_of_pot_self_bound`** — hence the elliptic estimate, with `c = 1 + β`.
+* **`smNormalForm_norm_le_of_pot_self_bound`** — the composition with §19's interpolation half: §15's
+  second-order family bound now rests on `PotSelfBound` **alone**.  The whole P2 relative bound for the
+  SM is one inequality about the quartic potential.
+
+**Why the corpus cannot supply `PotSelfBound`.**  The standard proof reads the sign of the cross term
+
+```text
+Re ⟪W u, −Δ u⟫ = ‖√W ∇u‖² + Re ⟪u ∇W, ∇u⟫,
+```
+
+whose first term is non-negative, and then interpolates `∇` between `L²` and the graph norm.  Neither
+ingredient exists here: there is no integration-by-parts identity for a polynomial weight on the
+Gaussian core (the core lemmas are algebraic — `pgLp_add'`, `lapCS_pgFun` — or inner-product
+identities for core *endomorphisms*, while `W` is a multiplication operator), and the corpus's only
+uncertainty-type bound, `norm_sq_harmPoly_mul_le`, controls the **quadratic** weight `harmPoly`
+against the oscillator's own graph norm.  That is exactly what makes `norm_kinPoly_le_shiftNorm` work,
+and it has no quartic analogue.
+
+The trap the attempt hit first is worth recording: `one_le_polyW_smPotPoly` gives `W ≥ 1` pointwise,
+and one is tempted to conclude `PotSelfBound` from positivity.  It does not follow.  A polynomial
+concentrating at high frequency where `W` is of order one has a huge `‖Δp‖` and a moderate `‖Wp‖`, so
+the self-bound needs the elliptic bootstrap itself.  `hpoly` (§19) and `PotSelfBound` (§22) are two
+equivalent spellings of one open problem, and neither is assumed downstream.

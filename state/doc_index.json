@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T12:46:56+00:00",
+ "generated_at": "2026-11-10T14:38:45+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 1217,
+   "lines": 1317,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1171,7 +1171,10 @@
     "## and diagonal coefficients (2026-11-10c)",
     "## 18. Block-diagonal coefficient matrices over the four Higgs components (2026-11-10d)",
     "## 19. The kinetic sum as a plain Laplacian, and the interpolation half of the elliptic estimate",
-    "## (2026-11-10e)"
+    "## (2026-11-10e)",
+    "## 20. Block-diagonal operators with Hermitian block interiors (2026-11-10f)",
+    "## 21. The P1 Yukawa dictionary's four Higgs coefficient matrices (2026-11-10g)",
+    "## 22. The quartic Gårding step: what the attempt produced (2026-11-10h)"
    ]
   },
   {
@@ -1615,7 +1618,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_SPEC.md",
    "title": "MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
-   "lines": 218,
+   "lines": 295,
    "headings": [
     "# MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
     "## 1. The theorem of record (T6)",

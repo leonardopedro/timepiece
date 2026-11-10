@@ -3370,6 +3370,23 @@ import BookProof.Sm.ChapterSmFullCommFormDiagonal
 -- `smPos_block_commForm_le` / `smCanonical_smPos_block_commForm_le` (no placement hypothesis
 -- left at `smCanonicalPos`).
 import BookProof.Sm.ChapterSmFullCommFormBlock
+-- `ChapterSmFullCommFormBlockHermitian` (2026-11-10f, `SM_ESA_COMPLETION_PLAN` §20): the block
+-- operator with **non-diagonal Hermitian block interiors**, `blockOpMat T M = Σ_a T_a ⊗ M_a` —
+-- §18's `blockOp` is the diagonal case (`blockOp_eq_blockOpMat`) — the support condition that makes
+-- it act blockwise (`blockOpMat_apply_of_supp`), the weighted Cauchy–Schwarz step
+-- (`sq_sum_mul_le_sum_mul_sq`), and Schur's test `‖blockOpMat T M f‖ ≤ c √(ρ κ) ‖N⊗1 f + f‖`
+-- (`blockOpMat_norm_sq_le`, `blockOpMat_norm_le`) with the two Schur sums as `ρ`, `κ`, which for a
+-- diagonal interior reduce to §18's `K` (`rowSum_blockMat`, `colSum_blockMat`) — plus the Higgs
+-- family with full matrix interiors (`smPos_blockMat_norm_le`, `smPos_blockMat_commForm_le`,
+-- `smCanonical_smPos_blockMat_commForm_le`).
+import BookProof.Sm.ChapterSmFullCommFormBlockHermitian
+-- `ChapterSmFullCommFormBlockP1` (2026-11-10g, `SM_ESA_COMPLETION_PLAN` §21): §20 instantiated at
+-- the P1 Yukawa dictionary's four Higgs coefficient matrices `p1HiggsMat D a` — that these are
+-- exactly the normal form's coordinate matrices (`SmInternalData.toNormalForm_coord_eq`,
+-- `toNormalForm_coord_eq_p1HiggsMat`), that they are Hermitian (`p1HiggsMat_hermitian`), the `ℓ¹`
+-- entry bound `fockMatrix_entry_norm_le` that makes the Schur sums finite, and the commutator bound
+-- `smPos_p1Higgs_commForm_le` / `smCanonical_smPos_p1Higgs_commForm_le`.
+import BookProof.Sm.ChapterSmFullCommFormBlockP1
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 
@@ -3474,6 +3491,15 @@ import BookProof.Sm.ChapterSmComparisonEsa
 -- `sq_norm_le_of_comp_self_eps`, `smMom_norm_le_shift_of_kineticSum`, and
 -- `smNormalForm_norm_le_of_kineticSum`, which drops the momentum hypothesis `hmom` of §15.
 import BookProof.Sm.ChapterSmKineticElliptic
+-- `ChapterSmKineticGarding` (2026-11-10h, `SM_ESA_COMPLETION_PLAN` §22): the Gårding factorization
+-- of the quartic step — `kinetic_le_shift_add_pot` (the kinetic term is the comparison plus the
+-- potential), so §19's `hpoly` reduces to the **self-bound** `PotSelfBound P c₀ β`;
+-- `kineticSum_norm_le_of_pot_self_bound` gives the elliptic estimate with `c = 1 + β`, and
+-- `smNormalForm_norm_le_of_pot_self_bound` composes it with §19's interpolation so the whole P2
+-- relative bound rests on that one inequality.  The quartic self-bound itself remains open; the
+-- module docstring records why (no integration by parts on the Gaussian core, and the corpus's only
+-- uncertainty bound is quadratic).
+import BookProof.Sm.ChapterSmKineticGarding
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator
