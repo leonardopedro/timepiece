@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T10:18:02+00:00",
+ "generated_at": "2026-11-10T12:46:56+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 1110,
+   "lines": 1217,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1168,7 +1168,10 @@
     "## 15. The per-family relative bounds, and the P1 normal-form bound (2026-11-10a)",
     "## 16. The commutator form with general matrices, the canonical placement, and the second-order",
     "## 17. The support-restricted commutator bound, the canonical P1 data at the commutator level,",
-    "## and diagonal coefficients (2026-11-10c)"
+    "## and diagonal coefficients (2026-11-10c)",
+    "## 18. Block-diagonal coefficient matrices over the four Higgs components (2026-11-10d)",
+    "## 19. The kinetic sum as a plain Laplacian, and the interpolation half of the elliptic estimate",
+    "## (2026-11-10e)"
    ]
   },
   {
@@ -1612,7 +1615,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_SPEC.md",
    "title": "MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
-   "lines": 150,
+   "lines": 218,
    "headings": [
     "# MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
     "## 1. The theorem of record (T6)",

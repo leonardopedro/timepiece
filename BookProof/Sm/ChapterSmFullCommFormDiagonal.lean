@@ -44,13 +44,14 @@ What is **not** here is the elliptic (Gårding) estimate for the kinetic sum,
 `‖(Σₘ πₘ²) x‖ ≤ c ‖N x + x‖`, which §16's `smKinetic_norm_le_shift` takes as its hypothesis.  It
 is not a formal consequence of the quadratic-form bounds the corpus proves
 (`smPi_sq_le_quadForm_smFlN`): it is Kato relative boundedness of the second-order part with
-respect to `N`, and its proof needs an interpolation (Gårding) inequality.  The corpus's
-second-order norm bounds — e.g. `norm_kinPoly_le_shiftNorm`,
-`‖pgLp (kinPoly p)‖ ≤ 3 ‖pgLp (harmP p) + pgLp p‖` — are for the **twisted** derivative
-`coreD = ∂ − x / 2` of the oscillator picture, in which `kinPoly` is the Gaussian Laplacian; the SM
-momenta are **plain** derivatives `∂`, and converting by `∂ = coreD + x / 2` costs one power of the
-graph norm per factor.  The gap is therefore recorded rather than hidden: everything below is
-conditional on nothing, but the elliptic estimate itself remains the named input of `hkin`.
+respect to `N`, and its proof needs an interpolation (Gårding) inequality.  §19
+(`BookProof.Sm.ChapterSmKineticElliptic`) refines this: `kinPoly p = −Σ_j coreD_j (coreD_j p)` is
+the **plain** Laplacian of the function `pgFun p = p · e^{−‖x‖²/4}` (`lapCS_pgFun`), so
+`norm_kinPoly_le_shiftNorm` *is* the plain-derivative analogue and the kinetic sum of the SM is
+`pgLp (kinPolyS smS p)`; the remaining obstruction is only the SM's quartic potential, and `hkin`
+is there reduced to a single polynomial inequality.  The gap is therefore recorded rather than
+hidden: everything below is conditional on nothing, but the elliptic estimate itself remains the
+named input of `hkin`.
 
 Everything here is `sorry`-free and `axiom`-free.
 -/

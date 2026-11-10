@@ -3361,6 +3361,15 @@ import BookProof.Sm.ChapterSmFullNormalFormBounds
 -- commutator bound at the quadratic-form level.  The module docstring records why the elliptic
 -- (Gårding) estimate for the kinetic sum is still a named input of `hkin`.
 import BookProof.Sm.ChapterSmFullCommFormDiagonal
+-- `ChapterSmFullCommFormBlock` (2026-11-10d, `SM_ESA_COMPLETION_PLAN` §18): the commutator form
+-- of a **block-diagonal** coefficient matrix whose blocks carry *different* operators —
+-- `blockMat` / `blockOp` (the four blocks reassemble into `diag d` by `sum_blockMat`, and
+-- `blockOp_apply` shows component `A` sees `d A • T_{blk A}`), the identity
+-- `blockOp_commForm_eq` and the quadratic-form-level bound `blockOp_commForm_le`, the norm-level
+-- sibling `blockOp_norm_le`, and the four-Higgs-component instantiation `smPos_block_norm_le` /
+-- `smPos_block_commForm_le` / `smCanonical_smPos_block_commForm_le` (no placement hypothesis
+-- left at `smCanonicalPos`).
+import BookProof.Sm.ChapterSmFullCommFormBlock
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 
@@ -3456,6 +3465,15 @@ import BookProof.Toolbox.ChapterDegSchrodingerCore
 import BookProof.ChapterDegKatoEsa
 import BookProof.Toolbox.ChapterHermiteGraphApprox
 import BookProof.Sm.ChapterSmComparisonEsa
+-- `ChapterSmKineticElliptic` (2026-11-10e, `SM_ESA_COMPLETION_PLAN` §19): the kinetic sum of the
+-- SM identified with the **plain** partial Laplacian in the function picture
+-- (`kineticSum_apply_pgLp`, `kineticSum_norm_pgLp`) — correcting §17's §4, which read `coreD` as a
+-- derivative mismatch — the comparison in polynomial coordinates (`smFlN_apply_pgLp`), the
+-- reduction of §16's `hkin` to one polynomial inequality (`kineticSum_norm_le_of_poly`), and the
+-- interpolation half of the elliptic step: `sq_norm_le_norm_comp_mul_norm`, its ε-form
+-- `sq_norm_le_of_comp_self_eps`, `smMom_norm_le_shift_of_kineticSum`, and
+-- `smNormalForm_norm_le_of_kineticSum`, which drops the momentum hypothesis `hmom` of §15.
+import BookProof.Sm.ChapterSmKineticElliptic
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator

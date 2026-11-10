@@ -1108,3 +1108,110 @@ transport.  The remaining options are (a) an interpolation (Gårding) inequality
 `W`, or (b) a norm-level bound for the twisted model written for *plain* `∂` in the Gaussian
 picture, which the corpus does not have.  Until one of them lands, `hkin` stays a hypothesis of
 `smNormalForm_norm_le` in the `40` momentum directions and nothing downstream assumes it.
+
+## 18. Block-diagonal coefficient matrices over the four Higgs components (2026-11-10d)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormBlock.lean`.  Registered in `BookProof.lean`.
+
+§17 reached the quadratic-form level for a **diagonal** coefficient matrix, where every component
+sees the *same* bosonic operator `T` and only the scalar weight `d_A` varies.  The physically
+faithful finite-dimensional shape is different: the four Higgs components each multiply their own
+block, so the operator acting on a component is selected by the component's block.  This section
+closes that generalization.
+
+* **`blockMat blk d a`** — the `a`-th block of a diagonal matrix, cut out by the block index
+  `blk : Finset (Fin 96) → Fin 4`.  `sum_blockMat` shows the four blocks reassemble into `diag d`,
+  so the block structure is a partition of the diagonal entries and not a new hypothesis.
+* **`blockOp T blk d = Σ_a T_a ⊗ blockMat blk d a`**, with `blockOp_apply`: component `A` is
+  `d_A • T_{blk A} f_A`.  The four blocks carry four *different* operators; the diagonal case of
+  §17 is the degenerate one where the family is constant.
+* **`blockOp_commForm_eq`** — the identity survives in full:
+  `commForm (blockOp T blk d) (N ⊗ 1) f = Σ_A d_A · commForm (T_{blk A}) N f_A`.  Block diagonality
+  inside each block is all that §17's argument used, so the same rearrangement applies.
+* **`blockOp_commForm_le`** — the quadratic-form-level bound, with the same constant as §17:
+  from a scalar form bound `|commForm T_a N y| ≤ c quadForm N y` on each block's operator and
+  `d_A ≥ 0`, `|commForm (blockOp T blk d) (N ⊗ 1) f| ≤ c (Σ_A d_A) quadForm (N ⊗ 1) f`.
+* **`blockOp_norm_le`** — the norm-level sibling.  Multiplication families carry no scalar
+  `commForm` bound in the corpus (they enter through relative *norm* bounds), so the second half
+  of the module works at the norm level: from `‖T_a x‖ ≤ c ‖N x + x‖` and `|d_A| ≤ K`,
+  `‖blockOp T blk d f‖ ≤ c K ‖(N ⊗ 1 + 1) f‖`, assembled through `coupledSpace_norm_sq` and
+  `coupledOp_one_add_norm_sq`.
+* **The four Higgs components.**  `smPos_block_norm_le` instantiates `T_a = u_{D.pos a}` against the
+  SM comparison `smFlN` (constant `1` per block, from `smPos_smCoord_norm_le_shift`), and
+  `smPos_block_commForm_le` feeds it to §17's engine `abs_commForm_le_of_norm_le`, giving
+  `|commForm (blockOp u blk d) (N ⊗ 1) f| ≤ 4 K ‖(N ⊗ 1 + 1) f‖²`.  At the canonical placement
+  `smCanonicalPos` the statement is `smCanonical_smPos_block_commForm_le`, with **no** hypothesis
+  on the placement left.
+
+Not claimed: a bound with a *non-diagonal* block interior.  The identity above uses only that the
+matrix is diagonal inside each block, so a general Hermitian `M` still leaves the cross-component
+pairing of §16.
+
+## 19. The kinetic sum as a plain Laplacian, and the interpolation half of the elliptic estimate
+## (2026-11-10e)
+
+Module: `BookProof/Sm/ChapterSmKineticElliptic.lean`.  Registered in `BookProof.lean`.
+
+### Correction of §17's reading of the derivative mismatch
+
+§17 (and §16 before it) described the elliptic step as blocked by a derivative mismatch: the SM
+momenta were said to be *plain* derivatives while the corpus's second-order bounds were for the
+*twisted* `coreD = ∂ − x/2`, with the substitution `∂ = coreD + x/2` costing a power of the graph
+norm per factor.  **That reading is wrong.**  `coreD` is the twisted derivative on *polynomials*,
+but `kinPoly p = −Σ_j coreD_j (coreD_j p)` is the plain Laplacian of the *function*
+`pgFun p = p · e^{−‖x‖²/4}`: `lapCS_pgFun` is exactly `Δ_S (pgFun p) = pgFun (kinPolyS S p)`.  Since
+`momOp j = (−i) • coreD j` and `(−i)² = −1`, the transported momentum squared is the plain second
+derivative in the function picture, so the corpus's `norm_kinPoly_le_shiftNorm` *is* the
+plain-derivative analogue of the requested bound, and the SM kinetic sum is a plain partial
+Laplacian.  This is now proved rather than argued:
+
+* **`smPi_apply_pgLp_core` / `smPi_apply_pgLp`** — `π_m ⟨pgLp p⟩ = ⟨pgLp (momOp (smCoord m) p)⟩`.
+* **`kineticSum_apply_pgLp` / `kineticSum_norm_pgLp`** — `Σ_m π_m (π_m x) = ⟨pgLp (kinPolyS smS p)⟩`
+  for `x = ⟨pgLp p⟩`, and hence `‖Σ_m π_m² x‖ = ‖pgLp (kinPolyS smS p)‖`.  This is
+  `sum_momOp_eq_kinPolyS` at the level of the core.
+
+The remaining obstruction is therefore *only* the SM's quartic potential `W = Σ_r Φ_r² + Σ_m q_m² +
+c₀`, because `norm_sq_harmPoly_mul_le` — the uncertainty-bound step behind
+`norm_kinPoly_le_shiftNorm` — controls the *quadratic* `harmPoly` against the oscillator's own graph
+norm, and there is no quartic analogue.
+
+### The elliptic estimate reduced to one polynomial inequality
+
+* **`smFlN_apply_pgLp`** — the comparison in polynomial coordinates,
+  `N ⟨pgLp p⟩ = pgLp (kinPolyS smS p + smPotPoly P c₀ * p)` (from `smFlN_eq_hamCoreS`,
+  `hamCoreS_pgLp`, `potLp_polyW`).
+* **`kineticSum_norm_le_of_poly`** — the whole analytic content of §16's `hkin` isolated in **one**
+  inequality, of exactly the shape `norm_kinPoly_le_shiftNorm` but with the SM comparison on the
+  right:
+
+```text
+hpoly :  ∀ p, ‖pgLp (kinPolyS smS p)‖ ≤ c ‖pgLp (kinPolyS smS p + smPotPoly P c₀ * p) + pgLp p‖
+        ⇒  ∀ x, ‖(Σ_m π_m²) x‖ ≤ c ‖N x + x‖.
+```
+
+  `hpoly` is the named gap of §19.  It is not assumed downstream and not restated under another
+  name: it is the precise statement a Gårding/ellipticity argument has to supply.
+
+### The interpolation half (closing the *first-order* side)
+
+The corpus had no interpolation mechanism at all.  This section supplies the classical one, which
+turns a bound on a square into a bound on the operator itself:
+
+* **`sq_norm_le_norm_comp_mul_norm`** — for core-symmetric `T`, `‖T x‖² = ⟪T²x, x⟫ ≤ ‖T²x‖ ‖x‖`.
+* **`sq_norm_le_of_comp_self_eps`** — its ε-form, i.e. Young's inequality:
+  `‖T x‖² ≤ ε ‖T²x‖² + (4ε)⁻¹ ‖x‖²` for every `ε > 0`.  This is the Gårding interpolation in the
+  form that trades a second-order term against a zeroth-order one with an arbitrarily small
+  coefficient.
+* **`smMom_norm_le_shift_of_kineticSum`** — fed with the kinetic-sum estimate and `‖x‖ ≤ ‖N x + x‖`,
+  the interpolation gives `‖π_m x‖ ≤ √c ‖N x + x‖`: the first-order momentum family needs **no**
+  relative bound of its own.
+* **`smNormalForm_norm_le_of_kineticSum`** — hence §15's second-order family bound holds with the
+  hypothesis `hmom` **removed**: the momentum slot now only records where `D.mom` is supported
+  (`∀ j ∉ image smMomCoordFin univ, D.mom j = 0`), and the constant passes from `√c` to `c` because
+  `c ≥ 1`.  The whole P2 relative bound rests on the single elliptic input.
+
+### What is still open
+
+For a quartic `W`, applying the ε-form requires `‖W²x‖` dominated by `‖N x + x‖`, which is the
+elliptic estimate itself; there is no circular shortcut and none is taken.  §19's gap is `hpoly`;
+everything else in the SM chain above is proved, `sorry`-free and `axiom`-free.
