@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10h):** **§30 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10i):** **§31 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `VeffD` computed for the quadratic potential (**`VeffD_quadSum`**:
+> `¼λ²‖x‖² − ½λd`, from the exact slice in each coordinate), and the Metropolis acceptance carried
+> through the pCN density (`pcnAccept_floor`, **`pcnMetropolis_floor`**, **`pcnMetropolis_minorant`**),
+> so the Doeblin condition holds for the adjusted step.  The rate still needs kernel composition.
+> **Earlier newest entry (2026-11-10h):** **§30 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the three items §29 left.  (1) `FockLangevinOperator` §21.10 lifts the ground-state
 > identity to `ℝ^d`: `genDiffD_groundScale`, the coordinate sum of the one-dimensional theorem.
 > (2) The new chapter `GroundStateConjugation` proves the algebraic content of the spectral step —
@@ -19699,3 +19704,27 @@ rather than to a finite model.
 `genDiffD_groundScale`, `pcnDoeblin`, `rayleigh_groundState`, `sInf_rayleigh_eq` →
 `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no
 trailing whitespace.
+
+### 31. Addendum (2026-11-10i) — the quadratic `V_eff` in `d` dimensions, and the acceptance through the density
+
+**1. `VeffD` for the quadratic potential (`FockLangevinOperator` §21.10).**  `quadSum λ x =
+(λ/2)∑ᵢxᵢ²`; the slice in each coordinate is exactly quadratic (`slice_quadSum`), so
+`∂ⱼΦ = λxⱼ` and `∂ⱼ²Φ = λ` (`coordDeriv_quadSum`, `coordDerivTwo_quadSum`, via
+`hasDerivAt_quad_poly`) and **`VeffD_quadSum`** — `V_eff = ¼λ²‖x‖² − ½λd`.  With §30's
+`oscFreqOp_gap` that is the exactly solvable `L²(π)` gap with the dimension explicit.
+
+**2. The Metropolis acceptance through the density (`PCNGaussianFloor` §4).**  `pcnAccept π x y =
+min 1 (π y / π x)`, `pcnMetropolisDensity = pcnAccept · pcnDensity`; `pcnAccept_le_one` and
+`pcnMetropolisDensity_le` (the adjusted density is dominated by the raw one), **`pcnAccept_floor`**
+(`m·π x ≤ π y`, `m ≤ 1` ⇒ acceptance `≥ m`), **`pcnMetropolis_floor`** (the floors multiply) and
+**`pcnMetropolis_minorant`** — so §30's Doeblin condition holds for the adjusted step, not only for
+the raw proposal.  `pcnDoeblin_apply` states it set by set.
+
+**Still open.**  The Doeblin *rate*: an iterate bound needs kernel composition on `ℝ^d`
+(`ProbabilityTheory.Kernel.comp`), which the corpus has not used yet.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, green;
+`lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green.  `#print axioms` on
+`VeffD_quadSum`, `coordDerivTwo_quadSum`, `pcnAccept_floor`, `pcnMetropolis_minorant`,
+`pcnDoeblin_apply` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over
+100 characters, no trailing whitespace.

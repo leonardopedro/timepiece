@@ -1452,6 +1452,23 @@ proposal's mass on the box; a contraction compares with the *target*.  §3 names
 `PositivityCone`'s `Minorant` states on a finite space, now on `ℝ^d` with both measures named; the
 rate is still missing, because the iterate bound needs kernel composition on `ℝ^d`.
 
+**The quadratic potential's `V_eff` in `d` dimensions (§37).**  §34's `VeffD` is a definition until it
+is computed, and for the potential the plan's hypothesis singles out it is (§21.10 of
+`FockLangevinOperator`): with `quadSum λ x = (λ/2)∑ᵢxᵢ²`, the slice `Φ_λ(x + t·eⱼ)` is exactly
+`(λ/2)·(∑ᵢxᵢ² + 2t·xⱼ + t²)` (`slice_quadSum`), so `∂ⱼΦ = λxⱼ` and `∂ⱼ²Φ = λ`
+(`coordDeriv_quadSum`, `coordDerivTwo_quadSum`), and **`VeffD_quadSum`**:
+`V_eff = ¼λ²‖x‖² − ½λd` — the oscillator's potential with all `d` zero-point constants subtracted.
+That is the exact potential whose gap `oscFreqOp_gap` computes.
+
+**The Metropolis acceptance through the density (§38).**  §36 compared the target with the raw pCN
+proposal, but the pCNL step is Metropolis-adjusted.  §4 of `PCNGaussianFloor` carries the acceptance
+through: `pcnAccept π x y = min 1 (π y / π x)` and `pcnMetropolisDensity = pcnAccept · pcnDensity`;
+the acceptance contracts (`pcnAccept_le_one`), so the adjusted density is dominated by the raw one
+(`pcnMetropolisDensity_le`); and the useful direction is a floor — `m·π x ≤ π y` with `m ≤ 1` gives
+acceptance `≥ m` (`pcnAccept_floor`), the two floors multiply (`pcnMetropolis_floor`), and the
+adjusted step has its own measure minorant (`pcnMetropolis_minorant`), so §36's Doeblin condition
+holds for the *adjusted* proposal too.  `pcnDoeblin_apply` states §36 set by set.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1482,14 +1499,17 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   architecture's numbers (`affineForm_coefficient_le`, `affineForm_best_coefficient_neg`,
   `affineForm_architecture_coefficient`).
 * **The `L²(π)` identity and the oscillator.**  `genDiff_groundScale` (general `Φ`), `Veff_quadOne`,
-  `re_corePair_oscFreqOp`, `oscFreqOp_gap` — see §33 above — and their `d`-dimensional form
-  `genDiffD_groundScale` (§34).
+  `re_corePair_oscFreqOp`, `oscFreqOp_gap` — see §33 — their `d`-dimensional form
+  `genDiffD_groundScale` (§34), and the quadratic potential's effective potential in `d` dimensions
+  `VeffD_quadSum` (§37): `¼λ²‖x‖² − ½λd`.
 * **The spectral step, in the finite model.**  `rayleigh_groundState`, `flatPair_groundState`,
   `rayleigh_range_groundState`, `sInf_rayleigh_eq` (§35): a ground-state conjugation preserves the
   Rayleigh quotient and its infimum over the subspace orthogonal to the ground state.
 * **The weight-space floor.**  `pcnGaussian_floor` (a density bound on a box), its measure form
   `pcnMeasure_floor` (`volume.withDensity q ≥ F · volume.restrict box`, uniformly in the starting
-  point), and the Doeblin condition against a named target `pcnDoeblin` (`(F/B) • π ≤ P(x, ·)`).
+  point), the Doeblin condition against a named target `pcnDoeblin` (`(F/B) • π ≤ P(x, ·)`) and its
+  set-level form `pcnDoeblin_apply`, and the Metropolis-adjusted version
+  (`pcnAccept_floor`, `pcnMetropolis_floor`, `pcnMetropolis_minorant`).
 
 *Not proved, and not claimed.*
 
@@ -1502,8 +1522,8 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   self-adjointness, no compactness, and `P₀ + K_reject = 1` is a normalisation identity on
   coefficient families, not positivity of a Markov kernel.
 * **The continuum chain.**  The target is named (§36) and the minorant `(F/B) • π ≤ P(x, ·)` holds,
-  but there is no Doeblin *rate*: the iterate bound needs kernel composition on `ℝ^d`, and the
-  Metropolis acceptance is not passed through the density.
+  for the raw and the Metropolis-adjusted step alike (§38); but there is no Doeblin *rate*: the
+  iterate bound needs kernel composition (`κ.comp`) on `ℝ^d`, which this corpus does not yet use.
 * **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
   invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
 * **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;

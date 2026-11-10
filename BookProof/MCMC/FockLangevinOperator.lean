@@ -6228,4 +6228,102 @@ theorem genDiffD_groundScale {Φ f : (Fin d → ℝ) → ℝ} (hΦ : ContDiff �
   exact Finset.sum_congr rfl fun j _ => by ring
 
 
+
+/-! ### The quadratic potential's effective potential in `d` dimensions
+
+With `quadSum λ x = (λ/2)∑ᵢxᵢ²`, the coordinate partials are `∂ⱼΦ = λxⱼ` and `∂ⱼ²Φ = λ`, so `VeffD`
+is `¼λ²‖x‖² − ½λd`: the oscillator's potential with all `d` zero-point constants subtracted — the
+`V_eff` whose gap §21.9's `oscFreqOp_gap` computes, with the dimension explicit.
+-/
+
+/-- The quadratic potential `Φ_λ(x) = (λ/2)∑ᵢ xᵢ²` on `ℝ^d`. -/
+def quadSum (lam : ℝ) (x : Fin d → ℝ) : ℝ := (lam / 2) * ∑ i, x i ^ 2
+
+/-- The slice of the quadratic potential in direction `j` is exactly quadratic:
+`Φ_λ(x + t·eⱼ) = (λ/2)·(∑ᵢxᵢ² + 2t·xⱼ + t²)`. -/
+theorem slice_quadSum {lam t : ℝ} {x : Fin d → ℝ} {j : Fin d} :
+    quadSum (d := d) lam (x + t • coordDir j)
+      = (lam / 2) * ((∑ i, x i ^ 2) + (2 * x j) * t + t ^ 2) := by
+  unfold quadSum
+  congr 1
+  have hterm : ∀ i : Fin d, (x + t • coordDir j) i ^ 2
+      = x i ^ 2 + (if i = j then ((2 * x j) * t + t ^ 2) else 0) := by
+    intro i
+    by_cases h : i = j
+    · subst h
+      simp [Pi.add_apply, Pi.smul_apply, coordDir, Pi.single_eq_same]
+      ring
+    · simp [Pi.add_apply, Pi.smul_apply, coordDir, h]
+  calc ∑ i, (x + t • coordDir j) i ^ 2
+      = ∑ i, (x i ^ 2 + (if i = j then ((2 * x j) * t + t ^ 2) else 0)) :=
+        Finset.sum_congr rfl fun i _ => hterm i
+    _ = (∑ i, x i ^ 2) + ((2 * x j) * t + t ^ 2) := by
+        rw [Finset.sum_add_distrib, Finset.sum_ite_eq']
+        simp
+    _ = (∑ i, x i ^ 2) + (2 * x j) * t + t ^ 2 := by ring
+
+/-- The derivative of a quadratic polynomial `A + B·t + C·t²`. -/
+theorem hasDerivAt_quad_poly (A B C s : ℝ) :
+    HasDerivAt (fun t : ℝ => A + B * t + C * t ^ 2) (B + 2 * C * s) s := by
+  have hc : HasDerivAt (fun _ : ℝ => A) 0 s := hasDerivAt_const s A
+  have hl : HasDerivAt (fun t : ℝ => B * t) B s :=
+    ((hasDerivAt_id (x := s)).const_mul B).congr_deriv (by ring)
+  have hlin : HasDerivAt (fun t : ℝ => A + B * t) B s :=
+    (hc.add hl).congr_deriv (by ring)
+  have hp : HasDerivAt (fun t : ℝ => t ^ 2) (2 * s) s := by
+    simpa using hasDerivAt_pow 2 s
+  have hquad : HasDerivAt (fun t : ℝ => C * t ^ 2) (C * (2 * s)) s := hp.const_mul C
+  exact (hlin.add hquad).congr_deriv (by ring)
+
+/-- **The first coordinate partial of the quadratic potential**: `∂ⱼΦ_λ = λxⱼ`. -/
+theorem coordDeriv_quadSum (lam : ℝ) (x : Fin d → ℝ) (j : Fin d) :
+    coordDeriv (quadSum (d := d) lam) x j = lam * x j := by
+  have hfun : (fun t : ℝ => quadSum (d := d) lam (x + t • coordDir j))
+      = fun t : ℝ => (lam / 2) * ((∑ i, x i ^ 2) + (2 * x j) * t + 1 * t ^ 2) := by
+    funext t
+    rw [slice_quadSum]
+    ring
+  rw [coordDeriv, hfun,
+    (hasDerivAt_quad_poly (∑ i, x i ^ 2) (2 * x j) 1 0).const_mul (lam / 2) |>.deriv]
+  ring
+
+/-- **The second coordinate partial of the quadratic potential**: `∂ⱼ²Φ_λ = λ`. -/
+theorem coordDerivTwo_quadSum (lam : ℝ) (x : Fin d → ℝ) (j : Fin d) :
+    coordDerivTwo (quadSum (d := d) lam) x j = lam := by
+  have hfun : (fun t : ℝ => quadSum (d := d) lam (x + t • coordDir j))
+      = fun t : ℝ => (lam / 2) * ((∑ i, x i ^ 2) + (2 * x j) * t + 1 * t ^ 2) := by
+    funext t
+    rw [slice_quadSum]
+    ring
+  have hderiv : deriv (fun t : ℝ =>
+      (lam / 2) * ((∑ i, x i ^ 2) + (2 * x j) * t + 1 * t ^ 2))
+      = fun t : ℝ => (lam / 2) * ((2 * x j) + 2 * t) := by
+    funext t
+    rw [(hasDerivAt_quad_poly (∑ i, x i ^ 2) (2 * x j) 1 t).const_mul (lam / 2) |>.deriv]
+    ring
+  have hlin : HasDerivAt (fun t : ℝ => (lam / 2) * ((2 * x j) + 2 * t))
+      ((lam / 2) * 2) 0 := by
+    have hc : HasDerivAt (fun _ : ℝ => 2 * x j) 0 0 := hasDerivAt_const 0 (2 * x j)
+    have hl : HasDerivAt (fun t : ℝ => 2 * t) 2 0 :=
+      ((hasDerivAt_id (x := (0 : ℝ))).const_mul 2).congr_deriv (by ring)
+    exact ((hc.add hl).congr_deriv (by ring)).const_mul (lam / 2)
+  rw [coordDerivTwo, hfun, show (2 : ℕ) = 1 + 1 from rfl, iteratedDeriv_succ',
+    iteratedDeriv_one, hderiv, hlin.deriv]
+  ring
+
+/-- **`V_eff` of the quadratic potential in `d` dimensions**:
+`∑ⱼ(¼(λxⱼ)² − ½λ) = ¼λ²‖x‖² − ½λd`. -/
+theorem VeffD_quadSum (lam : ℝ) (x : Fin d → ℝ) :
+    VeffD (quadSum (d := d) lam) x
+      = lam ^ 2 / 4 * (∑ i, x i ^ 2) - (d : ℝ) * (lam / 2) := by
+  unfold VeffD
+  have hterm : ∀ j : Fin d, (coordDeriv (quadSum (d := d) lam) x j) ^ 2 / 4
+      - coordDerivTwo (quadSum (d := d) lam) x j / 2
+      = lam ^ 2 / 4 * x j ^ 2 - lam / 2 := by
+    intro j
+    rw [coordDeriv_quadSum, coordDerivTwo_quadSum]
+    ring
+  rw [Finset.sum_congr rfl fun j _ => hterm j, Finset.sum_sub_distrib, ← Finset.mul_sum,
+    Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+
 end BookProof.MCMC.FockLangevin

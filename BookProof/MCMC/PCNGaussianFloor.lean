@@ -34,7 +34,13 @@ the architecture's own proposal rather than an unknown number.
   `pcnMeasure_floor_pos`;
 * **§3, the Doeblin condition against a named target** — `pcnProposalMeasure`, `pcnTargetMeasure`,
   `pcnTargetMeasure_le_smul`, **`pcnDoeblin`**: `(F/B) • π ≤ P(x, ·)` on the box, for every starting
-  point, where `F` is the proposal's floor and `B` the target's ceiling.
+  point, where `F` is the proposal's floor and `B` the target's ceiling, and **`pcnDoeblin_apply`**
+  set by set;
+* **§4, the Metropolis acceptance through the density** — `pcnAccept`, `pcnMetropolisDensity`,
+  `pcnAccept_le_one`, `pcnMetropolisDensity_le` (the adjusted density is dominated by the raw one),
+  **`pcnAccept_floor`** and **`pcnMetropolis_floor`** (the acceptance has a floor when the target's
+  density does not drop by more than `m`), and **`pcnMetropolis_minorant`** (the adjusted step's own
+  measure minorant).
 
 ## Honest boundary
 
@@ -263,5 +269,82 @@ theorem pcnDoeblin {c s ρ R F B : ℝ} {τ : (Fin d → ℝ) → ℝ} {x : Fin 
         rw [smul_smul, ofReal_div_mul_ofReal hF hB]
     _ ≤ pcnProposalMeasure (d := d) c s ρ R x := hμ
 
+
+
+/-! ## 4. The Metropolis acceptance through the density
+
+§3 compares the proposal with a named target but assumes the proposal is the raw pCN increment.  The
+pCNL step is its Metropolis-adjusted version, so this section carries the acceptance ratio through
+the density: the acceptance is a contraction (`pcnAccept_le_one`), so the adjusted density is
+*dominated* by the raw one, and — the useful direction — it has a floor of its own whenever the
+target's density does not drop too far across the step (`pcnAccept_floor`, `pcnMetropolis_floor`).
+
+* `pcnAccept π x y = min 1 (π y / π x)` — the Metropolis ratio of the pCN proposal;
+* `pcnMetropolisDensity` — the accepted density, `pcnAccept · pcnDensity`;
+* **`pcnAccept_le_one`**, `pcnAccept_nonneg`, `pcnMetropolisDensity_le` — the acceptance contracts,
+  so the adjusted density never exceeds the raw one;
+* **`pcnAccept_floor`** — `m·π x ≤ π y` with `m ≤ 1` gives acceptance at least `m`;
+* **`pcnMetropolis_floor`** — the two floors multiply: `m·F` on the box;
+* **`pcnMetropolis_minorant`** — and that is a measure minorant for the adjusted proposal, so the
+  Doeblin condition of §3 holds for the Metropolis-adjusted step as well.
+-/
+
+/-- The Metropolis acceptance ratio of the pCN proposal, `min 1 (π y / π x)`. -/
+def pcnAccept (π : (Fin d → ℝ) → ℝ) (x y : Fin d → ℝ) : ℝ := min 1 (π y / π x)
+
+/-- The Metropolis-adjusted pCN density on the box: the pCN density times the acceptance. -/
+def pcnMetropolisDensity (c s ρ : ℝ) (π : (Fin d → ℝ) → ℝ) (x y : Fin d → ℝ) : ℝ :=
+  pcnAccept π x y * pcnDensity c s ρ x y
+
+theorem pcnAccept_le_one (π : (Fin d → ℝ) → ℝ) (x y : Fin d → ℝ) : pcnAccept π x y ≤ 1 :=
+  min_le_left _ _
+
+theorem pcnAccept_nonneg {π : (Fin d → ℝ) → ℝ} {x y : Fin d → ℝ} (hx : 0 < π x)
+    (hy : 0 ≤ π y) : 0 ≤ pcnAccept π x y :=
+  le_min (by norm_num) (div_nonneg hy hx.le)
+
+/-- **The acceptance's floor**: if the target's density does not drop by more than the factor
+`m ≤ 1` across the step (`m·π x ≤ π y`), the acceptance is at least `m`. -/
+theorem pcnAccept_floor {π : (Fin d → ℝ) → ℝ} {x y : Fin d → ℝ} {m : ℝ} (hm1 : m ≤ 1)
+    (hx : 0 < π x) (h : m * π x ≤ π y) : m ≤ pcnAccept π x y := by
+  refine le_min hm1 ?_
+  rw [le_div_iff₀ hx]
+  linarith
+
+/-- The adjusted density never exceeds the raw one. -/
+theorem pcnMetropolisDensity_le {c s ρ : ℝ} {π : (Fin d → ℝ) → ℝ} {x y : Fin d → ℝ}
+    (hy : 0 ≤ pcnDensity c s ρ x y) :
+    pcnMetropolisDensity c s ρ π x y ≤ pcnDensity c s ρ x y :=
+  mul_le_of_le_one_left hy (pcnAccept_le_one π x y)
+
+/-- **The adjusted floor**: an acceptance floor `m` and a density floor `F` multiply. -/
+theorem pcnMetropolis_floor {c s ρ m F : ℝ} {π : (Fin d → ℝ) → ℝ} {x y : Fin d → ℝ}
+    (hm0 : 0 ≤ m) (hF : 0 ≤ F) (hacc : m ≤ pcnAccept π x y)
+    (hdens : F ≤ pcnDensity c s ρ x y) :
+    m * F ≤ pcnMetropolisDensity c s ρ π x y := by
+  unfold pcnMetropolisDensity
+  exact mul_le_mul hacc hdens hF (le_trans hm0 hacc)
+
+/-- **The Metropolis-adjusted proposal's measure minorant**: a floor `m·F` on the box for the
+adjusted density gives the same measure inequality as §2, for the adjusted step. -/
+theorem pcnMetropolis_minorant {c s ρ R m F : ℝ} {π : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hfloor : ∀ y ∈ pcnBox d R, m * F ≤ pcnMetropolisDensity c s ρ π x y) :
+    ENNReal.ofReal (m * F) • (volume.restrict (pcnBox d R))
+      ≤ (volume.restrict (pcnBox d R)).withDensity
+          (fun y => ENNReal.ofReal (pcnMetropolisDensity c s ρ π x y)) := by
+  rw [← withDensity_const]
+  refine withDensity_mono ?_
+  filter_upwards [ae_restrict_mem (measurableSet_pcnBox (d := d) R)] with y hy
+  exact ENNReal.ofReal_le_ofReal (hfloor y hy)
+
+/-- The Doeblin condition of §3, read set by set: `(F/B)·π(A) ≤ P(x, A)`. -/
+theorem pcnDoeblin_apply {c s ρ R F B : ℝ} {τ : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hF : 0 ≤ F) (hB : 0 < B) (hτB : ∀ y ∈ pcnBox d R, τ y ≤ B)
+    (hle : ∀ y ∈ pcnBox d R, F ≤ pcnDensity c s ρ x y) {A : Set (Fin d → ℝ)}
+    (hA : MeasurableSet A) :
+    ENNReal.ofReal (F / B) * pcnTargetMeasure (d := d) R τ A
+      ≤ pcnProposalMeasure (d := d) c s ρ R x A := by
+  have h := (Measure.le_iff.mp (pcnDoeblin (d := d) hF hB hτB hle)) A hA
+  simpa [Measure.smul_apply, smul_eq_mul] using h
 
 end BookProof.MCMC.PCNGaussianFloor
