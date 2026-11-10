@@ -19964,3 +19964,35 @@ warnings on the file; `#print axioms` on `pcnAbsorbingStep_confined`, `pcnIter_c
 `pcnIter_confined_ball`, `pcnAbsorbingStep_box_ge_ball`, `pcnAbsorbingStep_twoStep_minorant_ball`,
 `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior` → `propext, Classical.choice,
 Quot.sound` only, no `sorryAx`; 0 lines over 100 characters, no trailing whitespace.
+
+### 42. Addendum (2026-11-10t) — stationarity from detailed balance
+
+One item in `PCNGaussianFloor` §17, the link §40 recorded as missing.
+
+**The general statement.**  `doeblinStep ν k` is the Metropolis step built from a joint density `k`
+against `ν`: the accepted part `ν.withDensity (k x)` plus the rejected mass as an atom at `x`.
+**`bind_doeblinStep_stationary`** proves that detailed balance plus a forward-mass bound imply
+stationarity:
+
+* `k x y · g x = k y x · g y` (pointwise balance against the target density `g`), and
+* `∫⁻ y, k x y ∂ν ≤ 1` at every `x` (so the rejection atom has nonnegative mass),
+
+give `(ν.withDensity g).bind (doeblinStep ν k) = ν.withDensity g`.  The proof is Tonelli on the
+symmetric joint density: the accepted mass into `A` is `∫_A g · I` with `I y` the forward mass from
+`y` (the symmetry rewrites `g x · k x y` as `g y · k y x`), the rejection atom contributes
+`g · (1 − I)` on `A`, and `I + (1 − I) = 1` by the bound.  `measurable_setLIntegral` and
+`measurable_doeblinStep_apply` supply the measurability the two integrals need.
+
+**The pCN instance.**  **`pcnPriorTarget_stationary`** identifies the step
+(`pcnAbsorbingStep_eq_doeblinStep`) and concludes
+`(pcnPriorTarget s ρ R τ).bind (pcnAbsorbingStep s ρ R τ) = pcnPriorTarget s ρ R τ` from §40's
+`pcnMetropolisDensity_detailed`, with `Measurable τ` and a measurable step family as the only
+hypotheses.  **`pcnAbsorbingStep_rate_prior_of_stationary`** then drops `hstat` from §41's rate,
+using `pcnStat_iter` to extend invariance to the iterates; what remains there is the minorant and
+`IsProbabilityMeasure (pcnPriorTarget s ρ R τ)`, i.e. the reference's normalisation.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green, no linter
+warnings on the file; `#print axioms` on `bind_doeblinStep_stationary`, `pcnPriorTarget_stationary`,
+`pcnAbsorbingStep_rate_prior_of_stationary`, `pcnAbsorbingStep_eq_doeblinStep`,
+`measurable_pcnPrior`, `measurable_pcnMetropolisDensity_uncurry` → `propext, Classical.choice,
+Quot.sound` only, no `sorryAx`; 0 lines over 100 characters, no trailing whitespace.

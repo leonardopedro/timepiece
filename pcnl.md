@@ -1628,6 +1628,33 @@ filters `τ`, not `τ · pcnPrior`.  **`pcnAbsorbingStep_rate_prior`** is §9's 
 so the remaining hypotheses there are the minorant and invariance of `pcnPriorTarget` under the step,
 not of `pcnTargetMeasure`.
 
+**Detailed balance into stationarity (§51).**  §48 gave the pointwise identity; §17 of
+`PCNGaussianFloor` integrates it.  The general statement is **`bind_doeblinStep_stationary`**: for a
+joint density `k` against a base measure `ν` and a target density `g`, if
+
+* `k x y · g x = k y x · g y` (detailed balance), and
+* `∫ k x y ∂ν ≤ 1` (no forward mass exceeds one, so the rejection atom has nonnegative mass),
+
+then `ν.withDensity g` is invariant under `doeblinStep ν k` — the accepted density
+`ν.withDensity (k x)` plus the rejected mass as an atom at `x`.  The proof is Tonelli's theorem on
+the symmetric joint density: the accepted mass into a measurable `A` is `∫_A g · I`, where `I y` is
+the step's forward mass from `y` (the symmetry turns `g x · k x y` into `g y · k y x`), the rejection
+atom contributes `g · (1 − I)` on `A`, and `I + (1 − I) = 1` there by the mass bound.  Measurability
+of the two families is `measurable_setLIntegral` and `measurable_doeblinStep_apply`.
+
+The pCN instance is **`pcnPriorTarget_stationary`**: with `c = (√(π s))^d` and the reference
+`pcnPriorTarget s ρ R τ = volume.withDensity (τ · pcnPrior)` of §50, the pCN Metropolis step with its
+rejection atom satisfies
+
+`(pcnPriorTarget s ρ R τ).bind (pcnAbsorbingStep s ρ R τ) = pcnPriorTarget s ρ R τ`,
+
+so §12's invariant measure exists rather than being hypothesised.
+**`pcnAbsorbingStep_rate_prior_of_stationary`** then restates the rate with that hypothesis
+discharged — what is left is the minorant of §50 and the reference's normalisation
+`IsProbabilityMeasure (pcnPriorTarget s ρ R τ)`, which the box floors do not give.  The remaining hypotheses of the stationarity theorem are `Measurable τ` and a measurable step
+family: properties of the explicit formulas, and the step's is the same input the earlier rate
+theorems already carried.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1688,7 +1715,10 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   constant uniform on balls (`pcnAbsorbingStep_confined`, `pcnIter_confined`,
   `pcnIter_confined_ball`, `pcnBallConst`, `pcnAbsorbingStep_box_ge_ball`,
   `pcnAbsorbingStep_twoStep_minorant_ball`) — §49; and the prior-referenced restatement
-  (`pcnPriorTarget`, `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior`) — §50.
+  (`pcnPriorTarget`, `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior`) — §50; and
+  stationarity from detailed balance (`bind_doeblinStep_stationary`, `doeblinStep`), the pCN instance
+  (`pcnPriorTarget_stationary`) and the rate with invariance proved rather than assumed
+  (`pcnAbsorbingStep_rate_prior_of_stationary`) — §51.
 
 *Not proved, and not claimed.*
 

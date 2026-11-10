@@ -77,8 +77,12 @@ campaign measured a diagnostic, and §M4.9 gates §M4.3".
   constant becomes a single number on each ball of starts — uniform on balls, not on `ℝ^d`, which is
   the best available since the constant genuinely decays; and the prior-referenced restatement
   (`pcnPriorTarget`, `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior`), where the
-  ceiling and the target are about `τ · pcnPrior` while the acceptance floor stays about `τ`.  What
-  remains: the integral passage from detailed balance to stationarity.  Its predecessor is the 2026-11-08 entry (`§9.3–§9.5`: the mode calculus, `polyMul_mul`, the derivative side), and the 2026-10-21 steps 0–3 are **not** superseded and remain open | `pcnl.md`'s Module 3 status prose — "the induction that *feeds*" §9.2, "the derivative polynomials `∂_j Φ` … not carried out here", and the operator composition with `∂ⱼ` — is superseded as a reading guide by the 2026-11-08 and 2026-11-08b entries for the pCNL/Module 3 track only; the rest of `pcnl.md` (Modules 1–2, 4–5, the review of the empirical claims) stands | — |
+  ceiling and the target are about `τ · pcnPrior` while the acceptance floor stays about `τ`; and
+  stationarity (`doeblinStep`, `bind_doeblinStep_stationary`: detailed balance plus a forward-mass
+  bound give `π.bind K = π` by Tonelli on the symmetric joint density; `pcnPriorTarget_stationary`
+  is the pCN instance, and `pcnAbsorbingStep_rate_prior_of_stationary` drops `hstat` from the rate).
+  Nothing of the chain's logical spine is missing now: what remains open are the minorant's
+  quantitative inputs and the reference's normalisation `IsProbabilityMeasure (pcnPriorTarget …)`.  Its predecessor is the 2026-11-08 entry (`§9.3–§9.5`: the mode calculus, `polyMul_mul`, the derivative side), and the 2026-10-21 steps 0–3 are **not** superseded and remain open | `pcnl.md`'s Module 3 status prose — "the induction that *feeds*" §9.2, "the derivative polynomials `∂_j Φ` … not carried out here", and the operator composition with `∂ⱼ` — is superseded as a reading guide by the 2026-11-08 and 2026-11-08b entries for the pCNL/Module 3 track only; the rest of `pcnl.md` (Modules 1–2, 4–5, the review of the empirical claims) stands | — |
 
 **The single most load-bearing supersession sentence for the book track** is buried inside
 the 2026-08-27 wave block, not in any header: *"One plan that supersedes the per-thread

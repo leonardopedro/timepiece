@@ -80,7 +80,20 @@ the architecture's own proposal rather than an unknown number.
   **`pcnPrior_mul_density_comm`** (`pcnPrior x · q_x(y) = pcnPrior y · q_y(x)`),
   **`pcnMetropolisDensity_detailed`** (`τ · pcnPrior`, not `τ`, is the reversible reference for
   `min 1 (τ y/τ x)`) and **`pcnPrior_ne_one`** — the factor is not constant, so §3–§13's named
-  target is the symmetric-proposal one.  The integral passage to stationarity is not written.
+  target is the symmetric-proposal one;
+* **§15, confinement** — `pcnAbsorbingStep_eq_zero_of_disjoint`, **`pcnAbsorbingStep_confined`**
+  (`K x (box ∪ {x})ᶜ = 0`), `bind_eq_zero_of_support`, **`pcnIter_confined`**,
+  `pcnSumSq_le_of_mem_box`, **`pcnIter_confined_ball`** (`‖z‖² ≤ max (dR²) ‖x‖²`),
+  `pcnBallConst`, **`pcnAbsorbingStep_box_ge_ball`** (the return mass is one number on each ball of
+  starts) and **`pcnAbsorbingStep_twoStep_minorant_ball`**;
+* **§16, the reversible reference restated** — `pcnPriorTarget`
+  (`volume.withDensity (τ · pcnPrior)`), **`pcnAbsorbingStep_minorant_prior`** and
+  **`pcnAbsorbingStep_rate_prior`**;
+* **§17, detailed balance into stationarity** — `doeblinStep`,
+  **`bind_doeblinStep_stationary`** (Tonelli on the symmetric joint density: detailed balance plus a
+  forward-mass bound give `π.bind K = π`), `measurable_setLIntegral`,
+  `measurable_doeblinStep_apply`, **`pcnPriorTarget_stationary`** (the pCN instance) and
+  **`pcnAbsorbingStep_rate_prior_of_stationary`** (the rate with invariance proved).
 
 ## Honest boundary
 
@@ -96,7 +109,9 @@ accepted mass: an integral of §4's density that the chapter does not compute.  
 proved as the pointwise identity of §14, and that is also the finding: the pCN increment is not
 symmetric, so the measure `τ` of §3–§13 must be read as a likelihood against the prior `pcnPrior`,
 and the target those sections name is the symmetric-proposal one.  Turning detailed balance into
-stationarity — integrating the joint density — is the remaining link.
+stationarity is done in §17 — Tonelli on the symmetric joint density, with the accepted mass and the
+rejection atom adding to the target — and §15 shows the chain never leaves `box ∪ {x}`, so §13's
+decaying constant is one number on each ball of starts.
 -/
 
 noncomputable section
@@ -1556,5 +1571,287 @@ theorem pcnAbsorbingStep_twoStep_minorant_ball {s ρ R F B m M : ℝ} {τ : (Fin
       (M := M) (τ := τ) (x := x) hs hR hm0 hm1 hτx0 hτxB hτfloor hxM)
     (fun y hy => pcnAbsorbingStep_minorant hF hB hm0 hm1 hτB (hτpos y hy) (hτxy y hy)
       (hdens y hy))
+
+/-! ## 17. Detailed balance becomes stationarity
+
+§14–§16 proved the step's reversibility *pointwise*: `τ · pcnPrior`-weighted detail balance on pairs
+`(x, y)`.  This section does the passage to a statement about measures — `π.bind K = π` — which is
+what the rate of §9 consumes.
+
+* `doeblinStep ν k` — the general Metropolis step built from a joint density `k` against `ν`: the
+  accepted part `ν.withDensity (k x)` plus the rejected mass as an atom at `x`;
+* **`bind_doeblinStep_stationary`** — **detailed balance implies stationarity**: if
+  `k x y · g x = k y x · g y` and no forward mass exceeds `1`, then `ν.withDensity g` is invariant
+  under `doeblinStep ν k`.  The proof is Tonelli's theorem on the symmetric joint density: the
+  accepted mass into `A` is `∫_A g · I` (`I y` the forward mass from `y`, via the symmetry), the
+  rejection atom contributes `g · (1 − I)` on `A`, and `I + (1 − I) = 1` there;
+* `measurable_setLIntegral`, `measurable_doeblinStep_apply` — the measurability inputs, from joint
+  measurability of the density;
+* **`pcnPriorTarget_stationary`** — the pCN instance: §16's reference
+  `volume.withDensity (τ · pcnPrior)` is invariant under the pCN Metropolis step with its rejection
+  atom — the theorem §14–§16 left as "the integral passage not written";
+* **`pcnAbsorbingStep_rate_prior_of_stationary`** — and §16's rate with its invariance hypothesis
+  discharged instead of assumed.
+
+**What remains hypotheses.**  `Measurable τ` and `Measurable (pcnAbsorbingStep s ρ R τ)` —
+properties of the explicit formulas (the acceptance is `min 1 (τ y / τ x)`, the density an
+exponential of a quadratic form), and `IsProbabilityMeasure (pcnPriorTarget s ρ R τ)` for the rate,
+which is the normalisation of the reference measure and not a consequence of the box floors.
+-/
+
+variable {α : Type*} [MeasurableSpace α]
+
+/-- The Metropolis-type step built from a joint density `k` against a base measure `ν`: the accepted
+part `ν.withDensity (k x)` plus the rejected mass kept as an atom at the start. -/
+noncomputable def doeblinStep (ν : Measure α) (k : α → α → ENNReal) (x : α) : Measure α :=
+  ν.withDensity (k x) + (1 - ∫⁻ y, k x y ∂ν) • Measure.dirac x
+
+theorem doeblinStep_apply {ν : Measure α} [SFinite ν] {k : α → α → ENNReal} {x : α}
+    {A : Set α} (hA : MeasurableSet A) :
+    doeblinStep ν k x A
+      = ∫⁻ y in A, k x y ∂ν + (1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x := by
+  classical
+  rw [doeblinStep, Measure.add_apply, withDensity_apply _ hA, Measure.smul_apply,
+    Measure.dirac_apply' x hA, smul_eq_mul]
+
+/-- **The set integral is measurable in the starting point** — the step's mass into `A` depends
+measurably on `x`, from joint measurability of the density. -/
+theorem measurable_setLIntegral {ν : Measure α} [SFinite ν] {k : α → α → ENNReal}
+    (hk : Measurable (Function.uncurry k)) {A : Set α} (hA : MeasurableSet A) :
+    Measurable fun x => ∫⁻ y in A, k x y ∂ν := by
+  classical
+  have hind : Measurable fun p : α × α => k p.1 p.2 * (if p.2 ∈ A then 1 else 0) :=
+    hk.mul (measurable_const.indicator (hA.preimage measurable_snd))
+  have h := hind.lintegral_prod_right' (ν := ν)
+  have hd : (fun x => ∫⁻ y, k x y * (if y ∈ A then 1 else 0) ∂ν)
+      = fun x => ∫⁻ y in A, k x y ∂ν := by
+    funext x
+    rw [← lintegral_indicator hA (fun y => k x y)]
+    exact lintegral_congr fun y => by by_cases hy : y ∈ A <;> simp [hy]
+  rw [← hd]
+  exact h
+
+theorem measurable_doeblinStep_apply {ν : Measure α} [SFinite ν] {k : α → α → ENNReal}
+    (hk : Measurable (Function.uncurry k)) {A : Set α} (hA : MeasurableSet A) :
+    Measurable fun x => doeblinStep ν k x A := by
+  classical
+  have hI : Measurable fun x => ∫⁻ y, k x y ∂ν := hk.lintegral_prod_right
+  have hd : (fun x => doeblinStep ν k x A)
+      = fun x => ∫⁻ y in A, k x y ∂ν + (1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x :=
+    funext fun x => doeblinStep_apply (ν := ν) (k := k) (x := x) hA
+  rw [hd]
+  exact (measurable_setLIntegral hk hA).add ((by fun_prop : Measurable fun x => (1 : ENNReal)
+    - ∫⁻ y, k x y ∂ν).mul (Measurable.indicator measurable_const hA))
+
+/-- **Stationarity from detailed balance.**  If a joint density `k` against `ν` satisfies the
+pointwise balance `k x y · g x = k y x · g y` against the unnormalised target density `g`, and no
+forward mass exceeds `1`, then the Metropolis step `ν.withDensity (k x)` — with its rejection atom —
+leaves `ν.withDensity g` invariant.
+
+The proof is Tonelli on the symmetric joint density: the accepted mass into `A` is
+`∫_A g · I`, where `I y` is the forward mass of the step from `y`, and the rejection atom
+contributes `g · (1 − I)` on `A`; the two add to `g` there. -/
+theorem bind_doeblinStep_stationary {ν : Measure α} [SFinite ν] {g : α → ENNReal}
+    {k : α → α → ENNReal} (hg : Measurable g) (hk : Measurable (Function.uncurry k))
+    (hKmeas : AEMeasurable (doeblinStep ν k) (ν.withDensity g))
+    (hsym : ∀ x y, k x y * g x = k y x * g y)
+    (hbound : ∀ x, ∫⁻ y, k x y ∂ν ≤ 1) :
+    (ν.withDensity g).bind (doeblinStep ν k) = ν.withDensity g := by
+  classical
+  have hI : Measurable fun x => ∫⁻ y, k x y ∂ν := hk.lintegral_prod_right
+  ext A hA
+  have hKh := measurable_setLIntegral (ν := ν) hk hA
+  have hstepA : Measurable fun x => doeblinStep ν k x A :=
+    measurable_doeblinStep_apply hk hA
+  rw [Measure.bind_apply hA hKmeas,
+    lintegral_withDensity_eq_lintegral_mul ν hg hstepA, withDensity_apply _ hA]
+  have hRHS : ∫⁻ x in A, g x ∂ν = ∫⁻ x, g x * A.indicator 1 x ∂ν := by
+    rw [← lintegral_indicator hA (fun x => g x)]
+    exact lintegral_congr fun x => by
+      by_cases hx : x ∈ A <;> simp [hx]
+  rw [hRHS]
+  -- ### the accepted part, by Tonelli on the symmetric joint density
+  have hswap : ∫⁻ x, g x * (∫⁻ y in A, k x y ∂ν) ∂ν
+      = ∫⁻ y, A.indicator 1 y * (g y * ∫⁻ x, k y x ∂ν) ∂ν := by
+    have h1 : ∫⁻ x, g x * (∫⁻ y in A, k x y ∂ν) ∂ν
+        = ∫⁻ x, ∫⁻ y, g x * (k x y * A.indicator 1 y) ∂ν ∂ν := by
+      refine lintegral_congr fun x => ?_
+      calc g x * (∫⁻ y in A, k x y ∂ν)
+          = g x * ∫⁻ y, A.indicator (fun y => k x y) y ∂ν := by
+            rw [lintegral_indicator hA (fun y => k x y)]
+        _ = ∫⁻ y, g x * A.indicator (fun y => k x y) y ∂ν :=
+            (lintegral_const_mul (g x)
+              ((hk.comp (measurable_prodMk_left (x := x))).indicator hA)).symm
+        _ = ∫⁻ y, g x * (k x y * A.indicator 1 y) ∂ν := by
+            refine lintegral_congr fun y => ?_
+            congr 1
+            by_cases hy : y ∈ A
+            · rw [Set.indicator_of_mem hy, Set.indicator_of_mem hy, Pi.one_apply, mul_one]
+            · rw [Set.indicator_of_notMem hy, Set.indicator_of_notMem hy, mul_zero]
+    have h2 : Measurable fun p : α × α =>
+        g p.1 * (k p.1 p.2 * (if p.2 ∈ A then 1 else 0)) :=
+      (hg.comp measurable_fst).mul (hk.mul (measurable_const.indicator
+        (hA.preimage measurable_snd)))
+    have h3 : ∫⁻ x, ∫⁻ y, g x * (k x y * A.indicator 1 y) ∂ν ∂ν
+        = ∫⁻ y, ∫⁻ x, g x * (k x y * A.indicator 1 y) ∂ν ∂ν :=
+      lintegral_lintegral_swap h2.aemeasurable
+    rw [h1, h3]
+    refine lintegral_congr fun y => ?_
+    calc ∫⁻ x, g x * (k x y * A.indicator 1 y) ∂ν
+        = ∫⁻ x, (g x * k x y) * A.indicator 1 y ∂ν :=
+          lintegral_congr fun x => by ring
+      _ = (∫⁻ x, g x * k x y ∂ν) * A.indicator 1 y :=
+          lintegral_mul_const _
+            (hg.mul (hk.comp (measurable_prodMk_right (y := y))))
+      _ = (g y * ∫⁻ x, k y x ∂ν) * A.indicator 1 y := by
+          congr 1
+          calc ∫⁻ x, g x * k x y ∂ν = ∫⁻ x, k y x * g y ∂ν :=
+                lintegral_congr fun x => by rw [mul_comm (g x), hsym x y]
+            _ = (∫⁻ x, k y x ∂ν) * g y :=
+                lintegral_mul_const _ (hk.comp (measurable_prodMk_left (x := y)))
+            _ = g y * ∫⁻ x, k y x ∂ν := mul_comm _ _
+      _ = A.indicator 1 y * (g y * ∫⁻ x, k y x ∂ν) := mul_comm _ _
+  -- ### the rejected atom
+  have hsplit : ∫⁻ x, g x * (∫⁻ y in A, k x y ∂ν
+      + (1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x) ∂ν
+      = ∫⁻ x, g x * (∫⁻ y in A, k x y ∂ν) ∂ν
+        + ∫⁻ x, g x * ((1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x) ∂ν := by
+    have hpt : (fun x => g x * (∫⁻ y in A, k x y ∂ν
+        + (1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x))
+        = fun x => g x * (∫⁻ y in A, k x y ∂ν)
+          + g x * ((1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x) :=
+      funext fun x => mul_add _ _ _
+    rw [hpt]
+    exact lintegral_add_left (hg.mul hKh) _
+  -- ### the two parts add to the target
+  have hcancel : ∀ y, g y * ((1 - ∫⁻ x, k y x ∂ν) * A.indicator 1 y)
+      + A.indicator 1 y * (g y * ∫⁻ x, k y x ∂ν) = g y * A.indicator 1 y := by
+    intro y
+    have h1 : (1 - ∫⁻ x, k y x ∂ν) + ∫⁻ x, k y x ∂ν = 1 :=
+      tsub_add_cancel_of_le (hbound y)
+    calc g y * ((1 - ∫⁻ x, k y x ∂ν) * A.indicator 1 y)
+          + A.indicator 1 y * (g y * ∫⁻ x, k y x ∂ν)
+        = (g y * A.indicator 1 y) * (1 - ∫⁻ x, k y x ∂ν)
+            + (g y * A.indicator 1 y) * ∫⁻ x, k y x ∂ν := by ring
+      _ = (g y * A.indicator 1 y) * ((1 - ∫⁻ x, k y x ∂ν) + ∫⁻ x, k y x ∂ν) := by ring
+      _ = (g y * A.indicator 1 y) * 1 := by rw [h1]
+      _ = g y * A.indicator 1 y := mul_one _
+  simp only [Pi.mul_apply]
+  rw [show (fun x => g x * doeblinStep ν k x A) = fun x => g x * (∫⁻ y in A, k x y ∂ν
+      + (1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x) from
+    funext fun x => by rw [doeblinStep_apply hA]]
+  rw [hsplit, hswap, add_comm]
+  have hf : Measurable fun x => g x * ((1 - ∫⁻ y, k x y ∂ν) * A.indicator 1 x) :=
+    hg.mul ((by fun_prop : Measurable fun x => (1 : ENNReal) - ∫⁻ y, k x y ∂ν).mul
+      (Measurable.indicator measurable_const hA))
+  exact (lintegral_add_left hf
+    fun x => A.indicator 1 x * (g x * ∫⁻ y, k x y ∂ν)).symm.trans
+    (lintegral_congr fun x => hcancel x)
+
+section PCN
+
+/-- The pCN density is measurable in the pair (start, target), given a measurable acceptance
+density. -/
+theorem measurable_pcnDensity_uncurry (c s ρ : ℝ) :
+    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnDensity c s ρ x y) := by
+  have hquad : Measurable fun p : (Fin d → ℝ) × (Fin d → ℝ) => pcnQuad ρ p.1 p.2 := by
+    unfold pcnQuad
+    refine Finset.measurable_sum _ fun i _ => ?_
+    refine (((measurable_pi_apply i).comp measurable_snd).sub
+      (measurable_const.mul ((measurable_pi_apply i).comp measurable_fst))).pow_const 2
+  unfold pcnDensity
+  exact measurable_const.mul (Real.measurable_exp.comp (by fun_prop))
+
+theorem measurable_pcnAccept_uncurry {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ) :
+    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnAccept τ x y) := by
+  unfold pcnAccept
+  refine Measurable.min measurable_const ?_
+  exact (hτ.comp measurable_snd).div (hτ.comp measurable_fst)
+
+theorem measurable_pcnMetropolisDensity_uncurry {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ)
+    (c s ρ : ℝ) :
+    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnMetropolisDensity c s ρ τ x y) := by
+  unfold pcnMetropolisDensity
+  exact (measurable_pcnAccept_uncurry hτ).mul (measurable_pcnDensity_uncurry c s ρ)
+
+theorem measurable_pcnPrior (s ρ : ℝ) :
+    Measurable (pcnPrior (d := d) s ρ) := by
+  have hsum : Measurable (pcnSumSq (d := d)) := by
+    unfold pcnSumSq
+    exact Finset.measurable_sum _ fun i _ => (measurable_pi_apply i).pow_const 2
+  unfold pcnPrior
+  exact Real.measurable_exp.comp (by fun_prop)
+
+theorem pcnMetropolisDensity_nonneg {c s ρ : ℝ} {τ : (Fin d → ℝ) → ℝ} {x y : Fin d → ℝ}
+    (hc : 0 ≤ c) (hx : 0 < τ x) (hy : 0 ≤ τ y) :
+    0 ≤ pcnMetropolisDensity c s ρ τ x y := by
+  unfold pcnMetropolisDensity pcnDensity
+  exact mul_nonneg (pcnAccept_nonneg hx hy) (mul_nonneg hc (Real.exp_pos _).le)
+
+/-- The pCN Metropolis step *is* the abstract Metropolis step of this section, at the increment's
+own constant `c = (√(π s))^d`. -/
+theorem pcnAbsorbingStep_eq_doeblinStep (s ρ R : ℝ) (τ : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) :
+    pcnAbsorbingStep (d := d) s ρ R τ x
+      = doeblinStep (volume.restrict (pcnBox d R))
+          (fun _ y => ENNReal.ofReal (pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ x y)) x := by
+  rw [pcnAbsorbingStep, pcnMetropolisStep, doeblinStep, withDensity_apply _ MeasurableSet.univ,
+    setLIntegral_univ]
+
+/-- **The pCNL target measure is invariant under the Metropolis step.**  With the reversible
+reference `pcnPriorTarget s ρ R τ = volume.withDensity (τ · pcnPrior)` of §16, the pCN Metropolis
+step with its rejection atom leaves it invariant: detailed balance into `π.bind K = π` (§17).
+
+The hypotheses are the reference's measurability and the step's; both are properties of the explicit
+formulas, not of the mathematics. -/
+theorem pcnPriorTarget_stationary (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} (hs : 0 < s)
+    (hτ : Measurable τ) (hτpos : ∀ x, 0 < τ x)
+    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) :
+    (pcnPriorTarget (d := d) s ρ R τ).bind (pcnAbsorbingStep (d := d) s ρ R τ)
+      = pcnPriorTarget (d := d) s ρ R τ := by
+  have hstep : (fun x => pcnAbsorbingStep (d := d) s ρ R τ x)
+      = fun x => doeblinStep (volume.restrict (pcnBox d R))
+          (fun _ y => ENNReal.ofReal (pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ x y)) x :=
+    funext (pcnAbsorbingStep_eq_doeblinStep s ρ R τ)
+  have hg : Measurable fun y : Fin d → ℝ => ENNReal.ofReal (τ y * pcnPrior s ρ y) :=
+    (hτ.mul (measurable_pcnPrior s ρ)).ennreal_ofReal
+  refine (congrArg (fun K => (pcnPriorTarget (d := d) s ρ R τ).bind K) hstep).trans ?_
+  refine bind_doeblinStep_stationary hg
+    ((measurable_pcnMetropolisDensity_uncurry hτ (pcnNorm1 s ^ d) s ρ).ennreal_ofReal) ?_ ?_ ?_
+  · simpa [hstep] using hmeas.aemeasurable
+  · intro x y
+    have hdy : 0 ≤ pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ y x :=
+      pcnMetropolisDensity_nonneg (pow_nonneg (pcnNorm1_pos hs).le d) (hτpos y) (hτpos x).le
+    have hdx : 0 ≤ pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ x y :=
+      pcnMetropolisDensity_nonneg (pow_nonneg (pcnNorm1_pos hs).le d) (hτpos x) (hτpos y).le
+    rw [← ENNReal.ofReal_mul hdx, mul_comm (pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ x y),
+      pcnMetropolisDensity_detailed (c := pcnNorm1 s ^ d) (s := s) (ρ := ρ) (τ := τ)
+        (x := x) (y := y) hs.ne' (hτpos x) (hτpos y)]
+    change ENNReal.ofReal (τ y * pcnPrior s ρ y
+        * pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ y x)
+      = ENNReal.ofReal (pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ y x) *
+        ENNReal.ofReal (τ y * pcnPrior s ρ y)
+    rw [show τ y * pcnPrior s ρ y * pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ y x
+          = pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ y x * (τ y * pcnPrior s ρ y) from by ring,
+      ← ENNReal.ofReal_mul hdy]
+  · intro x
+    have hm := pcnMetropolisStep_mass_le_one (d := d) (s := s) (ρ := ρ) (R := R) hs x τ
+    rwa [pcnMetropolisStep, withDensity_apply _ MeasurableSet.univ, setLIntegral_univ] at hm
+
+/-- **The rate with invariance proved rather than assumed.**  §17 supplies stationarity
+(`pcnPriorTarget_stationary`) and `pcnStat_iter` extends it to the iterates, so the only inputs left
+are the minorant of §16 and the reference's normalisation. -/
+theorem pcnAbsorbingStep_rate_prior_of_stationary (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ}
+    {c : ℝ} (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s) (hτ : Measurable τ)
+    (hτpos : ∀ x, 0 < τ x) (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ))
+    [IsProbabilityMeasure (pcnPriorTarget (d := d) s ρ R τ)]
+    (hmin : ∀ x, ENNReal.ofReal c • pcnPriorTarget (d := d) s ρ R τ
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ x)
+    (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
+    ENNReal.ofReal (1 - (1 - c) ^ n) * pcnPriorTarget (d := d) s ρ R τ S
+      ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S :=
+  pcnAbsorbingStep_rate_prior hc0 hc1 hs hmeas hmin
+    (fun n => pcnStat_iter hmeas (pcnPriorTarget_stationary s ρ R hs hτ hτpos hmeas) n) n x hS
+
+end PCN
 
 end BookProof.MCMC.PCNGaussianFloor
