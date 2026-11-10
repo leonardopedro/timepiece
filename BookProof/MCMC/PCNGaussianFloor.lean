@@ -52,7 +52,10 @@ the architecture's own proposal rather than an unknown number.
   **`pcnProbabilityStep_univ`** (mass `1` once the accepted mass is a real in `[0,1]`) and
   **`pcnProbabilityStep_rate`** (the whole chain: minorant → probability step → rate);
 * **§7, the increment's mass** — `lintegral_exp_neg_sq_div` (`∫ exp (−(y−a)²/s) = √(π s)`) and
-  **`pcnGaussMass_one`** (the normalised increment is a probability density on the line).
+  **`pcnGaussMass_one`** (the normalised increment is a probability density on the line);
+* **§8, the increment in `d` dimensions** — `pcnNorm1`, `pcnGaussStep` (`Measure.pi` of the
+  coordinate factors), **`pcnGaussStep_univ`** (mass `1` in every dimension) and
+  **`pcnExp_factor`** (`exp (−pcnQuad/s)` as the product of its coordinate factors).
 
 ## Honest boundary
 
@@ -648,6 +651,56 @@ theorem pcnGaussMass_one {s : ℝ} (hs : 0 < s) (a : ℝ) :
   rw [lintegral_const_mul _ (by fun_prop), lintegral_exp_neg_sq_div hs a]
   rw [← ENNReal.ofReal_mul hc,
     inv_mul_cancel₀ (ne_of_gt (Real.sqrt_pos.mpr (mul_pos Real.pi_pos hs))), ENNReal.ofReal_one]
+
+
+/-! ## 8. The increment's mass in `d` dimensions
+
+§7 integrates the increment on the line.  In `d` dimensions the increment is the product of its
+coordinate factors — `pcnExp_factor` writes `exp (−pcnQuad/s)` as that product — and the product of
+probability densities is a probability:
+
+* `pcnNorm1` — the one-dimensional constant `(√(π s))⁻¹`;
+* **`pcnGaussStep`** — the increment as `Measure.pi` of the normalised coordinate factors;
+* **`pcnGaussStep_univ`** — its total mass is `1`: `Measure.pi_univ` reduces the statement to §7 at
+  each coordinate;
+* **`pcnExp_factor`** — `exp (−pcnQuad ρ x y / s) = ∏ᵢ exp (−(yᵢ − ρxᵢ)²/s)`, so the product measure
+  is the one whose density is `pcnDensity` with the constant `pcnNorm1` raised to the number of
+  coordinates.
+
+What this section does *not* write is the identification of `Measure.pi` of the coordinate densities
+with `withDensity` of their product over Lebesgue measure — a Fubini identity — so `pcnGaussStep` is
+stated as the product measure rather than as `pcnProposalMeasure`.
+-/
+
+/-- The one-dimensional normalising constant `(√(π s))⁻¹` of the pCN increment. -/
+def pcnNorm1 (s : ℝ) : ℝ := (Real.sqrt (Real.pi * s))⁻¹
+
+/-- The `d`-dimensional pCN increment, as the product over the coordinates of the normalised
+one-dimensional factors. -/
+def pcnGaussStep (s ρ : ℝ) (x : Fin d → ℝ) : Measure (Fin d → ℝ) :=
+  Measure.pi fun i => volume.withDensity
+    (fun t : ℝ => ENNReal.ofReal (pcnNorm1 s * Real.exp (-((t - ρ * x i) ^ 2) / s)))
+
+/-- **The increment is a probability measure in `d` dimensions**: the product over the
+coordinates of the normalised factors has total mass `1`, because each factor is a probability
+(§7). -/
+theorem pcnGaussStep_univ {s ρ : ℝ} (hs : 0 < s) (x : Fin d → ℝ) :
+    pcnGaussStep (d := d) s ρ x Set.univ = 1 := by
+  haveI : ∀ i, SigmaFinite (volume.withDensity
+      (fun t : ℝ => ENNReal.ofReal (pcnNorm1 s * Real.exp (-((t - ρ * x i) ^ 2) / s)))) :=
+    fun i => inferInstance
+  rw [pcnGaussStep, Measure.pi_univ]
+  refine Finset.prod_eq_one fun i _ => ?_
+  simpa [pcnNorm1] using pcnGaussMass_one hs (ρ * x i)
+
+/-- **The pCN exponent factors over the coordinates**:
+`exp (−pcnQuad ρ x y / s) = ∏ᵢ exp (−(yᵢ − ρxᵢ)²/s)`, so the product measure of the last
+definition is the one carrying the pCN density, up to the constant. -/
+theorem pcnExp_factor (s ρ : ℝ) (x y : Fin d → ℝ) :
+    Real.exp (-(pcnQuad ρ x y) / s) = ∏ i, Real.exp (-((y i - ρ * x i) ^ 2) / s) := by
+  rw [pcnQuad, ← Real.exp_sum]
+  congr 1
+  rw [← Finset.sum_neg_distrib, ← Finset.sum_div]
 
 
 end BookProof.MCMC.PCNGaussianFloor

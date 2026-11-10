@@ -1502,6 +1502,16 @@ one-dimensional Gaussian in the pCN's own scaling `s = 2σ²(1 − ρ²)` (obtai
 what remains is the product over the `d` coordinates (`Measure.pi` + Fubini) and, after that, the
 box-restricted acceptance-weighted integral that `A` really is.
 
+**The increment in `d` dimensions (§42).**  §41 integrated the increment on the line; §8 of
+`PCNGaussianFloor` takes the product: `pcnNorm1 s = (√(π s))⁻¹`, **`pcnGaussStep`** is the increment
+as `Measure.pi` of its normalised coordinate factors, and **`pcnGaussStep_univ`** says its mass is `1`
+in every dimension — `Measure.pi_univ` reduces the statement to §41 at each coordinate, so no
+integration is needed.  **`pcnExp_factor`** supplies the matching factorisation of the density,
+`exp (−pcnQuad/s) = ∏ᵢ exp (−(yᵢ − ρxᵢ)²/s)`, which is what identifies that product measure with the
+pCN density's.  What is *not* written is the Fubini identity equating `Measure.pi` of the coordinate
+densities with `withDensity` of their product over Lebesgue measure, so `pcnGaussStep` is stated as the
+product measure rather than as `pcnProposalMeasure`.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1546,7 +1556,8 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   (`pcnIter_rate`, and `pcnIter_rate_of_minorant` from the minorant alone) — §39; and the Metropolis
   step itself as a probability measure with the rate attached (`pcnProbabilityStep_univ`,
   `pcnProbabilityStep_rate`) — §40; and the one-dimensional increment's mass
-  (`lintegral_exp_neg_sq_div`, `pcnGaussMass_one`) — §41.
+  (`lintegral_exp_neg_sq_div`, `pcnGaussMass_one`) — §41; and the increment in `d` dimensions
+  (`pcnGaussStep`, `pcnGaussStep_univ`, `pcnExp_factor`) — §42.
 
 *Not proved, and not claimed.*
 
@@ -1562,9 +1573,10 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   the raw and the Metropolis-adjusted step alike (§38), and the rate `(1 − (1−c)^n)` is proved for
   any probability step family that dominates `c • μ` (§39), and §40 builds the probability step
   (accepted density + rejection atom) and proves its mass is `1`.  What is left is the *value* of the
-  accepted mass — an integral of the density, of which only the one-dimensional unnormalised case is
-  computed (§41) — and the invariance the rate assumes, which is stated rather than proved from
-  reversibility.
+  accepted mass — an integral of the density, of which the unnormalised increment is computed on the
+  line (§41) and as a product measure in `d` dimensions (§42), while the Fubini identification with
+  the `withDensity` form and the acceptance-weighted box restriction are not — and the invariance the
+  rate assumes, which is stated rather than proved from reversibility.
 * **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
   invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
 * **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;

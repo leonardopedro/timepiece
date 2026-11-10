@@ -7,7 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10l):** **§34 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10m):** **§35 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the increment in `d` dimensions: `pcnGaussStep` and **`pcnGaussStep_univ`** (mass `1`
+> in every dimension, by `Measure.pi_univ` and §34) with `pcnExp_factor` tying the product measure to
+> the pCN density.  The Fubini identification remains.
+> **Earlier newest entry (2026-11-10l):** **§34 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the increment's mass on the line: `lintegral_exp_neg_sq_div`
 > (`∫ exp (−(y−a)²/s) = √(π s)`) and **`pcnGaussMass_one`**, the first exact normalisation the track
 > has.  The `d`-dimensional product and the acceptance-weighted box integral remain.
@@ -19794,6 +19798,21 @@ probability density on `ℝ` (`withDensity_apply` + `lintegral_const_mul` + `inv
 **Still open.**  The product over the `d` coordinates (`Measure.pi`, `measurePreserving_piFinSuccAbove`,
 `lintegral_prod_mul`), the box-restricted acceptance-weighted integral that §33's `A` is, and the
 invariance hypothesis.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
+on both → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.
+
+### 35. Addendum (2026-11-10m) — the increment in `d` dimensions
+
+`pcnNorm1 s = (√(π s))⁻¹`; **`pcnGaussStep`** is the increment as `Measure.pi` of its normalised
+coordinate factors; **`pcnGaussStep_univ`** — its mass is `1` in every dimension, since
+`Measure.pi_univ` turns the statement into §34's one-dimensional mass at each coordinate (no
+integration needed); **`pcnExp_factor`** — `exp (−pcnQuad ρ x y / s) = ∏ᵢ exp (−(yᵢ − ρxᵢ)²/s)`, the
+factorisation that ties the product measure to the pCN density.
+
+**Still open.**  The Fubini identity `Measure.pi (fun i => volume.withDensity (f i)) =
+volume.withDensity (fun y => ∏ i, f i (y i))` — which is what would identify `pcnGaussStep` with
+`pcnProposalMeasure` — the acceptance-weighted box integral, and the invariance hypothesis.
 
 **Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
 on both → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.
