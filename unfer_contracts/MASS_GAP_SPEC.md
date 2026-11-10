@@ -378,7 +378,7 @@ exchanged orientation, **15 of 15**. `O(n³)` is nowhere on the certification
 path; the dense spectrum survives only as the oracle each bound is checked
 against.
 
-#### Where the count stops, and what stops it
+#### Where the count stops, and what stops it (2026-11-10c)
 
 Driven past its range (odd sector, `g = 1`, `β = θ₀ + 0.5`, both orderings on the
 same matrix):
@@ -387,27 +387,60 @@ same matrix):
 |---|---|---|---|---|---|
 | 6 | 80 | 18 | 16 | 0.00 | 0.00 |
 | 10 | 420 | 58 | 52 | 0.00 | 0.00 |
-| 14 | 1344 | 138 | 108 | 0.02 | 0.01 |
-| 16 | 2160 | 192 | 172 | 0.08 | 0.04 |
-| 18 | 3300 | 258 | **refused** | 0.24 | 0.21 |
-| 20 | 4840 | **refused** | **refused** | 0.72 | 1.50 |
-| 22 | 6864 | **refused** | **refused** | 2.16 | 1.22 |
+| 14 | 1344 | 138 | 108 | 0.03 | 0.01 |
+| 16 | 2160 | 192 | 172 | 0.09 | 0.05 |
+| 18 | 3300 | 258 | 226 | 0.27 | 0.15 |
+| 20 | 4840 | 337 | 315 | 0.76 | 0.37 |
+| 22 | 6864 | 429 | 395 | 1.95 | 0.99 |
+| 24 | 9464 | 534 | 485 | 4.75 | 2.24 |
 
-RCM decides through `N ≤ 18`, nested dissection through `N ≤ 16`, and the count
-is the same wherever both decide. **Fill is not the limit**: at the last decided
-size the fill is 258 on `n = 3300` (7.8 % of the dimension) and the elimination
-takes 0.24 s. **The error bound is the limit**, and what is pessimistic is the
-bound, not the matrix: the smallest pivot taken was 0.56, the trailing diagonals
-held values in `[14, 58]` against accumulated errors up to `3.3e3`, and no
-eigenvalue sat near `β`. Each step's relative uncertainty is charged against the
-next divisor — worst-case compounding, where Wilkinson's bound for the same
-factorization is linear in the operation count. Refusing is the correct output of
-a bound that has lost its slack; the honest reach is `N ≤ 18` for RCM. Pivoting
-on relative accuracy instead of magnitude does not move the wall (measured);
-symmetric equilibration is untried and nothing here claims either way. Nested
-dissection cuts the fill by 6–27 % where both decide but reaches *less* far, so
-it is a trade, not a free win — which is why the ordering is a parameter and
-every count reports the fill it paid.
+**Fill is not the limit.** The fill is 534 on `n = 9464` at the top of the grid
+(5.6 % of the dimension), and both orderings decide there.
+
+**The matrix is not the limit either.** The same elimination in plain `f64`, no
+bounds at all, decides every size in the table: smallest pivot `6.162, 7.147,
+7.491` at `N ≤ 18, 20, 22`, one eigenvalue below `β` each time, matching the dense
+count. What failed was the *bound*: traced per step the pivots stayed in
+`10…38`, multipliers below `0.6`, no value above `1e2`, while the tracked error
+climbed `1e-14 → 1e-6 → 1.96e3` and reached `4.1e16` at `N ≤ 22`. One `f64` per
+entry let each step charge `u ≈ 1.1e-16` of its own value, and the elimination
+multiplies that charge along the fill.
+
+**The fix is arithmetic.** `certificate::Bounded` now carries its value as an
+unevaluated sum of two `f64`s (`hi + lo`), renormalized through the exact
+transforms (`two_sum`, `quick_two_sum`, `two_prod` via `fma`); each operation
+folds in only the `8u²·|value|` its renormalization can leave, so one step
+injects `u² ≈ 1.2e-32`. The interval bookkeeping and the rule `|value| − error`
+are unchanged — a count is still refused unless every pivot's sign is certain.
+The same trace at `N ≤ 22` now ends at `7.6e-15` against pivots of `10…38`, and
+the worst bound-to-pivot ratio in the grid is `4.7e-10`. The extra flops do not
+show: the elimination is `BTreeMap`-bound, so `N ≤ 22` costs 1.95 s where the
+one-term value cost 2.16 s.
+
+**Nothing in the grid refuses now, and the next limit is time.** The ignored
+reach test (`the_count_reaches_past_the_grid`) decides `N ≤ 26` (`n = 12740`,
+fill 652, 12.4 s RCM) and `N ≤ 28` (`n = 16800`, fill 798, 33.2 s RCM; nested
+dissection 793 at 9.9 s), both orderings counting the same inertia. RCM's bound
+is still six decades below its pivots at `N ≤ 28` but rising, so the wall was
+pushed past `N ≤ 28`, not removed.
+
+**Ordering: smaller fill, no reach traded.** Nested dissection cuts the fill by
+6–27 % on the grid (18→16, 93→68, 258→226, 534→485) and is 2–2.5× faster at the
+top; it neither gains nor loses reach now. Past the grid the fill advantage
+vanishes (652 vs 653 at `N ≤ 26`, 798 vs 793 at `N ≤ 28`), so fill is asserted
+only on the campaign's own sizes and reach only as "both still decide, same
+count". Pivoting on relative accuracy instead of magnitude does not move the
+wall (measured); symmetric equilibration is untried and nothing here claims
+either way.
+
+**Recorded because it was measuring a mangled matrix.** The permutation check on
+the nested-dissection order is a `debug_assert`, so release runs never saw that
+the recursive cut dropped the component it had just walked — `60 of 80` vertices
+were missing from the order already at `N ≤ 6`, and the previous revision of this
+section measured nested dissection on that truncated matrix (its `N ≤ 16`
+refusal was an artifact). The component is now ordered with the others and
+`nested_dissection_orders_every_vertex_of_a_split_graph` checks the permutation
+in release.
 
 #### `(n₀+n₁)` parity is not the reflection sector
 
