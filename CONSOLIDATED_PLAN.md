@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10e):** “State of the project — 2026-11-10e: the abelian vacuum magnetic
+> **Newest entry (2026-11-10f):** “State of the project — 2026-11-10f: `s2FormDomination` inside
+> the gap chain”, at the end.  `s2FormDomination` is now driven through the existing chain:
+> `s2FormDomination_c₁`/`_c₂` (ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`, by `rfl`),
+> `s2_certified_separation` (`certified_separation`), `s2_separation_pos`,
+> `s2_certified_gap` (the `quartic_certified_gap` shape) and `s2_gap_threshold_pos`, which reduces
+> the remaining condition to `quarticShift < c₁ Δ_ref`.  `lake build +BookProof` completed; axioms
+> audited.
+> **Earlier newest entry (2026-11-10e):** “State of the project — 2026-11-10e: the abelian vacuum magnetic
 > energy is one half per component”, at the end.  With `A_j = (a_j + a_j†)/√2`, `fieldOp_vacuum`
 > proves `‖A_j Ω‖² = 1/2` per component (`sum_fieldOp_vacuum`: `d/2`), against
 > `magneticEnergyForm_vacuum`'s `0` for the normal-ordered `:N²:` form on the same state; the half is
@@ -19588,3 +19595,34 @@ component is the vacuum part that a `:N²:` comparison must subtract first.
 `fieldOp_vacuum`, `sum_fieldOp_vacuum` and `abelian_vacuum_energy` reports
 `propext, Classical.choice, Quot.sound` only; no line of the touched Lean files exceeds 100
 characters.
+
+## State of the project — 2026-11-10f: `s2FormDomination` inside the gap chain
+
+This entry records the follow-up to 2026-11-10e.  All of it is `sorry`-free, `axiom`-free and
+compiled with `lake build +BookProof`.
+
+`FormDomination` is the phase-4 vocabulary of `BookProof.YangMillsFormDomination`; the chain is
+`dom` → `ground_bound`/`excited_bound` → `certified_separation`/`certified_gap_pos`.  §3d.2 of
+`ChapterYangMillsFieldStrengthSplit` now shows the S2 certificate *is* an inhabitant of that
+vocabulary rather than a parallel result:
+
+* `s2FormDomination_c₁`, `s2FormDomination_c₂` — the certificate's projections are exactly
+  `c₁/48` and `(c₁μ₀ + quarticShift)/48`; both are `rfl`, so the chain never sees a second
+  constant.
+* `s2_certified_separation` — `certified_separation` applied to `s2FormDomination`: the ground and
+  excited thresholds differ by `c₁/48 · Δ_ref`.
+* `s2_separation_pos` — that separation is strictly positive (`c₁ > 0`, `Δ_ref > 0`).
+* `s2_certified_gap` — the separation in the `quartic_certified_gap` shape: on the
+  vacuum-orthogonal sector, `c₁ Δ_ref / 48 · ‖c‖² ≤ q(c) + (quarticShift/48)‖c‖²`.
+* `s2_gap_threshold_pos` — the excited threshold is positive exactly when
+  `quarticShift < c₁ Δ_ref`.
+
+**Boundary.**  These are comparison thresholds, not a spectral gap: `ground_bound` is a lower bound
+and no upper bound on the target ground energy is supplied, which is the standing caveat of
+`YangMillsFormDomination`.  What is new is that the single quantitative condition the Yang–Mills
+certificate leaves is now isolated as `quarticShift < c₁ Δ_ref`, in the same units as the chain.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`s2FormDomination_c₁`, `s2FormDomination_c₂`, `s2_certified_separation`, `s2_separation_pos`,
+`s2_certified_gap` and `s2_gap_threshold_pos` reports `propext, Classical.choice, Quot.sound` only;
+no line of the touched file exceeds 100 characters.

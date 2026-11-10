@@ -602,6 +602,29 @@ to be subtracted before any `:N²:` comparison can be made.
 Axioms audited on the eleven theorems of this subsection: `propext`, `Classical.choice`,
 `Quot.sound` only.
 
+#### S2 — the certificate driven through the gap chain
+
+`s2FormDomination` is an ordinary `FormDomination`, so it needs no separate development: the
+chapter's chain applies to it, and §3d.2 now records the instantiations.
+
+* `s2FormDomination_c₁`, `s2FormDomination_c₂` — the certificate's data are the derived numbers:
+  ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`.  (The `rfl`-proofs are the point: no second
+  constant is introduced anywhere in the chain.)
+* `s2_certified_separation` — `certified_separation` at the S2 certificate: the ground and excited
+  comparison thresholds differ by `c₁/48 · Δ_ref`.
+* `s2_separation_pos` — that difference is strictly positive, since `c₁ > 0` and `Δ_ref > 0`.
+* `s2_certified_gap` — the separation in the same shape as `quartic_certified_gap`: on the
+  vacuum-orthogonal sector `c₁Δ_ref/48 · ‖c‖² ≤ q(c) + (quarticShift/48)‖c‖²`.
+* `s2_gap_threshold_pos` — the excited threshold is positive **iff the barrier is smaller**:
+  `quarticShift < c₁ Δ_ref`.  This is the honest condition; nothing in the chain turns a lower
+  comparison bound into a spectral gap, and the chapter is explicit about that.
+
+So the S2 number is no longer a side result: it is the ratio of a certificate the existing chain
+consumes, and the only nontrivial quantitative condition left is `quarticShift < c₁ Δ_ref`.
+
+Axioms audited on the six theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 
 This section supersedes the previous section on three points: the coordinate-count factor `−99/2`

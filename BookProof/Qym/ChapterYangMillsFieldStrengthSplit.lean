@@ -545,7 +545,12 @@ above.  This section states that identification and proves what it yields.
   inhabitant: the `:N²:` magnetic form vanishes at the vacuum while the abelian magnetic operator
   is injective there, so the identification fails on the normal-ordering constant.
 * **`s2FormDomination`**, **`s2_ground_threshold`**, **`s2_excited_threshold`** — the constant as
-  a `FormDomination` certificate, so the thresholds are those of the certificate machinery.
+  a `FormDomination` certificate, so the thresholds are those of the certificate machinery;
+* **`s2FormDomination_c₁`**, **`s2FormDomination_c₂`**, **`s2_certified_separation`**,
+  **`s2_separation_pos`**, **`s2_certified_gap`**, **`s2_gap_threshold_pos`** — the certificate
+  driven through the chapter's gap chain: ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`,
+  separation `c₁Δ_ref/48 > 0`, the excited-sector bound in the `quartic_certified_gap` shape, and
+  positivity of the threshold exactly when `quarticShift < c₁ Δ_ref`.
 * **The root-sector half of the form expansion** is proved in the sibling modules rather than
   here: `YangMillsMagneticQuartic.rootCrossWeight`,
   `YangMillsMagneticQuartic.quarticDegreeForm_eq_magnetic_add_root` (the `:N²:` weight is the
@@ -861,6 +866,75 @@ theorem s2_excited_threshold (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin
       - (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
       = (c₁ * refGap ω - quarticShift (d := 24) T g) / 48 := by ring
   rwa [hc'] at h
+
+/-! #### The certificate inside the gap chain
+
+`s2FormDomination` is an ordinary `FormDomination`, so the chapter's chain applies to it
+without any restatement of its own: its ratio and shift are the derived numbers below, its two
+thresholds are `ground_bound`/`excited_bound` (`s2_ground_threshold`, `s2_excited_threshold`),
+and their separation is the chain's `certified_separation` with the S2 constants substituted.
+The last two theorems are the usable form: the excited sector gains `c₁ Δ_ref / 48` per unit
+norm, and that gain is *positive* exactly when the barrier shift is smaller than it. -/
+
+/-- The certificate's ratio is the S2 constant: `c₁/48`. -/
+theorem s2FormDomination_c₁ (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ}
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) :
+    (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₁ = c₁ / 48 := rfl
+
+/-- The certificate's shift is `(c₁ μ₀ + quarticShift)/48`. -/
+theorem s2FormDomination_c₂ (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ}
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) :
+    (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₂
+      = (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48 := rfl
+
+/-- **The chain's certified separation, instantiated at the S2 certificate**: the ground and
+excited comparison thresholds differ by `c₁/48 · Δ_ref`. -/
+theorem s2_certified_separation (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ}
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) :
+    ((s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₁ * refEnergy ω 0
+        - (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₂)
+      + (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₁ * refGap ω
+      = (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₁
+          * (refEnergy ω 0 + refGap ω)
+        - (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₂ :=
+  certified_separation _
+
+/-- The S2 separation is strictly positive: `0 < (c₁/48) · Δ_ref`. -/
+theorem s2_separation_pos (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) :
+    0 < (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).c₁ * refGap ω := by
+  have h := mul_pos (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁).hc₁
+    (refGap_pos hω)
+  simpa using h
+
+/-- **The S2 gap in the shape the chain uses** (`quartic_certified_gap`): on the
+vacuum-orthogonal sector the Yang–Mills form is at least `c₁ Δ_ref / 48` per unit norm, up to the
+barrier shift `quarticShift / 48`. -/
+theorem s2_certified_gap (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (c : CoreCoeff 24) (hc : c 0 = 0) :
+    c₁ / 48 * refGap ω * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (MI.toCore c)
+        + (quarticShift (d := 24) T g / 48) * coreNormSq c := by
+  have h := s2_excited_threshold Φ fabc MI (T := T) (g := g) hω hg hc₁ hω₁ c hc
+  nlinarith
+
+/-- **When the S2 threshold is positive**: the excited comparison threshold is strictly positive
+exactly when the reference gap, scaled by the ratio, exceeds the barrier's shift. -/
+theorem s2_gap_threshold_pos {T : Finset (Fin 24)} {g : ℝ} {c₁ : ℝ} {ω : Fin 24 → ℝ}
+    (hgap : quarticShift (d := 24) T g < c₁ * refGap ω) :
+    0 < (c₁ * refGap ω - quarticShift (d := 24) T g) / 48 := by
+  have h : 0 < c₁ * refGap ω - quarticShift (d := 24) T g := by linarith
+  linarith
 
 end ModeIdentification
 
