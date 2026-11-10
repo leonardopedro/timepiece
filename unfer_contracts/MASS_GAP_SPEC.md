@@ -54,6 +54,29 @@ gauge-fixed object `H_m` — the object the numerics actually computes — not t
 continuum Millennium mass gap. The continuum passage needs one additional
 (gap-preserving) convergence theorem, explicitly out of scope.
 
+**Conditionality (2026-11-10 audit — this line was unconditional before).**
+(T6) requires `θᵒ₀` to lie within `δᵒ` of the **odd sector's ground**, and no
+term of the width witnesses that. Parlett's bound (`‖r‖`) places *some*
+eigenvalue of the sector within `δᵒ`; it does not say which, and a Krylov start
+orthogonal to the ground keeps its whole chain orthogonal to it, so the solve
+converges to an *excited* sector level with `δᵒ → 0`. Measured on the truncated
+gauge-fixed QYM (`g = 0`, inner occupation `N ≤ 6`, `m = 14`, odd start built
+orthogonal to the odd ground, overlap `7.5e-16`):
+
+```
+θᵉ₀ = −1.304851   (sector ground −1.304851, δᵉ = 1.4e-5)
+θᵒ₀ = −0.778457   (sector ground −1.114924, δᵒ = 1.2e-7)
+(T6) gives lo = +0.526380      true sector gap = 0.189928
+```
+
+Every stated precondition holds and `lo` exceeds the gap by `0.34`, so `lo` is
+an **estimate**, not a lower bound, and `gap_certified_positive(lo)` is not a
+proof. Consequences for the formalization: keep `rfl`-level arithmetic on
+`(θ, δ)` (that part is exact), but do **not** instantiate the gap theorem from
+`θ, δ` alone — the Lean instance needs the ground-resolution witness as an
+explicit hypothesis. A valid form exists (§6a): exclude the second eigenvalue
+from a certified explicit spectrum and use Kato–Temple.
+
 ## 2. Code → math mapping
 
 | Math | Code | Where |
@@ -85,12 +108,19 @@ continuum Millennium mass gap. The continuum passage needs one additional
    `qym_gauge_fixed_reflection_symmetry_sector_purity`.
 2. **Ground selection**: `θˢ₀` is the lowest Ritz value of sector `s` — the
    solver returns the sorted spectrum (`ForwardSirkResult::ritz_values`).
-3. **Enclosure validity**: `δˢ` bounds `|θˢ − λˢ|` — residual measured
-   cancellation-free from the stored Gram (`ritz_abs_residuals`), roundoff
-   and enclosure per §4.4. *Pinned by:*
+   This selects the lowest value **of the solve's own subspace**; it is not the
+   sector ground unless precondition 3 holds.
+3. **Ground resolution** (the hypothesis of (T6), and it is *not* checkable
+   from the certificate): `θᵒ₀` is within `δᵒ` of the odd sector's ground. A
+   residual measures "converged", not "lowest" — see the counterexample in
+   §1. Obtainable from an exclusion argument instead (§6a).
+4. **Enclosure validity**: `δˢ` bounds `|θˢ − λˢ|` **for the eigenvalue matched
+   to the Ritz pair** — residual measured cancellation-free from the stored
+   Gram (`ritz_abs_residuals`), roundoff and enclosure per §4.4. *Pinned by:*
    `mass_gap_spec::tests::parlett_bound_holds_on_explicit_matrix` and
-   `certified_width_matches_certificate_delta`.
-4. **NO vacuum-sector identification** — deliberately dropped for the
+   `certified_width_matches_certificate_delta`. Matching to the *ground* is
+   precondition 3, not this one.
+5. **NO vacuum-sector identification** — deliberately dropped for the
    gauge-fixed H: `⟨0|H|0⟩ = 0` (normal ordering) but the ground is a
    pair-squeezed state below it (`E₀ < 0`, deepening with `g`; at strong
    coupling the truncated ground even flips reflection-odd). The seam
@@ -140,7 +170,7 @@ parameter separating gapped from gapless.
 
 ## 6. Certified table (gauge-fixed)
 
-`fock_sirk/tests/qcd_mass_gap_certified.rs` (3 tests) instantiates the T6
+`fock_sirk/tests/qcd_mass_gap_certified.rs` (4 tests) instantiates the T6
 assembly on the gauge-fixed H: the certified window `[lo, hi]` encloses the
 exact truncated gap `E₁ − E₀` for `g ∈ {1, 2}` across truncations, and the
 NDJSON emitter produces well-formed sector certificates whose
@@ -148,3 +178,41 @@ NDJSON emitter produces well-formed sector certificates whose
 (the pinned Lean4 T6 instance in `../timepiece/GapCertificate/` remains the
 historical lattice instantiation; regenerating it for the gauge-fixed numbers
 is an LLM-Lean4-specialist item).
+
+The fourth test,
+`the_certified_gap_lower_bound_needs_the_sector_ground`, drives SIRK on the
+bounded `P_N H P_N` (`QuantumState::restrict_inner` +
+`fock_sirk::solve_forward_sirk_truncated`) against the exact parity-resolved
+spectrum, and pins two facts: (i) at the **gapless control** `g = 0`, `N ≤ 6`,
+`m = 14` the (T6) expression is *positive* (`lo = +0.189913` against an exact
+`0.189928`), so positivity is a property of the finite basis and never evidence
+of a continuum gap — no coupling has to be found, `g = 0` already does it; and
+(ii) the §1 counterexample, `lo = +0.526380` against a true gap of `0.189928`,
+with every documented precondition holding.
+
+### 6a. The valid form: exclusion + Kato–Temple
+
+(T6)'s missing hypothesis is obtainable without any new physics input:
+
+* `certificate::certify_spectrum` — an **exclusion witness** for an explicit
+  `n × n` Hermitian matrix. Every computed eigenpair gets a Parlett interval;
+  touching intervals merge into disjoint clusters, and since the matrix has `n`
+  eigenvalues and each interval holds at least one, every cluster holds exactly
+  its own multiplicity. So a cluster's lower edge is rigorous and
+  `second_eigenvalue_lower_bound()` is a rigorous `λ₂` bound (`None` for a
+  degenerate ground, where no witness can exist).
+* `mass_gap_spec::temple_lower_bound(θ, r, β)`: `λ₁ ≥ θ − r²/(β − θ)`, valid
+  when `θ < β ≤ λ₂` and `r < β − θ`. The second condition is the ground
+  witness: in the two-level model it holds exactly when the start has more
+  than 50% ground overlap, which is what rejects the §1 counterexample.
+* `mass_gap_spec::certified_gap_lower_bound_with_exclusion(θᵒ₀, rᵒ, β, θᵉ₀)`:
+  `λ₁ − λ₀ ≥ temple − θᵉ₀`. The even side needs no hypothesis (Rayleigh gives
+  `λ₀ ≤ θᵉ₀`), and neither sector's residual enters as a width any more.
+
+Measured at `g = 0`, `N ≤ 6`, `m = 14`: `θᵒ₀ = −1.114923508`, `rᵒ = 4.586e-7`,
+`β = −0.778457120`, certified gap `0.189927960` against an exact `0.189927963`
+— a **valid** positive gap for `H_N`, `3e-9` below the exact value where the
+Parlett-width assembly gave `0.189913148`. Scope: `H_N` only. The witness is a
+dense `n × n` matrix (`n = 80` for the odd block at `N ≤ 6`), unusable at
+production truncations, and the unbounded `H` still has no lowest eigenvalue
+for any of this to bound. The continuum mass gap remains unproven.
