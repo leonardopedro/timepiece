@@ -745,8 +745,10 @@ proves it gives `polyOp ≤ gaussOp.closure` (`polyOp_le_gaussOp_closure`, throu
 `le_closure_of_forall_approx`), hence `polyOp = gaussOp.closure` once `polyOp` is self-adjoint
 (`polyOp_eq_gaussOp_closure`).  What remains is the annulus estimate: on the support of
 `−2χ_R' p' − χ_R'' p + x χ_R' p` the tails of `p`, `p'`, `p''` supply the smallness, and
-`|χ_R'| ≤ C/R`, `|χ_R''| ≤ C/R²` turn the fixed cutoff into a uniform-in-`R` bound.  That is
-analysis, with no spectral input.  The `ℂ` form is a transport: `polyOpC` and `gaussOpC` live on
+`|χ_R'| ≤ C/R`, `|χ_R''| ≤ C/R²` turn the fixed cutoff into a uniform-in-`R` bound.
+`BookProof.YangMillsPolyCutoff` builds exactly that `χ_R = smoothTransition (2 - x²/R²)`, with the
+collar at `x² = R²` and `x² = 2R²` and both derivative bounds; what is left is the `L²` assembly of
+the three terms on the annulus and the outer tail.  That is analysis, with no spectral input.  The `ℂ` form is a transport: `polyOpC` and `gaussOpC` live on
 `Cx (Lp ℝ 2 γ)` and `Lp ℂ 2 γ`, and no equivalence between the two has been built, so the
 identification is stated over `ℝ`, where `gaussOp` lives.
 
