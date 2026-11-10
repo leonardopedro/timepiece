@@ -3342,6 +3342,15 @@ import BookProof.Sm.ChapterSmFullYukawaCoeffs
 -- support-restricted normal-form bound `smNormalForm_norm_le_support` and its instantiation for
 -- the P1 data, `SmInternalData.toNormalForm_norm_le`.
 import BookProof.Sm.ChapterSmFullFamilyBounds
+-- `ChapterSmFullNormalFormBounds` (2026-11-10b, `SM_ESA_COMPLETION_PLAN` §16): the commutator
+-- form of the *full* normal form with general coefficient matrices
+-- (`smNormalForm_commForm_le`, at the level of the shifted graph norm squared), the canonical
+-- Higgs placement `SmInternalData.canonical` (discharging `hpos` by `rfl` via
+-- `smCanonicalPos_harmonic`), and the second-order momentum family: `pderiv_pderiv_comm`,
+-- `derOp_comp_comm`, `momOp_comp_comm`, `smPi_comp_comm`, the generic
+-- `sq_norm_comp_le_sum`, and `smPi_sq_norm_le_kineticSum` / `smKinetic_norm_le_shift`, which
+-- reduce the kinetic `hkin` of `smNormalForm_norm_le` to one bound on the kinetic sum.
+import BookProof.Sm.ChapterSmFullNormalFormBounds
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 

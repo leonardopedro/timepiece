@@ -955,3 +955,76 @@ for every `c₀ ≥ 0`.
   obligation of §14's boundary note (`pos` is data, not derived).
 * The commutator-form bound of the full normal form with non-scalar coefficient matrices is
   unchanged from §14 — still the bilinear-pairing estimate.
+
+## 16. The commutator form with general matrices, the canonical placement, and the second-order
+family (2026-11-10b)
+
+`BookProof/Sm/ChapterSmFullNormalFormBounds.lean`, `sorry`-free and `axiom`-free, building through
+`lake build BookProof` (8918 jobs) with no warnings from itself.
+
+§15 named three remaining inputs.  This module closes the first two and reduces the third to a
+single elliptic estimate.
+
+### The commutator form with general coefficient matrices
+
+`coupledOp_one_commForm_le` (§14) bounds the commutator form of `h ⊗ I` against `N ⊗ I`, i.e. of a
+**scalar** factor coupled with the identity.  `smNormalForm_commForm_le` does the same for the full
+normal form `Σⱼ Tⱼ ⊗ Mⱼ` with arbitrary coefficient matrices `Mⱼ`:
+
+```text
+|commForm (smNormalForm D) (N ⊗ 1) f| ≤ 4 c (normalFormConst D) ‖((N ⊗ 1) f + f)‖².
+```
+
+* **`coupledOp_self_norm_le`** — `‖(N ⊗ 1) f‖ ≤ 2‖((N ⊗ 1) f + f)‖`, from `‖x‖ ≤ ‖Nx + x‖`
+  componentwise (`norm_le_norm_shift`) inside `coupledSpace_norm_sq == 1`'s sum.
+* The proof is `commForm_eq` (`= −2 Im ⟪Hf, Nf⟫`) plus `|Im z| ≤ ‖z‖` and two factors:
+  `smNormalForm_norm_le` for `‖Hf‖` and `coupledOp_self_norm_le` for `‖Nf‖`, both at the level of
+  the **shifted graph norm squared**.
+* That level is not an artefact of the proof.  For a scalar factor the imaginary part of one inner
+  product `⟪T x, N x⟫` is bounded by the quadratic form of `N`; for general matrices the
+  components of `Mⱼ` pair `T f_B` with `N f_A`, so only the product of the two norms is available.
+  A `quadForm`-level bound would need the coefficient matrices diagonal.
+
+### The canonical placement of the Higgs components
+
+`pos` is *data*: which of the `163` oscillator coordinates carries the `a`-th real Higgs component.
+§15's `hpos` (`∃ m, D.pos a = smCoord m`) was therefore a hypothesis of `toNormalForm_norm_le`.
+
+* **`smCanonicalPos`** — the `a`-th component on the `a`-th harmonic coordinate `smCoord ⟨a⟩`.
+* **`smCanonicalPos_harmonic`** — `∃ m, smCanonicalPos a = smCoord m`, by `rfl`.  This is `hpos`.
+* **`SmInternalData.canonical`** — the P1 internal data at that placement.
+* **`SmInternalData.canonical_toNormalForm_norm_le`** — §15's relative bound for the canonical P1
+  data, with **no** hypothesis about the placement.
+
+The remaining content of the statement is a modelling choice, not a proof obligation: the physics
+fixes *that* the four Higgs modes are oscillator coordinate modes; among the harmonic coordinates
+the choice of four is canonical up to relabelling.
+
+### The second-order family `πⱼ²`
+
+`N` carries exactly one power of `πⱼ²`, so a bound on `‖πⱼ² x‖` cannot come from `quadForm N` at
+`x` (§15).  The module separates the part that needs no elliptic input from the part that does.
+
+* **`pderiv_X_eq`**, **`pderiv_pderiv_comm`** — partial derivatives commute (not in Mathlib).
+* **`derOp_comp_comm`** — `[∂ⱼ − ½xⱼ, ∂ₖ − ½xₖ] = 0`, since `∂ⱼ(xₖ · ) = xₖ · ∂ⱼ` for `j ≠ k`.
+* **`momOp_comp_comm`**, **`CoreRep.op_comp`** (the transport is multiplicative),
+  **`smPi_comp_comm`** — the `40` momentum operators `πₘ` commute pairwise.
+* **`sq_norm_comp_le_sum`** — generic: for pairwise commuting symmetric `Tⱼ` on an inner-product
+  space, `‖Tᵢ²x‖ ≤ ‖(Σⱼ Tⱼ²)x‖`.  `‖Σⱼ Tⱼ²x‖²` expands into the double sum
+  `Σⱼₖ ‖TⱼTₖx‖²` — the cross terms are `⟪Tⱼ²x, Tₖ²x⟫ = ‖TⱼTₖx‖²` by symmetry and commutation —
+  and `‖Tᵢ²x‖²` is its diagonal term.
+* **`smPi_sq_norm_le_kineticSum`** — the instantiation: `‖πₘ²x‖ ≤ ‖(Σₘ πₘ²)x‖`.
+* **`smKinetic_norm_le_shift`** — the reduction: if the kinetic sum satisfies
+  `‖(Σₘ πₘ²)x‖ ≤ c‖Nx + x‖`, then every `smKinetic j` at a momentum coordinate does, with the
+  same `c`.  This is exactly `hkin` of `smNormalForm_norm_le` in the `40` momentum directions.
+
+**What remains** is the single estimate
+
+```text
+‖(Σₘ πₘ²) x‖ ≤ c ‖N x + x‖,        N = 2h + Σ q² + c₀,
+```
+
+i.e. the elliptic (Gårding) step: `Σₘ πₘ²` is the kinetic part of `N`, and the gap between bare
+kinetic energy and `N` is the quartic potential, which does not commute with `∂ⱼ`.  Neither this
+module nor `smNormalForm_norm_le` assumes it; both state it as a hypothesis, so the second-order
+family is now a *single* unproved elliptic input rather than `163` independent ones.
