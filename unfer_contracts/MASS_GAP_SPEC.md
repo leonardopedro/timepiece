@@ -378,7 +378,7 @@ exchanged orientation, **15 of 15**. `O(n³)` is nowhere on the certification
 path; the dense spectrum survives only as the oracle each bound is checked
 against.
 
-#### Where the count stops, and what stops it (2026-11-10c)
+#### Where the count stops, and what stops it (2026-11-10d)
 
 Driven past its range (odd sector, `g = 1`, `β = θ₀ + 0.5`, both orderings on the
 same matrix):
@@ -417,21 +417,32 @@ the worst bound-to-pivot ratio in the grid is `4.7e-10`. The extra flops do not
 show: the elimination is `BTreeMap`-bound, so `N ≤ 22` costs 1.95 s where the
 one-term value cost 2.16 s.
 
-**Nothing in the grid refuses now, and the next limit is time.** The ignored
-reach test (`the_count_reaches_past_the_grid`) decides `N ≤ 26` (`n = 12740`,
-fill 652, 12.4 s RCM) and `N ≤ 28` (`n = 16800`, fill 798, 33.2 s RCM; nested
-dissection 793 at 9.9 s), both orderings counting the same inertia. RCM's bound
-is still six decades below its pivots at `N ≤ 28` but rising, so the wall was
-pushed past `N ≤ 28`, not removed.
+**Nothing in the grid refuses now, and the reach runs to `N ≤ 32`.** The ignored
+reach test (`the_count_reaches_past_the_grid`) decides `N ≤ 26 / 28 / 30`
+(`n = 21760`, fill 961 RCM / 927 ND) with both orderings counting the same
+inertia — RCM `1.6e-9 / 1.2e-6 / 2.0e-2` bound-to-pivot, nested dissection
+`1.2e-22 / 3.5e-21 / 2.9e-19`, at 85.5 s / 19.3 s at `N ≤ 30`. The ignored wall
+test (`the_count_refuses_past_the_reach`) pins the end: nested dissection decides
+`N ≤ 32` (`n = 27744`, fill 1096, 38.2 s, ratio `7.7e-17`) and refuses `N ≤ 34`
+after 84 s, giving up 725 pivots from the end where the trailing separator's own
+relative errors already run to `1e15`; RCM refuses `N ≤ 32` after 218 s (last
+deciding size 30) and `N ≤ 36` costs 329 s to refuse. So the reach now differs by
+ordering (`30` RCM / `32` nested dissection), what ends it is the same
+accumulated rounding, and it is not the clock: the bound arrives with the
+elimination nearly finished.
 
-**Ordering: smaller fill, no reach traded.** Nested dissection cuts the fill by
-6–27 % on the grid (18→16, 93→68, 258→226, 534→485) and is 2–2.5× faster at the
-top; it neither gains nor loses reach now. Past the grid the fill advantage
-vanishes (652 vs 653 at `N ≤ 26`, 798 vs 793 at `N ≤ 28`), so fill is asserted
-only on the campaign's own sizes and reach only as "both still decide, same
-count". Pivoting on relative accuracy instead of magnitude does not move the
-wall (measured); symmetric equilibration is untried and nothing here claims
-either way.
+**Ordering: smaller fill, and two sizes of reach.** Nested dissection cuts the
+fill by 6–27 % on the grid (18→16, 93→68, 258→226, 534→485) and is 2–2.5× faster
+at the top. Past the grid its fill advantage fades (652 vs 653 at `N ≤ 26`, 961
+vs 927 at `N ≤ 30`), so fill is asserted only on the campaign's own sizes; its
+*bound* advantage does not fade, which is why it is the ordering that reaches
+`N ≤ 32`. Pivoting on relative accuracy instead of magnitude does not move the
+wall (measured). **Symmetric equilibration is a measured no-op**: `D(H − βI)D`
+with `D = diag(2ᵏ)` is an exact congruence (the count must come out identical,
+and does, at every size), and the bound-to-pivot ratios are identical to the
+printed digits (`4.689e-10 → 4.689e-10` at `N ≤ 24`, `1.248e-6 → 1.248e-6` at
+`N ≤ 28`). The growth is in the update chain's rounding, not the matrix's
+scaling.
 
 **Recorded because it was measuring a mangled matrix.** The permutation check on
 the nested-dissection order is a `debug_assert`, so release runs never saw that
@@ -441,6 +452,13 @@ section measured nested dissection on that truncated matrix (its `N ≤ 16`
 refusal was an artifact). The component is now ordered with the others and
 `nested_dissection_orders_every_vertex_of_a_split_graph` checks the permutation
 in release.
+
+**And one harness bug, since it capped the measurement silently.** Reaching past
+`N ≤ 30` first failed in the basis builder: `fock_state` normalized by
+`scale_and_add(1/‖ψ‖ − 1)`, and the creation chain returns `‖ψ‖ = √(n!)`, which
+passes `2⁵³` at occupation 30 (`√(30!) ≈ 1.6e16`) — there the coefficient rounds
+to exactly `−1` and the state is annihilated. Every `N` the harness could build
+was capped at 30 without an error; the amplitudes are now divided out directly.
 
 #### `(n₀+n₁)` parity is not the reflection sector
 
