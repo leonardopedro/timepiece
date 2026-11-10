@@ -266,7 +266,10 @@ Source paths below are relative to `BookProof/`.
   Nelson's criterion for a dense set of vectors with a common geometric ratio, on the Faris–Lavine
   deficiency propagation; N, Nelson's theorem with per-vector radii.  The eigenbasis criteria
   `essentiallySelfAdjointOn_of_dense_span_eigenvectors` (dense *span*, the usable one) and
-  `…_of_dense_eigenvectors` (dense set) need neither summability nor symmetry.
+  `…_of_dense_eigenvectors` (dense set) need neither summability nor symmetry.  For per-vector data
+  the module proves Nussbaum's reduction instead,
+  `essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness` (dense set of vectors of uniqueness at
+  `±i`); U there is Carleman's analytic ⟹ vector of uniqueness, which is the missing theorem.
 * `Qym/ChapterYangMillsPolyCore.lean`, `polyCore_essentiallySelfAdjoint`: U, the polynomial core of
   `gaussDirichlet` as an operator on classes, essentially self-adjoint by the eigenbasis criterion;
   C, not yet identified with the closure of `gaussOp`/`gaussOpC`.
@@ -691,6 +694,24 @@ actually gives.  It needs no symmetry and no summability.  What remains for Rout
 comparison of two operators rather than a missing theorem: identify `polyOpC` with the closure of the
 ℂ partial operator `gaussOpC` of `ChapterYangMillsGaussFormComplex`, whose domain is the compactly
 supported `C²` core and hence disjoint from the polynomial core.
+
+**(iii‴) The per-vector case, and why the deficiency estimate cannot reach it.**
+`ChapterNelsonAnalyticVectors` also carries Nussbaum's reduction:
+`IsVectorOfUniqueness T z x` (the vector lies in the closure of the range of `T − z`),
+`inner_eq_zero_of_isVectorOfUniqueness` (such a vector annihilates the deficiency space at `z̄`),
+`deficiencyTrivialAt_of_dense_vectorsOfUniqueness` (Nussbaum's lemma) and
+`essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness` — a dense set of vectors, each of which is
+one at both `±i`, already forces essential self-adjointness, with **no radius and no summability**
+anywhere in the hypothesis.  That is the shape Nelson's theorem takes for per-vector data, and the
+reason it is not the geometric theorem with `r_x` in place of `r` is arithmetic: the only decay in
+`|⟪x, w⟫| ≤ ‖Tⁿx‖/|z|ⁿ` comes from a *geometric* bound, while an analytic vector satisfies the
+factorial bound `‖Tⁿx‖ ≤ C n!/ρⁿ`, for which `C n!/|z|ⁿ` grows at every fixed `z`.  Deficiency-index
+constancy does not repair this: it propagates triviality between points of a half plane once one point
+is known, and unbounded radii give no first point.  The classical bridge from analyticity to the
+hypothesis is Carleman's determinacy criterion (Simon, *The classical moment problem as a
+self-adjoint finite difference operator*, Cor. 2.16), which is the one ingredient the corpus does not
+have.  So the per-vector statement is formalized *modulo* that step, with the per-vector data in the
+hypothesis rather than in a missing theorem.
 
 **Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
 no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)

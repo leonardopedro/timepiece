@@ -28,19 +28,35 @@ self-adjointness.
 * `essentiallySelfAdjointOn_of_dense_geometric` — **Nelson's criterion** for such a set, on
   a complete space, by propagating from `±d i` (`d > r`) to `±i` with the Faris–Lavine
   propagation lemma.
+* `IsVectorOfUniqueness`, `inner_eq_zero_of_isVectorOfUniqueness`,
+  `deficiencyTrivialAt_of_dense_vectorsOfUniqueness` and
+  `essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness` — Nussbaum's reduction, the route
+  that actually reaches a dense set of analytic vectors: a dense set of vectors each of which
+  lies in the closure of the range of `T ∓ i` already forces essential self-adjointness, with
+  no radius anywhere.
 * `essentiallySelfAdjointOn_of_dense_eigenvectors` — the sharper elementary criterion a
   dense set of *eigenvectors with real eigenvalues* gives.  Symmetry is not even needed:
   the eigenvalue relation at a real `λ` forces `λ = z` at a deficiency point `z`.
 
 ## Honest boundary
 
-The classical statement allows a *different* radius for each vector.  The step from
-per-vector radii to a single radius is the deficiency-index constancy argument ("the
-deficiency spaces of a closed symmetric operator have constant dimension on each half
-plane"), which the corpus does not have in the per-vector form needed here: the deficiency
-propagation lemma above already rescues a *common* radius but not a varying one.  So
-`essentiallySelfAdjointOn_of_dense_geometric` is a strictly weaker theorem than Nelson's,
-and it is the one stated here.
+The classical statement allows a *different* radius for each vector, and **that step cannot
+be made by a deficiency estimate**.  The reason is arithmetic, not missing API: the only
+decay in `|⟪x, w⟫| ≤ ‖Tⁿx‖/|z|ⁿ` comes from the geometric bound, whereas an analytic vector
+has the factorial bound `‖Tⁿx‖ ≤ C n!/ρⁿ`, for which `C n!/|z|ⁿ` *grows* at every fixed `z`.
+Deficiency-index constancy is no help either: it transports triviality between points of a
+half plane once one point is known, and it cannot produce the first point when the radii are
+unbounded.  (The orthogonality lemma needs `r < ‖z‖`, so a common radius is genuinely
+required by that argument.)
+
+So the per-vector statement is reached instead through Nussbaum's reduction, proved in the
+section above: analyticity is used only to put each vector in the closure of the range of
+`T ∓ i`, which is Carleman's criterion (Simon, *The classical moment problem as a
+self-adjoint finite difference operator*, Cor. 2.16 — an analytic or quasi-analytic vector
+is a vector of uniqueness).  Carleman's determinacy argument is the one ingredient the
+corpus does not have; everything after it is proved here, and
+`essentiallySelfAdjointOn_of_dense_geometric` remains the strictly weaker geometric
+statement.
 
 For a concrete operator with a complete eigenbasis — which is the case that matters for
 `gaussDirichlet`, whose Hermite eigenfunctions are explicit — the criterion at the end of
@@ -174,6 +190,94 @@ theorem inner_eq_zero_of_isGeometric {T : D →ₗ[ℂ] F} {hT : InvariantOn T} 
   have hle : ‖(inner ℂ (x : F) w : ℂ)‖ ≤ 0 :=
     le_of_tendsto_of_tendsto tendsto_const_nhds hlim (Filter.Eventually.of_forall hbound)
   exact norm_eq_zero.mp (le_antisymm hle (norm_nonneg _))
+
+/-! ## Nussbaum's reduction: vectors of uniqueness
+
+Nothing above allows a *different* radius for each vector.  The reason is not an accident of
+the estimates: the geometric bound is the only thing that produces decay in
+`|⟪x, w⟫| ≤ ‖Tⁿx‖/|z|ⁿ`, and an analytic vector has a factorial bound
+`‖Tⁿx‖ ≤ C n!/ρⁿ`, for which that quotient *grows* for every fixed `z`.  So Nelson's theorem
+for per-vector radii cannot be reached by a deficiency estimate at all, and no amount of
+deficiency-index constancy on the half planes helps: constancy transports triviality in `z`
+once it is known at one point, it does not produce the first point.
+
+The classical route is Nussbaum's.  Replace the estimate by a *range* statement: a vector
+`x` is a vector of uniqueness when it lies in the closure of the range of `T - z`.  That
+membership is what Carleman's criterion extracts from analyticity (Simon, *The classical
+moment problem as a self-adjoint finite difference operator*, Cor. 2.16: an analytic or
+quasi-analytic vector is a vector of uniqueness).  The step from "dense set of vectors of
+uniqueness" to essential self-adjointness is elementary, and it is the content of this
+section; the Carleman step is the one piece the corpus does not have, so the theorem below
+is Nelson's theorem *modulo* that step, with the per-vector data living in the hypothesis
+rather than in a radius. -/
+
+/-- `x` is a **vector of uniqueness** for `T` at the shift `z`: it lies in the closure of the
+range of `T - z`.  Equivalently (see `inner_eq_zero_of_isVectorOfUniqueness`), every `w`
+with `⟪T v, w⟫ = z̄ ⟪v, w⟫` is orthogonal to it. -/
+def IsVectorOfUniqueness (T : D →ₗ[ℂ] F) (z : ℂ) (x : F) : Prop :=
+  x ∈ closure (Set.range fun v : D => (T v : F) - z • (v : F))
+
+/-- **A vector of uniqueness annihilates the deficiency space at the conjugate point.**  This
+is the whole content of the notion: on the range of `T - z` the pairing with `w` vanishes
+identically, and both sides are continuous. -/
+theorem inner_eq_zero_of_isVectorOfUniqueness {T : D →ₗ[ℂ] F} {z : ℂ} {x w : F}
+    (hx : IsVectorOfUniqueness T z x)
+    (hw : ∀ v : D, (inner ℂ (T v) w : ℂ) = (starRingEnd ℂ z) * inner ℂ (v : F) w) :
+    (inner ℂ x w : ℂ) = 0 := by
+  have hclosed : IsClosed {y : F | (inner ℂ y w : ℂ) = 0} :=
+    isClosed_eq (continuous_id.inner continuous_const) continuous_const
+  have hsub : (Set.range fun v : D => (T v : F) - z • (v : F))
+      ⊆ {y : F | (inner ℂ y w : ℂ) = 0} := by
+    rintro y ⟨v, rfl⟩
+    change (inner ℂ ((T v : F) - z • (v : F)) w : ℂ) = 0
+    rw [inner_sub_left, hw v, inner_smul_left]
+    ring
+  exact hclosed.closure_subset_iff.mpr hsub hx
+
+/-- **A vector orthogonal to a dense set is zero**, stated for a dense subset of the space
+itself rather than of the domain.  This is the form the uniqueness argument needs. -/
+theorem eq_zero_of_dense_orthogonal (A : Set F) (hAdense : Dense A) {w : F}
+    (h : ∀ x ∈ A, (inner ℂ x w : ℂ) = 0) : w = 0 := by
+  have hsub : A ⊆ {y : F | (inner ℂ y w : ℂ) = 0} := h
+  have hclosed : IsClosed {y : F | (inner ℂ y w : ℂ) = 0} :=
+    isClosed_eq (continuous_id.inner continuous_const) continuous_const
+  have huniv : (Set.univ : Set F) ⊆ {y : F | (inner ℂ y w : ℂ) = 0} := by
+    rw [← hAdense.closure_eq]
+    exact hclosed.closure_subset_iff.mpr hsub
+  have hself : (inner ℂ w w : ℂ) = 0 := huniv (Set.mem_univ w)
+  have h4 : ((‖w‖ : ℂ)) ^ 2 = 0 := by simpa [inner_self_eq_norm_sq_to_K] using hself
+  rw [← Complex.ofReal_pow] at h4
+  have h5 : ‖w‖ ^ 2 = 0 := Complex.ofReal_eq_zero.mp h4
+  exact norm_eq_zero.mp (by nlinarith [norm_nonneg w])
+
+/-- **Nussbaum's lemma.**  A dense set of vectors of uniqueness at `z` kills the deficiency
+space of the adjoint at `z̄`.  No radius, no summability, no common constant. -/
+theorem deficiencyTrivialAt_of_dense_vectorsOfUniqueness (T : D →ₗ[ℂ] F) (A : Set F)
+    (hAdense : Dense A) {z : ℂ} (hA : ∀ x ∈ A, IsVectorOfUniqueness T z x) :
+    DeficiencyTrivialAt D T (starRingEnd ℂ z) := by
+  intro w hw
+  refine eq_zero_of_dense_orthogonal A hAdense fun x hx => ?_
+  exact inner_eq_zero_of_isVectorOfUniqueness (hA x hx) hw
+
+/-- **Nelson's criterion, with a per-vector hypothesis and no radius.**  If the domain of `T`
+carries a dense set of vectors, each of which is a vector of uniqueness at *both* `±i`, then
+`T` is essentially self-adjoint.  This is the shape the per-vector-radius theorem takes once
+the deficiency estimate is replaced by Nussbaum's reduction: the individual vector's growth
+data is hidden in `IsVectorOfUniqueness`, where Carleman's criterion can supply it. -/
+theorem essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness (T : D →ₗ[ℂ] F) (A : Set F)
+    (hAdense : Dense A)
+    (hA : ∀ x ∈ A, IsVectorOfUniqueness T Complex.I x ∧
+      IsVectorOfUniqueness T (-Complex.I) x) :
+    EssentiallySelfAdjointOn D T := by
+  have hI : DeficiencyTrivialAt D T Complex.I := by
+    have := deficiencyTrivialAt_of_dense_vectorsOfUniqueness T A hAdense
+      (z := -Complex.I) (fun x hx => (hA x hx).2)
+    simpa using this
+  have hneg : DeficiencyTrivialAt D T (-Complex.I) := by
+    have := deficiencyTrivialAt_of_dense_vectorsOfUniqueness T A hAdense
+      (z := Complex.I) (fun x hx => (hA x hx).1)
+    simpa using this
+  exact ⟨hI, hneg⟩
 
 /-! ## Vanishing of a deficiency space from a dense set -/
 

@@ -2199,6 +2199,16 @@ import BookProof.Qym.ChapterYangMillsHermiteSpectrum
 -- special situation — the union of the eigenlines of a simple spectrum is nowhere near dense — while
 -- `⟪x, w⟫ = 0` propagates from eigenvectors to their span by conjugate-linearity, which is all the
 -- deficiency argument needs.
+--
+-- The file also carries Nussbaum's reduction, which is how Nelson's theorem is reached when each
+-- vector has its own radius: `IsVectorOfUniqueness T z x` says `x` lies in the closure of the range
+-- of `T - z`, which annihilates the deficiency space at `z̄`
+-- (`inner_eq_zero_of_isVectorOfUniqueness`), so a dense set of such vectors kills it
+-- (`deficiencyTrivialAt_of_dense_vectorsOfUniqueness`) and both at `±i` gives essential
+-- self-adjointness (`essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness`) with no radius and no
+-- summability in the hypothesis.  The geometric theorem above cannot be weakened to per-vector radii
+-- by the same estimate — a factorial bound does not decay against a fixed `|z|` — and Carleman's
+-- criterion, the step that supplies the membership from analyticity, is not in the corpus.
 import BookProof.Toolbox.ChapterNelsonAnalyticVectors
 
 -- `ChapterYangMillsHermiteAnalytic` (S0 Route C, the quantitative input): the polynomial form core
