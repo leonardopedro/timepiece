@@ -3311,6 +3311,14 @@ import BookProof.Sm.ChapterSmFullYukawaData
 -- Gaussian-polynomial `CoreRep.op momOp`, not a plane wave, and the 96-mode embedding of the P1
 -- doublet dictionary, the gauge sector and any graph/self-adjointness statement are not covered.
 import BookProof.Sm.ChapterSmFullMatterHamiltonian
+-- `ChapterSmFullComparisonEsa` (2026-11-09g, `SM_ESA_COMPLETION_PLAN` §4 P3): the comparison
+-- `N_SM = 2h_B + Σ_active qᵣ² + Σⱼ(p_xⱼ² + xⱼ²) + c` as the degenerate Schrödinger operator
+-- `−Δ_S + W` on the 43-coordinate kinetic subset (40 momentum coordinates + 3 spatial), with the
+-- 120 jets potential-only (`smFullS_disjoint_jet`); the identification with the source operators
+-- (`smFullComparisonPhys_eq`), symmetry, quadratic-form positivity, dense core and essential
+-- self-adjointness for every shift (`smFullComparison_esa`).  The internal tensor and the
+-- Faris–Lavine graph-core package are not covered.
+import BookProof.Sm.ChapterSmFullComparisonEsa
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 

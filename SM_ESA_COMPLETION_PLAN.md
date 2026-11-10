@@ -774,3 +774,44 @@ Not done by this packet: no 96-mode embedding of the P1 doublet dictionary `yuka
 action of `γ·∂`, no gauge-field generator action (`q_r ⊗ J_r` is the coordinate family, P5 builds
 the gauge action), no essential self-adjointness/graph statement and no Faris–Lavine comparison —
 those are P3/P4, and nothing here assumes them.
+
+## 13. P3 executed, scalar half (2026-11-09g)
+
+`BookProof/Sm/ChapterSmFullComparisonEsa.lean` (427 lines, namespace `BookProof.SmFullComparisonEsa`)
+now carries the scalar comparison `N_SM` of §3; it builds (`lake build BookProof`, 8914 jobs, no
+warnings from the module) and is imported by `BookProof.lean` after `ChapterSmFullMatterHamiltonian`.
+
+* **The 43-coordinate kinetic subset, proved.**  `smXSet` is the three spatial coordinates,
+  `smS = image smCoord univ` the 40 momentum-carrying ones; `smS_disjoint_smXSet` is
+  `smMom_disjoint_spatial` transported through the `SmMom ≃ Fin 40` labelling and
+  **`card_smFullS : smFullS.card = 43`** is the plan's recount as a theorem (`card_smS = 40`,
+  `card_smXSet = 3`).  **`smFullS_disjoint_jet`**: no jet coordinate is kinetic, so no spatial
+  derivative is added in a jet direction.
+* **The potential.**  `smFullPotPoly P c = smPotPoly P c + Σ_(j : Fin 3) xⱼ²`, with
+  `realCoeff_smFullPotPoly`, the pointwise form `polyW_smFullPotPoly` (sums of squares plus `c`)
+  and **`one_le_polyW_smFullPotPoly`** (`1 ≤ W` for `1 ≤ c`): the polynomial lower bound the Kato
+  input needs, from sums of squares.
+* **The operator.**  `smFullComparison P c := hamCoreS (polyW …) smFullS` is `−Δ_S + W` on the
+  Gauss–polynomial core, i.e. exactly the `N_SM` of §3 with the untouched 120 jets inside the
+  degree-four `Σ_r Φ_r²` (potential) part.
+* **The identification with the source operators.**  `smFullComparisonPhys P c` is
+  `2 h_B + Σ_m q_m² + Σⱼ (πⱼ² + xⱼ²) + c` built from `smHamiltonian`, `smQL` and the P2 core
+  factors `smMom`/`smPos` at the spatial coordinates, and **`smFullComparisonPhys_eq`** proves the
+  two agree on the whole core.  The proof evaluates both sides on `pgLp p` and matches polynomials:
+  `kinPolyS_union` (disjoint union), `kinPolyS_smXSet` (`momOp_momOp` on the spatial set),
+  `sum_momOp_eq_kinPolyS` (`smS`), the potential distribution, and `smFullPoly_identity`.  Nothing
+  is defined to make a theorem `rfl`: the right-hand side is a new combination of pre-existing
+  operators, and the equality is the content.
+* **Symmetry, positivity, dense core, ESA.**  `smFullComparison_symmetricOn`
+  (`hamCoreS_symmetricOn`); **`smFullComparison_quadForm_nonneg`** — the quadratic form is
+  `2·q(h_B) + q(Σq²) + Σ_i ‖π_i x‖² + Σ_i ‖x_i x‖² + c‖x‖²`, each term non-negative, using
+  `quadForm_comp_self` for the squares; `polyGaussCore_dense'`; and **`smFullComparison_esa`** for
+  every shift `c`, with `smFullComparison_esa_one_le` from `hamCoreS_esa` and the bounded symmetric
+  shift (`KatoRellich.essentiallySelfAdjointOn_add_bounded`).
+
+Not done by this packet (the remainder of P3): the tensor `N_SM ⊗ I_internal` on `SmCoupledCore`
+(the P2 carrier, whose density is `coupledCore_dense`) and the `Comparison`/`IsGraphCore` data of
+`BookProof.QgOuterFockCoreFL`.  Those consume no new analysis — the scalar comparison is complete —
+but they are the interface P4's relative-bound estimate is stated on, so P4 starts by building
+them.  Deliberately not assumed anywhere here: the relative bound `‖h_SM u‖ ≤ K‖(N_SM+I)u‖`, the
+commutator form bound, or any ESA statement about `h_SM`.
