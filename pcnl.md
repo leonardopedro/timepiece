@@ -1535,6 +1535,15 @@ matters for assembly: §39's contraction takes the minorant at *every* starting 
 bound is an infimum over the whole space, while the floor is a box statement; applying the rate
 therefore needs the chain to stay in the box or a minorant outside it, and neither is proved.
 
+**The return mass (§45).**  §44's minorant is a box statement while §39's contraction quantifies over
+every starting point; the standard bridge is that the chain *returns* to the box with bounded-below
+probability, so two steps dominate a constant times the target everywhere.  §11 of
+`PCNGaussianFloor` supplies that factor: **`pcnBox_volume`** (`(2R)^d`), a general
+**`withDensity_box_ge`** (a density floor `F` on the box gives at least `F · (2R)^d` of box mass),
+its instances for the proposal and the Metropolis step, and **`pcnAbsorbingStep_box_ge`** — the step
+the chain takes puts at least `F · (2R)^d` of mass back in the box.  The composition into a
+two-step Doeblin kernel is written down as the next step, not proved.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1584,7 +1593,8 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   increment's true mass `1` and the unconditional probability step (`pcnGaussMass_d`,
   `pcnGaussMass_quad`, `pcnBoxMass_le_one`, `pcnMetropolisStep_mass_le_one`,
   `pcnAbsorbingStep_univ`, `pcnAbsorbingStep_rate`) — §43; and the minorant for that step
-  (`pcnAbsorbingStep_minorant`) — §44.
+  (`pcnAbsorbingStep_minorant`) — §44; and the return mass (`pcnBox_volume`,
+  `pcnAbsorbingStep_box_ge`) — §45.
 
 *Not proved, and not claimed.*
 

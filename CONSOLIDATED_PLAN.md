@@ -7,7 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10o):** **§37 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10p):** **§38 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the box's volume and the return mass: `pcnBox_volume` (`(2R)^d`),
+> `withDensity_box_ge`, and **`pcnAbsorbingStep_box_ge`** (the step returns at least `F·(2R)^d` of
+> mass to the box), which is the factor a two-step argument for a global minorant needs.
+> **Earlier newest entry (2026-11-10o):** **§37 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the Doeblin minorant for the step the chain takes (`pcnAbsorbingStep_minorant`:
 > `(mF/B) • π ≤ pcnAbsorbingStep` on the box), and the caveat that the floor is a box statement while
 > the contraction quantifies over every starting point.
@@ -19862,3 +19866,18 @@ normalisation gap but a genuine one.
 
 **Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
 on both → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.
+
+### 38. Addendum (2026-11-10p) — the return mass into the box
+
+`pcnBox_volume` — the box's Lebesgue volume is `(2R)^d`; `withDensity_box_ge` — a density floor `F`
+on the box gives the `withDensity` measure at least `F · (2R)^d` of box mass; instances
+`pcnProposalMeasure_box_ge`, `pcnMetropolisStep_box_ge`; and **`pcnAbsorbingStep_box_ge`** — the
+Metropolis step with its rejection atom puts at least `F · (2R)^d` of mass back in the box.
+
+**Why it matters.**  §37's minorant is box-local, so §32's contraction cannot consume it directly.
+The return mass is the other factor of the standard repair: `pcnAbsorbingStep x ≥ (mF/B) • π` inside
+the box and `pcnAbsorbingStep x (box) ≥ F(2R)^d` everywhere make the *two-step* kernel a Doeblin
+kernel at every starting point.  The composition itself is not written.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
+on the three key lemmas → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.

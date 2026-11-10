@@ -63,7 +63,11 @@ the architecture's own proposal rather than an unknown number.
   rejection atom is a probability measure, with no mass hypothesis);
 * **§10, the minorant for the step** — `pcnMetropolisStep_le_pcnAbsorbingStep` and
   **`pcnAbsorbingStep_minorant`**: `(mF/B) • π ≤ pcnAbsorbingStep` on the box, the Doeblin minorant
-  for the step the chain takes.
+  for the step the chain takes;
+* **§11, the return mass** — `pcnBox_volume` (`(2R)^d`), `withDensity_box_ge`,
+  `pcnProposalMeasure_box_ge`, `pcnMetropolisStep_box_ge` and **`pcnAbsorbingStep_box_ge`**: the
+  step puts at least `F · (2R)^d` of mass back in the box, which is what a regeneration argument
+  for a global minorant consumes.
 
 ## Honest boundary
 
@@ -954,6 +958,87 @@ theorem pcnAbsorbingStep_minorant {s ρ R F B m : ℝ} {τ : (Fin d → ℝ) →
         rw [smul_smul, ofReal_div_mul_ofReal hmF0 hB]
     _ ≤ pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R τ x := hμ
     _ ≤ pcnAbsorbingStep (d := d) s ρ R τ x := pcnMetropolisStep_le_pcnAbsorbingStep s ρ R τ x
+
+
+/-! ## 11. How much mass the step puts back in the box
+
+§10's minorant is a box statement, while §5's contraction wants one at every starting point.  The
+route between them is the standard one: the chain *returns* to the box with mass bounded below, so
+two steps of it dominate a constant times the target everywhere.  This section supplies the return
+mass:
+
+* **`pcnBox_volume`** — the box's Lebesgue volume is `(2R)^d`;
+* **`withDensity_box_ge`** — a density floor `F` on the box gives the `withDensity` measure at least
+  `F · (2R)^d` of box mass;
+* **`pcnProposalMeasure_box_ge`**, **`pcnMetropolisStep_box_ge`** — that floor for the proposal and
+  for the Metropolis step;
+* **`pcnAbsorbingStep_box_ge`** — and for the step the chain takes.
+
+Written out, the plan the next step would follow: `pcnAbsorbingStep x ≥ (mF/B) • π` for `x` in the
+box (§10) and `pcnAbsorbingStep x (box) ≥ F(2R)^d` everywhere (§11), so the *two-step* kernel is a
+Doeblin kernel with constant `min (mF/B) · F(2R)^d` at every starting point — and §5's contraction
+applies to it.  What is written here is the second factor; the composition is not.
+-/
+
+
+/-- **The box's volume**: `(2R)^d`. -/
+theorem pcnBox_volume {R : ℝ} :
+    (volume : Measure (Fin d → ℝ)) (pcnBox d R) = ENNReal.ofReal (2 * R) ^ d := by
+  rw [show (volume : Measure (Fin d → ℝ)) = Measure.pi (fun _ : Fin d => (volume : Measure ℝ))
+    from rfl]
+  rw [pcnBox, Measure.pi_pi]
+  rw [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
+  simp only [Real.volume_Icc, show R - -R = 2 * R from by ring]
+
+/-- **A density floor on the box gives a box-mass floor**: `F · (2R)^d`. -/
+theorem withDensity_box_ge {R F : ℝ} {f : (Fin d → ℝ) → ℝ}
+    (hmF : 0 ≤ F) (hR : 0 ≤ R) (hle : ∀ y ∈ pcnBox d R, F ≤ f y) :
+    ENNReal.ofReal (F * (2 * R) ^ d)
+      ≤ ((volume.restrict (pcnBox d R)).withDensity fun y => ENNReal.ofReal (f y))
+          (pcnBox d R) := by
+  have hpt : ∀ y ∈ pcnBox d R, ENNReal.ofReal F ≤ ENNReal.ofReal (f y) :=
+    fun y hy => ENNReal.ofReal_le_ofReal (hle y hy)
+  calc ENNReal.ofReal (F * (2 * R) ^ d)
+      = ENNReal.ofReal F * ENNReal.ofReal ((2 * R) ^ d) := by rw [ENNReal.ofReal_mul hmF]
+    _ = ENNReal.ofReal F * ENNReal.ofReal (2 * R) ^ d := by
+        rw [ENNReal.ofReal_pow (by linarith : (0 : ℝ) ≤ 2 * R)]
+    _ = ENNReal.ofReal F * (volume : Measure (Fin d → ℝ)) (pcnBox d R) := by
+        rw [pcnBox_volume]
+    _ = ENNReal.ofReal F * ((volume.restrict (pcnBox d R)) (pcnBox d R)) := by
+        rw [Measure.restrict_apply_self]
+    _ = ∫⁻ y in pcnBox d R, ENNReal.ofReal F ∂(volume.restrict (pcnBox d R)) := by
+        rw [setLIntegral_const]
+    _ ≤ ∫⁻ y in pcnBox d R, ENNReal.ofReal (f y) ∂(volume.restrict (pcnBox d R)) :=
+        setLIntegral_mono' (measurableSet_pcnBox (d := d) R) hpt
+    _ = ((volume.restrict (pcnBox d R)).withDensity fun y => ENNReal.ofReal (f y))
+          (pcnBox d R) := by
+        rw [withDensity_apply _ (measurableSet_pcnBox (d := d) R)]
+
+/-- **The proposal's mass on the box, from below** — the "return mass" a regeneration argument
+consumes. -/
+theorem pcnProposalMeasure_box_ge {c s ρ R F : ℝ} {x : Fin d → ℝ}
+    (hF : 0 ≤ F) (hR : 0 ≤ R) (hle : ∀ y ∈ pcnBox d R, F ≤ pcnDensity c s ρ x y) :
+    ENNReal.ofReal (F * (2 * R) ^ d) ≤ pcnProposalMeasure (d := d) c s ρ R x (pcnBox d R) :=
+  withDensity_box_ge hF hR hle
+
+/-- **The Metropolis step's mass on the box, from below**: the accepted density's floor times the
+box's volume. -/
+theorem pcnMetropolisStep_box_ge {c s ρ R F : ℝ} {π : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hF : 0 ≤ F) (hR : 0 ≤ R)
+    (hle : ∀ y ∈ pcnBox d R, F ≤ pcnMetropolisDensity c s ρ π x y) :
+    ENNReal.ofReal (F * (2 * R) ^ d)
+      ≤ pcnMetropolisStep (d := d) c s ρ R π x (pcnBox d R) :=
+  withDensity_box_ge hF hR hle
+
+/-- **The step the chain takes returns to the box with mass at least `F · (2R)^d`.** -/
+theorem pcnAbsorbingStep_box_ge {s ρ R F : ℝ} {π : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hF : 0 ≤ F) (hR : 0 ≤ R)
+    (hle : ∀ y ∈ pcnBox d R, F ≤ pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ π x y) :
+    ENNReal.ofReal (F * (2 * R) ^ d)
+      ≤ pcnAbsorbingStep (d := d) s ρ R π x (pcnBox d R) := by
+  refine le_trans (pcnMetropolisStep_box_ge (c := pcnNorm1 s ^ d) hF hR hle) ?_
+  refine Measure.le_iff.mp ?_ (pcnBox d R) (measurableSet_pcnBox (d := d) R)
+  exact pcnMetropolisStep_le_pcnAbsorbingStep s ρ R π x
 
 
 end BookProof.MCMC.PCNGaussianFloor
