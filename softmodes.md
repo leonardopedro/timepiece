@@ -528,6 +528,48 @@ constant — is what the constant has to beat.
 
 Axioms audited on the nine new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
 
+#### S2 — the mode expansion on the non-abelian root sector
+
+The identification `ModeIdentification` isolates one statement: `∑_m ‖[A,A]_m x‖²` equals the
+diagonal `:N²:` weight on every mode.  Half of it is now unconditional — the *one-pair* amplitude on
+the root sector, and with it the split of the weight itself.
+
+**The root pair hops.**  `YangMillsFieldStrength.hopWord_pair_offdiag`: for `i ≠ j` the pair
+`c_i† c_j` does not act diagonally.  It moves one quantum from mode `j` to mode `i`,
+
+`c_i† c_j |n⟩ = √((nᵢ+1) nⱼ) |n − eⱼ + eᵢ⟩`,
+
+and `hopWord_pair_offdiag_ne` records that the index really changes when `nⱼ ≠ 0` — so no
+off-diagonal component is diagonal in the occupation basis, in contrast with the Cartan
+`sandwich_diag_magComp`.  The squared amplitude is `offdiag_amp_normSq`, `(nᵢ+1) nⱼ`, and
+`offdiag_amp_decomp` splits it as `nᵢ nⱼ + nⱼ`: the **cross term** of the two distinct occupations
+plus the diagonal occupation.  The `+1` is the normal-ordering constant that survives *off* the
+diagonal, precisely because the annihilation and the creation act on different modes; on the
+diagonal it is absent (`hopWord_pair_same`).  Summed over the ordered pairs,
+`sum_offdiag_amp_sq` gives `∑_{i≠j} nᵢ nⱼ + (d−1) ∑_j nⱼ`: the root share of the weight plus
+`d − 1` copies of the occupation per quantum.
+
+**The weight splits accordingly.**  `YangMillsMagneticQuartic.rootCrossWeight` is
+`∑_{i≠j} nᵢ nⱼ`; `sum_sq_eq_diag_add_root` is `(∑ i, nᵢ)² = ∑ i, nᵢ² + (that)`, and
+`quarticDegreeForm_eq_magnetic_add_root` sums it against `‖c n‖²`:
+
+`quarticDegreeForm c = magneticEnergyForm diagA c + ∑_{n∈supp} rootCrossWeight n · ‖c n‖²`.
+
+So the `:N²:` weight is the normal-ordered magnetic weight plus the root-pair weight, with `d`
+components at a time; `rootCrossWeight_two` shows the `d = 2` case is exactly
+`quartic_eq_magnetic_add_cross` (`2 n₀ n₁`), so the two-component identity is a special case and
+not a separate accident.
+
+**Boundary.**  This is the *one-pair* half of the form expansion.  What `ModeIdentification` still
+needs is the amplitude of a *product* of two root pairs — `∑_m ‖[A,A]_m ψ_n‖²` — i.e. the passage
+from `c_i† c_j` to the commutator square; that is a genuine two-particle (Mehler) computation and
+is not done, here or elsewhere.  Nothing about `ModeIdentification`'s inhabitation status changes:
+the abelian sector still cannot supply one, and the root-sector amplitude above is why the
+non-abelian sector is where one would have to be built.
+
+Axioms audited on the nine theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 
 This section supersedes the previous section on three points: the coordinate-count factor `−99/2`

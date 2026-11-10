@@ -172,6 +172,53 @@ theorem quartic_eq_magnetic_add_cross (c : CoreCoeff 2) :
   rw [h1, h2]
   ring
 
+/-- **The root-pair cross weight of an occupation**: `∑_{i≠j} nᵢ nⱼ`, i.e. the part of the `:N²:`
+weight carried by pairs of *distinct* modes.  These are exactly the pairs the off-diagonal field
+components hop between (`YangMillsFieldStrength.hopWord_pair_offdiag`), so this is the root
+sector's share of the magnetic weight. -/
+def rootCrossWeight (n : Fin d → ℕ) : ℝ :=
+  ∑ i, ∑ j ∈ (Finset.univ : Finset (Fin d)).erase i, (n i : ℝ) * (n j : ℝ)
+
+/-- **The mode expansion of the `:N²:` weight.**  The square of the total occupation is the sum of
+the squared occupations of the single modes plus the cross weight of the distinct pairs:
+`(∑ i, nᵢ)² = ∑ i, nᵢ² + ∑_{i≠j} nᵢ nⱼ`.  The first sum is the normal-ordered (Cartan) share, the
+second the root-pair share; comparing with `magneticEnergyForm_diag` this is the statement that
+the magnetic weight splits into a diagonal and an off-diagonal contribution. -/
+theorem sum_sq_eq_diag_add_root (n : Fin d → ℕ) :
+    (∑ i, (n i : ℝ)) ^ 2 = ∑ i, (n i : ℝ) ^ 2 + rootCrossWeight n := by
+  rw [rootCrossWeight, sq, Finset.sum_mul_sum, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [← Finset.add_sum_erase _ (fun j => (n i : ℝ) * (n j : ℝ)) (Finset.mem_univ i), sq]
+
+/-- **The `:N²:` form is the magnetic form plus the root-pair form.**  This is
+`sum_sq_eq_diag_add_root` summed against `‖c n‖²`: the quartic weight splits into the
+diagonal (magnetic) part and the off-diagonal cross part, `d` components at a time — the
+`d`-fold generalisation of `quartic_eq_magnetic_add_cross`, which is its `d = 2` case
+(`rootCrossWeight_two`).  The split is exact: nothing is dropped and no constant is subtracted. -/
+theorem quarticDegreeForm_eq_magnetic_add_root (c : CoreCoeff d) :
+    quarticDegreeForm c
+      = magneticEnergyForm diagA c
+        + ∑ n ∈ c.support, rootCrossWeight n * ‖c n‖ ^ 2 := by
+  rw [quarticDegreeForm, magneticEnergyForm_diag, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [sum_sq_eq_diag_add_root, add_mul]
+
+/-- For two components the root-pair weight is twice the mixed occupation, so
+`quarticDegreeForm_eq_magnetic_add_root` is `quartic_eq_magnetic_add_cross`. -/
+theorem rootCrossWeight_two (n : Fin 2 → ℕ) :
+    rootCrossWeight n = 2 * ((n 0 : ℝ) * (n 1 : ℝ)) := by
+  rw [rootCrossWeight, Fin.sum_univ_two]
+  have h0 : (∑ j ∈ (Finset.univ : Finset (Fin 2)).erase 0,
+      (n 0 : ℝ) * (n j : ℝ)) = (n 0 : ℝ) * (n 1 : ℝ) := by
+    rw [show (Finset.univ : Finset (Fin 2)).erase 0 = {1} from rfl]
+    simp
+  have h1 : (∑ j ∈ (Finset.univ : Finset (Fin 2)).erase 1,
+      (n 1 : ℝ) * (n j : ℝ)) = (n 1 : ℝ) * (n 0 : ℝ) := by
+    rw [show (Finset.univ : Finset (Fin 2)).erase 1 = {0} from rfl]
+    simp
+  rw [h0, h1]
+  ring
+
 /-- **Cauchy–Schwarz: the `:N²:` form is bounded by the magnetic energy.**  The square of the total
 occupation is at most the number of directions times the sum of the squares of the components, so
 `quarticDegreeForm ≤ d · q_mag^{canon}`. -/

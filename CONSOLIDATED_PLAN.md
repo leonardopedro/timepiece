@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10c):** “State of the project — 2026-11-10c: the abelian sector is a
+> **Newest entry (2026-11-10d):** “State of the project — 2026-11-10d: the mode expansion on the
+> non-abelian root sector”, at the end.  The root pair `c_i† c_j` hops with squared amplitude
+> `nᵢ nⱼ + nⱼ` (`hopWord_pair_offdiag`, `offdiag_amp_normSq`, `offdiag_amp_decomp`,
+> `sum_offdiag_amp_sq`), and the `:N²:` weight splits as `quarticDegreeForm = magneticEnergyForm`
+> plus the cross weight `∑_{i≠j} nᵢ nⱼ` (`rootCrossWeight`, `sum_sq_eq_diag_add_root`,
+> `quarticDegreeForm_eq_magnetic_add_root`).  This is the one-pair half of the form expansion; the
+> two-pair (Mehler) half is still open.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10c):** “State of the project — 2026-11-10c: the abelian sector is a
 > counterexample, the normal-ordering identity, and the S2 certificate”, at the end.  The abelian
 > sector provably cannot inhabit `ModeIdentification` (it carries the normal-ordering constant);
 > `hopWord_pair_reverse` and `quartic_eq_magnetic_add_cross` prove that constant explicitly; and
@@ -19491,3 +19498,52 @@ on `hopWord_pair_reverse`, `quartic_eq_magnetic_add_cross`, `mulOp_eq_zero_imp`,
 `s2FormDomination`, `s2_ground_threshold` and `s2_excited_threshold` reports
 `propext, Classical.choice, Quot.sound` only; no line of the three touched Lean
 files exceeds 100 characters.
+
+## State of the project — 2026-11-10d: the mode expansion on the non-abelian root sector
+
+This entry records the follow-up to 2026-11-10c: the one-pair half of the magnetic-energy mode
+expansion, which is what the abelian counterexample left as the identification obligation.  All of
+it is `sorry`-free, `axiom`-free and compiled with `lake build +BookProof`.
+
+**The root pair hops, and its weight is the cross term.**  In `YangMillsFieldStrength` §4,
+`hopWord_pair_offdiag` proves that for `i ≠ j` the pair `c_i† c_j` moves one quantum from mode `j`
+to mode `i` with amplitude `√((nᵢ+1) nⱼ)`:
+
+  `c_i† c_j |n⟩ = √((nᵢ+1) nⱼ) |n − eⱼ + eᵢ⟩`.
+
+`hopWord_pair_offdiag_sqrt_mul` is the same in merged form; `hopWord_pair_offdiag_ne` shows the
+index really changes when `nⱼ ≠ 0`, so no off-diagonal component is diagonal in the occupation
+basis — the contrast with the Cartan `sandwich_diag_magComp`.  `offdiag_amp_normSq` squares the
+amplitude to `(nᵢ+1) nⱼ` and `offdiag_amp_decomp` splits it as `nᵢ nⱼ + nⱼ`: the **cross term** of
+two distinct occupations plus the occupation itself.  The `+1` is the normal-ordering constant, and
+it survives *off* the diagonal because the annihilation and the creation act on different modes —
+on the diagonal it is absent (`hopWord_pair_same`, `hopWord_pair_reverse`).  Summed over the
+ordered pairs, `sum_offdiag_amp_sq` is
+
+  `∑_{i≠j} (nᵢ+1) nⱼ = ∑_{i≠j} nᵢ nⱼ + (d−1) ∑_j nⱼ`,
+
+i.e. the root share of the weight plus `d − 1` copies of the occupation per quantum.
+
+**The weight splits.**  `YangMillsMagneticQuartic.rootCrossWeight` is `∑_{i≠j} nᵢ nⱼ`;
+`sum_sq_eq_diag_add_root` proves `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n`, and
+`quarticDegreeForm_eq_magnetic_add_root` sums it against `‖c n‖²`:
+
+  `quarticDegreeForm c = magneticEnergyForm diagA c + ∑_{n∈supp} rootCrossWeight n ‖c n‖²`.
+
+So the `:N²:` weight is the normal-ordered magnetic weight plus the root-pair weight, `d`
+components at a time.  `rootCrossWeight_two` identifies the `d = 2` case with the existing
+`quartic_eq_magnetic_add_cross` (`2 n₀ n₁`), so the two-component identity is now a special case
+rather than a separate computation.
+
+**Boundary.**  This is the *one-pair* half of the form expansion.  What `ModeIdentification` still
+needs is the amplitude of a *product* of two root pairs, `∑_m ‖[A,A]_m ψ_n‖²` — a genuine
+two-particle (Mehler) computation, and not done.  Nothing changes about inhabitation: the abelian
+sector still cannot supply a `ModeIdentification` (2026-11-10c), and the root-sector amplitude
+above is why the non-abelian sector is where one would have to be built.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`sum_sq_eq_diag_add_root`, `quarticDegreeForm_eq_magnetic_add_root`, `rootCrossWeight_two`,
+`hopWord_pair_offdiag`, `hopWord_pair_offdiag_sqrt_mul`, `offdiag_amp_normSq`,
+`offdiag_amp_decomp`, `hopWord_pair_offdiag_ne` and `sum_offdiag_amp_sq` reports
+`propext, Classical.choice, Quot.sound` only; no line of the touched Lean files exceeds 100
+characters.

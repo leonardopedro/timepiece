@@ -42,17 +42,34 @@ lacks (`YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`);
   the occupation basis with eigenvalue the linear form `∑ j, m_j n_j`: this is `magComp`;
 * **`sandwich_diag_apply`**, **`magneticEnergyForm_eq`** — the magnetic energy form is the sum of
   squares of the derived components, i.e. the `magneticEnergyForm` the barrier bound consumes.
+* **`hopWord_pair_offdiag`**, **`hopWord_pair_offdiag_sqrt_mul`** — the off-diagonal (root) pair
+  `c_i† c_j` hops one quantum from mode `j` to mode `i` with amplitude `√((nᵢ+1) nⱼ)`; the root
+  sector of the mode expansion is thus off-diagonal in the occupation basis, where the Cartan pair
+  is diagonal.
+* **`offdiag_amp_normSq`**, **`offdiag_amp_decomp`** — its squared amplitude is `nᵢ nⱼ + nⱼ`: the
+  cross term of the two distinct occupations plus the diagonal occupation, the `+1` being the
+  normal-ordering constant that survives off the diagonal.
+* **`hopWord_pair_offdiag_ne`** — with mode `j` occupied the root pair changes the index, so no
+  off-diagonal component is diagonal in the occupation basis.
+* **`sum_offdiag_amp_sq`** — summed over the ordered pairs, the root amplitudes give the cross
+  weight `∑_{i≠j} nᵢ nⱼ` plus `d − 1` copies of the occupation, matching
+  `YangMillsMagneticQuartic.quarticDegreeForm_eq_magnetic_add_root`.
 
 ## Honest boundary
 
 The derivative term `∂_μ A_ν` is not modelled here: the module derives the *contraction
 structure* of the nested algebra and the Cartan eigenvalue, which is what fixes the components
 `B_a` as linear forms, but the assembly `F = ∂A + g[A,A]` as an operator identity (and hence
-`commutator_cartan`) is stated only through the inner matrices, and the off-diagonal (root)
-sector, where `[A_μ, A_ν]` does not vanish and which carries the quartic part of `q_W`, is not
-analysed in this model.  Both are proved for the field-strength polynomial the corpus actually
-uses in `BookProof.Qym.ChapterYangMillsFieldStrengthSplit` (`magPoly_eq_deriv_add`, the bracket
-identity `two_smul_levi_contract`, and the root-sector quartic energy `root_energy`).
+`commutator_cartan`) is stated only through the inner matrices.  The off-diagonal (root) sector is
+now analysed at the level of the *one-pair amplitude* — `hopWord_pair_offdiag`, its squared weight
+`nᵢ nⱼ + nⱼ`, and the summed form `sum_offdiag_amp_sq` — which is the mode expansion of a single
+root component in the occupation basis; what is still not done is the *product* of two root pairs
+(the quartic term's amplitude on a mode), i.e. the passage from the amplitude of `c_i† c_j` to
+`∑_m ‖[A,A]_m ψ_n‖²`.  That is the same form-level identification `ModeIdentification` isolates in
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit`; here only the one-pair half is proved.  The
+polynomial side of the same story is proved there for the field strength the corpus actually uses
+(`magPoly_eq_deriv_add`, the bracket identity `two_smul_levi_contract`, and the root-sector quartic
+energy `root_energy`), which is the operator the form half still has to be matched against.
 -/
 
 noncomputable section
@@ -213,5 +230,87 @@ theorem magneticEnergyForm_eq_sum (A : Fin d → Fin d → ℝ) (c : CoreCoeff d
   rw [Finset.sum_comm]
   refine Finset.sum_congr rfl fun n _ => ?_
   rw [Finset.sum_mul]
+
+/-! ## 4. The off-diagonal (root) pair, and the mode expansion in the occupation basis -/
+
+/-- **The off-diagonal pair hops.**  For `i ≠ j` the pair `c_i† c_j` does not leave the basis
+vector where it is: it moves one quantum from mode `j` to mode `i`, with amplitude
+`√(nᵢ+1) · √(nⱼ)`.  This is the mode expansion of the root sector in the occupation basis — the
+Cartan pair of `hopWord_pair_same` acts diagonally by `n_j`, the root pair acts off-diagonally. -/
+theorem hopWord_pair_offdiag {i j : Fin d} (hij : i ≠ j) (n : Fin d → ℕ) (z : ℂ) :
+    hopWord [(j, false), (i, true)] (Finsupp.single n z)
+      = Finsupp.single (raiseIdx i (lowerIdx j n))
+          ((((Real.sqrt ((n i : ℝ) + 1) : ℝ) : ℂ) *
+            (((Real.sqrt (n j : ℝ) : ℝ) : ℂ) * z))) := by
+  change hopStep (i, true) (hopStep (j, false) (Finsupp.single n z)) = _
+  rw [hopStep_lower_single, hopStep_raise_single]
+  have hdiff : (lowerIdx j n) i = n i := by simp [lowerIdx, hij]
+  rw [hdiff]
+
+/-- The root amplitude in the merged form: `√((nᵢ+1) nⱼ)`, the square root of the cross-term
+weight of the pair. -/
+theorem hopWord_pair_offdiag_sqrt_mul {i j : Fin d} (hij : i ≠ j) (n : Fin d → ℕ) (z : ℂ) :
+    hopWord [(j, false), (i, true)] (Finsupp.single n z)
+      = Finsupp.single (raiseIdx i (lowerIdx j n))
+          (((Real.sqrt (((n i : ℝ) + 1) * (n j : ℝ)) : ℝ) : ℂ) * z) := by
+  rw [hopWord_pair_offdiag hij n z]
+  congr 1
+  rw [show (((Real.sqrt ((n i : ℝ) + 1) : ℝ) : ℂ) *
+        (((Real.sqrt (n j : ℝ) : ℝ) : ℂ) * z))
+      = ((((Real.sqrt ((n i : ℝ) + 1) : ℝ) : ℂ) *
+        ((Real.sqrt (n j : ℝ) : ℝ) : ℂ)) * z) from (mul_assoc _ _ _).symm]
+  rw [← Complex.ofReal_mul, ← Real.sqrt_mul (by positivity)]
+
+/-- **The squared root amplitude is `(nᵢ+1) nⱼ`**: the pair weight of two *distinct* modes.  The
+diagonal pair's weight is `nⱼ` (`hopWord_pair_same`); the extra `nᵢ` is the cross term, and the
+`+1` is the vacuum contribution that survives off the diagonal because the annihilation acts on a
+different mode from the creation. -/
+theorem offdiag_amp_normSq {i j : Fin d} (n : Fin d → ℕ) :
+    ‖(((Real.sqrt (((n i : ℝ) + 1) * (n j : ℝ)) : ℝ) : ℂ))‖ ^ 2
+      = ((n i : ℝ) + 1) * (n j : ℝ) := by
+  rw [Complex.norm_real, Real.norm_eq_abs, sq_abs, Real.sq_sqrt (by positivity)]
+
+/-- The root amplitude splits into the cross term plus the occupation:
+`(nᵢ+1) nⱼ = nᵢ nⱼ + nⱼ`. -/
+theorem offdiag_amp_decomp {i j : Fin d} (n : Fin d → ℕ) :
+    ((n i : ℝ) + 1) * (n j : ℝ) = (n i : ℝ) * (n j : ℝ) + (n j : ℝ) := by
+  ring
+
+/-- **The root pair leaves the diagonal**: with mode `j` occupied the new index differs from `n`.
+So an off-diagonal component is genuinely a hopping operator in the occupation basis, not a
+diagonal one — the statement `sandwich_diag_magComp` makes for the Cartan components. -/
+theorem hopWord_pair_offdiag_ne {i j : Fin d} (hij : i ≠ j) (n : Fin d → ℕ)
+    (hn : n j ≠ 0) : raiseIdx i (lowerIdx j n) ≠ n := by
+  intro h
+  have hji : j ≠ i := fun hji => hij hji.symm
+  have h1 : (raiseIdx i (lowerIdx j n)) j = (lowerIdx j n) j := by
+    simp [raiseIdx, hji]
+  have h2 : (lowerIdx j n) j = n j - 1 := by simp [lowerIdx]
+  have h3 : n j - 1 = n j := by rw [← h2, ← h1, h]
+  omega
+
+/-- **The mode expansion of the root sector.**  Summed over all ordered pairs of distinct modes,
+the squared root amplitudes are the cross weight plus `d − 1` copies of the occupation:
+`∑_{i≠j} (nᵢ+1) nⱼ = ∑_{i≠j} nᵢ nⱼ + (d−1) ∑ j, nⱼ`.  The first term is the root share of the
+`:N²:` weight (`rootCrossWeight`), the second the residual normal-ordering constant that the
+off-diagonal amplitude carries — `d − 1` per quantum, since the pair hops into any of the other
+`d − 1` modes.  So the quartic weight is the Cartan part plus this root part, mode by mode. -/
+theorem sum_offdiag_amp_sq (n : Fin d → ℕ) :
+    (∑ i, ∑ j ∈ (Finset.univ : Finset (Fin d)).erase i, ((n i : ℝ) + 1) * (n j : ℝ))
+      = rootCrossWeight n + ((d : ℝ) - 1) * ∑ j, (n j : ℝ) := by
+  have hterm : ∀ i j : Fin d, ((n i : ℝ) + 1) * (n j : ℝ)
+      = (n i : ℝ) * (n j : ℝ) + (n j : ℝ) := fun i j => by ring
+  simp only [hterm, Finset.sum_add_distrib]
+  rw [rootCrossWeight]
+  congr 1
+  have hsub : ∀ i : Fin d, (∑ j ∈ (Finset.univ : Finset (Fin d)).erase i, (n j : ℝ))
+      = (∑ j, (n j : ℝ)) - (n i : ℝ) := by
+    intro i
+    have h := Finset.add_sum_erase (s := (Finset.univ : Finset (Fin d)))
+      (f := fun j => (n j : ℝ)) (a := i) (Finset.mem_univ i)
+    linarith
+  simp only [hsub, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
+    Fintype.card_fin, nsmul_eq_mul]
+  ring
 
 end BookProof.YangMillsFieldStrength

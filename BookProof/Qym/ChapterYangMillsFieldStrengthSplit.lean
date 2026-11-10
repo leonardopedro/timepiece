@@ -546,6 +546,13 @@ above.  This section states that identification and proves what it yields.
   is injective there, so the identification fails on the normal-ordering constant.
 * **`s2FormDomination`**, **`s2_ground_threshold`**, **`s2_excited_threshold`** — the constant as
   a `FormDomination` certificate, so the thresholds are those of the certificate machinery.
+* **The root-sector half of the form expansion** is proved in the sibling modules rather than
+  here: `YangMillsMagneticQuartic.rootCrossWeight`,
+  `YangMillsMagneticQuartic.quarticDegreeForm_eq_magnetic_add_root` (the `:N²:` weight is the
+  magnetic weight plus the cross weight `∑_{i≠j} nᵢ nⱼ`), and
+  `YangMillsFieldStrength.hopWord_pair_offdiag` with `sum_offdiag_amp_sq` (the root pair hops with
+  squared amplitude `nᵢ nⱼ + nⱼ`).  What remains of `ModeIdentification` is the passage from that
+  one-pair amplitude to `∑_m ‖[A,A]_m ψ_n‖²`.
 -/
 
 section ModeIdentification
