@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T18:15:42+00:00",
+ "generated_at": "2026-11-10T19:22:30+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 1748,
+   "lines": 1869,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1189,7 +1189,9 @@
     "## 34. The degenerate doublet's Schur sums, evaluated (2026-11-10n)",
     "## 35. The quartic analogue of the uncertainty bound (2026-11-10o)",
     "## 36. The degenerate doublet's Schur radius is sharp (2026-11-10o)",
-    "## 37. Which quadratic-weight lemmas survive domination by `harmPoly` (2026-11-10o)"
+    "## 37. Which quadratic-weight lemmas survive domination by `harmPoly` (2026-11-10o)",
+    "## 38. The cross term is a Hessian weight: the upper bound §35 asked for (2026-11-10p)",
+    "## 39. Can the `ExpBounded` machinery supply the form-domain inclusion? No. (2026-11-10p)"
    ]
   },
   {

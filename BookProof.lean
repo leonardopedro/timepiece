@@ -3604,6 +3604,16 @@ import BookProof.Sm.ChapterSmDegenerateDoubletSharp
 -- the self-bound and coercivity survive, while the reverse `H²` estimate does not follow from
 -- domination of a coefficient.
 import BookProof.Sm.ChapterSmQuadraticWeightLemmas
+-- `ChapterSmCrossTermHessian` (2026-11-10p, `SM_ESA_COMPLETION_PLAN` §38): the upper bound §35 named
+-- as missing.  Two integration by parts turn the commutator half of the cross term into a **Hessian
+-- weight** — `commutator_cross_eq` per coordinate, `crossTerm_eq` summed: `2 ℜ⟪Q p, −Δ_S p⟫ =
+-- 2 · weightedDirichlet − hessForm`, exactly.  Hence `crossTerm_upper` (the sign identity's missing
+-- direction, from a non-negative Hessian weight, `sm_crossTerm_upper` at the SM weight) and
+-- `residual_eq_hessForm` / `potSelfBound_one_iff_hessForm`: `PotSelfBound P c₀ 1` **is** the
+-- Hessian gap, a comparison of two quadratic forms with no degree-six density left.  The gap is not
+-- proved, so `PotSelfBound` stays a hypothesis; the section removes the cubic obstruction and names
+-- the remaining sign of the Hessian trace, which the corpus does not compute.
+import BookProof.Sm.ChapterSmCrossTermHessian
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator

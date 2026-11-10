@@ -1746,3 +1746,124 @@ domination is a bound on the *coefficient* `W`.  Passing from the harmonic insta
 `‖N_harm p‖ ≤ κ ‖N_W p‖`, i.e. §32's named input again.  Every lower-order statement survives
 domination; the comparison of the two forms does not.  And the SM's quartic `W` is not even in this
 class, so the table's provable half does not apply to it either.
+
+## 38. The cross term is a Hessian weight: the upper bound §35 asked for (2026-11-10p)
+
+Module: `BookProof/Sm/ChapterSmCrossTermHessian.lean`.  Registered in `BookProof.lean`.
+
+§35 recorded the obstruction precisely: §23's identity bounds the cross term of `‖(−Δ_S + W)p‖²`
+*below* (the weighted Dirichlet energy is non-negative), whereas `PotSelfBound` needs the
+commutator term `ℜ⟪p ∇W, ∇p⟫` to be *bounded above*, and the only route the corpus had — §26's
+interpolation plus `2ab ≤ a² + b²` — landed on `GradResidual`, a comparison between a degree-six
+density `∑_j ‖(∂_j W)p‖²` and a second-order norm.  This section proves the missing bound, and it
+is sharper than an inequality: the commutator term is a **Hessian weight**.
+
+**The identity.**  Two integration by parts, on the Gauss–polynomial core where everything is a
+Gaussian integral:
+
+```text
+2 Re ⟪Q p, −Δ_S p⟫  =  2 ∑_{j ∈ S} ∫ Q |∇_j p|²  −  ∑_{j ∈ S} ∫ (∂_j² Q) |p|².
+```
+
+No derivative is left on `Q`.  The mechanism is the twisted Leibniz rule: `coreD j a * b + a *
+coreD j b = ∂_j(ab) − x_j ab` (`coreD_mul_add`), so the two halves of
+`⟪Qp, −Δ_S p⟫ = ∑_j (⟪(∂_jQ)p, ∇_j p⟫ + ⟪Q∇_j p, ∇_j p⟫)` combine into a single ordinary
+derivative, which the antisymmetry of `coreD` (`gaussInt_coreD`) integrates by parts once more;
+the twist `−x_j/2` cancels exactly between the two halves.
+
+* **`coreD_mul_add`** — the twisted Leibniz rule in the shape the identity consumes.
+* **`gaussInt_cpoly`**, **`two_re_gaussInt`** — conjugation commutes with the Gaussian integral
+  (the weight is real), so `2 Re ∫ f = ∫ (f + conj f)`; these are bookkeeping, `cpoly` being the
+  conjugate polynomial.
+* **`commutator_cross_eq`** — the identity coordinate by coordinate.
+* **`crossTerm_eq`** — the identity summed over `S`, in the two weights
+  `weightedDirichlet S Q p = ∑_{j∈S} ∫ Q |∇_j p|²` and `hessForm S Q p = ∑_{j∈S} ∫ (∂_j²Q)|p|²`:
+  `2 ℜ⟪Q p, −Δ_S p⟫ = 2 · weightedDirichlet − hessForm`.
+* **`crossTerm_upper`** — the missing direction: when `hessForm ≥ 0` the cross term is dominated by
+  the weighted Dirichlet energy.  **`hessForm_eq_trace`** / **`hessForm_nonneg`** reduce the sign to
+  the pointwise non-negativity of the Hessian trace `∑_j ∂_j²Q`, and **`sm_crossTerm_upper`** is the
+  statement at the SM's quartic weight under that one sign hypothesis.
+* **`weightedDirichlet_add`**, **`weightedDirichlet_one`** — the weighted energy is additive in the
+  weight and the weight `1` gives back §26's Dirichlet energy, so the residual can be written with
+  the weight `W + 1` alone.
+
+**What this does to `PotSelfBound`.**  Substituting the identity into §31's residual gives, with no
+inequality anywhere,
+
+```text
+R = ‖Δ_S p‖² + 2 ∑_{j∈S} ∫ (W+1)|∇_j p|² − ∑_{j∈S} ∫ (∂_j²W)|p|²,
+```
+
+hence **`residual_eq_hessForm`** and the equivalence
+
+```text
+PotSelfBound P c₀ 1   ⟺   hessForm(W) ≤ ‖Δ_S p‖² + 2 · weightedDirichlet(W+1)   for all p
+```
+
+(**`potSelfBound_one_iff_hessForm`**).  This is the honest state of the target after the packet:
+
+* the degree-six density is **gone**.  §31's `GradResidual` compared a cubic object with a
+  second-order norm; the Hessian gap compares two **quadratic** forms — the Hessian-weighted `L²`
+  mass of `p` against the graph form.  Nothing in the new condition is a statement about `∇W`;
+* the gap is **exact**, not sufficient: §31's `potSelfBound_one_of_grad_residual` carried the
+  `2ab ≤ a² + b²` slack, this does not;
+* the gap is **still not proved**, and `PotSelfBound` therefore remains a hypothesis.  What is left
+  is a numerical comparison of the SM's constants — the Hessian trace of the quartic potential
+  against the kinetic term and the weighted Dirichlet energy — at the level of quadratic forms.
+  For `p = 1` both sides are finite sums of Gaussian moments, so the gap is *checkable*; it is not
+  *decided* here, and no claim is made that it holds.
+
+The sign hypothesis of `sm_crossTerm_upper` deserves a note of its own, because it is the reason no
+unconditional upper bound follows from the identity: `∑_j ∂_j²(φ_r²) = 2∑_j (∂_jφ_r)² + 2φ_r Δφ_r`
+is a degree-two polynomial whose second term is indefinite.  For the SM's fields (quadratic
+magnetic components, quadratic covariant derivatives) the sign is data-dependent, and the corpus
+does not compute it.  Where the trace *is* non-negative, the cross term is dominated by the weighted
+energy — that is §35's missing bound, now a theorem.
+
+## 39. Can the `ExpBounded` machinery supply the form-domain inclusion? No. (2026-11-10p)
+
+No module: this section records a **check** whose result is negative, so that the search is not
+repeated.  The question was whether the corpus's exponential-growth class — the hypothesis under
+which the graph norm of `−Δ_S + W` is even defined — can be pushed to §32's
+`FormDomainComparison`, and hence to `PotSelfBound`.
+
+**Where the class enters.**  `ExpBounded f` is `|f x| ≤ C e^{c‖x‖}`.  It is the hypothesis of
+`potLp` (`BookProof/Qg/ChapterQgHermiteFriedrichs.lean`) and hence of `hamPolyS`, `hamCoreS`,
+`hamCore`; its only job is to make `W · p · e^{−‖x‖²/4}` an `L²` function
+(`memLp_mul_pgFun_of_expBounded`).  Every polynomial is in the class (`expBounded_polyW`,
+`expBounded_poly`), so the SM weight qualifies.
+
+**What the class proves.**  `ccHamS_esa` / `hamCoreS_esa`
+(`BookProof/ChapterDegKatoEsa.lean`, `BookProof/Toolbox/ChapterHermiteGraphApprox.lean`) prove
+essential self-adjointness of `−Δ_S + W` for every smooth `W ≥ 1`, by mollification and a cut-off
+energy estimate: the deficiency vector `w` at a purely imaginary `z` satisfies
+`∫_{‖x‖≤R} |w|² ≤ (2C²/R²)‖w‖²`, and `R → ∞` gives `w = 0`.  That is a **qualitative** theorem:
+it says the deficiency indices vanish.  It contains no inequality between `‖W u‖` and `‖Au‖`, and
+it uses no elliptic regularity.
+
+**What the inclusion needs.**  §22's `PotSelfBound P c₀ β` is
+`‖(W+1)p‖ ≤ β‖(−Δ_S + W + 1)p‖` — a *relative bound*, i.e. a quantitative norm inequality, and by
+§38 it is equivalent to the Hessian gap.  Three reasons the class cannot produce it:
+
+1. **Growth is not size.**  `ExpBounded` is closed under `const_mul` and under adding bounded
+   functions, so it is *scale-blind*: `t·W` is in the class for every `t > 0`.  The Hessian gap is
+   not scale-blind — its Hessian side is linear in `t`, its Dirichlet side is `t·weightedDirichlet(W)
+   + weightedDirichlet(1)`, its kinetic side is independent of `t`.  A hypothesis that holds
+   uniformly in `t` cannot decide an inequality whose two sides have different degrees in `t`.
+2. **Deficiency is not domination.**  The energy estimate bounds a vector *in the kernel of
+   `A* − z`*.  A relative bound needs a statement about every core vector, and the corpus's own
+   quantitative theorems on the class — `norm_potLp_le_of_le_harm`
+   (`|W| ≤ λ harmW + μ`), `norm_potLp_le_shift` — each carry exactly the extra domination the class
+   lacks.  For a quartic `W` neither domination holds.
+3. **The quadratic case proves the pattern.**  §33's reverse estimate for `harmPoly` *is* obtained
+   from these tools — because a quadratic weight admits the domination `W ≤ λ harmPoly + μ` and the
+   uncertainty bound `norm_sq_harmPoly_mul_le`.  Both are degree-two facts.  Nothing in the class
+   substitutes for them at degree four.
+
+**Verdict.**  The machinery supplies the *bookkeeping* (the graph norm exists) and the
+*qualitative* half (the form is closed and the operator essentially self-adjoint); it does not
+supply the inclusion.  §32's `FormDomainComparison` — the graph norm of `−Δ_S + W + 1` dominating the
+`H²` (or, by §38, the Hessian-weighted `L²`) norm — remains the open input, and `PotSelfBound`
+remains a hypothesis.  Note that the SM's *essential self-adjointness* is unaffected: `sm_h_esa` is
+proved unconditionally (§13), and `PotSelfBound` is the hypothesis of the P1/P2 **relative-bound**
+transfer (`smNormalForm_norm_le_of_pot_self_bound`), a different estimate from ESA.
