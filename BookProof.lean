@@ -3510,8 +3510,9 @@ import BookProof.Sm.ChapterSmKineticElliptic
 -- `kineticSum_norm_le_of_pot_self_bound` gives the elliptic estimate with `c = 1 + β`, and
 -- `smNormalForm_norm_le_of_pot_self_bound` composes it with §19's interpolation so the whole P2
 -- relative bound rests on that one inequality.  The quartic self-bound itself remains open; the
--- module docstring records why (no integration by parts on the Gaussian core, and the corpus's only
--- uncertainty bound is quadratic).
+-- module docstring records why (the gradient cannot be interpolated against the graph norm, and the
+-- corpus's only uncertainty bound is quadratic).  §26 adds the formal equivalence of `PotSelfBound`
+-- with §19's `hpoly` (`potSelfBound_of_kinetic_bound`) and the interpolation §23 does afford.
 import BookProof.Sm.ChapterSmKineticGarding
 -- `ChapterSmGaussWeightedIbp` (2026-11-10k, `SM_ESA_COMPLETION_PLAN` §23): the weighted
 -- integration-by-parts identity on the Gauss–polynomial core, `⟪Q u, −Δ_S u⟫` = weighted Dirichlet
@@ -3522,6 +3523,29 @@ import BookProof.Sm.ChapterSmKineticGarding
 -- first ingredient of §22's `PotSelfBound`; the interpolation of `∇` is still missing, so
 -- `PotSelfBound` stays a hypothesis.
 import BookProof.Sm.ChapterSmGaussWeightedIbp
+-- `ChapterSmGradInterpolation` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §26): what §23's weighted
+-- identity affords quantitatively — `‖∇_j p‖² ≤ ‖√W ∇_j p‖²` one coordinate at a time, the
+-- Cauchy–Schwarz bound `abs_cross_le_op` on the commutator term, and the interpolation
+-- `dirichlet_le_weighted_form`: `∑_{j∈S} ‖∇_j p‖² ≤ 2 Re ⟪W p, −Δ_S p⟫ + ∑_{j∈S} ‖(∂_j W)p‖²`,
+-- with `sm_dirichlet_le_weighted_form` at the quartic potential.  It also proves the direction §22
+-- only asserted: `potSelfBound_of_kinetic_bound`, i.e. §19's `hpoly` implies `PotSelfBound`, so the
+-- two are equivalent spellings of the same open problem rather than separate hypotheses.
+import BookProof.Sm.ChapterSmGradInterpolation
+-- `ChapterSmFullCommFormBlockP1OpNorm` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §27): the P1 Schur
+-- radii as **operator norms** instead of `ℓ¹` masses — `p1HiggsOpMass D a = ‖p1HiggsMat D a‖` under
+-- the `L^∞` matrix norm (`row_le_opNorm`, `row_norm_le_opNorm`, `entry_le_opNorm`), the radii
+-- `p1HiggsOpRowRadius`/`p1HiggsOpColRadius`, the Schur bounds `rowSum_p1Higgs_le_opRadius` /
+-- `colSum_p1Higgs_le_opRadius`, the sharpening `p1HiggsOpMass_le_mass` /
+-- `p1HiggsOpRowRadius_le_rowRadius` against §24, and the hypothesis-free
+-- `smCanonical_p1Higgs_commForm_le_opRadius_unconditional`.
+import BookProof.Sm.ChapterSmFullCommFormBlockP1OpNorm
+-- `ChapterSmFullCommFormBlockYukawaMixing` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §28): a Yukawa
+-- coefficient family that **provably mixes blocks** — `mixYuk` (two degenerate occupation-diagonal
+-- components) with `mixYuk_unsupported` showing no `blk` satisfies §20's support condition, the
+-- Schur sums `rowSumGen_mixYuk`/`colSumGen_mixYuk` both `2`, `mixYuk_commForm_le` at the constant
+-- `4√(2·2)`, and the same mixing added to the real dictionary (`p1HiggsMix`) with
+-- `rowSumGen_p1HiggsMix_le`, `colSumGen_p1HiggsMix_le` and `p1HiggsMix_commForm_le`.
+import BookProof.Sm.ChapterSmFullCommFormBlockYukawaMixing
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator

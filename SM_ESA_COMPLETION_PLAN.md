@@ -1404,3 +1404,100 @@ and the SM's Yukawa couplings do mix them.
 * **`smCanonical_p1Higgs_commForm_le_unconditional`** — the payoff: the commutator bound for the P1
   Yukawa dictionary with **no hypothesis at all** beyond `0 ≤ c₀`.  The support condition is gone, the
   Schur data is explicit, and the placement is canonical.
+
+## 26. The gradient interpolation from the weighted IBP identity (2026-11-10l)
+
+Module: `BookProof/Sm/ChapterSmGradInterpolation.lean`.  Registered in `BookProof.lean`.
+
+§23 proved the sign identity of the commutator term and said that closing §22's `PotSelfBound` still
+needs an interpolation of `∇` between `L²` and the graph norm.  This section proves the interpolation
+the identity actually affords, and states precisely why it does **not** close the self-bound.
+
+* **`norm_coreD_sq_le_weighted`** — one coordinate of the domination `‖∇_j p‖² ≤ ‖√W ∇_j p‖²`, from
+  `W ≥ 1` pointwise and §23's `eval_weighted_self_re`.
+* **`abs_cross_le_op`** — the commutator term is a Hilbert–Schmidt pairing:
+  `|Re ⟪(∂_j W)p, ∇_j p⟫| ≤ ‖(∂_j W) p‖ ‖∇_j p‖`, via `inner_pgLp_pgLp` and Cauchy–Schwarz.
+* **`mul_le_half_add_sq`** — `2ab ≤ a² + b²`.
+* **`dirichlet_le_weighted_form`** — the interpolation proper:
+
+  ```text
+  ∑_{j∈S} ‖∇_j p‖²  ≤  2 Re ⟪W p, −Δ_S p⟫  +  ∑_{j∈S} ‖(∂_j W) p‖²,
+  ```
+
+  and **`sm_dirichlet_le_weighted_form`** at the quartic potential, where `W ≥ 1` is
+  `one_le_polyW_smPotPoly` for `c₀ ≥ 1`.
+* **`potSelfBound_of_kinetic_bound`** — the **converse** of §22's reduction: §19's `hpoly`
+  (`‖Δ_S p‖ ≤ c ‖(−Δ_S + W + 1)p‖`) implies `PotSelfBound P c₀ (1 + c)`.  §22 asserted that the two
+  are "two equivalent spellings of one open problem"; this makes the missing direction a theorem.
+
+**Why the interpolation is not the self-bound.**  Two obstructions, both recorded in the module.
+
+1. The term `∑_j ‖(∂_j W)p‖²` is not absorbable: `W` has degree four, so `∂_j W` has degree three and
+   `|∇W|²` has degree six, and there is **no constant** `C` with `|∇W(x)|² ≤ C W(x)` as `x → ∞`.  That
+   inequality is the hypothesis every absorption of the commutator term requires, so the interpolation
+   cannot be reduced to a statement about `W` alone.
+2. The direction is wrong for the self-bound in any case: the interpolation bounds `∇` **by** the form,
+   while `PotSelfBound` asks for the *degree-four* term to be dominated by the form.  By
+   `potSelfBound_of_kinetic_bound` that is exactly `hpoly`, i.e. the open problem itself.
+
+The net effect is that §23+§26 give the sign and every size estimate the sign affords, and the one
+thing they cannot give — a **reverse** elliptic estimate `‖W p‖ ≲ ‖(−Δ_S + W + 1)p‖` — is what
+`PotSelfBound` is.  `PotSelfBound` stays a hypothesis downstream, and §26 assumes nothing away.
+
+## 27. The P1 Schur radii as operator norms (2026-11-10l)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormBlockP1OpNorm.lean`.  Registered in `BookProof.lean`.
+
+§24's radii were built from the `ℓ¹` mass of the internal matrices times the basis mass — a sum over
+**every entry**, while a Schur row bound only needs a bound on **each row**.  This section uses the
+norm the row bound calls for: Mathlib's `L^∞` operator norm on a finite matrix, which is the supremum
+of the row sums (`Matrix.linfty_opNorm_def`, `open scoped Matrix.Norms.Operator`).
+
+* **`row_le_opNorm`**, **`row_norm_le_opNorm`**, **`entry_le_opNorm`** — every row sum, the sup norm
+  of every row, and every entry are bounded by the operator norm.
+* **`norm_le_of_row_le`** — conversely, a uniform row bound bounds the operator norm.
+* **`p1HiggsOpMass D a = ‖p1HiggsMat D a‖`**, **`p1HiggsOpRowRadius D = ∑_a p1HiggsOpMass D a`**,
+  **`p1HiggsOpColRadius D = card (Finset (Fin 96)) * p1HiggsOpRowRadius D`** — the radii.
+* **`rowSum_p1Higgs_le_opRadius`**, **`colSum_p1Higgs_le_opRadius`** — the two Schur bounds, so
+  `smPos_p1Higgs_commForm_le_opRadius` / `smCanonical_p1Higgs_commForm_le_opRadius` are §21's bounds
+  with no Schur data left.
+* **`p1Higgs_entry_le_own`** — each P1 matrix obeys the entrywise bound of **its own** internal matrix
+  (not the total), which is what makes the comparison sharp.
+* **`p1HiggsOpMass_le_mass`**, **`p1HiggsOpRowRadius_le_rowRadius`**,
+  **`p1HiggsOpColRadius_le_colRadius`** — the new radii are at most §24's, and hence at most §25's.
+* **`rowSumGen_p1Higgs_le_opRowRadius`**, **`colSumGen_p1Higgs_le_opColRadius`**, and the payoff
+  **`smCanonical_p1Higgs_commForm_le_opRadius_unconditional`** — the mixing-block bound of §25 at the
+  operator-norm radii, still with no hypothesis beyond `0 ≤ c₀`.
+
+The `fockMass` factor is gone entirely: the `L^∞` norm is defined on the entries, so the unrecorded
+normalisation of `fockBasis` no longer enters the constant.  What remains crude is the column count,
+which is still the full cardinality of `Finset (Fin 96)`.
+
+## 28. A Yukawa family that provably mixes blocks (2026-11-10l)
+
+Module: `BookProof/Sm/ChapterSmFullCommFormBlockYukawaMixing.lean`.  Registered in `BookProof.lean`.
+
+§25 removed §20's support condition but its example was the P1 dictionary itself, where the mixing is
+a property of the second-quantized Higgs generators that the corpus never computes entrywise.  This
+section supplies a family whose mixing is **provable**, so §25's test is applied to a family §20
+provably cannot accept, and the price of mixing is visible as a constant.
+
+* **`occDiag`**, **`mixYuk`** — the degenerate number-conserving Yukawa: components `0` and `1` both
+  couple the occupation diagonal with unit strength, components `2`, `3` vanish.  This is the
+  situation of a Higgs doublet whose two members share a coupling pattern.
+* **`mixYuk_unsupported`** — **no** `blk` satisfies §20's condition: row `∅` has a nonzero entry for
+  component `0` and for component `1`, forcing `blk ∅ = 0` and `blk ∅ = 1`.  §20's theorem cannot be
+  instantiated here; §25's is required, not merely convenient.
+* **`weightSum_mixYuk`**, **`rowSumGen_mixYuk`**, **`colSumGen_mixYuk`** — both general Schur sums are
+  `2`, so §25's constant is `4 √(2 · 2) = 8`; **`mixYuk_commForm_le`** is the resulting commutator
+  bound.
+* **`p1HiggsMix D a = p1HiggsMat D a + mixYuk a`** — the dictionary with the degenerate pair added,
+  which mixes blocks for the same reason.
+* **`weightSum_p1HiggsMix_le`**, **`rowSumGen_p1HiggsMix_le`** (`≤ p1HiggsGeneralOpRowRadius D + 2`),
+  **`colSumGen_p1HiggsMix_le`** (`≤ card * (p1HiggsGeneralOpRowRadius D + 2)`), and
+  **`p1HiggsMix_commForm_le`** — mixing costs one *additive* term per degenerate component, not the
+  bound.
+
+These models demonstrate the method; they are not a claim about the SM's Yukawa matrices, whose block
+structure is not computed in the corpus.  What is proved is that when mixing is present the general
+Schur test still yields a finite explicit constant, and what that constant costs.
