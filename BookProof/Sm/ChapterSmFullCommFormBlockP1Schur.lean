@@ -10,7 +10,7 @@ Work order: `SM_ESA_COMPLETION_PLAN.md` §24.
 
 §21 proved the commutator bound for the P1 dictionary's four Higgs coefficient matrices with the two
 Schur sums `ρ`, `κ` as *hypotheses*, and recorded honestly that they are finite because each
-`p1HiggsMat D a` is a fixed matrix of a finite type.  "Finite" is not a number, so the bound could not
+`p1HiggsMat D a` is a fixed matrix of a finite type.  "Finite" is not a number, so the bound
 be applied without supplying `ρ` and `κ` by hand.
 
 This section removes that.  Every entry of every P1 matrix is bounded by `fockMatrix_entry_norm_le`,
@@ -26,15 +26,15 @@ gives two explicit numbers:
   the one factor the column count costs.
 
 `rowSum_p1Higgs_le` and `colSum_p1Higgs_le` prove the corresponding Schur bounds, and
-`smCanonical_smPos_p1Higgs_commForm_le_radius` is §21's commutator bound with `ρ` and `κ` replaced by
-these numbers.  §25 then drops the block-support hypothesis as well, which is what makes the bound
-hypothesis-free.
+`smCanonical_smPos_p1Higgs_commForm_le_radius` is §21's commutator bound with `ρ` and `κ`
+replaced by these numbers.  §25 then drops the block-support hypothesis as well, which is what
+makes the bound hypothesis-free.
 
 ## 2. Honesty about the size
 
 These constants are **crude on purpose**: the `ℓ¹` mass is not the operator norm, `fockMass` is not
 `1` because the corpus records no normalisation of `fockBasis`, and the column count is the full
-cardinality `card (Finset (Fin 96))` rather than the number of actually occupied sectors.  Their role
+cardinality `card (Finset (Fin 96))` rather than the number of occupied sectors.  Their role
 is to be *explicit and finite*, which is what a Schur hypothesis needs to be discharged; a sharper
 constant is a computation on the dictionary, not a theorem about it.  The module says so instead of
 presenting the first bound it could close as the right one.

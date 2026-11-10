@@ -18,7 +18,7 @@ where `kinPolyS smS p = −Δ p` is the plain partial Laplacian of the function 
 is the quartic potential.  `hpoly` is *not* proved here either, and this section records the outcome
 of the attempt rather than a new hypothesis dressed as a result.
 
-What is proved is the classical Gårding factorization, which pins the gap down to a single inequality
+What is proved is the classical Gårding factorization, which pins the gap down to one inequality
 about `W` alone:
 
 * `kinetic_le_shift_add_pot` — the triangle identity `‖Δ p‖ ≤ ‖Δp + Wp + p‖ + ‖Wp + p‖`: the
@@ -34,21 +34,24 @@ about `W` alone:
 ## 2. Why the self-bound is the honest name of the gap
 
 `PotSelfBound P c₀ β` is the Kato-type self-boundedness of `W` with respect to `-Δ_S + W`, and it is
-the standard first step of every ellipticity proof for a polynomial potential.  Its usual proof reads
-the sign of the cross term
+the standard first step of every ellipticity proof for a polynomial potential.  Its proof reads the
+sign of the cross term
 
 ```text
 Re ⟪W u, −Δ u⟫ = ‖√W ∇u‖² + Re ⟪u ∇W, ∇u⟫,
 ```
 
 the first term of which is non-negative, and then interpolates `∇` between `L²` and the graph norm.
-Neither ingredient exists in this corpus:
 
-* there is no integration-by-parts identity for a polynomial weight on the Gaussian core — the
-  corpus's core lemmas are algebraic (`pgLp_add'`, `lapCS_pgFun`) or inner-product identities for
-  *symmetric* operators, and `W` is a multiplication operator, not a core endomorphism;
-* the one uncertainty-type bound the corpus has, `norm_sq_harmPoly_mul_le`, controls the **quadratic**
-  weight `harmPoly` against the oscillator's own graph norm.  It is exactly what makes
+**Correction (2026-11-10k).**  The first draft of this section recorded the sign identity as absent
+from the corpus.  That was wrong: §23 (`BookProof/Sm/ChapterSmGaussWeightedIbp.lean`) proves it from
+the corpus's own Gaussian integration by parts `gaussInt_kinPolyS` together with its Leibniz rule
+`coreD_mul`, and the identity is now `gaussInt_weighted_kinPolyS`/`inner_weighted_kinPolyS` with the
+non-negativity of `‖√W ∇u‖²` as `gaussInt_weighted_self_nonneg`.  What genuinely does not exist here
+is the **second** ingredient:
+
+* the one uncertainty-type bound the corpus has, `norm_sq_harmPoly_mul_le`, controls the
+  **quadratic** weight `harmPoly` against the oscillator's own graph norm.  It is what makes
   `norm_kinPoly_le_shiftNorm` work, and it has no quartic analogue: the quartic growth of `W` is
   never again used, in any module, except through the pointwise lower bound
   `one_le_polyW_smPotPoly`.
@@ -113,7 +116,7 @@ theorem kineticSum_norm_le_of_pot_self_bound (P : SmParams) (c0 : ℝ) {β : ℝ
   set S : L2d 163 := pgLp (kinPolyS smS p + smPotPoly P c0 * p) + pgLp p
   set T : L2d 163 := pgLp (smPotPoly P c0 * p) + pgLp p
   have hS : S = pgLp (kinPolyS smS p) + T := by
-    show pgLp (kinPolyS smS p + smPotPoly P c0 * p) + pgLp p
+    change pgLp (kinPolyS smS p + smPotPoly P c0 * p) + pgLp p
       = pgLp (kinPolyS smS p) + (pgLp (smPotPoly P c0 * p) + pgLp p)
     rw [pgLp_add']
     abel

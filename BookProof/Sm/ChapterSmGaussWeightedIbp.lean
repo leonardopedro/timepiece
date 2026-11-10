@@ -145,8 +145,8 @@ theorem inner_weighted_kinPolyS (S : Finset (Fin d)) (Q p : MvPolynomial (Fin d)
   exact Finset.sum_congr rfl fun j _ => Complex.add_re _ _
 
 /-- **The sign of the cross term**: `Re ⟪Q u, −Δ_S u⟫` dominates the commutator term, because the
-weighted Dirichlet energy it differs from is non-negative.  This is the semi-boundedness direction the
-elliptic argument uses. -/
+weighted Dirichlet energy it differs from is non-negative.  This is the semi-boundedness direction
+that the elliptic argument uses. -/
 theorem inner_weighted_kinPolyS_ge (S : Finset (Fin d)) (Q p : MvPolynomial (Fin d) ℂ)
     (hQ : cpoly Q = Q)
     (hQ0 : ∀ x : Vd d, 0 ≤ (MvPolynomial.eval (fun i => ((x i : ℝ) : ℂ)) Q).re) :

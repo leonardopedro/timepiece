@@ -9,7 +9,7 @@ Work order: `SM_ESA_COMPLETION_PLAN.md` §25.
 ## 1. What §20 still assumed
 
 §20's block operator `blockOpMat T M = Σ_a T_a ⊗ M_a` was bounded under
-`hsupp : M a A B ≠ 0 → blk A = a`: the `a`-th matrix may only reach the block `a`.  That covers every
+`hsupp : M a A B ≠ 0 → blk A = a`: the `a`-th matrix may only reach the block `a`.  That covers
 block-diagonal coefficient family — in particular the P1 dictionary of §21 — but not a family that
 mixes blocks, and the SM's Yukawa couplings do mix them (the Higgs generator carries both the
 component index and the internal mode index).
@@ -39,7 +39,7 @@ using it, and the constant of the diagonal case is recovered exactly.
 
 ## 3. Why the extension is worth the factor
 
-`w` sums `4` absolute values instead of one, so for the P1 dictionary the radii of §24 acquire exactly
+`w` sums `4` absolute values instead of one, so for the P1 dictionary §24's radii acquire exactly
 one factor `card (Fin 4) = 4` (`p1HiggsGeneralRowRadius`), and the column count stays as in §24.  In
 exchange the coefficient family is free: any `M : Fin 4 → Matrix _ _ ℂ` whatsoever, no support
 condition, no `blk`.  `smCanonical_p1Higgs_commForm_le_unconditional` is the payoff — the commutator
@@ -127,8 +127,8 @@ theorem blockOpMat_apply_general (T : Fin 4 → polyGaussCore (d := 163) →ₗ[
   rw [blockOpMat, LinearMap.sum_apply, WithLp.ofLp_sum, Finset.sum_apply]
   exact Finset.sum_congr rfl fun a _ => coupledOp_apply (T a) (M a) f A
 
-/-- **The componentwise bound with the general weight**: component `A` is bounded by the weighted sum
-of the componentwise bounds `v B` of the operators, with the weight `w A B`. -/
+/-- **The componentwise bound with the general weight**: component `A` is bounded by the weighted
+sum of the componentwise bounds `v B` of the operators, with the weight `w A B`. -/
 theorem blockOpMat_component_le_general (T : Fin 4 → polyGaussCore (d := 163) →ₗ[ℂ] L2d 163)
     (M : Fin 4 → Matrix (Finset (Fin 96)) (Finset (Fin 96)) ℂ)
     (f : SmCoupledCore) (A : Finset (Fin 96)) (v : Finset (Fin 96) → ℝ)
@@ -150,8 +150,8 @@ theorem blockOpMat_component_le_general (T : Fin 4 → polyGaussCore (d := 163) 
 
 set_option maxHeartbeats 1000000 in
 -- the three nested sums over the internal components and their swaps exceed the default budget
-/-- **Schur's test for an operator-valued coefficient family**, with no block-diagonal condition: the
-constant is `c √(ρ κ)` from the two general Schur sums. -/
+/-- **Schur's test for an operator-valued coefficient family**, with no block-diagonal condition:
+the constant is `c √(ρ κ)` from the two general Schur sums. -/
 theorem blockOpMat_norm_sq_le_general (T : Fin 4 → polyGaussCore (d := 163) →ₗ[ℂ] L2d 163)
     (M : Fin 4 → Matrix (Finset (Fin 96)) (Finset (Fin 96)) ℂ)
     (N : polyGaussCore (d := 163) →ₗ[ℂ] L2d 163) {c ρ κ : ℝ} (hc : 0 ≤ c)
@@ -292,8 +292,8 @@ theorem p1HiggsGeneralColRadius_nonneg (D : SmInternalData) :
     0 ≤ p1HiggsGeneralColRadius D :=
   mul_nonneg (by positivity) (p1HiggsGeneralRowRadius_nonneg D)
 
-/-- **The general row sums of the four P1 matrices are bounded by `p1HiggsGeneralRowRadius`**, with no
-support condition and no placement hypothesis. -/
+/-- **The general row sums of the four P1 matrices are bounded by `p1HiggsGeneralRowRadius`**, with
+no support condition and no placement hypothesis. -/
 theorem rowSumGen_p1Higgs_le (D : SmInternalData) (A : Finset (Fin 96)) :
     rowSumGen (p1HiggsMat D) A ≤ p1HiggsGeneralRowRadius D := by
   have hterm : ∀ a : Fin 4, ∑ B, ‖p1HiggsMat D a A B‖ ≤ p1HiggsRowRadius D := by
@@ -350,8 +350,8 @@ theorem colSumGen_p1Higgs_le (D : SmInternalData) (B : Finset (Fin 96)) :
 set_option maxHeartbeats 1000000 in
 -- the `L²`-coercion unifications of the 163-dimensional core exceed the default budget
 /-- **The commutator bound for the P1 Yukawa dictionary with no hypothesis left**: no block-support
-condition (this section), no Schur data (§24's explicit radii), no placement hypothesis (the canonical
-placement).  Only `0 ≤ c₀` remains. -/
+condition (this section), no Schur data (§24's explicit radii), no placement hypothesis (the
+canonical placement).  Only `0 ≤ c₀` remains. -/
 theorem smCanonical_p1Higgs_commForm_le_unconditional (P : SmParams) {c0 : ℝ} (hc0 : 0 ≤ c0)
     (f : SmCoupledCore) :
     |commForm (blockOpMat (fun a => (polyGaussCore (d := 163)).subtype.comp
