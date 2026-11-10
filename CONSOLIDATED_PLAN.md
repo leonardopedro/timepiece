@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09c):** “State of the project — 2026-11-09c: complete
+> **Newest entry (2026-11-10):** “State of the project — 2026-11-10: S1 outer-Fock
+> identities, S2 relative bound, and the energy decomposition”, at the end.  It records
+> the committed S1 packet and the S2 cross-term relative bound, the physical-core energy
+> identity and the conditional coercivity assembly, with the quartic relative bound named
+> as the remaining analytic input.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-09c):** “State of the project — 2026-11-09c: complete
 > SM E1 numerical assembly and joint rational Hashimoto integration”, at the end.
 > Execute [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) P0–P8, coordinated
 > with `../unfer/docs/SM_HAMILTONIAN_AUDIT.md` N0–N5. Bosonic ESA is proved;
@@ -19297,3 +19302,62 @@ passed (70-state window; complete tails/errors in its JSON). The symbolic gate
 reproduced the full LaTeX fixture and passed both repaired legacy modules.
 GitBook validation passed 87 pages / 611 links / 452 source–target pairs with
 no warnings. The dependency lockfile is unchanged.
+
+## State of the project — 2026-11-10: S1 outer-Fock identities, S2 relative bound, and the energy decomposition
+
+This entry records the Yang–Mills soft-mode work packages S1 and S2 as implemented
+in `BookProof`; it supersedes the "S2 is unchanged" sentence of the 2026-11-09
+S1 status in [softmodes.md](softmodes.md).  Everything below was compiled with
+`lake build +BookProof` and axiom-audited.
+
+**Committed in `233f7a3`.**
+
+* `Toolbox/ChapterFockNumberPreservingGap.lean` carries the S1 outer-Fock
+  identities: the additive scalar shift `dGamma_shiftPlus` (with `dGamma_add_col`,
+  `dGamma_smul_col`), composition on the one-particle sector
+  `dGamma_comp_one_particle` (with `colMul`, `onePartVec`, `onePartVec_colMul`),
+  and the multi-particle defect as a theorem `dGamma_comp_defect`: on two quanta
+  `N² = 4` while `dΓ(1·1) = N = 2`.  No general defect formula is asserted.
+* `Qym/ChapterYangMillsFieldStrengthSplit.lean` §3b maps the full field-strength
+  polynomial into the comparison calculation: `magEnergy = magEnergyQuad +
+  magEnergyCross + magEnergyQuart` exactly (`magEnergy_eq_parts`), the operator
+  form of that split (`mulOp_add`, `mulOp_magEnergy_eq`, `magEnergyOps_apply_eq`)
+  and its symmetry on the core (`magEnergyOps_symmetricOn`).  The cubic and
+  quartic interactions are retained in the form, not absorbed into a quadratic
+  model.
+* `scripts/import_components.py` was missing
+  `BookProof.ReflectionPositivity.ChainPartition` in `COMPONENT_NAMES`, which made
+  `--check` report unresolved claims; the mapping was added and `lakefile.toml`
+  and `BUILD_COMPONENTS.md` regenerated with the sanctioned `--write-lakefile` /
+  `--markdown` modes.  `import_components.py BookProof --check` now exits `0`.
+
+**S2 relative bound, in the same module §3c (uncommitted at the time of this entry, committed with it).**
+
+* `magOps_eq_split` is `B = ∂A + [A,A]` for the magnetic *operators*
+  (`magDerivOps`, `magCommOps`), and `magEnergy_form_ge_split` is the cross-term
+  relative bound, unconditional:
+  `(1 − ε)Σ‖∂A‖² − (ε⁻¹ − 1)Σ‖[A,A]‖² ≤ Σ‖B‖²` for every `ε > 0`
+  (`YangMillsSoftDirections.norm_add_sq_ge_split` summed over the 24 components).
+* `magEnergy_form_eq` is the exact component-by-component identity, and
+  `ymHamiltonian_quadForm_split` is the physical-core energy identity
+  `⟪x, H₁x⟫ = ½Σ‖πx‖² + ½(Σ‖∂A‖² + 2Σ Re⟪∂A,[A,A]⟫ + Σ‖[A,A]‖²)`.
+* `magEnergy_form_ge_of_quart_bound` assembles: a quartic relative bound
+  `Σ‖[A,A]‖² ≤ κΣ‖∂A‖² + b‖x‖²` leaves `1 − ε − (ε⁻¹ − 1)κ` of the quadratic
+  energy (and the shift `(ε⁻¹ − 1)b`).  `magEnergy_form_ge_quarter` is the
+  `ε = 1/2`, `κ = 1/4` case, leaving a quarter, and
+  `ymHamiltonian_quadForm_ge_of_quart_bound` adds the kinetic half — the S2 shape
+  `c₁q_ref − c₂‖·‖²` on the core.
+
+**Analytic boundary, stated rather than crossed.**  The relative bound for the
+quartic part is a *hypothesis* of the assembly.  `[A,A]²` is a quartic potential;
+bounding it by the quadratic energy is the Kato-type estimate that the
+coefficient model supplies (`YangMillsMagneticQuartic.magnetic_le_quartic`,
+`YangMillsEffectiveBarrier.barrierBound_quartic`), and the missing step is the
+mode identification between that model and the 99-coordinate core, already
+recorded as unformalised.  No unconditional `m > 0`, no `L₁ − U₀`, no cutoff
+uniformity, no IMS/localisation and no Temple separation is claimed.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs) with no errors;
+`#print axioms` on the S1 and §3c theorems reports `propext, Classical.choice,
+Quot.sound` only; no touched Lean file has a line over 100 characters;
+`doc_index.py --check` and `check-links` pass.

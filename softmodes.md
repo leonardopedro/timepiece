@@ -401,7 +401,42 @@ the inequality is agnostic between the abelian and non-abelian readings, and the
 `BrstLongitudinal.gaussVec_eq_longitudinal_add_comm` remains the record that the orbit is larger for
 `f ≠ 0`.
 
-S2 is unchanged (no positive `m`, no `L₁ − U₀`); S3 and S4 are untouched.
+S3 and S4 are untouched; S2 is the next subsection.
+
+#### S2 — the relative bound, and the coercivity constant it leaves
+
+`Qym/ChapterYangMillsFieldStrengthSplit.lean` §3c now applies the norm estimate to the concrete
+magnetic split and isolates the remaining analytic input.
+
+* **U, unconditional — the cross term.** `magOps_eq_split` is `B = ∂A + [A,A]` for the magnetic
+  *operators* on the core (`magDerivOps`, `magCommOps`), and `magEnergy_form_ge_split` is
+  `(1 − ε)Σ‖∂A‖² − (ε⁻¹ − 1)Σ‖[A,A]‖² ≤ Σ‖B‖²` for every `ε > 0`: `norm_add_sq_ge_split` summed
+  over the `24` field components.  The cubic cross term is thus charged `ε` of the quadratic
+  energy and the remainder to the quartic one, and no information about the interaction enters.
+* **U, unconditional — the identity.** `magEnergy_form_eq` is the exact decomposition
+  `Σ‖B‖² = Σ‖∂A‖² + 2Σ Re⟪∂A, [A,A]⟫ + Σ‖[A,A]‖²`, and `ymHamiltonian_quadForm_split` is the
+  physical-core energy identity `⟪x, H₁x⟫ = ½Σ‖πx‖² + ½(that)`.  This is §3b's decomposition of
+  `ΣB²` read component by component, so the comparison calculation now carries the full
+  interacting energy in its own slot instead of only the quadratic Cartan part.
+* **U, conditional on one input — the assembly.** `magEnergy_form_ge_of_quart_bound`: if the
+  quartic part obeys a relative bound `Σ‖[A,A]‖² ≤ κΣ‖∂A‖² + b‖x‖²`, then for `0 < ε < 1`
+  `(1 − ε − (ε⁻¹ − 1)κ)Σ‖∂A‖² − (ε⁻¹ − 1)b‖x‖² ≤ Σ‖B‖²`.  `magEnergy_form_ge_quarter` is the
+  plan's `ε = 1/2`, `κ = 1/4` case, leaving `¼Σ‖∂A‖² − b‖x‖²`, and
+  `ymHamiltonian_quadForm_ge_of_quart_bound` adds the kinetic half, which is the S2 shape
+  `c₁q_ref − c₂‖·‖²` on the core.
+* **C, isolated rather than claimed.** The relative bound `κ < 1` for the *quartic* part is the
+  hypothesis of the assembly, not a theorem of the split.  On the concrete core `[A,A]²` is a
+  quartic potential; bounding it by the quadratic energy is the Kato-type estimate the coefficient
+  model supplies (`YangMillsMagneticQuartic.magnetic_le_quartic`, and
+  `YangMillsEffectiveBarrier.barrierBound_quartic`, which dominates the free degree form plus
+  Simon's barrier up to an explicit shift), and what is still missing is the mode identification
+  between that model and the `99`-coordinate core — already recorded elsewhere in this file as
+  unformalised.  So the algebraic gate of S2 is closed *given that relative bound*: a strict
+  relative bound now yields a positive coefficient on the quadratic energy with the shift carried
+  explicitly.  No unconditional `m > 0` and no `L₁ − U₀` is claimed, and no cutoff uniformity or
+  IMS/localisation statement is made.
+
+Axioms audited on the seven new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
 
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 

@@ -1,5 +1,6 @@
 import Mathlib
 import BookProof.Qym.ChapterYangMillsHermite
+import BookProof.Qym.ChapterYangMillsSoftDirections
 
 /-!
 # The field strength `F = ∂A + g[A,A]`: derivative part, commutator part, and the root sector
@@ -36,7 +37,16 @@ structural facts the magnetic-quartic analysis needs:
    `magEnergyCross` (cubic) and `magEnergyQuart` (the commutator square, quartic)
    (`magEnergy_eq_parts`), and the corresponding multiplication operators add up
    (`mulOp_magEnergy_eq`, `magEnergyOps_apply_eq`), so the cubic and quartic interactions are
-   retained in the form on the core and are not absorbed into a quadratic model.
+   retained in the form on the core and are not absorbed into a quadratic model.  Summed over the
+   `24` field components this is the physical-core energy identity
+   (`magEnergy_form_eq`, `ymHamiltonian_quadForm_split`): the kinetic square plus the derivative
+   square, the cross term and the commutator square.
+5. **The relative bound** (§3c).  `B = ∂A + [A,A]` and the plan's estimate
+   `‖X + Y‖² ≥ (1 − ε)‖X‖² − (ε⁻¹ − 1)‖Y‖²` hold mode by mode, so the cross term is bounded by
+   `ε` of the quadratic energy and `ε⁻¹` of the quartic one (`magEnergy_form_ge_split`); a quartic
+   relative bound with ratio `κ < 1` then leaves `1 − ε − (ε⁻¹ − 1)κ` of the quadratic energy, and
+   the choice `ε = 1/2`, `κ = 1/4` leaves a quarter (`magEnergy_form_ge_quarter`, and
+   `ymHamiltonian_quadForm_ge_of_quart_bound` for the Hamiltonian).
 4. **The root sector is quartic.**  In the two-dimensional root plane of `su(2)`
    (`rootPlus = E₊`, `rootMinus = E₋`, `cartanH = diag(1,−1)`) the bracket of two off-diagonal
    fields is again Cartan, with the *determinant* of the root amplitudes as its coefficient
@@ -60,8 +70,16 @@ coordinates alone, is ordered once and for all by the product.
 
 Nothing here is dynamical: no spectral statement, no mass gap, no claim that the split survives
 any limit.  The energy decomposition of §3b is a *map* of the full field strength into the
-comparison calculation, not a coercivity estimate: it does not bound the cubic and quartic parts
-by the quadratic form and says nothing about cutoff uniformity — those remain separate inputs.
+comparison calculation.  §3c proves the *cross*-term relative bound unconditionally — it is
+Cauchy–Schwarz and AM–GM on the split, with no information about the interaction — and then the
+constant arithmetic that turns a relative bound for the quartic part into a positive coefficient
+on the quadratic energy.  The relative bound for the quartic part itself is taken as a hypothesis
+(`magEnergy_form_ge_of_quart_bound`): on the concrete core the commutator square is a quartic
+potential, and bounding it by the quadratic energy with a fixed ratio is the Kato-type estimate the
+coefficient model supplies
+(`YangMillsMagneticQuartic.magnetic_le_quartic`, `YangMillsEffectiveBarrier.barrierBound_quartic`)
+once the mode identification between that model and the `99`-coordinate core is formalised — it is
+not derived from the split, and no cutoff uniformity is claimed.
 The derivative coordinates `∂_j A_{k,a}` are the book's independent configuration
 coordinates (`idxD`), so `magDeriv` is a multiplication operator by construction and the
 "derivative" is not the `pderiv` of a field.  The root-sector computation is the `su(2)` block:
@@ -75,6 +93,8 @@ open Matrix MvPolynomial
 open BookProof.YangMillsHermite BookProof.HermiteProductCore BookProof.FarisLavine
 
 noncomputable section
+
+set_option maxHeartbeats 1000000
 
 /-! ## 1. The split `F = ∂A + g[A,A]` -/
 
@@ -288,6 +308,198 @@ theorem magEnergyOps_apply_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fi
 theorem magEnergyOps_symmetricOn (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
     SymmetricOn D (D.subtype.comp (Φ.op (mulOp (magEnergy fabc)))) :=
   Φ.symmetricOn_op (mulOp_polySym (realCoeff_magEnergy fabc))
+
+/-! ## 3c. Relative bounds: the cross term and the commutator square
+
+`YangMillsSoftDirections.norm_add_sq_ge_split` is the plan's starting estimate
+`‖X + Y‖² ≥ (1 − ε)‖X‖² − (ε⁻¹ − 1)‖Y‖²`.  Applied mode by mode to `B = ∂A + [A,A]` it is the
+relative bound for §3b's cross term: the cubic term costs at most `ε` of the derivative square and
+charges `ε⁻¹` of the commutator square, so the quadratic energy survives with coefficient `1 − ε`
+and the loss is paid by the quartic part.  `magEnergy_form_eq` is the same statement as an exact
+identity — the physical-core energy of §3b read component by component — and
+`magEnergy_form_ge_of_quart_bound` is the step that closes S2: a quartic part relatively bounded by
+the quadratic energy with ratio `κ` leaves `1 − ε − (ε⁻¹ − 1)κ` of that energy, which at
+`ε = 1/2`, `κ = 1/4` is a quarter.  -/
+
+/-- The polarization identity of a complex inner product space, in the shape the split uses. -/
+theorem norm_add_sq_complex {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+    (u v : F) : ‖u + v‖ ^ 2 = ‖u‖ ^ 2 + 2 * (inner ℂ u v : ℂ).re + ‖v‖ ^ 2 := by
+  rw [@norm_add_sq ℂ]
+  simp
+
+/-- The **derivative part of the magnetic field on the core**, indexed as `magOps` is. -/
+def magDerivOps (Φ : CoreRep 99 D) (m : Fin 24) : D →ₗ[ℂ] D :=
+  Φ.op (mulOp (magDeriv (decodeSpace m) (decodeColor m)))
+
+/-- The **commutator part of the magnetic field on the core**, indexed as `magOps` is. -/
+def magCommOps (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (m : Fin 24) :
+    D →ₗ[ℂ] D :=
+  Φ.op (mulOp (magComm fabc (decodeSpace m) (decodeColor m)))
+
+/-- `CoreRep.op` is additive in its polynomial operator. -/
+theorem coreRep_op_add (Φ : CoreRep 99 D)
+    (S T : Module.End ℂ (MvPolynomial (Fin 99) ℂ)) : Φ.op (S + T) = Φ.op S + Φ.op T := by
+  refine LinearMap.ext fun x => ?_
+  simp only [LinearMap.add_apply, CoreRep.op_apply, map_add]
+
+/-- **`B = ∂A + [A,A]` on the core**: `magOps` is the sum of its derivative and commutator
+parts, so the split of §1 holds for the magnetic *operator*, not only for the polynomial. -/
+theorem magOps_eq_split (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (m : Fin 24) :
+    magOps Φ fabc m = magDerivOps Φ m + magCommOps Φ fabc m := by
+  simp only [magOps, magDerivOps, magCommOps, magPoly_eq_deriv_add, mulOp_add, coreRep_op_add]
+
+set_option maxHeartbeats 1000000 in
+/-- **The magnetic energy, mode by mode**: `‖B_m x‖²` is the derivative square, plus twice the
+real cross term, plus the commutator square. -/
+theorem norm_magOps_sq_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : D)
+    (m : Fin 24) :
+    ‖(((magOps Φ fabc m) x : D) : L2d 99)‖ ^ 2
+      = ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2
+        + 2 * (inner ℂ (((magDerivOps Φ m) x : D) : L2d 99)
+            (((magCommOps Φ fabc m) x : D) : L2d 99)).re
+        + ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 := by
+  have hsplit : (((magOps Φ fabc m) x : D) : L2d 99)
+      = (((magDerivOps Φ m) x : D) : L2d 99)
+        + (((magCommOps Φ fabc m) x : D) : L2d 99) := by
+    rw [magOps_eq_split, LinearMap.add_apply]
+    rfl
+  rw [hsplit, norm_add_sq_complex]
+
+set_option maxHeartbeats 1000000 in
+/-- **The physical-core energy identity**: summed over the `24` field components, the magnetic
+form is the derivative square plus the cross term plus the commutator square.  Nothing is dropped
+and no term is absorbed into a quadratic model. -/
+theorem magEnergy_form_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : D) :
+    (∑ m : Fin 24, ‖(((magOps Φ fabc m) x : D) : L2d 99)‖ ^ 2)
+      = (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+        + 2 * ∑ m : Fin 24,
+            (inner ℂ (((magDerivOps Φ m) x : D) : L2d 99)
+              (((magCommOps Φ fabc m) x : D) : L2d 99)).re
+        + ∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 := by
+  calc (∑ m : Fin 24, ‖(((magOps Φ fabc m) x : D) : L2d 99)‖ ^ 2)
+      = ∑ m : Fin 24,
+          (‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2
+            + 2 * (inner ℂ (((magDerivOps Φ m) x : D) : L2d 99)
+                (((magCommOps Φ fabc m) x : D) : L2d 99)).re
+            + ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2) :=
+        Finset.sum_congr rfl fun m _ => norm_magOps_sq_eq Φ fabc x m
+    _ = (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+          + (∑ m : Fin 24,
+              2 * (inner ℂ (((magDerivOps Φ m) x : D) : L2d 99)
+                (((magCommOps Φ fabc m) x : D) : L2d 99)).re)
+          + ∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 :=
+        by rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
+    _ = (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+          + 2 * ∑ m : Fin 24,
+              (inner ℂ (((magDerivOps Φ m) x : D) : L2d 99)
+                (((magCommOps Φ fabc m) x : D) : L2d 99)).re
+          + ∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 :=
+        by rw [Finset.mul_sum]
+
+/-- **The relative bound for the cross and commutator parts.**  For every `ε > 0` the magnetic
+energy is at least `(1 − ε)` of the derivative square minus `(ε⁻¹ − 1)` of the commutator square:
+the cubic cross term costs at most the fraction `ε` of the quadratic energy, and its loss is
+charged to the quartic part.  This is `norm_add_sq_ge_split` summed over the `24` field
+components; it is unconditional — no information about the interaction enters. -/
+theorem magEnergy_form_ge_split (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : D)
+    {ε : ℝ} (hε : 0 < ε) :
+    (1 - ε) * (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+        - (ε⁻¹ - 1) * (∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2)
+      ≤ ∑ m : Fin 24, ‖(((magOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 := by
+  rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib]
+  refine Finset.sum_le_sum fun m _ => ?_
+  have hsplit : (((magOps Φ fabc m) x : D) : L2d 99)
+      = (((magDerivOps Φ m) x : D) : L2d 99)
+        + (((magCommOps Φ fabc m) x : D) : L2d 99) := by
+    rw [magOps_eq_split, LinearMap.add_apply]
+    rfl
+  rw [hsplit]
+  exact BookProof.YangMillsSoftDirections.norm_add_sq_ge_split (E := L2d 99)
+    (X := (((magDerivOps Φ m) x : D) : L2d 99))
+    (Y := (((magCommOps Φ fabc m) x : D) : L2d 99)) hε
+
+/-- **S2 coercivity from a quartic relative bound.**  If the commutator square is relatively bounded
+by the derivative square with ratio `κ` and shift `b`,
+`Σ‖C_m x‖² ≤ κ Σ‖D_m x‖² + b‖x‖²`, then for any `0 < ε < 1` the full magnetic energy still
+contains `1 − ε − (ε⁻¹ − 1)κ` of the derivative energy:
+`(1 − ε − (ε⁻¹ − 1)κ) Σ‖D_m x‖² − (ε⁻¹ − 1)b‖x‖² ≤ Σ‖B_m x‖²`.  This is the step that turns a
+relative bound strictly below `1` into a positive coefficient on the quadratic energy; the
+relative bound on the quartic part is the hypothesis, not a consequence of the split. -/
+theorem magEnergy_form_ge_of_quart_bound (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {ε κ b : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1)
+    (hbound : ∀ x : D,
+      (∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2)
+        ≤ κ * (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+          + b * ‖(x : L2d 99)‖ ^ 2)
+    (x : D) :
+    (1 - ε - (ε⁻¹ - 1) * κ)
+        * (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+        - (ε⁻¹ - 1) * b * ‖(x : L2d 99)‖ ^ 2
+      ≤ ∑ m : Fin 24, ‖(((magOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 := by
+  have hmain := magEnergy_form_ge_split Φ fabc x hε0
+  have hinv : 1 ≤ ε⁻¹ := by
+    have h1 : ε * ε⁻¹ = 1 := mul_inv_cancel₀ hε0.ne'
+    have h2 : ε * ε⁻¹ ≤ 1 * ε⁻¹ := mul_le_mul_of_nonneg_right hε1.le (inv_nonneg.mpr hε0.le)
+    linarith
+  have hcoe : 0 ≤ ε⁻¹ - 1 := by linarith
+  have hmul := mul_le_mul_of_nonneg_left (hbound x) hcoe
+  nlinarith [hmul, hmain]
+
+/-- The plan's concrete choice `ε = 1/2` with relative bound `κ = 1/4`: a quarter of the
+derivative energy survives, at the price of the shift `b‖x‖²`. -/
+theorem magEnergy_form_ge_quarter (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    {b : ℝ}
+    (hbound : ∀ x : D,
+      (∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2)
+        ≤ (1 / 4) * (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+          + b * ‖(x : L2d 99)‖ ^ 2)
+    (x : D) :
+    (1 / 4) * (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+        - b * ‖(x : L2d 99)‖ ^ 2
+      ≤ ∑ m : Fin 24, ‖(((magOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 := by
+  have h := magEnergy_form_ge_of_quart_bound Φ fabc (ε := 1 / 2) (κ := 1 / 4) (b := b)
+    (by norm_num) (by norm_num) hbound x
+  have hcoef : 1 - 1 / 2 - ((1 / 2 : ℝ)⁻¹ - 1) * (1 / 4) = 1 / 4 := by norm_num
+  have hcoef2 : ((1 / 2 : ℝ)⁻¹ - 1) * b = b := by
+    rw [show ((1 / 2 : ℝ)⁻¹ - 1) = 1 by norm_num, one_mul]
+  simp only [hcoef, hcoef2] at h
+  exact h
+
+set_option maxHeartbeats 1000000 in
+/-- **The physical-core energy identity for the Hamiltonian**: `H₁`'s form is the kinetic square
+plus the magnetic energy, and the magnetic half is the derivative square plus the cross term plus
+the commutator square.  This is `ymHamiltonian_quadForm` with §3b's decomposition substituted, i.e.
+`½Σπ² + ½Σ(∂A + [A,A])²` with nothing truncated. -/
+theorem ymHamiltonian_quadForm_split (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (x : D) :
+    quadForm (ymHamiltonian Φ fabc) x
+      = 1 / 2 * (∑ m : Fin 24, ‖(((piOps Φ m) x : D) : L2d 99)‖ ^ 2)
+        + 1 / 2 * ((∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+          + 2 * ∑ m : Fin 24,
+              (inner ℂ (((magDerivOps Φ m) x : D) : L2d 99)
+                (((magCommOps Φ fabc m) x : D) : L2d 99)).re
+          + ∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2) := by
+  rw [ymHamiltonian_quadForm, magEnergy_form_eq]
+
+/-- **The S2 coercivity shape on the core**: the kinetic square plus the coercive magnetic
+lower bound is a lower bound for the Yang–Mills form, with the quartic relative bound as the only
+input. -/
+theorem ymHamiltonian_quadForm_ge_of_quart_bound (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {ε κ b : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1)
+    (hbound : ∀ x : D,
+      (∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2)
+        ≤ κ * (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+          + b * ‖(x : L2d 99)‖ ^ 2)
+    (x : D) :
+    1 / 2 * (∑ m : Fin 24, ‖(((piOps Φ m) x : D) : L2d 99)‖ ^ 2)
+        + 1 / 2 * ((1 - ε - (ε⁻¹ - 1) * κ)
+            * (∑ m : Fin 24, ‖(((magDerivOps Φ m) x : D) : L2d 99)‖ ^ 2)
+          - (ε⁻¹ - 1) * b * ‖(x : L2d 99)‖ ^ 2)
+      ≤ quadForm (ymHamiltonian Φ fabc) x := by
+  rw [ymHamiltonian_quadForm_split]
+  have h := magEnergy_form_ge_of_quart_bound Φ fabc hε0 hε1 hbound x
+  have heq := magEnergy_form_eq Φ fabc x
+  linarith
 
 /-! ## 4. The root sector: the quartic magnetic energy
 
