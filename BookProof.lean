@@ -3546,6 +3546,28 @@ import BookProof.Sm.ChapterSmFullCommFormBlockP1OpNorm
 -- `4√(2·2)`, and the same mixing added to the real dictionary (`p1HiggsMix`) with
 -- `rowSumGen_p1HiggsMix_le`, `colSumGen_p1HiggsMix_le` and `p1HiggsMix_commForm_le`.
 import BookProof.Sm.ChapterSmFullCommFormBlockYukawaMixing
+-- `ChapterSmFockBasisNormalised` (2026-11-10m, `SM_ESA_COMPLETION_PLAN` §29): the occupation basis
+-- is orthonormal — `fockBasis_norm` (`‖fockBasis S‖ = 1`), `fockMass_eq_card` and
+-- `fockMass_eq_two_pow` (`2 ^ 96`) — so §24's radii lose their only unknown factor:
+-- `p1HiggsRowRadius_eq`,
+-- `p1HiggsColRadius_eq` and the evaluated Schur bounds `rowSum_p1Higgs_le_mass_card` /
+-- `colSum_p1Higgs_le_mass_card_sq`.
+import BookProof.Sm.ChapterSmFockBasisNormalised
+-- `ChapterSmP1BlockStructure` (2026-11-10m, `SM_ESA_COMPLETION_PLAN` §30): the block structure the
+-- P1 dictionary actually has — every `a†_i a_j` conserves occupation number, so
+-- `p1HiggsMat_of_card_ne` / `p1HiggsMat_card_eq` — and a dictionary for which no per-component
+-- `blk` exists at all: `degHiggsData` (four equal identity components), `p1HiggsMat_degHiggs_apply`
+-- (`(S.card : ℂ)` on the occupation diagonal), `degHiggs_no_support` and the general criterion
+-- `no_support_of_shared_entry`.  So §25's support-free test is necessary, not convenient.
+import BookProof.Sm.ChapterSmP1BlockStructure
+-- `ChapterSmReverseEllipticResidual` (2026-11-10m, `SM_ESA_COMPLETION_PLAN` §31): the reverse
+-- elliptic estimate's exact residual — `ℜ⟪−Δ_S p, p⟫ = ∑_j ‖∇_j p‖²` (`re_inner_kinPolyS_self`),
+-- the decomposition `norm_shift_sq_decomp`, `inner_KT_eq`, and
+-- `potSelfBound_one_iff_remainder`: `PotSelfBound P c₀ 1` **is** the non-negativity of
+-- `‖Δ_S p‖² + 2 ℜ⟪−Δ_S p, W p + p⟫`.  The sharpest condition the sign route reaches is
+-- `potSelfBound_one_of_grad_residual` (`∑_j ‖(∂_j W)p‖² ≤ ‖Δ_S p‖² + 3 ∑_j ‖∇_j p‖²`), which is not
+-- proved; the module states that a proof must compare form domains, and `PotSelfBound` stays open.
+import BookProof.Sm.ChapterSmReverseEllipticResidual
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator

@@ -1501,3 +1501,82 @@ provably cannot accept, and the price of mixing is visible as a constant.
 These models demonstrate the method; they are not a claim about the SM's Yukawa matrices, whose block
 structure is not computed in the corpus.  What is proved is that when mixing is present the general
 Schur test still yields a finite explicit constant, and what that constant costs.
+
+## 29. The occupation basis is orthonormal (2026-11-10m)
+
+Module: `BookProof/Sm/ChapterSmFockBasisNormalised.lean`.  Registered in `BookProof.lean`.
+
+§24 recorded that `fockMass = ∑_T ‖fockBasis T‖` is not known to be `1`, because the corpus never
+states the normalisation of the occupation basis, and carried it as a factor in both radii.  That was
+the last unknown quantity in §24's constant, and it is a two-line computation.
+
+* **`fockBasis_norm`** — `‖fockBasis S‖ = 1`.  The basis vector is the delta function at `S`, so its
+  squared norm is a single entry of modulus one; the proof sums `‖·‖²` over the occupied sets.
+* **`fockMass_eq_card`**, **`fockMass_eq_two_pow`** — `fockMass = card (Finset (Fin 96)) = 2 ^ 96`,
+  `fockMass_pos`.
+* **`p1HiggsRowRadius_eq`**, **`p1HiggsColRadius_eq`** and the `2 ^ 96` forms — §24's radii with the
+  basis mass evaluated: `p1HiggsMassTotal D * 2 ^ 96` and `p1HiggsMassTotal D * (2 ^ 96) ^ 2`.
+* **`rowSum_p1Higgs_le_mass_card`**, **`colSum_p1Higgs_le_mass_card_sq`** — §24's Schur bounds at the
+  evaluated radii.
+
+What is left crude is not the basis but the route: the `ℓ¹` mass is not an operator norm and the
+column count is the full cardinality.  §27 already removed both by switching to `L^∞` operator norms,
+which is why this section does not re-derive §24's bound as the recommended one.
+
+## 30. The block structure of `p1HiggsMat`, and a dictionary with none (2026-11-10m)
+
+Module: `BookProof/Sm/ChapterSmP1BlockStructure.lean`.  Registered in `BookProof.lean`.
+
+§20's commutator bound needs `blk : Finset (Fin 96) → Fin 4` with `p1HiggsMat D a A B ≠ 0 → blk A = a`.
+§21 assumed it, §25/§28 removed it, and none of them asked whether the P1 dictionary itself has one.
+This section answers both directions.
+
+* **`p1HiggsMat_of_card_ne`**, **`p1HiggsMat_card_eq`** — every term of `matterBilin` is `a†_i a_j`,
+  which removes one mode and inserts one, so `p1HiggsMat D a S T ≠ 0` forces `S.card = T.card`.  The
+  blocks the dictionary does have are the `97` occupation numbers, and they are **the same blocks for
+  all four components**: occupation number does not refer to `a`.  They are therefore too coarse to
+  be §20's `blk`; declining to say so would have hidden that §20's hypothesis was never available.
+* **`degHiggsData`**, **`matterBilin_one_eq_fermiEnergy`**, **`p1HiggsMat_degHiggs_eq`**,
+  **`p1HiggsMat_degHiggs_apply`** — the fully degenerate dictionary (four equal identity components,
+  the extreme degenerate doublet) is the number operator, `(S.card : ℂ)` on the occupation diagonal.
+* **`degHiggs_no_support`** — **no** `blk` satisfies §20's condition: row `{0}` is nonzero for every
+  component, so `blk {0}` would have to be `0`, `1`, `2` and `3` simultaneously.
+  **`no_support_of_shared_entry`** states the general criterion, so the example is structural: any
+  two components that agree as internal matrices and have a nonzero entry rule out a per-component
+  block function.
+
+The consequence is that §25's support-free Schur test — with §27's operator-norm radii — is
+**necessary** for data of this kind, not merely convenient.  Nothing here bounds the Schur sums of
+`degHiggsData`; §28's general test is what applies, and the constant it gives there (`8`) is the
+price of the mixing.
+
+## 31. The reverse elliptic estimate: its exact residual (2026-11-10m)
+
+Module: `BookProof/Sm/ChapterSmReverseEllipticResidual.lean`.  Registered in `BookProof.lean`.
+
+§26 reduced `PotSelfBound` to §19's `hpoly` and said in prose that the gradient term is not
+absorbable.  This section turns the reducee into an equation and says exactly what the sign route
+reaches.
+
+Writing `K = −Δ_S p`, `T = W p + p`:
+
+* **`re_inner_kinPolyS_self`** — `ℜ⟪−Δ_S p, p⟫ = ∑_{j∈S} ‖∇_j p‖²`: §23's weighted identity at weight
+  `1`, where the commutator term vanishes.  It was used implicitly in §26 and is recorded because the
+  residual needs it.
+* **`norm_shift_sq_decomp`** — `‖K + T‖² = ‖K‖² + 2 ℜ⟪K, T⟫ + ‖T‖²`, and **`inner_KT_eq`** —
+  `ℜ⟪K, T⟫ = ℜ⟪W p, −Δ_S p⟫ + ∑_j ‖∇_j p‖²`, i.e. the cross term is §23's quantity plus the
+  Dirichlet energy.
+* **`potSelfBound_one_iff_remainder`** — `PotSelfBound P c₀ 1` **is** the non-negativity of
+  `‖K‖² + 2 ℜ⟪K, T⟫`.  With `β = 1` there is no slack anywhere: the reverse estimate and the
+  residual are the same statement.
+* **`potSelfBound_one_of_grad_residual`** — substituting §26's interpolation gives the sufficient
+  condition `∑_j ‖(∂_j W)p‖² ≤ ‖Δ_S p‖² + 3 ∑_j ‖∇_j p‖²`, which yields `PotSelfBound P c₀ 1`.
+
+**Do not read the last item as progress towards the self-bound.**  The condition compares a
+**degree-six** density with second-order norms, the constant `3` is exactly the `2ab ≤ a² + b²` slack
+of `mul_le_half_add_sq`, and the condition is **not proved** here for the SM's quartic `W`.  What the
+section establishes is negative and definite: every route through the sign identity and the
+interpolation lands on that condition, so a proof of `PotSelfBound` cannot come from this calculus at
+all.  It must compare **form domains** — the domain of the closed form of `−Δ_S + W` with the `H²`
+domain — which is elliptic regularity, absent from this corpus.  `PotSelfBound` remains a hypothesis
+downstream, and this section assumes nothing away.

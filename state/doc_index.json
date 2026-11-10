@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T16:34:17+00:00",
+ "generated_at": "2026-11-10T17:33:46+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 1503,
+   "lines": 1582,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1180,7 +1180,10 @@
     "## 25. The operator-valued Schur test: no block-diagonal support condition (2026-11-10j)",
     "## 26. The gradient interpolation from the weighted IBP identity (2026-11-10l)",
     "## 27. The P1 Schur radii as operator norms (2026-11-10l)",
-    "## 28. A Yukawa family that provably mixes blocks (2026-11-10l)"
+    "## 28. A Yukawa family that provably mixes blocks (2026-11-10l)",
+    "## 29. The occupation basis is orthonormal (2026-11-10m)",
+    "## 30. The block structure of `p1HiggsMat`, and a dictionary with none (2026-11-10m)",
+    "## 31. The reverse elliptic estimate: its exact residual (2026-11-10m)"
    ]
   },
   {
@@ -1624,7 +1627,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_SPEC.md",
    "title": "MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
-   "lines": 392,
+   "lines": 434,
    "headings": [
     "# MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
     "## 1. The theorem of record (T6)",
