@@ -1469,6 +1469,20 @@ acceptance `≥ m` (`pcnAccept_floor`), the two floors multiply (`pcnMetropolis_
 adjusted step has its own measure minorant (`pcnMetropolis_minorant`), so §36's Doeblin condition
 holds for the *adjusted* proposal too.  `pcnDoeblin_apply` states §36 set by set.
 
+**The iterate, and the rate (§39).**  `pcnDoeblin` is one step.  §5 of `PCNGaussianFloor` supplies
+the other side: `pcnIter K n x` is the `n`-step measure on `ℝ^d`
+(`pcnIter K 0 x = δ_x`, `pcnIter K (n+1) x = (K x).bind (pcnIter K n)`), `measurable_pcnIter` keeps it
+a measurable family, `pcnIter_univ` says iterates of probabilities are probabilities, and
+`pcnStat_iter` says invariance is inherited by all of them.  **`pcnIter_rate`** is the classical
+Doeblin bound: a step family splitting as `c·μ + (1−c)·ν_x`, `ν_x` a probability, satisfies
+`(1 − (1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`.  The split is not extra input —
+**`exists_split_of_minorant`** builds `ν` from a minorant via `Measure.sub` — so
+**`pcnIter_rate_of_minorant`** turns the minorant alone into the rate, and `pcnMetropolisStep` names
+the §4 adjusted step as the family the rate is about.  What the rate still needs is a *normalisation*:
+the chapter's measures are densities on a box whose total mass it does not compute, so
+`pcnMetropolisStep` is finite but not yet a probability, and the invariance hypothesis is stated
+rather than proved.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1508,8 +1522,9 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
 * **The weight-space floor.**  `pcnGaussian_floor` (a density bound on a box), its measure form
   `pcnMeasure_floor` (`volume.withDensity q ≥ F · volume.restrict box`, uniformly in the starting
   point), the Doeblin condition against a named target `pcnDoeblin` (`(F/B) • π ≤ P(x, ·)`) and its
-  set-level form `pcnDoeblin_apply`, and the Metropolis-adjusted version
-  (`pcnAccept_floor`, `pcnMetropolis_floor`, `pcnMetropolis_minorant`).
+  set-level form `pcnDoeblin_apply`, the Metropolis-adjusted version
+  (`pcnAccept_floor`, `pcnMetropolis_floor`, `pcnMetropolis_minorant`), and the rate itself
+  (`pcnIter_rate`, and `pcnIter_rate_of_minorant` from the minorant alone) — §39.
 
 *Not proved, and not claimed.*
 
@@ -1521,9 +1536,11 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
 * **A Hilbert-space model.**  The core is not completed; there is no `L²(π)` operator domain, no
   self-adjointness, no compactness, and `P₀ + K_reject = 1` is a normalisation identity on
   coefficient families, not positivity of a Markov kernel.
-* **The continuum chain.**  The target is named (§36) and the minorant `(F/B) • π ≤ P(x, ·)` holds,
-  for the raw and the Metropolis-adjusted step alike (§38); but there is no Doeblin *rate*: the
-  iterate bound needs kernel composition (`κ.comp`) on `ℝ^d`, which this corpus does not yet use.
+* **The continuum chain.**  The target is named (§36), the minorant `(F/B) • π ≤ P(x, ·)` holds for
+  the raw and the Metropolis-adjusted step alike (§38), and the rate `(1 − (1−c)^n)` is proved for
+  any probability step family that dominates `c • μ` (§39).  The one link left is normalisation: the
+  pCN/Metropolis measures here are densities on a box, not probability measures, and the invariance
+  the rate assumes is not proved from reversibility.
 * **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
   invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
 * **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;

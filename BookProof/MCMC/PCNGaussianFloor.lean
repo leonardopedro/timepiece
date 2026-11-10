@@ -40,7 +40,13 @@ the architecture's own proposal rather than an unknown number.
   `pcnAccept_le_one`, `pcnMetropolisDensity_le` (the adjusted density is dominated by the raw one),
   **`pcnAccept_floor`** and **`pcnMetropolis_floor`** (the acceptance has a floor when the target's
   density does not drop by more than `m`), and **`pcnMetropolis_minorant`** (the adjusted step's own
-  measure minorant).
+  measure minorant);
+* **§5, the iterate and the rate** — `pcnIter` (the `n`-step measure on `ℝ^d`),
+  `measurable_pcnIter`, `pcnIter_univ`, `pcnStat_iter` (invariance is inherited by the iterates),
+  **`pcnIter_rate`** (the Doeblin bound `(1 − (1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`),
+  **`exists_split_of_minorant`** (a probability step dominating `c • μ` splits as
+  `c·μ + (1−c)·ν`), **`pcnIter_rate_of_minorant`** (so the minorant alone yields the rate), and
+  `pcnMetropolisStep` (the §4 step as a step family).
 
 ## Honest boundary
 
@@ -49,9 +55,10 @@ theorem on the continuum.  §22–§26's machinery is stated on a finite state s
 space is not one.  What §2 adds is that the floor is a statement about the *proposal measure* on
 `ℝ^d`, uniformly in the starting point, which is the form a minorant consumes; what it does not do
 is name the target measure on `ℝ^d`, pass the Metropolis filter through the density, or produce a
-rate: the minorant is a lower bound on the proposal's mass on the box, and turning it into a
-contraction needs the acceptance probability and the target's own mass there, neither of which this
-chapter states.
+rate — §3–§5 do all three, and the rate is the classical `1 − (1 − c)^n` — but the step family
+the rate applies to must be a family of probability measures, and the chapter's measures are
+densities on a box whose total mass it does not compute.  Normalising the Metropolis step is the
+remaining link, as is proving the invariance hypothesis rather than stating it.
 -/
 
 noncomputable section
@@ -346,5 +353,161 @@ theorem pcnDoeblin_apply {c s ρ R F B : ℝ} {τ : (Fin d → ℝ) → ℝ} {x 
       ≤ pcnProposalMeasure (d := d) c s ρ R x A := by
   have h := (Measure.le_iff.mp (pcnDoeblin (d := d) hF hB hτB hle)) A hA
   simpa [Measure.smul_apply, smul_eq_mul] using h
+/-! ## 5. The iterate on `ℝ^d`, and the rate §3 yields
+
+§2–§4 are one-step statements.  This section supplies the missing side of them: the *iterate* of a
+step family on `ℝ^d` and the Doeblin bound it obeys.
+
+* `pcnIter K n x` — the `n`-step measure, `pcnIter K 0 x = δ_x` and
+  `pcnIter K (n+1) x = (K x).bind (pcnIter K n)`; `measurable_pcnIter` keeps it a measurable family
+  of measures, as `Measure.bind` requires;
+* `pcnIter_univ` — if every step is a probability, so is every iterate;
+* `pcnStat_iter` — if the target is invariant under one step it is invariant under all of them;
+* **`pcnIter_rate`** — the rate itself: a step family that splits as `c·μ + (1−c)·ν_x` with `ν_x` a
+  probability contracts to `μ` as `(1 − (1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`;
+* **`exists_split_of_minorant`** — every probability step dominating `c • μ` with `c < 1` has such a
+  split (`Measure.sub` supplies the rest of the mass), so the split is not extra input;
+* **`pcnIter_rate_of_minorant`** — hence the minorant alone yields the rate;
+* **`pcnMetropolisStep`** — the §4 adjusted step as a step family, the object the rate is about.
+
+## Honest boundary (continued)
+
+The rate is a rate for a probability step family whose measures are the pCN/Metropolis ones; what is
+still missing is the normalisation: `pcnMetropolis_minorant` bounds the adjusted *density*, whose
+integral the corpus does not compute, so `pcnMetropolisStep` is a finite measure and not yet a
+probability.  The invariance hypothesis is stated (it is what a reversibility proof would give), not
+proved.
+-/
+
+/-- The `n`-step measure of the step family `K`, by right composition: the first step is `K`, then
+its own iterate from the point reached. -/
+def pcnIter (K : (Fin d → ℝ) → Measure (Fin d → ℝ)) :
+    ℕ → (Fin d → ℝ) → Measure (Fin d → ℝ)
+  | 0 => fun x => Measure.dirac x
+  | n + 1 => fun x => (K x).bind (pcnIter K n)
+
+theorem pcnIter_zero (K : (Fin d → ℝ) → Measure (Fin d → ℝ)) (x : Fin d → ℝ) :
+    pcnIter K 0 x = Measure.dirac x := rfl
+
+theorem pcnIter_succ (K : (Fin d → ℝ) → Measure (Fin d → ℝ)) (n : ℕ) (x : Fin d → ℝ) :
+    pcnIter K (n + 1) x = (K x).bind (pcnIter K n) := rfl
+
+theorem measurable_pcnIter {K : (Fin d → ℝ) → Measure (Fin d → ℝ)} (hK : Measurable K) :
+    ∀ n, Measurable (pcnIter K n)
+  | 0 => Measure.measurable_dirac
+  | n + 1 => (Measure.measurable_bind' (measurable_pcnIter hK n)).comp hK
+
+/-- Iterates of a probability step family are probability measures. -/
+theorem pcnIter_univ {K : (Fin d → ℝ) → Measure (Fin d → ℝ)} (hK : Measurable K)
+    (hmass : ∀ x, K x Set.univ = 1) (n : ℕ) (x : Fin d → ℝ) :
+    pcnIter K n x Set.univ = 1 := by
+  induction n generalizing x with
+  | zero => simp [pcnIter]
+  | succ n ih =>
+      rw [pcnIter_succ, Measure.bind_apply MeasurableSet.univ
+        ((measurable_pcnIter hK n).aemeasurable)]
+      simp [ih, hmass x]
+
+/-- **Invariance is inherited by the iterates**: a measure stationary for one step is stationary for
+every iterate. -/
+theorem pcnStat_iter {K : (Fin d → ℝ) → Measure (Fin d → ℝ)} {μ : Measure (Fin d → ℝ)}
+    (hK : Measurable K) (hstat : μ.bind K = μ) (n : ℕ) :
+    μ.bind (pcnIter K n) = μ := by
+  induction n with
+  | zero => simp [pcnIter]
+  | succ n ih =>
+      change μ.bind (fun x => (K x).bind (pcnIter K n)) = μ
+      rw [← Measure.bind_bind hK.aemeasurable (measurable_pcnIter hK n).aemeasurable]
+      rw [hstat]
+      exact ih
+
+/-- **The Doeblin contraction rate on `ℝ^d`.**  If every step splits as `c·μ + (1−c)·ν_x` with `ν_x`
+a probability measure, and `μ` is invariant under the iterates, then from any starting point the
+`n`-step measure of `A` is at least `(1 − (1−c)^n)·μ(A)` — the classical `1 − (1−c)^n` rate, on the
+continuum, for the family `pcnIter` builds. -/
+theorem pcnIter_rate {K : (Fin d → ℝ) → Measure (Fin d → ℝ)} {μ : Measure (Fin d → ℝ)}
+    {c : ℝ} {ν : (Fin d → ℝ) → Measure (Fin d → ℝ)}
+    (hc0 : 0 ≤ c) (hc1 : c ≤ 1) (hK : Measurable K)
+    (hν : ∀ x, ν x Set.univ = 1)
+    (hsplit : ∀ x, K x = ENNReal.ofReal c • μ + ENNReal.ofReal (1 - c) • ν x)
+    (hstat : ∀ n, μ.bind (pcnIter K n) = μ)
+    (n : ℕ) (x : Fin d → ℝ) {A : Set (Fin d → ℝ)} (hA : MeasurableSet A) :
+    ENNReal.ofReal (1 - (1 - c) ^ n) * μ A ≤ pcnIter K n x A := by
+  have hr0 : 0 ≤ 1 - c := by linarith
+  have hg : ∀ n, Measurable (pcnIter K n) := measurable_pcnIter hK
+  induction n generalizing x with
+  | zero => simp [pcnIter]
+  | succ n ih =>
+      rw [pcnIter_succ, Measure.bind_apply hA (hg n).aemeasurable, hsplit x,
+        lintegral_add_measure, lintegral_smul_measure, lintegral_smul_measure]
+      have h1 : ∫⁻ y, pcnIter K n y A ∂μ = μ A := by
+        rw [← Measure.bind_apply hA (hg n).aemeasurable, hstat n]
+      have hpow : (1 - c) ^ n ≤ 1 := pow_le_one₀ hr0 (by linarith)
+      have h2 : ENNReal.ofReal (1 - (1 - c) ^ n) * μ A
+          ≤ ∫⁻ y, pcnIter K n y A ∂(ν x) := by
+        calc ENNReal.ofReal (1 - (1 - c) ^ n) * μ A
+            = ∫⁻ _y, ENNReal.ofReal (1 - (1 - c) ^ n) * μ A ∂(ν x) := by
+              rw [lintegral_const]
+              simp [hν x]
+          _ ≤ ∫⁻ y, pcnIter K n y A ∂(ν x) := lintegral_mono fun y => ih y
+      rw [h1, smul_eq_mul, smul_eq_mul]
+      refine le_trans (le_of_eq ?_) (add_le_add (le_refl _)
+        (mul_le_mul_of_nonneg_left h2 (zero_le _)))
+      have hkey : 1 - (1 - c) ^ (n + 1) = c + (1 - c) * (1 - (1 - c) ^ n) := by ring
+      rw [hkey, ENNReal.ofReal_add hc0 (mul_nonneg hr0 (by linarith)),
+        ENNReal.ofReal_mul hr0, add_mul, mul_assoc]
+
+/-- **Every probability step dominating `c • μ` splits as `c·μ + (1−c)·ν`** with `ν` a probability:
+the remaining mass `σ − c•μ` is a measure (`Measure.sub`), and rescaling it by `1 − c` normalises
+it.  So `pcnIter_rate`'s split is not extra input — a minorant is enough. -/
+theorem exists_split_of_minorant {α : Type*} [MeasurableSpace α] {μ σ : Measure α}
+    [IsProbabilityMeasure μ] [IsProbabilityMeasure σ] {c : ℝ}
+    (hc0 : 0 < c) (hc1 : c < 1) (h : ENNReal.ofReal c • μ ≤ σ) :
+    ∃ ν : Measure α, σ = ENNReal.ofReal c • μ + ENNReal.ofReal (1 - c) • ν ∧
+      ν Set.univ = 1 := by
+  haveI : IsFiniteMeasure (ENNReal.ofReal c • μ) :=
+    ⟨by rw [Measure.smul_apply, smul_eq_mul, measure_univ, mul_one]
+        exact ENNReal.ofReal_ne_top.lt_top⟩
+  set a : ENNReal := ENNReal.ofReal (1 - c) with ha
+  have hsub : (1 : ENNReal) - ENNReal.ofReal c = a := by
+    rw [ha, ← ENNReal.ofReal_one, ← ENNReal.ofReal_sub 1 (le_of_lt hc0)]
+  have hne : a ≠ 0 := (ENNReal.ofReal_pos.mpr (by linarith : (0 : ℝ) < 1 - c)).ne'
+  have htop : a ≠ ⊤ := ENNReal.ofReal_ne_top
+  set r : Measure α := σ - ENNReal.ofReal c • μ with hr
+  have hmassr : r Set.univ = a := by
+    rw [hr, Measure.sub_apply MeasurableSet.univ h, Measure.smul_apply, smul_eq_mul,
+      measure_univ, measure_univ, mul_one, hsub]
+  have hsum : r + ENNReal.ofReal c • μ = σ := by
+    rw [hr]
+    exact Measure.sub_add_cancel_of_le h
+  refine ⟨a⁻¹ • r, ?_, ?_⟩
+  · have hsmul : a • (a⁻¹ • r) = r := by
+      rw [smul_smul, ENNReal.mul_inv_cancel hne htop, one_smul]
+    calc σ = r + ENNReal.ofReal c • μ := hsum.symm
+      _ = ENNReal.ofReal c • μ + a • (a⁻¹ • r) := by rw [hsmul, add_comm]
+  · rw [Measure.smul_apply, smul_eq_mul, hmassr]
+    exact ENNReal.inv_mul_cancel hne htop
+
+/-- **The minorant alone yields the rate**: a measurable probability step family dominating `c • μ`
+at every point, with `μ` invariant under its iterates and `0 < c < 1`, satisfies the Doeblin bound
+`(1 − (1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`. -/
+theorem pcnIter_rate_of_minorant {K : (Fin d → ℝ) → Measure (Fin d → ℝ)}
+    {μ : Measure (Fin d → ℝ)} {c : ℝ} (hc0 : 0 < c) (hc1 : c < 1) (hK : Measurable K)
+    (hmass : ∀ x, K x Set.univ = 1) [IsProbabilityMeasure μ]
+    (hmin : ∀ x, ENNReal.ofReal c • μ ≤ K x)
+    (hstat : ∀ n, μ.bind (pcnIter K n) = μ)
+    (n : ℕ) (x : Fin d → ℝ) {A : Set (Fin d → ℝ)} (hA : MeasurableSet A) :
+    ENNReal.ofReal (1 - (1 - c) ^ n) * μ A ≤ pcnIter K n x A := by
+  haveI : ∀ x, IsProbabilityMeasure (K x) := fun x => ⟨hmass x⟩
+  choose ν hsplit hνmass using fun x => exists_split_of_minorant hc0 hc1 (hmin x)
+  exact pcnIter_rate hc0.le hc1.le hK hνmass hsplit hstat n x hA
+
+/-- The Metropolis-adjusted pCN step of §4 as a step family on `ℝ^d`: the measure the rate of this
+section is about. -/
+def pcnMetropolisStep (c s ρ R : ℝ) (π : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) :
+    Measure (Fin d → ℝ) :=
+  (volume.restrict (pcnBox d R)).withDensity
+    fun y => ENNReal.ofReal (pcnMetropolisDensity c s ρ π x y)
+
 
 end BookProof.MCMC.PCNGaussianFloor

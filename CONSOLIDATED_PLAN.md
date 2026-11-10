@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10i):** **§31 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10j):** **§32 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the iterate on `ℝ^d` (`pcnIter`, `pcnStat_iter`, `pcnIter_univ`) and the Doeblin
+> rate **`pcnIter_rate`** (`(1−(1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`), with
+> **`exists_split_of_minorant`** and **`pcnIter_rate_of_minorant`** so the minorant alone yields it.
+> Normalisation and invariance are the remaining links.
+> **Earlier newest entry (2026-11-10i):** **§31 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `VeffD` computed for the quadratic potential (**`VeffD_quadSum`**:
 > `¼λ²‖x‖² − ½λd`, from the exact slice in each coordinate), and the Metropolis acceptance carried
 > through the pCN density (`pcnAccept_floor`, **`pcnMetropolis_floor`**, **`pcnMetropolis_minorant`**),
@@ -19728,3 +19733,32 @@ the raw proposal.  `pcnDoeblin_apply` states it set by set.
 `VeffD_quadSum`, `coordDerivTwo_quadSum`, `pcnAccept_floor`, `pcnMetropolis_minorant`,
 `pcnDoeblin_apply` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over
 100 characters, no trailing whitespace.
+
+### 32. Addendum (2026-11-10j) — the iterate on `ℝ^d` and the Doeblin rate
+
+**1. The iterate (`PCNGaussianFloor` §5).**  `pcnIter K n x` is the `n`-step measure on `ℝ^d` by
+right composition (`pcnIter_zero`, `pcnIter_succ`); `measurable_pcnIter` makes the family measurable
+for `Measure.bind`; `pcnIter_univ` carries total mass `1` through the iterate; `pcnStat_iter` carries
+invariance through it.
+
+**2. The rate.**  **`pcnIter_rate`** — for a step family splitting as `c·μ + (1−c)·ν_x` with `ν_x` a
+probability and `μ` invariant under the iterates, `(1 − (1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)` for every
+measurable `A` and every starting point.  The induction is the classical one: split the first step,
+use invariance for the `c·μ` term and the induction hypothesis for the `(1−c)·ν_x` term; the
+arithmetic `c + (1−c)(1 − r^n) = 1 − r^{n+1}` is the only place `ENNReal` needs care, and is done
+through `ENNReal.ofReal_add`/`ofReal_mul`.
+
+**3. The split is not extra input.**  **`exists_split_of_minorant`** — a probability measure `σ ≥ c•μ`
+with `0 < c < 1` is `c•μ + (1−c)•ν` for a probability `ν = (1−c)⁻¹ • (σ − c•μ)`, `Measure.sub`
+supplying the residual mass (`Measure.sub_apply`, `Measure.sub_add_cancel_of_le`).  Hence
+**`pcnIter_rate_of_minorant`**: the minorant alone gives the rate.  `pcnMetropolisStep` names the §4
+adjusted step as the family the rate is about.
+
+**Still open.**  Normalisation (the pCN/Metropolis measures here are densities on a box, whose total
+mass the chapter does not compute) and the invariance hypothesis, which a reversibility proof would
+supply.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
+on `pcnIter_rate`, `pcnIter_rate_of_minorant`, `exists_split_of_minorant`, `pcnStat_iter`,
+`pcnIter_univ` → `propext, Classical.choice, Quot.sound` only, no `sorry`; 0 lines over 100
+characters, no trailing whitespace.
