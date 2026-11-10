@@ -1315,6 +1315,22 @@ infinite-dimensional counterpart and is untouched.
 state `baseOp_vac`, gap `1 − ρ > 0` — so the gap hypothesis in the Module 4–5 bound is discharged
 from §18 rather than assumed, and `module45_iterate_bound` is the resulting `‖P₀ᵐ c‖ ≤ ρᵐ‖c‖`.
 
+**The floor is a number (§27).**  §25 left `δ` unnamed.  For the occupation model it is the binomial
+theorem: the pCN noise thins each of the `m` occupations with survival probability `ρ`, so the
+refresh is `Binomial(m, ρ)` — the same `ρ ^ N` that `UnadjustedPCN.pcnWeight` weights the degree by.
+`binomPmf` is that mass function, `binomPmf_sum` normalises it by `add_pow` (so `pcnRefresh` is row
+stochastic, `pcnRefresh_rowStoch`), and **`binomPmf_floor`** shows every entry is at least
+`c ^ m` for `c = min ρ (1 − ρ)` — writing `c ^ m = c ^ k · c ^ (m − k)` and bounding each factor by
+`ρ ^ k` and `(1 − ρ) ^ (m − k)` — positive for `0 < ρ < 1` (`pcnFloor_pos`).  The refresh does not
+depend on the current occupation, so it is *not* symmetric and §24's filter `min 1 (π b/π a)` is not
+reversible for it; `indAcc` uses the importance ratio, whose balanced form `mul_indAcc`
+(`π a q a b · acc = min (π a q a b) (π b q b a)`) gives reversibility (`indKernel_detailed`) and
+stationarity (`indKernel_stationary`) of `indKernel`.  Its minorant is the floor alone —
+`indKernel_minorant`, using neither symmetry nor `supv π` — so the chain mixes at rate
+`1 − (min ρ (1 − ρ)) ^ m`: **`tendsto_iter_pcnRefresh`**, with `tendsto_iter_indKernel_tv` the
+total-variation form.  The floor is exponential in `m`, the honest cost of Doeblin on `m`
+occupations; it is also the reason §23–§26 keep the rate as a parameter.
+
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
 written on occupations, and the weighted `ℓ¹` of the core (the weight that makes `K_drift` contract)
@@ -1322,9 +1338,11 @@ is not named.  §23 removes the "uniform only" limitation (the target is an arbi
 derives the Doeblin condition for the Metropolis kernel of a symmetric proposal
 (`mhKernel_minorant`), and §25 removes the target from the constant altogether
 (`mhKernel_minorant_one`: on a probability target the minorant is the proposal's floor `δ`, so the
-rate is `1 − δ`; `tendsto_iter_metropolis_uniformStep` instantiates it).  What remains is the single
-number `δ` — the minimum of the pCN Gaussian increment over the occupation box — as an estimate in
-the architecture's parameters.  It also does not prove the pCNL operator's own gap; the
+rate is `1 − δ`; `tendsto_iter_metropolis_uniformStep` instantiates it), and §27 computes `δ` for the
+occupation model: the binomial thinning's floor `(min ρ (1 − ρ)) ^ m`, with `tendsto_iter_pcnRefresh`
+the chain it instantiates.  What remains on this side is the same number for the *weight-space*
+Gaussian increment, which is an estimate on the architecture's `2K/ε` truncation rather than a
+statement about the occupation chain.  It also does not prove the pCNL operator's own gap; the
 Bakry–Émery/Hessian route above is untouched, and `pcnl_spectral_gap_of_hessian` stays a target.
 
 #### Review of the implementation's empirical claims (2026-11-03)

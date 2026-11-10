@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-09h):** **§22 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10a):** **§23 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `BookProof/MCMC/PositivityCone` §27 computes the floor `δ` for the occupation model:
+> the pCN noise is the binomial thinning (`binomPmf`, `pcnRefresh`, normalised by `add_pow`), every
+> entry is at least `c ^ m` for `c = min ρ (1 − ρ)` (**`binomPmf_floor`**, `pcnFloor_pos`), and the
+> independent proposal needs the independence sampler's filter (`indAcc`, `indKernel`,
+> `indKernel_detailed`), whose minorant is that floor alone (`indKernel_minorant`), so
+> **`tendsto_iter_pcnRefresh`** mixes at rate `1 − (min ρ (1 − ρ)) ^ m`.
+> **Earlier newest entry (2026-11-09h):** **§22 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `BookProof/MCMC/PositivityCone` §26 gives Module 5's total variation from the same
 > contraction: `tv` is half the `ℓ¹` distance (`tv_le_l1`), `l1_iter_target_le` is the iterate bound
 > and **`tendsto_iter_target_tv`** gives `tv (f Qⁿ) π → 0` at the Doeblin rate, with the Metropolis
@@ -19319,3 +19326,41 @@ target and is untouched by this.
 `tv_iter_le`, `tendsto_iter_mhKernel_tv`, `tendsto_iter_metropolis_uniformStep_tv` → `propext,
 Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing
 whitespace.
+
+### 23. Addendum (2026-11-10a) — the floor is a number: the binomial pCN refresh
+
+**What §22 left.**  §22 stated convergence at the proposal's floor `δ` and named `δ` as the one
+constant still to compute.  For the occupation model that computation is the binomial theorem.
+
+* `binomPmf`, `binomPmf_sum` — the pCN noise on occupations is a *thinning* (each of the `m`
+  occupations survives with probability `ρ`), so the refresh is `Binomial(m, ρ)`; the mass function
+  sums to `1` by `add_pow`, which is `pcnRefresh_rowStoch`.
+* **`binomPmf_floor`** — with `c = min ρ (1 − ρ)`, every entry is at least `c ^ m` (write
+  `c ^ m = c ^ k · c ^ (m − k)` and bound each factor by `ρ ^ k` and `(1 − ρ) ^ (m − k)`); with
+  `0 < ρ < 1` that floor is positive (`pcnFloor_pos`).  So `δ = c ^ m`, exponential in the occupation
+  count — the honest cost of a Doeblin minorant on `m` occupations, which is why §23–§26 carry the
+  rate as a parameter.
+* **The filter is the independence sampler's.**  The refresh `pcnRefresh` does not depend on the
+  current occupation, so it is *not* symmetric: §24's ratio filter `min 1 (π b/π a)` is not reversible
+  for it.  `indAcc` uses the importance ratio `min 1 ((π b q b a)/(π a q a b))`, and `mul_indAcc`
+  (the balanced form `π a q a b · acc = min (π a q a b) (π b q b a)`) gives reversibility
+  (`indKernel_detailed`) and hence stationarity (`indKernel_stationary`) for the kernel `indKernel`,
+  which is row stochastic by construction (`indKernel_rowStoch`).
+* **The minorant uses the floor alone** — `indKernel_minorant`: neither symmetry nor `supv π`
+  appears, so `indKernel` inherits §25's constant `δ`.  `tendsto_iter_indKernel` is the `ℓ¹`
+  convergence and `tendsto_iter_indKernel_tv` the total-variation form.
+* **`tendsto_iter_pcnRefresh`** — the pCN occupation chain reaches any probability target in `ℓ¹` at
+  rate `1 − (min ρ (1 − ρ)) ^ m`; `pcnRefresh_minorant` is the Doeblin statement it comes from.
+
+**What is still open.**  The core's weighted `ℓ¹` and the operator's own gap are unchanged.  The
+Gaussian increment on the *weight* space is a different proposal from this occupation thinning; its
+floor is an estimate on the architecture's `M_ε = 2K/ε` truncation and is not claimed here.  What is
+now closed is the number §22 listed: for the occupation model the floor is computed, and the chain
+that §22–§26 describe is instantiated with it.
+
+**Verification.**  `lake build BookProof.MCMC.PositivityCone` → **8077 jobs**, green.
+`#print axioms` on `binomPmf_sum`, `pcnRefresh_rowStoch`, `binomPmf_floor`, `pcnFloor_pos`,
+`mul_indAcc`, `indKernel_detailed`, `indKernel_minorant`, `indKernel_stationary`,
+`tendsto_iter_indKernel`, `tendsto_iter_indKernel_tv`, `pcnRefresh_minorant`,
+`tendsto_iter_pcnRefresh` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines
+over 100 characters, no trailing whitespace.

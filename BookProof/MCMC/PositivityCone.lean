@@ -60,7 +60,15 @@ Dobrushin/Doeblin argument consumes.
 * **total variation (§26)** — Module 5's distance is half the `ℓ¹` one (`tv`, `tv_le_l1`), so the
   same contraction gives `l1_iter_target_le` and **`tendsto_iter_target_tv`**
   (`tv_iter_le` for the rate), with the Metropolis instances `tendsto_iter_mhKernel_tv` and
-  `tendsto_iter_metropolis_uniformStep_tv`.
+  `tendsto_iter_metropolis_uniformStep_tv`;
+* **the refresh's floor (§27)** — the pCN noise on occupations is the binomial thinning
+  (`binomPmf`, `pcnRefresh`), normalised by the binomial theorem (`binomPmf_sum`,
+  `pcnRefresh_rowStoch`) with every entry at least `c ^ m` for `c = min ρ (1 − ρ)`
+  (**`binomPmf_floor`**, `pcnFloor_pos`).  The refresh is an *independent* proposal, so the filter is
+  the independence sampler's (`indKernel`, reversible by `indKernel_detailed` via `mul_indAcc`), whose
+  minorant is that floor alone (`indKernel_minorant`, `indKernel_stationary`), giving
+  **`tendsto_iter_pcnRefresh`**: `ℓ¹` convergence at rate `1 − (min ρ (1 − ρ))ᵐ`
+  (`tendsto_iter_indKernel_tv` for the total-variation form).
 
 ## Where the `ℓ²` core and this model meet
 
@@ -1008,7 +1016,263 @@ theorem tendsto_iter_metropolis_uniformStep_tv (m : ℕ) {π : Fin (m + 1) → �
   tendsto_iter_mhKernel_tv (uniformStep_symm m t) hπpos hπ ht0
     (uniformStep_pos m ht0.le ht1) (uniformStep_rowStoch m t) hf
 
+/-! ## 27. The pCN refresh's floor: `δ` from the binomial thinning
 
+§22–§26 take the proposal's floor `δ` as a parameter.  The pCN noise on occupations is a *thinning*:
+each of the `m` occupations survives with probability `ρ`, so the refreshed occupation count is
+`Binomial(m, ρ)` — the same `ρ ^ N` by which `UnadjustedPCN.pcnWeight` weights the degree.  The
+floor is computed here:
+
+* `binomPmf`, `binomPmf_sum` — the binomial mass function, normalised by the binomial theorem
+  (`add_pow`), so the refresh is row stochastic (`pcnRefresh_rowStoch`);
+* `binomPmf_floor` — with `c = min ρ (1 − ρ)`, every entry is at least `c ^ m`, and `pcnFloor_pos`
+  makes that a positive `δ` for `0 < ρ < 1`;
+* `pcnRefresh` — the refresh proposal `q a b = binomPmf b`, which does not depend on the current
+  occupation `a`;
+* `indKernel` — the *independence sampler's* filter, `min 1 ((π b q b a)/(π a q a b))`.  An
+  independent proposal is not symmetric, so §24's filter `min 1 (π b/π a)` is not reversible for it;
+  the importance ratio is what makes it so (`mul_indAcc`, `indKernel_detailed`);
+* `indKernel_minorant` — the Doeblin minorant is the proposal's floor alone (§25's form: neither
+  symmetry nor `supv π` is used), with `indKernel_stationary` and the convergence
+  `tendsto_iter_indKernel` / `tendsto_iter_indKernel_tv`;
+* **`tendsto_iter_pcnRefresh`** — the pCN occupation chain reaches any probability target in `ℓ¹` at
+  rate `1 − (min ρ (1 − ρ))ᵐ`.
+
+So the number §25 left open is computed for the occupation model: the thinning floor `cᵐ`.  It is
+the price of Doeblin on `m` occupations — exponential in the occupation count, which is why
+§23–§26 carry the rate as a parameter rather than as a small constant.
+-/
+
+
+/-- The binomial mass function on the `m + 1` occupations. -/
+noncomputable def binomPmf (m : ℕ) (ρ : ℝ) (k : Fin (m + 1)) : ℝ :=
+  (m.choose k.val : ℝ) * ρ ^ k.val * (1 - ρ) ^ (m - k.val)
+
+theorem binomPmf_sum (m : ℕ) (ρ : ℝ) : ∑ k : Fin (m + 1), binomPmf m ρ k = 1 := by
+  have hshift : (∑ k : Fin (m + 1), binomPmf m ρ k)
+      = ∑ k ∈ Finset.range (m + 1), ((m.choose k : ℝ) * ρ ^ k * (1 - ρ) ^ (m - k)) :=
+    Fin.sum_univ_eq_sum_range (fun k => (m.choose k : ℝ) * ρ ^ k * (1 - ρ) ^ (m - k)) (m + 1)
+  rw [hshift]
+  have h := add_pow ρ (1 - ρ) m
+  rw [show ρ + (1 - ρ) = 1 by ring, one_pow] at h
+  calc ∑ k ∈ Finset.range (m + 1), ((m.choose k : ℝ) * ρ ^ k * (1 - ρ) ^ (m - k))
+      = ∑ k ∈ Finset.range (m + 1), (ρ ^ k * (1 - ρ) ^ (m - k) * (m.choose k : ℝ)) :=
+        Finset.sum_congr rfl fun k _ => by ring
+    _ = 1 := by rw [← h]
+
+/-- The pCN refresh on occupations: the new occupation is `Binomial(m, ρ)`, independently of the
+current one. -/
+noncomputable def pcnRefresh (m : ℕ) (ρ : ℝ) : Fin (m + 1) → Fin (m + 1) → ℝ :=
+  fun _ k => binomPmf m ρ k
+
+theorem pcnRefresh_rowStoch (m : ℕ) (ρ : ℝ) : RowStoch (pcnRefresh m ρ) :=
+  fun _ => binomPmf_sum m ρ
+
+theorem binomPmf_pos (m : ℕ) {ρ : ℝ} (hρ0 : 0 < ρ) (hρ1 : ρ < 1) (k : Fin (m + 1)) :
+    0 < binomPmf m ρ k := by
+  have hk : k.val ≤ m := Nat.lt_succ_iff.mp k.isLt
+  have hc : 0 < (m.choose k.val : ℝ) := by exact_mod_cast Nat.choose_pos hk
+  have h1 : 0 < ρ ^ k.val := pow_pos hρ0 _
+  have h2 : 0 < (1 - ρ) ^ (m - k.val) := pow_pos (by linarith) _
+  simp only [binomPmf]
+  positivity
+
+theorem pcnRefresh_pos (m : ℕ) {ρ : ℝ} (hρ0 : 0 < ρ) (hρ1 : ρ < 1) (a b : Fin (m + 1)) :
+    0 < pcnRefresh m ρ a b :=
+  binomPmf_pos m hρ0 hρ1 b
+
+/-- **The binomial floor**: with `c = min ρ (1 − ρ)`, every entry of the refresh is at least
+`cᵐ`. -/
+theorem binomPmf_floor (m : ℕ) {ρ : ℝ} (hρ0 : 0 ≤ ρ) (hρ1 : ρ ≤ 1) (k : Fin (m + 1)) :
+    (min ρ (1 - ρ)) ^ m ≤ binomPmf m ρ k := by
+  set c := min ρ (1 - ρ) with hc
+  have hρc : c ≤ ρ := min_le_left _ _
+  have hρc' : c ≤ 1 - ρ := min_le_right _ _
+  have hc0 : 0 ≤ c := le_min hρ0 (by linarith)
+  have hk : k.val ≤ m := Nat.lt_succ_iff.mp k.isLt
+  have h1 : c ^ k.val ≤ ρ ^ k.val := pow_le_pow_left₀ hc0 hρc _
+  have h2 : c ^ (m - k.val) ≤ (1 - ρ) ^ (m - k.val) := pow_le_pow_left₀ hc0 hρc' _
+  have hkadd : k.val + (m - k.val) = m := Nat.add_sub_cancel' hk
+  have hprod : c ^ m ≤ ρ ^ k.val * (1 - ρ) ^ (m - k.val) := by
+    conv_lhs => rw [← hkadd]
+    rw [pow_add]
+    exact mul_le_mul h1 h2 (pow_nonneg hc0 _) (pow_nonneg hρ0 _)
+  have hprod0 : 0 ≤ ρ ^ k.val * (1 - ρ) ^ (m - k.val) :=
+    mul_nonneg (pow_nonneg hρ0 _) (pow_nonneg (by linarith) _)
+  have hchoose : (1 : ℝ) ≤ (m.choose k.val : ℝ) := by
+    have : 0 < m.choose k.val := Nat.choose_pos hk
+    exact_mod_cast this
+  calc (min ρ (1 - ρ)) ^ m = c ^ m := by rw [hc]
+    _ ≤ ρ ^ k.val * (1 - ρ) ^ (m - k.val) := hprod
+    _ = 1 * (ρ ^ k.val * (1 - ρ) ^ (m - k.val)) := (one_mul _).symm
+    _ ≤ (m.choose k.val : ℝ) * (ρ ^ k.val * (1 - ρ) ^ (m - k.val)) :=
+        mul_le_mul_of_nonneg_right hchoose hprod0
+    _ = binomPmf m ρ k := by simp only [binomPmf]; ring
+
+theorem pcnRefresh_floor (m : ℕ) {ρ : ℝ} (hρ0 : 0 ≤ ρ) (hρ1 : ρ ≤ 1)
+    (a b : Fin (m + 1)) : (min ρ (1 - ρ)) ^ m ≤ pcnRefresh m ρ a b :=
+  binomPmf_floor m hρ0 hρ1 b
+
+/-- The floor is positive for `0 < ρ < 1`. -/
+theorem pcnFloor_pos (m : ℕ) {ρ : ℝ} (hρ0 : 0 < ρ) (hρ1 : ρ < 1) :
+    0 < (min ρ (1 - ρ)) ^ m :=
+  pow_pos (lt_min hρ0 (by linarith)) m
+
+/-- The independence sampler's acceptance: `min 1 ((π b · q b a) / (π a · q a b))`. -/
+noncomputable def indAcc (q : Fin (m + 1) → Fin (m + 1) → ℝ) (π : Fin (m + 1) → ℝ)
+    (a b : Fin (m + 1)) : ℝ :=
+  if π b * q b a ≤ π a * q a b then (π b * q b a) / (π a * q a b) else 1
+
+theorem indAcc_nonneg {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    0 ≤ indAcc q π a b := by
+  unfold indAcc
+  split_ifs with h
+  · exact div_nonneg (mul_nonneg (le_of_lt (hπpos b)) (le_of_lt (hq0 b a)))
+      (mul_nonneg (le_of_lt (hπpos a)) (le_of_lt (hq0 a b)))
+  · norm_num
+
+theorem indAcc_le_one {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    indAcc q π a b ≤ 1 := by
+  unfold indAcc
+  split_ifs with h
+  · exact (div_le_one (mul_pos (hπpos a) (hq0 a b))).mpr h
+  · exact le_rfl
+
+/-- **The ratio filter is balanced**: `π a · q a b · acc = min (π a q a b) (π b q b a)`. -/
+theorem mul_indAcc {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    π a * q a b * indAcc q π a b = min (π a * q a b) (π b * q b a) := by
+  have hA : π a * q a b ≠ 0 := ne_of_gt (mul_pos (hπpos a) (hq0 a b))
+  unfold indAcc
+  by_cases h : π b * q b a ≤ π a * q a b
+  · rw [if_pos h, min_eq_right h, div_eq_mul_inv]
+    rw [show π a * q a b * ((π b * q b a) * (π a * q a b)⁻¹)
+        = ((π a * q a b) * (π a * q a b)⁻¹) * (π b * q b a) by ring,
+      mul_inv_cancel₀ hA, one_mul]
+  · rw [if_neg h, mul_one, min_eq_left (le_of_lt (lt_of_not_ge h))]
+
+/-- The independence sampler's kernel. -/
+noncomputable def indKernel (q : Fin (m + 1) → Fin (m + 1) → ℝ) (π : Fin (m + 1) → ℝ)
+    (a b : Fin (m + 1)) : ℝ :=
+  if b = a then 1 - ∑ c ∈ univ.erase a, q a c * indAcc q π a c else q a b * indAcc q π a b
+
+theorem indKernel_rowStoch (q : Fin (m + 1) → Fin (m + 1) → ℝ) (π : Fin (m + 1) → ℝ) :
+    RowStoch (indKernel q π) := by
+  intro a
+  have hsum : ∑ b ∈ univ.erase a, indKernel q π a b
+      = ∑ c ∈ univ.erase a, q a c * indAcc q π a c := by
+    refine Finset.sum_congr rfl fun c hc => ?_
+    rw [indKernel, if_neg (Finset.ne_of_mem_erase hc)]
+  rw [← Finset.add_sum_erase (univ : Finset (Fin (m + 1))) (fun b => indKernel q π a b)
+    (mem_univ a), hsum, indKernel, if_pos rfl]
+  ring
+
+/-- **Reversibility of the independence sampler**: `π a Q a b = π b Q b a`. -/
+theorem indKernel_detailed {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) (a b : Fin (m + 1)) :
+    π a * indKernel q π a b = π b * indKernel q π b a := by
+  have key : ∀ x y : Fin (m + 1), y ≠ x →
+      π x * indKernel q π x y = min (π x * q x y) (π y * q y x) := by
+    intro x y hxy
+    rw [indKernel, if_neg hxy]
+    have h := mul_indAcc hq0 hπpos x y
+    calc π x * (q x y * indAcc q π x y)
+        = π x * q x y * indAcc q π x y := by ring
+      _ = min (π x * q x y) (π y * q y x) := h
+  by_cases hba : b = a
+  · subst hba
+    ring
+  · rw [key a b hba, key b a (Ne.symm hba), min_comm]
+
+/-- **The Doeblin condition for the independence sampler**, with the proposal's floor `δ` alone. -/
+theorem indKernel_minorant {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hqrow : RowStoch q) (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) (hπ : Target π)
+    {δ : ℝ} (hδ : 0 < δ) (hqmin : ∀ a b, δ ≤ q a b) :
+    Minorant (indKernel q π) π δ := by
+  intro a b
+  have hpa : π a ≤ 1 := target_le_one hπ a
+  have hpb : π b ≤ 1 := target_le_one hπ b
+  have hb0 : 0 ≤ π b := le_of_lt (hπpos b)
+  by_cases hba : b = a
+  · rw [indKernel, if_pos hba, hba]
+    have hS : ∑ c ∈ univ.erase a, q a c = 1 - q a a := by
+      have h := Finset.add_sum_erase (univ : Finset (Fin (m + 1))) (fun c => q a c) (mem_univ a)
+      rw [hqrow a] at h
+      linarith
+    have hSle : ∑ c ∈ univ.erase a, q a c * indAcc q π a c ≤ ∑ c ∈ univ.erase a, q a c :=
+      Finset.sum_le_sum fun c _ => by
+        have hq0' : 0 ≤ q a c := le_trans hδ.le (hqmin a c)
+        exact mul_le_of_le_one_right hq0' (indAcc_le_one hq0 hπpos a c)
+    have hgap : δ ≤ 1 - ∑ c ∈ univ.erase a, q a c * indAcc q π a c := by
+      have : δ ≤ 1 - ∑ c ∈ univ.erase a, q a c := by rw [hS]; linarith [hqmin a a]
+      linarith
+    calc δ * π a ≤ δ * 1 := mul_le_mul_of_nonneg_left hpa hδ.le
+      _ = δ := mul_one δ
+      _ ≤ 1 - ∑ c ∈ univ.erase a, q a c * indAcc q π a c := hgap
+  · rw [indKernel, if_neg hba]
+    by_cases hcase : π b * q b a ≤ π a * q a b
+    · rw [indAcc, if_pos hcase]
+      have hqab : 0 < q a b := hq0 a b
+      have hpa0 : 0 < π a := hπpos a
+      have hbpos : 0 < π b := hπpos b
+      have hrewrite : q a b * ((π b * q b a) / (π a * q a b)) = π b * q b a / π a := by
+        field_simp
+      rw [hrewrite, le_div_iff₀ hpa0]
+      have hq : δ * π a ≤ q b a :=
+        (mul_le_mul_of_nonneg_left hpa hδ.le).trans (by rw [mul_one]; exact hqmin b a)
+      nlinarith [mul_le_mul_of_nonneg_left hq hb0]
+    · rw [indAcc, if_neg hcase, mul_one]
+      calc δ * π b ≤ δ * 1 := mul_le_mul_of_nonneg_left hpb hδ.le
+        _ = δ := mul_one δ
+        _ ≤ q a b := hqmin a b
+
+/-- **Stationarity from reversibility.** -/
+theorem indKernel_stationary {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) : Stationary (indKernel q π) π := by
+  intro b
+  calc ∑ a, π a * indKernel q π a b
+      = ∑ a, π b * indKernel q π b a :=
+        Finset.sum_congr rfl fun a _ => indKernel_detailed hq0 hπpos a b
+    _ = π b * (∑ a, indKernel q π b a) := (Finset.mul_sum _ _ _).symm
+    _ = π b * 1 := by rw [indKernel_rowStoch q π b]
+    _ = π b := mul_one _
+
+/-- **The independence sampler converges at the proposal's floor.** -/
+theorem tendsto_iter_indKernel {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hqrow : RowStoch q) (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) (hπ : Target π)
+    {δ : ℝ} (hδ : 0 < δ) (hqmin : ∀ a b, δ ≤ q a b)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => l1 ((apply (indKernel q π))^[n] f - π)) atTop (𝓝 0) :=
+  tendsto_iter_target (indKernel_rowStoch q π)
+    (indKernel_minorant hqrow hq0 hπpos hπ hδ hqmin) hπ
+    (indKernel_stationary hq0 hπpos) hδ hf
+
+/-- The same in total variation. -/
+theorem tendsto_iter_indKernel_tv {q : Fin (m + 1) → Fin (m + 1) → ℝ} {π : Fin (m + 1) → ℝ}
+    (hqrow : RowStoch q) (hq0 : ∀ a b, 0 < q a b) (hπpos : ∀ a, 0 < π a) (hπ : Target π)
+    {δ : ℝ} (hδ : 0 < δ) (hqmin : ∀ a b, δ ≤ q a b)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => tv ((apply (indKernel q π))^[n] f) π) atTop (𝓝 0) :=
+  tendsto_iter_target_tv (indKernel_rowStoch q π)
+    (indKernel_minorant hqrow hq0 hπpos hπ hδ hqmin) hπ
+    (indKernel_stationary hq0 hπpos) hδ hf
+
+/-- **The pCN occupation chain's Doeblin constant is the binomial floor.** -/
+theorem pcnRefresh_minorant (m : ℕ) {ρ : ℝ} (hρ0 : 0 < ρ) (hρ1 : ρ < 1)
+    {π : Fin (m + 1) → ℝ} (hπpos : ∀ a, 0 < π a) (hπ : Target π) :
+    Minorant (indKernel (pcnRefresh m ρ) π) π ((min ρ (1 - ρ)) ^ m) :=
+  indKernel_minorant (pcnRefresh_rowStoch m ρ) (pcnRefresh_pos m hρ0 hρ1) hπpos hπ
+    (pcnFloor_pos m hρ0 hρ1) (pcnRefresh_floor m hρ0.le hρ1.le)
+
+/-- **The pCN occupation chain mixes at rate `1 − (min ρ (1 − ρ))ᵐ`**, to any probability target. -/
+theorem tendsto_iter_pcnRefresh (m : ℕ) {ρ : ℝ} (hρ0 : 0 < ρ) (hρ1 : ρ < 1)
+    {π : Fin (m + 1) → ℝ} (hπpos : ∀ a, 0 < π a) (hπ : Target π)
+    {f : Fin (m + 1) → ℝ} (hf : ∑ a, f a = 1) :
+    Tendsto (fun n => l1 ((apply (indKernel (pcnRefresh m ρ) π))^[n] f - π)) atTop (𝓝 0) :=
+  tendsto_iter_indKernel (pcnRefresh_rowStoch m ρ) (pcnRefresh_pos m hρ0 hρ1) hπpos hπ
+    (pcnFloor_pos m hρ0 hρ1) (pcnRefresh_floor m hρ0.le hρ1.le) hf
 
 end BookProof.MCMC.PositivityCone
 
