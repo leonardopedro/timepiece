@@ -713,6 +713,31 @@ self-adjoint finite difference operator*, Cor. 2.16), which is the one ingredien
 have.  So the per-vector statement is formalized *modulo* that step, with the per-vector data in the
 hypothesis rather than in a missing theorem.
 
+**The `99`-coordinate lift, and where it already is.**  The `d`-coordinate product of the
+one-coordinate statement is already in the corpus, by the same criterion and with the same product
+structure: `BookProof/Qg/ChapterQgHermiteOscillatorEsa.harmonicCore_essentiallySelfAdjoint` is
+`EssentiallySelfAdjointOn (polyGaussCore d) harmCore` for **every** `d`, so `d = 99` is an
+instantiation and not a separate proof.  The eigenbasis is the product Hermite family with
+eigenvalues `|α| + d/2` (`harmCore_hermiteMvLp`), the core is dense (`polyGaussCore_dense`), and
+the polynomial-side identity is `kinPoly_add_harmPoly_hermiteMv`.  This is the S0 operator in the
+**Mehler-conjugated** gauge on `L²(ℝ^d)`: `harmCore = −Δ + ‖x‖²/4 = U (Σᵢ Dᵢ) U⁻¹`, coordinate by
+coordinate from `conj_dirichletVec` in `ChapterYangMillsMehlerProduct`, and
+`polyCore_essentiallySelfAdjoint` above is its `d = 1` unconjugated twin.  So the lift is not
+missing analysis or a criterion.  What a *literal* `99`-coordinate statement in the unconjugated
+gauge would still need is bookkeeping mathlib does not package: the `d`-dimensional Mehler isometry
+`L²(γ^{⊗d}) ≅ L²(ℝ^d)` — `mehlerLpEquiv` is one-dimensional, and there is no product Gauss measure
+in the corpus.
+
+**What identifying the two cores actually costs.**  The `polyOpC`/`gaussOpC` identification is *one*
+approximation, not two theorems.  `closure polyOpC` is self-adjoint, and a self-adjoint operator has
+no proper symmetric extension: if `A ⊆ B` with `A` self-adjoint and `B` symmetric, then
+`B ⊆ B* ⊆ A* = A`.  So it suffices that every polynomial class lies in the domain of the closure of
+`gaussOpC` — a graph-norm approximation of a polynomial by compactly supported `C²` classes — and
+then `closure gaussOpC = closure polyOpC`, one self-adjoint operator described by both cores.  The
+reverse approximation is unnecessary.  That one direction is still open, and it is a
+Hermite-truncation argument: the corpus can state it, but it has no `L²(γ)` expansion theory to prove
+it with.
+
 **Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
 no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)
 speaks about a complex Hilbert space.  The corpus has its own complexification for this,
