@@ -3587,6 +3587,23 @@ import BookProof.Sm.ChapterSmHarmonicReverseEstimate
 -- (`4√(384·384) = 1536`) and `degHiggs_commForm_le`, §25's commutator bound at `ρ = κ = 384` for
 -- the dictionary §30 showed admits no block function.
 import BookProof.Sm.ChapterSmDegenerateDoubletConstant
+-- `ChapterSmQuarticUncertainty` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §35): the quartic analogue of
+-- the harmonic uncertainty bound, `QuarticUncertainty P c₀ C` (`‖W p‖² ≤ ‖(−Δ_S + W)p‖² + C ∑‖∇_j p‖²`),
+-- and the one direction the sign identity gives: `quarticUncertainty_of_gradResidual` (§31's residual
+-- condition at `C = 2`).  The converse needs an upper bound on `ℜ⟪W p, −Δ_S p⟫` that §23 does not
+-- supply, so the quartic analogue is weaker than §31's condition and the transfer is not obtained.
+import BookProof.Sm.ChapterSmQuarticUncertainty
+-- `ChapterSmDegenerateDoubletSharp` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §36): `384` is the **exact**
+-- uniform Schur radius of the degenerate doublet — `rowSumGen_degHiggs_univ` / `colSumGen_degHiggs_univ`
+-- attain it, so `degHiggs_rowRadius_sharp` / `degHiggs_colRadius_sharp` show no smaller radius works.
+-- A smaller commutator constant must come from cancellation, not from a sharper Schur radius.
+import BookProof.Sm.ChapterSmDegenerateDoubletSharp
+-- `ChapterSmQuadraticWeightLemmas` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §37): which quadratic-weight
+-- lemmas survive for a weight dominated by `harmPoly` — `selfBound_of_potBound` composes a potential
+-- bound with §33's identity bound; the module records that the potential bound, the identity bound,
+-- the self-bound and coercivity survive, while the reverse `H²` estimate does not follow from
+-- domination of a coefficient.
+import BookProof.Sm.ChapterSmQuadraticWeightLemmas
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator

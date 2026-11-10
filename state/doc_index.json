@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T17:56:00+00:00",
+ "generated_at": "2026-11-10T18:15:42+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 1673,
+   "lines": 1748,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1186,7 +1186,10 @@
     "## 31. The reverse elliptic estimate: its exact residual (2026-11-10m)",
     "## 32. The form-domain comparison, named (2026-11-10n)",
     "## 33. The quadratic weight: the case the corpus does prove (2026-11-10n)",
-    "## 34. The degenerate doublet's Schur sums, evaluated (2026-11-10n)"
+    "## 34. The degenerate doublet's Schur sums, evaluated (2026-11-10n)",
+    "## 35. The quartic analogue of the uncertainty bound (2026-11-10o)",
+    "## 36. The degenerate doublet's Schur radius is sharp (2026-11-10o)",
+    "## 37. Which quadratic-weight lemmas survive domination by `harmPoly` (2026-11-10o)"
    ]
   },
   {
@@ -1630,7 +1633,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_SPEC.md",
    "title": "MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
-   "lines": 434,
+   "lines": 467,
    "headings": [
     "# MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
     "## 1. The theorem of record (T6)",

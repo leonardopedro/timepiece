@@ -1671,3 +1671,78 @@ components) and it is a *bound*, not the sharp Schur constant: `A.card ≤ 96` i
 sector, while the number operator's rows are concentrated.  Sharpening it is a computation on the
 sector sizes, not a theorem about the method.  What is now settled is that the support-free test is
 not merely applicable to a dictionary §20 provably cannot accept, but **quantified** on it.
+
+## 35. The quartic analogue of the uncertainty bound (2026-11-10o)
+
+Module: `BookProof/Sm/ChapterSmQuarticUncertainty.lean`.  Registered in `BookProof.lean`.
+
+§33 said the harmonic instance does not transfer because `norm_sq_harmPoly_mul_le` has no quartic
+analogue.  This section states the analogue precisely and proves exactly one direction of it.
+
+The harmonic bound is `‖harmPoly · p‖² ≤ ‖(−Δ + harmPoly) p‖² + (d/2)‖p‖²`: the potential is bounded by
+the graph norm **plus a lower-order remainder**.  The quartic analogue, with the `L²` remainder
+replaced by the only remainder available at degree four, is
+
+```text
+QuarticUncertainty P c₀ C :  ‖W · p‖² ≤ ‖(−Δ_S + W) p‖² + C ∑_j ‖∇_j p‖².
+```
+
+* **`QuarticUncertainty`** — the definition.
+* **`quarticUncertainty_of_gradResidual`** — §31's gradient-residual condition implies it with
+  `C = 2`: expand `‖(−Δ_S + W)p‖²`, and the cross term is bounded below by §26's interpolation.
+
+The quartic analogue is therefore **weaker** than §31's condition — proving it is a strictly smaller
+ask, not the same one.  The converse is **not available and not claimed**: `QuarticUncertainty`
+supplies a *lower* bound on `2 ℜ⟪W p, −Δ_S p⟫`, while deriving §31's condition needs an *upper* bound
+with the same constant, `2 ℜ⟪W p, −Δ_S p⟫ ≤ −∑_j ‖∇_j p‖² + ∑_j ‖(∂_j W)p‖²`, which the sign identity
+does not give anywhere in the corpus.  That one-sidedness of §23 is the obstruction to closing
+`PotSelfBound` by the sign route, and it is now on record as such rather than as a proverb.
+
+**No transfer.**  Even with `QuarticUncertainty`, the remainder `2 ∑_j ‖∇_j p‖²` still has to be
+absorbed by the graph norm of `−Δ_S + W + 1`, which is §32's `FormDomainComparison`.  The quartic
+analogue of the *uncertainty bound* is weaker than §31's condition; the quartic analogue of the
+*transfer* is `PotSelfBound` itself.  They are different targets and neither is proved.
+
+## 36. The degenerate doublet's Schur radius is sharp (2026-11-10o)
+
+Module: `BookProof/Sm/ChapterSmDegenerateDoubletSharp.lean`.  Registered in `BookProof.lean`.
+
+§34 bounded the general Schur sums of the degenerate doublet by `384` and used that for the constant
+`1536`.  That bound is not improvable, and the sector-size distribution shows why: the rows are
+`4 · card`, so the radius is `4 · max_A |A|`, and the maximum is attained.
+
+* **`rowSumGen_degHiggs_univ`**, **`colSumGen_degHiggs_univ`** — the full sector `univ` has both sums
+  exactly `384`;
+* **`degHiggs_rowRadius_sharp`**, **`degHiggs_colRadius_sharp`** — every uniform Schur radius
+  satisfies `384 ≤ ρ`;
+* **`degHiggs_rowRadius_eq_card_max`** — the row value is `4 · 96`, read off the distribution.
+
+So `384` is the **exact** uniform Schur radius, and `1536` is what the Schur test gives at it.  A
+smaller commutator constant for this family must come from cancellation, not from a sharper radius —
+"sharpen the constant" and "sharpen the method" are different tasks, and only the second is available
+here.  (For the physical, non-diagonal matrices §27's operator-norm radii are the sharper tool; this
+section is about the dictionary §20 provably cannot handle.)
+
+## 37. Which quadratic-weight lemmas survive domination by `harmPoly` (2026-11-10o)
+
+Module: `BookProof/Sm/ChapterSmQuadraticWeightLemmas.lean`.  Registered in `BookProof.lean`.
+
+The largest class in which the corpus's quadratic tool (`norm_potLp_le_of_le_harm`) applies is
+`|W(x)| ≤ λ · harmW(x) + μ`.  This section maps which of §33's lemmas survive there.
+
+| lemma | status |
+| :--- | :--- |
+| potential bound `‖W p‖ ≤ λ' shiftNorm p` | **holds** — `norm_potLp_le_of_le_harm` plus `potentialBound_harm` |
+| identity bound `‖p‖ ≤ shiftNorm p` | **holds** unconditionally — `identityBound_harm` |
+| self-bound `‖W p + p‖ ≤ β shiftNorm p` | **holds by composition** — new `selfBound_of_potBound` |
+| coercivity `‖p‖ ≤ ‖N_W p‖` | **holds** for `W ≥ 0`, by §32's argument with `W` for `smPotPoly` |
+| **reverse (`H²`) estimate** | **does not follow** |
+
+* **`selfBound_of_potBound`** — the composition step, valid for *any* weight: a potential bound with
+  constant `λ` plus §33's identity bound gives the self-bound with `λ + 1`.
+
+Why the reverse estimate is absent: it is a statement about the graph norm of `−Δ + W + 1`, while the
+domination is a bound on the *coefficient* `W`.  Passing from the harmonic instance to `N_W` needs
+`‖N_harm p‖ ≤ κ ‖N_W p‖`, i.e. §32's named input again.  Every lower-order statement survives
+domination; the comparison of the two forms does not.  And the SM's quartic `W` is not even in this
+class, so the table's provable half does not apply to it either.
