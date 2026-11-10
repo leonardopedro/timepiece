@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T03:27:48+00:00",
+ "generated_at": "2026-11-10T07:00:40+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1580,7 +1580,7 @@
   {
    "path": "softmodes.md",
    "title": "Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
-   "lines": 2350,
+   "lines": 2385,
    "headings": [
     "# Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
     "## Revised work package (2026-11-08)",

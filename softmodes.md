@@ -264,8 +264,12 @@ Source paths below are relative to `BookProof/`.
   `Lp ℝ 2 gaussMeasure` whose *domain* is that core (`gaussOp`'s domain is the `C²` core).
 * `Toolbox/ChapterNelsonAnalyticVectors.lean`, `essentiallySelfAdjointOn_of_dense_geometric`: U,
   Nelson's criterion for a dense set of vectors with a common geometric ratio, on the Faris–Lavine
-  deficiency propagation; N, Nelson's theorem with per-vector radii.  The eigenbasis substitute
-  `essentiallySelfAdjointOn_of_dense_eigenvectors` needs no summability at all.
+  deficiency propagation; N, Nelson's theorem with per-vector radii.  The eigenbasis criteria
+  `essentiallySelfAdjointOn_of_dense_span_eigenvectors` (dense *span*, the usable one) and
+  `…_of_dense_eigenvectors` (dense set) need neither summability nor symmetry.
+* `Qym/ChapterYangMillsPolyCore.lean`, `polyCore_essentiallySelfAdjoint`: U, the polynomial core of
+  `gaussDirichlet` as an operator on classes, essentially self-adjoint by the eigenbasis criterion;
+  C, not yet identified with the closure of `gaussOp`/`gaussOpC`.
 
 Execution order is **S0 → S1 → S2 → S3 → S4**; approximation bookkeeping in S3 can proceed
 while S2 remains open. The next reviewable deliverable is the S0 representation bridge
@@ -535,11 +539,13 @@ the `C²`-compactly-supported core; the operator is packaged as `gaussOp : Lp �
 Lp ℝ 2 gaussMeasure` with domain `gaussCore`; the domain is dense; the operator is closable, so
 `LinearPMap.closure` exists.
 
-The **polynomial form core** — the item this acceptance list still lacked as a domain statement — is
-recorded in `Qym/ChapterYangMillsHermiteAnalytic.lean` (see the Route C status below): the operator
-is diagonal on the Hermite classes there, with `‖TᵐH_n‖ = nᵐ‖H_n‖` in `L²(γ dx)`.  It is *not* the
-domain of `gaussOp`, whose core is the compactly supported `C²` one and contains no polynomial;
-transporting the operator to the polynomial core is the remaining step, and nothing above uses it.
+The **polynomial form core** is recorded in `Qym/ChapterYangMillsHermiteAnalytic.lean` (diagonal on
+the Hermite classes, `‖TᵐH_n‖ = nᵐ‖H_n‖` in `L²(γ dx)`), and it is a real operator on classes in
+`Qym/ChapterYangMillsPolyCore.lean`: `polyDomC` with the componentwise `polyOpC`, whose Hermite
+classes are a complete eigenbasis, so `polyCore_essentiallySelfAdjoint` holds — see the Route C status
+below.  It is *not* the domain of `gaussOp`, whose core is the compactly supported `C²` one and
+contains no polynomial; identifying the two closures is the step that is still open, and nothing above
+uses either.
 
 What the closure itself is known to satisfy (`ChapterYangMillsGaussForm`):
 
@@ -610,9 +616,11 @@ correspond to the polynomials `H_n` in `L²(γ dx)`, and the eigen-relation is e
 `−H_n'' + x H_n' = n H_n` (`ChapterHermiteFunctions.hermiteR_ode`).  Polynomials are dense in
 `L²(γ dx)` and they are analytic vectors for `T` (`Σ t^n ‖T^n p‖/n! < ∞` since `T^n p` is a
 polynomial of degree `n`), so `T` is essentially self-adjoint by Nelson's analytic-vector theorem.
-*What is missing to formalize:* (iii) **Nelson's theorem itself** — mathlib has no analytic-vector or
+*What was missing to formalize:* (iii) **Nelson's theorem itself** — mathlib has no analytic-vector or
 semigroup-generated self-adjointness theory.  This is the route with the least analysis and the most
-bookkeeping, but (iii) is unavoidable.
+bookkeeping.  (iii) is now in the corpus, in the common-radius form, and it turned out *not* to close
+the route for this operator — the Hermite radii are unbounded — so the closure is by the eigenbasis
+criterion instead; see (iii″) below.
 
 *Done* for (i) and (ii) in `BookProof/Qym/ChapterYangMillsHermiteSpectrum.lean` (no `sorry`; axioms
 `propext`, `Classical.choice`, `Quot.sound`): `gaussDirichlet_hermiteR` is the eigen-relation as an
@@ -654,16 +662,43 @@ operator is diagonal, nothing grows but the eigenvalue: `dirichletPoly_iterate_h
 `hermiteR_summable` is the convergence of `Σ rᵐ/m! ‖Tᵐ(H_n)‖` for every `r > 0` — the analytic
 vector condition, at radius `n`.  The trap: the radius is `n`, so the Hermite classes have **no
 common radius**, and the polynomial core meets Nelson's hypothesis but not the common-radius
-sufficiency above.  Two honest exits: the per-vector theorem, or — cheaper for an operator with an
-explicit eigenbasis — `essentiallySelfAdjointOn_of_dense_eigenvectors`, which needs neither
-summability nor completeness nor symmetry (`c⟪x,w⟫ = z⟪x,w⟫` with `c` real and `z` not forces
-`⟪x,w⟫ = 0`).  Either way what remains is the same transport: a partially defined operator on
-`Lp ℝ 2 gaussMeasure` whose domain is the polynomial core.
+sufficiency above.  So Nelson's theorem, in the only form the corpus can prove, does **not** close
+Route C for this operator; the eigenbasis route below does.
+
+**(iii″) Route C closed: the polynomial core is essentially self-adjoint.**
+`BookProof/Qym/ChapterYangMillsPolyCore.lean` (no `sorry`; axioms `propext`, `Classical.choice`,
+`Quot.sound`) supplies what the two modules above still lacked — an operator *on classes* whose domain
+is the polynomial core, and the spectral criterion that does not care about radii.  Its inputs are
+`polyLp_injective` (a polynomial class that vanishes is a.e. zero by `MemLp.toLp_eq_toLp_iff`, then
+everywhere by continuity and `IsOpenPosMeasure gaussMeasure` via `IsOpen.eq_empty_of_measure_zero`,
+then by `Polynomial.funext`) and `mem_span_hermiteR` (the Hermite polynomials span `Polynomial ℝ`
+because `hermiteR n` is monic of degree `n`), which with `dense_span_polyLp` gives
+`dense_hermiteSpan`.  Construction: `polyRange`/`polyEquiv` (the class map as an isomorphism onto its
+range), `polyOpRange` (`p ↦ −p'' + X p'` carried across it — well defined precisely because the class
+map is injective), `polyOpRange_hermiteR` (`= n • H_n`), then the complexified core `polyDomC`, the
+pairs whose two real components lie in the Hermite span, with the componentwise operator `polyOpC`.
+`polyDomC` is dense (`dense_polyDomC`, through `Cx.norm_sq`), the embedded Hermite classes are
+eigenvectors with the real eigenvalues `n` (`polyOpC_eigen`), and their ℂ-span is the whole domain
+(`span_eigenClasses_eq_top`, via `z = ⟨z.re, 0⟩ + i⟨z.im, 0⟩`).  Hence
+`polyCore_essentiallySelfAdjoint`.
+
+The criterion itself needed one correction to be usable, and this is the trap of Route C: a *dense set
+of eigenvectors* is not what a simple spectrum supplies — the union of the eigenlines `ℂ • v_n` is
+nowhere near dense — so `ChapterNelsonAnalyticVectors` also carries
+`essentiallySelfAdjointOn_of_dense_span_eigenvectors`, stated for the **span** of the eigenvectors,
+where `⟪x, w⟫ = 0` propagates by conjugate-linearity and dense sets are what a complete eigenbasis
+actually gives.  It needs no symmetry and no summability.  What remains for Route C is now a
+comparison of two operators rather than a missing theorem: identify `polyOpC` with the closure of the
+ℂ partial operator `gaussOpC` of `ChapterYangMillsGaussFormComplex`, whose domain is the compactly
+supported `C²` core and hence disjoint from the polynomial core.
 
 **Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
 no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)
-speaks about a complex Hilbert space, which is why the missing ℂ lift of `gaussOp` (below) and this
-open problem are the same piece of work.
+speaks about a complex Hilbert space.  The corpus has its own complexification for this,
+`BookProof/Realification/Complexification.lean` (`Cx W`, with `InnerProductSpace ℂ`, `cxMapₗ`, the
+`norm_sq` splitting and completeness), and `ChapterYangMillsPolyCore` is built on it: the real operator
+is extended to a global `coreExt` by a left inverse of the Hermite span's inclusion and complexified
+with `cxMapₗ`, so ℂ-linearity of `polyOpC` holds by construction.
 
 **Why the ℂ lift is not just bookkeeping either.**  Mathlib has no complexification of real Hilbert
 spaces (`Complexification` does not exist in this version) and no bundled `Lp.re`/`Lp.im` maps, only

@@ -2193,7 +2193,12 @@ import BookProof.Qym.ChapterYangMillsHermiteSpectrum
 -- per vector, and bridging the two needs the constancy of the deficiency index on each half plane,
 -- which the corpus does not have.  For an operator with an explicit eigenbasis the file's
 -- `essentiallySelfAdjointOn_of_dense_eigenvectors` is both cheaper and stronger — no summability,
--- no completeness, no symmetry hypothesis.
+-- no completeness, no symmetry hypothesis.  The criterion that actually closes Route C for a simple
+-- spectrum is the last one in the file, `essentiallySelfAdjointOn_of_dense_span_eigenvectors`: it asks
+-- for the *span* of the eigenvectors to be dense, because a dense *set* of eigenvectors is a very
+-- special situation — the union of the eigenlines of a simple spectrum is nowhere near dense — while
+-- `⟪x, w⟫ = 0` propagates from eigenvectors to their span by conjugate-linearity, which is all the
+-- deficiency argument needs.
 import BookProof.Toolbox.ChapterNelsonAnalyticVectors
 
 -- `ChapterYangMillsHermiteAnalytic` (S0 Route C, the quantitative input): the polynomial form core
@@ -2206,9 +2211,27 @@ import BookProof.Toolbox.ChapterNelsonAnalyticVectors
 -- — `hermiteR_geometric` restates it as a geometric bound, and `hermiteR_summable` is the
 -- convergence of `Σ rᵐ/m! ‖Tᵐ(H_n)‖` for every `r > 0`.  The radius is `n`, so the core has no
 -- *common* radius: it meets Nelson's hypothesis but not the common-radius hypothesis of the theorem
--- above.  `gaussOp`'s domain is still the compactly supported `C²` core, which contains no
--- polynomial; transporting the operator to this core is the remaining step.
+-- above, which is why the class-level closure is by the eigenbasis criterion
+-- (`ChapterYangMillsPolyCore`) rather than by Nelson's theorem.
 import BookProof.Qym.ChapterYangMillsHermiteAnalytic
+
+-- `ChapterYangMillsPolyCore` (S0 Route C, the closure): the polynomial core as an operator on
+-- classes.  `polyLp_injective` injects the polynomial classes into `L²(γ dx)` (a.e. zero plus
+-- continuity plus `IsOpenPosMeasure gaussMeasure` forces zero everywhere), so `polyRange` is a
+-- submodule and `polyEquiv` an isomorphism onto it; `polyOpRange` is `p ↦ −p'' + X p'` carried across
+-- that isomorphism — well defined *because* the class map is injective — with
+-- `polyOpRange_hermiteR : T(H_n) = n • H_n`.  `mem_span_hermiteR` (the Hermite polynomials span
+-- `Polynomial ℝ`; triangularity from `hermiteR n` monic of degree `n`) makes the Hermite classes
+-- complete, `dense_hermiteSpan`.  The operator is then read on the complexified core `polyDomC` —
+-- the pairs `⟨u, v⟩` with both components in the Hermite span — via a global extension `coreExt` of
+-- the real operator and `cxMapₗ`; the domain is dense (`dense_polyDomC`), the Hermite classes are
+-- eigenvectors with the real eigenvalues `n` (`polyOpC_eigen`), their ℂ-span is the whole domain
+-- (`span_eigenClasses_eq_top`), and `polyCore_essentiallySelfAdjoint` is the eigenbasis criterion
+-- applied there.  This is the S0 self-adjointness item on the polynomial core, unconditional in
+-- radius and symmetry; what is still missing is the identification of this operator with the closure
+-- of `gaussOp` (`Qym/ChapterYangMillsGaussForm`) and of its ℂ version `gaussOpC`
+-- (`Qym/ChapterYangMillsGaussFormComplex`), whose domains are the compactly supported `C²` cores.
+import BookProof.Qym.ChapterYangMillsPolyCore
 
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`

@@ -43,9 +43,15 @@ propagation lemma above already rescues a *common* radius but not a varying one.
 and it is the one stated here.
 
 For a concrete operator with a complete eigenbasis — which is the case that matters for
-`gaussDirichlet`, whose Hermite eigenfunctions are explicit — the eigenvector criterion at
-the end of this file is both stronger than the geometric one and far cheaper: no
-summability, no completeness, no propagation.
+`gaussDirichlet`, whose Hermite eigenfunctions are explicit — the criterion at the end of
+this file is both stronger than the geometric one and far cheaper: no summability, no
+propagation.  The hypothesis is that the *span* of the eigenvectors with real eigenvalues is
+dense, not that the eigenvectors themselves are dense.  The difference is not cosmetic: for
+a simple spectrum the union of the eigenlines is nowhere near dense (in the complexification
+of a real operator each eigenspace is a line `ℂ • v_n`), while the span of a complete
+eigenbasis is everything.  `essentiallySelfAdjointOn_of_dense_eigenvectors` keeps the
+weaker dense-set hypothesis for the cases where it does hold; the spectral argument uses
+`essentiallySelfAdjointOn_of_dense_span_eigenvectors`.
 
 Everything is `sorry`-free and `axiom`-free.
 -/
@@ -261,6 +267,50 @@ theorem essentiallySelfAdjointOn_of_dense_eigenvectors (T : D →ₗ[ℂ] F)
       simp only [Complex.sub_im, Complex.ofReal_im, Complex.zero_im] at him
       exact hz (by linarith)
     exact (mul_eq_zero.mp h2).resolve_left hne
+  exact ⟨hkey Complex.I (by simp), hkey (-Complex.I) (by simp)⟩
+
+/-! ## The criterion for a complete eigenbasis -/
+
+/-- **The eigenbasis criterion, in the form that covers a simple spectrum.**  If the *span* of
+a set `S` of eigenvectors of `T` with *real* eigenvalues is dense, then `T` is essentially
+self-adjoint.  No symmetry hypothesis is needed.  At a deficiency point `z` off the real axis,
+`c ⟪x, w⟫ = z ⟪x, w⟫` with `c ∈ ℝ` kills `⟪x, w⟫` for each eigenvector `x ∈ S`, and
+conjugate-linearity carries that to the whole span; density then forces `w = 0`.
+
+This is strictly stronger than `essentiallySelfAdjointOn_of_dense_eigenvectors`: a dense set
+of eigenvectors is a very special situation, its own union of eigenlines being sparse as soon
+as the eigenvalues are simple, whereas the span of a complete eigenbasis is dense by
+definition.  It is the form in which an explicit spectral decomposition is used. -/
+theorem essentiallySelfAdjointOn_of_dense_span_eigenvectors (T : D →ₗ[ℂ] F)
+    (S : Set D) (hS : ∀ x ∈ S, ∃ c : ℝ, T x = (c : ℂ) • (x : F))
+    (hdense : Dense (((↑) : D → F) '' ((Submodule.span ℂ S : Submodule ℂ D) : Set D))) :
+    EssentiallySelfAdjointOn D T := by
+  have hkey : ∀ z : ℂ, z.im ≠ 0 → DeficiencyTrivialAt D T z := by
+    intro z hz w hw
+    set A : Set D := ((Submodule.span ℂ S : Submodule ℂ D) : Set D) with hA
+    have hAdense : Dense (((↑) : D → F) '' A) := hdense
+    refine eq_zero_of_dense_inner_zero A hAdense ?_
+    have hkill : ∀ a ∈ ((Submodule.span ℂ S : Submodule ℂ D) : Set D),
+        (inner ℂ ((a : D) : F) w : ℂ) = 0 := by
+      intro a ha
+      induction ha using Submodule.span_induction with
+      | mem x hx =>
+          obtain ⟨c, hc⟩ := hS x hx
+          have h1 := hw x
+          rw [hc, inner_smul_left, Complex.conj_ofReal] at h1
+          have h2 : ((c : ℂ) - z) * inner ℂ (x : F) w = 0 := by
+            rw [sub_mul, h1, sub_self]
+          have hne : ((c : ℂ) - z) ≠ 0 := by
+            intro h
+            have him := congrArg Complex.im h
+            simp only [Complex.sub_im, Complex.ofReal_im, Complex.zero_im] at him
+            exact hz (by linarith)
+          exact (mul_eq_zero.mp h2).resolve_left hne
+      | zero => simp
+      | add x y hx hy ihx ihy =>
+          simp only [Submodule.coe_add, inner_add_left, ihx, ihy, add_zero]
+      | smul c x hx ihx => simp only [Submodule.coe_smul, inner_smul_left, ihx, mul_zero]
+    exact hkill
   exact ⟨hkey Complex.I (by simp), hkey (-Complex.I) (by simp)⟩
 
 end BookProof.NelsonAnalytic
