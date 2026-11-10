@@ -31,7 +31,13 @@ structural facts the magnetic-quartic analysis needs:
    the Cartan statement: `[A_μ, A_ν] = 0` for fields in a Cartan direction, so there the field
    strength *is* `∂A` and its components are linear in the configuration — which is the
    situation `magComp`/`magneticEnergyForm` of `BookProof.YangMillsMagneticQuartic` describe.
-3. **The root sector is quartic.**  In the two-dimensional root plane of `su(2)`
+3. **The full energy, with nothing dropped.**  `magEnergy = Σ_{i,a} B_{ia}²` is the sum of
+   `magEnergyQuad` (the derivative square, the quadratic term the Cartan comparison keeps),
+   `magEnergyCross` (cubic) and `magEnergyQuart` (the commutator square, quartic)
+   (`magEnergy_eq_parts`), and the corresponding multiplication operators add up
+   (`mulOp_magEnergy_eq`, `magEnergyOps_apply_eq`), so the cubic and quartic interactions are
+   retained in the form on the core and are not absorbed into a quadratic model.
+4. **The root sector is quartic.**  In the two-dimensional root plane of `su(2)`
    (`rootPlus = E₊`, `rootMinus = E₋`, `cartanH = diag(1,−1)`) the bracket of two off-diagonal
    fields is again Cartan, with the *determinant* of the root amplitudes as its coefficient
    (`rootField_commutator`), and the magnetic energy of that component is the square of that
@@ -53,7 +59,10 @@ coordinates alone, is ordered once and for all by the product.
 ## Honest boundary
 
 Nothing here is dynamical: no spectral statement, no mass gap, no claim that the split survives
-any limit.  The derivative coordinates `∂_j A_{k,a}` are the book's independent configuration
+any limit.  The energy decomposition of §3b is a *map* of the full field strength into the
+comparison calculation, not a coercivity estimate: it does not bound the cubic and quartic parts
+by the quadratic form and says nothing about cutoff uniformity — those remain separate inputs.
+The derivative coordinates `∂_j A_{k,a}` are the book's independent configuration
 coordinates (`idxD`), so `magDeriv` is a multiplication operator by construction and the
 "derivative" is not the `pderiv` of a field.  The root-sector computation is the `su(2)` block:
 it shows what the commutator term does off the Cartan directions, not that a general `f_{abc}`
@@ -190,6 +199,95 @@ the derivative part, `F = ∂A`. -/
 theorem magComm_zero (i : Fin 3) (a : Fin 8) :
     magComm (fun _ _ _ => 0) i a = 0 := by
   simp [magComm, magBilin]
+
+/-! ## 3b. The full magnetic energy `Σ B²` and its parts
+
+The comparison calculation (`YangMillsFormClosureNonDiagonal`, and the quartic `:N²:` form of
+`YangMillsMagneticQuartic`) is stated for a **quadratic** magnetic weight — the Cartan sector, where
+`B` is linear in the configuration.  This section is the map from the full non-abelian field
+strength into that calculation: the magnetic energy `Σ_{i,a} B_{ia}²` is the derivative square
+plus a cross term plus the commutator square, and the two latter terms are the cubic and quartic
+interactions the diagonal comparison does not see.  Nothing is dropped: the sum of the three parts
+is the full energy, and the operator identity below is what makes it a statement about forms on
+the core rather than about polynomials.
+
+What this section does *not* do is the coercivity estimate: it does not bound the cross and
+commutator parts by the quadratic form, and it makes no claim uniform in any cutoff.  Those are
+separate analytic inputs.
+-/
+
+/-- The **full magnetic energy** `Σ_{i,a} B_{ia}²` — the potential `½ Σ B²` of the Weyl-gauge
+Hamiltonian up to the factor `½`.  It is quartic in the fields. -/
+def magEnergy (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : MvPolynomial (Fin 99) ℂ :=
+  ∑ i : Fin 3, ∑ a : Fin 8, magPoly fabc i a ^ 2
+
+/-- The **derivative part** of the magnetic energy: `Σ_{i,a} (∂A)_{ia}²`, quadratic in the
+configuration.  This is the term the Cartan-sector comparison keeps. -/
+def magEnergyQuad : MvPolynomial (Fin 99) ℂ :=
+  ∑ i : Fin 3, ∑ a : Fin 8, magDeriv i a ^ 2
+
+/-- The **cross term** `2 Σ_{i,a} (∂A)_{ia} g[A,A]_{ia}`, cubic in the configuration. -/
+def magEnergyCross (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : MvPolynomial (Fin 99) ℂ :=
+  ∑ i : Fin 3, ∑ a : Fin 8, (2 : ℂ) • (magDeriv i a * magComm fabc i a)
+
+/-- The **commutator square** `Σ_{i,a} g[A,A]_{ia}²`, quartic in the configuration. -/
+def magEnergyQuart (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : MvPolynomial (Fin 99) ℂ :=
+  ∑ i : Fin 3, ∑ a : Fin 8, magComm fabc i a ^ 2
+
+/-- **The full energy is the sum of its three parts**: nothing is truncated. -/
+theorem magEnergy_eq_parts (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    magEnergy fabc = magEnergyQuad + magEnergyCross fabc + magEnergyQuart fabc := by
+  rw [magEnergy, magEnergyQuad, magEnergyCross, magEnergyQuart]
+  simp only [magPoly_eq_deriv_add]
+  rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [pow_two, pow_two, pow_two,
+    show (2 : ℂ) • (magDeriv i a * magComm fabc i a)
+        = magDeriv i a * magComm fabc i a + magDeriv i a * magComm fabc i a
+      from two_smul ℂ _]
+  ring
+
+/-- The field strength itself has real coefficients, as the sum of its two real halves. -/
+theorem realCoeff_magPoly (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3) (a : Fin 8) :
+    RealCoeff (magPoly fabc i a) := by
+  rw [magPoly_eq_deriv_add]
+  exact RealCoeff.add (realCoeff_magDeriv i a) (realCoeff_magComm fabc i a)
+
+/-- The full magnetic energy has real coefficients, so its operator is Gauss symmetric. -/
+theorem realCoeff_magEnergy (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : RealCoeff (magEnergy fabc) := by
+  refine RealCoeff.sum fun i _ => RealCoeff.sum fun a _ => ?_
+  rw [pow_two]
+  exact RealCoeff.mul (realCoeff_magPoly fabc i a) (realCoeff_magPoly fabc i a)
+
+/-- Multiplication operators add: `mulOp (p + q) = mulOp p + mulOp q`. -/
+theorem mulOp_add (p q : MvPolynomial (Fin 99) ℂ) : mulOp (p + q) = mulOp p + mulOp q := by
+  refine LinearMap.ext fun r => ?_
+  rw [LinearMap.add_apply]
+  exact add_mul p q r
+
+/-- The multiplication operator of the full energy is the sum of the three parts'. -/
+theorem mulOp_magEnergy_eq (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    mulOp (magEnergy fabc)
+      = mulOp magEnergyQuad + mulOp (magEnergyCross fabc) + mulOp (magEnergyQuart fabc) := by
+  rw [magEnergy_eq_parts, mulOp_add, mulOp_add]
+
+set_option maxHeartbeats 3000000 in
+/-- **The energy operator on the core is the sum of the parts' operators.**  The quadratic half is
+the Cartan-sector comparison operator, so this is also the statement that the cubic and quartic
+interactions survive the map into the comparison instead of being absorbed by it. -/
+theorem magEnergyOps_apply_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : D) :
+    Φ.op (mulOp (magEnergy fabc)) x
+      = Φ.op (mulOp (magEnergyQuad)) x + Φ.op (mulOp (magEnergyCross fabc)) x
+        + Φ.op (mulOp (magEnergyQuart fabc)) x := by
+  rw [CoreRep.op_apply, mulOp_magEnergy_eq]
+  simp only [CoreRep.op_apply, LinearMap.add_apply, map_add]
+
+/-- The full magnetic energy operator is symmetric on the core. -/
+theorem magEnergyOps_symmetricOn (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    SymmetricOn D (D.subtype.comp (Φ.op (mulOp (magEnergy fabc)))) :=
+  Φ.symmetricOn_op (mulOp_polySym (realCoeff_magEnergy fabc))
 
 /-! ## 4. The root sector: the quartic magnetic energy
 

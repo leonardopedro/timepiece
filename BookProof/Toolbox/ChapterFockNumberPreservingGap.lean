@@ -34,6 +34,11 @@ with no diagonalization and no eigenbasis anywhere.
   `ChapterFockOneParticleGap` is an instance;
 * `creVec_sub`, `dGamma_shiftCol` — `dΓ` is linear in the one-particle matrix:
   `dΓ(h − μ) = dΓ(h) − μN`, the general form of `dGamma_diagCol_shift`;
+* `creVec_add`, `dGamma_add_col`, `dGamma_smul_col`, **`dGamma_shiftPlus`** — additivity and
+  homogeneity in the matrix, and the scalar shift in the additive form `dΓ(h + c·1) = dΓ(h) + cN`;
+* **`colMul`, `onePartVec`, `dGamma_comp_one_particle`, `dGamma_comp_defect`** — composition is
+  multiplicative on the one-particle sector, `dΓ(M) dΓ(N)|e_k⟩ = dΓ(M·N)|e_k⟩`, and its failure on
+  two-particle states is a theorem: `N² ≠ N` there;
 * `dGamma_vac` — the vacuum is annihilated by `dΓ(h)` for **every** one-particle matrix;
 * `number_quadForm_ge` — `⟪u, N u⟫ ≥ ‖u‖²` on vacuum-orthogonal states;
 * **`InSector`, `dGamma_mem_sector`, `numberOp_dGamma_sector`** — `dΓ` maps the `m`-particle
@@ -155,6 +160,72 @@ theorem dGamma_shiftCol (col : ℕ → (ℕ →₀ ℂ)) (mu : ℝ) (u : FockAlg
     dGamma_eq_sum numberCol hmod, Finset.smul_sum]
   simp only [hterm]
   rw [Finset.sum_sub_distrib]
+
+/-! ## 2b. The scalar shift in additive form, and where composition stops
+
+`dGamma_shiftCol` is the scalar shift read subtractively.  The additive form below is the one the
+operator contract uses: an inner energy shift moves the outer Hamiltonian by `c N` and by nothing
+else.  The second half of this section is the *one-particle restriction* of composition and its
+failure beyond it: `dΓ` is a representation of the one-particle algebra on `|e_k⟩`, while on a
+two-particle state `dΓ(I) ∘ dΓ(I) = N²` differs from `dΓ(I ∘ I) = N`. -/
+
+/-- **`creVec` is additive in its one-particle vector.** -/
+theorem creVec_add (v w : ℕ →₀ ℂ) (x : FockAlg) :
+    creVec (v + w) x = creVec v x + creVec w x := by
+  classical
+  have h1 : (v + w).support ⊆ v.support ∪ w.support := by
+    intro j hj
+    have hj' : (v + w) j ≠ 0 := Finsupp.mem_support_iff.mp hj
+    rw [Finsupp.add_apply] at hj'
+    by_cases hv : v j = 0
+    · refine Finset.mem_union_right _ (Finsupp.mem_support_iff.mpr ?_)
+      rwa [hv, zero_add] at hj'
+    · exact Finset.mem_union_left _ (Finsupp.mem_support_iff.mpr hv)
+  rw [creVec_eq_sum_of_subset _ _ h1, creVec_eq_sum_of_subset _ _ Finset.subset_union_left,
+    creVec_eq_sum_of_subset _ _ Finset.subset_union_right, ← Finset.sum_add_distrib]
+  exact Finset.sum_congr rfl fun j _ => by rw [Finsupp.add_apply, add_smul]
+
+@[simp] theorem creVec_zero (x : FockAlg) : creVec (0 : ℕ →₀ ℂ) x = 0 := by
+  rw [creVec_apply]
+  simp
+
+/-- `creVec` of a finite linear combination of one-particle vectors. -/
+theorem creVec_finset_sum {ι : Type*} (s : Finset ι) (a : ι → ℂ) (v : ι → ℕ →₀ ℂ)
+    (x : FockAlg) :
+    creVec (∑ j ∈ s, a j • v j) x = ∑ j ∈ s, a j • creVec (v j) x := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert j s hj ih =>
+    rw [Finset.sum_insert hj, Finset.sum_insert hj, creVec_add, creVec_smul, ih]
+
+/-- **`dΓ` is additive in the one-particle matrix.** -/
+theorem dGamma_add_col (col₁ col₂ : ℕ → (ℕ →₀ ℂ)) :
+    dGamma (fun k => col₁ k + col₂ k) = dGamma col₁ + dGamma col₂ := by
+  refine LinearMap.ext fun u => ?_
+  rw [LinearMap.add_apply,
+    dGamma_eq_sum (fun k => col₁ k + col₂ k) (K := modes u) (Finset.Subset.refl _),
+    dGamma_eq_sum col₁ (K := modes u) (Finset.Subset.refl _),
+    dGamma_eq_sum col₂ (K := modes u) (Finset.Subset.refl _), ← Finset.sum_add_distrib]
+  exact Finset.sum_congr rfl fun k _ => creVec_add (col₁ k) (col₂ k) (annA k u)
+
+/-- **`dΓ` is homogeneous in the one-particle matrix.** -/
+theorem dGamma_smul_col (c : ℂ) (col : ℕ → (ℕ →₀ ℂ)) :
+    dGamma (fun k => c • col k) = c • dGamma col := by
+  refine LinearMap.ext fun u => ?_
+  rw [LinearMap.smul_apply,
+    dGamma_eq_sum (fun k => c • col k) (K := modes u) (Finset.Subset.refl _),
+    dGamma_eq_sum col (K := modes u) (Finset.Subset.refl _), Finset.smul_sum]
+  exact Finset.sum_congr rfl fun k _ => creVec_smul c (col k) (annA k u)
+
+/-- **The scalar shift, additively**: `dΓ(A + c·1) = dΓ(A) + c·N` with `N = dΓ(numberCol)`.  This
+is `dGamma_shiftCol` with the sign moved into `c`, and it is the whole of the `+c N_out` identity:
+the shift produces no other outer operator. -/
+theorem dGamma_shiftPlus (col : ℕ → (ℕ →₀ ℂ)) (c : ℂ) :
+    dGamma (fun k => col k + c • numberCol k)
+      = dGamma col + c • dGamma numberCol := by
+  rw [dGamma_add_col, dGamma_smul_col]
+
 
 /-! ## 3. The vacuum, and the number operator -/
 
@@ -451,6 +522,73 @@ theorem numberOp_commute (col : ℕ → (ℕ →₀ ℂ)) (u : FockAlg) :
     _ = dGamma col (∑ m ∈ s, dGamma numberCol (sectorPart m u)) := by rw [map_sum]
     _ = dGamma col (dGamma numberCol u) := by rw [hNd]
 
+/-! ### Composition on the one-particle sector, and where it stops -/
+
+/-- Column `k` of the product of two one-particle matrices: `(M·N)_k = Σ_j (N_k)_j M_j`. -/
+def colMul (M N : ℕ → (ℕ →₀ ℂ)) : ℕ → (ℕ →₀ ℂ) :=
+  fun k => ∑ j ∈ (N k).support, (N k) j • M j
+
+/-- The one-particle vector of a column, `Σ_j v_j |e_j⟩`, as a linear map. -/
+def onePartVec : (ℕ →₀ ℂ) →ₗ[ℂ] FockAlg where
+  toFun v := creVec v vac
+  map_add' v w := creVec_add v w _
+  map_smul' c v := creVec_smul c v _
+
+/-- On the one-particle sector, `dΓ` is the one-particle vector of the column. -/
+theorem onePartVec_eq_dGamma (col : ℕ → (ℕ →₀ ℂ)) (k : ℕ) :
+    onePartVec (col k) = dGamma col (Finsupp.single (Finsupp.single k 1) (1 : ℂ)) := by
+  change creVec (col k) vac = _
+  rw [vac, dGamma_one_particle, creVec_apply]
+  exact Finset.sum_congr rfl fun j _ => by simp [creA_single]
+
+/-- The columns of a product act on the one-particle sector by the linear combination. -/
+theorem onePartVec_colMul (M N : ℕ → (ℕ →₀ ℂ)) (k : ℕ) :
+    onePartVec (colMul M N k) = ∑ j ∈ (N k).support, (N k) j • onePartVec (M j) := by
+  rw [colMul, map_sum]
+  exact Finset.sum_congr rfl fun j _ => map_smul onePartVec _ _
+
+/-- **Composition restricts to the product on the one-particle sector**:
+`dΓ(M) dΓ(N) |e_k⟩ = dΓ(M·N) |e_k⟩`. -/
+theorem dGamma_comp_one_particle (M N : ℕ → (ℕ →₀ ℂ)) (k : ℕ) :
+    dGamma M (dGamma N (Finsupp.single (Finsupp.single k 1) (1 : ℂ)))
+      = dGamma (colMul M N) (Finsupp.single (Finsupp.single k 1) (1 : ℂ)) := by
+  rw [dGamma_one_particle, map_sum]
+  have hterm : ∀ j : ℕ,
+      dGamma M ((N k) j • Finsupp.single (Finsupp.single j 1) (1 : ℂ))
+        = (N k) j • onePartVec (M j) := by
+    intro j
+    rw [map_smul, onePartVec_eq_dGamma]
+  rw [Finset.sum_congr rfl fun j _ => hterm j, ← onePartVec_colMul,
+    ← onePartVec_eq_dGamma]
+
+/-- The identity matrix is a left unit for `colMul`. -/
+theorem colMul_numberCol (M : ℕ → (ℕ →₀ ℂ)) : colMul M numberCol = M := by
+  funext k
+  rw [colMul, numberCol_eq, Finsupp.support_single_ne_zero k one_ne_zero,
+    Finset.sum_singleton, Finsupp.single_eq_same, one_smul]
+
+/-- **The composition defect on two-particle states**: `N² ≠ N`, so `dΓ` is not multiplicative
+beyond the one-particle sector.  The proof is the sector eigenvalue `N = 2` on two quanta against
+`N² = 4`. -/
+theorem dGamma_comp_defect (k : ℕ) :
+    dGamma numberCol (dGamma numberCol (Finsupp.single (Finsupp.single k 2) (1 : ℂ)))
+      ≠ dGamma (colMul numberCol numberCol) (Finsupp.single (Finsupp.single k 2) (1 : ℂ)) := by
+  have hw : InSector 2 (Finsupp.single (Finsupp.single k 2) (1 : ℂ)) := by
+    intro β hβ
+    have hβ' : β = Finsupp.single k 2 := by
+      by_contra hne
+      exact hβ (by simp [Finsupp.single_apply, hne])
+    subst hβ'
+    rw [confNumber, Finsupp.support_single_ne_zero k two_ne_zero, Finset.sum_singleton,
+      Finsupp.single_eq_same]
+  have hN : dGamma numberCol (Finsupp.single (Finsupp.single k 2) (1 : ℂ))
+      = (2 : ℂ) • Finsupp.single (Finsupp.single k 2) (1 : ℂ) :=
+    dGamma_numberCol_of_sector hw
+  rw [colMul_numberCol, hN, map_smul, hN]
+  intro h
+  have hc := congrArg (fun z : FockAlg => z (Finsupp.single k 2)) h
+  simp only [Finsupp.smul_apply, Finsupp.single_eq_same, smul_eq_mul, mul_one] at hc
+  norm_num at hc
 /-! ## 3c. The nested Fock space: the Hamiltonian is a sum of products of outer pairs
 
 In the nested Fock space the outer one-particle space is itself a Fock space, so an outer

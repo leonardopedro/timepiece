@@ -381,10 +381,19 @@ spectrum is not `h`'s.
   (`X = 1`, `Y = −1`, `g = 2` gives `1 < 4`).  So the plan's "do not assume" is a theorem, and the
   counterexample uses no structure constants — non-abelianity is not the source of the failure.
 
+**The outer algebra itself is now small algebra in the corpus.**
+`Toolbox/ChapterFockNumberPreservingGap.lean` carries the S1 identities on `dΓ`:
+`dGamma_shiftPlus` is the scalar shift in additive form `dΓ(h + c·1) = dΓ(h) + cN` (the
+subtractive `dGamma_shiftCol` was already there), `dGamma_comp_one_particle` is composition on the
+one-particle sector, `dΓ(M) dΓ(N)|e_k⟩ = dΓ(M·N)|e_k⟩` with `colMul` the column product, and
+`dGamma_comp_defect` is the multi-particle defect as a theorem: on two quanta `N² = 4` while
+`dΓ(1·1) = N = 2`, so `N² ≠ N`.  Nothing there is conditional.
+
 **What S1 still needs, and what this does not do.** The estimate is a *norm* inequality between two
 vectors, so it inherits every `C` of the concrete split: the derivative and commutator parts of
-`magPoly` must be identified as vectors in this shape (`Qym/ChapterYangMillsFieldStrengthSplit.lean`
-splits the polynomial, it does not say the squares add cross terms this way), the loss
+`magPoly` must be identified as vectors in this shape — the squares now do add up
+(`Qym/ChapterYangMillsFieldStrengthSplit.magEnergy_eq_parts`, the full `Σ B²` is quadratic plus
+cubic plus quartic), but that is an identity, not a domination — the loss
 `(ε⁻¹ − 1)g²‖B_comm‖²` must be dominated by the reference form — the `a < 1` input of
 `YangMillsFormClosureNonDiagonal` — and no IMS/localization statement is made, so partition
 gradients are still unpaid.  The abelian `A_i = ∂_i φ` description of a pure gauge is untouched:

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T14:54:07+00:00",
+ "generated_at": "2026-11-10T15:50:48+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -104,7 +104,7 @@
   {
    "path": "BUILD_COMPONENTS.md",
    "title": "The independent parts of the development, and how to compile them separately",
-   "lines": 109,
+   "lines": 110,
    "headings": [
     "# The independent parts of the development, and how to compile them separately",
     "## Sub-system targets",
@@ -1580,7 +1580,7 @@
   {
    "path": "softmodes.md",
    "title": "Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
-   "lines": 2509,
+   "lines": 2518,
    "headings": [
     "# Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
     "## Revised work package (2026-11-08)",
