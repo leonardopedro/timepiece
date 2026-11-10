@@ -3300,6 +3300,17 @@ import BookProof.Sm.ChapterSmPhysicalData
 -- spinor action of `γ·∂` and any Majorana mass term are not covered.
 import BookProof.Sm.ChapterSmMatterRepresentation
 import BookProof.Sm.ChapterSmFullYukawaData
+-- `ChapterSmFullMatterHamiltonian` (2026-11-09f, `SM_ESA_COMPLETION_PLAN` §4 P2): the exact
+-- coupled inner operator on a common Mehler core.  The coupled space is the finite direct sum
+-- `PiLp 2 (fun _ : Finset (Fin 96) => L2d 163)` over the occupation basis with the common core
+-- `SmCoupledCore` (dense, `coupledCore_dense`); every ledger term is an elementary tensor
+-- `smTensorCore T M` with a core-to-core bosonic factor, and the normal form
+-- `h_SM = Σⱼ πⱼ ⊗ Aⱼ + Σⱼ πⱼ² ⊗ Bⱼ + Σⱼ uⱼ ⊗ Jⱼ + 1 ⊗ M₀` has the term-by-term action
+-- `smNormalForm_apply`, core symmetry `smNormalForm_symmetricOn` (Hermitian coefficients) and
+-- preserves fermion parity (`smNormalForm_parity`).  The derivatives are the genuine
+-- Gaussian-polynomial `CoreRep.op momOp`, not a plane wave, and the 96-mode embedding of the P1
+-- doublet dictionary, the gauge sector and any graph/self-adjointness statement are not covered.
+import BookProof.Sm.ChapterSmFullMatterHamiltonian
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 

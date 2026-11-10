@@ -720,3 +720,57 @@ Not done by this packet: the 96-mode assembly `Σ_{x,y} M_{xy} a†_x a_y` of th
 Hamiltonian, the spinor action of `γ·∂` (so `h_Dirac` is still not an operator), the connection
 between the free internal `U` and the gauge generators `smGen`, the gauge-field sector, any common
 core, and the ESA/Faris–Lavine comparison. P2 is the next packet.
+
+## 12. P2 executed (2026-11-09f)
+
+`BookProof/Sm/ChapterSmFullMatterHamiltonian.lean` (641 lines, namespace `BookProof.SmFullMatter`)
+now carries P2; it builds (`lake build BookProof`, 8913 jobs, no warnings from the module) and is
+imported by `BookProof.lean` after `ChapterSmFullYukawaData`.  Acceptance of §4 is met as follows.
+
+* **Every ledger term is present, as an elementary tensor.**
+  `h_SM = Σⱼ πⱼ ⊗ Aⱼ + Σⱼ πⱼ² ⊗ Bⱼ + Σⱼ uⱼ ⊗ Jⱼ + 1 ⊗ M₀` is `smNormalForm D`: one finite sum
+  per ledger family, each summand the elementary tensor `smTensorCore T M` with a bosonic factor
+  `T` on `polyGaussCore 163` and an internal matrix `M` on the occupation basis.  The derivative
+  families are the **genuine Gaussian-polynomial operators** `smMom j = CoreRep.op (momOp j)`
+  (`πⱼ = −i∂ⱼ`) and `smKinetic j = smMom j ∘ smMom j` (`πⱼ² = −∂ⱼ²`), with
+  `smPos j = CoreRep.op (mulOp (X j))` for the coordinates (the four real Higgs components are
+  four of the `uⱼ`); no plane-wave parameter replaces the derivative.
+* **No definition is rigged to make a theorem `rfl`.**  The bosonic factors are fixed first,
+  independently of any symmetry claim, and are carried through `CoreRep.op`: the symmetries are
+  those of `momOp`/`mulOp` on `polyGaussCore 163` (`momOp_polySym`, `mulOp_polySym`,
+  `realCoeff_X`), not of a chosen representative.  `smNormalForm` is a plain finite sum of
+  `smTensorCore`s, and the theorems about it are proved *about* that sum (below).
+* **The common core.**  `SmBosSpace = L2d 163`, `SmCoupledSpace = PiLp 2 (fun _ : Finset (Fin 96)
+  => SmBosSpace)` (the tensor product with the finite internal factor; `coupledSpace_norm_sq`
+  gives `‖f‖² = Σ_S ‖f_S‖²`), and `SmCoupledCore = {f | ∀ S, f.ofLp S ∈ polyGaussCore 163}` with
+  `coupledCore_ext` and **`coupledCore_dense`**: density is the finite-`ℓ²` reassembly of
+  `polyGaussCore_dense`, not a new analytic input.
+* **Invariance under each term.**  `smTensorCore T M : SmCoupledCore →ₗ SmCoupledCore`: the
+  bosonic factor is core-to-core by definition (`coreComp`, `tensorComp`), so the codomain of
+  every term *is* the common core and no separate invariance lemma is needed — the operator's
+  type is the invariance statement.  `tensorComp_apply`, `tensorComp_add`, `tensorComp_smul`,
+  `coreComp_add`, `coreComp_smul`, `coe_coreComp` are the exposed component lemmas.
+* **Symmetry.**  `smTensorCore_symmetricOn'` takes a `SymmetricOn` bosonic factor
+  (`CoreRep.symmetricOn_op` of `momOp_polySym`/`mulOp_polySym`) and a Hermitian internal matrix,
+  via `star_transpose_sum`; `symmetricOn_add`/`symmetricOn_sum` close finite combinations and
+  `symmetricOn_comp_self` gives `smKinetic_symmetricOn` from `smMom_symmetricOn` by
+  `⟪T²x, y⟫ = ⟪Tx, Ty⟫ = ⟪x, T²y⟫`.  Hence **`smNormalForm_symmetricOn`**: the full normal form
+  is symmetric on `SmCoupledCore` under `HermitianCoeffs D`.
+* **Fermion parity.**  §1 proves `fockParity = (−1)^N` is an involution, symmetric and
+  norm-preserving, with the anticommutation `P a_i = −a_i P`, `P a†_i = −a†_i P`, hence
+  `matterBilin_parity`; §4 lifts it to the coupled core
+  (`coupledParityCore := (coupledParity.comp SmCoupledCore.subtype).codRestrict SmCoupledCore …`)
+  and proves `coupledParity_smTensorCore` from the parity grading of the coefficient matrix.
+  Hence **`smNormalForm_parity`**: the normal form preserves fermion parity under
+  `ParityGradedCoeffs D`, through `coupledParity_sum`.
+* **Elementary-tensor action of the full normal form.**  **`smNormalForm_apply`** expands
+  `(smNormalForm D f).ofLp A` into the four family sums, term by term, with the internal matrix
+  acting on the occupation index and `tensorComp` on the bosonic argument — the ledger's
+  component-by-component statement, obtained from `LinearMap.sum_apply`/`PiLp.add_apply`, not a
+  new definition.
+
+Not done by this packet: no 96-mode embedding of the P1 doublet dictionary `yukawaPair`/its
+`SmYukawaData` (the coefficient matrices are the data `SmNormalFormData` carries), no spinor
+action of `γ·∂`, no gauge-field generator action (`q_r ⊗ J_r` is the coordinate family, P5 builds
+the gauge action), no essential self-adjointness/graph statement and no Faris–Lavine comparison —
+those are P3/P4, and nothing here assumes them.

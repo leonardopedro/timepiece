@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-09T16:38:23+00:00",
+ "generated_at": "2026-11-10T01:52:07+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 722,
+   "lines": 776,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1161,7 +1161,8 @@
     "## 8. Executed continuation — ordered joint action (2026-11-09b)",
     "## 9. Full numerical E1 assembly and joint rational integration (2026-11-09c)",
     "## 10. P0 executed (2026-11-09d)",
-    "## 11. P1 executed (2026-11-09e)"
+    "## 11. P1 executed (2026-11-09e)",
+    "## 12. P2 executed (2026-11-09f)"
    ]
   },
   {
