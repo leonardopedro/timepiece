@@ -226,7 +226,8 @@ every bound checked against the exact spectrum of the same `H_N`.
 
 With the Ritz pair from the truncated SIRK solve, 3 of 10 rows certify. With the
 pair from matvec-only Lanczos on the *same* `H_N` (`certificate::lanczos_ritz`,
-40 steps, same sector starts), **6 of 10 rows certify**, and each bound equals the
+60 steps, same sector starts), **6 of 10 rows certify at `N ≤ 8` and 10 of 15 at
+`N ≤ 10`**, and each bound equals the
 exact truncated gap to the last printed digit:
 
 | `g` | `N≤` | `θᵉ₀` | `θᵒ₀` | `rᵒ` | certified | exact |
@@ -271,11 +272,11 @@ more `certify_spectrum` pass, on the even block, for `β_even ≤ λ₂(even)`:
 | 0.5 | 8 | −1.545550924 | 6.6e-6 | −1.445385952 | −1.445386066 | **0.030457603** | 0.030457603 |
 | 2 | 8 | −6.511130065 | 2.8e-10 | −5.396349662 | −5.396350050 | **1.243646566** | 1.243646566 |
 | 3 | 6 | −9.214246967 | 3.2e-14 | −5.126287367 | −5.126287397 | **0.022040554** | 0.022040554 |
-| 3 | 8 | −13.610338101 | 1.3e-11 | −11.921429604 | −11.921430269 | **0.956255682** | 0.956255682 |
+| 3 | 8 | −13.610338101 | 8.8e-14 | −11.921429604 | −11.921430269 | **0.956255682** | 0.956255682 |
+| 1 | 10 | −3.340446626 | 6.7e-11 | −2.614147195 | −2.614149342 | **0.273337089** | 0.273337089 |
 
-All four certify, each bound equal to the exact gap to the last printed digit:
-**10 of 10 grid cells now carry a certified gap**, with the sector that owns the
-ground reported beside it rather than assumed. In T6's own cells the swapped
+All five crossing cells certify (the grid was widened to `N ≤ 10`), each bound
+equal to the exact gap to the last printed digit, so **15 of 15 grid cells now carry a certified gap** with the sector that owns the ground reported beside it rather than assumed. In T6's own cells the swapped
 bound is exactly the negative of the same number (`−0.189927963` at `g = 0,
 N ≤ 6`), so the orientations are complements; the test asserts that each
 certifies exactly the cells whose ordering matches it.
@@ -304,6 +305,15 @@ Two findings worth keeping:
 * **Lanczos belongs on the even side** for the same reason: 40 matvecs reach
   `r ≤ 3e-11` at every cell (usually `1e-14`) where 40 SIRK steps leave `~8e-1`.
 
+#### The crossing set is not monotone in `N`
+
+A crossing cell is not "`N` too small": the crossings at `g = 1` are `N ≤ 8` no,
+`N ≤ 10` yes, `N ≤ 12` no, `N ≤ 14` yes, `N ≤ 16` yes, and at `g = 2` `N ≤ 8` yes,
+`N ≤ 10` no. The parity of the truncated ground therefore oscillates with depth
+and must not be read as the vacuum's parity; only the sector-local statements
+survive. On the 15-cell grid the unusable-in-T6's-orientation cells are
+`(g, N) = (0.5, 8), (1, 10), (2, 8), (3, 6), (3, 8)`.
+
 #### One count-free `λ₂` bound measured, and why the family cannot reach the window
 
 `certificate::MatchingExclusion` is the tightest count-free witness the crate
@@ -329,9 +339,33 @@ a witness, and the obstacle is structural, not a matter of a cleverer split:
 `d₂ − θ < 4`, whereas any splitting bound charges at least one entry per class
 against a degree of 13–28. Fewer, larger classes would mean needing `λ_min` of a
 large block — the eigenvalue problem again. So the measured answer is: no `λ₂`
-witness in the splitting family, at any `N`. The untried route is the count
-itself without a full diagonalization — inertia of a sparse factorization of
-`H − βI`.
+witness in the splitting family, at any `N`. The count itself *is* reachable
+without a diagonalization: see below.
+
+#### The count without a diagonalization
+
+`certificate::inertia_below` gets the count from Sylvester's law of inertia
+(`H − βI = L D Lᵀ`, so negative pivots = eigenvalues below `β`), carrying an
+error bound beside every entry and using a pivot's sign only when
+`|value| > error`. Sparse, with an RCM ordering and 1×1 symmetric pivoting. The
+campaign then brackets the gap with no dense step:
+`temple(θᵒ₀, rᵒ, β_odd) − θᵉ₀ ≤ λ₁(odd) − λ₀(even) ≤ θᵒ₀ − temple(θᵉ₀, rᵉ, β_even)`.
+
+| `N≤` | sector `n` | fill | count(β) | lower = upper | exact | secs |
+|---|---|---|---|---|---|---|
+| 6 | 80 | 27 | 1/1 | 0.091073200 | 0.091073200 | 0.00 |
+| 8 | 200 | 49 | 1/1 | 0.091161224 | 0.091161224 | 0.02 |
+| 10 | 420 | 78 | 1/1 | −0.273337089 | −0.273337089 | 0.07 |
+| 12 | 784 | 116 | 1/1 | 0.273346184 | — | 0.15 |
+| 14 | 1344 | 164 | 1/1 | −0.112820857 | — | 0.36 |
+| 16 | 2160 | 223 | 1/1 | −0.060551502 | — | 0.97 |
+
+The dense `O(n³)` is therefore *not* the price of the witness: the count is
+decided through `N ≤ 16` in under a second, and it equals the exact gap where the
+dense route can still run (`N ≤ 10`). The margin must be probed over a ladder
+(`1e-9 … 1e-2`): at a `1e-9` margin the shift is that close to an eigenvalue, one
+pivot is undecidable at the last index, and the counter refuses — a refusal, not
+a wrong count.
 
 #### `(n₀+n₁)` parity is not the reflection sector
 
