@@ -2269,6 +2269,14 @@ import BookProof.Qym.ChapterYangMillsPolyGraphNorm
 -- compactness (`sDerivBound`, `sDerivBound2`), since `smoothTransition` has no `deriv` formula.
 import BookProof.Qym.ChapterYangMillsPolyCutoff
 
+-- `ChapterYangMillsPolyLpNorm` (S0 Route C): the two facts the annulus estimate consumes.  `polyOpH_coe`
+-- and `polyOpH_coeFn` put `T` on polynomial *classes*: on a Hermite-span class it returns the class of
+-- `dirichletPoly p`, whose representative is `gaussDirichlet (p.eval)` (`dirichletPoly_eval`).  The
+-- norm bridge `enorm_toLp_sub`/`norm_toLp_sub_eq`/`ofReal_norm_toLp_sub_sq` states that the norm of a
+-- difference of classes sees only the difference of representatives, in the `lintegral`-of-`ofReal`
+-- form that `exists_lintegral_tail_lt` bounds directly.
+import BookProof.Qym.ChapterYangMillsPolyLpNorm
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`

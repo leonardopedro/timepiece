@@ -178,6 +178,37 @@ theorem polyOp_le_gaussOp_closure (h : PolyGraphApprox) : polyOp ≤ gaussOp.clo
   le_closure_of_forall_approx (A := polyOp) (B := gaussOp) gaussOp_isClosable
     fun x ε hε => h x.1 x.2 ε hε
 
+/-- **`polyOp` is closable.**  It sits inside the closed `gaussOp.closure`, which is what
+`isClosable_iff_exists_closed_extension` asks for. -/
+theorem polyOp_isClosable (h : PolyGraphApprox) : polyOp.IsClosable :=
+  LinearPMap.isClosable_iff_exists_closed_extension.mpr
+    ⟨gaussOp.closure, LinearPMap.IsClosable.closure_isClosed gaussOp_isClosable,
+      polyOp_le_gaussOp_closure h⟩
+
+/-- **The closure of `polyOp` sits inside `gaussOp.closure`.**  This is the graph argument rather
+than `IsClosable.closure_mono`, which would only give
+`polyOp.closure ≤ (gaussOp.closure).closure`: the graph of `polyOp.closure` is the closure of the
+graph of `polyOp` (`IsClosable.graph_closure_eq_closure_graph`), and that closure is contained in
+the closed graph of `gaussOp.closure`. -/
+theorem polyOp_closure_le_gaussOp_closure (h : PolyGraphApprox) :
+    polyOp.closure ≤ gaussOp.closure := by
+  refine LinearPMap.le_of_le_graph ?_
+  rw [← LinearPMap.IsClosable.graph_closure_eq_closure_graph (polyOp_isClosable h)]
+  exact Submodule.topologicalClosure_minimal (s := LinearPMap.graph polyOp)
+    (LinearPMap.le_graph_of_le (polyOp_le_gaussOp_closure h))
+    (LinearPMap.IsClosable.closure_isClosed gaussOp_isClosable)
+
+/-- **The identification, in the form essential self-adjointness actually gives.**
+`IsSelfAdjoint polyOp` is the wrong hypothesis: `polyOp` is a partial operator on a dense core and
+need not be closed, so the object the Faris–Lavine argument makes self-adjoint is
+`polyOp.closure`.  With that hypothesis the maximality step applies unchanged, and the conclusion
+is an equality of *closures* — which is also the form in which essential self-adjointness is
+usually quoted. -/
+theorem polyOp_closure_eq_gaussOp_closure (h : PolyGraphApprox)
+    (hsa : IsSelfAdjoint polyOp.closure) (hsym : SymmetricOp gaussOp.closure) :
+    polyOp.closure = gaussOp.closure :=
+  closure_eq_of_le (polyOp_closure_le_gaussOp_closure h) hsa hsym
+
 /-- **The identification of the two cores, concretely.**  `closure_eq_of_le` instantiated at
 `polyOp` and `gaussOp`: once `polyOp` is self-adjoint and `gaussOp.closure` is symmetric, the
 graph-norm approximation upgrades to `polyOp = gaussOp.closure`. -/
