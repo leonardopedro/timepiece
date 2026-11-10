@@ -16,6 +16,8 @@ the library), and they do not have to be: `deriv smoothTransition` and `deriv (d
 smoothTransition)` are continuous and vanish off `[0, 1]`, so compactness bounds them.
 `exists_deriv_bound` and `exists_deriv2_bound` extract the constants once, `sDerivBound` and
 `sDerivBound2` name them, and `cutFn_deriv_bound` / `cutFn_deriv2_bound` transfer them to `χ_R`.
+`ChapterYangMillsPolyAnnulus` uses these bounds to collapse the derivative terms to `R`-independent
+constants on the annulus.
 -/
 import BookProof.Qym.ChapterYangMillsPolyTail
 

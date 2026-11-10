@@ -19,7 +19,9 @@ cutoff equal to `p` off an annulus and nothing else — that is `exists_lintegra
 (`ChapterYangMillsPolyTail`), the vanishing Gaussian tail of a squared polynomial.  The second,
 `‖T(χ p) - T p‖ < ε`, is the annulus estimate: `T(χ p) - χ T p` is supported where the cutoff
 turns off, and there its size is governed by the tails of `p`, `p'` and `p''` times the bounds
-`|χ'| ≤ C/R` and `|χ''| ≤ C/R²`.  That estimate is not carried out here.
+`|χ'| ≤ C/R` and `|χ''| ≤ C/R²`.  Both are carried out in `ChapterYangMillsPolyAnnulus`, which
+proves `PolyGraphApprox` (`polyGraphApprox_holds`); this module only states the property and
+derives the consequences stated below from it.
 
 The approximation is additive, homogeneous and vanishes at `0`, so `polyGraphApprox_of_hermite`
 reduces `PolyGraphApprox` to its values on the Hermite generators — the only classes that have to

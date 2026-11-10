@@ -2258,8 +2258,8 @@ import BookProof.Qym.ChapterYangMillsPolyTail
 -- cores are separated by, stated for the actual operators.  `polyOp` is the Hermite-span operator as
 -- a `LinearPMap`, `PolyGraphApprox` is the graph-norm approximation, and
 -- `polyOp_le_gaussOp_closure` / `polyOp_eq_gaussOp_closure` are `le_closure_of_forall_approx` and
--- `closure_eq_of_le` instantiated at `polyOp` and `gaussOp`.  Remaining: the annulus estimate
--- `‖T(χ p) - T p‖ → 0`.
+-- `closure_eq_of_le` instantiated at `polyOp` and `gaussOp`.  The annulus estimate that supplies
+-- `PolyGraphApprox` is proved in `ChapterYangMillsPolyAnnulus`.
 import BookProof.Qym.ChapterYangMillsPolyGraphNorm
 
 -- `ChapterYangMillsPolyCutoff` (S0 Route C, the cutoff): the smooth `χ_R(x) = smoothTransition
@@ -2276,6 +2276,18 @@ import BookProof.Qym.ChapterYangMillsPolyCutoff
 -- difference of classes sees only the difference of representatives, in the `lintegral`-of-`ofReal`
 -- form that `exists_lintegral_tail_lt` bounds directly.
 import BookProof.Qym.ChapterYangMillsPolyLpNorm
+
+-- `ChapterYangMillsPolyAnnulus` (S0 Route C, the annulus estimate): the graph-norm approximation,
+-- proved.  `T p = −p'' + x p'` is dominated by `|p''| + |x p'|` with every term Gaussian-finite
+-- (`abs_dirichletPoly_eval_le`, `annulus_terms_finite`), the cutoff's derivatives are bounded
+-- uniformly in `x` (`abs_deriv_cutFn_le`, `abs_mul_deriv_cutFn_le`, `abs_deriv2_cutFn_le`), and the
+-- product rule twice gives `T(χ_R p) − T p = −χ_R'' p − 2χ_R' p' + xχ_R' p + (χ_R − 1) T p`
+-- (`gaussDirichlet_cutFn_mul_sub`).  The pointwise bound against the three tail indicators
+-- (`sq_gaussDirichlet_cutFn_mul_sub_le`) integrates to `lintegral_sq_sub_le`, and with
+-- `exists_cutFn_tail` choosing one radius for all three tails, `approximable_polyLp` and
+-- `polyGraphApprox_holds` deliver `PolyGraphApprox`: the inclusion `polyOp ≤ gaussOp.closure` no
+-- longer has an unproved analytic input.
+import BookProof.Qym.ChapterYangMillsPolyAnnulus
 
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
