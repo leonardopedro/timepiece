@@ -258,6 +258,14 @@ Source paths below are relative to `BookProof/`.
   C, positive one-particle form input.
 * `Qym/ChapterYangMillsOuterFockFL.lean`: U, abelian parcel ESA result;
   B, not the non-abelian gap theorem.
+* `Qym/ChapterYangMillsHermiteAnalytic.lean`, `dirichletPoly`,
+  `norm_polyLp_iterate_hermiteR`: U, the polynomial form core of `gaussDirichlet`, diagonal in the
+  Hermite basis, with `TᵐH_n = nᵐH_n` and the `L²(γ dx)` norm bound; C, an operator on
+  `Lp ℝ 2 gaussMeasure` whose *domain* is that core (`gaussOp`'s domain is the `C²` core).
+* `Toolbox/ChapterNelsonAnalyticVectors.lean`, `essentiallySelfAdjointOn_of_dense_geometric`: U,
+  Nelson's criterion for a dense set of vectors with a common geometric ratio, on the Faris–Lavine
+  deficiency propagation; N, Nelson's theorem with per-vector radii.  The eigenbasis substitute
+  `essentiallySelfAdjointOn_of_dense_eigenvectors` needs no summability at all.
 
 Execution order is **S0 → S1 → S2 → S3 → S4**; approximation bookkeeping in S3 can proceed
 while S2 remains open. The next reviewable deliverable is the S0 representation bridge
@@ -527,6 +535,12 @@ the `C²`-compactly-supported core; the operator is packaged as `gaussOp : Lp �
 Lp ℝ 2 gaussMeasure` with domain `gaussCore`; the domain is dense; the operator is closable, so
 `LinearPMap.closure` exists.
 
+The **polynomial form core** — the item this acceptance list still lacked as a domain statement — is
+recorded in `Qym/ChapterYangMillsHermiteAnalytic.lean` (see the Route C status below): the operator
+is diagonal on the Hermite classes there, with `‖TᵐH_n‖ = nᵐ‖H_n‖` in `L²(γ dx)`.  It is *not* the
+domain of `gaussOp`, whose core is the compactly supported `C²` one and contains no polynomial;
+transporting the operator to the polynomial core is the remaining step, and nothing above uses it.
+
 What the closure itself is known to satisfy (`ChapterYangMillsGaussForm`):
 
 * `gaussOp_closure_isClosed` — it is closed (by construction);
@@ -614,6 +628,37 @@ arguments carry the measure), so the measure is moved with
 (c) the moment hypothesis must be moved to `volume` *before*
 `HermiteCore.ae_eq_zero_of_moments` applies, and the resulting `γ^{1/2} w = 0` divides through by the
 nowhere-vanishing `gaussRoot`.
+
+**(iii) Nelson's criterion, in the form the corpus can prove.**
+`BookProof/Toolbox/ChapterNelsonAnalyticVectors.lean` carries the analytic-vector vocabulary —
+`InvariantOn`, the iterates `orbitD`/`orbit`, the geometric bound `IsGeometric`, the analytic
+condition `IsAnalytic`, and `isAnalytic_of_isGeometric` (a geometric bound makes the factorial series
+`Σ rᵐ/m! ‖Tᵐx‖` converge) — plus the two computations the deficiency argument is made of: the orbit
+identity `inner_orbit` (`⟪Tᵐx, w⟫ = zᵐ⟪x, w⟫` at a deficiency vector) and
+`inner_eq_zero_of_isGeometric` (`x ⟂ w` when the ratio of `x` is below `|z|`).  On top of the
+Faris–Lavine lemmas already in the corpus (`dense_range_of_deficiencyTrivialAt`,
+`deficiencyTrivialAt_of_dense_range`), which carry triviality from `±d i`, `d > r`, to `±i`, this
+gives `essentiallySelfAdjointOn_of_dense_geometric`: Nelson's criterion for a dense set of vectors
+with a **common** geometric ratio `r`.  It is deliberately *not* called Nelson's theorem — the
+classical statement allows a different radius for each vector, and getting from per-vector radii to a
+single one is the constancy of the deficiency index on each half plane, which the corpus does not
+have.  Axioms: `propext`, `Classical.choice`, `Quot.sound`.
+
+**(iii\') The quantitative input, and the polynomial form core.**
+`BookProof/Qym/ChapterYangMillsHermiteAnalytic.lean` puts `T = −∂² + x∂` on polynomials,
+`dirichletPoly p = −p'' + X·p'`; `dirichletPoly_eval` shows it agrees with `gaussDirichlet` on the
+representative (so the polynomial classes are a core it maps into itself), and
+`dirichletPoly_hermiteR` makes it diagonal there, `dirichletPoly (H_n) = n • H_n`.  Because the
+operator is diagonal, nothing grows but the eigenvalue: `dirichletPoly_iterate_hermiteR` is
+`Tᵐ(H_n) = nᵐ H_n`, `norm_polyLp_iterate_hermiteR` is the bound `‖Tᵐ(H_n)‖_{L²(γ)} = nᵐ ‖H_n‖`, and
+`hermiteR_summable` is the convergence of `Σ rᵐ/m! ‖Tᵐ(H_n)‖` for every `r > 0` — the analytic
+vector condition, at radius `n`.  The trap: the radius is `n`, so the Hermite classes have **no
+common radius**, and the polynomial core meets Nelson's hypothesis but not the common-radius
+sufficiency above.  Two honest exits: the per-vector theorem, or — cheaper for an operator with an
+explicit eigenbasis — `essentiallySelfAdjointOn_of_dense_eigenvectors`, which needs neither
+summability nor completeness nor symmetry (`c⟪x,w⟫ = z⟪x,w⟫` with `c` real and `z` not forces
+`⟪x,w⟫ = 0`).  Either way what remains is the same transport: a partially defined operator on
+`Lp ℝ 2 gaussMeasure` whose domain is the polynomial core.
 
 **Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
 no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)

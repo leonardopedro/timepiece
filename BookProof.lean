@@ -2180,9 +2180,35 @@ import BookProof.Qym.ChapterYangMillsGaussFormReal
 -- `∫ xᵏ w d(γ dx)` to the Lebesgue integral of `(xᵏ γ^{1/2}) · (γ^{1/2} w)`; the measure is moved by
 -- `integral_withDensity_eq_integral_toReal_smul` rather than by rewriting `gaussMeasure`, since `rw`
 -- cannot unfold the measure in a goal mentioning an `Lp ℝ 2 gaussMeasure` element.
--- `ae_eq_zero_of_moments_gaussMeasure` is the moment problem in closed form.  Nelson's theorem
--- itself (input (iii)) is still missing.
+-- `ae_eq_zero_of_moments_gaussMeasure` is the moment problem in closed form.
 import BookProof.Qym.ChapterYangMillsHermiteSpectrum
+
+-- `ChapterNelsonAnalyticVectors` (S0 Route C, input (iii)): the analytic-vector machinery —
+-- `InvariantOn` and the iterates `orbitD`/`orbit`, the geometric bound `IsGeometric`, the analytic
+-- condition `IsAnalytic` with `isAnalytic_of_isGeometric`, the orbit identity `inner_orbit` and its
+-- consequence `inner_eq_zero_of_isGeometric` — and, on top of the Faris–Lavine deficiency
+-- propagation (`dense_range_of_deficiencyTrivialAt`, `deficiencyTrivialAt_of_dense_range`),
+-- `essentiallySelfAdjointOn_of_dense_geometric`: Nelson's criterion for a dense set of vectors with
+-- a *common* geometric ratio.  It is not Nelson's theorem: the classical statement allows a radius
+-- per vector, and bridging the two needs the constancy of the deficiency index on each half plane,
+-- which the corpus does not have.  For an operator with an explicit eigenbasis the file's
+-- `essentiallySelfAdjointOn_of_dense_eigenvectors` is both cheaper and stronger — no summability,
+-- no completeness, no symmetry hypothesis.
+import BookProof.Toolbox.ChapterNelsonAnalyticVectors
+
+-- `ChapterYangMillsHermiteAnalytic` (S0 Route C, the quantitative input): the polynomial form core
+-- of `gaussDirichlet`.  `dirichletPoly p = −p'' + X p'` is the operator on polynomials and
+-- `dirichletPoly_eval` identifies it with `gaussDirichlet` on representatives, so the polynomial
+-- classes form a core it maps into itself; `dirichletPoly_hermiteR` makes it diagonal there with
+-- eigenvalue `n`.  Because it is diagonal, nothing grows but the eigenvalue:
+-- `dirichletPoly_iterate_hermiteR` is `Tᵐ(H_n) = nᵐ H_n`, `norm_polyLp_iterate_hermiteR` computes
+-- `‖Tᵐ(H_n)‖ = nᵐ ‖H_n‖` in `L²(γ dx)` — the bound on `‖Tⁿp‖` the analytic-vector argument consumes
+-- — `hermiteR_geometric` restates it as a geometric bound, and `hermiteR_summable` is the
+-- convergence of `Σ rᵐ/m! ‖Tᵐ(H_n)‖` for every `r > 0`.  The radius is `n`, so the core has no
+-- *common* radius: it meets Nelson's hypothesis but not the common-radius hypothesis of the theorem
+-- above.  `gaussOp`'s domain is still the compactly supported `C²` core, which contains no
+-- polynomial; transporting the operator to this core is the remaining step.
+import BookProof.Qym.ChapterYangMillsHermiteAnalytic
 
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
