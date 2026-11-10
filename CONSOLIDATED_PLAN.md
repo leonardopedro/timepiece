@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10a):** **§23 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10b):** **§24 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the new chapter `BookProof/MCMC/PCNGaussianFloor` proves the weight-space pCN
+> increment's density floor: `pcnQuad ρ x y = ∑ᵢ (yᵢ − ρxᵢ)²`, `pcnDensity c s ρ x y = c·exp(−pcnQuad/s)`
+> with `s = 2σ²(1 − ρ²)`, the box bound **`pcnQuad_box_le`** (`≤ d(R(1+ρ))²`) and the resulting
+> **`pcnDensity_floor`** / **`pcnGaussian_floor`** `(2πs)^(−d/2)·exp(−d(R(1+ρ))²/s)`, positive by
+> `pcnGaussian_floor_pos` — so the `δ` the cone model consumes is an inequality in `ρ`, `σ`, `R`.
+> **Earlier newest entry (2026-11-10a):** **§23 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `BookProof/MCMC/PositivityCone` §27 computes the floor `δ` for the occupation model:
 > the pCN noise is the binomial thinning (`binomPmf`, `pcnRefresh`, normalised by `add_pow`), every
 > entry is at least `c ^ m` for `c = min ρ (1 − ρ)` (**`binomPmf_floor`**, `pcnFloor_pos`), and the
@@ -19364,3 +19370,32 @@ that §22–§26 describe is instantiated with it.
 `tendsto_iter_indKernel`, `tendsto_iter_indKernel_tv`, `pcnRefresh_minorant`,
 `tendsto_iter_pcnRefresh` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines
 over 100 characters, no trailing whitespace.
+
+### 24. Addendum (2026-11-10b) — the weight-space floor, as a density inequality
+
+**What §23 left.**  §23 computed the floor for the *occupation* chain (a binomial thinning) and said
+the weight-space Gaussian increment's floor was still an estimate.  It is an inequality, and a short
+one, in a new chapter `BookProof/MCMC/PCNGaussianFloor`.
+
+* `pcnQuad ρ x y = ∑ᵢ (yᵢ − ρ xᵢ)²` — the pCN increment's exponent (`pcnQuad_nonneg`), and
+  `pcnDensity c s ρ x y = c · exp (−pcnQuad/s)` the density with `s = 2σ²(1 − ρ²)`.
+* `pcnDensity_le_of_quad_le` — the density decreases in the increment, so `pcnQuad ≤ B` gives the
+  floor `c · exp (−B/s)` (monotonicity of `Real.exp` and division by `s > 0`).
+* **`pcnQuad_box_le`** — on the box `|xᵢ| ≤ R`, `|yᵢ| ≤ R` and `ρ ≥ 0` the increment is at most
+  `d·(R(1 + ρ))²`, because `|yᵢ − ρxᵢ| ≤ (1 + ρ)R`; the sum bound is `Finset.sum_const`.
+* **`pcnDensity_floor`** — the resulting floor `c · exp (−d(R(1+ρ))²/s)`; `pcnDensity_floor_pos` its
+  positivity for `c > 0`.
+* `pcnScale`, `pcnScale_pos` — `s = 2σ²(1 − ρ²) > 0` for `σ > 0`, `0 ≤ ρ < 1`; `pcnNorm`,
+  `pcnNorm_pos` — the normalising constant `(2πs)^(−d/2)`.
+* **`pcnGaussian_floor`** — the number: on the box, the pCN proposal's density is at least
+  `(2πs)^(−d/2) · exp (−d(R(1+ρ))²/s)`; `pcnGaussian_floor_pos` that it is positive.
+
+**What is still open.**  This is a density floor, not a Doeblin theorem on the continuum: §22–§26's
+minorant is stated for a finite state space, and the passage to a transition kernel on `ℝ^d` (the
+infinite-dimensional Born-to-variation step of `GeometricErgodicity`) is untouched.  The core's
+weighted `ℓ¹` and the pCNL operator's own gap are unchanged.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green.
+`#print axioms` on `pcnQuad_box_le`, `pcnDensity_le_of_quad_le`, `pcnDensity_floor`, `pcnScale_pos`,
+`pcnNorm_pos`, `pcnGaussian_floor`, `pcnGaussian_floor_pos` → `propext, Classical.choice,
+Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no trailing whitespace.

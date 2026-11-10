@@ -629,6 +629,11 @@ import BookProof.MCMC.CoeffMap
 -- from `FockLangevinOperator` §18 (`module45_hypotheses_cited`).
 import BookProof.MCMC.PositivityCone
 
+-- Wave (`pcnl.md` Modules 4–5, the constants): the pCN Gaussian increment's density floor on a box,
+-- `(2πs)^(−d/2)·exp(−d(R(1+ρ))²/s)` with `s = 2σ²(1−ρ²)` — the `δ` the cone model's Doeblin
+-- minorant consumes (`pcnGaussian_floor`).
+import BookProof.MCMC.PCNGaussianFloor
+
 -- Wave (`pcnl.md` Module 1 proper, and Module 2 through it): the pCN step *is* diagonalised by
 -- the Fock number states in the `d → ∞` limit — `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
 import BookProof.MCMC.MehlerEigenfunction

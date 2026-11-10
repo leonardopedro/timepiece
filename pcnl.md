@@ -1331,6 +1331,20 @@ stationarity (`indKernel_stationary`) of `indKernel`.  Its minorant is the floor
 total-variation form.  The floor is exponential in `m`, the honest cost of Doeblin on `m`
 occupations; it is also the reason §23–§26 keep the rate as a parameter.
 
+**The weight-space floor is an inequality (§28).**  The other proposal in play is the pCN Gaussian
+increment on the weights, `y = ρx + √(1 − ρ²)ξ`, and what the cone model needs from it is the minimum
+of its density on the bounded region the chain visits.  `BookProof/MCMC/PCNGaussianFloor` computes it:
+`pcnQuad ρ x y = ∑ᵢ (yᵢ − ρxᵢ)²` is the exponent, `pcnDensity c s ρ x y = c·exp(−pcnQuad/s)` the
+density with `s = 2σ²(1 − ρ²)`, and `pcnDensity_le_of_quad_le` turns an upper bound `B` on the
+increment into the floor `c·exp(−B/s)`.  On the box `|xᵢ| ≤ R`, `|yᵢ| ≤ R` the increment is at most
+`d·(R(1+ρ))²` (`pcnQuad_box_le`: `|yᵢ − ρxᵢ| ≤ (1+ρ)R`), so **`pcnDensity_floor`** gives
+`c·exp(−d(R(1+ρ))²/s)`; with the Gaussian normalising constant `pcnNorm = (2πs)^(−d/2)`
+(`pcnNorm_pos`) and `s > 0` for `0 ≤ ρ < 1` (`pcnScale_pos`, `pcnScale`), the number itself is
+**`pcnGaussian_floor`**, and `pcnGaussian_floor_pos` its positivity.  So the `δ` that §25 takes as a
+parameter is now an inequality in the architecture's own `ρ`, `σ`, `R` on both proposals.  What the
+chapter does *not* do is turn this density bound into a Doeblin theorem on the weight space: §22–§26's
+machinery is stated on a finite state space, and `ℝ^d` is not one.
+
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
 written on occupations, and the weighted `ℓ¹` of the core (the weight that makes `K_drift` contract)
@@ -1340,9 +1354,9 @@ derives the Doeblin condition for the Metropolis kernel of a symmetric proposal
 (`mhKernel_minorant_one`: on a probability target the minorant is the proposal's floor `δ`, so the
 rate is `1 − δ`; `tendsto_iter_metropolis_uniformStep` instantiates it), and §27 computes `δ` for the
 occupation model: the binomial thinning's floor `(min ρ (1 − ρ)) ^ m`, with `tendsto_iter_pcnRefresh`
-the chain it instantiates.  What remains on this side is the same number for the *weight-space*
-Gaussian increment, which is an estimate on the architecture's `2K/ε` truncation rather than a
-statement about the occupation chain.  It also does not prove the pCNL operator's own gap; the
+the chain it instantiates, and §28 proves the same floor for the *weight-space* Gaussian increment as
+a density inequality on a box (`pcnGaussian_floor`) — without the kernel-level passage, since §22–§26
+are finite-state.  It also does not prove the pCNL operator's own gap; the
 Bakry–Émery/Hessian route above is untouched, and `pcnl_spectral_gap_of_hessian` stays a target.
 
 #### Review of the implementation's empirical claims (2026-11-03)
