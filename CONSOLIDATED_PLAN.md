@@ -7,7 +7,17 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10f):** **§28 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10g):** **§29 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — three items at once.  (1) `FockLangevinOperator` §21.9 formalizes the `L²(π)` side:
+> with `Veff = ¼|Φ'|² − ½Φ''`, **`genDiff_groundScale`** gives
+> `A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff g)`, so the generator on `L²(π)` is similar to `Δ − V_eff` and
+> the gap is the Schrödinger gap; `Veff_quadOne` computes it for `Φ_λ`, and the oscillator in letters
+> (**`re_corePair_oscFreqOp`**: form `ω·numberForm`; **`oscFreqOp_gap`**) has gap `ω = λ/2`.
+> (2) `PCNGaussianFloor` §2 turns the density floor into a *measure* minorant on the box
+> (**`pcnMeasure_minorant`**, **`pcnMeasure_floor`**): `volume.withDensity q ≥ F · volume.restrict
+> box`, uniformly in the starting point.  (3) `pcnl.md` now carries the track's honest boundary as a
+> single two-list summary of what is and is not proved.
+> **Earlier newest entry (2026-11-10f):** **§28 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `FockLangevinOperator` §21.8 optimises §27's free `δ` and closes P3's question:
 > `√(2A) ≤ δ + A/(2δ)` (`sqrt_two_mul_le_add_div`) gives **`affineForm_coefficient_le`** — the
 > coefficient of `‖c‖²` is at most `1 + E₀ − driftScale·d − driftScale·√(2d)` for *every* `δ`, so
@@ -19588,3 +19598,55 @@ ground-state transform changes the operator) and the continuum passage of §24's
 `affineForm_best_coefficient_neg`, `affineForm_architecture_coefficient` →
 `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no
 trailing whitespace.
+
+### 29. Addendum (2026-11-10g) — the `L²(π)` side, the continuum floor, and the track's boundary
+
+**What §28 left.**  Three items: the `L²(π)`-side gap for a general `V_eff`, the continuum passage
+of §24's density floor, and — implicit in every entry since §25 — a single statement of what the
+pCNL track does and does not prove.
+
+**1. The `L²(π)` side (`FockLangevinOperator` §21.9).**  The plan's gap target lives on the *other*
+side of the ground-state transform, and §21.9 formalizes what that side is for a general potential.
+
+* `Veff Φ = ¼|Φ'|² − ½Φ''` — the effective potential; `genDiff Φ f = f'' − Φ'·f'` the pCNL
+  generator in one dimension; `groundScale Φ = e^{Φ/2}` the ground-state multiplier.
+* **`genDiff_groundScale`** — `A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff·g)`: the generator `A = Δ − ∇Φ·∇` on
+  `L²(π)`, `π ∝ e^{−Φ}`, is similar through multiplication by `e^{Φ/2}` to the Schrödinger operator
+  `Δ − V_eff`.  A similarity preserves the spectrum, so *the `L²(π)` gap is the gap of `−Δ + V_eff`* —
+  the object `pcnl_spectral_gap_of_hessian` needs, stated for general `Φ` (hence general `V_eff`).
+* **`Veff_quadOne`** — for `Φ_λ = (λ/2)y²`, `V_eff = ¼λ²y² − ½λ`: the oscillator with its zero-point
+  constant subtracted.
+* **`re_corePair_oscillatorOp`** — the unit-frequency Schrödinger operator in letters,
+  `∑ⱼ(aⱼ†aⱼ + aⱼaⱼ†)`, has form `2·numberForm + d‖c‖²` (the corpus's `oscillator_identity` read as an
+  operator identity).
+* **`oscFreqOp`**, **`re_corePair_oscFreqOp`** — the frequency-`ω` oscillator
+  `(ω/2)∑ⱼ(aⱼ†aⱼ + aⱼaⱼ†) − (ωd/2)` has form exactly `ω·numberForm`; **`oscFreqOp_gap`** — at least
+  `ω‖c‖²` off the vacuum.  So `γ = λ` at `λ = 2ω`: P3's claim, on the side where it is true.
+
+**2. The continuum floor (`PCNGaussianFloor` §2).**  §24's floor was a pointwise density inequality.
+`pcnBox R = {|yᵢ| ≤ R}` (with `measurableSet_pcnBox`, `mem_pcnBox`), **`pcnMeasure_minorant`** — a
+density lower bound `F` on the box gives the *measure* inequality
+`volume.withDensity q ≥ F · (volume.restrict box)`, uniformly in the starting point — and
+**`pcnMeasure_floor`** at the architecture's numbers, with `pcnMeasure_floor_pos`.  That is the
+continuum form of the Doeblin minorant `PositivityCone` states on a finite space: the proposal's mass
+on the box, from every starting point, is bounded below.
+
+**3. The track's boundary (`pcnl.md`).**  A single summary, in two lists, of everything proved
+(structure, semiboundedness, the convergence that holds on the finite chains, the closed weighted-`ℓ¹`
+route, the Hessian-in-the-constant computation, the `L²(π)` identity and oscillator, the two floors)
+and everything not claimed (the core's own gap, a Hilbert-space model, the continuum chain and its
+rate, the infinite-dimensional Fock space, the implementation).  It is the reading guide for the row
+in `CURRENT_WORK_ORDER.md`, and it supersedes the scattered asides that used to carry the same
+qualifications.
+
+**What is still open.**  The spectral step itself: that the similarity of operators preserves the
+infimum of the Rayleigh quotient over the mean-zero subspace, and the `d`-dimensional bookkeeping of
+`genDiff_groundScale` (which is one-dimensional in §21.9).  On the floor side, naming the target
+measure on `ℝ^d`, passing the Metropolis acceptance through the density, and producing a rate from
+`pcnMeasure_floor`.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, green;
+`lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green.  `#print axioms` on
+`genDiff_groundScale`, `Veff_quadOne`, `re_corePair_oscillatorOp`, `re_corePair_oscFreqOp`,
+`oscFreqOp_gap` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100
+characters, no trailing whitespace.

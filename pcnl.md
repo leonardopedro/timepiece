@@ -1409,19 +1409,78 @@ always used for — a licence that `pcnlHamiltonian` is semibounded — and not 
 coercivity everywhere and a positive spectral gap are different claims, and the `ε`-blowup of the
 gradient is what separates them here.
 
-What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
-measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
-written on occupations, and the weighted `ℓ¹` of the core is now closed as a *route* (§29: no
-weight works) rather than named.  §23 removes the "uniform only" limitation (the target is an arbitrary `π`), §24
-derives the Doeblin condition for the Metropolis kernel of a symmetric proposal
-(`mhKernel_minorant`), and §25 removes the target from the constant altogether
-(`mhKernel_minorant_one`: on a probability target the minorant is the proposal's floor `δ`, so the
-rate is `1 − δ`; `tendsto_iter_metropolis_uniformStep` instantiates it), and §27 computes `δ` for the
-occupation model: the binomial thinning's floor `(min ρ (1 − ρ)) ^ m`, with `tendsto_iter_pcnRefresh`
-the chain it instantiates, and §28 proves the same floor for the *weight-space* Gaussian increment as
-a density inequality on a box (`pcnGaussian_floor`) — without the kernel-level passage, since §22–§26
-are finite-state.  It also does not prove the pCNL operator's own gap; the
-Bakry–Émery/Hessian route above is untouched, and `pcnl_spectral_gap_of_hessian` stays a target.
+**The `L²(π)` side, and `V_eff` (§33).**  §32 closed the core's form; the plan's remaining gap item
+is on the other side of the ground-state transform.  §21.9 of `FockLangevinOperator` formalizes what
+that side *is* for a general potential: with `V_eff = ¼|Φ'|² − ½Φ''` and `A = Δ − ∇Φ·∇`, the
+identity **`genDiff_groundScale`** says `A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff·g)` — the generator on
+`L²(π)`, `π ∝ e^{−Φ}`, is similar, through multiplication by the ground state `e^{Φ/2}`, to the
+Schrödinger operator `Δ − V_eff`.  So "the `L²(π)` gap" is the gap of `−Δ + V_eff`, and that is the
+only place a `γ = λ` can be true.  For the quadratic potential `Veff_quadOne` gives
+`V_eff = ¼λ²y² − ½λ` (the oscillator with its zero-point constant subtracted), and in the letters
+the frequency-`ω` oscillator `(ω/2)∑ⱼ(aⱼ†aⱼ + aⱼaⱼ†) − (ωd/2)` has form exactly `ω·numberForm`
+(**`re_corePair_oscFreqOp`**), hence is at least `ω‖c‖²` off the vacuum (**`oscFreqOp_gap`**): the
+gap there is `ω`, which is `λ` at `λ = 2ω`.  What stays open is the passage from the similarity of
+operators to a spectral statement (that it preserves the infimum of the Rayleigh quotient over the
+mean-zero subspace), and the `d`-dimensional bookkeeping of the identity.
+
+#### The track's honest boundary — one summary
+
+Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
+coefficient families on occupations), the plan's `P_pCNL = P₀ + K_drift + K_reject` written on it,
+and the finite cone/occupation chains of `PositivityCone`.  It is not a formalization of an
+unbounded operator on a Hilbert space, and it makes no claim about the Rust implementation.
+
+*Proved, `sorry`-free, in Lean.*
+
+* **Structure.**  The drift is a finite-band ladder operator on the core (`polyDrift_band`,
+  `pcnlHamiltonian_band`); `P₀ = ρ^N`, `K_reject` is diagonal multiplication by an acceptance
+  probability, with band `0` (`rejectOp_band`) and `P₀ + K_reject = 1` (`pcnlKernel_complement`).
+* **Semiboundedness.**  The `ε`-regularised relative form bound `‖⟪c, K c⟫‖ ≤ δ⟪c, N c⟫ +
+  (B²d/(2δ) + Bd)‖c‖²` (`driftOpCoeff_form_bound`), its coefficient form
+  (`driftOperator_linear_form_bound`), and `N + K_drift` bounded below by `O(ε⁻²)`
+  (`pcnlDrift_semibounded_eps`), with hypothesis-free truncations on each degree sector.
+* **Convergence that holds.**  On the finite cone model: Doeblin/oscillation contraction
+  (`tendsto_iter_step`), arbitrary target (`tendsto_iter_target`), Metropolis with minorant
+  (`tendsto_iter_mhKernel`, `tendsto_iter_metropolis_uniformStep`), total variation
+  (`tendsto_iter_target_tv`), and the occupation pCN floor `(min ρ (1 − ρ))^m`
+  (`binomPmf_floor`, `tendsto_iter_pcnRefresh`).  On the core, `P₀`'s own iterates converge at rate
+  `ρ` (`tendsto_iter_baseOp`).
+* **What the norms cannot do.**  No strictly positive weight makes `1 + K_drift` nonexpansive in a
+  weighted `ℓ¹` (`no_weighted_nonexpansive`): the weighted-`ℓ¹` route is closed, not open.
+* **What the Hessian does.**  On the core's form, `Hess Φ ≥ λI` shifts the constant, not the gap:
+  quadratic (`re_corePair_quadHamiltonian`, gap `1` off the vacuum), affine
+  (`re_corePair_affineHamiltonian`), and the `δ`-optimised constant is negative at the
+  architecture's numbers (`affineForm_coefficient_le`, `affineForm_best_coefficient_neg`,
+  `affineForm_architecture_coefficient`).
+* **The `L²(π)` identity and the oscillator.**  `genDiff_groundScale` (general `Φ`), `Veff_quadOne`,
+  `re_corePair_oscFreqOp`, `oscFreqOp_gap` — see §33 above.
+* **The weight-space floor.**  `pcnGaussian_floor` (a density bound on a box) and its measure form
+  `pcnMeasure_floor` (`volume.withDensity q ≥ F · volume.restrict box`, uniformly in the starting
+  point).
+
+*Not proved, and not claimed.*
+
+* **The pCNL operator's own gap.**  `pcnl_spectral_gap_of_hessian` as stated (`γ = λ` for the
+  core's form) is false — §30–§32 are that computation.  The true location is `L²(π)` after the
+  ground-state transform (§33), and there only the identity and the exactly solvable oscillator are
+  formalized: no spectral theorem, no Rayleigh-quotient infimum, and the identity itself is
+  one-dimensional.
+* **A Hilbert-space model.**  The core is not completed; there is no `L²(π)` operator domain, no
+  self-adjointness, no compactness, and `P₀ + K_reject = 1` is a normalisation identity on
+  coefficient families, not positivity of a Markov kernel.
+* **The continuum chain.**  No target measure on `ℝ^d`, no passage of the Metropolis acceptance
+  through the density, and no Doeblin *rate*: `pcnMeasure_floor` bounds the proposal's mass on a box
+  from below, which is the input a minorant needs, not the minorant.
+* **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
+  invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
+* **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;
+  no Lean statement in the corpus constrains the Rust code's behaviour at runtime.
+
+Reading the two lists together: the model's own form carries the semiboundedness the relative form
+bound gives it and no more; convergence is proved on the finite chains the module builds, not for the
+core's kernel; and the gap, where it exists, is on `L²(π)` (§33), past a spectral step this corpus
+has not formalized.  The remaining pCNL items are exactly those, and the Bakry–Émery route of §2
+above stays a target rather than a claim.
 
 #### Review of the implementation's empirical claims (2026-11-03)
 

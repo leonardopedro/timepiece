@@ -211,7 +211,11 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   `1 + E₀ < driftScale·(d + √(2d))` the best constant is negative
   (`affineForm_best_coefficient_neg`), and at the implementation's numbers it is below `−10⁷`
   (`affineForm_architecture_coefficient`).  The form bound is a licence for the Hamiltonian, not a
-  gap certificate.
+  gap certificate;
+* **§21.9, the `L²(π)` side** — the ground-state transform: `Veff`, `genDiff`, and
+  **`genDiff_groundScale`** (`A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff g)`, so the generator on `L²(π)` is
+  similar to the Schrödinger operator); `Veff_quadOne` for `Φ_λ`, and the oscillator in letters
+  (**`re_corePair_oscFreqOp`**: form `ω·numberForm`) with its gap (`oscFreqOp_gap`).
 
 ## Honest boundary
 
@@ -5978,6 +5982,180 @@ theorem affineForm_architecture_coefficient :
   rw [hval, hE]
   nlinarith [hsb]
 
+
+
+/-! ## 21.9 The `L²(π)` side: the ground-state transform, and the oscillator's gap
+
+§21.5–§21.8 were about the core's own form.  The plan's remaining gap item is on the *other* side:
+the operator `A = Δ − ∇Φ·∇` the pCNL kernel discretizes is symmetric in `L²(π)`, `π ∝ e^{−Φ}`, and
+its spectral gap is the Poincaré constant of `π`.  This section states the identity that makes "the
+`L²(π)` side" a well-posed object for a *general* `Φ` (hence for a general `V_eff`), and computes
+the case the plan's Bakry–Émery hypothesis singles out.
+
+* `Veff Φ = ¼|Φ'|² − ½Φ''` — the effective potential of the ground-state transform;
+* `genDiff Φ f = f'' − Φ'·f'` — the pCNL generator in one dimension, and `groundScale Φ = e^{Φ/2}`
+  the ground-state multiplier;
+* **`genDiff_groundScale`** — the conjugation `A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff·g)`: the generator
+  on `L²(π)` is similar, through multiplication by `e^{Φ/2}`, to the Schrödinger operator
+  `Δ − V_eff`.  A similarity preserves the spectrum, so the `L²(π)`-side gap is the gap of
+  `−Δ + V_eff` — the object the plan's `pcnl_spectral_gap_of_hessian` needs;
+* **`Veff_quadOne`** — for the quadratic potential `Φ_λ = (λ/2)y²` the effective potential is
+  `¼λ²y² − ½λ`: the oscillator with its zero-point constant subtracted;
+* `oscillatorOp` and **`re_corePair_oscillatorOp`** — the unit-frequency Schrödinger operator in
+  letters, `∑ⱼ (aⱼ†aⱼ + aⱼaⱼ†)`, has form `2·numberForm + d‖c‖²`: `oscillator_identity` read as an
+  operator identity rather than a norm identity;
+* **`oscFreqOp`**, **`re_corePair_oscFreqOp`** — the frequency-`ω` oscillator
+  `(ω/2)∑ⱼ(aⱼ†aⱼ + aⱼaⱼ†) − (ωd/2)` has form exactly `ω·numberForm c`, i.e. `ω·N` in letters;
+* **`oscFreqOp_gap`** — hence off the vacuum its form is at least `ω‖c‖²`: the oscillator's gap,
+  in the `L²(π)` variable, is `ω`, which is `γ = λ` for `λ = 2ω` — the plan's
+  `pcnl_spectral_gap_of_hessian` on the side where it is true.
+
+**Honest boundary.**  The identity is one-dimensional and pointwise; the `d`-dimensional statement
+is its coordinate sum, which this section does not write out, and the passage from the similarity of
+operators to a spectral statement (that it preserves the infimum of the Rayleigh quotient over the
+mean-zero subspace) is the analytic step still open.  What is *not* claimed is a gap for the core's
+own form — §21.6–§21.8 computed that side and it has none.  The gap lives on `L²(π)`, and the
+oscillator computation above is its exactly solvable case.
+-/
+
+/-- The effective potential of the ground-state transform in one dimension,
+`V_eff = ¼|Φ'|² − ½Φ''`. -/
+def Veff (Φ : ℝ → ℝ) (x : ℝ) : ℝ := (deriv Φ x) ^ 2 / 4 - iteratedDeriv 2 Φ x / 2
+
+/-- The pCNL generator `Δ − ∇Φ·∇` in one dimension. -/
+def genDiff (Φ f : ℝ → ℝ) (x : ℝ) : ℝ := iteratedDeriv 2 f x - deriv Φ x * deriv f x
+
+/-- The ground-state multiplier `e^{Φ/2}`. -/
+def groundScale (Φ : ℝ → ℝ) (x : ℝ) : ℝ := Real.exp (Φ x / 2)
+
+theorem groundScale_hasDerivAt {Φ : ℝ → ℝ} (hΦ : ContDiff ℝ 2 Φ) (x : ℝ) :
+    HasDerivAt (groundScale Φ) (groundScale Φ x * (deriv Φ x / 2)) x := by
+  have h : HasDerivAt (fun y => Φ y / 2) (deriv Φ x / 2) x :=
+    (hΦ.differentiable (by norm_num)).differentiableAt.hasDerivAt.div_const 2
+  simpa [groundScale] using h.exp
+
+theorem groundScale_deriv {Φ : ℝ → ℝ} (hΦ : ContDiff ℝ 2 Φ) (x : ℝ) :
+    deriv (groundScale Φ) x = groundScale Φ x * (deriv Φ x / 2) :=
+  (groundScale_hasDerivAt hΦ x).deriv
+
+theorem groundScale_contDiff {Φ : ℝ → ℝ} (hΦ : ContDiff ℝ 2 Φ) :
+    ContDiff ℝ 2 (groundScale Φ) := by
+  have h : ContDiff ℝ 2 (fun y => Φ y / 2) := hΦ.div_const 2
+  exact Real.contDiff_exp.comp h
+
+theorem groundScale_iteratedDeriv_two {Φ : ℝ → ℝ} (hΦ : ContDiff ℝ 2 Φ) (x : ℝ) :
+    iteratedDeriv 2 (groundScale Φ) x
+      = groundScale Φ x * ((deriv Φ x / 2) ^ 2 + iteratedDeriv 2 Φ x / 2) := by
+  have hg : ContDiffAt ℝ 2 Real.exp (Φ x / 2) :=
+    Real.contDiff_exp.contDiffAt
+  have hf : ContDiffAt ℝ 2 (fun y => Φ y / 2) x := hΦ.contDiffAt.div_const 2
+  have hcomp := iteratedDeriv_comp_two (g := Real.exp) (f := fun y => Φ y / 2) (x := x) hg hf
+  have hexp2 : iteratedDeriv 2 Real.exp (Φ x / 2) = Real.exp (Φ x / 2) := by
+    simp [iteratedDeriv_succ', Real.deriv_exp]
+  have hexp1 : deriv Real.exp (Φ x / 2) = Real.exp (Φ x / 2) := by
+    rw [Real.deriv_exp]
+  have hhalf2 : iteratedDeriv 2 (fun y => Φ y / 2) x = iteratedDeriv 2 Φ x / 2 := by
+    have hfun : (fun y => Φ y / 2) = fun y => (1 / 2 : ℝ) * Φ y := by
+      funext y; ring
+    rw [hfun, iteratedDeriv_const_mul (1 / 2) hΦ.contDiffAt]
+    ring
+  have hhalf1 : deriv (fun y => Φ y / 2) x = deriv Φ x / 2 := by
+    have hfun : (fun y => Φ y / 2) = fun y => (1 / 2 : ℝ) * Φ y := by
+      funext y; ring
+    rw [hfun, deriv_const_mul (1 / 2) (hΦ.differentiable (by norm_num)).differentiableAt]
+    ring
+  change iteratedDeriv 2 (Real.exp ∘ fun y => Φ y / 2) x = _
+  rw [hcomp]
+  simp only [hexp2, hexp1, hhalf1, hhalf2, groundScale]
+  ring
+
+theorem genDiff_groundScale {Φ f : ℝ → ℝ} (hΦ : ContDiff ℝ 2 Φ) (hf : ContDiff ℝ 2 f)
+    (x : ℝ) :
+    genDiff Φ (fun y => groundScale Φ y * f y) x
+      = groundScale Φ x * (iteratedDeriv 2 f x - Veff Φ x * f x) := by
+  have hE : ContDiff ℝ 2 (groundScale Φ) := groundScale_contDiff hΦ
+  have hmul := iteratedDeriv_mul (n := 2) (x := x) (f := groundScale Φ) (g := f)
+    hE.contDiffAt hf.contDiffAt
+  have hsum : ∑ i ∈ Finset.range (2 + 1), ((Nat.choose 2 i : ℕ) : ℝ)
+        * iteratedDeriv i (groundScale Φ) x * iteratedDeriv (2 - i) f x
+      = groundScale Φ x * iteratedDeriv 2 f x
+        + 2 * (groundScale Φ x * (deriv Φ x / 2)) * deriv f x
+        + (groundScale Φ x * ((deriv Φ x / 2) ^ 2 + iteratedDeriv 2 Φ x / 2)) * f x := by
+    simp [Finset.sum_range_succ, groundScale_deriv hΦ x, groundScale_iteratedDeriv_two hΦ x]
+  have hderiv : deriv (groundScale Φ * f) x
+      = groundScale Φ x * (deriv Φ x / 2) * f x + groundScale Φ x * deriv f x := by
+    rw [deriv_mul (hE.differentiable (by norm_num)).differentiableAt
+      (hf.differentiable (by norm_num)).differentiableAt, groundScale_deriv hΦ x]
+  unfold genDiff Veff
+  change iteratedDeriv 2 (groundScale Φ * f) x - deriv Φ x * deriv (groundScale Φ * f) x = _
+  rw [hmul, hsum, hderiv]
+  ring
+
+/-! ### oscillator part -/
+
+/-- The unit-frequency oscillator `−Δ + |x|²` in letters: `∑ⱼ (aⱼ† aⱼ + aⱼ aⱼ†)`. -/
+def oscillatorOp (c : CoreCoeff d) : CoreCoeff d :=
+  ∑ j, (hopStep (j, true) (hopStep (j, false) c) + hopStep (j, false) (hopStep (j, true) c))
+
+theorem re_corePair_oscillatorOp (c : CoreCoeff d) :
+    (corePair c (oscillatorOp c)).re = 2 * numberForm c + (d : ℝ) * coreNormSq c := by
+  unfold oscillatorOp
+  rw [corePair_finset_sum, Complex.re_sum]
+  simp only [corePair_add, Complex.add_re, corePair_raise_lower_re,
+    corePair_lower_raise_re]
+  exact oscillator_identity c
+
+/-- The oscillator of frequency `ω` in the unit letters, `(ω/2)·∑ⱼ(aⱼ†aⱼ + aⱼaⱼ†) − (ωd/2)`. -/
+def oscFreqOp (ω : ℝ) (c : CoreCoeff d) : CoreCoeff d :=
+  ((ω / 2 : ℝ) : ℂ) • oscillatorOp c - (((ω * (d : ℝ) / 2)) : ℂ) • c
+
+theorem star_ofReal_real (r : ℝ) : star ((r : ℝ) : ℂ) = ((r : ℝ) : ℂ) := by
+  rw [Complex.star_def, Complex.conj_ofReal]
+
+theorem re_corePair_oscFreqOp (ω : ℝ) (c : CoreCoeff d) :
+    (corePair c (oscFreqOp ω c)).re = ω * numberForm c := by
+  unfold oscFreqOp
+  rw [sub_eq_add_neg, corePair_add, corePair_smul, ← neg_smul, corePair_smul, star_neg]
+  have hcast : star ((↑ω * ((d : ℝ) : ℂ) / 2 : ℂ)) = ((ω * (d : ℝ) / 2 : ℝ) : ℂ) := by
+    rw [show (↑ω * ((d : ℝ) : ℂ) / 2 : ℂ) = ((ω * (d : ℝ) / 2 : ℝ) : ℂ) by push_cast; ring,
+      star_ofReal_real]
+  rw [hcast, star_ofReal_real, neg_mul]
+  rw [Complex.add_re, Complex.neg_re, Complex.re_ofReal_mul, Complex.re_ofReal_mul,
+    re_corePair_oscillatorOp, corePair_self_re]
+  ring
+
+theorem oscFreqOp_gap {ω : ℝ} (hω : 0 ≤ ω) {c : CoreCoeff d}
+    (hc : c (0 : Fin d → ℕ) = 0) :
+    ω * coreNormSq c ≤ (corePair c (oscFreqOp ω c)).re := by
+  rw [re_corePair_oscFreqOp]
+  exact mul_le_mul_of_nonneg_left (numberForm_ge_of_vac hc) hω
+
+/-- The one-dimensional quadratic potential `Φ_λ(y) = (λ/2)y²`, whose derivative is `λx`. -/
+theorem deriv_quadOne (lam x : ℝ) :
+    deriv (fun y : ℝ => (lam / 2) * y ^ 2) x = lam * x := by
+  have h : HasDerivAt (fun y : ℝ => y ^ 2) (2 * x) x := by
+    simpa using hasDerivAt_pow 2 x
+  have h2 : HasDerivAt (fun y : ℝ => (lam / 2) * y ^ 2) ((lam / 2) * (2 * x)) x :=
+    h.const_mul (lam / 2)
+  rw [h2.deriv]
+  ring
+
+theorem iteratedDeriv_two_quadOne (lam x : ℝ) :
+    iteratedDeriv 2 (fun y : ℝ => (lam / 2) * y ^ 2) x = lam := by
+  have h1 : deriv (fun y : ℝ => (lam / 2) * y ^ 2) = fun y => lam * y := by
+    funext y; exact deriv_quadOne lam y
+  rw [show (2 : ℕ) = 1 + 1 from rfl, iteratedDeriv_succ', iteratedDeriv_one, h1]
+  have h2 : HasDerivAt (fun y : ℝ => lam * y) lam x := by
+    simpa using (hasDerivAt_id (x := x)).const_mul lam
+  exact h2.deriv
+
+/-- **`V_eff` of the quadratic potential**: `¼|Φ'|² − ½Φ'' = ¼λ²x² − ½λ`, the oscillator's
+potential with its zero-point constant subtracted — the effective potential `P3` names. -/
+theorem Veff_quadOne (lam x : ℝ) :
+    Veff (fun y : ℝ => (lam / 2) * y ^ 2) x = lam ^ 2 * x ^ 2 / 4 - lam / 2 := by
+  unfold Veff
+  rw [deriv_quadOne, iteratedDeriv_two_quadOne]
+  ring
 
 
 end BookProof.MCMC.FockLangevin

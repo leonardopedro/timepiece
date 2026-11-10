@@ -26,22 +26,30 @@ the architecture's own proposal rather than an unknown number.
   `pcnDensity_floor_pos` for `c > 0`;
 * `pcnNorm`, `pcnNorm_pos` — the Gaussian normalising constant `(2πs)^(−d/2)` is positive, and
   `pcnScale_pos` the scaled variance `s = 2σ²(1 − ρ²) > 0` for `0 ≤ ρ < 1`, `σ > 0`;
-* **`pcnGaussian_floor`**, `pcnGaussian_floor_pos` — the two together: the number itself.
+* **`pcnGaussian_floor`**, `pcnGaussian_floor_pos` — the two together: the number itself;
+* **§2, the passage to a measure** — `pcnBox` (`{|yᵢ| ≤ R}`, `measurableSet_pcnBox`,
+  `mem_pcnBox`), **`pcnMeasure_minorant`** (a density floor on the box turns into a measure
+  inequality: `volume.withDensity q ≥ F • volume.restrict box`, uniformly in the starting point)
+  and its instance **`pcnMeasure_floor`** at the architecture's numbers, with
+  `pcnMeasure_floor_pos`.
 
 ## Honest boundary
 
-This is a *density* floor, not a Doeblin theorem on the continuum.  §22–§26's machinery is stated on
-a finite state space, and the weight space is not one; what is proved here is the inequality the
-finite model consumes when it is fed a `δ`, together with the positivity that makes it usable.  The
-passage from this density to a Markov kernel on the weight space — a measure-theoretic statement
-about a transition kernel on `ℝ^d` — is not in this chapter.
+This is a *density* floor and the measure inequality it implies on a box — not a full Doeblin
+theorem on the continuum.  §22–§26's machinery is stated on a finite state space, and the weight
+space is not one.  What §2 adds is that the floor is a statement about the *proposal measure* on
+`ℝ^d`, uniformly in the starting point, which is the form a minorant consumes; what it does not do
+is name the target measure on `ℝ^d`, pass the Metropolis filter through the density, or produce a
+rate: the minorant is a lower bound on the proposal's mass on the box, and turning it into a
+contraction needs the acceptance probability and the target's own mass there, neither of which this
+chapter states.
 -/
 
 noncomputable section
 
 namespace BookProof.MCMC.PCNGaussianFloor
 
-open Finset
+open Finset MeasureTheory
 
 variable {d : ℕ}
 
@@ -133,5 +141,58 @@ theorem pcnGaussian_floor {σ ρ R : ℝ} (hσ : 0 < σ) (hρ0 : 0 ≤ ρ) (hρ1
 theorem pcnGaussian_floor_pos {σ ρ R : ℝ} (hσ : 0 < σ) (hρ0 : 0 ≤ ρ) (hρ1 : ρ < 1) :
     0 < pcnNorm d (pcnScale σ ρ) * Real.exp (-((d : ℝ) * (R * (1 + ρ)) ^ 2) / pcnScale σ ρ) :=
   pcnDensity_floor_pos (pcnNorm_pos (pcnScale_pos hσ hρ0 hρ1))
+
+/-! ## 2. The passage to a measure on `ℝ^d`
+
+§1 is a pointwise inequality.  The step §1's honest boundary lists — from a density floor to a
+statement about a *kernel* — is the measure-theoretic one: on the box the proposal's density
+dominates a constant, so the proposal measure dominates that constant times Lebesgue restricted to
+the box.  That is the continuum form of the Doeblin minorant a finite-state chain consumes
+(`PositivityCone`'s `Minorant`), and it needs no integration theory beyond `withDensity`.
+-/
+
+/-- The box `{|yᵢ| ≤ R}` in `ℝ^d` — the region the pCN chain visits, where §1's floor holds. -/
+def pcnBox (d : ℕ) (R : ℝ) : Set (Fin d → ℝ) := Set.pi Set.univ (fun _ => Set.Icc (-R) R)
+
+theorem measurableSet_pcnBox (R : ℝ) : MeasurableSet (pcnBox d R) :=
+  MeasurableSet.pi Set.countable_univ fun _ _ => measurableSet_Icc
+
+theorem mem_pcnBox {R : ℝ} {y : Fin d → ℝ} : y ∈ pcnBox d R ↔ ∀ i, |y i| ≤ R := by
+  simp only [pcnBox, Set.mem_pi, Set.mem_univ, true_implies, Set.mem_Icc, abs_le]
+
+/-- **The floor as a minorant of the proposal measure.**  If the density is at least `F` on the box,
+then the proposal's measure dominates `F` times Lebesgue restricted to that box — for every starting
+point `x`, which is what makes the bound a *kernel*-level statement rather than a pointwise one. -/
+theorem pcnMeasure_minorant {c s ρ R F : ℝ} {x : Fin d → ℝ}
+    (hle : ∀ y ∈ pcnBox d R, F ≤ pcnDensity c s ρ x y) :
+    ENNReal.ofReal F • (volume.restrict (pcnBox d R))
+      ≤ (volume.restrict (pcnBox d R)).withDensity
+          (fun y => ENNReal.ofReal (pcnDensity c s ρ x y)) := by
+  rw [← withDensity_const]
+  refine withDensity_mono ?_
+  filter_upwards [ae_restrict_mem (measurableSet_pcnBox R)] with y hy
+  exact ENNReal.ofReal_le_ofReal (hle y hy)
+
+/-- **The continuum Doeblin minorant, at the architecture's numbers.**  On the box `|xᵢ| ≤ R`,
+`|yᵢ| ≤ R` the proposal measure dominates `(2πs)^(−d/2)·exp(−d(R(1+ρ))²/s)` times Lebesgue, with
+`s = 2σ²(1 − ρ²)` — §1's floor, now as a measure inequality on `ℝ^d`. -/
+theorem pcnMeasure_floor {σ ρ R : ℝ} (hσ : 0 < σ) (hρ0 : 0 ≤ ρ) (hρ1 : ρ < 1) (hR : 0 ≤ R)
+    {x : Fin d → ℝ} (hx : ∀ i, |x i| ≤ R) :
+    ENNReal.ofReal
+        (pcnNorm d (pcnScale σ ρ) * Real.exp (-((d : ℝ) * (R * (1 + ρ)) ^ 2) / pcnScale σ ρ)) •
+        (volume.restrict (pcnBox d R))
+      ≤ (volume.restrict (pcnBox d R)).withDensity (fun y =>
+          ENNReal.ofReal (pcnDensity (pcnNorm d (pcnScale σ ρ)) (pcnScale σ ρ) ρ x y)) := by
+  refine pcnMeasure_minorant (F := pcnNorm d (pcnScale σ ρ)
+    * Real.exp (-((d : ℝ) * (R * (1 + ρ)) ^ 2) / pcnScale σ ρ))
+    ?_
+  intro y hy
+  exact pcnGaussian_floor hσ hρ0 hρ1 hR hx (mem_pcnBox.mp hy)
+
+/-- The minorant is positive: the box carries positive proposal mass from every starting point. -/
+theorem pcnMeasure_floor_pos {σ ρ R : ℝ} (hσ : 0 < σ) (hρ0 : 0 ≤ ρ) (hρ1 : ρ < 1) :
+    0 < ENNReal.ofReal
+      (pcnNorm d (pcnScale σ ρ) * Real.exp (-((d : ℝ) * (R * (1 + ρ)) ^ 2) / pcnScale σ ρ)) :=
+  ENNReal.ofReal_pos.mpr (pcnGaussian_floor_pos (d := d) hσ hρ0 hρ1)
 
 end BookProof.MCMC.PCNGaussianFloor
