@@ -1541,8 +1541,21 @@ probability, so two steps dominate a constant times the target everywhere.  §11
 `PCNGaussianFloor` supplies that factor: **`pcnBox_volume`** (`(2R)^d`), a general
 **`withDensity_box_ge`** (a density floor `F` on the box gives at least `F · (2R)^d` of box mass),
 its instances for the proposal and the Metropolis step, and **`pcnAbsorbingStep_box_ge`** — the step
-the chain takes puts at least `F · (2R)^d` of mass back in the box.  The composition into a
-two-step Doeblin kernel is written down as the next step, not proved.
+the chain takes puts at least `F · (2R)^d` of mass back in the box — *for starts inside the box*.
+
+**Why two steps do not close the gap (§46).**  The obvious composition — §44's box-local minorant
+plus §45's return mass, hence a two-step Doeblin kernel — does **not** go through, and §12 of
+`PCNGaussianFloor` says so explicitly.  The return floor `F` comes from `pcnDensity_floor`, which
+requires `|xᵢ| ≤ R` of the *starting* point; a pCN proposal started far outside the box carries the
+factor `exp(−∑ᵢ(yᵢ − ρxᵢ)²/s)`, so its mass inside the box decays exponentially in `∑xᵢ²`.  What §12
+does prove is the reduction, so that only the missing estimate is missing:
+**`bind_minorant_of_set`** — if `ρ` gives a set `S` mass at least `c0` and every step from `S`
+dominates `c1 • π`, then `ρ.bind K ≥ c0·c1 • π` — and its pCN instance
+**`pcnAbsorbingStep_twoStep_minorant`**, which concludes
+`(c0 · mF/B) • π ≤ (pcnAbsorbingStep x).bind pcnAbsorbingStep` *from* a return estimate
+`∀ y, ofReal c0 ≤ pcnAbsorbingStep y (box)` at every starting point.  Discharging that hypothesis is
+a confinement (Lyapunov / drift) estimate several steps deep, not an algebraic consequence of the
+one-step mass — a different argument, which is the honest remaining item of this track.
 
 #### The track's honest boundary — one summary
 
@@ -1594,7 +1607,9 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   `pcnGaussMass_quad`, `pcnBoxMass_le_one`, `pcnMetropolisStep_mass_le_one`,
   `pcnAbsorbingStep_univ`, `pcnAbsorbingStep_rate`) — §43; and the minorant for that step
   (`pcnAbsorbingStep_minorant`) — §44; and the return mass (`pcnBox_volume`,
-  `pcnAbsorbingStep_box_ge`) — §45.
+  `pcnAbsorbingStep_box_ge`) — §45; and the small-set Doeblin reduction
+  (`bind_minorant_of_set`, `pcnAbsorbingStep_twoStep_minorant`) — §46, with the explicit finding that
+  §45's return mass is box-local and cannot discharge it.
 
 *Not proved, and not claimed.*
 

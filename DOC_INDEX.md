@@ -22,9 +22,9 @@
 | [BUILD_LAYOUT.md](BUILD_LAYOUT.md) | Project layout and how to build as little as possible | 234 | 1 | 2 |
 | [CFT_REVIEW.md](CFT_REVIEW.md) | Review of `cft.md`: machine-checked claims and assessment | 331 | 1 | 0 |
 | [CHANGELOG.md](CHANGELOG.md) | Changelog | 63 | 1 | 0 |
-| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 19883 | 64 | 18 |
+| [CONSOLIDATED_PLAN.md](CONSOLIDATED_PLAN.md) | CONSOLIDATED_PLAN.md — The Single Plan | 19901 | 64 | 18 |
 | [CORE_TRANSFER_ESA.md](CORE_TRANSFER_ESA.md) | The core transfer route: `dΓ(A)` for an essentially self-adjoint one-particle operator | 100 | 0 | 1 |
-| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 233 | 33 | 6 |
+| [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) | Current work order — one pointer per track | 237 | 33 | 6 |
 | [Contention.md](Contention.md) | Contention: Message Differences Between `book.tex` and `Book/` | 252 | 0 | 2 |
 | [DESIGN_COMPARISON_N_20260915.md](DESIGN_COMPARISON_N_20260915.md) | Which `N`? Comparison operators for the Faris–Lavine route — one per Hamiltonian | 623 | 3 | 3 |
 | [DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md](DESIGN_QG32_FARISLAVINE_DIFFERING_BASES.md) | QG‑3.2 operator half: ESA of a sum of couplings with *differing* bases | 199 | 0 | 1 |
@@ -87,7 +87,7 @@
 | [lopez99.md](lopez99.md) | APPROXIMATIONS OF ORTHOGONAL POLYNOMIALS IN TERMS OF HERMITE POLYNOMIALS | 783 | 0 | 2 |
 | [math28/README.md](math28/README.md) | `math28/` — hypotheses supported by `math/`, in Lean v4.28.0 | 48 | 0 | 2 |
 | [newproof.md](newproof.md) | newproof | 285 | 0 | 6 |
-| [pcnl.md](pcnl.md) | pCNL: Mehler operators, nested Fock representations and convergence certificates | 1806 | 3 | 3 |
+| [pcnl.md](pcnl.md) | pCNL: Mehler operators, nested Fock representations and convergence certificates | 1821 | 3 | 3 |
 | [scripts/notes/handedits.md](scripts/notes/handedits.md) | handedits | 21 | 0 | 0 |
 | [softmodes.md](softmodes.md) | Soft modes in the Mehler / nested-Fock Yang–Mills formalism | 1862 | 1 | 4 |
 | [unfer_contracts/MASS_GAP_REGENERATION.md](unfer_contracts/MASS_GAP_REGENERATION.md) | Self-contained mass-gap regeneration bundle | 219 | 2 | 4 |

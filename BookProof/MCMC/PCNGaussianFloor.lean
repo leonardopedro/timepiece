@@ -66,8 +66,11 @@ the architecture's own proposal rather than an unknown number.
   for the step the chain takes;
 * **§11, the return mass** — `pcnBox_volume` (`(2R)^d`), `withDensity_box_ge`,
   `pcnProposalMeasure_box_ge`, `pcnMetropolisStep_box_ge` and **`pcnAbsorbingStep_box_ge`**: the
-  step puts at least `F · (2R)^d` of mass back in the box, which is what a regeneration argument
-  for a global minorant consumes.
+  step puts at least `F · (2R)^d` of mass back in the box — for starts inside the box;
+* **§12, small-set Doeblin, and the gap it does not close** — `bind_minorant_of_set` and
+  **`pcnAbsorbingStep_twoStep_minorant`** (two steps dominate the target *given* a return
+  estimate at every starting point), with the explicit note that §11 supplies that estimate only
+  inside the box.
 
 ## Honest boundary
 
@@ -974,10 +977,13 @@ mass:
   for the Metropolis step;
 * **`pcnAbsorbingStep_box_ge`** — and for the step the chain takes.
 
-Written out, the plan the next step would follow: `pcnAbsorbingStep x ≥ (mF/B) • π` for `x` in the
-box (§10) and `pcnAbsorbingStep x (box) ≥ F(2R)^d` everywhere (§11), so the *two-step* kernel is a
-Doeblin kernel with constant `min (mF/B) · F(2R)^d` at every starting point — and §5's contraction
-applies to it.  What is written here is the second factor; the composition is not.
+**What this does not give.**  The tempting composition is "minorant inside the box (§10) plus return
+mass (§11), hence the two-step kernel has a Doeblin constant at every starting point".  That step
+is *not* available, and §12 records why: this return mass is itself box-local.  The floor `F` comes
+from
+`pcnDensity_floor`, which needs `|xᵢ| ≤ R` for the *starting* point, and a pCN proposal started far
+outside the box puts exponentially little mass in it — `exp (−∑ (yᵢ − ρxᵢ)²/s)` — so no uniform
+return estimate follows from what is proved here.
 -/
 
 
@@ -1039,6 +1045,70 @@ theorem pcnAbsorbingStep_box_ge {s ρ R F : ℝ} {π : (Fin d → ℝ) → ℝ} 
   refine le_trans (pcnMetropolisStep_box_ge (c := pcnNorm1 s ^ d) hF hR hle) ?_
   refine Measure.le_iff.mp ?_ (pcnBox d R) (measurableSet_pcnBox (d := d) R)
   exact pcnMetropolisStep_le_pcnAbsorbingStep s ρ R π x
+
+
+/-! ## 12. Doeblin from a small set, and why two steps do not close the gap
+
+§10's minorant is box-local and §11's return mass is too, so §5's contraction still cannot consume
+them.  This section states the general small-set lemma that a repair would use, proves the pCN
+instance under an explicit return estimate, and — the part that matters — records that the estimate
+§11 supplies is not the one needed.
+
+* **`bind_minorant_of_set`** — general: if `ρ` gives a set `S` mass at least `c0`, and every step
+  from `S` dominates `c1 • π`, then `ρ.bind K ≥ c0 · c1 • π`;
+* **`pcnAbsorbingStep_twoStep_minorant`** — the pCN instance, *given* a return estimate
+  `∀ y, ofReal c0 ≤ pcnAbsorbingStep y (box)`.
+
+Why the hypothesis cannot be discharged from §11: the density floor needs `|xᵢ| ≤ R` for the
+starting point, and a Gaussian proposal started outside the box puts exponentially little mass in
+it.  A genuine repair needs a confinement (Lyapunov) estimate — several steps back, not one — and
+that is a different argument, not an algebraic corollary.
+-/
+
+
+/-- **Doeblin from a small set**: if `ρ` puts at least `c0` of mass in a set `S` and every step from
+`S` dominates `c1 • π`, then one step from `ρ` dominates `c0 · c1 • π`. -/
+theorem bind_minorant_of_set {α : Type*} [MeasurableSpace α] {ρ π : Measure α}
+    {K : α → Measure α} {S : Set α} (hS : MeasurableSet S) (hK : AEMeasurable K ρ)
+    {c0 c1 : ENNReal} (hρS : c0 ≤ ρ S) (hmin : ∀ y ∈ S, c1 • π ≤ K y) :
+    (c0 * c1) • π ≤ ρ.bind K := by
+  refine Measure.le_iff.mpr fun A hA => ?_
+  rw [Measure.smul_apply, smul_eq_mul, Measure.bind_apply hA hK]
+  have h2 : c1 * π A * ρ S ≤ ∫⁻ y in S, K y A ∂ρ := by
+    calc c1 * π A * ρ S = ∫⁻ _y in S, c1 * π A ∂ρ := by
+          rw [setLIntegral_const]
+      _ ≤ ∫⁻ y in S, K y A ∂ρ := by
+          refine setLIntegral_mono' hS fun y hy => ?_
+          exact (Measure.le_iff.mp (hmin y hy)) A hA
+  calc c0 * c1 * π A = c1 * π A * c0 := by ring
+    _ ≤ c1 * π A * ρ S := by gcongr
+    _ ≤ ∫⁻ y in S, K y A ∂ρ := h2
+    _ ≤ ∫⁻ y, K y A ∂ρ := setLIntegral_le_lintegral _ _
+
+
+/-- **Two steps dominate the target everywhere — given a return estimate valid at every starting
+point.**  If `π` bounds the target's density on the box, the acceptance and density floors hold
+throughout the box (§10), and the step returns to the box with mass at least `c0` from *every*
+starting point, then one step out of any `x` dominates `c0 · (mF/B) • π`.
+
+§11 supplies the last hypothesis only for starts inside the box — `pcnDensity_floor` needs
+`|xᵢ| ≤ R` — so this is a reduction, not an application: the return estimate outside the box is what
+a confinement argument would have to provide. -/
+theorem pcnAbsorbingStep_twoStep_minorant {s ρ R F B m c0 : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    {x : Fin d → ℝ} (hF : 0 ≤ F) (hB : 0 < B) (hm0 : 0 ≤ m) (hm1 : m ≤ 1)
+    (hτB : ∀ y ∈ pcnBox d R, τ y ≤ B)
+    (hτpos : ∀ y ∈ pcnBox d R, 0 < τ y)
+    (hτxy : ∀ y ∈ pcnBox d R, ∀ z ∈ pcnBox d R, m * τ y ≤ τ z)
+    (hdens : ∀ y ∈ pcnBox d R, ∀ z ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s ρ y z)
+    (hret : ∀ y, ENNReal.ofReal c0
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ y (pcnBox d R))
+    (hmeas : AEMeasurable (pcnAbsorbingStep (d := d) s ρ R τ)
+      (pcnAbsorbingStep (d := d) s ρ R τ x)) :
+    (ENNReal.ofReal c0 * ENNReal.ofReal (m * F / B)) • pcnTargetMeasure (d := d) R τ
+      ≤ (pcnAbsorbingStep (d := d) s ρ R τ x).bind (pcnAbsorbingStep (d := d) s ρ R τ) :=
+  bind_minorant_of_set (measurableSet_pcnBox (d := d) R) hmeas (hret x)
+    (fun y hy => pcnAbsorbingStep_minorant hF hB hm0 hm1 hτB (hτpos y hy) (hτxy y hy)
+      (hdens y hy))
 
 
 end BookProof.MCMC.PCNGaussianFloor

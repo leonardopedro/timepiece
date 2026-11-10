@@ -19881,3 +19881,21 @@ kernel at every starting point.  The composition itself is not written.
 
 **Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
 on the three key lemmas → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.
+
+### 39. Addendum (2026-11-10q) — small-set Doeblin, and the two-step composition that does not close
+
+`PCNGaussianFloor` §12 proves **`bind_minorant_of_set`** (general: a `c0`-mass set whose steps all
+dominate `c1 • π` makes `ρ.bind K ≥ c0·c1 • π`) and **`pcnAbsorbingStep_twoStep_minorant`** (the pCN
+instance: two steps dominate `(c0 · mF/B) • π` *given* a return estimate at every starting point).
+
+**The finding, stated as a negative result.**  §38 sketched "minorant inside the box + return mass ⇒
+two-step Doeblin constant everywhere".  That implication is false as an inference from the proved
+lemmas: the return floor `F` is itself box-local (`pcnDensity_floor` needs `|xᵢ| ≤ R` of the start),
+and a pCN proposal started outside the box carries `exp(−∑(yᵢ − ρxᵢ)²/s)`, so its box mass decays
+exponentially in `∑xᵢ²`.  §45's `pcnAbsorbingStep_box_ge` therefore supplies the return estimate only
+for starts in the box.  §38's docstring has been corrected accordingly, and the reduction is stated
+with its hypothesis explicit rather than silently global.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green;
+`#print axioms` on both new lemmas → `propext, Classical.choice, Quot.sound` only; 0 lines over
+100 characters.
