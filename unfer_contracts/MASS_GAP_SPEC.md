@@ -347,8 +347,9 @@ without a diagonalization: see below.
 `certificate::inertia_below` gets the count from Sylvester's law of inertia
 (`H − βI = L D Lᵀ`, so negative pivots = eigenvalues below `β`), carrying an
 error bound beside every entry and using a pivot's sign only when
-`|value| > error`. Sparse, with an RCM ordering and 1×1 symmetric pivoting. The
-campaign then brackets the gap with no dense step:
+`|value| > error`. Sparse, with a selectable fill-reducing ordering
+(`Ordering::ReverseCuthillMckee` or `Ordering::NestedDissection`) and 1×1
+symmetric pivoting. The campaign then brackets the gap with no dense step:
 `temple(θᵒ₀, rᵒ, β_odd) − θᵉ₀ ≤ λ₁(odd) − λ₀(even) ≤ θᵒ₀ − temple(θᵉ₀, rᵉ, β_even)`.
 
 | `N≤` | sector `n` | fill | count(β) | lower = upper | exact | secs |
@@ -366,6 +367,47 @@ dense route can still run (`N ≤ 10`). The margin must be probed over a ladder
 (`1e-9 … 1e-2`): at a `1e-9` margin the shift is that close to an eigenvalue, one
 pivot is undecidable at the last index, and the counter refuses — a refusal, not
 a wrong count.
+
+The campaign's own 15 rows now run on the count instead of `certify_spectrum`:
+`β` is a bisection on the count (start at `θ + r`, grow until the count says `λ₂`
+has been passed, then 30 bisections back down to the largest deciding `β`, which
+minimises Temple's `r²/(β − θ)`). The verdicts come out **identical** to the
+dense-`β` run, with the same bounds to the printed digits — SIRK 4 certified /
+5 valid-but-not-positive / 6 refused, Lanczos 10 / 5 / 0, and 5 more in the
+exchanged orientation, **15 of 15**. `O(n³)` is nowhere on the certification
+path; the dense spectrum survives only as the oracle each bound is checked
+against.
+
+#### Where the count stops, and what stops it
+
+Driven past its range (odd sector, `g = 1`, `β = θ₀ + 0.5`, both orderings on the
+same matrix):
+
+| `N≤` | `n` | fill RCM | fill ND | secs RCM | secs ND |
+|---|---|---|---|---|---|
+| 6 | 80 | 18 | 16 | 0.00 | 0.00 |
+| 10 | 420 | 58 | 52 | 0.00 | 0.00 |
+| 14 | 1344 | 138 | 108 | 0.02 | 0.01 |
+| 16 | 2160 | 192 | 172 | 0.08 | 0.04 |
+| 18 | 3300 | 258 | **refused** | 0.24 | 0.21 |
+| 20 | 4840 | **refused** | **refused** | 0.72 | 1.50 |
+| 22 | 6864 | **refused** | **refused** | 2.16 | 1.22 |
+
+RCM decides through `N ≤ 18`, nested dissection through `N ≤ 16`, and the count
+is the same wherever both decide. **Fill is not the limit**: at the last decided
+size the fill is 258 on `n = 3300` (7.8 % of the dimension) and the elimination
+takes 0.24 s. **The error bound is the limit**, and what is pessimistic is the
+bound, not the matrix: the smallest pivot taken was 0.56, the trailing diagonals
+held values in `[14, 58]` against accumulated errors up to `3.3e3`, and no
+eigenvalue sat near `β`. Each step's relative uncertainty is charged against the
+next divisor — worst-case compounding, where Wilkinson's bound for the same
+factorization is linear in the operation count. Refusing is the correct output of
+a bound that has lost its slack; the honest reach is `N ≤ 18` for RCM. Pivoting
+on relative accuracy instead of magnitude does not move the wall (measured);
+symmetric equilibration is untried and nothing here claims either way. Nested
+dissection cuts the fill by 6–27 % where both decide but reaches *less* far, so
+it is a trade, not a free win — which is why the ordering is a parameter and
+every count reports the fill it paid.
 
 #### `(n₀+n₁)` parity is not the reflection sector
 
