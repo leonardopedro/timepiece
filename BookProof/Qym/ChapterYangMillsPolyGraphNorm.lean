@@ -21,6 +21,13 @@ cutoff equal to `p` off an annulus and nothing else — that is `exists_lintegra
 turns off, and there its size is governed by the tails of `p`, `p'` and `p''` times the bounds
 `|χ'| ≤ C/R` and `|χ''| ≤ C/R²`.  That estimate is not carried out here.
 
+The approximation is additive, homogeneous and vanishes at `0`, so `polyGraphApprox_of_hermite`
+reduces `PolyGraphApprox` to its values on the Hermite generators — the only classes that have to
+be approximated by hand.  `Approximable` therefore carries the vector and its membership separately
+(`Approximable v hv`, reading `polyOp ⟨v, hv⟩`): bundling them makes `Submodule.span_induction`
+compare `⟨x + y, _⟩` with `⟨x, _⟩ + ⟨y, _⟩` under `Approximable`, which unfolds `polyOp` far enough
+to exhaust the heartbeat budget.
+
 `polyOp_eq_gaussOp_closure` is the concrete form of `closure_eq_of_le` for `polyOp` and
 `gaussOp.closure`.  The complexified operators live on two *different* spaces,
 `Cx (Lp ℝ 2 gaussMeasure)` and `Lp ℂ 2 gaussMeasure`; the real statement below is the one that
@@ -58,15 +65,18 @@ theorem polyOp_hermiteR (n : ℕ) :
 /-! ## The graph-norm approximation -/
 
 /-- **The graph-norm approximation property for one span element.**  An `ε`-approximation of the
-record `(x, polyOp x)` by a record `(f, T f)` of the compactly supported core `gaussCore`. -/
-def Approximable (x : hermiteSpan) : Prop :=
+record `(v, polyOp v)` by a record `(f, T f)` of the compactly supported core `gaussCore`.  The
+vector and its membership are separate arguments so that a `Submodule.span_induction` motive can
+mention them without comparing bundled pairs. -/
+def Approximable (v : Lp ℝ 2 gaussMeasure) (hv : v ∈ hermiteSpan) : Prop :=
   ∀ ε > 0, ∃ f : gaussCore,
-    ‖(x : Lp ℝ 2 gaussMeasure) - (f : Lp ℝ 2 gaussMeasure)‖ < ε ∧
-    ‖(polyOp x : Lp ℝ 2 gaussMeasure) - gaussOpFun f‖ < ε
+    ‖v - (f : Lp ℝ 2 gaussMeasure)‖ < ε ∧
+    ‖(polyOp ⟨v, hv⟩ : Lp ℝ 2 gaussMeasure) - gaussOpFun f‖ < ε
 
 /-- **The graph-norm approximation property**, for every Hermite-span element.  This is the single
 analytic estimate the identification of the two cores is waiting on. -/
-def PolyGraphApprox : Prop := ∀ x : hermiteSpan, Approximable x
+def PolyGraphApprox : Prop :=
+  ∀ (v : Lp ℝ 2 gaussMeasure) (hv : v ∈ hermiteSpan), Approximable v hv
 
 /-- `T` kills the zero class. -/
 theorem gaussOpFun_zero : gaussOpFun (0 : gaussCore) = 0 := by
@@ -75,49 +85,57 @@ theorem gaussOpFun_zero : gaussOpFun (0 : gaussCore) = 0 := by
   simpa using h
 
 /-- The approximation is additive, because both operators are and a norm is subadditive. -/
-theorem approximable_add {x y : hermiteSpan} (hx : Approximable x) (hy : Approximable y) :
-    Approximable (x + y) := by
+theorem approximable_add {v w : Lp ℝ 2 gaussMeasure} {hv : v ∈ hermiteSpan}
+    {hw : w ∈ hermiteSpan} (hv' : Approximable v hv) (hw' : Approximable w hw) :
+    Approximable (v + w) (Submodule.add_mem hermiteSpan hv hw) := by
   intro ε hε
-  obtain ⟨f, hf1, hf2⟩ := hx (ε / 2) (by positivity)
-  obtain ⟨g, hg1, hg2⟩ := hy (ε / 2) (by positivity)
+  obtain ⟨f, hf1, hf2⟩ := hv' (ε / 2) (by positivity)
+  obtain ⟨g, hg1, hg2⟩ := hw' (ε / 2) (by positivity)
   refine ⟨f + g, ?_, ?_⟩
-  · calc ‖((x + y : hermiteSpan) : Lp ℝ 2 gaussMeasure) - ((f + g : gaussCore) :
-          Lp ℝ 2 gaussMeasure)‖
-        = ‖((x : Lp ℝ 2 gaussMeasure) - f) + ((y : Lp ℝ 2 gaussMeasure) - g)‖ := by
-          rw [Submodule.coe_add, Submodule.coe_add]
+  · calc ‖(v + w) - ((f + g : gaussCore) : Lp ℝ 2 gaussMeasure)‖
+        = ‖(v - f) + (w - g)‖ := by
+          rw [Submodule.coe_add]
           abel
-      _ ≤ ‖(x : Lp ℝ 2 gaussMeasure) - (f : Lp ℝ 2 gaussMeasure)‖
-            + ‖(y : Lp ℝ 2 gaussMeasure) - (g : Lp ℝ 2 gaussMeasure)‖ := norm_add_le _ _
+      _ ≤ ‖v - (f : Lp ℝ 2 gaussMeasure)‖ + ‖w - (g : Lp ℝ 2 gaussMeasure)‖ :=
+        norm_add_le _ _
       _ < ε := by linarith
-  · calc ‖(polyOp (x + y) : Lp ℝ 2 gaussMeasure) - gaussOpFun (f + g)‖
-        = ‖((polyOp x - gaussOpFun f) + (polyOp y - gaussOpFun g))‖ := by
-          rw [LinearPMap.map_add polyOp x y, gaussOpFun_add]
+  · have hmap : (polyOp (⟨v + w, Submodule.add_mem hermiteSpan hv hw⟩ : hermiteSpan)
+        : Lp ℝ 2 gaussMeasure) = polyOp ⟨v, hv⟩ + polyOp ⟨w, hw⟩ :=
+      LinearPMap.map_add polyOp ⟨v, hv⟩ ⟨w, hw⟩
+    calc ‖(polyOp (⟨v + w, Submodule.add_mem hermiteSpan hv hw⟩ : hermiteSpan)
+          : Lp ℝ 2 gaussMeasure) - gaussOpFun (f + g)‖
+        = ‖(polyOp ⟨v, hv⟩ - gaussOpFun f) + (polyOp ⟨w, hw⟩ - gaussOpFun g)‖ := by
+          rw [hmap, gaussOpFun_add]
           abel
-      _ ≤ ‖(polyOp x : Lp ℝ 2 gaussMeasure) - gaussOpFun f‖
-            + ‖(polyOp y : Lp ℝ 2 gaussMeasure) - gaussOpFun g‖ := norm_add_le _ _
+      _ ≤ ‖(polyOp ⟨v, hv⟩ : Lp ℝ 2 gaussMeasure) - gaussOpFun f‖
+            + ‖(polyOp ⟨w, hw⟩ : Lp ℝ 2 gaussMeasure) - gaussOpFun g‖ := norm_add_le _ _
       _ < ε := by linarith
 
 /-- The approximation is homogeneous: scale the approximant and absorb the factor into `ε`. -/
-theorem approximable_smul (c : ℝ) {x : hermiteSpan} (hx : Approximable x) :
-    Approximable (c • x) := by
+theorem approximable_smul (c : ℝ) {v : Lp ℝ 2 gaussMeasure} {hv : v ∈ hermiteSpan}
+    (hv' : Approximable v hv) :
+    Approximable (c • v) (Submodule.smul_mem hermiteSpan c hv) := by
   intro ε hε
   have hpos : 0 < ‖c‖ + 1 := by positivity
-  obtain ⟨f, hf1, hf2⟩ := hx (ε / (‖c‖ + 1)) (div_pos hε hpos)
+  obtain ⟨f, hf1, hf2⟩ := hv' (ε / (‖c‖ + 1)) (div_pos hε hpos)
   refine ⟨c • f, ?_, ?_⟩
-  · calc ‖((c • x : hermiteSpan) : Lp ℝ 2 gaussMeasure) - ((c • f : gaussCore) :
-          Lp ℝ 2 gaussMeasure)‖
-        = ‖c • ((x : Lp ℝ 2 gaussMeasure) - (f : Lp ℝ 2 gaussMeasure))‖ := by
-          rw [Submodule.coe_smul, Submodule.coe_smul, smul_sub]
-      _ = ‖c‖ * ‖(x : Lp ℝ 2 gaussMeasure) - (f : Lp ℝ 2 gaussMeasure)‖ := norm_smul _ _
+  · calc ‖c • v - ((c • f : gaussCore) : Lp ℝ 2 gaussMeasure)‖
+        = ‖c • (v - (f : Lp ℝ 2 gaussMeasure))‖ := by
+          rw [Submodule.coe_smul, smul_sub]
+      _ = ‖c‖ * ‖v - (f : Lp ℝ 2 gaussMeasure)‖ := norm_smul _ _
       _ < ε := by
         have hkey : ‖c‖ * (ε / (‖c‖ + 1)) < ε := by
           rw [mul_div_assoc', div_lt_iff₀ hpos]
           nlinarith [norm_nonneg c]
         nlinarith [hf1, norm_nonneg c]
-  · calc ‖(polyOp (c • x) : Lp ℝ 2 gaussMeasure) - gaussOpFun (c • f)‖
-        = ‖c • (polyOp x - gaussOpFun f)‖ := by
-          rw [LinearPMap.map_smul polyOp c x, gaussOpFun_smul, smul_sub]
-      _ = ‖c‖ * ‖(polyOp x : Lp ℝ 2 gaussMeasure) - gaussOpFun f‖ := norm_smul _ _
+  · have hmap : (polyOp (⟨c • v, Submodule.smul_mem hermiteSpan c hv⟩ : hermiteSpan)
+        : Lp ℝ 2 gaussMeasure) = c • polyOp ⟨v, hv⟩ :=
+      LinearPMap.map_smul polyOp c ⟨v, hv⟩
+    calc ‖(polyOp (⟨c • v, Submodule.smul_mem hermiteSpan c hv⟩ : hermiteSpan)
+          : Lp ℝ 2 gaussMeasure) - gaussOpFun (c • f)‖
+        = ‖c • (polyOp ⟨v, hv⟩ - gaussOpFun f)‖ := by
+          rw [hmap, gaussOpFun_smul, smul_sub]
+      _ = ‖c‖ * ‖(polyOp ⟨v, hv⟩ : Lp ℝ 2 gaussMeasure) - gaussOpFun f‖ := norm_smul _ _
       _ < ε := by
         have hkey : ‖c‖ * (ε / (‖c‖ + 1)) < ε := by
           rw [mul_div_assoc', div_lt_iff₀ hpos]
@@ -125,12 +143,31 @@ theorem approximable_smul (c : ℝ) {x : hermiteSpan} (hx : Approximable x) :
         nlinarith [hf2, norm_nonneg c]
 
 /-- The zero class is approximable by the zero core class. -/
-theorem approximable_zero : Approximable 0 := by
+theorem approximable_zero : Approximable 0 (Submodule.zero_mem hermiteSpan) := by
   intro ε hε
   refine ⟨0, ?_, ?_⟩
   · simpa using hε
-  · rw [LinearPMap.map_zero polyOp, gaussOpFun_zero, sub_zero]
+  · have hmap : (polyOp (⟨0, Submodule.zero_mem hermiteSpan⟩ : hermiteSpan)
+        : Lp ℝ 2 gaussMeasure) = 0 := LinearPMap.map_zero polyOp
+    rw [hmap, gaussOpFun_zero, sub_zero]
     simpa using hε
+
+/-- **It suffices to approximate the Hermite generators.**  The Hermite span is generated by the
+`H_n`, and the approximation is stable under `0`, `+` and scalar multiplication, so it propagates
+from the generators to every span element. -/
+theorem polyGraphApprox_of_hermite
+    (h : ∀ n : ℕ, Approximable (polyLp (hermiteR n)) (Submodule.subset_span ⟨n, rfl⟩)) :
+    PolyGraphApprox := by
+  intro v hv
+  refine Submodule.span_induction (p := fun v hv => Approximable v hv) ?_ ?_ ?_ ?_ hv
+  · intro w hw
+    obtain ⟨n, rfl⟩ := hw
+    exact h n
+  · exact approximable_zero
+  · intro x y _ _ ix iy
+    exact approximable_add ix iy
+  · intro c x _ ix
+    exact approximable_smul c ix
 
 /-! ## The inclusion, and the identification -/
 
@@ -138,7 +175,8 @@ theorem approximable_zero : Approximable 0 := by
 approximation holds.  This is `le_closure_of_forall_approx` for the actual operators, with
 `gaussOp_isClosable` supplying closability. -/
 theorem polyOp_le_gaussOp_closure (h : PolyGraphApprox) : polyOp ≤ gaussOp.closure :=
-  le_closure_of_forall_approx (A := polyOp) (B := gaussOp) gaussOp_isClosable fun x => h x
+  le_closure_of_forall_approx (A := polyOp) (B := gaussOp) gaussOp_isClosable
+    fun x ε hε => h x.1 x.2 ε hε
 
 /-- **The identification of the two cores, concretely.**  `closure_eq_of_le` instantiated at
 `polyOp` and `gaussOp`: once `polyOp` is self-adjoint and `gaussOp.closure` is symmetric, the
