@@ -198,7 +198,13 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
   `driftOperator_quadPotential`) the pCNL form is `numberForm + E₀‖c‖²` with
   `E₀ = (β²σ²/2)·λd/2` (**`re_corePair_quadHamiltonian`**), so off the vacuum it is
   `≥ (E₀ + 1)‖c‖²` (**`quadForm_gap`**, sharp at `quadForm_degree_one`, bottom `quadForm_vac`):
-  the Bakry–Émery bound shifts the constant and leaves the gap at the number operator's `1`.
+  the Bakry–Émery bound shifts the constant and leaves the gap at the number operator's `1`;
+* **§21.7, affine gradients** — the drift is additive in the potential (`polyDrift_add`,
+  `driftOperator_add`), so for `Φ = Φ_λ + Σⱼ aⱼxⱼ` — gradient `λx + a`, the class a Hessian bound
+  describes — the exact quadratic form of §21.6 combines with §12's
+  `driftOperator_linear_form_bound`: **`re_corePair_affineHamiltonian`** bounds the form below by
+  `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²`, and `affineForm_gap` reads it off the vacuum.  The Hessian's
+  `λ` is entirely in the constant; the number-form coefficient stays `1 − δ`.
 
 ## Honest boundary
 
@@ -5801,6 +5807,87 @@ theorem quadForm_degree_one (β σ lam : ℝ) (j : Fin d) :
   push_cast
   ring
 
+
+
+
+/-! ## 21.7 Affine gradients: the Hessian in the constant, the linear part in §11
+
+§21.6 computed the quadratic potential.  The next class up is the one a Hessian bound actually
+describes: a potential whose gradient is affine, `∇Φ = λx + a`, i.e. `Φ = Φ_λ + Σⱼ aⱼxⱼ`.  Its drift
+splits, and the two halves have different sources:
+
+* `polyDrift_add` / `driftOperator_add` — the drift is additive in the potential, so
+  `K_drift(Φ_λ + lin) = K_drift Φ_λ + K_drift(lin)`;
+* the quadratic half is the exact form of §21.6 (`re_corePair_quadHamiltonian`), contributing
+  `λ·E₀` to the constant;
+* the linear half is §12's `driftOperator_linear_form_bound`, so it costs `δ·⟪c,Nc⟫` plus
+  `driftScale²·(B²d/(2δ) + Bd)‖c‖²`.
+
+**`re_corePair_affineHamiltonian`** is the sum: on the degree-`≥ 1` sector (and away from the
+vacuum, `affineForm_gap`) the form is at least `(1 − δ)·⟪c,Nc⟫` plus
+`(E₀ − C_δ)‖c‖²`, with `E₀ = (β²σ²/2)·λd/2`.  The Hessian's `λ` therefore sits entirely in the
+constant and the *number-form coefficient* stays `1 − δ`, which is P3's point with the quadratic
+case isolated: a Hessian bound gives coercivity, and the gap on this side is the degree grading.
+-/
+
+/-- The polynomial drift is additive in the potential. -/
+theorem polyDrift_add (Φ Ψ : MvPolynomial (Fin d) ℂ) (c : CoreCoeff d) :
+    polyDrift (Φ + Ψ) c = polyDrift Φ c + polyDrift Ψ c := by
+  unfold polyDrift
+  simp only [map_add, polyMul_add]
+  rw [Finset.sum_add_distrib, neg_add]
+
+theorem driftOperator_add (β σ : ℝ) (Φ Ψ : MvPolynomial (Fin d) ℂ) (c : CoreCoeff d) :
+    driftOperator β σ (Φ + Ψ) c = driftOperator β σ Φ c + driftOperator β σ Ψ c := by
+  rw [driftOperator, driftOperator, driftOperator, polyDrift_add, smul_add]
+
+/-- **The pCNL form of an affine-gradient potential.**  For `Φ = Φ_λ + Σⱼ aⱼ xⱼ` — gradient
+`λx + a`, the constant-Hessian-`λ` class — the form is the exact quadratic form (§21.6) plus the
+linear part, which §11 bounds: `(1 − δ)·⟪c,Nc⟫` plus constants, the Hessian's `λ` contributing
+`E₀ = (β²σ²/2)·λd/2`. -/
+theorem re_corePair_affineHamiltonian (β σ lam M : ℝ) (a : Fin d → ℝ) (hM0 : 0 ≤ M)
+    (ha : ∀ j, |a j| ≤ M) (δ : ℝ) (hδ : 0 < δ) (c : CoreCoeff d) :
+    (1 - δ) * numberForm c + (driftWeight β σ * (lam * (d : ℝ) / 2)
+        - (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ) + driftScale β σ M * (d : ℝ)))
+        * coreNormSq c
+      ≤ (corePair c (numberOp c + driftOperator β σ (quadPotential lam
+          + ∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c)).re := by
+  have hsplit : corePair c (numberOp c + driftOperator β σ (quadPotential lam
+        + ∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c)
+      = corePair c (numberOp c + driftOperator β σ (quadPotential lam) c)
+        + corePair c (driftOperator β σ
+            (∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c) := by
+    rw [driftOperator_add, ← add_assoc, corePair_add, corePair_add]
+  rw [hsplit, Complex.add_re, re_corePair_quadHamiltonian]
+  have hb := driftOperator_linear_form_bound β σ hM0 ha δ hδ c
+  have hre : ‖corePair c (driftOperator β σ
+        (∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c)‖
+      ≤ δ * numberForm c + (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ)
+          + driftScale β σ M * (d : ℝ)) * coreNormSq c := hb
+  have hlow : -(δ * numberForm c + (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ)
+        + driftScale β σ M * (d : ℝ)) * coreNormSq c)
+      ≤ (corePair c (driftOperator β σ
+          (∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c)).re := by
+    have habs := Complex.abs_re_le_norm (corePair c (driftOperator β σ
+      (∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c))
+    have hneg := neg_abs_le (corePair c (driftOperator β σ
+      (∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c)).re
+    linarith
+  nlinarith
+
+/-- **The gap of an affine-gradient potential**, off the vacuum: `((1 − δ) + E₀ − C_δ)‖c‖²`, the
+`λ`-term in the constant and the number-form coefficient `1 − δ` independent of `λ`. -/
+theorem affineForm_gap (β σ lam M : ℝ) (a : Fin d → ℝ) (hM0 : 0 ≤ M)
+    (ha : ∀ j, |a j| ≤ M) (δ : ℝ) (hδ : 0 < δ) (hδ1 : δ ≤ 1) {c : CoreCoeff d}
+    (hc : c (0 : Fin d → ℕ) = 0) :
+    ((1 - δ) + driftWeight β σ * (lam * (d : ℝ) / 2)
+        - (driftScale β σ M ^ 2 * (d : ℝ) / (2 * δ) + driftScale β σ M * (d : ℝ)))
+        * coreNormSq c
+      ≤ (corePair c (numberOp c + driftOperator β σ (quadPotential lam
+          + ∑ k : Fin d, MvPolynomial.C (((a k : ℝ)) : ℂ) * MvPolynomial.X k) c)).re := by
+  have hmain := re_corePair_affineHamiltonian β σ lam M a hM0 ha δ hδ c
+  have hnum := numberForm_ge_of_vac hc
+  nlinarith
 
 
 

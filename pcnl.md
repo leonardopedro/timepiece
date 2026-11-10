@@ -1385,6 +1385,17 @@ Hessian bound buys coercivity with constant `E₀ ∝ λd` and leaves the gap at
 `1`; `γ = λ` is a statement about the generator on `L²(π_Φ)` after the ground-state transform
 `V_eff = ¼|∇Φ|² − ½ΔΦ`, which is P3's own analysis and is not what this Fock model computes.
 
+**The class a Hessian bound describes (§31).**  §30 computed the quadratic potential; §21.7 of
+`FockLangevinOperator` takes the next step up, `∇Φ = λx + a` (`Φ = Φ_λ + Σⱼ aⱼxⱼ`), which is the
+class a Hessian bound actually describes.  The drift is additive in the potential (`polyDrift_add`,
+`driftOperator_add`), so the two halves keep their own sources: the quadratic one is §30's exact
+form, contributing `E₀ = (β²σ²/2)·λd/2` to the constant, and the linear one is §12's
+`driftOperator_linear_form_bound`, costing `δ·⟪c,Nc⟫` plus `C_δ‖c‖²`.  **`re_corePair_affineHamiltonian`**
+is the sum, `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²`, and `affineForm_gap` reads it off the vacuum.  So
+the Hessian's `λ` sits entirely in the constant and the number-form coefficient stays `1 − δ` for
+every `δ ∈ (0,1]`: P3's diagnosis with the quadratic case isolated, and the reason the `ε`-dependence
+of `driftScale ≈ 1/ε` degrades the constant rather than the gap.
+
 What this does **not** do: it does not identify the model's invariant state with the pCNL invariant
 measure on the unbounded Fock space — the model is finite, its kernel is a hold-or-draw kernel
 written on occupations, and the weighted `ℓ¹` of the core is now closed as a *route* (§29: no

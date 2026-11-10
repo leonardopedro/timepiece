@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10d):** **§26 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10e):** **§27 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — `FockLangevinOperator` §21.7 composes the two halves of the drift for an
+> affine-gradient potential `Φ = Φ_λ + Σⱼ aⱼxⱼ` (the class a Hessian bound describes):
+> `polyDrift_add` / `driftOperator_add` split it, §26's exact quadratic form supplies
+> `E₀ = (β²σ²/2)·λd/2` and §12's `driftOperator_linear_form_bound` the linear cost, so
+> **`re_corePair_affineHamiltonian`** gives `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²` and
+> `affineForm_gap` reads it off the vacuum: the Hessian's `λ` is entirely in the constant and the
+> number-form coefficient is `1 − δ` for every `δ ≤ 1`.
+> **Earlier newest entry (2026-11-10d):** **§26 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — `BookProof/MCMC/FockLangevinOperator` §21.6 computes the quadratic potential
 > `Φ_λ = (λ/2)∑ⱼ xⱼ²` (the equality case `Hess Φ = λ·I` of the plan's Bakry–Émery hypothesis) and
 > finds the Hessian's `λ` in the *constant*, not the gap: `a_j†` is the right adjoint of `a_j`
@@ -19509,3 +19517,34 @@ floor, and the `L²(π)`-side gap that P3's `V_eff` analysis would give.
 `re_corePair_quadHamiltonian`, `numberForm_ge_of_vac`, `quadForm_gap`, `quadForm_vac`,
 `quadForm_degree_one` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines
 over 100 characters, no trailing whitespace.
+
+### 27. Addendum (2026-11-10e) — affine gradients: the Hessian in the constant, the linear part in §11
+
+**What §26 left.**  §26 computed `Φ_λ = (λ/2)Σⱼ xⱼ²` exactly.  The class a Hessian bound actually
+describes is one step larger: `∇Φ = λx + a`, i.e. `Φ = Φ_λ + Σⱼ aⱼxⱼ`.  §21.7 composes the two
+halves of the drift.
+
+* **`polyDrift_add` / `driftOperator_add`** — the drift is additive in the potential
+  (`pderiv` and `polyMul` are, so the letter sum is), hence
+  `K_drift(Φ_λ + lin) = K_drift Φ_λ + K_drift(lin)`.
+* **The quadratic half** is §26's exact form (`re_corePair_quadHamiltonian`): `λ` contributes
+  `E₀ = (β²σ²/2)·λd/2` to the constant and nothing to the number form.
+* **The linear half** is §12's `driftOperator_linear_form_bound` (`driftOperator_linear` with
+  `driftOpCoeff (driftScale β σ a)`): it costs `δ·⟪c,Nc⟫` plus
+  `(driftScale β σ M)²·(d/(2δ)) + driftScale β σ M · d` times the mass.
+* **`re_corePair_affineHamiltonian`** — the sum: `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²`; and
+  `affineForm_gap` reads it off the vacuum (`numberForm_ge_of_vac`), giving
+  `((1 − δ) + E₀ − C_δ)‖c‖²`.
+
+**What this says.**  The Hessian's `λ` is *entirely* in the constant, and the number-form coefficient
+is `1 − δ` for every `δ ∈ (0,1]` regardless of `λ`.  That is P3's diagnosis with the quadratic case
+isolated: a Hessian bound gives coercivity with constant `∝ λd`, and the gap on this side is the
+degree grading, not `λ`.  The linear part is where the `ε`-dependence enters (`driftScale` grows like
+`1/ε`), so it is the constant `C_δ` that degrades, not the coefficient.  What is still open: the
+`L²(π)`-side gap for a *general* `V_eff` (P3's route) and the continuum passage of §24's density
+floor.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, green.
+`#print axioms` on `polyDrift_add`, `driftOperator_add`, `re_corePair_affineHamiltonian`,
+`affineForm_gap` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over
+100 characters, no trailing whitespace.
