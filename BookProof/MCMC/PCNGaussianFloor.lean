@@ -55,7 +55,12 @@ the architecture's own proposal rather than an unknown number.
   **`pcnGaussMass_one`** (the normalised increment is a probability density on the line);
 * **§8, the increment in `d` dimensions** — `pcnNorm1`, `pcnGaussStep` (`Measure.pi` of the
   coordinate factors), **`pcnGaussStep_univ`** (mass `1` in every dimension) and
-  **`pcnExp_factor`** (`exp (−pcnQuad/s)` as the product of its coordinate factors).
+  **`pcnExp_factor`** (`exp (−pcnQuad/s)` as the product of its coordinate factors);
+* **§9, Fubini and the unconditional probability step** — `integral_pcnFactor`,
+  `integral_prod_pcnFactor`, **`pcnGaussMass_d`** and **`pcnGaussMass_quad`** (the increment is a
+  probability density on `ℝ^d` in `pcnDensity`'s own form), **`pcnBoxMass_le_one`**,
+  **`pcnMetropolisStep_mass_le_one`** and **`pcnAbsorbingStep_univ`** (the Metropolis step with its
+  rejection atom is a probability measure, with no mass hypothesis).
 
 ## Honest boundary
 
@@ -701,6 +706,196 @@ theorem pcnExp_factor (s ρ : ℝ) (x y : Fin d → ℝ) :
   rw [pcnQuad, ← Real.exp_sum]
   congr 1
   rw [← Finset.sum_neg_distrib, ← Finset.sum_div]
+
+
+/-! ## 9. Fubini, and the Metropolis step as a probability with no mass hypothesis
+
+§8 stated the increment as a product measure and left the identification with `withDensity` open.
+This section closes it, using Mathlib's `integral_fintype_prod_eq_prod` rather than a bespoke
+induction:
+
+* `exp_eq_sqrt_mul_gaussianPDFReal`, `pcnFactor_eq_gaussianPDFReal` — each coordinate factor is
+  Mathlib's Gaussian density at variance `s/2`;
+* **`integral_pcnFactor`** — each factor integrates to `1`;
+* **`integral_prod_pcnFactor`** — the product of the factors integrates to `1` over
+  `Measure.pi`/Lebesgue on `Fin d → ℝ`;
+* **`pcnGaussMass_d`** — hence `withDensity` of the product density has mass `1` (the Fubini
+  identification, in the form the chapter's own definitions use);
+* **`pcnGaussMass_quad`** — the same in `pcnDensity`'s form: with `c = (√(π s))^d` the increment
+  is a probability density on `ℝ^d`;
+* **`pcnBoxMass_le_one`** — restricted to the box, its mass is at most `1`;
+* **`pcnMetropolisStep_le_proposal`**, **`pcnMetropolisStep_mass_le_one`** — the
+  Metropolis-adjusted step is dominated by the increment, so its accepted mass is at most `1`,
+  *with no hypothesis on the target*;
+* `pcnAbsorbingStep`, **`pcnAbsorbingStep_univ`** — and with its rejection atom the pCNL Metropolis
+  step is a probability measure, unconditionally.
+
+What is still missing is invariance of the target under the step (a reversibility proof), and the
+minormant's ceiling on the target's density — neither of which is a normalisation statement.
+-/
+
+
+/-- The coordinate factor of the pCN increment is `√(π s)` times Mathlib's Gaussian density at
+variance `s/2`. -/
+theorem exp_eq_sqrt_mul_gaussianPDFReal {s : ℝ} (hs : 0 < s) (a t : ℝ) :
+    Real.exp (-((t - a) ^ 2) / s)
+      = Real.sqrt (Real.pi * s)
+        * ProbabilityTheory.gaussianPDFReal a ⟨s / 2, le_of_lt (by positivity)⟩ t := by
+  set v : NNReal := ⟨s / 2, le_of_lt (by positivity)⟩ with hvdef
+  have hvcast : (v : ℝ) = s / 2 := rfl
+  have h2 : (2 : ℝ) * (v : ℝ) = s := by rw [hvcast]; ring
+  have hsq : Real.sqrt (2 * Real.pi * (v : ℝ)) = Real.sqrt (Real.pi * s) := by
+    rw [show 2 * Real.pi * (v : ℝ) = Real.pi * s from by
+      calc 2 * Real.pi * (v : ℝ) = Real.pi * (2 * (v : ℝ)) := by ring
+        _ = Real.pi * s := by rw [h2]]
+  have hspos : 0 < Real.sqrt (Real.pi * s) := Real.sqrt_pos.mpr (mul_pos Real.pi_pos hs)
+  rw [ProbabilityTheory.gaussianPDFReal, hsq,
+    show -((t - a) ^ 2) / (2 * (v : ℝ)) = -((t - a) ^ 2) / s by rw [h2]]
+  field_simp
+
+/-- The coordinate factor as Mathlib's Gaussian density at variance `s/2`. -/
+theorem pcnFactor_eq_gaussianPDFReal {s : ℝ} (hs : 0 < s) (a t : ℝ) :
+    pcnNorm1 s * Real.exp (-((t - a) ^ 2) / s)
+      = ProbabilityTheory.gaussianPDFReal a ⟨s / 2, le_of_lt (by positivity)⟩ t := by
+  rw [exp_eq_sqrt_mul_gaussianPDFReal hs a t, pcnNorm1, ← mul_assoc,
+    inv_mul_cancel₀ (ne_of_gt (Real.sqrt_pos.mpr (mul_pos Real.pi_pos hs))), one_mul]
+
+/-- Each coordinate factor integrates to `1`. -/
+theorem integral_pcnFactor {s : ℝ} (hs : 0 < s) (a : ℝ) :
+    ∫ t : ℝ, pcnNorm1 s * Real.exp (-((t - a) ^ 2) / s) = 1 := by
+  have hv : (⟨s / 2, le_of_lt (by positivity)⟩ : NNReal) ≠ 0 := by
+    intro h
+    have hc : ((⟨s / 2, le_of_lt (by positivity)⟩ : NNReal) : ℝ) = 0 := by rw [h]; rfl
+    have hpos : (0 : ℝ) < ((⟨s / 2, le_of_lt (by positivity)⟩ : NNReal) : ℝ) := by positivity
+    linarith
+  simp_rw [pcnFactor_eq_gaussianPDFReal hs a]
+  exact ProbabilityTheory.integral_gaussianPDFReal_eq_one a hv
+
+
+/-- **Fubini over `Measure.pi`**: the product of the coordinate factors integrates to the product of
+their integrals — here, to `1`. -/
+theorem integral_prod_pcnFactor {s ρ : ℝ} (hs : 0 < s) (x : Fin d → ℝ) :
+    ∫ y : Fin d → ℝ, ∏ i, pcnNorm1 s * Real.exp (-((y i - ρ * x i) ^ 2) / s) = 1 := by
+  rw [integral_fintype_prod_volume_eq_prod (E := fun _ => ℝ)
+    (f := fun i t => pcnNorm1 s * Real.exp (-((t - ρ * x i) ^ 2) / s))]
+  simp [integral_pcnFactor hs]
+
+/-- **The increment as a density in `d` dimensions integrates to `1`.** -/
+theorem pcnGaussMass_d {s ρ : ℝ} (hs : 0 < s) (x : Fin d → ℝ) :
+    (volume.withDensity fun y : Fin d → ℝ =>
+      ENNReal.ofReal (∏ i, pcnNorm1 s * Real.exp (-((y i - ρ * x i) ^ 2) / s)))
+      Set.univ = 1 := by
+  rw [withDensity_apply _ MeasurableSet.univ, setLIntegral_univ]
+  have hInt : Integrable (fun y : Fin d → ℝ =>
+      ∏ i, pcnNorm1 s * Real.exp (-((y i - ρ * x i) ^ 2) / s)) := by
+    have h := Integrable.fintype_prod (ι := Fin d) (E := ℝ) (𝕜 := ℝ)
+      (μ := fun _ => (volume : Measure ℝ))
+      (f := fun i t => pcnNorm1 s * Real.exp (-((t - ρ * x i) ^ 2) / s))
+      (fun i => (ProbabilityTheory.integrable_gaussianPDFReal (ρ * x i)
+        ⟨s / 2, le_of_lt (by positivity)⟩).congr
+        (Filter.Eventually.of_forall fun t => (pcnFactor_eq_gaussianPDFReal hs (ρ * x i) t).symm))
+    simpa using h
+  have hnn : 0 ≤ᵐ[volume] (fun y : Fin d → ℝ =>
+      ∏ i, pcnNorm1 s * Real.exp (-((y i - ρ * x i) ^ 2) / s)) :=
+    Filter.Eventually.of_forall fun y =>
+      Finset.prod_nonneg fun i _ =>
+        mul_nonneg (by simp only [pcnNorm1]; positivity) (Real.exp_pos _).le
+  rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal hInt hnn, integral_prod_pcnFactor hs x]
+  norm_num
+
+
+/-- **The increment in `pcnDensity`'s own form** integrates to `1`: with `c = (√(π s))^d` the
+density `pcnDensity c s ρ x` is a probability density. -/
+theorem pcnGaussMass_quad {s ρ : ℝ} (hs : 0 < s) (x : Fin d → ℝ) :
+    (volume.withDensity fun y : Fin d → ℝ =>
+      ENNReal.ofReal (pcnNorm1 s ^ d * Real.exp (-(pcnQuad ρ x y) / s))) Set.univ = 1 := by
+  have h : ∀ y : Fin d → ℝ, (∏ i, pcnNorm1 s * Real.exp (-((y i - ρ * x i) ^ 2) / s))
+      = pcnNorm1 s ^ d * Real.exp (-(pcnQuad ρ x y) / s) := by
+    intro y
+    rw [pcnExp_factor s ρ x y, Finset.prod_mul_distrib, Finset.prod_const, Finset.card_univ,
+      Fintype.card_fin]
+  have hfun : (fun y : Fin d → ℝ =>
+        ENNReal.ofReal (pcnNorm1 s ^ d * Real.exp (-(pcnQuad ρ x y) / s)))
+      = fun y : Fin d → ℝ =>
+        ENNReal.ofReal (∏ i, pcnNorm1 s * Real.exp (-((y i - ρ * x i) ^ 2) / s)) := by
+    funext y
+    rw [h y]
+  rw [hfun]
+  exact pcnGaussMass_d (d := d) hs x
+
+/-- **The increment restricted to the box has mass at most `1`.** -/
+theorem pcnBoxMass_le_one {s ρ R : ℝ} (hs : 0 < s) (x : Fin d → ℝ) :
+    ((volume.restrict (pcnBox d R)).withDensity fun y : Fin d → ℝ =>
+      ENNReal.ofReal (pcnDensity (pcnNorm1 s ^ d) s ρ x y)) Set.univ ≤ 1 := by
+  have hfull : (volume.withDensity fun y : Fin d → ℝ =>
+      ENNReal.ofReal (pcnDensity (pcnNorm1 s ^ d) s ρ x y)) Set.univ = 1 :=
+    pcnGaussMass_quad (d := d) hs x
+  calc ((volume.restrict (pcnBox d R)).withDensity fun y : Fin d → ℝ =>
+        ENNReal.ofReal (pcnDensity (pcnNorm1 s ^ d) s ρ x y)) Set.univ
+      = ∫⁻ y, ENNReal.ofReal (pcnDensity (pcnNorm1 s ^ d) s ρ x y)
+          ∂(volume.restrict (pcnBox d R)) := by
+        rw [withDensity_apply _ MeasurableSet.univ, setLIntegral_univ]
+    _ ≤ ∫⁻ y, ENNReal.ofReal (pcnDensity (pcnNorm1 s ^ d) s ρ x y) ∂volume :=
+        lintegral_mono' Measure.restrict_le_self le_rfl
+    _ = 1 := by
+        rw [← setLIntegral_univ, ← withDensity_apply _ MeasurableSet.univ]
+        exact hfull
+
+
+/-- The Metropolis-adjusted step is dominated by the raw increment restricted to the box. -/
+theorem pcnMetropolisStep_le_proposal {c s ρ R : ℝ} {π : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hc : 0 ≤ c) :
+    pcnMetropolisStep c s ρ R π x ≤ pcnProposalMeasure (d := d) c s ρ R x := by
+  rw [pcnMetropolisStep, pcnProposalMeasure]
+  refine withDensity_mono ?_
+  filter_upwards [ae_restrict_mem (measurableSet_pcnBox (d := d) R)] with y _
+  refine ENNReal.ofReal_le_ofReal ?_
+  have hd : 0 ≤ pcnDensity c s ρ x y := by
+    rw [pcnDensity]
+    exact mul_nonneg hc (Real.exp_pos _).le
+  exact pcnMetropolisDensity_le hd
+
+/-- **The accepted mass is at most `1`.**  The Metropolis step is dominated by the raw increment on
+the box, and the increment's mass there is at most `1` (§9's `pcnBoxMass_le_one`) — so the rejection
+atom of the next definition has nonnegative mass, with no hypothesis on the target. -/
+theorem pcnMetropolisStep_mass_le_one {s ρ R : ℝ} (hs : 0 < s) (x : Fin d → ℝ)
+    (π : (Fin d → ℝ) → ℝ) :
+    (pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R π x) Set.univ ≤ 1 := by
+  refine le_trans ((Measure.le_iff.mp
+    (pcnMetropolisStep_le_proposal (c := pcnNorm1 s ^ d) (π := π) (d := d)
+      (by rw [pcnNorm1]; positivity))) Set.univ MeasurableSet.univ) ?_
+  exact pcnBoxMass_le_one (d := d) hs x
+
+/-- **The Metropolis step with its rejection atom**, at the increment's own constant
+`c = (√(π s))^d`: the step a pCNL chain takes. -/
+def pcnAbsorbingStep (s ρ R : ℝ) (π : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) :
+    Measure (Fin d → ℝ) :=
+  pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R π x
+    + (1 - (pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R π x) Set.univ) • Measure.dirac x
+
+/-- **The pCNL Metropolis step is a probability measure** — with no hypothesis on the target and no
+mass assumption: the rejection atom exactly absorbs what the accepted part leaves over. -/
+theorem pcnAbsorbingStep_univ {s ρ R : ℝ} (hs : 0 < s) (x : Fin d → ℝ)
+    (π : (Fin d → ℝ) → ℝ) :
+    pcnAbsorbingStep (d := d) s ρ R π x Set.univ = 1 := by
+  rw [pcnAbsorbingStep, Measure.add_apply, Measure.smul_apply,
+    Measure.dirac_apply' x MeasurableSet.univ, Set.indicator_of_mem (Set.mem_univ x),
+    Pi.one_apply, smul_eq_mul, mul_one, add_comm]
+  exact tsub_add_cancel_of_le (pcnMetropolisStep_mass_le_one hs x π)
+
+
+/-- **The rate for the unconditional step.**  `pcnAbsorbingStep` is a family of probability measures
+with no mass hypothesis (`pcnAbsorbingStep_univ`), so §5's contraction applies to it wherever the
+target is invariant under it and a minorant `c • π` below the step holds. -/
+theorem pcnAbsorbingStep_rate {s ρ R c : ℝ} {τ : (Fin d → ℝ) → ℝ} {π : Measure (Fin d → ℝ)}
+    (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s)
+    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) [IsProbabilityMeasure π]
+    (hmin : ∀ x, ENNReal.ofReal c • π ≤ pcnAbsorbingStep (d := d) s ρ R τ x)
+    (hstat : ∀ n, π.bind (pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n) = π)
+    (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
+    ENNReal.ofReal (1 - (1 - c) ^ n) * π S
+      ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S :=
+  pcnIter_rate_of_minorant hc0 hc1 hmeas (fun x => pcnAbsorbingStep_univ hs x τ) hmin hstat n x hS
 
 
 end BookProof.MCMC.PCNGaussianFloor

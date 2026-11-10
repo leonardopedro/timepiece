@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10m):** **§35 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10n):** **§36 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the Fubini identification (`pcnGaussMass_d`, **`pcnGaussMass_quad`**): the increment's
+> mass is `1` in `pcnDensity`'s own form, so the accepted mass is at most `1`
+> (`pcnMetropolisStep_mass_le_one`) and the Metropolis step with its rejection atom is a probability
+> measure with no mass hypothesis (`pcnAbsorbingStep_univ`, `pcnAbsorbingStep_rate`).  Invariance and
+> the target's ceiling remain.
+> **Earlier newest entry (2026-11-10m):** **§35 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the increment in `d` dimensions: `pcnGaussStep` and **`pcnGaussStep_univ`** (mass `1`
 > in every dimension, by `Measure.pi_univ` and §34) with `pcnExp_factor` tying the product measure to
 > the pCN density.  The Fubini identification remains.
@@ -19816,3 +19822,22 @@ volume.withDensity (fun y => ∏ i, f i (y i))` — which is what would identify
 
 **Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
 on both → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.
+
+### 36. Addendum (2026-11-10n) — Fubini, and the step as a probability with no mass hypothesis
+
+The identification §35 left open is done, through Mathlib's `integral_fintype_prod_eq_prod`:
+`exp_eq_sqrt_mul_gaussianPDFReal` / `pcnFactor_eq_gaussianPDFReal` (each coordinate factor is the
+Gaussian density at variance `s/2`), `integral_pcnFactor` (each integrates to `1`),
+`integral_prod_pcnFactor` (their product over `Measure.pi` integrates to `1`), **`pcnGaussMass_d`**
+(the `withDensity` form has mass `1`) and **`pcnGaussMass_quad`** — with `c = (√(π s))^d` the pCN
+increment is a probability density on `ℝ^d`, in `pcnDensity`'s own form.  Then
+**`pcnBoxMass_le_one`** (mass at most `1` on the box), **`pcnMetropolisStep_le_proposal`**,
+**`pcnMetropolisStep_mass_le_one`** (accepted mass at most `1`, with no hypothesis on the target),
+and **`pcnAbsorbingStep_univ`** — the Metropolis step plus its rejection atom is a probability
+measure unconditionally — with **`pcnAbsorbingStep_rate`** attaching §32's contraction to it.
+
+**Still open.**  Invariance of the target under the step (reversibility), and the minorant's ceiling
+on the target's density.  Both are statements about `π`, not about normalisation.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
+on all six new capstones → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.

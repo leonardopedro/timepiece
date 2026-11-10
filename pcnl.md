@@ -1512,6 +1512,20 @@ pCN density's.  What is *not* written is the Fubini identity equating `Measure.p
 densities with `withDensity` of their product over Lebesgue measure, so `pcnGaussStep` is stated as the
 product measure rather than as `pcnProposalMeasure`.
 
+**Fubini, and the step as a probability with no mass hypothesis (§43).**  §42 left the identification
+of the product measure with `withDensity` open; §9 of `PCNGaussianFloor` closes it, using Mathlib's
+`integral_fintype_prod_eq_prod` instead of a bespoke induction.  Each coordinate factor is Mathlib's
+Gaussian density at variance `s/2` (`exp_eq_sqrt_mul_gaussianPDFReal`, `pcnFactor_eq_gaussianPDFReal`),
+so each integrates to `1` (`integral_pcnFactor`) and their product over `Measure.pi` does too
+(`integral_prod_pcnFactor`).  Hence **`pcnGaussMass_d`** — `withDensity` of the product density has mass
+`1` — and **`pcnGaussMass_quad`**, the same in `pcnDensity`'s own form: with `c = (√(π s))^d` the pCN
+increment *is* a probability density on `ℝ^d`.  On the box its mass is at most `1`
+(`pcnBoxMass_le_one`), the Metropolis step is dominated by it (`pcnMetropolisStep_le_proposal`), so the
+accepted mass is at most `1` **with no hypothesis on the target**
+(`pcnMetropolisStep_mass_le_one`), and with its rejection atom the pCNL Metropolis step is a
+probability measure **unconditionally** — `pcnAbsorbingStep_univ` — to which §39's contraction applies
+(`pcnAbsorbingStep_rate`).
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1557,7 +1571,10 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   step itself as a probability measure with the rate attached (`pcnProbabilityStep_univ`,
   `pcnProbabilityStep_rate`) — §40; and the one-dimensional increment's mass
   (`lintegral_exp_neg_sq_div`, `pcnGaussMass_one`) — §41; and the increment in `d` dimensions
-  (`pcnGaussStep`, `pcnGaussStep_univ`, `pcnExp_factor`) — §42.
+  (`pcnGaussStep`, `pcnGaussStep_univ`, `pcnExp_factor`) — §42; and the Fubini identification with the
+  increment's true mass `1` and the unconditional probability step (`pcnGaussMass_d`,
+  `pcnGaussMass_quad`, `pcnBoxMass_le_one`, `pcnMetropolisStep_mass_le_one`,
+  `pcnAbsorbingStep_univ`, `pcnAbsorbingStep_rate`) — §43.
 
 *Not proved, and not claimed.*
 
