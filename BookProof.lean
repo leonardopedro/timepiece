@@ -157,6 +157,12 @@ import BookProof.Toolbox.ChapterEsaClosure
 -- polynomial core with the closure of `gaussOp` needs only `polyOp ≤ gaussOp.closure`, i.e. one
 -- graph-norm approximation, because the polynomial core is already self-adjoint.
 import BookProof.Toolbox.ChapterSelfAdjointMaximal
+-- The reusable diagonal criterion behind S0: an operator acting on an orthonormal Hilbert basis by
+-- real eigenvalues is symmetric on the span (`inner_comm_of_diag`), and if it is closable its
+-- adjoint is contained in the closure (`adjoint_le_closure_of_diag`), so the closure is
+-- self-adjoint (`isSelfAdjoint_closure_of_diag` / `isSelfAdjoint_closure_diagOp`).  No `±i` test and
+-- no hypotheses beyond closability: `Qym/ChapterYangMillsPolySelfAdjoint` is the instance.
+import BookProof.Toolbox.ChapterDiagonalSelfAdjoint
 -- Uniqueness of the closure of a symmetric operator, core-independence of the
 -- closure and of the adjoint, and uniqueness of the `A* A-bar` factorization
 -- (up to a partial isometry; strictly, for a positive self-adjoint factor).
@@ -2237,15 +2243,12 @@ import BookProof.Qym.ChapterYangMillsHermiteAnalytic
 -- that isomorphism — well defined *because* the class map is injective — with
 -- `polyOpRange_hermiteR : T(H_n) = n • H_n`.  `mem_span_hermiteR` (the Hermite polynomials span
 -- `Polynomial ℝ`; triangularity from `hermiteR n` monic of degree `n`) makes the Hermite classes
--- complete, `dense_hermiteSpan`.  The operator is then read on the complexified core `polyDomC` —
--- the pairs `⟨u, v⟩` with both components in the Hermite span — via a global extension `coreExt` of
--- the real operator and `cxMapₗ`; the domain is dense (`dense_polyDomC`), the Hermite classes are
--- eigenvectors with the real eigenvalues `n` (`polyOpC_eigen`), their ℂ-span is the whole domain
--- (`span_eigenClasses_eq_top`), and `polyCore_essentiallySelfAdjoint` is the eigenbasis criterion
--- applied there.  This is the S0 self-adjointness item on the polynomial core, unconditional in
--- radius and symmetry; what is still missing is the identification of this operator with the closure
--- of `gaussOp` (`Qym/ChapterYangMillsGaussForm`) and of its ℂ version `gaussOpC`
--- (`Qym/ChapterYangMillsGaussFormComplex`), whose domains are the compactly supported `C²` cores.
+-- complete, `dense_hermiteSpan`.  `polyOpH` is the operator on the Hermite span, with
+-- `polyOpH_hermiteR : T(H_n) = n • H_n`, and `coreExt` extends it to a global real-linear map so
+-- that inner products can be expanded by bilinearity (`coreExt_apply_mem` restricts it back).  The
+-- earlier plan of transporting the core to the complexification `Cx` is retired: the diagonal
+-- argument over `ℝ` needs no `±i`, and the identification with `gaussOp.closure` is proved in
+-- `ChapterYangMillsPolySelfAdjoint` without it.
 import BookProof.Qym.ChapterYangMillsPolyCore
 
 -- `ChapterYangMillsPolyTail` (S0 Route C, the estimate): the vanishing Gaussian tail of a squared
@@ -2301,12 +2304,15 @@ import BookProof.Qym.ChapterYangMillsPolyBasis
 -- argument, over `ℝ` and so without any deficiency-space test.  `polyOp` is symmetric because
 -- `polyOp b_n = n b_n` in an orthonormal family (`coreExt_inner_comm_span`), and
 -- `closure_isFormalAdjoint` carries that to the closure with a two-sequence limit.  For `y` in the
--- adjoint's domain the adjoint relation forces `⟪b_n, T† y⟫ = n ⟪b_n, y⟫
+-- adjoint's domain the adjoint relation forces `⟪b_n, T† y⟫ = n ⟪b_n, y⟫`
 -- (`inner_adjoint_hermiteLpR`), so the partial sums of the expansion of `y` lie in the domain and
--- map to the partial sums of the expansion of `T† y` (`exists_seq_of_mem_adjointDomain`);
--- closedness then gives `T† ≤ T` (`closure_adjoint_le`).  Hence `isSelfAdjoint_polyOp_closure`, and
--- with `gaussOp_closure_isSymmetric` maximality yields `polyOp_closure_eq_gaussOp_closure'` with no
--- hypotheses at all.
+-- map to the partial sums of the expansion of `T† y`; closedness then gives `T† ≤ T`
+-- (`closure_adjoint_le`).  Hence `isSelfAdjoint_polyOp_closure`, and with
+-- `gaussOp_closure_isSymmetric` maximality yields `polyOp_closure_eq_gaussOp_closure'` with no
+-- hypotheses at all, and `isSelfAdjoint_gaussOp_closure`.  Both halves are instances of the
+-- general criterion `BookProof.DiagonalSelfAdjoint.isSelfAdjoint_closure_diagOp`
+-- (`Toolbox/ChapterDiagonalSelfAdjoint`), which needs only a closable operator diagonal in a
+-- Hilbert basis.
 import BookProof.Qym.ChapterYangMillsPolySelfAdjoint
 
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping

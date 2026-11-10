@@ -23,28 +23,25 @@ The two inputs are:
   `dense_span_polyLp` this gives `dense_hermiteSpan`: the Hermite classes span a dense
   subspace of `L²(γ dx)`, which is exactly the completeness a spectral argument needs.
 
-The operator is then transported to the complexification `Cx` of `L²(γ dx)` (the corpus's
-`BookProof.Complexification`, where the Faris–Lavine notions live).  Its domain is *not* a
-ℂ-span of the embedded classes — that would be a spanning-family definition and would need
-independence — but the pair condition `z.re, z.im ∈ span{H_n}`: `Cx` is a pair space, so the
-action `⟨u, v⟩ ↦ ⟨T u, T v⟩` is automatically well defined, and the Hermite classes embed as
-eigenvectors with the real eigenvalues `n`.  `polyCore_essentiallySelfAdjoint` is then
-Nelson's eigenbasis criterion `essentiallySelfAdjointOn_of_dense_span_eigenvectors` applied
-to it.
+The operator on the span, `polyOpH`, is then extended to a global real-linear map `coreExt` by
+composing with a left inverse of the inclusion.  The values off the span are irrelevant; what the
+extension buys is that inner products against `coreExt` are bilinear on the whole space, which is
+what makes the symmetry computation (`ChapterYangMillsPolySelfAdjoint`) a statement about a linear
+map rather than about a partial operator.
 
-## What this does and does not settle
+## What this settles
 
 It settles the limitation recorded at the end of S0 in `softmodes.md`: the polynomial core has
 no common analytic radius (`n` is the radius of `H_n`), so the common-radius Nelson criterion
 never applied to it, and the core had no operator on the class level at all.  Both are fixed
-here — unconditionally, with no radius hypothesis.  What is *not* proved is that this operator
-is the closure of `gaussOp`; that identification needs the regularity/symmetry work on the
-common core, and it is the only remaining step between `polyCore_essentiallySelfAdjoint` and
-self-adjointness of `gaussDirichlet`'s closure.
+here — unconditionally, with no radius hypothesis — and the companion modules
+`ChapterYangMillsPolyBasis` and `ChapterYangMillsPolySelfAdjoint` read the resulting diagonal
+structure as a Hilbert basis and close S0: `IsSelfAdjoint polyOp.closure` and
+`polyOp.closure = gaussOp.closure`.  The earlier plan of transporting the core to the
+complexification `Cx` is retired: over `ℝ` the diagonal argument needs no `±i`.
 -/
 import BookProof.Qym.ChapterYangMillsHermiteAnalytic
 import BookProof.Qym.ChapterYangMillsGaussForm
-import BookProof.Realification.Complexification
 
 open MeasureTheory Polynomial
 open scoped InnerProductSpace
@@ -52,8 +49,7 @@ open scoped InnerProductSpace
 namespace BookProof.YangMillsPolyCore
 
 open BookProof.HermiteCore BookProof.YangMillsMehlerLp BookProof.YangMillsHermiteSpectrum
-open BookProof.YangMillsHermiteAnalytic BookProof.Complexification
-open BookProof.FarisLavine BookProof.NelsonAnalytic
+open BookProof.YangMillsHermiteAnalytic
 
 /-! ## The class map on polynomials -/
 
@@ -209,7 +205,7 @@ theorem polyOpRange_hermiteR (n : ℕ) :
     ⟨hermiteR n, rfl⟩⟩)) : Lp ℝ 2 gaussMeasure) = (n : ℝ) • polyLp (hermiteR n)
   rw [polyEquiv_symm_mk, dirichletPoly_hermiteR, polyEquiv_apply, polyLp_smul]
 
-/-! ## The complexified core -/
+/-! ## The Hermite span and the core operator -/
 
 /-- The dense Hermite span, the ambient real subspace of the domain. -/
 noncomputable def hermiteSpan : Submodule ℝ (Lp ℝ 2 gaussMeasure) :=
@@ -246,53 +242,12 @@ theorem polyOpH_hermiteR (n : ℕ) :
   have h := polyOpRange_hermiteR n
   rw [polyOpH, LinearMap.comp_apply, hcoe, h, Submodule.coe_smul, Subtype.coe_mk]
 
-/-- **The complexified polynomial core**: the pairs whose two real components lie in the
-Hermite span.  This is a ℂ-submodule because the ℂ-action mixes the components with real
-scalars. -/
-noncomputable def polyDomC : Submodule ℂ (Cx (Lp ℝ 2 gaussMeasure)) where
-  carrier := {z | z.re ∈ hermiteSpan ∧ z.im ∈ hermiteSpan}
-  zero_mem' := ⟨Submodule.zero_mem _, Submodule.zero_mem _⟩
-  add_mem' hx hy := ⟨Submodule.add_mem _ hx.1 hy.1, Submodule.add_mem _ hx.2 hy.2⟩
-  smul_mem' c x hx := by
-    refine ⟨?_, ?_⟩
-    · rw [Cx.csmul_re]
-      exact Submodule.sub_mem _ (Submodule.smul_mem _ _ hx.1) (Submodule.smul_mem _ _ hx.2)
-    · rw [Cx.csmul_im]
-      exact Submodule.add_mem _ (Submodule.smul_mem _ _ hx.2) (Submodule.smul_mem _ _ hx.1)
-
-/-- **The complexified core is dense.**  A pair is approximated by putting approximations of
-its two components in the two slots, and the norm of the complexification is the euclidean
-norm of the two component norms (`Cx.norm_sq`). -/
-theorem dense_polyDomC : Dense ((polyDomC : Submodule ℂ (Cx (Lp ℝ 2 gaussMeasure))) :
-    Set (Cx (Lp ℝ 2 gaussMeasure))) := by
-  rw [dense_iff_closure_eq, Set.eq_univ_iff_forall]
-  intro z
-  rw [Metric.mem_closure_iff]
-  intro ε hε
-  obtain ⟨a, ha, hda⟩ :=
-    Metric.mem_closure_iff.mp (dense_hermiteSpanSet z.re) (ε / 2) (by linarith)
-  obtain ⟨b, hb, hdb⟩ :=
-    Metric.mem_closure_iff.mp (dense_hermiteSpanSet z.im) (ε / 2) (by linarith)
-  refine ⟨(⟨a, b⟩ : Cx (Lp ℝ 2 gaussMeasure)), ⟨ha, hb⟩, ?_⟩
-  · have hsq : ‖z - ⟨a, b⟩‖ ^ 2 = ‖z.re - a‖ ^ 2 + ‖z.im - b‖ ^ 2 := by
-      rw [Cx.norm_sq]
-      simp
-    have hle : ‖z - ⟨a, b⟩‖ ≤ ‖z.re - a‖ + ‖z.im - b‖ := by
-      have h1 : ‖z - ⟨a, b⟩‖ ^ 2 ≤ (‖z.re - a‖ + ‖z.im - b‖) ^ 2 := by
-        rw [hsq]
-        nlinarith [norm_nonneg (z.re - a), norm_nonneg (z.im - b)]
-      nlinarith [norm_nonneg (z - ⟨a, b⟩), norm_nonneg (z.re - a), norm_nonneg (z.im - b), h1]
-    have hdist : ‖z.re - a‖ + ‖z.im - b‖ < ε := by
-      rw [dist_eq_norm] at hda hdb
-      linarith
-    rw [dist_eq_norm]
-    linarith
 
 /-- **A global real-linear extension of the core operator.**  `polyOpH` lives on the Hermite
 span only; composing it with a choice of left inverse of the inclusion gives a map defined on
 all of `L²(γ dx)` that agrees with it on the span.  The values off the span are irrelevant —
-the only thing the extension buys is that the complexified operator below is ℂ-linear by
-construction, with no proof obligations. -/
+what the extension buys is a globally defined linear map whose inner products can be expanded
+by bilinearity, which is how `coreExt_inner_comm_span` reaches the closure. -/
 noncomputable def coreExt : Lp ℝ 2 gaussMeasure →ₗ[ℝ] Lp ℝ 2 gaussMeasure :=
   polyRange.subtype.comp <|
     (polyOpRange.comp (Submodule.inclusion hermiteSpan_le_polyRange)).comp
@@ -308,88 +263,4 @@ theorem coreExt_apply_mem {v : Lp ℝ 2 gaussMeasure} (hv : v ∈ hermiteSpan) :
     have := LinearMap.leftInverse_apply_of_inj (f := hermiteSpan.subtype) hinj ⟨v, hv⟩
     simpa using this
   simp only [coreExt, LinearMap.comp_apply, Submodule.subtype_apply, hleft, polyOpH]
-
-/-- **The operator on the complexified core.**  It is the complexification of `coreExt`, read
-on the pairs whose two real components lie in the Hermite span: `⟨u, v⟩ ↦ ⟨T u, T v⟩`.
-Agreement with `polyOpH` on that domain is `coreExt_apply_mem`. -/
-noncomputable def polyOpC : polyDomC →ₗ[ℂ] Cx (Lp ℝ 2 gaussMeasure) :=
-  (Cx.cxMapₗ coreExt).comp polyDomC.subtype
-
-/-! ## The eigenvectors and the spectral criterion -/
-
-/-- The Hermite classes, embedded as vectors of the complexified core with zero imaginary
-part.  These are the eigenvectors the spectral criterion is applied to. -/
-def eigenClasses : Set polyDomC :=
-  {z | ∃ n : ℕ, z.1.re = polyLp (hermiteR n) ∧ z.1.im = 0}
-
-/-- The embedded Hermite class `⟨H_n, 0⟩` is an eigenvector of `polyOpC` with eigenvalue `n`. -/
-theorem polyOpC_eigen {z : polyDomC} (h : z ∈ eigenClasses) :
-    ∃ c : ℝ, polyOpC z = (c : ℂ) • ((z : Cx (Lp ℝ 2 gaussMeasure))) := by
-  obtain ⟨n, hre, him⟩ := h
-  refine ⟨(n : ℝ), ?_⟩
-  have hmem : polyLp (hermiteR n) ∈ hermiteSpan := Submodule.subset_span ⟨n, rfl⟩
-  have hzre : coreExt z.1.re = (n : ℝ) • z.1.re := by
-    rw [hre, coreExt_apply_mem hmem, polyOpH_hermiteR]
-  have hzim : coreExt z.1.im = 0 := by
-    rw [him, coreExt_apply_mem (Submodule.zero_mem _)]
-    exact congrArg Subtype.val (map_zero polyOpH)
-  refine Cx.ext ?_ ?_
-  · simp only [polyOpC, LinearMap.comp_apply, Cx.cxMapₗ_re, Submodule.coe_subtype]
-    rw [hzre, Cx.csmul_re, Complex.ofReal_re, Complex.ofReal_im, him]
-    simp
-  · simp only [polyOpC, LinearMap.comp_apply, Cx.cxMapₗ_im, Submodule.coe_subtype]
-    rw [hzim, Cx.csmul_im, Complex.ofReal_re, Complex.ofReal_im, him]
-    simp
-
-/-- Every element of the complexified core lies in the ℂ-span of the Hermite classes. -/
-theorem span_eigenClasses_eq_top :
-    (Submodule.span ℂ eigenClasses : Submodule ℂ polyDomC) = ⊤ := by
-  refine Submodule.eq_top_iff'.mpr fun z => ?_
-  have hbase : ∀ (v : Lp ℝ 2 gaussMeasure) (hv : v ∈ hermiteSpan),
-      (⟨⟨v, 0⟩, hv, Submodule.zero_mem _⟩ : polyDomC)
-        ∈ Submodule.span ℂ eigenClasses := by
-    rintro v hv
-    induction hv using Submodule.span_induction with
-    | mem x hx =>
-      obtain ⟨n, rfl⟩ := hx
-      exact Submodule.subset_span ⟨n, rfl, rfl⟩
-    | zero => exact Submodule.zero_mem _
-    | add x y hx hy ihx ihy =>
-      have hxy : (⟨⟨x, 0⟩, hx, Submodule.zero_mem _⟩ : polyDomC)
-          + ⟨⟨y, 0⟩, hy, Submodule.zero_mem _⟩
-          = ⟨⟨x + y, 0⟩, Submodule.add_mem _ hx hy, Submodule.zero_mem _⟩ := by
-        refine Subtype.ext (Cx.ext ?_ ?_) <;> simp
-      rw [← hxy]
-      exact Submodule.add_mem _ ihx ihy
-    | smul c x hx ihx =>
-      have hcx : (c : ℂ) • (⟨⟨x, 0⟩, hx, Submodule.zero_mem _⟩ : polyDomC)
-          = ⟨⟨c • x, 0⟩, Submodule.smul_mem _ _ hx, Submodule.zero_mem _⟩ := by
-        refine Subtype.ext (Cx.ext ?_ ?_)
-        · change ((c : ℂ) • (⟨x, 0⟩ : Cx (Lp ℝ 2 gaussMeasure))).re = c • x
-          rw [Cx.csmul_re]
-          simp
-        · change ((c : ℂ) • (⟨x, 0⟩ : Cx (Lp ℝ 2 gaussMeasure))).im = 0
-          rw [Cx.csmul_im]
-          simp
-      rw [← hcx]
-      exact Submodule.smul_mem _ _ ihx
-  have hdecomp : z = (⟨⟨z.1.re, 0⟩, z.2.1, Submodule.zero_mem _⟩ : polyDomC)
-      + Complex.I • ⟨⟨z.1.im, 0⟩, z.2.2, Submodule.zero_mem _⟩ := by
-    refine Subtype.ext (Cx.ext ?_ ?_)
-    · simp
-    · simp
-  rw [hdecomp]
-  refine Submodule.add_mem _ (hbase _ z.2.1) ?_
-  exact Submodule.smul_mem _ _ (hbase _ z.2.2)
-
-/-- **The polynomial core of `gaussDirichlet` is essentially self-adjoint**, with no radius
-hypothesis and no symmetry input: the Hermite classes are a complete eigenbasis, which is the
-hypothesis of `essentiallySelfAdjointOn_of_dense_span_eigenvectors`. -/
-theorem polyCore_essentiallySelfAdjoint :
-    BookProof.FarisLavine.EssentiallySelfAdjointOn polyDomC polyOpC :=
-  BookProof.NelsonAnalytic.essentiallySelfAdjointOn_of_dense_span_eigenvectors polyOpC
-    eigenClasses (fun x hx => polyOpC_eigen hx) (by
-      rw [span_eigenClasses_eq_top]
-      simpa using dense_polyDomC)
-
 end BookProof.YangMillsPolyCore

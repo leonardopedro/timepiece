@@ -20,7 +20,7 @@ The reason is that a self-adjoint operator is *maximal* among symmetric operator
 S0 programme: the identification of the polynomial core with the closure of `gaussOp` needs only the
 *graph-norm* approximation of polynomial classes by compactly supported `C²` classes, and not the
 reverse approximation, because the polynomial core is already self-adjoint
-(`BookProof.YangMillsPolyCore.polyCore_essentiallySelfAdjoint`).
+(`BookProof.YangMillsPolySelfAdjoint.isSelfAdjoint_polyOp_closure`).
 
 ## Main results
 

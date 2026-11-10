@@ -51,9 +51,9 @@ noncomputable section
 /-! ## The polynomial operator as a partial operator on `L²(γ dx)` -/
 
 /-- **`polyOp`**: the polynomial operator on the class level, with the Hermite span as domain.
-This is `polyOpH` read as a `LinearPMap`.  `ChapterYangMillsPolyCore` keeps the complexified
-version `polyOpC`, but the identification with `gaussOp`'s closure is a real-space statement,
-because `gaussOp` is. -/
+This is `polyOpH` read as a `LinearPMap`.  The identification with `gaussOp`'s closure is a
+real-space statement, because `gaussOp` is; `Qym/ChapterYangMillsPolySelfAdjoint` proves it, and
+`polyOp.closure` is self-adjoint. -/
 noncomputable def polyOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ] Lp ℝ 2 gaussMeasure where
   domain := hermiteSpan
   toFun := polyRange.subtype.comp polyOpH

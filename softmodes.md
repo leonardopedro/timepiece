@@ -270,9 +270,15 @@ Source paths below are relative to `BookProof/`.
   the module proves Nussbaum's reduction instead,
   `essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness` (dense set of vectors of uniqueness at
   `±i`); U there is Carleman's analytic ⟹ vector of uniqueness, which is the missing theorem.
-* `Qym/ChapterYangMillsPolyCore.lean`, `polyCore_essentiallySelfAdjoint`: U, the polynomial core of
-  `gaussDirichlet` as an operator on classes, essentially self-adjoint by the eigenbasis criterion;
-  C, not yet identified with the closure of `gaussOp`/`gaussOpC`.
+* `Qym/ChapterYangMillsPolyCore.lean`: U, nothing — the polynomial core of `gaussDirichlet` as an
+  operator on classes is now proved self-adjoint at the closure (`isSelfAdjoint_polyOp_closure`,
+  `isSelfAdjoint_gaussOp_closure` in `Qym/ChapterYangMillsPolySelfAdjoint.lean`).  Its earlier ℂ
+  specialization (`polyDomC`/`polyOpC`/`polyCore_essentiallySelfAdjoint`) is retired and removed; the
+  remaining open item is the S0 *book* prose, not a theorem.
+* `Toolbox/ChapterDiagonalSelfAdjoint.lean`, `isSelfAdjoint_closure_diagOp`: U, nothing — a closable
+  operator diagonal in an orthonormal Hilbert basis with real eigenvalues has self-adjoint closure.
+  This is the reusable form of the S0 argument; `Qym/ChapterYangMillsPolySelfAdjoint` is its instance
+  at `hermiteBasisR` with eigenvalues `n`.
 
 Execution order is **S0 → S1 → S2 → S3 → S4**; approximation bookkeeping in S3 can proceed
 while S2 remains open. The next reviewable deliverable is the S0 representation bridge
@@ -536,19 +542,23 @@ item 1 of the acceptance list at the form level, deliberately below any domain c
 The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
 `ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
 
-**Where S0 acceptance item 1 stands.**  Everything the item asks for except self-adjointness of the
-closure is now proved: the form is defined, symmetric and nonnegative; the operator identity holds on
-the `C²`-compactly-supported core; the operator is packaged as `gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ]
-Lp ℝ 2 gaussMeasure` with domain `gaussCore`; the domain is dense; the operator is closable, so
-`LinearPMap.closure` exists.
+**Where S0 acceptance item 1 stands.**  It is closed.  The form is defined, symmetric and
+nonnegative; the operator identity holds on the `C²`-compactly-supported core; the operator is
+packaged as `gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ] Lp ℝ 2 gaussMeasure` with domain `gaussCore`;
+the domain is dense; the operator is closable, so `LinearPMap.closure` exists; and the closure is
+self-adjoint (`isSelfAdjoint_gaussOp_closure`), because it *is* the self-adjoint closure of the
+polynomial core (`polyOp_closure_eq_gaussOp_closure'`).
 
 The **polynomial form core** is recorded in `Qym/ChapterYangMillsHermiteAnalytic.lean` (diagonal on
 the Hermite classes, `‖TᵐH_n‖ = nᵐ‖H_n‖` in `L²(γ dx)`), and it is a real operator on classes in
-`Qym/ChapterYangMillsPolyCore.lean`: `polyDomC` with the componentwise `polyOpC`, whose Hermite
-classes are a complete eigenbasis, so `polyCore_essentiallySelfAdjoint` holds — see the Route C status
-below.  It is *not* the domain of `gaussOp`, whose core is the compactly supported `C²` one and
-contains no polynomial; identifying the two closures is the step that is still open, and nothing above
-uses either.
+`Qym/ChapterYangMillsPolyCore.lean`: the Hermite span with `polyOpH`, whose Hermite classes are
+eigenvectors with the real eigenvalues `n`, plus the global extension `coreExt` that makes the
+symmetry computation bilinear.  `Qym/ChapterYangMillsPolyBasis.lean` turns the family into the
+Hilbert basis `hermiteBasisR`, and `Qym/ChapterYangMillsPolySelfAdjoint.lean` reads the diagonal
+structure: `polyOp.closure` is self-adjoint, and the graph-norm approximation of
+`ChapterYangMillsPolyAnnulus` identifies it with `gaussOp.closure`.  The core is still *not* the
+domain of `gaussOp`, whose core is the compactly supported `C²` one — but their closures agree, which
+is the content of the identification.
 
 What the closure itself is known to satisfy (`ChapterYangMillsGaussForm`):
 
@@ -567,19 +577,19 @@ quadratic form as the Dirichlet form, whose integrand is a density times a squar
 (`gaussForm_self_nonneg`).  Together with `gaussOp_inner_comm` this is exactly the `SymmetricOn` +
 `0 ≤ quadForm` pair that the Friedrichs construction consumes.
 
-### Open problem: essential self-adjointness of `−Δ + x·∇` in `L²(γ dx)`
+### Essential self-adjointness of `−Δ + x·∇` in `L²(γ dx)`: the three classical routes
 
 **The statement.**  `gaussOp.adjoint ≤ gaussOp.closure` — equivalently, every pair `(h, g)` with
 `h ∈ D(gaussOp†)` and `g = gaussOp† h` lies in the closure of the graph of `gaussOp`; equivalently
 `HasCore gaussOp† gaussCore` (the `C²` core is a core for the **adjoint** as well as for
 `gaussOp.closure`); equivalently `gaussOp.closure.IsSelfAdjoint`, i.e.
-`gaussOp.closure = gaussOp†`.  What is *proved* is one half: `gaussOp.closure ≤ gaussOp†`
-(`gaussOp_closure_le_adjoint`).  The missing half is the classical theorem “`−Δ + x·∇` is essentially
-self-adjoint on `C_c^∞` in `L²(γ dx)`”.
+`gaussOp.closure = gaussOp†`.  One half is elementary: `gaussOp.closure ≤ gaussOp†`
+(`gaussOp_closure_le_adjoint`).  The other half is the classical theorem “`−Δ + x·∇` is essentially
+self-adjoint on `C_c^∞` in `L²(γ dx)`”; it is now proved (`isSelfAdjoint_gaussOp_closure`) by the
+diagonal argument on the polynomial core, without any of the three classical routes below.
 
-Nothing in the repo or in mathlib currently reaches it, and each of the three standard routes is
-blocked by a specific missing API.  Recording them precisely, since the gap is one theorem and three
-plausible proofs:
+The three routes are recorded because they are the textbook proofs and each is blocked by a specific
+missing API — useful to know if a proof that does not go through the eigenbasis is ever wanted:
 
 **Route A — deficiency indices (the classical route; Weidmann, *Linear Operators in Hilbert
 Spaces*, §3.3).**  Complexify (`L²(γ) ⊗ ℂ`), take `T = −Δ + x·∇` with domain `C_c^∞`, and show
@@ -668,32 +678,34 @@ common radius**, and the polynomial core meets Nelson's hypothesis but not the c
 sufficiency above.  So Nelson's theorem, in the only form the corpus can prove, does **not** close
 Route C for this operator; the eigenbasis route below does.
 
-**(iii″) Route C closed: the polynomial core is essentially self-adjoint.**
+**(iii″) Route C closed: the polynomial core is self-adjoint, by diagonalization.**
 `BookProof/Qym/ChapterYangMillsPolyCore.lean` (no `sorry`; axioms `propext`, `Classical.choice`,
 `Quot.sound`) supplies what the two modules above still lacked — an operator *on classes* whose domain
-is the polynomial core, and the spectral criterion that does not care about radii.  Its inputs are
+is the Hermite span, and a diagonal structure that needs no radius.  Its inputs are
 `polyLp_injective` (a polynomial class that vanishes is a.e. zero by `MemLp.toLp_eq_toLp_iff`, then
 everywhere by continuity and `IsOpenPosMeasure gaussMeasure` via `IsOpen.eq_empty_of_measure_zero`,
 then by `Polynomial.funext`) and `mem_span_hermiteR` (the Hermite polynomials span `Polynomial ℝ`
 because `hermiteR n` is monic of degree `n`), which with `dense_span_polyLp` gives
 `dense_hermiteSpan`.  Construction: `polyRange`/`polyEquiv` (the class map as an isomorphism onto its
 range), `polyOpRange` (`p ↦ −p'' + X p'` carried across it — well defined precisely because the class
-map is injective), `polyOpRange_hermiteR` (`= n • H_n`), then the complexified core `polyDomC`, the
-pairs whose two real components lie in the Hermite span, with the componentwise operator `polyOpC`.
-`polyDomC` is dense (`dense_polyDomC`, through `Cx.norm_sq`), the embedded Hermite classes are
-eigenvectors with the real eigenvalues `n` (`polyOpC_eigen`), and their ℂ-span is the whole domain
-(`span_eigenClasses_eq_top`, via `z = ⟨z.re, 0⟩ + i⟨z.im, 0⟩`).  Hence
-`polyCore_essentiallySelfAdjoint`.
+map is injective), `polyOpRange_hermiteR` (`= n • H_n`), then `polyOpH` on the Hermite span and the global extension `coreExt`.
+`Qym/ChapterYangMillsPolyBasis.lean` reads `⟪H_m, H_n⟫` as `hermiteInner m n`, normalizes and
+turns the family into the Hilbert basis `hermiteBasisR`; `Qym/ChapterYangMillsPolySelfAdjoint.lean`
+then proves `IsSelfAdjoint polyOp.closure` from the diagonal basis.  The earlier ℂ specialization
+(`polyDomC` with the componentwise operator `polyOpC`, and `polyCore_essentiallySelfAdjoint` by
+Nelson's eigenbasis criterion) is **retired and removed**: it was a statement over `ℂ` about a
+different operator on a different space, it proved nothing about `gaussOp.closure`, and no
+complexification equivalence for `LinearPMap`/adjoint exists to transport it.  Over `ℝ` there is no
+`i` to test, so the operator is diagonalized instead.
 
 The criterion itself needed one correction to be usable, and this is the trap of Route C: a *dense set
 of eigenvectors* is not what a simple spectrum supplies — the union of the eigenlines `ℂ • v_n` is
 nowhere near dense — so `ChapterNelsonAnalyticVectors` also carries
 `essentiallySelfAdjointOn_of_dense_span_eigenvectors`, stated for the **span** of the eigenvectors,
 where `⟪x, w⟫ = 0` propagates by conjugate-linearity and dense sets are what a complete eigenbasis
-actually gives.  It needs no symmetry and no summability.  What remains for Route C is now a
-comparison of two operators rather than a missing theorem: identify `polyOpC` with the closure of the
-ℂ partial operator `gaussOpC` of `ChapterYangMillsGaussFormComplex`, whose domain is the compactly
-supported `C²` core and hence disjoint from the polynomial core.
+actually gives.  It needs no symmetry and no summability.  The criterion remains the right tool when a diagonal
+operator is only known on a complex space; for S0 it is no longer on the critical path, since the
+real diagonal argument closes the identification directly.
 
 **(iii‴) The per-vector case, and why the deficiency estimate cannot reach it.**
 `ChapterNelsonAnalyticVectors` also carries Nussbaum's reduction:
@@ -722,20 +734,21 @@ eigenvalues `|α| + d/2` (`harmCore_hermiteMvLp`), the core is dense (`polyGauss
 the polynomial-side identity is `kinPoly_add_harmPoly_hermiteMv`.  This is the S0 operator in the
 **Mehler-conjugated** gauge on `L²(ℝ^d)`: `harmCore = −Δ + ‖x‖²/4 = U (Σᵢ Dᵢ) U⁻¹`, coordinate by
 coordinate from `conj_dirichletVec` in `ChapterYangMillsMehlerProduct`, and
-`polyCore_essentiallySelfAdjoint` above is its `d = 1` unconjugated twin.  So the lift is not
+`isSelfAdjoint_polyOp_closure` above is its `d = 1` unconjugated twin.  So the lift is not
 missing analysis or a criterion.  What a *literal* `99`-coordinate statement in the unconjugated
 gauge would still need is bookkeeping mathlib does not package: the `d`-dimensional Mehler isometry
 `L²(γ^{⊗d}) ≅ L²(ℝ^d)` — `mehlerLpEquiv` is one-dimensional, and there is no product Gauss measure
 in the corpus.
 
-**What identifying the two cores actually costs.**  The `polyOpC`/`gaussOpC` identification is *one*
-approximation, not two theorems.  `closure polyOpC` is self-adjoint, and a self-adjoint operator has
+**What identifying the two cores actually costs.**  The identification of `polyOp` with
+`gaussOp.closure` is *one* approximation, not two theorems.  `polyOp.closure` is self-adjoint, and a
+self-adjoint operator has
 no proper symmetric extension — this is now a theorem, not a remark:
 `BookProof.SelfAdjointMaximal.eq_of_le_of_isSelfAdjoint` (`BookProof/Toolbox/ChapterSelfAdjointMaximal.lean`)
 states that `A ≤ B` with `A` self-adjoint and `B` symmetric forces `A = B`, elementwise through
 `B ⊆ B* ⊆ A* = A`; its form for closures, `closure_eq_of_le`, is the one S0 uses.  So it suffices that every
 polynomial class lies in the domain of the closure of `gaussOpC` — a graph-norm approximation of a polynomial by compactly supported `C²` classes — and
-then `closure gaussOpC = closure polyOpC`, one self-adjoint operator described by both cores.  The
+then `gaussOp.closure = polyOp.closure`, one self-adjoint operator described by both cores.  The
 reverse approximation is unnecessary.  That one direction is now half formalized.  `BookProof.YangMillsPolyTail.exists_lintegral_tail_lt`
 is the tail bookkeeping that was missing: the `γ`-mass of a squared polynomial on `{R ≤ |x|}` is
 arbitrarily small, from antitone indicator integrals and `lintegral_iInf`, with `memLp_eval` supplying
@@ -770,10 +783,10 @@ difference of representatives, squared into a `lintegral` of `ofReal` — the sh
 `exists_lintegral_tail_lt` bounds.  `polyOp_closure_le_gaussOp_closure` and
 `polyOp_closure_eq_gaussOp_closure` restate the identification over `polyOp.closure`, since
 essential self-adjointness makes the *closure* self-adjoint and not `polyOp` itself.  That route
-left `IsSelfAdjoint polyOp.closure` as a parameter — `polyCore_essentiallySelfAdjoint` is a
-statement over `ℂ` about `polyOpC` on `Cx (Lp ℝ 2 γ)`, while the conclusion is about the real
-`LinearPMap`, and no complexification equivalence for `LinearPMap`/adjoint exists to transport one
-to the other.  The diagonal route now closes it, and needs no transport: over `ℝ` there is no `i`
+left `IsSelfAdjoint polyOp.closure` as a parameter — the ℂ criterion was a statement about
+`polyOpC` on `Cx (Lp ℝ 2 γ)`, while the conclusion is about the real `LinearPMap`, and no
+complexification equivalence for `LinearPMap`/adjoint exists to transport one to the other (the ℂ
+specialization has since been retired).  The diagonal route closes it, and needs no transport: over `ℝ` there is no `i`
 to test against, so the operator is diagonalized instead.  `BookProof.YangMillsPolyBasis` reads
 `⟪H_m, H_n⟫` as `hermiteInner m n` (`inner_polyLp_hermiteR`), applies `hermiteInner_eq`
 (`inner_polyLp_hermiteR_eq`), normalizes to `orthonormal_hermiteLpR`, notes that rescaling does
@@ -785,24 +798,29 @@ Symmetry is the diagonal one — `polyOp b_n = n b_n` in an orthonormal family, 
 graph sequences and letting both indices go to infinity in `⟪T xₖ, yₗ⟫`.  The adjoint inclusion is
 the diagonal argument: the adjoint relation at `b_n` gives `⟪b_n, T† y⟫ = n ⟪b_n, y⟫`
 (`inner_adjoint_hermiteLpR`), so the partial sums of the basis expansion of `y` lie in the domain
-and their images are the partial sums of the expansion of `T† y`
-(`exists_seq_of_mem_adjointDomain`); both converge, and the closed graph gives `T† ≤ T`
-(`closure_adjoint_le`).  With `SymmetricOp.le_adjoint` this is `isSelfAdjoint_polyOp_closure`, and
-since `gaussOp.closure` is symmetric by the same sequence argument
-(`gaussOp_closure_isSymmetric`), maximality gives `polyOp_closure_eq_gaussOp_closure'` — the
-identification of the two cores with no hypotheses at all.
+and their images are the partial sums of the expansion of `T† y`; both converge, and the closed
+graph gives `T† ≤ T` (`closure_adjoint_le`).  Both halves are instances of
+`BookProof.DiagonalSelfAdjoint.adjoint_le_closure_of_diag` /
+`isSelfAdjoint_closure_of_diag` (`Toolbox/ChapterDiagonalSelfAdjoint.lean`), which needs only
+closability and a Hilbert basis of real eigenvalues.  With `SymmetricOp.le_adjoint` this is
+`isSelfAdjoint_polyOp_closure`, and since `gaussOp.closure` is symmetric by the same sequence
+argument (`gaussOp_closure_isSymmetric`), maximality gives
+`polyOp_closure_eq_gaussOp_closure'` — the identification of the two cores with no hypotheses at
+all — and hence `isSelfAdjoint_gaussOp_closure`.
 
-The `ℂ` form is a transport: `polyOpC` and `gaussOpC` live on
+The `ℂ` form was a transport: `polyOpC` and `gaussOpC` live on
 `Cx (Lp ℝ 2 γ)` and `Lp ℂ 2 γ`, and no equivalence between the two has been built, so the
-identification is stated over `ℝ`, where `gaussOp` lives.
+identification is stated over `ℝ`, where `gaussOp` lives.  With the real diagonal proof in place the
+transport is not needed, and the ℂ specialization of the core has been removed.
 
 **Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
 no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)
 speaks about a complex Hilbert space.  The corpus has its own complexification for this,
 `BookProof/Realification/Complexification.lean` (`Cx W`, with `InnerProductSpace ℂ`, `cxMapₗ`, the
-`norm_sq` splitting and completeness), and `ChapterYangMillsPolyCore` is built on it: the real operator
-is extended to a global `coreExt` by a left inverse of the Hermite span's inclusion and complexified
-with `cxMapₗ`, so ℂ-linearity of `polyOpC` holds by construction.
+`norm_sq` splitting and completeness), and `ChapterYangMillsPolyCore` *was* built on it: the real
+operator was extended to a global `coreExt` by a left inverse of the Hermite span's inclusion and
+complexified with `cxMapₗ`, so ℂ-linearity of `polyOpC` held by construction.  `coreExt` is still
+there and is what the real symmetry proof uses; the complexification layer over it is gone.
 
 **Why the ℂ lift is not just bookkeeping either.**  Mathlib has no complexification of real Hilbert
 spaces (`Complexification` does not exist in this version) and no bundled `Lp.re`/`Lp.im` maps, only
