@@ -151,6 +151,27 @@ theorem magneticEnergyForm_diag (c : CoreCoeff d) :
   refine Finset.sum_congr rfl fun n _ => ?_
   rw [Finset.sum_congr rfl fun a _ => by rw [magComp_diag]]
 
+/-- **The normal-ordering identity of the two-component magnetic model.**  For two components the
+quartic `:N²:` weight splits into the normal-ordered magnetic energy plus the cross term:
+`(n₀ + n₁)² = n₀² + n₁² + 2 n₀ n₁`.  The magnetic energy is the normal-ordered part — the
+ordered pair contracts to the occupation with no vacuum subtraction
+(`YangMillsFieldStrength.hopWord_pair_same`), so there is no constant to subtract — while the
+cross term `2 n₀ n₁` is the piece an abelian (commutator-free) field would have to supply and
+cannot: it is what makes the abelian sector's energy *linear* in the occupation rather than
+quadratic.  Dropping it is exactly what turns the `:N²:` model coercive. -/
+theorem quartic_eq_magnetic_add_cross (c : CoreCoeff 2) :
+    quarticDegreeForm c =
+      magneticEnergyForm diagA c
+        + 2 * ∑ n ∈ c.support, ((n 0 : ℝ) * (n 1 : ℝ)) * ‖c n‖ ^ 2 := by
+  rw [quarticDegreeForm, magneticEnergyForm_diag, Finset.mul_sum, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  have h1 : (∑ i : Fin 2, (n i : ℝ)) = (n 0 : ℝ) + (n 1 : ℝ) := by
+    rw [Fin.sum_univ_two]
+  have h2 : (∑ a : Fin 2, (n a : ℝ) ^ 2) = (n 0 : ℝ) ^ 2 + (n 1 : ℝ) ^ 2 := by
+    rw [Fin.sum_univ_two]
+  rw [h1, h2]
+  ring
+
 /-- **Cauchy–Schwarz: the `:N²:` form is bounded by the magnetic energy.**  The square of the total
 occupation is at most the number of directions times the sum of the squares of the components, so
 `quarticDegreeForm ≤ d · q_mag^{canon}`. -/

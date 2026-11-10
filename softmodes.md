@@ -468,7 +468,8 @@ are now proved:
   magnetic-energy form is the model's `magneticEnergyForm diagA`.  The form half is the remaining
   mode-expansion step (the Wick/Mehler identification of the multiplication form)
   `∑_m ‖[A,A]_m x‖²` with the diagonal `:N²:` weight `∑_n (∑_a B_a(n)²)‖c n‖²`); the structure has
-  no inhabitant in the corpus.
+  no inhabitant in the corpus, and the next subsection shows that the abelian sector provably
+  cannot supply one.
 * **`magEnergy_ge_of_identification`** — given one, the coefficient model's barrier bound transfers
   to the core: `1/24 · (degreeForm + barrierForm − quarticShift ‖x‖²) ≤ ∑_m ‖B_m x‖²`.  The factor
   `24` is `quarticDegreeForm_le_magnetic` (Cauchy–Schwarz), read in the useful direction.
@@ -486,6 +487,46 @@ input is a single identification statement — not an estimate.  What is still n
 `m > 0` for the core.
 
 Axioms audited on the six new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
+
+#### S2 — the abelian sector is a counterexample, not an inhabitant, and the constant as a certificate
+
+The natural try is to inhabit `ModeIdentification` where the commutator vanishes (`fabc = 0`), since
+there the magnetic field is only `∂A`.  That is **impossible**, and §3d.1 proves it:
+
+* **`not_modeIdentification_abelian`.**  The `:N²:` magnetic form is normal-ordered, so it vanishes
+  on the vacuum mode: `magneticEnergyForm diagA (δ₀) = 0` because `magComp diagA a 0 = 0`.  The
+  abelian magnetic operator is not zero there — `magOps_abelian_injective` shows the `0`-th one is
+  injective, since its polynomial `∑ j k, levi i j k • X (idxD j k a)` is nonzero
+  (`magPoly_zero_ne`, by evaluating at the coordinate `idxD 1 2 0`, where the coefficient is
+  `levi 0 1 2 = 1`) and `MvPolynomial` is a domain (`mulOp_eq_zero_imp`).  Combined with the
+  isometry of `coeffToCore`/`MI.norm_sq`, `toCore δ₀ ≠ 0`, so the sum of squares cannot be `0`.
+  The abelian energy therefore carries exactly the constant that the `:N²:` model has dropped, and
+  the identification fails on the vacuum vector — not for an analytic reason, but by normal
+  ordering.
+
+**The normal-ordering identity itself.**  Two statements, both unconditional:
+
+* `YangMillsFieldStrength.hopWord_pair_reverse` — the reversed pair `c_j c_j†` acts on `n` by
+  `n_j + 1`, while `hopWord_pair_same` gives `n_j` for `c_j†c_j`: the difference is the constant
+  `1`, the vacuum subtraction, present per mode in every state.  This is the sandwich-model form of
+  the normal-ordering statement, and it is why the ordered pair needs no subtraction.
+* `YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross` — the two-component identity
+  `quarticDegreeForm c = magneticEnergyForm diagA c + 2 ∑_n n₀n₁‖c n‖²`, i.e.
+  `(n₀+n₁)² = n₀² + n₁² + 2n₀n₁`: the `:N²:` weight is the normal-ordered magnetic energy plus the
+  cross term, and the cross term is the non-abelian piece.  Dropping it is what makes the model
+  coercive, and in the abelian sector it is absent — which is the same fact as
+  `not_modeIdentification_abelian`, read in the coefficient model.
+
+**The constant as a certificate (§3d.2).**  `s2FormDomination` is the S2 ratio packaged as a
+`BookProof.YangMillsFormDomination.FormDomination` on the identified core, with `c₁ = c₁/48` and
+`c₂ = (c₁μ₀ + quarticShift)/48`, so the certificate machinery applies verbatim:
+`s2_ground_threshold` is `−(quarticShift/48)‖x‖² ≤ ⟪x, H₁x⟫` on the whole core, and
+`s2_excited_threshold` is `((c₁ Δ_ref − quarticShift)/48)‖x‖² ≤ ⟪x, H₁x⟫` on the vacuum-orthogonal
+sector.  The excitation threshold is positive exactly when `c₁ Δ_ref > quarticShift`; that is the
+honest form of the S2 number, and it shows the shift — the barrier price, not the normal-ordering
+constant — is what the constant has to beat.
+
+Axioms audited on the nine new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
 
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 

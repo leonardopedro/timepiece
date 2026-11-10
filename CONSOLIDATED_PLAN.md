@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10b):** “State of the project — 2026-11-10b: the mode
+> **Newest entry (2026-11-10c):** “State of the project — 2026-11-10c: the abelian sector is a
+> counterexample, the normal-ordering identity, and the S2 certificate”, at the end.  The abelian
+> sector provably cannot inhabit `ModeIdentification` (it carries the normal-ordering constant);
+> `hopWord_pair_reverse` and `quartic_eq_magnetic_add_cross` prove that constant explicitly; and
+> `s2FormDomination` turns the S2 ratio `c₁/48` into a `FormDomination` certificate whose ground
+> threshold is `−quarticShift/48` and whose excited threshold is `(c₁ Δ_ref − quarticShift)/48`.
+> `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10b):** “State of the project — 2026-11-10b: the mode
 > identification, the falsity of the S2 relative bound, and the derived constant 1/48”,
 > at the end.  It proves the coefficient-model isometry (`coeffToCore_norm_sq`), that no
 > quartic relative bound exists (`not_quartic_relativeBound`), and derives the S2 ratio
@@ -19429,3 +19436,58 @@ on `totalDegree_occMonomial`, `coeffToCore_norm_sq`, `not_quartic_relativeBound`
 `magEnergy_ge_of_identification`, `ymHamiltonian_quadForm_ge_of_identification` and
 `s2_gap_constant` reports `propext, Classical.choice, Quot.sound` only; no line of
 the touched Lean file exceeds 100 characters.
+
+## State of the project — 2026-11-10c: the abelian sector is a counterexample, the normal-ordering identity, and the S2 certificate
+
+This entry records the three follow-ups to the 2026-11-10b entry.  All of it is
+`sorry`-free, `axiom`-free and compiled with `lake build +BookProof`.
+
+**The abelian sector does not inhabit `ModeIdentification`; it refutes it.**
+`ChapterYangMillsFieldStrengthSplit` §3d.1 proves `not_modeIdentification_abelian`:
+for zero structure constants there is no `ModeIdentification Φ 0`.  The reason is
+normal ordering, not analysis: the `:N²:` magnetic form vanishes on the vacuum
+(`magneticEnergyForm diagA δ₀ = 0`, since `magComp diagA a 0 = 0`), while the
+abelian magnetic operator is injective there.  The chain is
+`magPoly_zero_ne` (the polynomial `∑ j k, levi i j k • X (idxD j k a)` is nonzero —
+evaluated at the coordinate `idxD 1 2 0`, where the coefficient is `levi 0 1 2 = 1`),
+`mulOp_eq_zero_imp` (multiplication by a nonzero polynomial is injective, the
+polynomial ring being a domain), and `magOps_abelian_injective`, which pulls the
+injectivity through `Φ.equiv`.  With `MI.norm_sq` giving `‖toCore δ₀‖² = 1`, the
+sum of squares of `Σ‖B_m x‖²` cannot vanish, while `MI.mag_eq` demands it does.
+So the abelian sector carries exactly the constant the normal-ordered model has
+dropped.
+
+**The normal-ordering identity.**
+* `YangMillsFieldStrength.hopWord_pair_reverse`: the reversed pair `c_j c_j†` acts on
+  the basis vector `n` by `n_j + 1`, against `n_j` for the ordered pair
+  (`hopWord_pair_same`).  The difference is the constant `1` — the vacuum
+  subtraction, one per mode per state — and it never appears in the ordered pair.
+* `YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`: the two-component
+  identity `quarticDegreeForm c = magneticEnergyForm diagA c + 2 ∑_n n₀n₁‖c n‖²`,
+  i.e. `(n₀+n₁)² = n₀² + n₁² + 2n₀n₁`.  The `:N²:` weight is the normal-ordered
+  magnetic energy plus the cross term; the cross term is the non-abelian piece, and
+  its absence is the same fact as `not_modeIdentification_abelian` read in the
+  coefficient model.
+
+**The S2 constant is now a `FormDomination` certificate.**  §3d.2 adds
+`s2FormDomination`, a `FormDomination ω (fun c => ⟪toCore c, H₁ toCore c⟫)` with
+`c₁ = c₁/48` and `c₂ = (c₁μ₀ + quarticShift)/48`, so the certificate vocabulary of
+`YangMillsFormDomination` applies to the Yang–Mills form verbatim:
+* `s2_ground_threshold`: `−(quarticShift/48)‖x‖² ≤ ⟪x, H₁x⟫` on the whole core —
+  no positive whole-core threshold, because the barrier's shift is the price.
+* `s2_excited_threshold`: `((c₁ Δ_ref − quarticShift)/48)‖x‖² ≤ ⟪x, H₁x⟫` on the
+  vacuum-orthogonal sector, positive exactly when `c₁ Δ_ref > quarticShift`.
+
+**Boundary.**  `ModeIdentification` still has no inhabitant — and the natural
+candidate sector is now a theorem that it cannot have one there.  The remaining
+identification obligation is therefore the *non-abelian* mode expansion (the
+Wick/Mehler identification of `Σ_m ‖[A,A]_m x‖²` with the diagonal `:N²:` weight),
+not a normal-ordering correction.  No unconditional `m > 0`, no cutoff uniformity,
+no IMS/localisation and no Temple separation is claimed.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms`
+on `hopWord_pair_reverse`, `quartic_eq_magnetic_add_cross`, `mulOp_eq_zero_imp`,
+`magPoly_zero_ne`, `magOps_abelian_injective`, `not_modeIdentification_abelian`,
+`s2FormDomination`, `s2_ground_threshold` and `s2_excited_threshold` reports
+`propext, Classical.choice, Quot.sound` only; no line of the three touched Lean
+files exceeds 100 characters.

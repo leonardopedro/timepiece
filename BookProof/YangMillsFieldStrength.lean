@@ -34,6 +34,10 @@ is precisely what normal ordering would have to remove, and it never appears.
 * `pairWord`, `sandwich` — the nested pair `c† M c` on the core `CoreCoeff d`, built from the
   corpus ladder words of `BookProof.MCMC.FockLangevin`;
 * **`hopWord_pair_same`** — the contraction is the occupation, with no vacuum subtraction;
+* **`hopWord_pair_reverse`** — the reversed pair acts by the occupation *plus one*: the constant
+  `1` is exactly the normal-ordering subtraction, and it is what the ordered pair omits.  For the
+two-component model the same constant is what the coefficient model's `:N²:` weight already
+lacks (`YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`);
 * **`sandwich_diag_single`** — a *Cartan* sandwich (diagonal inner operator `diag m`) is diagonal in
   the occupation basis with eigenvalue the linear form `∑ j, m_j n_j`: this is `magComp`;
 * **`sandwich_diag_apply`**, **`magneticEnergyForm_eq`** — the magnetic energy form is the sum of
@@ -113,6 +117,33 @@ theorem hopWord_pair_same (j : Fin d) (n : Fin d → ℕ) (z : ℂ) :
     have hidx : (((lowerIdx j n) j : ℝ) + 1) = (n j : ℝ) := by exact_mod_cast hm
     rw [hidx, ← mul_assoc, ← Complex.ofReal_mul, Real.mul_self_sqrt (Nat.cast_nonneg _)]
     simp
+
+/-- **The reversed pair is the occupation plus one.**  With the *creation* applied first the pair
+`c_j c_j†` acts on `n` by `n_j + 1`.  The constant `1`, present for every mode in every state, is
+exactly the vacuum subtraction that normal ordering would have to remove; the ordered pair of
+`hopWord_pair_same` never produces it.  Comparing the two orderings therefore isolates the
+normal-ordering constant of a single component. -/
+theorem hopWord_pair_reverse (j : Fin d) (n : Fin d → ℕ) (z : ℂ) :
+    hopWord [(j, true), (j, false)] (Finsupp.single n z)
+      = Finsupp.single n (((n j : ℂ) + 1) * z) := by
+  change hopStep (j, false) (hopStep (j, true) (Finsupp.single n z)) = _
+  rw [hopStep_raise_single, hopStep_lower_single]
+  have hidx : lowerIdx j (raiseIdx j n) = n := by
+    funext k
+    by_cases hk : k = j
+    · subst hk
+      simp [lowerIdx, raiseIdx]
+    · simp [lowerIdx, raiseIdx, hk]
+  have hj : (raiseIdx j n) j = n j + 1 := by simp [raiseIdx]
+  rw [hidx, hj]
+  congr 1
+  have hcast : (((n j + 1 : ℕ)) : ℝ) = (n j : ℝ) + 1 := by push_cast; ring
+  have hx : Real.sqrt (((n j + 1 : ℕ)) : ℝ) * Real.sqrt (((n j + 1 : ℕ)) : ℝ)
+      = (n j : ℝ) + 1 := by
+    rw [Real.mul_self_sqrt (Nat.cast_nonneg _), hcast]
+  rw [← hcast, ← mul_assoc, ← Complex.ofReal_mul, hx]
+  push_cast
+  ring
 
 /-! ## 2. The Cartan sandwich is diagonal -/
 

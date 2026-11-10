@@ -541,6 +541,11 @@ above.  This section states that identification and proves what it yields.
 * **`magEnergy_ge_of_identification`**, **`ymHamiltonian_quadForm_ge_of_identification`**,
   **`s2_gap_constant`** — the transfers: the barrier bound becomes coercivity of the core's form,
   with the explicit constants `1/24` and `1/48` and the certified gap `c₁ Δ_ref / 48`.
+* **`not_modeIdentification_abelian`** — the abelian sector is a *counterexample*, not an
+  inhabitant: the `:N²:` magnetic form vanishes at the vacuum while the abelian magnetic operator
+  is injective there, so the identification fails on the normal-ordering constant.
+* **`s2FormDomination`**, **`s2_ground_threshold`**, **`s2_excited_threshold`** — the constant as
+  a `FormDomination` certificate, so the thresholds are those of the certificate machinery.
 -/
 
 section ModeIdentification
@@ -723,6 +728,129 @@ theorem s2_gap_constant (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 �
   have hbase := ymHamiltonian_quadForm_ge_of_identification Φ fabc MI (T := T) (g := g) hg c
   have hbar := barrierForm_nonneg hg T c
   linarith
+
+/-! ### 3d.1 The abelian sector does **not** inhabit the identification
+
+`ModeIdentification` demands the core's magnetic energy equal the normal-ordered `:N²:` form, which
+vanishes on the vacuum.  On the abelian sector (`fabc = 0`) the magnetic polynomial is the linear
+`∂A` slot `∑ j k, levi i j k • X (idxD j k a)`, whose vacuum matrix element is **not** zero.  So the
+abelian sector is a counterexample, not an inhabitant: the constant it carries is precisely the
+normal-ordering constant that the `:N²:` weight has already dropped
+(`YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`). -/
+
+/-- Multiplication by a nonzero polynomial is injective, `MvPolynomial` being a domain. -/
+theorem mulOp_eq_zero_imp {p : MvPolynomial (Fin 99) ℂ} (hp : p ≠ 0)
+    {q : MvPolynomial (Fin 99) ℂ} (h : mulOp p q = 0) : q = 0 := by
+  rcases mul_eq_zero.mp h with h0 | h0
+  · exact absurd h0 hp
+  · exact h0
+
+/-- The abelian magnetic polynomial is nonzero: the term `levi 0 1 2 • X (idxD 1 2 0)` has
+coefficient one, evaluated at the point that is `1` on the coordinate `idxD 1 2 0`. -/
+theorem magPoly_zero_ne : magPoly (fun _ _ _ => (0 : ℝ)) 0 0 ≠ 0 := by
+  intro h
+  have hev := congrArg
+    (MvPolynomial.eval (fun s : Fin 99 => if s = idxD 1 2 0 then (1 : ℂ) else 0)) h
+  simp only [map_zero] at hev
+  rw [magPoly] at hev
+  simp only [Complex.ofReal_zero, zero_smul, Finset.sum_const_zero, add_zero, map_sum] at hev
+  rw [Fin.sum_univ_three, Fin.sum_univ_three, Fin.sum_univ_three, Fin.sum_univ_three] at hev
+  norm_num [idxD, levi] at hev
+
+/-- The `0`-th magnetic operator on the abelian sector is injective: its polynomial is nonzero,
+and the core rep is an isomorphism. -/
+theorem magOps_abelian_injective (Φ : CoreRep 99 D) {x : D}
+    (hx : magOps Φ (fun _ _ _ => (0 : ℝ)) ⟨0, by omega⟩ x = 0) : x = 0 := by
+  have hx' : Φ.op (mulOp (magPoly (fun _ _ _ => (0 : ℝ)) 0 0)) x = 0 := by
+    simpa [magOps, decodeSpace, decodeColor] using hx
+  have h1 : mulOp (magPoly (fun _ _ _ => (0 : ℝ)) 0 0) (Φ.equiv.symm x) = 0 := by
+    have := congrArg Φ.equiv.symm hx'
+    simpa [CoreRep.op_apply] using this
+  have h2 : Φ.equiv.symm x = 0 := mulOp_eq_zero_imp magPoly_zero_ne h1
+  exact Φ.equiv.symm.injective (by simpa using h2)
+
+/-- **The abelian sector does not inhabit `ModeIdentification`.**  The `:N²:` magnetic form
+vanishes at the vacuum while the abelian magnetic operator is injective there, so the form
+identity of `ModeIdentification` fails already on the vacuum vector: the abelian energy carries
+the normal-ordering constant that the normal-ordered `:N²:` model has subtracted. -/
+theorem not_modeIdentification_abelian (Φ : CoreRep 99 D) :
+    ¬ Nonempty (ModeIdentification Φ (fun _ _ _ => (0 : ℝ))) := by
+  rintro ⟨MI⟩
+  set n₀ : Fin 24 → ℕ := fun _ => 0 with hn₀
+  set c₀ : CoreCoeff 24 := Finsupp.single n₀ 1 with hc₀
+  have hz : magneticEnergyForm (d := 24) diagA c₀ = 0 := by
+    rw [magneticEnergyForm, hc₀, Finsupp.support_single_ne_zero _ one_ne_zero,
+      Finset.sum_singleton]
+    simp [magComp, hn₀]
+  have hmag := MI.mag_eq c₀
+  rw [hz] at hmag
+  have hterm := (Finset.sum_eq_zero_iff_of_nonneg (fun m _ =>
+    sq_nonneg (‖(((magOps Φ (fun _ _ _ => (0 : ℝ)) m) (MI.toCore c₀) : D) : L2d 99)‖))).mp hmag
+  have hnorm : ‖((MI.toCore c₀ : D) : L2d 99)‖ ^ 2 = 1 := by
+    rw [MI.norm_sq, coreNormSq, hc₀, Finsupp.support_single_ne_zero _ one_ne_zero,
+      Finset.sum_singleton]
+    norm_num
+  have hx : MI.toCore c₀ ≠ 0 := by
+    intro h
+    rw [h] at hnorm
+    simp at hnorm
+  have hm := hterm ⟨0, by omega⟩ (Finset.mem_univ _)
+  have hnorm0 : ‖(((magOps Φ (fun _ _ _ => (0 : ℝ)) ⟨0, by omega⟩) (MI.toCore c₀) : D) :
+      L2d 99)‖ = 0 := by
+    simpa using (sq_eq_zero_iff.mp hm)
+  have hzero : magOps Φ (fun _ _ _ => (0 : ℝ)) ⟨0, by omega⟩ (MI.toCore c₀) = 0 :=
+    Subtype.ext (by simpa using hnorm0)
+  exact hx (magOps_abelian_injective Φ hzero)
+
+/-! ### 3d.2 The S2 constant as a `FormDomination` certificate -/
+
+/-- **The S2 gap constant is a `FormDomination` certificate on the identified core.**  The
+Hamiltonian's form dominates the reference oscillator form with ratio `c₁/48` and shift
+`(c₁ μ₀ + quarticShift)/48`, so the whole certificate machinery of
+`BookProof.YangMillsFormDomination` — `ground_bound`, `excited_bound`, `certified_separation`,
+`certified_gap_pos` — applies verbatim to the Yang–Mills form. -/
+def s2FormDomination (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ} {T : Finset (Fin 24)} {g : ℝ}
+    (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁) (hω₁ : ∀ i, c₁ * ω i ≤ 1) :
+    FormDomination ω (fun c => quadForm (ymHamiltonian Φ fabc) (MI.toCore c)) where
+  c₁ := c₁ / 48
+  c₂ := (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
+  hc₁ := by positivity
+  dom := fun c => s2_gap_constant Φ fabc MI hg hc₁ hω₁ c
+
+/-- **The certified ground threshold.**  Whole-core, the S2 certificate says the Yang–Mills form
+is bounded below by `−(quarticShift / 48) ‖x‖²`: the barrier's shift is the price of the
+normal-ordering constant, and no positive threshold is claimed on the whole core. -/
+theorem s2_ground_threshold (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (c : CoreCoeff 24) :
+    -(quarticShift (d := 24) T g / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (MI.toCore c) := by
+  have h := ground_bound (d := 24) ω hω
+    (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁) c
+  simp only [s2FormDomination] at h
+  have hc : c₁ / 48 * refEnergy ω 0 - (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
+      = -(quarticShift (d := 24) T g / 48) := by ring
+  rwa [hc] at h
+
+/-- **The certified excitation threshold.**  On the vacuum-orthogonal sector the certificate pays
+for the reference gap: the Yang–Mills form is bounded below by
+`(c₁ Δ_ref − quarticShift)/48 · ‖x‖²`.  This is the S2 number in its usable form — the shift is
+what remains of the normal-ordering constant after the `:N²:` model has dropped it. -/
+theorem s2_excited_threshold (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (MI : ModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (c : CoreCoeff 24) (hc : c 0 = 0) :
+    ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (MI.toCore c) := by
+  have h := excited_bound (d := 24) ω hω
+    (s2FormDomination Φ fabc MI (T := T) (g := g) hg hc₁ hω₁) c hc
+  simp only [s2FormDomination] at h
+  have hc' : c₁ / 48 * (refEnergy ω 0 + refGap ω)
+      - (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
+      = (c₁ * refGap ω - quarticShift (d := 24) T g) / 48 := by ring
+  rwa [hc'] at h
 
 end ModeIdentification
 
