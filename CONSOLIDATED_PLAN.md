@@ -7,7 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10n):** **§36 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10o):** **§37 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the Doeblin minorant for the step the chain takes (`pcnAbsorbingStep_minorant`:
+> `(mF/B) • π ≤ pcnAbsorbingStep` on the box), and the caveat that the floor is a box statement while
+> the contraction quantifies over every starting point.
+> **Earlier newest entry (2026-11-10n):** **§36 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the Fubini identification (`pcnGaussMass_d`, **`pcnGaussMass_quad`**): the increment's
 > mass is `1` in `pcnDensity`'s own form, so the accepted mass is at most `1`
 > (`pcnMetropolisStep_mass_le_one`) and the Metropolis step with its rejection atom is a probability
@@ -19841,3 +19845,20 @@ on the target's density.  Both are statements about `π`, not about normalisatio
 
 **Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
 on all six new capstones → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.
+
+### 37. Addendum (2026-11-10o) — the minorant for the step the chain takes
+
+`pcnMetropolisStep_le_pcnAbsorbingStep` (the accepted part is dominated by the step with its
+rejection atom) and **`pcnAbsorbingStep_minorant`** — on the box, a target-density ceiling `B`, a
+proposal floor `F` and an acceptance floor `m` give `(mF/B) • π ≤ pcnAbsorbingStep`, built from
+`pcnAccept_floor`, `pcnMetropolis_floor`, `pcnMetropolis_minorant`, `pcnTargetMeasure_le_smul` and
+`ofReal_div_mul_ofReal`.
+
+**A caveat found in the assembly.**  §32's contraction takes the minorant at *every* starting point
+(its lower bound is an infimum over the space), while this floor is a box statement
+(`pcnDensity_floor` needs `|xᵢ| ≤ R`).  Applying the rate therefore needs either a bound on the
+chain outside the box or an argument that it stays inside; neither is proved, and this is not a
+normalisation gap but a genuine one.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green; `#print axioms`
+on both → `propext, Classical.choice, Quot.sound` only; 0 lines over 100 characters.

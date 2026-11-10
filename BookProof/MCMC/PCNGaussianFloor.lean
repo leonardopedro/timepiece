@@ -60,7 +60,10 @@ the architecture's own proposal rather than an unknown number.
   `integral_prod_pcnFactor`, **`pcnGaussMass_d`** and **`pcnGaussMass_quad`** (the increment is a
   probability density on `ℝ^d` in `pcnDensity`'s own form), **`pcnBoxMass_le_one`**,
   **`pcnMetropolisStep_mass_le_one`** and **`pcnAbsorbingStep_univ`** (the Metropolis step with its
-  rejection atom is a probability measure, with no mass hypothesis).
+  rejection atom is a probability measure, with no mass hypothesis);
+* **§10, the minorant for the step** — `pcnMetropolisStep_le_pcnAbsorbingStep` and
+  **`pcnAbsorbingStep_minorant`**: `(mF/B) • π ≤ pcnAbsorbingStep` on the box, the Doeblin minorant
+  for the step the chain takes.
 
 ## Honest boundary
 
@@ -896,6 +899,61 @@ theorem pcnAbsorbingStep_rate {s ρ R c : ℝ} {τ : (Fin d → ℝ) → ℝ} {�
     ENNReal.ofReal (1 - (1 - c) ^ n) * π S
       ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S :=
   pcnIter_rate_of_minorant hc0 hc1 hmeas (fun x => pcnAbsorbingStep_univ hs x τ) hmin hstat n x hS
+
+
+/-! ## 10. The minorant for the step the chain takes
+
+§3–§4's minorant is stated for the raw pCN proposal and for the accepted density; §9 supplies the
+step a chain actually takes, with its rejection atom.  This section joins them:
+
+* **`pcnMetropolisStep_le_pcnAbsorbingStep`** — the accepted part is dominated by the step;
+* **`pcnAbsorbingStep_minorant`** — on the box, a target-density ceiling `B`, a proposal floor `F`
+  and an acceptance floor `m` give `(mF/B) • π ≤ pcnAbsorbingStep`, the Doeblin minorant for the
+  Metropolis step itself.
+
+**A note on where it can be used.**  §5's contraction takes the minorant at *every* starting
+point (`hmin : ∀ x`), because its lower bound is an infimum over the whole space.  The floor above
+is a box statement — `pcnDensity_floor` needs `|xᵢ| ≤ R` — so applying the rate needs either the
+chain to stay in the box or a minorant outside it, and neither is proved here.
+-/
+
+
+/-- The accepted part is dominated by the step *with* its rejection atom. -/
+theorem pcnMetropolisStep_le_pcnAbsorbingStep (s ρ R : ℝ) (π : (Fin d → ℝ) → ℝ)
+    (x : Fin d → ℝ) :
+    pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R π x ≤ pcnAbsorbingStep (d := d) s ρ R π x := by
+  rw [pcnAbsorbingStep]
+  exact Measure.le_add_right (le_refl _)
+
+/-- **The Doeblin minorant for the step the chain actually takes.**  On the box, a target density
+ceiling `B`, a proposal floor `F` and an acceptance floor `m` (the target's density drops by at
+most the factor `m`) give `(mF/B) • π ≤ pcnAbsorbingStep`, i.e. a minorant for the Metropolis step
+with its rejection atom. -/
+theorem pcnAbsorbingStep_minorant {s ρ R F B m : ℝ} {τ : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hF : 0 ≤ F) (hB : 0 < B) (hm0 : 0 ≤ m) (hm1 : m ≤ 1)
+    (hτB : ∀ y ∈ pcnBox d R, τ y ≤ B) (hτx : 0 < τ x)
+    (hτxy : ∀ y ∈ pcnBox d R, m * τ x ≤ τ y)
+    (hdens : ∀ y ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s ρ x y) :
+    ENNReal.ofReal (m * F / B) • pcnTargetMeasure (d := d) R τ
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ x := by
+  have hmF0 : 0 ≤ m * F := mul_nonneg hm0 hF
+  have hfloor : ∀ y ∈ pcnBox d R,
+      m * F ≤ pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ x y := by
+    intro y hy
+    exact pcnMetropolis_floor hm0 hF
+      (pcnAccept_floor hm1 hτx (hτxy y hy)) (hdens y hy)
+  have hπ : pcnTargetMeasure (d := d) R τ ≤ ENNReal.ofReal B • (volume.restrict (pcnBox d R)) :=
+    pcnTargetMeasure_le_smul hτB
+  have hμ : ENNReal.ofReal (m * F) • (volume.restrict (pcnBox d R))
+      ≤ pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R τ x :=
+    pcnMetropolis_minorant hfloor
+  calc ENNReal.ofReal (m * F / B) • pcnTargetMeasure (d := d) R τ
+      ≤ ENNReal.ofReal (m * F / B) • (ENNReal.ofReal B • (volume.restrict (pcnBox d R))) :=
+        smul_measure_mono hπ
+    _ = ENNReal.ofReal (m * F) • (volume.restrict (pcnBox d R)) := by
+        rw [smul_smul, ofReal_div_mul_ofReal hmF0 hB]
+    _ ≤ pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R τ x := hμ
+    _ ≤ pcnAbsorbingStep (d := d) s ρ R τ x := pcnMetropolisStep_le_pcnAbsorbingStep s ρ R τ x
 
 
 end BookProof.MCMC.PCNGaussianFloor

@@ -1526,6 +1526,15 @@ accepted mass is at most `1` **with no hypothesis on the target**
 probability measure **unconditionally** — `pcnAbsorbingStep_univ` — to which §39's contraction applies
 (`pcnAbsorbingStep_rate`).
 
+**The minorant for the step the chain takes (§44).**  §43 made the step unconditional; §43's minorant,
+though, was still about the raw proposal and the accepted density.  §10 of `PCNGaussianFloor` joins
+them: `pcnMetropolisStep_le_pcnAbsorbingStep`, and **`pcnAbsorbingStep_minorant`** — on the box, a
+target-density ceiling `B`, a proposal floor `F` and an acceptance floor `m` give
+`(mF/B) • π ≤ pcnAbsorbingStep`, the Doeblin condition for the Metropolis step itself.  A caveat that
+matters for assembly: §39's contraction takes the minorant at *every* starting point, because its
+bound is an infimum over the whole space, while the floor is a box statement; applying the rate
+therefore needs the chain to stay in the box or a minorant outside it, and neither is proved.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1574,7 +1583,8 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   (`pcnGaussStep`, `pcnGaussStep_univ`, `pcnExp_factor`) — §42; and the Fubini identification with the
   increment's true mass `1` and the unconditional probability step (`pcnGaussMass_d`,
   `pcnGaussMass_quad`, `pcnBoxMass_le_one`, `pcnMetropolisStep_mass_le_one`,
-  `pcnAbsorbingStep_univ`, `pcnAbsorbingStep_rate`) — §43.
+  `pcnAbsorbingStep_univ`, `pcnAbsorbingStep_rate`) — §43; and the minorant for that step
+  (`pcnAbsorbingStep_minorant`) — §44.
 
 *Not proved, and not claimed.*
 
