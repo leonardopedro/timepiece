@@ -53,7 +53,15 @@ lacks (`YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`);
   off-diagonal component is diagonal in the occupation basis.
 * **`sum_offdiag_amp_sq`** — summed over the ordered pairs, the root amplitudes give the cross
   weight `∑_{i≠j} nᵢ nⱼ` plus `d − 1` copies of the occupation, matching
-  `YangMillsMagneticQuartic.quarticDegreeForm_eq_magnetic_add_root`.
+  `YangMillsMagneticQuartic.quarticDegreeForm_eq_magnetic_add_root`;
+* **`vacuum_lower_zero`**, **`vacuum_raise_normSq`**, **`vacuum_field_raw`** — on the coefficient
+  model's vacuum annihilation vanishes and creation fills exactly one quantum, so
+  `(a_j† + a_j) Ω = |e_j⟩` has squared norm `1`;
+* **`fieldOp`**, **`fieldOp_vacuum`**, **`sum_fieldOp_vacuum`**, **`abelian_vacuum_energy`** —
+  with the oscillator normalisation `A_j = (a_j + a_j†)/√2` the vacuum magnetic energy is `1/2`
+  per field component (`d/2` in total), while the normal-ordered `:N²:` form
+  (`YangMillsMagneticQuartic.magneticEnergyForm_vacuum`) is `0` there: the `1/2` per component is
+  the normal-ordering constant in explicit numerical form.
 
 ## Honest boundary
 
@@ -312,5 +320,87 @@ theorem sum_offdiag_amp_sq (n : Fin d → ℕ) :
   simp only [hsub, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
     Fintype.card_fin, nsmul_eq_mul]
   ring
+
+/-! ## 5. The abelian vacuum magnetic energy is one half per component -/
+
+/-- The `ℓ²` norm of a single basis vector is the squared modulus of its coefficient. -/
+theorem coreNormSq_single (m : Fin d → ℕ) (z : ℂ) :
+    coreNormSq (Finsupp.single m z) = ‖z‖ ^ 2 := by
+  by_cases hz : z = 0
+  · subst hz
+    simp [coreNormSq]
+  · rw [coreNormSq, Finsupp.support_single_ne_zero _ hz, Finset.sum_singleton,
+      Finsupp.single_eq_same]
+
+/-- The `ℓ²` norm of a scalar multiple: `‖k c‖² = ‖k‖²‖c‖²`. -/
+theorem coreNormSq_smul (k : ℂ) (z : CoreCoeff d) :
+    coreNormSq (k • z) = ‖k‖ ^ 2 * coreNormSq z := by
+  by_cases hk : k = 0
+  · subst hk
+    simp [coreNormSq]
+  · rw [coreNormSq, coreNormSq, Finsupp.support_smul_eq hk, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun n _ => ?_
+    rw [Finsupp.smul_apply, smul_eq_mul, norm_mul, mul_pow]
+
+/-- **Annihilation kills the vacuum.**  The lowering amplitude `√(nⱼ)` is `√0 = 0` on the vacuum,
+so `a_j Ω = 0` — the `ℓ²` statement, not merely the amplitude. -/
+theorem vacuum_lower_zero (j : Fin d) :
+    hopStep (j, false) (vacuumCoeff d) = 0 := by
+  rw [vacuumCoeff, hopStep_lower_single]
+  have h : Real.sqrt ((fun _ => (0 : ℕ) : Fin d → ℕ) j : ℝ) = 0 := by simp
+  rw [h]
+  simp
+
+/-- **Creation fills one quantum, with amplitude one**: `‖a_j† Ω‖² = 1`. -/
+theorem vacuum_raise_normSq (j : Fin d) :
+    coreNormSq (hopStep (j, true) (vacuumCoeff d)) = 1 := by
+  rw [vacuumCoeff, hopStep_raise_single, coreNormSq_single]
+  have h : ((Real.sqrt ((fun _ => (0 : ℕ) : Fin d → ℕ) j + 1) : ℝ) : ℂ) = 1 := by
+    simp
+  rw [h]
+  norm_num
+
+/-- The field component `A_j = (a_j + a_j†)/√2` of the oscillator model. -/
+def fieldOp (j : Fin d) (c : CoreCoeff d) : CoreCoeff d :=
+  ((1 / Real.sqrt 2 : ℝ) : ℂ) • (hopStep (j, true) c + hopStep (j, false) c)
+
+/-- **The field applied to the vacuum is one quantum, unnormalised**: `(a_j† + a_j) Ω = |e_j⟩`, so
+its squared norm is `1`.  This is the statement before the `1/√2` of the field normalisation, and
+it is what makes the vacuum value a *half* rather than a fitted constant. -/
+theorem vacuum_field_raw (j : Fin d) :
+    coreNormSq (hopStep (j, true) (vacuumCoeff d) + hopStep (j, false) (vacuumCoeff d)) = 1 := by
+  rw [vacuum_lower_zero, add_zero, vacuum_raise_normSq]
+
+/-- **The abelian vacuum magnetic energy is one half per component.**  With the standard
+oscillator normalisation `A_j = (a_j + a_j†)/√2` the field lifts the vacuum to one quantum and the
+energy of the component is `‖A_j Ω‖² = 1/2`.  Compare `magneticEnergyForm_vacuum`: the
+normal-ordered `:N²:` weight is `0` on the same state.  The abelian magnetic operator therefore
+carries exactly `1/2` per component that the normal-ordered model does not, which is the constant
+behind `not_modeIdentification_abelian`. -/
+theorem fieldOp_vacuum (j : Fin d) :
+    coreNormSq (fieldOp j (vacuumCoeff d)) = 1 / 2 := by
+  rw [fieldOp, vacuum_lower_zero, add_zero, coreNormSq_smul, vacuum_raise_normSq]
+  rw [Complex.norm_real, Real.norm_eq_abs,
+    abs_of_pos (by positivity : (0 : ℝ) < 1 / Real.sqrt 2)]
+  have hsq : (1 / Real.sqrt 2) ^ 2 = 1 / 2 := by
+    rw [div_pow, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2)]
+    norm_num
+  rw [hsq, mul_one]
+
+/-- **Summed over the components**, the vacuum energy is `d/2`: one half for each of the `d` field
+components, with no cross terms — the components are independent at the vacuum. -/
+theorem sum_fieldOp_vacuum :
+    ∑ j : Fin d, coreNormSq (fieldOp j (vacuumCoeff d)) = (d : ℝ) / 2 := by
+  simp only [fieldOp_vacuum]
+  rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  ring
+
+/-- **The abelian vacuum magnetic energy against the normal-ordered model**: every field component
+contributes `1/2` on the vacuum, while the `:N²:` form `magneticEnergyForm diagA` is `0` there.
+The `1/2` per component is the normal-ordering constant in its explicit numerical form. -/
+theorem abelian_vacuum_energy (j : Fin d) :
+    coreNormSq (fieldOp j (vacuumCoeff d)) = 1 / 2 ∧
+      magneticEnergyForm (d := d) diagA (vacuumCoeff d) = 0 :=
+  ⟨fieldOp_vacuum j, magneticEnergyForm_vacuum⟩
 
 end BookProof.YangMillsFieldStrength

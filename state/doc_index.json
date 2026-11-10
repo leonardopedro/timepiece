@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-10T19:10:27+00:00",
+ "generated_at": "2026-11-10T19:24:51+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -153,7 +153,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 19549,
+   "lines": 19590,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -1580,7 +1580,7 @@
   {
    "path": "softmodes.md",
    "title": "Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
-   "lines": 2685,
+   "lines": 2717,
    "headings": [
     "# Soft modes in the Mehler / nested-Fock Yang–Mills formalism",
     "## Revised work package (2026-11-08)",

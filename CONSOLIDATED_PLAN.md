@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10d):** “State of the project — 2026-11-10d: the mode expansion on the
+> **Newest entry (2026-11-10e):** “State of the project — 2026-11-10e: the abelian vacuum magnetic
+> energy is one half per component”, at the end.  With `A_j = (a_j + a_j†)/√2`, `fieldOp_vacuum`
+> proves `‖A_j Ω‖² = 1/2` per component (`sum_fieldOp_vacuum`: `d/2`), against
+> `magneticEnergyForm_vacuum`'s `0` for the normal-ordered `:N²:` form on the same state; the half is
+> computed from the standard oscillator normalisation, and `abelian_vacuum_energy` states both
+> values together.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10d):** “State of the project — 2026-11-10d: the mode expansion on the
 > non-abelian root sector”, at the end.  The root pair `c_i† c_j` hops with squared amplitude
 > `nᵢ nⱼ + nⱼ` (`hopWord_pair_offdiag`, `offdiag_amp_normSq`, `offdiag_amp_decomp`,
 > `sum_offdiag_amp_sq`), and the `:N²:` weight splits as `quarticDegreeForm = magneticEnergyForm`
@@ -19545,5 +19551,40 @@ above is why the non-abelian sector is where one would have to be built.
 `sum_sq_eq_diag_add_root`, `quarticDegreeForm_eq_magnetic_add_root`, `rootCrossWeight_two`,
 `hopWord_pair_offdiag`, `hopWord_pair_offdiag_sqrt_mul`, `offdiag_amp_normSq`,
 `offdiag_amp_decomp`, `hopWord_pair_offdiag_ne` and `sum_offdiag_amp_sq` reports
+`propext, Classical.choice, Quot.sound` only; no line of the touched Lean files exceeds 100
+characters.
+
+## State of the project — 2026-11-10e: the abelian vacuum magnetic energy is one half per component
+
+This entry records the follow-up to 2026-11-10d.  All of it is `sorry`-free, `axiom`-free and
+compiled with `lake build +BookProof`.
+
+**The constant, evaluated.**  2026-11-10c showed that the abelian sector cannot inhabit
+`ModeIdentification` because it carries a normal-ordering constant; that constant is now named:
+`1/2` per field component.
+
+* `YangMillsMagneticQuartic.vacuumCoeff` is the coefficient model's vacuum (no quanta), with
+  `vacuumCoeff_support` and `vacuumCoeff_zero`; `magneticEnergyForm_vacuum` proves the
+  normal-ordered `:N²:` form vanishes there — `B_a(n) = n_a = 0`.
+* `YangMillsFieldStrength` §5 builds the oscillator chain on it: `vacuum_lower_zero` (`a_j Ω = 0`),
+  `vacuum_raise_normSq` (`‖a_j† Ω‖² = 1`), and `vacuum_field_raw`, which is
+  `(a_j† + a_j) Ω = |e_j⟩` with squared norm `1` *before* any normalisation is chosen.
+* `fieldOp` is `A_j = (a_j + a_j†)/√2`; `fieldOp_vacuum` proves `‖A_j Ω‖² = 1/2`, using
+  `coreNormSq_single`, `coreNormSq_smul` and `(1/√2)² = 1/2` — so the half is a computation from the
+  standard oscillator normalisation, not a fitted constant.
+* `sum_fieldOp_vacuum` sums this to `d/2`: one half for each of the `d` components, no cross terms.
+* `abelian_vacuum_energy` states the pair side by side: `‖A_j Ω‖² = 1/2` while
+  `magneticEnergyForm diagA Ω = 0`.
+
+**Reading.**  The abelian magnetic energy is state-independent at the vacuum and equal to `1/2` per
+component; the normal-ordered model gives zero.  The difference is exactly the constant that
+`not_modeIdentification_abelian` detects.  It also separates the two constants in the S2
+certificate: the `c₂` shift in `s2FormDomination` is the *barrier* price, while this `1/2` per
+component is the vacuum part that a `:N²:` comparison must subtract first.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`vacuumCoeff_support`, `vacuumCoeff_zero`, `magneticEnergyForm_vacuum`, `coreNormSq_single`,
+`coreNormSq_smul`, `vacuum_lower_zero`, `vacuum_raise_normSq`, `vacuum_field_raw`,
+`fieldOp_vacuum`, `sum_fieldOp_vacuum` and `abelian_vacuum_energy` reports
 `propext, Classical.choice, Quot.sound` only; no line of the touched Lean files exceeds 100
 characters.

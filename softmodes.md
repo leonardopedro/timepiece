@@ -570,6 +570,38 @@ non-abelian sector is where one would have to be built.
 Axioms audited on the nine theorems of this subsection: `propext`, `Classical.choice`,
 `Quot.sound` only.
 
+#### S2 — the abelian vacuum energy is `1/2` per component: the constant, evaluated
+
+§3d.1 showed the abelian sector fails the identification *because* of a constant, but left the
+constant unnamed.  It is `1/2` per field component, and that is now a theorem.
+
+`YangMillsFieldStrength` §5 adds the coefficient model's vacuum, `vacuumCoeff`, and the oscillator
+chain on it:
+
+* `vacuum_lower_zero` — `a_j Ω = 0`, the `ℓ²` statement (the lowering amplitude is `√(nⱼ) = √0`).
+* `vacuum_raise_normSq` — `‖a_j† Ω‖² = 1`.
+* `vacuum_field_raw` — hence `(a_j† + a_j) Ω = |e_j⟩` with squared norm `1`, *before* any field
+  normalisation is chosen.
+* `fieldOp`, `fieldOp_vacuum` — with the standard oscillator normalisation
+  `A_j = (a_j + a_j†)/√2` (the `1/√2` is the only place a convention enters, and `‖A_j Ω‖² = 1/2`
+  is then a computation, not a definition: `coreNormSq_smul` and `(1/√2)² = 1/2`), the vacuum
+  magnetic energy is `1/2` per component.
+* `sum_fieldOp_vacuum` — `∑_j ‖A_j Ω‖² = d/2`: one half for each of the `d` components, with no
+  cross terms, since the components are independent at the vacuum.
+* `magneticEnergyForm_vacuum` (`YangMillsMagneticQuartic`) — the normal-ordered `:N²:` form on the
+  *same* state is `0`, because `B_a(n) = n_a` vanishes at zero occupation.
+* `abelian_vacuum_energy` — the two side by side: `‖A_j Ω‖² = 1/2` and
+  `magneticEnergyForm diagA Ω = 0`.
+
+So the abelian magnetic energy is `1/2` per component and the normal-ordered model gives zero; the
+difference is the constant that `not_modeIdentification_abelian` detects, now with its value.  It
+also explains the shape of `s2FormDomination`: the `c₂` shift is the *barrier* price, while this
+`1/2` per component is the part of the abelian energy that is state-independent and therefore has
+to be subtracted before any `:N²:` comparison can be made.
+
+Axioms audited on the eleven theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
 ### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
 
 This section supersedes the previous section on three points: the coordinate-count factor `−99/2`

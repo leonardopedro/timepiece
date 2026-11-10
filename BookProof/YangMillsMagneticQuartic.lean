@@ -31,6 +31,14 @@ i.e. on every mode the sum of the squares of the field-strength components.
 
 * **`magComp_diag`**, **`magneticEnergyForm_diag`**: in the canonical (Cartan) basis `A = 1` the
   components are the occupations themselves, `B_a(n) = n_a`.
+* **`rootCrossWeight`**, **`sum_sq_eq_diag_add_root`**,
+  **`quarticDegreeForm_eq_magnetic_add_root`**: the `:N²:` weight splits into the diagonal
+  (magnetic) part and the root cross weight
+  `∑_{i≠j} nᵢ nⱼ`, with the two-component case recovered as `rootCrossWeight_two`;
+* **`vacuumCoeff`**, **`magneticEnergyForm_vacuum`**: the model's vacuum has normal-ordered
+  magnetic energy `0` — the value the abelian operator does *not* have, since there each field
+  component contributes `1/2` on the vacuum
+  (`YangMillsFieldStrength.abelian_vacuum_energy`).
 * **`quarticDegreeForm_le_magnetic`** and **`magnetic_le_quartic`**: the `:N²:` weight `N(n)²` and
   the magnetic weight `∑_a B_a(n)²` bound each other by Cauchy–Schwarz and by `0 ≤ B_a ≤ N`:
 
@@ -150,6 +158,28 @@ theorem magneticEnergyForm_diag (c : CoreCoeff d) :
   unfold magneticEnergyForm
   refine Finset.sum_congr rfl fun n _ => ?_
   rw [Finset.sum_congr rfl fun a _ => by rw [magComp_diag]]
+
+/-- **The vacuum of the coefficient model**: no quanta in any mode. -/
+def vacuumCoeff (d : ℕ) : CoreCoeff d := Finsupp.single (fun _ => (0 : ℕ)) 1
+
+/-- The vacuum is supported on the zero occupation alone. -/
+theorem vacuumCoeff_support : (vacuumCoeff d).support = {(fun _ => (0 : ℕ))} := by
+  rw [vacuumCoeff, Finsupp.support_single_ne_zero _ one_ne_zero]
+
+/-- The vacuum has coefficient one. -/
+theorem vacuumCoeff_zero : vacuumCoeff d (fun _ => (0 : ℕ)) = 1 := by
+  rw [vacuumCoeff]
+  exact Finsupp.single_eq_same
+
+/-- **The normal-ordered magnetic energy of the vacuum is zero.**  The `:N²:` weight of
+`magneticEnergyForm diagA` is `∑ a, nᵢ²` on each mode, and on the vacuum every occupation vanishes,
+so the whole form is `0`.  This is the value that the abelian magnetic operator does *not* have:
+there each field component contributes `1/2` on the vacuum
+(`YangMillsFieldStrength.abelian_vacuum_energy`), and that `1/2` per component is exactly the
+constant the normal-ordered model has dropped. -/
+theorem magneticEnergyForm_vacuum : magneticEnergyForm (d := d) diagA (vacuumCoeff d) = 0 := by
+  rw [magneticEnergyForm_diag, vacuumCoeff_support, Finset.sum_singleton, vacuumCoeff_zero]
+  simp
 
 /-- **The normal-ordering identity of the two-component magnetic model.**  For two components the
 quartic `:N²:` weight splits into the normal-ordered magnetic energy plus the cross term:

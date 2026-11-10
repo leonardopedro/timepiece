@@ -743,7 +743,10 @@ vanishes on the vacuum.  On the abelian sector (`fabc = 0`) the magnetic polynom
 `∂A` slot `∑ j k, levi i j k • X (idxD j k a)`, whose vacuum matrix element is **not** zero.  So the
 abelian sector is a counterexample, not an inhabitant: the constant it carries is precisely the
 normal-ordering constant that the `:N²:` weight has already dropped
-(`YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`). -/
+(`YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`).  Its value is `1/2` per field
+component, and `0` for the normal-ordered form on the same state
+(`YangMillsFieldStrength.abelian_vacuum_energy`,
+`YangMillsMagneticQuartic.magneticEnergyForm_vacuum`). -/
 
 /-- Multiplication by a nonzero polynomial is injective, `MvPolynomial` being a domain. -/
 theorem mulOp_eq_zero_imp {p : MvPolynomial (Fin 99) ℂ} (hp : p ≠ 0)
