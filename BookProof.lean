@@ -3319,6 +3319,22 @@ import BookProof.Sm.ChapterSmFullMatterHamiltonian
 -- self-adjointness for every shift (`smFullComparison_esa`).  The internal tensor and the
 -- Faris–Lavine graph-core package are not covered.
 import BookProof.Sm.ChapterSmFullComparisonEsa
+-- `ChapterSmFullCoupledCore` (2026-11-09h, `SM_ESA_COMPLETION_PLAN` §4 P3 remainder + P4): the
+-- coupled tensor `T ⊗ M` for `L²`-valued bosonic factors, the coupled comparison `N_SM ⊗ I` as a
+-- Friedrichs `Comparison` on the common core, the transfer of both Faris–Lavine inequalities to
+-- the coupled space (`coupledOp_norm_le`, `coupledOp_one_commForm_le`), the coupled `CoreData`
+-- package with essential self-adjointness of `h ⊗ I` (`smCoupledHamiltonian_esa`), and the
+-- relative bound of the full normal form from the per-family scalar bounds
+-- (`smNormalForm_norm_le`).  The commutator bound of the full normal form (non-scalar coefficient
+-- matrices) and the per-family scalar bounds themselves are not covered.
+import BookProof.Sm.ChapterSmFullCoupledCore
+-- `ChapterSmFullYukawaCoeffs` (2026-11-09h, `SM_ESA_COMPLETION_PLAN` §4 P1 → P2): the P1 Yukawa
+-- dictionary read in the occupation basis of the matter Fock space — `fockBasis`, `fockMatrix`,
+-- `fockMatrix_star` (Hermitian coefficients from a symmetric internal operator) and
+-- `fockMatrix_parity` (parity-graded coefficients from one commuting with parity) — and, with
+-- `SmInternalData.toNormalForm`, the resulting `SmNormalFormData` together with P2's
+-- `HermitianCoeffs` and `ParityGradedCoeffs` (`toNormalForm_hermitian`, `toNormalForm_parity`).
+import BookProof.Sm.ChapterSmFullYukawaCoeffs
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 

@@ -815,3 +815,77 @@ Not done by this packet (the remainder of P3): the tensor `N_SM ⊗ I_internal` 
 but they are the interface P4's relative-bound estimate is stated on, so P4 starts by building
 them.  Deliberately not assumed anywhere here: the relative bound `‖h_SM u‖ ≤ K‖(N_SM+I)u‖`, the
 commutator form bound, or any ESA statement about `h_SM`.
+
+## 14. P3 remainder, P4 transfer engine and the P1 coefficient matrices (2026-11-09h)
+
+Three modules, all `sorry`-free and `axiom`-free, each building through `lake build BookProof`
+(8916 jobs) with no warnings from itself.
+
+### `BookProof/Sm/ChapterSmFullCoupledCore.lean` — the coupled comparison and the Faris–Lavine data
+
+* `coupledOp T M` — the elementary tensor for a bosonic factor with codomain `L²` (the comparison
+  operators `smFullComparison`, `smFlN`, `smHamiltonian` all have codomain `L²`, so P2's
+  core-to-core `smTensorCore` cannot take them).  `coupledOp_one_apply`: for `M = 1` it is `T ⊗ I`
+  componentwise.
+* `coupledOp_symmetricOn`, `coupledOp_one_quadForm` (the coupled quadratic form is the sum of the
+  componentwise ones) and `coupledOp_one_quadForm_nonneg`.
+* **`smCoupledFullComparisonComparison`** — the coupled comparison `N_SM ⊗ I` as a Friedrichs
+  `Comparison` on `SmCoupledCore`, with `smCoupledFullComparisonComparison_extends`; and
+  **`smCoupledFlComparison`** — the same for the Faris–Lavine pair `N = 2h + Σ q² + c₀`.
+* **`coupledOp_norm_le`** — the relative bound transfers: `‖T ⊗ M f‖ ≤ c√(pairSum M)‖(N ⊗ I + 1)f‖`,
+  the coefficient matrix entering only through the Frobenius square sum `pairSum`.  The proof is
+  Cauchy–Schwarz per internal row (`norm_sum_smul_sq_le`) plus the `ℓ²` reassembly
+  (`coupledOp_one_add_norm_sq`).
+* **`coupledOp_one_commForm_le`** — the commutator-form bound transfers with the same constant,
+  from `coupledOp_one_commForm` (the coupled commutator form is the sum of the componentwise ones).
+* **`smCoupledCoreData`** and **`smCoupledHamiltonian_esa`** — the `CoreData` package and essential
+  self-adjointness of `h ⊗ I` on the common core from the graph-core property, with the relative
+  bound `K = √(pairSum 1)` and the commutator constant `c = 1` of the scalar theory.
+
+### P4 — the relative bound of the full normal form
+
+`smTensorCore_eq_coupledOp` identifies P2's tensor with the `L²`-valued one, so
+`smTensorCore_norm_le` is the engine applied to a core-to-core factor.  **`smNormalForm_norm_le`**:
+if each bosonic family obeys `‖Tⱼ x‖ ≤ c‖(N + 1)x‖` on the core, then
+
+```text
+‖h_SM f‖ ≤ c · normalFormConst D · ‖(N ⊗ I + 1) f‖,
+```
+
+with `normalFormConst D = Σⱼ √(pairSum (D.mom j)) + Σⱼ √(pairSum (D.kinetic j))
++ Σⱼ √(pairSum (D.coord j)) + √(pairSum D.mass)`.  The proof is the term-by-term transfer plus the
+triangle inequality; nothing about the normal form beyond its shape is used.
+
+**What P4 still needs** (recorded, not assumed): the scalar relative bounds of the three families
+`πⱼ`, `πⱼ²`, `uⱼ` against `N`.  The corpus proves the bound of the *combination* `h`
+(`sm_norm_le_shift`, constant 1) and the transfer engine is now in place; what is missing is the
+one-particle estimate for each family separately.  The commutator-form bound of the full normal
+form is likewise transferred only for a diagonal internal factor (`coupledOp_one_commForm_le`);
+for a general coefficient matrix it needs the bilinear pairing estimate
+`|⟪T x, N y⟫| ≤ c(‖x‖² + ‖y‖²)`-type input, which is the same scalar analysis.
+
+### `BookProof/Sm/ChapterSmFullYukawaCoeffs.lean` — the P1 dictionary in the coefficient matrices
+
+* `fockBasis`, `fockMatrix` — the occupation basis and the matrix of an internal operator in it,
+  with `fockMatrix_eq_inner`;
+* **`fockMatrix_star`** — a symmetric internal operator has a Hermitian coefficient matrix (from
+  `inner_conj_symm` and the symmetry);
+* **`fockMatrix_parity`** — an internal operator commuting with `fockParity` has a parity-graded
+  coefficient matrix, `fockSign S * M S T = M S T * fockSign T` (with the stronger statement
+  `M S T = 0` unless the parities agree);
+* `SmInternalData` — the internal data of the P1 dictionary: the coordinate `pos a` of each real
+  Higgs component, the four second-quantized Higgs generators `matterBilin (higgs a)` (with
+  `a ↦ yukawaPair (higgsGen a) Y`), the mass/Yukawa insertion `matterBilin mass`, and the
+  Hermiticity of each (`higgsGen_hermitian`, `higgsField_hermitian`, `yukawaPair_hermitian`);
+* **`SmInternalData.toNormalForm`** — the resulting `SmNormalFormData`: the Higgs generators in the
+  coordinate family, the Yukawa insertion in the mass slot, and the zero matrix in both derivative
+  families (`toNormalForm_mom_null`, `toNormalForm_kinetic_null` — no derivative is added in an
+  internal direction);
+* **`toNormalForm_hermitian`** and **`toNormalForm_parity`** — P2's `HermitianCoeffs` and
+  `ParityGradedCoeffs` for the P1 data, from `matterBilin_symmetric`/`matterBilin_parity` and the
+  entrywise sum lemmas `matrix_sum_hermitian`/`matrix_sum_parity`, so P2's
+  `smNormalForm_symmetricOn` (**`toNormalForm_symmetricOn`**) and `smNormalForm_parity` apply.
+
+Boundary: `pos : Fin 4 → Fin 163` is data, not derived, and no mass value is computed from the P1
+couplings.  The statement is structural — the P1 dictionary satisfies the P2 hypotheses in the
+occupation basis.
