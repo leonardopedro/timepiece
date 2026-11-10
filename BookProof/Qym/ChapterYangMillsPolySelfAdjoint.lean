@@ -200,13 +200,14 @@ theorem closure_adjoint_le : polyOp.closure.adjoint ≤ polyOp.closure :=
   adjoint_le_closure_of_diag hermiteBasisR (fun n : ℕ => (n : ℝ)) polyOp
     hermiteBasisR_mem_domain (fun n => polyOp_hermiteBasisR n _) polyOp_closure_isClosable
 
-/-- **`polyOp.closure` is self-adjoint.**  Symmetry (`polyOp_closure_isSymmetric`) gives
-`T.closure ≤ T.closure†` and the diagonal argument (`closure_adjoint_le`) the converse; this is
-`BookProof.DiagonalSelfAdjoint.isSelfAdjoint_closure_of_diag` at the Hermite basis. -/
+/-- **`polyOp.closure` is self-adjoint.**  `polyOp` is symmetric (`polyOp_isFormalAdjoint`) and
+diagonal on the Hermite basis, so
+`BookProof.DiagonalSelfAdjoint.isSelfAdjoint_closure_of_diag_symm` applies with no further
+hypotheses: symmetry plus a dense diagonal basis is the whole input, and closability is derived from
+them. -/
 theorem isSelfAdjoint_polyOp_closure : IsSelfAdjoint polyOp.closure :=
-  isSelfAdjoint_closure_of_diag hermiteBasisR (fun n : ℕ => (n : ℝ)) polyOp
-    hermiteBasisR_mem_domain (fun n => polyOp_hermiteBasisR n _)
-    polyOp_closure_isClosable polyOp_closure_isFormalAdjoint
+  isSelfAdjoint_closure_of_diag_symm hermiteBasisR (fun n : ℕ => (n : ℝ)) polyOp
+    hermiteBasisR_mem_domain (fun n => polyOp_hermiteBasisR n _) polyOp_isFormalAdjoint
 
 /-- **`gaussOp.closure` is symmetric**, from the symmetry of `gaussOp` on its core by the same
 sequence argument. -/

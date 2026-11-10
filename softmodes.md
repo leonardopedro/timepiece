@@ -275,10 +275,11 @@ Source paths below are relative to `BookProof/`.
   `isSelfAdjoint_gaussOp_closure` in `Qym/ChapterYangMillsPolySelfAdjoint.lean`).  Its earlier ℂ
   specialization (`polyDomC`/`polyOpC`/`polyCore_essentiallySelfAdjoint`) is retired and removed; the
   remaining open item is the S0 *book* prose, not a theorem.
-* `Toolbox/ChapterDiagonalSelfAdjoint.lean`, `isSelfAdjoint_closure_diagOp`: U, nothing — a closable
-  operator diagonal in an orthonormal Hilbert basis with real eigenvalues has self-adjoint closure.
-  This is the reusable form of the S0 argument; `Qym/ChapterYangMillsPolySelfAdjoint` is its instance
-  at `hermiteBasisR` with eigenvalues `n`.
+* `Toolbox/ChapterDiagonalSelfAdjoint.lean`, `isSelfAdjoint_closure_diagOp_symm`: U, nothing — a
+  symmetric, densely defined operator diagonal in an orthonormal Hilbert basis with real eigenvalues
+  has self-adjoint closure (closability is derived, not assumed).  This is the reusable form of the
+  S0 argument; `Qym/ChapterYangMillsPolySelfAdjoint` is its instance at `hermiteBasisR` with
+  eigenvalues `n`.
 
 Execution order is **S0 → S1 → S2 → S3 → S4**; approximation bookkeeping in S3 can proceed
 while S2 remains open. The next reviewable deliverable is the S0 representation bridge
@@ -801,8 +802,9 @@ the diagonal argument: the adjoint relation at `b_n` gives `⟪b_n, T† y⟫ = 
 and their images are the partial sums of the expansion of `T† y`; both converge, and the closed
 graph gives `T† ≤ T` (`closure_adjoint_le`).  Both halves are instances of
 `BookProof.DiagonalSelfAdjoint.adjoint_le_closure_of_diag` /
-`isSelfAdjoint_closure_of_diag` (`Toolbox/ChapterDiagonalSelfAdjoint.lean`), which needs only
-closability and a Hilbert basis of real eigenvalues.  With `SymmetricOp.le_adjoint` this is
+`isSelfAdjoint_closure_of_diag_symm` (`Toolbox/ChapterDiagonalSelfAdjoint.lean`), whose only
+inputs are symmetry and a Hilbert basis of real eigenvalues (closability is then derived, since a
+densely defined symmetric operator sits inside its adjoint).  With `SymmetricOp.le_adjoint` this is
 `isSelfAdjoint_polyOp_closure`, and since `gaussOp.closure` is symmetric by the same sequence
 argument (`gaussOp_closure_isSymmetric`), maximality gives
 `polyOp_closure_eq_gaussOp_closure'` — the identification of the two cores with no hypotheses at

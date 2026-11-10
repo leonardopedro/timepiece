@@ -161,7 +161,8 @@ import BookProof.Toolbox.ChapterSelfAdjointMaximal
 -- real eigenvalues is symmetric on the span (`inner_comm_of_diag`), and if it is closable its
 -- adjoint is contained in the closure (`adjoint_le_closure_of_diag`), so the closure is
 -- self-adjoint (`isSelfAdjoint_closure_of_diag` / `isSelfAdjoint_closure_diagOp`).  No `±i` test and
--- no hypotheses beyond closability: `Qym/ChapterYangMillsPolySelfAdjoint` is the instance.
+-- no hypotheses beyond symmetry and a dense diagonal basis (`…_symm`, where closability is derived):
+-- `Qym/ChapterYangMillsPolySelfAdjoint` is the instance.
 import BookProof.Toolbox.ChapterDiagonalSelfAdjoint
 -- Uniqueness of the closure of a symmetric operator, core-independence of the
 -- closure and of the adjoint, and uniqueness of the `A* A-bar` factorization
@@ -2310,9 +2311,9 @@ import BookProof.Qym.ChapterYangMillsPolyBasis
 -- (`closure_adjoint_le`).  Hence `isSelfAdjoint_polyOp_closure`, and with
 -- `gaussOp_closure_isSymmetric` maximality yields `polyOp_closure_eq_gaussOp_closure'` with no
 -- hypotheses at all, and `isSelfAdjoint_gaussOp_closure`.  Both halves are instances of the
--- general criterion `BookProof.DiagonalSelfAdjoint.isSelfAdjoint_closure_diagOp`
--- (`Toolbox/ChapterDiagonalSelfAdjoint`), which needs only a closable operator diagonal in a
--- Hilbert basis.
+-- general criterion `BookProof.DiagonalSelfAdjoint.isSelfAdjoint_closure_diagOp_symm`
+-- (`Toolbox/ChapterDiagonalSelfAdjoint`), whose only inputs are that the operator is symmetric and
+-- diagonal in a Hilbert basis.
 import BookProof.Qym.ChapterYangMillsPolySelfAdjoint
 
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping

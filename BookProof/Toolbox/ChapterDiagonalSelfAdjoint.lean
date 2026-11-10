@@ -19,9 +19,9 @@ Hilbert basis of a real Hilbert space `E` and `d : ι → ℝ` a family of *real
   closure identifies the limit pair as a graph point.
 
 * **Conclusion.**  A symmetric operator sits inside its adjoint and the adjoint sits inside the
-  closure, so the two agree: `IsSelfAdjoint T.closure`.  `isSelfAdjoint_closure_diagOp` states this
-  for the operator that is the restriction of a diagonal map to the basis span, with closability as
-  the only remaining hypothesis.
+  closure, so the two agree: `IsSelfAdjoint T.closure`.  `isSelfAdjoint_closure_diagOp_symm` states
+  this for the operator that is the restriction of a diagonal map to the basis span, and its only
+  hypotheses are the eigenvalue equations on the basis; closability is derived, not assumed.
 
 ## Main results
 
@@ -32,7 +32,10 @@ Hilbert basis of a real Hilbert space `E` and `d : ι → ℝ` a family of *real
 * `inner_adjoint_basis` — the adjoint multiplies basis coefficients by the eigenvalues;
 * `adjoint_le_closure_of_diag` — the adjoint of the closure is contained in the closure;
 * `isSelfAdjoint_closure_of_diag` — symmetric closable diagonal operators have self-adjoint closure;
-* `isSelfAdjoint_closure_diagOp` — the end-to-end form for a restriction of a diagonal map.
+* `isSelfAdjoint_closure_of_diag_symm` — the same without the closability input, since symmetry
+  plus density already gives it;
+* `isSelfAdjoint_closure_diagOp` — the end-to-end form for a restriction of a diagonal map;
+* `isSelfAdjoint_closure_diagOp_symm` — that form with every hypothesis about the eigenvectors.
 -/
 import Mathlib
 import BookProof.Toolbox.ChapterSelfAdjointMaximal
@@ -279,6 +282,24 @@ theorem isSelfAdjoint_closure_of_diag (b : HilbertBasis ι ℝ E) (d : ι → �
   exact le_antisymm (adjoint_le_closure_of_diag b d T hbasis hdiag hcl)
     (BookProof.SelfAdjointMaximal.SymmetricOp.le_adjoint hsym hdense)
 
+/-- **Symmetry plus a diagonal basis already suffices.**  Closability is not an extra input: a
+densely defined symmetric operator is contained in its adjoint, the adjoint of a densely defined
+operator is closed, and a suboperator of a closed operator is closable.  So
+`isSelfAdjoint_closure_of_diag` needs only `T.IsFormalAdjoint T`, which is the classical statement
+of the eigenbasis criterion. -/
+theorem isSelfAdjoint_closure_of_diag_symm (b : HilbertBasis ι ℝ E) (d : ι → ℝ) (T : E →ₗ.[ℝ] E)
+    (hbasis : ∀ i, b i ∈ T.domain) (hdiag : ∀ i, T ⟨b i, hbasis i⟩ = d i • b i)
+    (hsym : T.IsFormalAdjoint T) :
+    IsSelfAdjoint T.closure := by
+  have hspan_le : Submodule.span ℝ (Set.range b) ≤ T.domain :=
+    Submodule.span_le.mpr (by rintro _ ⟨i, rfl⟩; exact hbasis i)
+  have hdense : Dense (T.domain : Set E) :=
+    (Submodule.dense_iff_topologicalClosure_eq_top.mpr b.dense_span).mono hspan_le
+  have hcl : T.IsClosable :=
+    (LinearPMap.adjoint_isClosed hdense).isClosable.leIsClosable
+      (LinearPMap.IsFormalAdjoint.le_adjoint hdense hsym)
+  exact isSelfAdjoint_closure_of_diag b d T hbasis hdiag hcl (closure_isFormalAdjoint hsym hcl)
+
 /-- **A closable restriction of a diagonal map to the basis span has self-adjoint closure.**  The
 symmetry is `isFormalAdjoint_diagOp_span`, transferred to the closure by `closure_isFormalAdjoint`,
 so closability is the only hypothesis. -/
@@ -292,6 +313,16 @@ theorem isSelfAdjoint_closure_diagOp (b : HilbertBasis ι ℝ E) (d : ι → ℝ
   · intro i
     exact hdiag i
   · exact closure_isFormalAdjoint hsym hcl
+
+/-- **The end-to-end form with no closability input.**  The restriction of a diagonal map to the
+basis span is symmetric (`isFormalAdjoint_diagOp_span`), so
+`isSelfAdjoint_closure_of_diag_symm` applies directly; every hypothesis is a statement about the
+eigenvectors. -/
+theorem isSelfAdjoint_closure_diagOp_symm (b : HilbertBasis ι ℝ E) (d : ι → ℝ)
+    (A : E →ₗ[ℝ] E) (hdiag : ∀ i, A (b i) = d i • b i) :
+    IsSelfAdjoint (diagOp A (Submodule.span ℝ (Set.range b))).closure :=
+  isSelfAdjoint_closure_of_diag_symm b d (diagOp A (Submodule.span ℝ (Set.range b)))
+    (fun i => Submodule.subset_span ⟨i, rfl⟩) hdiag (isFormalAdjoint_diagOp_span b d A hdiag)
 
 end
 
