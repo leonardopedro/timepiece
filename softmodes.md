@@ -730,13 +730,18 @@ in the corpus.
 
 **What identifying the two cores actually costs.**  The `polyOpC`/`gaussOpC` identification is *one*
 approximation, not two theorems.  `closure polyOpC` is self-adjoint, and a self-adjoint operator has
-no proper symmetric extension: if `A ⊆ B` with `A` self-adjoint and `B` symmetric, then
-`B ⊆ B* ⊆ A* = A`.  So it suffices that every polynomial class lies in the domain of the closure of
-`gaussOpC` — a graph-norm approximation of a polynomial by compactly supported `C²` classes — and
+no proper symmetric extension — this is now a theorem, not a remark:
+`BookProof.SelfAdjointMaximal.eq_of_le_of_isSelfAdjoint` (`BookProof/Toolbox/ChapterSelfAdjointMaximal.lean`)
+states that `A ≤ B` with `A` self-adjoint and `B` symmetric forces `A = B`, elementwise through
+`B ⊆ B* ⊆ A* = A`; its form for closures, `closure_eq_of_le`, is the one S0 uses.  So it suffices that every
+polynomial class lies in the domain of the closure of `gaussOpC` — a graph-norm approximation of a polynomial by compactly supported `C²` classes — and
 then `closure gaussOpC = closure polyOpC`, one self-adjoint operator described by both cores.  The
 reverse approximation is unnecessary.  That one direction is still open, and it is a
-Hermite-truncation argument: the corpus can state it, but it has no `L²(γ)` expansion theory to prove
-it with.
+cutoff-and-tail estimate, not a spectral one: multiply a polynomial by a smooth cutoff `χ_R` equal to
+`1` on `[-R, R]` and estimate `‖(1 − χ_R) p‖` and the commutator term
+`−2χ_R' p' − χ_R'' p + x χ_R' p`, which lives on the annulus where `γ` is exponentially small.  What
+is missing in the corpus is the tail bookkeeping (a vanishing-`γ`-tail lemma for polynomials), not the
+identification.
 
 **Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
 no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)

@@ -152,6 +152,11 @@ import BookProof.Ns.ChapterNavierStokesDifferentialL2
 -- Essential self-adjointness selects a unique self-adjoint operator: the closure
 -- of the graph, its uniqueness, and the positivity-free Hashimoto/SIRK selection.
 import BookProof.Toolbox.ChapterEsaClosure
+-- A self-adjoint operator has no proper symmetric extension, in `LinearPMap` form: if `A ≤ B`,
+-- `A` self-adjoint and `B` symmetric then `A = B`.  Consequence used by S0: identifying the
+-- polynomial core with the closure of `gaussOp` needs only `polyOp ≤ gaussOp.closure`, i.e. one
+-- graph-norm approximation, because the polynomial core is already self-adjoint.
+import BookProof.Toolbox.ChapterSelfAdjointMaximal
 -- Uniqueness of the closure of a symmetric operator, core-independence of the
 -- closure and of the adjoint, and uniqueness of the `A* A-bar` factorization
 -- (up to a partial isometry; strictly, for a positive self-adjoint factor).
