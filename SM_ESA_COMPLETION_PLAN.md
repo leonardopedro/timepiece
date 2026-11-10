@@ -889,3 +889,69 @@ for a general coefficient matrix it needs the bilinear pairing estimate
 Boundary: `pos : Fin 4 → Fin 163` is data, not derived, and no mass value is computed from the P1
 couplings.  The statement is structural — the P1 dictionary satisfies the P2 hypotheses in the
 occupation basis.
+
+## 15. The per-family relative bounds, and the P1 normal-form bound (2026-11-10a)
+
+`BookProof/Sm/ChapterSmFullFamilyBounds.lean`, `sorry`-free and `axiom`-free, building through
+`lake build BookProof` (8917 jobs) with no warnings from itself.
+
+§14 recorded what `smNormalForm_norm_le` still needs: a scalar relative bound
+`‖Tⱼ x‖ ≤ c‖(N + 1)x‖` for each bosonic family, where the corpus had only the bound of the
+combination `h`.  This module supplies it for every first-order family, with the absolute
+constant `1`, and then applies it.
+
+### The mechanism
+
+* **`quadForm_le_half_norm_add_sq`** — for symmetric `A` with `quadForm A ≥ 0`,
+  `quadForm A x ≤ ½‖A x + x‖²`.  The cross term of the shift *is* the quadratic form (so it is
+  non-negative), and Cauchy–Schwarz plus `‖u‖² + ‖v‖² ≥ 2‖u‖‖v‖` closes it.  This is the only
+  place where the argument uses anything about `N`, and it uses no spectral information.
+* **`norm_le_shift_of_sq_le_quadForm`** — the transfer: `‖T x‖² ≤ 2 quadForm A x` implies
+  `‖T x‖ ≤ 1 · ‖A x + x‖`, via `sq_le_sq`.
+
+### The families
+
+* **`smPi_norm_le_shift`** — the momentum family `πⱼ = −i∂ⱼ`, `j = smCoord m` (`m : Fin 40`), from
+  `smPi_sq_le_quadForm_smFlN`: the momentum squares are half of `quadForm h`
+  (`smHamiltonian_quadForm`), and `2 quadForm h` is a summand of `quadForm N` (`smFlN_quadForm`).
+* **`smMomField_norm_le_shift`** and **`smPos_smCoord_norm_le_shift`** — the coordinate family
+  `uⱼ` in the same `40` harmonic coordinates, from `smMomField_sq_le_quadForm_smFlN`: the
+  harmonic part `Σ_m q_m²` of `N` is a sum of squares of exactly those multiplications
+  (`smQL_quadForm`).
+* **`smField_norm_le_shift`** — each of the `49` field polynomials `Ψ_r` of `smHamiltonian`, from
+  `smField_sq_le_quadForm_smFlN`.
+
+All three hold for every set of couplings, structure constants and electroweak generators, and
+for every `c₀ ≥ 0`.
+
+### Application
+
+* **`smTensorCore_zero`** — the elementary tensor with a zero coefficient matrix vanishes.
+* **`smNormalForm_norm_le_support`** — `smNormalForm_norm_le` with the per-family hypothesis
+  required only where the coefficient matrix is non-zero (the index sets
+  `Smom`, `Skin`, `Scoord` are part of the statement, with `hSmom : j ∉ Smom → D.mom j = 0`).
+  The constant is unchanged: `c · normalFormConst D`.
+* **`SmInternalData.toNormalForm_norm_le`** — the payoff for the P1 data: since
+  `SmInternalData.toNormalForm` has zero derivative families, the bound
+
+  ```text
+  ‖h_P1 f‖ ≤ 1 · normalFormConst D · ‖(N ⊗ I + 1) f‖
+  ```
+
+  is **unconditional in `πⱼ`, `πⱼ²`, `uⱼ`** (it needs neither), with `N = 2h + Σ q² + c₀`,
+  `c₀ ≥ 0`, and `c = 1` supplied by `smPos_smCoord_norm_le_shift` for the four Higgs coordinates
+  and by `norm_le_norm_shift` for the mass slot.  Its one hypothesis is `hpos`: the four
+  coordinates `D.pos a` are harmonic ones (`∃ m, D.pos a = smCoord m`).
+
+### What is still open
+
+* **`πⱼ²` (`smKinetic`) has no per-family bound here.**  `quadForm N` carries exactly one power
+  of `πⱼ²`, so dominating `‖πⱼ² x‖` needs the quadratic form of `N` at `πⱼ x` — a second-order
+  estimate, not the first-order one this module turns into a norm bound.  This is the remaining
+  input of `smNormalForm_norm_le` for a general P2 normal form.
+* **The coordinate family outside the `40` harmonic coordinates** is not bounded, and cannot be
+  from `quadForm N` alone: `N` carries no `uⱼ²` term there.  `SmInternalData.toNormalForm_norm_le`
+  therefore carries `hpos`; deriving that placement from the physical data is the separate
+  obligation of §14's boundary note (`pos` is data, not derived).
+* The commutator-form bound of the full normal form with non-scalar coefficient matrices is
+  unchanged from §14 — still the bilinear-pairing estimate.

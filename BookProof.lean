@@ -3335,6 +3335,13 @@ import BookProof.Sm.ChapterSmFullCoupledCore
 -- `SmInternalData.toNormalForm`, the resulting `SmNormalFormData` together with P2's
 -- `HermitianCoeffs` and `ParityGradedCoeffs` (`toNormalForm_hermitian`, `toNormalForm_parity`).
 import BookProof.Sm.ChapterSmFullYukawaCoeffs
+-- `ChapterSmFullFamilyBounds` (2026-11-10a, `SM_ESA_COMPLETION_PLAN` §15): the per-family scalar
+-- relative bounds that `smNormalForm_norm_le` leaves open — `smPi_norm_le_shift`,
+-- `smMomField_norm_le_shift`/`smPos_smCoord_norm_le_shift` and `smField_norm_le_shift`, all with
+-- constant 1 against `N = 2h + Σ q² + c₀`, from `quadForm_le_half_norm_add_sq` — plus the
+-- support-restricted normal-form bound `smNormalForm_norm_le_support` and its instantiation for
+-- the P1 data, `SmInternalData.toNormalForm_norm_le`.
+import BookProof.Sm.ChapterSmFullFamilyBounds
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 
