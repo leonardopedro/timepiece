@@ -27,7 +27,10 @@ reverse approximation, because the polynomial core is already self-adjoint
 * `SymmetricOp` — a formal adjoint of itself;
 * `SymmetricOp.le_adjoint` — a symmetric operator sits inside its adjoint;
 * `eq_of_le_of_isSelfAdjoint` — maximality of self-adjoint operators;
-* `closure_eq_of_le` — the closure identified from one inclusion.
+* `closure_eq_of_le` — the closure identified from one inclusion;
+* `le_closure_of_le_graph_closure`, `le_closure_of_forall_approx` — an inclusion in a closure
+  from a graph-norm approximation, which is the shape the polynomial-core identification
+  consumes.
 -/
 
 namespace BookProof.SelfAdjointMaximal
@@ -76,5 +79,42 @@ the closure of a symmetric `G`, then `A` *is* that closure; no second approximat
 theorem closure_eq_of_le {A G : E →ₗ.[𝕜] E} (hAG : A ≤ G.closure) (hA : IsSelfAdjoint A)
     (hG : SymmetricOp G.closure) : A = G.closure :=
   eq_of_le_of_isSelfAdjoint hAG hA hG
+
+/-! ## From a graph-norm approximation to an inclusion in the closure -/
+
+section GraphNorm
+
+/-- **An inclusion in a closure, read on graphs.**  If the graph of `A` lies in the topological
+closure of the graph of `B` and `B` is closable, then `A ≤ B.closure`: the closure's graph *is*
+the closure of the graph (`IsClosable.graph_closure_eq_closure_graph`). -/
+theorem le_closure_of_le_graph_closure {A B : E →ₗ.[𝕜] E} (hB : B.IsClosable)
+    (h : A.graph ≤ B.graph.topologicalClosure) : A ≤ B.closure := by
+  refine LinearPMap.le_of_le_graph ?_
+  rw [← LinearPMap.IsClosable.graph_closure_eq_closure_graph hB]
+  exact h
+
+/-- **The graph-norm approximation gives the inclusion.**  If every graph point `(x, A x)` of `A`
+is a limit of graph points `(y, B y)` of `B` — the `ε`-form every approximation argument ends in —
+and `B` is closable, then `A ≤ B.closure`.
+
+Both halves of the product metric are needed, which is why the hypothesis bounds `‖x - y‖` and
+`‖A x - B y‖` separately: the pair norm is their maximum (`Prod.norm_def`). -/
+theorem le_closure_of_forall_approx {A B : E →ₗ.[𝕜] E} (hB : B.IsClosable)
+    (h : ∀ x : A.domain, ∀ ε > 0, ∃ y : B.domain, ‖(x : E) - (y : E)‖ < ε ∧ ‖A x - B y‖ < ε) :
+    A ≤ B.closure := by
+  refine le_closure_of_le_graph_closure hB ?_
+  intro z hz
+  obtain ⟨x, hx, hzx⟩ := (LinearPMap.mem_graph_iff A).mp hz
+  have hz' : z = ((x : E), A x) := Prod.ext hx.symm hzx.symm
+  rw [hz']
+  change ((x : E), A x) ∈ (closure (B.graph : Set (E × E)))
+  rw [Metric.mem_closure_iff]
+  intro ε hε
+  obtain ⟨y, hlt⟩ := h x ε hε
+  refine ⟨((y : E), B y), (LinearPMap.mem_graph_iff B).mpr ⟨y, rfl, rfl⟩, ?_⟩
+  rw [Prod.dist_eq, dist_eq_norm, dist_eq_norm]
+  exact max_lt hlt.1 hlt.2
+
+end GraphNorm
 
 end BookProof.SelfAdjointMaximal

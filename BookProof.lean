@@ -2248,6 +2248,20 @@ import BookProof.Qym.ChapterYangMillsHermiteAnalytic
 -- (`Qym/ChapterYangMillsGaussFormComplex`), whose domains are the compactly supported `C²` cores.
 import BookProof.Qym.ChapterYangMillsPolyCore
 
+-- `ChapterYangMillsPolyTail` (S0 Route C, the estimate): the vanishing Gaussian tail of a squared
+-- polynomial.  `exists_lintegral_tail_lt` is `∫⁻_{R ≤ |x|} p² dγ → 0` — the missing half of the
+-- cutoff-and-tail argument, proved by antitone indicator integrals and `lintegral_iInf`, with
+-- `memLp_eval` making the total integral finite.
+import BookProof.Qym.ChapterYangMillsPolyTail
+
+-- `ChapterYangMillsPolyGraphNorm` (S0 Route C, the identification): the one approximation the two
+-- cores are separated by, stated for the actual operators.  `polyOp` is the Hermite-span operator as
+-- a `LinearPMap`, `PolyGraphApprox` is the graph-norm approximation, and
+-- `polyOp_le_gaussOp_closure` / `polyOp_eq_gaussOp_closure` are `le_closure_of_forall_approx` and
+-- `closure_eq_of_le` instantiated at `polyOp` and `gaussOp`.  Remaining: the annulus estimate
+-- `‖T(χ p) - T p‖ → 0`.
+import BookProof.Qym.ChapterYangMillsPolyGraphNorm
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
