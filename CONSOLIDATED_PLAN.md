@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10g):** **§29 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-10h):** **§30 of “State of the project — 2026-11-08b”**, at the very end
+> of this file — the three items §29 left.  (1) `FockLangevinOperator` §21.10 lifts the ground-state
+> identity to `ℝ^d`: `genDiffD_groundScale`, the coordinate sum of the one-dimensional theorem.
+> (2) The new chapter `GroundStateConjugation` proves the algebraic content of the spectral step —
+> `rayleigh_groundState` and **`sInf_rayleigh_eq`**: a ground-state conjugation preserves the
+> Rayleigh quotient and its infimum over the ground-state-orthogonal subspace.  (3)
+> `PCNGaussianFloor` §3 names the continuum target and proves **`pcnDoeblin`**
+> (`(F/B) • π ≤ P(x, ·)`), the Doeblin condition on `ℝ^d`.
+> **Earlier newest entry (2026-11-10g):** **§29 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — three items at once.  (1) `FockLangevinOperator` §21.9 formalizes the `L²(π)` side:
 > with `Veff = ¼|Φ'|² − ½Φ''`, **`genDiff_groundScale`** gives
 > `A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff g)`, so the generator on `L²(π)` is similar to `Δ − V_eff` and
@@ -19650,3 +19658,44 @@ measure on `ℝ^d`, passing the Metropolis acceptance through the density, and p
 `genDiff_groundScale`, `Veff_quadOne`, `re_corePair_oscillatorOp`, `re_corePair_oscFreqOp`,
 `oscFreqOp_gap` → `propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100
 characters, no trailing whitespace.
+
+### 30. Addendum (2026-11-10h) — `d` dimensions, the spectral step, and a named target
+
+**What §29 left.**  Three explicit items: the `d`-dimensional bookkeeping of the ground-state
+identity, the spectral step from the similarity to the gap, and the target-measure side of the
+continuum floor.
+
+**1. The identity in `d` dimensions (`FockLangevinOperator` §21.10).**  `coordDir j` (the unit vector),
+`coordDeriv`/`coordDerivTwo` (the coordinate partials `∂ⱼ`, `∂ⱼ²` as derivatives of the slice
+`t ↦ f(x + t·eⱼ)`), `genDiffD Φ f = ∑ⱼ(∂ⱼ²f − ∂ⱼΦ·∂ⱼf)`, `VeffD Φ = ∑ⱼ(¼(∂ⱼΦ)² − ½∂ⱼ²Φ)`, and
+**`genDiffD_groundScale`** — `A(e^{Φ/2}g) = e^{Φ/2}(Δg − V_eff·g)`.  It is the coordinate sum of
+§21.9's theorem, applied slice by slice (`coordSlice_contDiff`), which is what a Laplacian is.
+
+**2. The spectral step, in the finite model (new chapter `GroundStateConjugation`).**  A conjugation
+preserves the *spectrum*, and the algebraic content of that is what the corpus can state: on a finite
+index set with weight `π = F²` and `A(F·g) = F·(S g)`,
+
+* `flatPair`, `piPair` — the two pairings; `rayleigh`, `rayleighPi` — the two quotients;
+* **`rayleigh_groundState`** — `rayleigh A (F·g) = rayleighPi π S g`;
+* **`flatPair_groundState`** — `⟪F·g, F⟫ = ⟪g, 1⟫_π`, the constraint mapping;
+* **`rayleigh_range_groundState`** — the quotient sets over the two ground-state-orthogonal subspaces
+  are equal (the substitution is a bijection since `F` never vanishes), and **`sInf_rayleigh_eq`** —
+  so are their infima.
+
+**3. The Doeblin condition against a named target (`PCNGaussianFloor` §3).**
+`pcnProposalMeasure` and `pcnTargetMeasure` (densities against Lebesgue on the box),
+**`pcnTargetMeasure_le_smul`** (`τ ≤ B` gives `π ≤ B • volume.restrict box`), and **`pcnDoeblin`** —
+`(F/B) • π ≤ P(x, ·)` for every starting point, `F` the proposal's floor.  That is `Minorant` on
+`ℝ^d`, with the target named.
+
+**What is still open.**  The measure-theoretic statement itself: a kernel iterate on `ℝ^d` (hence a
+rate), the Metropolis acceptance passed through the density, and — on the spectral side — an `L²(π)`
+space with a self-adjoint operator, so that `sInf_rayleigh_eq` can be applied to `genDiffD_groundScale`
+rather than to a finite model.
+
+**Verification.**  `lake build BookProof.MCMC.FockLangevinOperator` → **8076 jobs**, green;
+`lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green;
+`lake build BookProof.MCMC.GroundStateConjugation` → **8026 jobs**, green.  `#print axioms` on
+`genDiffD_groundScale`, `pcnDoeblin`, `rayleigh_groundState`, `sInf_rayleigh_eq` →
+`propext, Classical.choice, Quot.sound` only, no `sorry`.  Style: 0 lines over 100 characters, no
+trailing whitespace.

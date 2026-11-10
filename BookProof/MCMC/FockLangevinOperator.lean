@@ -215,7 +215,10 @@ This chapter makes that structural fact precise on the Gauss–polynomial core
 * **§21.9, the `L²(π)` side** — the ground-state transform: `Veff`, `genDiff`, and
   **`genDiff_groundScale`** (`A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff g)`, so the generator on `L²(π)` is
   similar to the Schrödinger operator); `Veff_quadOne` for `Φ_λ`, and the oscillator in letters
-  (**`re_corePair_oscFreqOp`**: form `ω·numberForm`) with its gap (`oscFreqOp_gap`).
+  (**`re_corePair_oscFreqOp`**: form `ω·numberForm`) with its gap (`oscFreqOp_gap`);
+* **§21.10, the same in `d` dimensions** — `coordDeriv`/`coordDerivTwo` (the coordinate partials
+  through slices), `genDiffD`, `VeffD`, and **`genDiffD_groundScale`**, the coordinate sum of
+  §21.9's identity.
 
 ## Honest boundary
 
@@ -6156,6 +6159,73 @@ theorem Veff_quadOne (lam x : ℝ) :
   unfold Veff
   rw [deriv_quadOne, iteratedDeriv_two_quadOne]
   ring
+
+
+/-! ## 21.10 The identity in `d` dimensions: the coordinate sum
+
+§21.9 proves `genDiff_groundScale` in one dimension.  The `d`-dimensional statement is its
+coordinate sum, and this section writes it out, because the pCNL potential lives on `ℝ^d` with
+`d = 16672` modes and "the `L²(π)` side" would otherwise be a one-dimensional remark.
+
+* `coordDir j` — the unit vector `eⱼ`; `coordDeriv f x j` (the derivative at `0` of the slice
+  `t ↦ f (x + t·eⱼ)`) and `coordDerivTwo f x j` — the coordinate partials `∂ⱼ` and `∂ⱼ²`;
+* `genDiffD Φ f = ∑ⱼ (∂ⱼ²f − ∂ⱼΦ·∂ⱼf)` — the pCNL generator `Δ − ∇Φ·∇` in coordinates, `VeffD Φ`
+  the effective potential `∑ⱼ (¼(∂ⱼΦ)² − ½∂ⱼ²Φ)`, and `groundScaleD Φ = e^{Φ/2}`;
+* **`genDiffD_groundScale`** — `A(e^{Φ/2}g) = e^{Φ/2}(Δg − V_eff·g)`, the same conjugation as
+  §21.9, obtained by applying the one-dimensional identity to each slice and summing.  The
+  one-dimensional theorem is used, not reproved: each slice is `ContDiff` because the affine map
+  `t ↦ x + t·eⱼ` is (`coordSlice_contDiff`).
+
+With §21.9's `Veff_quadOne` this gives the effective potential of the quadratic potential in `d`
+dimensions as the coordinate sum, `¼λ²∑ⱼ xⱼ² − ½λd`; the identity itself is the general statement.
+-/
+
+/-- The unit vector `eⱼ` in `Fin d → ℝ`. -/
+def coordDir (j : Fin d) : Fin d → ℝ := Pi.single j 1
+
+/-- The coordinate derivative `∂ⱼ` at `x`: the derivative at `0` of the slice `t ↦ f (x + t·eⱼ)`. -/
+def coordDeriv (f : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) (j : Fin d) : ℝ :=
+  deriv (fun t : ℝ => f (x + t • coordDir j)) 0
+
+/-- The second coordinate derivative `∂ⱼ²` at `x`. -/
+def coordDerivTwo (f : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) (j : Fin d) : ℝ :=
+  iteratedDeriv 2 (fun t : ℝ => f (x + t • coordDir j)) 0
+
+/-- The `d`-dimensional pCNL generator `Δ − ∇Φ·∇`, in coordinates. -/
+def genDiffD (Φ f : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) : ℝ :=
+  ∑ j, (coordDerivTwo f x j - coordDeriv Φ x j * coordDeriv f x j)
+
+/-- The `d`-dimensional effective potential, in coordinates. -/
+def VeffD (Φ : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) : ℝ :=
+  ∑ j, ((coordDeriv Φ x j) ^ 2 / 4 - coordDerivTwo Φ x j / 2)
+
+/-- The ground-state multiplier `e^{Φ/2}` in `d` dimensions. -/
+def groundScaleD (Φ : (Fin d → ℝ) → ℝ) (x : Fin d → ℝ) : ℝ := Real.exp (Φ x / 2)
+
+theorem coordSlice_contDiff (x v : Fin d → ℝ) :
+    ContDiff ℝ 2 (fun t : ℝ => x + t • v) :=
+  contDiff_const.add (contDiff_id.smul contDiff_const)
+
+theorem genDiffD_groundScale {Φ f : (Fin d → ℝ) → ℝ} (hΦ : ContDiff ℝ 2 Φ)
+    (hf : ContDiff ℝ 2 f) (x : Fin d → ℝ) :
+    genDiffD Φ (fun y => groundScaleD Φ y * f y) x
+      = groundScaleD Φ x * (∑ j, coordDerivTwo f x j - VeffD Φ x * f x) := by
+  have hterm : ∀ j : Fin d,
+      coordDerivTwo (fun y => groundScaleD Φ y * f y) x j
+        - coordDeriv Φ x j * coordDeriv (fun y => groundScaleD Φ y * f y) x j
+      = groundScaleD Φ x * (coordDerivTwo f x j
+          - ((coordDeriv Φ x j) ^ 2 / 4 - coordDerivTwo Φ x j / 2) * f x) := by
+    intro j
+    have hline := coordSlice_contDiff (d := d) x (coordDir j)
+    have h := genDiff_groundScale (Φ := fun t : ℝ => Φ (x + t • coordDir j))
+      (f := fun t : ℝ => f (x + t • coordDir j)) (hΦ.comp hline) (hf.comp hline) 0
+    simpa [genDiff, Veff, groundScale, coordDeriv, coordDerivTwo, groundScaleD] using h
+  unfold genDiffD VeffD
+  rw [Finset.sum_congr rfl fun j _ => hterm j]
+  conv_rhs =>
+    rw [mul_sub, Finset.mul_sum, ← mul_assoc, Finset.mul_sum, Finset.sum_mul,
+      ← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun j _ => by ring
 
 
 end BookProof.MCMC.FockLangevin

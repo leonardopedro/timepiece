@@ -634,6 +634,11 @@ import BookProof.MCMC.PositivityCone
 -- minorant consumes (`pcnGaussian_floor`).
 import BookProof.MCMC.PCNGaussianFloor
 
+-- Wave (`pcnl.md` §35): the finite model of the spectral step behind `genDiffD_groundScale` —
+-- `A(F·g) = F·(S g)` preserves the Rayleigh quotient (`rayleigh_groundState`) and hence the
+-- infimum over the subspace orthogonal to the ground state (`sInf_rayleigh_eq`).
+import BookProof.MCMC.GroundStateConjugation
+
 -- Wave (`pcnl.md` Module 1 proper, and Module 2 through it): the pCN step *is* diagonalised by
 -- the Fock number states in the `d → ∞` limit — `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
 import BookProof.MCMC.MehlerEigenfunction

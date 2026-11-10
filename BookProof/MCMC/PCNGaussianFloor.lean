@@ -31,7 +31,10 @@ the architecture's own proposal rather than an unknown number.
   `mem_pcnBox`), **`pcnMeasure_minorant`** (a density floor on the box turns into a measure
   inequality: `volume.withDensity q ≥ F • volume.restrict box`, uniformly in the starting point)
   and its instance **`pcnMeasure_floor`** at the architecture's numbers, with
-  `pcnMeasure_floor_pos`.
+  `pcnMeasure_floor_pos`;
+* **§3, the Doeblin condition against a named target** — `pcnProposalMeasure`, `pcnTargetMeasure`,
+  `pcnTargetMeasure_le_smul`, **`pcnDoeblin`**: `(F/B) • π ≤ P(x, ·)` on the box, for every starting
+  point, where `F` is the proposal's floor and `B` the target's ceiling.
 
 ## Honest boundary
 
@@ -194,5 +197,71 @@ theorem pcnMeasure_floor_pos {σ ρ R : ℝ} (hσ : 0 < σ) (hρ0 : 0 ≤ ρ) (h
     0 < ENNReal.ofReal
       (pcnNorm d (pcnScale σ ρ) * Real.exp (-((d : ℝ) * (R * (1 + ρ)) ^ 2) / pcnScale σ ρ)) :=
   ENNReal.ofReal_pos.mpr (pcnGaussian_floor_pos (d := d) hσ hρ0 hρ1)
+
+/-! ## 3. The Doeblin condition against a named target on `ℝ^d`
+
+§2 bounds the proposal's mass on the box.  What a Doeblin contraction consumes is a comparison with
+the *target*, so this section names it: a target measure `τ` on `ℝ^d`, bounded above by `B` on the
+box, and a proposal bounded below by `F` there, give `(F/B) • π ≤ P(x, ·)` — the minorant
+`PositivityCone` states as `Minorant` on a finite state space, now on `ℝ^d` with both measures
+named.
+
+* `pcnProposalMeasure c s ρ R x` — the proposal as a measure on the box, `volume.withDensity` of
+  §1's density;
+* `pcnTargetMeasure R τ` — the named target, `volume.withDensity` of the density `τ`, restricted to
+  the box;
+* **`pcnTargetMeasure_le_smul`** — a bound `τ ≤ B` on the box gives `π ≤ B • volume.restrict box`;
+* **`pcnDoeblin`** — the two bounds together: `(F/B) • π ≤ P(x, ·)` for *every* starting point `x`
+  in the box, with `smul_measure_mono` and `ofReal_div_mul_ofReal` the only measure algebra
+  needed.
+-/
+
+/-- The pCN proposal, as a measure on the box: the density of §1 against Lebesgue there. -/
+def pcnProposalMeasure (c s ρ R : ℝ) (x : Fin d → ℝ) : Measure (Fin d → ℝ) :=
+  (volume.restrict (pcnBox d R)).withDensity fun y => ENNReal.ofReal (pcnDensity c s ρ x y)
+
+/-- The named target on `ℝ^d`: a density `τ` against Lebesgue restricted to the box. -/
+def pcnTargetMeasure (R : ℝ) (τ : (Fin d → ℝ) → ℝ) : Measure (Fin d → ℝ) :=
+  (volume.restrict (pcnBox d R)).withDensity fun y => ENNReal.ofReal (τ y)
+
+theorem pcnTargetMeasure_le_smul {R B : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (hτB : ∀ y ∈ pcnBox d R, τ y ≤ B) :
+    pcnTargetMeasure (d := d) R τ ≤ ENNReal.ofReal B • (volume.restrict (pcnBox d R)) := by
+  rw [pcnTargetMeasure, ← withDensity_const]
+  refine withDensity_mono ?_
+  filter_upwards [ae_restrict_mem (measurableSet_pcnBox (d := d) R)] with y hy
+  exact ENNReal.ofReal_le_ofReal (hτB y hy)
+
+theorem smul_measure_mono {α : Type*} [MeasurableSpace α] {μ ν : Measure α} {a : ENNReal}
+    (h : μ ≤ ν) : a • μ ≤ a • ν := by
+  refine Measure.le_iff.mpr fun s hs => ?_
+  rw [Measure.smul_apply, Measure.smul_apply]
+  exact mul_le_mul_right (h s) a
+
+theorem ofReal_div_mul_ofReal {F B : ℝ} (hF : 0 ≤ F) (hB : 0 < B) :
+    ENNReal.ofReal (F / B) * ENNReal.ofReal B = ENNReal.ofReal F := by
+  rw [← ENNReal.ofReal_mul (by positivity)]
+  congr 1
+  field_simp
+
+/-- **The Doeblin condition against a named target on `ℝ^d`.**  If the target's density is at most
+`B` on the box and the proposal's density is at least `F` there, then the proposal dominates
+`F/B` times the target — the minorant a Doeblin contraction consumes, with the target named. -/
+theorem pcnDoeblin {c s ρ R F B : ℝ} {τ : (Fin d → ℝ) → ℝ} {x : Fin d → ℝ}
+    (hF : 0 ≤ F) (hB : 0 < B) (hτB : ∀ y ∈ pcnBox d R, τ y ≤ B)
+    (hle : ∀ y ∈ pcnBox d R, F ≤ pcnDensity c s ρ x y) :
+    ENNReal.ofReal (F / B) • pcnTargetMeasure (d := d) R τ
+      ≤ pcnProposalMeasure (d := d) c s ρ R x := by
+  have hπ : pcnTargetMeasure (d := d) R τ ≤ ENNReal.ofReal B • (volume.restrict (pcnBox d R)) :=
+    pcnTargetMeasure_le_smul hτB
+  have hμ : ENNReal.ofReal F • (volume.restrict (pcnBox d R))
+      ≤ pcnProposalMeasure (d := d) c s ρ R x := pcnMeasure_minorant hle
+  calc ENNReal.ofReal (F / B) • pcnTargetMeasure (d := d) R τ
+      ≤ ENNReal.ofReal (F / B) • (ENNReal.ofReal B • (volume.restrict (pcnBox d R))) :=
+        smul_measure_mono hπ
+    _ = ENNReal.ofReal F • (volume.restrict (pcnBox d R)) := by
+        rw [smul_smul, ofReal_div_mul_ofReal hF hB]
+    _ ≤ pcnProposalMeasure (d := d) c s ρ R x := hμ
+
 
 end BookProof.MCMC.PCNGaussianFloor

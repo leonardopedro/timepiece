@@ -1423,6 +1423,35 @@ gap there is `ω`, which is `λ` at `λ = 2ω`.  What stays open is the passage 
 operators to a spectral statement (that it preserves the infimum of the Rayleigh quotient over the
 mean-zero subspace), and the `d`-dimensional bookkeeping of the identity.
 
+**The identity in `d` dimensions (§34).**  §21.10 of `FockLangevinOperator` writes §33's identity on
+`ℝ^d`, which is where the pCNL potential lives: `coordDeriv`/`coordDerivTwo` are the coordinate
+partials `∂ⱼ`, `∂ⱼ²` (the derivative at `0` of the slice `t ↦ f(x + t·eⱼ)`), `genDiffD Φ f =
+∑ⱼ(∂ⱼ²f − ∂ⱼΦ·∂ⱼf)` is the generator `Δ − ∇Φ·∇`, `VeffD` its effective potential, and
+**`genDiffD_groundScale`** is `A(e^{Φ/2}g) = e^{Φ/2}(Δg − V_eff·g)`.  The proof applies the
+one-dimensional theorem to each slice (`coordSlice_contDiff`) and sums — the identity is the
+coordinate sum because that is what the Laplacian is.
+
+**The spectral step, in the finite model (§35).**  §34 says the two operators are conjugated; that a
+conjugation preserves the *gap* is a spectral statement the corpus cannot state without `L²(π)`.  The
+new chapter `GroundStateConjugation` proves its algebraic content on a finite index set: with a
+weight `π = F²` and `A(F·g) = F·(S g)`,
+
+* **`rayleigh_groundState`** — the Rayleigh quotient of `A` at `F·g` in the flat pairing equals the
+  quotient of `S` at `g` in the `π` pairing;
+* **`flatPair_groundState`** — the mean-zero constraint `⟪f, F⟫ = 0` maps to `⟪g, 1⟫_π = 0`, so the
+  ground state becomes the constant;
+* **`rayleigh_range_groundState`** — the two sets of quotients are equal (the substitution
+  `g ↦ F·g` is a bijection because `F` never vanishes), and **`sInf_rayleigh_eq`** — so are their
+  infima: the gap on the weighted side is the gap of the Schrödinger operator.
+
+**The Doeblin condition with a named target (§36).**  §2 of `PCNGaussianFloor` bounded the
+proposal's mass on the box; a contraction compares with the *target*.  §3 names it:
+`pcnProposalMeasure` and `pcnTargetMeasure` (both densities against Lebesgue on the box), a ceiling
+`τ ≤ B` giving `π ≤ B · volume.restrict box` (`pcnTargetMeasure_le_smul`), and **`pcnDoeblin`** —
+`(F/B) • π ≤ P(x, ·)` for every starting point, with `F` the proposal's floor.  That is the minorant
+`PositivityCone`'s `Minorant` states on a finite space, now on `ℝ^d` with both measures named; the
+rate is still missing, because the iterate bound needs kernel composition on `ℝ^d`.
+
 #### The track's honest boundary — one summary
 
 Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
@@ -1453,24 +1482,28 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   architecture's numbers (`affineForm_coefficient_le`, `affineForm_best_coefficient_neg`,
   `affineForm_architecture_coefficient`).
 * **The `L²(π)` identity and the oscillator.**  `genDiff_groundScale` (general `Φ`), `Veff_quadOne`,
-  `re_corePair_oscFreqOp`, `oscFreqOp_gap` — see §33 above.
-* **The weight-space floor.**  `pcnGaussian_floor` (a density bound on a box) and its measure form
+  `re_corePair_oscFreqOp`, `oscFreqOp_gap` — see §33 above — and their `d`-dimensional form
+  `genDiffD_groundScale` (§34).
+* **The spectral step, in the finite model.**  `rayleigh_groundState`, `flatPair_groundState`,
+  `rayleigh_range_groundState`, `sInf_rayleigh_eq` (§35): a ground-state conjugation preserves the
+  Rayleigh quotient and its infimum over the subspace orthogonal to the ground state.
+* **The weight-space floor.**  `pcnGaussian_floor` (a density bound on a box), its measure form
   `pcnMeasure_floor` (`volume.withDensity q ≥ F · volume.restrict box`, uniformly in the starting
-  point).
+  point), and the Doeblin condition against a named target `pcnDoeblin` (`(F/B) • π ≤ P(x, ·)`).
 
 *Not proved, and not claimed.*
 
 * **The pCNL operator's own gap.**  `pcnl_spectral_gap_of_hessian` as stated (`γ = λ` for the
   core's form) is false — §30–§32 are that computation.  The true location is `L²(π)` after the
-  ground-state transform (§33), and there only the identity and the exactly solvable oscillator are
-  formalized: no spectral theorem, no Rayleigh-quotient infimum, and the identity itself is
-  one-dimensional.
+  ground-state transform (§33–§34); the identity and the exactly solvable oscillator are formalized,
+  and so is the algebraic content of the spectral step (§35), but on a finite index set — there is no
+  `L²(π)` measure space, no self-adjointness, and no spectral theorem.
 * **A Hilbert-space model.**  The core is not completed; there is no `L²(π)` operator domain, no
   self-adjointness, no compactness, and `P₀ + K_reject = 1` is a normalisation identity on
   coefficient families, not positivity of a Markov kernel.
-* **The continuum chain.**  No target measure on `ℝ^d`, no passage of the Metropolis acceptance
-  through the density, and no Doeblin *rate*: `pcnMeasure_floor` bounds the proposal's mass on a box
-  from below, which is the input a minorant needs, not the minorant.
+* **The continuum chain.**  The target is named (§36) and the minorant `(F/B) • π ≤ P(x, ·)` holds,
+  but there is no Doeblin *rate*: the iterate bound needs kernel composition on `ℝ^d`, and the
+  Metropolis acceptance is not passed through the density.
 * **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
   invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
 * **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;
