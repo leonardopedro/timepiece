@@ -629,6 +629,23 @@ too makes `⟪gaussDirichletC F x, G x⟫` ambiguous), and `integral_re`/`integr
 rewrites against `z.re` — `RCLike.re_to_complex` keys on `reC` and `RCLike.re` does not match it
 syntactically — so the split uses `Complex.reCLM`/`imCLM.integral_comp_comm` instead.
 
+**Also done, over `ℝ`** — the *other* route of gap 1 below, which turns out to be shorter than the ℂ
+lift for everything except the deficiency analysis.  `BookProof.YangMillsFriedrichsReal`
+(appended to `ChapterYangMillsFriedrichs`) is Part B at `[InnerProductSpace ℝ F]`:
+`SymmetricOn`, `quadForm`, `formInner`, `formNormSq`, the expansions
+`formNormSq_add`/`_sub`/`_add_smul`, Cauchy–Schwarz `formInner_sq_le`, and `form_closable`.
+Every proof is the complex one with `starRingEnd`, `Complex.add_re` and `continuous_re`
+deleted; the two places that do *not* simplify mechanically are the swap `⟪H x, y⟫ = ⟪x, H y⟫`
+(this mathlib has `real_inner_comm`, `⟪y,x⟫_ℝ = ⟪x,y⟫_ℝ`, and no `inner_comm`) and the limiting step
+of `form_closable`, where `innerSL ℝ v` must be turned into a
+*plain* continuity statement (`continuous_const.inner continuous_id`) rather than `simpa`d
+through the `ContinuousLinearMap` coercion.  The instantiation lives in
+`BookProof/Qym/ChapterYangMillsGaussFormReal.lean`, a separate leaf module because the import graph
+already runs `ChapterYangMillsGaussForm → … → ChapterYangMillsFriedrichs`: importing the Gaussian
+chapter from inside the Friedrichs chapter is a build cycle, not a style question.  It provides
+`gaussOp_symmetricOn_real`, `gaussOp_quadForm_nonneg_real` and `gaussOp_form_closable_real` —
+`form_closable` on `gaussOp` with no complexification anywhere in statement or proof.
+
 Item 2 is discharged at the `Lp` level and item 3 is discharged.
 
 **What `ChapterYangMillsFriedrichs` still needs.**  That chapter is a self-contained Friedrichs
@@ -641,9 +658,11 @@ gap list, in order of difficulty:
 1. **Real-to-complex shim.**  `gaussOp` lives on `Lp ℝ 2 gaussMeasure`; the chapter is `ℂ`-valued
    (`SymmetricOn D H`, `quadForm H x = (⟪x, H x⟫ : ℂ).re`, `IsPositiveSelfAdjointExtension`).  Either
    complexify (`Lp ℂ 2 gaussMeasure` with the `ℂ`-linear extension of `gaussOp`) or port Part B of
-   the chapter to `ℝ`.  **Closed** by the first route:
+   the chapter to `ℝ`.  **Closed both ways**: the first by
    `ChapterYangMillsGaussFormComplex.gaussOpC : Lp ℂ 2 gaussMeasure →ₗ.[ℂ] Lp ℂ 2 gaussMeasure`
-   with the ℂ-valued `C²` core `gaussCoreC`.
+   with the ℂ-valued `C²` core `gaussCoreC`, the second by `BookProof.YangMillsFriedrichsReal` and
+   `ChapterYangMillsGaussFormReal.gaussOp_form_closable_real`.  The real route is kept because
+   closability does not need `i` — only the deficiency spaces do.
 2. **`SymmetricOn gaussCore gaussOp`** — **closed**: `gaussOpC_inner_comm`, in the `SymmetricOn`
    form as `gaussOpC_symmetric`.
 3. **Positivity on the core**, `0 ≤ quadForm gaussOp x`, i.e. `0 ≤ ⟪x, T x⟫_γ` — **closed**:

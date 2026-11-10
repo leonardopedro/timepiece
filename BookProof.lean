@@ -2156,6 +2156,19 @@ import BookProof.Qym.ChapterYangMillsGaussForm
 -- and `gaussOpC_form_closable` is its `form_closable` applied to this operator.
 import BookProof.Qym.ChapterYangMillsGaussFormComplex
 
+-- `ChapterYangMillsGaussFormReal` (work package S0, the real instantiation): `ChapterYangMillsFriedrichs`
+-- states Part B for a complex Hilbert space, so its `form_closable` cannot consume the real operator
+-- `gaussOp` directly.  `BookProof.YangMillsFriedrichsReal` (at the end of that chapter) restates the
+-- form, `formNormSq`, the expansions, Cauchy–Schwarz and `form_closable` for `[InnerProductSpace ℝ F]`
+-- — over `ℝ` there is no conjugation to carry and no `.re` to take — and this module joins it to the
+-- Gaussian chapter: `gaussOp_symmetricOn_real` (from `gaussOp_inner_comm`),
+-- `gaussOp_quadForm_nonneg_real` (from `gaussOp_quadForm_nonneg`) and
+-- `gaussOp_form_closable_real` (the instantiated `form_closable`).  The placement is forced by the
+-- import graph: `ChapterYangMillsGaussForm` already imports `ChapterYangMillsFriedrichs` (through
+-- Mehler, Abelian, Hermite and the Friedrichs extension chapters), so the join has to be a separate
+-- leaf module and not an import in either direction.
+import BookProof.Qym.ChapterYangMillsGaussFormReal
+
 -- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
 -- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
 -- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
