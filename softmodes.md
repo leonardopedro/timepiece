@@ -625,6 +625,36 @@ consumes, and the only nontrivial quantitative condition left is `quarticShift <
 Axioms audited on the six theorems of this subsection: `propext`, `Classical.choice`,
 `Quot.sound` only.
 
+#### S2 — the cross weight is dominated by the count factor `d − 1`
+
+The split `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n` becomes useful when one weight can pay for
+the other.  `YangMillsMagneticQuartic` now has the sharp bound:
+
+* `rootCrossWeight_le_sq_sum` — `rootCrossWeight n ≤ (d − 1) · ∑ a, n_a²`.  The `d − 1` is *not* a
+  guess: Cauchy–Schwarz gives `(∑ nᵢ)² ≤ d ∑ nᵢ²`, and the diagonal part of that same bound is
+  already `∑ nᵢ²`, so the cross weight inherits exactly `d − 1` copies.  Equivalently it is the
+  number of *other* components each pair can hop into, which is what
+  `sum_offdiag_amp_sq`'s `nᵢ nⱼ + nⱼ` counts.
+* `rootCrossForm_le_magnetic` — summed against `‖c n‖²`:
+  `∑_n rootCrossWeight n ‖c n‖² ≤ (d − 1) · magneticEnergyForm diagA c`.
+* `magneticEnergyForm_le_quartic`, `magnetic_quartic_count_sandwich` — the two directions together:
+
+  `q_mag ≤ (∑ n)² ≤ d · q_mag`,
+
+  so the magnetic and quartic weights are the same form up to the explicit count factor, and the
+  cross weight sits between them.
+* `not_sq_sum_le_rootCross` — the converse is **false**: on `d = 2` with one occupied component,
+  `∑ a, n_a² = 1` while the cross weight is `0`.  So the count factor cannot be dropped or inverted;
+  the diagonal part of the weight is not payable by the cross part.
+
+This is the quantitative form of the earlier observation that dropping the cross term is what makes
+the `:N²:` model coercive: on the canonical background the cross weight is a bounded fraction of
+the magnetic weight, with the bound `d − 1` improving to `0` exactly when only one component is
+occupied.
+
+Axioms audited on the four theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
 #### S2 — the two-pair amplitude on a single mode
 
 The one-pair amplitude left the *product* of two root pairs as the outstanding piece of the mode

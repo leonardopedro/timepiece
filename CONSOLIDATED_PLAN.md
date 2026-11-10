@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10g):** “State of the project — 2026-11-10g: the two-pair amplitude on
+> **Newest entry (2026-11-10h):** “State of the project — 2026-11-10h: the cross weight against the
+> count factor”, at the end.  `rootCrossWeight_le_sq_sum` proves the sharp `d − 1` bound
+> (`rootCrossForm_le_magnetic` at form level), `magnetic_quartic_count_sandwich` gives
+> `q_mag ≤ (∑ n)² ≤ d · q_mag`, and `not_sq_sum_le_rootCross` shows the converse fails, so the
+> count factor cannot be dropped.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10g):** “State of the project — 2026-11-10g: the two-pair amplitude on
 > a single mode”, at the end.  `hopWord_two_pairs` gives `c_i† c_j c_k† c_l |n⟩` the amplitude
 > `√((nᵢ+1)nⱼ)·√((n_k+1)n_l)`, the product of the two one-pair amplitudes (`two_pairs_normSq` for
 > its weight); the same pair twice shifts its arguments (`hopWord_two_pairs_same`), and the diagonal
@@ -19666,3 +19671,34 @@ No claim about inhabiting `ModeIdentification` is made (and the abelian sector p
 `normSq_sqrt_mul_sqrt`, `hopWord_two_pairs`, `two_pairs_normSq`, `hopWord_two_pairs_same`,
 `two_pairs_same_normSq` and `hopWord_two_pairs_diag` reports `propext, Classical.choice,
 Quot.sound` only; no line of the touched file exceeds 100 characters.
+
+## State of the project — 2026-11-10h: the cross weight against the count factor
+
+This entry records the follow-up to 2026-11-10g.  All of it is `sorry`-free, `axiom`-free and
+compiled with `lake build +BookProof`.
+
+The pointwise split `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n` becomes an estimate once one weight
+pays for the other.  `YangMillsMagneticQuartic` now has that estimate in the sharp form:
+
+* `rootCrossWeight_nonneg`.
+* `rootCrossWeight_le_sq_sum` — `rootCrossWeight n ≤ (d − 1) · ∑ a, n_a²`.  The factor is `d − 1`
+  rather than `d` because Cauchy–Schwarz's `(∑ nᵢ)² ≤ d ∑ nᵢ²` already contains the diagonal part
+  in the `∑ nᵢ²` it is subtracted from; equivalently `d − 1` is the number of *other* components a
+  pair can hop into, as in `YangMillsFieldStrength.sum_offdiag_amp_sq`.
+* `rootCrossForm_le_magnetic` — the form-level version:
+  `∑_n rootCrossWeight n ‖c n‖² ≤ (d − 1) · magneticEnergyForm diagA c`.
+* `magneticEnergyForm_le_quartic`, `magnetic_quartic_count_sandwich` — both directions at once:
+  `q_mag ≤ (∑ n)² ≤ d · q_mag`.
+* `not_sq_sum_le_rootCross` — the converse fails: on `d = 2` with one occupied component the
+  magnetic weight is `1` and the cross weight `0`, so the count factor cannot be dropped or
+  inverted.
+
+**Reading.**  The cross term the abelian sector cannot supply is, on the canonical background, a
+bounded fraction of the magnetic weight with the explicit constant `d − 1`; that is the arithmetic
+behind "dropping the cross term is what makes `:N²:` coercive", now with no free parameter.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`rootCrossWeight_nonneg`, `rootCrossWeight_le_sq_sum`, `rootCrossForm_le_magnetic`,
+`magneticEnergyForm_le_quartic`, `magnetic_quartic_count_sandwich` and `not_sq_sum_le_rootCross`
+reports `propext, Classical.choice, Quot.sound` only; no line of the touched file exceeds 100
+characters.
