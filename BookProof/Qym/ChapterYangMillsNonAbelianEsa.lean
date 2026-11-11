@@ -1,6 +1,7 @@
 import Mathlib
 import BookProof.Toolbox.ChapterHermiteGraphApprox
 import BookProof.Qym.ChapterYangMillsHermite
+import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
 import BookProof.ChapterEsaOneParticleDGamma
 
 /-!
@@ -271,6 +272,26 @@ momenta in the 24 gauge-field coordinates and the 24 magnetic fields as polynomi
 `2H + 1 = −Δ_S + W` with `W = Σ_{i,a} B_{ia}² + 1`. -/
 theorem ymHamiltonian_eq_weylPoly (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
     ymHamiltonian (coreRepPoly 99) fabc = weylPoly ymIdx (ymMag fabc) := rfl
+
+/-- **The field-strength polynomial in the comparison's notation.**  The weight `W` of
+`2H + 1 = −Δ_S + W` is exactly `magWeight`: the sum of the squares of the `24` magnetic components,
+the same terms the split `B = ∂A + [A,A]` and the degree bound of
+`ChapterYangMillsFieldStrengthSplit` are stated for. -/
+theorem magWeight_eq_sum_ymMag (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    BookProof.YangMillsFieldStrengthSplit.magWeight fabc
+      = (∑ m : Fin 24, (ymMag fabc m) ^ 2) + 1 :=
+  rfl
+
+/-- **The comparison hypothesis supplied by the field strength.**  Every magnetic component has
+total degree `≤ 2`, so the weight `W` the comparison calculation sees has total degree `≤ 4` in the
+`99` coordinates — the quartic growth class. -/
+theorem totalDegree_ymMag_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (m : Fin 24) :
+    (ymMag fabc m).totalDegree ≤ 2 :=
+  BookProof.YangMillsFieldStrengthSplit.totalDegree_magPoly_le fabc (decodeSpace m) (decodeColor m)
+
+theorem totalDegree_magWeight_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    (BookProof.YangMillsFieldStrengthSplit.magWeight fabc).totalDegree ≤ 4 :=
+  BookProof.YangMillsFieldStrengthSplit.totalDegree_magWeight_le fabc
 
 /-- **The non-abelian gauge-fixed Yang–Mills one-particle Hamiltonian
 `H = ½ Σ π² + ½ Σ B²` is essentially self-adjoint on the Gauss–polynomial core of

@@ -293,6 +293,72 @@ theorem root_energy_hermitian (a₁ a₂ : ℂ) :
     norm_num
   rw [hsq]
 
+/-! ## 4. The degree class the comparison calculation consumes
+
+The comparison calculation is stated for a potential of **bounded polynomial degree**: it needs the
+weight to grow at most quartically, so that it is dominated by the graph norm it is compared with.
+This section records that the full nonabelian field strength lands in that class, component by
+component and summed: `B` has total degree `≤ 2` in the `99` coordinates, and the magnetic weight
+`W = Σ B² + 1` — the `W` of `2H + 1 = −Δ_S + W` — has total degree `≤ 4`.  The cubic terms are
+the cross terms of `∂A` with `[A,A]` and the quartic ones are the square of `[A,A]`. -/
+
+/-- The derivative part is linear. -/
+theorem totalDegree_magDeriv_le (i : Fin 3) (a : Fin 8) : (magDeriv i a).totalDegree ≤ 1 := by
+  refine MvPolynomial.totalDegree_finsetSum_le fun j _ => ?_
+  refine MvPolynomial.totalDegree_finsetSum_le fun k _ => ?_
+  refine (MvPolynomial.totalDegree_smul_le _ _).trans ?_
+  rw [MvPolynomial.totalDegree_X]
+
+/-- The commutator bilinear form is quadratic. -/
+theorem totalDegree_magBilin_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (j k : Fin 3) (a : Fin 8) :
+    (magBilin fabc j k a).totalDegree ≤ 2 := by
+  refine MvPolynomial.totalDegree_finsetSum_le fun b _ => ?_
+  refine MvPolynomial.totalDegree_finsetSum_le fun c _ => ?_
+  refine (MvPolynomial.totalDegree_smul_le _ _).trans ?_
+  refine (MvPolynomial.totalDegree_mul _ _).trans ?_
+  rw [MvPolynomial.totalDegree_X, MvPolynomial.totalDegree_X]
+
+/-- The commutator part is quadratic. -/
+theorem totalDegree_magComm_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3) (a : Fin 8) :
+    (magComm fabc i a).totalDegree ≤ 2 := by
+  refine MvPolynomial.totalDegree_finsetSum_le fun j _ => ?_
+  refine MvPolynomial.totalDegree_finsetSum_le fun k _ => ?_
+  refine (MvPolynomial.totalDegree_smul_le _ _).trans ?_
+  exact totalDegree_magBilin_le fabc j k a
+
+/-- The field-strength component is at most quadratic: `∂A` contributes degree `1` and `[A,A]`
+degree `2`, with no assumption on the structure constants. -/
+theorem totalDegree_magPoly_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3) (a : Fin 8) :
+    (magPoly fabc i a).totalDegree ≤ 2 := by
+  rw [magPoly_eq_deriv_add]
+  refine (MvPolynomial.totalDegree_add _ _).trans ?_
+  exact max_le ((totalDegree_magDeriv_le i a).trans (by norm_num))
+    (totalDegree_magComm_le fabc i a)
+
+/-- Its square is quartic. -/
+theorem totalDegree_magPoly_sq_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3) (a : Fin 8) :
+    ((magPoly fabc i a) ^ 2).totalDegree ≤ 4 := by
+  rw [pow_two]
+  refine (MvPolynomial.totalDegree_mul _ _).trans ?_
+  have h := totalDegree_magPoly_le fabc i a
+  omega
+
+/-- **The comparison weight**: `W = Σ_m B_m² + 1`, over the same `24 = 3 × 8` field/colour pairs the
+one-particle Hamiltonian sums over.  This is the potential in `2H + 1 = −Δ_S + W`. -/
+noncomputable def magWeight (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : MvPolynomial (Fin 99) ℂ :=
+  (∑ m : Fin 24, (magPoly fabc (decodeSpace m) (decodeColor m)) ^ 2) + 1
+
+/-- **The field-strength polynomial lands in the comparison's degree class**: `W` is a polynomial of
+total degree at most `4` in the `99` coordinates. -/
+theorem totalDegree_magWeight_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    (magWeight fabc).totalDegree ≤ 4 := by
+  refine (MvPolynomial.totalDegree_add _ _).trans ?_
+  refine max_le ?_ ?_
+  · refine (MvPolynomial.totalDegree_finsetSum_le fun m _ => ?_).trans (le_refl 4)
+    exact totalDegree_magPoly_sq_le fabc (decodeSpace m) (decodeColor m)
+  · rw [show (1 : MvPolynomial (Fin 99) ℂ) = C 1 from rfl, MvPolynomial.totalDegree_C]
+    norm_num
+
 end
 
 end BookProof.YangMillsFieldStrengthSplit

@@ -487,6 +487,149 @@ theorem no_absolute_gap_of_kernel_vector {E : Type*} [NormedAddCommGroup E]
   have hnorm : 0 < ‖x₀‖ := norm_pos_iff.mpr hx₀
   nlinarith [pow_pos hnorm 2, hm]
 
+/-! ## The derivative transfer in `n` coordinates
+
+`conj_deriv` is the one-coordinate statement `U ∂ U⁻¹ = ∂ + x/2`.  On the `n`-coordinate mode
+space the derivative is the coordinate derivative along a line, and the same identity holds there:
+the weight factorizes, so the part of it outside the `j`-th coordinate cancels against itself and
+leaves exactly the one-coordinate drift.  This is the derivative half of the 99-coordinate product
+transfer; `lintegral_norm_sq_conj_N` above is the norm half. -/
+
+/-- The squared norm of the coordinates other than `j`. -/
+noncomputable def restSq {n : ℕ} (x : Fin n → ℝ) (j : Fin n) : ℝ :=
+  ∑ i ∈ Finset.univ.erase j, x i ^ 2
+
+theorem sum_sq_update {n : ℕ} (x : Fin n → ℝ) (j : Fin n) (t : ℝ) :
+    ∑ i, Function.update x j t i ^ 2 = t ^ 2 + restSq x j := by
+  rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ j)]
+  congr 1
+  · simp
+  · rw [Finset.sdiff_singleton_eq_erase, restSq]
+    exact Finset.sum_congr rfl fun i hi => by simp [Finset.ne_of_mem_erase hi]
+
+/-- The `n`-coordinate root along the `j`-th line is the one-coordinate root times the constant
+carried by the other coordinates. -/
+theorem gaussRootN_update {n : ℕ} (x : Fin n → ℝ) (j : Fin n) (t : ℝ) :
+    gaussRootN (Function.update x j t) = gaussRoot t * Real.exp (-(restSq x j) / 4) := by
+  rw [gaussRootN, gaussRoot, sum_sq_update, ← Real.exp_add]
+  congr 1
+  ring
+
+/-- The reciprocal weight along the `j`-th line. -/
+theorem invGaussN_update {n : ℕ} (x : Fin n → ℝ) (j : Fin n) (t : ℝ) :
+    invGaussN (Function.update x j t) = invGauss t * Real.exp (restSq x j / 4) := by
+  rw [invGaussN, invGauss, sum_sq_update, ← Real.exp_add]
+  congr 1
+  ring
+
+/-- The value of the `n`-coordinate root at a point, split along coordinate `j`. -/
+theorem gaussRootN_eq_root_mul_rest {n : ℕ} (x : Fin n → ℝ) (j : Fin n) :
+    gaussRootN x = gaussRoot (x j) * Real.exp (-(restSq x j) / 4) :=
+  by simpa [Function.update_eq_self] using gaussRootN_update x j (x j)
+
+/-- **The derivative transfer in `n` coordinates**: conjugating the coordinate derivative `∂_j`
+adds the drift `x_j / 2`, for every `n` — in particular for the `n = 99` mode space.  The inner
+function is the conjugated one, `invGaussN · F`, exactly as on the core. -/
+theorem conj_pderiv {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : Fin n → ℝ) (j : Fin n) {d : ℝ}
+    (hd : HasDerivAt (fun t => F (Function.update x j t)) d (x j)) :
+    gaussRootN x * deriv (fun t => invGaussN (Function.update x j t)
+        * F (Function.update x j t)) (x j) = d + (x j / 2) * F x := by
+  have hfun : (fun t => invGaussN (Function.update x j t) * F (Function.update x j t))
+      = fun t => Real.exp (restSq x j / 4) * (invGauss t * F (Function.update x j t)) := by
+    funext t
+    rw [invGaussN_update]
+    ring
+  rw [hfun]
+  have hd' := (hasDerivAt_invGauss_mul hd).const_mul (Real.exp (restSq x j / 4))
+  have hgg : gaussRoot (x j) * invGauss (x j) = 1 := gaussRoot_mul_invGauss (x j)
+  have hEE : Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4) = 1 := by
+    rw [← Real.exp_add]
+    rw [show -(restSq x j) / 4 + restSq x j / 4 = 0 by ring]
+    rw [Real.exp_zero]
+  rw [hd'.deriv]
+  rw [show F (Function.update x j (x j)) = F x by rw [Function.update_eq_self]]
+  rw [gaussRootN_eq_root_mul_rest]
+  calc gaussRoot (x j) * Real.exp (-(restSq x j) / 4) *
+        (Real.exp (restSq x j / 4) * (invGauss (x j) * (d + (x j / 2) * F x)))
+      = gaussRoot (x j) * invGauss (x j) *
+          (Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4)) *
+          (d + (x j / 2) * F x) := by ring
+    _ = d + (x j / 2) * F x := by rw [hgg, hEE]; ring
+
+/-! ## The core, as an explicit domain -/
+
+/-- **The Gauss–polynomial core in `n` coordinates**, as an explicit domain: the functions
+`p · γ^{1/2}` with `p` a polynomial in the `n` coordinates.  At `n = 99` this is the core the QYM
+one-particle operator is defined on.  Density of this subspace in `L²(γ)` is *not* asserted here;
+that is a separate hypothesis wherever it is needed. -/
+def qymCore (n : ℕ) : Submodule ℝ ((Fin n → ℝ) → ℝ) where
+  carrier := {φ | ∃ p : MvPolynomial (Fin n) ℝ, φ = fun x => MvPolynomial.eval x p * gaussRootN x}
+  zero_mem' := ⟨0, by funext x; simp⟩
+  add_mem' := by
+    rintro φ ψ ⟨p, rfl⟩ ⟨q, rfl⟩
+    refine ⟨p + q, ?_⟩
+    funext x
+    simp [MvPolynomial.eval_add, add_mul]
+  smul_mem' := by
+    rintro c φ ⟨p, rfl⟩
+    refine ⟨MvPolynomial.C c * p, ?_⟩
+    funext x
+    simp only [MvPolynomial.eval_mul, MvPolynomial.eval_C, Pi.smul_apply, smul_eq_mul]
+    ring
+
+/-- Membership in the core is exactly "a polynomial times the root". -/
+theorem qymCore_mem {n : ℕ} {φ : (Fin n → ℝ) → ℝ} :
+    φ ∈ qymCore n ↔
+      ∃ p : MvPolynomial (Fin n) ℝ, φ = fun x => MvPolynomial.eval x p * gaussRootN x :=
+  Iff.rfl
+
+/-- The weight itself is in the core: it is the `p = 1` element. -/
+theorem gaussRootN_mem_qymCore (n : ℕ) :
+    (fun x : Fin n → ℝ => gaussRootN x) ∈ qymCore n :=
+  ⟨1, by funext x; simp⟩
+
+/-- **The second-order conjugation along one coordinate, on the core's coordinate.**  The weighted
+Dirichlet operator of the `n`-coordinate Gaussian measure, restricted to the `j`-th line, conjugates
+to the oscillator: `U (−∂² + x ∂) U⁻¹ = −∂² + x²/4 − 1/2`, with `x` the coordinate `x_j`.  The
+rest of the `n`-coordinate weight cancels because it is constant along that line — which is why the
+`n`-coordinate second-order statement needs no new analytic input. -/
+theorem conj_gaussDirichlet_slice {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : Fin n → ℝ) (j : Fin n)
+    {d e : ℝ → ℝ} (hd : ∀ t, HasDerivAt (fun s => F (Function.update x j s)) (d t) t)
+    (he : ∀ t, HasDerivAt d (e t) t) :
+    gaussRootN x * gaussDirichlet
+        (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+      = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by
+  have hfun : (fun t => invGaussN (Function.update x j t) * F (Function.update x j t))
+      = fun t => invGauss t * (Real.exp (restSq x j / 4) * F (Function.update x j t)) := by
+    funext t
+    rw [invGaussN_update]
+    ring
+  have hd' : ∀ t, HasDerivAt (fun s => Real.exp (restSq x j / 4) * F (Function.update x j s))
+      (Real.exp (restSq x j / 4) * d t) t := fun t => (hd t).const_mul _
+  have he' : ∀ t, HasDerivAt (fun s => Real.exp (restSq x j / 4) * d s)
+      (Real.exp (restSq x j / 4) * e t) t := fun t => (he t).const_mul _
+  have h1 := conj_dirichlet hd' he' (x j)
+  rw [show Function.update x j (x j) = x from Function.update_eq_self j x] at h1
+  have hEE : Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4) = 1 := by
+    rw [← Real.exp_add, show -(restSq x j) / 4 + restSq x j / 4 = 0 by ring, Real.exp_zero]
+  rw [hfun, gaussRootN_eq_root_mul_rest]
+  calc gaussRoot (x j) * Real.exp (-(restSq x j) / 4) *
+        gaussDirichlet
+          (fun t => invGauss t * (Real.exp (restSq x j / 4) * F (Function.update x j t))) (x j)
+      = Real.exp (-(restSq x j) / 4) *
+        (gaussRoot (x j) *
+          gaussDirichlet
+            (fun t => invGauss t * (Real.exp (restSq x j / 4) * F (Function.update x j t)))
+            (x j)) := by ring
+    _ = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by
+        rw [h1]
+        calc Real.exp (-(restSq x j) / 4) *
+              (-(Real.exp (restSq x j / 4) * e (x j)) +
+                (x j ^ 2 / 4 - 1 / 2) * (Real.exp (restSq x j / 4) * F x))
+            = (Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4)) *
+                (-e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x) := by ring
+          _ = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by rw [hEE]; ring
+
 end
 
 end BookProof.YangMillsMehlerBridge
