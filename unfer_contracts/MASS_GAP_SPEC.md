@@ -431,27 +431,40 @@ ordering (`30` RCM / `33` nested dissection), what ends it is the same
 accumulated rounding, and it is not the clock: the bound arrives with the
 elimination nearly finished.
 
-**Two ranges.** `below == 1` only through `N ≤ 30`, so that is the certified
-`λ₂`-witness range; at `N ≤ 32 / 33` the counter still decides but reports three
-and four eigenvalues below `β`, because the 60-step Ritz value no longer
-separates `λ₁` from `λ₂`. A `2×2` block-pivot fallback (for a trailing block in
-which no diagonal has a decidable sign; inertia from the determinant and the
-trace) now counts `[[0,1],[1,0]]` instead of refusing, but it does not move the
-wall: at `N ≤ 34` no determinantal sign is decidable either and the refusal lands
-on the same index `34159`. The even reflection block (`Truncated::sector(true)`)
-is the one place measured where the wall is not the odd block's: at the same `β`
-nested dissection still decides `N ≤ 34` (`n = 38931`, fill 1396, 93 s, ratio
-`7.2e-4`) and refuses `N ≤ 36` (562 s), one shell past the odd block's `33 / 34`
-boundary. The wall tracks each matrix's trailing condition, not its dimension —
-the `N ≤ 34` even matrix is the larger of the two and decides where the odd one
-refuses.
+**Two ranges — at the campaign's `β`.** `below == 1` only through `N ≤ 30`, so
+that is the certified `λ₂`-witness range *at that threshold*; at `N ≤ 32 / 33`
+the counter still decides but reports three and four eigenvalues below `β`,
+because the 60-step Ritz value put `β` above `λ₂` as well as above `λ₁`. A `2×2`
+block-pivot fallback (for a trailing block in which no diagonal has a decidable
+sign; inertia from the determinant and the trace) now counts `[[0,1],[1,0]]`
+instead of refusing, but it did not move the wall: at `N ≤ 34` at the loose `β`
+no determinantal sign was decidable either and the refusal landed on the same
+index `34159`.
+
+**The wall was the shift, not the block (2026-11-11).** Every refusal in the table
+above used `β = θ₀ + 0.5` with `θ₀` from 60 Lanczos steps, and 60 steps is
+unconverged on these blocks — the residual is `0.05` (odd `N ≤ 20`), `0.58` (even
+`N ≤ 20`) and `2.60` (odd `N ≤ 30`) — so `θ₀` was a loose upper bound on `λ₁`
+(`−11.8546` against the converged `−13.6716` at `N ≤ 34`) and the count was asked
+to factor `H + 11.35·I`: `1.8` above the ground instead of `0.5`. At 240 steps
+(residual `1e-12`–`1e-9`) every size that refused now decides, in both blocks,
+with `below == 1` — a genuine `λ₂` witness: odd `N ≤ 34` (fill 1298, 68 s,
+`3.8e-19`), odd `N ≤ 36` (`n = 43320`, fill 1494, 126 s, `8.0e-18`), even
+`N ≤ 36` (`n = 48070`, fill 1604, 172 s, `5.2e-15`); the even block under its
+**own** `β` reports `below == 1` from `N ≤ 20` (`n = 5786`, `θ₀ = −7.512462`,
+fill 358) up. So the reach is at least `36` in both blocks and the boundary is
+now unmeasured (`N ≤ 38` has not been run), the witness range is at least `36`
+rather than `30`, and the `562 s` even refusal was that matrix at the *odd*
+threshold. The ordering split survives the correction: RCM still refuses
+`N ≤ 34` at the converged `β` after 422 s, and the even block at `N ≤ 30` decides
+under RCM only at ratio `1.8e-2` against nested dissection's `5.3e-18`.
 
 **Ordering: smaller fill, and two sizes of reach.** Nested dissection cuts the
 fill by 6–27 % on the grid (18→16, 93→68, 258→226, 534→485) and is 2–2.5× faster
 at the top. Past the grid its fill advantage fades (652 vs 653 at `N ≤ 26`, 961
 vs 927 at `N ≤ 30`), so fill is asserted only on the campaign's own sizes; its
 *bound* advantage does not fade, which is why it is the ordering that reaches
-`N ≤ 33`. Pivoting on relative accuracy instead of magnitude does not move the
+furthest (`N ≤ 36` where RCM stops at `30`). Pivoting on relative accuracy instead of magnitude does not move the
 wall (measured), and neither do `2×2` block pivots. **Symmetric equilibration is a measured no-op**: `D(H − βI)D`
 with `D = diag(2ᵏ)` is an exact congruence (the count must come out identical,
 and does, at every size), and the bound-to-pivot ratios are identical to the
