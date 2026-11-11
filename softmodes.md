@@ -1,5 +1,76 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
+## External-source revision (2026-11-11)
+
+Two external trees were read for this revision: `../YM` (the Yang–Mills group's results and
+verification repository, which contains an assessment dated 10 November 2026 of OpenAI's 28 October
+2026 Lean submission) and `../Yang--Mills-LLM-experiment` (the Balaban-programme draughts: QED3,
+YM3, YM4, RP1). **Neither is an input to any proof in this repository**, and nothing of theirs was
+compiled against ours. Their use here is narrow and specific: to check the two targets below against
+an independently assessed status, and to take the vocabulary and the comparison obligations that the
+targets are missing.
+
+### The two targets against the external open-question list
+
+The October construction is judged to prove a Wightman-axiom QFT as a (subsequential) scaling limit
+of four-dimensional Wilson lattice gauge theory, and explicitly **not** to prove a mass gap
+("provides no evidence for or against a mass gap"), uniqueness of the limit or vacuum, a continuum
+measure, Wilson loops / area law, or single-particle states and their spectrum (§8, items 1–5). Its
+items 3 and 5 are our targets 1 and 2 read from the other end:
+
+* **their 3 ↔ our target 1.** A uniform mass gap with exponential decay of correlations and a
+  spectral gap of the OS Hamiltonian. This is the same analytic input as "the absolute bottom of
+  `h` is `> 0`" once `h` is the inner Hamiltonian and the outer operator is `dΓ(h)`.
+* **their 5 ↔ our target 2, plus the one-particle space.** "Construct single-particle states and
+  analyse their energy–momentum spectrum" is the step for which our inner core is the candidate
+  space: the QYM mode space with the Gauss–polynomial core *is* a one-particle space, whereas the
+  lattice construction supplies only the reconstructed Hilbert space, with no distinguished
+  one-particle subspace and no Mehler coordinates.
+
+Consequences. The external assessment is now a dated, independent corroboration that **no existing
+lattice construction hands us either target**, so the QYM row remains the programme's top analytic
+input for exactly the reason recorded in `CURRENT_WORK_ORDER.md`, not only because of an internal
+judgement about the corpus. It also fixes the wording: target 1 is *not* "the continuum theory has a
+mass gap"; it is "the inner one-particle form is coercive", and the lift to a gap of `H` is a
+separate deduction through `H ≥ m N_out ≥ m(I − P_Ω)`.
+
+### What the Balaban diagram says about the Gaussian comparison (obligation C)
+
+The YM4 assembly outline is a 17-box dependency diagram with per-box status: LP (lattice states and
+reflection positivity), BA, MB, GI, EM, RT, SI, FP, CL are *complete assuming inputs*; **NB, RS, LF,
+RC, B, CP are *not closed***. The box that matters here is **CP, "conditional laws and Gaussian
+comparison"**, which is not closed precisely because it must identify the *complete interacting
+conditional law* and verify its force, chart and marked-error bounds. That is the structure a
+Gaussian comparison in this file should also have. Concretely, S3's comparison with the Gaussian
+reference should be stated with three data and no more: (i) the conditional law of the field given
+the coarse data, (ii) the covariance family it is compared with, (iii) the error bounds (force,
+chart, marked error) that the comparison controls. An unqualified "compare with the Gaussian"
+statement has no external precedent and, read literally, is false.
+
+The outline also fixes a boundary for target 1: **there is no gap box in that diagram at all**, and
+its nearest strategy-level input is uniform decay of correlations, which sits inside the not-closed
+boxes. The Balaban route therefore neither competes with nor short-circuits target 1.
+
+### What must not be imported
+
+* **No lattice → Mehler identification exists in either tree.** Their reflection positivity is a
+  statement about lattice measures (LP: all sixteen reflection families for the admitted periodic
+  Gibbs states); ours is at the level of `BookProof/OSReconstruction/*`. Calling the two "the same
+  reflection positivity" requires a theorem matching the reflection families — it is not a
+  convention.
+* **No inner core, no ghost grading, no squeezed states** appear in either tree. The inner pair
+  terms, the `99 = 3 + 24 + 72` coordinates and the ghost distinction are our objects; the external
+  constructions are statements about the reconstructed theory.
+* **RP1** (rotation invariance from lattice symmetry and reflection positivity) is the one external
+  item aimed at a gap this repository flags — the "finite coordinate rotation is not Euclidean field
+  invariance" correction in [cftproof.md](cftproof.md). Its status is an unvetted outline and
+  manuscript; it is recorded as the candidate citation, not as a step that can be assumed.
+* **Weight grading.** The label grading of the October submission (curvature weight `2`, derivative
+  `+1`, products add; degree-`d` labels quotiented by the Bianchi relations) is the standard form of
+  the degree class this repository now proves for the field strength (`totalDegree_magPoly_le ≤ 2`,
+  `totalDegree_magWeight_le ≤ 4`). Use that vocabulary when the quartic weight is consumed, and note
+  that the quotient by relations is why a degree bound — not a monomial count — is the invariant.
+
 ## Revised work package (2026-11-08)
 
 This revision supersedes the roadmap and completion claims of the dated phases below **as a

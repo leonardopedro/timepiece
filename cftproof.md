@@ -1,5 +1,83 @@
 # Euclidean fields, Mehler coordinates and nested-Fock reconstruction
 
+## External-source revision (2026-11-11)
+
+Two external trees were read for this revision: `../YM` (the Yang–Mills group's *results and
+verification* repository) and `../Yang--Mills-LLM-experiment` (the Balaban-programme draught
+corpus). **Neither is an input to any proof in this repository.** Their contents are PDFs and a
+separate Lean tree; nothing here was compiled against ours, and no claim of theirs may be used as a
+hypothesis in a Lean statement below. What they do supply is a *dated, independently assessed
+status* to measure this file's architecture against.
+
+### What the two trees establish, in their own terms
+
+**`../YM` — assessment of OpenAI's 28 October 2026 submission (dated 10 November 2026).**
+Judged: proves that a relativistic QFT satisfying the **Wightman axioms** can be constructed as a
+scaling limit of four-dimensional Wilson lattice gauge theory, for any simple compact gauge group,
+with OS reconstruction proved in the submission. Explicitly *not* proved, and this is the part that
+matters for planning: uniqueness of the infinite-volume limit and of the vacuum; a probability
+measure for the continuum theory on a state space; a mass gap; Wilson loops and the area law;
+construction of single-particle states and their energy–momentum spectrum (their §8, items 1–5).
+Their object is **correlation functions of gauge-invariant labels**: curvature carries weight `2`,
+each derivative adds `1`, products add weights, and the labels of weight `≤ d` are quotiented by the
+linear relations (Bianchi) to give `Fd = Vd/Nd`. The infinite-volume limit is **subsequential**, and
+the reconstruction runs through a decomposition of the limit into pure phases.
+
+**`../Yang--Mills-LLM-experiment` — Balaban programme draughts (QED3, YM3, YM4, RP1).** The YM4
+assembly outline is a 17-box dependency diagram whose boxes carry their own status: LP (lattice
+states and reflection positivity), BA (block averaging), MB (linear lattice PDE), GI (Gaussian block
+integration), EM (small-field iteration), RT, SI, FP, CL are marked *complete assuming inputs*;
+**NB, RS, LF, RC, B, CP are marked *not closed***. Reflection, angular continuation, reconstruction,
+phase decomposition, density and spectral-filter theorems are 91 pages of *external general theory*,
+i.e. black boxes relative to that diagram. The one result in that tree aimed at a gap this file
+flags is RP1 (*rotation invariance from lattice symmetry and reflection positivity*), which is an
+unvetted outline/manuscript.
+
+### Four consequences for this file
+
+**B — reconstruction is an import, not a construction here.** Phase 4's Wick rotation and
+Osterwalder–Schrader step now has an independently assessed formal statement to agree with, and this
+file should be read as "agrees with, or departs from, that statement", not as building reconstruction
+from scratch. What remains *ours* and has no counterpart in either external tree is the Mehler /
+nested-Fock identification: both external programmes are about lattice correlation functions and
+never identify a Gaussian coordinate law with a mode space. The four-space separation above
+(`𝓧_E`, `L²(γ)`, `𝓗_OS`, `𝓕_out`) is therefore the part of the route that is neither supplied nor
+refuted by them.
+
+**C — the weight grading is the field-strength degree class, and should be stated in its
+vocabulary.** `Vd`/`Fd` is the same grading our QYM chapter reports: `magPoly` is a label of weight
+`2` (curvature), a derivative coordinate (`idxD`) adds `1`, and the potential `½Σ B² + 1` is a label
+of weight `4` — which is exactly `totalDegree_magWeight_le`. The quotient by the linear relations is
+the reason the invariant is a *degree* and not a monomial count: two different polynomial expressions
+of the same weight present the same label. Cite the external grading when the degree class is used
+downstream, so the invariant is recognisably the standard one.
+
+**N — nothing in either tree produces a mass gap, so this file cannot borrow one.** Their item 4 is
+"provide no evidence for or against a mass gap"; the Balaban diagram has no gap box at all, and its
+nearest strategy-level input (uniform decay of correlations) is precisely what is not closed. Any
+Phase 5 text below must therefore not be read as "continuum Yang–Mills plus gap": the gap stays the
+inner-Hamiltonian statement of [softmodes.md](softmodes.md) target 1, and the reconstruction supplies
+only the outer operator `dΓ(h)` whose spectrum is determined by `h`.
+
+**C — UV limits are subsequential and the measure is not constructed.** Where the text below writes
+"the continuum measure", read "the correlation functions of a subsequential scaling limit at fixed
+physical volume". A Borel probability measure on a space of distributions is only claimed where this
+repository constructs one, and there the framework is RP1's random-distribution setting — itself
+unvetted. Keeping the two modes of statement apart is the same discipline as the "four spaces"
+paragraph above.
+
+### Verification discipline worth adopting (structural, not mathematical)
+
+The October package separates five artefacts this repository conflates: an **acceptance
+specification** (`AcceptanceSpec.lean`, `CombinedAcceptance`), a **per-declaration axiom audit**
+(`AxiomAudit.lean`), **Comparator** re-checks of the endpoint, a **dated evidence ledger**
+(`evidence/README.md`, never overwritten), and **provenance hashes** tying the checked source to the
+submitted source. Our `scripts/health.sh` and `scripts/verify-invariants` cover documentation and
+import drift only: there is no per-declaration axiom audit gate and no evidence ledger. Adding an
+axiom-audit gate that prints the axiom set of every exported theorem (and fails on anything outside
+`propext`, `Classical.choice`, `Quot.sound`) is the single largest verifiability gain available from
+this reading, and it is independent of the QYM row.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a
