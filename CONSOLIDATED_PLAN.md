@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10k):** “State of the project — 2026-11-10k: the ℝ²⁴ → ℝ⁹⁹ embedding and
+> **Newest entry (2026-11-10m):** “State of the project — 2026-11-10m: the root gap on its domain,
+> the colour factor, and the contraction” (end of file): the root sector as a form domain with a
+> positive `root_spectral_gap`; `IsAntisymmetric`/`SatisfiesJacobi` with the derived factor `2` in
+> `colour_contraction_double`; and `[∂ᵢ,Xᵢ] = 1` (`pderiv_X_mul`) with `magPoly_mul_monomial_ne`,
+> which is the contraction the `:N²:` form needs.  `lake build +BookProof` completed.
+> **Earlier entry (2026-11-10k):** “State of the project — 2026-11-10k: the ℝ²⁴ → ℝ⁹⁹ embedding and
 > the ε contraction”, at the end.  The embedding is an isometry into `polyGaussCore` via
 > orthonormality of the adapted basis (`embedL2_norm_sq`, `embedCore_norm_sq`), which discharges the
 > `norm_sq` field; `levi_contract` / `eps_contract_poly` / `magEnergy_eq_contract` prove the ε–ε
@@ -19839,3 +19844,35 @@ the obstruction localised in a proved computation instead of prose.
 
 **Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `mulOp_X_monomial` and
 `mulOp_X_monomial_ne` have the standard three-axiom footprint; line-length check clean.
+
+## State of the project — 2026-11-10m: the root gap on its domain, the colour factor, and the contraction
+
+Three follow-ups, all `sorry`-free and axiom-clean; `lake build +BookProof` completed (8924 jobs).
+
+**(1) The root-sector spectral gap with its domain.**  `rootSector` is a *linear* condition — the
+kernel of evaluation at the vacuum occupation — so it is a submodule: `rootDomain`, with
+`mem_rootDomain`, `rootDomain_ne_top` (the vacuum is outside it).  On the root domain the certificate's
+**excited** threshold applies to every element, so `root_spectral_gap` gives
+`(c₁ Δ_ref − quarticShift)/48 · ‖c‖² ≤ q(c)` on the whole domain.  This is the honest difference from
+`s2_ground_threshold`, which is a whole-core lower bound that the vacuum spoils: on the root domain
+there is a genuine positive gap, and no topological closure argument is needed because the S2
+comparison is an inequality between continuous quadratic forms holding pointwise.
+
+**(2) Antisymmetry, Jacobi, and the quartic colour factor.**  `fabc` is a free three-index tensor in
+this model, so `IsAntisymmetric` and `SatisfiesJacobi` are *hypotheses*, stated as such.  Derived:
+`fabc_self_eq_zero` (repeated index vanishes), `colourTensor` / `colourTensor_cyclic` (Jacobi *is* the
+cyclic vanishing of `K_{abcd} = Σ_e f_{abe} f_{cde}`), and `colour_contraction_double`:
+for antisymmetric `P`, `Σ_{jk}(P_{jk}² − P_{jk}P_{kj}) = 2 Σ_{jk} P_{jk}²`.  That factor `2` is the
+colour-factor content of the quartic magnetic energy — the commutator's antisymmetry makes the
+transposed term of the ε contraction minus the direct one.  The *numerical* Casimir (`C_F`, `C_A`) is
+**not** derived: that needs the specific `su(N)` constants, which this model does not fix.
+
+**(3) The normal-ordered contraction.**  `pderiv_X_mul` is the Wick contraction
+`∂ᵢ(Xᵢ p) = p + Xᵢ ∂ᵢ p`, i.e. `[∂ᵢ, Xᵢ] = 1`; `normalOrder_contraction` is the operator form.  With
+`coeff_zero_magPoly` (the magnetic field has no constant term) this gives
+`magPoly_mul_monomial_ne`: `B_{ia}` is off-diagonal at every monomial.  So the `:N²:` form is the
+contracted quantity `Σ_{ia} B_ia† B_ia − (contraction)`, not the diagonal of `magOps` — which is why
+`mag_eq_root` remained a hypothesis (2026-11-10l) and what a future inhabitant would have to compute.
+
+**Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all ten new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.

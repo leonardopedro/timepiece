@@ -676,6 +676,24 @@ Two of the pieces the inhabitant needed are built (§3d.0 and the energy contrac
 * `RootFormDomination` / `root_ground_bound` / `root_excited_bound` / `s2RootFormDomination` — the
   certificate with `dom` on the root sector only, built from `s2_gap_constant_root`.
 
+#### S2 — the root gap, the colour factor, and the contraction
+
+* **The gap on its domain.**  `rootSector` is linear (kernel of evaluation at the vacuum), so it is a
+  submodule `rootDomain`; `rootDomain_ne_top` keeps the vacuum out.  On it the certificate's excited
+  threshold applies everywhere and `root_spectral_gap` gives
+  `(c₁ Δ_ref − quarticShift)/48 · ‖c‖² ≤ q(c)` — a genuine positive gap, where `s2_ground_threshold`
+  is only a whole-core lower bound spoilt by the vacuum.  No closure argument is required: the
+  comparison is pointwise on the domain.
+* **Structure constants as hypotheses.**  `IsAntisymmetric` and `SatisfiesJacobi` are *added*, since
+  the polynomial model carries `fabc` as a free tensor.  Derived: `fabc_self_eq_zero`,
+  `colourTensor_cyclic` (Jacobi = cyclic vanishing of `K_{abcd}`), and
+  `colour_contraction_double`: `Σ(P² − P·Pᵀ) = 2Σ P²` for antisymmetric `P` — the factor `2` of the
+  quartic colour energy.  The numerical Casimir is *not* derived; it needs the `su(N)` constants.
+* **The contraction.**  `pderiv_X_mul`: `∂ᵢ(Xᵢ p) = p + Xᵢ ∂ᵢ p`, i.e. `[∂ᵢ, Xᵢ] = 1`
+  (`normalOrder_contraction` at operator level).  With `coeff_zero_magPoly` this yields
+  `magPoly_mul_monomial_ne`: `B_{ia}` has zero diagonal at every monomial.  So `:N²:` is the
+  contracted `Σ B†B − (contraction)`, not the diagonal of `magOps`.
+
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.
 `mulOp_X_monomial` (`X i * monomial m z = monomial (m + e_i) z`) and `mulOp_X_monomial_ne` (the

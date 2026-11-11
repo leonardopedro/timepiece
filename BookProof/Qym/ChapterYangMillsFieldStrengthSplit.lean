@@ -343,6 +343,62 @@ theorem magEnergy_eq_contract (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
   have h := magPoly_sq_contract (fun j k => magFullBilin fabc j k a)
   simpa only [magPoly_eq_sum_levi_magFullBilin] using h
 
+/-! ### 3b.2 Structure constants: antisymmetry, Jacobi, and the quartic colour factor
+
+The model carries `f_{abc}` as a *free* three-index tensor; nothing in the polynomial construction
+forces it to be a Lie-bracket coefficient.  These two hypotheses are therefore added explicitly,
+and what follows is exactly what they buy: the repeated-index vanishing, the cyclic colour tensor,
+and the factor `2` in the quartic energy.
+-/
+
+/-- **Antisymmetry** of the structure constants in their last two indices, `f_{a b c} = −f_{a c b}`,
+the property that makes `f_{abc} A_b A_c` a commutator rather than a symmetric square. -/
+def IsAntisymmetric (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : Prop :=
+  ∀ a b c, fabc a b c = -fabc a c b
+
+/-- **The Jacobi identity** in structure-constant form: the cyclic sum of the colour tensor
+`K_{a b c d} = Σ_e f_{a b e} f_{c d e}` vanishes. -/
+def SatisfiesJacobi (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : Prop :=
+  ∀ a b c d : Fin 8, ∑ e : Fin 8,
+    (fabc a b e * fabc c d e + fabc b c e * fabc a d e + fabc c a e * fabc b d e) = 0
+
+/-- A structure constant with a repeated index vanishes under antisymmetry. -/
+theorem fabc_self_eq_zero {fabc : Fin 8 → Fin 8 → Fin 8 → ℝ} (hanti : IsAntisymmetric fabc)
+    (a c : Fin 8) : fabc a c c = 0 := by
+  have h := hanti a c c
+  linarith
+
+/-- The colour tensor `K_{a b c d} = Σ_e f_{a b e} f_{c d e}`. -/
+def colourTensor (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (a b c d : Fin 8) : ℝ :=
+  ∑ e : Fin 8, fabc a b e * fabc c d e
+
+/-- **Jacobi is exactly the cyclic vanishing of the colour tensor.** -/
+theorem colourTensor_cyclic {fabc : Fin 8 → Fin 8 → Fin 8 → ℝ} (hjac : SatisfiesJacobi fabc)
+    (a b c d : Fin 8) :
+    colourTensor fabc a b c d + colourTensor fabc b c a d + colourTensor fabc c a b d = 0 := by
+  unfold colourTensor
+  rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
+  exact hjac a b c d
+
+/-- **The quartic colour factor from antisymmetry.**  If `P` is antisymmetric in its two indices —
+as `f_{abc} A_{j,b} A_{k,c}` is once `f` is — then the transposed term of the `ε`-contraction is
+minus the direct one, and the contraction **doubles**:
+`Σ_{jk}(P_{jk}² − P_{jk}P_{kj}) = 2·Σ_{jk} P_{jk}²`.  The factor `2` is the colour-factor content of
+the quartic magnetic energy: the commutator's antisymmetry turns the `ε` contraction into twice the
+direct square. -/
+theorem colour_contraction_double (P : Fin 3 → Fin 3 → ℂ) (hP : ∀ j k, P k j = -P j k) :
+    (∑ j : Fin 3, ∑ k : Fin 3, (P j k * P j k - P j k * P k j))
+      = 2 * ∑ j : Fin 3, ∑ k : Fin 3, P j k * P j k := by
+  have h : ∀ j k : Fin 3, P j k * P j k - P j k * P k j = 2 * (P j k * P j k) := by
+    intro j k
+    rw [hP j k]
+    ring
+  calc (∑ j : Fin 3, ∑ k : Fin 3, (P j k * P j k - P j k * P k j))
+      = (∑ j : Fin 3, ∑ k : Fin 3, 2 * (P j k * P j k)) := by
+        exact Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun k _ => h j k
+    _ = 2 * ∑ j : Fin 3, ∑ k : Fin 3, P j k * P j k := by
+        simp only [Finset.mul_sum]
+
 /-! ### 3b.1 What the field-strength operator does to a mode
 
 `mag_eq_root` would say that `B_{ia}` acts on the embedded modes like the occupation number of the
@@ -372,6 +428,45 @@ theorem mulOp_X_monomial_ne (i : Fin 99) (m : Fin 99 →₀ ℕ) (z : ℂ) (hz :
   have hs : Finsupp.single i (1 : ℕ) = 0 :=
     add_left_cancel (a := m) (by rw [hexp, add_zero])
   exact one_ne_zero (Finsupp.single_eq_zero.mp hs)
+
+/-- **`magPoly` has no constant term**: every term is at least linear in some coordinate, so the
+magnetic field raises the degree of every mode. -/
+theorem coeff_zero_magPoly (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3) (a : Fin 8) :
+    MvPolynomial.coeff 0 (magPoly fabc i a) = 0 := by
+  rw [← MvPolynomial.constantCoeff_eq]
+  simp [magPoly]
+
+/-- **The Wick contraction of a coordinate with its derivative is the identity**:
+`∂ᵢ (Xᵢ p) = p + Xᵢ ∂ᵢ p`, i.e. `[∂ᵢ, Xᵢ] = 1`.  This `1` is the contraction constant that the
+normal-ordered `:N²:` absorbs, and it is exactly what separates `Σ_m ‖B_m ψ‖²` from `Σ_a n_a²`. -/
+theorem pderiv_X_mul (i : Fin 99) (p : MvPolynomial (Fin 99) ℂ) :
+    MvPolynomial.pderiv i (X i * p) = p + X i * MvPolynomial.pderiv i p := by
+  rw [MvPolynomial.pderiv_mul, MvPolynomial.pderiv_X_self, one_mul]
+
+/-- **Normal ordering at the operator level**: the derivative of `Xᵢ p` differs from `Xᵢ ∂ᵢ p` by
+exactly the identity, so the contraction constant is one. -/
+theorem normalOrder_contraction (i : Fin 99) (p : MvPolynomial (Fin 99) ℂ) :
+    MvPolynomial.pderiv i (mulOp (X i) p) - mulOp (X i) (MvPolynomial.pderiv i p) = p := by
+  rw [mulOp_apply, mulOp_apply, pderiv_X_mul]
+  ring
+
+/-- **`B_ia` is off-diagonal in the occupation basis**: its multiplication has zero diagonal
+coefficient at every monomial, so no mode is a `B`-eigenvector.  This is the precise sense in which
+`mag_eq_root` cannot hold for `magOps`, and it is the polynomial-level form of the contraction
+constant above. -/
+theorem magPoly_mul_monomial_ne (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3) (a : Fin 8)
+    (m : Fin 99 →₀ ℕ) :
+    mulOp (magPoly fabc i a) (monomial m 1) ≠ monomial m 1 := by
+  intro h
+  have hc : MvPolynomial.coeff m (magPoly fabc i a * monomial m 1)
+      = MvPolynomial.coeff m (monomial m 1) :=
+    congrArg (fun p => MvPolynomial.coeff m p) (by simpa [mulOp_apply] using h)
+  have h1 : MvPolynomial.coeff m (magPoly fabc i a * monomial m 1)
+      = MvPolynomial.coeff 0 (magPoly fabc i a) * 1 := by
+    have := MvPolynomial.coeff_mul_monomial (0 : Fin 99 →₀ ℕ) m (1 : ℂ) (magPoly fabc i a)
+    simpa using this
+  rw [h1, coeff_zero_magPoly, zero_mul] at hc
+  simp at hc
 
 /-- The full magnetic energy has real coefficients, so its operator is Gauss symmetric. -/
 theorem realCoeff_magEnergy (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : RealCoeff (magEnergy fabc) := by
@@ -655,6 +750,19 @@ above.  This section states that identification and proves what it yields.
 * **The honest boundary of the identification**: `mag_eq_root` is *not* derivable from
   `magOps` — `mulOp_X_monomial_ne` shows the derivative half shifts every mode, so no occupation
   vector is an eigenvector;
+* **`IsAntisymmetric`**, **`SatisfiesJacobi`**, **`fabc_self_eq_zero`**, **`colourTensor`**,
+  **`colourTensor_cyclic`**, **`colour_contraction_double`** — the structure-constant hypotheses
+  and what they buy: a repeated index vanishes, Jacobi *is* the cyclic vanishing of the colour
+  tensor, and antisymmetry makes the `ε` contraction of an antisymmetric pair **double** — the
+  factor `2` of the quartic colour energy;
+* **`pderiv_X_mul`**, **`normalOrder_contraction`**, **`coeff_zero_magPoly`**,
+  **`magPoly_mul_monomial_ne`** — the normal-ordered side: `[∂ᵢ, Xᵢ] = 1` is the contraction
+  constant, and `magPoly`'s multiplication is off-diagonal at every monomial, so the `:N²:` form is
+  the contracted quantity, not the diagonal of `magOps`;
+* **`rootDomain`**, **`mem_rootDomain`**, **`rootDomain_ne_top`**, **`root_spectral_gap`** — the
+  root sector as a form domain (the kernel of evaluation at the vacuum) and the positive
+  root-sector gap `(c₁ Δ_ref − quarticShift)/48` that holds on it, where the whole-core threshold
+  is spoilt by the vacuum;
 * **`RootFormDomination`**, **`root_ground_bound`**, **`root_excited_bound`**,
   **`s2RootFormDomination`** — the domination certificate with `dom` required only on the root
   sector, which `RootModeIdentification` supplies;
@@ -1256,6 +1364,50 @@ noncomputable def s2RootFormDomination (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin
   c₂ := (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
   hc₁ := by positivity
   dom := fun c hc => s2_gap_constant_root Φ fabc RI (T := T) (g := g) hg hc₁ hω₁ c hc
+
+/-! #### The root-sector spectral gap on its domain
+
+`RootFormDomination` lives on the root sector, which is the kernel of evaluation at the vacuum
+multi-index — a submodule, hence a legitimate form domain, and one that already excludes the vacuum.
+On it the *excited* threshold applies to every element, so the certificate gives a genuine positive
+lower bound rather than a threshold that can be spoilt by the vacuum. -/
+
+/-- The **root domain**: the root sector as a submodule, the kernel of evaluation at the vacuum
+occupation.  Since `rootSector` is a linear condition, no separate closure of the sector is needed:
+the S2 comparison is an inequality between continuous quadratic forms and holds pointwise on this
+submodule. -/
+def rootDomain : Submodule ℂ (CoreCoeff 24) := LinearMap.ker (Finsupp.lapply 0)
+
+/-- Membership in the root domain is exactly the root-sector condition. -/
+theorem mem_rootDomain {c : CoreCoeff 24} : c ∈ rootDomain ↔ rootSector c := Iff.rfl
+
+/-- The root domain is not the whole core: the vacuum is outside it. -/
+theorem rootDomain_ne_top : rootDomain ≠ ⊤ := by
+  intro h
+  have hmem : BookProof.YangMillsMagneticQuartic.vacuumCoeff 24 ∈ rootDomain := by
+    rw [h]
+    trivial
+  exact vacuumCoeff_not_rootSector ((mem_rootDomain).mp hmem)
+
+/-- **The root-sector spectral gap.**  On the root domain the S2 certificate's *excited* threshold
+applies to every element, since no element there has a vacuum component.  Hence the form is bounded
+below by `(c₁ Δ_ref − quarticShift)/48 · ‖c‖²` — a genuine gap above the reference vacuum, unlike
+the whole-core threshold `s2_ground_threshold`, which the vacuum spoils.  This is the usable form of
+`s2RootFormDomination`: the certificate together with its domain. -/
+theorem root_spectral_gap (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (RI : RootModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (c : CoreCoeff 24) (hdom : c ∈ rootDomain) :
+    ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (RI.toCore c) := by
+  have h := root_excited_bound ω hω
+    (s2RootFormDomination Φ fabc RI (T := T) (g := g) hg hc₁ hω₁) c
+    ((mem_rootDomain).mp hdom)
+  simp only [s2RootFormDomination] at h
+  have hc' : c₁ / 48 * (refEnergy ω 0 + refGap ω)
+      - (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
+      = (c₁ * refGap ω - quarticShift (d := 24) T g) / 48 := by ring
+  rwa [hc'] at h
 
 /-! #### The certificate inside the gap chain
 
