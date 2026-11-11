@@ -78,9 +78,12 @@ proves the gap ⇔ decay equivalence for an arbitrary finite Borel measure, and 
 representation in a multiplication model — the shape `ChapterSpectralMultiplication` produces for a
 normal bounded operator with a cyclic vector, with `e^{−τ f}` as the measurable functional calculus.
 What remains not claimed is the *generator*: identifying the physical spectral measure `dρ(λ)` with
-such a model needs `H_phys` and the strong continuity of the transfer semigroup, which
-`OSReconstruction.Hamiltonian` records as unbuilt; and the bounded separation proved in §4 is not
-identified with a `SpectralSeparation` of the *unbounded* `H_phys` itself (needs the generator).
+such a model needs the concrete physical realization. `MultiplierSelfAdjoint` now constructs
+a self-adjoint generator under `MulModel` hypotheses and proves norm convergence to the full
+zero-space projection iff the nonzero multiplier has a positive essential lower bound.
+Those model hypotheses do not construct the interacting positive-time OS quotient or its
+intertwiner with the final nested-Fock `dΓ(h)`. The bounded separation here is not yet a
+`SpectralSeparation` theorem for that physical operator.
 The spectral theorem itself is **not** missing:
 `BookProof.ChapterSpectralMultiplication` / `ChapterSpectralDirectSum` give it for bounded normal
 operators, `ChapterUnboundedSpectralModel` for unbounded self-adjoint ones (Cayley route),
@@ -594,9 +597,10 @@ cyclic vector (`spectral_multiplication_model`, `integral_spectralMeasure`), so 
 to it verbatim; §6 is the case where `μ` is counting measure on the eigenvalues.
 
 What is still not claimed: `H_phys` itself.  Identifying the physical spectral measure with a
-multiplication model needs the generator of the transfer semigroup, which
-`OSReconstruction.Hamiltonian` records as unbuilt.  What is removed here is the *atomicity* of the
-measure, not the construction of the Hamiltonian.
+multiplication model needs its concrete generator and physical representation. The later
+`MultiplierSelfAdjoint` constructs a generator under `MulModel` hypotheses; those hypotheses
+still need a positive-time OS construction and physical intertwiner. Removing atomicity here
+does not discharge that interacting-model identification.
 -/
 
 section KallenLehmannGeneral

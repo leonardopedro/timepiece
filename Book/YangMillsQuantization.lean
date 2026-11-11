@@ -37,6 +37,79 @@ the graded Fock/Friedrichs/Hashimoto chapters that the field-space realization
 rests on.
 :::
 
+# Reading the New Core Proofs
+
+The new `Qym/ChapterYangMillsMehlerBridge` makes the representation issue
+concrete. For the Gaussian density $`\gamma(x)=e^{-x^2/2}`, let
+$`g(x)=\gamma(x)^{1/2}=e^{-x^2/4}`. Multiplication by $`g` formally moves
+from the weighted space to Lebesgue space. On differentiable functions its
+first-order identity is $`U\partial U^{-1}=\partial+x/2`, and
+$`(\partial+x/2)g=0`. The second-derivative calculation shows that $`g`
+has energy zero for $`-\partial^2+x^2/4-1/2`.
+
+```
+#check @BookProof.YangMillsMehlerBridge.gaussRoot_sq
+#check @BookProof.YangMillsMehlerBridge.conj_deriv
+#check @BookProof.YangMillsMehlerBridge.gaussRoot_vacuum
+#check @BookProof.YangMillsMehlerBridge.gaussRoot_oscillator_ground
+#check @BookProof.YangMillsMehlerBridge.HasOneParticleFormGap
+#check @BookProof.YangMillsMehlerBridge.abelian_no_one_particle_form_gap
+#check @BookProof.YangMillsMehlerBridge.no_absolute_gap_of_kernel_vector
+```
+
+The scalar identity $`g^2=\gamma` is an input to an $`L^2` isometry, not
+its construction. A normalized Gaussian also requires its normalization
+factor. Dense domains, the second-order conjugation on a core, and the
+99-coordinate product have to be assembled. The displayed zero-eigenfunction
+calculation by itself proves neither a reference spectral gap nor a QYM gap;
+oscillator frequency and normalization must be matched before borrowing a
+constant from `href_spectral_gap`.
+
+`HasOneParticleFormGap` now names the precise whole-inner-space target.
+The abelian instance cannot satisfy it with a positive constant, and the
+kernel-vector obstruction explains why a gap only on an inner ground
+complement does not suffice: an inner zero mode is a non-vacuum outer
+one-particle zero-energy state. These new source declarations still need
+the specialist's import, axiom and elaboration checks in this book wave.
+
+`YangMillsFieldStrength` proves the action of ordered pairs and diagonal
+finite-matrix sandwiches. It does not identify its occupation-diagonal magnetic
+model with the full physical nonabelian field strength. In particular,
+$`d\Gamma(M)d\Gamma(N)\ne d\Gamma(MN)` on general outer states: form
+the magnetic square inside $`h` first. `YangMillsFormDomination` gives lower
+comparison thresholds; subtracting them cannot prove a target excitation gap.
+The new polynomial ladder identities explain inner core bookkeeping without
+discharging this physical identification or nonabelian coercivity.
+
+```
+#check @BookProof.YangMillsFockGapChain.ym_fock_vacuum_annihilated
+#check @BookProof.YangMillsFockGapChain.ym_fock_mass_gap_of_one_particle_form_gap
+#check @BookProof.YangMillsFormDomination.certified_separation
+```
+
+The first result is structural; the second retains its strict one-particle
+form-gap hypothesis; the third is comparison arithmetic. See
+{ref "proof-plans"}[the specialist work order] for the remaining analytic
+and OS identification tasks. This wave updates interpretation and citations;
+it does not claim a new compilation or continuum QYM gap.
+
+Two further model results explain what useful analytic progress looks like.
+`YangMillsLadderL2` removes a finite box from the coefficient-core creation
+ladder identity; its amplitudes grow with occupation, and the nonzero bare
+creation kernel is asymmetric. The modeled symmetric form must therefore
+be distinguished from the creation ladder itself.
+`YangMillsFormKLMN` proves form-domain stability, a lower bound and a
+self-adjoint realization for the diagonal symbol model with relative bound
+less than one. These are substantive model theorems, but neither identifies
+the physical nonabelian magnetic operator or supplies its uniform bound.
+
+```
+#check @BookProof.YangMillsFormClosureND.magCore_single_apply
+#check @BookProof.YangMillsFormClosureND.magKernel_asymm
+#check @BookProof.YangMillsFormClosureND.formDom_of_relativeBound_add
+#check @BookProof.YangMillsFormClosureND.klmn
+```
+
 # The Problem
 
 :::paragraph
@@ -185,7 +258,7 @@ The new gap-proof layer makes the logical order precise. `ChapterRitzCertificate
 :::paragraph
 For the mass-gap route, distinguish the real one-particle Hamiltonian from its finite
 certificate and from the outer-particle Fock lift. The positivity below is the input for
-shifting the one-particle operator and applying the Friedrichs/Hashimoto construction;
+applying the Friedrichs/Hashimoto construction to the specified one-particle operator;
 it is not, by itself, a statement that a finite numerical gap has already transferred to
 the full Hamiltonian.
 :::
@@ -237,12 +310,15 @@ description, not a constraint.
 :::
 
 :::paragraph
-Because the one-particle Hamiltonian is bounded below, choose an energy origin so that
-`h₊ ≥ μ I` for some `μ > 0`. For free outer particles this changes the Fock Hamiltonian
-by `μ N`, not by a vacuum constant: `N Ω = 0`, while every non-vacuum finite-particle
-energy is a sum of strictly positive one-particle energies. Thus the physical observable
-for the remaining mass-gap theorem is the lowest positive one-particle energy, measured
-through the creation/destruction sandwich and then lifted by `dGamma`.
+The final operator is $`d\Gamma(h)` with the full magnetic square retained
+inside $`h`. Its outer vacuum has energy zero. Positivity of $`h` makes it a
+ground state, but the mass-gap lift needs a strictly positive absolute bound
+$`h\ge mI` on the entire inner space. Semiboundedness alone does not provide
+that bound. A specified shift $`h+cI` changes the outer operator by
+$`c\mathcal N_{\rm out}`; a positive gap created this way belongs to that
+shifted model. It is not a harmless choice of the full theory's energy origin.
+An inner difference $`E_1-E_0` or reflection-sector difference is a diagnostic
+until an absolute-edge and full-sector identification has been proved.
 :::
 
 
@@ -699,18 +775,25 @@ coordinates — is the single open analytic input of the gap programme.
 ```
 
 :::paragraph
-No continuum mass gap and no global existence statement is claimed anywhere in this
-section. The full nested-Fock ground-state statement is structural: once the
-sector one-particle operator is shifted positive and enclosed as
-$`H=\sum_{i,j}h_{ij}C_i^\dagger A_j`, the outer vacuum is exactly the ground;
-what remains analytic is the identification and convergence of the positive
-one-particle edge.
+No continuum mass gap or global existence statement is claimed here. Outer
+annihilation proves zero energy; positivity is a separate inner hypothesis.
+A shifted positive inner model has an outer vacuum ground, but its shift
+adds $`cN_{\rm out}` and does not settle the unshifted physical gap.
+The analytic target is the absolute positive edge of the identified full $`h`.
 :::
 
 # Summary
 
 :::paragraph
-The complete proof architecture is therefore: establish the one-particle edge under explicit spectral or Friedrichs hypotheses; enclose finite SIRK/Ritz data with Temple separation; prove stability of the finite bands; lift the positive one-particle operator with `dGamma`; and, only then, address unbounded interactions by form methods. `ChapterFockNumberPreservingGap.lean` proves the free number-preserving lift for arbitrary one-particle Hamiltonians, `ChapterFockInteractionStability.lean` the quantitative bounded/form-bounded extension, `ChapterFockFieldPerturbation.lean` and `ChapterFockPairPerturbation.lean` the unbounded linear and pair couplings, `ChapterFockCubicUnbounded.lean` the degree-three boundary of the route, and `ChapterFockCubicQuarticStability.lean` the all-states stabilisation of the cubic–quartic pair. The instantiation for the concrete 3D gauge-fixed QYM operator is now *done*: `ChapterYangMillsFockGapChain.lean` connects the gauge-fixed one-particle Hamiltonian `H₁ = ½Σπ² + ½ΣB²` (on the Gauss–polynomial core) to the matrix gap condition, proves `dΓ(H₁)Ω = 0` unconditionally, lifts a one-particle form gap to the nested-Fock mass gap (with the Friedrichs extension), covers the linear field perturbation, and consumes certified band data through `BandEnclosure` — everything conditional on the one-particle form gap, which remains the single analytic input the certificate chain must supply for Yang–Mills. Two sibling instantiations are *unconditional*: `ChapterScalaronFockGapChain.lean` runs the same chain for the R² scalaron sector at the constant one-particle energy `1/√(12α)` (the form gap is an identity there), and `ChapterFockDiagonalGapChain.lean` for any diagonal dispersion — with `freeField_fock_mass_gap` giving the free massive field the outer-Fock mass gap `m` outright. The conditional frontier is exactly where it was: the gauge-fixed Yang–Mills form gap.
+The physical route starts with the complete inner operator, including its
+interactions, and proves an absolute positive form edge on the identified
+core. The sector/ESA and gap lifts then apply to that same $`h`.
+Finite SIRK/Ritz information needs spectral separation and cutoff control
+before it can discharge the hypothesis. The linear, pair and cubic–quartic
+modules supply model estimates, with their Fock level and physical comparison
+still to be identified in each application. Scalaron constant-energy and
+massive diagonal examples are unconditional examples within their models;
+they do not replace the full coupled QG or nonabelian QYM inputs.
 :::
 
 The algebraic core of the manuscript's quantization programme:

@@ -43,3 +43,9 @@ Book.lean.bak
 /.github/
 /math/
 /math28/
+
+# Generated documentation index (scripts/doc_index.py). Regenerate with
+# `python3 scripts/doc_index.py`; both files are derived from the doc corpus,
+# so they conflict on every merge that touches a document and are not tracked.
+/DOC_INDEX.md
+/state/doc_index.json

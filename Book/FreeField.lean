@@ -60,6 +60,56 @@ Mehler chapters; the Hamiltonian layers are `BookProof/ChapterF`,
 truncation-gap chapters).
 :::
 
+# New Mehler and Transfer-Flow Proofs: What Convergence Means
+
+Gaussian pCN is a Mehler operator: Hermite degree $`n` has eigenvalue
+$`\rho^n` already in finite dimension. Spherical averaging is different:
+its Gegenbauer ratios only tend to these values at fixed degree. A scalar
+limit does not identify an entire spherical spectrum.
+
+```
+#check @BookProof.MCMC.mehlerOp_physHermite
+#check @BookProof.MCMC.pcnZonalEigen_two_ne_pow_two
+#check @BookProof.MCMC.pcnZonalEigen_tendsto
+```
+
+The multiplier flow $`e^{-\tau f}` for $`f\ge0` supplies another decay model.
+`OSReconstruction/MultiplierSelfAdjoint` constructs a self-adjoint Hamiltonian
+from an assumed multiplier realization and identifies its right generator as
+the negative Hamiltonian. Its long-time limit projects onto all zero-density
+modes. Strong convergence allows each fixed vector to lose its positive-energy
+component even when positive energies approach zero. Operator norm convergence
+asks for one estimate valid for every unit vector. The new criterion makes it
+equivalent to a positive essential lower bound on the nonzero density, under
+the theorem's measure and model hypotheses.
+
+```
+#check @BookProof.OSReconstruction.hamiltonianMulModel_isSelfAdjoint
+#check @BookProof.OSReconstruction.generatorRight_eq_neg_hamiltonianMulModel
+#check @BookProof.OSReconstruction.kerHamiltonianMulModel_eq_range_limitProjection
+#check @BookProof.OSReconstruction.tendsto_opNorm_flowOfHCLM_sub_limitProjection_iff_gap
+```
+
+Arbitrarily small positive energies can survive for arbitrarily long times,
+defeating norm convergence while preserving strong convergence. A lower bound
+$`f\ge\delta>0` away from zero gives uniform exponential decay there. If the
+zero space is degenerate, the limit is its full projection, not a chosen vacuum.
+
+These are conditional multiplier-model results. Constructing an interacting
+field's positive-time OS quotient, transfer semigroup and unitary intertwiner
+with the physical nested-Fock $`d\Gamma(h)` remains separate work. The repo
+already has spectral and Stone machinery; the missing input is the concrete
+model identification. These citations were inspected in source; this editorial
+wave does not compile or certify new physical instantiations.
+
+For the physics statements below, apply the
+{ref "second-quantization-esa"}[four-sector convention]. QG includes the full
+$`R^2` vielbein exponential and interactions; NS encloses its positive sum of
+squares. QYM inner interactions stay inside $`h`, and unregulated QED retains
+its no-gap boundary. SIRK approximation errors and finite bands do not discharge
+the absolute one-particle gap hypothesis. Perturbation ladders below are
+toolbox models until their Fock level and operator identification are supplied.
+
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
 
 :::paragraph

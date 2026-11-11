@@ -27,9 +27,10 @@ Read these sources by heading rather than by mutable line number:
   with the $\mu N$ boundary below; a change of one-particle origin changes outer dynamics.
 * [Hashimoto–Nodera](../papers/Hashimoto.md), Definition 2.4, §4 and Theorem 4.1:
   bounded resolvents and rational approximation of operator $\phi$-functions.
-* `YANG_MILLS_MASS_GAP_LEAN.md`: a generated corpus snapshot (generated on demand, not
-  tracked in this repository), not a proof of its introductory claims. Check its declarations
-  against the source modules and distinguish abstract implications from concrete instantiations.
+* [BookProof.lean](BookProof.lean): the live proof-source inventory. The generated
+  `YANG_MILLS_MASS_GAP_LEAN.md` corpus snapshot is produced on demand, is not tracked in this
+  repository and is absent from this tree; check its declarations against the source modules and
+  distinguish abstract implications from concrete instantiations.
 
 Use $\mathcal K$ for the inner field/configuration Hilbert space and $h$ for its
 gauge-fixed Hamiltonian. Its implemented bosonic core is the Gauss–polynomial core in
@@ -265,6 +266,112 @@ and an explicit S2 theorem signature for the selected target, not another abstra
 “domination implies gap” wrapper. For any later Lean change, build the affected modules
 and audit final theorem axioms and binders. For this documentation revision, verify paths,
 formula consistency, relative links and doc-index freshness; no book HTML build is needed.
+
+### Status after the S0 bridge (2026-11-08)
+
+`BookProof/Qym/ChapterYangMillsMehlerBridge.lean` now carries the part of S0 that the
+“Corrections” section gates on, together with the S2 signature (the next section records the
+second-order and multiplication identities and the norm identity added afterwards):
+
+* **U** — `gaussRoot_sq` (`(γ^{1/2})² = γ`, the isometry input), `hasDerivAt_gaussRoot`,
+  `deriv_gaussRoot`, `hasDerivAt_invGauss`, `hasDerivAt_invGauss_mul`, **`conj_deriv`**
+  (`U ∂ U⁻¹ = ∂ + x/2`), **`gaussRoot_vacuum`** (`a = ∂ + x/2` kills the weight, so the corpus's
+  `momOp = −i • (pderiv − ½ X ·)` is the Gaussian convention), `hasDerivAt_deriv_gaussRoot`, and
+  **`gaussRoot_oscillator_ground`** (`−(γ^{1/2})'' + x²/4·γ^{1/2} − ½·γ^{1/2} = 0`): the Gaussian
+  Dirichlet operator is unitarily the oscillator, so the reference gap `½` is the oscillator's and
+  never a gap of `q_h`.
+* **S2 signature** — `HasOneParticleFormGap e fabc m` states target 1 as a named `Prop` on the
+  concrete Gauss–polynomial core. `abelian_no_one_particle_form_gap` shows it is false for
+  `fabc = 0`, so it is not a vacuous wrapper, and `no_absolute_gap_of_kernel_vector` records that a
+  nonzero kernel vector defeats every positive constant: target 2 does not imply target 1.
+* **C, unchanged by this module** — the second-order identity `U (−∂² + x∂) U⁻¹ = −∂² + x²/4 − ½`
+  on a dense core and its `99`-coordinate product form; the `L²` isometry itself (only its
+  pointwise input `gaussRoot_sq` is here); the form core and the self-adjoint-extension inputs. The
+  module is one-coordinate analysis plus one abstract linear-algebra statement: it makes no
+  spectral claim about `h` and does not by itself move S2.  (The second-order half of that `C` is
+  discharged in the next section; the product form is not, and the reason is recorded there.)
+
+Axioms audited: `propext`, `Classical.choice`, `Quot.sound` only. The module builds with no
+warnings and no line over 100 characters.
+
+### Status after the S0 identities and the S1 cross term (2026-11-09)
+
+#### S0 — the remaining one-coordinate identities
+
+`BookProof/Qym/ChapterYangMillsMehlerBridge.lean` now also carries, all `sorry`-free and with axioms
+`propext`, `Classical.choice`, `Quot.sound`:
+
+* **U — second order.** `conj_dirichlet` is the plan's formula
+  `U (−∂² + x∂) U⁻¹ = −∂² + x²/4 − 1/2` for any `f` with two derivatives (stated through the
+  weighted Dirichlet operator `gaussDirichlet f = −f'' + x f'`), and `conj_dirichlet_smooth` is the
+  same statement on the smooth core, where the two derivatives are `deriv f` and `deriv (deriv f)`.
+  The proof is `conj_deriv` **twice** — the drift `x/2` of the first-order identity supplies the
+  `x²/4`, its derivative supplies the `−1/2` — which is a concrete confirmation of the plan's
+  correction: the derivation of the oscillator from the Gaussian is a statement about `∂` only.
+* **U — multiplication.** `conj_mult` (`U (mult V) U⁻¹ = mult V`) and `conj_mult_deriv` (the drift
+  multiplies `V` rather than differentiating it).  Together with the second-order identity these
+  are exactly the "momentum and magnetic operator identities" of the S0 acceptance list: the
+  transform manufactures `x²/4` out of the derivative and moves no potential, so it can neither
+  create nor destroy a magnetic gap.
+* **U — norm.** `lintegral_norm_sq_conj`: `∫ |γ^{1/2} f|² dx = ∫ |f|² d(γ dx)` in `∫⁻` form, with
+  `γ dx` realized as `volume.withDensity (fun x => ofReal (gaussRoot x ^ 2))`.
+
+**N — a correction to this file's earlier ledger, not to the plan.** The previous section said the
+`99`-coordinate product form "follows by applying the one-coordinate identity coordinatewise".
+That is an invalid inference as stated: coordinatewise application covers only functions depending
+on a single coordinate.  The `99`-coordinate statement needs the operator to be a *sum* of
+one-coordinate operators that survives the conjugation, i.e. either the tensor decomposition
+`U_{99} = ⨂_i U_i` on `⨂_i L²(γ)` with `D_{99} = Σ_i D_i` commuting with it, or the Laplacian
+Leibniz rule `Δ(gF) = gΔF + 2⟨∇g, ∇F⟩ + FΔg` together with the `d`-dimensional Gaussian identity
+`Δγ^{1/2} = (|x|²/4 + d/2)γ^{1/2}`.  Neither is assembled, so the coordinate-count factor `−99/2`
+is **not** proved here, and the product form stays `C`.
+
+The remaining S0 acceptance items are likewise unchanged: the `Lp`-level statement that
+multiplication by `γ^{1/2}` is a `LinearIsometryEquiv` (only the integral identity is proved), the
+concrete core-embedding diagram, and the closure/Friedrichs list.  That list, made explicit as the
+plan's acceptance asks, is — none of it a consequence of the conjugation identities, all of it a
+hypothesis about the *domain*:
+
+1. **Closability.** `−Δ + x·∇` densely defined and closable on `C_c^∞` inside `L²(γ dx)`, with the
+   Dirichlet form `∫ γ|∇f|² dx` as its closed form and `H¹(γ)` as the form domain.  The smooth
+   core must be shown to be a form core, not merely a set on which the identity holds.
+2. **Transport to `L²(dx)`.** The unitary at space level (item `C` above), so that the Friedrichs
+   operator is the `L²(dx)` operator of `conj_dirichlet` and not only the integral identity.
+3. **Product form.** The `99`-coordinate sum needs item 2's product version; the `−99/2` factor and
+   the `99`-coordinate domain are part of that statement, not of the one-coordinate analysis.
+4. **Corpus pieces that would carry it.** `Toolbox/ChapterFriedrichsExtension` (closed form →
+   self-adjoint operator) and `Qym/ChapterYangMillsFriedrichs` (the concrete Yang–Mills slot);
+   `Sirk/ChapterHashimotoShiftInvert.IsShiftInvert` supplies the bounded resolvent and its
+   `‖R‖ ≤ γ⁻¹` once the form is closed.
+
+Those are inputs S2 must *assume*, not consequences of the identities; the reference oscillator's
+spectrum is not `h`'s.
+
+#### S1 — the cross term of the magnetic split
+
+`BookProof/Qym/ChapterYangMillsSoftDirections.lean` turns the plan's two S1 statements about
+`B = B_deriv + g B_comm` into theorems, at the level of two abstract vectors:
+
+* **U.** `norm_add_sq_ge_split`: for `0 < ε < 1`,
+  `‖X + Y‖² ≥ (1 − ε)‖X‖² − (ε⁻¹ − 1)‖Y‖²`, proved from Cauchy–Schwarz and AM–GM (the AM–GM step
+  is `ε(‖X‖ − ε⁻¹‖Y‖)² ≥ 0`).  `norm_add_smul_sq_ge_split` is the shape the plan uses,
+  `‖X + g • Y‖² ≥ (1 − ε)‖X‖² − (ε⁻¹ − 1)g²‖Y‖²`, and `norm_add_sq_ge_half` is the `ε = 1/2` case.
+* **N.** `no_norm_add_smul_lower_bound`: `‖X + g Y‖² ≥ g²‖Y‖²` is false already for scalars
+  (`X = 1`, `Y = −1`, `g = 2` gives `1 < 4`).  So the plan's "do not assume" is a theorem, and the
+  counterexample uses no structure constants — non-abelianity is not the source of the failure.
+
+**What S1 still needs, and what this does not do.** The estimate is a *norm* inequality between two
+vectors, so it inherits every `C` of the concrete split: the derivative and commutator parts of
+`magPoly` must be identified as vectors in this shape (`Qym/ChapterYangMillsFieldStrengthSplit.lean`
+splits the polynomial, it does not say the squares add cross terms this way), the loss
+`(ε⁻¹ − 1)g²‖B_comm‖²` must be dominated by the reference form — the `a < 1` input of
+`YangMillsFormClosureNonDiagonal` — and no IMS/localization statement is made, so partition
+gradients are still unpaid.  The abelian `A_i = ∂_i φ` description of a pure gauge is untouched:
+the inequality is agnostic between the abelian and non-abelian readings, and the corpus's
+`BrstLongitudinal.gaussVec_eq_longitudinal_add_comm` remains the record that the orbit is larger for
+`f ≠ 0`.
+
+S2 is unchanged (no positive `m`, no `L₁ − U₀`); S3 and S4 are untouched.
 
 ## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
 

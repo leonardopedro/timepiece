@@ -33,6 +33,21 @@ The proofs are `BookProof/QgFourierElim` and
 machinery they reuse from the Navier–Stokes thread.
 :::
 
+# What the Rebuilt Operator Does and Does Not Prove
+
+The retained exact wall and trace coupling are part of the inner $`h`.
+The final outer operator is $`d\Gamma(h)`; its outer quadraticity does not
+remove any of these interactions. The eliminated mode-family ESA theorem
+concerns that defined realization. Identification with another Jordan,
+Einstein, densitized or numerical realization needs a domain/core map and
+term-by-term intertwining, including the coupling.
+
+A scalaron fiber with the exact exponential is a useful comparison, but its
+strict edge is not automatically an edge of the coupled vielbein model.
+Likewise, the new conditional OS multiplier norm-gap theorem cannot supply
+that identification or positivity. This chapter's elimination is the NS/QG
+Fourier device only; it does not replace QYM/QED field-strength constructions.
+
 # The Problem: Twenty-Seven Derivative Components Per Momentum
 
 :::paragraph

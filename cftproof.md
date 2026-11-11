@@ -211,6 +211,13 @@ onto a dense range in $L^2(\nu)$ and the exponential multiplier law. Producing t
 for the concrete half-space theory is still required. Thus “no generator exists anywhere
 in the corpus” is stale, while “the physical interacting generator is identified” is unproved.
 
+**2026-11-09:** `HalfSpaceState` / `HalfSpaceHilbert` now cover the half-space half of this
+list — the quotient of `𝔄₊` with `Ω_OS = [1]`, `‖Ω_OS‖ = 1`, forward support and null-space
+preservation (as hypotheses), and `P(0)=I`, `P(s+t)=P(s)P(t)`, `P(t)*=P(t)` with strong
+continuity at `0⁺` on the completion. The concrete state (a measure on the lattice
+configurations) and the generator domain/resolvent on `𝔄₊/𝔑₊` are still open, and the
+constructed space is real.
+
 **Acceptance:** a half-space state/space and a nontrivial strongly continuous symmetric
 forward contraction semigroup, with its generator domain and resolvent identified.
 Full Wightman reconstruction additionally needs the selected OS theorem's regularity,
@@ -306,7 +313,7 @@ The operator-function approximation theorem does not supply that exclusion.
 | E0 | Gaussian laws, Hermite bases | Euclidean field law and chart |
 | E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
 | E2 | Summable increments imply convergence | Actual RG estimates and limits |
-| E3 | Quotients, forward semigroups, multiplier generators | Half-space realization |
+| E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), half-space generator with `H = −A` (`HalfSpaceGenerator`), finite-volume Gibbs state and its measure on the split lattice (`HalfSpaceFreeState`), complexification, complex OS form and `HilbertSpace ℂ` carrier (`HalfSpaceComplex`), quotients, multiplier generators | The exponential `e^{−τH}`, an infinite-volume state |
 | E4 | `OsFockBridge` consequences | Concrete field/vacuum/flow bridge |
 | E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
 
@@ -317,6 +324,72 @@ reuse the existing conditional machinery rather than add another full-algebra wr
 Proposed new modules, not existing proofs, are
 `BookProof/OSReconstruction/HalfSpaceState.lean` and
 `BookProof/OSReconstruction/HalfSpaceHilbert.lean`.
+
+**2026-11-09: both modules exist and build** (`lake build BookProof`).
+`HalfSpaceState` supplies the half-space state (`HalfSpaceState`: `θ`-invariant linear
+functional, reflection positive on `PositiveTimeAlgebra` only, `ω 1 = 1`), the OS form
+`hsBilin` on `𝔄₊ × 𝔄₊` with bilinearity, symmetry (from `θ`-invariance, not positivity),
+quadratic expansion and Cauchy–Schwarz, the null **subspace** `HsRadical` (no ideal claim)
+with `mem_hsRadical_of_self_eq_zero` and descent, the quotient `HsSpace`, its inner-product
+structure, the completion `Hhalf`, and the vacuum `hsVacuum = [1]` with `hsVacuum_norm`.
+`HalfSpaceHilbert` supplies `PreservesPositiveTime`, the restricted evolution `hsEvol`, the
+one-sided hypothesis `HsHinv`, `hsRadical_invariant` (forward translation preserves the null
+space), the descended `hsQuotMap` with contractivity, `P(0) = I`, `P(s+t) = P(s)P(t)`, the
+completion `hsEvolCompletion`, strong continuity at `0⁺` from matrix-element continuity, and
+`hsEvolCompletion_isSelfAdjoint` — **`P(τ)* = P(τ)`** — from the dense two-point symmetry
+hypothesis `HsSymmetric`.
+
+**2026-11-09, follow-up (three modules, all building):** the generator/state/complexification
+work listed as missing above now exists.
+
+* `HalfSpaceGenerator` **ports** `SemigroupGenerator` to the half-space carrier: the difference
+  quotient `hsDiffQuot`, the one-sided domain `HsHasGen`/`hsGenDomain`/`hsGenValue`, the
+  restricted-evolution estimates `hsEvolCompletionFun_zero`, `dist_hsEvolCompletionFun_le`
+  (contraction), `continuousOn_hsEvolCompletionFun`, `intervalIntegrable_hsEvolCompletionFun`,
+  `hsEvol_sub_eq_integral` and `tendsto_average_hsEvol` (strong continuity in integral form),
+  then closedness (`hsGenerator_isClosed`), dissipativity
+  (`hsGenerator_inner_le_zero`), the resolvent bound `hsGenerator_resolvent_bound` and
+  injectivity, and finally the identification `hsGenerator_eq_neg` / `hsGenerator_inner_eq_neg`:
+  **`H = −A`** on the dense domain, self-adjointness carried by the symmetric-contraction
+  hypotheses. The `H = −A` identification is conditional on
+  `∀ z, HasDerivWithinAt (fun τ => hsEvolCompletionFun Λ hT hinv τ z) (-(H z)) (Ioi 0) 0`, the
+  local form of `P(τ) = e^{−τH}`; the exponential itself is not constructed.
+* `HalfSpaceFreeState` **instantiates `HalfSpaceState` with a concrete state**: the finite-volume
+  Gibbs functional `gibbsFun (V : GibbsVolume)` on the block lattice, with the configuration
+  split `Config ≃ (HalfIdx → ℝ) × (HalfIdx → ℝ)` (`cellsPerBlock = 16 = 8 + 8`, no reflection
+  slice, so `flipCell` is the half swap), `dependsOn_posTimeCoords_iff` (`𝔄₊` is exactly the
+  observables that do not see the negative half), `gibbsFun_one` (`ω 1 = 1`),
+  `gibbs_reflectionPositive` from the **finite-volume Feynman–Kac identity as a square**
+  `gibbsFun_osForm : ω(θF·F) = (Σ_x ρ(x) F(x,0))²`, and the packaged `gibbsHalfSpaceState`
+  with `gibbsVacuum_norm`, and **the state as a genuine measure on `Config`**: `gibbsAtom`,
+  `gibbsMeasure` (the finitely supported law `Σ_{x,y} w x · w y · δ_{(x,y)}`), `gibbsMeasure_univ`
+  and the `IsProbabilityMeasure` instance, the domination lemmas `gibbsAtom_le_row`/`gibbsRow_le`/
+  `gibbsAtom_le`, and `integral_gibbsMeasure : ∫ F d(gibbsMeasure V) = gibbsFun V F` on the
+  integrable observables — so the Gibbs functional is the integral state of its measure. The grid
+  weights are the samples of the Gaussian density, and `freeFieldMeasure` (the product Gaussian
+  `∏ N(0, 1/2)`) is recorded as the block-lattice reference law *without* an identification.
+* `HalfSpaceComplex` **complexifies `Hhalf` and restates the OS form as a complex sesquilinear
+  form**: carrier `HhalfC Λ = Hhalf Λ × Hhalf Λ` with `ofReal`/`ofImag`, the complex structure
+  `cSMul (a+bi)(x+iy) = (ax−by) + i(bx+ay)` and its `Module ℂ` instance; the complex OS form
+  `hsComplexForm z w = ⟪z₁,w₁⟫ + ⟪z₂,w₂⟫ + i(⟪z₁,w₂⟫ − ⟪z₂,w₁⟫)`, with the `ℂ`-sesquilinear
+  laws (`hsComplexForm_smul_left` in Mathlib's `c̄ ⟪z,w⟫` convention, `hsComplexForm_smul_right`),
+  conjugate symmetry `hsComplexForm_conj_symm`, realism of the diagonal
+  `hsComplexForm_self_re : (⟪z,z⟫).re = ‖z₁‖² + ‖z₂‖²` with `hsComplexForm_self_nonneg`, and
+  definiteness `hsComplexForm_self_eq_zero_iff`; `hsComplexForm_ofReal` records that the real
+  OS form is the restriction of the complex one; `hsComplexPreCore`, `hsComplexSeminormed` and
+  `instInnerProductSpaceHhalfC` register the complex inner product space; and **the carrier is
+  complete**, so `instHilbertSpaceHhalfC : HilbertSpace ℂ (HhalfC Λ)` is attached. The proof is
+  for the *core* (ℓ²) norm, not the product max norm: `HhalfC` is a `def`, so no `Prod` instance
+  can compete, and `norm_sq_hhalfC : ‖z‖² = ‖z₁‖² + ‖z₂‖²` makes the coordinate bounds
+  `norm_fst_le`/`norm_snd_le` and the ℓ¹ reassembly `norm_le_add_coord` available;
+  `hhalfC_complete` takes coordinate Cauchy limits from the completeness of `Hhalf` and rebuilds
+  the limit with `norm_eq_zero_iff_hhalfC`.
+
+Still missing at E3: the exponential `e^{−τH}` (the generator identification is conditional on
+its defining derivative), and an infinite-volume/continuum state — `gibbsMeasure` is supported on
+the declared finite grid and is not identified with `freeFieldMeasure`. Separability of the
+complexified carrier, support preservation, contractivity and two-point symmetry remain named
+hypotheses, as `HinvRight` and `∀ τ, IsSelfAdjoint (P τ)` already are in the corpus.
 
 Use the local `lean-toolchain` (currently v4.28.0). A proof port from another toolchain
 must compile here before it is counted as implemented; verify sibling paths rather than

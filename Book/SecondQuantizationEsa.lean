@@ -90,6 +90,47 @@ essentially self-adjoint on the finite-particle domain built from `D` **alone** 
 principle*; the rest is multilinear bookkeeping.
 :::
 
+# Four Sectors, One Outer Enclosure
+
+Identify the one-particle operator before applying a lift theorem. Comparison
+operators require their own identification maps.
+
+| Sector | Operator inside the enclosure |
+| :--- | :--- |
+| QYM | Weyl-gauge kinetic and full magnetic square: cubic cross and quartic commutator terms |
+| QED | Abelian photon operator; infrared accumulation at zero obstructs a positive gap |
+| QG | $`R^2` vielbein/TEGR, exact exponential wall and scalaron–vielbein interactions |
+| NS | Positive $`H_{\rm sp}=H_{\rm visc}+H_{\rm advect}` on the Fourier-eliminated parcel |
+
+The signed NS Koopman generator is a separate dynamics/comparison object.
+The scalaron wall remains $`V(\phi)=A(1-e^{-b\phi})^2` with its specified
+positive constants. A quadratic Taylor model or an isolated scalaron fiber
+can be a comparison, but its gap is not automatically a gap of the full coupled
+vielbein operator. Spatial-derivative convolution belongs to NS and QG only;
+it occurs inside $`h` before outer enclosure.
+
+Outer annihilation gives $`H\Omega=0` without a positivity assumption. Calling
+this eigenstate a ground state additionally requires $`h\ge0`. If
+$`h\ge mI` with $`m>0` on the entire inner space, the $`n`-particle sector
+has floor at least $`nm`, giving a gap above the unique outer vacuum.
+An inner excitation difference $`E_1-E_0` does not prove this absolute bound.
+If $`h` has zero modes, their outer occupations also have zero energy; the
+ground projection need not be the rank-one outer-vacuum projection.
+
+Two algebraic checks prevent common misreadings. First,
+$`d\Gamma(h+cI)=d\Gamma(h)+c\mathcal N_{\rm out}`: a scalar shift changes
+every occupied outer sector. Positivity obtained by choosing $`c` concerns
+that specified shifted model, not the unshifted physical record. Second, form
+interactions inside the inner space first: $`d\Gamma(B^2)` generally differs
+from $`d\Gamma(B)^2`. Composition of two outer sandwiches includes terms
+acting on different outer particles. The composition identity holds on the
+one-outer-particle restriction, not on the full outer Fock space.
+
+The field and pair perturbation toolbox must declare which Fock level its
+ladders act on. Inner number-changing interactions may remain inside $`h`
+while $`d\Gamma(h)` preserves outer number. An outer creation-only or pair
+perturbation would change the record Hamiltonian and its vacuum argument.
+
 # The Core Transfer Principle
 
 :::paragraph
@@ -543,9 +584,9 @@ spaces at every non-real** $`z`
 lower bound $`|\operatorname{Im} z|\,\|v\| \le \|Tv - \bar z v\|` and the
 disk-stability lemma `deficiencyTrivialAt_of_near`) — and concludes
 `essentiallySelfAdjointOn_add_const`.  This matters twice under the
-final-Hamiltonian convention: the shift of $`h` used to make it positive (the
-move that makes the outer vacuum the exact ground state) is legitimate only
-because ESA survives it; and the `+ 1` of the NS lifted comparison of
+final-Hamiltonian convention: a specified shift of $`h` preserves ESA but
+changes $`d\Gamma(h)` by $`c\mathcal N_{\rm out}` and cannot establish the
+unshifted physical gap; and the `+ 1` of the NS lifted comparison of
 {ref "ns-one-particle-hamiltonian"}[the one-particle chapter] is the same move
 on $`d\Gamma(N)` — there an explicitly labeled *lifted comparison*, not a
 Hamiltonian of record.

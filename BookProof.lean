@@ -584,7 +584,16 @@ import BookProof.ReflectionPositivity.LatticeFreeField
 import BookProof.OSReconstruction.PhysicalSpace
 import BookProof.OSReconstruction.Hamiltonian
 
--- Wave (`cftproof.md` Phase 5): Euclidean clustering at mass `m` is decay of the transfer
+-- Interpretation contract (2026-11-08): physical QYM/QED/QG/NS all use H = dΓ(h),
+-- creation left and outer annihilation right. Inner interactions are retained inside h.
+-- QG means R² vielbein/TEGR with exact exponential and interactions; scalaron fibers
+-- and densitized/metric charts require separate transfer proofs. NS encloses positive H_sp;
+-- its signed KvN generator is a comparison/dynamics track. Spatial-derivative convolution
+-- belongs to NS/QG only. HΩ = 0 is structural; ground status needs h ≥ 0, and an outer-vacuum
+-- gap needs an absolute positive inner bound. h + cI lifts to H + c N_out, changing the model.
+-- Statistical Hermite ladders and physical outer ladders need an explicit intertwiner.
+
+-- Wave (`cftproof.md` Phase 5): conditional Euclidean clustering at mass `m` is transfer
 -- operator at rate `m` off the vacuum, and `O(4)` invariance turns temporal decay into spatial.
 import BookProof.OSReconstruction.Clustering
 import BookProof.OSReconstruction.HilbertSpace
@@ -603,6 +612,13 @@ import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
 import BookProof.OSReconstruction.YangMillsBridge
 import BookProof.OSReconstruction.FockIntertwining
+-- Half-space OS reconstruction (`cftproof.md` E3): the quotient of `𝔄₊` by the null space of
+-- the half-space OS form, its vacuum, and the forward transfer semigroup on its completion.
+import BookProof.OSReconstruction.HalfSpaceState
+import BookProof.OSReconstruction.HalfSpaceHilbert
+import BookProof.OSReconstruction.HalfSpaceGenerator
+import BookProof.OSReconstruction.HalfSpaceFreeState
+import BookProof.OSReconstruction.HalfSpaceComplex
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
@@ -640,10 +656,11 @@ import BookProof.MCMC.PCNGaussianFloor
 import BookProof.MCMC.GroundStateConjugation
 
 -- Wave (`pcnl.md` Module 1 proper, and Module 2 through it): the pCN step *is* diagonalised by
--- the Fock number states in the `d → ∞` limit — `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
+-- Hermite states already in finite Gaussian dimension:
+-- `∫ Hₙ(ρx + √(1−ρ²)y) e^{−y²} dy = √π ρⁿ Hₙ(x)`.
 import BookProof.MCMC.MehlerEigenfunction
--- Wave, `pcnl.md` Module 1 in its *finite-`d`* form: the zonal spectrum of one pCN step on
--- `S^{d-1}` is `Cₙ^{(λ)}(ρ)/Cₙ^{(λ)}(1)` (`pcnZonalEigen`), not `ρⁿ` (`pcnZonalEigen_two_ne_pow_two`,
+-- Wave: algebraic candidate zonal ratios for a spherical averaging kernel (kernel not built):
+-- `Cₙ^{(λ)}(ρ)/Cₙ^{(λ)}(1)` (`pcnZonalEigen`), not `ρⁿ` (`pcnZonalEigen_two_ne_pow_two`,
 -- `d = 3`), and it tends to `ρⁿ` as `d → ∞` (`pcnZonalEigen_tendsto`).
 import BookProof.MCMC.GegenbauerEigenvalue
 import BookProof.Toolbox.PhysMehler
@@ -2084,6 +2101,30 @@ import BookProof.ChapterSqueezedGaussStates
 -- no proof of the hypothesis can be uniform in the structure constants.
 import BookProof.Qym.ChapterYangMillsAbelianNoGap
 
+-- `ChapterYangMillsMehlerBridge` (work package S0 of `softmodes.md`): the half of the Mehler
+-- representation bridge that the plan's corrections gate on.  With `γ^{1/2}(x) = exp(−x²/4)` and
+-- `U f = γ^{1/2} · f`, the derivative transports as `U ∂ U⁻¹ = ∂ + x/2` (`conj_deriv`), so the
+-- annihilation convention `a = ∂ + x/2` kills the weight (`gaussRoot_vacuum`) — the convention
+-- the corpus's `momOp` uses — and the Gaussian Dirichlet operator is unitarily the oscillator
+-- (`gaussRoot_oscillator_ground`, and `conj_dirichlet` for the second-order identity
+-- `U(−∂² + x∂)U⁻¹ = −∂² + x²/4 − 1/2` on the smooth core), so the reference gap `½` is the
+-- oscillator's, never `q_h`'s.  `conj_mult` is the matching multiplication identity: the transform
+-- cannot move a potential, which is the plan's "no confinement from a Gaussian".
+-- `lintegral_norm_sq_conj` is the squared norm identity `∫|γ^{1/2}f|² = ∫|f|² d(γdx)`.
+-- The module also fixes the S2 signature `HasOneParticleFormGap`, proves it false for `fabc = 0`,
+-- and records that a nonzero kernel vector defeats every absolute constant (target 2 does not
+-- imply target 1).
+import BookProof.Qym.ChapterYangMillsMehlerBridge
+
+-- `ChapterYangMillsSoftDirections` (work package S1 of `softmodes.md`): the coupling split
+-- `B = B_deriv + g B_comm` and its cross term.  `norm_add_sq_ge_split` proves the plan's valid
+-- starting estimate `‖X + Y‖² ≥ (1 − ε)‖X‖² − (ε⁻¹ − 1)‖Y‖²` (Cauchy–Schwarz plus AM–GM), and
+-- `no_norm_add_smul_lower_bound` is the one-dimensional counterexample that the naive
+-- `‖B_deriv + g B_comm‖² ≥ g²‖B_comm‖²` is false, so the plan's warning is a theorem here rather
+-- than a caveat.  The loss term is still unpaid: it must be dominated by the reference form, which
+-- is the `a < 1` relative-bound input S2 owes.
+import BookProof.Qym.ChapterYangMillsSoftDirections
+
 -- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
 -- derivative-variable fixing `E = ∂e` on the coordinate algebra of
 -- `ChapterQuantumGravity3DGauge`.  A tetrad field polynomial in the spacetime coordinates
@@ -3268,6 +3309,118 @@ import BookProof.Toolbox.ChapterTensorSumChain
 -- self-adjoint extension with its Stone flow, and conserves the particle number.
 import BookProof.Sm.ChapterSmOneParticle
 import BookProof.Sm.ChapterSmHamiltonian
+import BookProof.Sm.ChapterSmPhysicalData
+-- `ChapterSmMatterRepresentation` / `ChapterSmFullYukawaData` (2026-11-09e,
+-- `SM_ESA_COMPLETION_PLAN` §4 P1): the explicit chiral matter content (16 Weyl fields per
+-- generation, 96 complex CAR
+-- coordinates, 192 real Majorana components — matching `smE1`), its finite-CAR identification with
+-- the charge-conjugation structure `ε = iσ₂` (`C² = -1`), and the four-real-component Higgs
+-- dictionary: the generators `1, σ₁, σ₂, σ₃` realify the Hermitian `2 × 2` matrices, and the
+-- hermitianized Yukawa insertion `A Y + (A Y)ᴴ` is the sum over the four real components, with
+-- gauge covariance and charge conservation.  The 96-mode assembly of the full Hamiltonian, the
+-- spinor action of `γ·∂` and any Majorana mass term are not covered.
+import BookProof.Sm.ChapterSmMatterRepresentation
+import BookProof.Sm.ChapterSmFullYukawaData
+-- `ChapterSmFullMatterHamiltonian` (2026-11-09f, `SM_ESA_COMPLETION_PLAN` §4 P2): the exact
+-- coupled inner operator on a common Mehler core.  The coupled space is the finite direct sum
+-- `PiLp 2 (fun _ : Finset (Fin 96) => L2d 163)` over the occupation basis with the common core
+-- `SmCoupledCore` (dense, `coupledCore_dense`); every ledger term is an elementary tensor
+-- `smTensorCore T M` with a core-to-core bosonic factor, and the normal form
+-- `h_SM = Σⱼ πⱼ ⊗ Aⱼ + Σⱼ πⱼ² ⊗ Bⱼ + Σⱼ uⱼ ⊗ Jⱼ + 1 ⊗ M₀` has the term-by-term action
+-- `smNormalForm_apply`, core symmetry `smNormalForm_symmetricOn` (Hermitian coefficients) and
+-- preserves fermion parity (`smNormalForm_parity`).  The derivatives are the genuine
+-- Gaussian-polynomial `CoreRep.op momOp`, not a plane wave, and the 96-mode embedding of the P1
+-- doublet dictionary, the gauge sector and any graph/self-adjointness statement are not covered.
+import BookProof.Sm.ChapterSmFullMatterHamiltonian
+-- `ChapterSmFullComparisonEsa` (2026-11-09g, `SM_ESA_COMPLETION_PLAN` §4 P3): the comparison
+-- `N_SM = 2h_B + Σ_active qᵣ² + Σⱼ(p_xⱼ² + xⱼ²) + c` as the degenerate Schrödinger operator
+-- `−Δ_S + W` on the 43-coordinate kinetic subset (40 momentum coordinates + 3 spatial), with the
+-- 120 jets potential-only (`smFullS_disjoint_jet`); the identification with the source operators
+-- (`smFullComparisonPhys_eq`), symmetry, quadratic-form positivity, dense core and essential
+-- self-adjointness for every shift (`smFullComparison_esa`).  The internal tensor and the
+-- Faris–Lavine graph-core package are not covered.
+import BookProof.Sm.ChapterSmFullComparisonEsa
+-- `ChapterSmFullCoupledCore` (2026-11-09h, `SM_ESA_COMPLETION_PLAN` §4 P3 remainder + P4): the
+-- coupled tensor `T ⊗ M` for `L²`-valued bosonic factors, the coupled comparison `N_SM ⊗ I` as a
+-- Friedrichs `Comparison` on the common core, the transfer of both Faris–Lavine inequalities to
+-- the coupled space (`coupledOp_norm_le`, `coupledOp_one_commForm_le`), the coupled `CoreData`
+-- package with essential self-adjointness of `h ⊗ I` (`smCoupledHamiltonian_esa`), and the
+-- relative bound of the full normal form from the per-family scalar bounds
+-- (`smNormalForm_norm_le`).  The commutator bound of the full normal form (non-scalar coefficient
+-- matrices) and the per-family scalar bounds themselves are not covered.
+import BookProof.Sm.ChapterSmFullCoupledCore
+-- `ChapterSmFullYukawaCoeffs` (2026-11-09h, `SM_ESA_COMPLETION_PLAN` §4 P1 → P2): the P1 Yukawa
+-- dictionary read in the occupation basis of the matter Fock space — `fockBasis`, `fockMatrix`,
+-- `fockMatrix_star` (Hermitian coefficients from a symmetric internal operator) and
+-- `fockMatrix_parity` (parity-graded coefficients from one commuting with parity) — and, with
+-- `SmInternalData.toNormalForm`, the resulting `SmNormalFormData` together with P2's
+-- `HermitianCoeffs` and `ParityGradedCoeffs` (`toNormalForm_hermitian`, `toNormalForm_parity`).
+import BookProof.Sm.ChapterSmFullYukawaCoeffs
+-- `ChapterSmFullFamilyBounds` (2026-11-10a, `SM_ESA_COMPLETION_PLAN` §15): the per-family scalar
+-- relative bounds that `smNormalForm_norm_le` leaves open — `smPi_norm_le_shift`,
+-- `smMomField_norm_le_shift`/`smPos_smCoord_norm_le_shift` and `smField_norm_le_shift`, all with
+-- constant 1 against `N = 2h + Σ q² + c₀`, from `quadForm_le_half_norm_add_sq` — plus the
+-- support-restricted normal-form bound `smNormalForm_norm_le_support` and its instantiation for
+-- the P1 data, `SmInternalData.toNormalForm_norm_le`.
+import BookProof.Sm.ChapterSmFullFamilyBounds
+-- `ChapterSmFullNormalFormBounds` (2026-11-10b, `SM_ESA_COMPLETION_PLAN` §16): the commutator
+-- form of the *full* normal form with general coefficient matrices
+-- (`smNormalForm_commForm_le`, at the level of the shifted graph norm squared), the canonical
+-- Higgs placement `SmInternalData.canonical` (discharging `hpos` by `rfl` via
+-- `smCanonicalPos_harmonic`), and the second-order momentum family: `pderiv_pderiv_comm`,
+-- `derOp_comp_comm`, `momOp_comp_comm`, `smPi_comp_comm`, the generic
+-- `sq_norm_comp_le_sum`, and `smPi_sq_norm_le_kineticSum` / `smKinetic_norm_le_shift`, which
+-- reduce the kinetic `hkin` of `smNormalForm_norm_le` to one bound on the kinetic sum.
+import BookProof.Sm.ChapterSmFullNormalFormBounds
+-- `ChapterSmFullCommFormDiagonal` (2026-11-10c, `SM_ESA_COMPLETION_PLAN` §17): the commutator
+-- bound with support-restricted family hypotheses (`smNormalForm_commForm_le_support`, from the
+-- separated engine `abs_commForm_le_of_norm_le`), its P1 instantiation
+-- `SmInternalData.toNormalForm_commForm_le` and the canonical one
+-- `SmInternalData.canonical_toNormalForm_commForm_le` (no family and no placement hypothesis
+-- left), and the diagonal-coefficient specialization `coupledOp_diagonal_commForm_eq` /
+-- `coupledOp_diagonal_commForm_le` / `smHamiltonian_diagonal_commForm_le`, which gives the
+-- commutator bound at the quadratic-form level.  The module docstring records why the elliptic
+-- (Gårding) estimate for the kinetic sum is still a named input of `hkin`.
+import BookProof.Sm.ChapterSmFullCommFormDiagonal
+-- `ChapterSmFullCommFormBlock` (2026-11-10d, `SM_ESA_COMPLETION_PLAN` §18): the commutator form
+-- of a **block-diagonal** coefficient matrix whose blocks carry *different* operators —
+-- `blockMat` / `blockOp` (the four blocks reassemble into `diag d` by `sum_blockMat`, and
+-- `blockOp_apply` shows component `A` sees `d A • T_{blk A}`), the identity
+-- `blockOp_commForm_eq` and the quadratic-form-level bound `blockOp_commForm_le`, the norm-level
+-- sibling `blockOp_norm_le`, and the four-Higgs-component instantiation `smPos_block_norm_le` /
+-- `smPos_block_commForm_le` / `smCanonical_smPos_block_commForm_le` (no placement hypothesis
+-- left at `smCanonicalPos`).
+import BookProof.Sm.ChapterSmFullCommFormBlock
+-- `ChapterSmFullCommFormBlockHermitian` (2026-11-10f, `SM_ESA_COMPLETION_PLAN` §20): the block
+-- operator with **non-diagonal Hermitian block interiors**, `blockOpMat T M = Σ_a T_a ⊗ M_a` —
+-- §18's `blockOp` is the diagonal case (`blockOp_eq_blockOpMat`) — the support condition that makes
+-- it act blockwise (`blockOpMat_apply_of_supp`), the weighted Cauchy–Schwarz step
+-- (`sq_sum_mul_le_sum_mul_sq`), and Schur's test `‖blockOpMat T M f‖ ≤ c √(ρ κ) ‖N⊗1 f + f‖`
+-- (`blockOpMat_norm_sq_le`, `blockOpMat_norm_le`) with the two Schur sums as `ρ`, `κ`, which for a
+-- diagonal interior reduce to §18's `K` (`rowSum_blockMat`, `colSum_blockMat`) — plus the Higgs
+-- family with full matrix interiors (`smPos_blockMat_norm_le`, `smPos_blockMat_commForm_le`,
+-- `smCanonical_smPos_blockMat_commForm_le`).
+import BookProof.Sm.ChapterSmFullCommFormBlockHermitian
+-- `ChapterSmFullCommFormBlockP1` (2026-11-10g, `SM_ESA_COMPLETION_PLAN` §21): §20 instantiated at
+-- the P1 Yukawa dictionary's four Higgs coefficient matrices `p1HiggsMat D a` — that these are
+-- exactly the normal form's coordinate matrices (`SmInternalData.toNormalForm_coord_eq`,
+-- `toNormalForm_coord_eq_p1HiggsMat`), that they are Hermitian (`p1HiggsMat_hermitian`), the `ℓ¹`
+-- entry bound `fockMatrix_entry_norm_le` that makes the Schur sums finite, and the commutator bound
+-- `smPos_p1Higgs_commForm_le` / `smCanonical_smPos_p1Higgs_commForm_le`.
+import BookProof.Sm.ChapterSmFullCommFormBlockP1
+-- `ChapterSmFullCommFormBlockP1Schur` (2026-11-10i, `SM_ESA_COMPLETION_PLAN` §24): the two Schur
+-- sums of the four P1 matrices as **explicit numbers** rather than hypotheses — the `ℓ¹` masses
+-- `p1HiggsMass`/`p1HiggsMassTotal`, the basis mass `fockMass`, and the radii `p1HiggsRowRadius`,
+-- `p1HiggsColRadius`, with `rowSum_p1Higgs_le`/`colSum_p1Higgs_le` proving the Schur bounds and
+-- `smCanonical_smPos_p1Higgs_commForm_le_radius` the commutator bound at those radii.
+import BookProof.Sm.ChapterSmFullCommFormBlockP1Schur
+-- `ChapterSmFullCommFormBlockGeneral` (2026-11-10j, plan §25): the Schur test with
+-- **no block-diagonal support condition** — the weight `weightSum M A B = Σ_a ‖M_a A B‖`
+-- and the Schur sums `rowSumGen`/`colSumGen` (`weightSum_eq_of_supp` shows §20's bound is the
+-- special case), the component formula `blockOpMat_apply_general`, `blockOpMat_norm_sq_le_general`,
+-- `blockOpMat_norm_le_general`, and the payoff `smCanonical_p1Higgs_commForm_le_unconditional`: the
+-- P1 Higgs commutator bound with no hypothesis beyond `0 ≤ c₀`.
+import BookProof.Sm.ChapterSmFullCommFormBlockGeneral
 import BookProof.Sm.ChapterSmComparison
 import BookProof.Sm.ChapterSmOuterFock
 
@@ -3363,6 +3516,125 @@ import BookProof.Toolbox.ChapterDegSchrodingerCore
 import BookProof.ChapterDegKatoEsa
 import BookProof.Toolbox.ChapterHermiteGraphApprox
 import BookProof.Sm.ChapterSmComparisonEsa
+-- `ChapterSmKineticElliptic` (2026-11-10e, `SM_ESA_COMPLETION_PLAN` §19): the kinetic sum of the
+-- SM identified with the **plain** partial Laplacian in the function picture
+-- (`kineticSum_apply_pgLp`, `kineticSum_norm_pgLp`) — correcting §17's §4, which read `coreD` as a
+-- derivative mismatch — the comparison in polynomial coordinates (`smFlN_apply_pgLp`), the
+-- reduction of §16's `hkin` to one polynomial inequality (`kineticSum_norm_le_of_poly`), and the
+-- interpolation half of the elliptic step: `sq_norm_le_norm_comp_mul_norm`, its ε-form
+-- `sq_norm_le_of_comp_self_eps`, `smMom_norm_le_shift_of_kineticSum`, and
+-- `smNormalForm_norm_le_of_kineticSum`, which drops the momentum hypothesis `hmom` of §15.
+import BookProof.Sm.ChapterSmKineticElliptic
+-- `ChapterSmKineticGarding` (2026-11-10h, `SM_ESA_COMPLETION_PLAN` §22): the Gårding factorization
+-- of the quartic step — `kinetic_le_shift_add_pot` (the kinetic term is the comparison plus the
+-- potential), so §19's `hpoly` reduces to the **self-bound** `PotSelfBound P c₀ β`;
+-- `kineticSum_norm_le_of_pot_self_bound` gives the elliptic estimate with `c = 1 + β`, and
+-- `smNormalForm_norm_le_of_pot_self_bound` composes it with §19's interpolation so the whole P2
+-- relative bound rests on that one inequality.  The quartic self-bound itself remains open; the
+-- module docstring records why (the gradient cannot be interpolated against the graph norm, and the
+-- corpus's only uncertainty bound is quadratic).  §26 adds the formal equivalence of `PotSelfBound`
+-- with §19's `hpoly` (`potSelfBound_of_kinetic_bound`) and the interpolation §23 does afford.
+import BookProof.Sm.ChapterSmKineticGarding
+-- `ChapterSmGaussWeightedIbp` (2026-11-10k, `SM_ESA_COMPLETION_PLAN` §23): the weighted
+-- integration-by-parts identity on the Gauss–polynomial core, `⟪Q u, −Δ_S u⟫` = weighted Dirichlet
+-- energy + commutator term (`gaussInt_weighted_kinPolyS`, `inner_weighted_kinPolyS`), the pointwise
+-- form `eval_weighted_self_re`, the non-negativity `gaussInt_weighted_self_nonneg` /
+-- `inner_weighted_kinPolyS_dirichlet_nonneg`, the sign `inner_weighted_kinPolyS_ge`, and the SM
+-- instance at the quartic potential (`sm_weighted_kinetic_ibp`, `_ge`).  It supplies the
+-- first ingredient of §22's `PotSelfBound`; the interpolation of `∇` is still missing, so
+-- `PotSelfBound` stays a hypothesis.
+import BookProof.Sm.ChapterSmGaussWeightedIbp
+-- `ChapterSmGradInterpolation` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §26): what §23's weighted
+-- identity affords quantitatively — `‖∇_j p‖² ≤ ‖√W ∇_j p‖²` one coordinate at a time, the
+-- Cauchy–Schwarz bound `abs_cross_le_op` on the commutator term, and the interpolation
+-- `dirichlet_le_weighted_form`: `∑_{j∈S} ‖∇_j p‖² ≤ 2 Re ⟪W p, −Δ_S p⟫ + ∑_{j∈S} ‖(∂_j W)p‖²`,
+-- with `sm_dirichlet_le_weighted_form` at the quartic potential.  It also proves the direction §22
+-- only asserted: `potSelfBound_of_kinetic_bound`, i.e. §19's `hpoly` implies `PotSelfBound`, so the
+-- two are equivalent spellings of the same open problem rather than separate hypotheses.
+import BookProof.Sm.ChapterSmGradInterpolation
+-- `ChapterSmFullCommFormBlockP1OpNorm` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §27): the P1 Schur
+-- radii as **operator norms** instead of `ℓ¹` masses — `p1HiggsOpMass D a = ‖p1HiggsMat D a‖` under
+-- the `L^∞` matrix norm (`row_le_opNorm`, `row_norm_le_opNorm`, `entry_le_opNorm`), the radii
+-- `p1HiggsOpRowRadius`/`p1HiggsOpColRadius`, the Schur bounds `rowSum_p1Higgs_le_opRadius` /
+-- `colSum_p1Higgs_le_opRadius`, the sharpening `p1HiggsOpMass_le_mass` /
+-- `p1HiggsOpRowRadius_le_rowRadius` against §24, and the hypothesis-free
+-- `smCanonical_p1Higgs_commForm_le_opRadius_unconditional`.
+import BookProof.Sm.ChapterSmFullCommFormBlockP1OpNorm
+-- `ChapterSmFullCommFormBlockYukawaMixing` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §28): a Yukawa
+-- coefficient family that **provably mixes blocks** — `mixYuk` (two degenerate occupation-diagonal
+-- components) with `mixYuk_unsupported` showing no `blk` satisfies §20's support condition, the
+-- Schur sums `rowSumGen_mixYuk`/`colSumGen_mixYuk` both `2`, `mixYuk_commForm_le` at the constant
+-- `4√(2·2)`, and the same mixing added to the real dictionary (`p1HiggsMix`) with
+-- `rowSumGen_p1HiggsMix_le`, `colSumGen_p1HiggsMix_le` and `p1HiggsMix_commForm_le`.
+import BookProof.Sm.ChapterSmFullCommFormBlockYukawaMixing
+-- `ChapterSmFockBasisNormalised` (2026-11-10m, `SM_ESA_COMPLETION_PLAN` §29): the occupation basis
+-- is orthonormal — `fockBasis_norm` (`‖fockBasis S‖ = 1`), `fockMass_eq_card` and
+-- `fockMass_eq_two_pow` (`2 ^ 96`) — so §24's radii lose their only unknown factor:
+-- `p1HiggsRowRadius_eq`,
+-- `p1HiggsColRadius_eq` and the evaluated Schur bounds `rowSum_p1Higgs_le_mass_card` /
+-- `colSum_p1Higgs_le_mass_card_sq`.
+import BookProof.Sm.ChapterSmFockBasisNormalised
+-- `ChapterSmP1BlockStructure` (2026-11-10m, `SM_ESA_COMPLETION_PLAN` §30): the block structure the
+-- P1 dictionary actually has — every `a†_i a_j` conserves occupation number, so
+-- `p1HiggsMat_of_card_ne` / `p1HiggsMat_card_eq` — and a dictionary for which no per-component
+-- `blk` exists at all: `degHiggsData` (four equal identity components), `p1HiggsMat_degHiggs_apply`
+-- (`(S.card : ℂ)` on the occupation diagonal), `degHiggs_no_support` and the general criterion
+-- `no_support_of_shared_entry`.  So §25's support-free test is necessary, not convenient.
+import BookProof.Sm.ChapterSmP1BlockStructure
+-- `ChapterSmReverseEllipticResidual` (2026-11-10m, `SM_ESA_COMPLETION_PLAN` §31): the reverse
+-- elliptic estimate's exact residual — `ℜ⟪−Δ_S p, p⟫ = ∑_j ‖∇_j p‖²` (`re_inner_kinPolyS_self`),
+-- the decomposition `norm_shift_sq_decomp`, `inner_KT_eq`, and
+-- `potSelfBound_one_iff_remainder`: `PotSelfBound P c₀ 1` **is** the non-negativity of
+-- `‖Δ_S p‖² + 2 ℜ⟪−Δ_S p, W p + p⟫`.  The sharpest condition the sign route reaches is
+-- `potSelfBound_one_of_grad_residual` (`∑_j ‖(∂_j W)p‖² ≤ ‖Δ_S p‖² + 3 ∑_j ‖∇_j p‖²`), which is not
+-- proved; the module states that a proof must compare form domains, and `PotSelfBound` stays open.
+import BookProof.Sm.ChapterSmReverseEllipticResidual
+-- `ChapterSmFormDomainComparison` (2026-11-10n, `SM_ESA_COMPLETION_PLAN` §32): the form-domain
+-- comparison as a **named input** — `FormDomainComparison P c₀ c`, i.e. the graph norm of
+-- `−Δ_S + W + 1` dominates the `H²` norm — with its reductions both ways:
+-- `formDomainComparison_of_potSelfBound`, `potSelfBound_of_formDomainComparison` and
+-- `exists_potSelfBound_iff_exists_formDomainComparison` (so the name is not a weaker hypothesis).
+-- The half the form does give is `form_coercive` / `norm_le_shiftNorm_of_coercive`.
+import BookProof.Sm.ChapterSmFormDomainComparison
+-- `ChapterSmHarmonicReverseEstimate` (2026-11-10n, `SM_ESA_COMPLETION_PLAN` §33): the **quadratic**
+-- weight, where the corpus already proves the whole package — `reverseEstimate_harm` (the
+-- `H²` estimate, `c = 3`), `potentialBound_harm`, `identityBound_harm`, `selfBound_harm` (the
+-- `PotSelfBound` shape, `β = 3`) and `coercive_harm`.  It does not transfer to the quartic `W`:
+-- `W` is not dominated by `harmPoly` and the corpus has no quartic uncertainty bound.
+import BookProof.Sm.ChapterSmHarmonicReverseEstimate
+-- `ChapterSmDegenerateDoubletConstant` (2026-11-10n, `SM_ESA_COMPLETION_PLAN` §34): the degenerate
+-- doublet's Schur sums evaluated — `weightSum_degHiggs`, `rowSumGen_degHiggs` and
+-- `colSumGen_degHiggs` (all `4 * card`), both sums `≤ 384`, `degHiggs_constant`
+-- (`4√(384·384) = 1536`) and `degHiggs_commForm_le`, §25's commutator bound at `ρ = κ = 384` for
+-- the dictionary §30 showed admits no block function.
+import BookProof.Sm.ChapterSmDegenerateDoubletConstant
+-- `ChapterSmQuarticUncertainty` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §35): the quartic analogue of
+-- the harmonic uncertainty bound, `QuarticUncertainty P c₀ C` (`‖W p‖² ≤ ‖(−Δ_S + W)p‖² + C ∑‖∇_j p‖²`),
+-- and the one direction the sign identity gives: `quarticUncertainty_of_gradResidual` (§31's residual
+-- condition at `C = 2`).  The converse needs an upper bound on `ℜ⟪W p, −Δ_S p⟫` that §23 does not
+-- supply, so the quartic analogue is weaker than §31's condition and the transfer is not obtained.
+import BookProof.Sm.ChapterSmQuarticUncertainty
+-- `ChapterSmDegenerateDoubletSharp` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §36): `384` is the **exact**
+-- uniform Schur radius of the degenerate doublet — `rowSumGen_degHiggs_univ` / `colSumGen_degHiggs_univ`
+-- attain it, so `degHiggs_rowRadius_sharp` / `degHiggs_colRadius_sharp` show no smaller radius works.
+-- A smaller commutator constant must come from cancellation, not from a sharper Schur radius.
+import BookProof.Sm.ChapterSmDegenerateDoubletSharp
+-- `ChapterSmQuadraticWeightLemmas` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §37): which quadratic-weight
+-- lemmas survive for a weight dominated by `harmPoly` — `selfBound_of_potBound` composes a potential
+-- bound with §33's identity bound; the module records that the potential bound, the identity bound,
+-- the self-bound and coercivity survive, while the reverse `H²` estimate does not follow from
+-- domination of a coefficient.
+import BookProof.Sm.ChapterSmQuadraticWeightLemmas
+-- `ChapterSmCrossTermHessian` (2026-11-10p, `SM_ESA_COMPLETION_PLAN` §38): the upper bound §35 named
+-- as missing.  Two integration by parts turn the commutator half of the cross term into a **Hessian
+-- weight** — `commutator_cross_eq` per coordinate, `crossTerm_eq` summed: `2 ℜ⟪Q p, −Δ_S p⟫ =
+-- 2 · weightedDirichlet − hessForm`, exactly.  Hence `crossTerm_upper` (the sign identity's missing
+-- direction, from a non-negative Hessian weight, `sm_crossTerm_upper` at the SM weight) and
+-- `residual_eq_hessForm` / `potSelfBound_one_iff_hessForm`: `PotSelfBound P c₀ 1` **is** the
+-- Hessian gap, a comparison of two quadratic forms with no degree-six density left.  The gap is not
+-- proved, so `PotSelfBound` stays a hypothesis; the section removes the cubic obstruction and names
+-- the remaining sign of the Hessian trace, which the corpus does not compute.
+import BookProof.Sm.ChapterSmCrossTermHessian
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
 -- enclosures.  `ChapterYangMillsNonAbelianEsa` proves that every Weyl-type operator

@@ -7,21 +7,21 @@ import BookProof.YangMillsMagneticQuartic
 
 `softmodes.md` §2.3 and `BookProof.YangMillsMagneticQuartic` use the field-strength components
 `B_a(n) = ∑ i, A_{a i} nᵢ` (`magComp`), *assuming* that the magnetic components are linear in the
-occupation.  This module derives that form from the field strength itself,
+occupation. This module derives a diagonal sandwich model; comparison with the field strength
 
 `F_{μν} = ∂_μ A_ν − ∂_ν A_μ + g [A_μ, A_ν]`   (Weyl gauge `A_0 = 0`),
 
-on the Gauss–polynomial core, and records why **no normal ordering is needed**.
+on the Gauss–polynomial core remains a separate identification obligation.
 
-## Why no normal ordering is needed
+## Ordered pairs and the limit of the sandwich model
 
 In the nested Fock space the gauge potential is not an arbitrary operator: every component is a
 *pair*, `c† M c` — an outer creation–annihilation pair with the inner (self-adjoint) operator `M`
-in between (`sandwich`).  The nested algebra multiplies pairs by composing the inner operators, so
-a product `(c† M c)(c† N c)` is again a pair with inner operator `M N`: the "contraction" of
-Wick's theorem *is* the inner matrix product, and the double-creation term is not an element of the
-nested algebra at all.  The composite is therefore defined without subtracting a vacuum
-expectation, which is what normal ordering would do.
+in between (`sandwich`). The definition is the ordinary number-preserving lift of a finite
+matrix. On the one-outer-particle restriction, composition gives the inner matrix product.
+On the full outer Fock space, `dΓ(M) dΓ(N)` also acts on distinct particles and generally differs
+from `dΓ(M N)`. For example `dΓ(I) = N_out` but `N_out² ≠ N_out`. Form the physical magnetic
+square inside `h` before outer enclosure. No rule deleting extra outer terms is proved here.
 
 The one place where a subtraction could hide is the ordering of the pair itself: on the basis
 vector `n` the ordered pair `c_j† c_j` acts by `n_j`, while the reverse ordering `c_j c_j†` acts by
@@ -69,7 +69,7 @@ second — creation on the left, annihilation on the right, as the nested form r
 def pairWord (i j : Fin d) : List (Fin d × Bool) := [(j, false), (i, true)]
 
 /-- **The nested sandwich** `c† M c` on the core: the sum of outer pairs weighted by the inner
-operator `M`.  Every element of the nested field algebra is of this form. -/
+operator `M`. Products of such lifts need not themselves have this form. -/
 def sandwich (M : Fin d → Fin d → ℂ) (c : CoreCoeff d) : CoreCoeff d :=
   ∑ i, ∑ j, M i j • hopWord (pairWord i j) c
 

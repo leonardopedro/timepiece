@@ -9,20 +9,18 @@ Plan: `pcnl.md`, Module 1 (its *output*), joined to Modules 4–5.  The unadjust
 
 `v = ρ u + √(1 − ρ²) ξ`,  `ξ` white,
 
-is the transition operator of Brownian motion on the sphere `S^{d-1}` in the `d`-mode truncation,
-so by Schur's lemma it is diagonalised by the hyperspherical harmonics; on the slice observables
-(functionals of one coordinate) the eigenfunctions are the **Gegenbauer** polynomials
-`C_n^{(α/2)}`, with eigenvalues
+preserves the Gaussian reference when `ξ` is an independent reference Gaussian. Its Hermite
+coefficient model has eigenvalues
 
 `λ_n^{(d)} = ρ ^ n`,
 
-**independent of `d`** — the observation `pcnl.md` §1.A makes and §1.B transports to the
-Fock/Hermite modes `H_n/n!` (`PhysHSGaussian.gegenbauerScaled_tendsto_hermite`).
+independent of `d`. Gaussian pCN is not spherical Brownian motion. Finite-dimensional spherical
+Gegenbauer ratios are distinct (`GegenbauerEigenvalue`) and need their own kernel construction.
 
 This chapter formalises what that spectrum says, on the coefficient model of the Gauss–polynomial
 core that the rest of the MCMC/spectral development uses (`BookProof.ReferenceGap.CoreCoeff`): a
 multi-index `n : Fin d → ℕ` collects the occupation of the `d` modes, its total degree
-`N = ∑ i, nᵢ` labels the spherical-harmonic order, and the pCN eigenvalue of that mode is `ρ ^ N`,
+`N = ∑ i, nᵢ` labels Hermite degree, and the modeled pCN eigenvalue is `ρ ^ N`,
 so the `L²` weight of the mode is `ρ ^ (2N)`.
 
 ## Contents
@@ -42,14 +40,12 @@ so the `L²` weight of the mode is `ρ ^ (2N)`.
 
 ## Honest boundary
 
-The eigenfunction identity `P₀ C_n^{(α/2)} = ρ^n C_n^{(α/2)}` — Module 1 proper — is **not**
-proved here: it needs the spherical measure and the Gegenbauer addition theorem (or, in the
-`α → ∞` limit, the Gaussian integral of `H_n(ρx + √(1−ρ²)ξ)/n!`), neither of which is in the
-corpus.  What is proved is everything downstream of the spectrum: the weights `ρ^(2N)`, the
-dimension-free gap, and its consequence for the MCMC rate.  The pCNL perturbation
-`P = P₀ + K_drift + K_reject` is not treated at all; the plan's Module 3 must show it preserves
-the gap, and `BookProof.MCMC.GeometricErgodicity` states the resulting bound with the gap as a
-hypothesis.
+`MehlerEigenfunction.mehlerOp_physHermite` proves the one-dimensional Gaussian integral
+identity; this module works directly with diagonal coefficients. Tensorization, completeness
+and an actual kernel-to-`L²` identification still have to connect the realizations. The squared
+norm defect `1-ρ²` here differs from the Markov gap `1-ρ`. A finite-step pCNL or MH-pCNL gap
+does not follow from the differential-core drift expansion. Invariance, adjoint, full proposal
+ratio and an absolute-contraction comparison remain the work of `pcnl.md` packets T0–T5.
 -/
 
 noncomputable section
@@ -61,7 +57,7 @@ open BookProof.ReferenceGap
 
 variable {d : ℕ}
 
-/-- The total degree `N = ∑ i, nᵢ` of a multi-index: the spherical-harmonic order of the mode. -/
+/-- The total Hermite degree `N = ∑ i, nᵢ` of an occupation multi-index. -/
 def natDeg (n : Fin d → ℕ) : ℕ := ∑ i, n i
 
 /-- The `L²` weight of the mode `n`: the pCN eigenvalue is `ρ ^ N`, so its squared modulus is

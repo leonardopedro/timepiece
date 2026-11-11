@@ -5,10 +5,10 @@ import BookProof.Toolbox.ChapterFockFieldPerturbation
 /-!
 # Chapter FockLangevinOperator — the drift as a finite-band hopping matrix
 
-Plan: `pcnl.md`, Module 3.  §2.2 writes the pCNL transition operator as
-`P_pCNL = P₀ + K_drift + K_reject`, where `P₀` is diagonal (`ρ^N`) and the drift is the
-polynomial `−½β²∇Φ`.  In the Hermite/Fock basis a polynomial becomes a **finite combination of
-ladder words** in `(a_j, a_j†)`, and a ladder word moves the occupation numbers of only the
+Historical plan: `pcnl.md`, Module 3. Its proposed transition decomposition
+`P_pCNL = P₀ + K_drift + K_reject`, where `P₀` is diagonal (`ρ^N`),
+is not proved here as a finite-step kernel identity. In the Hermite/Fock basis a polynomial
+becomes a finite sum of ladder words in `(a_j, a_j†)`, and a word moves occupations of only the
 modes it touches, by one per letter — so the drift is a *finite-band* matrix: a monomial of
 degree `k` hops the total degree `N = ∑ i, nᵢ` by at most `k`.
 
@@ -232,6 +232,10 @@ coefficient-level comparison with the architecture's `M_ε = 2K/ε` (§16) and t
 that derives it from `epsProj_fderiv_le` (§17, `CoeffMap`), plus the plan's diagonal `P₀` and the
 assembled operator with its band and contraction facts (§18–§19).
 
+That bound is a constant-coefficient relative pairing bound on the core, and this is not an exact
+finite-step Markov decomposition.  MH requires an accepted-move integral and a holding term; only
+the holding term alone is multiplication.  No estimate of their full difference is proved.
+
 The relative form bound is stated in §5 (`DriftFormBound`, the plan's constant `B²d/(2δ) + Bd`),
 proved in the Fock model in §6, and **proved on the core in §11**.  The inputs it needed are all
 present: §9.4–§9.9 supply the expansion (`polyMul` on `Φ` for the multiplication laws `xⱼ`, on
@@ -293,6 +297,16 @@ minorant, and the oscillation contraction `osc (P f) ≤ (1 − (m+1)δ)·osc f`
 `BookProof.MCMC.PositivityCone` (§22), which proves the iterates converge to the invariant state
 there (`tendsto_iter_step`).  Translating that model back to the core's unbounded `numberOp` (i.e.
 naming the weighted norm) is what remains in this file.
+
+**What the identification does not give.**  `driftOpCoeff` has scalar constants `b : Fin d → ℝ`.
+A nonconstant gradient is an operator-valued multiplication coefficient, modeled algebraically
+by `polyDrift` for polynomial potentials; substituting it for `b` is not a type-correct bridge.
+The sector-dependent polynomial `ℓ¹` estimate is not a global relative bound for arbitrary loss.
+For real couplings `driftField = creVec - annVec` is skew-symmetric.  Its pairing bound does not
+prove symmetry or the symmetric KLMN hypotheses for `N + K`.  Ground-state transformation,
+domains, and identification of an actual reversible kernel or diffusion remain separate work.
+The Fock model here grades statistical Hermite degree; physical outer `dΓ(h)` requires its own
+intertwiner and keeps all physical inner interactions inside `h`.
 -/
 
 noncomputable section
@@ -522,7 +536,8 @@ def invSqrtTwo : ℝ := 1 / Real.sqrt 2
 
 /-- **The drift as a hopping operator with coefficients**, `K_drift = −∑_j b_j ∂_j`:
 `∑_j [ (−b_j/√2)·a_j + (b_j/√2)·a_j† ]`, each letter being a `hopStep`.  The plan's `K_drift` is
-this operator with `b_j = (β²σ²/2)·∂_jΦ_ε`, so `|b_j| ≤ B` with `B = β²σ²M_ε/2`. -/
+this operator only when those `b_j` are scalar constants; general gradients need `polyDrift`
+or a further multiplication-operator construction and analytic estimates. -/
 def driftOpCoeff (b : Fin d → ℝ) (c : CoreCoeff d) : CoreCoeff d :=
   Finset.univ.sum fun j : Fin d =>
     (((-(b j)) * invSqrtTwo : ℝ) : ℂ) • hopStep (j, false) c +
@@ -538,8 +553,9 @@ For every coefficient family `b : Fin d → ℝ` with `|b j| ≤ B`, every `δ >
 
 with `d` the number of modes (the plan's `P`) and `B = β²σ²M_ε/2`, `M_ε = K/ε` the gradient bound of
 the `ε`-regularized architecture.  `δ` is arbitrary, so the relative bound is **zero**: `K_drift` is
-infinitesimally form-small with respect to `N`, which is what makes `N + K_drift` self-adjoint and
-bounded below by KLMN.
+infinitesimally small in this pairing estimate. Symmetry and closed-form hypotheses for a
+self-adjoint KLMN application are not established; a real creation-minus-annihilation field
+is skew-symmetric.
 
 The plan's constant is reproduced by the chain
 `|⟪c, K c⟫| ≤ (B/√2)·‖c‖·∑_j (‖a_j c‖ + ‖a_j† c‖)`, then
@@ -2629,8 +2645,8 @@ section closes the target.  The drift `K = −∑ⱼ bⱼ ∂ⱼ` with `|bⱼ| �
 
 `‖⟪c, K c⟫‖ ≤ δ·⟪c, N c⟫ + (B²·d/(2δ) + B·d)·‖c‖²`
 
-for every `δ > 0`, so it is infinitesimally form-small with respect to the number operator — the
-KLMN hypothesis that makes `N + K` self-adjoint and bounded below.
+for every `δ > 0`. This proves the pairing estimate, without proving symmetry, a
+ground-state-transform identity, or the hypotheses of a symmetric KLMN application.
 
 * `coreNorm` — the core `ℓ²` norm `‖c‖ = √(∑ₙ ‖c n‖²)`, with `coreNorm_sq` and
   `sum_sq_subset` (the mass over any finset containing the support);
@@ -2660,11 +2676,10 @@ then `√(x + y) ≤ √x + √y` splits the radical into `2√(⟪c, N c⟫)` a
 `B²d/(2δ)·‖c‖²`, the second half is exactly `B·d·‖c‖²` (the slack `1/√2 ≤ 1` absorbs the
 normalization).  The constant is the plan's, term for term.
 
-**Boundary.**  What is still not here is the *identification* of the coefficient family: that
-`b_j = (β²σ²/2)·∂_jΦ_ε`, i.e. that the `ε`-regularized potential's gradient supplies these
-`b_j` through the Hermite expansion.  That identification is where the `ε`-dependence enters —
-through `B = β²σ²M_ε/2` with `M_ε = K/ε`, hence quadratically as `ε⁻²`.  The estimate itself,
-which is what the KLMN argument consumes, is a theorem.
+**Boundary.** The theorem has constant scalar `b_j`. A general gradient supplies multiplication
+operators, not these scalars. Its analytic estimate, symmetry/ground-state transformation and
+identification with an actual finite-step kernel remain open. The constant contains `d` and
+does not by itself prove a dimension-independent sampler gap.
 -/
 
 theorem coreNormSq_nonneg (c : CoreCoeff d) : 0 ≤ coreNormSq c :=

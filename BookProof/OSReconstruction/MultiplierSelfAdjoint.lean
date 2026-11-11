@@ -132,8 +132,9 @@ self-adjoint `H` *from the flow*, it does not produce the flow from the OS axiom
 so, and the reason is structural rather than technical: the OS axioms supply a contractive
 semigroup on `ℋ` and its two-point functions, while the law says `U` diagonalizes its generator
 with simple spectrum `f`; two different `f` satisfy the same axioms with different `H`, so the
-identification is the choice of KL multiplier realization.  What is missing for a derivation is
-the spectral theorem for the generator (equivalently Stone's theorem), which Mathlib does not have.
+identification is the choice of KL multiplier realization. The repository already supplies
+spectral and Stone machinery. What remains is its concrete application to a positive-time OS
+quotient, with the appropriate real/complex representation, domains and physical intertwiner.
 
 `flowOfH` is defined by conjugating the multiplier flow, not by a functional calculus of the bounded
 resolvent `R`, which would be the natural home: `R` is bounded, self-adjoint and nonnegative with
@@ -2732,10 +2733,10 @@ time, while the strong convergence (and the pointwise two-scale rate above) is u
 
 What is formal here is the normal form, not the spectral theorem itself: the corpus's
 `BookProof.ChapterSpectralMultiplication` proves the multiplication model for a *bounded* normal
-operator with a cyclic vector, and Mathlib has no spectral theorem for unbounded self-adjoint
-operators, so the passage from an abstract `H` to this model is not itself in the corpus.  The
-criterion is therefore stated for the model `MulModel`, which is exactly the normal form — not for
-an arbitrary abstract `H`.
+operator with a cyclic vector; `ChapterUnboundedSpectralModel` supplies an unbounded route.
+Neither result automatically constructs this `MulModel` for the interacting physical theory.
+The criterion is stated for `MulModel`; applying it requires the particular multiplier
+representation and the identification of its complete zero space.
 -/
 
 section GapCriterion
