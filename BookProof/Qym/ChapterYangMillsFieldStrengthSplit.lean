@@ -1453,6 +1453,14 @@ above.  This section states that identification and proves what it yields.
   domain in ℓ², and `href_spectral_gap` extended to it: the gap holds on the completion wherever the
   form is finite, with summability carried as a hypothesis.  The quartic Yang–Mills form has no ℓ²
   analogue here, and none is claimed;
+* **`fundMode`**, **`colourModeVec`**, **`colourEnergy`** — the `ℂ²` colour factor of a mode: the
+  completion carries a colour fibre, and on `c ⊗ v` the Casimir multiplies `v` by `C_F = 3/4` while
+  leaving the Fock coefficients `c n` untouched (`colourEnergy_colourModeVec`);
+* **`coreNormSq_tendsto`**, **`gap_closed_in_coreLp`**, **`root_spectral_gap_closed`**,
+  **`root_ground_bound_closed`** — closedness of the bound: a lower bound `K‖·‖² ≤ q` survives an
+  ℓ² limit whenever the form values converge, so the S2 gap and the certificate's ground threshold
+  hold at the limit of a form-convergent root-domain sequence.  This needs no continuity of `q`, and
+  it is closedness of the bound, not a Friedrichs extension;
 * **`RootFormDomination`**, **`root_ground_bound`**, **`root_excited_bound`**,
   **`s2RootFormDomination`** — the domination certificate with `dom` required only on the root
   sector, which `RootModeIdentification` supplies;
@@ -2405,6 +2413,194 @@ theorem ref_spectral_gap_closure {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i) (
     simpa [mul_comm] using hterm n
   rw [norm_sq_eq_tsum, refFormLp, ← tsum_mul_left]
   exact (hsum'.mul_left _).tsum_le_tsum hterm hsum
+
+/-! #### The `ℂ²` colour factor of a mode
+
+`fundMode d` is the ℓ² completion of the occupation core *with* a colour factor: square-summable
+families on `Fin d → ℕ` valued in `ℂ²`.  A core vector with a colour vector attached is
+`colourModeVec c v`, and `colourEnergy` is the quadratic Casimir `Σ_a T^a T^a` acting on the colour
+factor only.
+
+`colourEnergy_colourModeVec` is the content: on `c ⊗ v` the Casimir multiplies `v` by `C_F = 3/4`
+and leaves the Fock coefficients `c n` untouched.  This is the mode-factor form of
+`su2_casimir_fundamental` — the colour factor is dressed with the number content, and `C_F` still
+extracts as a scalar.
+
+**Boundary.**  `colourAct` and `colourEnergy` are defined on the underlying families, not as
+operators on `fundMode d`; their boundedness on the completion is not claimed here.
+-/
+
+/-- The Fock core completed with a colour `ℂ²` factor: square-summable families on the occupation
+multi-indices, valued in `ℂ²`. -/
+abbrev fundMode (d : ℕ) := lp (fun _ : Fin d → ℕ => Fin 2 → ℂ) 2
+
+/-- A finite combination of coordinate basis vectors valued in a normed space, read at `m`. -/
+theorem sum_single_apply_gen {E : Type*} [NormedAddCommGroup E] (s : Finset (Fin d → ℕ))
+    (φ : (Fin d → ℕ) → E) (m : Fin d → ℕ) :
+    ((∑ i ∈ s, lp.single 2 i (φ i)) : lp (fun _ : Fin d → ℕ => E) 2) m
+      = if m ∈ s then φ m else 0 := by
+  classical
+  simp only [lp.coeFn_sum, Finset.sum_apply, lp.single_apply]
+  by_cases hm : m ∈ s
+  · rw [Finset.sum_eq_single m (fun b _ hbm => Pi.single_eq_of_ne' hbm _)
+      (fun h => absurd hm h)]
+    simp [hm]
+  · rw [Finset.sum_eq_zero (fun x hx =>
+        Pi.single_eq_of_ne' (fun h => hm (by rw [← h]; exact hx)) _), if_neg hm]
+
+/-- A core vector with a fixed colour vector attached: the Fock factor and the colour factor side by
+side in the coloured completion. -/
+noncomputable def colourModeVec (c : CoreCoeff d) (v : Fin 2 → ℂ) : fundMode d :=
+  ∑ n ∈ c.support, lp.single 2 n (c n • v)
+
+/-- `colourModeVec` is `c n • v` coefficientwise, and zero off the core support. -/
+theorem colourModeVec_apply (c : CoreCoeff d) (v : Fin 2 → ℂ) (n : Fin d → ℕ) :
+    colourModeVec c v n = c n • v := by
+  classical
+  rw [colourModeVec, sum_single_apply_gen]
+  by_cases hn : n ∈ c.support
+  · simp [hn]
+  · rw [if_neg hn, Finsupp.notMem_support_iff.mp hn, zero_smul]
+
+/-- The colour action of a generator on the `ℂ²` factor, at the level of the underlying families. -/
+def colourAct (a : Fin 3) (f : fundMode d) : (Fin d → ℕ) → (Fin 2 → ℂ) :=
+  fun n => (fundRep a).mulVec (f n)
+
+/-- **The colour energy**: the quadratic Casimir `Σ_a T^a T^a` acting on the colour factor, at the
+level of the underlying families. -/
+noncomputable def colourEnergy (f : fundMode d) : (Fin d → ℕ) → (Fin 2 → ℂ) :=
+  fun n => ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n))
+
+/-- **The Casimir matrix acts as `C_F`**: `(Σ_a T^a T^a).mulVec v = (3/4) • v`, straight from
+`su2_casimir_fundamental`. -/
+theorem casimir_mulVec (v : Fin 2 → ℂ) :
+    (∑ a : Fin 3, fundRep a * fundRep a).mulVec v = (3 / 4 : ℂ) • v := by
+  rw [su2_casimir_fundamental, Matrix.smul_mulVec, Matrix.one_mulVec]
+
+/-- The three colour summands reassemble into the Casimir matrix. -/
+theorem sum_mulVec_mulVec (v : Fin 2 → ℂ) :
+    (∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec v))
+      = (∑ a : Fin 3, fundRep a * fundRep a).mulVec v := by
+  rw [Matrix.sum_mulVec]
+  exact Finset.sum_congr rfl fun a _ => Matrix.mulVec_mulVec v (fundRep a) (fundRep a)
+
+/-- **The colour energy carries `C_F` and leaves the Fock factor alone.**  On a mode vector `c ⊗ v`
+the Casimir multiplies the colour vector by `3/4` and does not touch the coefficients `c n`. -/
+theorem colourEnergy_colourModeVec (c : CoreCoeff d) (v : Fin 2 → ℂ) :
+    colourEnergy (colourModeVec c v) = fun n => c n • ((3 / 4 : ℂ) • v) := by
+  funext n
+  rw [colourEnergy, colourModeVec_apply]
+  have hmul : ∀ a : Fin 3,
+      (fundRep a).mulVec ((fundRep a).mulVec (c n • v))
+        = c n • ((fundRep a).mulVec ((fundRep a).mulVec v)) := by
+    intro a
+    rw [Matrix.mulVec_smul, Matrix.mulVec_smul]
+  simp only [hmul, ← Finset.smul_sum, sum_mulVec_mulVec, casimir_mulVec]
+
+/-- The same statement in the form the colour energy is usually quoted in: `C_F` times the identity
+on the coloured factor. -/
+theorem colourEnergy_colourModeVec_eq (c : CoreCoeff d) (v : Fin 2 → ℂ) :
+    colourEnergy (colourModeVec c v) = fun n => (3 / 4 : ℂ) • (colourModeVec c v n) := by
+  rw [colourEnergy_colourModeVec]
+  funext n
+  rw [colourModeVec_apply, smul_smul, smul_smul]
+  congr 1
+  ring
+
+/-! #### Closedness of the bound: the Friedrichs side
+
+`gap_closed_in_coreLp` is the statement a Friedrichs-type extension consumes.  The inequality
+`K‖·‖² ≤ q` is preserved when the sequence converges in the completion and the form values converge
+to `L` — no continuity of `q` on the core is assumed, only that its values along the sequence
+converge.  That is exactly what a closure argument can supply, and exactly what is *missing* if one
+tries to pass `root_spectral_gap` to limits without it.
+
+Two consequences: the S2 gap itself holds at such a limit (`root_spectral_gap_closed`), and so does
+the ground threshold of any restricted domination certificate (`root_ground_bound_closed`).
+
+**Boundary.**  This is closedness — lower semicontinuity — of the *bound*, not the construction of a
+self-adjoint Friedrichs extension: no operator is produced here, and the "form domain" is still `ℓ²`
+together with "the defining series is finite", not a completed form space.
+-/
+
+/-- The embedding is additive. -/
+theorem coreToLp_add (a b : CoreCoeff d) : coreToLp (a + b) = coreToLp a + coreToLp b := by
+  ext n
+  rw [coreToLp_apply, lp.coeFn_add, Pi.add_apply, coreToLp_apply, coreToLp_apply,
+    Finsupp.add_apply]
+
+/-- The embedding is additive on differences. -/
+theorem coreToLp_sub (a b : CoreCoeff d) : coreToLp (a - b) = coreToLp a - coreToLp b := by
+  ext n
+  rw [coreToLp_apply, lp.coeFn_sub, Pi.sub_apply, coreToLp_apply, coreToLp_apply,
+    Finsupp.sub_apply]
+
+/-- **The core norm is continuous along `ℓ²` limits**: if `coreNormSq (s k − c) → 0` then
+`coreNormSq (s k) → coreNormSq c`.  The isometry `norm_coreToLp_sq` turns the coefficient norm into
+the `ℓ²` norm, along which the norm (and its square) is continuous. -/
+theorem coreNormSq_tendsto {s : ℕ → CoreCoeff 24} {c : CoreCoeff 24}
+    (h : Filter.Tendsto (fun k => coreNormSq (s k - c)) Filter.atTop (nhds 0)) :
+    Filter.Tendsto (fun k => coreNormSq (s k)) Filter.atTop (nhds (coreNormSq c)) := by
+  have hd : Filter.Tendsto (fun k => coreToLp (s k - c)) Filter.atTop (nhds 0) := by
+    rw [tendsto_zero_iff_norm_tendsto_zero]
+    have hnn : Filter.Tendsto (fun k => ‖coreToLp (s k - c)‖ ^ 2) Filter.atTop (nhds 0) := by
+      simpa [norm_coreToLp_sq] using h
+    have hsqrt : Filter.Tendsto (fun k => Real.sqrt (‖coreToLp (s k - c)‖ ^ 2))
+        Filter.atTop (nhds 0) := by
+      simpa using hnn.sqrt
+    simpa [Real.sqrt_sq (norm_nonneg _)] using hsqrt
+  have hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds (coreToLp c)) := by
+    have := hd.add (tendsto_const_nhds (x := coreToLp c))
+    simpa [coreToLp_sub, sub_add_cancel] using this
+  have := (hconv.norm).pow 2
+  simpa [norm_coreToLp_sq] using this
+
+/-- **The lower bound is closed under `ℓ²` limits.**  If `K * coreNormSq (s k) ≤ q (s k)` holds
+along a sequence whose images converge to `f` in the completion, and the form values converge to
+`L`, then `K * ‖f‖² ≤ L`.  Only convergence of `q` along the sequence is used — not continuity of
+`q` — so this is available for forms that are nowhere continuous on the core. -/
+theorem gap_closed_in_coreLp {q : CoreCoeff 24 → ℝ} {K : ℝ} {s : ℕ → CoreCoeff 24}
+    (hbound : ∀ k, K * coreNormSq (s k) ≤ q (s k)) {f : coreLp 24}
+    (hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds f))
+    {L : ℝ} (hq : Filter.Tendsto (fun k => q (s k)) Filter.atTop (nhds L)) :
+    K * ‖f‖ ^ 2 ≤ L := by
+  have hlim : Filter.Tendsto (fun k => K * ‖coreToLp (s k)‖ ^ 2) Filter.atTop
+      (nhds (K * ‖f‖ ^ 2)) := by
+    have h2 : Filter.Tendsto (fun k => ‖coreToLp (s k)‖ ^ 2) Filter.atTop (nhds (‖f‖ ^ 2)) :=
+      (hconv.norm).pow 2
+    simpa using (tendsto_const_nhds (x := K)).mul h2
+  refine le_of_tendsto_of_tendsto hlim hq (Filter.Eventually.of_forall fun k => ?_)
+  simpa [norm_coreToLp_sq] using hbound k
+
+/-- **The S2 gap is closed under `ℓ²` limits**: the right-hand side of `root_spectral_gap` is known
+only on the core, but the *inequality* passes to the completion along a form-convergent root-domain
+sequence.  This is the Friedrichs-type statement the extension question needs — lower
+semicontinuity of the form along core sequences, with no continuity of `quadForm (ymHamiltonian …)`
+assumed. -/
+theorem root_spectral_gap_closed (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (RI : RootModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (s : ℕ → CoreCoeff 24) (hs : ∀ k, s k ∈ rootDomain)
+    {f : coreLp 24} (hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds f))
+    {L : ℝ}
+    (hq : Filter.Tendsto (fun k => quadForm (ymHamiltonian Φ fabc) (RI.toCore (s k)))
+      Filter.atTop (nhds L)) :
+    ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * ‖f‖ ^ 2 ≤ L :=
+  gap_closed_in_coreLp (q := fun c => quadForm (ymHamiltonian Φ fabc) (RI.toCore c))
+    (K := (c₁ * refGap ω - quarticShift (d := 24) T g) / 48)
+    (fun k => root_spectral_gap Φ fabc RI hω hg hc₁ hω₁ (s k) (hs k)) hconv hq
+
+/-- **Any restricted domination certificate is closed under `ℓ²` limits**: the ground threshold of a
+`RootFormDomination` passes to the completion the same way.  Stated for a general form `q`, so it
+applies to whatever the certificate is instantiated at. -/
+theorem root_ground_bound_closed {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {q : CoreCoeff 24 → ℝ} (D : RootFormDomination ω q) (s : ℕ → CoreCoeff 24)
+    (hs : ∀ k, s k ∈ rootDomain) {f : coreLp 24}
+    (hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds f)) {L : ℝ}
+    (hq : Filter.Tendsto (fun k => q (s k)) Filter.atTop (nhds L)) :
+    (D.c₁ * refEnergy ω 0 - D.c₂) * ‖f‖ ^ 2 ≤ L :=
+  gap_closed_in_coreLp (q := q) (K := D.c₁ * refEnergy ω 0 - D.c₂)
+    (fun k => root_ground_bound ω hω D (s k) (hs k)) hconv hq
 
 /-! #### The certificate inside the gap chain
 

@@ -720,8 +720,13 @@ Two of the pieces the inhabitant needed are built (§3d.0 and the energy contrac
   The gap: `refEnergy` is unbounded, so the reference form lives on its own domain, `refFormLp ω f =
   ∑' n, refEnergy ω n ‖f n‖²`, and `ref_spectral_gap_closure` carries `href_spectral_gap` there (a
   `tsum` comparison, summability as hypothesis).  **B:** the quartic form `quadForm (ymHamiltonian …)`
-  has no ℓ² analogue — it is degree four and unbounded — so `root_spectral_gap`'s right-hand side is
-  *not* completed, and a Friedrichs-type form construction is what that would take.
+  still has no ℓ² *domain* — it is degree four and unbounded, and no closure of the form is
+  constructed.  What is closed is the **bound**, which is the half a Friedrichs-type argument needs:
+  `gap_closed_in_coreLp` says `K‖·‖² ≤ q` survives an ℓ² limit whenever the sequence converges in
+  `coreLp` and the form values converge to `L` — only convergence *along the sequence* is used, never
+  continuity of `q`.  Two corollaries: `root_spectral_gap_closed` (the S2 gap at the limit) and
+  `root_ground_bound_closed` (the ground threshold of any `RootFormDomination`).  This is lower
+  semicontinuity of the bound, not a self-adjoint extension.
 
 **The `su(2)` instantiation, and the colour factor computed.**  The free tensor is now instantiated:
 `su2Struct` is `f_{abc} = ε_{abc}` on the first three colour indices (the `su2Slot`s) and `0` off
@@ -735,8 +740,14 @@ The fundamental Casimir is derived too, now that the chapter carries the represe
 tensor (`fundRep_commutator_su2Struct`, against `su2Struct`), and computes
 `Σ_a T^a T^a = (3/4)·1` (`su2_casimir_fundamental`) plus `tr(T^a T^b) = δ^{ab}/2`
 (`fundRep_trace_mul`).  So `C_A = 2` and `C_F = 3/4` are both computed from the instantiating `ε`,
-each in its own representation; **B:** the Fock model still does not carry `ℂ²` as a mode factor, so
-nothing here says the quartic colour energy is improved by `C_F`.
+each in its own representation.  And the mode factor is now carried: `fundMode d` is
+`lp (fun _ => Fin 2 → ℂ) 2` — the occupation core with a colour fibre — `colourModeVec c v` is a core
+vector with a colour vector attached, and `colourEnergy` applies the Casimir on the fibre.  Then
+`colourEnergy_colourModeVec` is the statement that had been missing: on `c ⊗ v` the Casimir
+multiplies `v` by `C_F = 3/4` and leaves the Fock coefficients `c n` untouched, via
+`casimir_mulVec` (`(Σ_a T^a T^a).mulVec v = (3/4) • v`).  **B:** `C_F` is not yet folded into
+`quadForm (ymHamiltonian …)`, and `colourAct`/`colourEnergy` are families rather than operators on
+`fundMode d` — no boundedness or closedness of the colour operators is claimed.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.

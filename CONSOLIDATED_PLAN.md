@@ -7,7 +7,18 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11j):** “State of the project — 2026-11-11j: the fundamental representation,
+> **Newest entry (2026-11-11l):** “State of the project — 2026-11-11l: `ℂ²` as a mode factor, and
+> `C_F` as the colour energy” (end of file): `fundMode d = lp (fun _ => Fin 2 → ℂ) 2` carries a colour
+> fibre over the occupation core; `colourModeVec c v` attaches a colour vector to a core vector, and
+> `colourEnergy_colourModeVec` shows the Casimir multiplies `v` by `C_F = 3/4` while leaving the Fock
+> coefficients `c n` untouched.  This supersedes 2026-11-11j §5's “`ℂ²` is not a mode factor”.
+> **Earlier entry (2026-11-11k):** “State of the project — 2026-11-11k: the bound is closed under ℓ²
+> limits” (end of file): `coreNormSq_tendsto` + `gap_closed_in_coreLp` — a lower bound `K‖·‖² ≤ q`
+> survives a limit in `coreLp` whenever the form values converge, with no continuity of `q` assumed —
+> so `root_spectral_gap_closed` carries the S2 gap to the completion and `root_ground_bound_closed`
+> carries any `RootFormDomination` threshold.  That is closedness of the bound, not a Friedrichs
+> extension.
+> **Earlier entry (2026-11-11j):** “State of the project — 2026-11-11j: the fundamental representation,
 > and `C_F = 3/4`” (end of file): §3b.2c defines `pauli`/`fundRep` (`T^a = σ^a/2` on `ℂ²`), proves
 > `[T^a,T^b] = i ε^{abc}T^c` against the chapter's own `su2Struct`, and computes
 > `Σ_a T^a T^a = (3/4)·1` and `tr(T^a T^b) = δ^{ab}/2` — so `C_F = 3/4` is derived, not assumed,
@@ -21527,3 +21538,72 @@ eight new declarations (`pauli_sq`, `i_mul_mul_i`, `mul_I_mul_I`, `fundRep_sq`,
 `su2_casimir_fundamental`, `fundRep_commutator`, `fundRep_commutator_su2Struct`, `fundRep_trace_mul`)
 gives only `propext`, `Classical.choice`, `Quot.sound`; every matrix identity is decided coordinate by
 coordinate with `fin_cases`, so no `native_decide` term is produced.
+## State of the project — 2026-11-11k: the bound is closed under `ℓ²` limits
+
+The 2026-11-11i entry ended with a boundary: `root_spectral_gap`'s right-hand side is known on the
+core, `coreLp` completes the left-hand side, and nothing connected them.  It does now — for the
+**bound**, not for the form.  The section is at the end of `BookProof.Qym.ChapterYangMillsFieldStrengthSplit`,
+after the `ℓ²` completion (§“Closedness of the bound: the Friedrichs side”).
+
+**1. Why the bound and not the form.**  A Friedrichs construction needs the form closed, and
+`quadForm (ymHamiltonian …)` is degree four: completing it would mean building a form domain and
+proving closability from scratch, and no step of that is available here.  The inequality, however,
+only ever uses `q` *along a sequence*: if `K‖s k‖² ≤ q (s k)` and `q (s k) → L` and `s k → f` in
+`ℓ²`, then `K‖f‖² ≤ L`.  That is all an extension argument consumes, and it holds without any
+continuity hypothesis on `q`.
+
+**2. The reduction.**  `coreNormSq_tendsto` turns convergence of `coreNormSq (s k − c)` into
+convergence of `coreNormSq (s k)`, via the isometry `norm_coreToLp_sq` and continuity of the `ℓ²`
+norm (the square-root detour is because only `^2` is available from `lp`).  `coreToLp_add`/`_sub`
+are the additivity needed to rewrite `s k` as `c + (s k − c)`.  `gap_closed_in_coreLp` then runs
+`le_of_tendsto_of_tendsto` on `K‖coreToLp (s k)‖² ≤ q (s k)`.
+
+**3. The two corollaries.**  `root_spectral_gap_closed`: at the limit of a form-convergent
+root-domain sequence, `((c₁·refGap ω − quarticShift T g)/48)·‖f‖² ≤ L` — the same constant, now at a
+point of the completion.  `root_ground_bound_closed`: `(D.c₁·refEnergy ω 0 − D.c₂)·‖f‖² ≤ L` for
+any `RootFormDomination` certificate.  Both take the form's convergence as a hypothesis; neither
+produces the form's value.
+
+**4. What is *not* claimed.**  No Friedrichs extension, no self-adjoint operator, no completed form
+space: the “form domain” remains `ℓ²` plus “the defining series is finite”, and closability of the
+quartic form is untouched.  `RootModeIdentification` is still uninhabited, so the corollaries are
+conditional exactly as `root_spectral_gap` is.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors.  `#print axioms` on all six new declarations (`coreToLp_add`, `coreToLp_sub`,
+`coreNormSq_tendsto`, `gap_closed_in_coreLp`, `root_spectral_gap_closed`, `root_ground_bound_closed`)
+gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+## State of the project — 2026-11-11l: `ℂ²` as a mode factor, and `C_F` as the colour energy
+
+The 2026-11-11j entry proved `Σ_a T^a T^a = (3/4)·1` on `ℂ²` and closed with an explicit boundary:
+“`ℂ²` is not a mode factor of the Fock model in this chapter”.  That boundary is now removed for the
+mode-factor statement.  The section is at the end of `BookProof.Qym.ChapterYangMillsFieldStrengthSplit`
+(§“The `ℂ²` colour factor of a mode”), after the `ℓ²` completion it is built on.
+
+**1. The space.**  `fundMode d := lp (fun _ : Fin d → ℕ => Fin 2 → ℂ) 2` — the occupation core with a
+colour fibre.  `colourModeVec c v := Σ_{n ∈ c.support} single n (c n • v)` is a core vector with a
+colour vector attached, and `colourModeVec_apply` reads it back coefficientwise as `c n • v` (via
+`sum_single_apply_gen`, the `E`-valued generalisation of `sum_single_apply`).
+
+**2. The colour energy.**  `colourAct a f = fun n => (T^a).mulVec (f n)` and
+`colourEnergy f = fun n => Σ_a (T^a).mulVec ((T^a).mulVec (f n))` — the Casimir applied on the fibre,
+at the level of the underlying families.
+
+**3. `C_F` extracts.**  `casimir_mulVec`: `(Σ_a T^a T^a).mulVec v = (3/4) • v`, from
+`su2_casimir_fundamental` (`Matrix.smul_mulVec`, `Matrix.one_mulVec`); `sum_mulVec_mulVec` reassembles
+the three summands with `Matrix.sum_mulVec` and `Matrix.mulVec_mulVec`.  Then
+`colourEnergy_colourModeVec`: on `c ⊗ v` the energy is `fun n => c n • ((3/4) • v)` — the colour
+vector is multiplied by `C_F` and the Fock coefficients are untouched.  `colourEnergy_colourModeVec_eq`
+restates it as `C_F` times the identity on the coloured factor.
+
+**4. What is *not* claimed.**  `colourAct`/`colourEnergy` are families, not operators on `fundMode d`:
+no boundedness or closedness is proved (they would be bounded — finite sums of `2×2` fibrewise
+actions — but that is not done here).  Nothing folds `C_F` into `quadForm (ymHamiltonian …)`, so the
+quartic colour energy of §3b.2b is not yet shown to carry the factor.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors and no new warnings.  `#print axioms` on all six new declarations (`sum_single_apply_gen`,
+`colourModeVec_apply`, `casimir_mulVec`, `sum_mulVec_mulVec`, `colourEnergy_colourModeVec`,
+`colourEnergy_colourModeVec_eq`) gives only `propext`, `Classical.choice`, `Quot.sound`.
+
