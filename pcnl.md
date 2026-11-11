@@ -764,8 +764,66 @@ the three core identities the chain uses (adjoint pairing, Cauchy–Schwarz in `
 `Σⱼ(‖aⱼc‖² + ‖aⱼ†c‖²) = 2⟪c,Nc⟫ + d‖c‖²`).
 
 *(Proved 2026-11-08: §10 of the chapter supplies the three identities and §11 the assembly, so
-`DriftFormBound` is a theorem — `driftFormBound_holds`.  What remains outside the formalization is
-the identification `bⱼ = (β²σ²/2)·∂ⱼΦ_ε`, which is where the `ε`-dependence enters.)*
+`DriftFormBound` is a theorem — `driftFormBound_holds`; §12 then supplies the coefficient family
+`bⱼ = (β²σ²/2)·∂ⱼΦ` with the `ε` isolated in `B = (β²σ²/2)M_ε`, and §13 the semiboundedness
+corollary, `−C‖c‖² ≤ ⟪c, (N + K_drift)c⟫`.  The hypothesis's `M_ε` is itself a theorem for the
+additive normalization: `BayesianTransformer.epsProj_fderiv_le` proves `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on
+`‖W‖ ≥ ε`, and `driftScale_eps_arch` reads it as `B = β²σ²K/ε`.  The core-side counterpart is
+§14: a non-constant potential is *not* a bounded multiplier on the core (`polyMul_X_unbounded`:
+`xⱼ` raises the occupation, so `polyMul (X j) eₙ` grows like `√n`), but on the sector `{N ≤ N₀}`
+it is one, with the explicit constant `gradSectorBound Φ N₀`, and §11–§13 then hold with no
+hypothesis at all on each truncated sector (`pcnlDrift_semibounded_sector`).  The coefficient-level
+comparison of that sector constant with `M_ε = 2K/ε` is §16 — see below.)*
+
+*(§15–§16, 2026-11-09: the two inputs this section still listed are now theorems.*  §15 models
+`K_reject` as `rejectOp ρ`, the multiplication of the occupation-`n` coefficient by an acceptance
+probability: `rejectOp_apply`, `rejectOp_single`, `rejectOp_comp` say it is diagonal,
+`rejectOp_band` gives it band `0`, `coreNorm_rejectOp_le` makes it a contraction for a Metropolis
+probability `ρ = min 1 (exp(−ΔV))` (`metropolisReject_nonneg`, `metropolisReject_le_one`), and
+**`re_corePair_rejectOp_nonneg`** shows `0 ≤ Re ⟪c, K_reject c⟫`.  The assembled step
+**`pcnlFull` = `N + K_drift + K_reject`** therefore inherits §14's statements: `pcnlFull_band`
+(band `K`, the drift's) and `pcnlFull_semibounded_sector`, with
+`pcnlFull_metropolis_semibounded` discharging the positivity hypothesis by construction.  §16
+makes the comparison a coefficient statement: `coeffMass` is the `ℓ¹` mass of a polynomial's
+coefficients, `coeffMass_pderiv_le` proves `coeffMass (∂ⱼΦ) ≤ deg Φ · coeffMass Φ` (so
+`GradCoeffBound` holds for *every* `Φ`, `gradCoeffBound_totalDegree_mul_coeffMass`), and
+**`driftScale_gradSectorBound_le_eps`** turns `GradCoeffBound Φ_ε (2K/ε)` into
+`B ≤ β²σ²K/ε · d·(2√(N+2+deg Φ))^{deg Φ}`: the architecture's `ε⁻¹` is the drift constant's
+`ε⁻¹`, with the truncation level entering only polynomially
+(`driftScale_gradSectorBound_le_coeffMass` is the hypothesis-free case).)*
+
+*(§17–§19, 2026-11-09: the reading, the plan's `P₀`, and how far iteration goes.*  §17 lives in
+`BookProof/MCMC/CoeffMap` because it needs the architecture's own gradient bound: `linCoeff F x j`
+is the coefficient functional `D F(x)[eⱼ]`, `linPart F x` the linear polynomial with those
+coefficients (`pderiv_linPart`, `coeffMass_pderiv_linPart`), and **`gradCoeffBound_epsProj`**
+derives `GradCoeffBound (linPart (g ∘ Ŵ) W) (2K/ε)` from
+`BayesianTransformer.epsProj_fderiv_le` — so §16's hypothesis is *derived* at the linear order,
+which is the only order `‖∇Φ_ε‖ ≤ 2K/ε` controls.  `driftScale_linPart_le_eps_proj` carries it into
+the drift constant, and `eval_pderiv_norm_le_coeffMass` shows a coefficient mass bounds the
+derivative on the unit cube, i.e. the two sides are in the same units.  §18 adds the plan's diagonal
+`P₀ = ρ^N` (`baseOp`, `baseOp_apply`, `baseOp_band`, `baseOp_comp`, `baseOp_vac`: `λ_0 = 1`), its
+contraction `coreNorm_baseOp_le` and its strict form off the vacuum `coreNorm_baseOp_sector_le`
+(`‖P₀c‖ ≤ ρ‖c‖` on `{N ≥ 1}`), the drift's norm on a sector (`coreNorm_polyDrift_sector_le`, with
+the constant `driftStepBound`), and the assembled operator
+**`pcnlKernel = P₀ + K_drift + K_reject`** with `pcnlKernel_band` and the contractions
+`coreNorm_pcnlKernel_le` / `coreNorm_pcnlKernel_sector_le`.  §19 iterates it: the band widens by
+`n·K` (`pcnlKernel_iter_band`), the norm obeys the product bound `coreNorm_pcnlKernel_iter_le`, and
+**`P₀`'s iterates converge to the invariant state `e₀`** at rate `ρ` (`coreNorm_iter_baseOp_le`,
+`tendsto_iter_baseOp`) — the plan's `λ_n = ρⁿ` on the core.  The full step does *not* converge by
+this route: the product's factors grow with the level, and the drift can move mass into the vacuum
+where `P₀` acts as the identity.  §20 then locates the Markov structure precisely: with the
+Metropolis complement `rejectComplement ρ = 1 − ρ^N` the diagonal half is the identity —
+**`baseOp_add_rejectOp_complement`**: `P₀ + K_reject = 1`, so `pcnlKernel = 1 + K_drift`
+(`pcnlKernel_complement`) — the normalisation `P 1 = 1` holds exactly, and the diagonal half is
+positive (`re_baseOp_nonneg`, `re_rejectOp_nonneg`) and `ℓ¹`-bounded (`coreL1_baseOp_le`,
+`coreL1_rejectOp_le`, `coreL1_pcnlKernel_complement_le`: the step's mass is at most
+`1 + driftWeight · driftL1Bound`).  §21 then computes the drift's **sign** against that measure and
+finds it points the wrong way — the linear potential's drift *adds* mass on every basis vector
+(`drift_X_single_eq`, `coreL1_single_lt_add_drift_X`), so the flat `ℓ¹` is not a dissipative pairing
+for `K_drift` and no norm estimate of §14–§18 can turn it into one.  A *weighted* `ℓ¹` is what that
+suggested, and §29 closes it: no strictly positive weight makes the step nonexpansive
+(`no_weighted_nonexpansive`).  §22 (`PositivityCone`) supplies the model and proves the convergence
+there.)*
 
 **Hypothesis.**  Let `Φ_ε` be the potential of the `ε`-regularized architecture,
 `Ŵ = W/(‖W‖_F + ε)` with `ε > 0`, so that the implementation's Theorem 1 applies to it with
@@ -773,7 +831,11 @@ constant
 $$
 M_\varepsilon = K/\varepsilon ,
 $$
-`K` depending only on the depth, the sequence length and the `ε`-scaled hyperparameters.  The
+`K` depending only on the depth, the sequence length and the `ε`-scaled hyperparameters.  In Lean
+this is `BayesianTransformer.epsProj_fderiv_le` for the additive form `Ŵ = W/(‖W‖ + ε)`, with the
+constant `2K/ε` (`K` absorbing the factor 2 — the sphere projection `W/‖W‖` costs `1/ε` because it
+is scale invariant, the additive map does not), and `normalized_fderiv_le_uniform` for the
+scale-invariant form on `‖W‖ ≥ ε`.  The
 *exact* normalization (`ε = 0`) is excluded: `d(W/‖W‖_F)` carries a factor `1/‖W‖`, unbounded at
 `W = 0`, so there `M = ∞` (the implementation's M4+ test records the NaN at `θ = 0`).  Write
 $$
@@ -1033,9 +1095,33 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
   `‖⟪c, K_drift c⟫‖ ≤ δ·⟪c, Nc⟫ + (B²d/(2δ) + Bd)·‖c‖²` for every `δ > 0`, and
   **`driftFormBound_holds`** is §5's `DriftFormBound` itself: `K_drift` is infinitesimally
   form-small with respect to `N`, the KLMN hypothesis that makes `N + K_drift` self-adjoint and
-  bounded below.  Outside the model only `K_reject` (a multiplication operator, not finite-band)
-  and the *identification* `bⱼ = (β²σ²/2)·∂ⱼΦ_ε` remain — the latter being exactly where the
-  `ε`-dependence enters, through `B`.
+  bounded below.  **§12 supplies the coefficient family and §13 the boundedness below (sixth landing
+  that day).**  `driftWeight` is the SG-pCNL weight `β²σ²/2` and `driftScale β σ M = (β²σ²/2)M` the
+  constant the form bound consumes; `driftOperator β σ Φ` is `polyDrift Φ` scaled by that weight,
+  and **`driftOperator_linear`** says a linear `Φ` is exactly §5's `driftOpCoeff` with
+  `bⱼ = (β²σ²/2)·∂ⱼΦ` — the identification `bⱼ = (β²σ²/2)·∂ⱼΦ_ε` closed on the operator side, where
+  the assumed `|bⱼ| ≤ B` becomes the potential's gradient bound `M`.  **`driftOperator_form_bound`**
+  carries that `M` into the constant, and **`driftOperator_form_bound_eps`** with `M_ε = K/ε` is the
+  formula this document displays, `(β²σ²M_ε)²/(8δ) + β²σ²M_ε/2` times `d‖c‖²`: the `ε` enters
+  through `M_ε` and nowhere else.  §13 then takes the KLMN step the bound exists for:
+  `corePair_numberOp_re` identifies the pairing with the number form,
+  **`semibounded_of_form_bound`** turns a form bound with `δ ≤ 1` into
+  `−C‖c‖² ≤ ⟪c, (N + K)c⟫`, and **`pcnlDrift_semibounded_eps`** instantiates it, so `N + K_drift`
+  is bounded below by a constant of order `ε⁻²`.  The `M_ε` that enters that constant is itself a
+  theorem for the concrete potential: `BayesianTransformer.epsProj_fderiv_le` gives
+  `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on `‖W‖ ≥ ε` for `Ŵ = W/(‖W‖ + ε)`, and `driftScale_eps_arch` turns it into
+  `B = β²σ²K/ε`.  **§14 settles the core side.**  `hgrad` cannot hold globally
+  (`polyMul_X_unbounded` — `xⱼ` raises the occupation, so the image of `eₙ` grows like `√n`), it
+  does hold on every sector with the explicit constant `gradSectorBound Φ N`
+  (`polyMul_norm_sector_le`, `pderiv_norm_sector_le`), and `polyDrift_form_bound_sector`,
+  `driftOperator_form_bound_sector` and `pcnlDrift_semibounded_sector` are §11–§13 with that
+  constant in place of the hypothesis.  **§15 supplies `K_reject`** (`rejectOp`, a diagonal
+  multiplication by the Metropolis acceptance probability: band `0` by `rejectOp_band`, a
+  contraction by `coreNorm_rejectOp_le`, and nonnegative in the form by
+  `re_corePair_rejectOp_nonneg`, so `pcnlFull` keeps §14's band and lower bound), and **§16 the
+  comparison** of `gradSectorBound Φ_ε` with the weight-space `M_ε`: `coeffMass_pderiv_le` gives
+  the coefficient bound for every potential, and `driftScale_gradSectorBound_le_eps` reads
+  `GradCoeffBound Φ_ε (2K/ε)` as `B ≤ β²σ²K/ε` times the level factor `d·(2√(N+2+deg Φ))^{deg Φ}`.
 
 * **Module 1 proper, in the `α → ∞` Gaussian form — DONE (2026-10-30)** — `BookProof.MCMC.MehlerEigenfunction`
   (`BookProof/MCMC/MehlerEigenfunction.lean`, no `sorry`).  This is the eigenfunction identity the
@@ -1081,14 +1167,12 @@ Three of the five milestones are covered — **Module 1** (both its finite-`d` s
 
 **Not proved, and how the files say so.**  The finite-`d` *operator* diagonalisation (the Gegenbauer
 product formula on the sphere) is not formalised, and — as `pcnZonalEigen_two_ne_pow_two` shows —
-its eigenvalue cannot be `ρⁿ`.  For Module 3, what
-is missing is
-the identification of a given potential's `∇Φ` with a concrete ladder-word family (that is the
-Hermite expansion, needing `x_j = (a_j + a_j†)/√2` and the Mehler measure) — both expansions are
-now proved (`polyMul_mul` for the multiplication laws, §9.4; `polyMul_derivative` and
-`polyMul_derivative_eq_ladderWords` for the derivative polynomials, §9.5), so what remains here is
-the *composition* of those two operators rather than either expansion — the relative form
-bound that makes `K_drift` a bounded perturbation of `P₀` — stated for the `ε`-regularized
+its eigenvalue cannot be `ρⁿ`.  For Module 3, the Hermite expansion of a given potential's `∇Φ`
+into a concrete ladder-word family (needing `x_j = (a_j + a_j†)/√2` and the Mehler measure) is no
+longer missing: both expansions are proved (`polyMul_mul` for the multiplication laws, §9.4;
+`polyMul_derivative` and `polyMul_derivative_eq_ladderWords` for the derivative polynomials, §9.5),
+and their *composition* is `polyDrift` (§9.7), weighted to `driftOperator` (§12).  The relative
+form bound that makes `K_drift` a bounded perturbation of `P₀` is stated for the `ε`-regularized
 potential in the subsection above, with the constant `(β²σ²M_ε)²P/(8δ) + (β²σ²M_ε)P/2` and the
 reason that constant cannot supply the gap; stated in Lean as `DriftFormBound`
 (  `FockLangevinOperator` §5, a `Prop` on the coefficient core), **proved** in Lean on the core in
@@ -1100,14 +1184,629 @@ reason that constant cannot supply the gap; stated in Lean as `DriftFormBound`
   the multiset indexing), `sectorVec` / `l2norm_sectorVec` (a `Fin d` coupling as a one-particle
   vector on the first `d` modes) and **`driftField_sector_relative_form_bound`** (the §6 bound with
   the `Fin d` constants), plus `InSector`, `numberQuad_eq_sum_fin`, `annA_eq_zero_of_sector` and
-  `InSector.driftField` for the sector) — what still separates the two statements is the Hermite
-  expansion, not the model —
-and the Metropolis filter
-`K_reject` — the last is a multiplication operator and is not finite-band at all, so nothing in
-`FockLangevinOperator` describes it.  The pCNL operator's own gap therefore remains a hypothesis
-of the Module 4–5 bound, as §2 anticipates; and no total-variation bound is derived — §3.B's
+  `InSector.driftField` for the sector).  The gradient bound itself is in Lean:
+`BayesianTransformer.epsProj_fderiv_le` proves `‖∇(g ∘ Ŵ)‖ ≤ 2K/ε` on `‖W‖ ≥ ε` for the additive
+normalization `Ŵ = W/(‖W‖ + ε)`, and `driftScale_eps_arch` reads it as the drift's
+`B = β²σ²K/ε`.  The core-side counterpart is §14: the multiplier is *not* bounded on the whole
+core (`polyMul_X_unbounded`), but it is bounded on every sector with the explicit constant
+`gradSectorBound Φ N`, which is the form §11–§13's estimates take there
+(`pcnlDrift_semibounded_sector`).  The comparison of that sector constant with the weight-space
+`M_ε` is §16: `coeffMass_pderiv_le` bounds the coefficient mass of `∂ⱼΦ_ε` by `deg Φ` times
+`coeffMass Φ`, so `GradCoeffBound` is automatic, and `driftScale_gradSectorBound_le_eps` reads it as
+`B ≤ β²σ²K/ε` times the level factor — the `ε⁻¹` matches the architecture's `2K/ε`.  The
+Metropolis filter `K_reject` is §15: a multiplication operator, so band `0` (`rejectOp_band`), a
+contraction (`coreNorm_rejectOp_le`), and nonnegative in the form
+(`re_corePair_rejectOp_nonneg`), which is why `pcnlFull_band` and `pcnlFull_semibounded_sector`
+are §14's statements unchanged.  The *reading* that §16 needed is the separate module
+`BookProof/MCMC/CoeffMap` (§17): `linCoeff F x j = D F(x)[eⱼ]` is the coefficient functional,
+`linPart` its polynomial, and `gradCoeffBound_epsProj` derives
+`GradCoeffBound (linPart (g ∘ Ŵ) W) (2K/ε)` from `epsProj_fderiv_le` with no hypothesis — at the
+**linear** order, which is the only order a bound on `∇Φ_ε` controls (a general nonlinear `Φ_ε`
+would need its higher derivative bounds, which Theorem 1 does not supply).  `eval_pderiv_norm_le_coeffMass`
+puts the two sides in the same units: on the unit cube the derivative is at most the coefficient
+mass.  The plan's own operator is §18–§19: `P₀ = ρ^N` is `baseOp`, diagonal with band `0`, fixing
+the vacuum (`baseOp_vac`, `λ_0 = 1`) and contracting the rest by `ρ`
+(`coreNorm_baseOp_sector_le`); `pcnlKernel = P₀ + K_drift + K_reject` has the drift's band
+(`pcnlKernel_band`) and the contraction bounds `coreNorm_pcnlKernel_le` /
+`coreNorm_pcnlKernel_sector_le`; its iterates widen the band by `n·K` (`pcnlKernel_iter_band`) and
+satisfy the product bound `coreNorm_pcnlKernel_iter_le`.  **What converges is `P₀`**: its iterates
+decay like `ρⁿ` off the vacuum (`coreNorm_iter_baseOp_le`) and converge to the invariant state `e₀`
+(`tendsto_iter_baseOp`) — Module 1's `λ_n = ρⁿ` read on the core.  What does *not* follow is
+convergence of the full step: the product in `coreNorm_pcnlKernel_iter_le` is `≥ (1 + r)ⁿ` because
+`driftStepBound` grows with the level, and the drift lowers the band too, so mass reaches the
+vacuum where `P₀` is the identity.  A convergence theorem for `P_pCNL` therefore needs the Markov
+structure rather than a further operator estimate.  §20 shows half of that structure is already in
+the model — with the Metropolis complement `P₀ + K_reject = 1`, so `pcnlKernel = 1 + K_drift` and
+`P 1 = 1` holds exactly — and §21 kills the shortcut: the flat `ℓ¹` pairing of `K_drift` is
+positive on every basis vector (`coreL1_single_lt_add_drift_X`), and §21.5 shows no weighted `ℓ¹`
+repairs it (`no_weighted_nonexpansive`).  §22 (`BookProof/MCMC/PositivityCone`) builds the model in which the question
+is answered — a row- and column-stochastic pCNL kernel on the finite occupation space with a
+Doeblin minorant `δ > 0`, `P 1 = 1` (`step_one`), cone preservation (`step_nonneg`), mass
+preservation (`mass_step`) and the oscillation contraction
+`osc (P f) ≤ (1 − (m+1)δ)·osc f` (`osc_step_le`), from which **`tendsto_iter_step`** gives
+convergence of every starting density to the invariant state `mass f / (m+1)` at the geometric rate
+`1 − (m+1)δ`, and `tendsto_iter_uniformStep` is the instance for the concrete kernel.  With §18,
+the Module 4–5 *hypotheses* are no longer assumed either: `module45_hypotheses_cited` bundles the
+sector contraction `coreNorm_baseOp_sector_le`, the fixed vacuum `baseOp_vac` and the gap
+`1 − ρ > 0`, and `module45_iterate_bound` is the iterate bound they produce.  What remains open is
+the pCNL operator's *own* gap — the cone model's Doeblin contraction is *not* a weighted `ℓ¹` the
+core carries (§21.5: no weight works), so the gap is the Bakry–Émery/Hessian route §2 anticipates;
+and no total-variation bound is derived —
+§3.B's
 Born-to-variation step `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` is stated as the boundary in
 `GeometricErgodicity`'s docstring.
+
+#### The drift's sign, computed — and the cone model (2026-11-09)
+
+The previous status ended at "the gap has to come from the sign structure of the drift".  That is now
+settled two ways.
+
+**The flat sign is the wrong sign.**  `FockLangevinOperator` §21 reads the drift of the linear
+potential `Φ = Xⱼ` in ladder letters (`polyDrift_X`, `driftOperator_X`) and evaluates it on a basis
+vector: `drift_X_single_eq` gives the two-term image
+`w√(nⱼ+1)·e_{n+eⱼ} − w√(nⱼ)·e_{n−eⱼ}`, and `coreL1_single_add_sub_single_of_ne` sums the three
+pairwise-disjoint occupations, so **`coreL1_single_lt_add_drift_X`** computes
+`ℓ¹(e_n + K_drift e_n) = 1 + (β²σ²/2)·2⁻¹ᐟ²·(√(nⱼ+1) + √(nⱼ)) > ℓ¹(e_n)`.  The drift never destroys
+flat `ℓ¹` mass, at any occupation: `(K_drift, ℓ¹)` is not a dissipative pair, and the strict
+contraction §20 asked for cannot be a statement about that pairing.
+
+**The convergence is proved in the cone model** (`BookProof/MCMC/PositivityCone`, §22).  There the
+pCNL step is a transition kernel `step Q f = Q·f` on `Fin (m+1)` with four hypotheses the pCNL
+proposal satisfies — row stochastic (`P 1 = 1`, `step_one`), column stochastic (`mass_step`,
+`mass_iter`), positive (`step_nonneg`) and uniformly positive (`UniformPos`, the Doeblin minorant
+read off the Gaussian increment's positive density).  The Doeblin argument then goes through in
+three lemmas: `sum_abs_row_diff_le` bounds the row difference by `2(1 − (m+1)δ)` using only the
+minorant, `abs_step_sub_step_le` turns it into the oscillation bound, and **`osc_step_le`** gives
+`osc (P f) ≤ (1 − (m+1)δ)·osc f` (`osc_iter_le` for the iterates).  Mass preservation turns the
+oscillation decay into convergence: **`tendsto_iter_step`** proves that for every density and every
+state the iterates converge to the single limit `mass f / (m+1)` — the uniform density, the
+invariant state of a doubly stochastic kernel, independent of the start — at rate `1 − (m+1)δ`, and
+`tendsto_iter_uniformStep` is the instance for the concrete kernel `uniformStep t`
+(`uniformStep_one` states `P 1 = 1` for it).
+
+**The target replaces the flat density (2026-11-09, §23).**  §22's limit is the *uniform* density
+because its kernel is doubly stochastic, while the pCNL invariant measure is not flat.  §23
+therefore drops column stochasticity and replaces it with a prescribed target: `Target π`
+(`π ≥ 0`, `∑ π = 1`), the Doeblin condition `Minorant Q π ε` (`ε π b ≤ Q a b`, what a Metropolis
+kernel with acceptance bounded below by `ε` supplies) and `Stationary Q π` (`∑ₐ π a Q a b = π b`).
+The `ℓ¹` computation is unchanged in form: on a signed measure of zero total mass the constant part
+of the minorant cancels (`apply_eq_sum_sub`), so `∑_b |Q a b − ε π b| = 1 − ε`
+(`sum_abs_sub_minorant`) and one step contracts the `ℓ¹` mass by `1 − ε` (`l1_apply_le`,
+`l1_apply_iter_le`).  Stationarity makes that a statement about the *iterates*:
+**`tendsto_iter_target`** gives `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ‖f − π‖₁ → 0` for every starting probability
+vector, and `tendsto_iter_target_pointwise` reads it coordinatewise.  `targetKernel ε π` — hold with
+mass `1 − ε`, otherwise draw from `π` — is the concrete instance (`targetKernel_rowStoch`,
+`targetKernel_minorant`, `targetKernel_stationary`, **`tendsto_iter_targetKernel`**,
+`tendsto_iter_targetKernel_apply`), and `uniformStep_eq_targetKernel` shows §22's kernel is exactly
+the flat-target case, so the two models are one family.
+
+**The Doeblin condition is derived, not assumed (§24).**  §23 took `ε π b ≤ Q a b` as a hypothesis;
+for the Metropolis kernel of a symmetric proposal it is a theorem.  The acceptance is
+`mhAcc π a b = min 1 (π b/π a)` (with `mhAcc_nonneg`, `mhAcc_le_one` and the reduction
+`mul_mhAcc`: `π a · mhAcc π a b = min (π a) (π b)`), and `mhKernel q π` is the proposal times the
+acceptance off the diagonal and the remaining mass on it — hence row stochastic **by construction**
+(`mhKernel_rowStoch`, no normalisation assumed).  **`mhKernel_minorant`** then gives the minorant
+with `ε = δ/supv π` for any proposal whose entries are at least `δ`: off the diagonal the acceptance
+is at least `π b/M` (`div_supv_mul_le`), on it the remaining mass is `≥ q a a ≥ δ ≥ (δ/M) π a`.
+Reversibility (`mhKernel_detailed`) yields stationarity (`mhKernel_stationary` from detailed balance
+plus row stochasticity), and **`tendsto_iter_mhKernel`** is the resulting `ℓ¹` convergence to `π` at
+rate `1 − δ/supv π`.  What is left is not the condition but the constants: `δ` and `supv π` for the
+architecture's proposal and target on the occupation space, i.e. the numbers in `1 − δ/supv π`.
+
+**The constant drops out of the target (§25).**  §24's minorant is `δ/supv π`, and on a probability
+target `supv π ≤ 1` (`target_le_one`), so the minorant is `δ` itself — **`mhKernel_minorant_one`** —
+and the rate is `1 − δ` (`tendsto_iter_mhKernel_delta`, with the explicit bound
+`‖f Qⁿ − π‖₁ ≤ (1 − δ)ⁿ‖f − π‖₁`) regardless of which target `π` is.  With the concrete symmetric
+proposal `uniformStep t` (`uniformStep_symm`) the chain therefore mixes at rate `1 − t` to *any*
+probability target: **`tendsto_iter_metropolis_uniformStep`** /
+`l1_iter_metropolis_uniformStep_le`.  The only constant left is the proposal's floor `δ`, i.e. the
+minimum of the pCN Gaussian increment over the occupation box — an estimate in the architecture's own
+numbers, not a hypothesis about the chain.
+
+**Module 5's distance (§26).**  The plan's Module 5 asks for convergence in *total variation*, and in
+the finite model that is half the `ℓ¹` distance (`tv`, `tv_le_l1`), so no separate argument is
+needed: `l1_iter_target_le` states `‖f Qⁿ − π‖₁ ≤ (1 − ε)ⁿ‖f − π‖₁` and
+**`tendsto_iter_target_tv`** reads it as `tv (f Qⁿ) π → 0` at the Doeblin rate (`tv_iter_le` with the
+explicit bound).  The Metropolis instances are `tendsto_iter_mhKernel_tv` (rate `1 − δ`) and
+`tendsto_iter_metropolis_uniformStep_tv` (rate `1 − t`).  This is Module 5's statement in the finite
+model; the Born-to-variation step `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` of `GeometricErgodicity` is the
+infinite-dimensional counterpart and is untouched.
+
+**Module 4–5 cites the operator facts.**  `module45_hypotheses_cited` packages the three hypotheses
+`pcn_geometric_ergodicity` consumes — sector contraction `coreNorm_baseOp_sector_le`, invariant
+state `baseOp_vac`, gap `1 − ρ > 0` — so the gap hypothesis in the Module 4–5 bound is discharged
+from §18 rather than assumed, and `module45_iterate_bound` is the resulting `‖P₀ᵐ c‖ ≤ ρᵐ‖c‖`.
+
+**The floor is a number (§27).**  §25 left `δ` unnamed.  For the occupation model it is the binomial
+theorem: the pCN noise thins each of the `m` occupations with survival probability `ρ`, so the
+refresh is `Binomial(m, ρ)` — the same `ρ ^ N` that `UnadjustedPCN.pcnWeight` weights the degree by.
+`binomPmf` is that mass function, `binomPmf_sum` normalises it by `add_pow` (so `pcnRefresh` is row
+stochastic, `pcnRefresh_rowStoch`), and **`binomPmf_floor`** shows every entry is at least
+`c ^ m` for `c = min ρ (1 − ρ)` — writing `c ^ m = c ^ k · c ^ (m − k)` and bounding each factor by
+`ρ ^ k` and `(1 − ρ) ^ (m − k)` — positive for `0 < ρ < 1` (`pcnFloor_pos`).  The refresh does not
+depend on the current occupation, so it is *not* symmetric and §24's filter `min 1 (π b/π a)` is not
+reversible for it; `indAcc` uses the importance ratio, whose balanced form `mul_indAcc`
+(`π a q a b · acc = min (π a q a b) (π b q b a)`) gives reversibility (`indKernel_detailed`) and
+stationarity (`indKernel_stationary`) of `indKernel`.  Its minorant is the floor alone —
+`indKernel_minorant`, using neither symmetry nor `supv π` — so the chain mixes at rate
+`1 − (min ρ (1 − ρ)) ^ m`: **`tendsto_iter_pcnRefresh`**, with `tendsto_iter_indKernel_tv` the
+total-variation form.  The floor is exponential in `m`, the honest cost of Doeblin on `m`
+occupations; it is also the reason §23–§26 keep the rate as a parameter.
+
+**The weight-space floor is an inequality (§28).**  The other proposal in play is the pCN Gaussian
+increment on the weights, `y = ρx + √(1 − ρ²)ξ`, and what the cone model needs from it is the minimum
+of its density on the bounded region the chain visits.  `BookProof/MCMC/PCNGaussianFloor` computes it:
+`pcnQuad ρ x y = ∑ᵢ (yᵢ − ρxᵢ)²` is the exponent, `pcnDensity c s ρ x y = c·exp(−pcnQuad/s)` the
+density with `s = 2σ²(1 − ρ²)`, and `pcnDensity_le_of_quad_le` turns an upper bound `B` on the
+increment into the floor `c·exp(−B/s)`.  On the box `|xᵢ| ≤ R`, `|yᵢ| ≤ R` the increment is at most
+`d·(R(1+ρ))²` (`pcnQuad_box_le`: `|yᵢ − ρxᵢ| ≤ (1+ρ)R`), so **`pcnDensity_floor`** gives
+`c·exp(−d(R(1+ρ))²/s)`; with the Gaussian normalising constant `pcnNorm = (2πs)^(−d/2)`
+(`pcnNorm_pos`) and `s > 0` for `0 ≤ ρ < 1` (`pcnScale_pos`, `pcnScale`), the number itself is
+**`pcnGaussian_floor`**, and `pcnGaussian_floor_pos` its positivity.  So the `δ` that §25 takes as a
+parameter is now an inequality in the architecture's own `ρ`, `σ`, `R` on both proposals.  What the
+chapter does *not* do is turn this density bound into a Doeblin theorem on the weight space: §22–§26's
+machinery is stated on a finite state space, and `ℝ^d` is not one.
+
+**The weighted `ℓ¹` route is closed (§29).**  §21 left one candidate for the core: a *weighted* `ℓ¹` in
+which `K_drift` contracts.  §21.5 of `FockLangevinOperator` settles it in both directions.  The
+weighted mass is `coreW1 w c = ∑ₙ w n·‖c n‖` (`coreW1_one`: the flat §9.9 mass is `w ≡ 1`), and the
+diagonal acts on the weight as `w ↦ w·ρ^{natDeg n}` (`coreW1_baseOp`), so in
+`wInv ρ n = (ρ^{natDeg n})⁻¹` it costs nothing: **`coreW1_baseOp_wInv`** gives
+`coreW1 (wInv ρ) (P₀ c) = coreL1 c`, and the flat mass is the smaller one in that weight
+(`coreL1_le_coreW1_wInv`).  That is the norm a Markov argument would choose, and the drift breaks
+it: on a basis vector the two ladder images sit off `n` and enter the weighted sum with strictly
+positive coefficients while the source term `w n` is untouched, so the weighted mass grows for
+*every* strictly positive weight (`coreW1_single_lt_add_drift_X`) — in the cancelling weight by the
+explicit factor `1 + q(√(nⱼ+1)/ρ + ρ√(nⱼ))`, `q = (β²σ²/2)/√2` (**`coreW1_wInv_add_drift_X`**).
+Hence **`no_weighted_nonexpansive`**: no strictly positive weight makes the normalised step
+`1 + K_drift` nonexpansive, and since a contraction in a weighted `ℓ¹` would be nonexpansive there,
+reweighting cannot supply the decay §20 asked the drift's sign for.  What remains on this side is
+therefore not a norm but the operator's own gap (the Bakry–Émery/Hessian route, with
+`pcnl_spectral_gap_of_hessian` the target) and, on the weight space, the kernel-level passage of
+§28's density floor.
+
+**The Hessian is a constant, not the gap (§30).**  §21.5 closed the `ℓ¹` route and left the
+operator's own gap, whose plan target (`pcnl_spectral_gap_of_hessian`, P3) reads "`Hess Φ ≥ λ I`
+gives gap `γ = λ`".  §21.6 of `FockLangevinOperator` computes the case that hypothesis singles out —
+the quadratic potential `Φ_λ = (λ/2)Σⱼ xⱼ²`, where `Hess Φ = λ·I` with equality — and the claim is
+false for this operator.  The input is adjunction: **`corePair_hopStep_adjoint`** proves
+`⟪a_j c, c'⟫ = ⟪c, a_j† c'⟫` (raising is a bijection onto the occupied part of the support, and the
+amplitudes `√(nⱼ+1)` match), so `Re⟪c, a†a c⟫ = ‖a c‖²` (`corePair_raise_lower_re`) and
+`Re⟪c, aa† c⟫ = ‖a† c‖²` (`corePair_lower_raise_re`); the double letters are complex conjugates of
+each other (`corePair_double_raise_re_eq`), so `x_j∂_j = (a² − a†²)/2 − 1/2` contributes only its
+`−1/2`: **`re_corePair_mulHermite_diffHermite`** gives `Re⟪c, x_j∂_j c⟫ = −½‖c‖²`, and summing over
+the modes `−(d/2)‖c‖²` (`re_corePair_sum_mulHermite_diffHermite`).  The potential's gradient is `λx`
+(`pderiv_quadPotential`, from `pderiv_sum_squares` and `polyMul_smul_poly`), so
+`K_drift = −λ Σⱼ xⱼ∂ⱼ` (`polyDrift_quadPotential`, `driftOperator_quadPotential`), and the pCNL form
+is exact — **`re_corePair_quadHamiltonian`**: `Re⟪c, (N + K_drift)c⟫ = numberForm c + E₀‖c‖²` with
+`E₀ = (β²σ²/2)·λd/2`.  Hence `quadForm_gap`: off the vacuum the form is at least `(E₀ + 1)‖c‖²`,
+with the bottom at `E₀` (`quadForm_vac`) and the bound sharp (`quadForm_degree_one`).  So the
+Hessian bound buys coercivity with constant `E₀ ∝ λd` and leaves the gap at the number operator's
+`1`; `γ = λ` is a statement about the generator on `L²(π_Φ)` after the ground-state transform
+`V_eff = ¼|∇Φ|² − ½ΔΦ`, which is P3's own analysis and is not what this Fock model computes.
+
+**The class a Hessian bound describes (§31).**  §30 computed the quadratic potential; §21.7 of
+`FockLangevinOperator` takes the next step up, `∇Φ = λx + a` (`Φ = Φ_λ + Σⱼ aⱼxⱼ`), which is the
+class a Hessian bound actually describes.  The drift is additive in the potential (`polyDrift_add`,
+`driftOperator_add`), so the two halves keep their own sources: the quadratic one is §30's exact
+form, contributing `E₀ = (β²σ²/2)·λd/2` to the constant, and the linear one is §12's
+`driftOperator_linear_form_bound`, costing `δ·⟪c,Nc⟫` plus `C_δ‖c‖²`.  **`re_corePair_affineHamiltonian`**
+is the sum, `(1 − δ)·⟪c,Nc⟫ + (E₀ − C_δ)‖c‖²`, and `affineForm_gap` reads it off the vacuum.  So
+the Hessian's `λ` sits entirely in the constant and the number-form coefficient stays `1 − δ` for
+every `δ ∈ (0,1]`: P3's diagnosis with the quadratic case isolated, and the reason the `ε`-dependence
+of `driftScale ≈ 1/ε` degrades the constant rather than the gap.
+
+**The form bound is not a gap (§32).**  §31 left `δ` free, so the natural question is whether some
+`δ` certifies a gap.  §21.8 of `FockLangevinOperator` optimises and answers no.  The AM-GM step
+`√(2A) ≤ δ + A/(2δ)` (`sqrt_two_mul_le_add_div`, from `(A − 2δ²)² ≥ 0`) turns §31's bound into
+**`affineForm_coefficient_le`**: for *every* `δ > 0` the coefficient of `‖c‖²` is at most
+`1 + E₀ − driftScale·d − driftScale·√(2d)`.  The free parameter is spent against itself, so
+minimising over `δ` cancels it — there is no better choice than `δ = √(A/2)`.  Consequently, when
+`1 + E₀ < driftScale·(d + √(2d))` the best constant is negative (`affineForm_best_coefficient_neg`),
+and at the implementation's numbers (`β = 0.3`, `σ = 0.35`, `M = 2·10⁶`, `d = 16672`, `λ = 1`) it is
+below `−10⁷` (`affineForm_architecture_coefficient`).  So the relative-form bound is what it was
+always used for — a licence that `pcnlHamiltonian` is semibounded — and not a gap certificate:
+coercivity everywhere and a positive spectral gap are different claims, and the `ε`-blowup of the
+gradient is what separates them here.
+
+**The `L²(π)` side, and `V_eff` (§33).**  §32 closed the core's form; the plan's remaining gap item
+is on the other side of the ground-state transform.  §21.9 of `FockLangevinOperator` formalizes what
+that side *is* for a general potential: with `V_eff = ¼|Φ'|² − ½Φ''` and `A = Δ − ∇Φ·∇`, the
+identity **`genDiff_groundScale`** says `A(e^{Φ/2}g) = e^{Φ/2}(g'' − V_eff·g)` — the generator on
+`L²(π)`, `π ∝ e^{−Φ}`, is similar, through multiplication by the ground state `e^{Φ/2}`, to the
+Schrödinger operator `Δ − V_eff`.  So "the `L²(π)` gap" is the gap of `−Δ + V_eff`, and that is the
+only place a `γ = λ` can be true.  For the quadratic potential `Veff_quadOne` gives
+`V_eff = ¼λ²y² − ½λ` (the oscillator with its zero-point constant subtracted), and in the letters
+the frequency-`ω` oscillator `(ω/2)∑ⱼ(aⱼ†aⱼ + aⱼaⱼ†) − (ωd/2)` has form exactly `ω·numberForm`
+(**`re_corePair_oscFreqOp`**), hence is at least `ω‖c‖²` off the vacuum (**`oscFreqOp_gap`**): the
+gap there is `ω`, which is `λ` at `λ = 2ω`.  What stays open is the passage from the similarity of
+operators to a spectral statement (that it preserves the infimum of the Rayleigh quotient over the
+mean-zero subspace), and the `d`-dimensional bookkeeping of the identity.
+
+**The identity in `d` dimensions (§34).**  §21.10 of `FockLangevinOperator` writes §33's identity on
+`ℝ^d`, which is where the pCNL potential lives: `coordDeriv`/`coordDerivTwo` are the coordinate
+partials `∂ⱼ`, `∂ⱼ²` (the derivative at `0` of the slice `t ↦ f(x + t·eⱼ)`), `genDiffD Φ f =
+∑ⱼ(∂ⱼ²f − ∂ⱼΦ·∂ⱼf)` is the generator `Δ − ∇Φ·∇`, `VeffD` its effective potential, and
+**`genDiffD_groundScale`** is `A(e^{Φ/2}g) = e^{Φ/2}(Δg − V_eff·g)`.  The proof applies the
+one-dimensional theorem to each slice (`coordSlice_contDiff`) and sums — the identity is the
+coordinate sum because that is what the Laplacian is.
+
+**The spectral step, in the finite model (§35).**  §34 says the two operators are conjugated; that a
+conjugation preserves the *gap* is a spectral statement the corpus cannot state without `L²(π)`.  The
+new chapter `GroundStateConjugation` proves its algebraic content on a finite index set: with a
+weight `π = F²` and `A(F·g) = F·(S g)`,
+
+* **`rayleigh_groundState`** — the Rayleigh quotient of `A` at `F·g` in the flat pairing equals the
+  quotient of `S` at `g` in the `π` pairing;
+* **`flatPair_groundState`** — the mean-zero constraint `⟪f, F⟫ = 0` maps to `⟪g, 1⟫_π = 0`, so the
+  ground state becomes the constant;
+* **`rayleigh_range_groundState`** — the two sets of quotients are equal (the substitution
+  `g ↦ F·g` is a bijection because `F` never vanishes), and **`sInf_rayleigh_eq`** — so are their
+  infima: the gap on the weighted side is the gap of the Schrödinger operator.
+
+**The Doeblin condition with a named target (§36).**  §2 of `PCNGaussianFloor` bounded the
+proposal's mass on the box; a contraction compares with the *target*.  §3 names it:
+`pcnProposalMeasure` and `pcnTargetMeasure` (both densities against Lebesgue on the box), a ceiling
+`τ ≤ B` giving `π ≤ B · volume.restrict box` (`pcnTargetMeasure_le_smul`), and **`pcnDoeblin`** —
+`(F/B) • π ≤ P(x, ·)` for every starting point, with `F` the proposal's floor.  That is the minorant
+`PositivityCone`'s `Minorant` states on a finite space, now on `ℝ^d` with both measures named; the
+rate is still missing, because the iterate bound needs kernel composition on `ℝ^d`.
+
+**The quadratic potential's `V_eff` in `d` dimensions (§37).**  §34's `VeffD` is a definition until it
+is computed, and for the potential the plan's hypothesis singles out it is (§21.10 of
+`FockLangevinOperator`): with `quadSum λ x = (λ/2)∑ᵢxᵢ²`, the slice `Φ_λ(x + t·eⱼ)` is exactly
+`(λ/2)·(∑ᵢxᵢ² + 2t·xⱼ + t²)` (`slice_quadSum`), so `∂ⱼΦ = λxⱼ` and `∂ⱼ²Φ = λ`
+(`coordDeriv_quadSum`, `coordDerivTwo_quadSum`), and **`VeffD_quadSum`**:
+`V_eff = ¼λ²‖x‖² − ½λd` — the oscillator's potential with all `d` zero-point constants subtracted.
+That is the exact potential whose gap `oscFreqOp_gap` computes.
+
+**The Metropolis acceptance through the density (§38).**  §36 compared the target with the raw pCN
+proposal, but the pCNL step is Metropolis-adjusted.  §4 of `PCNGaussianFloor` carries the acceptance
+through: `pcnAccept π x y = min 1 (π y / π x)` and `pcnMetropolisDensity = pcnAccept · pcnDensity`;
+the acceptance contracts (`pcnAccept_le_one`), so the adjusted density is dominated by the raw one
+(`pcnMetropolisDensity_le`); and the useful direction is a floor — `m·π x ≤ π y` with `m ≤ 1` gives
+acceptance `≥ m` (`pcnAccept_floor`), the two floors multiply (`pcnMetropolis_floor`), and the
+adjusted step has its own measure minorant (`pcnMetropolis_minorant`), so §36's Doeblin condition
+holds for the *adjusted* proposal too.  `pcnDoeblin_apply` states §36 set by set.
+
+**The iterate, and the rate (§39).**  `pcnDoeblin` is one step.  §5 of `PCNGaussianFloor` supplies
+the other side: `pcnIter K n x` is the `n`-step measure on `ℝ^d`
+(`pcnIter K 0 x = δ_x`, `pcnIter K (n+1) x = (K x).bind (pcnIter K n)`), `measurable_pcnIter` keeps it
+a measurable family, `pcnIter_univ` says iterates of probabilities are probabilities, and
+`pcnStat_iter` says invariance is inherited by all of them.  **`pcnIter_rate`** is the classical
+Doeblin bound: a step family splitting as `c·μ + (1−c)·ν_x`, `ν_x` a probability, satisfies
+`(1 − (1−c)^n)·μ(A) ≤ (pcnIter K n x)(A)`.  The split is not extra input —
+**`exists_split_of_minorant`** builds `ν` from a minorant via `Measure.sub` — so
+**`pcnIter_rate_of_minorant`** turns the minorant alone into the rate, and `pcnMetropolisStep` names
+the §4 adjusted step as the family the rate is about.  What the rate still needs is a *normalisation*:
+the chapter's measures are densities on a box whose total mass it does not compute, so
+`pcnMetropolisStep` is finite but not yet a probability, and the invariance hypothesis is stated
+rather than proved.
+
+**The Metropolis step as a probability, and the rate end to end (§40).**  §39's rate applies to
+probability measures; §38's adjusted step is a density on a box and carries no rejection mass.  §6 of
+`PCNGaussianFloor` supplies the rest: `pcnProbabilityStep` is the accepted density *plus the atom at the
+starting point* holding the rejected mass, `pcnMetropolisStep_le_pcnProbabilityStep` says the atom only
+adds mass (so a minorant of the accepted part is one of the step), and **`pcnProbabilityStep_univ`**
+proves the total mass is `1` once the accepted mass is a real `A x ∈ [0,1]`.  **`pcnProbabilityStep_rate`**
+is then the whole chain in one theorem: §38's minorant + §40's normalisation + §39's contraction give
+`(1 − (1−c)^n)·π(S) ≤ (pcnIter step n x)(S)` for the Metropolis step itself.  What remains is one
+number — the accepted mass, an integral of §38's density — and the invariance of `π`.
+
+**The increment's mass — the first closed normalisation (§41).**  §40's probability step needed the
+accepted mass only to be *at most* `1`, and that bound is an integral.  §7 of `PCNGaussianFloor`
+computes the first one: **`lintegral_exp_neg_sq_div`**, `∫ exp (−(y − a)²/s) dy = √(π s)` — the
+one-dimensional Gaussian in the pCN's own scaling `s = 2σ²(1 − ρ²)` (obtained from Mathlib's
+`gaussianPDF` integral by `2·(s/2) = s`) — and **`pcnGaussMass_one`**, that the normalised increment
+`(√(π s))⁻¹ exp (−(y − a)²/s)` is a probability density on `ℝ`.  So the track now has one exact mass;
+what remains is the product over the `d` coordinates (`Measure.pi` + Fubini) and, after that, the
+box-restricted acceptance-weighted integral that `A` really is.
+
+**The increment in `d` dimensions (§42).**  §41 integrated the increment on the line; §8 of
+`PCNGaussianFloor` takes the product: `pcnNorm1 s = (√(π s))⁻¹`, **`pcnGaussStep`** is the increment
+as `Measure.pi` of its normalised coordinate factors, and **`pcnGaussStep_univ`** says its mass is `1`
+in every dimension — `Measure.pi_univ` reduces the statement to §41 at each coordinate, so no
+integration is needed.  **`pcnExp_factor`** supplies the matching factorisation of the density,
+`exp (−pcnQuad/s) = ∏ᵢ exp (−(yᵢ − ρxᵢ)²/s)`, which is what identifies that product measure with the
+pCN density's.  What is *not* written is the Fubini identity equating `Measure.pi` of the coordinate
+densities with `withDensity` of their product over Lebesgue measure, so `pcnGaussStep` is stated as the
+product measure rather than as `pcnProposalMeasure`.
+
+**Fubini, and the step as a probability with no mass hypothesis (§43).**  §42 left the identification
+of the product measure with `withDensity` open; §9 of `PCNGaussianFloor` closes it, using Mathlib's
+`integral_fintype_prod_eq_prod` instead of a bespoke induction.  Each coordinate factor is Mathlib's
+Gaussian density at variance `s/2` (`exp_eq_sqrt_mul_gaussianPDFReal`, `pcnFactor_eq_gaussianPDFReal`),
+so each integrates to `1` (`integral_pcnFactor`) and their product over `Measure.pi` does too
+(`integral_prod_pcnFactor`).  Hence **`pcnGaussMass_d`** — `withDensity` of the product density has mass
+`1` — and **`pcnGaussMass_quad`**, the same in `pcnDensity`'s own form: with `c = (√(π s))^d` the pCN
+increment *is* a probability density on `ℝ^d`.  On the box its mass is at most `1`
+(`pcnBoxMass_le_one`), the Metropolis step is dominated by it (`pcnMetropolisStep_le_proposal`), so the
+accepted mass is at most `1` **with no hypothesis on the target**
+(`pcnMetropolisStep_mass_le_one`), and with its rejection atom the pCNL Metropolis step is a
+probability measure **unconditionally** — `pcnAbsorbingStep_univ` — to which §39's contraction applies
+(`pcnAbsorbingStep_rate`).
+
+**The minorant for the step the chain takes (§44).**  §43 made the step unconditional; §43's minorant,
+though, was still about the raw proposal and the accepted density.  §10 of `PCNGaussianFloor` joins
+them: `pcnMetropolisStep_le_pcnAbsorbingStep`, and **`pcnAbsorbingStep_minorant`** — on the box, a
+target-density ceiling `B`, a proposal floor `F` and an acceptance floor `m` give
+`(mF/B) • π ≤ pcnAbsorbingStep`, the Doeblin condition for the Metropolis step itself.  A caveat that
+matters for assembly: §39's contraction takes the minorant at *every* starting point, because its
+bound is an infimum over the whole space, while the floor is a box statement; applying the rate
+therefore needs the chain to stay in the box or a minorant outside it, and neither is proved.
+
+**The return mass (§45).**  §44's minorant is a box statement while §39's contraction quantifies over
+every starting point; the standard bridge is that the chain *returns* to the box with bounded-below
+probability, so two steps dominate a constant times the target everywhere.  §11 of
+`PCNGaussianFloor` supplies that factor: **`pcnBox_volume`** (`(2R)^d`), a general
+**`withDensity_box_ge`** (a density floor `F` on the box gives at least `F · (2R)^d` of box mass),
+its instances for the proposal and the Metropolis step, and **`pcnAbsorbingStep_box_ge`** — the step
+the chain takes puts at least `F · (2R)^d` of mass back in the box — *for starts inside the box*.
+
+**Why two steps do not close the gap (§46).**  The obvious composition — §44's box-local minorant
+plus §45's return mass, hence a two-step Doeblin kernel — does **not** go through, and §12 of
+`PCNGaussianFloor` says so explicitly.  The return floor `F` comes from `pcnDensity_floor`, which
+requires `|xᵢ| ≤ R` of the *starting* point; a pCN proposal started far outside the box carries the
+factor `exp(−∑ᵢ(yᵢ − ρxᵢ)²/s)`, so its mass inside the box decays exponentially in `∑xᵢ²`.  What §12
+does prove is the reduction, so that only the missing estimate is missing:
+**`bind_minorant_of_set`** — if `ρ` gives a set `S` mass at least `c0` and every step from `S`
+dominates `c1 • π`, then `ρ.bind K ≥ c0·c1 • π` — and its pCN instance
+**`pcnAbsorbingStep_twoStep_minorant`**, which concludes
+`(c0 · mF/B) • π ≤ (pcnAbsorbingStep x).bind pcnAbsorbingStep` *from* a return estimate
+`∀ y, ofReal c0 ≤ pcnAbsorbingStep y (box)` at every starting point.  Discharging it needs a bound on
+the return mass from a start *outside* the box; §13 below supplies exactly that, with a constant that
+decays like `exp (−2ρ²‖x‖²/s)`.  That settles the per-start case; what it does not do is make the
+constant uniform, so the *global* Doeblin constant still needs the chain to be confined to a ball of
+bounded radius — the genuinely missing statement.
+
+**The confinement estimate (§47).**  §12's hypothesis is dischargeable after all, with the honest
+dependence made explicit: what §45 could not do was bound the *return* mass from a start outside the
+box, and that bound exists with a decaying constant.  §13 of `PCNGaussianFloor` proves it:
+**`pcnQuad_le_of_mem_box`** — for every start `x` and every `y` in the box,
+`pcnQuad ρ x y ≤ 2ρ²‖x‖² + 2dR²` (the per-coordinate `(yᵢ − ρxᵢ)² ≤ 2yᵢ² + 2ρ²xᵢ²` plus
+`∑yᵢ² ≤ dR²`); `pcnDensity_start_floor` and **`pcnReturnConst`** — the resulting floor
+`(√(π s))^d exp (−(2ρ²‖x‖² + 2dR²)/s)`; **`pcnProposalMeasure_box_ge_start`** — the proposal's box
+mass from *any* start; and **`pcnAbsorbingStep_box_ge_start`** — the same for the step the chain
+takes, needing only `τ x ≤ B` at the start and `τ ≥ mB` on the box.  So §12's `c0` is
+`m · pcnReturnConst s ρ R x · (2R)^d`, positive at every `x`.
+
+What that is and is not: the constant decays like `exp (−2ρ²‖x‖²/s)`, so this is *local* Doeblin data
+— on any ball `‖x‖² ≤ M²` it is bounded below uniformly, but nothing here says the chain stays in
+such a ball, and §32's contraction still wants one constant over the whole space.  The gain is that
+the missing input is now a single numerical function of the start rather than an unproved
+universal statement.
+
+**Reversibility, and a correction to §44's target (§48).**  `pcnl.md` and §3–§45 compared the step
+with `volume.withDensity τ`, the reference of a *symmetric* Metropolis proposal.  The pCN increment is
+not symmetric: `y = ρx + √(1−ρ²)ξ` has density `exp (−(yᵢ − ρxᵢ)²/s)` forwards and
+`exp (−(xᵢ − ρyᵢ)²/s)` backwards.  §14 of `PCNGaussianFloor` states the exact truth and the
+correction:
+
+* **`pcnPrior`** — the Gaussian the increment leaves alone, unnormalised density
+  `exp (−(1 − ρ²)‖x‖²/s)`, i.e. `N(0, s/(2(1−ρ²)))`;
+* **`pcnPrior_mul_density_comm`** — `pcnPrior x · q_x(y) = pcnPrior y · q_y(x)`: detailed balance for
+  the unfiltered proposal against the prior (per coordinate
+  `(1−ρ²)xᵢ² + (yᵢ − ρxᵢ)² = (1−ρ²)yᵢ² + (xᵢ − ρyᵢ)²`);
+* **`pcnMetropolisDensity_detailed`** — with the prior factor carried, `τ · pcnPrior` *is* reversible
+  under the chapter's acceptance `min 1 (τ y/τ x)`; the algebra is `pcnAccept_mul_self`,
+  `π x · min 1 (π y/π x) = min (π x) (π y)`;
+* **`pcnPrior_ne_one`** — and the factor is not constant (`1` at the origin, `exp(−3/4)` at `x = 1`
+  for `ρ = 1/2`, `s = 1`), so the two measures differ.
+
+So `τ` in §3–§45 plays the role of a *likelihood* against the prior, not of a Lebesgue density, and
+`pcnTargetMeasure R τ` is the target a symmetric proposal would have.  The box floors are unaffected
+(they bound `pcnDensity` and the acceptance, not the reference measure); the repair in the statements
+is to replace `τ` by `x ↦ τ x · pcnPrior s ρ x`.  What is still not written is the integral passage —
+detailed balance on pairs to stationarity of the kernel — so "invariance" is proved in the
+pointwise sense and not yet as `π.bind K = π`.
+
+**Confinement: where the chain actually goes (§49).**  §47 made the return constant depend on the
+start; §15 of `PCNGaussianFloor` says the chain never wanders.  The accepted part is a density against
+`volume.restrict box`, so it lives in the box, and the rejection atom lives at the start:
+**`pcnAbsorbingStep_eq_zero_of_disjoint`** — a measurable set disjoint from the box and not containing
+`x` gets no mass; **`pcnAbsorbingStep_confined`** — `K x (box ∪ {x})ᶜ = 0`; and with
+**`bind_eq_zero_of_support`** (a measure supported in `S` whose steps from `S` stay in `S` has its
+`bind` supported in `S`) the same holds for every iterate, **`pcnIter_confined`**.  In the radius
+`∑zᵢ²` that reads **`pcnIter_confined_ball`** (via `pcnSumSq_le_of_mem_box`): every reachable `z`
+satisfies `‖z‖² ≤ max (dR²) ‖x‖²`, i.e. the chain never drifts outwards, and a start with
+`‖x‖² ≤ M²` keeps it in `‖z‖² ≤ max (dR²) M²`.
+
+That is what turns §47's decaying constant into a uniform one: `pcnBallConst s ρ R M` and
+**`pcnAbsorbingStep_box_ge_ball`** give `m · pcnBallConst s ρ R M · (2R)^d` of box mass for *every*
+start with `‖x‖² ≤ M²`, and **`pcnAbsorbingStep_twoStep_minorant_ball`** is §12's two-step minorant
+with that constant.  The honest limit is unchanged in kind: the constant is uniform on each ball of
+starts, not on `ℝ^d`.  That is not a defect of the proof — §47's constant genuinely decays in `‖x‖²`,
+so no single Doeblin constant can hold over all starts; what confinement buys is that within a ball
+the contraction's hypothesis is discharged by one number.
+
+**The corrected reference, restated (§50).**  §48 corrected the target; §16 of `PCNGaussianFloor`
+restates what carries over.  **`pcnPriorTarget s ρ R τ`** is `volume.withDensity (τ · pcnPrior)` on
+the box, and **`pcnAbsorbingStep_minorant_prior`** is the §10 minorant for it: the ceiling `B` and the
+target are statements about `τ · pcnPrior`, while the acceptance floor `m · τ x ≤ τ y` stays a
+statement about the *likelihood* `τ` — which is the point of the correction, since the acceptance
+filters `τ`, not `τ · pcnPrior`.  **`pcnAbsorbingStep_rate_prior`** is §9's rate with that reference,
+so the remaining hypotheses there are the minorant and invariance of `pcnPriorTarget` under the step,
+not of `pcnTargetMeasure`.
+
+**Detailed balance into stationarity (§51).**  §48 gave the pointwise identity; §17 of
+`PCNGaussianFloor` integrates it.  The general statement is **`bind_doeblinStep_stationary`**: for a
+joint density `k` against a base measure `ν` and a target density `g`, if
+
+* `k x y · g x = k y x · g y` (detailed balance), and
+* `∫ k x y ∂ν ≤ 1` (no forward mass exceeds one, so the rejection atom has nonnegative mass),
+
+then `ν.withDensity g` is invariant under `doeblinStep ν k` — the accepted density
+`ν.withDensity (k x)` plus the rejected mass as an atom at `x`.  The proof is Tonelli's theorem on
+the symmetric joint density: the accepted mass into a measurable `A` is `∫_A g · I`, where `I y` is
+the step's forward mass from `y` (the symmetry turns `g x · k x y` into `g y · k y x`), the rejection
+atom contributes `g · (1 − I)` on `A`, and `I + (1 − I) = 1` there by the mass bound.  Measurability
+of the two families is `measurable_setLIntegral` and `measurable_doeblinStep_apply`.
+
+The pCN instance is **`pcnPriorTarget_stationary`**: with `c = (√(π s))^d` and the reference
+`pcnPriorTarget s ρ R τ = volume.withDensity (τ · pcnPrior)` of §50, the pCN Metropolis step with its
+rejection atom satisfies
+
+`(pcnPriorTarget s ρ R τ).bind (pcnAbsorbingStep s ρ R τ) = pcnPriorTarget s ρ R τ`,
+
+so §12's invariant measure exists rather than being hypothesised.
+**`pcnAbsorbingStep_rate_prior_of_stationary`** then restates the rate with that hypothesis
+discharged.  Two inputs were still open there and are closed below: the step family's measurability
+(§52) and the reference's normalisation (§54 — where it turns out *not* to be mass one).  The
+stationarity theorem keeps only `Measurable τ`.
+
+**The step's measurability, and the hypotheses it removes (§52).**  Every theorem that *binds*
+`pcnAbsorbingStep` — the rate of §43, the two confinement lemmas of §49, the prior-referenced rate of
+§50, and stationarity itself in §51 — carried
+`(hmeas : Measurable (pcnAbsorbingStep s ρ R τ))` as an assumption.  It is now a theorem, for
+measurable `τ`: **`measurable_pcnAbsorbingStep`**, from **`measurable_pcnMetropolisStep`** (the
+accepted part is a `withDensity` family with a jointly measurable density, via the new
+`measurable_withDensity_uncurry`, itself `measurable_setLIntegral`) and `measurable_rejection` (the
+atom `x ↦ (1 − mass x) • δ_x`, whose set masses are `(1 − mass x) · A.indicator 1 x`).  Every
+statement that carried `hmeas` now carries `(hτ : Measurable τ)` and derives it; in
+`pcnPriorTarget_stationary` the hypothesis is gone entirely.  This is a bookkeeping change to the
+statements and a real one to the mathematics: measure-valued measurability is not automatic, and the
+argument is `Measure.measurable_of_measurable_coe` reduced to the coefficient functions.
+
+**The constants are numbers at a Gaussian likelihood (§53).**  §50's minorant takes the ceiling `B`
+and the acceptance floor `m` as parameters.  For the natural family of targets they are computed:
+with `τ y = exp (−β‖y‖²)`,
+
+* the ceiling is `B = 1`, because `τ ≤ 1` for `β ≥ 0` and `pcnPrior ≤ 1` for `|ρ| ≤ 1`
+  (`pcnGaussLike_mul_pcnPrior_le_one`);
+* the acceptance floor is `m = exp (−β dR²)`, because on the box `∑ yᵢ² ≤ dR²` bounds `τ` below and
+  `τ x ≤ 1` bounds it above (`pcnGaussLike_floor`, `pcnGaussLike_le_one`).
+
+So **`pcnAbsorbingStep_minorant_prior_gaussLike`** is §50's minorant with `B = 1` and
+`m = exp (−β dR²)` substituted.  The proposal floor `F` stays a parameter — it is §1's floor on the
+box, and it *does* need the start inside the box, which is why §49's ball constant is what makes the
+composition uniform.  The same box floors give the prior factor's own bounds
+(`pcnPrior_le_one`, `pcnPrior_floor`).
+
+**The reference's mass is not one (§54).**  §51 left `IsProbabilityMeasure (pcnPriorTarget s ρ R τ)`
+as a hypothesis and called it "the reference's normalisation".  It cannot be proved for the reference
+as written: `pcnPriorTarget = volume.withDensity (τ · pcnPrior)` on the box, so its total mass is
+
+`pcnPriorMass s ρ R τ = ∫_{box} τ · pcnPrior`  (`pcnPriorMass_eq_lintegral`),
+
+which is `1` only for the one `τ` that cancels the prior — not for a general target, and not for the
+Gaussian likelihood of §53.  What *is* proved is that it is a finite, positive number:
+**`pcnPriorMass_le`** (`≤ B · (2R)^d` from the ceiling, hence `pcnPriorMass_ne_top`) and
+**`pcnPriorMass_pos`** (from a floor on the box and `R > 0`).  The repair is the standard one — name
+the mass and divide it out: **`pcnPriorProb = M⁻¹ • pcnPriorTarget`** is a probability measure
+(`pcnPriorProb_univ`, `isProbabilityMeasure_pcnPriorProb`), it inherits invariance
+(**`pcnPriorProb_stationary`**, from `Measure.bind_smul` and §51), and §12's rate holds for it with
+the hypothesis *proved* rather than assumed: **`pcnAbsorbingStep_rate_prob`**.  Either route is
+available: the unnormalised reference with the mass in the contraction constant (`pcnPriorMass`) or
+the normalised one with `IsProbabilityMeasure` discharged (`pcnPriorProb`), the bridge between the two
+minorants being **`pcnPriorProb_minorant_of_target`** (a minorant `c0 • pcnPriorTarget ≤ K x` becomes
+`(c0 · M) • pcnPriorProb ≤ K x`).  For §53's likelihood the mass is sandwiched,
+`0 < M ≤ (2R)^d` (`pcnPriorMass_gaussLike_pos`, `pcnPriorMass_gaussLike_le`).
+
+What this does not give: the *value* of `M`.  It is a box integral of `τ · pcnPrior`, and no
+elementary closed form is used here — the rate's constant depends on it, and it is the one number the
+chapter still leaves as data rather than computing.
+
+#### The track's honest boundary — one summary
+
+Everything below is about the **model**: the Gauss–polynomial core `CoreCoeff d` (finitely supported
+coefficient families on occupations), the plan's `P_pCNL = P₀ + K_drift + K_reject` written on it,
+and the finite cone/occupation chains of `PositivityCone`.  It is not a formalization of an
+unbounded operator on a Hilbert space, and it makes no claim about the Rust implementation.
+
+*Proved, `sorry`-free, in Lean.*
+
+* **Structure.**  The drift is a finite-band ladder operator on the core (`polyDrift_band`,
+  `pcnlHamiltonian_band`); `P₀ = ρ^N`, `K_reject` is diagonal multiplication by an acceptance
+  probability, with band `0` (`rejectOp_band`) and `P₀ + K_reject = 1` (`pcnlKernel_complement`).
+* **Semiboundedness.**  The `ε`-regularised relative form bound `‖⟪c, K c⟫‖ ≤ δ⟪c, N c⟫ +
+  (B²d/(2δ) + Bd)‖c‖²` (`driftOpCoeff_form_bound`), its coefficient form
+  (`driftOperator_linear_form_bound`), and `N + K_drift` bounded below by `O(ε⁻²)`
+  (`pcnlDrift_semibounded_eps`), with hypothesis-free truncations on each degree sector.
+* **Convergence that holds.**  On the finite cone model: Doeblin/oscillation contraction
+  (`tendsto_iter_step`), arbitrary target (`tendsto_iter_target`), Metropolis with minorant
+  (`tendsto_iter_mhKernel`, `tendsto_iter_metropolis_uniformStep`), total variation
+  (`tendsto_iter_target_tv`), and the occupation pCN floor `(min ρ (1 − ρ))^m`
+  (`binomPmf_floor`, `tendsto_iter_pcnRefresh`).  On the core, `P₀`'s own iterates converge at rate
+  `ρ` (`tendsto_iter_baseOp`).
+* **What the norms cannot do.**  No strictly positive weight makes `1 + K_drift` nonexpansive in a
+  weighted `ℓ¹` (`no_weighted_nonexpansive`): the weighted-`ℓ¹` route is closed, not open.
+* **What the Hessian does.**  On the core's form, `Hess Φ ≥ λI` shifts the constant, not the gap:
+  quadratic (`re_corePair_quadHamiltonian`, gap `1` off the vacuum), affine
+  (`re_corePair_affineHamiltonian`), and the `δ`-optimised constant is negative at the
+  architecture's numbers (`affineForm_coefficient_le`, `affineForm_best_coefficient_neg`,
+  `affineForm_architecture_coefficient`).
+* **The `L²(π)` identity and the oscillator.**  `genDiff_groundScale` (general `Φ`), `Veff_quadOne`,
+  `re_corePair_oscFreqOp`, `oscFreqOp_gap` — see §33 — their `d`-dimensional form
+  `genDiffD_groundScale` (§34), and the quadratic potential's effective potential in `d` dimensions
+  `VeffD_quadSum` (§37): `¼λ²‖x‖² − ½λd`.
+* **The spectral step, in the finite model.**  `rayleigh_groundState`, `flatPair_groundState`,
+  `rayleigh_range_groundState`, `sInf_rayleigh_eq` (§35): a ground-state conjugation preserves the
+  Rayleigh quotient and its infimum over the subspace orthogonal to the ground state.
+* **The weight-space floor.**  `pcnGaussian_floor` (a density bound on a box), its measure form
+  `pcnMeasure_floor` (`volume.withDensity q ≥ F · volume.restrict box`, uniformly in the starting
+  point), the Doeblin condition against a named target `pcnDoeblin` (`(F/B) • π ≤ P(x, ·)`) and its
+  set-level form `pcnDoeblin_apply`, the Metropolis-adjusted version
+  (`pcnAccept_floor`, `pcnMetropolis_floor`, `pcnMetropolis_minorant`), and the rate itself
+  (`pcnIter_rate`, and `pcnIter_rate_of_minorant` from the minorant alone) — §39; and the Metropolis
+  step itself as a probability measure with the rate attached (`pcnProbabilityStep_univ`,
+  `pcnProbabilityStep_rate`) — §40; and the one-dimensional increment's mass
+  (`lintegral_exp_neg_sq_div`, `pcnGaussMass_one`) — §41; and the increment in `d` dimensions
+  (`pcnGaussStep`, `pcnGaussStep_univ`, `pcnExp_factor`) — §42; and the Fubini identification with the
+  increment's true mass `1` and the unconditional probability step (`pcnGaussMass_d`,
+  `pcnGaussMass_quad`, `pcnBoxMass_le_one`, `pcnMetropolisStep_mass_le_one`,
+  `pcnAbsorbingStep_univ`, `pcnAbsorbingStep_rate`) — §43; and the minorant for that step
+  (`pcnAbsorbingStep_minorant`) — §44; and the return mass (`pcnBox_volume`,
+  `pcnAbsorbingStep_box_ge`) — §45; and the small-set Doeblin reduction
+  (`bind_minorant_of_set`, `pcnAbsorbingStep_twoStep_minorant`) — §46, with the explicit finding that
+  §45's return mass is box-local and cannot discharge it.; the confinement estimate that does discharge it
+  (`pcnQuad_le_of_mem_box`, `pcnReturnConst`, `pcnProposalMeasure_box_ge_start`,
+  `pcnAbsorbingStep_box_ge_start`) — §47; and reversibility (`pcnPrior`,
+  `pcnPrior_mul_density_comm`, `pcnMetropolisDensity_detailed`, `pcnPrior_ne_one`) — §48, where the
+  reference measure turns out to be `τ · pcnPrior` and not `τ`; the confinement that makes §47's
+  constant uniform on balls (`pcnAbsorbingStep_confined`, `pcnIter_confined`,
+  `pcnIter_confined_ball`, `pcnBallConst`, `pcnAbsorbingStep_box_ge_ball`,
+  `pcnAbsorbingStep_twoStep_minorant_ball`) — §49; and the prior-referenced restatement
+  (`pcnPriorTarget`, `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior`) — §50; and
+  stationarity from detailed balance (`bind_doeblinStep_stationary`, `doeblinStep`), the pCN instance
+  (`pcnPriorTarget_stationary`) and the rate with invariance proved rather than assumed
+  (`pcnAbsorbingStep_rate_prior_of_stationary`) — §51; the step's measurability as a measure-valued
+  map (`measurable_withDensity_uncurry`, `measurable_pcnMetropolisStep`, `measurable_rejection`,
+  `measurable_pcnAbsorbingStep`), which turns the `hmeas` assumption of §43–§51 into `Measurable τ`
+  — §52; the ceiling and acceptance floor computed at a Gaussian likelihood
+  (`pcnGaussLike`, `pcnGaussLike_mul_pcnPrior_le_one`, `pcnGaussLike_floor`, `pcnPrior_floor`,
+  `pcnAbsorbingStep_minorant_prior_gaussLike`) — §53; and the reference's mass, its normalisation
+  and the rate with `IsProbabilityMeasure` proved (`pcnPriorMass`, `pcnPriorMass_le`,
+  `pcnPriorMass_pos`, `pcnPriorProb`, `pcnPriorProb_stationary`, `pcnPriorProb_minorant_of_target`,
+  `pcnAbsorbingStep_rate_prob`) — §54.
+
+*Not proved, and not claimed.*
+
+* **The pCNL operator's own gap.**  `pcnl_spectral_gap_of_hessian` as stated (`γ = λ` for the
+  core's form) is false — §30–§32 are that computation.  The true location is `L²(π)` after the
+  ground-state transform (§33–§34); the identity and the exactly solvable oscillator are formalized,
+  and so is the algebraic content of the spectral step (§35), but on a finite index set — there is no
+  `L²(π)` measure space, no self-adjointness, and no spectral theorem.
+* **A Hilbert-space model.**  The core is not completed; there is no `L²(π)` operator domain, no
+  self-adjointness, no compactness, and `P₀ + K_reject = 1` is a normalisation identity on
+  coefficient families, not positivity of a Markov kernel.
+* **The continuum chain.**  The target is named (§36), the minorant `(F/B) • π ≤ P(x, ·)` holds for
+  the raw and the Metropolis-adjusted step alike (§38), and the rate `(1 − (1−c)^n)` is proved for
+  any probability step family that dominates `c • μ` (§39), and §40 builds the probability step
+  (accepted density + rejection atom) and proves its mass is `1`.  What is left is the *value* of the
+  accepted mass — an integral of the density, of which the unnormalised increment is computed on the
+  line (§41) and as a product measure in `d` dimensions (§42), while the Fubini identification with
+  the `withDensity` form and the acceptance-weighted box restriction are not — and the invariance the
+  rate assumes, which is stated rather than proved from reversibility.
+* **The infinite-dimensional Fock space.**  The model is finite-support; nothing here is an
+  invariant measure on the unbounded Fock space, and the plan's `pcn_gap_uniform` is not restated.
+* **The implementation.**  The empirical review below is a review of `unfer/pcnl` and the write-up;
+  no Lean statement in the corpus constrains the Rust code's behaviour at runtime.
+
+Reading the two lists together: the model's own form carries the semiboundedness the relative form
+bound gives it and no more; convergence is proved on the finite chains the module builds, not for the
+core's kernel; and the gap, where it exists, is on `L²(π)` (§33), past a spectral step this corpus
+has not formalized.  The remaining pCNL items are exactly those, and the Bakry–Émery route of §2
+above stays a target rather than a claim.
 
 #### Review of the implementation's empirical claims (2026-11-03)
 
@@ -1149,7 +1848,9 @@ matters, and it is attained only in the compact region `‖W‖ ≲ ε`.)  **Con
 perturbation of `P₀` on the strength of a gradient bound.  Module 3's relative form bound — now
 proved in `BookProof.MCMC.FockLangevinOperator` §11 — is the load-bearing item, and it holds for the
 `ε`-regularized potential with a constant `∝ 1/ε`; relative *to the number operator* it is the
-sharper reading, useful in the low-number sector.
+sharper reading, useful in the low-number sector — but §32 (`affineForm_coefficient_le`) shows the
+constant it yields, optimised over `δ`, is negative at the architecture's numbers, so what the bound
+buys is semiboundedness of the Hamiltonian and not a gap.
 
 **(3) The prior-width sweep measures nothing about the posterior.**  Verified: `σ` enters only
 through the noise scale `βξ` and the drift coefficient `β²σ²/2`, and because the potential is

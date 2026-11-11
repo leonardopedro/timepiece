@@ -327,6 +327,128 @@ theorem lintegral_norm_sq_conj {f : ℝ → ℝ} (hf : Measurable f) :
       = ENNReal.ofReal (gaussRoot x ^ 2) * ENNReal.ofReal (f x ^ 2)
   rw [← ENNReal.ofReal_mul (by positivity), mul_pow]
 
+/-! ## The normalization constant: `∫ γ dx = √(2π)` -/
+
+/-- The Mehler density is **not** normalized: `∫ γ dx = √(2π)`, not `1`.  This is the
+"normalized/unnormalized measure convention" the work package asks to fix before any frequency or
+number-form comparison, and it is the constant `√(2π)` that a comparison against a Gaussian-measure
+reference has to carry. -/
+theorem integral_gaussRoot_sq :
+    ∫ x, gaussRoot x ^ 2 ∂(volume : Measure ℝ) = Real.sqrt (2 * Real.pi) := by
+  have hfun : ∫ x, gaussRoot x ^ 2 ∂(volume : Measure ℝ)
+      = ∫ x, Real.exp (-(1 / 2) * x ^ 2) ∂(volume : Measure ℝ) := by
+    refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+    simp only [gaussRoot, pow_two, ← Real.exp_add]
+    congr 1
+    ring
+  rw [hfun, integral_gaussian]
+  congr 1
+  ring
+
+/-- The same constant in `ℝ≥0∞`, in the form used by the measure-density identities. -/
+theorem lintegral_gaussRoot_sq :
+    ∫⁻ x, ENNReal.ofReal (gaussRoot x ^ 2) ∂(volume : Measure ℝ)
+      = ENNReal.ofReal (Real.sqrt (2 * Real.pi)) := by
+  have hint : Integrable (fun x : ℝ => gaussRoot x ^ 2) (volume : Measure ℝ) := by
+    refine Integrable.congr (integrable_exp_neg_mul_sq (b := 1 / 2) (by norm_num)) ?_
+    refine Filter.Eventually.of_forall fun x => ?_
+    simp only [gaussRoot, pow_two, ← Real.exp_add]
+    congr 1
+    ring
+  have h := ofReal_integral_eq_lintegral_ofReal (μ := (volume : Measure ℝ))
+    (f := fun x => gaussRoot x ^ 2) hint (Filter.Eventually.of_forall fun x => by positivity)
+  rw [integral_gaussRoot_sq] at h
+  exact h.symm
+
+/-- **The normalized density has unit mass.**  Dividing by `√(2π)` turns the Mehler density into a
+probability density; this is the correction factor every comparison with a normalized Gaussian
+reference must apply. -/
+theorem lintegral_normalized_eq_one :
+    ∫⁻ x, ENNReal.ofReal (gaussRoot x ^ 2) * (ENNReal.ofReal (Real.sqrt (2 * Real.pi)))⁻¹
+      ∂(volume : Measure ℝ) = 1 := by
+  have hmeas : Measurable fun x : ℝ => ENNReal.ofReal (gaussRoot x ^ 2) := by
+    have hc : Continuous fun x : ℝ => gaussRoot x ^ 2 := by
+      unfold gaussRoot
+      fun_prop
+    exact ENNReal.measurable_ofReal.comp hc.measurable
+  rw [lintegral_mul_const _ hmeas, lintegral_gaussRoot_sq]
+  refine ENNReal.mul_inv_cancel ?_ ?_
+  · simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
+    exact Real.sqrt_pos.mpr (by positivity)
+  · exact ENNReal.ofReal_ne_top
+
+/-! ## The `n`-coordinate transfer
+
+S2 asks for the 99-coordinate product, not just the one-coordinate identity.  Nothing in the
+argument above is one-dimensional: the weight is a product, so the conjugation, the invariance of
+multiplication operators and the isometry all tensorize with the same proofs, and the `n = 99` case
+is the one the QYM mode space uses. -/
+
+/-- The `n`-coordinate Gaussian root, `γ^{1/2}(x) = exp(−‖x‖²/4)`. -/
+noncomputable def gaussRootN {n : ℕ} (x : Fin n → ℝ) : ℝ :=
+  Real.exp (-(∑ i, x i ^ 2) / 4)
+
+/-- Its reciprocal, `γ^{-1/2}`. -/
+noncomputable def invGaussN {n : ℕ} (x : Fin n → ℝ) : ℝ :=
+  Real.exp ((∑ i, x i ^ 2) / 4)
+
+/-- The `n`-coordinate root is the product of the one-coordinate roots — the multiplicativity that
+makes the 99-coordinate transfer a tensor product rather than a new calculation. -/
+theorem gaussRootN_eq_prod {n : ℕ} (x : Fin n → ℝ) :
+    (∏ i, gaussRoot (x i)) = gaussRootN x := by
+  have hprod : (∏ i, gaussRoot (x i)) = ∏ i, Real.exp (-(x i ^ 2) / 4) :=
+    Finset.prod_congr rfl fun i _ => by rw [gaussRoot]
+  rw [hprod, gaussRootN, ← Real.exp_sum]
+  congr 1
+  rw [← Finset.sum_neg_distrib, ← Finset.sum_div]
+
+/-- Squares of the `n`-coordinate root multiply to the Mehler density. -/
+theorem gaussRootN_sq {n : ℕ} (x : Fin n → ℝ) :
+    gaussRootN x ^ 2 = Real.exp (-(∑ i, x i ^ 2) / 2) := by
+  rw [gaussRootN, pow_two, ← Real.exp_add]
+  congr 1
+  rw [← add_div]
+  ring
+
+theorem gaussRootN_pos {n : ℕ} (x : Fin n → ℝ) : 0 < gaussRootN x := Real.exp_pos _
+
+theorem gaussRootN_mul_invGaussN {n : ℕ} (x : Fin n → ℝ) :
+    gaussRootN x * invGaussN x = 1 := by
+  rw [gaussRootN, invGaussN, ← Real.exp_add,
+    show -(∑ i, x i ^ 2) / 4 + (∑ i, x i ^ 2) / 4 = 0 by ring, Real.exp_zero]
+
+/-- A potential in `n` coordinates is likewise untouched by the conjugation. -/
+theorem conj_mult_N {n : ℕ} (V F : (Fin n → ℝ) → ℝ) (x : Fin n → ℝ) :
+    gaussRootN x * (V x * (invGaussN x * F x)) = V x * F x := by
+  calc gaussRootN x * (V x * (invGaussN x * F x))
+      = V x * (gaussRootN x * invGaussN x) * F x := by ring
+    _ = V x * F x := by rw [gaussRootN_mul_invGaussN]; ring
+
+/-- **The isometry in `n` coordinates**, which is the `n = 99` statement S2 asks for: multiplying
+by `γ^{1/2}` moves the density from the function to the measure, with no constant lost. -/
+theorem lintegral_norm_sq_conj_N {n : ℕ} {F : (Fin n → ℝ) → ℝ} (hF : Measurable F) :
+    ∫⁻ x, ENNReal.ofReal ((gaussRootN x * F x) ^ 2) ∂(volume : Measure (Fin n → ℝ))
+      = ∫⁻ x, ENNReal.ofReal (F x ^ 2) ∂((volume : Measure (Fin n → ℝ)).withDensity
+          (fun x => ENNReal.ofReal (gaussRootN x ^ 2))) := by
+  have hdens : Measurable (fun x : Fin n → ℝ => ENNReal.ofReal (gaussRootN x ^ 2)) := by
+    have hcont : Continuous fun x : Fin n → ℝ => gaussRootN x ^ 2 := by
+      unfold gaussRootN
+      fun_prop
+    exact ENNReal.measurable_ofReal.comp hcont.measurable
+  have hg : Measurable (fun x : Fin n → ℝ => ENNReal.ofReal (F x ^ 2)) := by
+    have hsq : Measurable fun x : Fin n → ℝ => F x ^ 2 := by
+      simpa only [pow_two] using hF.mul hF
+    exact ENNReal.measurable_ofReal.comp hsq
+  have hkey := lintegral_withDensity_eq_lintegral_mul (volume : Measure (Fin n → ℝ))
+    (f := fun x => ENNReal.ofReal (gaussRootN x ^ 2)) hdens
+    (g := fun x => ENNReal.ofReal (F x ^ 2)) hg
+  rw [hkey]
+  refine lintegral_congr fun x => ?_
+  simp only [Pi.mul_apply]
+  show ENNReal.ofReal ((gaussRootN x * F x) ^ 2)
+      = ENNReal.ofReal (gaussRootN x ^ 2) * ENNReal.ofReal (F x ^ 2)
+  rw [← ENNReal.ofReal_mul (by positivity), mul_pow]
+
 /-! ## The S2 signature and its two checks -/
 
 /-- **Target 1 of the work package, as a named statement.**  The one-particle form is coercive on

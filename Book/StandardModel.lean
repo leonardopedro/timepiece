@@ -529,6 +529,126 @@ with spatial derivatives is the NS/QG device of
 #check @BookProof.EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa
 ```
 
+# The Gårding Estimate Behind the Relative Bound: Still a Hypothesis
+
+:::paragraph
+One named hypothesis stands between the comparison estimates of the preceding sections and the
+relative bound of the full normal form, and it is recorded here so that a reader meets it as a
+hypothesis rather than as a remark.  Write $`W = \sum_r \Phi_r^2 + \sum_m q_m^2 + c_0` for the
+quartic comparison potential of the $`163`-coordinate operator.  The hypothesis is the *self-bound
+of the potential*,
+
+$$`\lVert W p + p \rVert \;\le\; \beta\, \lVert (-\Delta_S + W + 1) p \rVert
+  \qquad \text{for every } p \text{ on the Gauss–polynomial core,}`
+
+named `PotSelfBound P c₀ β` and never an axiom: the one theorem that consumes it,
+`smNormalForm_norm_le_of_pot_self_bound`, takes it as an argument, so the result is conditional in
+exactly that hypothesis and in nothing else.  What it is *not* needed for is worth stating plainly.
+Essential self-adjointness of the one-particle operator is unconditional (`sm_h_esa`, from the
+Kato-type chain of the previous section), so the operator, its Friedrichs extension and the enclosure
+$`d\Gamma(h)` do not depend on this estimate.  The hypothesis is needed for the *relative bound*
+of the P1 normal form against the comparison — the quantitative estimate that says the interaction is
+bounded by a fraction of the comparison operator plus a constant.
+
+Two reductions have been proved about it, and both are on the record.  The self-bound is
+*equivalent* to the polynomial inequality `hpoly` of the P1 reduction
+(`potSelfBound_of_kinetic_bound`, in the other direction from the reduction itself), so it is a
+second spelling of one open problem rather than a new one.  And with
+$`K = -\Delta_S p`, $`T = (W+1)p` it is *exactly* the non-negativity of
+$`\lVert K \rVert^2 + 2\Re\langle K, T\rangle` (`potSelfBound_one_iff_remainder`) — the cross-term
+decomposition carries no approximation at all at $`\beta = 1`.
+:::
+
+```
+#check @BookProof.SmKineticGarding.PotSelfBound
+#check @BookProof.SmKineticGarding.smNormalForm_norm_le_of_pot_self_bound
+#check @BookProof.SmGradInterpolation.potSelfBound_of_kinetic_bound
+#check @BookProof.SmReverseEllipticResidual.potSelfBound_one_iff_remainder
+#check @BookProof.SmFormDomainComparison.FormDomainComparison
+#check @BookProof.SmFormDomainComparison.exists_potSelfBound_iff_exists_formDomainComparison
+```
+
+:::paragraph
+What the cross term *is* has since been settled, and it is the sharpest statement the project has
+about the hypothesis.  Two integration by parts on the core turn the commutator half of the cross
+term into a *Hessian weight*,
+
+$$`2\Re\langle Q p, -\Delta_S p\rangle
+  = 2\sum_{j\in S}\int Q\,\lvert\nabla_j p\rvert^2
+    - \sum_{j\in S}\int (\partial_j^2 Q)\,\lvert p\rvert^2,`
+
+with no derivative left on the weight (`commutator_cross_eq` coordinate by coordinate,
+`crossTerm_eq` after summing).  The sign identity of the earlier wave is the inequality half of this
+identity; the upper bound that was missing is its other half, and it becomes an inequality in the
+right direction whenever the Hessian trace of the weight is non-negative (`crossTerm_upper`, and
+`sm_crossTerm_upper` at the Standard-Model weight).  Substituting the identity into the residual of
+the graph norm gives
+
+$$`\text{residual} = \lVert \Delta_S p \rVert^2
+  + 2\sum_{j\in S}\int (W+1)\lvert\nabla_j p\rvert^2
+  - \sum_{j\in S}\int (\partial_j^2 W)\lvert p\rvert^2,`
+
+so the self-bound at $`\beta = 1` is *equivalent* to one inequality between two quadratic forms
+(`potSelfBound_one_iff_hessForm`): the Hessian-weighted $`L^2` mass of $`p` against the graph form.
+That equivalence removes the cubic obstruction — no condition on $`\nabla W` is left — but it does not
+prove the inequality, and the hypothesis therefore stands.  The remaining input is a *form-domain
+comparison*, the graph norm of $`-\Delta_S + W + 1` dominating the $`H^2` (equivalently, the
+Hessian-weighted $`L^2`) norm; the corpus has no elliptic regularity, and
+`exists_potSelfBound_iff_exists_formDomainComparison` shows the two hypotheses are one.
+
+One route has been checked and closed.  The corpus's exponential-growth class `ExpBounded` — the
+hypothesis under which the graph norm is even defined, and under which the Kato-type chain proves
+essential self-adjointness for every smooth $`W \ge 1` — cannot supply the inclusion: it is a growth
+class, closed under positive scaling and under adding bounded functions, whereas the self-bound is a
+quantitative norm inequality that is not scale-blind; the deficiency argument that consumes the class
+is asymptotic and says nothing about individual core vectors; and the corpus's own quantitative
+theorems on the class each add a domination ($`\lvert W\rvert \le \lambda\,\text{harmW} + \mu`)
+that a quartic $`W` does not admit.  For the quadratic weight the same tools do work, which is why
+the harmonic instance is proved and the quartic one is not.  The physical reading is therefore
+narrow and worth repeating: what is conditional is the relative-bound transfer, not the definition
+of the operator, and the first test any candidate inequality for `PotSelfBound` should pass is
+$`p = 1`.
+
+The outcome of that test is now on the record, and it is not the sign condition one would
+guess.  On the twisted core used by the formal proof the polynomial $`p = 1`$ is the Gaussian
+$`e^{-\lVert x \rVert^2/4}`$, not the constant function, so the twisted derivative does not
+vanish there: $`-\Delta_S 1 = 20 - \tfrac14 \lVert x_S \rVert^2`$ in the $`40`$ momentum
+coordinates, and the weighted Dirichlet energy of $`W + 1`$ at $`p = 1`$ is
+$`\tfrac14 \int (W+1)\, \lVert x_S \rVert^2\, e^{-\lVert x \rVert^2/2}`$.  The test reads
+
+$$`\mathbb{E}[\Delta_S W] \;\le\; 105 + \tfrac12\, \mathbb{E}[(W+1)\lVert x_S \rVert^2],`$$
+
+not $`\mathbb{E}[\Delta_S W] \le 0`$: the weighted Dirichlet term is the large one, $`840`$
+already for the quadratic part of $`W`$.  The momentum Laplacian of $`W`$ decomposes into the
+constant $`80`$ from $`\sum_m q_m^2`$, the non-negative gradients of the magnetic and
+covariant-derivative forms, and the Higgs wall contribution $`24c^2 S - 16c^2 v^2`$ with
+$`c = \sqrt{\lambda/2}`$ and $`S = \sum_a \phi_a^2`$.  The hypercharge field strength
+contributes nothing here, because it is built from the derivative coordinates and not from the
+momentum coordinates.  With $`\mathbb{E}[S] = 4`$ the expectation is an identity,
+$`\mathbb{E}[\Delta_S W] = 80 + \mathbb{E}[G] + 48\lambda - 8\lambda v^2`$, where $`G \ge 0`$
+is the gradient tail of the non-abelian and covariant-derivative forms, namely
+$`3g_s^2 D_f + 3g_w^2 D_e + 12g_w^2 T + 12g_y^2 Y`$ in the contractions $`D_f`$, $`D_e`$,
+$`T`$, $`Y`$ of the structure constants and generators.  It enters on the left, so it makes the
+test easier rather than harder.  Both $`\mathbb{E}[G]`$ and the moment of
+$`\Phi \lVert x_S \rVert^2`$ are non-negative, so the test excludes only a strongly negative
+$`\lambda v^2`$; and it is not scale-covariant, because the Gaussian weight fixes a unit field
+normalization that this corpus does not fix.  At the origin the Laplacian takes the value
+$`80 - 8\lambda v^2`$, so the Hessian trace is not sign-definite: it is negative
+on a bounded neighbourhood of the origin exactly when $`\lambda v^2 > 10`$, and positive in the
+tails.  The self-bound of the potential is therefore not a consequence of positivity of $`W`$; it
+requires either a regime restriction on $`(\lambda, v)`$ together with a proof for all $`p`$, or
+the elliptic regularity behind the form-domain comparison, and neither is in this corpus.
+:::
+
+```
+#check @BookProof.SmCrossTermHessian.commutator_cross_eq
+#check @BookProof.SmCrossTermHessian.crossTerm_eq
+#check @BookProof.SmCrossTermHessian.crossTerm_upper
+#check @BookProof.SmCrossTermHessian.sm_crossTerm_upper
+#check @BookProof.SmCrossTermHessian.residual_eq_hessForm
+#check @BookProof.SmCrossTermHessian.potSelfBound_one_iff_hessForm
+```
+
 # The Enclosure, Made Explicit
 
 :::paragraph

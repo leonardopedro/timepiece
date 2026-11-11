@@ -13,7 +13,13 @@ Design notes:
     quote links as examples, and LaTeX like `ℱ[u_j](Q)` otherwise parses as a
     link);
   * external targets (http(s), mailto, protocol-relative) are skipped, since
-    reachability of the wider web is not this repo's contract.
+    reachability of the wider web is not this repo's contract;
+  * targets that resolve **outside the repository root** are out of scope.  A
+    document may cite a sibling workspace (`../unfer/pcnl/RESEARCH_PLAN.md`,
+    `../papers/Hashimoto.md`, `../test/unfer/ngpt.md`); that file is not this
+    checkout's to contain, so its presence is the neighbouring repository's
+    gate and not this one's.  `..` inside the root is still checked — the rule
+    is about the root boundary, not about parent references.
 
 Usage:
     python3 scripts/check-links [FILE ...]
@@ -162,6 +168,15 @@ def targets_in(text: str) -> list[tuple[int, str]]:
     return found
 
 
+def inside_root(path: Path, root: Path) -> bool:
+    """True when `path` lies within `root`.  Out-of-root targets are out of scope."""
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
 def resolve(doc: Path, target: str, root: Path) -> Path | None:
     """Return the path a relative target points at, or None if skippable."""
     t = target.strip()
@@ -202,14 +217,15 @@ def main(argv: list[str]) -> int:
             resolved = resolve(doc, target, root)
             if resolved is None:
                 continue
+            if not inside_root(resolved, root):
+                # A sibling workspace is not this checkout's to contain.
+                external += 1
+                continue
             total += 1
             if not resolved.exists():
-                try:
-                    shown = resolved.relative_to(root)
-                except ValueError:
-                    shown = resolved
                 broken.append(
-                    f"{doc.relative_to(root)}:{lineno}: {target} -> {shown} (missing)"
+                    f"{doc.relative_to(root)}:{lineno}: {target} -> "
+                    f"{resolved.relative_to(root)} (missing)"
                 )
 
     if broken:

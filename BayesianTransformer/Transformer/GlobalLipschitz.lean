@@ -18,6 +18,11 @@ public import Mathlib.Analysis.Calculus.FDeriv.Mul
   If a block `g` only sees the *normalized* weight `Ŵ = W / ‖W‖` and has derivative bounded by
   `K` on the unit sphere, then `‖d(g ∘ Π)(W)‖ ≤ K / ‖W‖`, so parameter growth can only *shrink*
   the chain-rule operator norm (Milestone 1 feeds in here).
+* `epsProj`, `epsProj_fderiv_opNorm_le`, `epsProj_fderiv_le`: the *additive* `ε`-regularization
+  `Ŵ = W/(‖W‖ + ε)` that the SG-pCNL work order (`pcnl.md` §2.2) actually writes.  It is not
+  scale invariant, so its differential costs `2/ε` rather than `1/ε`, and a block's gradient is
+  bounded by `K_ε/ε` with `K_ε = 2K` on the domain `‖W‖ ≥ ε`.  This is the `M_ε = K/ε` that
+  `BookProof.MCMC.FockLangevin`'s `driftScale_eps_arch` turns into the drift's constant.
 * `isScaleInvariant_comp_sphereProj`, `normalized_gradient_orthogonal`: any scalar potential of
   the normalized weight is scale invariant, hence (Milestone 2) its derivative annihilates `W`.
 
@@ -127,5 +132,142 @@ theorem normalized_gradient_orthogonal {g : E → ℝ} {w : E}
   scaleInvariant_gradient_orthogonal (isScaleInvariant_comp_sphereProj g) h_diff
 
 end Normalization
+
+section EpsNormalization
+
+variable {E F : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+  [NormedAddCommGroup F] [NormedSpace ℝ F]
+
+/-- The `ε`-regularized normalization `Ŵ = W / (‖W‖ + ε)` of the SG-pCNL architecture.  The
+parameter enters the potential only through this map, so the `1/ε` of the gradient bound is the
+differential of this one function.  Unlike `sphereProj` it is defined at the origin (there it is
+`W/ε`), so it needs no `ε`-separated domain to *exist* — only to be bounded — and it is not
+scale invariant, which is the factor `2` in `epsProj_fderiv_opNorm_le` below. -/
+noncomputable def epsProj (ε : ℝ) (v : E) : E := (‖v‖ + ε)⁻¹ • v
+
+/-- The normalized weight stays in the closed unit ball: `‖W/(‖W‖ + ε)‖ ≤ 1`. -/
+theorem norm_epsProj_le {ε : ℝ} (hε : 0 < ε) (v : E) : ‖epsProj ε v‖ ≤ 1 := by
+  have hr : (0 : ℝ) < ‖v‖ + ε := by positivity
+  rw [epsProj, norm_smul, Real.norm_eq_abs, abs_of_pos (inv_pos.mpr hr), mul_comm]
+  have h : ‖v‖ * (‖v‖ + ε)⁻¹ ≤ (‖v‖ + ε) * (‖v‖ + ε)⁻¹ :=
+    mul_le_mul_of_nonneg_right (le_add_of_nonneg_right hε.le) (inv_nonneg.mpr hr.le)
+  simpa [mul_inv_cancel₀ hr.ne'] using h
+
+/-- Derivative of the scalar factor `x ↦ (‖x‖ + ε)⁻¹` away from the origin. -/
+theorem norm_add_inv_hasFDerivAt {ε : ℝ} (hε : 0 < ε) {v : E} (hv : v ≠ 0) :
+    HasFDerivAt (fun x : E => (‖x‖ + ε)⁻¹)
+      (-(((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) • innerSL ℝ v) v := by
+  have hn : 0 < ‖v‖ := norm_pos_iff.mpr hv
+  have h1 : HasFDerivAt (fun x : E => Real.sqrt (‖x‖ ^ 2))
+      ((1 / (2 * Real.sqrt (‖v‖ ^ 2))) •
+        (2 • (innerSL ℝ v).comp (ContinuousLinearMap.id ℝ E))) v :=
+    ((hasFDerivAt_id v).norm_sq).sqrt (by positivity)
+  have h1' : HasFDerivAt (fun x : E => ‖x‖) (‖v‖⁻¹ • innerSL ℝ v) v := by
+    convert h1 using 1
+    · ext x
+      rw [Real.sqrt_sq (norm_nonneg x)]
+    · ext x
+      simp only [ContinuousLinearMap.smul_apply, ContinuousLinearMap.comp_apply,
+        ContinuousLinearMap.id_apply, Real.sqrt_sq hn.le, smul_eq_mul]
+      ring_nf
+  have hbase : HasDerivAt (fun y : ℝ => y⁻¹) (-(((‖v‖ + ε) ^ 2)⁻¹)) (‖v‖ + ε) :=
+    hasDerivAt_inv (x := ‖v‖ + ε) (by positivity)
+  have hadd : HasDerivAt (fun t : ℝ => t + ε) 1 ‖v‖ := (hasDerivAt_id ‖v‖).add_const ε
+  have h3 : HasDerivAt (fun t : ℝ => (t + ε)⁻¹) (-(((‖v‖ + ε) ^ 2)⁻¹)) ‖v‖ := by
+    simpa using HasDerivAt.comp (x := ‖v‖) hbase hadd
+  have h4 : HasFDerivAt (fun x : E => (‖x‖ + ε)⁻¹)
+      ((-(((‖v‖ + ε) ^ 2)⁻¹)) • (‖v‖⁻¹ • innerSL ℝ v)) v :=
+    HasDerivAt.comp_hasFDerivAt (f := fun x : E => ‖x‖) (x := v) h3 h1'
+  convert h4 using 1
+  ext x
+  simp only [ContinuousLinearMap.smul_apply, smul_eq_mul]
+  ring
+
+/-- Differential of the `ε`-regularized normalization. -/
+theorem epsProj_hasFDerivAt {ε : ℝ} (hε : 0 < ε) {v : E} (hv : v ≠ 0) :
+    HasFDerivAt (epsProj ε)
+      ((‖v‖ + ε)⁻¹ • ContinuousLinearMap.id ℝ E +
+        ContinuousLinearMap.smulRight
+          (-(((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) • innerSL ℝ v) v) v :=
+  (norm_add_inv_hasFDerivAt hε hv).smul (hasFDerivAt_id v)
+
+/-- `epsProj` is differentiable away from the origin. -/
+theorem epsProj_differentiableAt {ε : ℝ} (hε : 0 < ε) {v : E} (hv : v ≠ 0) :
+    DifferentiableAt ℝ (epsProj ε) v := (epsProj_hasFDerivAt hε hv).differentiableAt
+
+/-- **`‖dŴ‖ ≤ 2/ε` on `{‖W‖ ≥ ε}`.**  The two terms of the differential are each at most
+`ε⁻¹`: the first is the identity scaled by `(‖W‖ + ε)⁻¹ ≤ ε⁻¹`, and the second is the radial
+correction, whose norm is `‖W‖/(‖W‖ + ε)² ≤ ε⁻¹` (the `‖W‖ ≤ ‖W‖ + ε` cancellation).  The sum
+is therefore `2/ε` — where the sphere projection `W/‖W‖` costs `1/ε`, because it is scale
+invariant and this map is not. -/
+theorem epsProj_fderiv_opNorm_le {ε : ℝ} (hε : 0 < ε) {v : E} (hv : ε ≤ ‖v‖) :
+    ‖fderiv ℝ (epsProj ε) v‖ ≤ 2 / ε := by
+  have hr : (0 : ℝ) < ‖v‖ + ε := by positivity
+  have hv0 : v ≠ 0 := by
+    intro h0
+    rw [h0, norm_zero] at hv
+    linarith
+  rw [(epsProj_hasFDerivAt hε hv0).fderiv]
+  refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun x => ?_
+  have hinv : (‖v‖ + ε)⁻¹ ≤ ε⁻¹ := inv_anti₀ hε (le_add_of_nonneg_left (norm_nonneg v))
+  have hsq : ((‖v‖ + ε) ^ 2)⁻¹ ≤ (‖v‖ + ε)⁻¹ * ε⁻¹ := by
+    rw [sq, mul_inv]
+    exact mul_le_mul_of_nonneg_left hinv (inv_nonneg.mpr hr.le)
+  have hinner : ∀ x : E, |inner ℝ v x| ≤ ‖v‖ * ‖x‖ := fun x => abs_real_inner_le_norm v x
+  calc ‖((‖v‖ + ε)⁻¹ • ContinuousLinearMap.id ℝ E +
+        ContinuousLinearMap.smulRight (-(((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) • innerSL ℝ v) v) x‖
+      = ‖(‖v‖ + ε)⁻¹ • x
+          + (-(((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) * inner ℝ v x) • v‖ := by
+        simp [ContinuousLinearMap.smulRight_apply]
+    _ ≤ ‖(‖v‖ + ε)⁻¹ • x‖
+          + ‖(-(((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) * inner ℝ v x) • v‖ := norm_add_le _ _
+    _ = (‖v‖ + ε)⁻¹ * ‖x‖
+          + |(((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) * inner ℝ v x| * ‖v‖ := by
+        rw [norm_smul, norm_smul, Real.norm_eq_abs, Real.norm_eq_abs,
+          abs_of_nonneg (inv_nonneg.mpr hr.le), neg_mul, abs_neg]
+    _ ≤ (‖v‖ + ε)⁻¹ * ‖x‖
+          + ((((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) * (‖v‖ * ‖x‖)) * ‖v‖ := by
+        have hle : |(((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) * inner ℝ v x|
+            ≤ (((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖⁻¹) * (‖v‖ * ‖x‖) := by
+          rw [abs_mul, abs_of_nonneg (mul_nonneg (inv_nonneg.mpr (sq_nonneg _))
+            (inv_nonneg.mpr (norm_nonneg v)))]
+          exact mul_le_mul_of_nonneg_left (hinner x)
+            (mul_nonneg (inv_nonneg.mpr (sq_nonneg _)) (inv_nonneg.mpr (norm_nonneg v)))
+        exact add_le_add (le_refl _) (mul_le_mul_of_nonneg_right hle (norm_nonneg v))
+    _ = ((‖v‖ + ε)⁻¹ + ((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖) * ‖x‖ := by
+        field_simp
+    _ ≤ (2 / ε) * ‖x‖ := by
+        have h1 : (‖v‖ + ε)⁻¹ ≤ ε⁻¹ := hinv
+        have h2 : ((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖ ≤ ε⁻¹ := by
+          calc ((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖ ≤ ((‖v‖ + ε) ^ 2)⁻¹ * (‖v‖ + ε) :=
+                mul_le_mul_of_nonneg_left (le_add_of_nonneg_right hε.le) (by positivity)
+            _ = (‖v‖ + ε)⁻¹ := by field_simp
+            _ ≤ ε⁻¹ := hinv
+        have hsum : (‖v‖ + ε)⁻¹ + ((‖v‖ + ε) ^ 2)⁻¹ * ‖v‖ ≤ ε⁻¹ + ε⁻¹ :=
+          add_le_add h1 h2
+        rw [show (2 : ℝ) / ε = 2 * ε⁻¹ by ring]
+        exact mul_le_mul_of_nonneg_right (by linarith) (norm_nonneg x)
+
+/-- **The gradient bound `M_ε = K_ε/ε` of the `ε`-regularized potential.**  If the block `g`
+that sees only the normalized weight `Ŵ = W/(‖W‖ + ε)` has derivative bounded by `K` on the
+closed unit ball, then the potential `g ∘ Ŵ` has derivative bounded by `K_ε/ε` on the
+`ε`-separated domain `‖W‖ ≥ ε`, with `K_ε = 2K`: the chain rule times `epsProj_fderiv_opNorm_le`.
+This is `pcnl.md` §2.2's `M_ε = K/ε`, with the factor `2` absorbed into `K_ε`. -/
+theorem epsProj_fderiv_le {g : E → F} {K : ℝ} (hK : 0 ≤ K)
+    (hg_diff : ∀ u : E, ‖u‖ ≤ 1 → DifferentiableAt ℝ g u)
+    (hg_bound : ∀ u : E, ‖u‖ ≤ 1 → ‖fderiv ℝ g u‖ ≤ K)
+    {ε : ℝ} (hε : 0 < ε) {w : E} (hw : ε ≤ ‖w‖) :
+    ‖fderiv ℝ (g ∘ epsProj ε) w‖ ≤ 2 * K / ε := by
+  have hball : ‖epsProj ε w‖ ≤ 1 := norm_epsProj_le hε w
+  have hw0 : w ≠ 0 := norm_pos_iff.mp (hε.trans_le hw)
+  rw [fderiv_comp w (hg_diff _ hball) (epsProj_differentiableAt hε hw0)]
+  calc ‖(fderiv ℝ g (epsProj ε w)).comp (fderiv ℝ (epsProj ε) w)‖
+      ≤ ‖fderiv ℝ g (epsProj ε w)‖ * ‖fderiv ℝ (epsProj ε) w‖ :=
+        ContinuousLinearMap.opNorm_comp_le _ _
+    _ ≤ K * (2 / ε) :=
+        mul_le_mul (hg_bound _ hball) (epsProj_fderiv_opNorm_le hε hw) (by positivity) hK
+    _ = 2 * K / ε := by ring
+
+end EpsNormalization
 
 end BayesianTransformer

@@ -22,8 +22,11 @@ formalization project.
   **Read this first** to identify the next development target.
 - **`CONSOLIDATED_PLAN.md`**: the single plan. ~16,400 lines, append-only, newest state
   entry at the end. Reached through the routing table above, not read end to end.
-- **`DOC_INDEX.md`**: generated backlink graph over the documentation corpus
-  (`python3 scripts/doc_index.py`).
+- **`DOC_INDEX.md`** (+ `state/doc_index.json`): the generated backlink graph over the
+  documentation corpus (`python3 scripts/doc_index.py`). Both are **generated and untracked**
+  (`.gitignore`): they are derived entirely from the docs, so a committed copy conflicted on every
+  merge that touched a document. Render them on demand; CI checks that two consecutive rebuilds
+  are byte-identical rather than that a committed copy is fresh.
 - **`/` (repo root)**: The Lean 4 project root. The library entry point is
   `RiemannProof.lean` (root-level aggregator; imports the `UsedRoute.*`,
   `UnusedRoute.*`, `RandomMap.*` modules). The former `RiemannProof/`
@@ -116,8 +119,9 @@ bare NixOS shell, so python entry points carry their `nix-shell -p python3
 | :--- | :--- |
 | `health.sh` | one-command gate (exit 0 ⇔ healthy): doc-index freshness, `import_components --check`, GitBook drift. Calls `python3` itself — run it *through* the wrapper below. |
 | `verify-invariants` | invariant/drift gate; a missing tool is an explained `[gap]`, never a false failure. |
-| `check-links` | relative markdown links resolve (CI: `.github/workflows/linkcheck.yml`); the default scan is git-tracked `*.md`, an explicit `FILE` is always checked. |
-| `test_check_links.py` | the scope tests for `check-links` (tracked vs untracked vs git-ignored vs explicit, and the no-git fallback); CI runs it in `linkcheck.yml`. |
+| `check-links` | relative markdown links resolve (CI: `.github/workflows/linkcheck.yml`); the default scan is git-tracked `*.md`, an explicit `FILE` is always checked, and a target outside the repo root (a sibling workspace's `../unfer/…`, `../papers/…`) is out of scope. |
+| `test_check_links.py` | the scope tests for `check-links` (tracked vs untracked vs git-ignored vs explicit, in-root `..` vs out-of-root targets, and the no-git fallback); CI runs it in `linkcheck.yml`. |
+| `test_health.py` | regression tests for `health.sh`'s baseline rule: at baseline is `[warn]`, one finding over is `[FAIL]`, a skipped check is `[gap]`, never a pass. Runs stub checks in a temporary repo (stdlib only); CI runs it in `ci.yml`. |
 | `check-gitbook-drift` | identifiers cited by `../test`'s GitBook pages still exist here (skips when `../test` is absent). |
 | `pending-lemmas.txt` | data, not a script: the reviewed forward-reference ledger the drift gate consults. A MISS listed there is `[pending]` (a planned lemma for the Lean4 specialist, not rot); an unlisted MISS fails; a listed identifier that now resolves is `[stale]` — remove it in the change that lands the lemma. |
 | `check-book-sync` | `unfer/`'s synced copy of the LaTeX corpus still matches this repo (the source of record). |

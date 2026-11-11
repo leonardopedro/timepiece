@@ -46,6 +46,11 @@ report() {  # $1=verdict $2=name
 }
 
 # --- 1. doc index freshness -----------------------------------------------
+# DOC_INDEX.md and state/doc_index.json are generated and untracked (.gitignore),
+# so a fresh clone has no copy to compare against: render first, then check.
+if [[ ! -f DOC_INDEX.md || ! -f state/doc_index.json ]]; then
+    python3 scripts/doc_index.py >/dev/null 2>&1 || true
+fi
 if OUT=$(python3 scripts/doc_index.py --check 2>&1) && [[ $? -eq 0 ]]; then
     report pass "doc index fresh ($(echo "$OUT" | grep -o '[0-9]* docs' || true))"
 else
