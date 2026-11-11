@@ -1331,6 +1331,16 @@ above.  This section states that identification and proves what it yields.
   root sector as a form domain (the kernel of evaluation at the vacuum) and the positive
   root-sector gap `(c₁ Δ_ref − quarticShift)/48` that holds on it, where the whole-core threshold
   is spoilt by the vacuum;
+* **`norm_sq_apply_zero_le_coreNormSq`**, **`rootDomain_eq_span_excited`** — the root domain is the
+  **vacuum-orthogonal core**: `‖c 0‖² ≤ coreNormSq c`, and a core vector has no vacuum component
+  exactly when it is a finite combination of the *excited* occupation basis vectors, so the density
+  here is algebraic (the excited span *is* the orthogonal core), not analytic;
+* **`rootDomain_closed_of_tendsto`**, **`closure_rootDomain_iff`** — the root domain is closed under
+  `coreNormSq` limits, so its closure is itself; this is the only topology the coefficient model
+  supports (there is no completed space, so limits are sequence limits);
+* **`root_spectral_gap_on_closure`** — the gap on the closure, i.e. for any point that is a
+  `coreNormSq` limit of root-domain vectors: no limiting argument on the quartic form is used (and
+  none is available — `quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`);
 * **`RootFormDomination`**, **`root_ground_bound`**, **`root_excited_bound`**,
   **`s2RootFormDomination`** — the domination certificate with `dom` required only on the root
   sector, which `RootModeIdentification` supplies;
@@ -1976,6 +1986,124 @@ theorem root_spectral_gap (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 
       - (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
       = (c₁ * refGap ω - quarticShift (d := 24) T g) / 48 := by ring
   rwa [hc'] at h
+
+/-! #### The root domain is the excited span, and the gap passes to its closure
+
+`rootDomain` is the kernel of evaluation at the vacuum.  In the coefficient model this is exactly
+the vacuum-orthogonal core: the standard expansion of a finitely supported family shows that a core
+vector has no vacuum component if and only if it is a finite combination of the *excited* occupation
+basis vectors (`rootDomain_eq_span_excited`).  Density is therefore algebraic, not analytic: the
+excited span **is** the vacuum-orthogonal core, and the only closedness statement available in this
+model is closedness under `coreNormSq` limits (`rootDomain_closed_of_tendsto`,
+`closure_rootDomain_iff`).  Since that closure is the domain itself, the root-sector gap holds on it
+verbatim (`root_spectral_gap_on_closure`); no limiting argument on the quartic form is used, and
+none would be available — `quadForm (ymHamiltonian …)` is not known to be continuous in
+`coreNormSq`.
+-/
+
+/-- **The vacuum coefficient is bounded by the core norm**: `‖c 0‖² ≤ coreNormSq c`, because
+`coreNormSq` is the sum of the squared moduli **including** the vacuum summand.  This is the only
+continuity the vacuum coefficient has in the coefficient model. -/
+theorem norm_sq_apply_zero_le_coreNormSq (c : CoreCoeff 24) :
+    ‖c 0‖ ^ 2 ≤ coreNormSq c := by
+  rw [coreNormSq]
+  by_cases h : (0 : Fin 24 → ℕ) ∈ c.support
+  · exact Finset.single_le_sum (f := fun n => ‖c n‖ ^ 2) (fun i _ => by positivity) h
+  · have hz : c 0 = 0 := Finsupp.notMem_support_iff.mp h
+    rw [hz, norm_zero, zero_pow (by norm_num)]
+    exact Finset.sum_nonneg fun i _ => by positivity
+
+/-- **The root domain is the span of the excited basis.**  A core vector with no vacuum component is
+a finite linear combination of the occupation basis vectors other than the vacuum: the support
+cannot contain `0`, so every term of the standard expansion
+`c = ∑_{n ∈ support} c n • single n 1` is an excited basis vector.  This is the algebraic form of
+"the root domain is the vacuum-orthogonal core": it is exactly the span of the states orthogonal to
+the vacuum. -/
+theorem rootDomain_eq_span_excited :
+    rootDomain = Submodule.span ℂ (Set.range (fun p : {n : Fin 24 → ℕ // n ≠ 0} =>
+      (Finsupp.single p.1 (1 : ℂ) : CoreCoeff 24))) := by
+  refine le_antisymm ?_ ?_
+  · intro c hc
+    have hc0 : c 0 = 0 := hc
+    have hdecomp : (∑ n ∈ c.support, c n • (Finsupp.single n (1 : ℂ) : CoreCoeff 24)) = c := by
+      ext m
+      rw [Finsupp.finset_sum_apply]
+      simp only [Finsupp.smul_apply, Finsupp.single_apply, smul_eq_mul]
+      have e1 : (∑ n ∈ c.support, c n * (if n = m then (1 : ℂ) else 0))
+          = ∑ n ∈ c.support, (if n = m then c n else 0) := by
+        refine Finset.sum_congr rfl fun n _ => ?_
+        by_cases hnm : n = m <;> simp [hnm]
+      rw [e1, Finset.sum_ite_eq']
+      by_cases hm : m ∈ c.support
+      · simp [hm]
+      · simp [hm, (Finsupp.notMem_support_iff.mp hm)]
+    rw [← hdecomp]
+    refine Submodule.sum_mem _ fun n hn => Submodule.smul_mem _ _ ?_
+    refine Submodule.subset_span ⟨⟨n, ?_⟩, rfl⟩
+    rintro rfl
+    exact (Finsupp.mem_support_iff.mp hn) hc0
+  · rw [Submodule.span_le]
+    rintro _ ⟨p, rfl⟩
+    change (Finsupp.single p.1 (1 : ℂ) : CoreCoeff 24) 0 = 0
+    rw [Finsupp.single_eq_of_ne (Ne.symm p.2)]
+
+/-- **The root domain is closed under norm limits** on the core: a sequence of core vectors with no
+vacuum component whose `coreNormSq` distance to `c` tends to `0` has no vacuum component either,
+because `‖(s k) 0 − c 0‖² ≤ coreNormSq (s k − c)` and the left side is the constant `‖c 0‖²`.  This
+is the only closedness the coefficient model supports — there is no completed space here, so limits
+are `coreNormSq`-limits of sequences. -/
+theorem rootDomain_closed_of_tendsto (s : ℕ → CoreCoeff 24) (hs : ∀ k, s k ∈ rootDomain)
+    (c : CoreCoeff 24)
+    (hlim : Filter.Tendsto (fun k => coreNormSq (s k - c)) Filter.atTop (nhds (0 : ℝ))) :
+    c ∈ rootDomain := by
+  have hb : ∀ k, ‖c 0‖ ^ 2 ≤ coreNormSq (s k - c) := by
+    intro k
+    have h := norm_sq_apply_zero_le_coreNormSq (s k - c)
+    have hs0 : (s k) 0 = 0 := mem_rootDomain.mp (hs k)
+    have h0 : (s k - c) 0 = -c 0 := by
+      rw [Finsupp.sub_apply, hs0]
+      simp
+    rwa [h0, norm_neg] at h
+  have hle : ‖c 0‖ ^ 2 ≤ 0 :=
+    le_of_tendsto_of_tendsto (tendsto_const_nhds (x := ‖c 0‖ ^ 2) (f := Filter.atTop)) hlim
+      (Filter.Eventually.of_forall hb)
+  have hnorm : ‖c 0‖ = 0 := by
+    have h2 : ‖c 0‖ ^ 2 = 0 := le_antisymm hle (by positivity)
+    exact (pow_eq_zero_iff (n := 2) (by norm_num)).mp h2
+  change c 0 = 0
+  exact norm_eq_zero.mp hnorm
+
+/-- **The closure of the root domain is the root domain.**  A core vector is a `coreNormSq` limit of
+root-domain vectors exactly when it lies in the root domain: one direction is
+`rootDomain_closed_of_tendsto`, the other the constant sequence. -/
+theorem closure_rootDomain_iff (c : CoreCoeff 24) :
+    (∃ s : ℕ → CoreCoeff 24, (∀ k, s k ∈ rootDomain) ∧
+        Filter.Tendsto (fun k => coreNormSq (s k - c)) Filter.atTop (nhds (0 : ℝ)))
+      ↔ c ∈ rootDomain := by
+  constructor
+  · rintro ⟨s, hs, hlim⟩
+    exact rootDomain_closed_of_tendsto s hs c hlim
+  · intro hc
+    refine ⟨fun _ => c, fun _ => hc, ?_⟩
+    have hzero : coreNormSq (c - c) = 0 := by simp [coreNormSq]
+    simp only [hzero]
+    exact tendsto_const_nhds
+
+/-- **The gap holds on the closure of the root domain.**  Stated for a vector that is a `coreNormSq`
+limit of root-domain vectors — i.e. for a point of the closure — the S2 gap follows from
+`root_spectral_gap`, because the closure *is* the root domain (`closure_rootDomain_iff`): no
+limiting argument on the quartic form is needed, and none would be available, since
+`quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`. -/
+theorem root_spectral_gap_on_closure (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (RI : RootModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (s : ℕ → CoreCoeff 24) (hs : ∀ k, s k ∈ rootDomain)
+    (c : CoreCoeff 24)
+    (hlim : Filter.Tendsto (fun k => coreNormSq (s k - c)) Filter.atTop (nhds (0 : ℝ))) :
+    ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (RI.toCore c) :=
+  root_spectral_gap Φ fabc RI hω hg hc₁ hω₁ c
+    (rootDomain_closed_of_tendsto s hs c hlim)
 
 /-! #### The certificate inside the gap chain
 

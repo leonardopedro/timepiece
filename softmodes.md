@@ -695,6 +695,19 @@ Two of the pieces the inhabitant needed are built (§3d.0 and the energy contrac
   `magPoly_mul_monomial_ne`: `B_{ia}` has zero diagonal at every monomial.  So `:N²:` is the
   contracted `Σ B†B − (contraction)`, not the diagonal of `magOps`.
 
+* **The root domain is the excited span, and the gap is closed.**  `rootDomain` is the kernel of
+  evaluation at the vacuum, and in the coefficient model that is exactly the vacuum-orthogonal core:
+  `norm_sq_apply_zero_le_coreNormSq` bounds the vacuum coefficient by the core norm, and
+  `rootDomain_eq_span_excited` shows a core vector has no vacuum component iff it is a finite
+  combination of the *excited* occupation basis vectors.  So the density here is **algebraic** — the
+  excited span *is* the orthogonal core — not analytic.  The only topology the coefficient model
+  supports is `coreNormSq`: `rootDomain_closed_of_tendsto` (a norm limit of root-domain vectors keeps
+  the vanishing vacuum coefficient, because `‖c 0‖² ≤ coreNormSq c`) and `closure_rootDomain_iff`
+  (the closure is the domain), hence `root_spectral_gap_on_closure`: the S2 gap holds for every point
+  of the closure.  No limiting argument on the quartic form is used or claimed —
+  `quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`, which is exactly why the
+  closure-is-the-domain identification, not a continuity argument, is the honest route here.
+
 **The `su(2)` instantiation, and the colour factor computed.**  The free tensor is now instantiated:
 `su2Struct` is `f_{abc} = ε_{abc}` on the first three colour indices (the `su2Slot`s) and `0` off
 them — `su(2) × U(1)⁵` in place of the free `fabc`.  It satisfies both hypotheses

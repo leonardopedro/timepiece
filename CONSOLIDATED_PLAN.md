@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11g):** **“State of the QYM row — 2026-11-11g: the normalization
+> **Newest entry (2026-11-11h):** “State of the project — 2026-11-11h: the root domain as the excited
+> span, and the gap on its closure” (end of file): `rootDomain` is the vacuum-orthogonal core
+> (`rootDomain_eq_span_excited`, off `norm_sq_apply_zero_le_coreNormSq`), it is closed under
+> `coreNormSq` limits (`rootDomain_closed_of_tendsto`, `closure_rootDomain_iff`), and the root-sector
+> gap therefore holds on its closure verbatim (`root_spectral_gap_on_closure`).  No continuity of the
+> quartic form is claimed or used.  The chapter builds; the aggregate `+BookProof` build stops on
+> the pre-existing `BookProof.MCMC.PCNGaussianFloor` failure from the incoming branch (module
+> unmodified, and it imports only `Mathlib`).
+> **Earlier entry (2026-11-11g):** **“State of the QYM row — 2026-11-11g: the normalization
 > constant and the `n`-coordinate form”**, at the very end of this file — `integral_gaussRoot_sq`
 > (`∫ γ = √(2π)`), `lintegral_normalized_eq_one` (so the correction factor is `√(2π)^{−d}`),
 > `gaussRootN_eq_prod`, `conj_mult_N` and `lintegral_norm_sq_conj_N` (the isometry in `n`
@@ -21321,3 +21329,48 @@ oscillator gap, and `conj_mult` / `conj_mult_N` are the precise statement that t
 representation change cannot move a magnetic gap in either direction. The normalization constant
 table above is the arithmetic that any future "reference gap constant" import must divide by
 `√(2π)^{99}` (or equivalently `(2π)^{99/2}`) — recorded here so that number is not left implicit.
+
+## State of the project — 2026-11-11h: the root domain as the excited span, and the gap on its closure
+
+`rootDomain` is the kernel of evaluation at the vacuum in the coefficient model
+`CoreCoeff 24 = (Fin 24 → ℕ) →₀ ℂ`.  This entry pins down what "dense in the vacuum-orthogonal core"
+can mean **in that model**, and carries the S2 gap to the corresponding closure.  All new
+declarations are in `BookProof.Qym.ChapterYangMillsFieldStrengthSplit` (§3d.3, after
+`root_spectral_gap`).
+
+**(1) The root domain is the vacuum-orthogonal core.**  `norm_sq_apply_zero_le_coreNormSq`:
+`‖c 0‖² ≤ coreNormSq c` — the vacuum coefficient is bounded by the core norm, the only continuity it
+has here.  `rootDomain_eq_span_excited`: a core vector has no vacuum component **iff** it is a finite
+linear combination of the excited occupation basis vectors
+(`Submodule.span ℂ (range (fun p : {n // n ≠ 0} => single p.1 1))`).  The reason is one line of
+bookkeeping: the support of such a `c` cannot contain `0`, so every summand of the standard expansion
+`c = ∑_{n ∈ support} c n • single n 1` is an excited basis vector.  Density is therefore
+**algebraic**: the excited span is not merely dense in the orthogonal core, it *is* it.
+
+**(2) Closed under norm limits, hence its own closure.**  The coefficient model is not a Hilbert
+space, so the only available topology is the `coreNormSq` (ℓ²-norm-squared) one, and limits are
+sequence limits: `rootDomain_closed_of_tendsto` — if `s k ∈ rootDomain` for all `k` and
+`coreNormSq (s k − c) → 0`, then `c ∈ rootDomain`, because `‖(s k) 0 − c 0‖² ≤ coreNormSq (s k − c)`
+collapses the left side to the constant `‖c 0‖² ≤ 0`.  `closure_rootDomain_iff` states the resulting
+equivalence: a core vector is a norm limit of root-domain vectors exactly when it lies in the root
+domain.
+
+**(3) The gap on the closure.**  `root_spectral_gap_on_closure`: for a vector that is a `coreNormSq`
+limit of root-domain vectors, `(c₁ Δ_ref − quarticShift)/48 · ‖c‖² ≤ q(c)` follows from
+`root_spectral_gap` through (2).  This is deliberately **not** a limiting argument on the quartic
+form: `quadForm (ymHamiltonian Φ fabc) ∘ RI.toCore` is not known to be continuous in `coreNormSq`, so
+taking limits through the inequality would be unjustified.  The honest content is that the closure of
+the domain is the domain, so the inequality transfers without any continuity at all.
+
+**(4) What is *not* claimed.**  Nothing here is about the analytic core `polyGaussCore ⊂ L²(ℝ⁹⁹)` or
+its ℓ² completion: the statement is internal to the coefficient model, where `rootDomain` lives.  A
+genuine completion statement would need the ℓ² space, the density of finite-support vectors there,
+and a closed extension of the quartic form — i.e. a Friedrichs-type project, not this entry.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completed, 0 errors,
+no new warnings (long-line, `show`, max-heartbeats linters clean); `#print axioms` on all five new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`.  The aggregate `lake build
++BookProof` reaches 8965/8966 and fails on `BookProof.MCMC.PCNGaussianFloor` — a module from the
+incoming branch, unmodified here, whose file compiles identically broken on its own (`lake env lean`
+on the extracted file, `import Mathlib` only): a pre-existing failure, not a consequence of this
+entry or of the merge resolution.
