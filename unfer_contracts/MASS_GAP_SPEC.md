@@ -438,7 +438,13 @@ separates `λ₁` from `λ₂`. A `2×2` block-pivot fallback (for a trailing bl
 which no diagonal has a decidable sign; inertia from the determinant and the
 trace) now counts `[[0,1],[1,0]]` instead of refusing, but it does not move the
 wall: at `N ≤ 34` no determinantal sign is decidable either and the refusal lands
-on the same index `34159`.
+on the same index `34159`. The even reflection block (`Truncated::sector(true)`)
+is the one place measured where the wall is not the odd block's: at the same `β`
+nested dissection still decides `N ≤ 34` (`n = 38931`, fill 1396, 93 s, ratio
+`7.2e-4`) and refuses `N ≤ 36` (562 s), one shell past the odd block's `33 / 34`
+boundary. The wall tracks each matrix's trailing condition, not its dimension —
+the `N ≤ 34` even matrix is the larger of the two and decides where the odd one
+refuses.
 
 **Ordering: smaller fill, and two sizes of reach.** Nested dissection cuts the
 fill by 6–27 % on the grid (18→16, 93→68, 258→226, 534→485) and is 2–2.5× faster
