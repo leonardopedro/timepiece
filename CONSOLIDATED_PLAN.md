@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11i):** “State of the project — 2026-11-11i: the ℓ² completion, and the
+> **Newest entry (2026-11-11j):** “State of the project — 2026-11-11j: the fundamental representation,
+> and `C_F = 3/4`” (end of file): §3b.2c defines `pauli`/`fundRep` (`T^a = σ^a/2` on `ℂ²`), proves
+> `[T^a,T^b] = i ε^{abc}T^c` against the chapter's own `su2Struct`, and computes
+> `Σ_a T^a T^a = (3/4)·1` and `tr(T^a T^b) = δ^{ab}/2` — so `C_F = 3/4` is derived, not assumed,
+> and it sits beside the adjoint `C_A = 2` proved from the same tensor.
+> **Earlier entry (2026-11-11i):** “State of the project — 2026-11-11i: the ℓ² completion, and the
 > reference gap on it” (end of file): `coreLp`/`coreToLp` build the completion of the coefficient
 > model with `norm_coreToLp_sq` (the embedding is isometric for `coreNormSq`), finite-support root
 > vectors are dense in the closed `vacuumOrthogonal` subspace (`closure_rootDomain_image_eq`), and
@@ -190,7 +195,8 @@
 > the three `su2Slot`s (`su(2) × U(1)⁵`), satisfies antisymmetry and Jacobi
 > (`su2Struct_antisym`, `su2Struct_jacobi`), and gives the colour tensor
 > `K_{abcd} = δ_acδ_bd − δ_adδ_bc` (`colourTensor_su2`) with `C_A = 2` and `Σ f² = 6`
-> (`su2_casimir_adjoint_value`, `su2_colourWeight_sum`).  `C_F = 3/4` is explicitly out of scope.
+> (`su2_casimir_adjoint_value`, `su2_colourWeight_sum`).  `C_F = 3/4` was out of scope there; it is
+> now proved in §3b.2c of the same chapter (see the 2026-11-11j entry).
 > `lake build +BookProof` completed.
 > **Earlier entry (2026-11-11a):** “State of the project — 2026-11-11a: the mode expectation of `:B²:`
 > on the linear half” (end of file): the mode state as a unit vector of the monomial-orthonormal
@@ -21478,3 +21484,46 @@ merge.  `#print axioms` on the ten new declarations (`sum_single_apply`, `coreTo
 `ref_spectral_gap_closure`) gives only `propext`, `Classical.choice`, `Quot.sound`.  The `ℓ²` density
 statement is analytic and does not reduce to the algebraic one: it uses `lp.hasSum_single`, i.e. the
 completeness of `ℓ²`, which the coefficient model does not have.
+
+---
+
+## State of the project — 2026-11-11j: the fundamental representation, and `C_F = 3/4`
+
+Every earlier entry recorded the same boundary: `C_A = 2` is computed in this chapter, `C_F = 3/4` is
+not, because a fundamental Casimir needs a fundamental representation the model did not carry.  That
+boundary is now removed, and nothing else is claimed in its place.  The section is §3b.2c of
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit`, immediately after the `C_A` computation.
+
+**1. The representation.**  `pauli : Fin 3 → Matrix (Fin 2) (Fin 2) ℂ` is `(σ₁, σ₂, σ₃)` and
+`fundRep a = (1/2) • pauli a` is `T^a = σ^a/2` on `ℂ²`.  `pauli_sq` is `σ^a σ^a = 1`, the only
+computation in the Pauli algebra needed (`i_mul_mul_i`, `mul_I_mul_I` normalise the two shapes `i x i`
+and `x i · y i` that `simp` cannot reach on its own, both from `i² = −1`).
+
+**2. It is a representation.**  `fundRep_commutator`: `[T^a, T^b] = i ε^{abc} T^c`.  More to the point
+`fundRep_commutator_su2Struct`: the same statement written with
+`su2Struct (su2Slot a) (su2Slot b) (su2Slot c)`, the tensor §3b.2b instantiated for the adjoint.  The
+two representations are therefore representations of *one* algebra with *one* set of structure
+constants — which is what makes comparing their Casimirs meaningful at all.
+
+**3. The Casimir.**  `fundRep_sq`: `(T^a)² = ¼ · 1`.  Summing the three (`su2_casimir_fundamental`):
+`Σ_a T^a T^a = (3/4) · 1`.  The left side is a *scalar* matrix — the defining property of a Casimir —
+and the scalar is `C_F = 3/4`.  Alongside it, `fundRep_trace_mul`: `tr(T^a T^b) = δ^{ab}/2`, i.e.
+`T_F = 1/2`.
+
+**4. The relation to `C_A`.**  `C_A = 2` (`su2_casimir_adjoint_value`) and `C_F = 3/4` are now two
+proved numbers computed from the same `ε`, one per representation, with `C_A/C_F = 8/3`.  At `N = 2`
+these are `C_A = N` and `C_F = (N²−1)/(2N)`; neither is imported as convention, and the earlier
+entries' "explicitly out of scope" line is superseded by this one rather than deleted.
+
+**5. What is *not* claimed.**  `ℂ²` is not a mode factor of the Fock model in this chapter: no
+statement here says the Fock space decomposes into fundamental multiplets, none says the quartic
+colour energy of §3b.2b is multiplied by `C_F`, and no perturbative amplitude is computed.  What is
+established is the representation, its commutators, its Casimir and its trace normalisation — the
+four objects that were missing.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors and no new warnings (long-line, `show`, max-heartbeats linters clean).  `#print axioms` on all
+eight new declarations (`pauli_sq`, `i_mul_mul_i`, `mul_I_mul_I`, `fundRep_sq`,
+`su2_casimir_fundamental`, `fundRep_commutator`, `fundRep_commutator_su2Struct`, `fundRep_trace_mul`)
+gives only `propext`, `Classical.choice`, `Quot.sound`; every matrix identity is decided coordinate by
+coordinate with `fin_cases`, so no `native_decide` term is produced.

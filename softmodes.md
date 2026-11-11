@@ -730,9 +730,13 @@ them — `su(2) × U(1)⁵` in place of the free `fabc`.  It satisfies both hypo
 quantities become explicit: `K_{abcd} = δ_ac δ_bd − δ_ad δ_bc` (`colourTensor_su2`), the adjoint
 Casimir `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}`, i.e. `C_A = 2` (`su2_casimir_adjoint`,
 `su2_casimir_adjoint_value`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6` (`su2_colourWeight_sum`).
-The fundamental Casimir `C_F = 3/4` is **not** derived: the model carries only the adjoint structure
-constants, and `C_F` needs a fundamental representation (`T^a = σ^a/2`) that the chapter does not
-define.
+The fundamental Casimir is derived too, now that the chapter carries the representation it needs:
+§3b.2c defines `pauli` (`σ^a`) and `fundRep` (`T^a = σ^a/2` on `ℂ²`), shows it closes on the same
+tensor (`fundRep_commutator_su2Struct`, against `su2Struct`), and computes
+`Σ_a T^a T^a = (3/4)·1` (`su2_casimir_fundamental`) plus `tr(T^a T^b) = δ^{ab}/2`
+(`fundRep_trace_mul`).  So `C_A = 2` and `C_F = 3/4` are both computed from the instantiating `ε`,
+each in its own representation; **B:** the Fock model still does not carry `ℂ²` as a mode factor, so
+nothing here says the quartic colour energy is improved by `C_F`.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.

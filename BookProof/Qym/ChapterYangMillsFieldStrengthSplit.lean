@@ -430,10 +430,9 @@ antisymmetry doubles the `ε`-contraction of the quartic colour energy, and the 
 same `2` — the quartic energy of the non-abelian term is `2` times the direct square, with the `2`
 traceable to `ε_{abc}ε_{abd} = 2δ_{cd}` once the sum runs over the block.
 
-**Boundary.**  The *fundamental* Casimir `C_F = 3/4` is **not** available here: the model carries
-only the adjoint structure constants `f_{abc}`, and `C_F` needs a fundamental representation
-(`T^a = σ^a/2`) that this chapter does not define.  What is proved is the adjoint colour factor;
-`C_F` would be a separate instantiation.
+**Boundary (superseded by §3b.2c).**  This section computes the *adjoint* colour factor from the
+structure constants alone.  The *fundamental* Casimir `C_F = 3/4` needs a fundamental representation
+(`T^a = σ^a/2`), which §3b.2c supplies; the two numbers are proved from the same `ε_{abc}`.
 -/
 
 /-- The **`su(2)` colour slots**: the first three of the eight colour indices, where the non-abelian
@@ -641,6 +640,105 @@ theorem su2_colourWeight_sum :
         su2Struct a b (su2Slot c) * su2Struct a b (su2Slot c) = 6 := by
   simp only [su2_casimir_adjoint]
   norm_num
+
+/-! ### 3b.2c The fundamental representation, and `C_F = 3/4`
+
+§3b.2b computed the *adjoint* colour factor `C_A = 2` and left the fundamental one open, because a
+fundamental Casimir needs a fundamental representation.  Here it is: `T^a = σ^a / 2` on `ℂ²`
+(`fundRep`, built from the Pauli matrices `pauli`), with the same structure constants that §3b.2b
+instantiated.
+
+* **it is a representation**: `fundRep_commutator` is `[T^a, T^b] = i ε^{abc} T^c`, and
+  `fundRep_commutator_su2Struct` restates it against the chapter's own tensor
+  `su2Struct (su2Slot a) (su2Slot b) (su2Slot c)`, so the fundamental and the adjoint are
+  representations of *one* algebra;
+* **the Casimir**: `pauli_sq` is `σ^a σ^a = 1`, hence `fundRep_sq` (`(T^a)² = ¼ · 1`), and summing
+  gives `su2_casimir_fundamental`: `Σ_a T^a T^a = (3/4) · 1`.  That scalar is `C_F = 3/4`;
+* **the trace normalisation**: `fundRep_trace_mul` is `tr(T^a T^b) = δ^{ab}/2`, i.e. `T_F = 1/2` for
+  these generators.
+
+So the two colour factors are *computed*, from the same `ε`, and they differ as they should:
+`C_A = 2` for the adjoint (`su2_casimir_adjoint_value`), `C_F = 3/4` for the fundamental.  At
+`N = 2` this is the familiar `C_A = N = 2` and `C_F = (N² − 1)/(2N) = 3/4`, and the ratio
+`C_A/C_F = 8/3` that a `C_A`-versus-`C_F` comparison needs is now two proved numbers rather than a
+convention.
+
+**Boundary.**  These matrices act on the representation space `ℂ²`, which the chapter's Fock model
+does not carry as a mode factor.  Nothing here asserts that the Fock space decomposes into
+fundamental multiplets, or that the quartic colour energy of §3b.2b is improved by `C_F`; what is
+established is the representation, its commutators, its Casimir and its trace normalisation.
+-/
+
+/-- The Pauli matrices `σ₁, σ₂, σ₃` as a `Fin 3`-indexed family of `2 × 2` complex matrices. -/
+def pauli (a : Fin 3) : Matrix (Fin 2) (Fin 2) ℂ :=
+  ![!![0, 1; 1, 0], !![0, -Complex.I; Complex.I, 0], !![1, 0; 0, -1]] a
+
+/-- **The Pauli matrices square to `1`**: `σ^a σ^a = 1` for each `a`. -/
+theorem pauli_sq (a : Fin 3) : pauli a * pauli a = 1 := by
+  fin_cases a <;>
+    ext i j <;> fin_cases i <;> fin_cases j <;>
+      simp [pauli, Matrix.mul_apply, Fin.sum_univ_two, Complex.I_mul_I]
+
+/-- A shape `simp` needs for the Pauli algebra: `i (x i) = −x`. -/
+theorem i_mul_mul_i (x : ℂ) : Complex.I * (x * Complex.I) = -x := by
+  calc Complex.I * (x * Complex.I) = (Complex.I * Complex.I) * x := by ring
+    _ = -x := by rw [Complex.I_mul_I]; ring
+
+/-- The same shape with a scalar in front of each factor: `(x i)(y i) = −xy`. -/
+theorem mul_I_mul_I (x y : ℂ) : (x * Complex.I) * (y * Complex.I) = -(x * y) := by
+  calc (x * Complex.I) * (y * Complex.I) = (x * y) * (Complex.I * Complex.I) := by ring
+    _ = -(x * y) := by rw [Complex.I_mul_I]; ring
+
+/-- The **fundamental representation** of `su(2)`: `T^a = σ^a / 2`, acting on `ℂ²`. -/
+def fundRep (a : Fin 3) : Matrix (Fin 2) (Fin 2) ℂ := (1 / 2 : ℂ) • pauli a
+
+/-- **Each generator squares to `¼`**: `(T^a)² = 1/4 · 1`, the Pauli square halved twice. -/
+theorem fundRep_sq (a : Fin 3) :
+    fundRep a * fundRep a = (1 / 4 : ℂ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
+  rw [fundRep, Matrix.smul_mul, Matrix.mul_smul, pauli_sq, smul_smul]
+  norm_num
+
+/-- **The fundamental Casimir is `C_F = 3/4`**: `Σ_a T^a T^a = (3/4) · 1`.  The sum of the three
+squared generators is a *scalar* matrix, which is exactly what makes it a Casimir, and the scalar is
+`3 · ¼`. -/
+theorem su2_casimir_fundamental :
+    ∑ a : Fin 3, fundRep a * fundRep a = (3 / 4 : ℂ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
+  rw [Fin.sum_univ_three, fundRep_sq, fundRep_sq, fundRep_sq, ← add_smul, ← add_smul]
+  norm_num
+
+/-- **The fundamental representation is a representation**: `[T^a, T^b] = i ε^{abc} T^c`, i.e. the
+`su(2)` commutation relations with the same `ε` that `su2Struct` instantiates — in signs and
+normalisation the ones the adjoint carries. -/
+theorem fundRep_commutator (a b : Fin 3) :
+    fundRep a * fundRep b - fundRep b * fundRep a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • fundRep c) := by
+  fin_cases a <;> fin_cases b <;>
+    rw [Fin.sum_univ_three] <;>
+    ext i j <;> fin_cases i <;> fin_cases j <;>
+      simp [fundRep, pauli, levi, Matrix.smul_apply, i_mul_mul_i, mul_I_mul_I] <;>
+      ring
+
+/-- **The same commutators against the chapter's structure constants**: with
+`su2Struct (su2Slot a) (su2Slot b) (su2Slot c)`, the fundamental generators close on themselves with
+*the tensor §3b.2b uses for the adjoint*.  This is what makes `C_A = 2` and `C_F = 3/4` two Casimirs
+of one algebra rather than two unrelated constants. -/
+theorem fundRep_commutator_su2Struct (a b : Fin 3) :
+    fundRep a * fundRep b - fundRep b * fundRep a
+      = Complex.I • (∑ c : Fin 3,
+          (su2Struct (su2Slot a) (su2Slot b) (su2Slot c) : ℂ) • fundRep c) := by
+  rw [fundRep_commutator]
+  congr 1
+  refine Finset.sum_congr rfl fun c _ => ?_
+  rw [su2Struct_slot]
+
+/-- **The trace normalisation `T_F = 1/2`**: `tr(T^a T^b) = δ^{ab}/2`.  Together with
+`su2_casimir_fundamental` this fixes both standard convention-dependent numbers of the fundamental
+representation, from the matrices themselves. -/
+theorem fundRep_trace_mul (a b : Fin 3) :
+    (fundRep a * fundRep b).trace = if a = b then (1 / 2 : ℂ) else 0 := by
+  fin_cases a <;> fin_cases b <;>
+    simp [fundRep, pauli, Matrix.trace, mul_I_mul_I] <;>
+    norm_num
 
 /-! ### 3b.1 What the field-strength operator does to a mode
 
@@ -1295,9 +1393,12 @@ above.  This section states that identification and proves what it yields.
   the two hypotheses of §3b.2, so no side condition is left open for it;
 * **`colourTensor_su2`**, **`su2_casimir_adjoint`**, **`su2_casimir_adjoint_value`**,
   **`su2_colourWeight_sum`** — the colour factor, computed: `K_{abcd} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}`,
-  `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`C_A = 2`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6`.  The
-  fundamental `C_F = 3/4` is *not* here: it needs a fundamental representation, which the model does
-  not carry;
+  `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`C_A = 2`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6`;
+* **`pauli`**, **`fundRep`**, **`fundRep_commutator`**, **`su2_casimir_fundamental`**,
+  **`fundRep_trace_mul`** — the **fundamental representation** `T^a = σ^a/2` on `ℂ²`: it closes with
+  the same `ε` (`fundRep_commutator_su2Struct` against `su2Struct`), its Casimir is `C_F = 3/4`
+  (`Σ_a T^a T^a = (3/4)·1`), and `tr(T^a T^b) = δ^{ab}/2`.  So `C_A = 2` and `C_F = 3/4` are both
+  computed from the instantiating `ε`, each in its own representation;
 * **`pderiv_X_mul`**, **`normalOrder_contraction`**, **`coeff_zero_magPoly`**,
   **`magPoly_mul_monomial_ne`** — the normal-ordered side: `[∂ᵢ, Xᵢ] = 1` is the contraction
   constant, and `magPoly`'s multiplication is off-diagonal at every monomial, so the `:N²:` form is
