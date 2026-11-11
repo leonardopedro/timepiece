@@ -633,6 +633,140 @@ theorem conj_gaussDirichlet_slice {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : F
                 (-e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x) := by ring
           _ = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by rw [hEE]; ring
 
+/-! ## The bundled second-order conjugation in `n` coordinates
+
+`conj_gaussDirichlet_slice` is the identity along one coordinate line.  Summing it over the `n`
+coordinates gives the operator the QYM mode space actually uses: the `n`-coordinate weighted
+Dirichlet operator `−Δ + x·∇`, conjugated by `U`, is the oscillator with the coordinate-count
+factor `−n/2`.  That factor is the only place the number of coordinates enters, and it is why the
+`n = 99` statement is not the one-coordinate statement: it is the sum of `99` copies of it. -/
+
+/-- **The `n`-coordinate weighted Dirichlet operator, coordinate by coordinate**, applied to the
+conjugated function `γ^{-1/2} F`: the sum over `j` of the one-coordinate `gaussDirichlet` along the
+`j`-th line.  This is the operator whose conjugation the next theorem evaluates. -/
+noncomputable def qymDirichletN {n : ℕ} (F : (Fin n → ℝ) → ℝ) (x : Fin n → ℝ) : ℝ :=
+  ∑ j, gaussDirichlet (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+
+/-- The drift term: `∑_j (x_j²/4 − 1/2)` is `‖x‖²/4 − n/2`, the `n/2` being the `n` copies of the
+`−1/2` of the one-coordinate identity. -/
+theorem sum_oscillator_drift {n : ℕ} (x : Fin n → ℝ) (c : ℝ) :
+    (∑ j, (x j ^ 2 / 4 - 1 / 2) * c) = ((∑ j, x j ^ 2) / 4 - n / 2) * c := by
+  rw [← Finset.sum_mul, Finset.sum_sub_distrib, ← Finset.sum_div, Finset.sum_const,
+    Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  ring
+
+/-- **The second-order conjugation, bundled over the `n` coordinates.**  Conjugating the
+`n`-coordinate weighted Dirichlet operator `−Δ + x·∇` by `U f = γ^{1/2} f` gives the
+`n`-coordinate oscillator `−Δ + ‖x‖²/4 − n/2`:
+
+  `U(−Δ + x·∇)U⁻¹ F(x) = −(∑_j e_j(x_j)) + (‖x‖²/4 − n/2) F(x)`,
+
+where `e_j` is the second slice derivative of `F` along coordinate `j`.  The hypothesis is exactly
+what the coordinate identity needs in each direction; on the core (`F` a polynomial) it holds.  At
+`n = 99` this is the second-order half of the mode-space transfer, the first-order half being
+`conj_pderiv`. -/
+theorem conj_gaussDirichlet_bundled {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : Fin n → ℝ)
+    {d e : Fin n → ℝ → ℝ}
+    (hd : ∀ (j : Fin n) (t : ℝ), HasDerivAt (fun s => F (Function.update x j s)) (d j t) t)
+    (he : ∀ (j : Fin n) (t : ℝ), HasDerivAt (d j) (e j t) t) :
+    gaussRootN x * qymDirichletN F x
+      = -(∑ j, e j (x j)) + ((∑ j, x j ^ 2) / 4 - n / 2) * F x := by
+  have hterm : ∀ j : Fin n, gaussRootN x *
+      gaussDirichlet (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+      = -e j (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := fun j =>
+    conj_gaussDirichlet_slice x j (hd j) (he j)
+  rw [qymDirichletN, Finset.mul_sum]
+  refine (Finset.sum_congr rfl fun j _ => hterm j).trans ?_
+  rw [Finset.sum_add_distrib, Finset.sum_neg_distrib, sum_oscillator_drift]
+
+/-- **The core's second-order conjugation, in the shape the mode space uses**: for a function whose
+slice derivatives are the given `d` and `e`, the conjugated operator is the oscillator with the
+`99`-coordinate factor.  This is the same statement at `n = 99`, written with `‖x‖²` expanded. -/
+theorem conj_gaussDirichlet_bundled_99 {F : (Fin 99 → ℝ) → ℝ} (x : Fin 99 → ℝ)
+    {d e : Fin 99 → ℝ → ℝ}
+    (hd : ∀ (j : Fin 99) (t : ℝ), HasDerivAt (fun s => F (Function.update x j s)) (d j t) t)
+    (he : ∀ (j : Fin 99) (t : ℝ), HasDerivAt (d j) (e j t) t) :
+    gaussRootN x * qymDirichletN F x
+      = -(∑ j, e j (x j)) + ((∑ j, x j ^ 2) / 4 - 99 / 2) * F x :=
+  conj_gaussDirichlet_bundled x hd he
+
+/-! ## The graph norm, and what it does and does not dominate
+
+The QYM one-particle gap reduces (via the SM's §22/§32/§38 chain) to one input: a **graph-norm
+domination of the quartic weight**, `‖W u‖ ≤ c (‖H u‖ + ‖u‖)` for `H = −Δ + W + 1`.  This section
+settles the half of it that follows from the form alone, and names the half that does not.
+
+The form-side half is sharp and needs no elliptic theory: the quadratic form is bounded by the
+product of the state norm with the graph norm, so any part of the form that is a non-negative
+summand — the quartic magnetic energy of `ymHamiltonian`, the `W` of the Gårding normalization — is
+dominated by `‖u‖ · (‖u‖ + ‖H u‖)`.  What is **not** obtained is the norm-level statement: a weight
+with a large kernel and a large value on a thin set keeps every form small while making `‖W u‖`
+large, so `‖W u‖ ≤ c (‖Hu‖ + ‖u‖)` needs the form-domain (elliptic-regularity) theory this corpus
+does not have, exactly as `ChapterSmFormDomainComparison` records.
+-/
+
+section GraphNorm
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F] {D : Submodule ℂ F}
+
+/-- **The graph norm of `H`** on its domain: `‖u‖ + ‖H u‖`.  The sum form (not the square root of
+the sum of squares) is the one the corpus's relative-bound statements use. -/
+noncomputable def graphNorm (H : D →ₗ[ℂ] F) (x : D) : ℝ := ‖(x : F)‖ + ‖H x‖
+
+/-- **The form is bounded by the state norm times the graph norm.**  `quadForm H x = re⟪x, Hx⟫`, so
+Cauchy–Schwarz gives `≤ ‖x‖‖Hx‖`, and `‖Hx‖ ≤ graphNorm H x`.  This is the only bound on the form
+that holds without a domain hypothesis on `H`. -/
+theorem quadForm_le_norm_mul_graphNorm (H : D →ₗ[ℂ] F) (x : D) :
+    BookProof.FarisLavine.quadForm H x ≤ ‖(x : F)‖ * graphNorm H x := by
+  have hinner : (inner ℂ (x : F) (H x) : ℂ).re ≤ ‖(x : F)‖ * ‖H x‖ :=
+    le_trans (Complex.re_le_norm _) (norm_inner_le_norm (x : F) (H x))
+  have hnorm : (0 : ℝ) ≤ ‖(x : F)‖ := norm_nonneg _
+  have hle : ‖H x‖ ≤ graphNorm H x := by
+    simp only [graphNorm]
+    linarith [norm_nonneg (x : F)]
+  calc BookProof.FarisLavine.quadForm H x
+      = (inner ℂ (x : F) (H x) : ℂ).re := rfl
+    _ ≤ ‖(x : F)‖ * ‖H x‖ := hinner
+    _ ≤ ‖(x : F)‖ * graphNorm H x := mul_le_mul_of_nonneg_left hle hnorm
+
+/-- **The graph norm dominates every non-negative summand of the form.**  If
+`quadForm H x = a x + b x` and `a` is pointwise non-negative, then
+`b x ≤ ‖x‖ · (‖x‖ + ‖H x‖)`.  At `a = 0` this is the form bound; at `a` the kinetic square it is the
+potential half — the quartic magnetic energy in QYM, the `W` of `−Δ + W + 1` in the SM. -/
+theorem potentialPart_le_graphNorm (H : D →ₗ[ℂ] F) (a b : D → ℝ)
+    (hsplit : ∀ x, BookProof.FarisLavine.quadForm H x = a x + b x) (ha : ∀ x, 0 ≤ a x)
+    (x : D) :
+    b x ≤ ‖(x : F)‖ * graphNorm H x := by
+  have h1 : b x ≤ a x + b x := by linarith [ha x]
+  have h2 : a x + b x ≤ ‖(x : F)‖ * graphNorm H x := by
+    rw [← hsplit x]
+    exact quadForm_le_norm_mul_graphNorm H x
+  linarith
+
+/-- **The graph norm dominates the potential energy of the Gårding normalization** `−Δ + W + 1`:
+when the form splits as `w + ‖·‖²`, the potential part `w` is dominated by `‖x‖ · graphNorm`.  That
+is the stated half of the domination; the norm-level `‖W u‖ ≤ c · graphNorm` is the open input. -/
+theorem potentialEnergy_le_graphNorm (H : D →ₗ[ℂ] F) (w : D → ℝ)
+    (hsplit : ∀ x, BookProof.FarisLavine.quadForm H x = w x + ‖(x : F)‖ ^ 2) (x : D) :
+    w x ≤ ‖(x : F)‖ * graphNorm H x := by
+  have h1 : w x ≤ BookProof.FarisLavine.quadForm H x := by
+    rw [hsplit x]
+    linarith [sq_nonneg (‖(x : F)‖ : ℝ)]
+  exact le_trans h1 (quadForm_le_norm_mul_graphNorm H x)
+
+end GraphNorm
+
+/-- **The QYM instance:** every part of the gauge-fixed one-particle form is bounded by the product
+of the state norm with the graph norm of `ymHamiltonian` itself.  No gap, no elliptic estimate and
+no domain hypothesis beyond the core is used — which is also why this cannot be turned into the
+norm-level domination the mass-gap chain needs. -/
+theorem ym_quadForm_le_norm_mul_graphNorm (e : ℕ ≃ (Fin 99 →₀ ℕ))
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : finiteModeDomain (coreBasis e)) :
+    BookProof.FarisLavine.quadForm (ymHamiltonian (coreRepBasis e) fabc) x
+      ≤ ‖(x : L2d 99)‖ *
+        graphNorm (ymHamiltonian (coreRepBasis e) fabc) x :=
+  quadForm_le_norm_mul_graphNorm _ x
+
 end
 
 end BookProof.YangMillsMehlerBridge

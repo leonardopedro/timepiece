@@ -34,14 +34,22 @@ __pycache__/
 # scratch backups
 Book.lean.bak
 
+# Verbatim prove2.me download inputs (2 GB) consumed by
+# scripts/prove2me_convert.py and scripts/prove2me_deps_convert.py. The
+# converted Lean modules are the tracked artifacts (`converted/`); the inputs
+# are not regeneration outputs, so they are ignored by ownership, not by build.
+/Downloads/
+
+# local scratch (experiment files and saved prompt dumps at the repo root)
+/Scratch*.lean
+/prompts.save
+
 # openai/math snapshot — verbatim Apache-2.0 conversion input (12,472 files,
 # copied 2026-10-20; owner decision: untracked. Provenance is rowed in
 # ATTRIBUTION.md, the attribution gate scans it on disk, and the conversion
 # lane lives in CONSOLIDATED_PLAN.md's 2026-10-20 wave)
 /math/
 /.freebuff/
-/.github/
-/math/
 /math28/
 
 # Generated documentation index (scripts/doc_index.py). Regenerate with

@@ -13,6 +13,110 @@ This supersedes “SM refinements” as the work order and any interpretation of
 matter interaction. Keep their actual theorems and prior successful-build records.
 The existing bosonic ESA proof is an input to reuse, not an open proof to repeat.
 
+## External-source audit within the nested formalism (2026-11-11)
+
+This section replaces the earlier external-source commentary. E1/E2 and P0–P8 below
+remain statements about the manuscript's nested-Fock/Mehler Hamiltonian and its
+Hashimoto/SIRK approximations. **E2 here denotes the intended infinite-mode SM endpoint**;
+it is unrelated to the Euclidean construction packet E2 in `cftproof.md`.
+Neither SM endpoint requires Wightman axioms, OS positivity or a 4D Euclidean measure.
+Any comparison between these formalisms is additional work in
+[cftproof.md](cftproof.md), B0–B3, and does not gate SM ESA completion.
+
+### Source contributions and boundaries
+
+The inspected [October submission](../OpenAI-YM-20261028/README.md),
+[results/review](../YM/README.md) and
+[Balaban manuscripts](../Yang--Mills-LLM-experiment/README.md) are documented with snapshot
+revisions in cftproof's source audit. The first concerns pure gauge theory under a simple
+Lie-algebra hypothesis; the last supplies tentative manuscript arguments. Neither
+constructs this plan's full SM inner operator or proves its analytic estimates.
+
+Correct two earlier source interpretations. `GaugeGroup` itself describes closed compact
+matrix subgroups; **`IsSimple` in the theorem hypothesis**, not the base type, excludes
+`SU(3) × SU(2) × U(1)` from that theorem. Likewise, complex-linear field labels and an
+antilinear adjoint can describe fermionic fields. The external **ordinary locality axiom**
+and pure-gauge content, rather than linearity, are what fail to supply graded locality/CAR
+for SM matter. A real scalar coefficient does not make a matrix-valued operator Hermitian;
+retain the P1 coefficient-adjoint and domain proofs.
+
+The useful transferable ideas are structural:
+
+* **Shared witnesses:** the review's `CombinedAcceptance` fixes one family, table and
+  final theory across its clauses. P8 should bind one physical dictionary, inner operator,
+  comparison, closure, parity/physical reduction and outer lift across all SM clauses.
+* **Normalization identities:** the review separately checks common scale, action-law
+  conversion and insertion normalization. Here check generator conventions, couplings,
+  Higgs placement, CAR basis, constant term and normal-order contractions against the
+  manuscript and implementation. Test the identities actually used by `h_SM`; no
+  external free-Maxwell or Bianchi comparison substitutes for this representation proof.
+* **Dependency isolation:** the Balaban diagram separates geometry, inverse estimates,
+  integration and conditional laws; several analytic inputs remain not closed. Apply
+  that organization to our operator/core identification, scalar graph estimate, matrix
+  transfer and outer lift. A conditional transfer theorem does not discharge its estimate.
+* **Verification scope:** retain axiom audits and add endpoint-type/definition provenance
+  and a dated evidence manifest when proof packets land. Distinguish a successful target
+  build from a dependency cache, source reading and an independent checker run.
+
+### P4 resumption: prove the needed graph estimate, with a free finite constant
+
+The current stopping point is §§22, 32, 38–43. Keep the QYM-first priority in
+[CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md); do not repeat the completed P1/P2
+coefficient assembly. Resume when a candidate analytic method addresses the actual
+`smPotPoly P c₀` and the partial kinetic set `smS`.
+
+Write `K = −Δ_S`, `W = smPotPoly P c₀`, `N = K + W`, and `u = pgFun p`.
+The sufficient scalar packet is a finite `c ≥ 0` such that, for all polynomial-core `u`,
+
+```text
+‖K u‖ ≤ c ‖(N + I)u‖.
+```
+
+Equivalently, existence of a finite `β ≥ 0` with
+`‖(W + I)u‖ ≤ β ‖(N + I)u‖` supplies `PotSelfBound` and the existing transfer engine.
+Neither a sharp constant `β = 1` nor a mass gap is required for this norm-bound packet.
+Check the remaining Faris–Lavine commutator bound separately at its **quadratic-form**
+level; a bound by the square of a graph norm does not replace it.
+
+**Correct domain reading (§32).** `FormDomainComparison` names an operator graph estimate
+on a core. After the appropriate core/closure proof it controls `K` on `D(N)`. It does
+not put the quadratic-form domain `D(N^{1/2})` in `H²`. For the partial kinetic set the
+natural form domain has derivatives only in `S`, with `W^{1/2}u ∈ L²`; it is not full
+`H¹(R¹⁶³)`. Form coercivity gives `‖u‖ ≤ ‖(N+I)u‖` on the operator core; it does not
+prove the reverse domain inclusion `D(N^{1/2}) ⊆ D(N)` asserted in older prose.
+Use the displayed Lean predicates as the target until the extension theorem is proved.
+
+**A candidate sufficient estimate, not a theorem already obtained.** Reuse §38's identity
+on the same core:
+
+```text
+‖(N+I)u‖² = ‖Ku‖² + ‖(W+1)u‖²
+             + 2 ∫ (W+1)|∇_S u|² − ∫ (Δ_S W)|u|².
+```
+
+A new proof of `∫ (Δ_S W)|u|² ≤ a‖Ku‖² + b‖(W+1)u‖² + C‖u‖²`,
+with `0 ≤ a,b < 1` and `C ≥ 0`, would yield both graph controls, using positivity and
+coercivity. This permits slack and a larger finite constant. Verify it uniformly in the
+120 derivative-free jet parameters; no ellipticity in those variables may be assumed.
+Pointwise quartic growth in all 163 coordinates is not available along every flat channel.
+If the candidate fails, record the channel and failed uniformity estimate. The radial
+proxy of §43 tests neither all channels nor this general finite-constant assertion.
+
+### Packet acceptance after that input
+
+P4 must instantiate the existing family bounds with the proved constants, complete the
+form-level commutator estimate and audit the resulting ESA theorem's binders. P5 then
+constructs the physical reducing sector and the required graded outer lift; P6 binds its
+Hashimoto/SIRK resolvents to that same self-adjoint realization. P7 still needs its own
+cutoff-uniform estimates for the intended infinite-mode operator. P8 records all of these
+against one fixed operator, including numerical tails and remaining conditional clauses.
+
+Ordinary polynomial degree of `smMagG/W/B` and engineering weight of a covariant local
+field are different invariants. The QYM quartic degree theorem suggests an analogous
+**polynomial** lemma for the SM comparison. Gauge-invariant label quotients, a stress
+trace, OPE exponents and Ward identities would require the additional cftproof dictionary;
+none is a P5 ESA prerequisite, and no pure-gauge short-distance coefficient is borrowed.
+
 ## 1. Fix the mathematical endpoint before proving it
 
 The reference is [book.tex](book.tex), especially “Majorana spinors in the Standard
@@ -81,9 +185,22 @@ The inner space initially has the form
 for *all* manuscript matter components. Its outer Fock space counts copies of
 these inner states. `QuantumState::vacuum()` in Rust is the empty **outer** space;
 creating an empty inner bosonic or fermionic universe is not that vacuum.
+The physical prior has one outer particle at each informed point of 3D space, hence
+can have many outer particles when field information concerns several spatial points.
+This is a local occupation statement, not a global one-universe or `N_out = 1` constraint.
+“Outer-free” retains every inner gauge, Higgs and matter interaction in `h_SM`.
 The current Rust state model has separate bosonic and fermionic outer-universe
 collections; identify a **joint** inner boson–fermion state before claiming it
 implements this tensor-product one-particle object.
+
+Reference: [book.tex](book.tex), “Free field parametrization in Statistical Field Theory”,
+the recursive lift and the proposition at distinct spatial points, including its
+number-density normalization. P0 must identify the spatial prior supports, their local
+inner states and joint correlations, and their embedding in the existing SM coordinates.
+P6/N4 must test Hashimoto/SIRK evolution and joint observables for populated multi-point
+priors. Empty-outer-vacuum annihilation remains a structural check, not the physical
+reference state or a reason to add number-changing observables. No stationary/ground
+state assumption follows just from specifying prior information.
 
 Recount independent matter variables after the manuscript's reality/chirality
 constraints and choice of complex structure. The book explicitly lists 72, 36,
@@ -1593,9 +1710,11 @@ able to cite it:
 FormDomainComparison P c₀ c  :=  ∀ p, ‖−Δ_S p‖ ≤ c ‖(−Δ_S + W + 1) p‖,
 ```
 
-i.e. the graph norm of the comparison dominates the `H²` norm: the domain of the closed form of
-`−Δ_S + W + 1` sits inside the `H²` domain, with bounded inclusion.  That inclusion is what elliptic
-regularity supplies for a polynomial potential, and it is precisely what the corpus does not have.
+i.e. the comparison's graph norm controls its partial kinetic term on the polynomial core.
+**Domain correction (2026-11-11):** extension requires an operator-core/closure argument;
+it concerns `D(−Δ_S + W + 1)`, not inclusion of its quadratic-form domain into `H²`.
+Only derivatives in `S` occur. The source module's stronger domain prose is not a theorem
+of its displayed definition; the missing uniform graph estimate remains open.
 
 * **`FormDomainComparison`**, `formDomainComparison_iff` — the definition, in the domain reading.
 * **`formDomainComparison_of_potSelfBound`** — `PotSelfBound` with constant `β` gives the comparison
@@ -1611,9 +1730,9 @@ regularity supplies for a polynomial potential, and it is precisely what the cor
   `ℜ⟪−Δ_S p, p⟫ = ∑_j ‖∇_j p‖² ≥ 0` and the pointwise non-negativity of `W` (§23).
 * **`norm_le_shiftNorm_of_coercive`** — hence `‖p‖ ≤ ‖N p‖`, by Cauchy–Schwarz.
 
-So `H¹ ∩ L²(W) ⊆ D(N)` with a norm bound is available and is all the form gives; the named input is
-one derivative higher, and no amount of coercivity reaches it.  `FormDomainComparison` is **not**
-proved for the SM's quartic `W`.
+The norm bound is available on the operator core. It does not imply that the form domain
+lies in `D(N)`; for a positive self-adjoint realization the automatic inclusion runs
+`D(N) ⊆ D(N^{1/2})`. `FormDomainComparison` is **not** proved for the SM's quartic `W`.
 
 ## 33. The quadratic weight: the case the corpus does prove (2026-11-10n)
 
@@ -2299,6 +2418,11 @@ spread test vector is only of order `a`, so the potential dominates both norms i
   and could not have excluded any regime.
 
 ### 43.5. Consequence for the route
+
+**Scope correction (2026-11-11):** these proxy tests concern the sharp choice `β = 1`.
+P4 only needs some finite constant, and the full 49-form potential has additional
+channels and parameter dependence. The conclusions below do not rule out a graph-bound
+proof with slack; use the resumption packet in this file's external-source audit.
 
 The "test the Hessian gap at a sequence of polynomials" route is therefore **exhausted as a
 decision procedure**: the ladder is monotone but its increments are small near the Gaussian, and

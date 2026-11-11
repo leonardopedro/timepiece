@@ -2841,6 +2841,71 @@ theorem totalDegree_magWeight_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
   · rw [show (1 : MvPolynomial (Fin 99) ℂ) = C 1 from rfl, MvPolynomial.totalDegree_C]
     norm_num
 
+/-! ## 5. The weight is a nonnegative potential
+
+The comparison also needs `W` to be a *potential*: nonnegative, so that it can only raise the energy.
+It is, for a structural reason — `W = Σ B² + 1` and every `B_m` has real coefficients, so at a real
+configuration each square is a genuine real square.  This closes the "the field strength is a
+legitimate potential" chain: `B` quadratic (degree class), `W` quartic and nonnegative. -/
+
+/-- The unit polynomial has real coefficients. -/
+theorem realCoeff_one : RealCoeff (1 : MvPolynomial (Fin 99) ℂ) := by
+  rw [RealCoeff, starP]
+  exact map_one _
+
+/-- **The weight `W` has real coefficients**, being a sum of squares plus one. -/
+theorem realCoeff_magWeight (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : RealCoeff (magWeight fabc) := by
+  unfold magWeight
+  refine RealCoeff.add ?_ realCoeff_one
+  refine RealCoeff.sum fun m _ => ?_
+  rw [pow_two]
+  exact (realCoeff_magPoly fabc (decodeSpace m) (decodeColor m)).mul
+    (realCoeff_magPoly fabc (decodeSpace m) (decodeColor m))
+
+/-- A real-coefficient polynomial takes real values at real points: the imaginary part vanishes. -/
+theorem RealCoeff.eval_im_eq_zero {p : MvPolynomial (Fin 99) ℂ} (hp : RealCoeff p) (x : Vd 99) :
+    (MvPolynomial.eval (fun i => ((x i : ℝ) : ℂ)) p).im = 0 := by
+  have h := eval_starP p x
+  rw [show starP p = p from hp] at h
+  exact Complex.conj_eq_iff_im.mp h.symm
+
+/-- The value of the weight at a real configuration, as a real number. -/
+noncomputable def magWeightEval (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : Vd 99) : ℝ :=
+  ((magWeight fabc).eval (fun i => ((x i : ℝ) : ℂ))).re
+
+/-- A complex number with vanishing imaginary part has a real square: `z² = ↑(z.re)²`. -/
+theorem eq_ofReal_sq_re {z : ℂ} (h : z.im = 0) : z ^ 2 = ((z.re ^ 2 : ℝ) : ℂ) := by
+  have hz : z = (z.re : ℂ) := Complex.ext (by simp) (by simpa using h)
+  rw [hz, ← Complex.ofReal_pow]
+  simp
+
+/-- **`W` at a real configuration is a sum of squares plus one.** -/
+theorem magWeightEval_eq (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : Vd 99) :
+    magWeightEval fabc x
+      = (∑ m : Fin 24, ((magPoly fabc (decodeSpace m) (decodeColor m)).eval
+          (fun i => ((x i : ℝ) : ℂ))).re ^ 2) + 1 := by
+  have hsum : (magWeight fabc).eval (fun i => ((x i : ℝ) : ℂ))
+      = ((∑ m : Fin 24, ((magPoly fabc (decodeSpace m) (decodeColor m)).eval
+          (fun i => ((x i : ℝ) : ℂ))).re ^ 2 : ℝ) : ℂ) + 1 := by
+    simp only [magWeight, map_add, map_sum, map_one, map_pow]
+    congr 1
+    rw [Complex.ofReal_sum]
+    refine Finset.sum_congr rfl fun m _ => ?_
+    exact eq_ofReal_sq_re (RealCoeff.eval_im_eq_zero
+      (realCoeff_magPoly fabc (decodeSpace m) (decodeColor m)) x)
+  rw [magWeightEval, hsum]
+  simp only [Complex.add_re, Complex.one_re, Complex.ofReal_re]
+
+/-- **`W ≥ 0`**: the quartic weight is a nonnegative potential.  Together with
+`totalDegree_magWeight_le` this is the pair of facts the comparison calculation asks of the field
+strength: the shape (quartic) and the sign. -/
+theorem magWeightEval_nonneg (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : Vd 99) :
+    0 ≤ magWeightEval fabc x := by
+  rw [magWeightEval_eq]
+  have h : 0 ≤ ∑ m : Fin 24, ((magPoly fabc (decodeSpace m) (decodeColor m)).eval
+      (fun i => ((x i : ℝ) : ℂ))).re ^ 2 := Finset.sum_nonneg fun m _ => sq_nonneg _
+  linarith
+
 end
 
 end BookProof.YangMillsFieldStrengthSplit

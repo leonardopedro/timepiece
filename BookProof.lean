@@ -4078,6 +4078,14 @@ import BookProof.YangMillsFieldStrength
 -- operator on the Gauss–polynomial core (`smDerivG_symmetricOn`, `smCommG_symmetricOn`, …),
 -- the commutator part is `¼ ε_{ijk} g [A_j, A_k]` (`smCommG_eq_quarter_bracket`) and vanishes
 -- on the commuting sector (`smCommG_eq_zero_of_symmetric`).
+-- The S3 short-distance exclusion in finite-kernel form (`ChapterSmFreeModeExclusion`):
+-- `shortNorm r = r^8 log²(1/r)` is the normalisation of a grade-8 label, `modeKernel` the external
+-- `(1/2E) E^timeOrder num(p) exp(−rE)` at fixed momentum, and `not_eventuallyEq_wickSum` the
+-- exclusion itself — a nonzero normalised limit of `F` is not eventually equal to any finite sum of
+-- such modes.  Stated by a short-distance asymptotic, so it needs no OS Hamiltonian, and finite-list
+-- only: it is not "excludes every generalized free field".
+import BookProof.Sm.ChapterSmFreeModeExclusion
+
 import BookProof.Sm.ChapterSmFieldStrengthSplit
 
 -- The Wilson plaquette interaction does not spoil the slice split of the lattice gauge

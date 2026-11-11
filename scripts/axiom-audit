@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+# Per-declaration axiom audit gate (timepiece).
+#
+# `axiom_gate.lean` answers "is the tree clean right now" with OK/BAD log lines.
+# This gate answers the maintenance question instead: *did the axiom set of a
+# named declaration change*?  It runs `axiom_ledger.lean` (same import cone,
+# same transitive closure) to write `evidence/axiom-ledger.tsv` — one row per
+# theorem, `name <TAB> axiom,axiom,...` — then:
+#
+#   1. [FAIL] any declaration whose closure leaves {propext, Classical.choice,
+#             Quot.sound} (`sorryAx` is one of them, so a `sorry` fails here);
+#   2. [FAIL] a silent no-op: fewer than MIN_DECLS rows means the cone was not
+#             built, not that it is clean;
+#   3. [FAIL] an axiom ADDED to a declaration against the committed ledger,
+#             unless it is one of the allowed three ([warn] then);
+#   4. [note] declarations added or removed, and axioms removed.
+#
+# The committed ledger is the baseline, so a diff survives across sessions and
+# is visible in review rather than only in a CI log.  Refresh it with `--write`
+# (the default run already writes the file; `--write` only skips the diff, for
+# the commit that introduces a new baseline).
+#
+# Coverage is the import cone of `axiom_ledger.lean`, exactly as for
+# `axiom_gate.lean`: widening coverage means adding imports there.
+#
+# Usage:  bash scripts/axiom-audit [--write] [--skip-build]
+set -u
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$repo_root" || exit 1
+
+# elan's shims live in ~/.elan/bin on a managed install; a bare toolchain
+# directory (no elan) has them under toolchains/leanprover--lean4---*/bin.
+if [[ -d "$HOME/.elan/bin" ]]; then
+    PATH="$HOME/.elan/bin:$PATH"
+else
+    for d in "$HOME"/.elan/toolchains/*/bin; do
+        [[ -d "$d" ]] && PATH="$d:$PATH" && break
+    done
+fi
+export PATH
+
+MIN_DECLS=100
+LEDGER="$repo_root/evidence/axiom-ledger.tsv"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+write_only=0
+skip_build=0
+for arg in "$@"; do
+    case "$arg" in
+        --write) write_only=1 ;;
+        --skip-build) skip_build=1 ;;
+        *) echo "unknown argument: $arg" >&2; exit 2 ;;
+    esac
+done
+
+CONE=(BookProof.ChapterBRSTNilpotent BookProof.ChapterNavierStokes
+      BookProof.ChapterGaugeFixing BookProof.ChapterMassGap BookProof.ChapterGhostField
+      BookProof.FieldStrength.ChapterYangMillsFieldStrength BookProof.Sirk.ChapterSirkFinitePrecision)
+
+if [[ $skip_build -eq 0 ]]; then
+    if ! lake build "${CONE[@]}" >"$TMP/build.log" 2>&1; then
+        echo "[FAIL] lake build of the audited cone failed:" >&2
+        tail -20 "$TMP/build.log" >&2
+        exit 1
+    fi
+fi
+
+AXIOM_LEDGER_OUT="$LEDGER" lake env lean axiom_ledger.lean >"$TMP/ledger.log" 2>&1 || {
+    echo "[FAIL] axiom_ledger.lean did not run:" >&2
+    tail -20 "$TMP/ledger.log" >&2
+    exit 1
+}
+
+# The ledger's own tally is the no-op guard: a run that fails to import the cone
+# writes a near-empty file and would otherwise read as "no foreign axioms".
+if ! grep -q "^LEDGER: wrote" "$TMP/ledger.log"; then
+    echo "[FAIL] the ledger did not report its tally — the audit did not run" >&2
+    tail -20 "$TMP/ledger.log" >&2
+    exit 1
+fi
+n_decls=$(wc -l < "$LEDGER")
+if [[ "$n_decls" -lt "$MIN_DECLS" ]]; then
+    echo "[FAIL] ledger has $n_decls declarations (< $MIN_DECLS): the cone is not covered" >&2
+    exit 1
+fi
+
+FAILED=0
+foreign=$(awk -F '\t' '
+    BEGIN { split("propext Classical.choice Quot.sound", a, " "); for (i in a) ok[a[i]] = 1 }
+    { n = split($2, ax, ","); left = ""
+      for (i = 1; i <= n; i++) if (ax[i] != "" && !(ax[i] in ok)) left = left (left == "" ? "" : ",") ax[i]
+      if (left != "") printf "  %s :: %s\n", $1, left }' "$LEDGER")
+if [[ -n "$foreign" ]]; then
+    echo "[FAIL] axioms outside {propext, Classical.choice, Quot.sound}:" >&2
+    echo "$foreign" >&2
+    FAILED=1
+else
+    echo "[pass] $n_decls declarations, all closures inside the allowed three axioms"
+fi
+
+# --- 3/4. drift against the committed ledger -------------------------------
+if [[ $write_only -eq 0 ]] && git cat-file -e "HEAD:evidence/axiom-ledger.tsv" 2>/dev/null; then
+    git show "HEAD:evidence/axiom-ledger.tsv" > "$TMP/old.tsv"
+    awk -F '\t' -v ofile="$TMP/old.tsv" '
+        BEGIN {
+            split("propext Classical.choice Quot.sound", a, " "); for (i in a) ok[a[i]] = 1
+            while ((getline line < ofile) > 0) {
+                split(line, f, "\t"); m = split(f[2], ax, ",")
+                for (i = 1; i <= m; i++) if (ax[i] != "") old[f[1], ax[i]] = 1
+                seen[f[1]] = 1
+            }
+        }
+        {
+            if (!($1 in seen)) { printf "note new declaration %s\n", $1; next }
+            m = split($2, ax, ","); grew = 0
+            for (i = 1; i <= m; i++) {
+                if (ax[i] == "" || (($1, ax[i]) in old)) continue
+                grew = 1
+                if (ax[i] in ok) printf "warn added axiom %s :: %s\n", $1, ax[i]
+                else printf "fail added axiom %s :: %s\n", $1, ax[i]
+            }
+            if (grew) next
+        }' "$LEDGER" > "$TMP/drift"
+    while IFS= read -r line; do
+        case "$line" in
+            fail*) echo "[FAIL] ${line#fail }" >&2; FAILED=1 ;;
+            warn*) echo "[warn] ${line#warn }" ;;
+            note*) echo "[note] ${line#note }" ;;
+        esac
+    done < "$TMP/drift"
+    # Declarations that disappeared are a coverage regression, not a cleanup.
+    gone=$(awk -F '\t' 'NR == FNR { seen[$1] = 1; next } !($1 in seen) { print "  " $1 }' \
+        "$LEDGER" "$TMP/old.tsv")
+    if [[ -n "$gone" ]]; then
+        echo "[note] declarations dropped from the ledger (check the cone):"
+        echo "$gone"
+    fi
+    [[ $FAILED -eq 0 ]] && echo "[pass] no declaration gained an axiom outside the allowed three"
+elif [[ $write_only -eq 0 ]]; then
+    echo "[gap]  no committed ledger at HEAD; drift not compared (this run wrote the baseline)"
+fi
+
+[[ $FAILED -eq 0 ]] || exit 1
+exit 0

@@ -1,5 +1,121 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
+## External-source audit for the nested Hamiltonian (2026-11-11)
+
+This section replaces the earlier external-source commentary. The mathematical work order
+remains S0–S4 below, in the nested-Fock/Mehler/Hashimoto/SIRK formalism. Its endpoints are
+an absolute inner form bound (target 1), or separation above an identified inner ground
+space (target 2), followed by the appropriate outer lift and certified approximation.
+Neither target requires a Wightman construction or a four-dimensional Euclidean measure.
+The optional comparison with those theories belongs to [cftproof.md](cftproof.md), B0–B3.
+
+### Physical state: one outer particle per informed spatial point
+
+The empty outer vacuum represents mathematical emptiness. The physical prior has one
+outer particle at each point of 3D space about which field information is specified;
+information at several points can give a many-outer-particle state. `N_out = 1` is a
+single spatial contribution, not a global restriction on the real-world model. The
+outer-free Hamiltonian retains the interacting field content inside each inner state.
+
+Read [book.tex](book.tex), “Free field parametrization in Statistical Field Theory”:
+recursive second quantization; the number-density proposition at finitely many distinct
+spatial points; and its normalization using local tensor factors with at most one point.
+Specify joint priors and spatial localization as well as the local occupation. In a
+finite resolved implementation use stated spatial supports and embeddings into the
+existing spatial/field/jet coordinates; refinement is a separate representation task.
+
+Physical expectations are taken in that populated prior, not in empty outer space.
+`dΓ(O)` and products of number densities can have nonzero expectations there. Their
+annihilation of `Ω_out` is not an obstruction and requires no number-changing repair.
+Distinguish the energy to populate empty outer space (target 1) from an excitation gap
+inside a populated physical sector (target 2 with the relevant sector and ground space).
+Neither identifies a generic information prior with a ground or stationary state.
+
+### What the three folders contribute
+
+For snapshot revisions and the exact scope of the review, see `cftproof.md`,
+“Sources, versions and what was actually inspected”. We inspected the
+[October source](../OpenAI-YM-20261028/README.md), the
+[independent review](../YM/README.md), and the
+[Balaban drafts](../Yang--Mills-LLM-experiment/README.md), including the YM4 assembly PDF.
+These provide proof-contract examples and candidate analytic techniques. No external
+construction is identified with our inner operator, physical space or outer Hamiltonian.
+In particular, absence of a gap theorem there does not prove or refute coercivity here.
+The draft corpus warns that its claims remain tentative, including QED3/YM3.
+
+* The October `PublicTheory.lean` separates positivity from a spectral gap, and
+  `ChallengeSpec.lean` binds multiple properties to the same witness. Reuse the discipline,
+  without adding its Wightman axioms to S2's assumptions or acceptance criteria.
+* The review's `AcceptanceSpec.lean` fixes normalization and observable identities before
+  accepting conclusions. For S0–S4 the corresponding contract is the **actual nested**
+  `h`, its Mehler realization, core, physical sector and outer lift, held fixed throughout.
+* The Balaban conditional-law checklist suggests how to audit a future Gaussian
+  comparison, but its CP box is not closed. Its volume-first scalar SU(2) construction
+  and its reflection hypotheses are not hypotheses of this Hamiltonian programme.
+
+### Corrections to the earlier analogy
+
+**The two targets are not the external open-question list.** An inner Hilbert space used
+as the one-particle input to `dΓ_out` need not be a relativistic one-particle mass-shell
+subspace. Identifying such a space would require translations, dispersion and observable
+intertwiners. Our target 2 is an inner excitation separation; it is not construction of
+Wightman single-particle states. Target 1 gives an outer-vacuum gap within the nested
+model, independently of whether any Euclidean/Wightman identification can be proved.
+
+**Retain the vacuum in gap statements.** For `H = dΓ(h)` a successful target 1 yields
+`H ≥ m N_out ≥ m(I − P_Ω)`, and therefore no spectrum in `(0,m)`.
+A claim that the joint energy–momentum projection of a ball containing zero vanishes
+would incorrectly remove the vacuum. For a degenerate ground space use its full
+projection. Positive energy and non-freeness are neither replacement bounds nor evidence
+for either S2 target. A short-distance exclusion of finite Wick profiles is not a spectral
+exclusion suitable for Temple's inequality.
+
+**Coordinate degree and local-field weight are different.** The source-present
+`totalDegree_magPoly_le ≤ 2` and `totalDegree_magWeight_le ≤ 4` count ordinary polynomial
+degree in 99 independent coordinates. `idxD` is one such coordinate, of polynomial
+degree one; it is not an extra differentiation operation on a spacetime label. The
+external curvature/derivative filtration and its gauge/Bianchi quotient require a new
+dictionary in cftproof B0. No OPE exponent or stress-trace coefficient follows from our
+degree bounds. Retain the bounds as growth-class inputs to S2, not as analytic domination.
+
+### Refined S0–S4 deliverables
+
+1. **S0 contract:** record the normalized Mehler measure, unitary, actual momentum action,
+   common core and closure. Match `B = L + Q` and all constants to that same operator.
+   Existing conjugation/norm identities are reusable; Gaussian representation alone adds
+   no confinement and does not identify the physical kinetic form with Hermite degree.
+2. **S1 channel audit:** classify zero/flat directions of the complete magnetic form and
+   kinetic operator together. For each proposed confinement mechanism state which variables
+   carry derivatives, which are parameters, and whether a physical reduction is used.
+   This is the relevant lesson from separating background construction, linear inversion
+   and Gaussian integration in the Balaban diagram: a local Hessian bound does not yet
+   control the global physical operator. Prove any averaging or Schur-complement error.
+3. **S2 estimate packet:** choose target 1 or 2 before estimating. Supply the positive
+   constant, invariant sector/ground projection, dependence on coupling and dimension,
+   extension from core to closed form, and an explicit theorem for the unchanged `h`.
+   Keep graph-norm domination and absolute lower-edge coercivity separate: each needs
+   its own proof. Quartic degree, ESA and nonnegative form data alone prove neither gap.
+4. **S3 approximation packet:** bind Hashimoto/SIRK's generator and bounded resolvent
+   to that same closure. Retain rational approximation, solve defects, orthogonality,
+   rounding and full basis tails separately. Select shifts from the actual spectral or
+   numerical-range bounds; retain the paper's finite shift-budget restrictions below.
+   Keep an independently proved separation threshold for Temple; a positive lattice
+   probe or short-distance coefficient from the external construction cannot provide it.
+   Record the populated spatial prior used as initial data and its outer occupation;
+   the empty outer start alone cannot test physical field predictions. A multi-point
+   prior requires the corresponding many-particle evolution and joint observables.
+5. **S4 acceptance packet:** use one identified operator/core/sector for both the
+   analytic bound and numerical certificate. Check the outer lift and full ground space,
+   then follow §M4.9 before §M4.3. Record endpoint binders, axiom closure and source hashes.
+   Give reference-model diagnostics their own labels rather than calling them physical
+   certificates. No Euclidean reconstruction is an additional S4 completion requirement.
+
+The next task remains the QYM analytic row of
+[CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md). A useful candidate method may be adapted
+from a draft only after its hypotheses are proved for this inner operator. If the method
+also gives the SM graph estimate, pass its precise statement and constants to P4 of
+[SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md); a QYM gap alone does not supply it.
+
 ## Revised work package (2026-11-08)
 
 This revision supersedes the roadmap and completion claims of the dated phases below **as a

@@ -118,6 +118,7 @@ bare NixOS shell, so python entry points carry their `nix-shell -p python3
 | script | what it does |
 | :--- | :--- |
 | `health.sh` | one-command gate (exit 0 ⇔ healthy): doc-index freshness, `import_components --check`, GitBook drift. Calls `python3` itself — run it *through* the wrapper below. |
+| `axiom-audit` | per-declaration axiom gate: runs `axiom_ledger.lean` over its import cone, writes `evidence/axiom-ledger.tsv` (one row per theorem), fails on anything outside `propext`/`Classical.choice`/`Quot.sound` **and** on an axiom added to a declaration against the committed ledger. CI runs it in `axiom-gate.yml`. |
 | `verify-invariants` | invariant/drift gate; a missing tool is an explained `[gap]`, never a false failure. |
 | `check-links` | relative markdown links resolve (CI: `.github/workflows/linkcheck.yml`); the default scan is git-tracked `*.md`, an explicit `FILE` is always checked, and a target outside the repo root (a sibling workspace's `../unfer/…`, `../papers/…`) is out of scope. |
 | `test_check_links.py` | the scope tests for `check-links` (tracked vs untracked vs git-ignored vs explicit, in-root `..` vs out-of-root targets, and the no-git fallback); CI runs it in `linkcheck.yml`. |

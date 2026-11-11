@@ -1,5 +1,190 @@
 # Euclidean fields, Mehler coordinates and nested-Fock reconstruction
 
+## Source audit and bridge work order (2026-11-11)
+
+This revision replaces the earlier external-source commentary as the reading guide for that
+commentary. The E0–E5 construction and dated implementation record below remain useful.
+The two formalisms have separate endpoints: the nested-Fock/Mehler Hamiltonian is the object
+of [softmodes.md](softmodes.md) and [the SM plan](SM_ESA_COMPLETION_PLAN.md); Euclidean
+correlations and Wightman reconstruction are an additional route studied **in this file**.
+Neither endpoint is a definition of the other. Combining them is a proposed theorem programme.
+The priority decision in [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) remains in force.
+
+### Physical prior and spatial outer occupation (clarified 2026-11-11)
+
+The empty outer vacuum represents mathematical emptiness. Physical predictions use the
+specified non-outer-vacuum prior: one outer particle at each informed point of 3D space.
+Information about fields at several points can therefore require several outer particles;
+there is no global `N_out = 1` restriction. Outer-free evolution retains the interactions
+inside each particle's inner state. An outer particle here is not an elementary SM particle.
+
+Reference: [book.tex](book.tex), “Free field parametrization in Statistical Field Theory”,
+especially the recursive second-quantization paragraph and the proposition at distinct
+points `x₁,…,xₙ`, expressed as a product of number densities. The text explicitly requires
+normalization of these densities into propositions and describes local tensor factors
+with at most one point. “Gauge-variant gaussian measure and the phase diagram” separately
+uses the cyclic **initial state** to define gauge-invariant expectation functionals.
+
+B0 must specify spatial localization, the local prior factors and their joint state,
+including correlations; local occupation does not imply a product prior. Start with
+finitely many resolved, distinct spatial supports and give their embedding into the
+existing space containing spatial, field, derivative and graded coordinates. Refinement
+must implement the manuscript's conditional-probability meaning of spatial points, rather
+than assuming point-evaluation vectors in `L²`. Keep the continuous/infinite-information
+representation and its consistency estimates as explicit further deliverables.
+
+Write the physical state as `ω_info(A)`, represented when applicable by a normalized
+vector `Ψ_info` or density operator `ρ_info`. Correlations are `ω_info(A₁⋯Aₙ)` on their
+stated domains. Number-preserving observables can have nonzero correlations in this state.
+Their vanishing on the empty `Ω_out` does not obstruct this physical construction and
+does not require adding outer-number-changing observables.
+
+### Sources, versions and what was actually inspected
+
+The following are local source readings, not new builds or independent verification runs.
+The revisions identify the inspected snapshots; external logs retain their original dates.
+
+* [October submission](../OpenAI-YM-20261028/README.md), revision
+  `3456e5e75cf8d4cd558955a5c7638fba2d68f464`: `PublicTheory.lean`,
+  `PublicWilson.lean`, `ChallengeSpec.lean`, and the verification usage audit.
+* [Results and review](../YM/README.md), revision
+  `55ba9fc36293b3f4d52c6b1f813169a0be76ee98`: the 10 November assessment
+  (`docs/assessment-1.pdf`), plus the October package's `docs/checks.md`,
+  `checks/AcceptanceSpec.lean`, `checks/OPESpec.lean` and dated `evidence/`.
+* [Balaban manuscripts](../Yang--Mills-LLM-experiment/README.md), revision
+  `c7fef8b21b5846e1b5806a7d4f915737b9130c27`: the YM4 assembly overview PDF,
+  YM4 source outlines and RP1's Theorem A. The README explicitly treats mathematical
+  claims as tentative and not satisfactorily vetted; QED3/YM3 are manuscript claims too.
+
+The October package uses Lean 4.32.0; this repository pins 4.28.0. Reuse of an external
+proof would require an explicit port, dependency/license review and local proof checks.
+No external theorem has been imported or made an extra axiom by this planning revision.
+
+### Correct scope of the reusable examples
+
+**One witness for many claims.** `JointExistence` chooses one Wilson family before the
+volume order, then a subsequence and hierarchy. The review's `CombinedAcceptance` similarly
+binds one table and `Spec.Final` witness for its lattice, phase, Ward, operator-content and
+trace clauses. This prevents independent existential claims from silently choosing different
+theories. Adopt that dependency structure for the bridge below.
+
+**Two limit orders, two projects.** In the October source, `WilsonFamily.Converges` asserts
+full mesh convergence at each suitable fixed physical volume, then convergence along a
+volume subsequence. The Balaban YM4 overview instead chooses an infinite-volume Gibbs state
+at each fixed spacing, then a subsequential continuum limit. Its target is a scalar SU(2)
+action-density theory at small reference coupling. These orders cannot be interchanged
+without a new uniformity theorem. Record one route in E2; any agreement is a separate result.
+
+**Reconstruction is a reference target, not an imported local construction.** The review's
+independent `PhaseAndOS` bridge concerns the selected centered stress-trace scalar family
+on zero-diagonal Schwartz tests, including arity-linear growth and actual integral pairings.
+The source has broader reconstruction conclusions, attached as `SourceConclusions`; this
+is distinct from an independent all-field OS check. E3 must state its own test domain,
+regularity, covariance and positivity hypotheses. Contact extensions do not automatically
+supply unrestricted-test RP or raw lattice convergence on collision diagonals.
+
+**Vacua and spectra.** W0 includes positive energy and a unique invariant vacuum in each
+selected reconstructed theory. The unselected limit is a phase average; neither global
+phase uniqueness nor a unique thermodynamic limit follows. Positive energy is
+`energyMomentum.projection forwardConeᶜ = 0`; the nonzero vacuum still sits at momentum
+zero. An energy gap means `E_H((0,m)) = 0`, or the E5 decay estimate off the full ground
+projection. It does not mean that a ball containing the vacuum has zero projection.
+
+**Grading and non-freeness.** External field grades form a filtration, not a proof of exact
+scaling dimensions or conformal invariance (`OPESpec.lean` says so explicitly). Our
+`totalDegree_magWeight_le` bounds ordinary polynomial degree in independent coordinates;
+it does not identify a gauge-invariant local label. A proposed dictionary must distinguish
+coordinate degree, engineering weight and quotient relations. The trace law
+`r⁸ log²(1/r) C(r) → 3 dim(g)/π⁴` excludes specified finite Wick profiles; it supplies no
+infrared gap. If a nested model is to represent that particular theory, its selected
+observable must pass the same test. An abstract Hilbert-space isomorphism is insufficient.
+
+### Two routes and the proposed common acceptance object
+
+Keep E0–E3 as the Euclidean construction route. Keep S0–S4 of `softmodes.md` and P0–P8
+of the SM plan as Hamiltonian routes with their own success criteria. The following bridge
+packets refine E4; their names describe **proposed deliverables**, not existing declarations.
+
+1. **B0 — observable and prior dictionary.** Fix a single nested Hamiltonian, statistics,
+   spatial occupation/prior, physical sector, closure and common invariant domain. Select
+   normalized propositions and smeared physical
+   observables on it. Give their adjoints, reflection/time convention and gauge relations.
+   Construct a candidate Euclidean hierarchy from these data, with domains/integrability
+   for each product. A bare magnetic component is not automatically an invariant label;
+   a magnetic energy alone is not the full covariant stress trace.
+2. **B1 — state and time agreement.** For a chosen Euclidean limit/phase, prove equality
+   of its separated smeared moments with the chosen nested reference-state moments at ordered
+   imaginary times. Specify an extension to coincidence diagonals only if proved. Prove
+   positivity, time translation and the null-space identities needed on the common algebra.
+   Either construct the Euclidean state from the Hamiltonian or compare with an external
+   construction; E0's Wilson benchmark alone does not identify the manuscript model.
+   An arbitrary information prior need not be stationary, a ground state or invariant
+   under spacetime symmetries. Verify the particular state hypotheses required for the
+   selected Euclidean/OS theorem; retain general prior-dependent predictions separately.
+3. **B2 — construct the unitary.** Send an OS word class to the corresponding nested
+   observable word applied to the selected reference vector `Ψ_ref`, not the empty
+   `Ω_out`. B1 must identify inner products and null vectors. For a mixed reference state
+   use its GNS representation and cyclic vector; do not assume it is a vector in the
+   original outer space. Complete onto that **physical cyclic space**. A number-preserving
+   algebra acting on a fixed-number prior remains in that sector; full-Fock surjectivity
+   is not required. Intertwine fields, reference states and forward semigroups on their
+   specified domains. Generator equality follows from
+   the semigroup identity; a formal core equality needs closure/core arguments instead.
+4. **B3 — covariant completion and spectral transfer.** Construct spatial translations
+   and covariance/locality for the represented observables, or explicitly retain these
+   as open hypotheses. Transport the full ground projection through B2 before a gap or
+   clustering assertion. Wightman claims require the entire reconstruction contract;
+   ESA and a Hamiltonian gap alone do not provide boosts, locality or a momentum spectrum.
+
+The common acceptance object must bind the spatial prior/reference state, phase,
+observable dictionary, core,
+unitary, semigroup and ground projection once. An OPE result obtained from a separate
+existential witness needs an explicit identification: the review's separate OPE endpoint
+is itself documented as not automatically sharing the combined endpoint's chosen witness.
+A successful bridge relates the two formalisms; failure to construct it leaves valid
+Hamiltonian and Euclidean results separately labeled.
+
+**First B0 acceptance test:** calculate a normalized proposition and a nontrivial
+correlation in the stated spatial prior, retaining joint information at different
+points. On the outer one-particle sector, `dΓ(O)` acts as the inner `O`, so products
+recover inner operator products on their common domain. On many-particle states retain
+the cross-particle terms; use the book's normalization of number-density propositions.
+Testing only `Ω_out` tests emptiness and cannot validate or invalidate these predictions.
+
+### Analytic ideas to adapt with their hypotheses
+
+The Balaban overview labels NB, RS, LF, RC, B and CP not closed. Its other boxes are
+conditional on their inputs, not stand-alone construction theorems. CP is useful as a
+checklist for a **proposed** conditional Gaussian comparison: identify the exterior
+sigma-field, charts, full interacting density, coarea/Haar and gauge factors, constrained
+Hessian, boundary terms, retained activities and exterior force before comparing covariance.
+Its requirement to average histories before normalization and retain covariances of
+conditional means prevents replacing the interacting law by a chosen Gaussian Hessian.
+
+RP1's Theorem A assumes an actual random-distribution probability measure, exponential
+moment control, translation invariance and RP for coordinate **and diagonal** mirrors,
+with a restricted tensor representation (planar weights in `{-2,-1,0,1,2}`). Its conclusion
+concerns rotation covariance of moments on disjoint-support tuples. The YM4 overview also
+lists angular/plate and flat-test extension inputs. E2 must choose and verify the applicable
+criterion, including its domain; one reflection plane or finite Mehler-coordinate rotations
+cannot replace it. The absence of a continuum measure in the October endpoint blocks
+a direct application of the random-distribution version until that measure is constructed.
+
+### Verification packets and stopping rules
+
+Reuse `scripts/axiom-audit`; supplement future bridge work with a manifest of endpoint
+**types and reachable definitions**, source/dependency hashes, complete commands and dated
+logs. The October usage audit distinguishes endpoint-reachable declarations from unrelated
+compiled modules. Negative controls should reject a changed proposition, changed physical
+operator definition or added axiom. Axiom cleanliness alone does not detect a wrong target.
+The review records separate combined/OPE Comparator runs, cache reuse and macOS development
+mode without an external kernel; do not describe those records as a fresh local replay.
+
+Next local deliverable: B0 for one concrete observable and B1 at a finite regulator, with
+an explicit unproved continuum estimate. Keep the full E2 limit and B2 unitary conditional
+until their inputs exist. Hashimoto/SIRK applies after the self-adjoint operator is fixed;
+its approximation error neither constructs a Euclidean law nor proves any bridge packet.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a
@@ -42,9 +227,10 @@ is another identification to prove, not a synonym for all four spaces.
 
 Use $\theta$ for geometric reflection and
 $\Theta F=\overline{F\circ\theta}$ for its action on complex observables. Reserve
-$\Omega_{OS}=[1]$ for the reconstructed vacuum, $\Omega_{out}$ for the outer vacuum,
-and $Q_{BRST}$ for the auxiliary charge. Neither vacuum is identified with an inner
-ground/squeezed state without a theorem. BRST observable cohomology and the OS null-space
+$\Omega_{OS}=[1]$ for the reconstructed cyclic vector, $\Omega_{out}$ for empty outer
+space, $\Psi_{info}$ for a vector prior when available, and $Q_{BRST}$ for the auxiliary
+charge. An OS vacuum interpretation needs the chosen state hypotheses; it does not
+identify that vector with empty outer space. BRST cohomology and the OS null-space
 quotient serve different purposes and cannot replace one another.
 
 ### Corrections that govern the route
@@ -227,13 +413,22 @@ establish Lorentz covariance or locality.
 
 ### E4 — identify the reconstructed theory with the manuscript's nested fields
 
-Construct an isometry with dense range $U:\mathcal H_{OS}\to\mathcal F_{out}$
-(or a specified physical cyclic subspace), prove vacuum alignment, and intertwine
-the smeared observable representations and heat semigroups:
+For a pure reference state satisfying B1, construct an isometry onto its physical
+cyclic space $U:\mathcal H_{OS}\to\mathcal H_{ref}\subseteq\mathcal F_{out}$.
+Align the OS cyclic vector with the selected spatial reference prior and intertwine
+the smeared observable representations and heat semigroups. In the ground-vector case:
 
-$$U\Omega_{OS}=\Omega_{out},\qquad
-UP(\tau)=e^{-\tau H_{out}}U\quad(\tau\ge0),\qquad
+$$U\Omega_{OS}=\Psi_{ref},\qquad
+UP(\tau)=e^{-\tau H_{ref}}U\quad(\tau\ge0),$$
+
+$$H_{ref}=(H_{out}-E_{ref}I)|_{\mathcal H_{ref}},\qquad
 H_{out}=d\Gamma(h_F).$$
+
+Prove that this cyclic space reduces the dynamics, that `H_out Ψ_ref = E_ref Ψ_ref`
+and that `H_ref ≥ 0` there. The reference-energy subtraction describes relative dynamics
+on that space; it does not redefine the physical `h_F` by an outer number term. For a
+general mixed prior use its GNS cyclic space. Without the required reference-state
+properties retain a prior-dependent theory rather than assert a vacuum OS bridge.
 
 `OSReconstruction/FockIntertwining.lean` defines `OsFockBridge` and proves consequences
 of an assumed flow intertwiner. It does not construct this $U$. A real-linear bridge
@@ -258,6 +453,11 @@ Choose the spectral target and vacuum first. For an OS vacuum gap, prove
 $\ker H=\mathbb C\Omega_{OS}$ (or state the full ground projection $P_0$) and
 
 $$\|e^{-\tau H}(I-P_0)\|\le e^{-m\tau},\qquad m>0.$$
+
+For the physical-prior bridge of E4, `H` here is the identified reference generator
+`H_ref`, and `P₀` is its full ground projection. A gap above the empty outer sector is
+a separate statement. A general time-dependent spatial prior need not define this
+vacuum reconstruction, but still supplies prior-dependent predictions in the nested model.
 
 Equivalently, after constructing the spectral measure, prove it has no support in
 $(0,m)$ off the ground space. Pointwise strong convergence of the heat flow to $P_0$
@@ -314,13 +514,15 @@ The operator-function approximation theorem does not supply that exclusion.
 | E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
 | E2 | Summable increments imply convergence | Actual RG estimates and limits |
 | E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), half-space generator with `H = −A` (`HalfSpaceGenerator`), finite-volume Gibbs state and its measure on the split lattice (`HalfSpaceFreeState`), complexification, complex OS form and `HilbertSpace ℂ` carrier (`HalfSpaceComplex`), quotients, multiplier generators | The exponential `e^{−τH}`, an infinite-volume state |
-| E4 | `OsFockBridge` consequences | Concrete field/vacuum/flow bridge |
+| E4 | `OsFockBridge` consequences | Physical spatial prior, field and flow bridge |
 | E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
 
 Execute **E0 → E1 → E2 → E3 → E4 → E5** as dependency gates; abstract E3 work and E5
-error bookkeeping can progress before the continuum estimates. The first concrete task
-is a **half-space state/quotient interface** and a finite-model measure/RP contract;
-reuse the existing conditional machinery rather than add another full-algebra wrapper.
+error bookkeeping can progress before the continuum estimates. This ordering applies to
+the Euclidean route, not to completion of the separate nested Hamiltonian plans. Reuse
+the existing half-space interfaces; the new bridge task is B0's observable and spatial-prior
+test, then B1 at a finite regulator. A finite-model measure/RP contract remains necessary
+for the chosen Euclidean model.
 Proposed new modules, not existing proofs, are
 `BookProof/OSReconstruction/HalfSpaceState.lean` and
 `BookProof/OSReconstruction/HalfSpaceHilbert.lean`.
