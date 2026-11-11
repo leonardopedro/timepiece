@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10p):** **§38 of “State of the project — 2026-11-08b”**, at the very end
+> **Newest entry (2026-11-11g):** **“State of the QYM row — 2026-11-11g: the normalization
+> constant and the `n`-coordinate form”**, at the very end of this file — `integral_gaussRoot_sq`
+> (`∫ γ = √(2π)`), `lintegral_normalized_eq_one` (so the correction factor is `√(2π)^{−d}`),
+> `gaussRootN_eq_prod`, `conj_mult_N` and `lintegral_norm_sq_conj_N` (the isometry in `n`
+> coordinates, the `n = 99` statement the QYM mode space actually needs), executed under the
+> 2026-11-11 priority decision that puts the QYM row before the SM's remaining analytic row.
+> **Earlier newest entry (2026-11-10p):** **§38 of “State of the project — 2026-11-08b”**, at the very end
 > of this file — the box's volume and the return mass: `pcnBox_volume` (`(2R)^d`),
 > `withDensity_box_ge`, and **`pcnAbsorbingStep_box_ge`** (the step returns at least `F·(2R)^d` of
 > mass to the box), which is the factor a two-step argument for a global minorant needs.
@@ -20597,3 +20603,43 @@ passed (70-state window; complete tails/errors in its JSON). The symbolic gate
 reproduced the full LaTeX fixture and passed both repaired legacy modules.
 GitBook validation passed 87 pages / 611 links / 452 source–target pairs with
 no warnings. The dependency lockfile is unchanged.
+no warnings. The dependency lockfile is unchanged.
+
+---
+
+## State of the QYM row — 2026-11-11g: the normalization constant and the `n`-coordinate transfer
+
+**Why the QYM row, and not more SM.** The dated priority decision of 2026-11-11 in
+`CURRENT_WORK_ORDER.md` moves the work order here: `PotSelfBound` and the one-particle QYM form gap
+are the same missing form-domain input, and QYM is the smaller object. This entry records the first
+increment under that decision.
+
+**What landed** (`BookProof/Qym/ChapterYangMillsMehlerBridge`, source-present, build verified, no
+`sorry`, no new axiom):
+
+| Result | Content |
+|---|---|
+| `integral_gaussRoot_sq` | `∫ γ dx = √(2π)` — the Mehler density is **unnormalized** |
+| `lintegral_gaussRoot_sq` | the same constant in `ℝ≥0∞`, in the density form the isometry uses |
+| `lintegral_normalized_eq_one` | `γ/√(2π)` has unit mass: the correction factor every comparison with a normalized Gaussian reference must carry |
+| `gaussRootN`, `invGaussN` | the `n`-coordinate root and its reciprocal, `exp(∓‖x‖²/4)` |
+| `gaussRootN_eq_prod` | the `n`-coordinate root is the product of the one-coordinate roots |
+| `gaussRootN_sq`, `gaussRootN_pos`, `gaussRootN_mul_invGaussN` | the square/positivity/inverse identities |
+| `conj_mult_N` | multiplication operators are fixed by the conjugation in `n` coordinates |
+| `lintegral_norm_sq_conj_N` | the isometry in `n` coordinates — the `n = 99` statement S2 asks for |
+
+**What this does and does not do.** These are the two S2 items that were purely missing
+*conventions*: the work package demands the normalized/unnormalized measure convention be fixed
+before any frequency or number-form comparison, and the one-coordinate norm identity is now
+available in the 99-coordinate form the QYM mode space actually uses. Nothing here is a gap claim.
+Specifically, **still open in S2**: the derivative-level product transfer (`U ∂_j U⁻¹ = ∂_j + x_j/2`
+in `n` coordinates, not just the norm), the second-order conjugation on the dense core with its
+domain stated as a domain, the map of the full field-strength polynomial into the comparison
+calculation, and coercivity / a cutoff-uniform absolute lower bound. `HasOneParticleFormGap`
+remains an unproved `def`.
+
+**Reading of the prior QYM status.** Unchanged: a pointwise zero-eigenfunction identity proves no
+oscillator gap, and `conj_mult` / `conj_mult_N` are the precise statement that the Gaussian
+representation change cannot move a magnetic gap in either direction. The normalization constant
+table above is the arithmetic that any future "reference gap constant" import must divide by
+`√(2π)^{99}` (or equivalently `(2π)^{99/2}`) — recorded here so that number is not left implicit.
