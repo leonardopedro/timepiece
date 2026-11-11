@@ -559,6 +559,10 @@ above.  This section states that identification and proves what it yields.
   every nonzero state has strictly positive `:N²:` weight (`magneticEnergyForm_ge_normSq`);
 * **`magEnergy_ge_of_rootIdentification`** — the S2 barrier transfer needs only the root-sector
   identity, so the vacuum case is not needed for the analytic chain;
+* **`ymHamiltonian_quadForm_ge_of_rootIdentification`**, **`s2_gap_constant_root`**,
+  **`s2_excited_threshold_root`** — the S2 certificate carried onto the root sector: the shape
+  inequality, the ratio `c₁/48`, and the usable threshold `(c₁ Δ_ref − quarticShift)/48` all hold
+  with `RootModeIdentification` on exactly the sector where the identification can be true.
 * **The root-sector half of the form expansion** is proved in the sibling modules rather than
   here: `YangMillsMagneticQuartic.rootCrossWeight`,
   `YangMillsMagneticQuartic.quarticDegreeForm_eq_magnetic_add_root` (the `:N²:` weight is the
@@ -949,6 +953,62 @@ theorem magEnergy_ge_of_rootIdentification (Φ : CoreRep 99 D)
         ≤ 1 / 24 * (24 * magneticEnergyForm (d := 24) diagA c) := h1
       _ = magneticEnergyForm (d := 24) diagA c := by ring
   exact hstep.trans hq24
+
+/-- **The S2 shape on the core, on the root sector, with the weaker structure.**  Same as
+`ymHamiltonian_quadForm_ge_of_identification`, but using only `mag_eq_root`, so it holds for every
+root-sector coefficient (`c 0 = 0`).  The vacuum case is not needed for the shape inequality. -/
+theorem ymHamiltonian_quadForm_ge_of_rootIdentification (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (RI : RootModeIdentification Φ fabc)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) (c : CoreCoeff 24) (hc : rootSector c) :
+    1 / 48 * (degreeForm c + barrierForm T g c - quarticShift (d := 24) T g * coreNormSq c)
+      ≤ quadForm (ymHamiltonian Φ fabc) (RI.toCore c) := by
+  rw [ymHamiltonian_quadForm_split]
+  have hmag := magEnergy_ge_of_rootIdentification Φ fabc RI (T := T) (g := g) hg c hc
+  have heq := magEnergy_form_eq Φ fabc (RI.toCore c)
+  have hpi : (0 : ℝ) ≤ ∑ m : Fin 24, ‖(((piOps Φ m) (RI.toCore c) : D) : L2d 99)‖ ^ 2 :=
+    Finset.sum_nonneg fun _ _ => sq_nonneg _
+  linarith
+
+/-- **The S2 gap constant on the root sector.**  The root-sector analogue of `s2_gap_constant`:
+the same ratio `c₁/48` and shift `(c₁ μ₀ + quarticShift)/48`, valid for every root-sector
+coefficient. -/
+theorem s2_gap_constant_root (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (RI : RootModeIdentification Φ fabc) {ω : Fin 24 → ℝ} {T : Finset (Fin 24)} {g : ℝ}
+    (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁) (hω₁ : ∀ i, c₁ * ω i ≤ 1) (c : CoreCoeff 24)
+    (hc : rootSector c) :
+    c₁ / 48 * coreForm ω c
+        - ((c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (RI.toCore c) := by
+  have hdom := (freeFormDomination (d := 24) ω hc₁ hω₁).dom c
+  have hdom' : c₁ * coreForm ω c - c₁ * refEnergy ω 0 * coreNormSq c ≤ degreeForm c := by
+    simpa using hdom
+  have hbase := ymHamiltonian_quadForm_ge_of_rootIdentification Φ fabc RI (T := T) (g := g) hg c hc
+  have hbar := barrierForm_nonneg hg T c
+  linarith
+
+/-- **The certified excitation threshold on the root sector.**  The usable S2 number: on the
+root sector the Yang–Mills form is at least `(c₁ Δ_ref − quarticShift)/48 · ‖x‖²`.  This is the
+analogue of `s2_excited_threshold` with the weaker `RootModeIdentification`, and it is exactly the
+sector where the identification can hold. -/
+theorem s2_excited_threshold_root (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (RI : RootModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (c : CoreCoeff 24) (hc : rootSector c) :
+    ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (RI.toCore c) := by
+  have hgap := href_spectral_gap (d := 24) ω hω c hc
+  have hconst := s2_gap_constant_root Φ fabc RI (ω := ω) (T := T) (g := g) hg hc₁ hω₁ c hc
+  have hc₁' : (0 : ℝ) ≤ c₁ / 48 := by positivity
+  have h1 : (c₁ / 48) * ((refEnergy ω 0 + refGap ω) * coreNormSq c)
+      ≤ (c₁ / 48) * coreForm ω c :=
+    mul_le_mul_of_nonneg_left hgap hc₁'
+  have h2 : (c₁ / 48) * coreForm ω c
+      - ((c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48) * coreNormSq c
+      ≤ quadForm (ymHamiltonian Φ fabc) (RI.toCore c) := hconst
+  have h3 : (c₁ / 48) * ((refEnergy ω 0 + refGap ω) * coreNormSq c)
+        - ((c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48) * coreNormSq c
+      = ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * coreNormSq c := by ring
+  linarith [h1, h2, h3]
 
 /-! #### The certificate inside the gap chain
 

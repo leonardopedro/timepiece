@@ -649,13 +649,21 @@ theorem.
   structure.  The vacuum case is needed only to state the identification globally, not for the
   analytic chain.
 
+The S2 chain then carries the restricted structure to the usable number:
+`ymHamiltonian_quadForm_ge_of_rootIdentification` (shape inequality on the root sector),
+`s2_gap_constant_root` (ratio `c₁/48`, shift `(c₁ μ₀ + quarticShift)/48`), and
+`s2_excited_threshold_root` (`(c₁ Δ_ref − quarticShift)/48 · ‖x‖²`, from `href_spectral_gap`).
+The whole-core `FormDomination` certificate `s2FormDomination` is not restated: its `dom` field
+quantifies over every coefficient, including vacuum mixtures, so it legitimately needs the
+unrestricted structure.  The root-sector theorems are pointwise and therefore sound.
+
 **Boundary.**  `RootModeIdentification` still has no inhabitant: the remaining content is the same
 assembly of the `24` components onto the core (`coeffToCore`), and the sector restriction only
 removes the case that is already known to be impossible to identify.  The gain is that the target
 is now stated where it can be true, and that the S2 transfer is known not to depend on the vacuum.
 
-Axioms audited on the five theorems of this subsection: `propext`, `Classical.choice`,
-`Quot.sound` only.
+Axioms audited on the theorems of this subsection (including the three S2-carry theorems):
+`propext`, `Classical.choice`, `Quot.sound` only.
 
 #### S2 — the cross weight is dominated by the count factor `d − 1`
 

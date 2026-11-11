@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10i):** “State of the project — 2026-11-10i: the root-sector structure”,
+> **Newest entry (2026-11-10j):** “State of the project — 2026-11-10j: the S2 certificate on the root
+> sector”, at the end.  The root-sector hypotheses carry through the whole S2 chain:
+> `ymHamiltonian_quadForm_ge_of_rootIdentification`, `s2_gap_constant_root` and
+> `s2_excited_threshold_root` are proved from `mag_eq_root` alone.  Whole-core
+> `FormDomination` still needs the unrestricted structure.  `lake build +BookProof` completed.
+> **Earlier newest entry (2026-11-10i):** “State of the project — 2026-11-10i: the root-sector structure”,
 > at the end.  `rootSector` and `RootModeIdentification` state the identification off the vacuum
 > (every unrestricted one restricts to one); `vacuumCoeff_not_rootSector` puts the abelian witness
 > outside the sector; `magneticEnergyForm_ge_normSq` and `root_sector_magnetic_pos` show there is no
@@ -19742,3 +19747,27 @@ depend on the vacuum.
 `root_sector_magnetic_pos`, `magEnergy_ge_of_rootIdentification`, `one_le_sum_sq_of_ne_zero`,
 `magneticEnergyForm_ge_normSq`, `coreNormSq_pos` and `magneticEnergyForm_pos_of_root` reports
 `propext, Classical.choice, Quot.sound` only; no line of the touched files exceeds 100 characters.
+
+## State of the project — 2026-11-10j: the S2 certificate on the root sector
+
+Follow-up to 2026-11-10i.  The root-sector identification is now carried all the way into the S2
+certificate, so the sector where the identification can be true is the sector where the gap constant
+is proved.  `sorry`-free, `axiom`-free, `lake build +BookProof` green.
+
+* `ymHamiltonian_quadForm_ge_of_rootIdentification` — the shape inequality
+  `(degreeForm + barrierForm − shift ‖·‖²)/48 ≤ ⟨x, H x⟩` for every root-sector coefficient, from
+  `mag_eq_root` alone.
+* `s2_gap_constant_root` — the same ratio `c₁/48` and shift `(c₁ μ₀ + quarticShift)/48` against the
+  reference oscillator form, on the root sector.
+* `s2_excited_threshold_root` — the usable S2 number `(c₁ Δ_ref − quarticShift)/48 · ‖x‖²` on the
+  root sector, obtained from `s2_gap_constant_root` plus `href_spectral_gap` (`c 0 = 0`).
+
+**Boundary.**  The whole-core thresholds `s2_ground_threshold` / `s2_excited_threshold` and the
+`FormDomination` certificate `s2FormDomination` still require the unrestricted `ModeIdentification`,
+because `FormDomination.dom` quantifies over every coefficient including mixtures with a vacuum
+component.  The root-sector versions above are pointwise and therefore sound with the weaker
+structure; a `FormDomination` certificate with a root-sector-only domain would be a different object
+(a restricted-form certificate), not a weakening of this one.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `#print axioms` on the
+three theorems reports `propext, Classical.choice, Quot.sound` only; line-length check clean.
