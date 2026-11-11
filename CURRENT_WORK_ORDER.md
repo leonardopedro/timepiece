@@ -170,6 +170,71 @@ entries that tell a specialist something.
 
 ---
 
+## Repo hygiene — the 2026-11-11 merge and the ignore scope
+
+Not a track and not a contradiction, but it changed the shape of the tree, so it is
+recorded here rather than left to `git log` archaeology.
+
+**The merge (`32a3647`).** Remote `main` (the QYM S2 normalization wave) was merged
+into the local pCN branch. Three files conflicted and all three were **prose or
+docstrings** — no theorem statement, hypothesis or proof term was touched, so the
+resolution cannot affect any row of the table above:
+
+| File | Resolution |
+|---|---|
+| `softmodes.md` | Kept the branch's `BookProof.lean` live-inventory wording; dropped the other side's stale `YANG_MILLS_MASS_GAP_LEAN.md` claim. |
+| `CONSOLIDATED_PLAN.md` | Kept a single "newest entry" header block. The file is append-only by house rule, so no dated entry was removed from either side. |
+| `BookProof/MCMC/FockLangevinOperator.lean` | Module docstring §21.9/§21.10 merged, with one consolidated "Honest boundary" paragraph instead of the two overlapping ones. |
+
+**The ignore scope (`d1afca2`).** `Downloads/` is a ~2 GB verbatim input corpus for the
+Prove2.me conversion, and it is regenerable: `scripts/prove2me_convert.py` and
+`scripts/prove2me_deps_convert.py` consume it, and the artifact that is kept is
+`converted/`. It was untracked and therefore appeared in every `git status`, so it is now
+ignored — the same treatment `/math/` already had. `/Scratch*.lean` and `/prompts.save`
+are local scratch and are ignored too.
+
+Two removals matter more than the additions:
+
+- **`/.github/` is no longer ignored.** The repo tracks four workflows there
+  (`ci.yml`, `axiom-gate.yml`, `linkcheck.yml`, `verify-invariants.yml`), so the rule
+  contradicted the tree it was supposed to protect and would have silently swallowed any
+  new workflow.
+- **A duplicated `/math/` line was dropped.** It changed no behaviour; it was noise in the
+  one file people read to answer "is this tracked?".
+
+`DOC_INDEX.md` and `state/doc_index.json` were already untracked, with `scripts/health.sh`
+and `.github/workflows/ci.yml` gating on rebuild determinism instead of tracked-file
+freshness (`ae01e2f`). A missing index is therefore not a failed gate.
+
+**Build note — `lake build` has no job cap.** Lake 5.0.0-src+7e01a1b (Lean 4.28.0) exposes
+no `-j`/`--jobs` and no `LAKE_JOBS` knob; the aggregate `BookProof` build runs 14
+concurrent `lean` processes, several near 1.7 GB, and available memory falls from 11 GB to
+~600 MB within minutes, at which point the kernel OOM-kills a worker. Measured twice on
+2026-11-11 (died at 8630/8968, 8654/8968, 8616/8948 and 8592/8948 jobs, no `error:` line).
+
+**CPU affinity is the lever, because lake sizes its worker pool from the number of visible
+CPUs.** Same 8-module set, measured 2026-11-11: `taskset -c 0-3` → 5 `lean` workers and
+8.7 GB free; `taskset -c 0-5` → 12 workers and 703 MB free, i.e. an OOM in waiting. An
+earlier entry here claimed affinity does not help; that probe was run while an orphaned
+build was still compiling, so its count was meaningless and the claim was wrong. Chunk size
+alone is *not* a bound either — a chunk of 8 unpinned fanned out to 18 workers and died at
+830 MB.
+
+Use `bash scripts/build-bookproof.sh` (default: 4 CPUs via `taskset`, chunks of 8, and a
+`--min-free 4000` MB gate before every chunk). It resolves the out-of-date modules from the
+import closure, builds them one `lake build` at a time, and traps signals so an interrupted
+run does not leave orphaned `lean` children behind. Measured on the 156 out-of-date
+`BookProof` modules: peak 9 workers, available memory never below 8.2 GB, zero errors.
+
+Run it detached: `setsid nohup bash scripts/build-bookproof.sh > /tmp/build.log 2>&1 &`.
+A build launched as a normal background tool command is killed when the runner's command
+broker drops (`exitCode: null` plus a `terminal command broker protocol response was missing`
+entry), which is *not* the same failure as the OOM kill and is indistinguishable from it in
+the build log alone. Neither failure prints an `error:` line, so always check the process is
+still alive before concluding that a silent stop means an elaboration failure.
+
+---
+
 ## Flags — where the corpus contradicts itself
 
 These are recorded, not resolved. Each names who would have to decide.
