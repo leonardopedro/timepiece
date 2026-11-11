@@ -1650,10 +1650,61 @@ rejection atom satisfies
 
 so §12's invariant measure exists rather than being hypothesised.
 **`pcnAbsorbingStep_rate_prior_of_stationary`** then restates the rate with that hypothesis
-discharged — what is left is the minorant of §50 and the reference's normalisation
-`IsProbabilityMeasure (pcnPriorTarget s ρ R τ)`, which the box floors do not give.  The remaining hypotheses of the stationarity theorem are `Measurable τ` and a measurable step
-family: properties of the explicit formulas, and the step's is the same input the earlier rate
-theorems already carried.
+discharged.  Two inputs were still open there and are closed below: the step family's measurability
+(§52) and the reference's normalisation (§54 — where it turns out *not* to be mass one).  The
+stationarity theorem keeps only `Measurable τ`.
+
+**The step's measurability, and the hypotheses it removes (§52).**  Every theorem that *binds*
+`pcnAbsorbingStep` — the rate of §43, the two confinement lemmas of §49, the prior-referenced rate of
+§50, and stationarity itself in §51 — carried
+`(hmeas : Measurable (pcnAbsorbingStep s ρ R τ))` as an assumption.  It is now a theorem, for
+measurable `τ`: **`measurable_pcnAbsorbingStep`**, from **`measurable_pcnMetropolisStep`** (the
+accepted part is a `withDensity` family with a jointly measurable density, via the new
+`measurable_withDensity_uncurry`, itself `measurable_setLIntegral`) and `measurable_rejection` (the
+atom `x ↦ (1 − mass x) • δ_x`, whose set masses are `(1 − mass x) · A.indicator 1 x`).  Every
+statement that carried `hmeas` now carries `(hτ : Measurable τ)` and derives it; in
+`pcnPriorTarget_stationary` the hypothesis is gone entirely.  This is a bookkeeping change to the
+statements and a real one to the mathematics: measure-valued measurability is not automatic, and the
+argument is `Measure.measurable_of_measurable_coe` reduced to the coefficient functions.
+
+**The constants are numbers at a Gaussian likelihood (§53).**  §50's minorant takes the ceiling `B`
+and the acceptance floor `m` as parameters.  For the natural family of targets they are computed:
+with `τ y = exp (−β‖y‖²)`,
+
+* the ceiling is `B = 1`, because `τ ≤ 1` for `β ≥ 0` and `pcnPrior ≤ 1` for `|ρ| ≤ 1`
+  (`pcnGaussLike_mul_pcnPrior_le_one`);
+* the acceptance floor is `m = exp (−β dR²)`, because on the box `∑ yᵢ² ≤ dR²` bounds `τ` below and
+  `τ x ≤ 1` bounds it above (`pcnGaussLike_floor`, `pcnGaussLike_le_one`).
+
+So **`pcnAbsorbingStep_minorant_prior_gaussLike`** is §50's minorant with `B = 1` and
+`m = exp (−β dR²)` substituted.  The proposal floor `F` stays a parameter — it is §1's floor on the
+box, and it *does* need the start inside the box, which is why §49's ball constant is what makes the
+composition uniform.  The same box floors give the prior factor's own bounds
+(`pcnPrior_le_one`, `pcnPrior_floor`).
+
+**The reference's mass is not one (§54).**  §51 left `IsProbabilityMeasure (pcnPriorTarget s ρ R τ)`
+as a hypothesis and called it "the reference's normalisation".  It cannot be proved for the reference
+as written: `pcnPriorTarget = volume.withDensity (τ · pcnPrior)` on the box, so its total mass is
+
+`pcnPriorMass s ρ R τ = ∫_{box} τ · pcnPrior`  (`pcnPriorMass_eq_lintegral`),
+
+which is `1` only for the one `τ` that cancels the prior — not for a general target, and not for the
+Gaussian likelihood of §53.  What *is* proved is that it is a finite, positive number:
+**`pcnPriorMass_le`** (`≤ B · (2R)^d` from the ceiling, hence `pcnPriorMass_ne_top`) and
+**`pcnPriorMass_pos`** (from a floor on the box and `R > 0`).  The repair is the standard one — name
+the mass and divide it out: **`pcnPriorProb = M⁻¹ • pcnPriorTarget`** is a probability measure
+(`pcnPriorProb_univ`, `isProbabilityMeasure_pcnPriorProb`), it inherits invariance
+(**`pcnPriorProb_stationary`**, from `Measure.bind_smul` and §51), and §12's rate holds for it with
+the hypothesis *proved* rather than assumed: **`pcnAbsorbingStep_rate_prob`**.  Either route is
+available: the unnormalised reference with the mass in the contraction constant (`pcnPriorMass`) or
+the normalised one with `IsProbabilityMeasure` discharged (`pcnPriorProb`), the bridge between the two
+minorants being **`pcnPriorProb_minorant_of_target`** (a minorant `c0 • pcnPriorTarget ≤ K x` becomes
+`(c0 · M) • pcnPriorProb ≤ K x`).  For §53's likelihood the mass is sandwiched,
+`0 < M ≤ (2R)^d` (`pcnPriorMass_gaussLike_pos`, `pcnPriorMass_gaussLike_le`).
+
+What this does not give: the *value* of `M`.  It is a box integral of `τ · pcnPrior`, and no
+elementary closed form is used here — the rate's constant depends on it, and it is the one number the
+chapter still leaves as data rather than computing.
 
 #### The track's honest boundary — one summary
 
@@ -1718,7 +1769,15 @@ unbounded operator on a Hilbert space, and it makes no claim about the Rust impl
   (`pcnPriorTarget`, `pcnAbsorbingStep_minorant_prior`, `pcnAbsorbingStep_rate_prior`) — §50; and
   stationarity from detailed balance (`bind_doeblinStep_stationary`, `doeblinStep`), the pCN instance
   (`pcnPriorTarget_stationary`) and the rate with invariance proved rather than assumed
-  (`pcnAbsorbingStep_rate_prior_of_stationary`) — §51.
+  (`pcnAbsorbingStep_rate_prior_of_stationary`) — §51; the step's measurability as a measure-valued
+  map (`measurable_withDensity_uncurry`, `measurable_pcnMetropolisStep`, `measurable_rejection`,
+  `measurable_pcnAbsorbingStep`), which turns the `hmeas` assumption of §43–§51 into `Measurable τ`
+  — §52; the ceiling and acceptance floor computed at a Gaussian likelihood
+  (`pcnGaussLike`, `pcnGaussLike_mul_pcnPrior_le_one`, `pcnGaussLike_floor`, `pcnPrior_floor`,
+  `pcnAbsorbingStep_minorant_prior_gaussLike`) — §53; and the reference's mass, its normalisation
+  and the rate with `IsProbabilityMeasure` proved (`pcnPriorMass`, `pcnPriorMass_le`,
+  `pcnPriorMass_pos`, `pcnPriorProb`, `pcnPriorProb_stationary`, `pcnPriorProb_minorant_of_target`,
+  `pcnAbsorbingStep_rate_prob`) — §54.
 
 *Not proved, and not claimed.*
 

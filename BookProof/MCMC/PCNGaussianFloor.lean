@@ -60,7 +60,9 @@ the architecture's own proposal rather than an unknown number.
   `integral_prod_pcnFactor`, **`pcnGaussMass_d`** and **`pcnGaussMass_quad`** (the increment is a
   probability density on `ℝ^d` in `pcnDensity`'s own form), **`pcnBoxMass_le_one`**,
   **`pcnMetropolisStep_mass_le_one`** and **`pcnAbsorbingStep_univ`** (the Metropolis step with its
-  rejection atom is a probability measure, with no mass hypothesis);
+  rejection atom is a probability measure, with no mass hypothesis), and — the measurability §5's
+  `bind` needs — `measurable_setLIntegral`, `measurable_withDensity_uncurry`,
+  **`measurable_pcnMetropolisStep`**, `measurable_rejection` and **`measurable_pcnAbsorbingStep`**;
 * **§10, the minorant for the step** — `pcnMetropolisStep_le_pcnAbsorbingStep` and
   **`pcnAbsorbingStep_minorant`**: `(mF/B) • π ≤ pcnAbsorbingStep` on the box, the Doeblin minorant
   for the step the chain takes;
@@ -93,7 +95,19 @@ the architecture's own proposal rather than an unknown number.
   **`bind_doeblinStep_stationary`** (Tonelli on the symmetric joint density: detailed balance plus a
   forward-mass bound give `π.bind K = π`), `measurable_setLIntegral`,
   `measurable_doeblinStep_apply`, **`pcnPriorTarget_stationary`** (the pCN instance) and
-  **`pcnAbsorbingStep_rate_prior_of_stationary`** (the rate with invariance proved).
+  **`pcnAbsorbingStep_rate_prior_of_stationary`** (the rate with invariance proved);
+* **§18, the constants computed** — `pcnGaussLike` (a Gaussian likelihood), its ceiling
+  **`pcnGaussLike_mul_pcnPrior_le_one`** (`B = 1`), its box floors `pcnGaussLike_floor`,
+  `pcnPrior_floor`, and **`pcnAbsorbingStep_minorant_prior_gaussLike`**: §16's minorant with
+  `B = 1` and `m = exp (−β dR²)` substituted;
+* **§19, the reference's mass, and the probability hypothesis discharged** — `pcnPriorMass`
+  (`pcnPriorTarget univ`, `pcnPriorMass_eq_lintegral`), **`pcnPriorMass_le`**,
+  `pcnPriorMass_ne_top`, **`pcnPriorMass_pos`**, `pcnPriorProb` (the normalised reference) with
+  **`pcnPriorProb_univ`** and `isProbabilityMeasure_pcnPriorProb`,
+  **`pcnPriorProb_stationary`**, **`pcnPriorProb_minorant_of_target`** and
+  **`pcnAbsorbingStep_rate_prob`** — the rate with `IsProbabilityMeasure` proved rather than
+  assumed.  The mass is *not* one, and §19 says so: it is the box integral, bounded above by
+  `(2R)^d` and below by a floor on the box.
 
 ## Honest boundary
 
@@ -921,18 +935,132 @@ theorem pcnAbsorbingStep_univ {s ρ R : ℝ} (hs : 0 < s) (x : Fin d → ℝ)
     Pi.one_apply, smul_eq_mul, mul_one, add_comm]
   exact tsub_add_cancel_of_le (pcnMetropolisStep_mass_le_one hs x π)
 
+/-! ### Measurability of the step
+
+§9 defines the step as a formula in the starting point; this block proves the family is a measurable
+map into `Measure (Fin d → ℝ)`, which is what `Measure.bind` — hence `pcnIter` and the rate — needs.
+The measure space on `Measure` is Mathlib's (`Measure.instMeasurableSpace`), and every fact below is
+read off `Measure.measurable_of_measurable_coe`, so the proofs are statements about the coefficient
+functions `x ↦ K x A`.
+
+* **`measurable_setLIntegral`** — the mass into a set depends measurably on the start, from joint
+  measurability of the density;
+* **`measurable_withDensity_uncurry`** — a jointly measurable density gives a measurable family of
+  `withDensity` measures;
+* `measurable_pcnDensity_uncurry`, `measurable_pcnAccept_uncurry`,
+  `measurable_pcnMetropolisDensity_uncurry` — the explicit formulas are jointly measurable;
+* **`measurable_pcnMetropolisStep`**, `measurable_rejection`, **`measurable_pcnAbsorbingStep`** —
+  the accepted part, the rejection atom, and their sum.
+-/
+
+/-- **The set integral is measurable in the starting point** — the step's mass into `A` depends
+measurably on `x`, from joint measurability of the density. -/
+theorem measurable_setLIntegral {α : Type*} [MeasurableSpace α] {ν : Measure α} [SFinite ν]
+    {k : α → α → ENNReal}
+    (hk : Measurable (Function.uncurry k)) {A : Set α} (hA : MeasurableSet A) :
+    Measurable fun x => ∫⁻ y in A, k x y ∂ν := by
+  classical
+  have hind : Measurable fun p : α × α => k p.1 p.2 * (if p.2 ∈ A then 1 else 0) :=
+    hk.mul (measurable_const.indicator (hA.preimage measurable_snd))
+  have h := hind.lintegral_prod_right' (ν := ν)
+  have hd : (fun x => ∫⁻ y, k x y * (if y ∈ A then 1 else 0) ∂ν)
+      = fun x => ∫⁻ y in A, k x y ∂ν := by
+    funext x
+    rw [← lintegral_indicator hA (fun y => k x y)]
+    exact lintegral_congr fun y => by by_cases hy : y ∈ A <;> simp [hy]
+  rw [← hd]
+  exact h
+
+/-- **A jointly measurable density gives a measurable family of `withDensity` measures.** -/
+theorem measurable_withDensity_uncurry {α : Type*} [MeasurableSpace α] {ν : Measure α} [SFinite ν]
+    {k : α → α → ENNReal} (hk : Measurable (Function.uncurry k)) :
+    Measurable fun x => ν.withDensity (k x) := by
+  refine Measure.measurable_of_measurable_coe _ fun A hA => ?_
+  simp_rw [withDensity_apply _ hA]
+  exact measurable_setLIntegral hk hA
+
+/-- The pCN density is measurable in the pair (start, target), given a measurable acceptance
+density. -/
+theorem measurable_pcnDensity_uncurry (c s ρ : ℝ) :
+    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnDensity c s ρ x y) := by
+  have hquad : Measurable fun p : (Fin d → ℝ) × (Fin d → ℝ) => pcnQuad ρ p.1 p.2 := by
+    unfold pcnQuad
+    refine Finset.measurable_sum _ fun i _ => ?_
+    refine (((measurable_pi_apply i).comp measurable_snd).sub
+      (measurable_const.mul ((measurable_pi_apply i).comp measurable_fst))).pow_const 2
+  unfold pcnDensity
+  exact measurable_const.mul (Real.measurable_exp.comp (by fun_prop))
+
+theorem measurable_pcnAccept_uncurry {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ) :
+    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnAccept τ x y) := by
+  unfold pcnAccept
+  refine Measurable.min measurable_const ?_
+  exact (hτ.comp measurable_snd).div (hτ.comp measurable_fst)
+
+theorem measurable_pcnMetropolisDensity_uncurry {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ)
+    (c s ρ : ℝ) :
+    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnMetropolisDensity c s ρ τ x y) := by
+  unfold pcnMetropolisDensity
+  exact (measurable_pcnAccept_uncurry hτ).mul (measurable_pcnDensity_uncurry c s ρ)
+
+theorem measurable_pcnMetropolisStep (c s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ) :
+    Measurable (pcnMetropolisStep (d := d) c s ρ R τ) := by
+  unfold pcnMetropolisStep
+  exact measurable_withDensity_uncurry
+    ((measurable_pcnMetropolisDensity_uncurry hτ c s ρ).ennreal_ofReal)
+
+/-- The rejection atom is a measurable family `x ↦ (1 − mass x) • δ_x`. -/
+theorem measurable_rejection (c s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ) :
+    Measurable fun x => (1 - pcnMetropolisStep (d := d) c s ρ R τ x Set.univ)
+      • Measure.dirac x := by
+  refine Measure.measurable_of_measurable_coe _ fun A hA => ?_
+  have hmass : Measurable fun x => pcnMetropolisStep (d := d) c s ρ R τ x Set.univ :=
+    (Measure.measurable_coe MeasurableSet.univ).comp (measurable_pcnMetropolisStep c s ρ R hτ)
+  have hind : Measurable fun x : Fin d → ℝ => A.indicator (1 : (Fin d → ℝ) → ENNReal) x := by
+    simpa using Measurable.indicator
+      (measurable_const : Measurable fun _ : Fin d → ℝ => (1 : ENNReal)) hA
+  have hprod : Measurable fun x : Fin d → ℝ =>
+      (1 - pcnMetropolisStep (d := d) c s ρ R τ x Set.univ)
+        * A.indicator (1 : (Fin d → ℝ) → ENNReal) x :=
+    (measurable_const.sub hmass).mul hind
+  rw [show (fun x => ((1 - pcnMetropolisStep (d := d) c s ρ R τ x Set.univ)
+      • Measure.dirac x) A)
+      = fun x => (1 - pcnMetropolisStep (d := d) c s ρ R τ x Set.univ)
+          * A.indicator (1 : (Fin d → ℝ) → ENNReal) x from by
+    funext x
+    rw [Measure.smul_apply, Measure.dirac_apply' x hA, smul_eq_mul]]
+  exact hprod
+
+/-- **The pCN Metropolis step, with its rejection atom, is a measurable family of measures.** -/
+theorem measurable_pcnAbsorbingStep (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ) :
+    Measurable (pcnAbsorbingStep (d := d) s ρ R τ) := by
+  refine Measure.measurable_of_measurable_coe _ fun A hA => ?_
+  have h1 : Measurable fun x => pcnMetropolisStep (d := d) (pcnNorm1 s ^ d) s ρ R τ x A :=
+    ((Measure.measurable_coe hA).comp (measurable_pcnMetropolisStep (pcnNorm1 s ^ d) s ρ R hτ))
+  have h2 := measurable_rejection (d := d) (pcnNorm1 s ^ d) s ρ R hτ
+  have h2A : Measurable fun x => ((1 - pcnMetropolisStep (d := d) (pcnNorm1 s ^ d) s ρ R τ x
+      Set.univ) • Measure.dirac x) A := (Measure.measurable_coe hA).comp h2
+  rw [show (fun x => pcnAbsorbingStep (d := d) s ρ R τ x A) = fun x =>
+      pcnMetropolisStep (d := d) (pcnNorm1 s ^ d) s ρ R τ x A
+        + ((1 - pcnMetropolisStep (d := d) (pcnNorm1 s ^ d) s ρ R τ x Set.univ)
+            • Measure.dirac x) A from by
+    funext x
+    rw [pcnAbsorbingStep, Measure.add_apply]]
+  exact h1.add h2A
+
 
 /-- **The rate for the unconditional step.**  `pcnAbsorbingStep` is a family of probability measures
 with no mass hypothesis (`pcnAbsorbingStep_univ`), so §5's contraction applies to it wherever the
 target is invariant under it and a minorant `c • π` below the step holds. -/
 theorem pcnAbsorbingStep_rate {s ρ R c : ℝ} {τ : (Fin d → ℝ) → ℝ} {π : Measure (Fin d → ℝ)}
-    (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s)
-    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) [IsProbabilityMeasure π]
+    (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s) (hτ : Measurable τ) [IsProbabilityMeasure π]
     (hmin : ∀ x, ENNReal.ofReal c • π ≤ pcnAbsorbingStep (d := d) s ρ R τ x)
     (hstat : ∀ n, π.bind (pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n) = π)
     (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
     ENNReal.ofReal (1 - (1 - c) ^ n) * π S
       ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S :=
+  have hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ) :=
+    measurable_pcnAbsorbingStep s ρ R hτ
   pcnIter_rate_of_minorant hc0 hc1 hmeas (fun x => pcnAbsorbingStep_univ hs x τ) hmin hstat n x hS
 
 
@@ -1131,11 +1259,11 @@ theorem pcnAbsorbingStep_twoStep_minorant {s ρ R F B m c0 : ℝ} {τ : (Fin d �
     (hdens : ∀ y ∈ pcnBox d R, ∀ z ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s ρ y z)
     (hret : ∀ y, ENNReal.ofReal c0
       ≤ pcnAbsorbingStep (d := d) s ρ R τ y (pcnBox d R))
-    (hmeas : AEMeasurable (pcnAbsorbingStep (d := d) s ρ R τ)
-      (pcnAbsorbingStep (d := d) s ρ R τ x)) :
+    (hτ : Measurable τ) :
     (ENNReal.ofReal c0 * ENNReal.ofReal (m * F / B)) • pcnTargetMeasure (d := d) R τ
       ≤ (pcnAbsorbingStep (d := d) s ρ R τ x).bind (pcnAbsorbingStep (d := d) s ρ R τ) :=
-  bind_minorant_of_set (measurableSet_pcnBox (d := d) R) hmeas (hret x)
+  bind_minorant_of_set (measurableSet_pcnBox (d := d) R)
+    (measurable_pcnAbsorbingStep s ρ R hτ).aemeasurable (hret x)
     (fun y hy => pcnAbsorbingStep_minorant hF hB hm0 hm1 hτB (hτpos y hy) (hτxy y hy)
       (hdens y hy))
 
@@ -1409,8 +1537,10 @@ theorem bind_eq_zero_of_support {α : Type*} [MeasurableSpace α] {μ : Measure 
 
 /-- **The iterates are confined too**: the `n`-step measure from `x` lives in `box ∪ {x}`. -/
 theorem pcnIter_confined {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ}
-    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) (n : ℕ) (x : Fin d → ℝ) :
+    (hτ : Measurable τ) (n : ℕ) (x : Fin d → ℝ) :
     pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x (pcnBox d R ∪ {x})ᶜ = 0 := by
+  have hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ) :=
+    measurable_pcnAbsorbingStep s ρ R hτ
   induction n generalizing x with
   | zero =>
       rw [pcnIter_zero, Measure.dirac_apply' x
@@ -1473,11 +1603,13 @@ theorem pcnSumSq_le_of_mem_box {R : ℝ} {y : Fin d → ℝ} (hy : y ∈ pcnBox 
 `‖z‖² ≤ max (dR²) ‖x‖²`, so a start with `‖x‖² ≤ M²` keeps the chain inside `‖z‖² ≤ max (dR²) M²`.
 That is the confinement the return constant `pcnBallConst` is uniform on. -/
 theorem pcnIter_confined_ball {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ}
-    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) (n : ℕ) (x : Fin d → ℝ) :
+    (hτ : Measurable τ) (n : ℕ) (x : Fin d → ℝ) :
     pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x
       {z : Fin d → ℝ | max ((d : ℝ) * R ^ 2) (pcnSumSq x) < pcnSumSq z} = 0 := by
+  have hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ) :=
+    measurable_pcnAbsorbingStep s ρ R hτ
   refine measure_mono_null ?_
-    (pcnIter_confined (d := d) (s := s) (ρ := ρ) (R := R) (τ := τ) hmeas n x)
+    (pcnIter_confined (d := d) (s := s) (ρ := ρ) (R := R) (τ := τ) hτ n x)
   intro z hz
   simp only [Set.mem_setOf_eq, Set.mem_compl_iff, Set.mem_union, Set.mem_singleton_iff,
     not_or] at hz ⊢
@@ -1537,8 +1669,7 @@ theorem pcnAbsorbingStep_minorant_prior {s ρ R F B m : ℝ} {τ : (Fin d → �
 target: the two remaining hypotheses are the minorant (supplied by
 `pcnAbsorbingStep_minorant_prior` on the box) and invariance of `pcnPriorTarget` under the step. -/
 theorem pcnAbsorbingStep_rate_prior {s ρ R c : ℝ} {τ : (Fin d → ℝ) → ℝ}
-    (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s)
-    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ))
+    (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s) (hτ : Measurable τ)
     [IsProbabilityMeasure (pcnPriorTarget (d := d) s ρ R τ)]
     (hmin : ∀ x, ENNReal.ofReal c • pcnPriorTarget (d := d) s ρ R τ
       ≤ pcnAbsorbingStep (d := d) s ρ R τ x)
@@ -1547,7 +1678,7 @@ theorem pcnAbsorbingStep_rate_prior {s ρ R c : ℝ} {τ : (Fin d → ℝ) → �
     (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
     ENNReal.ofReal (1 - (1 - c) ^ n) * pcnPriorTarget (d := d) s ρ R τ S
       ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S :=
-  pcnAbsorbingStep_rate hc0 hc1 hs hmeas hmin hstat n x hS
+  pcnAbsorbingStep_rate hc0 hc1 hs hτ hmin hstat n x hS
 
 /-- **Two steps with a constant uniform on a ball of starts.**  §12's two-step minorant with §15's
 uniform return mass: for every start with `‖x‖² ≤ M²` the constant is the same,
@@ -1558,15 +1689,15 @@ theorem pcnAbsorbingStep_twoStep_minorant_ball {s ρ R F B m M : ℝ} {τ : (Fin
     (hτpos : ∀ y ∈ pcnBox d R, 0 < τ y)
     (hτxy : ∀ y ∈ pcnBox d R, ∀ z ∈ pcnBox d R, m * τ y ≤ τ z)
     (hdens : ∀ y ∈ pcnBox d R, ∀ z ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s ρ y z)
-    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ))
-    (hs : 0 < s) (hR : 0 ≤ R) (hτx0 : 0 < τ x) (hτxB : τ x ≤ B)
+    (hτ : Measurable τ) (hs : 0 < s) (hR : 0 ≤ R) (hτx0 : 0 < τ x) (hτxB : τ x ≤ B)
     (hτfloor : ∀ y ∈ pcnBox d R, m * B ≤ τ y)
     (hxM : pcnSumSq x ≤ M ^ 2) :
     (ENNReal.ofReal (m * pcnBallConst (d := d) s ρ R M * (2 * R) ^ d)
         * ENNReal.ofReal (m * F / B)) • pcnTargetMeasure (d := d) R τ
       ≤ (pcnAbsorbingStep (d := d) s ρ R τ x).bind
           (pcnAbsorbingStep (d := d) s ρ R τ) :=
-  bind_minorant_of_set (measurableSet_pcnBox (d := d) R) hmeas.aemeasurable
+  bind_minorant_of_set (measurableSet_pcnBox (d := d) R)
+    (measurable_pcnAbsorbingStep s ρ R hτ).aemeasurable
     (pcnAbsorbingStep_box_ge_ball (d := d) (s := s) (ρ := ρ) (R := R) (B := B) (m := m)
       (M := M) (τ := τ) (x := x) hs hR hm0 hm1 hτx0 hτxB hτfloor hxM)
     (fun y hy => pcnAbsorbingStep_minorant hF hB hm0 hm1 hτB (hτpos y hy) (hτxy y hy)
@@ -1593,10 +1724,12 @@ what the rate of §9 consumes.
 * **`pcnAbsorbingStep_rate_prior_of_stationary`** — and §16's rate with its invariance hypothesis
   discharged instead of assumed.
 
-**What remains hypotheses.**  `Measurable τ` and `Measurable (pcnAbsorbingStep s ρ R τ)` —
-properties of the explicit formulas (the acceptance is `min 1 (τ y / τ x)`, the density an
-exponential of a quadratic form), and `IsProbabilityMeasure (pcnPriorTarget s ρ R τ)` for the rate,
-which is the normalisation of the reference measure and not a consequence of the box floors.
+**What remains hypotheses.**  `Measurable τ` — a property of the target's formula — and, in the
+rate, `IsProbabilityMeasure (pcnPriorTarget s ρ R τ)`.  The step's own measurability is *not* a
+hypothesis:
+§9's `measurable_pcnAbsorbingStep` proves it.  The probability hypothesis is replaced in §19 by the
+reference's mass `M`, which §18's constants bound on both sides; it is not proved to be `1`, because
+`∫_{box} τ · pcnPrior` is not `1` for a general target.
 -/
 
 variable {α : Type*} [MeasurableSpace α]
@@ -1613,23 +1746,6 @@ theorem doeblinStep_apply {ν : Measure α} [SFinite ν] {k : α → α → ENNR
   classical
   rw [doeblinStep, Measure.add_apply, withDensity_apply _ hA, Measure.smul_apply,
     Measure.dirac_apply' x hA, smul_eq_mul]
-
-/-- **The set integral is measurable in the starting point** — the step's mass into `A` depends
-measurably on `x`, from joint measurability of the density. -/
-theorem measurable_setLIntegral {ν : Measure α} [SFinite ν] {k : α → α → ENNReal}
-    (hk : Measurable (Function.uncurry k)) {A : Set α} (hA : MeasurableSet A) :
-    Measurable fun x => ∫⁻ y in A, k x y ∂ν := by
-  classical
-  have hind : Measurable fun p : α × α => k p.1 p.2 * (if p.2 ∈ A then 1 else 0) :=
-    hk.mul (measurable_const.indicator (hA.preimage measurable_snd))
-  have h := hind.lintegral_prod_right' (ν := ν)
-  have hd : (fun x => ∫⁻ y, k x y * (if y ∈ A then 1 else 0) ∂ν)
-      = fun x => ∫⁻ y in A, k x y ∂ν := by
-    funext x
-    rw [← lintegral_indicator hA (fun y => k x y)]
-    exact lintegral_congr fun y => by by_cases hy : y ∈ A <;> simp [hy]
-  rw [← hd]
-  exact h
 
 theorem measurable_doeblinStep_apply {ν : Measure α} [SFinite ν] {k : α → α → ENNReal}
     (hk : Measurable (Function.uncurry k)) {A : Set α} (hA : MeasurableSet A) :
@@ -1750,30 +1866,6 @@ theorem bind_doeblinStep_stationary {ν : Measure α} [SFinite ν] {g : α → E
 
 section PCN
 
-/-- The pCN density is measurable in the pair (start, target), given a measurable acceptance
-density. -/
-theorem measurable_pcnDensity_uncurry (c s ρ : ℝ) :
-    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnDensity c s ρ x y) := by
-  have hquad : Measurable fun p : (Fin d → ℝ) × (Fin d → ℝ) => pcnQuad ρ p.1 p.2 := by
-    unfold pcnQuad
-    refine Finset.measurable_sum _ fun i _ => ?_
-    refine (((measurable_pi_apply i).comp measurable_snd).sub
-      (measurable_const.mul ((measurable_pi_apply i).comp measurable_fst))).pow_const 2
-  unfold pcnDensity
-  exact measurable_const.mul (Real.measurable_exp.comp (by fun_prop))
-
-theorem measurable_pcnAccept_uncurry {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ) :
-    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnAccept τ x y) := by
-  unfold pcnAccept
-  refine Measurable.min measurable_const ?_
-  exact (hτ.comp measurable_snd).div (hτ.comp measurable_fst)
-
-theorem measurable_pcnMetropolisDensity_uncurry {τ : (Fin d → ℝ) → ℝ} (hτ : Measurable τ)
-    (c s ρ : ℝ) :
-    Measurable (Function.uncurry fun x y : Fin d → ℝ => pcnMetropolisDensity c s ρ τ x y) := by
-  unfold pcnMetropolisDensity
-  exact (measurable_pcnAccept_uncurry hτ).mul (measurable_pcnDensity_uncurry c s ρ)
-
 theorem measurable_pcnPrior (s ρ : ℝ) :
     Measurable (pcnPrior (d := d) s ρ) := by
   have hsum : Measurable (pcnSumSq (d := d)) := by
@@ -1801,11 +1893,10 @@ theorem pcnAbsorbingStep_eq_doeblinStep (s ρ R : ℝ) (τ : (Fin d → ℝ) →
 reference `pcnPriorTarget s ρ R τ = volume.withDensity (τ · pcnPrior)` of §16, the pCN Metropolis
 step with its rejection atom leaves it invariant: detailed balance into `π.bind K = π` (§17).
 
-The hypotheses are the reference's measurability and the step's; both are properties of the explicit
-formulas, not of the mathematics. -/
+The only hypothesis is the reference's measurability; the step's is `measurable_pcnAbsorbingStep`,
+a property of its explicit formula. -/
 theorem pcnPriorTarget_stationary (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} (hs : 0 < s)
-    (hτ : Measurable τ) (hτpos : ∀ x, 0 < τ x)
-    (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ)) :
+    (hτ : Measurable τ) (hτpos : ∀ x, 0 < τ x) :
     (pcnPriorTarget (d := d) s ρ R τ).bind (pcnAbsorbingStep (d := d) s ρ R τ)
       = pcnPriorTarget (d := d) s ρ R τ := by
   have hstep : (fun x => pcnAbsorbingStep (d := d) s ρ R τ x)
@@ -1817,7 +1908,7 @@ theorem pcnPriorTarget_stationary (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} 
   refine (congrArg (fun K => (pcnPriorTarget (d := d) s ρ R τ).bind K) hstep).trans ?_
   refine bind_doeblinStep_stationary hg
     ((measurable_pcnMetropolisDensity_uncurry hτ (pcnNorm1 s ^ d) s ρ).ennreal_ofReal) ?_ ?_ ?_
-  · simpa [hstep] using hmeas.aemeasurable
+  · simpa [hstep] using (measurable_pcnAbsorbingStep s ρ R hτ).aemeasurable
   · intro x y
     have hdy : 0 ≤ pcnMetropolisDensity (pcnNorm1 s ^ d) s ρ τ y x :=
       pcnMetropolisDensity_nonneg (pow_nonneg (pcnNorm1_pos hs).le d) (hτpos y) (hτpos x).le
@@ -1842,15 +1933,297 @@ theorem pcnPriorTarget_stationary (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} 
 are the minorant of §16 and the reference's normalisation. -/
 theorem pcnAbsorbingStep_rate_prior_of_stationary (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ}
     {c : ℝ} (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s) (hτ : Measurable τ)
-    (hτpos : ∀ x, 0 < τ x) (hmeas : Measurable (pcnAbsorbingStep (d := d) s ρ R τ))
+    (hτpos : ∀ x, 0 < τ x)
     [IsProbabilityMeasure (pcnPriorTarget (d := d) s ρ R τ)]
     (hmin : ∀ x, ENNReal.ofReal c • pcnPriorTarget (d := d) s ρ R τ
       ≤ pcnAbsorbingStep (d := d) s ρ R τ x)
     (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
     ENNReal.ofReal (1 - (1 - c) ^ n) * pcnPriorTarget (d := d) s ρ R τ S
       ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S :=
-  pcnAbsorbingStep_rate_prior hc0 hc1 hs hmeas hmin
-    (fun n => pcnStat_iter hmeas (pcnPriorTarget_stationary s ρ R hs hτ hτpos hmeas) n) n x hS
+  pcnAbsorbingStep_rate_prior hc0 hc1 hs hτ hmin
+    (fun n => pcnStat_iter (measurable_pcnAbsorbingStep s ρ R hτ)
+      (pcnPriorTarget_stationary s ρ R hs hτ hτpos) n) n x hS
+
+/-! ## 18. The minorant with its constants computed
+
+§16's minorant takes the ceiling `B` and the acceptance floor `m` as parameters.  For the natural
+family of targets these are numbers, not hypotheses: a Gaussian likelihood
+`τ y = exp (−β‖y‖²)` satisfies
+
+* `τ y · pcnPrior y ≤ 1` on the whole space (`pcnGaussLike_mul_pcnPrior_le_one`) — so `B = 1`;
+* `m · τ x ≤ τ y` with `m = exp (−β dR²)` on the box, from `∑yᵢ² ≤ dR²`
+  (`pcnGaussLike_floor`, `pcnGaussLike_le_one`).
+
+* `pcnGaussLike` — the likelihood, with `pcnGaussLike_measurable`, `pcnGaussLike_pos`;
+* `pcnGaussLike_le_one`, **`pcnGaussLike_floor`** — its bounds at `0` and on the box;
+* `pcnPrior_le_one`, **`pcnPrior_floor`** — the same two for the prior factor;
+* **`pcnGaussLike_mul_pcnPrior_le_one`** — the ceiling;
+* **`pcnAbsorbingStep_minorant_prior_gaussLike`** — §16's minorant with `B = 1` and
+  `m = exp (−β dR²)` substituted.
+
+The proposal floor `F` stays a parameter: it is §1's floor on the box, and `pcnDensity_floor`
+supplies it whenever the start is in the box.
+-/
+
+/-! ## 19. The reference's mass, and the rate with the probability hypothesis discharged
+
+§16–§17's rate assumes `[IsProbabilityMeasure (pcnPriorTarget s ρ R τ)]`.  That hypothesis is *not*
+free: `pcnPriorTarget = volume.withDensity (τ · pcnPrior)` on the box, whose total mass is
+`∫_{box} τ · pcnPrior`, and it equals `1` only for the one `τ` that cancels the prior.  So this
+section does not prove mass one — it names the mass and normalises by it.
+
+* `pcnPriorMass` — the total mass, `pcnPriorTarget univ`, and `pcnPriorMass_eq_lintegral` identifies
+  it as the box integral;
+* **`pcnPriorMass_le`** — `≤ B · (2R)^d` from the ceiling, hence `pcnPriorMass_ne_top`;
+* **`pcnPriorMass_pos`** — positive from a floor and a nondegenerate box;
+* `pcnPriorProb` — the normalised reference `M⁻¹ • pcnPriorTarget`, with
+  **`pcnPriorProb_univ`** and `isProbabilityMeasure_pcnPriorProb`;
+* **`pcnPriorProb_stationary`** — invariance survives the normalisation (`Measure.bind_smul`);
+* **`pcnPriorProb_minorant_of_target`** — a minorant against the unnormalised reference transfers
+  to the normalised one, with the constant multiplied by `M`;
+* **`pcnAbsorbingStep_rate_prob`** — the rate for the normalised reference, with
+  `IsProbabilityMeasure` proved (`haveI`) rather than assumed;
+* `pcnPriorMass_gaussLike_le`, `pcnPriorMass_gaussLike_pos` — §18's likelihood has
+  `0 < M ≤ (2R)^d`.
+
+**What this does and does not discharge.**  The rate no longer assumes the reference is a
+probability: it assumes a mass `M` with `pcnPriorMass = ofReal M` and `0 < M`, which §18's constants
+bound.  It does not compute `M` exactly, and the normalised reference is a different measure from
+§3–§16's `volume.withDensity (τ · pcnPrior)` by the constant `M`.
+-/
+
+/-! ## 18. Explicit constants at a Gaussian likelihood -/
+
+/-- A Gaussian likelihood `exp (−β‖y‖²)`. -/
+noncomputable def pcnGaussLike (β : ℝ) (y : Fin d → ℝ) : ℝ := Real.exp (-(β * pcnSumSq y))
+
+theorem pcnGaussLike_pos (β : ℝ) (y : Fin d → ℝ) : 0 < pcnGaussLike (d := d) β y :=
+  Real.exp_pos _
+
+theorem pcnGaussLike_measurable (β : ℝ) : Measurable (pcnGaussLike (d := d) β) := by
+  have hsum : Measurable (pcnSumSq (d := d)) := by
+    unfold pcnSumSq
+    exact Finset.measurable_sum _ fun i _ => (measurable_pi_apply i).pow_const 2
+  unfold pcnGaussLike
+  exact Real.measurable_exp.comp (by fun_prop)
+
+theorem pcnGaussLike_le_one {β : ℝ} (hβ : 0 ≤ β) (y : Fin d → ℝ) :
+    pcnGaussLike (d := d) β y ≤ 1 := by
+  rw [pcnGaussLike, Real.exp_le_one_iff]
+  have h : 0 ≤ β * pcnSumSq y := mul_nonneg hβ (pcnSumSq_nonneg y)
+  linarith
+
+/-- The likelihood's floor on the box: `exp (−β dR²)`. -/
+theorem pcnGaussLike_floor {β R : ℝ} (hβ : 0 ≤ β) {y : Fin d → ℝ} (hy : y ∈ pcnBox d R) :
+    Real.exp (-(β * ((d : ℝ) * R ^ 2))) ≤ pcnGaussLike (d := d) β y := by
+  rw [pcnGaussLike]
+  refine Real.exp_le_exp.mpr ?_
+  have h := pcnSumSq_le_of_mem_box hy
+  have : β * pcnSumSq y ≤ β * ((d : ℝ) * R ^ 2) := mul_le_mul_of_nonneg_left h hβ
+  linarith
+
+theorem pcnPrior_le_one {s ρ : ℝ} (hs : 0 < s) (hρ : ρ ^ 2 ≤ 1) (y : Fin d → ℝ) :
+    pcnPrior (d := d) s ρ y ≤ 1 := by
+  rw [pcnPrior, Real.exp_le_one_iff]
+  have h1 : 0 ≤ 1 - ρ ^ 2 := by linarith
+  have h2 : 0 ≤ (1 - ρ ^ 2) * pcnSumSq y := mul_nonneg h1 (pcnSumSq_nonneg y)
+  exact div_nonpos_of_nonpos_of_nonneg (by linarith) hs.le
+
+/-- The prior's floor on the box: `exp (−(1 − ρ²) dR² / s)`. -/
+theorem pcnPrior_floor {s ρ R : ℝ} (hs : 0 < s) (hρ : ρ ^ 2 ≤ 1) {y : Fin d → ℝ}
+    (hy : y ∈ pcnBox d R) :
+    Real.exp (-((1 - ρ ^ 2) * ((d : ℝ) * R ^ 2)) / s) ≤ pcnPrior (d := d) s ρ y := by
+  rw [pcnPrior]
+  refine Real.exp_le_exp.mpr ?_
+  have h1 : 0 ≤ 1 - ρ ^ 2 := by linarith
+  have h2 : (1 - ρ ^ 2) * pcnSumSq y ≤ (1 - ρ ^ 2) * ((d : ℝ) * R ^ 2) :=
+    mul_le_mul_of_nonneg_left (pcnSumSq_le_of_mem_box hy) h1
+  rw [neg_div, neg_div, neg_le_neg_iff]
+  exact div_le_div_of_nonneg_right h2 hs.le
+
+/-- The ceiling for the prior-referenced density: `τ · pcnPrior ≤ 1`. -/
+theorem pcnGaussLike_mul_pcnPrior_le_one {s ρ β : ℝ} (hs : 0 < s) (hρ : ρ ^ 2 ≤ 1)
+    (hβ : 0 ≤ β) (y : Fin d → ℝ) :
+    pcnGaussLike (d := d) β y * pcnPrior (d := d) s ρ y ≤ 1 := by
+  have h1 := pcnGaussLike_le_one hβ y
+  have h2 := pcnPrior_le_one hs hρ y
+  have h0 : 0 ≤ pcnPrior (d := d) s ρ y := (pcnPrior_pos s ρ y).le
+  nlinarith [h1, h2, h0, pcnGaussLike_pos β y]
+
+/-- **§16's minorant with its ceiling and acceptance floor computed**: for a Gaussian likelihood,
+`B = 1` and `m = exp (−β dR²)`. -/
+theorem pcnAbsorbingStep_minorant_prior_gaussLike {s ρ R F β : ℝ} {x : Fin d → ℝ}
+    (hs : 0 < s) (hρ : ρ ^ 2 ≤ 1) (hβ : 0 ≤ β) (hF : 0 ≤ F)
+    (hdens : ∀ y ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s ρ x y) :
+    ENNReal.ofReal (Real.exp (-(β * ((d : ℝ) * R ^ 2))) * F / 1)
+        • pcnPriorTarget (d := d) s ρ R (pcnGaussLike (d := d) β)
+      ≤ pcnAbsorbingStep (d := d) s ρ R (pcnGaussLike (d := d) β) x := by
+  refine pcnAbsorbingStep_minorant_prior (F := F) (B := 1)
+    (m := Real.exp (-(β * ((d : ℝ) * R ^ 2)))) (τ := pcnGaussLike (d := d) β) (x := x)
+    hF one_pos (Real.exp_pos _).le ?_ (fun y _ => pcnGaussLike_mul_pcnPrior_le_one hs hρ hβ y)
+    (pcnGaussLike_pos β x) ?_ hdens
+  · refine Real.exp_le_one_iff.mpr ?_
+    have h : 0 ≤ β * ((d : ℝ) * R ^ 2) := mul_nonneg hβ (by positivity)
+    linarith
+  · intro y hy
+    have h1 := pcnGaussLike_floor (d := d) hβ hy
+    have h2 := pcnGaussLike_le_one hβ x
+    have h0 : 0 ≤ Real.exp (-(β * ((d : ℝ) * R ^ 2))) := (Real.exp_pos _).le
+    have hx0 : 0 < pcnGaussLike (d := d) β x := pcnGaussLike_pos β x
+    nlinarith [h1, h2, h0, hx0]
+
+/-! ## 19. The reference's mass and its normalisation -/
+
+/-- The reference's total mass: `∫_{box} τ · pcnPrior`. -/
+noncomputable def pcnPriorMass (s ρ R : ℝ) (τ : (Fin d → ℝ) → ℝ) : ENNReal :=
+  pcnPriorTarget (d := d) s ρ R τ Set.univ
+
+theorem pcnPriorMass_eq_lintegral {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ} :
+    pcnPriorMass s ρ R τ
+      = ∫⁻ y in pcnBox d R, ENNReal.ofReal (τ y * pcnPrior s ρ y) ∂volume := by
+  rw [pcnPriorMass, pcnPriorTarget, pcnTargetMeasure, withDensity_apply _ MeasurableSet.univ,
+    setLIntegral_univ]
+
+theorem pcnPriorMass_le {s ρ R B : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (hB' : ∀ y ∈ pcnBox d R, τ y * pcnPrior s ρ y ≤ B) :
+    pcnPriorMass s ρ R τ ≤ ENNReal.ofReal B * ENNReal.ofReal (2 * R) ^ d := by
+  have h := (Measure.le_iff.mp (pcnTargetMeasure_le_smul (d := d) (R := R) (B := B) hB'))
+    Set.univ MeasurableSet.univ
+  simpa [pcnPriorMass, pcnPriorTarget, Measure.smul_apply, smul_eq_mul, pcnBox_volume,
+    Measure.restrict_apply] using h
+
+theorem pcnPriorMass_ne_top {s ρ R B : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (hB' : ∀ y ∈ pcnBox d R, τ y * pcnPrior s ρ y ≤ B) :
+    pcnPriorMass s ρ R τ ≠ ⊤ := by
+  have h := pcnPriorMass_le (d := d) hB'
+  exact ne_top_of_le_ne_top (ENNReal.mul_ne_top ENNReal.ofReal_ne_top
+    (ENNReal.pow_ne_top ENNReal.ofReal_ne_top)) h
+
+theorem pcnPriorMass_pos {s ρ R m : ℝ} {τ : (Fin d → ℝ) → ℝ} (hm : 0 < m) (hR : 0 < R)
+    (hfloor : ∀ y ∈ pcnBox d R, m ≤ τ y * pcnPrior s ρ y) :
+    0 < pcnPriorMass s ρ R τ := by
+  have h1 : ENNReal.ofReal (m * (2 * R) ^ d) ≤ pcnPriorTarget (d := d) s ρ R τ (pcnBox d R) :=
+    withDensity_box_ge (d := d) hm.le hR.le hfloor
+  have h2 : pcnPriorTarget (d := d) s ρ R τ (pcnBox d R) ≤ pcnPriorMass s ρ R τ :=
+    measure_mono (Set.subset_univ _)
+  exact lt_of_lt_of_le
+    (ENNReal.ofReal_pos.mpr (mul_pos hm (pow_pos (by linarith) d))) (le_trans h1 h2)
+
+/-- **The reference, normalised to a probability**: `(τ · pcnPrior)`'s mass divided out. -/
+noncomputable def pcnPriorProb (s ρ R : ℝ) (τ : (Fin d → ℝ) → ℝ) : Measure (Fin d → ℝ) :=
+  (pcnPriorMass s ρ R τ)⁻¹ • pcnPriorTarget (d := d) s ρ R τ
+
+theorem pcnPriorProb_univ {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (h0 : pcnPriorMass s ρ R τ ≠ 0) (htop : pcnPriorMass s ρ R τ ≠ ⊤) :
+    pcnPriorProb s ρ R τ Set.univ = 1 := by
+  rw [pcnPriorProb, Measure.smul_apply, smul_eq_mul]
+  exact ENNReal.inv_mul_cancel h0 htop
+
+theorem isProbabilityMeasure_pcnPriorProb {s ρ R : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (h0 : pcnPriorMass s ρ R τ ≠ 0) (htop : pcnPriorMass s ρ R τ ≠ ⊤) :
+    IsProbabilityMeasure (pcnPriorProb s ρ R τ) :=
+  ⟨pcnPriorProb_univ h0 htop⟩
+
+theorem pcnPriorProb_stationary (s ρ R : ℝ) {τ : (Fin d → ℝ) → ℝ} (hs : 0 < s)
+    (hτ : Measurable τ) (hτpos : ∀ x, 0 < τ x) :
+    (pcnPriorProb s ρ R τ).bind (pcnAbsorbingStep (d := d) s ρ R τ) = pcnPriorProb s ρ R τ := by
+  rw [pcnPriorProb, Measure.bind_smul, pcnPriorTarget_stationary s ρ R hs hτ hτpos]
+
+/-- **The split, for a reference of finite mass `M`.** -/
+theorem exists_split_of_minorant_mass {α : Type*} [MeasurableSpace α] {μ σ : Measure α}
+    [IsProbabilityMeasure σ] {c M : ℝ} (hM : μ Set.univ = ENNReal.ofReal M)
+    (hc0 : 0 < c) (hM0 : 0 < M) (hcM : c * M < 1) (h : ENNReal.ofReal c • μ ≤ σ) :
+    ∃ ν : Measure α, σ = ENNReal.ofReal c • μ + ENNReal.ofReal (1 - c * M) • ν ∧
+      ν Set.univ = 1 := by
+  haveI : IsFiniteMeasure (ENNReal.ofReal c • μ) :=
+    ⟨by rw [Measure.smul_apply, smul_eq_mul, hM]
+        exact ENNReal.mul_lt_top ENNReal.ofReal_ne_top.lt_top ENNReal.ofReal_ne_top.lt_top⟩
+  set a : ENNReal := ENNReal.ofReal (1 - c * M) with ha
+  have hsub : (1 : ENNReal) - ENNReal.ofReal c * ENNReal.ofReal M = a := by
+    rw [ha, ← ENNReal.ofReal_mul hc0.le, ← ENNReal.ofReal_one,
+      ← ENNReal.ofReal_sub 1 (mul_pos hc0 hM0).le]
+  have hne : a ≠ 0 := (ENNReal.ofReal_pos.mpr (by linarith)).ne'
+  have htop : a ≠ ⊤ := ENNReal.ofReal_ne_top
+  set r : Measure α := σ - ENNReal.ofReal c • μ with hr
+  have hmassr : r Set.univ = a := by
+    rw [hr, Measure.sub_apply MeasurableSet.univ h, Measure.smul_apply, smul_eq_mul,
+      measure_univ, hM, hsub]
+  have hsum : r + ENNReal.ofReal c • μ = σ := by
+    rw [hr]
+    exact Measure.sub_add_cancel_of_le h
+  refine ⟨a⁻¹ • r, ?_, ?_⟩
+  · have hsmul : a • (a⁻¹ • r) = r := by
+      rw [smul_smul, ENNReal.mul_inv_cancel hne htop, one_smul]
+    calc σ = r + ENNReal.ofReal c • μ := hsum.symm
+      _ = ENNReal.ofReal c • μ + a • (a⁻¹ • r) := by rw [hsmul, add_comm]
+  · rw [Measure.smul_apply, smul_eq_mul, hmassr]
+    exact ENNReal.inv_mul_cancel hne htop
+
+/-- **The mass, not a probability: the minorant transfers.**  A minorant against the reference
+`τ · pcnPrior` with constant `c0` is a minorant against the normalised `pcnPriorProb` with constant
+`c0 · M`, since `pcnPriorProb = M⁻¹ • pcnPriorTarget`. -/
+theorem pcnPriorProb_minorant_of_target {s ρ R M : ℝ} {τ : (Fin d → ℝ) → ℝ}
+    (hM : pcnPriorMass s ρ R τ = ENNReal.ofReal M) (hM0 : 0 < M)
+    {K : (Fin d → ℝ) → Measure (Fin d → ℝ)} {c0 : ℝ}
+    (hmin : ∀ x, ENNReal.ofReal c0 • pcnPriorTarget (d := d) s ρ R τ ≤ K x) :
+    ∀ x, ENNReal.ofReal (c0 * M) • pcnPriorProb s ρ R τ ≤ K x := by
+  have hMne : M ≠ 0 := hM0.ne'
+  have hscal : ENNReal.ofReal (c0 * M) * ENNReal.ofReal M⁻¹ = ENNReal.ofReal c0 := by
+    rcases le_total 0 c0 with hc0' | hc0'
+    · rw [← ENNReal.ofReal_mul (mul_nonneg hc0' hM0.le)]
+      congr 1
+      field_simp
+    · rw [ENNReal.ofReal_eq_zero.mpr (by nlinarith : c0 * M ≤ 0),
+        ENNReal.ofReal_eq_zero.mpr hc0', zero_mul]
+  intro x
+  have h : ENNReal.ofReal (c0 * M) • pcnPriorProb s ρ R τ
+      = ENNReal.ofReal c0 • pcnPriorTarget (d := d) s ρ R τ := by
+    unfold pcnPriorProb
+    rw [smul_smul, hM, ← ENNReal.ofReal_inv_of_pos hM0, hscal]
+  rw [h]
+  exact hmin x
+
+/-- **The rate against the normalised reference, `IsProbabilityMeasure` proved not assumed.** -/
+theorem pcnAbsorbingStep_rate_prob (s ρ R c : ℝ) {τ : (Fin d → ℝ) → ℝ} {M : ℝ}
+    (hc0 : 0 < c) (hc1 : c < 1) (hs : 0 < s) (hτ : Measurable τ)
+    (hτpos : ∀ x, 0 < τ x) (hM0 : 0 < M)
+    (hM : pcnPriorMass s ρ R τ = ENNReal.ofReal M)
+    (hmin : ∀ x, ENNReal.ofReal c • pcnPriorProb s ρ R τ
+      ≤ pcnAbsorbingStep (d := d) s ρ R τ x)
+    (n : ℕ) (x : Fin d → ℝ) {S : Set (Fin d → ℝ)} (hS : MeasurableSet S) :
+    ENNReal.ofReal (1 - (1 - c) ^ n) * pcnPriorProb s ρ R τ S
+      ≤ pcnIter (pcnAbsorbingStep (d := d) s ρ R τ) n x S := by
+  have h0 : pcnPriorMass s ρ R τ ≠ 0 := by
+    rw [hM]
+    exact (ENNReal.ofReal_pos.mpr hM0).ne'
+  have htop : pcnPriorMass s ρ R τ ≠ ⊤ := by
+    rw [hM]
+    exact ENNReal.ofReal_ne_top
+  haveI := isProbabilityMeasure_pcnPriorProb (s := s) (ρ := ρ) (R := R) (τ := τ) h0 htop
+  exact pcnAbsorbingStep_rate hc0 hc1 hs hτ hmin
+    (fun n => pcnStat_iter (measurable_pcnAbsorbingStep s ρ R hτ)
+      (pcnPriorProb_stationary s ρ R hs hτ hτpos) n) n x hS
+
+/-- The Gaussian likelihood's reference is finite: `≤ (2R)^d`, from the ceiling `B = 1`. -/
+theorem pcnPriorMass_gaussLike_le {s ρ R β : ℝ} (hs : 0 < s) (hρ : ρ ^ 2 ≤ 1) (hβ : 0 ≤ β) :
+    pcnPriorMass s ρ R (pcnGaussLike (d := d) β) ≤ ENNReal.ofReal (2 * R) ^ d := by
+  have h : pcnPriorMass s ρ R (pcnGaussLike (d := d) β)
+      ≤ ENNReal.ofReal 1 * ENNReal.ofReal (2 * R) ^ d :=
+    pcnPriorMass_le (d := d) (R := R) (B := 1) (τ := pcnGaussLike (d := d) β)
+      (fun y _ => pcnGaussLike_mul_pcnPrior_le_one hs hρ hβ y)
+  simpa using h
+
+/-- The Gaussian likelihood's reference is positive on a nondegenerate box. -/
+theorem pcnPriorMass_gaussLike_pos {s ρ R β : ℝ} (hs : 0 < s) (hρ : ρ ^ 2 ≤ 1) (hβ : 0 ≤ β)
+    (hR : 0 < R) : 0 < pcnPriorMass s ρ R (pcnGaussLike (d := d) β) := by
+  have hm0 : 0 < Real.exp (-(β * ((d : ℝ) * R ^ 2)))
+      * Real.exp (-((1 - ρ ^ 2) * ((d : ℝ) * R ^ 2)) / s) :=
+    mul_pos (Real.exp_pos _) (Real.exp_pos _)
+  refine pcnPriorMass_pos hm0 hR (τ := pcnGaussLike (d := d) β) ?_
+  intro y hy
+  exact mul_le_mul (pcnGaussLike_floor (d := d) hβ hy) (pcnPrior_floor hs hρ hy)
+    (Real.exp_pos _).le (le_trans (Real.exp_pos _).le (pcnGaussLike_floor (d := d) hβ hy))
+
 
 end PCN
 

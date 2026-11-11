@@ -81,8 +81,16 @@ campaign measured a diagnostic, and §M4.9 gates §M4.3".
   stationarity (`doeblinStep`, `bind_doeblinStep_stationary`: detailed balance plus a forward-mass
   bound give `π.bind K = π` by Tonelli on the symmetric joint density; `pcnPriorTarget_stationary`
   is the pCN instance, and `pcnAbsorbingStep_rate_prior_of_stationary` drops `hstat` from the rate).
-  Nothing of the chain's logical spine is missing now: what remains open are the minorant's
-  quantitative inputs and the reference's normalisation `IsProbabilityMeasure (pcnPriorTarget …)`.  Its predecessor is the 2026-11-08 entry (`§9.3–§9.5`: the mode calculus, `polyMul_mul`, the derivative side), and the 2026-10-21 steps 0–3 are **not** superseded and remain open | `pcnl.md`'s Module 3 status prose — "the induction that *feeds*" §9.2, "the derivative polynomials `∂_j Φ` … not carried out here", and the operator composition with `∂ⱼ` — is superseded as a reading guide by the 2026-11-08 and 2026-11-08b entries for the pCNL/Module 3 track only; the rest of `pcnl.md` (Modules 1–2, 4–5, the review of the empirical claims) stands | — |
+  The 2026-11-11 entry closes the three inputs that row listed: the step's measure-valued
+  measurability (`measurable_withDensity_uncurry`, `measurable_pcnMetropolisStep`,
+  `measurable_rejection`, `measurable_pcnAbsorbingStep` — every `hmeas` hypothesis becomes
+  `Measurable τ`), the minorant's constants at a Gaussian likelihood (`pcnGaussLike`,
+  `pcnGaussLike_mul_pcnPrior_le_one` for `B = 1`, `pcnGaussLike_floor` for `m = exp (−β dR²)`,
+  `pcnAbsorbingStep_minorant_prior_gaussLike`), and the reference's "normalisation" — which is *not*
+  mass one (`pcnPriorMass` is the box integral `∫ τ · pcnPrior`, finite by `pcnPriorMass_le` and
+  positive by `pcnPriorMass_pos`), so the rate is stated for the normalised `pcnPriorProb` with
+  `IsProbabilityMeasure` proved (`pcnPriorProb_stationary`, `pcnPriorProb_minorant_of_target`,
+  `pcnAbsorbingStep_rate_prob`).  What remains open is the *value* of that mass.  Its predecessor is the 2026-11-08 entry (`§9.3–§9.5`: the mode calculus, `polyMul_mul`, the derivative side), and the 2026-10-21 steps 0–3 are **not** superseded and remain open | `pcnl.md`'s Module 3 status prose — "the induction that *feeds*" §9.2, "the derivative polynomials `∂_j Φ` … not carried out here", and the operator composition with `∂ⱼ` — is superseded as a reading guide by the 2026-11-08 and 2026-11-08b entries for the pCNL/Module 3 track only; the rest of `pcnl.md` (Modules 1–2, 4–5, the review of the empirical claims) stands | — |
 
 **The single most load-bearing supersession sentence for the book track** is buried inside
 the 2026-08-27 wave block, not in any header: *"One plan that supersedes the per-thread

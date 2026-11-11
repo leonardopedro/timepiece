@@ -19996,3 +19996,76 @@ warnings on the file; `#print axioms` on `bind_doeblinStep_stationary`, `pcnPrio
 `pcnAbsorbingStep_rate_prior_of_stationary`, `pcnAbsorbingStep_eq_doeblinStep`,
 `measurable_pcnPrior`, `measurable_pcnMetropolisDensity_uncurry` → `propext, Classical.choice,
 Quot.sound` only, no `sorryAx`; 0 lines over 100 characters, no trailing whitespace.
+
+### 43. Addendum (2026-11-11) — the step's measurability, computed constants, and the reference's mass
+
+Three items, all in `BookProof/MCMC/PCNGaussianFloor`, all `sorry`-free: the measure-valued
+measurability that §42 still carried as a hypothesis, the constants §41's minorant took as
+parameters, and the normalisation §42 left as `IsProbabilityMeasure`.
+
+**1. The step is a measurable family of measures (§9's measurability block).**  Every theorem that
+binds `pcnAbsorbingStep` — `pcnAbsorbingStep_rate`, `pcnIter_confined`, `pcnIter_confined_ball`,
+`pcnAbsorbingStep_twoStep_minorant`, `pcnAbsorbingStep_rate_prior`,
+`pcnAbsorbingStep_twoStep_minorant_ball`, `pcnPriorTarget_stationary`,
+`pcnAbsorbingStep_rate_prior_of_stationary` — carried
+`(hmeas : Measurable (pcnAbsorbingStep s ρ R τ))`.  It is now proved from `Measurable τ`:
+
+* **`measurable_setLIntegral`** — `x ↦ ∫⁻ y in A, k x y ∂ν` is measurable whenever
+  `Function.uncurry k` is (Tonelli on the indicator);
+* **`measurable_withDensity_uncurry`** — hence `x ↦ ν.withDensity (k x)` is measurable, read off
+  `Measure.measurable_of_measurable_coe`;
+* `measurable_pcnDensity_uncurry`, `measurable_pcnAccept_uncurry`,
+  `measurable_pcnMetropolisDensity_uncurry` — the explicit formulas are jointly measurable;
+* **`measurable_pcnMetropolisStep`** — the accepted part;
+* `measurable_rejection` — the atom `x ↦ (1 − mass x) • δ_x`, whose set masses are
+  `(1 − mass x) · A.indicator 1 x`;
+* **`measurable_pcnAbsorbingStep`** — their sum.
+
+Every statement above now takes `(hτ : Measurable τ)` and derives the measurability locally;
+`pcnPriorTarget_stationary` keeps only `hτ` and `hτpos`.  This is the one hypothesis of §37–§42 that
+was an assumption about a *formula* rather than about the mathematics.
+
+**2. The constants are numbers at a Gaussian likelihood (§18).**  §41's minorant
+(`pcnAbsorbingStep_minorant_prior`) takes the ceiling `B` and the acceptance floor `m`.  For the
+likelihood `τ y = exp (−β‖y‖²)`:
+
+* the ceiling is `B = 1` — `pcnGaussLike_le_one` (`τ ≤ 1` for `β ≥ 0`) and `pcnPrior_le_one`
+  (`pcnPrior ≤ 1` for `ρ² ≤ 1`), multiplied in **`pcnGaussLike_mul_pcnPrior_le_one`**;
+* the floor is `m = exp (−β dR²)` — `pcnGaussLike_floor` (`∑ yᵢ² ≤ dR²` on the box) against
+  `pcnGaussLike_le_one` at the start, with the prior's own box floor `pcnPrior_floor` for §19.
+
+**`pcnAbsorbingStep_minorant_prior_gaussLike`** substitutes both into §41's minorant.  The proposal
+floor `F` stays a parameter: it is §1's box floor and needs the start in the box, which §42's
+ball-uniform return constant is what makes composable.
+
+**3. The reference's mass, and the rate without `IsProbabilityMeasure` (§19).**  §42 called the
+remaining hypothesis "the reference's normalisation"; it is *not* a normalisation, and cannot be
+proved: `pcnPriorTarget = volume.withDensity (τ · pcnPrior)` on the box has total mass
+
+`pcnPriorMass s ρ R τ = ∫_{box} τ · pcnPrior`  (**`pcnPriorMass_eq_lintegral`**),
+
+which is `1` only for the `τ` that cancels the prior — not for a general target, and not for §18's
+likelihood.  What is proved is that it is finite and positive: **`pcnPriorMass_le`**
+(`≤ B · (2R)^d` from the ceiling, hence **`pcnPriorMass_ne_top`**) and **`pcnPriorMass_pos`** (from a
+floor on the box and `R > 0`).  The repair names the mass:
+
+* **`pcnPriorProb s ρ R τ = M⁻¹ • pcnPriorTarget`** — a probability measure
+  (**`pcnPriorProb_univ`**, `isProbabilityMeasure_pcnPriorProb`);
+* **`pcnPriorProb_stationary`** — invariance survives the normalisation (`Measure.bind_smul` with
+  §42's `pcnPriorTarget_stationary`);
+* **`pcnPriorProb_minorant_of_target`** — a minorant `c0 • pcnPriorTarget ≤ K x` transfers to
+  `(c0 · M) • pcnPriorProb ≤ K x`;
+* **`pcnAbsorbingStep_rate_prob`** — §39's contraction for the normalised reference, with
+  `IsProbabilityMeasure` supplied by `haveI` from `pcnPriorMass = ofReal M` and `M > 0`.
+
+For §18's likelihood the mass is sandwiched, `0 < M ≤ (2R)^d`
+(`pcnPriorMass_gaussLike_pos`, `pcnPriorMass_gaussLike_le`).  What is *not* given is the value of
+`M`: the box integral of `τ · pcnPrior` is left as data, and it is the rate's constant.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` → **8026 jobs**, green, no linter
+warnings on the file; `#print axioms` on `measurable_pcnAbsorbingStep`,
+`pcnAbsorbingStep_minorant_prior_gaussLike`, `pcnPriorMass_le`, `pcnPriorMass_pos`,
+`isProbabilityMeasure_pcnPriorProb`, `pcnPriorProb_stationary`, `pcnPriorProb_minorant_of_target`,
+`pcnAbsorbingStep_rate_prob`, `pcnPriorMass_gaussLike_le`, `pcnPriorMass_gaussLike_pos` →
+`propext, Classical.choice, Quot.sound` only, no `sorryAx`; 0 lines over 100 characters, no trailing
+whitespace.
