@@ -2204,7 +2204,114 @@ consequence of the same dropped term, and it is withdrawn with it.
   instances `hessForm_smPotPoly_one`, `weightedDirichlet_smPotPoly_one` are proved, `sorry`-
   and `axiom`-free, in `BookProof/Sm/ChapterSmCrossTermHessian.lean` §9.  They fix the shape
   of the `p = 1` test exactly.
+* The two facts the arithmetic rests on **are** proved, in the same module §10:
+  `gaussMoment_one` (`∫ t e^{-t²/2} = 0`), `gaussInt_X_mul_X_of_ne` (distinct momentum
+  coordinates do not correlate, `∫ xⱼxₖ e^{-‖x‖²/2} = 0` for `j ≠ k` — the reason `E[|∇Φ|²]`
+  has no cross terms) and `hessForm_eq_zero_of_trace_zero` (a form with vanishing twisted
+  Laplacian carries no Hessian weight, for every test polynomial — the abstract form of §40.2's
+  `Δ_S Φ_r = 0` for `smMagG`/`smMagW`/`smCovD`).
 * The evaluations of §42.2–§42.4 are arithmetic on the coefficient data, checked symbolically
-  (including a non-antisymmetric `fabc`); they are not Lean theorems.
+  (including a non-antisymmetric `fabc`); the coefficient sums `∑_{u,v}(M_{uv}+M_{vu})²` are not
+  formalized.  The SM instantiation would still need `smMagG`, `smMagW`, `smCovD` expanded into
+  monomials — the coefficient bookkeeping, not the Gaussian analysis.
 * `PotSelfBound` and `FormDomainComparison` remain hypotheses.  Nothing in §40–§42 proves
   either, and the `p = 1` test excludes no physically sensible data.
+
+---
+
+## §43. Are there test functions sharper than the Gaussian in the polynomial core?
+
+### 43.1. The question, made quantitative
+
+By §38, `PotSelfBound P c₀ 1` is equivalent to `R(p) ≥ 0` for every polynomial `p`, where
+
+```
+R(p)  =  ‖A p‖²  +  2 Re ⟨A p, (W + 1) p⟩ ,        A = kinPolyS smS ,  W = smPotPoly P c₀ ,
+```
+
+and `R(p) ≥ 0` is the same statement as
+
+```
+ρ(p)  :=  ‖(W + 1) p‖ / ‖(A + W + 1) p‖  ≤  1 .
+```
+
+So "sharper test function" has an exact meaning: larger `ρ`.  `ρ` is homogeneous of degree `0`,
+and `PotSelfBound` says that its supremum over the core is `≤ 1`.  The question of this section
+is whether the supremum over the core is attained, and whether polynomials with larger `ρ` than
+the Gaussian `p = 1` are available in closed form.
+
+### 43.2. The core loses nothing, but it also attains nothing
+
+Two facts pull in opposite directions.
+
+* **Density.**  The polynomial core is dense in the graph-norm domain of `A + W + 1`, so the
+  supremum of `ρ` over the core equals the supremum over the closure.  Hence if any vector of
+  the domain has `ρ > 1`, then so do polynomials: sharper tests, when they exist, are always
+  available *somewhere* in the core.
+* **No source of an extremal polynomial.**  The extremal vectors of `ρ` satisfy a fourth-order
+  Euler–Lagrange equation, `(W+1)² p = λ (A + W + 1)² p`; for the quartic `W` of the SM nothing
+  in the corpus identifies a polynomial solution, and the computed family below shows the sharp
+  direction is a *rescaling* of the test function rather than an increase of its degree.
+
+### 43.3. A computed proxy
+
+The radial proxy is `W(s) = s + κ (s − v₀²)²` with `s = ‖x_S‖²`, `n = |S| = 40`, `κ = λ/2`.
+Every expectation below is exact (Gaussian moments).  Three families of test functions:
+
+* `p = 1` (the Gaussian `e^{-‖x‖²/4}`) — the §40 test;
+* `p = x₀` — the first member of the degree ladder, `A p = x₀ ((n+1)/2 − s/4)`;
+* the scaled Gaussians `ψ_a = e^{-a s/2}`, i.e. `p = e^{(1/2-a)s/2}`, which are polynomials only
+  at `a = 1/2`.
+
+```
+κ = 0        (mass term only):     ρ(p=1) = 0.815802    ρ(p=x₀) = 0.822655
+κ = λ/2, v₀² = 6:                  ρ(p=1) = 0.939581    ρ(p=x₀) = 0.944227
+
+scaled Gaussians, κ = λ/2, v₀² = 6:
+  a = 0.5    ρ = 0.93958        a = 0.2    ρ = 0.99575        a = 0.1    ρ = 0.999460
+  a = 0.05   ρ = 0.999932       a = 0.02   ρ = 0.999996       a → 0      ρ → 1
+```
+
+For the mass-only proxy the ratio is explicit:
+
+```
+ρ²(a)  =  (420 a⁻² + 40 a⁻¹ + 1) / (420 a⁻² + 40 a⁻¹ + 1 + 420 a² + 40 a + 760) ,
+```
+
+so `1 − ρ²(a) ~ (760/420) a²` as `a → 0`: the sharpness approaches `1` quadratically as the test
+function spreads out, and it never crosses `1`.  The same mechanism holds for the SM weight,
+because `W` grows like a fourth power in the coordinates of `S` while the kinetic term of a
+spread test vector is only of order `a`, so the potential dominates both norms in the limit.
+
+### 43.4. Answer
+
+* **Yes, sharper tests than `p = 1` are available in the core, in closed form.**  The degree-one
+  test `p = x₀` already has larger `ρ` than the Gaussian, in both proxy regimes
+  (`0.8227 > 0.8158` and `0.9442 > 0.9396`).  So `p = 1` is **not** the extremal available test,
+  and the §40 test is strictly weaker than the first rung of the degree ladder.
+* **No polynomial test is the sharpest.**  The supremum of `ρ` is `1`, approached by spread-out
+  test functions; the corresponding vectors are `p = e^{(1/2-a)s/2}` with `a ≠ 1/2`, which are
+  not polynomials.  The core supplies them only as limits, so no closed-form polynomial attains
+  the boundary.
+* **No test in the proxy crosses `1`.**  The proxy satisfies `ρ < 1` everywhere computed, with
+  the margin `1 − ρ²` shrinking like `a²` in the spread direction.  The `p = 1` margin is not
+  small — `1 − ρ² ≈ 0.12` at `v₀² = 6` — which is exactly why the §40 test passed comfortably
+  and could not have excluded any regime.
+
+### 43.5. Consequence for the route
+
+The "test the Hessian gap at a sequence of polynomials" route is therefore **exhausted as a
+decision procedure**: the ladder is monotone but its increments are small near the Gaussian, and
+the sharp direction leaves the core.  A proof of `PotSelfBound` cannot be replaced by choosing a
+better polynomial; it still needs the form-domain/elliptic-regularity input of §32.  What the
+ladder does supply is a cheap family of necessary conditions — the degree-one rung
+`ρ(x₀) ≤ 1` is now the sharpest *closed-form* check available, and it should replace `p = 1` as
+the first test in any future attempt.
+
+### 43.6. Status of the numbers
+
+All values in §43.3–§43.4 are exact Gaussian moments for the radial proxy `W = s + κ(s−v₀²)²`,
+computed with exact rational arithmetic / high-precision `Γ`-moments; they are not Lean theorems
+and not statements about the full `smPotPoly` (which has 49 forms rather than one radial
+polynomial).  The density argument of §43.2 is a general fact about the core.  `PotSelfBound`
+and `FormDomainComparison` remain hypotheses.

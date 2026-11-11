@@ -63,6 +63,33 @@ campaign measured a diagnostic, and §M4.9 gates §M4.3".
 | **BayesianTransformer** (nGPT geometry / SG-pCNL) | §“State of the project — 2026-11-08f: source audit, nested-Fock interpretation, and specialist handoff”, **S4–S5**, implementing `pcnl.md` **T0 → T1 → T2 → T3**, then T4/T5 when their hypotheses are available; S0 validates citations. Polynomial core identities, oscillator norms and the constant-scalar drift pairing bound are source-present. Kernel invariance, symmetry, nonconstant coefficient estimates, full MH comparison and tail control remain separate obligations. | 2026-10-21 and 2026-11-08/08b–e interpretive work orders; theorem statements and historical build reports retained | Gaussian pCN identified with spherical Brownian motion; scalar `b` substituted for a variable loss gradient; differential drift treated as an exact finite-step kernel correction |
 | **OS / Euclidean reconstruction** | §“State of the project — 2026-11-08f: source audit, nested-Fock interpretation, and specialist handoff”, **§2, S3**; `cftproof.md` supplies the detailed positive-time construction. Reuse the conditional multiplier self-adjoint generator and norm-gap equivalence; construct the physical representation and full ground projection. | Older assertions that spectral/Stone machinery is absent, or that a `MulModel` hypothesis constructs the interacting theory | Two-sided contractive self-adjoint transfer groups as a nontrivial Euclidean theory |
 
+**Priority decision (2026-11-11): the QYM row before the SM's remaining analytic row.**
+
+The SM thread has been driven to a definite stopping point and should not continue on the same
+rail. The reasons, in order:
+
+1. **The SM's open item is not an SM item.** `PotSelfBound` (§22), `FormDomainComparison` (§32)
+   and the Hessian gap (§38) are three spellings of one missing input: a graph-norm domination
+   for `−Δ_S + W + 1` with a quartic weight. §39 closed the `ExpBounded` route to it, and §43
+   closes the "choose a better test function" route: the sharp tests are spread-out rescalings
+   that leave the polynomial core, and the sharpest closed-form rung (`p = x₀`) is only
+   `0.944` against the boundary value `1`.
+2. **QYM's gap is the same input on a smaller object.** The one-particle form gap is named the
+   programme's top analytic input (§10-04b §N2, §09-25 §5 item 4). It has one particle, no
+   Yukawa dictionary, no 49-form coefficient bookkeeping, and the same structure: dominate a
+   potential by the graph norm of `−Δ + W + 1`. A method found there transfers to the SM; a
+   method found in the SM's 49-form setting does not transfer back cheaply.
+3. **The SM's numerical and structural half is complete and does not need this.** E1 assembly,
+   the P1 dictionary, the P2 coupled transfer and the P3 scalar half are landed; what remains is
+   P4–P8, all of which consume the same elliptic input rather than supplying it.
+4. **Parking is explicit, not implicit.** The SM thread reopens when the form-domain input
+   lands; §43.5 records the degree-one test `ρ(x₀) ≤ 1` as the first check any new candidate
+   must pass, so the resumption point is written down.
+
+Nothing else changes: the RH analytic `sorry` rows stay parked (flag **F2**), and the QG / NS /
+book rows keep their recorded orders. This is a prioritization, not a claim about either
+estimate.
+
 **The single most load-bearing supersession sentence for the book track** is buried inside
 the 2026-08-27 wave block, not in any header: *"One plan that supersedes the per-thread
 plans for future work"* — it absorbs everything still open from `BOOK_PROOF_PLAN.md`,

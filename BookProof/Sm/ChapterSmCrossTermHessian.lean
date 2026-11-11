@@ -424,6 +424,40 @@ theorem weightedDirichlet_smPotPoly_one (P : SmParams) (c0 : ℝ) :
       = (1 / 4) * (gaussInt (cpoly (smPotPoly P c0 + 1) * ∑ j ∈ smS, X j * X j)).re :=
   weightedDirichlet_one_one smS _
 
+/-! ## 10. The arithmetic behind the gradient tail `E[G]`
+
+§42 evaluates `E[G] = 2 ∑_r E[|∇_S Φ_r|²]` with two facts: the cross monomials of two distinct
+momentum coordinates integrate to zero, and a form with vanishing twisted Laplacian contributes
+no Hessian weight at all.  Both are proved here.  The remaining step of §42 — the sum of squared
+coefficients `∑_{u,v} (M_{uv} + M_{vu})²` — is arithmetic on the coefficient data and is not
+formalized here. -/
+
+/-- The first Gaussian moment vanishes, so every odd one-dimensional exponent kills the
+monomial integral. -/
+theorem gaussMoment_one : gaussMoment 1 = 0 := by
+  simpa using gaussMoment_succ 0
+
+/-- **Distinct momentum coordinates do not correlate**: `∫ xⱼ xₖ e^{-‖x‖²/2} = 0` for `j ≠ k`.
+This is the reason a bilinear form's `E[|∇Φ|²]` contains no cross terms. -/
+theorem gaussInt_X_mul_X_of_ne {j k : Fin d} (h : j ≠ k) :
+    gaussInt ((X j : MvPolynomial (Fin d) ℂ) * X k) = 0 := by
+  have hX : ((X j : MvPolynomial (Fin d) ℂ) * X k)
+      = monomial (Finsupp.single j 1 + Finsupp.single k 1) (1 : ℂ) := by
+    rw [X, X, monomial_mul, mul_one]
+  have hexp : (Finsupp.single j 1 + Finsupp.single k 1 : Fin d →₀ ℕ) j = 1 := by
+    simp [Finsupp.add_apply, h]
+  rw [hX, gaussInt_monomial,
+    Finset.prod_eq_zero (Finset.mem_univ j) (by rw [hexp, gaussMoment_one]; norm_num)]
+
+/-- **A form with vanishing twisted Laplacian carries no Hessian weight**, for every test
+polynomial.  This is the abstract form of §40.2's observation that `smMagG`, `smMagW` and
+`smCovD` contribute nothing to `hessForm`; only the wall does. -/
+theorem hessForm_eq_zero_of_trace_zero (S : Finset (Fin d)) (Q p : MvPolynomial (Fin d) ℂ)
+    (hQ : cpoly Q = Q) (h : ∑ j ∈ S, pderiv j (pderiv j Q) = 0) :
+    hessForm S Q p = 0 := by
+  rw [hessForm_eq_trace S Q p hQ, h, zero_mul, cpoly, map_zero]
+  simp [gaussInt]
+
 end
 
 end BookProof.SmCrossTermHessian
