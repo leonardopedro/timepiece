@@ -1905,17 +1905,20 @@ The family-by-family sign:
 * **`smQPoly` part (`∑ q_m²`).**  Contributes the constant `80` (each of the 40
   momentum coordinates contributes `2`).
 
-* **`smMagB` (3 forms, hypercharge).**  Each `Φ` is linear in the momentum
-  coordinates `B_i`, so `Δ_S Φ = 0` and the contribution is `2 |∇Φ|²`, a
-  **constant**.  Summing the three gives `12` (each form contributes `4`).
+* **`smMagB` (3 forms, hypercharge).**  Each `Φ` is linear in the *derivative*
+  coordinates `smDB` (the field strengths `B_{k,j}`), not in the momentum
+  coordinates.  Hence `∇_S Φ = 0` and `Δ_S(Φ²) = 0`: the contribution is **zero**
+  (`smMagB` never sees the fields `B_i` themselves, only their derivatives).
 
-* **`smMagG` (24 forms) and `smMagW` (9 forms).**  Each `Φ = L (spatial) + Q`
+* **`smMagG` (24 forms) and `smMagW` (9 forms).**  Each `Φ = L (derivative) + Q`
   where `Q` is quadratic in the gauge momentum coordinates with a harmonic
   (zero-Laplacian) quadratic part; the structure constants sit in `Q` but
-  `levi(i,j,k)` forces `j ≠ k`, so no coordinate is squared and `Δ_S Q = 0`.
-  Contribution `2 |∇_S Q|²`, a **non-negative** polynomial (zero at the origin).
+  `levi(i,j,k)` forces `j ≠ k`, so no momentum coordinate is squared and
+  `Δ_S Q = 0`.  Contribution `2 |∇_S Q|²`, a **non-negative** polynomial (zero at
+  the origin).  (`smMagB` is the exception: its `Φ` is linear in `smDB` alone,
+  so its `∇_S Φ` vanishes identically.)
 
-* **`smCovD` (12 forms).**  `Φ = (spatial linear) + (bilinear in two distinct
+* **`smCovD` (12 forms).**  `Φ = (derivative linear) + (bilinear in two distinct
   momentum coordinates)`, so again `Δ_S Φ = 0`; contribution `2 |∇_S Φ|²`,
   **non-negative** (zero at the origin).
 
@@ -1934,39 +1937,38 @@ The family-by-family sign:
 
 Under the (unnormalised) Gaussian `e^{-‖x‖²/2}`, the momentum coordinates are
 independent standard normals, so `E[X²] = 1` and `E[S] = 4`.  The non-negative
-contributions have expectations `≥ 0` (and the `smMagB` part is exactly `12`).
-Therefore
+contributions of `smMagG`/`smMagW`/`smCovD` have expectations `≥ 0`, and the
+`smMagB` contribution is exactly `0`.  Therefore
 
 ```
-E[Δ_S W]  ≥  80 + 12 + 16 c² (6 − v₀²)
-          =  92 + 8 λ (6 − v₀²)            (since 16 c² = 8 λ)
-          =  92 + 48 λ − 8 λ v₀² .
+E[Δ_S W]  ≥  80 + 16 c² (6 − v₀²)
+          =  80 + 8 λ (6 − v₀²)            (since 16 c² = 8 λ)
+          =  80 + 48 λ − 8 λ v₀² .
 ```
 
-(using `c² = λ/2`, so `16 c² = 8 λ` and `24 c² · 4 = 96 c² = 48 λ`? Let me recompute:
-`E[wall] = 24 c² · E[S] − 16 c² v₀² = 24 c² · 4 − 16 c² v₀² = 96 c² − 16 c² v₀²
-= 48 λ − 8 λ v₀²`.  Plus 92 gives `92 + 48 λ − 8 λ v₀²`.  Yes.)
+(using `c² = λ/2`, so `16 c² = 8 λ`, and
+`E[wall] = 24 c² · E[S] − 16 c² v₀² = 96 c² − 16 c² v₀² = 48 λ − 8 λ v₀²`.)
 
 ### 40.4. Verdict of the test
 
 The necessary condition `E[Δ_S W] ≤ 0` becomes
 
 ```
-8 λ v₀²  ≥  92 + 48 λ     ⟺     λ v₀²  ≥  (92 + 48 λ)/8  =  11.5 + 6 λ .
+8 λ v₀²  ≥  80 + 48 λ     ⟺     λ v₀²  ≥  (80 + 48 λ)/8  =  10 + 6 λ .
 ```
 
 This is a **condition on the data**, not a theorem:
 
-* If `λ v₀² ≤ 11.5 + 6 λ` (in particular for `v₀² ≤ 6` or small `λ`), then
+* If `λ v₀² ≤ 10 + 6 λ` (in particular for `v₀² ≤ 6` or small `λ`), then
   `E[Δ_S W] > 0` and the `p = 1` gap **fails**.  In that regime `PotSelfBound`
   cannot hold with any constant, and the cross-term upper bound of §38 is not
   available at `p = 1`.
 
 * The `smMagG`/`smMagW`/`smCovD` non-negative terms raise the threshold further,
-  so `11.5 + 6 λ` is a **lower bound** on the required `λ v₀²`.
+  so  `10 + 6 λ` is a **lower bound** on the required `λ v₀²`.
 
-* The origin is the worst point: `Δ_S W|₀ = 92 − 8 λ v₀²`, negative exactly when
-  `λ v₀² > 11.5`.
+* The origin is the worst point: `Δ_S W|₀ = 80 − 8 λ v₀²`, negative exactly when
+  `λ v₀² > 10`.
 
 Hence the Hessian gap is **not** a consequence of positivity of `W` (cf. §26's
 warning that `one_le_polyW_smPotPoly` does not imply `PotSelfBound`); it is a
@@ -1992,10 +1994,12 @@ From §40.2,
 
 ```
 Δ_S W(x)  =  80
-            + 2 ∑_{magB} |∇Φ|²            (= 12 as a constant, in fact 4 per form)
             + 2 ∑_{magG,magW,covD} |∇_S Φ_r|²   (non-negative polynomials, zero at 0)
             + 24 c² S  −  16 c² v₀² .
 ```
+
+(`smMagB` contributes nothing: its field strength is built from the derivative
+coordinates `smDB`, not from the momentum coordinates `B_i`.)
 
 The only term that can be negative is the wall piece, and only where the Higgs
 field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
@@ -2006,11 +2010,10 @@ field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
   `|∇|²` terms vanish for `magG`/`magW`/`covD` (their gradients are linear in
   the fields), leaving
 
-```
-  Δ_S W|₀  =  92 − 8 λ v₀² .
+``  `Δ_S W|₀  =  80 − 8 λ v₀² .
 ```
 
-  This is negative iff `λ v₀² > 11.5`.  So for strong coupling/large vev the
+  This is negative iff `λ v₀² > 10`.  So for strong coupling/large vev the
   Laplacian is negative at the origin; for weak data it is positive everywhere
   near the origin.
 
@@ -2018,9 +2021,8 @@ field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
   `Δ_S W → +∞` along any ray.  Hence the negative region (if any) is a bounded
   neighbourhood of the origin in field space.
 
-* **`magB` is the only always-positive contributor**: its `4` per form is a
-  constant, independent of the fields, so even at the origin the hypercharge
-  sector contributes `+12`.
+* **The `q²` sum is the only constant contributor**: its `80` is independent of
+  the fields and survives at the origin.  The `smMagB` sector contributes `0`.
 
 ### 41.3. Consequences
 
@@ -2032,7 +2034,7 @@ field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
 
 2. **The `p = 1` test (§40) is the integrated version of this pointwise fact.**
    `E[Δ_S W] ≤ 0` requires the negative lobe near the origin to outweigh the
-   positive tails; equivalently `λ v₀² ≥ 11.5 + 6 λ` (plus the magG/magW/covD
+   positive tails; equivalently `λ v₀² ≥ 10 + 6 λ` (plus the magG/magW/covD
    tails).
 
 3. **No proof of `PotSelfBound` is available from this calculus.**  The gap
@@ -2044,6 +2046,6 @@ field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
 
 * `hessForm_eq_trace` / `hessForm_nonneg` (§38) reduce the question to the sign
   of `∫ Δ_S W |p|²`; this section records that the sign is **data- and
-  point-dependent**, and gives the explicit origin value `92 − 8 λ v₀²`.
+  point-dependent**, and gives the explicit origin value `80 − 8 λ v₀²`.
 * `PotSelfBound` and `FormDomainComparison` remain hypotheses.  `sm_h_esa` (ESA)
   is unaffected.

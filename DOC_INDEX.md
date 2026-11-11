@@ -70,7 +70,7 @@
 | [RandomMap2LegacyDraft.md](RandomMap2LegacyDraft.md) | Historical `RandomMap2.lean` Phase 5–10 draft | 951 | 1 | 2 |
 | [RandomMap_old.md](RandomMap_old.md) | Lean 4 Formalization Plan: The Decoupled Kopperman-Mehler Framework | 1292 | 2 | 2 |
 | [SINGULARITY_DETECTION_PLAN.md](SINGULARITY_DETECTION_PLAN.md) | Implementation Plan: ODE→Hamiltonian Self-Adjointness & Singularity Detection via Hashimoto SIRK | 179 | 0 | 4 |
-| [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) | Full Standard-Model ESA: completion plan and implementation audit | 2049 | 3 | 3 |
+| [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) | Full Standard-Model ESA: completion plan and implementation audit | 2051 | 3 | 3 |
 | [SPECIALIST_PLAN_MERGE.md](SPECIALIST_PLAN_MERGE.md) | Specialist Plan — Aristotle Merge Verification + Pauli–Grover (§11) | 155 | 1 | 0 |
 | [SPECIALIST_PLAN_REMAINING.md](SPECIALIST_PLAN_REMAINING.md) | Specialist Plan — Remaining Lean Work | 594 | 2 | 3 |
 | [STATUS.md](STATUS.md) | `BookProof` — implementation status of `FORMALIZATION_ROADMAP.md` | 12834 | 14 | 7 |
