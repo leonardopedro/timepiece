@@ -78,6 +78,54 @@ axiom-audit gate that prints the axiom set of every exported theorem (and fails 
 `propext`, `Classical.choice`, `Quot.sound`) is the single largest verifiability gain available from
 this reading, and it is independent of the QYM row.
 
+### Second reading (2026-11-11): the submission's own Lean source
+
+The revision above was written from `../YM`'s assessment. `../OpenAI-YM-20261028` is the submission
+itself: `ChallengeSpec.lean` carries the target type `YangMills.JointExistence`, `Challenge.lean`
+contains only its `sorry`, `Solution.lean` is a twelve-line derivation from
+`YangMills.constructed`, and `verification/` holds the replay logs. Four statements read at source
+level refine the bullets above. All four remain external: none is a hypothesis of a Lean statement
+in this file.
+
+**A. W0 is a support condition, and it does not contain target 1.** `PublicTheory.lean` states W0
+as three clauses: `spectralRepresentation` (each state's energy–momentum `diagonal` has
+characteristic function `momentum ↦ ⟪state, U(momentum) state⟫`), `positiveEnergy`
+(`energyMomentum.projection forwardConeᶜ = 0`), and `uniqueVacuum` (every translation-invariant
+vector is a scalar multiple of the vacuum). `positiveEnergy` says the joint spectrum *lies in the
+closed forward cone*; spectrum accumulating at zero satisfies it. A gap is therefore strictly
+stronger than W0 and is not implied by it, which is the same reason the sentence is false
+internally. When this file states its own spectrum condition, it should use exactly this
+projection-vanishing form: it is the version our modules can state without spectral theory.
+
+**B. Vacuum uniqueness is a statement about one selected phase.** `Hierarchy.correlation` takes an
+`Option Character` argument, and the unselected correlations are pinned to the selected ones by the
+`mixture` clause `∫ i, correlation (some i) a x ∂phaseMeasure = correlation none a x`. The
+`Axioms` field belongs to `theory`, a single `WightmanTheory`, and `uniqueVacuum` quantifies over
+that one Hilbert space. So "unique vacuum" and "the limit is a mixture of phases" are compatible:
+uniqueness is per phase. This file's four-space paragraph should read the same way — `𝓗_OS` here is
+the reconstruction of a *selected* label, and any statement about the mixed limit is a statement
+about the integral over `Character`, not about `𝓗_OS`.
+
+**C. The non-freeness theorem is a short-distance coefficient on a weight-4 label.**
+`TraceTest.centeredTrace` is a `Field 4` element, and the test is
+`r^8 log²(1/r) · ⟨vacuum, T_centered(r)⟩ → 3·dim(g)/π⁴` as `r ↓ 0`, together with exclusion of any
+finite sum of `Mode.kernel` mass-shell profiles. Two consequences. First, the discriminator is
+ultraviolet: it constrains operator content at short distance and is **not** evidence about a gap,
+a mode space, or long-distance decay. Second, its grade-4 slot is the same graded slot as this
+repository's `magWeight` (`totalDegree_magWeight_le ≤ 4`), with the stress trace as the named
+physical occupant of that slot. Read literally the exclusion is finite-Wick-sum only — the README
+puts general exclusion of continuous-mass generalized free fields out of scope — so "not a finite
+free ansatz" must never be written as "not a generalized free field".
+
+**D. The continuum limit is an explicit diagonal, and should be imitated in that form.**
+`WilsonFamily.Converges` conjoins three things: the requested volume order eventually makes a test
+suitable; a row `row : ℕ → ℂ`, existentially chosen, whose entries are the mesh limits
+`lim_N smear N p v t` at every suitable fixed `p`; and convergence of `row` along the volume
+subsequence to the smeared `unselected` correlation. The mesh limit is asserted volume by volume,
+the volume limit only along a subsequence, and even the row is chosen rather than computed. That is
+the precise shape in which "the continuum limit" in this file must be read, and the form Phase 4
+targets should take: fixed-volume first, subsequential second.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a

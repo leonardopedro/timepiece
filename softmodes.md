@@ -73,6 +73,52 @@ boxes. The Balaban route therefore neither competes with nor short-circuits targ
 
 ## Revised work package (2026-11-08)
 
+### Second reading (2026-11-11): the source-level form of target 1 and target 2
+
+The revision above was written from `../YM`'s assessment. `../OpenAI-YM-20261028` is the
+submission's own Lean source, and reading `PublicTheory.lean`, `PublicWilson.lean` and
+`ChallengeSpec.lean` sharpens the two targets — including one point where it sharpens them against
+this file.
+
+**A. Target 1 is strictly stronger than the external spectrum condition.** Their W0 has
+`positiveEnergy : energyMomentum.projection forwardConeᶜ = 0`: the joint energy–momentum spectrum
+lies in the **closed** forward cone. A gap needs `projection {p | ‖p‖ < m} = 0` for some `m > 0`,
+which is the case `m = 0` plus a neighbourhood. Nothing in W0 or in the reconstruction supplies
+that neighbourhood, so the external spectrum condition can never be cited as "nearly target 1",
+and S2 must not be restated as "positive energy". The whole distance between the two statements is
+what the coercivity bound has to cross, which is exactly why `CURRENT_WORK_ORDER.md` keeps the QYM
+row first.
+
+**B. Their one exclusion of free models is a short-distance finiteness statement, and it is the
+right template for the independent spectral exclusion.** `TraceTest.excludes` has the type
+`¬ traceTwo =ᶠ[𝓝[>] 0] wickProfile terms` for `terms : List (ℂ × Track)`, with
+`Track.modes : Fin n → Mode`, `Mode.kernel r p = 1/(2E) · E^timeOrder · numerator p · exp(−rE)`,
+`E = sqrt(m² + ‖p‖²)` and `numerator` homogeneous of degree `spatialOrder`. That is a finite list
+of mass-shell modes with polynomial numerators and exponential decay, excluded at `r ↓ 0`. Copy
+this shape rather than the stronger slogan: exclude finite lists of *explicit* kernels, and do not
+claim "excludes all generalized free fields", which the submission itself places out of scope.
+Two further properties are worth having: the exclusion is by short-distance asymptotics of a
+correlator, so it can be stated without constructing the OS Hamiltonian at all — the cheap half of
+the gate — and the premultiplication by `r^8 log²(1/r)` is how the dimension is carried, so the
+corresponding statement here needs its own explicit factor and cannot be written as a bare
+inequality.
+
+**C. The weight-4 slot is graded exactly as this file grades it, and its occupant is named.**
+`weight a = ∑ i, (a i).1` — the sum of the slot grades — and the OPE bounds are
+`‖coefficient‖ ≤ r^(j − weight a − ε)` and remainder `≤ r^(D+1 − weight a − ε)`. Derivatives add
+weight (`Mode.timeOrder` enters the kernel as `E^timeOrder`, `spatialOrder` as the numerator's
+homogeneity), the same convention as `idxD` adding `1` and the quartic weight having weight `4`
+here. Two uses: these are the exponents our label and OPE bounds must carry, and the physical
+occupant of a weight-4 label is the stress trace — a candidate weight-4 observable for target 2
+that needs no gap to state.
+
+**D. Their mode energies are free energies, not outputs.** In `Mode.kernel`, `m : ℝ≥0` is a
+parameter of an ansatz and `E = sqrt(m² + ‖p‖²)` is computed from it. Comparing this file's mode
+energies with `E` is therefore a comparison inside the Gaussian reference — obligation C above —
+and is not evidence about the interacting theory.
+
+## Revised work package (2026-11-08)
+
 This revision supersedes the roadmap and completion claims of the dated phases below **as a
 reading guide for this file**. Those notes remain implementation history. It does not replace
 the programme ordering in `CURRENT_WORK_ORDER.md`: the non-abelian one-particle form bound

@@ -68,6 +68,46 @@ Consequences for this plan, dated:
   identity; if P5 wants to say the SM's gauge part *is* that theory, the comparison has to be made at
   the level of the Ward identity, not of the polynomial alone.
 
+### Second reading (2026-11-11): what the source type excludes outright
+
+The bullets above were written from `../YM`'s assessment. `../OpenAI-YM-20261028` is the submission
+itself, and reading `PublicTheory.lean` and `ChallengeSpec.lean` turns three of those boundaries
+from "not proved" into "not expressible", which is the stronger and more useful statement for this
+plan. Nothing becomes usable as a hypothesis.
+
+**A. The quantified type cannot host the SM gauge group at all.** `GaugeGroup` is `n : ℕ`, a closed
+subgroup `image ≤ Matrix.unitaryGroup (Fin (n+1)) ℂ`, and `lieAlgebra` the exact set of matrices
+whose exponentials lie in `image`; `IsSimple` is defined as nonabelian with no proper Lie ideal.
+So the quantified object is a *single simple compact factor*: there is no product group, no `U(1)`
+factor and no representation content in the type. `SU(3) × SU(2) × U(1)` is therefore not merely
+unproved there but untyped, which sharpens the E1/E2 paragraph: the gap is not "they omitted the
+hard case" but "the statement has no slot for it".
+
+**B. The weight-4 slot is confirmed, but its numerical coefficient is not transferable.**
+`TraceTest.amplitudePositive` fixes `0 < 3 · finrank_ℝ(lieAlgebra) / π⁴`, and `centeredTrace` is a
+`Field 4` element — grade four in the `weight a = ∑ (a i).1` grading, i.e. the same slot as
+`magWeight` here. When P5 places the SM magnetic form in that class it may cite the *slot* and the
+OPE exponents `j − weight a` (coefficient) and `D+1 − weight a` (remainder), but not the constant:
+the only external value of the short-distance coefficient is stated for a simple factor, so
+quoting it for a product group would be a borrowed number, exactly the error the polynomial
+hypothesis is supposed to prevent.
+
+**C. The label space is complex-linear with an additive involution, so the template cannot host
+CAR.** `FieldSystem.field : Labels.carrier →ₗ[ℂ] TestFunction →ₗ[ℂ] (domain →ₗ[ℂ] domain)` is
+linear in the label, and `adjointLabel : Labels.carrier →ₛₗ[starRingEnd ℂ] Labels.carrier` is an
+additive conjugate-linear involution: the commuting, bosonic convention. Fermionic labels need a
+`ℤ/2`-graded or `*`-algebra label space with anticommuting smearing. So the `F_internal`
+CAR/Clifford factor of `K_SM` sits outside the external template *structurally* — not unproved
+there but unstatable — which is the strongest form of the E2 boundary and should be recorded as
+such rather than as a missing theorem.
+
+**D. A real label space makes the adjoint clause automatic.** If P1 assigns SM labels in
+`RealCoeff` (which evaluates real: `RealCoeff.eval_im_eq_zero`), then a conjugate-linear
+`adjointLabel` is the identity on them and W1's `adjoint` clause reduces to hermiticity of the
+operator coefficients. Stating the labels' realness once in P1 fixes the adjoint convention by a
+type instead of by prose, which is also what makes the §1.2 sign test in the bullet list above
+mechanical.
+
 Verification discipline (acceptance specification, per-declaration axiom audit, dated evidence
 ledger, provenance hashes) is discussed in [cftproof.md](cftproof.md) and applies here unchanged;
 this file's regression gate in P8 currently has none of it.
