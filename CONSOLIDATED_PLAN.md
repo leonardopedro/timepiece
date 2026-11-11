@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10m):** “State of the project — 2026-11-10m: the root gap on its domain,
+> **Newest entry (2026-11-11a):** “State of the project — 2026-11-11a: the mode expectation of `:B²:`
+> on the linear half” (end of file): the mode state as a unit vector of the monomial-orthonormal
+> model (`modeState`, `modeExp`), the contraction `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`
+> (`coeff_pderiv_X_mul`), and normal ordering as “replace `1 + n` by `n`” for a linear field
+> (`modeExp_linField_normalOrdered`).  Applied to `B^∂_{ia}`: contraction `2` per component, `6` per
+> colour index, `48` over all `24` (`modeExp_magDeriv_sq`, `modeExp_magAll_normalOrdered`).  The
+> commutator half is quartic and explicitly out of scope.  `lake build +BookProof` completed.
+> **Earlier entry (2026-11-10m):** “State of the project — 2026-11-10m: the root gap on its domain,
 > the colour factor, and the contraction” (end of file): the root sector as a form domain with a
 > positive `root_spectral_gap`; `IsAntisymmetric`/`SatisfiesJacobi` with the derived factor `2` in
 > `colour_contraction_double`; and `[∂ᵢ,Xᵢ] = 1` (`pderiv_X_mul`) with `magPoly_mul_monomial_ne`,
@@ -19875,4 +19882,50 @@ contracted quantity `Σ_{ia} B_ia† B_ia − (contraction)`, not the diagonal o
 `mag_eq_root` remained a hypothesis (2026-11-10l) and what a future inhabitant would have to compute.
 
 **Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all ten new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.
+
+## State of the project — 2026-11-11a: the mode expectation of `:B²:` on the linear half
+
+`magPoly_mul_monomial_ne` (2026-11-10m) showed that `B_{ia}` is off-diagonal at every monomial, so
+the mode-by-mode expectation `Σ_m ‖B_m ψ_n‖²` has to be computed for the normal-ordered `:B²:`, by
+Wick contraction, not from the diagonal of `magOps`.  This entry computes that contraction where it
+closes — the linear (derivative) half of the field — exactly and unconditionally.  All new
+declarations are in `BookProof.Qym.ChapterYangMillsFieldStrengthSplit` §3b.3.
+
+**(1) The mode expectation, stated without analysis.**  In the monomial-orthonormal representation the
+mode state is `modeState m = monomial m 1`; monomials are orthonormal for the coefficient inner
+product `⟨p,q⟩ = Σ_s conj(p_s) q_s`, so `ψ_m` is a unit vector and the Fock expectation of an
+endomorphism `T` is the single coefficient `modeExp m T = (T ψ_m)_m`.  This is a *definition*, not a
+claim of identification: what `ModeIdentification` asserts is the agreement of this coefficient model
+with the analytic core, and nothing here needs it.
+
+**(2) The contraction, one coordinate at a time.**  `pderiv_X_eq_ite`: `∂_i X_j = δ_{ij}`.
+`coeff_X_mul_pderiv_monomial` / `coeff_X_mul_pderiv_modeState`: annihilation after creation is
+`a·mᵢ` at `m`, i.e. `n` with no `+1` — the derivative stands on the left.  `coeff_pderiv_X_mul`: the
+ordered product has `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`, and the non-matching case vanishes
+because it lands on a different monomial (`hkey`).  The `1` is `[∂,X] = 1` and the `m_l` is the
+occupation.
+
+**(3) Linear fields: normal ordering is `1 + n ↦ n`.**  `linField c l = ∑_t c_t X_{l_t}` with real
+`c_t`, adjoint `linFieldAdj c l = ∑_t c_t ∂_{l_t}`; both act term by term
+(`linFieldAdj_apply`, `mulOp_linField_apply`).  For injective `l` the cross terms `l_t ≠ l_{t'}` are
+off-diagonal and vanish, so `modeExp_linField_adj_comp` gives `⟨ψ_m, L†L ψ_m⟩ = ∑_t c_t²(1+m_{l_t})`
+and `modeExp_linField_normalOrdered` gives, after subtracting `∑_t c_t²`,
+`∑_t c_t² m_{l_t}`.  Normal ordering is *exactly* the removal of the `1`, component by component.
+
+**(4) The derivative half of the field strength.**  `magDeriv i a = ∑_{jk} ε_{ijk} ∂_j A_{k,a}` is a
+linear field over `Fin 3 × Fin 3` whose coordinates are distinct (`idxD_pair_injective`,
+`magDeriv_eq_linField`).  Hence `modeExp_magDeriv_sq`:
+`⟨ψ_m, (B^∂_{ia})† B^∂_{ia} ψ_m⟩ = 2 + ∑_{jk} ε_{ijk}² m_{∂_jA_{k,a}}`, the `2` being the two
+transverse polarisations (`levi_sq_sum_magnetic`).  Summed over the magnetic index the contraction is
+`6` (`levi_sq_sum_total`, `levi_sq_sum_total_complex`), and over all `24` components `48 = 24 · 2`
+(`levi_sq_sum_all_complex`) — the zero-point magnetic energy that normal ordering removes
+(`modeExp_magSum_normalOrdered`, `modeExp_magAll_normalOrdered`).
+
+**(5) What is *not* claimed.**  The commutator half `f_{abc} A_b A_c` is quadratic, so its square is
+quartic: its normal-ordered expectation is a *four-field* Wick contraction, not implied by the
+two-field computation above.  `RootModeIdentification` therefore still has no inhabitant, and this
+entry does not narrow it — it supplies the linear half exactly and marks the quartic half as open.
+
+**Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all twenty new
 declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.

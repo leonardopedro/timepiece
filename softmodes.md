@@ -711,6 +711,41 @@ so the contraction stops at the transposed term.
 Axioms audited on the theorems of this subsection (including the three S2-carry theorems):
 `propext`, `Classical.choice`, `Quot.sound` only.
 
+#### S2 — the mode expectation of `:B²:`, computed for the linear half
+
+`magPoly_mul_monomial_ne` says `B_{ia}` has no eigenmode, so the mode-by-mode expectation has to be
+computed for the *normal-ordered* square, and only where the Wick contraction closes.  The linear
+half is the case where it does, and it is now exact.
+
+* **The mode expectation.**  In the monomial-orthonormal representation the mode state is the monomial
+  `modeState m = monomial m 1`, a unit vector for the coefficient inner product, so the expectation
+  of an endomorphism `T` in it is the single coefficient `modeExp m T = (T ψ_m)_m` — no analytic
+  inner product and no `ModeIdentification` is needed to *state* it.
+* **The contraction.**  `pderiv_X_eq_ite` is `∂_i X_j = δ_{ij}`; `coeff_X_mul_pderiv_monomial` and
+  `coeff_X_mul_pderiv_modeState` are annihilation-after-creation (`n`, no `+1`);
+  `coeff_pderiv_X_mul` is the ordered product, `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`.  The `1`
+  is `[∂, X] = 1` and the `m_l` is the occupation: this single lemma is the whole computation.
+* **Linear fields.**  `linField c l = ∑_t c_t X_{l_t}` with real `c_t` and adjoint
+  `linFieldAdj c l = ∑_t c_t ∂_{l_t}`.  For injective `l`, the cross terms `l_t ≠ l_{t'}` are
+  off-diagonal and `modeExp_linField_adj_comp` gives `∑_t c_t²(1 + m_{l_t})`, whence
+  `modeExp_linField_normalOrdered`: subtracting `∑_t c_t²` leaves `∑_t c_t² m_{l_t}`.  **Normal
+  ordering is exactly "replace `1 + n` by `n`"**, component by component — the abstract statement
+  `magPoly_mul_monomial_ne` only gestures at.
+* **The derivative half of `B`.**  `magDeriv = ε_{ijk} ∂_j A_{k,a}` *is* a linear field in `(j,k)`
+  (`magDeriv_eq_linField`, injectivity by `idxD_pair_injective`), so
+  `modeExp_magDeriv_sq` reads `⟨ψ_m, (B^∂_{ia})† B^∂_{ia} ψ_m⟩ = 2 + ∑_{jk} ε_{ijk}² m_{∂_jA_{k,a}}`:
+  the contraction of one magnetic component is `2` (`levi_sq_sum_magnetic`), the two transverse
+  polarisations.  Summed: `6` per colour index (`levi_sq_sum_total`) and `48 = 24 · 2` over the
+  `24` field components (`levi_sq_sum_all_complex`) — precisely the constant normal ordering
+  removes (`modeExp_magSum_normalOrdered`, `modeExp_magAll_normalOrdered`).
+* **Boundary, stated as a boundary.**  The derivative half is linear, so its square is quadratic and
+  two-field Wick closes.  The commutator half `f_{abc}A_bA_c` is quadratic, so its square is
+  quartic, and its normal-ordered expectation is a *four-field* contraction — not the two-field one
+  proved here, and not implied by it.  `RootModeIdentification` is untouched by this subsection: it
+  needs the quartic contraction.
+
+Axioms audited on all twenty new declarations: `propext`, `Classical.choice`, `Quot.sound` only.
+
 #### S2 — the cross weight is dominated by the count factor `d − 1`
 
 The split `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n` becomes useful when one weight can pay for

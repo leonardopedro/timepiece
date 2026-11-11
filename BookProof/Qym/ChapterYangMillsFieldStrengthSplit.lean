@@ -468,6 +468,295 @@ theorem magPoly_mul_monomial_ne (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : 
   rw [h1, coeff_zero_magPoly, zero_mul] at hc
   simp at hc
 
+/-! ### 3b.3 The normal-ordered square of a linear field on a mode
+
+`magPoly_mul_monomial_ne` shows that `B_{ia}` cannot be identified with an occupation number:
+multiplication by the field raises the occupation.  The object that *does* have a mode-by-mode
+expectation is the normal-ordered square `:B²:`, and this subsection computes it for the linear
+(derivative) half of the field.
+
+A **mode state** is the monomial `ψ_m = monomial m 1`.  In the coefficient inner product
+`⟨p, q⟩ = ∑_s conj(p_s) q_s` the monomials are orthonormal, so `ψ_m` is a unit vector and the Fock
+expectation of an endomorphism `T` in that state is the single coefficient `⟨ψ_m, T ψ_m⟩ =
+(T ψ_m)_m` (`modeExp`).  Multiplication by `X_i` raises the occupation and `pderiv i` lowers it;
+`pderiv i` is the adjoint of `mulOp (X i)` in this inner product.  A **linear field**
+`L = ∑_t c_t X_{l_t}` with real coefficients (the field components of this model are real) has
+adjoint `L† = ∑_t c_t ∂_{l_t}` (`linField`, `linFieldAdj`).
+
+The computation is the Wick contraction `[∂_l, X_{l'}] = δ_{ll'}` of `pderiv_X_mul`, one coordinate
+at a time.  With `l` injective, `⟨ψ_m, L†L ψ_m⟩ = ∑_t c_t² (1 + m_{l_t})`
+(`modeExp_linField_adj_comp`): one unit per field component — the contraction — plus the
+occupation `m_{l_t}`.  Subtracting the contraction leaves the normal-ordered expectation
+`∑_t c_t² m_{l_t}` (`modeExp_linField_normalOrdered`), i.e. **normal ordering is exactly "replace
+`1 + n` by `n`"**, mode by mode.
+
+Applied to the derivative half `B^∂_{ia} = ε_{ijk} ∂_j A_{k,a}` this gives
+`⟨ψ_m, :(B^∂_{ia})²: ψ_m⟩ = ∑_{jk} ε_{ijk}² m_{∂_j A_{k,a}}` with contraction
+`∑_{jk} ε_{ijk}² = 2` — the two transverse polarisations of `B_{ia}` — and `6` after summing over
+the magnetic index, `48 = 24 · 2` over all `24` field components (`levi_sq_sum_magnetic`,
+`levi_sq_sum_all_complex`).
+
+What this section does **not** cover: the commutator half `f_{abc} A_b A_c` is quadratic, so its
+square is quartic and its normal-ordered expectation is a four-field Wick contraction.  The
+derivative half is the linear case, and for it the mode expectation is complete.
+-/
+
+/-- The **mode state** of a mode: the monomial with exponent vector `m`, in the
+monomial-orthonormal representation of the Fock space. -/
+def modeState (m : Fin 99 →₀ ℕ) : MvPolynomial (Fin 99) ℂ := MvPolynomial.monomial m 1
+
+/-- The **Fock expectation in the mode state `ψ_m`**: the monomial basis is orthonormal, so
+`⟨ψ_m, T ψ_m⟩` is the single coefficient of `ψ_m` in `T ψ_m`. -/
+def modeExp (m : Fin 99 →₀ ℕ) (T : Module.End ℂ (MvPolynomial (Fin 99) ℂ)) : ℂ :=
+  MvPolynomial.coeff m (T (modeState m))
+
+/-- The derivative of a coordinate is a Kronecker symbol: `∂_i X_j = δ_{ij}`, as a `0/1`
+polynomial — the elementary contraction. -/
+theorem pderiv_X_eq_ite (i j : Fin 99) :
+    (MvPolynomial.pderiv i (MvPolynomial.X j) : MvPolynomial (Fin 99) ℂ)
+      = if i = j then 1 else 0 := by
+  rw [MvPolynomial.pderiv_X]
+  by_cases h : i = j
+  · subst j; simp
+  · rw [Pi.single_eq_of_ne (Ne.symm h), if_neg h]
+
+/-- **Annihilation after creation is diagonal**: `∂_i (X_l · monomial m a)` has coefficient
+`a · mᵢ` at `m` when `i = l`, and `0` otherwise.  This is the `n` of "`1 + n`", with no `+1`
+because the derivative stands on the left. -/
+theorem coeff_X_mul_pderiv_monomial (l i : Fin 99) (m : Fin 99 →₀ ℕ) (a : ℂ) :
+    MvPolynomial.coeff m (MvPolynomial.X l * MvPolynomial.pderiv i (MvPolynomial.monomial m a))
+      = if i = l then a * (m i : ℂ) else 0 := by
+  by_cases h : i = l
+  · subst i
+    rw [MvPolynomial.X_mul_pderiv_monomial, MvPolynomial.coeff_smul]
+    simp [mul_comm]
+  · rw [if_neg h, MvPolynomial.pderiv_monomial]
+    have hne : MvPolynomial.X l * MvPolynomial.monomial (m - Finsupp.single i 1) (a * ↑(m i))
+        = MvPolynomial.monomial (Finsupp.single l 1 + (m - Finsupp.single i 1)) (a * ↑(m i)) := by
+      rw [MvPolynomial.X, MvPolynomial.monomial_mul]
+      simp
+    rw [hne]
+    have hkey : Finsupp.single l 1 + (m - Finsupp.single i 1) ≠ m := by
+      intro he
+      have hv := congrArg (fun s : Fin 99 →₀ ℕ => s l) he
+      simp only [Finsupp.add_apply, Finsupp.tsub_apply, Finsupp.single_eq_same] at hv
+      have h2 : Finsupp.single i (1 : ℕ) l = 0 := Finsupp.single_eq_of_ne (Ne.symm h)
+      rw [h2] at hv
+      omega
+    simp [MvPolynomial.coeff_monomial, hkey]
+
+/-- The same statement on the mode state: `∂_i (X_l ψ_m)` has coefficient `mᵢ` at `m` when
+`i = l`, and `0` otherwise. -/
+theorem coeff_X_mul_pderiv_modeState (l i : Fin 99) (m : Fin 99 →₀ ℕ) :
+    MvPolynomial.coeff m (MvPolynomial.X l * MvPolynomial.pderiv i (modeState m))
+      = if i = l then (m i : ℂ) else 0 := by
+  rw [modeState, coeff_X_mul_pderiv_monomial]
+  simp
+
+/-- **The contraction constant is one**: `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`.  The `1` is
+`[∂_l, X_l] = 1` and the `m_l` is the occupation; this is the whole content of the normal-ordering
+computation below. -/
+theorem coeff_pderiv_X_mul (l l' : Fin 99) (m : Fin 99 →₀ ℕ) :
+    MvPolynomial.coeff m (MvPolynomial.pderiv l (MvPolynomial.X l' * modeState m))
+      = if l = l' then 1 + (m l : ℂ) else 0 := by
+  rw [MvPolynomial.pderiv_mul, pderiv_X_eq_ite]
+  have h1 : MvPolynomial.coeff m
+      ((if l = l' then (1 : MvPolynomial (Fin 99) ℂ) else 0) * modeState m)
+      = if l = l' then 1 else 0 := by
+    split_ifs with h
+    · rw [one_mul]; simp [modeState]
+    · rw [zero_mul]; simp
+  rw [MvPolynomial.coeff_add, h1, coeff_X_mul_pderiv_modeState]
+  split_ifs with h
+  · ring
+  · ring
+
+/-- A **linear field** `L = ∑_t c_t X_{l_t}` with real coefficients `c_t` on the coordinates
+`l_t`. -/
+def linField {ι : Type*} [Fintype ι] (c : ι → ℝ) (l : ι → Fin 99) : MvPolynomial (Fin 99) ℂ :=
+  ∑ t, ((c t : ℝ) : ℂ) • MvPolynomial.X (l t)
+
+/-- The **adjoint** `L† = ∑_t c_t ∂_{l_t}` of a linear field: creation `X` replaced by
+annihilation `∂`, with the same real coefficients. -/
+def linFieldAdj {ι : Type*} [Fintype ι] (c : ι → ℝ) (l : ι → Fin 99) :
+    Module.End ℂ (MvPolynomial (Fin 99) ℂ) :=
+  ∑ t, ((c t : ℝ) : ℂ) • (MvPolynomial.pderiv (l t)).toLinearMap
+
+/-- The adjoint acts term by term. -/
+theorem linFieldAdj_apply {ι : Type*} [Fintype ι] (c : ι → ℝ) (l : ι → Fin 99)
+    (p : MvPolynomial (Fin 99) ℂ) :
+    linFieldAdj c l p = ∑ t, ((c t : ℝ) : ℂ) • MvPolynomial.pderiv (l t) p := by
+  simp [linFieldAdj, LinearMap.sum_apply, LinearMap.smul_apply]
+
+/-- Multiplication by a linear field acts term by term. -/
+theorem mulOp_linField_apply {ι : Type*} [Fintype ι] (c : ι → ℝ) (l : ι → Fin 99)
+    (p : MvPolynomial (Fin 99) ℂ) :
+    mulOp (linField c l) p = ∑ t, ((c t : ℝ) : ℂ) • (MvPolynomial.X (l t) * p) := by
+  rw [linField, mulOp_apply, Finset.sum_mul]
+  exact Finset.sum_congr rfl fun t _ => smul_mul_assoc _ _ _
+
+set_option maxHeartbeats 1000000 in
+-- The `ι`-indexed double sum and its cross-term cancellation need more than the default budget.
+/-- **The un-ordered expectation of a linear field's square**: for an injective family of
+coordinates, `⟨ψ_m, L†L ψ_m⟩ = ∑_t c_t² (1 + m_{l_t})`.  Each component contributes its
+contraction `1` and its occupation `m_{l_t}`; the cross terms `l_t ≠ l_{t'}` cancel because
+`∂_{l_t} X_{l_{t'}}` is off-diagonal in the monomial basis (`coeff_pderiv_X_mul`). -/
+theorem modeExp_linField_adj_comp {ι : Type*} [Fintype ι] (c : ι → ℝ) (l : ι → Fin 99)
+    (hinj : Function.Injective l) (m : Fin 99 →₀ ℕ) :
+    modeExp m (linFieldAdj c l ∘ₗ mulOp (linField c l))
+      = ∑ t, ((c t : ℝ) : ℂ) ^ 2 * (1 + (m (l t) : ℂ)) := by
+  classical
+  rw [modeExp, LinearMap.comp_apply, linFieldAdj_apply, mulOp_linField_apply]
+  simp only [MvPolynomial.coeff_sum, MvPolynomial.coeff_smul, smul_eq_mul, map_sum,
+    Derivation.map_smul]
+  have hstep : ∀ t t' : ι,
+      MvPolynomial.coeff m (MvPolynomial.pderiv (l t) (MvPolynomial.X (l t') * modeState m))
+        = if t = t' then 1 + (m (l t) : ℂ) else 0 := by
+    intro t t'
+    rw [coeff_pderiv_X_mul]
+    by_cases h : t = t'
+    · subst h; rw [if_pos rfl, if_pos rfl]
+    · rw [if_neg h, if_neg (fun hl => h (hinj hl))]
+  simp only [hstep]
+  refine Finset.sum_congr rfl fun t _ => ?_
+  rw [Finset.sum_eq_single t]
+  · simp only [if_true]
+    ring_nf
+  · intro t' _ hne
+    rw [if_neg (Ne.symm hne), mul_zero]
+  · intro h; exact absurd (Finset.mem_univ t) h
+
+/-- **The normal-ordered expectation of a linear field's square**: subtracting the contraction
+`∑_t c_t²` from `modeExp_linField_adj_comp` leaves `∑_t c_t² m_{l_t}`.  Normal ordering is exactly
+the removal of the `1` of `1 + n` at every component, so the surviving expectation is the weighted
+occupation. -/
+theorem modeExp_linField_normalOrdered {ι : Type*} [Fintype ι] (c : ι → ℝ)
+    (l : ι → Fin 99) (hinj : Function.Injective l) (m : Fin 99 →₀ ℕ) :
+    modeExp m (linFieldAdj c l ∘ₗ mulOp (linField c l)) - ∑ t, ((c t : ℝ) : ℂ) ^ 2
+      = ∑ t, ((c t : ℝ) : ℂ) ^ 2 * (m (l t) : ℂ) := by
+  rw [modeExp_linField_adj_comp c l hinj m]
+  have hsplit : ∑ t, ((c t : ℝ) : ℂ) ^ 2 * (1 + (m (l t) : ℂ))
+      = ∑ t, (((c t : ℝ) : ℂ) ^ 2 + ((c t : ℝ) : ℂ) ^ 2 * (m (l t) : ℂ)) := by
+    exact Finset.sum_congr rfl fun t _ => by ring
+  rw [hsplit]
+  simp only [Finset.sum_add_distrib]
+  ring
+
+/-- For a fixed colour index, the derivative coordinates `(j,k) ↦ ∂_j A_{k,a}` are distinct: `24j +
+8k + a` determines the pair. -/
+theorem idxD_pair_injective (a : Fin 8) :
+    Function.Injective (fun t : Fin 3 × Fin 3 => idxD t.1 t.2 a) := by
+  rintro ⟨j, k⟩ ⟨j', k'⟩ h
+  have hv := congrArg Fin.val h
+  simp only [idxD] at hv
+  have hj : j.val = j'.val := by omega
+  have hk : k.val = k'.val := by omega
+  simp [Fin.ext_iff, hj, hk]
+
+/-- The derivative half `B^∂_{ia} = ε_{ijk} ∂_j A_{k,a}` is a linear field in `(j,k)`. -/
+theorem magDeriv_eq_linField (i : Fin 3) (a : Fin 8) :
+    magDeriv i a
+      = linField (fun t : Fin 3 × Fin 3 => levi i t.1 t.2) (fun t => idxD t.1 t.2 a) := by
+  rw [linField, Fintype.sum_prod_type]
+  rfl
+
+/-- The adjoint of the derivative half of `B_{ia}`: the `ε`-weighted combination of the derivative
+coordinate operators. -/
+def magDerivAdj (i : Fin 3) (a : Fin 8) : Module.End ℂ (MvPolynomial (Fin 99) ℂ) :=
+  linFieldAdj (fun t : Fin 3 × Fin 3 => levi i t.1 t.2) (fun t => idxD t.1 t.2 a)
+
+/-- **The un-ordered square of one magnetic component on a mode**:
+`⟨ψ_m, (B^∂_{ia})† B^∂_{ia} ψ_m⟩ = ∑_{jk} ε_{ijk}² (1 + m_{∂_j A_{k,a}})`. -/
+theorem modeExp_magDeriv_adj_comp (i : Fin 3) (a : Fin 8) (m : Fin 99 →₀ ℕ) :
+    modeExp m (magDerivAdj i a ∘ₗ mulOp (magDeriv i a))
+      = ∑ j : Fin 3, ∑ k : Fin 3,
+          ((levi i j k : ℝ) : ℂ) ^ 2 * (1 + (m (idxD j k a) : ℂ)) := by
+  rw [magDerivAdj, magDeriv_eq_linField,
+    modeExp_linField_adj_comp _ _ (idxD_pair_injective a) m, Fintype.sum_prod_type]
+
+/-- **The normal-ordered square of one magnetic component on a mode**: subtracting the contraction
+`∑_{jk} ε_{ijk}²` leaves `∑_{jk} ε_{ijk}² m_{∂_j A_{k,a}}` — the `ε`-weighted occupation of the
+derivative coordinates. -/
+theorem modeExp_magDeriv_normalOrdered (i : Fin 3) (a : Fin 8) (m : Fin 99 →₀ ℕ) :
+    modeExp m (magDerivAdj i a ∘ₗ mulOp (magDeriv i a))
+        - ∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) ^ 2
+      = ∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) ^ 2 * (m (idxD j k a) : ℂ) := by
+  rw [magDerivAdj, magDeriv_eq_linField,
+    ← Fintype.sum_prod_type (f := fun t : Fin 3 × Fin 3 => ((levi i t.1 t.2 : ℝ) : ℂ) ^ 2),
+    ← Fintype.sum_prod_type
+      (f := fun t : Fin 3 × Fin 3 => ((levi i t.1 t.2 : ℝ) : ℂ) ^ 2 * (m (idxD t.1 t.2 a) : ℂ)),
+    modeExp_linField_normalOrdered _ _ (idxD_pair_injective a) m]
+
+/-- **The contraction of one magnetic component is `2`**: `∑_{jk} ε_{ijk}² = 2`, the two
+transverse polarisations of `B_{ia}`. -/
+theorem levi_sq_sum_magnetic (i : Fin 3) :
+    ∑ j : Fin 3, ∑ k : Fin 3, (levi i j k) ^ 2 = 2 := by
+  fin_cases i <;> simp only [Fin.sum_univ_three] <;> norm_num [levi]
+
+/-- The same count over the complex numbers. -/
+theorem levi_sq_sum_magnetic_complex (i : Fin 3) :
+    ∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) ^ 2 = 2 := by
+  fin_cases i <;> simp only [Fin.sum_univ_three] <;> norm_num [levi]
+
+/-- The contraction summed over the three magnetic components of one colour index: `6`. -/
+theorem levi_sq_sum_total :
+    ∑ i : Fin 3, ∑ j : Fin 3, ∑ k : Fin 3, (levi i j k) ^ 2 = 6 := by
+  simp only [Fin.sum_univ_three]
+  norm_num [levi]
+
+/-- The contraction summed over the magnetic index, over the complex numbers: `6`. -/
+theorem levi_sq_sum_total_complex :
+    ∑ i : Fin 3, ∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) ^ 2 = 6 := by
+  simp only [Fin.sum_univ_three]
+  norm_num [levi]
+
+/-- The total contraction of the `24` magnetic components: `48 = 24 · 2`. -/
+theorem levi_sq_sum_all_complex :
+    ∑ _a : Fin 8, ∑ i : Fin 3, ∑ j : Fin 3, ∑ k : Fin 3,
+        ((levi i j k : ℝ) : ℂ) ^ 2 = 48 := by
+  rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, levi_sq_sum_total_complex]
+  norm_num
+
+/-- **The magnetic component's square, with its contraction made explicit**:
+`⟨ψ_m, (B^∂_{ia})† B^∂_{ia} ψ_m⟩ = 2 + ∑_{jk} ε_{ijk}² m_{∂_j A_{k,a}}`.  The `2` is the
+zero-point contribution of `B_{ia}` that normal ordering removes. -/
+theorem modeExp_magDeriv_sq (i : Fin 3) (a : Fin 8) (m : Fin 99 →₀ ℕ) :
+    modeExp m (magDerivAdj i a ∘ₗ mulOp (magDeriv i a))
+      = 2 + ∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) ^ 2 * (m (idxD j k a) : ℂ) := by
+  rw [modeExp_magDeriv_adj_comp]
+  have hsplit : ∑ j : Fin 3, ∑ k : Fin 3,
+        ((levi i j k : ℝ) : ℂ) ^ 2 * (1 + (m (idxD j k a) : ℂ))
+      = ∑ j : Fin 3, ∑ k : Fin 3, (((levi i j k : ℝ) : ℂ) ^ 2
+          + ((levi i j k : ℝ) : ℂ) ^ 2 * (m (idxD j k a) : ℂ)) := by
+    refine Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun k _ => ?_
+    ring
+  rw [hsplit]
+  simp only [Finset.sum_add_distrib]
+  rw [levi_sq_sum_magnetic_complex i]
+
+/-- **The normal-ordered sum of `B²` over the magnetic index, on a mode**: subtracting the total
+contraction `6` of the three components leaves the `ε`-weighted occupations. -/
+theorem modeExp_magSum_normalOrdered (a : Fin 8) (m : Fin 99 →₀ ℕ) :
+    (∑ i : Fin 3, modeExp m (magDerivAdj i a ∘ₗ mulOp (magDeriv i a)))
+        - ∑ i : Fin 3, ∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) ^ 2
+      = ∑ i : Fin 3, ∑ j : Fin 3, ∑ k : Fin 3,
+          ((levi i j k : ℝ) : ℂ) ^ 2 * (m (idxD j k a) : ℂ) := by
+  rw [← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun i _ => modeExp_magDeriv_normalOrdered i a m
+
+/-- **The normal-ordered sum of `B²` over all `24` components, on a mode**: the contraction
+removed is `48`, and what survives is the `ε`-weighted occupation of every derivative coordinate. -/
+theorem modeExp_magAll_normalOrdered (m : Fin 99 →₀ ℕ) :
+    (∑ a : Fin 8, ∑ i : Fin 3, modeExp m (magDerivAdj i a ∘ₗ mulOp (magDeriv i a)))
+        - ∑ _a : Fin 8, ∑ i : Fin 3, ∑ j : Fin 3, ∑ k : Fin 3,
+            ((levi i j k : ℝ) : ℂ) ^ 2
+      = ∑ a : Fin 8, ∑ i : Fin 3, ∑ j : Fin 3, ∑ k : Fin 3,
+          ((levi i j k : ℝ) : ℂ) ^ 2 * (m (idxD j k a) : ℂ) := by
+  rw [← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [← Finset.sum_sub_distrib]
+  exact Finset.sum_congr rfl fun i _ => modeExp_magDeriv_normalOrdered i a m
+
 /-- The full magnetic energy has real coefficients, so its operator is Gauss symmetric. -/
 theorem realCoeff_magEnergy (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : RealCoeff (magEnergy fabc) := by
   refine RealCoeff.sum fun i _ => RealCoeff.sum fun a _ => ?_
@@ -759,6 +1048,31 @@ above.  This section states that identification and proves what it yields.
   **`magPoly_mul_monomial_ne`** — the normal-ordered side: `[∂ᵢ, Xᵢ] = 1` is the contraction
   constant, and `magPoly`'s multiplication is off-diagonal at every monomial, so the `:N²:` form is
   the contracted quantity, not the diagonal of `magOps`;
+* **`modeState`**, **`modeExp`**, **`pderiv_X_eq_ite`**, **`coeff_X_mul_pderiv_monomial`**,
+  **`coeff_X_mul_pderiv_modeState`**, **`coeff_pderiv_X_mul`** — the mode expectation, which
+  `magPoly_mul_monomial_ne` makes necessary: in the monomial-orthonormal representation the mode
+  state is a unit vector, so its expectation is one coefficient, and the elementary contraction
+  `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)` is computed exactly;
+* **`linField`**, **`linFieldAdj`**, **`linFieldAdj_apply`**, **`mulOp_linField_apply`**,
+  **`modeExp_linField_adj_comp`**, **`modeExp_linField_normalOrdered`** — a linear field
+  `L = ∑_t c_t X_{l_t}` with its adjoint `L† = ∑_t c_t ∂_{l_t}`: for injective `l`,
+  `⟨ψ_m, L†L ψ_m⟩ = ∑_t c_t²(1 + m_{l_t})`, so *normal ordering is exactly "replace `1 + n` by
+  `n`"*, leaving `∑_t c_t² m_{l_t}`;
+* **`idxD_pair_injective`**, **`magDeriv_eq_linField`**, **`magDerivAdj`**,
+  **`modeExp_magDeriv_adj_comp`**, **`modeExp_magDeriv_normalOrdered`**, **`modeExp_magDeriv_sq`**
+  — the derivative half of the field is a linear field, and its square's mode expectation is
+  `2 + ∑_{jk} ε_{ijk}² m_{∂_j A_{k,a}}`: the contraction of one magnetic component is `2`;
+* **`levi_sq_sum_magnetic`**, **`levi_sq_sum_total`**, **`levi_sq_sum_all_complex`**,
+  **`levi_sq_sum_magnetic_complex`**, **`levi_sq_sum_total_complex`** — the `ε` counts: `2` per
+  magnetic component (two transverse polarisations), `6` per colour index, `48 = 24 · 2` over all
+  `24` components — the zero-point magnetic energy normal ordering removes;
+* **`modeExp_magSum_normalOrdered`**, **`modeExp_magAll_normalOrdered`** — the normal-ordered sum
+  of `B²` on a mode, first over the magnetic index and then over all `24` components: the
+  `ε`-weighted occupation of every derivative coordinate;
+* **The boundary of this computation**: the derivative half is *linear*, so its square is
+  quadratic and its mode expectation is the Wick contraction above.  The commutator half
+  `f_{abc}A_b A_c` is quadratic, so its square is quartic and off-diagonal at every monomial — its
+  normal-ordered expectation is a four-field contraction, not the two-field one proved here;
 * **`rootDomain`**, **`mem_rootDomain`**, **`rootDomain_ne_top`**, **`root_spectral_gap`** — the
   root sector as a form domain (the kernel of evaluation at the vacuum) and the positive
   root-sector gap `(c₁ Δ_ref − quarticShift)/48` that holds on it, where the whole-core threshold
