@@ -657,10 +657,29 @@ The whole-core `FormDomination` certificate `s2FormDomination` is not restated: 
 quantifies over every coefficient, including vacuum mixtures, so it legitimately needs the
 unrestricted structure.  The root-sector theorems are pointwise and therefore sound.
 
-**Boundary.**  `RootModeIdentification` still has no inhabitant: the remaining content is the same
-assembly of the `24` components onto the core (`coeffToCore`), and the sector restriction only
-removes the case that is already known to be impossible to identify.  The gain is that the target
-is now stated where it can be true, and that the S2 transfer is known not to depend on the vacuum.
+#### S2 — the ℝ²⁴ → ℝ⁹⁹ embedding and the ε contraction
+
+Two of the pieces the inhabitant needed are built (§3d.0 and the energy contract).
+
+* `colourIndex m = idxA (decodeSpace m) (decodeColor m)` is injective: the 24 gauge coordinates sit
+  inside the 99.  `embedIndex e n = e.symm (mapDomain colourIndex n)` reads mode `n` into the
+  `ℝ⁹⁹` adapted basis, and `modeVec99_orthonormal` follows from injectivity.
+* `embedL2 e c = ∑ n, c n • modeVec99 e n` is an **isometry**: `embedL2_norm_sq` gives
+  `‖embedL2 e c‖² = coreNormSq c` from orthonormality alone — no Mehler kernel, no Gaussian
+  integral.  `embedL2_mem_polyGaussCore` puts the image on the Gauss–polynomial core, so
+  `embedCore` is a concrete `toCore` candidate and `embedCore_norm_sq` is its `norm_sq` field.
+* `levi_contract` is the sharp `∑_i ε_{ijk}ε_{ilm} = δ_{jl}δ_{km} − δ_{jm}δ_{kl}`.
+  `eps_contract_poly` lifts it: `∑_i (εP)(εQ) = ∑_{jk}(P_{jk}Q_{jk} − P_{jk}Q_{kj})` for arbitrary
+  bilinear polynomial forms.  `magEnergy_eq_contract` applies it to
+  `magFullBilin = ∂A + f[A,A]`: `Σ_{ia}B_{ia}² = Σ_{a,j,k}(P² − P·Pᵀ)`.  The ε weights vanish and
+  the f weights are inside `P`; the transposed term is where the commutator survives.
+* `RootFormDomination` / `root_ground_bound` / `root_excited_bound` / `s2RootFormDomination` — the
+  certificate with `dom` on the root sector only, built from `s2_gap_constant_root`.
+
+**Boundary.**  `RootModeIdentification` still has no inhabitant: what remains is `mag_eq_root`,
+which is the normal-ordering/Mehler analysis showing `B_m` acts on the embedded mode by `n_m`.  The
+`f` side is not a Casimir identity — this model hypothesises no antisymmetry or Jacobi identity for
+`f_{abc}`, so the contraction stops at the transposed term.
 
 Axioms audited on the theorems of this subsection (including the three S2-carry theorems):
 `propext`, `Classical.choice`, `Quot.sound` only.

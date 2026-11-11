@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-10j):** “State of the project — 2026-11-10j: the S2 certificate on the root
+> **Newest entry (2026-11-10k):** “State of the project — 2026-11-10k: the ℝ²⁴ → ℝ⁹⁹ embedding and
+> the ε contraction”, at the end.  The embedding is an isometry into `polyGaussCore` via
+> orthonormality of the adapted basis (`embedL2_norm_sq`, `embedCore_norm_sq`), which discharges the
+> `norm_sq` field; `levi_contract` / `eps_contract_poly` / `magEnergy_eq_contract` prove the ε–ε
+> contraction for the magnetic energy; `RootFormDomination` gives the restricted certificate.
+> `mag_eq_root` remains open.  `lake build +BookProof` completed.
+> **Earlier newest entry (2026-11-10j):** “State of the project — 2026-11-10j: the S2 certificate on the root
 > sector”, at the end.  The root-sector hypotheses carry through the whole S2 chain:
 > `ymHamiltonian_quadForm_ge_of_rootIdentification`, `s2_gap_constant_root` and
 > `s2_excited_threshold_root` are proved from `mag_eq_root` alone.  Whole-core
@@ -19771,3 +19777,38 @@ structure; a `FormDomination` certificate with a root-sector-only domain would b
 
 **Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `#print axioms` on the
 three theorems reports `propext, Classical.choice, Quot.sound` only; line-length check clean.
+
+## State of the project — 2026-11-10k: the ℝ²⁴ → ℝ⁹⁹ embedding and the ε contraction
+
+Follow-up to 2026-11-10j.  Two of the three things that stood between the root-sector structure and
+an inhabitant are now built; `sorry`-free, `axiom`-free, `lake build +BookProof` green.
+
+**The embedding (§3d.0).**  `colourIndex (m : Fin 24) = idxA (decodeSpace m) (decodeColor m)` is the
+distinguished injection of the 24 gauge coordinates into the 99; it is injective (`colourIndex_injective`).
+The mode `n` is read into `L²(ℝ⁹⁹)` by `embedIndex e n = e.symm (mapDomain colourIndex n)`, whose
+injectivity gives `modeVec99_orthonormal`; hence `embedL2 e c = ∑ n, c n • modeVec99 e n` satisfies
+`‖embedL2 e c‖² = coreNormSq c` (`embedL2_norm_sq`).  No Mehler kernel and no Gaussian integral are
+used: the isometry is orthonormality of the adapted basis.  The image lies in `polyGaussCore`
+(`embedL2_mem_polyGaussCore`), so `embedCore` is a concrete candidate for `toCore`, and
+`embedCore_norm_sq` is exactly the `norm_sq` field of `RootModeIdentification`.
+
+**The ε and f contraction.**  `levi_contract` is the sharp `∑_i ε_{ijk}ε_{ilm} = δ_{jl}δ_{km} −
+δ_{jm}δ_{kl}`; `eps_contract_poly` lifts it to arbitrary bilinear polynomial forms,
+`∑_i (εP)(εQ) = ∑_{jk}(P_{jk}Q_{jk} − P_{jk}Q_{kj})`, and `magPoly_sq_contract` is the square case.
+With `magFullBilin = X(idxD ··) + magBilin` (`= ∂A + f[A,A]`), `magEnergy_eq_contract` gives
+`Σ_{ia}B_{ia}² = Σ_{a,j,k}(P² − P·Pᵀ)`: the ε weights disappear, the f weights sit inside `P`, and
+the transposed term is where the commutator survives.
+
+**The restricted-form certificate.**  `RootFormDomination` requires `dom` only on the root sector;
+`root_ground_bound` / `root_excited_bound` are its two level bounds, and `s2RootFormDomination`
+builds it from `s2_gap_constant_root` with ratio `c₁/48` and shift `(c₁ μ₀ + quarticShift)/48`.
+
+**Boundary.**  `RootModeIdentification` still has no inhabitant, because `mag_eq_root` is not proved
+for `embedCore`: that is the normal-ordering/Mehler analysis showing `B_m` acts on the embedded mode
+`n` by `n_m`.  The `f` side of the contraction is *not* a Casimir identity: no antisymmetry or
+Jacobi identity for `f_{abc}` is hypothesised in this model, so `eps_contract_poly` stops at the
+transposed term and the structure constants remain free symbols.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `#print axioms` on the
+twelve new declarations gives `[propext, Classical.choice, Quot.sound]` (one, `embedL2_mem_polyGaussCore`,
+uses only `propext` and `Quot.sound`); line-length check clean.

@@ -102,7 +102,8 @@ decomposes into such blocks.
 namespace BookProof.YangMillsFieldStrengthSplit
 
 open Matrix MvPolynomial
-open BookProof.YangMillsHermite BookProof.HermiteProductCore BookProof.FarisLavine
+open BookProof.YangMillsHermite BookProof.HermiteProductCore BookProof.HermiteGalerkin
+open BookProof.FarisLavine
 
 noncomputable section
 
@@ -208,6 +209,32 @@ theorem two_smul_levi_contract (F : Fin 3 → Fin 3 → MvPolynomial (Fin 99) �
       = ∑ j, ∑ k, ((levi i j k : ℝ) : ℂ) • (F j k - F k j) := by
   fin_cases i <;> simp only [Fin.sum_univ_three, levi] <;> push_cast <;> module
 
+/-- **The `ε`–`ε` contraction**: `∑_i ε_{ijk} ε_{ilm} = δ_{jl}δ_{km} − δ_{jm}δ_{kl}`, the sharp
+identity behind the magnetic-energy contraction (the `ε` analogue of the Pauli-matrix product). -/
+theorem levi_contract (j k l m : Fin 3) :
+    (∑ i : Fin 3, levi i j k * levi i l m)
+      = (if j = l ∧ k = m then 1 else 0) - (if j = m ∧ k = l then 1 else 0) := by
+  fin_cases j <;> fin_cases k <;> fin_cases l <;> fin_cases m <;>
+    simp [Fin.sum_univ_three, levi] <;> norm_num
+
+/-- **The `ε`-contraction of two bilinear forms, as a polynomial identity.**  Contracting two
+`ε`-contractions gives the two traces `P_{jk}Q_{jk}` minus the transposed one `P_{jk}Q_{kj}`:
+`∑_i (ε_{ijk}P_{jk})(ε_{ilm}Q_{lm}) = ∑_{jk}(P_{jk}Q_{jk} − P_{jk}Q_{kj})`.  No symmetry is
+assumed on either form. -/
+theorem eps_contract_poly (P Q : Fin 3 → Fin 3 → MvPolynomial (Fin 99) ℂ) :
+    (∑ i : Fin 3, (∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) • P j k)
+        * (∑ l : Fin 3, ∑ m : Fin 3, ((levi i l m : ℝ) : ℂ) • Q l m))
+      = ∑ j : Fin 3, ∑ k : Fin 3, (P j k * Q j k - P j k * Q k j) := by
+  simp only [Fin.sum_univ_three]
+  norm_num [levi]
+  ring
+
+/-- The square case: `∑_i (ε_{ijk}P_{jk})² = ∑_{jk}(P_{jk}² − P_{jk}P_{kj})`. -/
+theorem magPoly_sq_contract (P : Fin 3 → Fin 3 → MvPolynomial (Fin 99) ℂ) :
+    (∑ i : Fin 3, (∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) • P j k) ^ 2)
+      = ∑ j : Fin 3, ∑ k : Fin 3, (P j k ^ 2 - P j k * P k j) := by
+  simpa [pow_two] using eps_contract_poly P P
+
 /-- **The commutator part vanishes for commuting fields.**  If the bilinear form `A_{j,b}A_{k,c}`
 is symmetric in `(j,b) ↔ (k,c)` — which is what `[A_j, A_k] = 0` means, in particular for
 fields taking values in a Cartan direction — then `g[A,A]` contributes nothing and the field
@@ -286,6 +313,35 @@ theorem realCoeff_magPoly (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3)
     RealCoeff (magPoly fabc i a) := by
   rw [magPoly_eq_deriv_add]
   exact RealCoeff.add (realCoeff_magDeriv i a) (realCoeff_magComm fabc i a)
+
+/-- The bilinear entry of the **full** field strength — derivative *plus* commutator — so that
+`B_{ia} = ∑_{jk} ε_{ijk} (magFullBilin)_{jk,a}` holds definitionally. -/
+noncomputable def magFullBilin (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (j k : Fin 3) (a : Fin 8) :
+    MvPolynomial (Fin 99) ℂ :=
+  X (idxD j k a) + magBilin fabc j k a
+
+/-- `B_{ia}` is the `ε`-contraction of `magFullBilin`, definitionally. -/
+theorem magPoly_eq_sum_levi_magFullBilin (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (i : Fin 3)
+    (a : Fin 8) :
+    magPoly fabc i a
+      = ∑ j : Fin 3, ∑ k : Fin 3, ((levi i j k : ℝ) : ℂ) • magFullBilin fabc j k a := rfl
+
+/-- **The full magnetic energy contracted with `ε` and `f`.**  Summing the square of the
+`ε`-contraction over the magnetic index `i` and using `magPoly_sq_contract` gives
+`Σ_{ia} B_{ia}² = Σ_{a,j,k} (P_{jka}² − P_{jka}P_{kja})`, with `P = magFullBilin = ∂A + f[A,A]`.
+The `ε` weights are gone, the `f` weights sit inside `P`, and the transposed term
+`P_{jka}P_{kja}` is exactly where the commutator survives: for `f = 0` it is symmetric and
+cancels only against the diagonal if `∂_j A_{k,a} ∂_k A_{j,a}` does not — the derivative cross
+term.  No truncation is made. -/
+theorem magEnergy_eq_contract (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    magEnergy fabc
+      = ∑ a : Fin 8, ∑ j : Fin 3, ∑ k : Fin 3,
+          (magFullBilin fabc j k a ^ 2
+            - magFullBilin fabc j k a * magFullBilin fabc k j a) := by
+  rw [magEnergy, Finset.sum_comm]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  have h := magPoly_sq_contract (fun j k => magFullBilin fabc j k a)
+  simpa only [magPoly_eq_sum_levi_magFullBilin] using h
 
 /-- The full magnetic energy has real coefficients, so its operator is Gauss symmetric. -/
 theorem realCoeff_magEnergy (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : RealCoeff (magEnergy fabc) := by
@@ -551,6 +607,19 @@ above.  This section states that identification and proves what it yields.
   driven through the chapter's gap chain: ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`,
   separation `c₁Δ_ref/48 > 0`, the excited-sector bound in the `quartic_certified_gap` shape, and
   positivity of the threshold exactly when `quarticShift < c₁ Δ_ref`.
+* **`colourIndex`**, **`embedIndex`**, **`modeVec99`**, **`embedL2`**, **`embedL2_norm_sq`**,
+  **`embedL2_mem_polyGaussCore`**, **`embedCore`**, **`embedCore_norm_sq`** — the
+  `L²(ℝ²⁴) → L²(ℝ⁹⁹)` embedding: the occupation of mode `m` is placed on the gauge coordinate
+  `A_{j,a}`, which is an orthonormal subfamily of the `ℝ⁹⁹` adapted basis, so the embedding is an
+  isometry with no Mehler analysis, and it lands on `polyGaussCore`.  This discharges the
+  `norm_sq` field of the root-sector identification for the concrete candidate;
+* **`levi_contract`**, **`eps_contract_poly`**, **`magPoly_sq_contract`**, **`magFullBilin`**,
+  **`magEnergy_eq_contract`** — the `ε`–`ε` contraction `∑_i ε_{ijk}ε_{ilm} = δ_{jl}δ_{km} −
+  δ_{jm}δ_{kl}` and its polynomial form, giving `Σ_{ia}B_{ia}² = Σ_{a,j,k}(P² − P·Pᵀ)` with
+  `P = ∂A + f[A,A]`: the `ε` weights disappear and the `f` weights sit inside `P`;
+* **`RootFormDomination`**, **`root_ground_bound`**, **`root_excited_bound`**,
+  **`s2RootFormDomination`** — the domination certificate with `dom` required only on the root
+  sector, which `RootModeIdentification` supplies;
 * **`rootSector`**, **`RootModeIdentification`**, **`toRootModeIdentification`** — the
   identification restricted to the root sector (no vacuum component): every unrestricted one
   restricts, and this is the structure the abelian argument does not refute;
@@ -626,6 +695,100 @@ theorem coeffToCore_norm_sq (e : ℕ ≃ (Fin d →₀ ℕ)) (c : CoreCoeff d) :
   refine Finset.sum_congr rfl fun n _ => ?_
   rw [RCLike.conj_mul]
   exact RCLike.re_ofReal_pow (‖c n‖) 2
+
+/-! ### 3d.0 The `L²(ℝ²⁴) → L²(ℝ⁹⁹)` embedding
+
+The identification `ModeIdentification.toCore` has to land in `D ≤ L²(ℝ⁹⁹)`, but the coefficient
+model's adapted basis lives in `L²(ℝ²⁴)`.  The bridge is the distinguished injection of the `24`
+gauge coordinates into the `99` coordinates: put the occupation of mode `m` on the coordinate
+`A_{j,a}` with `m ↦ (j, a)`, and zero elsewhere.  Read in the adapted Hermite basis of
+`L²(ℝ⁹⁹)` this is an *orthonormal family*, so the embedding is an isometry with no Mehler analysis:
+the norm identity is the orthonormality of `coreBasis e`, exactly as for `coeffToCore`. -/
+
+/-- The distinguished injection of the `24` field/colour pairs into the `99` coordinates: the
+coordinate of the gauge field `A_{j,a}` carried by the `m`-th pair. -/
+def colourIndex (m : Fin 24) : Fin 99 := idxA (decodeSpace m) (decodeColor m)
+
+/-- The distinguished injection is injective: the pair `(j, a)` is recovered from the coordinate,
+and the coordinate determines the division and remainder by `8`. -/
+theorem colourIndex_injective : Function.Injective colourIndex := by
+  intro m n h
+  have h2 : (decodeSpace m, decodeColor m) = (decodeSpace n, decodeColor n) :=
+    idxA_injective (a₁ := (decodeSpace m, decodeColor m))
+      (a₂ := (decodeSpace n, decodeColor n)) h
+  obtain ⟨hsp, hco⟩ := Prod.mk.inj h2
+  have hs : m.val / 8 = n.val / 8 := congrArg Fin.val hsp
+  have hc : m.val % 8 = n.val % 8 := congrArg Fin.val hco
+  have hm := Nat.div_add_mod m.val 8
+  have hn := Nat.div_add_mod n.val 8
+  apply Fin.ext
+  omega
+
+/-- The index in `L²(ℝ⁹⁹)`'s adapted basis of the mode `n` of the `24`-component model, with the
+occupation on the distinguished gauge coordinates and zero elsewhere. -/
+noncomputable def embedIndex (e : ℕ ≃ (Fin 99 →₀ ℕ)) (n : Fin 24 → ℕ) : ℕ :=
+  e.symm (Finsupp.mapDomain colourIndex (Finsupp.equivFunOnFinite.symm n))
+
+/-- Distinct occupations give distinct `ℝ⁹⁹` basis indices: `mapDomain` is injective along the
+distinguished injection, and the two equivalences are bijections. -/
+theorem embedIndex_injective (e : ℕ ≃ (Fin 99 →₀ ℕ)) :
+    Function.Injective (embedIndex e) := by
+  intro n m h
+  have h' : Finsupp.mapDomain colourIndex (Finsupp.equivFunOnFinite.symm n)
+      = Finsupp.mapDomain colourIndex (Finsupp.equivFunOnFinite.symm m) :=
+    e.symm.injective h
+  exact Finsupp.equivFunOnFinite.symm.injective
+    (Finsupp.mapDomain_injective colourIndex_injective h')
+
+/-- The mode vector of the `24`-component model, read as a vector of `L²(ℝ⁹⁹)` through the
+distinguished gauge coordinates. -/
+noncomputable def modeVec99 (e : ℕ ≃ (Fin 99 →₀ ℕ)) (n : Fin 24 → ℕ) : L2d 99 :=
+  (coreBasis e) (embedIndex e n)
+
+/-- The embedded mode vectors are orthonormal, being a subfamily of the adapted `ℝ⁹⁹` basis. -/
+theorem modeVec99_orthonormal (e : ℕ ≃ (Fin 99 →₀ ℕ)) :
+    Orthonormal ℂ (modeVec99 e) :=
+  (coreBasis e).orthonormal.comp _ (embedIndex_injective e)
+
+/-- **The `L²(ℝ²⁴) → L²(ℝ⁹⁹)` embedding**: the coefficient model read through the distinguished
+gauge coordinates.  This is the concrete candidate for `ModeIdentification.toCore`. -/
+noncomputable def embedL2 (e : ℕ ≃ (Fin 99 →₀ ℕ)) (c : CoreCoeff 24) : L2d 99 :=
+  ∑ n ∈ c.support, c n • modeVec99 e n
+
+/-- **The embedding is an isometry**: `‖embedL2 e c‖² = ∑ n, ‖c n‖² = coreNormSq c`.  Only
+orthonormality of the adapted basis is used — no Mehler kernel and no Gaussian integral. -/
+theorem embedL2_norm_sq (e : ℕ ≃ (Fin 99 →₀ ℕ)) (c : CoreCoeff 24) :
+    ‖embedL2 e c‖ ^ 2 = coreNormSq c := by
+  have hv := modeVec99_orthonormal e
+  have hinner := hv.inner_sum (v := modeVec99 e) (fun n => c n) (fun n => c n) c.support
+  rw [embedL2]
+  rw [← inner_self_eq_norm_sq (𝕜 := ℂ) (x := ∑ n ∈ c.support, c n • modeVec99 e n)]
+  rw [hinner, map_sum]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [RCLike.conj_mul]
+  exact RCLike.re_ofReal_pow (‖c n‖) 2
+
+/-- **The embedding lands on the Gauss–polynomial core**: a finite combination of adapted basis
+vectors is in the finite-mode domain, which is `polyGaussCore`. -/
+theorem embedL2_mem_polyGaussCore (e : ℕ ≃ (Fin 99 →₀ ℕ)) (c : CoreCoeff 24) :
+    embedL2 e c ∈ polyGaussCore (d := 99) := by
+  rw [← finiteModeDomain_coreBasis e]
+  rw [embedL2, finiteModeDomain]
+  refine Submodule.sum_mem _ fun n _ => Submodule.smul_mem _ _ ?_
+  exact Submodule.subset_span ⟨embedIndex e n, rfl⟩
+
+/-- **The concrete `toCore` candidate**, on the Gauss–polynomial core of `L²(ℝ⁹⁹)`: the coefficient
+model read through the distinguished gauge coordinates.  Its `norm_sq` field is `embedCore_norm_sq`;
+what remains of `RootModeIdentification` is `mag_eq_root` only. -/
+noncomputable def embedCore (e : ℕ ≃ (Fin 99 →₀ ℕ)) (c : CoreCoeff 24) :
+    polyGaussCore (d := 99) :=
+  ⟨embedL2 e c, embedL2_mem_polyGaussCore e c⟩
+
+/-- **The `norm_sq` field of the root-sector identification**, discharged for the concrete
+candidate: `‖embedCore e c‖² = coreNormSq c`. -/
+theorem embedCore_norm_sq (e : ℕ ≃ (Fin 99 →₀ ℕ)) (c : CoreCoeff 24) :
+    ‖(((embedCore e c : polyGaussCore (d := 99)) : L2d 99))‖ ^ 2 = coreNormSq c :=
+  embedL2_norm_sq e c
 
 /-- **The quartic `:N²:` form is not relatively bounded by the degree form.**  For every `κ` and
 `b` there is a core coefficient with `quarticDegreeForm c > κ · degreeForm c + b · ‖c‖²`: taking a
@@ -1009,6 +1172,52 @@ theorem s2_excited_threshold_root (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 �
         - ((c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48) * coreNormSq c
       = ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * coreNormSq c := by ring
   linarith [h1, h2, h3]
+
+/-- **A restricted-form domination certificate.**  `FormDomination` quantified over the whole core;
+this one requires the domination inequality only on the root sector, which is exactly what
+`RootModeIdentification` can supply.  It is a different object, not a weakening: the `dom` field is
+the statement actually needed for the sector's spectral bound. -/
+structure RootFormDomination (ω : Fin 24 → ℝ) (q : CoreCoeff 24 → ℝ) where
+  /-- the domination ratio. -/
+  c₁ : ℝ
+  /-- the additive shift. -/
+  c₂ : ℝ
+  /-- the ratio is positive. -/
+  hc₁ : 0 < c₁
+  /-- the domination inequality, on the root sector only. -/
+  dom : ∀ c : CoreCoeff 24, rootSector c → c₁ * coreForm ω c - c₂ * coreNormSq c ≤ q c
+
+/-- **The restricted ground bound**: the whole-core `ground_bound` restricted to the root sector. -/
+theorem root_ground_bound (ω : Fin 24 → ℝ) (hω : ∀ i, 0 < ω i)
+    {q : CoreCoeff 24 → ℝ} (D : RootFormDomination ω q) (c : CoreCoeff 24)
+    (hc : rootSector c) :
+    (D.c₁ * refEnergy ω 0 - D.c₂) * coreNormSq c ≤ q c := by
+  have h1 : D.c₁ * (refEnergy ω 0 * coreNormSq c) ≤ D.c₁ * coreForm ω c :=
+    mul_le_mul_of_nonneg_left (coreForm_ge_vacuum ω hω c) D.hc₁.le
+  have h2 := D.dom c hc
+  nlinarith
+
+/-- **The restricted excited bound**: the `excited_bound` of the whole-core certificate, now on
+the root sector, where `href_spectral_gap` applies. -/
+theorem root_excited_bound (ω : Fin 24 → ℝ) (hω : ∀ i, 0 < ω i)
+    {q : CoreCoeff 24 → ℝ} (D : RootFormDomination ω q) (c : CoreCoeff 24)
+    (hc : rootSector c) :
+    (D.c₁ * (refEnergy ω 0 + refGap ω) - D.c₂) * coreNormSq c ≤ q c := by
+  have h1 : D.c₁ * ((refEnergy ω 0 + refGap ω) * coreNormSq c) ≤ D.c₁ * coreForm ω c :=
+    mul_le_mul_of_nonneg_left (href_spectral_gap ω hω c hc) D.hc₁.le
+  have h2 := D.dom c hc
+  nlinarith
+
+/-- **The S2 certificate as a restricted-form domination**, built from the root-sector gap
+constant: ratio `c₁/48`, shift `(c₁ μ₀ + quarticShift)/48`, on the root sector. -/
+noncomputable def s2RootFormDomination (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (RI : RootModeIdentification Φ fabc) {ω : Fin 24 → ℝ} {T : Finset (Fin 24)} {g : ℝ}
+    (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁) (hω₁ : ∀ i, c₁ * ω i ≤ 1) :
+    RootFormDomination ω (fun c => quadForm (ymHamiltonian Φ fabc) (RI.toCore c)) where
+  c₁ := c₁ / 48
+  c₂ := (c₁ * refEnergy ω 0 + quarticShift (d := 24) T g) / 48
+  hc₁ := by positivity
+  dom := fun c hc => s2_gap_constant_root Φ fabc RI (T := T) (g := g) hg hc₁ hω₁ c hc
 
 /-! #### The certificate inside the gap chain
 
