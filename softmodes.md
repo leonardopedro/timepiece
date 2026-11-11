@@ -110,7 +110,8 @@ weight (`Mode.timeOrder` enters the kernel as `E^timeOrder`, `spatialOrder` as t
 homogeneity), the same convention as `idxD` adding `1` and the quartic weight having weight `4`
 here. Two uses: these are the exponents our label and OPE bounds must carry, and the physical
 occupant of a weight-4 label is the stress trace — a candidate weight-4 observable for target 2
-that needs no gap to state.
+that needs no gap to state. Their `r^8 log²(1/r)` normalisation is this convention rather than a
+fitted constant: two grade-4 insertions give `weight = 8`, so the exponent is the label's weight.
 
 **D. Their mode energies are free energies, not outputs.** In `Mode.kernel`, `m : ℝ≥0` is a
 parameter of an ansatz and `E = sqrt(m² + ‖p‖²)` is computed from it. Comparing this file's mode

@@ -113,7 +113,9 @@ finite sum of `Mode.kernel` mass-shell profiles. Two consequences. First, the di
 ultraviolet: it constrains operator content at short distance and is **not** evidence about a gap,
 a mode space, or long-distance decay. Second, its grade-4 slot is the same graded slot as this
 repository's `magWeight` (`totalDegree_magWeight_le ≤ 4`), with the stress trace as the named
-physical occupant of that slot. Read literally the exclusion is finite-Wick-sum only — the README
+physical occupant of that slot. The `r^8` is the grading doing work rather than a fitted constant: a
+two-point function of two grade-4 labels has `weight = 4 + 4 = 8`, and the normalisation exponent is
+that weight. Read literally the exclusion is finite-Wick-sum only — the README
 puts general exclusion of continuous-mass generalized free fields out of scope — so "not a finite
 free ansatz" must never be written as "not a generalized free field".
 
