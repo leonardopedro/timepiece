@@ -13,6 +13,65 @@ This supersedes “SM refinements” as the work order and any interpretation of
 matter interaction. Keep their actual theorems and prior successful-build records.
 The existing bosonic ESA proof is an input to reuse, not an open proof to repeat.
 
+## External-source revision (2026-11-11)
+
+Two external trees were read while revising this plan: `../YM` (the Yang–Mills group's results and
+verification repository, holding the assessment dated 10 November 2026 of OpenAI's 28 October 2026
+Lean submission) and `../Yang--Mills-LLM-experiment` (the Balaban-programme draughts: QED3, YM3,
+YM4, RP1). **Neither supplies any theorem this plan may use as a hypothesis.** They are used here
+for one purpose: to state precisely what the existing gauge-theory constructions do and do not
+cover, so that no packet below can be closed by appeal to them.
+
+### What is covered, and what is not
+
+The October construction is pure Yang–Mills: gauge-invariant local fields built from the curvature
+and its covariant derivatives, on `R⁴`, for a **simple compact** gauge group, reconstructed through
+the OS axioms into a Wightman theory, at fixed physical volume and along **subsequential** scalings.
+It contains no matter field, no Higgs, no chiral fermion, no `U(1)` factor, no product group and no
+generation structure, and it is judged not to prove a mass gap, uniqueness, or a continuum measure.
+The three-dimensional manuscripts are the superrenormalizable analogues: YM3 for `tr F²`, and QED3,
+which is the **only** external result in either tree that carries both a gauge field and matter to
+the OS axioms (for `F_μν`, in three dimensions). RP1 is an unvetted outline relating reflection
+positivity to `O(d)` invariance.
+
+Consequences for this plan, dated:
+
+* **E1 and E2 remain ours alone.** No packet may cite an external construction as evidence that
+  `h_SM` has a closure, or that its outer enclosure exists. §1's disclaimer ("no claim of an
+  ordinary continuum SM ultraviolet construction follows merely from naming the operator 'full'")
+  now has an external basis: the only completed construction is a bosonic pure-gauge one, and the
+  only matter-coupled one is three-dimensional and abelian.
+* **The gauge sector is the one part with a shared vocabulary.** `smMagG` and `smMagW` have
+  `Φ = L(derivative) + Q(fields)` — the `B = ∂A + g[A,A]` split — and `smMagB` is linear in the
+  derivative, so all three are **weight-2 labels** in the external grading (curvature `2`,
+  derivative `+1`, products add, quotient by the linear/Bianchi relations). The SM magnetic weight
+  is therefore a weight-4 label, the same invariant this repository now proves for the pure-gauge
+  case (`totalDegree_magPoly_le ≤ 2`, `totalDegree_magWeight_le ≤ 4`). Add this to P5: state the
+  SM magnetic quadratic form's degree class in the label grading. It is what makes the polynomial
+  hypothesis of P3/P4 the standard one rather than a bespoke counting argument.
+* **A cheap independent test of the conventions P0/P1 keep flagging.** The external check compares
+  label classes against free Maxwell data modulo the relations — a sign/coupling convention test
+  that needs no spectrum. The same device applies to §1.2's "the weak field-strength sign must be
+  matched to the generator convention": express `smMagG`, `smMagW`, `smMagB` as labels, and verify
+  the quotient relations hold under the chosen matrices. A mismatch of sign or of `iσ₂` pairing
+  shows up in the relations, before any ellipticity or Faris–Lavine work.
+* **No gap, no nonnegativity, and no clock is borrowed.** The plan already says ESA does not need
+  the matter Hamiltonian to be nonnegative or gapped (§1.2); the external reading adds that even the
+  pure-gauge sector has no gap to import, so nothing here may be phrased as "the gauge part is the
+  constructed Yang–Mills theory, hence gapped".
+* **Fermionic OS positivity has no template.** Both external reconstructions are bosonic; the
+  `F_internal` CAR/Clifford factor of `K_SM` puts the relevant positivity outside their framework.
+  Record it as a boundary of E2: no external argument establishes even the *form* of the fermionic
+  positivity statement, let alone its proof.
+* **The stress tensor and Ward identity are the standard by which "same gauge sector" is judged.**
+  The pure-Yang–Mills construction carries a conserved stress tensor and a translation Ward
+  identity; if P5 wants to say the SM's gauge part *is* that theory, the comparison has to be made at
+  the level of the Ward identity, not of the polynomial alone.
+
+Verification discipline (acceptance specification, per-declaration axiom audit, dated evidence
+ledger, provenance hashes) is discussed in [cftproof.md](cftproof.md) and applies here unchanged;
+this file's regression gate in P8 currently has none of it.
+
 ## 1. Fix the mathematical endpoint before proving it
 
 The reference is [book.tex](book.tex), especially “Majorana spinors in the Standard
