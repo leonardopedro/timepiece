@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11g):** **“State of the QYM row — 2026-11-11g: the normalization
+> **Newest entry (2026-11-11h):** “State of the project — 2026-11-11h: the root domain as the excited
+> span, and the gap on its closure” (end of file): `rootDomain` is the vacuum-orthogonal core
+> (`rootDomain_eq_span_excited`, off `norm_sq_apply_zero_le_coreNormSq`), it is closed under
+> `coreNormSq` limits (`rootDomain_closed_of_tendsto`, `closure_rootDomain_iff`), and the root-sector
+> gap therefore holds on its closure verbatim (`root_spectral_gap_on_closure`).  No continuity of the
+> quartic form is claimed or used.  The chapter builds; the aggregate `+BookProof` build stops on
+> the pre-existing `BookProof.MCMC.PCNGaussianFloor` failure from the incoming branch (module
+> unmodified, and it imports only `Mathlib`).
+> **Earlier entry (2026-11-11g):** **“State of the QYM row — 2026-11-11g: the normalization
 > constant and the `n`-coordinate form”**, at the very end of this file — `integral_gaussRoot_sq`
 > (`∫ γ = √(2π)`), `lintegral_normalized_eq_one` (so the correction factor is `√(2π)^{−d}`),
 > `gaussRootN_eq_prod`, `conj_mult_N` and `lintegral_norm_sq_conj_N` (the isometry in `n`
@@ -167,6 +175,96 @@
 > `pcnlKernel = P₀ + K_drift + K_reject` with its band and contraction bounds; §19 iterates it and
 > proves `P₀`'s iterates converge to the invariant state at rate `ρ`, and states precisely why the
 > full step's iteration needs the Markov structure the core lacks.
+> **Local Yang–Mills lineage (same days, at the end of this file):** the entries
+> `2026-11-11b` … `2026-11-10` record the Yang–Mills field-strength work (the `su(2)`
+> structure constants and `C_A = 2`, the mode expectation of `:B²:`, the root-sector gap and
+> its domain, the colour factor and the contraction).  Newest first:
+> **Newest entry (2026-11-11b):** “State of the project — 2026-11-11b: the `su(2)` structure
+> constants, and `C_A = 2` computed” (end of file): `su2Struct` instantiates `f_{abc} = ε_{abc}` on
+> the three `su2Slot`s (`su(2) × U(1)⁵`), satisfies antisymmetry and Jacobi
+> (`su2Struct_antisym`, `su2Struct_jacobi`), and gives the colour tensor
+> `K_{abcd} = δ_acδ_bd − δ_adδ_bc` (`colourTensor_su2`) with `C_A = 2` and `Σ f² = 6`
+> (`su2_casimir_adjoint_value`, `su2_colourWeight_sum`).  `C_F = 3/4` is explicitly out of scope.
+> `lake build +BookProof` completed.
+> **Earlier entry (2026-11-11a):** “State of the project — 2026-11-11a: the mode expectation of `:B²:`
+> on the linear half” (end of file): the mode state as a unit vector of the monomial-orthonormal
+> model (`modeState`, `modeExp`), the contraction `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`
+> (`coeff_pderiv_X_mul`), and normal ordering as “replace `1 + n` by `n`” for a linear field
+> (`modeExp_linField_normalOrdered`).  Applied to `B^∂_{ia}`: contraction `2` per component, `6` per
+> colour index, `48` over all `24` (`modeExp_magDeriv_sq`, `modeExp_magAll_normalOrdered`).  The
+> commutator half is quartic and explicitly out of scope.  `lake build +BookProof` completed.
+> **Earlier entry (2026-11-10m):** “State of the project — 2026-11-10m: the root gap on its domain,
+> the colour factor, and the contraction” (end of file): the root sector as a form domain with a
+> positive `root_spectral_gap`; `IsAntisymmetric`/`SatisfiesJacobi` with the derived factor `2` in
+> `colour_contraction_double`; and `[∂ᵢ,Xᵢ] = 1` (`pderiv_X_mul`) with `magPoly_mul_monomial_ne`,
+> which is the contraction the `:N²:` form needs.  `lake build +BookProof` completed.
+> **Earlier entry (2026-11-10k):** “State of the project — 2026-11-10k: the ℝ²⁴ → ℝ⁹⁹ embedding and
+> the ε contraction”, at the end.  The embedding is an isometry into `polyGaussCore` via
+> orthonormality of the adapted basis (`embedL2_norm_sq`, `embedCore_norm_sq`), which discharges the
+> `norm_sq` field; `levi_contract` / `eps_contract_poly` / `magEnergy_eq_contract` prove the ε–ε
+> contraction for the magnetic energy; `RootFormDomination` gives the restricted certificate.
+> `mag_eq_root` remains open.  `lake build +BookProof` completed.
+> **Earlier newest entry (2026-11-10j):** “State of the project — 2026-11-10j: the S2 certificate on the root
+> sector”, at the end.  The root-sector hypotheses carry through the whole S2 chain:
+> `ymHamiltonian_quadForm_ge_of_rootIdentification`, `s2_gap_constant_root` and
+> `s2_excited_threshold_root` are proved from `mag_eq_root` alone.  Whole-core
+> `FormDomination` still needs the unrestricted structure.  `lake build +BookProof` completed.
+> **Earlier newest entry (2026-11-10i):** “State of the project — 2026-11-10i: the root-sector structure”,
+> at the end.  `rootSector` and `RootModeIdentification` state the identification off the vacuum
+> (every unrestricted one restricts to one); `vacuumCoeff_not_rootSector` puts the abelian witness
+> outside the sector; `magneticEnergyForm_ge_normSq` and `root_sector_magnetic_pos` show there is no
+> root-sector analogue of the obstruction; and `magEnergy_ge_of_rootIdentification` shows the S2
+> transfer needs the weaker structure only.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10h):** “State of the project — 2026-11-10h: the cross weight against the
+> count factor”, at the end.  `rootCrossWeight_le_sq_sum` proves the sharp `d − 1` bound
+> (`rootCrossForm_le_magnetic` at form level), `magnetic_quartic_count_sandwich` gives
+> `q_mag ≤ (∑ n)² ≤ d · q_mag`, and `not_sq_sum_le_rootCross` shows the converse fails, so the
+> count factor cannot be dropped.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10g):** “State of the project — 2026-11-10g: the two-pair amplitude on
+> a single mode”, at the end.  `hopWord_two_pairs` gives `c_i† c_j c_k† c_l |n⟩` the amplitude
+> `√((nᵢ+1)nⱼ)·√((n_k+1)n_l)`, the product of the two one-pair amplitudes (`two_pairs_normSq` for
+> its weight); the same pair twice shifts its arguments (`hopWord_two_pairs_same`), and the diagonal
+> pair twice acts by `nⱼ²` (`hopWord_two_pairs_diag`), which is the `:N²:` weight per component.  What
+> remains is the colour contraction over the `24` components onto the core.
+> `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10f):** “State of the project — 2026-11-10f: `s2FormDomination` inside
+> the gap chain”, at the end.  `s2FormDomination` is now driven through the existing chain:
+> `s2FormDomination_c₁`/`_c₂` (ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`, by `rfl`),
+> `s2_certified_separation` (`certified_separation`), `s2_separation_pos`,
+> `s2_certified_gap` (the `quartic_certified_gap` shape) and `s2_gap_threshold_pos`, which reduces
+> the remaining condition to `quarticShift < c₁ Δ_ref`.  `lake build +BookProof` completed; axioms
+> audited.
+> **Earlier newest entry (2026-11-10e):** “State of the project — 2026-11-10e: the abelian vacuum magnetic
+> energy is one half per component”, at the end.  With `A_j = (a_j + a_j†)/√2`, `fieldOp_vacuum`
+> proves `‖A_j Ω‖² = 1/2` per component (`sum_fieldOp_vacuum`: `d/2`), against
+> `magneticEnergyForm_vacuum`'s `0` for the normal-ordered `:N²:` form on the same state; the half is
+> computed from the standard oscillator normalisation, and `abelian_vacuum_energy` states both
+> values together.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10d):** “State of the project — 2026-11-10d: the mode expansion on the
+> non-abelian root sector”, at the end.  The root pair `c_i† c_j` hops with squared amplitude
+> `nᵢ nⱼ + nⱼ` (`hopWord_pair_offdiag`, `offdiag_amp_normSq`, `offdiag_amp_decomp`,
+> `sum_offdiag_amp_sq`), and the `:N²:` weight splits as `quarticDegreeForm = magneticEnergyForm`
+> plus the cross weight `∑_{i≠j} nᵢ nⱼ` (`rootCrossWeight`, `sum_sq_eq_diag_add_root`,
+> `quarticDegreeForm_eq_magnetic_add_root`).  This is the one-pair half of the form expansion; the
+> two-pair (Mehler) half is still open.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10c):** “State of the project — 2026-11-10c: the abelian sector is a
+> counterexample, the normal-ordering identity, and the S2 certificate”, at the end.  The abelian
+> sector provably cannot inhabit `ModeIdentification` (it carries the normal-ordering constant);
+> `hopWord_pair_reverse` and `quartic_eq_magnetic_add_cross` prove that constant explicitly; and
+> `s2FormDomination` turns the S2 ratio `c₁/48` into a `FormDomination` certificate whose ground
+> threshold is `−quarticShift/48` and whose excited threshold is `(c₁ Δ_ref − quarticShift)/48`.
+> `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10b):** “State of the project — 2026-11-10b: the mode
+> identification, the falsity of the S2 relative bound, and the derived constant 1/48”,
+> at the end.  It proves the coefficient-model isometry (`coeffToCore_norm_sq`), that no
+> quartic relative bound exists (`not_quartic_relativeBound`), and derives the S2 ratio
+> `c₁/48` from the barrier bound through the `ModeIdentification` interface, which itself
+> has no inhabitant.  `lake build +BookProof` completed; axioms audited.
+> **Earlier newest entry (2026-11-10):** “State of the project — 2026-11-10: S1 outer-Fock
+> identities, S2 relative bound, and the energy decomposition”, at the end.  It records
+> the committed S1 packet and the S2 cross-term relative bound, the physical-core energy
+> identity and the conditional coercivity assembly, with the quartic relative bound named
+> as the remaining analytic input.  `lake build +BookProof` completed; axioms audited.
 > **Earlier newest entry (2026-11-09c):** “State of the project — 2026-11-09c: complete
 > SM E1 numerical assembly and joint rational Hashimoto integration”, at the end.
 > Execute [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md) P0–P8, coordinated
@@ -20603,7 +20701,595 @@ passed (70-state window; complete tails/errors in its JSON). The symbolic gate
 reproduced the full LaTeX fixture and passed both repaired legacy modules.
 GitBook validation passed 87 pages / 611 links / 452 source–target pairs with
 no warnings. The dependency lockfile is unchanged.
-no warnings. The dependency lockfile is unchanged.
+
+## State of the project — 2026-11-10: S1 outer-Fock identities, S2 relative bound, and the energy decomposition
+
+This entry records the Yang–Mills soft-mode work packages S1 and S2 as implemented
+in `BookProof`; it supersedes the "S2 is unchanged" sentence of the 2026-11-09
+S1 status in [softmodes.md](softmodes.md).  Everything below was compiled with
+`lake build +BookProof` and axiom-audited.
+
+**Committed in `233f7a3`.**
+
+* `Toolbox/ChapterFockNumberPreservingGap.lean` carries the S1 outer-Fock
+  identities: the additive scalar shift `dGamma_shiftPlus` (with `dGamma_add_col`,
+  `dGamma_smul_col`), composition on the one-particle sector
+  `dGamma_comp_one_particle` (with `colMul`, `onePartVec`, `onePartVec_colMul`),
+  and the multi-particle defect as a theorem `dGamma_comp_defect`: on two quanta
+  `N² = 4` while `dΓ(1·1) = N = 2`.  No general defect formula is asserted.
+* `Qym/ChapterYangMillsFieldStrengthSplit.lean` §3b maps the full field-strength
+  polynomial into the comparison calculation: `magEnergy = magEnergyQuad +
+  magEnergyCross + magEnergyQuart` exactly (`magEnergy_eq_parts`), the operator
+  form of that split (`mulOp_add`, `mulOp_magEnergy_eq`, `magEnergyOps_apply_eq`)
+  and its symmetry on the core (`magEnergyOps_symmetricOn`).  The cubic and
+  quartic interactions are retained in the form, not absorbed into a quadratic
+  model.
+* `scripts/import_components.py` was missing
+  `BookProof.ReflectionPositivity.ChainPartition` in `COMPONENT_NAMES`, which made
+  `--check` report unresolved claims; the mapping was added and `lakefile.toml`
+  and `BUILD_COMPONENTS.md` regenerated with the sanctioned `--write-lakefile` /
+  `--markdown` modes.  `import_components.py BookProof --check` now exits `0`.
+
+**S2 relative bound, in the same module §3c (uncommitted at the time of this entry, committed with it).**
+
+* `magOps_eq_split` is `B = ∂A + [A,A]` for the magnetic *operators*
+  (`magDerivOps`, `magCommOps`), and `magEnergy_form_ge_split` is the cross-term
+  relative bound, unconditional:
+  `(1 − ε)Σ‖∂A‖² − (ε⁻¹ − 1)Σ‖[A,A]‖² ≤ Σ‖B‖²` for every `ε > 0`
+  (`YangMillsSoftDirections.norm_add_sq_ge_split` summed over the 24 components).
+* `magEnergy_form_eq` is the exact component-by-component identity, and
+  `ymHamiltonian_quadForm_split` is the physical-core energy identity
+  `⟪x, H₁x⟫ = ½Σ‖πx‖² + ½(Σ‖∂A‖² + 2Σ Re⟪∂A,[A,A]⟫ + Σ‖[A,A]‖²)`.
+* `magEnergy_form_ge_of_quart_bound` assembles: a quartic relative bound
+  `Σ‖[A,A]‖² ≤ κΣ‖∂A‖² + b‖x‖²` leaves `1 − ε − (ε⁻¹ − 1)κ` of the quadratic
+  energy (and the shift `(ε⁻¹ − 1)b`).  `magEnergy_form_ge_quarter` is the
+  `ε = 1/2`, `κ = 1/4` case, leaving a quarter, and
+  `ymHamiltonian_quadForm_ge_of_quart_bound` adds the kinetic half — the S2 shape
+  `c₁q_ref − c₂‖·‖²` on the core.
+
+**Analytic boundary, stated rather than crossed.**  The relative bound for the
+quartic part is a *hypothesis* of the assembly.  `[A,A]²` is a quartic potential;
+bounding it by the quadratic energy is the Kato-type estimate that the
+coefficient model supplies (`YangMillsMagneticQuartic.magnetic_le_quartic`,
+`YangMillsEffectiveBarrier.barrierBound_quartic`), and the missing step is the
+mode identification between that model and the 99-coordinate core, already
+recorded as unformalised.  No unconditional `m > 0`, no `L₁ − U₀`, no cutoff
+uniformity, no IMS/localisation and no Temple separation is claimed.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs) with no errors;
+`#print axioms` on the S1 and §3c theorems reports `propext, Classical.choice,
+Quot.sound` only; no touched Lean file has a line over 100 characters;
+`doc_index.py --check` and `check-links` pass.
+
+## State of the project — 2026-11-10b: the mode identification, the falsity of the S2 relative bound, and the derived constant 1/48
+
+This entry records the Yang–Mills S2 follow-up that the 2026-11-10 entry left as
+"the quartic relative bound plus its mode identification"; it supersedes that
+entry's statement that the gap constant is conditional on an *upper* bound of the
+quartic.  Everything below is in `BookProof/Qym/ChapterYangMillsFieldStrengthSplit`
+§3d and was compiled with `lake build +BookProof`.
+
+**The §3c hypothesis is false, and this is now a theorem.**
+`not_quartic_relativeBound`: for every `κ, b : ℝ` and every `d > 0` there is a core
+coefficient `c` with
+
+`quarticDegreeForm c > κ · degreeForm c + b · ‖c‖²`
+
+— take a single mode of occupation `N`, where the quartic weight is `(dN)²` and the
+degree weight is `dN`.  So no bound `quartic ≤ κ·quadratic + b‖·‖²` exists on the
+coefficient model, and the 2026-11-10 conditional assembly cannot be discharged in
+that direction.  Coercivity must instead use the *lower* bound of the quartic
+(`YangMillsEffectiveBarrier.barrierBound_quartic`), which is unconditional.
+
+**The identification, in the part that is provable.**
+
+* `modeVec`, `modeIndex`, `modeVec_orthonormal`, `coeffToCore`, and
+  `coeffToCore_norm_sq`: the adapted product-Hermite basis `coreBasis e` is indexed
+  by `ℕ ≃ (Fin d →₀ ℕ)`, the coefficient vector `c` maps to `∑ n, c n · ψ_n`, and
+  `‖coeffToCore c‖² = coreNormSq c`.  This is a concrete isometry, no hypothesis.
+* `totalDegree_occMonomial`: the mode monomial `∏ i, X i ^ nᵢ` has total degree
+  `∑ i, nᵢ`, i.e. the model's multi-index is the field-space degree vector.
+* `ModeIdentification Φ fabc`: the interface — an isometric map of coefficient
+  vectors into the core whose magnetic form is `magneticEnergyForm diagA`.  The form
+  half is the mode-expansion step (occupation ↔ field amplitude, the Wick/Mehler
+  identification of `∑_m ‖[A,A]_m x‖²` with the diagonal `:N²:` weight).  It has no
+  inhabitant in the corpus; the theorems below are what it is for.
+
+**The transfers, and the derived S2 constant.**
+
+* `magEnergy_ge_of_identification`:
+  `1/24 · (degreeForm + barrierForm − quarticShift‖x‖²) ≤ ∑_m ‖B_m x‖²` — the
+  barrier bound of the coefficient model, with the Cauchy–Schwarz factor `24` of
+  `quarticDegreeForm_le_magnetic` read in the useful direction.
+* `ymHamiltonian_quadForm_ge_of_identification`:
+  `1/48 · (degreeForm + barrierForm − quarticShift‖x‖²) ≤ ⟪x, H₁x⟫`, the S2 shape
+  with no hypothesis on the interaction.
+* `s2_gap_constant`:
+  `c₁/48 · q_ref(x) − ((c₁μ₀ + quarticShift)/48)·‖x‖² ≤ ⟪x, H₁x⟫` for `0 < c₁`,
+  `c₁ωᵢ ≤ 1`.  The certification ratio is `c₁/48`; with `c₁ = 1` and `ω ≡ 1` it is
+  `m = 1/48 ≈ 0.0208`, the shift `(μ₀ + K + (1+K)²/4)/48` with
+  `K = rootCount T · g/2`.  The `2` in `48 = 2·24` is the kinetic/magnetic split of
+  `H₁ = ½Σπ² + ½ΣB²`; the `24` is the component count.
+
+**Boundary.**  `ModeIdentification` is not proved, so no unconditional `m > 0` is
+claimed for the core; the normal-ordering content of the magnetic energy (the cross
+term `2ΣRe⟪∂A,[A,A]⟫` is absent from the `:N²:` model, which is exactly what makes
+the model coercive) is part of that missing step.  No cutoff uniformity, IMS,
+localisation or Temple separation is claimed.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms`
+on `totalDegree_occMonomial`, `coeffToCore_norm_sq`, `not_quartic_relativeBound`,
+`magEnergy_ge_of_identification`, `ymHamiltonian_quadForm_ge_of_identification` and
+`s2_gap_constant` reports `propext, Classical.choice, Quot.sound` only; no line of
+the touched Lean file exceeds 100 characters.
+
+## State of the project — 2026-11-10c: the abelian sector is a counterexample, the normal-ordering identity, and the S2 certificate
+
+This entry records the three follow-ups to the 2026-11-10b entry.  All of it is
+`sorry`-free, `axiom`-free and compiled with `lake build +BookProof`.
+
+**The abelian sector does not inhabit `ModeIdentification`; it refutes it.**
+`ChapterYangMillsFieldStrengthSplit` §3d.1 proves `not_modeIdentification_abelian`:
+for zero structure constants there is no `ModeIdentification Φ 0`.  The reason is
+normal ordering, not analysis: the `:N²:` magnetic form vanishes on the vacuum
+(`magneticEnergyForm diagA δ₀ = 0`, since `magComp diagA a 0 = 0`), while the
+abelian magnetic operator is injective there.  The chain is
+`magPoly_zero_ne` (the polynomial `∑ j k, levi i j k • X (idxD j k a)` is nonzero —
+evaluated at the coordinate `idxD 1 2 0`, where the coefficient is `levi 0 1 2 = 1`),
+`mulOp_eq_zero_imp` (multiplication by a nonzero polynomial is injective, the
+polynomial ring being a domain), and `magOps_abelian_injective`, which pulls the
+injectivity through `Φ.equiv`.  With `MI.norm_sq` giving `‖toCore δ₀‖² = 1`, the
+sum of squares of `Σ‖B_m x‖²` cannot vanish, while `MI.mag_eq` demands it does.
+So the abelian sector carries exactly the constant the normal-ordered model has
+dropped.
+
+**The normal-ordering identity.**
+* `YangMillsFieldStrength.hopWord_pair_reverse`: the reversed pair `c_j c_j†` acts on
+  the basis vector `n` by `n_j + 1`, against `n_j` for the ordered pair
+  (`hopWord_pair_same`).  The difference is the constant `1` — the vacuum
+  subtraction, one per mode per state — and it never appears in the ordered pair.
+* `YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross`: the two-component
+  identity `quarticDegreeForm c = magneticEnergyForm diagA c + 2 ∑_n n₀n₁‖c n‖²`,
+  i.e. `(n₀+n₁)² = n₀² + n₁² + 2n₀n₁`.  The `:N²:` weight is the normal-ordered
+  magnetic energy plus the cross term; the cross term is the non-abelian piece, and
+  its absence is the same fact as `not_modeIdentification_abelian` read in the
+  coefficient model.
+
+**The S2 constant is now a `FormDomination` certificate.**  §3d.2 adds
+`s2FormDomination`, a `FormDomination ω (fun c => ⟪toCore c, H₁ toCore c⟫)` with
+`c₁ = c₁/48` and `c₂ = (c₁μ₀ + quarticShift)/48`, so the certificate vocabulary of
+`YangMillsFormDomination` applies to the Yang–Mills form verbatim:
+* `s2_ground_threshold`: `−(quarticShift/48)‖x‖² ≤ ⟪x, H₁x⟫` on the whole core —
+  no positive whole-core threshold, because the barrier's shift is the price.
+* `s2_excited_threshold`: `((c₁ Δ_ref − quarticShift)/48)‖x‖² ≤ ⟪x, H₁x⟫` on the
+  vacuum-orthogonal sector, positive exactly when `c₁ Δ_ref > quarticShift`.
+
+**Boundary.**  `ModeIdentification` still has no inhabitant — and the natural
+candidate sector is now a theorem that it cannot have one there.  The remaining
+identification obligation is therefore the *non-abelian* mode expansion (the
+Wick/Mehler identification of `Σ_m ‖[A,A]_m x‖²` with the diagonal `:N²:` weight),
+not a normal-ordering correction.  No unconditional `m > 0`, no cutoff uniformity,
+no IMS/localisation and no Temple separation is claimed.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms`
+on `hopWord_pair_reverse`, `quartic_eq_magnetic_add_cross`, `mulOp_eq_zero_imp`,
+`magPoly_zero_ne`, `magOps_abelian_injective`, `not_modeIdentification_abelian`,
+`s2FormDomination`, `s2_ground_threshold` and `s2_excited_threshold` reports
+`propext, Classical.choice, Quot.sound` only; no line of the three touched Lean
+files exceeds 100 characters.
+
+## State of the project — 2026-11-10d: the mode expansion on the non-abelian root sector
+
+This entry records the follow-up to 2026-11-10c: the one-pair half of the magnetic-energy mode
+expansion, which is what the abelian counterexample left as the identification obligation.  All of
+it is `sorry`-free, `axiom`-free and compiled with `lake build +BookProof`.
+
+**The root pair hops, and its weight is the cross term.**  In `YangMillsFieldStrength` §4,
+`hopWord_pair_offdiag` proves that for `i ≠ j` the pair `c_i† c_j` moves one quantum from mode `j`
+to mode `i` with amplitude `√((nᵢ+1) nⱼ)`:
+
+  `c_i† c_j |n⟩ = √((nᵢ+1) nⱼ) |n − eⱼ + eᵢ⟩`.
+
+`hopWord_pair_offdiag_sqrt_mul` is the same in merged form; `hopWord_pair_offdiag_ne` shows the
+index really changes when `nⱼ ≠ 0`, so no off-diagonal component is diagonal in the occupation
+basis — the contrast with the Cartan `sandwich_diag_magComp`.  `offdiag_amp_normSq` squares the
+amplitude to `(nᵢ+1) nⱼ` and `offdiag_amp_decomp` splits it as `nᵢ nⱼ + nⱼ`: the **cross term** of
+two distinct occupations plus the occupation itself.  The `+1` is the normal-ordering constant, and
+it survives *off* the diagonal because the annihilation and the creation act on different modes —
+on the diagonal it is absent (`hopWord_pair_same`, `hopWord_pair_reverse`).  Summed over the
+ordered pairs, `sum_offdiag_amp_sq` is
+
+  `∑_{i≠j} (nᵢ+1) nⱼ = ∑_{i≠j} nᵢ nⱼ + (d−1) ∑_j nⱼ`,
+
+i.e. the root share of the weight plus `d − 1` copies of the occupation per quantum.
+
+**The weight splits.**  `YangMillsMagneticQuartic.rootCrossWeight` is `∑_{i≠j} nᵢ nⱼ`;
+`sum_sq_eq_diag_add_root` proves `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n`, and
+`quarticDegreeForm_eq_magnetic_add_root` sums it against `‖c n‖²`:
+
+  `quarticDegreeForm c = magneticEnergyForm diagA c + ∑_{n∈supp} rootCrossWeight n ‖c n‖²`.
+
+So the `:N²:` weight is the normal-ordered magnetic weight plus the root-pair weight, `d`
+components at a time.  `rootCrossWeight_two` identifies the `d = 2` case with the existing
+`quartic_eq_magnetic_add_cross` (`2 n₀ n₁`), so the two-component identity is now a special case
+rather than a separate computation.
+
+**Boundary.**  This is the *one-pair* half of the form expansion.  What `ModeIdentification` still
+needs is the amplitude of a *product* of two root pairs, `∑_m ‖[A,A]_m ψ_n‖²` — a genuine
+two-particle (Mehler) computation, and not done.  Nothing changes about inhabitation: the abelian
+sector still cannot supply a `ModeIdentification` (2026-11-10c), and the root-sector amplitude
+above is why the non-abelian sector is where one would have to be built.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`sum_sq_eq_diag_add_root`, `quarticDegreeForm_eq_magnetic_add_root`, `rootCrossWeight_two`,
+`hopWord_pair_offdiag`, `hopWord_pair_offdiag_sqrt_mul`, `offdiag_amp_normSq`,
+`offdiag_amp_decomp`, `hopWord_pair_offdiag_ne` and `sum_offdiag_amp_sq` reports
+`propext, Classical.choice, Quot.sound` only; no line of the touched Lean files exceeds 100
+characters.
+
+## State of the project — 2026-11-10e: the abelian vacuum magnetic energy is one half per component
+
+This entry records the follow-up to 2026-11-10d.  All of it is `sorry`-free, `axiom`-free and
+compiled with `lake build +BookProof`.
+
+**The constant, evaluated.**  2026-11-10c showed that the abelian sector cannot inhabit
+`ModeIdentification` because it carries a normal-ordering constant; that constant is now named:
+`1/2` per field component.
+
+* `YangMillsMagneticQuartic.vacuumCoeff` is the coefficient model's vacuum (no quanta), with
+  `vacuumCoeff_support` and `vacuumCoeff_zero`; `magneticEnergyForm_vacuum` proves the
+  normal-ordered `:N²:` form vanishes there — `B_a(n) = n_a = 0`.
+* `YangMillsFieldStrength` §5 builds the oscillator chain on it: `vacuum_lower_zero` (`a_j Ω = 0`),
+  `vacuum_raise_normSq` (`‖a_j† Ω‖² = 1`), and `vacuum_field_raw`, which is
+  `(a_j† + a_j) Ω = |e_j⟩` with squared norm `1` *before* any normalisation is chosen.
+* `fieldOp` is `A_j = (a_j + a_j†)/√2`; `fieldOp_vacuum` proves `‖A_j Ω‖² = 1/2`, using
+  `coreNormSq_single`, `coreNormSq_smul` and `(1/√2)² = 1/2` — so the half is a computation from the
+  standard oscillator normalisation, not a fitted constant.
+* `sum_fieldOp_vacuum` sums this to `d/2`: one half for each of the `d` components, no cross terms.
+* `abelian_vacuum_energy` states the pair side by side: `‖A_j Ω‖² = 1/2` while
+  `magneticEnergyForm diagA Ω = 0`.
+
+**Reading.**  The abelian magnetic energy is state-independent at the vacuum and equal to `1/2` per
+component; the normal-ordered model gives zero.  The difference is exactly the constant that
+`not_modeIdentification_abelian` detects.  It also separates the two constants in the S2
+certificate: the `c₂` shift in `s2FormDomination` is the *barrier* price, while this `1/2` per
+component is the vacuum part that a `:N²:` comparison must subtract first.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`vacuumCoeff_support`, `vacuumCoeff_zero`, `magneticEnergyForm_vacuum`, `coreNormSq_single`,
+`coreNormSq_smul`, `vacuum_lower_zero`, `vacuum_raise_normSq`, `vacuum_field_raw`,
+`fieldOp_vacuum`, `sum_fieldOp_vacuum` and `abelian_vacuum_energy` reports
+`propext, Classical.choice, Quot.sound` only; no line of the touched Lean files exceeds 100
+characters.
+
+## State of the project — 2026-11-10f: `s2FormDomination` inside the gap chain
+
+This entry records the follow-up to 2026-11-10e.  All of it is `sorry`-free, `axiom`-free and
+compiled with `lake build +BookProof`.
+
+`FormDomination` is the phase-4 vocabulary of `BookProof.YangMillsFormDomination`; the chain is
+`dom` → `ground_bound`/`excited_bound` → `certified_separation`/`certified_gap_pos`.  §3d.2 of
+`ChapterYangMillsFieldStrengthSplit` now shows the S2 certificate *is* an inhabitant of that
+vocabulary rather than a parallel result:
+
+* `s2FormDomination_c₁`, `s2FormDomination_c₂` — the certificate's projections are exactly
+  `c₁/48` and `(c₁μ₀ + quarticShift)/48`; both are `rfl`, so the chain never sees a second
+  constant.
+* `s2_certified_separation` — `certified_separation` applied to `s2FormDomination`: the ground and
+  excited thresholds differ by `c₁/48 · Δ_ref`.
+* `s2_separation_pos` — that separation is strictly positive (`c₁ > 0`, `Δ_ref > 0`).
+* `s2_certified_gap` — the separation in the `quartic_certified_gap` shape: on the
+  vacuum-orthogonal sector, `c₁ Δ_ref / 48 · ‖c‖² ≤ q(c) + (quarticShift/48)‖c‖²`.
+* `s2_gap_threshold_pos` — the excited threshold is positive exactly when
+  `quarticShift < c₁ Δ_ref`.
+
+**Boundary.**  These are comparison thresholds, not a spectral gap: `ground_bound` is a lower bound
+and no upper bound on the target ground energy is supplied, which is the standing caveat of
+`YangMillsFormDomination`.  What is new is that the single quantitative condition the Yang–Mills
+certificate leaves is now isolated as `quarticShift < c₁ Δ_ref`, in the same units as the chain.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`s2FormDomination_c₁`, `s2FormDomination_c₂`, `s2_certified_separation`, `s2_separation_pos`,
+`s2_certified_gap` and `s2_gap_threshold_pos` reports `propext, Classical.choice, Quot.sound` only;
+no line of the touched file exceeds 100 characters.
+
+## State of the project — 2026-11-10g: the two-pair amplitude on a single mode
+
+This entry records the follow-up to 2026-11-10f (and 2026-11-10d).  All of it is `sorry`-free,
+`axiom`-free and compiled with `lake build +BookProof`.
+
+The one-pair amplitude left the *product* of two root pairs as the outstanding piece of the
+magnetic-energy mode expansion.  `YangMillsFieldStrength` §6 now computes it.
+
+* `hopWord_two_pairs` — for four distinct indices `i, j, k, l`,
+  `c_i† c_j c_k† c_l |n⟩` is a double hop with amplitude `√((nᵢ+1)nⱼ) · √((n_k+1)n_l)`: the product
+  of the two one-pair amplitudes (`hopWord_pair_offdiag_sqrt_mul`), the second evaluated at the mode
+  the first reached.  Distinctness is the only hypothesis, and it is exactly what makes the
+  intermediate occupations independent of the hops.
+* `two_pairs_normSq` — the squared weight `(nᵢ+1)nⱼ · (n_k+1)n_l · ‖z‖²`: the quartic weight of two
+  distinct pairs **factorises** into the root weights of §4.
+* `hopWord_two_pairs_same`, `two_pairs_same_normSq` — the same pair twice is *not* the square: the
+  second hop sees the shifted mode, so the amplitude is `√((nᵢ+2)(nⱼ−1))·√((nᵢ+1)nⱼ)`.  The `−1` is
+  the quantum the first pair removed; this is where the two-particle structure enters and where a
+  naive commutation would be wrong.
+* `hopWord_two_pairs_diag` — `(c_j† c_j)²` acts by `nⱼ²`, one summand of the per-mode magnetic
+  weight `∑ a, n_a²` of `magneticEnergyForm_diag`.  So the diagonal part of the mode expansion
+  reproduces the `:N²:` weight as an operator statement.
+
+**Boundary.**  What remains of `ModeIdentification` is the assembly over the core: summing the `24`
+components with the `ε`/`f` weights and matching the result to `magneticEnergyForm diagA` through
+the isometry `coeffToCore`.  The amplitudes are proved; the colour contraction over the core is not.
+No claim about inhabiting `ModeIdentification` is made (and the abelian sector provably cannot).
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`normSq_sqrt_mul_sqrt`, `hopWord_two_pairs`, `two_pairs_normSq`, `hopWord_two_pairs_same`,
+`two_pairs_same_normSq` and `hopWord_two_pairs_diag` reports `propext, Classical.choice,
+Quot.sound` only; no line of the touched file exceeds 100 characters.
+
+## State of the project — 2026-11-10h: the cross weight against the count factor
+
+This entry records the follow-up to 2026-11-10g.  All of it is `sorry`-free, `axiom`-free and
+compiled with `lake build +BookProof`.
+
+The pointwise split `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n` becomes an estimate once one weight
+pays for the other.  `YangMillsMagneticQuartic` now has that estimate in the sharp form:
+
+* `rootCrossWeight_nonneg`.
+* `rootCrossWeight_le_sq_sum` — `rootCrossWeight n ≤ (d − 1) · ∑ a, n_a²`.  The factor is `d − 1`
+  rather than `d` because Cauchy–Schwarz's `(∑ nᵢ)² ≤ d ∑ nᵢ²` already contains the diagonal part
+  in the `∑ nᵢ²` it is subtracted from; equivalently `d − 1` is the number of *other* components a
+  pair can hop into, as in `YangMillsFieldStrength.sum_offdiag_amp_sq`.
+* `rootCrossForm_le_magnetic` — the form-level version:
+  `∑_n rootCrossWeight n ‖c n‖² ≤ (d − 1) · magneticEnergyForm diagA c`.
+* `magneticEnergyForm_le_quartic`, `magnetic_quartic_count_sandwich` — both directions at once:
+  `q_mag ≤ (∑ n)² ≤ d · q_mag`.
+* `not_sq_sum_le_rootCross` — the converse fails: on `d = 2` with one occupied component the
+  magnetic weight is `1` and the cross weight `0`, so the count factor cannot be dropped or
+  inverted.
+
+**Reading.**  The cross term the abelian sector cannot supply is, on the canonical background, a
+bounded fraction of the magnetic weight with the explicit constant `d − 1`; that is the arithmetic
+behind "dropping the cross term is what makes `:N²:` coercive", now with no free parameter.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`rootCrossWeight_nonneg`, `rootCrossWeight_le_sq_sum`, `rootCrossForm_le_magnetic`,
+`magneticEnergyForm_le_quartic`, `magnetic_quartic_count_sandwich` and `not_sq_sum_le_rootCross`
+reports `propext, Classical.choice, Quot.sound` only; no line of the touched file exceeds 100
+characters.
+
+## State of the project — 2026-11-10i: the root-sector structure
+
+This entry records the follow-up to 2026-11-10h (and the "root-sector structure" suggestion).  All of
+it is `sorry`-free, `axiom`-free and compiled with `lake build +BookProof`.
+
+`ChapterYangMillsFieldStrengthSplit` §3d.3 states the identification where it can hold, and pins the
+obstruction to the vacuum:
+
+* `rootSector c : Prop := c 0 = 0` — the root sector: no vacuum component.
+* `RootModeIdentification` — `toCore`, the isometry `norm_sq`, and `mag_eq` only on the root
+  sector.  `toRootModeIdentification` proves that every `ModeIdentification` restricts to one, so
+  the restricted structure is exactly the unrestricted one minus the vacuum case.
+* `vacuumCoeff_not_rootSector` — the witness of `not_modeIdentification_abelian` is the vacuum
+  coefficient, which is outside the sector; the abelian argument cannot be replayed against
+  `RootModeIdentification`.
+* `YangMillsMagneticQuartic.magneticEnergyForm_ge_normSq` — off the vacuum the `:N²:` weight
+  dominates the norm (`one_le_sum_sq_of_ne_zero`: a nonzero mode has an occupied coordinate whose
+  square is `≥ 1`), hence `root_sector_magnetic_pos`: every nonzero root-sector state has strictly
+  positive weight, so there is no root-sector analogue of the obstruction.
+* `magEnergy_ge_of_rootIdentification` — the S2 barrier transfer holds on the root sector with the
+  weaker structure, since it applies `mag_eq` to one `c` at a time.  So the vacuum case is not
+  needed by the analytic chain.
+
+**Boundary.**  `RootModeIdentification` has no inhabitant: the remaining content is the assembly of
+the `24` components onto the core through `coeffToCore`, unchanged by the restriction.  The gain is
+a target that is not already known to be impossible, plus the fact that the S2 transfer does not
+depend on the vacuum.
+
+**Verification.**  `lake build +BookProof` completes with no errors; `#print axioms` on
+`rootSector`-adjacent theorems, `toRootModeIdentification`, `vacuumCoeff_not_rootSector`,
+`root_sector_magnetic_pos`, `magEnergy_ge_of_rootIdentification`, `one_le_sum_sq_of_ne_zero`,
+`magneticEnergyForm_ge_normSq`, `coreNormSq_pos` and `magneticEnergyForm_pos_of_root` reports
+`propext, Classical.choice, Quot.sound` only; no line of the touched files exceeds 100 characters.
+
+## State of the project — 2026-11-10j: the S2 certificate on the root sector
+
+Follow-up to 2026-11-10i.  The root-sector identification is now carried all the way into the S2
+certificate, so the sector where the identification can be true is the sector where the gap constant
+is proved.  `sorry`-free, `axiom`-free, `lake build +BookProof` green.
+
+* `ymHamiltonian_quadForm_ge_of_rootIdentification` — the shape inequality
+  `(degreeForm + barrierForm − shift ‖·‖²)/48 ≤ ⟨x, H x⟩` for every root-sector coefficient, from
+  `mag_eq_root` alone.
+* `s2_gap_constant_root` — the same ratio `c₁/48` and shift `(c₁ μ₀ + quarticShift)/48` against the
+  reference oscillator form, on the root sector.
+* `s2_excited_threshold_root` — the usable S2 number `(c₁ Δ_ref − quarticShift)/48 · ‖x‖²` on the
+  root sector, obtained from `s2_gap_constant_root` plus `href_spectral_gap` (`c 0 = 0`).
+
+**Boundary.**  The whole-core thresholds `s2_ground_threshold` / `s2_excited_threshold` and the
+`FormDomination` certificate `s2FormDomination` still require the unrestricted `ModeIdentification`,
+because `FormDomination.dom` quantifies over every coefficient including mixtures with a vacuum
+component.  The root-sector versions above are pointwise and therefore sound with the weaker
+structure; a `FormDomination` certificate with a root-sector-only domain would be a different object
+(a restricted-form certificate), not a weakening of this one.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `#print axioms` on the
+three theorems reports `propext, Classical.choice, Quot.sound` only; line-length check clean.
+
+## State of the project — 2026-11-10k: the ℝ²⁴ → ℝ⁹⁹ embedding and the ε contraction
+
+Follow-up to 2026-11-10j.  Two of the three things that stood between the root-sector structure and
+an inhabitant are now built; `sorry`-free, `axiom`-free, `lake build +BookProof` green.
+
+**The embedding (§3d.0).**  `colourIndex (m : Fin 24) = idxA (decodeSpace m) (decodeColor m)` is the
+distinguished injection of the 24 gauge coordinates into the 99; it is injective (`colourIndex_injective`).
+The mode `n` is read into `L²(ℝ⁹⁹)` by `embedIndex e n = e.symm (mapDomain colourIndex n)`, whose
+injectivity gives `modeVec99_orthonormal`; hence `embedL2 e c = ∑ n, c n • modeVec99 e n` satisfies
+`‖embedL2 e c‖² = coreNormSq c` (`embedL2_norm_sq`).  No Mehler kernel and no Gaussian integral are
+used: the isometry is orthonormality of the adapted basis.  The image lies in `polyGaussCore`
+(`embedL2_mem_polyGaussCore`), so `embedCore` is a concrete candidate for `toCore`, and
+`embedCore_norm_sq` is exactly the `norm_sq` field of `RootModeIdentification`.
+
+**The ε and f contraction.**  `levi_contract` is the sharp `∑_i ε_{ijk}ε_{ilm} = δ_{jl}δ_{km} −
+δ_{jm}δ_{kl}`; `eps_contract_poly` lifts it to arbitrary bilinear polynomial forms,
+`∑_i (εP)(εQ) = ∑_{jk}(P_{jk}Q_{jk} − P_{jk}Q_{kj})`, and `magPoly_sq_contract` is the square case.
+With `magFullBilin = X(idxD ··) + magBilin` (`= ∂A + f[A,A]`), `magEnergy_eq_contract` gives
+`Σ_{ia}B_{ia}² = Σ_{a,j,k}(P² − P·Pᵀ)`: the ε weights disappear, the f weights sit inside `P`, and
+the transposed term is where the commutator survives.
+
+**The restricted-form certificate.**  `RootFormDomination` requires `dom` only on the root sector;
+`root_ground_bound` / `root_excited_bound` are its two level bounds, and `s2RootFormDomination`
+builds it from `s2_gap_constant_root` with ratio `c₁/48` and shift `(c₁ μ₀ + quarticShift)/48`.
+
+**Boundary.**  `RootModeIdentification` still has no inhabitant, because `mag_eq_root` is not proved
+for `embedCore`: that is the normal-ordering/Mehler analysis showing `B_m` acts on the embedded mode
+`n` by `n_m`.  The `f` side of the contraction is *not* a Casimir identity: no antisymmetry or
+Jacobi identity for `f_{abc}` is hypothesised in this model, so `eps_contract_poly` stops at the
+transposed term and the structure constants remain free symbols.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `#print axioms` on the
+twelve new declarations gives `[propext, Classical.choice, Quot.sound]` (one, `embedL2_mem_polyGaussCore`,
+uses only `propext` and `Quot.sound`); line-length check clean.
+
+## State of the project — 2026-11-10l: why `mag_eq_root` is not derivable from `magOps`
+
+Requested: prove that `magOps` acts diagonally on the embedded modes, giving `mag_eq_root`.  **This
+cannot be done, and the reason is now proved rather than asserted.**
+
+In the book's parametrisation (see §2 of this chapter) the `72` coordinates `∂_j A_{k,a}` are
+*independent* configuration coordinates, so
+`magPoly fabc i a = ∑_{jk} ε_{ijk}(X(∂_j A_{k,a}) + f_{abc} X(A_{j,b})X(A_{k,c}))` is a
+**multiplication** operator built from coordinate functions.  Hence:
+
+* `mulOp_X_monomial` — `X i * monomial m z = monomial (m + e_i) z`: a coordinate raises its own
+  occupation.
+* `mulOp_X_monomial_ne` — the raised exponent vector differs from `m`, so no monomial is an
+  eigenvector of `X i`, and `X i` is never a scalar.
+
+So `magOps Φ fabc m` shifts every mode by one quantum in a derivative coordinate (and by two in the
+`A` coordinates); it has no diagonal basis of occupations.  `mag_eq_root` would require
+`Σ_m ‖B_m ψ_n‖² = (Σ_a n_a²)‖ψ_n‖²`, whose right side is degree-preserving while the left side is
+degree-raising; the identity is a statement about the **normal-ordered** `:N²:` Wick contraction of
+these multiplication operators, not about their diagonal part.  This is the same modelling step the
+chapter already flags ("the form half is the mode-expansion step"), and §3d.1 shows it already fails
+in the abelian sector.  `RootModeIdentification` therefore remains a hypothesis structure, now with
+the obstruction localised in a proved computation instead of prose.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `mulOp_X_monomial` and
+`mulOp_X_monomial_ne` have the standard three-axiom footprint; line-length check clean.
+
+## State of the project — 2026-11-10m: the root gap on its domain, the colour factor, and the contraction
+
+Three follow-ups, all `sorry`-free and axiom-clean; `lake build +BookProof` completed (8924 jobs).
+
+**(1) The root-sector spectral gap with its domain.**  `rootSector` is a *linear* condition — the
+kernel of evaluation at the vacuum occupation — so it is a submodule: `rootDomain`, with
+`mem_rootDomain`, `rootDomain_ne_top` (the vacuum is outside it).  On the root domain the certificate's
+**excited** threshold applies to every element, so `root_spectral_gap` gives
+`(c₁ Δ_ref − quarticShift)/48 · ‖c‖² ≤ q(c)` on the whole domain.  This is the honest difference from
+`s2_ground_threshold`, which is a whole-core lower bound that the vacuum spoils: on the root domain
+there is a genuine positive gap, and no topological closure argument is needed because the S2
+comparison is an inequality between continuous quadratic forms holding pointwise.
+
+**(2) Antisymmetry, Jacobi, and the quartic colour factor.**  `fabc` is a free three-index tensor in
+this model, so `IsAntisymmetric` and `SatisfiesJacobi` are *hypotheses*, stated as such.  Derived:
+`fabc_self_eq_zero` (repeated index vanishes), `colourTensor` / `colourTensor_cyclic` (Jacobi *is* the
+cyclic vanishing of `K_{abcd} = Σ_e f_{abe} f_{cde}`), and `colour_contraction_double`:
+for antisymmetric `P`, `Σ_{jk}(P_{jk}² − P_{jk}P_{kj}) = 2 Σ_{jk} P_{jk}²`.  That factor `2` is the
+colour-factor content of the quartic magnetic energy — the commutator's antisymmetry makes the
+transposed term of the ε contraction minus the direct one.  The *numerical* Casimir (`C_F`, `C_A`) is
+**not** derived: that needs the specific `su(N)` constants, which this model does not fix.
+
+**(3) The normal-ordered contraction.**  `pderiv_X_mul` is the Wick contraction
+`∂ᵢ(Xᵢ p) = p + Xᵢ ∂ᵢ p`, i.e. `[∂ᵢ, Xᵢ] = 1`; `normalOrder_contraction` is the operator form.  With
+`coeff_zero_magPoly` (the magnetic field has no constant term) this gives
+`magPoly_mul_monomial_ne`: `B_{ia}` is off-diagonal at every monomial.  So the `:N²:` form is the
+contracted quantity `Σ_{ia} B_ia† B_ia − (contraction)`, not the diagonal of `magOps` — which is why
+`mag_eq_root` remained a hypothesis (2026-11-10l) and what a future inhabitant would have to compute.
+
+**Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all ten new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.
+
+## State of the project — 2026-11-11a: the mode expectation of `:B²:` on the linear half
+
+`magPoly_mul_monomial_ne` (2026-11-10m) showed that `B_{ia}` is off-diagonal at every monomial, so
+the mode-by-mode expectation `Σ_m ‖B_m ψ_n‖²` has to be computed for the normal-ordered `:B²:`, by
+Wick contraction, not from the diagonal of `magOps`.  This entry computes that contraction where it
+closes — the linear (derivative) half of the field — exactly and unconditionally.  All new
+declarations are in `BookProof.Qym.ChapterYangMillsFieldStrengthSplit` §3b.3.
+
+**(1) The mode expectation, stated without analysis.**  In the monomial-orthonormal representation the
+mode state is `modeState m = monomial m 1`; monomials are orthonormal for the coefficient inner
+product `⟨p,q⟩ = Σ_s conj(p_s) q_s`, so `ψ_m` is a unit vector and the Fock expectation of an
+endomorphism `T` is the single coefficient `modeExp m T = (T ψ_m)_m`.  This is a *definition*, not a
+claim of identification: what `ModeIdentification` asserts is the agreement of this coefficient model
+with the analytic core, and nothing here needs it.
+
+**(2) The contraction, one coordinate at a time.**  `pderiv_X_eq_ite`: `∂_i X_j = δ_{ij}`.
+`coeff_X_mul_pderiv_monomial` / `coeff_X_mul_pderiv_modeState`: annihilation after creation is
+`a·mᵢ` at `m`, i.e. `n` with no `+1` — the derivative stands on the left.  `coeff_pderiv_X_mul`: the
+ordered product has `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`, and the non-matching case vanishes
+because it lands on a different monomial (`hkey`).  The `1` is `[∂,X] = 1` and the `m_l` is the
+occupation.
+
+**(3) Linear fields: normal ordering is `1 + n ↦ n`.**  `linField c l = ∑_t c_t X_{l_t}` with real
+`c_t`, adjoint `linFieldAdj c l = ∑_t c_t ∂_{l_t}`; both act term by term
+(`linFieldAdj_apply`, `mulOp_linField_apply`).  For injective `l` the cross terms `l_t ≠ l_{t'}` are
+off-diagonal and vanish, so `modeExp_linField_adj_comp` gives `⟨ψ_m, L†L ψ_m⟩ = ∑_t c_t²(1+m_{l_t})`
+and `modeExp_linField_normalOrdered` gives, after subtracting `∑_t c_t²`,
+`∑_t c_t² m_{l_t}`.  Normal ordering is *exactly* the removal of the `1`, component by component.
+
+**(4) The derivative half of the field strength.**  `magDeriv i a = ∑_{jk} ε_{ijk} ∂_j A_{k,a}` is a
+linear field over `Fin 3 × Fin 3` whose coordinates are distinct (`idxD_pair_injective`,
+`magDeriv_eq_linField`).  Hence `modeExp_magDeriv_sq`:
+`⟨ψ_m, (B^∂_{ia})† B^∂_{ia} ψ_m⟩ = 2 + ∑_{jk} ε_{ijk}² m_{∂_jA_{k,a}}`, the `2` being the two
+transverse polarisations (`levi_sq_sum_magnetic`).  Summed over the magnetic index the contraction is
+`6` (`levi_sq_sum_total`, `levi_sq_sum_total_complex`), and over all `24` components `48 = 24 · 2`
+(`levi_sq_sum_all_complex`) — the zero-point magnetic energy that normal ordering removes
+(`modeExp_magSum_normalOrdered`, `modeExp_magAll_normalOrdered`).
+
+**(5) What is *not* claimed.**  The commutator half `f_{abc} A_b A_c` is quadratic, so its square is
+quartic: its normal-ordered expectation is a *four-field* Wick contraction, not implied by the
+two-field computation above.  `RootModeIdentification` therefore still has no inhabitant, and this
+entry does not narrow it — it supplies the linear half exactly and marks the quartic half as open.
+
+**Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all twenty new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.
+
+## State of the project — 2026-11-11b: the `su(2)` structure constants, and `C_A = 2` computed
+
+§3b.2 (2026-11-10m) left `f_{abc}` free and derived only what antisymmetry and Jacobi buy, noting
+that the numerical Casimir was *not* derived because it needs specific constants.  This entry
+supplies them: the tensor is instantiated with the `su(2)` structure constants and the colour factor
+is computed explicitly.  All new declarations are in
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit` §3b.2b.
+
+**(1) The instance.**  `su2Struct a b c` is `ε_{abc}` when all three indices are among the three
+`su2Slot`s and `0` otherwise — the adjoint of `su(2)` sitting inside the eight colour coordinates,
+so the model carries `su(2) × U(1)⁵` rather than a free tensor.  `su2Struct_slot` reads the tensor
+on the block as `ε`; `su2Struct_zero_left/mid/right` are its vanishing off it; and
+`sum_fin8_eq_sum_su2` reduces any sum over the eight indices to a sum over the block, which is what
+makes every computation below a `Fin 3` computation.  `levi_antisym` is the antisymmetry of `ε`.
+
+**(2) The hypotheses are met, unconditionally.**  `su2Struct_antisym` (antisymmetry of `ε`) and
+`su2Struct_jacobi` (the cyclic `ε` identity: `su(2)` is simple) mean every theorem of §3b.2 applies
+to the instantiated tensor with no side condition left.  In particular `fabc_self_eq_zero` and
+`colour_contraction_double` — the factor `2` of the quartic colour energy — hold for it.
+
+**(3) The colour factor, computed.**  The colour tensor is explicit:
+`K_{abcd} = Σ_e f_{abe}f_{cde} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}` (`colourTensor_su2`) — the `ε`–`ε`
+contraction with the summed index in the third slot.  Contracting two indices gives the adjoint
+Casimir `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`su2_casimir_adjoint`), so `C_A = 2`
+(`su2_casimir_adjoint_value`), and contracting both gives `Σ_{abc} f_{abc}² = C_A·dim(adj) =
+2·3 = 6` (`su2_colourWeight_sum`).  These are *computed* from the structure constants, not
+hard-coded; the `2` of `colour_contraction_double` is the same `2`.
+
+**(4) What is *not* claimed.**  The fundamental Casimir `C_F = 3/4` is not derived: the model
+carries only the adjoint structure constants `f_{abc}`, and `C_F` requires a fundamental
+representation (`T^a = σ^a/2`) that the chapter does not define.  What is proved is the adjoint
+colour factor; `C_F` would be a separate instantiation.
+
+**Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all thirteen new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.
 
 ---
 
@@ -20644,6 +21330,52 @@ representation change cannot move a magnetic gap in either direction. The normal
 table above is the arithmetic that any future "reference gap constant" import must divide by
 `√(2π)^{99}` (or equivalently `(2π)^{99/2}`) — recorded here so that number is not left implicit.
 
+<<<<<<< HEAD
+## State of the project — 2026-11-11h: the root domain as the excited span, and the gap on its closure
+
+`rootDomain` is the kernel of evaluation at the vacuum in the coefficient model
+`CoreCoeff 24 = (Fin 24 → ℕ) →₀ ℂ`.  This entry pins down what "dense in the vacuum-orthogonal core"
+can mean **in that model**, and carries the S2 gap to the corresponding closure.  All new
+declarations are in `BookProof.Qym.ChapterYangMillsFieldStrengthSplit` (§3d.3, after
+`root_spectral_gap`).
+
+**(1) The root domain is the vacuum-orthogonal core.**  `norm_sq_apply_zero_le_coreNormSq`:
+`‖c 0‖² ≤ coreNormSq c` — the vacuum coefficient is bounded by the core norm, the only continuity it
+has here.  `rootDomain_eq_span_excited`: a core vector has no vacuum component **iff** it is a finite
+linear combination of the excited occupation basis vectors
+(`Submodule.span ℂ (range (fun p : {n // n ≠ 0} => single p.1 1))`).  The reason is one line of
+bookkeeping: the support of such a `c` cannot contain `0`, so every summand of the standard expansion
+`c = ∑_{n ∈ support} c n • single n 1` is an excited basis vector.  Density is therefore
+**algebraic**: the excited span is not merely dense in the orthogonal core, it *is* it.
+
+**(2) Closed under norm limits, hence its own closure.**  The coefficient model is not a Hilbert
+space, so the only available topology is the `coreNormSq` (ℓ²-norm-squared) one, and limits are
+sequence limits: `rootDomain_closed_of_tendsto` — if `s k ∈ rootDomain` for all `k` and
+`coreNormSq (s k − c) → 0`, then `c ∈ rootDomain`, because `‖(s k) 0 − c 0‖² ≤ coreNormSq (s k − c)`
+collapses the left side to the constant `‖c 0‖² ≤ 0`.  `closure_rootDomain_iff` states the resulting
+equivalence: a core vector is a norm limit of root-domain vectors exactly when it lies in the root
+domain.
+
+**(3) The gap on the closure.**  `root_spectral_gap_on_closure`: for a vector that is a `coreNormSq`
+limit of root-domain vectors, `(c₁ Δ_ref − quarticShift)/48 · ‖c‖² ≤ q(c)` follows from
+`root_spectral_gap` through (2).  This is deliberately **not** a limiting argument on the quartic
+form: `quadForm (ymHamiltonian Φ fabc) ∘ RI.toCore` is not known to be continuous in `coreNormSq`, so
+taking limits through the inequality would be unjustified.  The honest content is that the closure of
+the domain is the domain, so the inequality transfers without any continuity at all.
+
+**(4) What is *not* claimed.**  Nothing here is about the analytic core `polyGaussCore ⊂ L²(ℝ⁹⁹)` or
+its ℓ² completion: the statement is internal to the coefficient model, where `rootDomain` lives.  A
+genuine completion statement would need the ℓ² space, the density of finite-support vectors there,
+and a closed extension of the quartic form — i.e. a Friedrichs-type project, not this entry.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completed, 0 errors,
+no new warnings (long-line, `show`, max-heartbeats linters clean); `#print axioms` on all five new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`.  The aggregate `lake build
++BookProof` reaches 8965/8966 and fails on `BookProof.MCMC.PCNGaussianFloor` — a module from the
+incoming branch, unmodified here, whose file compiles identically broken on its own (`lake env lean`
+on the extracted file, `import Mathlib` only): a pre-existing failure, not a consequence of this
+entry or of the merge resolution.
+=======
 ---
 
 ## State of the QYM row — 2026-11-11h: derivative transfer, core domain, field-strength degree class
@@ -20679,3 +21411,4 @@ terms `[A,A]²`.
 **Honest boundary.** No spectral statement, no gap, no coercivity, no domination of `W` by the graph
 norm (the degree bound is the *shape* input, not the estimate).  `HasOneParticleFormGap` remains an
 unproved `def`; the abelian no-gap obstruction and the kernel-vector obstruction are unchanged.
+>>>>>>> 2c1bbe209139113611baf390087b3a601aae47fd

@@ -75,6 +75,14 @@ positive operator `H` on a domain `D`:
   neither stated as a Lean theorem nor proved: its formalization needs the limit
   operator of the Krylov flag, which is not constructed here.
 
+**Part B over `ℝ`.**  `BookProof.YangMillsFriedrichsReal`, at the end of this
+file, is Part B ported to `[InnerProductSpace ℝ F]`: the same constructions with
+the conjugation and the `re` projections gone, since `⟪x, y⟫` is already real and
+symmetric there.  The instantiation on the real Gaussian operator
+(`gaussOp_symmetricOn_real`, `gaussOp_quadForm_nonneg_real`,
+`gaussOp_form_closable_real`) lives in `ChapterYangMillsGaussFormReal`, which can
+import both chapters — `ChapterYangMillsGaussForm` already imports this one.
+
 ## Scope
 
 Nothing here claims self-adjointness of the continuum Yang–Mills operator on
@@ -523,3 +531,246 @@ requires the unformalized limit. -/
 end Sirk
 
 end BookProof.YangMillsFriedrichs
+
+namespace BookProof.YangMillsFriedrichsReal
+
+/-! ## Part B over a real Hilbert space
+
+`BookProof.FarisLavine.SymmetricOn` and `quadForm` are stated over `ℂ` (they take
+`inner ℂ` and project to `ℝ` with `.re`).  Over `ℝ` the same definitions need no
+conjugation and no projection, so they are restated here — the forms are the same
+objects, and every proof below is the complex proof with `starRingEnd`,
+`Complex.add_re` and `continuous_re` deleted.
+
+The point of the port is the real Gaussian operator: `gaussOp` lives on
+`L²(γ dx; ℝ)` and satisfies these hypotheses *on the nose*, so `form_closable`
+applies to it without passing through `ChapterYangMillsGaussFormComplex`.  That
+instantiation is in `ChapterYangMillsGaussFormReal` rather than here, because
+this chapter cannot import the Gaussian one — the cycle runs the other way. -/
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F] {D : Submodule ℝ F}
+
+/-- `T` is **symmetric** on the domain `D`: `⟪T x, y⟫ = ⟪x, T y⟫` (over `ℝ` there
+is no conjugate to carry). -/
+def SymmetricOn (D : Submodule ℝ F) (T : D →ₗ[ℝ] F) : Prop :=
+  ∀ x y : D, inner ℝ (T x) (y : F) = inner ℝ (x : F) (T y)
+
+/-- The quadratic form `⟪x, N x⟫` of `N`, a real number when `N` is symmetric. -/
+noncomputable def quadForm (N : D →ₗ[ℝ] F) (x : D) : ℝ := inner ℝ (x : F) (N x)
+
+/-! ### The form `⟪x, y⟫_H = ⟪x, y⟫ + ⟪x, H y⟫` -/
+
+/-- The **form inner product** of a positive symmetric operator `H`:
+`⟪x, y⟫_H = ⟪x, y⟫ + ⟪x, H y⟫`.  Its completion is the form domain of the
+Friedrichs extension. -/
+noncomputable def formInner (H : D →ₗ[ℝ] F) (x y : D) : ℝ :=
+  inner ℝ (x : F) (y : F) + inner ℝ (x : F) (H y)
+
+/-- The **form norm** squared, `‖x‖_H² = ‖x‖² + ⟪x, H x⟫`. -/
+noncomputable def formNormSq (H : D →ₗ[ℝ] F) (x : D) : ℝ := formInner H x x
+
+theorem formNormSq_eq (H : D →ₗ[ℝ] F) (x : D) :
+    formNormSq H x = ‖(x : F)‖ ^ 2 + quadForm H x := by
+  have h : inner ℝ (x : F) (x : F) = ‖(x : F)‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℝ) (x : F)
+  simp only [formNormSq, formInner, quadForm, h]
+
+/-- The form is **symmetric** when `H` is. -/
+theorem formInner_swap {H : D →ₗ[ℝ] F} (hsym : SymmetricOn D H) (x y : D) :
+    formInner H y x = formInner H x y := by
+  simp only [formInner]
+  rw [real_inner_comm (H x) (y : F), hsym x y, real_inner_comm (x : F) (y : F)]
+
+/-- The form dominates the ambient norm: `‖x‖² ≤ ‖x‖_H²`. -/
+theorem formNormSq_ge_normSq {H : D →ₗ[ℝ] F} (hpos : ∀ x : D, 0 ≤ quadForm H x)
+    (x : D) : ‖(x : F)‖ ^ 2 ≤ formNormSq H x := by
+  rw [formNormSq_eq]
+  linarith [hpos x]
+
+theorem formNormSq_nonneg {H : D →ₗ[ℝ] F} (hpos : ∀ x : D, 0 ≤ quadForm H x) (x : D) :
+    0 ≤ formNormSq H x :=
+  le_trans (by positivity) (formNormSq_ge_normSq hpos x)
+
+theorem formInner_add_left (H : D →ₗ[ℝ] F) (x y z : D) :
+    formInner H (x + y) z = formInner H x z + formInner H y z := by
+  simp only [formInner, Submodule.coe_add, inner_add_left]
+  ring
+
+theorem formInner_add_right (H : D →ₗ[ℝ] F) (x y z : D) :
+    formInner H x (y + z) = formInner H x y + formInner H x z := by
+  simp only [formInner, Submodule.coe_add, inner_add_right, map_add]
+  ring
+
+theorem formInner_smul_left (H : D →ₗ[ℝ] F) (t : ℝ) (x y : D) :
+    formInner H (t • x) y = t * formInner H x y := by
+  simp only [formInner, Submodule.coe_smul, real_inner_smul_left]
+  ring
+
+theorem formInner_smul_right (H : D →ₗ[ℝ] F) (t : ℝ) (x y : D) :
+    formInner H x (t • y) = t * formInner H x y := by
+  simp only [formInner, Submodule.coe_smul, real_inner_smul_right, map_smul]
+  ring
+
+/-- Expansion of the form norm of a sum. -/
+theorem formNormSq_add {H : D →ₗ[ℝ] F} (hsym : SymmetricOn D H) (x y : D) :
+    formNormSq H (x + y) = formNormSq H x + 2 * formInner H x y + formNormSq H y := by
+  simp only [formNormSq, formInner, Submodule.coe_add, inner_add_left, inner_add_right,
+    map_add]
+  rw [real_inner_comm (H x) (y : F), hsym x y, real_inner_comm (x : F) (y : F)]
+  ring
+
+/-- Expansion of the form norm of a difference. -/
+theorem formNormSq_sub {H : D →ₗ[ℝ] F} (hsym : SymmetricOn D H) (x y : D) :
+    formNormSq H (x - y) = formNormSq H x - 2 * formInner H x y + formNormSq H y := by
+  have h : x - y = x + (-1 : ℝ) • y := by
+    rw [neg_one_smul, sub_eq_add_neg]
+  rw [h, formNormSq_add hsym]
+  have h1 : formInner H x ((-1 : ℝ) • y) = (-1 : ℝ) * formInner H x y :=
+    formInner_smul_right H (-1) x y
+  have h2 : formNormSq H ((-1 : ℝ) • y) = formNormSq H y := by
+    simp only [formNormSq, formInner, Submodule.coe_smul, real_inner_smul_left,
+      real_inner_smul_right, map_smul]
+    ring
+  rw [h1, h2]
+  ring
+
+/-- Expansion along a real parameter: `‖x + t y‖_H² = ‖x‖_H² + 2t⟪x,y⟫_H + t²‖y‖_H²`. -/
+theorem formNormSq_add_smul {H : D →ₗ[ℝ] F} (hsym : SymmetricOn D H) (t : ℝ) (x y : D) :
+    formNormSq H (x + t • y)
+      = formNormSq H x + 2 * t * formInner H x y + t ^ 2 * formNormSq H y := by
+  rw [formNormSq_add hsym]
+  have h1 : formInner H x (t • y) = t * formInner H x y := formInner_smul_right H t x y
+  have h2 : formNormSq H (t • y) = t ^ 2 * formNormSq H y := by
+    simp only [formNormSq, formInner, Submodule.coe_smul, real_inner_smul_left,
+      real_inner_smul_right, map_smul]
+    ring
+  rw [h1, h2]
+  ring
+
+/-- **Cauchy–Schwarz for the form.** -/
+theorem formInner_sq_le {H : D →ₗ[ℝ] F} (hsym : SymmetricOn D H)
+    (hpos : ∀ x : D, 0 ≤ quadForm H x) (x y : D) :
+    formInner H x y ^ 2 ≤ formNormSq H x * formNormSq H y := by
+  set A := formNormSq H x with hA
+  set C := formNormSq H y with hC
+  set B := formInner H x y with hB
+  have hquad : ∀ t : ℝ, 0 ≤ A + 2 * t * B + t ^ 2 * C := by
+    intro t
+    rw [← formNormSq_add_smul hsym t x y]
+    exact formNormSq_nonneg hpos _
+  have hCnn : 0 ≤ C := formNormSq_nonneg hpos y
+  rcases eq_or_lt_of_le hCnn with hC0 | hCpos
+  · -- `C = 0` forces `B = 0`
+    have hB0 : B = 0 := by
+      by_contra hBne
+      have key := hquad (-(A + 1) / (2 * B))
+      rw [← hC0] at key
+      have hval : A + 2 * (-(A + 1) / (2 * B)) * B + (-(A + 1) / (2 * B)) ^ 2 * 0 = -1 := by
+        field_simp
+        ring
+      rw [hval] at key
+      linarith
+    rw [hB0, ← hC0]
+    simp
+  · have h := hquad (-(B / C))
+    have hCne : C ≠ 0 := ne_of_gt hCpos
+    field_simp at h
+    nlinarith [h, hCpos]
+
+/-- A crude triangle-type bound, used to see that a form-Cauchy sequence has
+bounded form norm. -/
+theorem formNormSq_add_le {H : D →ₗ[ℝ] F} (hsym : SymmetricOn D H)
+    (hpos : ∀ x : D, 0 ≤ quadForm H x) (x y : D) :
+    formNormSq H (x + y) ≤ 2 * formNormSq H x + 2 * formNormSq H y := by
+  have h := formNormSq_sub hsym x y
+  have hnn : 0 ≤ formNormSq H (x - y) := formNormSq_nonneg hpos _
+  have := formNormSq_add hsym x y
+  linarith
+
+/-- **The form of a positive symmetric operator is closable.**  If `xₙ` is Cauchy
+for the form norm and tends to `0` in the ambient space, then its form norm tends
+to `0`.  This is the analytic heart of the Friedrichs construction: it says the
+form closure adds no spurious elements, so the closed form — and with it the
+Friedrichs extension — is well defined. -/
+theorem form_closable {H : D →ₗ[ℝ] F} (hsym : SymmetricOn D H)
+    (hpos : ∀ x : D, 0 ≤ quadForm H x) (x : ℕ → D)
+    (hCauchy : ∀ ε > 0, ∃ N : ℕ, ∀ p ≥ N, ∀ q ≥ N, formNormSq H (x p - x q) < ε)
+    (hzero : Filter.Tendsto (fun n => ((x n : F))) Filter.atTop (nhds 0)) :
+    Filter.Tendsto (fun n => formNormSq H (x n)) Filter.atTop (nhds 0) := by
+  -- the form norms are bounded
+  obtain ⟨N₀, hN₀⟩ := hCauchy 1 one_pos
+  set Cbd : ℝ := 2 * 1 + 2 * formNormSq H (x N₀) with hCbd
+  have hbdd : ∀ n ≥ N₀, formNormSq H (x n) ≤ Cbd := by
+    intro n hn
+    have hsplit : x n = (x n - x N₀) + x N₀ := by abel
+    have := formNormSq_add_le hsym hpos (x n - x N₀) (x N₀)
+    rw [← hsplit] at this
+    have h1 : formNormSq H (x n - x N₀) < 1 := hN₀ n hn N₀ le_rfl
+    rw [hCbd]
+    linarith
+  have hCbdnn : 0 ≤ Cbd := by
+    have := formNormSq_nonneg hpos (x N₀)
+    rw [hCbd]; linarith
+  rw [Metric.tendsto_atTop]
+  intro ε hε
+  -- choose the form-Cauchy threshold
+  set δ : ℝ := (ε / 2) ^ 2 / (Cbd + 1) with hδ
+  have hδpos : 0 < δ := by
+    rw [hδ]; positivity
+  obtain ⟨N₁, hN₁⟩ := hCauchy δ hδpos
+  refine ⟨max N₀ N₁, fun n hn => ?_⟩
+  have hn0 : N₀ ≤ n := le_trans (le_max_left _ _) hn
+  have hn1 : N₁ ≤ n := le_trans (le_max_right _ _) hn
+  have hnn : 0 ≤ formNormSq H (x n) := formNormSq_nonneg hpos _
+  -- the key estimate: `q(xₙ) ≤ ε/2 + ⟪xₙ, x_m⟫_H` for every large `m`
+  have hkey : ∀ m ≥ max N₀ N₁, formNormSq H (x n) - ε / 2 ≤ formInner H (x n) (x m) := by
+    intro m hm
+    have hm0 : N₀ ≤ m := le_trans (le_max_left _ _) hm
+    have hm1 : N₁ ≤ m := le_trans (le_max_right _ _) hm
+    have hsplit : formInner H (x n) (x n) = formInner H (x n) (x n - x m)
+        + formInner H (x n) (x m) := by
+      rw [← formInner_add_right]
+      congr 1
+      abel
+    have hre : formNormSq H (x n)
+        = formInner H (x n) (x n - x m) + formInner H (x n) (x m) := by
+      simp only [formNormSq, hsplit]
+    have hCS := formInner_sq_le hsym hpos (x n) (x n - x m)
+    have hlt : formNormSq H (x n - x m) < δ := hN₁ n hn1 m hm1
+    have hbn : formNormSq H (x n) ≤ Cbd := hbdd n hn0
+    have hprod : formInner H (x n) (x n - x m) ^ 2 ≤ Cbd * δ := by
+      refine le_trans hCS ?_
+      have h1 : 0 ≤ formNormSq H (x n - x m) := formNormSq_nonneg hpos _
+      nlinarith
+    have hεδ : Cbd * δ ≤ (ε / 2) ^ 2 := by
+      rw [hδ]
+      rw [mul_div_assoc'] at *
+      rw [div_le_iff₀ (by linarith : (0:ℝ) < Cbd + 1)]
+      nlinarith [sq_nonneg (ε / 2)]
+    have habs : |formInner H (x n) (x n - x m)| ≤ ε / 2 := by
+      have h2 : formInner H (x n) (x n - x m) ^ 2 ≤ (ε / 2) ^ 2 := le_trans hprod hεδ
+      nlinarith [abs_nonneg (formInner H (x n) (x n - x m)),
+        sq_abs (formInner H (x n) (x n - x m)), hε]
+    rw [hre]
+    linarith [(abs_le.mp habs).2]
+  -- let `m → ∞`: the right-hand side tends to `0` by symmetry of `H`
+  have hlim : Filter.Tendsto (fun m => formInner H (x n) (x m)) Filter.atTop (nhds 0) := by
+    have hform : ∀ m, formInner H (x n) (x m) = inner ℝ ((x n : F) + H (x n)) ((x m : F)) := by
+      intro m
+      simp only [formInner, inner_add_left]
+      congr 1
+      exact (hsym (x n) (x m)).symm
+    have hcont : Filter.Tendsto
+        (fun m => inner ℝ ((x n : F) + H (x n)) ((x m : F))) Filter.atTop (nhds 0) := by
+      have hc : Continuous fun w : F => inner ℝ ((x n : F) + H (x n)) w :=
+        continuous_const.inner continuous_id
+      simpa using (hc.tendsto (0 : F)).comp hzero
+    simpa [hform] using hcont
+  have hle : formNormSq H (x n) - ε / 2 ≤ 0 := by
+    refine ge_of_tendsto hlim ?_
+    filter_upwards [Filter.eventually_ge_atTop (max N₀ N₁)] with m hm
+    exact hkey m hm
+  rw [Real.dist_eq, sub_zero, abs_of_nonneg hnn]
+  linarith
+
+end BookProof.YangMillsFriedrichsReal

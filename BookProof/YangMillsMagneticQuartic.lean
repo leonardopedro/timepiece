@@ -31,6 +31,20 @@ i.e. on every mode the sum of the squares of the field-strength components.
 
 * **`magComp_diag`**, **`magneticEnergyForm_diag`**: in the canonical (Cartan) basis `A = 1` the
   components are the occupations themselves, `B_a(n) = n_a`.
+* **`rootCrossWeight`**, **`sum_sq_eq_diag_add_root`**,
+  **`quarticDegreeForm_eq_magnetic_add_root`**: the `:N²:` weight splits into the diagonal
+  (magnetic) part and the root cross weight
+  `∑_{i≠j} nᵢ nⱼ`, with the two-component case recovered as `rootCrossWeight_two`;
+* **`rootCrossWeight_le_sq_sum`**, **`rootCrossForm_le_magnetic`**: the cross weight is dominated by
+  the squared occupations with the count factor `d − 1` (not `d`), hence the cross *form* is at most
+  `(d − 1) · magneticEnergyForm diagA`.  `not_sq_sum_le_rootCross` shows the reverse fails, so the
+  factor is sharp;
+* **`magneticEnergyForm_le_quartic`**, **`magnetic_quartic_count_sandwich`**: the two weights
+  mutually bound each other, `q_mag ≤ (∑ n)² ≤ d · q_mag`;
+* **`vacuumCoeff`**, **`magneticEnergyForm_vacuum`**: the model's vacuum has normal-ordered
+  magnetic energy `0` — the value the abelian operator does *not* have, since there each field
+  component contributes `1/2` on the vacuum
+  (`YangMillsFieldStrength.abelian_vacuum_energy`).
 * **`quarticDegreeForm_le_magnetic`** and **`magnetic_le_quartic`**: the `:N²:` weight `N(n)²` and
   the magnetic weight `∑_a B_a(n)²` bound each other by Cauchy–Schwarz and by `0 ≤ B_a ≤ N`:
 
@@ -151,6 +165,189 @@ theorem magneticEnergyForm_diag (c : CoreCoeff d) :
   refine Finset.sum_congr rfl fun n _ => ?_
   rw [Finset.sum_congr rfl fun a _ => by rw [magComp_diag]]
 
+/-- **The vacuum of the coefficient model**: no quanta in any mode. -/
+def vacuumCoeff (d : ℕ) : CoreCoeff d := Finsupp.single (fun _ => (0 : ℕ)) 1
+
+/-- The vacuum is supported on the zero occupation alone. -/
+theorem vacuumCoeff_support : (vacuumCoeff d).support = {(fun _ => (0 : ℕ))} := by
+  rw [vacuumCoeff, Finsupp.support_single_ne_zero _ one_ne_zero]
+
+/-- The vacuum has coefficient one. -/
+theorem vacuumCoeff_zero : vacuumCoeff d (fun _ => (0 : ℕ)) = 1 := by
+  rw [vacuumCoeff]
+  exact Finsupp.single_eq_same
+
+/-- **The normal-ordered magnetic energy of the vacuum is zero.**  The `:N²:` weight of
+`magneticEnergyForm diagA` is `∑ a, nᵢ²` on each mode, and on the vacuum every occupation vanishes,
+so the whole form is `0`.  This is the value that the abelian magnetic operator does *not* have:
+there each field component contributes `1/2` on the vacuum
+(`YangMillsFieldStrength.abelian_vacuum_energy`), and that `1/2` per component is exactly the
+constant the normal-ordered model has dropped. -/
+theorem magneticEnergyForm_vacuum : magneticEnergyForm (d := d) diagA (vacuumCoeff d) = 0 := by
+  rw [magneticEnergyForm_diag, vacuumCoeff_support, Finset.sum_singleton, vacuumCoeff_zero]
+  simp
+
+/-- **A nonzero mode has squared-occupation sum at least one**: some coordinate is occupied, and its
+square alone is `≥ 1`. -/
+theorem one_le_sum_sq_of_ne_zero {n : Fin d → ℕ} (hn : n ≠ 0) :
+    1 ≤ ∑ a, (n a : ℝ) ^ 2 := by
+  obtain ⟨a, ha⟩ := Function.ne_iff.mp hn
+  have hne : n a ≠ 0 := by
+    intro h
+    exact ha (by simpa using h)
+  have h1 : (1 : ℝ) ≤ (n a : ℝ) := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.mpr hne
+  have hsq : (1 : ℝ) ≤ (n a : ℝ) ^ 2 := by nlinarith
+  exact le_trans hsq (Finset.single_le_sum (f := fun a => (n a : ℝ) ^ 2)
+    (fun _ _ => by positivity) (Finset.mem_univ a))
+
+/-- **On the root sector the magnetic weight pays for the norm.**  If the vacuum coefficient
+vanishes, every mode in the support is non-vacuum, so its magnetic weight `∑ a, n_a²` is at least
+`1`; hence `coreNormSq c ≤ magneticEnergyForm diagA c`.  This is the positivity that the abelian
+sector lacks: it is exactly where the `1/2` per component of the vacuum is excluded. -/
+theorem magneticEnergyForm_ge_normSq {c : CoreCoeff d} (h0 : c 0 = 0) :
+    coreNormSq c ≤ magneticEnergyForm diagA c := by
+  rw [magneticEnergyForm_diag, coreNormSq]
+  refine Finset.sum_le_sum fun n hn => ?_
+  have hne : n ≠ 0 := by
+    intro h
+    have hc : c n ≠ 0 := Finsupp.mem_support_iff.mp hn
+    rw [h, h0] at hc
+    exact hc rfl
+  have h1 := one_le_sum_sq_of_ne_zero (d := d) hne
+  have hnn : (0 : ℝ) ≤ ‖c n‖ ^ 2 := by positivity
+  calc ‖c n‖ ^ 2 = (1 : ℝ) * ‖c n‖ ^ 2 := (one_mul _).symm
+    _ ≤ (∑ a, (n a : ℝ) ^ 2) * ‖c n‖ ^ 2 := mul_le_mul_of_nonneg_right h1 hnn
+
+/-- A nonzero coefficient vector has strictly positive norm. -/
+theorem coreNormSq_pos {c : CoreCoeff d} (hc : c ≠ 0) : 0 < coreNormSq c := by
+  obtain ⟨n, hn⟩ := Finsupp.support_nonempty_iff.mpr hc
+  have hc0 : c n ≠ 0 := Finsupp.mem_support_iff.mp hn
+  have hpos : 0 < ‖c n‖ ^ 2 := pow_pos (norm_pos_iff.mpr hc0) 2
+  exact Finset.sum_pos' (fun m _ => by positivity) ⟨n, hn, hpos⟩
+
+/-- **The magnetic weight is strictly positive off the vacuum**: on the root sector every nonzero
+state has `0 < magneticEnergyForm diagA c`.  So the abelian obstruction — a state whose `:N²:`
+weight vanishes — cannot be produced there. -/
+theorem magneticEnergyForm_pos_of_root {c : CoreCoeff d} (hc : c ≠ 0) (h0 : c 0 = 0) :
+    0 < magneticEnergyForm diagA c :=
+  lt_of_lt_of_le (coreNormSq_pos hc) (magneticEnergyForm_ge_normSq (d := d) h0)
+
+/-- **The normal-ordering identity of the two-component magnetic model.**  For two components the
+quartic `:N²:` weight splits into the normal-ordered magnetic energy plus the cross term:
+`(n₀ + n₁)² = n₀² + n₁² + 2 n₀ n₁`.  The magnetic energy is the normal-ordered part — the
+ordered pair contracts to the occupation with no vacuum subtraction
+(`YangMillsFieldStrength.hopWord_pair_same`), so there is no constant to subtract — while the
+cross term `2 n₀ n₁` is the piece an abelian (commutator-free) field would have to supply and
+cannot: it is what makes the abelian sector's energy *linear* in the occupation rather than
+quadratic.  Dropping it is exactly what turns the `:N²:` model coercive. -/
+theorem quartic_eq_magnetic_add_cross (c : CoreCoeff 2) :
+    quarticDegreeForm c =
+      magneticEnergyForm diagA c
+        + 2 * ∑ n ∈ c.support, ((n 0 : ℝ) * (n 1 : ℝ)) * ‖c n‖ ^ 2 := by
+  rw [quarticDegreeForm, magneticEnergyForm_diag, Finset.mul_sum, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  have h1 : (∑ i : Fin 2, (n i : ℝ)) = (n 0 : ℝ) + (n 1 : ℝ) := by
+    rw [Fin.sum_univ_two]
+  have h2 : (∑ a : Fin 2, (n a : ℝ) ^ 2) = (n 0 : ℝ) ^ 2 + (n 1 : ℝ) ^ 2 := by
+    rw [Fin.sum_univ_two]
+  rw [h1, h2]
+  ring
+
+/-- **The root-pair cross weight of an occupation**: `∑_{i≠j} nᵢ nⱼ`, i.e. the part of the `:N²:`
+weight carried by pairs of *distinct* modes.  These are exactly the pairs the off-diagonal field
+components hop between (`YangMillsFieldStrength.hopWord_pair_offdiag`), so this is the root
+sector's share of the magnetic weight. -/
+def rootCrossWeight (n : Fin d → ℕ) : ℝ :=
+  ∑ i, ∑ j ∈ (Finset.univ : Finset (Fin d)).erase i, (n i : ℝ) * (n j : ℝ)
+
+/-- **The mode expansion of the `:N²:` weight.**  The square of the total occupation is the sum of
+the squared occupations of the single modes plus the cross weight of the distinct pairs:
+`(∑ i, nᵢ)² = ∑ i, nᵢ² + ∑_{i≠j} nᵢ nⱼ`.  The first sum is the normal-ordered (Cartan) share, the
+second the root-pair share; comparing with `magneticEnergyForm_diag` this is the statement that
+the magnetic weight splits into a diagonal and an off-diagonal contribution. -/
+theorem sum_sq_eq_diag_add_root (n : Fin d → ℕ) :
+    (∑ i, (n i : ℝ)) ^ 2 = ∑ i, (n i : ℝ) ^ 2 + rootCrossWeight n := by
+  rw [rootCrossWeight, sq, Finset.sum_mul_sum, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [← Finset.add_sum_erase _ (fun j => (n i : ℝ) * (n j : ℝ)) (Finset.mem_univ i), sq]
+
+/-- **The `:N²:` form is the magnetic form plus the root-pair form.**  This is
+`sum_sq_eq_diag_add_root` summed against `‖c n‖²`: the quartic weight splits into the
+diagonal (magnetic) part and the off-diagonal cross part, `d` components at a time — the
+`d`-fold generalisation of `quartic_eq_magnetic_add_cross`, which is its `d = 2` case
+(`rootCrossWeight_two`).  The split is exact: nothing is dropped and no constant is subtracted. -/
+theorem quarticDegreeForm_eq_magnetic_add_root (c : CoreCoeff d) :
+    quarticDegreeForm c
+      = magneticEnergyForm diagA c
+        + ∑ n ∈ c.support, rootCrossWeight n * ‖c n‖ ^ 2 := by
+  rw [quarticDegreeForm, magneticEnergyForm_diag, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun n _ => ?_
+  rw [sum_sq_eq_diag_add_root, add_mul]
+
+/-- For two components the root-pair weight is twice the mixed occupation, so
+`quarticDegreeForm_eq_magnetic_add_root` is `quartic_eq_magnetic_add_cross`. -/
+theorem rootCrossWeight_two (n : Fin 2 → ℕ) :
+    rootCrossWeight n = 2 * ((n 0 : ℝ) * (n 1 : ℝ)) := by
+  rw [rootCrossWeight, Fin.sum_univ_two]
+  have h0 : (∑ j ∈ (Finset.univ : Finset (Fin 2)).erase 0,
+      (n 0 : ℝ) * (n j : ℝ)) = (n 0 : ℝ) * (n 1 : ℝ) := by
+    rw [show (Finset.univ : Finset (Fin 2)).erase 0 = {1} from rfl]
+    simp
+  have h1 : (∑ j ∈ (Finset.univ : Finset (Fin 2)).erase 1,
+      (n 1 : ℝ) * (n j : ℝ)) = (n 1 : ℝ) * (n 0 : ℝ) := by
+    rw [show (Finset.univ : Finset (Fin 2)).erase 1 = {0} from rfl]
+    simp
+  rw [h0, h1]
+  ring
+
+/-- The root-pair cross weight is nonnegative. -/
+theorem rootCrossWeight_nonneg (n : Fin d → ℕ) : 0 ≤ rootCrossWeight n := by
+  rw [rootCrossWeight]
+  exact Finset.sum_nonneg fun i _ =>
+    Finset.sum_nonneg fun j _ => mul_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _)
+
+/-- **The cross weight is dominated by the squared occupations, with the count factor `d − 1`.**
+Since `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n`, Cauchy–Schwarz
+(`(∑ nᵢ)² ≤ d ∑ nᵢ²`) subtracts the diagonal part of the *same* Cauchy–Schwarz bound and leaves
+`d − 1` copies of `∑ i, nᵢ²` — not `d`.  The factor is therefore exactly the number of *other*
+components each pair can hop into, which is what the root amplitude `nᵢ nⱼ + nⱼ` of
+`YangMillsFieldStrength.sum_offdiag_amp_sq` counts. -/
+theorem rootCrossWeight_le_sq_sum (n : Fin d → ℕ) :
+    rootCrossWeight n ≤ ((d : ℝ) - 1) * ∑ a, (n a : ℝ) ^ 2 := by
+  have hsplit := sum_sq_eq_diag_add_root (d := d) n
+  have hCS := sq_sum_le_card_mul_sum_sq (s := (Finset.univ : Finset (Fin d)))
+    (f := fun i : Fin d => (n i : ℝ))
+  rw [Finset.card_univ, Fintype.card_fin] at hCS
+  nlinarith [hsplit, hCS]
+
+/-- **The root-cross form is dominated by the magnetic form, with the count factor `d − 1`.**
+Summing `rootCrossWeight_le_sq_sum` against `‖c n‖²` gives
+`∑_n rootCrossWeight n ‖c n‖² ≤ (d − 1) · magneticEnergyForm diagA c`.  This is the bound that
+makes the cross part of `quarticDegreeForm_eq_magnetic_add_root` affordable by the magnetic weight
+with an explicit constant. -/
+theorem rootCrossForm_le_magnetic (c : CoreCoeff d) :
+    (∑ n ∈ c.support, rootCrossWeight n * ‖c n‖ ^ 2)
+      ≤ ((d : ℝ) - 1) * magneticEnergyForm diagA c := by
+  rw [magneticEnergyForm_diag, Finset.mul_sum]
+  refine Finset.sum_le_sum fun n _ => ?_
+  have h := rootCrossWeight_le_sq_sum (d := d) n
+  have hnn : (0 : ℝ) ≤ ‖c n‖ ^ 2 := by positivity
+  calc rootCrossWeight n * ‖c n‖ ^ 2
+      ≤ (((d : ℝ) - 1) * ∑ a, (n a : ℝ) ^ 2) * ‖c n‖ ^ 2 :=
+        mul_le_mul_of_nonneg_right h hnn
+    _ = ((d : ℝ) - 1) * ((∑ a, (n a : ℝ) ^ 2) * ‖c n‖ ^ 2) := by ring
+
+/-- **The magnetic weight is dominated by the `:N²:` weight.**  By
+`quarticDegreeForm_eq_magnetic_add_root` the quartic weight is the magnetic weight *plus* the
+nonnegative cross weight. -/
+theorem magneticEnergyForm_le_quartic (c : CoreCoeff d) :
+    magneticEnergyForm diagA c ≤ quarticDegreeForm c := by
+  rw [quarticDegreeForm_eq_magnetic_add_root]
+  have hnn : (0 : ℝ) ≤ ∑ n ∈ c.support, rootCrossWeight n * ‖c n‖ ^ 2 :=
+    Finset.sum_nonneg fun n _ => mul_nonneg (rootCrossWeight_nonneg n) (by positivity)
+  linarith
+
 /-- **Cauchy–Schwarz: the `:N²:` form is bounded by the magnetic energy.**  The square of the total
 occupation is at most the number of directions times the sum of the squares of the components, so
 `quarticDegreeForm ≤ d · q_mag^{canon}`. -/
@@ -166,6 +363,36 @@ theorem quarticDegreeForm_le_magnetic (c : CoreCoeff d) :
       ≤ ((d : ℝ) * ∑ a, (n a : ℝ) ^ 2) * ‖c n‖ ^ 2 :=
         mul_le_mul_of_nonneg_right hCS (by positivity)
     _ = (d : ℝ) * ((∑ a, (n a : ℝ) ^ 2) * ‖c n‖ ^ 2) := by ring
+
+/-- **The count-factor sandwich.**  On the canonical background the magnetic and the quartic weights
+mutually bound each other with the number of directions: `q_mag ≤ (∑ n)² ≤ d · q_mag`.  The lower
+bound is `quarticDegreeForm_eq_magnetic_add_root` (the cross weight is nonnegative), the upper one
+is Cauchy–Schwarz (`quarticDegreeForm_le_magnetic`), and the cross weight itself sits between them
+by `rootCrossForm_le_magnetic`. -/
+theorem magnetic_quartic_count_sandwich (c : CoreCoeff d) :
+    magneticEnergyForm diagA c ≤ quarticDegreeForm c
+      ∧ quarticDegreeForm c ≤ (d : ℝ) * magneticEnergyForm diagA c :=
+  ⟨magneticEnergyForm_le_quartic c, quarticDegreeForm_le_magnetic c⟩
+
+/-- **The count factor cannot be removed.**  The reverse domination — the magnetic weight bounded by
+the cross weight — is false: on `d = 2` with a single occupied component, `∑ a, n_a² = 1` while
+`rootCrossWeight n = 0` (no pair of *distinct* modes is occupied).  So `d − 1 = 1` in
+`rootCrossWeight_le_sq_sum` is the smallest admissible factor, and the cross weight cannot pay for
+the diagonal part. -/
+theorem not_sq_sum_le_rootCross :
+    ¬ ∀ n : Fin 2 → ℕ, (∑ a, (n a : ℝ) ^ 2) ≤ rootCrossWeight n := by
+  intro h
+  have h1 := h (fun a => if a = (0 : Fin 2) then 1 else 0)
+  have h2 : (∑ a : Fin 2, (((if a = (0 : Fin 2) then 1 else 0) : ℕ) : ℝ) ^ 2) = 1 := by
+    rw [Fin.sum_univ_two]
+    norm_num
+  have h3 : rootCrossWeight (fun a : Fin 2 => if a = (0 : Fin 2) then 1 else 0) = 0 := by
+    rw [rootCrossWeight, Fin.sum_univ_two]
+    rw [show (Finset.univ : Finset (Fin 2)).erase 0 = {1} from rfl]
+    rw [show (Finset.univ : Finset (Fin 2)).erase 1 = {0} from rfl]
+    norm_num
+  rw [h2, h3] at h1
+  norm_num at h1
 
 /-- **The magnetic energy is bounded by the `:N²:` form**: with structure entries in `[0,1]` every
 component is at most the total occupation, so each square is at most `N(n)²`. -/

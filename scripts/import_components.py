@@ -68,6 +68,7 @@ COMPONENT_NAMES = {
     "BookProof.Definability.ChapterCountableDefinability": "BookProofDefinability",
     "BookProof.Density.ChapterDensityMarginalConditional": "BookProofDensity",
     "BookProof.Reconstruction.ChapterDeterministic": "BookProofReconstruction",
+    "BookProof.ReflectionPositivity.ChainPartition": "BookProofReflectionPositivity",
     "BookProof.EnergyBand.ChapterEnergyBandDecomposition": "BookProofEnergyBand",
     "BookProof.FieldStrength.ChapterFreeEMField": "BookProofFieldStrength",
     "BookProof.Probability.ChapterFreeFieldBorn": "BookProofFreeFieldBorn",

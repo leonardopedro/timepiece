@@ -101,6 +101,12 @@ theorem up_dn (j : ℕ) {α : Conf} (h : 1 ≤ α j) : up j (dn j α) = α := by
   · subst hi; simp; omega
   · rw [up_of_ne _ hi, dn_of_ne _ hi]
 
+@[simp] theorem up_zero (j : ℕ) : up j (0 : Conf) = Finsupp.single j 1 := by
+  refine Finsupp.ext fun i => ?_
+  by_cases h : i = j
+  · subst h; simp
+  · rw [up_of_ne _ h]; simp [h]
+
 theorem up_injective (j : ℕ) : Function.Injective (up j) := by
   intro α β h
   have := congrArg (dn j) h

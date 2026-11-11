@@ -57,9 +57,12 @@ operator — which is exactly why the magnetic field `B = ε ∂ A` needs a sepa
   `U_{99} = ⨂_i U_i` on `⨂_i L²(γ)` with `D_{99} = Σ_i D_i` commuting with it, or the Laplacian
   Leibniz rule `Δ(gF) = gΔF + 2⟨∇g, ∇F⟩ + FΔg` together with the `d`-dimensional Gaussian identity
   `Δ γ^{1/2} = (|x|²/4 + d/2) γ^{1/2}`.  Neither is assembled here, so the coordinate-count factor
-  `−99/2` is not proved in this module.
+  `−99/2` is not proved in this module; it is proved in `ChapterYangMillsMehlerProduct`
+  (`conj_dirichletVec99`), by conjugating a coordinate derivative twice instead of invoking the
+  Leibniz rule.
 * **C — space level and extension inputs:** `lintegral_norm_sq_conj` is an identity of integrals,
-  not the statement that multiplication by `γ^{1/2}` is a `LinearIsometryEquiv` between `Lp` spaces;
+  not the statement that multiplication by `γ^{1/2}` is a `LinearIsometryEquiv` between `Lp` spaces
+  (the `Lp`-level statements are in `ChapterYangMillsMehlerLp`);
   and the module has no closability, form-core or Friedrichs-extension input.  The plan's S0
   acceptance list is exactly these: the closure of the Dirichlet form on the smooth core, the
   identification of its Friedrichs operator with `−Δ + x·∇` on the weighted space, and the same for
