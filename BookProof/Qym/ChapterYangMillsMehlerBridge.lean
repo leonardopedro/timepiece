@@ -630,6 +630,63 @@ theorem conj_gaussDirichlet_slice {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : F
                 (-e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x) := by ring
           _ = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by rw [hEE]; ring
 
+/-! ## The bundled second-order conjugation in `n` coordinates
+
+`conj_gaussDirichlet_slice` is the identity along one coordinate line.  Summing it over the `n`
+coordinates gives the operator the QYM mode space actually uses: the `n`-coordinate weighted
+Dirichlet operator `−Δ + x·∇`, conjugated by `U`, is the oscillator with the coordinate-count
+factor `−n/2`.  That factor is the only place the number of coordinates enters, and it is why the
+`n = 99` statement is not the one-coordinate statement: it is the sum of `99` copies of it. -/
+
+/-- **The `n`-coordinate weighted Dirichlet operator, coordinate by coordinate**, applied to the
+conjugated function `γ^{-1/2} F`: the sum over `j` of the one-coordinate `gaussDirichlet` along the
+`j`-th line.  This is the operator whose conjugation the next theorem evaluates. -/
+noncomputable def qymDirichletN {n : ℕ} (F : (Fin n → ℝ) → ℝ) (x : Fin n → ℝ) : ℝ :=
+  ∑ j, gaussDirichlet (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+
+/-- The drift term: `∑_j (x_j²/4 − 1/2)` is `‖x‖²/4 − n/2`, the `n/2` being the `n` copies of the
+`−1/2` of the one-coordinate identity. -/
+theorem sum_oscillator_drift {n : ℕ} (x : Fin n → ℝ) (c : ℝ) :
+    (∑ j, (x j ^ 2 / 4 - 1 / 2) * c) = ((∑ j, x j ^ 2) / 4 - n / 2) * c := by
+  rw [← Finset.sum_mul, Finset.sum_sub_distrib, ← Finset.sum_div, Finset.sum_const,
+    Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  ring
+
+/-- **The second-order conjugation, bundled over the `n` coordinates.**  Conjugating the
+`n`-coordinate weighted Dirichlet operator `−Δ + x·∇` by `U f = γ^{1/2} f` gives the
+`n`-coordinate oscillator `−Δ + ‖x‖²/4 − n/2`:
+
+  `U(−Δ + x·∇)U⁻¹ F(x) = −(∑_j e_j(x_j)) + (‖x‖²/4 − n/2) F(x)`,
+
+where `e_j` is the second slice derivative of `F` along coordinate `j`.  The hypothesis is exactly
+what the coordinate identity needs in each direction; on the core (`F` a polynomial) it holds.  At
+`n = 99` this is the second-order half of the mode-space transfer, the first-order half being
+`conj_pderiv`. -/
+theorem conj_gaussDirichlet_bundled {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : Fin n → ℝ)
+    {d e : Fin n → ℝ → ℝ}
+    (hd : ∀ (j : Fin n) (t : ℝ), HasDerivAt (fun s => F (Function.update x j s)) (d j t) t)
+    (he : ∀ (j : Fin n) (t : ℝ), HasDerivAt (d j) (e j t) t) :
+    gaussRootN x * qymDirichletN F x
+      = -(∑ j, e j (x j)) + ((∑ j, x j ^ 2) / 4 - n / 2) * F x := by
+  have hterm : ∀ j : Fin n, gaussRootN x *
+      gaussDirichlet (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+      = -e j (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := fun j =>
+    conj_gaussDirichlet_slice x j (hd j) (he j)
+  rw [qymDirichletN, Finset.mul_sum]
+  refine (Finset.sum_congr rfl fun j _ => hterm j).trans ?_
+  rw [Finset.sum_add_distrib, Finset.sum_neg_distrib, sum_oscillator_drift]
+
+/-- **The core's second-order conjugation, in the shape the mode space uses**: for a function whose
+slice derivatives are the given `d` and `e`, the conjugated operator is the oscillator with the
+`99`-coordinate factor.  This is the same statement at `n = 99`, written with `‖x‖²` expanded. -/
+theorem conj_gaussDirichlet_bundled_99 {F : (Fin 99 → ℝ) → ℝ} (x : Fin 99 → ℝ)
+    {d e : Fin 99 → ℝ → ℝ}
+    (hd : ∀ (j : Fin 99) (t : ℝ), HasDerivAt (fun s => F (Function.update x j s)) (d j t) t)
+    (he : ∀ (j : Fin 99) (t : ℝ), HasDerivAt (d j) (e j t) t) :
+    gaussRootN x * qymDirichletN F x
+      = -(∑ j, e j (x j)) + ((∑ j, x j ^ 2) / 4 - 99 / 2) * F x :=
+  conj_gaussDirichlet_bundled x hd he
+
 end
 
 end BookProof.YangMillsMehlerBridge
