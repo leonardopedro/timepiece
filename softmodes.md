@@ -1,122 +1,120 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
-## External-source revision (2026-11-11)
+## External-source audit for the nested Hamiltonian (2026-11-11)
 
-Two external trees were read for this revision: `../YM` (the Yang–Mills group's results and
-verification repository, which contains an assessment dated 10 November 2026 of OpenAI's 28 October
-2026 Lean submission) and `../Yang--Mills-LLM-experiment` (the Balaban-programme draughts: QED3,
-YM3, YM4, RP1). **Neither is an input to any proof in this repository**, and nothing of theirs was
-compiled against ours. Their use here is narrow and specific: to check the two targets below against
-an independently assessed status, and to take the vocabulary and the comparison obligations that the
-targets are missing.
+This section replaces the earlier external-source commentary. The mathematical work order
+remains S0–S4 below, in the nested-Fock/Mehler/Hashimoto/SIRK formalism. Its endpoints are
+an absolute inner form bound (target 1), or separation above an identified inner ground
+space (target 2), followed by the appropriate outer lift and certified approximation.
+Neither target requires a Wightman construction or a four-dimensional Euclidean measure.
+The optional comparison with those theories belongs to [cftproof.md](cftproof.md), B0–B3.
 
-### The two targets against the external open-question list
+### Physical state: one outer particle per informed spatial point
 
-The October construction is judged to prove a Wightman-axiom QFT as a (subsequential) scaling limit
-of four-dimensional Wilson lattice gauge theory, and explicitly **not** to prove a mass gap
-("provides no evidence for or against a mass gap"), uniqueness of the limit or vacuum, a continuum
-measure, Wilson loops / area law, or single-particle states and their spectrum (§8, items 1–5). Its
-items 3 and 5 are our targets 1 and 2 read from the other end:
+The empty outer vacuum represents mathematical emptiness. The physical prior has one
+outer particle at each point of 3D space about which field information is specified;
+information at several points can give a many-outer-particle state. `N_out = 1` is a
+single spatial contribution, not a global restriction on the real-world model. The
+outer-free Hamiltonian retains the interacting field content inside each inner state.
 
-* **their 3 ↔ our target 1.** A uniform mass gap with exponential decay of correlations and a
-  spectral gap of the OS Hamiltonian. This is the same analytic input as "the absolute bottom of
-  `h` is `> 0`" once `h` is the inner Hamiltonian and the outer operator is `dΓ(h)`.
-* **their 5 ↔ our target 2, plus the one-particle space.** "Construct single-particle states and
-  analyse their energy–momentum spectrum" is the step for which our inner core is the candidate
-  space: the QYM mode space with the Gauss–polynomial core *is* a one-particle space, whereas the
-  lattice construction supplies only the reconstructed Hilbert space, with no distinguished
-  one-particle subspace and no Mehler coordinates.
+Read [book.tex](book.tex), “Free field parametrization in Statistical Field Theory”:
+recursive second quantization; the number-density proposition at finitely many distinct
+spatial points; and its normalization using local tensor factors with at most one point.
+Specify joint priors and spatial localization as well as the local occupation. In a
+finite resolved implementation use stated spatial supports and embeddings into the
+existing spatial/field/jet coordinates; refinement is a separate representation task.
 
-Consequences. The external assessment is now a dated, independent corroboration that **no existing
-lattice construction hands us either target**, so the QYM row remains the programme's top analytic
-input for exactly the reason recorded in `CURRENT_WORK_ORDER.md`, not only because of an internal
-judgement about the corpus. It also fixes the wording: target 1 is *not* "the continuum theory has a
-mass gap"; it is "the inner one-particle form is coercive", and the lift to a gap of `H` is a
-separate deduction through `H ≥ m N_out ≥ m(I − P_Ω)`.
+Physical expectations are taken in that populated prior, not in empty outer space.
+`dΓ(O)` and products of number densities can have nonzero expectations there. Their
+annihilation of `Ω_out` is not an obstruction and requires no number-changing repair.
+Distinguish the energy to populate empty outer space (target 1) from an excitation gap
+inside a populated physical sector (target 2 with the relevant sector and ground space).
+Neither identifies a generic information prior with a ground or stationary state.
 
-### What the Balaban diagram says about the Gaussian comparison (obligation C)
+### What the three folders contribute
 
-The YM4 assembly outline is a 17-box dependency diagram with per-box status: LP (lattice states and
-reflection positivity), BA, MB, GI, EM, RT, SI, FP, CL are *complete assuming inputs*; **NB, RS, LF,
-RC, B, CP are *not closed***. The box that matters here is **CP, "conditional laws and Gaussian
-comparison"**, which is not closed precisely because it must identify the *complete interacting
-conditional law* and verify its force, chart and marked-error bounds. That is the structure a
-Gaussian comparison in this file should also have. Concretely, S3's comparison with the Gaussian
-reference should be stated with three data and no more: (i) the conditional law of the field given
-the coarse data, (ii) the covariance family it is compared with, (iii) the error bounds (force,
-chart, marked error) that the comparison controls. An unqualified "compare with the Gaussian"
-statement has no external precedent and, read literally, is false.
+For snapshot revisions and the exact scope of the review, see `cftproof.md`,
+“Sources, versions and what was actually inspected”. We inspected the
+[October source](../OpenAI-YM-20261028/README.md), the
+[independent review](../YM/README.md), and the
+[Balaban drafts](../Yang--Mills-LLM-experiment/README.md), including the YM4 assembly PDF.
+These provide proof-contract examples and candidate analytic techniques. No external
+construction is identified with our inner operator, physical space or outer Hamiltonian.
+In particular, absence of a gap theorem there does not prove or refute coercivity here.
+The draft corpus warns that its claims remain tentative, including QED3/YM3.
 
-The outline also fixes a boundary for target 1: **there is no gap box in that diagram at all**, and
-its nearest strategy-level input is uniform decay of correlations, which sits inside the not-closed
-boxes. The Balaban route therefore neither competes with nor short-circuits target 1.
+* The October `PublicTheory.lean` separates positivity from a spectral gap, and
+  `ChallengeSpec.lean` binds multiple properties to the same witness. Reuse the discipline,
+  without adding its Wightman axioms to S2's assumptions or acceptance criteria.
+* The review's `AcceptanceSpec.lean` fixes normalization and observable identities before
+  accepting conclusions. For S0–S4 the corresponding contract is the **actual nested**
+  `h`, its Mehler realization, core, physical sector and outer lift, held fixed throughout.
+* The Balaban conditional-law checklist suggests how to audit a future Gaussian
+  comparison, but its CP box is not closed. Its volume-first scalar SU(2) construction
+  and its reflection hypotheses are not hypotheses of this Hamiltonian programme.
 
-### What must not be imported
+### Corrections to the earlier analogy
 
-* **No lattice → Mehler identification exists in either tree.** Their reflection positivity is a
-  statement about lattice measures (LP: all sixteen reflection families for the admitted periodic
-  Gibbs states); ours is at the level of `BookProof/OSReconstruction/*`. Calling the two "the same
-  reflection positivity" requires a theorem matching the reflection families — it is not a
-  convention.
-* **No inner core, no ghost grading, no squeezed states** appear in either tree. The inner pair
-  terms, the `99 = 3 + 24 + 72` coordinates and the ghost distinction are our objects; the external
-  constructions are statements about the reconstructed theory.
-* **RP1** (rotation invariance from lattice symmetry and reflection positivity) is the one external
-  item aimed at a gap this repository flags — the "finite coordinate rotation is not Euclidean field
-  invariance" correction in [cftproof.md](cftproof.md). Its status is an unvetted outline and
-  manuscript; it is recorded as the candidate citation, not as a step that can be assumed.
-* **Weight grading.** The label grading of the October submission (curvature weight `2`, derivative
-  `+1`, products add; degree-`d` labels quotiented by the Bianchi relations) is the standard form of
-  the degree class this repository now proves for the field strength (`totalDegree_magPoly_le ≤ 2`,
-  `totalDegree_magWeight_le ≤ 4`). Use that vocabulary when the quartic weight is consumed, and note
-  that the quotient by relations is why a degree bound — not a monomial count — is the invariant.
+**The two targets are not the external open-question list.** An inner Hilbert space used
+as the one-particle input to `dΓ_out` need not be a relativistic one-particle mass-shell
+subspace. Identifying such a space would require translations, dispersion and observable
+intertwiners. Our target 2 is an inner excitation separation; it is not construction of
+Wightman single-particle states. Target 1 gives an outer-vacuum gap within the nested
+model, independently of whether any Euclidean/Wightman identification can be proved.
 
-## Revised work package (2026-11-08)
+**Retain the vacuum in gap statements.** For `H = dΓ(h)` a successful target 1 yields
+`H ≥ m N_out ≥ m(I − P_Ω)`, and therefore no spectrum in `(0,m)`.
+A claim that the joint energy–momentum projection of a ball containing zero vanishes
+would incorrectly remove the vacuum. For a degenerate ground space use its full
+projection. Positive energy and non-freeness are neither replacement bounds nor evidence
+for either S2 target. A short-distance exclusion of finite Wick profiles is not a spectral
+exclusion suitable for Temple's inequality.
 
-### Second reading (2026-11-11): the source-level form of target 1 and target 2
+**Coordinate degree and local-field weight are different.** The source-present
+`totalDegree_magPoly_le ≤ 2` and `totalDegree_magWeight_le ≤ 4` count ordinary polynomial
+degree in 99 independent coordinates. `idxD` is one such coordinate, of polynomial
+degree one; it is not an extra differentiation operation on a spacetime label. The
+external curvature/derivative filtration and its gauge/Bianchi quotient require a new
+dictionary in cftproof B0. No OPE exponent or stress-trace coefficient follows from our
+degree bounds. Retain the bounds as growth-class inputs to S2, not as analytic domination.
 
-The revision above was written from `../YM`'s assessment. `../OpenAI-YM-20261028` is the
-submission's own Lean source, and reading `PublicTheory.lean`, `PublicWilson.lean` and
-`ChallengeSpec.lean` sharpens the two targets — including one point where it sharpens them against
-this file.
+### Refined S0–S4 deliverables
 
-**A. Target 1 is strictly stronger than the external spectrum condition.** Their W0 has
-`positiveEnergy : energyMomentum.projection forwardConeᶜ = 0`: the joint energy–momentum spectrum
-lies in the **closed** forward cone. A gap needs `projection {p | ‖p‖ < m} = 0` for some `m > 0`,
-which is the case `m = 0` plus a neighbourhood. Nothing in W0 or in the reconstruction supplies
-that neighbourhood, so the external spectrum condition can never be cited as "nearly target 1",
-and S2 must not be restated as "positive energy". The whole distance between the two statements is
-what the coercivity bound has to cross, which is exactly why `CURRENT_WORK_ORDER.md` keeps the QYM
-row first.
+1. **S0 contract:** record the normalized Mehler measure, unitary, actual momentum action,
+   common core and closure. Match `B = L + Q` and all constants to that same operator.
+   Existing conjugation/norm identities are reusable; Gaussian representation alone adds
+   no confinement and does not identify the physical kinetic form with Hermite degree.
+2. **S1 channel audit:** classify zero/flat directions of the complete magnetic form and
+   kinetic operator together. For each proposed confinement mechanism state which variables
+   carry derivatives, which are parameters, and whether a physical reduction is used.
+   This is the relevant lesson from separating background construction, linear inversion
+   and Gaussian integration in the Balaban diagram: a local Hessian bound does not yet
+   control the global physical operator. Prove any averaging or Schur-complement error.
+3. **S2 estimate packet:** choose target 1 or 2 before estimating. Supply the positive
+   constant, invariant sector/ground projection, dependence on coupling and dimension,
+   extension from core to closed form, and an explicit theorem for the unchanged `h`.
+   Keep graph-norm domination and absolute lower-edge coercivity separate: each needs
+   its own proof. Quartic degree, ESA and nonnegative form data alone prove neither gap.
+4. **S3 approximation packet:** bind Hashimoto/SIRK's generator and bounded resolvent
+   to that same closure. Retain rational approximation, solve defects, orthogonality,
+   rounding and full basis tails separately. Select shifts from the actual spectral or
+   numerical-range bounds; retain the paper's finite shift-budget restrictions below.
+   Keep an independently proved separation threshold for Temple; a positive lattice
+   probe or short-distance coefficient from the external construction cannot provide it.
+   Record the populated spatial prior used as initial data and its outer occupation;
+   the empty outer start alone cannot test physical field predictions. A multi-point
+   prior requires the corresponding many-particle evolution and joint observables.
+5. **S4 acceptance packet:** use one identified operator/core/sector for both the
+   analytic bound and numerical certificate. Check the outer lift and full ground space,
+   then follow §M4.9 before §M4.3. Record endpoint binders, axiom closure and source hashes.
+   Give reference-model diagnostics their own labels rather than calling them physical
+   certificates. No Euclidean reconstruction is an additional S4 completion requirement.
 
-**B. Their one exclusion of free models is a short-distance finiteness statement, and it is the
-right template for the independent spectral exclusion.** `TraceTest.excludes` has the type
-`¬ traceTwo =ᶠ[𝓝[>] 0] wickProfile terms` for `terms : List (ℂ × Track)`, with
-`Track.modes : Fin n → Mode`, `Mode.kernel r p = 1/(2E) · E^timeOrder · numerator p · exp(−rE)`,
-`E = sqrt(m² + ‖p‖²)` and `numerator` homogeneous of degree `spatialOrder`. That is a finite list
-of mass-shell modes with polynomial numerators and exponential decay, excluded at `r ↓ 0`. Copy
-this shape rather than the stronger slogan: exclude finite lists of *explicit* kernels, and do not
-claim "excludes all generalized free fields", which the submission itself places out of scope.
-Two further properties are worth having: the exclusion is by short-distance asymptotics of a
-correlator, so it can be stated without constructing the OS Hamiltonian at all — the cheap half of
-the gate — and the premultiplication by `r^8 log²(1/r)` is how the dimension is carried, so the
-corresponding statement here needs its own explicit factor and cannot be written as a bare
-inequality.
-
-**C. The weight-4 slot is graded exactly as this file grades it, and its occupant is named.**
-`weight a = ∑ i, (a i).1` — the sum of the slot grades — and the OPE bounds are
-`‖coefficient‖ ≤ r^(j − weight a − ε)` and remainder `≤ r^(D+1 − weight a − ε)`. Derivatives add
-weight (`Mode.timeOrder` enters the kernel as `E^timeOrder`, `spatialOrder` as the numerator's
-homogeneity), the same convention as `idxD` adding `1` and the quartic weight having weight `4`
-here. Two uses: these are the exponents our label and OPE bounds must carry, and the physical
-occupant of a weight-4 label is the stress trace — a candidate weight-4 observable for target 2
-that needs no gap to state. Their `r^8 log²(1/r)` normalisation is this convention rather than a
-fitted constant: two grade-4 insertions give `weight = 8`, so the exponent is the label's weight.
-
-**D. Their mode energies are free energies, not outputs.** In `Mode.kernel`, `m : ℝ≥0` is a
-parameter of an ansatz and `E = sqrt(m² + ‖p‖²)` is computed from it. Comparing this file's mode
-energies with `E` is therefore a comparison inside the Gaussian reference — obligation C above —
-and is not evidence about the interacting theory.
+The next task remains the QYM analytic row of
+[CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md). A useful candidate method may be adapted
+from a draft only after its hypotheses are proved for this inner operator. If the method
+also gives the SM graph estimate, pass its precise statement and constants to P4 of
+[SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md); a QYM gap alone does not supply it.
 
 ## Revised work package (2026-11-08)
 
