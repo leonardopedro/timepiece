@@ -108,6 +108,15 @@ the architecture's own proposal rather than an unknown number.
   **`pcnAbsorbingStep_rate_prob`** — the rate with `IsProbabilityMeasure` proved rather than
   assumed.  The mass is *not* one, and §19 says so: it is the box integral, bounded above by
   `(2R)^d` and below by a floor on the box.
+* **§20, one number at every start — and where that is impossible** —
+  **`pcnBallConst_no_uniform_floor`** (`ρ ≠ 0`: the ball constant tends to `0`, so §15's estimate
+  has no start-uniform form), and at `ρ = 0` the opposite: `pcnReturnConst_zero`,
+  **`pcnAbsorbingStep_box_ge_uniform`** and **`pcnAbsorbingStep_twoStep_minorant_uniform`**, a
+  two-step minorant at one constant with no ball hypothesis at all;
+* **§21, the reference's mass in closed form** — `gaussLike_mul_prior_eq_prod`,
+  `box_integral_prod` and **`pcnPriorMass_gaussLike_eq`**: for the Gaussian likelihood the box
+  integral is `(∫_{−R}^{R} exp (−κt²) dt)^d` with `κ = β + (1 − ρ²)/s`, with `boxInt_le_sqrt` and
+  **`pcnPriorMass_gaussLike_le_sqrt`** bounding it by `(√(π/κ))^d`.
 
 ## Honest boundary
 
@@ -2223,6 +2232,249 @@ theorem pcnPriorMass_gaussLike_pos {s ρ R β : ℝ} (hs : 0 < s) (hρ : ρ ^ 2 
   intro y hy
   exact mul_le_mul (pcnGaussLike_floor (d := d) hβ hy) (pcnPrior_floor hs hρ hy)
     (Real.exp_pos _).le (le_trans (Real.exp_pos _).le (pcnGaussLike_floor (d := d) hβ hy))
+
+
+/-! ## 20. One number at every start — and where that is impossible
+
+§15's return constant is uniform on a *ball* of starts, `pcnBallConst s ρ R M` for `‖x‖² ≤ M²`.
+This section asks for a number valid at *every* start, and answers in two directions.
+
+* **`pcnBallConst_antitone`**, **`pcnBallConst_tendsto_zero`**,
+  **`pcnBallConst_no_uniform_floor`** — for `ρ ≠ 0` the ball constant has no positive lower bound
+  in `M`: it tends to `0`, so *no* start-uniform number comes out of this estimate.  This is not an
+  artefact of the proof — a proposal from a far start puts exponentially little mass in the box;
+* `pcnQuad_zero_left`, `pcnDensity_zero_left`, `pcnReturnConst_zero`, `pcnBallConst_zero_rho` —
+  at `ρ = 0` the proposal forgets the start, so all of these collapse to one number;
+* **`pcnAbsorbingStep_box_ge_uniform`** — the return mass is then start-independent;
+* **`pcnAbsorbingStep_twoStep_minorant_uniform`** — and §12's two-step minorant holds at a single
+  constant, for every start, with no ball hypothesis: the only input about `x` left is the density
+  floor, which at `ρ = 0` is a statement about the box alone.
+
+So the request "one number valid at every start" has a true form exactly at `ρ = 0` (an
+independent-proposal step, whose chain is i.i.d.), and is false for `ρ ≠ 0`.
+-/
+
+/-- At `ρ = 0` the increment does not read the starting point. -/
+theorem pcnQuad_zero_left (x y : Fin d → ℝ) : pcnQuad (d := d) 0 x y = pcnSumSq y := by
+  simp [pcnQuad, pcnSumSq]
+
+theorem pcnDensity_zero_left {c s : ℝ} (x y : Fin d → ℝ) :
+    pcnDensity (d := d) c s 0 x y = c * Real.exp (-(pcnSumSq y) / s) := by
+  rw [pcnDensity, pcnQuad_zero_left]
+  rfl
+
+/-- The return constant at `ρ = 0`: one number, with no start in it. -/
+theorem pcnReturnConst_zero {s R : ℝ} (x : Fin d → ℝ) :
+    pcnReturnConst (d := d) s 0 R x
+      = pcnNorm1 s ^ d * Real.exp (-(2 * (d : ℝ) * R ^ 2) / s) := by
+  rw [pcnReturnConst, zero_mul, zero_mul, zero_add, zero_pow (two_ne_zero)]
+
+theorem pcnBallConst_zero_rho {s R M : ℝ} :
+    pcnBallConst (d := d) s 0 R M
+      = pcnNorm1 s ^ d * Real.exp (-(2 * (d : ℝ) * R ^ 2) / s) := by
+  rw [pcnBallConst, zero_mul, zero_mul, zero_add, zero_pow (two_ne_zero)]
+
+/-- The acceptance floor `exp (−β dR²)` never exceeds `1`. -/
+theorem pcnGaussLike_floor_le_one {β R : ℝ} (hβ : 0 ≤ β) :
+    Real.exp (-(β * ((d : ℝ) * R ^ 2))) ≤ 1 :=
+  Real.exp_le_one_iff.mpr (by nlinarith [Nat.cast_nonneg (α := ℝ) d, sq_nonneg R])
+
+/-- **The return mass, one number at every start.**  For `ρ = 0` the proposal forgets the starting
+point, so §13's return estimate is the same number everywhere — no ball, no `M`. -/
+theorem pcnAbsorbingStep_box_ge_uniform {s R β : ℝ} (hs : 0 < s) (hR : 0 ≤ R) (hβ : 0 ≤ β)
+    (x : Fin d → ℝ) :
+    ENNReal.ofReal (Real.exp (-(β * ((d : ℝ) * R ^ 2)))
+        * (pcnNorm1 s ^ d * Real.exp (-(2 * (d : ℝ) * R ^ 2) / s)) * (2 * R) ^ d)
+      ≤ pcnAbsorbingStep (d := d) s 0 R (pcnGaussLike (d := d) β) x (pcnBox d R) := by
+  have h := pcnAbsorbingStep_box_ge_start (d := d) (s := s) (ρ := 0) (R := R) (B := 1)
+    (m := Real.exp (-(β * ((d : ℝ) * R ^ 2)))) (τ := pcnGaussLike (d := d) β) (x := x)
+    hs hR (Real.exp_pos _).le (pcnGaussLike_floor_le_one (d := d) hβ) (pcnGaussLike_pos β x)
+    (pcnGaussLike_le_one hβ x) (fun y hy => by
+      rw [mul_one]
+      exact pcnGaussLike_floor (d := d) hβ hy)
+  rwa [pcnReturnConst_zero] at h
+
+/-- **Two steps at a single constant, for every start** (`ρ = 0`, Gaussian likelihood).  The ball
+hypothesis `pcnSumSq x ≤ M²` of `pcnAbsorbingStep_twoStep_minorant_ball` is gone: the constant is
+`m · (pcnNorm1 s^d · exp (−2dR²/s)) · (2R)^d · (mF/B)` with `m = exp (−β dR²)`, `B = 1`. -/
+theorem pcnAbsorbingStep_twoStep_minorant_uniform {s R F β : ℝ} (hs : 0 < s) (hR : 0 ≤ R)
+    (hβ : 0 ≤ β) (hF : 0 ≤ F)
+    (hdens : ∀ z ∈ pcnBox d R, F ≤ pcnDensity (pcnNorm1 s ^ d) s 0 0 z) :
+    ∀ x : Fin d → ℝ,
+      (ENNReal.ofReal (Real.exp (-(β * ((d : ℝ) * R ^ 2)))
+          * (pcnNorm1 s ^ d * Real.exp (-(2 * (d : ℝ) * R ^ 2) / s)) * (2 * R) ^ d)
+        * ENNReal.ofReal (Real.exp (-(β * ((d : ℝ) * R ^ 2))) * F / 1))
+        • pcnTargetMeasure (d := d) R (pcnGaussLike (d := d) β)
+      ≤ (pcnAbsorbingStep (d := d) s 0 R (pcnGaussLike (d := d) β) x).bind
+          (pcnAbsorbingStep (d := d) s 0 R (pcnGaussLike (d := d) β)) := by
+  intro x
+  have hm : Real.exp (-(β * ((d : ℝ) * R ^ 2))) ≤ 1 := pcnGaussLike_floor_le_one (d := d) hβ
+  refine bind_minorant_of_set (measurableSet_pcnBox (d := d) R)
+    (measurable_pcnAbsorbingStep s 0 R (pcnGaussLike_measurable β)).aemeasurable
+    (pcnAbsorbingStep_box_ge_uniform (d := d) hs hR hβ x) (fun y hy => ?_)
+  exact pcnAbsorbingStep_minorant hF one_pos (Real.exp_pos _).le hm
+    (fun z _ => pcnGaussLike_le_one hβ z) (pcnGaussLike_pos β y)
+    (fun z hz => by
+      rw [mul_one]
+      exact pcnGaussLike_floor (d := d) hβ hz)
+    (fun z hz => by rw [pcnDensity_zero_left]; exact hdens z hz)
+
+/-- The ball constant is decreasing in the radius. -/
+theorem pcnBallConst_antitone {s ρ R : ℝ} (hs : 0 < s) {M₁ M₂ : ℝ} (h0 : 0 ≤ M₁)
+    (h12 : M₁ ≤ M₂) :
+    pcnBallConst (d := d) s ρ R M₂ ≤ pcnBallConst (d := d) s ρ R M₁ := by
+  refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_)
+    (pow_nonneg (pcnNorm1_pos hs).le d)
+  have hsq : M₁ ^ 2 ≤ M₂ ^ 2 := by nlinarith
+  have hmono : 2 * ρ ^ 2 * M₁ ^ 2 ≤ 2 * ρ ^ 2 * M₂ ^ 2 :=
+    mul_le_mul_of_nonneg_left hsq (by positivity)
+  rw [neg_div, neg_div, neg_le_neg_iff]
+  exact div_le_div_of_nonneg_right (by linarith) hs.le
+
+/-- **The ball constant decays**: for `ρ ≠ 0` it tends to `0` as the ball grows. -/
+theorem pcnBallConst_tendsto_zero {s ρ R : ℝ} (hs : 0 < s) (hρ : ρ ≠ 0) :
+    Tendsto (fun M : ℝ => pcnBallConst (d := d) s ρ R M) atTop (𝓝 0) := by
+  have hsq : Tendsto (fun M : ℝ => M ^ 2) atTop atTop :=
+    tendsto_pow_atTop_atTop_of_one_lt (by norm_num : (1 : ℕ) < 2)
+  have htop : Tendsto (fun M : ℝ => 2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) atTop atTop :=
+    (hsq.const_mul (2 * ρ ^ 2)).atTop_add_const (2 * (d : ℝ) * R ^ 2)
+  have hbot : Tendsto (fun M : ℝ => -(2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s)
+      atTop atBot := by
+    have h := htop.div_const s
+    rw [show (fun M : ℝ => -(2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s)
+        = fun M : ℝ => -((2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s) from
+      funext fun M => by ring]
+    exact h.neg_atBot
+  have hexp : Tendsto (fun M : ℝ => Real.exp (-(2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s))
+      atTop (𝓝 0) := Real.tendsto_exp_atBot.comp hbot
+  have := hexp.const_mul (pcnNorm1 s ^ d)
+  simpa [pcnBallConst] using this
+
+/-- **No ball-free constant, for `ρ ≠ 0`**: every positive `c` is beaten by the ball constant at a
+large enough radius, so §15's estimate cannot be made start-uniform. -/
+theorem pcnBallConst_no_uniform_floor {s ρ R : ℝ} (hs : 0 < s) (hρ : ρ ≠ 0) {c : ℝ}
+    (hc : 0 < c) : ∃ M : ℝ, pcnBallConst (d := d) s ρ R M < c :=
+  ((pcnBallConst_tendsto_zero (d := d) hs hρ).eventually (gt_mem_nhds hc)).exists
+
+
+/-! ## 21. The reference's mass in closed form
+
+§19 named `pcnPriorMass s ρ R τ = ∫_{box} τ · pcnPrior` and bounded it by `(2R)^d`; it did not
+compute it.  For §18's Gaussian likelihood the product is again a Gaussian —
+`τ · pcnPrior = exp (−κ‖y‖²)` with `κ = β + (1 − ρ²)/s` — so the box integral factorises and is the
+`d`-th power of a one-dimensional interval integral.
+
+* **`gaussLike_mul_prior_eq_prod`** — the product is `∏ᵢ exp (−κ yᵢ²)`;
+* `box_indicator_prod`, `box_integral_prod` — Fubini over the box: the `d`-dimensional integral is
+  `(∫_{−R}^{R} exp (−κt²) dt)^d`;
+* **`pcnPriorMass_gaussLike_eq`** — the closed form
+  `M = (∫_{−R}^{R} exp (−κt²) dt)^d`, with `κ = β + (1 − ρ²)/s`;
+* `boxInt_nonneg`, **`boxInt_le_sqrt`** — the one-dimensional factor is nonnegative and at most
+  `√(π/κ)`, its value on all of `ℝ`;
+* **`pcnPriorMass_gaussLike_le_sqrt`** — hence `M ≤ (√(π/κ))^d`, the Gaussian ceiling that pairs with
+  §19's `M ≤ (2R)^d`.
+
+Mathlib has no Gauss error function, so the one-dimensional factor is kept as the interval integral
+rather than evaluated in elementary terms; the reduction to `d = 1` is the content, and both
+closed-form bounds on it are given.
+-/
+
+/-- **The Gaussian likelihood times the prior is one Gaussian**: `exp (−κ‖y‖²)` with
+`κ = β + (1 − ρ²)/s`. -/
+theorem gaussLike_mul_prior_eq_prod {s ρ β : ℝ} (hs : 0 < s) (y : Fin d → ℝ) :
+    pcnGaussLike (d := d) β y * pcnPrior (d := d) s ρ y
+      = ∏ i, Real.exp (-((β + (1 - ρ ^ 2) / s) * (y i) ^ 2)) := by
+  rw [pcnGaussLike, pcnPrior, ← Real.exp_add, Finset.prod_exp]
+  congr 1
+  rw [pcnSumSq, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_div, ← Finset.sum_neg_distrib,
+    ← Finset.sum_neg_distrib, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  field_simp
+  ring
+
+/-- The box's indicator of a coordinate product is the product of the coordinate intervals'
+indicators. -/
+theorem box_indicator_prod {R : ℝ} (g : ℝ → ℝ) (y : Fin d → ℝ) :
+    (pcnBox d R).indicator (fun y => ∏ i, g (y i)) y
+      = ∏ i, (Set.Icc (-R) R).indicator g (y i) := by
+  by_cases h : y ∈ pcnBox d R
+  · rw [Set.indicator_of_mem h]
+    refine Finset.prod_congr rfl fun i _ => ?_
+    exact (Set.indicator_of_mem ((mem_pcnBox.mp h) i) g).symm
+  · rw [Set.indicator_of_notMem h]
+    have hex : ∃ j, y j ∉ Set.Icc (-R) R := by
+      by_contra hcon
+      push_neg at hcon
+      exact h (mem_pcnBox.mpr hcon)
+    obtain ⟨j, hj⟩ := hex
+    exact (Finset.prod_eq_zero (Finset.mem_univ j) (Set.indicator_of_notMem hj g)).symm
+
+/-- **Fubini over the box**: the product density's integral is the `d`-th power of the
+one-dimensional one. -/
+theorem box_integral_prod {R κ : ℝ} :
+    ∫ y in pcnBox d R, (∏ i, Real.exp (-(κ * (y i) ^ 2)))
+      = (∫ t in Set.Icc (-R) R, Real.exp (-(κ * t ^ 2))) ^ d := by
+  rw [← integral_indicator (measurableSet_pcnBox (d := d) R)]
+  rw [show (fun y : Fin d → ℝ => (pcnBox d R).indicator
+        (fun y => ∏ i, Real.exp (-(κ * (y i) ^ 2))) y)
+      = fun y : Fin d → ℝ => ∏ i, (Set.Icc (-R) R).indicator
+          (fun t => Real.exp (-(κ * t ^ 2))) (y i) from
+    funext fun y => box_indicator_prod (fun t => Real.exp (-(κ * t ^ 2))) y]
+  rw [integral_fintype_prod_volume_eq_pow]
+  congr 2
+  rw [← integral_indicator measurableSet_Icc]
+  rfl
+
+/-- **The reference's mass, in closed form** for a Gaussian likelihood:
+`M = (∫_{−R}^{R} exp (−κt²) dt)^d`, `κ = β + (1 − ρ²)/s`. -/
+theorem pcnPriorMass_gaussLike_eq {s ρ R β : ℝ} (hs : 0 < s)
+    (hκ : 0 < β + (1 - ρ ^ 2) / s) :
+    pcnPriorMass s ρ R (pcnGaussLike (d := d) β)
+      = ENNReal.ofReal
+          ((∫ t in Set.Icc (-R) R, Real.exp (-((β + (1 - ρ ^ 2) / s) * t ^ 2))) ^ d) := by
+  rw [pcnPriorMass_eq_lintegral]
+  have hcongr : (∫⁻ y in pcnBox d R,
+        ENNReal.ofReal (pcnGaussLike (d := d) β y * pcnPrior (d := d) s ρ y) ∂volume)
+      = ∫⁻ y in pcnBox d R,
+          ENNReal.ofReal (∏ i, Real.exp (-((β + (1 - ρ ^ 2) / s) * (y i) ^ 2))) ∂volume :=
+    setLIntegral_congr_fun (measurableSet_pcnBox (d := d) R)
+      (fun y _ => by rw [gaussLike_mul_prior_eq_prod hs y])
+  rw [hcongr]
+  have hint : Integrable (fun y : Fin d → ℝ =>
+      ∏ i, Real.exp (-((β + (1 - ρ ^ 2) / s) * (y i) ^ 2))) := by
+    have h := Integrable.fintype_prod (ι := Fin d) (E := ℝ) (𝕜 := ℝ)
+      (μ := fun _ => (volume : Measure ℝ))
+      (f := fun _ t => Real.exp (-((β + (1 - ρ ^ 2) / s) * t ^ 2)))
+      (fun _ => integrable_exp_neg_mul_sq hκ)
+    simpa using h
+  have hnn : 0 ≤ᵐ[volume.restrict (pcnBox d R)] (fun y : Fin d → ℝ =>
+      ∏ i, Real.exp (-((β + (1 - ρ ^ 2) / s) * (y i) ^ 2))) :=
+    Filter.Eventually.of_forall fun _ => Finset.prod_nonneg fun i _ => (Real.exp_pos _).le
+  rw [← MeasureTheory.ofReal_integral_eq_lintegral_ofReal hint.restrict hnn]
+  rw [box_integral_prod]
+
+theorem boxInt_nonneg {R κ : ℝ} :
+    0 ≤ ∫ t in Set.Icc (-R) R, Real.exp (-(κ * t ^ 2)) :=
+  integral_nonneg fun _ => (Real.exp_pos _).le
+
+/-- The one-dimensional factor is at most its value on all of `ℝ`, `√(π/κ)`. -/
+theorem boxInt_le_sqrt {R κ : ℝ} (hκ : 0 < κ) :
+    ∫ t in Set.Icc (-R) R, Real.exp (-(κ * t ^ 2)) ≤ Real.sqrt (Real.pi / κ) := by
+  have hint : Integrable fun t : ℝ => Real.exp (-(κ * t ^ 2)) := by
+    simpa using integrable_exp_neg_mul_sq hκ
+  calc ∫ t in Set.Icc (-R) R, Real.exp (-(κ * t ^ 2))
+      ≤ ∫ t : ℝ, Real.exp (-(κ * t ^ 2)) :=
+        setIntegral_le_integral hint (Filter.Eventually.of_forall fun _ => (Real.exp_pos _).le)
+    _ = Real.sqrt (Real.pi / κ) := by simpa using integral_gaussian κ
+
+/-- **The mass ceiling from the Gaussian**: `M ≤ (√(π/κ))^d`, which pairs with §19's `M ≤ (2R)^d`. -/
+theorem pcnPriorMass_gaussLike_le_sqrt {s ρ R β : ℝ} (hs : 0 < s)
+    (hκ : 0 < β + (1 - ρ ^ 2) / s) :
+    pcnPriorMass s ρ R (pcnGaussLike (d := d) β)
+      ≤ ENNReal.ofReal ((Real.sqrt (Real.pi / (β + (1 - ρ ^ 2) / s))) ^ d) := by
+  rw [pcnPriorMass_gaussLike_eq hs hκ]
+  refine ENNReal.ofReal_le_ofReal (pow_le_pow_left (boxInt_nonneg (κ := β + (1 - ρ ^ 2) / s))
+    (boxInt_le_sqrt hκ) d)
 
 
 end PCN
