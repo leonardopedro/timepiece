@@ -141,7 +141,9 @@ noncomputable section
 
 namespace BookProof.MCMC.PCNGaussianFloor
 
-open Finset MeasureTheory
+open Finset Filter MeasureTheory
+
+open scoped Topology
 
 variable {d : ℕ}
 
@@ -2261,23 +2263,27 @@ theorem pcnQuad_zero_left (x y : Fin d → ℝ) : pcnQuad (d := d) 0 x y = pcnSu
 theorem pcnDensity_zero_left {c s : ℝ} (x y : Fin d → ℝ) :
     pcnDensity (d := d) c s 0 x y = c * Real.exp (-(pcnSumSq y) / s) := by
   rw [pcnDensity, pcnQuad_zero_left]
-  rfl
 
 /-- The return constant at `ρ = 0`: one number, with no start in it. -/
 theorem pcnReturnConst_zero {s R : ℝ} (x : Fin d → ℝ) :
     pcnReturnConst (d := d) s 0 R x
       = pcnNorm1 s ^ d * Real.exp (-(2 * (d : ℝ) * R ^ 2) / s) := by
-  rw [pcnReturnConst, zero_mul, zero_mul, zero_add, zero_pow (two_ne_zero)]
+  simp only [pcnReturnConst]
+  norm_num
 
 theorem pcnBallConst_zero_rho {s R M : ℝ} :
     pcnBallConst (d := d) s 0 R M
       = pcnNorm1 s ^ d * Real.exp (-(2 * (d : ℝ) * R ^ 2) / s) := by
-  rw [pcnBallConst, zero_mul, zero_mul, zero_add, zero_pow (two_ne_zero)]
+  simp only [pcnBallConst]
+  norm_num
 
 /-- The acceptance floor `exp (−β dR²)` never exceeds `1`. -/
 theorem pcnGaussLike_floor_le_one {β R : ℝ} (hβ : 0 ≤ β) :
     Real.exp (-(β * ((d : ℝ) * R ^ 2))) ≤ 1 :=
-  Real.exp_le_one_iff.mpr (by nlinarith [Nat.cast_nonneg (α := ℝ) d, sq_nonneg R])
+  Real.exp_le_one_iff.mpr (by
+    have h : 0 ≤ β * ((d : ℝ) * R ^ 2) :=
+      mul_nonneg hβ (mul_nonneg (Nat.cast_nonneg (α := ℝ) d) (sq_nonneg R))
+    linarith)
 
 /-- **The return mass, one number at every start.**  For `ρ = 0` the proposal forgets the starting
 point, so §13's return estimate is the same number everywhere — no ball, no `M`. -/
@@ -2315,9 +2321,12 @@ theorem pcnAbsorbingStep_twoStep_minorant_uniform {s R F β : ℝ} (hs : 0 < s) 
   exact pcnAbsorbingStep_minorant hF one_pos (Real.exp_pos _).le hm
     (fun z _ => pcnGaussLike_le_one hβ z) (pcnGaussLike_pos β y)
     (fun z hz => by
-      rw [mul_one]
-      exact pcnGaussLike_floor (d := d) hβ hz)
-    (fun z hz => by rw [pcnDensity_zero_left]; exact hdens z hz)
+      have h1 := pcnGaussLike_floor (d := d) hβ hz
+      have h2 := pcnGaussLike_le_one hβ y
+      have h0 : 0 ≤ Real.exp (-(β * ((d : ℝ) * R ^ 2))) := (Real.exp_pos _).le
+      have hy0 : 0 < pcnGaussLike (d := d) β y := pcnGaussLike_pos β y
+      nlinarith [h1, h2, h0, hy0])
+    (fun z hz => by simpa [pcnDensity_zero_left] using hdens z hz)
 
 /-- The ball constant is decreasing in the radius. -/
 theorem pcnBallConst_antitone {s ρ R : ℝ} (hs : 0 < s) {M₁ M₂ : ℝ} (h0 : 0 ≤ M₁)
@@ -2334,21 +2343,26 @@ theorem pcnBallConst_antitone {s ρ R : ℝ} (hs : 0 < s) {M₁ M₂ : ℝ} (h0 
 /-- **The ball constant decays**: for `ρ ≠ 0` it tends to `0` as the ball grows. -/
 theorem pcnBallConst_tendsto_zero {s ρ R : ℝ} (hs : 0 < s) (hρ : ρ ≠ 0) :
     Tendsto (fun M : ℝ => pcnBallConst (d := d) s ρ R M) atTop (𝓝 0) := by
-  have hsq : Tendsto (fun M : ℝ => M ^ 2) atTop atTop :=
-    tendsto_pow_atTop_atTop_of_one_lt (by norm_num : (1 : ℕ) < 2)
-  have htop : Tendsto (fun M : ℝ => 2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) atTop atTop :=
-    (hsq.const_mul (2 * ρ ^ 2)).atTop_add_const (2 * (d : ℝ) * R ^ 2)
-  have hbot : Tendsto (fun M : ℝ => -(2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s)
-      atTop atBot := by
-    have h := htop.div_const s
-    rw [show (fun M : ℝ => -(2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s)
-        = fun M : ℝ => -((2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s) from
-      funext fun M => by ring]
-    exact h.neg_atBot
-  have hexp : Tendsto (fun M : ℝ => Real.exp (-(2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s))
-      atTop (𝓝 0) := Real.tendsto_exp_atBot.comp hbot
-  have := hexp.const_mul (pcnNorm1 s ^ d)
-  simpa [pcnBallConst] using this
+  have hpos : (0 : ℝ) < 2 * ρ ^ 2 := by
+    have h2 : 0 < ρ ^ 2 := pow_two_pos_of_ne_zero hρ
+    linarith
+  have hc0 : 0 ≤ 2 * (d : ℝ) * R ^ 2 := by positivity
+  have h2 : Tendsto (fun M : ℝ => 2 * ρ ^ 2 * M ^ 2) atTop atTop :=
+    tendsto_const_mul_pow_atTop (by norm_num) hpos
+  have hpoly : Tendsto (fun M : ℝ => 2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2)
+      atTop atTop :=
+    tendsto_atTop_mono' _ (Eventually.of_forall fun M => le_add_of_nonneg_right hc0) h2
+  have hexp : Tendsto (fun M : ℝ =>
+      Real.exp (-((2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s))) atTop (𝓝 0) :=
+    Real.tendsto_exp_neg_atTop_nhds_zero.comp (hpoly.atTop_div_const hs)
+  have hmul := (tendsto_const_nhds (x := pcnNorm1 s ^ d)).mul hexp
+  have hfun : (fun M : ℝ => pcnBallConst (d := d) s ρ R M)
+      = fun M : ℝ => pcnNorm1 s ^ d
+          * Real.exp (-((2 * ρ ^ 2 * M ^ 2 + 2 * (d : ℝ) * R ^ 2) / s)) := by
+    funext M
+    simp only [pcnBallConst, neg_div]
+  rw [hfun]
+  simpa [mul_zero] using hmul
 
 /-- **No ball-free constant, for `ρ ≠ 0`**: every positive `c` is beaten by the ball constant at a
 large enough radius, so §15's estimate cannot be made start-uniform. -/
@@ -2371,8 +2385,8 @@ compute it.  For §18's Gaussian likelihood the product is again a Gaussian —
   `M = (∫_{−R}^{R} exp (−κt²) dt)^d`, with `κ = β + (1 − ρ²)/s`;
 * `boxInt_nonneg`, **`boxInt_le_sqrt`** — the one-dimensional factor is nonnegative and at most
   `√(π/κ)`, its value on all of `ℝ`;
-* **`pcnPriorMass_gaussLike_le_sqrt`** — hence `M ≤ (√(π/κ))^d`, the Gaussian ceiling that pairs with
-  §19's `M ≤ (2R)^d`.
+* **`pcnPriorMass_gaussLike_le_sqrt`** — hence `M ≤ (√(π/κ))^d`, the Gaussian ceiling that pairs
+  with §19's `M ≤ (2R)^d`.
 
 Mathlib has no Gauss error function, so the one-dimensional factor is kept as the interval integral
 rather than evaluated in elementary terms; the reduction to `d = 1` is the content, and both
@@ -2384,10 +2398,10 @@ closed-form bounds on it are given.
 theorem gaussLike_mul_prior_eq_prod {s ρ β : ℝ} (hs : 0 < s) (y : Fin d → ℝ) :
     pcnGaussLike (d := d) β y * pcnPrior (d := d) s ρ y
       = ∏ i, Real.exp (-((β + (1 - ρ ^ 2) / s) * (y i) ^ 2)) := by
-  rw [pcnGaussLike, pcnPrior, ← Real.exp_add, Finset.prod_exp]
+  rw [pcnGaussLike, pcnPrior, ← Real.exp_add, ← Real.exp_sum]
   congr 1
-  rw [pcnSumSq, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_div, ← Finset.sum_neg_distrib,
-    ← Finset.sum_neg_distrib, ← Finset.sum_add_distrib]
+  rw [pcnSumSq, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_neg_distrib,
+    ← Finset.sum_neg_distrib, Finset.sum_div, ← Finset.sum_add_distrib]
   refine Finset.sum_congr rfl fun i _ => ?_
   field_simp
   ring
@@ -2400,12 +2414,12 @@ theorem box_indicator_prod {R : ℝ} (g : ℝ → ℝ) (y : Fin d → ℝ) :
   by_cases h : y ∈ pcnBox d R
   · rw [Set.indicator_of_mem h]
     refine Finset.prod_congr rfl fun i _ => ?_
-    exact (Set.indicator_of_mem ((mem_pcnBox.mp h) i) g).symm
+    exact (Set.indicator_of_mem (Set.mem_Icc.mpr (abs_le.mp ((mem_pcnBox.mp h) i))) g).symm
   · rw [Set.indicator_of_notMem h]
     have hex : ∃ j, y j ∉ Set.Icc (-R) R := by
       by_contra hcon
       push_neg at hcon
-      exact h (mem_pcnBox.mpr hcon)
+      exact h (mem_pcnBox.mpr fun i => abs_le.mpr (Set.mem_Icc.mp (hcon i)))
     obtain ⟨j, hj⟩ := hex
     exact (Finset.prod_eq_zero (Finset.mem_univ j) (Set.indicator_of_notMem hj g)).symm
 
@@ -2420,10 +2434,8 @@ theorem box_integral_prod {R κ : ℝ} :
       = fun y : Fin d → ℝ => ∏ i, (Set.Icc (-R) R).indicator
           (fun t => Real.exp (-(κ * t ^ 2))) (y i) from
     funext fun y => box_indicator_prod (fun t => Real.exp (-(κ * t ^ 2))) y]
-  rw [integral_fintype_prod_volume_eq_pow]
-  congr 2
-  rw [← integral_indicator measurableSet_Icc]
-  rfl
+  rw [integral_fintype_prod_volume_eq_pow, integral_indicator measurableSet_Icc]
+  simp
 
 /-- **The reference's mass, in closed form** for a Gaussian likelihood:
 `M = (∫_{−R}^{R} exp (−κt²) dt)^d`, `κ = β + (1 − ρ²)/s`. -/
@@ -2445,7 +2457,8 @@ theorem pcnPriorMass_gaussLike_eq {s ρ R β : ℝ} (hs : 0 < s)
     have h := Integrable.fintype_prod (ι := Fin d) (E := ℝ) (𝕜 := ℝ)
       (μ := fun _ => (volume : Measure ℝ))
       (f := fun _ t => Real.exp (-((β + (1 - ρ ^ 2) / s) * t ^ 2)))
-      (fun _ => integrable_exp_neg_mul_sq hκ)
+      (fun _ => (integrable_exp_neg_mul_sq (b := β + (1 - ρ ^ 2) / s) hκ).congr
+        (Eventually.of_forall fun t => by simp only [neg_mul]))
     simpa using h
   have hnn : 0 ≤ᵐ[volume.restrict (pcnBox d R)] (fun y : Fin d → ℝ =>
       ∏ i, Real.exp (-((β + (1 - ρ ^ 2) / s) * (y i) ^ 2))) :=
@@ -2467,14 +2480,14 @@ theorem boxInt_le_sqrt {R κ : ℝ} (hκ : 0 < κ) :
         setIntegral_le_integral hint (Filter.Eventually.of_forall fun _ => (Real.exp_pos _).le)
     _ = Real.sqrt (Real.pi / κ) := by simpa using integral_gaussian κ
 
-/-- **The mass ceiling from the Gaussian**: `M ≤ (√(π/κ))^d`, which pairs with §19's `M ≤ (2R)^d`. -/
+/-- **The mass ceiling from the Gaussian**: `M ≤ (√(π/κ))^d`, pairing with §19's `M ≤ (2R)^d`. -/
 theorem pcnPriorMass_gaussLike_le_sqrt {s ρ R β : ℝ} (hs : 0 < s)
     (hκ : 0 < β + (1 - ρ ^ 2) / s) :
     pcnPriorMass s ρ R (pcnGaussLike (d := d) β)
       ≤ ENNReal.ofReal ((Real.sqrt (Real.pi / (β + (1 - ρ ^ 2) / s))) ^ d) := by
   rw [pcnPriorMass_gaussLike_eq hs hκ]
-  refine ENNReal.ofReal_le_ofReal (pow_le_pow_left (boxInt_nonneg (κ := β + (1 - ρ ^ 2) / s))
-    (boxInt_le_sqrt hκ) d)
+  refine ENNReal.ofReal_le_ofReal
+    (pow_le_pow_left₀ (boxInt_nonneg (κ := β + (1 - ρ ^ 2) / s)) (boxInt_le_sqrt hκ) d)
 
 
 end PCN

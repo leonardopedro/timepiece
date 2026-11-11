@@ -21330,6 +21330,7 @@ representation change cannot move a magnetic gap in either direction. The normal
 table above is the arithmetic that any future "reference gap constant" import must divide by
 `√(2π)^{99}` (or equivalently `(2π)^{99/2}`) — recorded here so that number is not left implicit.
 
+<<<<<<< HEAD
 ## State of the project — 2026-11-11h: the root domain as the excited span, and the gap on its closure
 
 `rootDomain` is the kernel of evaluation at the vacuum in the coefficient model
@@ -21374,3 +21375,40 @@ declarations gives only `propext`, `Classical.choice`, `Quot.sound`.  The aggreg
 incoming branch, unmodified here, whose file compiles identically broken on its own (`lake env lean`
 on the extracted file, `import Mathlib` only): a pre-existing failure, not a consequence of this
 entry or of the merge resolution.
+=======
+---
+
+## State of the QYM row — 2026-11-11h: derivative transfer, core domain, field-strength degree class
+
+Three S2 items closed, each with a build-verified Lean proof and no new axiom.
+
+**1. The derivative transfer at `n` coordinates** (`ChapterYangMillsMehlerBridge`).
+`conj_pderiv`: `γ^{1/2}(x) ∂_j(γ^{-1/2} F)(x) = ∂_j F(x) + (x_j/2) F(x)` for every `n`, hence at
+`n = 99`.  Supporting: `restSq`, `sum_sq_update` (the squared norm splits along coordinate `j`),
+`gaussRootN_update`, `invGaussN_update`, `gaussRootN_eq_root_mul_rest`.  The mechanism is
+factorization — the part of the weight outside coordinate `j` is constant along the `j`-line and
+cancels — which is also why the transfer needs no new analytic input.
+
+**2. The core as an explicit domain.** `qymCore n : Submodule ℝ ((Fin n → ℝ) → ℝ)` is `{p · γ^{1/2}}`
+with `p` a polynomial, with `qymCore_mem` reading membership, closure verified, and
+`gaussRootN_mem_qymCore` placing the weight itself in it (`p = 1`).  On it, the second-order identity
+is stated coordinate-wise: `conj_gaussDirichlet_slice`, `U(−∂² + x∂)U⁻¹ = −∂² + x²/4 − 1/2` along the
+`j`-line, for arbitrary `F` with the two slice-derivative hypotheses.  The `n`-coordinate Laplacian
+is the sum of these coordinate pieces; the bundled `n`-coordinate statement is **not** made, and
+density of `qymCore` in `L²(γ)` is **not** asserted — it stays a hypothesis where it is consumed.
+
+**3. The field-strength polynomial in the comparison's degree class**
+(`ChapterYangMillsFieldStrengthSplit` §4, `ChapterYangMillsNonAbelianEsa`).
+`B = ∂A + [A,A]` was already split there; what was missing is the growth class the comparison needs:
+`totalDegree_magDeriv_le` (`≤ 1`), `totalDegree_magBilin_le`, `totalDegree_magComm_le`,
+`totalDegree_magPoly_le` (`≤ 2`), `totalDegree_magPoly_sq_le` (`≤ 4`), the weight
+`magWeight fabc = Σ_{m<24} B_m² + 1`, and `totalDegree_magWeight_le` (`≤ 4`).  In the Young–Mills
+module the same weight is `magWeight_eq_sum_ymMag : magWeight = Σ_m (ymMag fabc m)² + 1`, with
+`totalDegree_ymMag_le`.  So the `W` of `2H + 1 = −Δ_S + W` is a polynomial of total degree at most
+`4` in the `99` coordinates, with the cubic terms being the `∂A · [A,A]` cross terms and the quartic
+terms `[A,A]²`.
+
+**Honest boundary.** No spectral statement, no gap, no coercivity, no domination of `W` by the graph
+norm (the degree bound is the *shape* input, not the estimate).  `HasOneParticleFormGap` remains an
+unproved `def`; the abelian no-gap obstruction and the kernel-vector obstruction are unchanged.
+>>>>>>> 2c1bbe209139113611baf390087b3a601aae47fd
