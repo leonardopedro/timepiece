@@ -7,7 +7,19 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11o):** “State of the project — 2026-11-11o: the coloured form on the whole
+> **Newest entry (2026-11-11q):** “State of the project — 2026-11-11q: the colour operators are a
+> representation of su(2)” (end of file): the bounded generators satisfy `[A^a, A^b] = i ε^{abc} A^c`
+> on the completion (`colourActCLM_commutator`) and their Casimir is the sum of their squares
+> `Σ_a (A^a)² = colourEnergyCLM` (`sum_colourActCLM_comp`) — a genuine representation, with no domain
+> hypothesis because the generators are bounded.
+>
+> **Earlier entry (2026-11-11p):** “State of the project — 2026-11-11p: the coloured actions are
+> bounded operators” (end of file): `colourAct`/`colourEnergy` extend to `colourActCLM` and
+> `colourEnergyCLM` on `fundMode d`, with the sharp constant `‖T^a v‖ = ‖v‖/2`
+> (`norm_fundRep_mulVec`, `colourActCLM_norm_le`) and `colourEnergyCLM = (3/4) • 1`
+> (`colourEnergyCLM_apply`).
+>
+> **Earlier entry (2026-11-11o):** “State of the project — 2026-11-11o: the coloured form on the whole
 > coloured core” (end of file): the identity of 11n is extended from a single elementary tensor to
 > every element of the coloured core — `H ⊗ 1 + 1 ⊗ (µ • 1)` is diagonal in the components, so
 > `quadForm` splits into `∑ i, (quadForm H u i + µ.re ‖u i‖²)`
@@ -21631,7 +21643,6 @@ errors and no new warnings.  `#print axioms` on all six new declarations (`sum_s
 `colourModeVec_apply`, `casimir_mulVec`, `sum_mulVec_mulVec`, `colourEnergy_colourModeVec`,
 `colourEnergy_colourModeVec_eq`) gives only `propext`, `Classical.choice`, `Quot.sound`.
 
-<<<<<<< HEAD
 
 ## State of the project — 2026-11-11m: the colour Casimir as a bounded operator, and `C_A` as a mode
 factor
@@ -21734,8 +21745,8 @@ space combining the `ℂ²` and `ℂ³` fibres is built.
 `colouredHamiltonian_smul_one_inner`, `colouredHamiltonian_smul_one_quadForm`,
 `colouredHamiltonian_fundamental_quadForm`, `colouredHamiltonian_adjoint_quadForm`: `propext`,
 `Classical.choice`, `Quot.sound` only.
-=======
-## State of the project — 2026-11-11m: the coloured actions are bounded operators
+
+## State of the project — 2026-11-11p: the coloured actions are bounded operators
 
 The 2026-11-11l entry built `fundMode d` and closed with a boundary: `colourAct` and
 `colourEnergy` are families, and their boundedness on the completion "is not claimed here".  It is
@@ -21771,7 +21782,8 @@ the identity (`colourEnergyCLM_apply`).  So `C_F` extracts on the whole completi
 `c ⊗ v`.
 
 **5. What is *not* claimed.**  These are bounded operators on the coloured completion; nothing folds
-`C_F` into the quartic colour energy of §3b.2b or into `quadForm (ymHamiltonian …)`, no spectral
+`C_F` into the quartic colour energy of §3b.2b or into `quadForm (ymHamiltonian …)` (the fold into
+`quadForm (ymHamiltonian …)` is done on the coloured core in 11n and 11o), no spectral
 consequence is drawn, and `colourActCLM`'s norm is bounded by `1/2` rather than proved *equal* to
 it — §1 shows the constant is attained pointwise, but no mode vector is exhibited on which the
 operator norm is attained.  `RootModeIdentification` remains uninhabited, unaffected by this.
@@ -21785,7 +21797,7 @@ not new), and the two over-long lines this section inherited in its own docstrin
 `colourEnergyOp_apply`, `norm_colourEnergyOp`, `colourEnergyCLM_apply`) gives only `propext`,
 `Classical.choice`, `Quot.sound`.
 
-## State of the project — 2026-11-11n: the colour operators are a representation of su(2)
+## State of the project — 2026-11-11q: the colour operators are a representation of su(2)
 
 The previous entry made `colourAct`/`colourEnergy` bounded operators on `fundMode d` but left them
 as isolated operators: nothing said they compose into an algebra.  They do, and the algebra is the
@@ -21815,7 +21827,8 @@ vector.
 statement that the Fock coefficients decompose into colour multiplets: no invariant subspace, no
 `fundMode d ≅ coreLp d ⊗ ℂ²` decomposition and no spectral consequence is claimed, and the
 exponentiated group action (a strongly continuous unitary `SU(2)` action) is not constructed.
-Nothing here folds `C_F` into `quadForm (ymHamiltonian …)`.
+Nothing here folds `C_F` into `quadForm (ymHamiltonian …)` — that is the coloured core of 11n and
+11o.
 
 **Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
 errors and no new warnings (the file's `maxHeartbeats` notices are pre-existing, all below line
@@ -21824,7 +21837,6 @@ errors and no new warnings (the file's `maxHeartbeats` notices are pre-existing,
 `colourEnergy_eq_sum_sq`, `sum_colourActOp_comp`, `colourActCLM_apply`, `colourActCLM_commutator`,
 `sum_colourActCLM_comp`) gives only `propext`, `Classical.choice`, `Quot.sound`.
 
->>>>>>> 6743d508f3ddea6a602e1787211e700f6b73b7d9
 
 ## State of the project — 2026-11-11o: the coloured form on the whole coloured core
 

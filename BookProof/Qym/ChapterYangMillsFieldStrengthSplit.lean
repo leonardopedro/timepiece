@@ -1457,7 +1457,6 @@ above.  This section states that identification and proves what it yields.
 * **`fundMode`**, **`colourModeVec`**, **`colourEnergy`** — the `ℂ²` colour factor of a mode: the
   completion carries a colour fibre, and on `c ⊗ v` the Casimir multiplies `v` by `C_F = 3/4` while
   leaving the Fock coefficients `c n` untouched (`colourEnergy_colourModeVec`);
-<<<<<<< HEAD
 * **`colourEnergyOp`**, **`norm_colourEnergyOp`**, **`norm_colourEnergyOp_eq`**, **`adjRep`**,
   **`adjModeVec`**, **`adjColourEnergy`** — the colour factor as an operator, and the gluon factor:
   `colourEnergy` is `(3/4) • id` on the whole completion (`colourEnergy_eq_smul`), so it is a
@@ -1475,18 +1474,16 @@ above.  This section states that identification and proves what it yields.
   energy is the sum over components of the field form plus `µ.re` times the component norm squared,
   and every core element is a finite sum of elementary tensors (`colourFibre_repr`, `colourSum`),
   whose form is `colouredHamiltonian_smul_one_quadForm_sum`;
-=======
 * **`colourActCLM`**, **`colourEnergyCLM`** — the two coloured actions as *bounded operators* on the
   completion: `‖colourActCLM a f‖ ≤ (1/2)‖f‖`, the constant being sharp because
   `‖T^a v‖ = ‖v‖/2` pointwise (`norm_fundRep_mulVec`), and `colourEnergyCLM` is `C_F` times the
-  identity, with `‖C_F f‖ = (3/4)‖f‖` (`norm_colourEnergyOp`).  Neither touches the Fock
-  coefficients (`colourActOp_colourModeVec`);
+  identity, `colourEnergyCLM = (3/4) • 1`, so `‖colourEnergyOp d‖ = 3/4` exactly
+  (`norm_colourEnergyOp_eq`).  Neither touches the Fock coefficients (`colourActOp_colourModeVec`);
 * **`colourActCLM_commutator`**, **`sum_colourActCLM_comp`** — those operators are a representation
   of `su(2)`: `[A^a, A^b] = i ε^{abc} A^c` on the completion with the chapter's own `ε`, and the
   Casimir of the representation is `Σ_a (A^a)² = colourEnergyCLM`, i.e. `C_F` times the identity.
   Boundedness is what makes the commutator equality hypothesis-free, which the unbounded
   Hamiltonian does not allow;
->>>>>>> 6743d508f3ddea6a602e1787211e700f6b73b7d9
 * **`coreNormSq_tendsto`**, **`gap_closed_in_coreLp`**, **`root_spectral_gap_closed`**,
   **`root_ground_bound_closed`** — closedness of the bound: a lower bound `K‖·‖² ≤ q` survives an
   ℓ² limit whenever the form values converge, so the S2 gap and the certificate's ground threshold
@@ -2457,10 +2454,11 @@ and leaves the Fock coefficients `c n` untouched.  This is the mode-factor form 
 `su2_casimir_fundamental` — the colour factor is dressed with the number content, and `C_F` still
 extracts as a scalar.
 
-**Boundary.**  `colourAct` and `colourEnergy` are first defined on the underlying families.  The
-bounded operators `colourActCLM`/`colourEnergyCLM` below are their extension to the completion;
-they stay on the colour fibre, so nothing here folds `C_F` into the quartic colour energy of §3b.2b
-or into `quadForm (ymHamiltonian …)`.
+**Boundary.**  `colourAct` and `colourEnergy` are first defined on the underlying families; the
+bounded operators `colourActCLM`/`colourEnergyCLM` below extend them to the completion, and
+`colourEnergyOp` is the Casimir as a scalar multiple of the identity.  What is not done here is a
+decomposition of `fundMode d` into colour multiplets, or an identification of this completion with
+the field fibre `colouredCore` built further down.
 -/
 
 /-- The Fock core completed with a colour `ℂ²` factor: square-summable families on the occupation
@@ -2540,7 +2538,6 @@ theorem colourEnergy_colourModeVec_eq (c : CoreCoeff d) (v : Fin 2 → ℂ) :
   congr 1
   ring
 
-<<<<<<< HEAD
 /-! #### The colour energy on the completion, and the `ℂ³` gluon factor
 
 `colourEnergy` is a scalar on the whole completion, not only on mode vectors: for *every* `f` in
@@ -3040,7 +3037,14 @@ theorem colouredHamiltonian_smul_one_quadForm_sum {D : Submodule ℂ (L2d 99)}
       = ⟨WithLp.ofLp ((colourSum s x v : colourSpace N)) i, (colourSum s x v).2 i⟩ :=
     Subtype.ext (colourSum_ofLp s x v i).symm
   rw [hsub, ← colourSum_ofLp s x v i]
-=======
+/-! #### The colour actions as bounded operators, and the `su(2)` representation
+
+`colourAct` and `colourEnergy` extend to continuous linear maps on the completion, with the sharp
+pointwise constant `‖T^a v‖ = ‖v‖/2` (`norm_fundRep_mulVec`).  Composing the operators composes the
+matrices (`colourActOp_comp_apply`), so every matrix identity of `fundRep` lifts to an operator
+identity with no analytic work: `[A^a, A^b] = i ε^{abc} A^c` and `Σ_a (A^a)² = C_F · 1` hold on
+`fundMode d` without a domain hypothesis, which the unbounded `ymHamiltonian` does not allow. -/
+
 def flip2 (i : Fin 2) : Fin 2 := if i = 0 then 1 else 0
 
 theorem flip2_involutive (i : Fin 2) : flip2 (flip2 i) = i := by
@@ -3179,33 +3183,13 @@ theorem colourActCLM_norm_le (a : Fin 3) (f : fundMode d) :
     ‖colourActCLM a f‖ ≤ (1 / 2) * ‖f‖ := by
   simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
 
-/-- The Casimir acts on every coloured vector as `C_F = 3/4` — not just on mode vectors: the
-`2 × 2` identity is the whole statement. -/
-theorem colourEnergy_eq_smul (f : fundMode d) (n : Fin d → ℕ) :
-    colourEnergy f n = (3 / 4 : ℂ) • f n := by
-  simp only [colourEnergy]
-  rw [sum_mulVec_mulVec, casimir_mulVec]
-
-/-- **The colour energy on the completion**: multiplication by `C_F`. -/
-noncomputable def colourEnergyOp (f : fundMode d) : fundMode d := (3 / 4 : ℂ) • f
-
-theorem colourEnergyOp_apply (f : fundMode d) (n : Fin d → ℕ) :
-    colourEnergyOp f n = colourEnergy f n := by
-  rw [colourEnergyOp, lp.coeFn_smul, Pi.smul_apply, colourEnergy_eq_smul]
-
-/-- **`C_F` extracts on the completion**: `‖C_F f‖ = (3/4)‖f‖`. -/
-theorem norm_colourEnergyOp (f : fundMode d) :
-    ‖colourEnergyOp f‖ = 3 / 4 * ‖f‖ := by
-  rw [colourEnergyOp, norm_smul]
-  norm_num
-
 /-- **The colour energy as a bounded operator**: `C_F` times the identity. -/
 noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
   (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
 
-theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp f := by
-  rw [colourEnergyCLM, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply,
-    colourEnergyOp]
+theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := by
+  rw [colourEnergyCLM, colourEnergyOp, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.id_apply]
 
 /-! ##### The colour operators are a representation of `su(2)`
 
@@ -3268,7 +3252,7 @@ theorem colourEnergy_eq_sum_sq (f : fundMode d) (n : Fin d → ℕ) :
 /-- **The Casimir operator is the sum of the squares of the generators**:
 `Σ_a A^a A^a = C_F · 1`, on the whole completion. -/
 theorem sum_colourActOp_comp (f : fundMode d) :
-    ∑ a : Fin 3, colourActOp a (colourActOp a f) = colourEnergyOp f := by
+    ∑ a : Fin 3, colourActOp a (colourActOp a f) = colourEnergyOp d f := by
   ext n
   rw [show (∑ a : Fin 3, colourActOp a (colourActOp a f)) n
       = ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n)) from by
@@ -3289,7 +3273,6 @@ theorem colourActCLM_commutator (a b : Fin 3) (f : fundMode d) :
 theorem sum_colourActCLM_comp (f : fundMode d) :
     ∑ a : Fin 3, colourActCLM a (colourActCLM a f) = colourEnergyCLM f := by
   simpa [colourActCLM_apply, colourEnergyCLM_apply] using sum_colourActOp_comp f
->>>>>>> 6743d508f3ddea6a602e1787211e700f6b73b7d9
 
 /-! #### Closedness of the bound: the Friedrichs side
 
