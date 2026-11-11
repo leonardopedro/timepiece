@@ -430,10 +430,9 @@ antisymmetry doubles the `ε`-contraction of the quartic colour energy, and the 
 same `2` — the quartic energy of the non-abelian term is `2` times the direct square, with the `2`
 traceable to `ε_{abc}ε_{abd} = 2δ_{cd}` once the sum runs over the block.
 
-**Boundary.**  The *fundamental* Casimir `C_F = 3/4` is **not** available here: the model carries
-only the adjoint structure constants `f_{abc}`, and `C_F` needs a fundamental representation
-(`T^a = σ^a/2`) that this chapter does not define.  What is proved is the adjoint colour factor;
-`C_F` would be a separate instantiation.
+**Boundary (superseded by §3b.2c).**  This section computes the *adjoint* colour factor from the
+structure constants alone.  The *fundamental* Casimir `C_F = 3/4` needs a fundamental representation
+(`T^a = σ^a/2`), which §3b.2c supplies; the two numbers are proved from the same `ε_{abc}`.
 -/
 
 /-- The **`su(2)` colour slots**: the first three of the eight colour indices, where the non-abelian
@@ -641,6 +640,105 @@ theorem su2_colourWeight_sum :
         su2Struct a b (su2Slot c) * su2Struct a b (su2Slot c) = 6 := by
   simp only [su2_casimir_adjoint]
   norm_num
+
+/-! ### 3b.2c The fundamental representation, and `C_F = 3/4`
+
+§3b.2b computed the *adjoint* colour factor `C_A = 2` and left the fundamental one open, because a
+fundamental Casimir needs a fundamental representation.  Here it is: `T^a = σ^a / 2` on `ℂ²`
+(`fundRep`, built from the Pauli matrices `pauli`), with the same structure constants that §3b.2b
+instantiated.
+
+* **it is a representation**: `fundRep_commutator` is `[T^a, T^b] = i ε^{abc} T^c`, and
+  `fundRep_commutator_su2Struct` restates it against the chapter's own tensor
+  `su2Struct (su2Slot a) (su2Slot b) (su2Slot c)`, so the fundamental and the adjoint are
+  representations of *one* algebra;
+* **the Casimir**: `pauli_sq` is `σ^a σ^a = 1`, hence `fundRep_sq` (`(T^a)² = ¼ · 1`), and summing
+  gives `su2_casimir_fundamental`: `Σ_a T^a T^a = (3/4) · 1`.  That scalar is `C_F = 3/4`;
+* **the trace normalisation**: `fundRep_trace_mul` is `tr(T^a T^b) = δ^{ab}/2`, i.e. `T_F = 1/2` for
+  these generators.
+
+So the two colour factors are *computed*, from the same `ε`, and they differ as they should:
+`C_A = 2` for the adjoint (`su2_casimir_adjoint_value`), `C_F = 3/4` for the fundamental.  At
+`N = 2` this is the familiar `C_A = N = 2` and `C_F = (N² − 1)/(2N) = 3/4`, and the ratio
+`C_A/C_F = 8/3` that a `C_A`-versus-`C_F` comparison needs is now two proved numbers rather than a
+convention.
+
+**Boundary.**  These matrices act on the representation space `ℂ²`, which the chapter's Fock model
+does not carry as a mode factor.  Nothing here asserts that the Fock space decomposes into
+fundamental multiplets, or that the quartic colour energy of §3b.2b is improved by `C_F`; what is
+established is the representation, its commutators, its Casimir and its trace normalisation.
+-/
+
+/-- The Pauli matrices `σ₁, σ₂, σ₃` as a `Fin 3`-indexed family of `2 × 2` complex matrices. -/
+def pauli (a : Fin 3) : Matrix (Fin 2) (Fin 2) ℂ :=
+  ![!![0, 1; 1, 0], !![0, -Complex.I; Complex.I, 0], !![1, 0; 0, -1]] a
+
+/-- **The Pauli matrices square to `1`**: `σ^a σ^a = 1` for each `a`. -/
+theorem pauli_sq (a : Fin 3) : pauli a * pauli a = 1 := by
+  fin_cases a <;>
+    ext i j <;> fin_cases i <;> fin_cases j <;>
+      simp [pauli, Matrix.mul_apply, Fin.sum_univ_two, Complex.I_mul_I]
+
+/-- A shape `simp` needs for the Pauli algebra: `i (x i) = −x`. -/
+theorem i_mul_mul_i (x : ℂ) : Complex.I * (x * Complex.I) = -x := by
+  calc Complex.I * (x * Complex.I) = (Complex.I * Complex.I) * x := by ring
+    _ = -x := by rw [Complex.I_mul_I]; ring
+
+/-- The same shape with a scalar in front of each factor: `(x i)(y i) = −xy`. -/
+theorem mul_I_mul_I (x y : ℂ) : (x * Complex.I) * (y * Complex.I) = -(x * y) := by
+  calc (x * Complex.I) * (y * Complex.I) = (x * y) * (Complex.I * Complex.I) := by ring
+    _ = -(x * y) := by rw [Complex.I_mul_I]; ring
+
+/-- The **fundamental representation** of `su(2)`: `T^a = σ^a / 2`, acting on `ℂ²`. -/
+def fundRep (a : Fin 3) : Matrix (Fin 2) (Fin 2) ℂ := (1 / 2 : ℂ) • pauli a
+
+/-- **Each generator squares to `¼`**: `(T^a)² = 1/4 · 1`, the Pauli square halved twice. -/
+theorem fundRep_sq (a : Fin 3) :
+    fundRep a * fundRep a = (1 / 4 : ℂ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
+  rw [fundRep, Matrix.smul_mul, Matrix.mul_smul, pauli_sq, smul_smul]
+  norm_num
+
+/-- **The fundamental Casimir is `C_F = 3/4`**: `Σ_a T^a T^a = (3/4) · 1`.  The sum of the three
+squared generators is a *scalar* matrix, which is exactly what makes it a Casimir, and the scalar is
+`3 · ¼`. -/
+theorem su2_casimir_fundamental :
+    ∑ a : Fin 3, fundRep a * fundRep a = (3 / 4 : ℂ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) := by
+  rw [Fin.sum_univ_three, fundRep_sq, fundRep_sq, fundRep_sq, ← add_smul, ← add_smul]
+  norm_num
+
+/-- **The fundamental representation is a representation**: `[T^a, T^b] = i ε^{abc} T^c`, i.e. the
+`su(2)` commutation relations with the same `ε` that `su2Struct` instantiates — in signs and
+normalisation the ones the adjoint carries. -/
+theorem fundRep_commutator (a b : Fin 3) :
+    fundRep a * fundRep b - fundRep b * fundRep a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • fundRep c) := by
+  fin_cases a <;> fin_cases b <;>
+    rw [Fin.sum_univ_three] <;>
+    ext i j <;> fin_cases i <;> fin_cases j <;>
+      simp [fundRep, pauli, levi, Matrix.smul_apply, i_mul_mul_i, mul_I_mul_I] <;>
+      ring
+
+/-- **The same commutators against the chapter's structure constants**: with
+`su2Struct (su2Slot a) (su2Slot b) (su2Slot c)`, the fundamental generators close on themselves with
+*the tensor §3b.2b uses for the adjoint*.  This is what makes `C_A = 2` and `C_F = 3/4` two Casimirs
+of one algebra rather than two unrelated constants. -/
+theorem fundRep_commutator_su2Struct (a b : Fin 3) :
+    fundRep a * fundRep b - fundRep b * fundRep a
+      = Complex.I • (∑ c : Fin 3,
+          (su2Struct (su2Slot a) (su2Slot b) (su2Slot c) : ℂ) • fundRep c) := by
+  rw [fundRep_commutator]
+  congr 1
+  refine Finset.sum_congr rfl fun c _ => ?_
+  rw [su2Struct_slot]
+
+/-- **The trace normalisation `T_F = 1/2`**: `tr(T^a T^b) = δ^{ab}/2`.  Together with
+`su2_casimir_fundamental` this fixes both standard convention-dependent numbers of the fundamental
+representation, from the matrices themselves. -/
+theorem fundRep_trace_mul (a b : Fin 3) :
+    (fundRep a * fundRep b).trace = if a = b then (1 / 2 : ℂ) else 0 := by
+  fin_cases a <;> fin_cases b <;>
+    simp [fundRep, pauli, Matrix.trace, mul_I_mul_I] <;>
+    norm_num
 
 /-! ### 3b.1 What the field-strength operator does to a mode
 
@@ -1294,10 +1392,14 @@ above.  This section states that identification and proves what it yields.
 * **`levi_antisym`**, **`su2Struct_antisym`**, **`su2Struct_jacobi`** — the instance **satisfies**
   the two hypotheses of §3b.2, so no side condition is left open for it;
 * **`colourTensor_su2`**, **`su2_casimir_adjoint`**, **`su2_casimir_adjoint_value`**,
-  **`su2_colourWeight_sum`** — the colour factor, computed: `K_{abcd} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}`,
-  `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`C_A = 2`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6`.  The
-  fundamental `C_F = 3/4` is *not* here: it needs a fundamental representation, which the model does
-  not carry;
+  **`su2_colourWeight_sum`** — the colour factor, computed:
+  `K_{abcd} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}`,
+  `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`C_A = 2`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6`;
+* **`pauli`**, **`fundRep`**, **`fundRep_commutator`**, **`su2_casimir_fundamental`**,
+  **`fundRep_trace_mul`** — the **fundamental representation** `T^a = σ^a/2` on `ℂ²`: it closes with
+  the same `ε` (`fundRep_commutator_su2Struct` against `su2Struct`), its Casimir is `C_F = 3/4`
+  (`Σ_a T^a T^a = (3/4)·1`), and `tr(T^a T^b) = δ^{ab}/2`.  So `C_A = 2` and `C_F = 3/4` are both
+  computed from the instantiating `ε`, each in its own representation;
 * **`pderiv_X_mul`**, **`normalOrder_contraction`**, **`coeff_zero_magPoly`**,
   **`magPoly_mul_monomial_ne`** — the normal-ordered side: `[∂ᵢ, Xᵢ] = 1` is the contraction
   constant, and `magPoly`'s multiplication is off-diagonal at every monomial, so the `:N²:` form is
@@ -1341,6 +1443,55 @@ above.  This section states that identification and proves what it yields.
 * **`root_spectral_gap_on_closure`** — the gap on the closure, i.e. for any point that is a
   `coreNormSq` limit of root-domain vectors: no limiting argument on the quartic form is used (and
   none is available — `quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`);
+* **`coreLp`**, **`coreToLp`**, **`norm_coreToLp_sq`**, **`norm_sq_eq_tsum`** — the ℓ² completion
+  of the coefficient model, the embedding of the finitely supported core into it (isometric:
+  `coreNormSq` is the squared ℓ² norm), and the norm formula `‖f‖² = ∑' n, ‖f n‖²`;
+* **`vacuumOrthogonal`**, **`isClosed_vacuumOrthogonal`**, **`mem_closure_rootDomain_image`**,
+  **`closure_rootDomain_image_eq`** — the vacuum-orthogonal closed subspace of the completion, and
+  the analytic density statement: finite-support root vectors are dense in it, so its closure **is**
+  that subspace;
+* **`refFormLp`**, **`ref_spectral_gap_closure`** — the reference form on its natural (unbounded)
+  domain in ℓ², and `href_spectral_gap` extended to it: the gap holds on the completion wherever the
+  form is finite, with summability carried as a hypothesis.  The quartic Yang–Mills form has no ℓ²
+  analogue here, and none is claimed;
+* **`fundMode`**, **`colourModeVec`**, **`colourEnergy`** — the `ℂ²` colour factor of a mode: the
+  completion carries a colour fibre, and on `c ⊗ v` the Casimir multiplies `v` by `C_F = 3/4` while
+  leaving the Fock coefficients `c n` untouched (`colourEnergy_colourModeVec`);
+<<<<<<< HEAD
+* **`colourEnergyOp`**, **`norm_colourEnergyOp`**, **`norm_colourEnergyOp_eq`**, **`adjRep`**,
+  **`adjModeVec`**, **`adjColourEnergy`** — the colour factor as an operator, and the gluon factor:
+  `colourEnergy` is `(3/4) • id` on the whole completion (`colourEnergy_eq_smul`), so it is a
+  continuous linear map with norm exactly `3/4`; `adjRep` is the adjoint representation on `ℂ³`
+  (`[T^a, T^b] = i ε^{abc}T^c`, `adjRep_commutator`) with Casimir `C_A = 2` (`adjRep_casimir`), so
+  `c ⊗ v` carries `2 v` (`adjColourEnergy_adjModeVec`) and `C_A/C_F = 8/3` (`casimir_ratio`);
+* **`colourSpace`**, **`colouredCore`**, **`colouredHamiltonian`**, **`colourFibre`** — the colour
+  fibre attached to the field core, with `H ⊗ 1 + 1 ⊗ C` acting componentwise; on the elementary
+  tensor `x ⊗ v` the form is `‖v‖² (quadForm H x + C ‖x‖²)`
+  (`colouredHamiltonian_smul_one_quadForm`), hence `C_F = 3/4` inside `quadForm (ymHamiltonian …)`
+  (`colouredHamiltonian_fundamental_quadForm`) and `C_A = 2`
+  (`colouredHamiltonian_adjoint_quadForm`);
+* **`colouredHamiltonian_smul_one_quadForm_core`**, **`colourFibre_repr`**,
+  **`colourSum`** — the same identities on the *whole* coloured core: the form of a diagonal colour
+  energy is the sum over components of the field form plus `µ.re` times the component norm squared,
+  and every core element is a finite sum of elementary tensors (`colourFibre_repr`, `colourSum`),
+  whose form is `colouredHamiltonian_smul_one_quadForm_sum`;
+=======
+* **`colourActCLM`**, **`colourEnergyCLM`** — the two coloured actions as *bounded operators* on the
+  completion: `‖colourActCLM a f‖ ≤ (1/2)‖f‖`, the constant being sharp because
+  `‖T^a v‖ = ‖v‖/2` pointwise (`norm_fundRep_mulVec`), and `colourEnergyCLM` is `C_F` times the
+  identity, with `‖C_F f‖ = (3/4)‖f‖` (`norm_colourEnergyOp`).  Neither touches the Fock
+  coefficients (`colourActOp_colourModeVec`);
+* **`colourActCLM_commutator`**, **`sum_colourActCLM_comp`** — those operators are a representation
+  of `su(2)`: `[A^a, A^b] = i ε^{abc} A^c` on the completion with the chapter's own `ε`, and the
+  Casimir of the representation is `Σ_a (A^a)² = colourEnergyCLM`, i.e. `C_F` times the identity.
+  Boundedness is what makes the commutator equality hypothesis-free, which the unbounded
+  Hamiltonian does not allow;
+>>>>>>> 6743d508f3ddea6a602e1787211e700f6b73b7d9
+* **`coreNormSq_tendsto`**, **`gap_closed_in_coreLp`**, **`root_spectral_gap_closed`**,
+  **`root_ground_bound_closed`** — closedness of the bound: a lower bound `K‖·‖² ≤ q` survives an
+  ℓ² limit whenever the form values converge, so the S2 gap and the certificate's ground threshold
+  hold at the limit of a form-convergent root-domain sequence.  This needs no continuity of `q`, and
+  it is closedness of the bound, not a Friedrichs extension;
 * **`RootFormDomination`**, **`root_ground_bound`**, **`root_excited_bound`**,
   **`s2RootFormDomination`** — the domination certificate with `dom` required only on the root
   sector, which `RootModeIdentification` supplies;
@@ -2105,6 +2256,1136 @@ theorem root_spectral_gap_on_closure (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8
   root_spectral_gap Φ fabc RI hω hg hc₁ hω₁ c
     (rootDomain_closed_of_tendsto s hs c hlim)
 
+/-! #### The ℓ² completion: the root domain is dense, and the gap holds on it
+
+The coefficient model is finitely supported, so "the closure of the root domain" can only mean the
+completion.  This section builds it: `coreLp` is `ℓ²` on the occupation multi-indices, `coreToLp`
+reads a core vector there, and `vacuumOrthogonal` is the closed subspace of vectors with no vacuum
+component.  Finite-support root vectors are dense in that subspace (`closure_rootDomain_image_eq`),
+which is the analytic form of §3d.3: what is "the excited span" there is literally a dense subspace
+here.
+
+The reference form is *unbounded* — `refEnergy` grows with the total occupation — so it is not a
+function on all of `ℓ²`.  `refFormLp` is defined where its defining series converges, and the gap
+statement carries that summability as a hypothesis; the gap survives the limit unchanged
+(`ref_spectral_gap_closure`), the termwise bound of `href_spectral_gap` becoming a `tsum`
+comparison.
+
+What this section does **not** do is extend the Yang–Mills form to the completion: `quadForm
+(ymHamiltonian …)` is quartic and not continuous in the `ℓ²` norm, so the right-hand side of
+`root_spectral_gap` has no `ℓ²` analogue here, and none is claimed.
+-/
+
+open scoped ENNReal
+
+variable {d : ℕ}
+
+/-- The ℓ² completion of the coefficient model: square-summable families on the occupation
+multi-indices. -/
+abbrev coreLp (d : ℕ) := lp (fun _ : Fin d → ℕ => ℂ) 2
+
+/-- The finite-support coefficient vector `c`, viewed in the completion. -/
+noncomputable def coreToLp (c : CoreCoeff d) : coreLp d :=
+  ∑ n ∈ c.support, lp.single 2 n (c n)
+
+/-- A finite combination of coordinate basis vectors, read at `m`: it is `φ m` when `m` is one of
+the indices used and zero otherwise. -/
+theorem sum_single_apply (s : Finset (Fin d → ℕ)) (φ : (Fin d → ℕ) → ℂ) (m : Fin d → ℕ) :
+    ((∑ i ∈ s, lp.single 2 i (φ i)) : coreLp d) m = if m ∈ s then φ m else 0 := by
+  classical
+  simp only [lp.coeFn_sum, Finset.sum_apply, lp.single_apply]
+  by_cases hm : m ∈ s
+  · rw [Finset.sum_eq_single m (fun b _ hbm => Pi.single_eq_of_ne' hbm _)
+      (fun h => absurd hm h)]
+    simp [hm]
+  · rw [Finset.sum_eq_zero (fun x hx =>
+        Pi.single_eq_of_ne' (fun h => hm (by rw [← h]; exact hx)) _), if_neg hm]
+
+/-- **The embedding reads back the coefficients**: on its support `coreToLp c` is `c`. -/
+theorem coreToLp_apply (c : CoreCoeff d) (n : Fin d → ℕ) : coreToLp c n = c n := by
+  classical
+  rw [coreToLp, sum_single_apply]
+  by_cases hn : n ∈ c.support
+  · simp [hn]
+  · rw [if_neg hn, Finsupp.notMem_support_iff.mp hn]
+
+/-- **The `ℓ²` norm is the completed core norm**: `‖f‖² = ∑' n, ‖f n‖²`. -/
+theorem norm_sq_eq_tsum (f : coreLp d) : ‖f‖ ^ 2 = ∑' n, ‖f n‖ ^ 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  rw [lp.norm_eq_tsum_rpow hp, h2]
+  simp only [Real.rpow_two]
+  rw [← Real.sqrt_eq_rpow, Real.sq_sqrt (tsum_nonneg fun n => by positivity)]
+
+/-- **The embedding is isometric for the core norm**: `coreNormSq` is the squared `ℓ²` norm of the
+image.  So `coreNormSq`-convergence is `ℓ²`-convergence on finite-support vectors, and the two
+notions of closure of §3d.3 meet here. -/
+theorem norm_coreToLp_sq (c : CoreCoeff d) : ‖coreToLp c‖ ^ 2 = coreNormSq c := by
+  have hzero : ∀ n ∉ c.support, ‖coreToLp c n‖ ^ 2 = 0 := by
+    intro n hn
+    rw [coreToLp_apply, Finsupp.notMem_support_iff.mp hn]
+    simp
+  rw [norm_sq_eq_tsum, tsum_eq_sum hzero, coreNormSq]
+  exact Finset.sum_congr rfl fun n _ => by rw [coreToLp_apply]
+
+/-- Evaluation of a completion vector at one multi-index is continuous — in fact `1`-Lipschitz,
+because `‖f i‖ ≤ ‖f‖`. -/
+theorem continuous_apply_coreLp (i : Fin d → ℕ) : Continuous fun f : coreLp d => f i := by
+  have h : LipschitzWith 1 fun f : coreLp d => f i := by
+    refine LipschitzWith.of_dist_le_mul fun f g => ?_
+    have h := lp.norm_apply_le_norm (p := 2) (by simp) (f - g) i
+    simp only [lp.coeFn_sub, Pi.sub_apply] at h
+    simpa [dist_eq_norm] using h
+  exact h.continuous
+
+/-- The vacuum-orthogonal subspace of the completion: the vectors with no vacuum component. -/
+def vacuumOrthogonal (d : ℕ) : Submodule ℂ (coreLp d) where
+  carrier := {f | f 0 = 0}
+  zero_mem' := rfl
+  add_mem' := by
+    intro f g hf hg
+    change (f + g) 0 = 0
+    rw [lp.coeFn_add, Pi.add_apply, hf, hg, add_zero]
+  smul_mem' := by
+    intro a f hf
+    change (a • f) 0 = 0
+    rw [lp.coeFn_smul, Pi.smul_apply, hf, smul_zero]
+
+/-- The vacuum-orthogonal subspace is closed: it is the preimage of `{0}` under a continuous
+functional. -/
+theorem isClosed_vacuumOrthogonal (d : ℕ) : IsClosed (vacuumOrthogonal d : Set (coreLp d)) :=
+  isClosed_eq (continuous_apply_coreLp 0) continuous_const
+
+/-- Root-domain vectors land in the vacuum-orthogonal subspace: the embedding preserves the
+vanishing vacuum coefficient. -/
+theorem coreToLp_mem_vacuumOrthogonal {c : CoreCoeff 24} (hc : c ∈ rootDomain) :
+    coreToLp c ∈ vacuumOrthogonal 24 := by
+  change coreToLp c 0 = 0
+  rw [coreToLp_apply]
+  exact mem_rootDomain.mp hc
+
+/-- **Finite-support root vectors are dense in the vacuum-orthogonal subspace.**  Given `f` with no
+vacuum component and `ε > 0`, the canonical finitely supported approximations of `lp.hasSum_single`
+produce a root-domain vector within `ε` of `f` — the truncation is a `Finsupp`, and it inherits
+`f 0 = 0`. -/
+theorem mem_closure_rootDomain_image (f : coreLp 24) (hf : f 0 = 0) :
+    f ∈ closure (coreToLp '' (rootDomain : Set (CoreCoeff 24))) := by
+  classical
+  rw [Metric.mem_closure_iff]
+  intro ε hε
+  have ht : Filter.Tendsto (fun s : Finset (Fin 24 → ℕ) => ∑ i ∈ s, lp.single 2 i (f i))
+      Filter.atTop (nhds f) := lp.hasSum_single (p := 2) (by simp) f
+  obtain ⟨s, hs⟩ := ((Metric.tendsto_nhds.mp ht) ε hε).exists
+  have hs' : dist (∑ i ∈ s, lp.single 2 i (f i)) f < ε := hs
+  let g : (Fin 24 → ℕ) → ℂ := fun n => if n ∈ s then f n else 0
+  have hfin : (Function.support g).Finite :=
+    s.finite_toSet.subset (by
+      intro n hn
+      by_contra hns
+      have hns' : n ∉ s := by simpa using hns
+      have hz : g n = 0 := by
+        change (if n ∈ s then f n else 0) = 0
+        rw [if_neg hns']
+      exact hn hz)
+  let c : CoreCoeff 24 := Finsupp.ofSupportFinite g hfin
+  have hc_apply : ∀ n, c n = g n := fun n =>
+    congrFun (Finsupp.ofSupportFinite_coe (f := g) (hf := hfin)) n
+  have hc0 : c 0 = 0 := by
+    rw [hc_apply]
+    simp only [g]
+    simp [hf]
+  have hcore : coreToLp c = ∑ i ∈ s, lp.single 2 i (f i) := by
+    ext m
+    rw [coreToLp_apply, hc_apply, sum_single_apply]
+  refine ⟨coreToLp c, ⟨c, mem_rootDomain.mpr hc0, rfl⟩, ?_⟩
+  rw [hcore, dist_comm]
+  exact hs'
+
+/-- **The closure of the root domain is the vacuum-orthogonal subspace**: one inclusion is the
+closedness of the subspace, the other is density.  This is the completion's version of
+`closure_rootDomain_iff`. -/
+theorem closure_rootDomain_image_eq :
+    closure (coreToLp '' (rootDomain : Set (CoreCoeff 24)))
+      = (vacuumOrthogonal 24 : Set (coreLp 24)) := by
+  refine le_antisymm ?_ ?_
+  · refine closure_minimal ?_ (isClosed_vacuumOrthogonal 24)
+    rintro _ ⟨c, hc, rfl⟩
+    exact coreToLp_mem_vacuumOrthogonal hc
+  · intro f hf
+    exact mem_closure_rootDomain_image f hf
+
+/-- The reference form on the completion, where its series converges — the natural domain of the
+unbounded harmonic form, not all of `ℓ²`. -/
+noncomputable def refFormLp (ω : Fin 24 → ℝ) (f : coreLp 24) : ℝ :=
+  ∑' n, refEnergy ω n * ‖f n‖ ^ 2
+
+/-- **The reference gap on the `ℓ²` completion.**  `href_spectral_gap` is a termwise inequality over
+finitely supported vectors; on the form domain of the completion the same comparison holds with the
+finite sum replaced by a `tsum`.  Summability of the form is carried as a hypothesis — this is the
+unbounded part, and `‖f‖²` is recovered from `norm_sq_eq_tsum`. -/
+theorem ref_spectral_gap_closure {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i) (f : coreLp 24)
+    (h0 : f 0 = 0) (hsum : Summable fun n => refEnergy ω n * ‖f n‖ ^ 2) :
+    (refEnergy ω 0 + refGap ω) * ‖f‖ ^ 2 ≤ refFormLp ω f := by
+  have hE0 : 0 < refEnergy ω 0 := by
+    rw [refEnergy_zero]
+    exact Finset.sum_pos (fun i _ => by linarith [hω i]) Finset.univ_nonempty
+  have hc : 0 < refEnergy ω 0 + refGap ω := by
+    have := refGap_pos hω
+    linarith
+  have hterm : ∀ n, (refEnergy ω 0 + refGap ω) * ‖f n‖ ^ 2 ≤ refEnergy ω n * ‖f n‖ ^ 2 := by
+    intro n
+    rcases eq_or_ne n (0 : Fin 24 → ℕ) with rfl | hn
+    · simp [h0]
+    · exact mul_le_mul_of_nonneg_right (refEnergy_ge_vacuum_add_gap hω hn) (by positivity)
+  have hsum' : Summable fun n => ‖f n‖ ^ 2 := by
+    refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_)
+      (hsum.mul_left (1 / (refEnergy ω 0 + refGap ω)))
+    rw [one_div, inv_mul_eq_div, le_div_iff₀ hc]
+    simpa [mul_comm] using hterm n
+  rw [norm_sq_eq_tsum, refFormLp, ← tsum_mul_left]
+  exact (hsum'.mul_left _).tsum_le_tsum hterm hsum
+
+/-! #### The `ℂ²` colour factor of a mode
+
+`fundMode d` is the ℓ² completion of the occupation core *with* a colour factor: square-summable
+families on `Fin d → ℕ` valued in `ℂ²`.  A core vector with a colour vector attached is
+`colourModeVec c v`, and `colourEnergy` is the quadratic Casimir `Σ_a T^a T^a` acting on the colour
+factor only.
+
+`colourEnergy_colourModeVec` is the content: on `c ⊗ v` the Casimir multiplies `v` by `C_F = 3/4`
+and leaves the Fock coefficients `c n` untouched.  This is the mode-factor form of
+`su2_casimir_fundamental` — the colour factor is dressed with the number content, and `C_F` still
+extracts as a scalar.
+
+**Boundary.**  `colourAct` and `colourEnergy` are first defined on the underlying families.  The
+bounded operators `colourActCLM`/`colourEnergyCLM` below are their extension to the completion;
+they stay on the colour fibre, so nothing here folds `C_F` into the quartic colour energy of §3b.2b
+or into `quadForm (ymHamiltonian …)`.
+-/
+
+/-- The Fock core completed with a colour `ℂ²` factor: square-summable families on the occupation
+multi-indices, valued in `ℂ²`. -/
+abbrev fundMode (d : ℕ) := lp (fun _ : Fin d → ℕ => Fin 2 → ℂ) 2
+
+/-- A finite combination of coordinate basis vectors valued in a normed space, read at `m`. -/
+theorem sum_single_apply_gen {E : Type*} [NormedAddCommGroup E] (s : Finset (Fin d → ℕ))
+    (φ : (Fin d → ℕ) → E) (m : Fin d → ℕ) :
+    ((∑ i ∈ s, lp.single 2 i (φ i)) : lp (fun _ : Fin d → ℕ => E) 2) m
+      = if m ∈ s then φ m else 0 := by
+  classical
+  simp only [lp.coeFn_sum, Finset.sum_apply, lp.single_apply]
+  by_cases hm : m ∈ s
+  · rw [Finset.sum_eq_single m (fun b _ hbm => Pi.single_eq_of_ne' hbm _)
+      (fun h => absurd hm h)]
+    simp [hm]
+  · rw [Finset.sum_eq_zero (fun x hx =>
+        Pi.single_eq_of_ne' (fun h => hm (by rw [← h]; exact hx)) _), if_neg hm]
+
+/-- A core vector with a fixed colour vector attached: the Fock factor and the colour factor side by
+side in the coloured completion. -/
+noncomputable def colourModeVec (c : CoreCoeff d) (v : Fin 2 → ℂ) : fundMode d :=
+  ∑ n ∈ c.support, lp.single 2 n (c n • v)
+
+/-- `colourModeVec` is `c n • v` coefficientwise, and zero off the core support. -/
+theorem colourModeVec_apply (c : CoreCoeff d) (v : Fin 2 → ℂ) (n : Fin d → ℕ) :
+    colourModeVec c v n = c n • v := by
+  classical
+  rw [colourModeVec, sum_single_apply_gen]
+  by_cases hn : n ∈ c.support
+  · simp [hn]
+  · rw [if_neg hn, Finsupp.notMem_support_iff.mp hn, zero_smul]
+
+/-- The colour action of a generator on the `ℂ²` factor, at the level of the underlying families. -/
+def colourAct (a : Fin 3) (f : fundMode d) : (Fin d → ℕ) → (Fin 2 → ℂ) :=
+  fun n => (fundRep a).mulVec (f n)
+
+/-- **The colour energy**: the quadratic Casimir `Σ_a T^a T^a` acting on the colour factor, at the
+level of the underlying families. -/
+noncomputable def colourEnergy (f : fundMode d) : (Fin d → ℕ) → (Fin 2 → ℂ) :=
+  fun n => ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n))
+
+/-- **The Casimir matrix acts as `C_F`**: `(Σ_a T^a T^a).mulVec v = (3/4) • v`, straight from
+`su2_casimir_fundamental`. -/
+theorem casimir_mulVec (v : Fin 2 → ℂ) :
+    (∑ a : Fin 3, fundRep a * fundRep a).mulVec v = (3 / 4 : ℂ) • v := by
+  rw [su2_casimir_fundamental, Matrix.smul_mulVec, Matrix.one_mulVec]
+
+/-- The three colour summands reassemble into the Casimir matrix. -/
+theorem sum_mulVec_mulVec (v : Fin 2 → ℂ) :
+    (∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec v))
+      = (∑ a : Fin 3, fundRep a * fundRep a).mulVec v := by
+  rw [Matrix.sum_mulVec]
+  exact Finset.sum_congr rfl fun a _ => Matrix.mulVec_mulVec v (fundRep a) (fundRep a)
+
+/-- **The colour energy carries `C_F` and leaves the Fock factor alone.**  On a mode vector `c ⊗ v`
+the Casimir multiplies the colour vector by `3/4` and does not touch the coefficients `c n`. -/
+theorem colourEnergy_colourModeVec (c : CoreCoeff d) (v : Fin 2 → ℂ) :
+    colourEnergy (colourModeVec c v) = fun n => c n • ((3 / 4 : ℂ) • v) := by
+  funext n
+  rw [colourEnergy, colourModeVec_apply]
+  have hmul : ∀ a : Fin 3,
+      (fundRep a).mulVec ((fundRep a).mulVec (c n • v))
+        = c n • ((fundRep a).mulVec ((fundRep a).mulVec v)) := by
+    intro a
+    rw [Matrix.mulVec_smul, Matrix.mulVec_smul]
+  simp only [hmul, ← Finset.smul_sum, sum_mulVec_mulVec, casimir_mulVec]
+
+/-- The same statement in the form the colour energy is usually quoted in: `C_F` times the identity
+on the coloured factor. -/
+theorem colourEnergy_colourModeVec_eq (c : CoreCoeff d) (v : Fin 2 → ℂ) :
+    colourEnergy (colourModeVec c v) = fun n => (3 / 4 : ℂ) • (colourModeVec c v n) := by
+  rw [colourEnergy_colourModeVec]
+  funext n
+  rw [colourModeVec_apply, smul_smul, smul_smul]
+  congr 1
+  ring
+
+<<<<<<< HEAD
+/-! #### The colour energy on the completion, and the `ℂ³` gluon factor
+
+`colourEnergy` is a scalar on the whole completion, not only on mode vectors: for *every* `f` in
+`fundMode d` it is `(3/4) • f` coefficientwise (`colourEnergy_eq_smul`), so it extends to the
+continuous linear map `colourEnergyOp`, with operator norm at most `3/4` (`colourEnergyOp_apply`,
+`norm_colourEnergyOp`).  That removes the boundary of the section above: the colour Casimir is a
+bounded operator on the ℓ² completion, not only a formula on `c ⊗ v`.
+
+The gluon side is the adjoint representation on `ℂ³`: `adjRep` is `(T^a)_{bc} = −i ε^{abc}`, its
+commutators are `[T^a, T^b] = i ε^{abc} T^c` (`adjRep_commutator`) — the same algebra `fundRep`
+carries — and its Casimir is `2 · 1` (`adjRep_casimir`), so `C_A = 2` is now a matrix identity and
+not only the scalar `su2_casimir_adjoint`.  A mode vector with a colour `ℂ³` factor is
+`adjModeVec c v`, on which the adjoint colour energy multiplies `v` by `2`
+(`adjColourEnergy_adjModeVec`).
+
+So the two colour factors are mode factors of one completion: `C_F = 3/4` on the `ℂ²` factor and
+`C_A = 2` on the `ℂ³` factor, in the ratio `8/3` (`casimir_ratio`), each the eigenvalue of its own
+Casimir.
+
+**Boundary.**  Here the two factors sit over the same occupation labels but are not combined into
+one space.  The section after `casimir_ratio` attaches them to the field core and folds `C_F`/`C_A`
+into `quadForm (ymHamiltonian …)`, on elementary tensors only.  The norm of `colourEnergyOp` is
+exactly `3/4` (`norm_colourEnergyOp_eq`).
+-/
+
+/-- **The colour energy is the scalar `C_F` on all of the completion**: for every `f`, the Casimir
+multiplies each coefficient by `3/4`.  The mode-vector statement `colourEnergy_colourModeVec` is the
+special case `f = colourModeVec c v`. -/
+theorem colourEnergy_eq_smul (f : fundMode d) :
+    colourEnergy f = fun n => (3 / 4 : ℂ) • f n := by
+  funext n
+  simp only [colourEnergy, sum_mulVec_mulVec, casimir_mulVec]
+
+/-- **The colour energy as a continuous linear operator**: `C_F` times the identity on the coloured
+completion.  This is the operator the completion carries, rather than the coefficient formula. -/
+noncomputable def colourEnergyOp (d : ℕ) : fundMode d →L[ℂ] fundMode d :=
+  (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
+
+/-- The operator agrees coefficientwise with `colourEnergy`, so no information is lost in passing to
+the completion. -/
+theorem colourEnergyOp_apply (d : ℕ) (f : fundMode d) (n : Fin d → ℕ) :
+    colourEnergyOp d f n = colourEnergy f n := by
+  rw [colourEnergyOp, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply,
+    colourEnergy_eq_smul]
+  simp
+
+/-- **Boundedness**: the colour energy is a continuous operator on the completion with norm at most
+`C_F = 3/4`; the bound is attained, so the norm is exactly `3/4` (`norm_colourEnergyOp_eq`). -/
+theorem norm_colourEnergyOp (d : ℕ) : ‖colourEnergyOp d‖ ≤ 3 / 4 := by
+  have hc : ‖(3 / 4 : ℂ)‖ = 3 / 4 := by
+    simp
+  refine ContinuousLinearMap.opNorm_le_bound _ (by norm_num) fun f => ?_
+  rw [colourEnergyOp, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply,
+    norm_smul, hc]
+
+/-- **The colour energy operator has norm exactly `C_F = 3/4`**: the bound of
+`norm_colourEnergyOp` is attained.  `colourEnergyOp` is `(3/4) • 1`, so a single nonzero mode vector
+realises the norm. -/
+theorem norm_colourEnergyOp_eq (d : ℕ) : ‖colourEnergyOp d‖ = 3 / 4 := by
+  refine le_antisymm (norm_colourEnergyOp d) ?_
+  have hc : ‖(3 / 4 : ℂ)‖ = 3 / 4 := by simp
+  set v : Fin 2 → ℂ := fun j => if j = 0 then 1 else 0 with hv
+  have hv0 : v ≠ 0 := by
+    intro h
+    have h0 := congrFun h 0
+    simp [hv] at h0
+  set f : fundMode d := lp.single 2 (0 : Fin d → ℕ) v with hf
+  have hf0 : f ≠ 0 := by
+    intro h
+    have h0 : f 0 = 0 := by rw [h]; rfl
+    rw [hf, lp.single_apply] at h0
+    exact hv0 (by simpa using h0)
+  have hpos : 0 < ‖f‖ := norm_pos_iff.mpr hf0
+  have hfv : colourEnergyOp d f = (3 / 4 : ℂ) • f := by
+    rw [colourEnergyOp, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply]
+  have hle := ContinuousLinearMap.le_opNorm (colourEnergyOp d) f
+  rw [hfv, norm_smul, hc] at hle
+  exact le_of_mul_le_mul_right hle hpos
+
+/-- **The adjoint representation of `su(2)` on `ℂ³`**: `(T^a)_{bc} = −i ε^{abc}`, the gluon factor.
+Its Casimir below is `C_A = 2`, the matrix form of `su2_casimir_adjoint`. -/
+def adjRep (a : Fin 3) : Matrix (Fin 3) (Fin 3) ℂ :=
+  fun b c => (-Complex.I) * (levi a b c : ℂ)
+
+/-- The adjoint commutator for the first index `a = 0`, by the `27` entry checks of the case
+analysis.  Split out so that no single declaration needs a raised heartbeat budget. -/
+theorem adjRep_commutator_zero (b : Fin 3) (i j : Fin 3) :
+    (adjRep 0 * adjRep b - adjRep b * adjRep 0) i j
+      = (Complex.I • (∑ c : Fin 3, (levi 0 b c : ℂ) • adjRep c)) i j := by
+  simp only [Matrix.sub_apply, Matrix.smul_apply, Matrix.sum_apply, Matrix.mul_apply, adjRep]
+  fin_cases b <;> fin_cases i <;> fin_cases j <;>
+    simp only [Fin.sum_univ_three, levi] <;> norm_num
+
+/-- The adjoint commutator for the first index `a = 1`. -/
+theorem adjRep_commutator_one (b : Fin 3) (i j : Fin 3) :
+    (adjRep 1 * adjRep b - adjRep b * adjRep 1) i j
+      = (Complex.I • (∑ c : Fin 3, (levi 1 b c : ℂ) • adjRep c)) i j := by
+  simp only [Matrix.sub_apply, Matrix.smul_apply, Matrix.sum_apply, Matrix.mul_apply, adjRep]
+  fin_cases b <;> fin_cases i <;> fin_cases j <;>
+    simp only [Fin.sum_univ_three, levi] <;> norm_num
+
+/-- The adjoint commutator for the first index `a = 2`. -/
+theorem adjRep_commutator_two (b : Fin 3) (i j : Fin 3) :
+    (adjRep 2 * adjRep b - adjRep b * adjRep 2) i j
+      = (Complex.I • (∑ c : Fin 3, (levi 2 b c : ℂ) • adjRep c)) i j := by
+  simp only [Matrix.sub_apply, Matrix.smul_apply, Matrix.sum_apply, Matrix.mul_apply, adjRep]
+  fin_cases b <;> fin_cases i <;> fin_cases j <;>
+    simp only [Fin.sum_univ_three, levi] <;> norm_num
+
+/-- **`adjRep` is a representation**: `[T^a, T^b] = i ε^{abc} T^c`, against the same `ε` as
+`fundRep_commutator`.  So the fundamental and the adjoint are representations of one algebra in the
+mode-factor language as well. -/
+theorem adjRep_commutator (a b : Fin 3) :
+    adjRep a * adjRep b - adjRep b * adjRep a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • adjRep c) := by
+  ext i j
+  fin_cases a
+  · exact adjRep_commutator_zero b i j
+  · exact adjRep_commutator_one b i j
+  · exact adjRep_commutator_two b i j
+
+/-- **The adjoint Casimir is `C_A = 2`**: `Σ_a (T^a)² = 2 · 1` on `ℂ³`, the matrix form of
+`su2_casimir_adjoint`. -/
+theorem adjRep_casimir :
+    ∑ a : Fin 3, adjRep a * adjRep a = (2 : ℂ) • (1 : Matrix (Fin 3) (Fin 3) ℂ) := by
+  ext i j
+  rw [Matrix.sum_apply]
+  simp only [Matrix.smul_apply, Matrix.one_apply, Matrix.mul_apply, adjRep]
+  fin_cases i <;> fin_cases j <;>
+    simp only [Fin.sum_univ_three, levi] <;> norm_num
+
+/-- **The adjoint Casimir acts as `C_A = 2`**: `(Σ_a T^a T^a).mulVec v = 2 • v`. -/
+theorem adjRep_casimir_mulVec (v : Fin 3 → ℂ) :
+    (∑ a : Fin 3, adjRep a * adjRep a).mulVec v = (2 : ℂ) • v := by
+  rw [adjRep_casimir, Matrix.smul_mulVec, Matrix.one_mulVec]
+
+/-- The Fock core completed with a colour `ℂ³` factor: the gluon mode space. -/
+abbrev adjMode (d : ℕ) := lp (fun _ : Fin d → ℕ => Fin 3 → ℂ) 2
+
+/-- A core vector with a gluon colour vector attached: the adjoint counterpart of
+`colourModeVec`. -/
+noncomputable def adjModeVec (c : CoreCoeff d) (v : Fin 3 → ℂ) : adjMode d :=
+  ∑ n ∈ c.support, lp.single 2 n (c n • v)
+
+/-- `adjModeVec` is `c n • v` coefficientwise, and zero off the core support. -/
+theorem adjModeVec_apply (c : CoreCoeff d) (v : Fin 3 → ℂ) (n : Fin d → ℕ) :
+    adjModeVec c v n = c n • v := by
+  classical
+  rw [adjModeVec, sum_single_apply_gen]
+  by_cases hn : n ∈ c.support
+  · simp [hn]
+  · rw [if_neg hn, Finsupp.notMem_support_iff.mp hn, zero_smul]
+
+/-- The **adjoint colour energy**: the Casimir `Σ_a T^a T^a` of `ℂ³` acting on the colour factor. -/
+noncomputable def adjColourEnergy (f : adjMode d) : (Fin d → ℕ) → (Fin 3 → ℂ) :=
+  fun n => ∑ a : Fin 3, (adjRep a).mulVec ((adjRep a).mulVec (f n))
+
+/-- **The adjoint colour energy carries `C_A = 2` and leaves the Fock factor alone**: on `c ⊗ v` the
+adjoint Casimir multiplies the colour vector by `2`. -/
+theorem adjColourEnergy_adjModeVec (c : CoreCoeff d) (v : Fin 3 → ℂ) :
+    adjColourEnergy (adjModeVec c v) = fun n => c n • ((2 : ℂ) • v) := by
+  funext n
+  rw [adjColourEnergy, adjModeVec_apply]
+  have hmul : ∀ a : Fin 3,
+      (adjRep a).mulVec ((adjRep a).mulVec (c n • v))
+        = c n • ((adjRep a).mulVec ((adjRep a).mulVec v)) := by
+    intro a
+    rw [Matrix.mulVec_smul, Matrix.mulVec_smul]
+  simp only [hmul, ← Finset.smul_sum]
+  have hsum : (∑ a : Fin 3, (adjRep a).mulVec ((adjRep a).mulVec v))
+      = (∑ a : Fin 3, adjRep a * adjRep a).mulVec v := by
+    rw [Matrix.sum_mulVec]
+    exact Finset.sum_congr rfl fun a _ => Matrix.mulVec_mulVec v (adjRep a) (adjRep a)
+  rw [hsum, adjRep_casimir_mulVec]
+
+/-- **The ratio of the two colour factors**: `C_A/C_F = 2/(3/4) = 8/3`, the factor a
+`C_A`-versus-`C_F` comparison multiplies by. -/
+theorem casimir_ratio : (2 : ℝ) / (3 / 4) = 8 / 3 := by norm_num
+
+/-! #### The colour fibre over the field core, and `C_F`/`C_A` inside the field form
+
+The colour factors above live on the coefficient completion.  Attached to the *field* core they give
+a genuine `H ⊗ 1 + 1 ⊗ C`: `colourSpace N = PiLp 2 (fun _ : Fin N => L2d 99)` is the core with `N`
+colour components, `colouredCore N D` requires every component to lie in `D`, and
+`colouredHamiltonian Φ fabc N C` acts componentwise by `ymHamiltonian Φ fabc` plus the colour matrix
+`C` mixing the components (`colouredHamiltonian_ofLp`).  The elementary tensor `x ⊗ v` is
+`colourFibre x v`, the family `i ↦ v i • x`.
+
+For a diagonal colour energy `C = µ • 1` the form collapses to the field form plus `µ` times the
+field norm squared (`colouredHamiltonian_smul_one_inner`,
+`colouredHamiltonian_smul_one_quadForm`), and the two Casimirs are diagonal with exactly the values
+of the operator section: `∑ a, T^a T^a = (3/4) • 1` on `ℂ²` (`su2_casimir_fundamental`) and `2 • 1`
+on `ℂ³` (`adjRep_casimir`).  Hence on `x ⊗ v` one has
+`quadForm (H + C) (x ⊗ v) = ‖v‖² (quadForm H x + C ‖x‖²)`, and likewise with `C_A = 2`
+(`colouredHamiltonian_fundamental_quadForm`, `colouredHamiltonian_adjoint_quadForm`): the colour
+factors are now eigenvalues inside `quadForm`, not only on the coefficient model.
+
+Nor is this an elementary-tensor-only statement.  Since `H ⊗ 1 + 1 ⊗ (µ • 1)` is diagonal in the
+colour components, the form splits componentwise for *every* `u` in the coloured core
+(`colouredHamiltonian_smul_one_inner_core`, `colouredHamiltonian_smul_one_quadForm_core`, and with
+the Casimirs `colouredHamiltonian_fundamental_quadForm_core`/`..._adjoint_quadForm_core`), and every
+core element is a finite sum of elementary tensors (`colourFibre_repr`, `colourSum`) — so the finite
+sum `∑ k, x k ⊗ v k` is covered with its cross terms inside the components (`colourSum_ofLp`,
+`colouredHamiltonian_smul_one_quadForm_sum`).
+
+**Boundary.**  The identity holds for a diagonal colour energy `µ • 1` on the whole coloured core; a
+general colour matrix `C` is still evaluated only through its diagonal part, nothing is claimed
+about the norm of the coloured operator, and the Fock/occupation completion carrying
+`colourEnergyOp` is still a separate model, not identified here with this fibre.
+-/
+
+/-- The colour-completed Hilbert space over the `99`-coordinate field space: `N` colour components
+with the ℓ² norm. -/
+abbrev colourSpace (N : ℕ) : Type := PiLp 2 (fun _ : Fin N => L2d 99)
+
+/-- The colour fibre `ℂ^N`, with the ℓ² inner product. -/
+abbrev colourVec (N : ℕ) : Type := PiLp 2 (fun _ : Fin N => ℂ)
+
+/-- The colour-completed **core**: every colour component lies in `D`. -/
+def colouredCore (N : ℕ) (D : Submodule ℂ (L2d 99)) : Submodule ℂ (colourSpace N) where
+  carrier := {u | ∀ i, WithLp.ofLp u i ∈ D}
+  zero_mem' := by
+    intro i
+    simp
+  add_mem' := by
+    intro u v hu hv i
+    rw [PiLp.add_apply]
+    exact D.add_mem (hu i) (hv i)
+  smul_mem' := by
+    intro c u hu i
+    rw [PiLp.smul_apply]
+    exact D.smul_mem c (hu i)
+
+/-- **The coloured Hamiltonian `H ⊗ 1 + 1 ⊗ C`** on the colour-completed core: the field Hamiltonian
+acts on each colour component and the colour matrix `C` mixes the components. -/
+noncomputable def colouredHamiltonian {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (N : ℕ) (C : Matrix (Fin N) (Fin N) ℂ) :
+    colouredCore N D →ₗ[ℂ] colourSpace N where
+  toFun u :=
+    WithLp.toLp 2 fun i =>
+      ymHamiltonian Φ fabc ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+        + ∑ j : Fin N, C i j • (WithLp.ofLp (u : colourSpace N) j)
+  map_add' u v := by
+    apply WithLp.ofLp_injective
+    funext i
+    simp only [WithLp.ofLp_add, Submodule.coe_add, Pi.add_apply]
+    have hsub : (⟨WithLp.ofLp (u : colourSpace N) i + WithLp.ofLp (v : colourSpace N) i,
+        (u + v).2 i⟩ : D) = ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+          + ⟨WithLp.ofLp (v : colourSpace N) i, v.2 i⟩ := Subtype.ext rfl
+    rw [hsub, map_add]
+    simp only [smul_add, Finset.sum_add_distrib]
+    abel
+  map_smul' c u := by
+    apply WithLp.ofLp_injective
+    funext i
+    simp only [WithLp.ofLp_smul, Submodule.coe_smul, Pi.smul_apply, RingHom.id_apply]
+    have hsub : (⟨c • WithLp.ofLp (u : colourSpace N) i, (c • u).2 i⟩ : D)
+        = c • ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩ := Subtype.ext rfl
+    rw [hsub, map_smul]
+    simp only [smul_add, Finset.smul_sum]
+    congr 1
+    exact Finset.sum_congr rfl fun j _ => (smul_comm c (C i j) _).symm
+
+/-- The component of the coloured Hamiltonian at a colour index: the field Hamiltonian on that
+component plus the `C`-weighted sum of all components. -/
+theorem colouredHamiltonian_ofLp {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ)
+    (u : colouredCore N D) (i : Fin N) :
+    (colouredHamiltonian Φ fabc N C u : colourSpace N).ofLp i
+      = ymHamiltonian Φ fabc ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+        + ∑ j : Fin N, C i j • (WithLp.ofLp (u : colourSpace N) j) := rfl
+
+/-- A diagonal colour energy `µ • 1` acts on each colour component by `µ`. -/
+theorem colouredHamiltonian_smul_one_ofLp {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (μ : ℂ) (u : colouredCore N D)
+    (i : Fin N) :
+    (colouredHamiltonian Φ fabc N (μ • (1 : Matrix (Fin N) (Fin N) ℂ)) u :
+        colourSpace N).ofLp i
+      = ymHamiltonian Φ fabc ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+        + μ • (WithLp.ofLp (u : colourSpace N) i) := by
+  rw [colouredHamiltonian_ofLp]
+  congr 1
+  simp [Matrix.smul_apply, Matrix.one_apply, Finset.sum_ite_eq]
+
+/-- The elementary tensor `x ⊗ v` of the field core with a colour fibre: the component at `i` is
+`v i • x`. -/
+noncomputable def colourFibre {D : Submodule ℂ (L2d 99)} (x : D) (v : colourVec N) :
+    colouredCore N D :=
+  ⟨WithLp.toLp 2 (fun i => WithLp.ofLp v i • (x : L2d 99)),
+    fun i => D.smul_mem (WithLp.ofLp v i) x.2⟩
+
+/-- **The form of `H ⊗ 1 + 1 ⊗ (µ • 1)` on an elementary tensor**: the colour norm squared times the
+field form plus `µ` times the field norm squared. -/
+theorem colouredHamiltonian_smul_one_inner {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (μ : ℂ)
+    (x : D) (v : colourVec N) :
+    (inner ℂ (colourFibre (D := D) x v : colourSpace N)
+        (colouredHamiltonian Φ fabc N (μ • (1 : Matrix (Fin N) (Fin N) ℂ))
+          (colourFibre (D := D) x v)) : ℂ)
+      = inner ℂ v v * (inner ℂ (x : L2d 99) (ymHamiltonian Φ fabc x)
+          + μ * inner ℂ (x : L2d 99) (x : L2d 99)) := by
+  rw [PiLp.inner_apply]
+  have hcomp : ∀ i : Fin N,
+      (colourFibre (D := D) x v : colourSpace N).ofLp i
+        = WithLp.ofLp v i • (x : L2d 99) := fun i => rfl
+  simp only [hcomp, colouredHamiltonian_smul_one_ofLp]
+  have hH : ∀ (c : ℂ) (y : D),
+      (ymHamiltonian Φ fabc ⟨c • (y : L2d 99), D.smul_mem c y.2⟩ : L2d 99)
+        = c • ymHamiltonian Φ fabc y := by
+    intro c y
+    have hsub : (⟨c • (y : L2d 99), D.smul_mem c y.2⟩ : D) = c • y := Subtype.ext rfl
+    rw [hsub, map_smul]
+  have hterm : ∀ i : Fin N,
+      inner ℂ (WithLp.ofLp v i • (x : L2d 99))
+        ((ymHamiltonian Φ fabc ⟨WithLp.ofLp v i • (x : L2d 99),
+            D.smul_mem (WithLp.ofLp v i) x.2⟩ : L2d 99)
+          + μ • (WithLp.ofLp v i • (x : L2d 99)))
+      = inner ℂ (WithLp.ofLp v i) (WithLp.ofLp v i)
+        * (inner ℂ (x : L2d 99) (ymHamiltonian Φ fabc x)
+          + μ * inner ℂ (x : L2d 99) (x : L2d 99)) := by
+    intro i
+    rw [hH]
+    simp only [inner_add_right, inner_smul_left, inner_smul_right, smul_smul,
+      RCLike.inner_apply]
+    ring
+  rw [Finset.sum_congr rfl fun i _ => hterm i]
+  rw [← Finset.sum_mul, PiLp.inner_apply]
+
+/-- **The colour energy `µ • 1` folded into the field form**: on `x ⊗ v` the coloured quadratic form
+is the colour norm squared times the field form plus `µ.re` times the field norm squared. -/
+theorem colouredHamiltonian_smul_one_quadForm {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (μ : ℂ)
+    (hμ : μ.im = 0) (x : D) (v : colourVec N) :
+    quadForm (colouredHamiltonian Φ fabc N (μ • (1 : Matrix (Fin N) (Fin N) ℂ)))
+        (colourFibre (D := D) x v)
+      = ‖v‖ ^ 2 * (quadForm (ymHamiltonian Φ fabc) x + μ.re * ‖(x : L2d 99)‖ ^ 2) := by
+  have hsymm := ymHamiltonian_symmetricOn Φ fabc
+  have hvv_im : (inner ℂ v v : ℂ).im = 0 := by
+    simpa using inner_self_im (𝕜 := ℂ) v
+  have hvv_re : (inner ℂ v v : ℂ).re = ‖v‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℂ) v
+  have hQ0 : (inner ℂ (x : L2d 99) (ymHamiltonian Φ fabc x) : ℂ).im = 0 :=
+    quadForm_im _ hsymm x
+  have hQ1 : (inner ℂ (x : L2d 99) (x : L2d 99) : ℂ).im = 0 := by
+    simpa using inner_self_im (𝕜 := ℂ) (x : L2d 99)
+  have hQ1re : (inner ℂ (x : L2d 99) (x : L2d 99) : ℂ).re = ‖(x : L2d 99)‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℂ) (x : L2d 99)
+  rw [quadForm, colouredHamiltonian_smul_one_inner]
+  have hsum : (inner ℂ (x : L2d 99) (ymHamiltonian Φ fabc x)
+        + μ * inner ℂ (x : L2d 99) (x : L2d 99) : ℂ)
+      = (((quadForm (ymHamiltonian Φ fabc) x
+          + μ.re * ‖(x : L2d 99)‖ ^ 2 : ℝ)) : ℂ) := by
+    apply Complex.ext
+    · simp [Complex.add_re, Complex.mul_re, quadForm, hμ]
+    · simp [Complex.add_im, Complex.mul_im, hμ, hQ0]
+  rw [hsum, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, hvv_im, hvv_re]
+  ring
+
+/-- **`C_F = 3/4` inside the field form**: on the fundamental colour fibre (`ℂ²`) the coloured
+Hamiltonian's form is the field form plus `C_F` times the field norm squared. -/
+theorem colouredHamiltonian_fundamental_quadForm {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : D) (v : colourVec 2) :
+    quadForm (colouredHamiltonian Φ fabc 2 (∑ a : Fin 3, fundRep a * fundRep a))
+        (colourFibre (D := D) x v)
+      = ‖v‖ ^ 2 * (quadForm (ymHamiltonian Φ fabc) x
+          + (3 / 4) * ‖(x : L2d 99)‖ ^ 2) := by
+  rw [su2_casimir_fundamental]
+  simpa using colouredHamiltonian_smul_one_quadForm Φ fabc (3 / 4 : ℂ) (by norm_num) x v
+
+/-- **`C_A = 2` inside the field form**: on the adjoint colour fibre (`ℂ³`) the coloured
+Hamiltonian's form is the field form plus `C_A` times the field norm squared. -/
+theorem colouredHamiltonian_adjoint_quadForm {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : D) (v : colourVec 3) :
+    quadForm (colouredHamiltonian Φ fabc 3 (∑ a : Fin 3, adjRep a * adjRep a))
+        (colourFibre (D := D) x v)
+      = ‖v‖ ^ 2 * (quadForm (ymHamiltonian Φ fabc) x + 2 * ‖(x : L2d 99)‖ ^ 2) := by
+  rw [adjRep_casimir]
+  simpa using colouredHamiltonian_smul_one_quadForm Φ fabc (2 : ℂ) (by norm_num) x v
+
+/-- **The form of `H ⊗ 1 + 1 ⊗ (µ • 1)` on the whole coloured core**: because the colour energy is
+diagonal in the colour components, its inner product against any `u` splits into the field inner
+products of the components plus `µ` times their norms. -/
+theorem colouredHamiltonian_smul_one_inner_core {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (μ : ℂ)
+    (u : colouredCore N D) :
+    (inner ℂ (u : colourSpace N)
+        (colouredHamiltonian Φ fabc N (μ • (1 : Matrix (Fin N) (Fin N) ℂ)) u) : ℂ)
+      = ∑ i : Fin N, (inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+            (ymHamiltonian Φ fabc ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩)
+          + μ * inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+              (WithLp.ofLp (u : colourSpace N) i)) := by
+  rw [PiLp.inner_apply]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [colouredHamiltonian_smul_one_ofLp, inner_add_right, inner_smul_right]
+
+/-- **The colour energy `µ • 1` folded into the field form, on the whole coloured core**: for an
+arbitrary `u` the coloured quadratic form is the sum over colour components of the field form plus
+`µ.re` times the component norm squared.  No decomposition of `u` into elementary tensors is
+assumed, so this is the identity on finite sums of `x ⊗ v` too
+(`colouredHamiltonian_smul_one_quadForm_sum`), and — with `colourFibre_repr` — on all of the
+core. -/
+theorem colouredHamiltonian_smul_one_quadForm_core {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (μ : ℂ)
+    (hμ : μ.im = 0) (u : colouredCore N D) :
+    quadForm (colouredHamiltonian Φ fabc N (μ • (1 : Matrix (Fin N) (Fin N) ℂ))) u
+      = ∑ i : Fin N, (quadForm (ymHamiltonian Φ fabc)
+            ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+          + μ.re * ‖WithLp.ofLp (u : colourSpace N) i‖ ^ 2) := by
+  rw [quadForm, colouredHamiltonian_smul_one_inner_core, Complex.re_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  have hQ1 : (inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+      (WithLp.ofLp (u : colourSpace N) i) : ℂ).im = 0 := by
+    simpa using inner_self_im (𝕜 := ℂ) (WithLp.ofLp (u : colourSpace N) i)
+  have hQ1re : (inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+      (WithLp.ofLp (u : colourSpace N) i) : ℂ).re
+      = ‖WithLp.ofLp (u : colourSpace N) i‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℂ) (WithLp.ofLp (u : colourSpace N) i)
+  simp only [Complex.add_re, Complex.mul_re, quadForm, hμ, hQ1, hQ1re]
+  ring
+
+/-- **`C_F = 3/4` inside the field form on the whole core**. -/
+theorem colouredHamiltonian_fundamental_quadForm_core {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (u : colouredCore 2 D) :
+    quadForm (colouredHamiltonian Φ fabc 2 (∑ a : Fin 3, fundRep a * fundRep a)) u
+      = ∑ i : Fin 2, (quadForm (ymHamiltonian Φ fabc)
+            ⟨WithLp.ofLp (u : colourSpace 2) i, u.2 i⟩
+          + (3 / 4) * ‖WithLp.ofLp (u : colourSpace 2) i‖ ^ 2) := by
+  rw [su2_casimir_fundamental]
+  simpa using colouredHamiltonian_smul_one_quadForm_core Φ fabc (3 / 4 : ℂ) (by norm_num) u
+
+/-- **`C_A = 2` inside the field form on the whole core**. -/
+theorem colouredHamiltonian_adjoint_quadForm_core {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (u : colouredCore 3 D) :
+    quadForm (colouredHamiltonian Φ fabc 3 (∑ a : Fin 3, adjRep a * adjRep a)) u
+      = ∑ i : Fin 3, (quadForm (ymHamiltonian Φ fabc)
+            ⟨WithLp.ofLp (u : colourSpace 3) i, u.2 i⟩
+          + 2 * ‖WithLp.ofLp (u : colourSpace 3) i‖ ^ 2) := by
+  rw [adjRep_casimir]
+  simpa using colouredHamiltonian_smul_one_quadForm_core Φ fabc (2 : ℂ) (by norm_num) u
+
+/-- The `i`-th unit vector of the colour fibre. -/
+noncomputable def colourUnit {N : ℕ} (i : Fin N) : colourVec N :=
+  WithLp.toLp 2 fun j => if j = i then 1 else 0
+
+/-- **Every element of the coloured core is a finite sum of elementary tensors**, namely of its
+components against the unit colour vectors.  Hence the core-wide identities above extend the
+elementary-tensor ones from a single `x ⊗ v` to finite sums, and because the finite sum here
+exhausts the components they hold on all of the core. -/
+theorem colourFibre_repr {D : Submodule ℂ (L2d 99)} {N : ℕ} (u : colouredCore N D) :
+    (∑ i : Fin N, colourFibre (D := D) ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+        (colourUnit i)) = u := by
+  apply Subtype.ext
+  rw [Submodule.coe_sum]
+  apply WithLp.ofLp_injective
+  rw [WithLp.ofLp_sum]
+  funext j
+  simp only [colourFibre, colourUnit, WithLp.ofLp_toLp]
+  rw [Finset.sum_apply]
+  rw [Finset.sum_eq_single j]
+  · simp
+  · intro b _ hb
+    simp [show j ≠ b from Ne.symm hb]
+  · intro hj
+    exact absurd (Finset.mem_univ j) hj
+
+/-- A finite sum `∑ k, x k ⊗ v k` of elementary tensors in the coloured core. -/
+noncomputable def colourSum {D : Submodule ℂ (L2d 99)} {ι : Type} {N : ℕ}
+    (s : Finset ι) (x : ι → D) (v : ι → colourVec N) : colouredCore N D :=
+  Finset.sum s fun k => colourFibre (D := D) (x k) (v k)
+
+/-- **The colour components of a finite sum of elementary tensors**: the `i`-th component mixes the
+summands, it is `∑ k, v k i • x k`.  This is where the cross terms between summands live. -/
+theorem colourSum_ofLp {D : Submodule ℂ (L2d 99)} {ι : Type} {N : ℕ}
+    (s : Finset ι) (x : ι → D) (v : ι → colourVec N) (i : Fin N) :
+    (colourSum s x v : colourSpace N).ofLp i
+      = Finset.sum s fun k => WithLp.ofLp (v k) i • (x k : L2d 99) := by
+  rw [colourSum, Submodule.coe_sum, WithLp.ofLp_sum, Finset.sum_apply]
+  rfl
+
+/-- **The coloured form of a finite sum of elementary tensors**: it is the sum over colour
+components of the field form of the mixed component `∑ k, v k i • x k`, plus `µ.re` times that
+component's norm squared.  The cross terms between summands are carried by the components, so this
+is not a sum of the per-tensor values of `colouredHamiltonian_smul_one_quadForm`. -/
+theorem colouredHamiltonian_smul_one_quadForm_sum {D : Submodule ℂ (L2d 99)}
+    (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (μ : ℂ) (hμ : μ.im = 0)
+    {ι : Type} (s : Finset ι) (x : ι → D) (v : ι → colourVec N) :
+    quadForm (colouredHamiltonian Φ fabc N (μ • (1 : Matrix (Fin N) (Fin N) ℂ)))
+        (colourSum s x v)
+      = ∑ i : Fin N, (quadForm (ymHamiltonian Φ fabc)
+            ⟨Finset.sum s fun k => WithLp.ofLp (v k) i • (x k : L2d 99),
+              D.sum_mem fun k _ => D.smul_mem (WithLp.ofLp (v k) i) (x k).2⟩
+          + μ.re * ‖Finset.sum s fun k => WithLp.ofLp (v k) i • (x k : L2d 99)‖ ^ 2) := by
+  rw [colouredHamiltonian_smul_one_quadForm_core Φ fabc μ hμ (colourSum s x v)]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  have hsub : (⟨Finset.sum s fun k => WithLp.ofLp (v k) i • (x k : L2d 99),
+        D.sum_mem fun k _ => D.smul_mem (WithLp.ofLp (v k) i) (x k).2⟩ : D)
+      = ⟨WithLp.ofLp ((colourSum s x v : colourSpace N)) i, (colourSum s x v).2 i⟩ :=
+    Subtype.ext (colourSum_ofLp s x v i).symm
+  rw [hsub, ← colourSum_ofLp s x v i]
+=======
+def flip2 (i : Fin 2) : Fin 2 := if i = 0 then 1 else 0
+
+theorem flip2_involutive (i : Fin 2) : flip2 (flip2 i) = i := by
+  fin_cases i <;> simp [flip2]
+
+theorem norm_fundRep_mulVec (a : Fin 3) (v : Fin 2 → ℂ) :
+    ‖(fundRep a).mulVec v‖ = ‖v‖ / 2 := by
+  have hcoord : ∀ i : Fin 2,
+      ‖(fundRep a).mulVec v i‖ = ‖v (if a = 2 then i else flip2 i)‖ / 2 := by
+    intro i
+    by_cases ha : a = 2
+    · subst ha
+      fin_cases i <;>
+        simp [fundRep, pauli, Matrix.mulVec, div_eq_mul_inv, mul_comm]
+    · have ha01 : a = 0 ∨ a = 1 := by fin_cases a <;> simp_all
+      rcases ha01 with rfl | rfl <;> fin_cases i <;>
+        simp [fundRep, pauli, Matrix.mulVec, flip2, ha, div_eq_mul_inv, mul_comm]
+  have hle : ‖(fundRep a).mulVec v‖ ≤ ‖v‖ / 2 := by
+    rw [pi_norm_le_iff_of_nonempty]
+    intro i
+    rw [hcoord i]
+    exact div_le_div_of_nonneg_right (norm_le_pi_norm v _) (by norm_num)
+  have hrev : ∀ i : Fin 2, ‖v i‖ ≤ 2 * ‖(fundRep a).mulVec v‖ := by
+    intro i
+    have hkey : (if a = 2 then (if a = 2 then i else flip2 i)
+        else flip2 (if a = 2 then i else flip2 i)) = i := by
+      by_cases ha : a = 2
+      · simp [ha]
+      · simp only [ha, if_false, flip2_involutive]
+    have h := hcoord (if a = 2 then i else flip2 i)
+    rw [hkey] at h
+    have h2 := norm_le_pi_norm ((fundRep a).mulVec v) (if a = 2 then i else flip2 i)
+    rw [h] at h2
+    linarith
+  have hge : ‖v‖ ≤ 2 * ‖(fundRep a).mulVec v‖ := by
+    rw [pi_norm_le_iff_of_nonempty]
+    exact hrev
+  linarith
+
+theorem fundMode_norm_sq_eq_tsum (f : fundMode d) : ‖f‖ ^ 2 = ∑' n, ‖f n‖ ^ 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  rw [lp.norm_eq_tsum_rpow hp, h2]
+  simp only [Real.rpow_two]
+  rw [← Real.sqrt_eq_rpow, Real.sq_sqrt (tsum_nonneg fun n => by positivity)]
+
+theorem colourAct_norm_le (a : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    ‖colourAct a f n‖ ≤ ‖f n‖ / 2 := by
+  rw [colourAct, norm_fundRep_mulVec]
+
+theorem colourAct_memℓp (a : Fin 3) (f : fundMode d) : Memℓp (colourAct a f) 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  refine memℓp_gen ?_
+  rw [h2]
+  simp only [Real.rpow_two]
+  refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_) (hf.mul_left (1 / 4))
+  have h := colourAct_norm_le a f n
+  have hnn : 0 ≤ ‖colourAct a f n‖ := norm_nonneg _
+  calc ‖colourAct a f n‖ ^ 2 ≤ (‖f n‖ / 2) ^ 2 := pow_le_pow_left₀ hnn h 2
+    _ = 1 / 4 * ‖f n‖ ^ 2 := by ring
+
+theorem colourActOp_norm_le (a : Fin 3) (f : fundMode d) :
+    ‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖ ≤ ‖f‖ / 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  have hterm : ∀ n : Fin d → ℕ, ‖colourAct a f n‖ ^ 2 ≤ 1 / 4 * ‖f n‖ ^ 2 := by
+    intro n
+    have h := colourAct_norm_le a f n
+    have hnn : 0 ≤ ‖colourAct a f n‖ := norm_nonneg _
+    have hmul : ‖colourAct a f n‖ * ‖colourAct a f n‖
+        ≤ (‖f n‖ / 2) * (‖f n‖ / 2) := mul_self_le_mul_self hnn h
+    calc ‖colourAct a f n‖ ^ 2 = ‖colourAct a f n‖ * ‖colourAct a f n‖ := pow_two _
+      _ ≤ (‖f n‖ / 2) * (‖f n‖ / 2) := hmul
+      _ = 1 / 4 * ‖f n‖ ^ 2 := by ring
+  have hsum : Summable fun n => 1 / 4 * ‖f n‖ ^ 2 := hf.mul_left (1 / 4)
+  have hsum' : Summable fun n => ‖colourAct a f n‖ ^ 2 :=
+    hsum.of_nonneg_of_le (fun n => by positivity) hterm
+  have hbound : ∑' n, ‖colourAct a f n‖ ^ 2 ≤ (‖f‖ / 2) ^ 2 := by
+    calc ∑' n, ‖colourAct a f n‖ ^ 2 ≤ ∑' n, 1 / 4 * ‖f n‖ ^ 2 :=
+          hsum'.tsum_le_tsum hterm hsum
+      _ = 1 / 4 * ∑' n, ‖f n‖ ^ 2 := tsum_mul_left
+      _ = 1 / 4 * ‖f‖ ^ 2 := by rw [← fundMode_norm_sq_eq_tsum]
+      _ = (‖f‖ / 2) ^ 2 := by ring
+  have hsq : ‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖ ^ 2
+      ≤ (‖f‖ / 2) ^ 2 := by
+    rw [fundMode_norm_sq_eq_tsum]
+    exact hbound
+  calc ‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖
+      = |‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖| :=
+        (abs_of_nonneg (norm_nonneg _)).symm
+    _ ≤ |‖f‖ / 2| := sq_le_sq.mp hsq
+    _ = ‖f‖ / 2 := abs_of_nonneg (by positivity)
+
+/-- The colour action as a vector of the coloured completion. -/
+noncomputable def colourActOp (a : Fin 3) (f : fundMode d) : fundMode d :=
+  ⟨colourAct a f, colourAct_memℓp a f⟩
+
+theorem colourActOp_apply (a : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    colourActOp a f n = (fundRep a).mulVec (f n) := rfl
+
+/-- **The colour action leaves the Fock coefficients alone**: on `c ⊗ v` it acts as
+`c ⊗ (T^a v)`. -/
+theorem colourActOp_colourModeVec (a : Fin 3) (c : CoreCoeff d) (v : Fin 2 → ℂ) :
+    colourActOp a (colourModeVec c v) = colourModeVec c ((fundRep a).mulVec v) := by
+  ext n
+  rw [colourActOp_apply, colourModeVec_apply, colourModeVec_apply, Matrix.mulVec_smul]
+
+theorem colourActOp_add (a : Fin 3) (f g : fundMode d) :
+    colourActOp a (f + g) = colourActOp a f + colourActOp a g := by
+  ext n
+  simp only [colourActOp, colourAct, lp.coeFn_add, Pi.add_apply, Matrix.mulVec_add]
+
+theorem colourActOp_smul (a : Fin 3) (c : ℂ) (f : fundMode d) :
+    colourActOp a (c • f) = c • colourActOp a f := by
+  ext n
+  simp only [colourActOp, colourAct, lp.coeFn_smul, Pi.smul_apply, Matrix.mulVec_smul]
+
+/-- **The colour action on the completion** as a linear map. -/
+noncomputable def colourActLinear (a : Fin 3) : fundMode d →ₗ[ℂ] fundMode d where
+  toFun := colourActOp a
+  map_add' := colourActOp_add a
+  map_smul' := colourActOp_smul a
+
+/-- **The colour action is bounded, with constant `1/2`** — the sharp one, since `‖T^a v‖ = ‖v‖/2`
+pointwise. -/
+noncomputable def colourActCLM (a : Fin 3) : fundMode d →L[ℂ] fundMode d :=
+  (colourActLinear a).mkContinuous (1 / 2) fun f => by
+    simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
+
+theorem colourActCLM_norm_le (a : Fin 3) (f : fundMode d) :
+    ‖colourActCLM a f‖ ≤ (1 / 2) * ‖f‖ := by
+  simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
+
+/-- The Casimir acts on every coloured vector as `C_F = 3/4` — not just on mode vectors: the
+`2 × 2` identity is the whole statement. -/
+theorem colourEnergy_eq_smul (f : fundMode d) (n : Fin d → ℕ) :
+    colourEnergy f n = (3 / 4 : ℂ) • f n := by
+  simp only [colourEnergy]
+  rw [sum_mulVec_mulVec, casimir_mulVec]
+
+/-- **The colour energy on the completion**: multiplication by `C_F`. -/
+noncomputable def colourEnergyOp (f : fundMode d) : fundMode d := (3 / 4 : ℂ) • f
+
+theorem colourEnergyOp_apply (f : fundMode d) (n : Fin d → ℕ) :
+    colourEnergyOp f n = colourEnergy f n := by
+  rw [colourEnergyOp, lp.coeFn_smul, Pi.smul_apply, colourEnergy_eq_smul]
+
+/-- **`C_F` extracts on the completion**: `‖C_F f‖ = (3/4)‖f‖`. -/
+theorem norm_colourEnergyOp (f : fundMode d) :
+    ‖colourEnergyOp f‖ = 3 / 4 * ‖f‖ := by
+  rw [colourEnergyOp, norm_smul]
+  norm_num
+
+/-- **The colour energy as a bounded operator**: `C_F` times the identity. -/
+noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
+  (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
+
+theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp f := by
+  rw [colourEnergyCLM, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply,
+    colourEnergyOp]
+
+/-! ##### The colour operators are a representation of `su(2)`
+
+Boundedness alone does not make the colour action a symmetry; the algebra has to lift too.  It does:
+on the completion the generators satisfy `[A^a, A^b] = i ε^{abc} A^c` (`colourActCLM_commutator`),
+and the Casimir is the sum of their squares, `Σ_a (A^a)² = C_F · 1` (`sum_colourActCLM_comp`).  So
+`colourEnergyCLM` is the Casimir *operator* of the representation, not merely the number `3/4`
+acting on one colour vector.
+
+Nothing new about `Fin 2 → ℂ` is needed: the coefficientwise statements are the matrix identities
+already in this chapter (`fundRep_commutator`, `su2_casimir_fundamental`), carried to `f n` through
+`Matrix.mulVec_mulVec` (`colourActOp_comp_apply`).  Because the generators are *bounded*, the
+commutator equality holds on the whole completion with no domain or common-core hypothesis — which
+is precisely what the unbounded Yang–Mills Hamiltonian does not offer.
+
+**Boundary.**  A representation of the compact algebra on `fundMode d` is not a statement that the
+Fock coefficients are organised into colour multiplets: no invariant subspace, no decomposition and
+no spectral consequence is claimed, and the exponentiated group action is not constructed.
+-/
+
+/-- **The commutator of the generators, applied to a colour vector**:
+`[T^a, T^b] v = i ε^{abc} T^c v`, read off `fundRep_commutator`. -/
+theorem fundRep_mulVec_commutator (a b : Fin 3) (v : Fin 2 → ℂ) :
+    (fundRep a).mulVec ((fundRep b).mulVec v) - (fundRep b).mulVec ((fundRep a).mulVec v)
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • ((fundRep c).mulVec v) := by
+  have h := congrArg (fun M : Matrix (Fin 2) (Fin 2) ℂ => M.mulVec v) (fundRep_commutator a b)
+  rw [show (∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • ((fundRep c).mulVec v))
+      = ∑ c : Fin 3, Complex.I • ((levi a b c : ℂ) • ((fundRep c).mulVec v)) from by
+    refine Finset.sum_congr rfl fun c _ => ?_
+    rw [smul_smul]]
+  simpa [Matrix.sub_mulVec, Matrix.smul_mulVec, Matrix.sum_mulVec, Finset.smul_sum] using h
+
+/-- **Composing the colour action multiplies the matrices**: coefficient by coefficient,
+`A^a (A^b f) = (T^a T^b) f`. -/
+theorem colourActOp_comp_apply (a b : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    colourActOp a (colourActOp b f) n = (fundRep a * fundRep b).mulVec (f n) := by
+  simp [colourActOp_apply, ← Matrix.mulVec_mulVec]
+
+/-- The commutator of the colour operators, coefficientwise. -/
+theorem colourActOp_commutator_apply (a b : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    (colourActOp a (colourActOp b f) - colourActOp b (colourActOp a f)) n
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • colourActOp c f n := by
+  simp only [Pi.sub_apply, lp.coeFn_sub, colourActOp_comp_apply, ← Matrix.mulVec_mulVec]
+  rw [fundRep_mulVec_commutator]
+  simp [colourActOp_apply]
+
+/-- **The colour operators are a representation of `su(2)`**: `[A^a, A^b] = i ε^{abc} A^c` on the
+completion, with the same `ε` as `fundRep_commutator` and `su2Struct`. -/
+theorem colourActOp_commutator (a b : Fin 3) (f : fundMode d) :
+    colourActOp a (colourActOp b f) - colourActOp b (colourActOp a f)
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • colourActOp c f := by
+  ext n i
+  simp only [lp.coeFn_sum, lp.coeFn_smul, Finset.sum_apply, Pi.smul_apply]
+  exact congrFun (colourActOp_commutator_apply a b f n) i
+
+/-- The Casimir family is literally the sum of the squared generators, coefficientwise. -/
+theorem colourEnergy_eq_sum_sq (f : fundMode d) (n : Fin d → ℕ) :
+    colourEnergy f n = ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n)) := rfl
+
+/-- **The Casimir operator is the sum of the squares of the generators**:
+`Σ_a A^a A^a = C_F · 1`, on the whole completion. -/
+theorem sum_colourActOp_comp (f : fundMode d) :
+    ∑ a : Fin 3, colourActOp a (colourActOp a f) = colourEnergyOp f := by
+  ext n
+  rw [show (∑ a : Fin 3, colourActOp a (colourActOp a f)) n
+      = ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n)) from by
+    simp [colourActOp_comp_apply, ← Matrix.mulVec_mulVec]]
+  rw [colourEnergyOp_apply, colourEnergy_eq_sum_sq]
+
+theorem colourActCLM_apply (a : Fin 3) (f : fundMode d) : colourActCLM a f = colourActOp a f :=
+  rfl
+
+/-- **The bounded colour operators carry the same commutators**: no domain hypothesis is needed,
+because `colourActCLM a` is bounded. -/
+theorem colourActCLM_commutator (a b : Fin 3) (f : fundMode d) :
+    colourActCLM a (colourActCLM b f) - colourActCLM b (colourActCLM a f)
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • colourActCLM c f := by
+  simpa [colourActCLM_apply] using colourActOp_commutator a b f
+
+/-- **`colourEnergyCLM` is the Casimir operator**: it equals `Σ_a (colourActCLM a)²`. -/
+theorem sum_colourActCLM_comp (f : fundMode d) :
+    ∑ a : Fin 3, colourActCLM a (colourActCLM a f) = colourEnergyCLM f := by
+  simpa [colourActCLM_apply, colourEnergyCLM_apply] using sum_colourActOp_comp f
+>>>>>>> 6743d508f3ddea6a602e1787211e700f6b73b7d9
+
+/-! #### Closedness of the bound: the Friedrichs side
+
+`gap_closed_in_coreLp` is the statement a Friedrichs-type extension consumes.  The inequality
+`K‖·‖² ≤ q` is preserved when the sequence converges in the completion and the form values converge
+to `L` — no continuity of `q` on the core is assumed, only that its values along the sequence
+converge.  That is exactly what a closure argument can supply, and exactly what is *missing* if one
+tries to pass `root_spectral_gap` to limits without it.
+
+Two consequences: the S2 gap itself holds at such a limit (`root_spectral_gap_closed`), and so does
+the ground threshold of any restricted domination certificate (`root_ground_bound_closed`).
+
+**Boundary.**  This is closedness — lower semicontinuity — of the *bound*, not the construction of a
+self-adjoint Friedrichs extension: no operator is produced here, and the "form domain" is still `ℓ²`
+together with "the defining series is finite", not a completed form space.
+-/
+
+/-- The embedding is additive. -/
+theorem coreToLp_add (a b : CoreCoeff d) : coreToLp (a + b) = coreToLp a + coreToLp b := by
+  ext n
+  rw [coreToLp_apply, lp.coeFn_add, Pi.add_apply, coreToLp_apply, coreToLp_apply,
+    Finsupp.add_apply]
+
+/-- The embedding is additive on differences. -/
+theorem coreToLp_sub (a b : CoreCoeff d) : coreToLp (a - b) = coreToLp a - coreToLp b := by
+  ext n
+  rw [coreToLp_apply, lp.coeFn_sub, Pi.sub_apply, coreToLp_apply, coreToLp_apply,
+    Finsupp.sub_apply]
+
+/-- **The core norm is continuous along `ℓ²` limits**: if `coreNormSq (s k − c) → 0` then
+`coreNormSq (s k) → coreNormSq c`.  The isometry `norm_coreToLp_sq` turns the coefficient norm into
+the `ℓ²` norm, along which the norm (and its square) is continuous. -/
+theorem coreNormSq_tendsto {s : ℕ → CoreCoeff 24} {c : CoreCoeff 24}
+    (h : Filter.Tendsto (fun k => coreNormSq (s k - c)) Filter.atTop (nhds 0)) :
+    Filter.Tendsto (fun k => coreNormSq (s k)) Filter.atTop (nhds (coreNormSq c)) := by
+  have hd : Filter.Tendsto (fun k => coreToLp (s k - c)) Filter.atTop (nhds 0) := by
+    rw [tendsto_zero_iff_norm_tendsto_zero]
+    have hnn : Filter.Tendsto (fun k => ‖coreToLp (s k - c)‖ ^ 2) Filter.atTop (nhds 0) := by
+      simpa [norm_coreToLp_sq] using h
+    have hsqrt : Filter.Tendsto (fun k => Real.sqrt (‖coreToLp (s k - c)‖ ^ 2))
+        Filter.atTop (nhds 0) := by
+      simpa using hnn.sqrt
+    simpa [Real.sqrt_sq (norm_nonneg _)] using hsqrt
+  have hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds (coreToLp c)) := by
+    have := hd.add (tendsto_const_nhds (x := coreToLp c))
+    simpa [coreToLp_sub, sub_add_cancel] using this
+  have := (hconv.norm).pow 2
+  simpa [norm_coreToLp_sq] using this
+
+/-- **The lower bound is closed under `ℓ²` limits.**  If `K * coreNormSq (s k) ≤ q (s k)` holds
+along a sequence whose images converge to `f` in the completion, and the form values converge to
+`L`, then `K * ‖f‖² ≤ L`.  Only convergence of `q` along the sequence is used — not continuity of
+`q` — so this is available for forms that are nowhere continuous on the core. -/
+theorem gap_closed_in_coreLp {q : CoreCoeff 24 → ℝ} {K : ℝ} {s : ℕ → CoreCoeff 24}
+    (hbound : ∀ k, K * coreNormSq (s k) ≤ q (s k)) {f : coreLp 24}
+    (hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds f))
+    {L : ℝ} (hq : Filter.Tendsto (fun k => q (s k)) Filter.atTop (nhds L)) :
+    K * ‖f‖ ^ 2 ≤ L := by
+  have hlim : Filter.Tendsto (fun k => K * ‖coreToLp (s k)‖ ^ 2) Filter.atTop
+      (nhds (K * ‖f‖ ^ 2)) := by
+    have h2 : Filter.Tendsto (fun k => ‖coreToLp (s k)‖ ^ 2) Filter.atTop (nhds (‖f‖ ^ 2)) :=
+      (hconv.norm).pow 2
+    simpa using (tendsto_const_nhds (x := K)).mul h2
+  refine le_of_tendsto_of_tendsto hlim hq (Filter.Eventually.of_forall fun k => ?_)
+  simpa [norm_coreToLp_sq] using hbound k
+
+/-- **The S2 gap is closed under `ℓ²` limits**: the right-hand side of `root_spectral_gap` is known
+only on the core, but the *inequality* passes to the completion along a form-convergent root-domain
+sequence.  This is the Friedrichs-type statement the extension question needs — lower
+semicontinuity of the form along core sequences, with no continuity of `quadForm (ymHamiltonian …)`
+assumed. -/
+theorem root_spectral_gap_closed (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (RI : RootModeIdentification Φ fabc) {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {T : Finset (Fin 24)} {g : ℝ} (hg : 0 ≤ g) {c₁ : ℝ} (hc₁ : 0 < c₁)
+    (hω₁ : ∀ i, c₁ * ω i ≤ 1) (s : ℕ → CoreCoeff 24) (hs : ∀ k, s k ∈ rootDomain)
+    {f : coreLp 24} (hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds f))
+    {L : ℝ}
+    (hq : Filter.Tendsto (fun k => quadForm (ymHamiltonian Φ fabc) (RI.toCore (s k)))
+      Filter.atTop (nhds L)) :
+    ((c₁ * refGap ω - quarticShift (d := 24) T g) / 48) * ‖f‖ ^ 2 ≤ L :=
+  gap_closed_in_coreLp (q := fun c => quadForm (ymHamiltonian Φ fabc) (RI.toCore c))
+    (K := (c₁ * refGap ω - quarticShift (d := 24) T g) / 48)
+    (fun k => root_spectral_gap Φ fabc RI hω hg hc₁ hω₁ (s k) (hs k)) hconv hq
+
+/-- **Any restricted domination certificate is closed under `ℓ²` limits**: the ground threshold of a
+`RootFormDomination` passes to the completion the same way.  Stated for a general form `q`, so it
+applies to whatever the certificate is instantiated at. -/
+theorem root_ground_bound_closed {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i)
+    {q : CoreCoeff 24 → ℝ} (D : RootFormDomination ω q) (s : ℕ → CoreCoeff 24)
+    (hs : ∀ k, s k ∈ rootDomain) {f : coreLp 24}
+    (hconv : Filter.Tendsto (fun k => coreToLp (s k)) Filter.atTop (nhds f)) {L : ℝ}
+    (hq : Filter.Tendsto (fun k => q (s k)) Filter.atTop (nhds L)) :
+    (D.c₁ * refEnergy ω 0 - D.c₂) * ‖f‖ ^ 2 ≤ L :=
+  gap_closed_in_coreLp (q := q) (K := D.c₁ * refEnergy ω 0 - D.c₂)
+    (fun k => root_ground_bound ω hω D (s k) (hs k)) hconv hq
+
 /-! #### The certificate inside the gap chain
 
 `s2FormDomination` is an ordinary `FormDomination`, so the chapter's chain applies to it
@@ -2346,7 +3627,8 @@ theorem totalDegree_magWeight_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
 
 /-! ## 5. The weight is a nonnegative potential
 
-The comparison also needs `W` to be a *potential*: nonnegative, so that it can only raise the energy.
+The comparison also needs `W` to be a *potential*: nonnegative, so that it can only raise the
+energy.
 It is, for a structural reason — `W = Σ B² + 1` and every `B_m` has real coefficients, so at a real
 configuration each square is a genuine real square.  This closes the "the field strength is a
 legitimate potential" chain: `B` quadratic (degree class), `W` quartic and nonnegative. -/

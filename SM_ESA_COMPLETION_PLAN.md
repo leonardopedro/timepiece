@@ -102,6 +102,17 @@ Pointwise quartic growth in all 163 coordinates is not available along every fla
 If the candidate fails, record the channel and failed uniformity estimate. The radial
 proxy of §43 tests neither all channels nor this general finite-constant assertion.
 
+**Landed on the QYM side (2026-11-11), and what does not transfer.**
+`ChapterYangMillsMehlerBridge` now carries `graphNorm H u = ‖u‖ + ‖Hu‖`,
+`quadForm_le_norm_mul_graphNorm` (the form bounded by `‖u‖ · graphNorm`, from `re z ≤ ‖z‖` and
+Cauchy–Schwarz), `potentialPart_le_graphNorm` (any non-negative summand of the form), and
+`potentialEnergy_le_graphNorm` for the `w + ‖·‖²` split, with the instance
+`ym_quadForm_le_norm_mul_graphNorm`. That is the **quadratic-form** domination the Faris–Lavine
+commutator input needs on the QYM side, and it is deliberately not the operator estimate this
+section asks for. `‖K u‖ ≤ c‖(N+I)u‖` stays open, and the reason is the one stated above: a weight
+with a large kernel and a large value on a thin set keeps the form small while making `‖W u‖` large,
+so no form-level bound reaches the norm level. The QYM row's remaining item is unchanged.
+
 ### Packet acceptance after that input
 
 P4 must instantiate the existing family bounds with the proved constants, complete the
@@ -116,6 +127,12 @@ field are different invariants. The QYM quartic degree theorem suggests an analo
 **polynomial** lemma for the SM comparison. Gauge-invariant label quotients, a stress
 trace, OPE exponents and Ward identities would require the additional cftproof dictionary;
 none is a P5 ESA prerequisite, and no pure-gauge short-distance coefficient is borrowed.
+
+The exclusion *template* is now code, and it borrows no coefficient:
+`BookProof/Sm/ChapterSmFreeModeExclusion.lean` states the finite-kernel non-freeness test —
+`shortNorm`, `modeKernel`, `wickSum`, and `not_eventuallyEq_wickSum` — with the trace coefficient as
+a hypothesis and the finite-list scope explicit. An SM candidate observable can be tested against
+`not_eventuallyEq_modeKernels` without any pure-gauge number entering the statement.
 
 ## 1. Fix the mathematical endpoint before proving it
 
@@ -460,6 +477,14 @@ space with `Gamma_s(K_even) tensor Gamma_a(K_odd)` and prove the two lifted
 operators' tensor-core sum is ESA. This needs the actual unitary/core transfer,
 not just an algebraic parity commutator. Reuse the ordinary statistics lifts
 on the two reducing factors rather than assuming a general graded theorem.
+
+**Landed 2026-11-11: the unitary/core half of that route.** In
+`ChapterSmFullMatterHamiltonian`, `coupledParity` is now a norm-preserving involution
+(`coupledParity_norm` from the coupled `ℓ²` identity `coupledSpace_norm_sq`,
+`coupledParity_involutive`, hence `coupledParity_surjective`), and it preserves the common core
+(`coupledParity_mem_core`, `coupledParityCore`). What is still missing is precisely the part this
+paragraph requires next: `smNormalForm_parity` is a **core-level** identity, and the closure's graph
+has no commutation statement, so the strong reduction is not obtained.
 
 Acceptance: `smComplete_dGamma_esa` and the intended statistics/physical-sector
 versions all refer to **the same** `h_SM`, with `C†` left and `A` right.

@@ -157,12 +157,12 @@ import BookProof.Toolbox.ChapterEsaClosure
 -- polynomial core with the closure of `gaussOp` needs only `polyOp ≤ gaussOp.closure`, i.e. one
 -- graph-norm approximation, because the polynomial core is already self-adjoint.
 import BookProof.Toolbox.ChapterSelfAdjointMaximal
--- The reusable diagonal criterion behind S0: an operator acting on an orthonormal Hilbert basis by
--- real eigenvalues is symmetric on the span (`inner_comm_of_diag`), and if it is closable its
+-- The reusable diagonal criterion behind S0: an operator acting on an orthonormal Hilbert basis
+-- by real eigenvalues is symmetric on the span (`inner_comm_of_diag`), and if it is closable its
 -- adjoint is contained in the closure (`adjoint_le_closure_of_diag`), so the closure is
--- self-adjoint (`isSelfAdjoint_closure_of_diag` / `isSelfAdjoint_closure_diagOp`).  No `±i` test and
--- no hypotheses beyond symmetry and a dense diagonal basis (`…_symm`, where closability is derived):
--- `Qym/ChapterYangMillsPolySelfAdjoint` is the instance.
+-- self-adjoint (`isSelfAdjoint_closure_of_diag` / `isSelfAdjoint_closure_diagOp`). No `±i` test
+-- and no hypotheses beyond symmetry and a dense diagonal basis (`…_symm`, where closability is
+-- derived): `Qym/ChapterYangMillsPolySelfAdjoint` is the instance.
 import BookProof.Toolbox.ChapterDiagonalSelfAdjoint
 -- Uniqueness of the closure of a symmetric operator, core-independence of the
 -- closure and of the adjoint, and uniqueness of the `A* A-bar` factorization
@@ -2192,59 +2192,62 @@ import BookProof.Qym.ChapterYangMillsGaussForm
 -- and `gaussOpC_form_closable` is its `form_closable` applied to this operator.
 import BookProof.Qym.ChapterYangMillsGaussFormComplex
 
--- `ChapterYangMillsGaussFormReal` (work package S0, the real instantiation): `ChapterYangMillsFriedrichs`
--- states Part B for a complex Hilbert space, so its `form_closable` cannot consume the real operator
--- `gaussOp` directly.  `BookProof.YangMillsFriedrichsReal` (at the end of that chapter) restates the
--- form, `formNormSq`, the expansions, Cauchy–Schwarz and `form_closable` for `[InnerProductSpace ℝ F]`
--- — over `ℝ` there is no conjugation to carry and no `.re` to take — and this module joins it to the
--- Gaussian chapter: `gaussOp_symmetricOn_real` (from `gaussOp_inner_comm`),
--- `gaussOp_quadForm_nonneg_real` (from `gaussOp_quadForm_nonneg`) and
--- `gaussOp_form_closable_real` (the instantiated `form_closable`).  The placement is forced by the
--- import graph: `ChapterYangMillsGaussForm` already imports `ChapterYangMillsFriedrichs` (through
--- Mehler, Abelian, Hermite and the Friedrichs extension chapters), so the join has to be a separate
--- leaf module and not an import in either direction.
+-- `ChapterYangMillsGaussFormReal` (work package S0, the real instantiation):
+-- `ChapterYangMillsFriedrichs` states Part B for a complex Hilbert space, so its `form_closable`
+-- cannot consume the real operator `gaussOp` directly. `BookProof.YangMillsFriedrichsReal` (at
+-- the end of that chapter) restates the form, `formNormSq`, the expansions, Cauchy–Schwarz and
+-- `form_closable` for `[InnerProductSpace ℝ F]` — over `ℝ` there is no conjugation to carry and
+-- no `.re` to take — and this module joins it to the Gaussian chapter:
+-- `gaussOp_symmetricOn_real` (from `gaussOp_inner_comm`), `gaussOp_quadForm_nonneg_real` (from
+-- `gaussOp_quadForm_nonneg`) and `gaussOp_form_closable_real` (the instantiated
+-- `form_closable`). The placement is forced by the import graph: `ChapterYangMillsGaussForm`
+-- already imports `ChapterYangMillsFriedrichs` (through Mehler, Abelian, Hermite and the
+-- Friedrichs extension chapters), so the join has to be a separate leaf module and not an import
+-- in either direction.
 import BookProof.Qym.ChapterYangMillsGaussFormReal
 
--- `ChapterYangMillsHermiteSpectrum` (work package S0, Route C of the self-adjointness gap): the two
--- analytic inputs of the Nelson route that do not need missing theory.  `gaussDirichlet_hermiteR`
--- is the eigen-relation `−H_n'' + x H_n' = n H_n` as an identity of functions — note the eigenvalue
--- is `n` and the eigenfunction is `hermiteR n` itself, not `H_n(x/√2)` with eigenvalue `2n`, because
--- the corpus uses the probabilists' `Polynomial.hermite`; `deriv_eval_hermiteR` and
--- `deriv_deriv_eval_hermiteR` are the polynomial-derivative steps that connect `deriv` to `eval`.
--- `dense_span_polyLp` is the density of the polynomial classes in `L²(γ dx)`, proved with the same
--- moment argument as `HermiteCore.hermiteLp_span_dense` after `integral_moment_eq` moves
--- `∫ xᵏ w d(γ dx)` to the Lebesgue integral of `(xᵏ γ^{1/2}) · (γ^{1/2} w)`; the measure is moved by
--- `integral_withDensity_eq_integral_toReal_smul` rather than by rewriting `gaussMeasure`, since `rw`
--- cannot unfold the measure in a goal mentioning an `Lp ℝ 2 gaussMeasure` element.
+-- `ChapterYangMillsHermiteSpectrum` (work package S0, Route C of the self-adjointness gap): the
+-- two analytic inputs of the Nelson route that do not need missing theory.
+-- `gaussDirichlet_hermiteR` is the eigen-relation `−H_n'' + x H_n' = n H_n` as an identity of
+-- functions — note the eigenvalue is `n` and the eigenfunction is `hermiteR n` itself, not
+-- `H_n(x/√2)` with eigenvalue `2n`, because the corpus uses the probabilists'
+-- `Polynomial.hermite`; `deriv_eval_hermiteR` and `deriv_deriv_eval_hermiteR` are the
+-- polynomial-derivative steps that connect `deriv` to `eval`. `dense_span_polyLp` is the density
+-- of the polynomial classes in `L²(γ dx)`, proved with the same moment argument as
+-- `HermiteCore.hermiteLp_span_dense` after `integral_moment_eq` moves `∫ xᵏ w d(γ dx)` to the
+-- Lebesgue integral of `(xᵏ γ^{1/2}) · (γ^{1/2} w)`; the measure is moved by
+-- `integral_withDensity_eq_integral_toReal_smul` rather than by rewriting `gaussMeasure`, since
+-- `rw` cannot unfold the measure in a goal mentioning an `Lp ℝ 2 gaussMeasure` element.
 -- `ae_eq_zero_of_moments_gaussMeasure` is the moment problem in closed form.
 import BookProof.Qym.ChapterYangMillsHermiteSpectrum
 
 -- `ChapterNelsonAnalyticVectors` (S0 Route C, input (iii)): the analytic-vector machinery —
--- `InvariantOn` and the iterates `orbitD`/`orbit`, the geometric bound `IsGeometric`, the analytic
--- condition `IsAnalytic` with `isAnalytic_of_isGeometric`, the orbit identity `inner_orbit` and its
--- consequence `inner_eq_zero_of_isGeometric` — and, on top of the Faris–Lavine deficiency
--- propagation (`dense_range_of_deficiencyTrivialAt`, `deficiencyTrivialAt_of_dense_range`),
--- `essentiallySelfAdjointOn_of_dense_geometric`: Nelson's criterion for a dense set of vectors with
--- a *common* geometric ratio.  It is not Nelson's theorem: the classical statement allows a radius
--- per vector, and bridging the two needs the constancy of the deficiency index on each half plane,
--- which the corpus does not have.  For an operator with an explicit eigenbasis the file's
--- `essentiallySelfAdjointOn_of_dense_eigenvectors` is both cheaper and stronger — no summability,
--- no completeness, no symmetry hypothesis.  The criterion that actually closes Route C for a simple
--- spectrum is the last one in the file, `essentiallySelfAdjointOn_of_dense_span_eigenvectors`: it asks
--- for the *span* of the eigenvectors to be dense, because a dense *set* of eigenvectors is a very
--- special situation — the union of the eigenlines of a simple spectrum is nowhere near dense — while
--- `⟪x, w⟫ = 0` propagates from eigenvectors to their span by conjugate-linearity, which is all the
--- deficiency argument needs.
---
--- The file also carries Nussbaum's reduction, which is how Nelson's theorem is reached when each
--- vector has its own radius: `IsVectorOfUniqueness T z x` says `x` lies in the closure of the range
--- of `T - z`, which annihilates the deficiency space at `z̄`
+-- `InvariantOn` and the iterates `orbitD`/`orbit`, the geometric bound `IsGeometric`, the
+-- analytic condition `IsAnalytic` with `isAnalytic_of_isGeometric`, the orbit identity
+-- `inner_orbit` and its consequence `inner_eq_zero_of_isGeometric` — and, on top of the
+-- Faris–Lavine deficiency propagation (`dense_range_of_deficiencyTrivialAt`,
+-- `deficiencyTrivialAt_of_dense_range`), `essentiallySelfAdjointOn_of_dense_geometric`: Nelson's
+-- criterion for a dense set of vectors with a *common* geometric ratio. It is not Nelson's
+-- theorem: the classical statement allows a radius per vector, and bridging the two needs the
+-- constancy of the deficiency index on each half plane, which the corpus does not have. For an
+-- operator with an explicit eigenbasis the file's
+-- `essentiallySelfAdjointOn_of_dense_eigenvectors` is both cheaper and stronger — no
+-- summability, no completeness, no symmetry hypothesis. The criterion that actually closes Route
+-- C for a simple spectrum is the last one in the file,
+-- `essentiallySelfAdjointOn_of_dense_span_eigenvectors`: it asks for the *span* of the
+-- eigenvectors to be dense, because a dense *set* of eigenvectors is a very special situation —
+-- the union of the eigenlines of a simple spectrum is nowhere near dense — while `⟪x, w⟫ = 0`
+-- propagates from eigenvectors to their span by conjugate-linearity, which is all the deficiency
+-- argument needs. The file also carries Nussbaum's reduction, which is how Nelson's theorem is
+-- reached when each vector has its own radius: `IsVectorOfUniqueness T z x` says `x` lies in the
+-- closure of the range of `T - z`, which annihilates the deficiency space at `z̄`
 -- (`inner_eq_zero_of_isVectorOfUniqueness`), so a dense set of such vectors kills it
 -- (`deficiencyTrivialAt_of_dense_vectorsOfUniqueness`) and both at `±i` gives essential
--- self-adjointness (`essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness`) with no radius and no
--- summability in the hypothesis.  The geometric theorem above cannot be weakened to per-vector radii
--- by the same estimate — a factorial bound does not decay against a fixed `|z|` — and Carleman's
--- criterion, the step that supplies the membership from analyticity, is not in the corpus.
+-- self-adjointness (`essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness`) with no radius and
+-- no summability in the hypothesis. The geometric theorem above cannot be weakened to per-vector
+-- radii by the same estimate — a factorial bound does not decay against a fixed `|z|` — and
+-- Carleman's criterion, the step that supplies the membership from analyticity, is not in the
+-- corpus.
 import BookProof.Toolbox.ChapterNelsonAnalyticVectors
 
 -- `ChapterYangMillsHermiteAnalytic` (S0 Route C, the quantitative input): the polynomial form core
@@ -2262,18 +2265,18 @@ import BookProof.Toolbox.ChapterNelsonAnalyticVectors
 import BookProof.Qym.ChapterYangMillsHermiteAnalytic
 
 -- `ChapterYangMillsPolyCore` (S0 Route C, the closure): the polynomial core as an operator on
--- classes.  `polyLp_injective` injects the polynomial classes into `L²(γ dx)` (a.e. zero plus
+-- classes. `polyLp_injective` injects the polynomial classes into `L²(γ dx)` (a.e. zero plus
 -- continuity plus `IsOpenPosMeasure gaussMeasure` forces zero everywhere), so `polyRange` is a
--- submodule and `polyEquiv` an isomorphism onto it; `polyOpRange` is `p ↦ −p'' + X p'` carried across
--- that isomorphism — well defined *because* the class map is injective — with
--- `polyOpRange_hermiteR : T(H_n) = n • H_n`.  `mem_span_hermiteR` (the Hermite polynomials span
+-- submodule and `polyEquiv` an isomorphism onto it; `polyOpRange` is `p ↦ −p'' + X p'` carried
+-- across that isomorphism — well defined *because* the class map is injective — with
+-- `polyOpRange_hermiteR : T(H_n) = n • H_n`. `mem_span_hermiteR` (the Hermite polynomials span
 -- `Polynomial ℝ`; triangularity from `hermiteR n` monic of degree `n`) makes the Hermite classes
--- complete, `dense_hermiteSpan`.  `polyOpH` is the operator on the Hermite span, with
+-- complete, `dense_hermiteSpan`. `polyOpH` is the operator on the Hermite span, with
 -- `polyOpH_hermiteR : T(H_n) = n • H_n`, and `coreExt` extends it to a global real-linear map so
--- that inner products can be expanded by bilinearity (`coreExt_apply_mem` restricts it back).  The
--- earlier plan of transporting the core to the complexification `Cx` is retired: the diagonal
--- argument over `ℝ` needs no `±i`, and the identification with `gaussOp.closure` is proved in
--- `ChapterYangMillsPolySelfAdjoint` without it.
+-- that inner products can be expanded by bilinearity (`coreExt_apply_mem` restricts it back).
+-- The earlier plan of transporting the core to the complexification `Cx` is retired: the
+-- diagonal argument over `ℝ` needs no `±i`, and the identification with `gaussOp.closure` is
+-- proved in `ChapterYangMillsPolySelfAdjoint` without it.
 import BookProof.Qym.ChapterYangMillsPolyCore
 
 -- `ChapterYangMillsPolyTail` (S0 Route C, the estimate): the vanishing Gaussian tail of a squared
@@ -2282,27 +2285,29 @@ import BookProof.Qym.ChapterYangMillsPolyCore
 -- `memLp_eval` making the total integral finite.
 import BookProof.Qym.ChapterYangMillsPolyTail
 
--- `ChapterYangMillsPolyGraphNorm` (S0 Route C, the identification): the one approximation the two
--- cores are separated by, stated for the actual operators.  `polyOp` is the Hermite-span operator as
--- a `LinearPMap`, `PolyGraphApprox` is the graph-norm approximation, and
--- `polyOp_le_gaussOp_closure` / `polyOp_eq_gaussOp_closure` are `le_closure_of_forall_approx` and
--- `closure_eq_of_le` instantiated at `polyOp` and `gaussOp`.  The annulus estimate that supplies
--- `PolyGraphApprox` is proved in `ChapterYangMillsPolyAnnulus`.
+-- `ChapterYangMillsPolyGraphNorm` (S0 Route C, the identification): the one approximation the
+-- two cores are separated by, stated for the actual operators. `polyOp` is the Hermite-span
+-- operator as a `LinearPMap`, `PolyGraphApprox` is the graph-norm approximation, and
+-- `polyOp_le_gaussOp_closure` / `polyOp_eq_gaussOp_closure` are `le_closure_of_forall_approx`
+-- and `closure_eq_of_le` instantiated at `polyOp` and `gaussOp`. The annulus estimate that
+-- supplies `PolyGraphApprox` is proved in `ChapterYangMillsPolyAnnulus`.
 import BookProof.Qym.ChapterYangMillsPolyGraphNorm
 
 -- `ChapterYangMillsPolyCutoff` (S0 Route C, the cutoff): the smooth `χ_R(x) = smoothTransition
--- (2 - x²/R²)` used by the annulus estimate.  `cutFn_eq_one` / `cutFn_eq_zero` place the collar, and
--- `cutFn_deriv_bound` / `cutFn_deriv2_bound` give `|χ_R'| ≤ C|x|/R²` and `|χ_R''| ≤ C|x|²/R⁴ + C/R²`,
--- which is the `O(1/R)` and `O(1/R²)` scaling the tail estimate needs.  The constants come from
--- compactness (`sDerivBound`, `sDerivBound2`), since `smoothTransition` has no `deriv` formula.
+-- (2 - x²/R²)` used by the annulus estimate. `cutFn_eq_one` / `cutFn_eq_zero` place the collar,
+-- and `cutFn_deriv_bound` / `cutFn_deriv2_bound` give `|χ_R'| ≤ C|x|/R²` and `|χ_R''| ≤ C|x|²/R⁴
+-- + C/R²`, which is the `O(1/R)` and `O(1/R²)` scaling the tail estimate needs. The constants
+-- come from compactness (`sDerivBound`, `sDerivBound2`), since `smoothTransition` has no `deriv`
+-- formula.
 import BookProof.Qym.ChapterYangMillsPolyCutoff
 
--- `ChapterYangMillsPolyLpNorm` (S0 Route C): the two facts the annulus estimate consumes.  `polyOpH_coe`
--- and `polyOpH_coeFn` put `T` on polynomial *classes*: on a Hermite-span class it returns the class of
--- `dirichletPoly p`, whose representative is `gaussDirichlet (p.eval)` (`dirichletPoly_eval`).  The
--- norm bridge `enorm_toLp_sub`/`norm_toLp_sub_eq`/`ofReal_norm_toLp_sub_sq` states that the norm of a
--- difference of classes sees only the difference of representatives, in the `lintegral`-of-`ofReal`
--- form that `exists_lintegral_tail_lt` bounds directly.
+-- `ChapterYangMillsPolyLpNorm` (S0 Route C): the two facts the annulus estimate consumes.
+-- `polyOpH_coe` and `polyOpH_coeFn` put `T` on polynomial *classes*: on a Hermite-span class it
+-- returns the class of `dirichletPoly p`, whose representative is `gaussDirichlet (p.eval)`
+-- (`dirichletPoly_eval`). The norm bridge
+-- `enorm_toLp_sub`/`norm_toLp_sub_eq`/`ofReal_norm_toLp_sub_sq` states that the norm of a
+-- difference of classes sees only the difference of representatives, in the
+-- `lintegral`-of-`ofReal` form that `exists_lintegral_tail_lt` bounds directly.
 import BookProof.Qym.ChapterYangMillsPolyLpNorm
 
 -- `ChapterYangMillsPolyAnnulus` (S0 Route C, the annulus estimate): the graph-norm approximation,
@@ -2340,13 +2345,13 @@ import BookProof.Qym.ChapterYangMillsPolyBasis
 -- diagonal in a Hilbert basis.
 import BookProof.Qym.ChapterYangMillsPolySelfAdjoint
 
--- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
--- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
--- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
--- is the two-dimensional counterexample distinguishing the *compressed* operator from the
--- *compressed resolvent*: the compressed solve and the exact solve of the compressed problem differ
--- by `(A+1)⁻¹` applied to the defect, so the `1/6` gap is the defect's image, not a numerical
--- artifact (`compressed_solve_error_eq_defect_image`).
+-- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error
+-- bookkeeping that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.
+-- `norm_solve_error_le` bounds the error of an inexact solve, and `compressedSolve_defect` /
+-- `compression_ne_resolvent` is the two-dimensional counterexample distinguishing the
+-- *compressed* operator from the *compressed resolvent*: the compressed solve and the exact
+-- solve of the compressed problem differ by `(A+1)⁻¹` applied to the defect, so the `1/6` gap is
+-- the defect's image, not a numerical artifact (`compressed_solve_error_eq_defect_image`).
 import BookProof.Sirk.ChapterShiftInvertBookkeeping
 
 -- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
@@ -3832,32 +3837,35 @@ import BookProof.Sm.ChapterSmHarmonicReverseEstimate
 -- (`4√(384·384) = 1536`) and `degHiggs_commForm_le`, §25's commutator bound at `ρ = κ = 384` for
 -- the dictionary §30 showed admits no block function.
 import BookProof.Sm.ChapterSmDegenerateDoubletConstant
--- `ChapterSmQuarticUncertainty` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §35): the quartic analogue of
--- the harmonic uncertainty bound, `QuarticUncertainty P c₀ C` (`‖W p‖² ≤ ‖(−Δ_S + W)p‖² + C ∑‖∇_j p‖²`),
--- and the one direction the sign identity gives: `quarticUncertainty_of_gradResidual` (§31's residual
--- condition at `C = 2`).  The converse needs an upper bound on `ℜ⟪W p, −Δ_S p⟫` that §23 does not
--- supply, so the quartic analogue is weaker than §31's condition and the transfer is not obtained.
+-- `ChapterSmQuarticUncertainty` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §35): the quartic
+-- analogue of the harmonic uncertainty bound, `QuarticUncertainty P c₀ C` (`‖W p‖² ≤ ‖(−Δ_S +
+-- W)p‖² + C ∑‖∇_j p‖²`), and the one direction the sign identity gives:
+-- `quarticUncertainty_of_gradResidual` (§31's residual condition at `C = 2`). The converse needs
+-- an upper bound on `ℜ⟪W p, −Δ_S p⟫` that §23 does not supply, so the quartic analogue is weaker
+-- than §31's condition and the transfer is not obtained.
 import BookProof.Sm.ChapterSmQuarticUncertainty
--- `ChapterSmDegenerateDoubletSharp` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §36): `384` is the **exact**
--- uniform Schur radius of the degenerate doublet — `rowSumGen_degHiggs_univ` / `colSumGen_degHiggs_univ`
--- attain it, so `degHiggs_rowRadius_sharp` / `degHiggs_colRadius_sharp` show no smaller radius works.
--- A smaller commutator constant must come from cancellation, not from a sharper Schur radius.
+-- `ChapterSmDegenerateDoubletSharp` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §36): `384` is the
+-- **exact** uniform Schur radius of the degenerate doublet — `rowSumGen_degHiggs_univ` /
+-- `colSumGen_degHiggs_univ` attain it, so `degHiggs_rowRadius_sharp` /
+-- `degHiggs_colRadius_sharp` show no smaller radius works. A smaller commutator constant must
+-- come from cancellation, not from a sharper Schur radius.
 import BookProof.Sm.ChapterSmDegenerateDoubletSharp
--- `ChapterSmQuadraticWeightLemmas` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §37): which quadratic-weight
--- lemmas survive for a weight dominated by `harmPoly` — `selfBound_of_potBound` composes a potential
--- bound with §33's identity bound; the module records that the potential bound, the identity bound,
--- the self-bound and coercivity survive, while the reverse `H²` estimate does not follow from
--- domination of a coefficient.
+-- `ChapterSmQuadraticWeightLemmas` (2026-11-10o, `SM_ESA_COMPLETION_PLAN` §37): which
+-- quadratic-weight lemmas survive for a weight dominated by `harmPoly` — `selfBound_of_potBound`
+-- composes a potential bound with §33's identity bound; the module records that the potential
+-- bound, the identity bound, the self-bound and coercivity survive, while the reverse `H²`
+-- estimate does not follow from domination of a coefficient.
 import BookProof.Sm.ChapterSmQuadraticWeightLemmas
--- `ChapterSmCrossTermHessian` (2026-11-10p, `SM_ESA_COMPLETION_PLAN` §38): the upper bound §35 named
--- as missing.  Two integration by parts turn the commutator half of the cross term into a **Hessian
--- weight** — `commutator_cross_eq` per coordinate, `crossTerm_eq` summed: `2 ℜ⟪Q p, −Δ_S p⟫ =
--- 2 · weightedDirichlet − hessForm`, exactly.  Hence `crossTerm_upper` (the sign identity's missing
--- direction, from a non-negative Hessian weight, `sm_crossTerm_upper` at the SM weight) and
--- `residual_eq_hessForm` / `potSelfBound_one_iff_hessForm`: `PotSelfBound P c₀ 1` **is** the
--- Hessian gap, a comparison of two quadratic forms with no degree-six density left.  The gap is not
--- proved, so `PotSelfBound` stays a hypothesis; the section removes the cubic obstruction and names
--- the remaining sign of the Hessian trace, which the corpus does not compute.
+-- `ChapterSmCrossTermHessian` (2026-11-10p, `SM_ESA_COMPLETION_PLAN` §38): the upper bound §35
+-- named as missing. Two integration by parts turn the commutator half of the cross term into a
+-- **Hessian weight** — `commutator_cross_eq` per coordinate, `crossTerm_eq` summed: `2 ℜ⟪Q p,
+-- −Δ_S p⟫ = 2 · weightedDirichlet − hessForm`, exactly. Hence `crossTerm_upper` (the sign
+-- identity's missing direction, from a non-negative Hessian weight, `sm_crossTerm_upper` at the
+-- SM weight) and `residual_eq_hessForm` / `potSelfBound_one_iff_hessForm`: `PotSelfBound P c₀ 1`
+-- **is** the Hessian gap, a comparison of two quadratic forms with no degree-six density left.
+-- The gap is not proved, so `PotSelfBound` stays a hypothesis; the section removes the cubic
+-- obstruction and names the remaining sign of the Hessian trace, which the corpus does not
+-- compute.
 import BookProof.Sm.ChapterSmCrossTermHessian
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
@@ -3991,54 +3999,58 @@ import BookProof.YangMillsFormDomination
 -- `yangMillsForm_closed`, `closed_yangMillsGap`).
 import BookProof.YangMillsFormClosure
 -- 2026-11-04 (`softmodes.md` Phases 1 and 4, the non-diagonal open items): Faris–Lavine for an
--- interaction that mixes multi-indices.  `kernelForm K` is the kernel form on the core,
+-- interaction that mixes multi-indices. `kernelForm K` is the kernel form on the core,
 -- `abs_kernelForm_le_of_hs` bounds it by the Hilbert–Schmidt constant times the core norm
--- (two-index Cauchy–Schwarz, `kernelForm_sq_le`), and `farisLavine_domination` shows the sum form
--- `q' + qK` still dominates the reference form with ratio `(1 − a)c₁ > 0` when the interaction is
--- form bounded with relative bound `a < 1`.  `hopping_farisLavine` instantiates it with the matrix
--- unit at `(m₀, n₀)` and keeps the ratio `c₁` unchanged, so the certified separation survives the
--- coupling; §4 gives the same constant as a bottom: `sector_bottom_ge_interacting` shows that no
--- sector of the core sees a bottom below `θ − σ`, i.e. that eliminating directions cannot remove
--- the weight the bottoms of Phases 2–5 bound (`hopping_sector_bottom`: `σ = 1`).  §5 lifts the
--- interaction to `L²`: `closedKernelForm` is the absolutely convergent weighted double series,
--- `abs_closedKernelForm_le` bounds it by `σ‖x‖²` on the whole space (Hölder with exponents 2, 2),
--- `closedKernelForm_coreEmbed` identifies it with `kernelForm` on the core, and
--- `closed_diagonal_add_kernelForm_ge` / `closed_sector_bottom_ge_interacting` are the bottom
--- bounds on the form domain — so the interaction is a bounded, hence continuous, perturbation of
--- the closed diagonal form.  §6 carries the ratio over as well: `closed_farisLavine_domination` is
--- the `L²` comparison with relative bound `a < 1` (ratio `(1 − a)c₁`), its finiteness hypothesis
--- derived in `closed_dom_of_scaled_symbol` from a symbolwise inequality.  §7 measures the price of
--- the cut-off: `magCutoffKernel_hs_mass` bounds the magnetic ladder's Hilbert–Schmidt mass by
--- `d² C Λ^(d+1)`, i.e. a constant of order `Λ^{(d+1)/2}` — a power, not a uniform bound.  §8
--- separates the two halves: the relative bound `a` is uniform (`ladder_relative_bound_uniform`), the
--- additive constant is what grows.  §9 instantiates §6's finiteness hypothesis with the concrete
+-- (two-index Cauchy–Schwarz, `kernelForm_sq_le`), and `farisLavine_domination` shows the sum
+-- form `q' + qK` still dominates the reference form with ratio `(1 − a)c₁ > 0` when the
+-- interaction is form bounded with relative bound `a < 1`. `hopping_farisLavine` instantiates it
+-- with the matrix unit at `(m₀, n₀)` and keeps the ratio `c₁` unchanged, so the certified
+-- separation survives the coupling; §4 gives the same constant as a bottom:
+-- `sector_bottom_ge_interacting` shows that no sector of the core sees a bottom below `θ − σ`,
+-- i.e. that eliminating directions cannot remove the weight the bottoms of Phases 2–5 bound
+-- (`hopping_sector_bottom`: `σ = 1`). §5 lifts the interaction to `L²`: `closedKernelForm` is
+-- the absolutely convergent weighted double series, `abs_closedKernelForm_le` bounds it by
+-- `σ‖x‖²` on the whole space (Hölder with exponents 2, 2), `closedKernelForm_coreEmbed`
+-- identifies it with `kernelForm` on the core, and `closed_diagonal_add_kernelForm_ge` /
+-- `closed_sector_bottom_ge_interacting` are the bottom bounds on the form domain — so the
+-- interaction is a bounded, hence continuous, perturbation of the closed diagonal form. §6
+-- carries the ratio over as well: `closed_farisLavine_domination` is the `L²` comparison with
+-- relative bound `a < 1` (ratio `(1 − a)c₁`), its finiteness hypothesis derived in
+-- `closed_dom_of_scaled_symbol` from a symbolwise inequality. §7 measures the price of the
+-- cut-off: `magCutoffKernel_hs_mass` bounds the magnetic ladder's Hilbert–Schmidt mass by `d² C
+-- Λ^(d+1)`, i.e. a constant of order `Λ^{(d+1)/2}` — a power, not a uniform bound. §8 separates
+-- the two halves: the relative bound `a` is uniform (`ladder_relative_bound_uniform`), the
+-- additive constant is what grows. §9 instantiates §6's finiteness hypothesis with the concrete
 -- magnetic symbol of `YangMillsMagneticQuartic` (`magSymbol`, `magnetic_closed_dom_of_scaled`);
 -- `closed_dom_of_scaled_symbol_auto` shows that for a positive ratio it follows from the symbol
--- comparison.  The continuum itself is formalized elsewhere (outer-Fock `dGamma`, and the
--- coincident-point product as the momentum convolution `samePointProduct_form_eq_momentum`); what the
--- coefficient model has is a diagonal magnetic slot, so the ladder is a model of the coupling.
--- §10 proves the sharp uniform bound at the cut-off, `‖q_K‖ ≤ ½Q + ½(ΣAᵢ²)‖x‖²` with `Q(x) =
--- Σₙ (Σᵢ(nᵢ+1))‖x n‖²` and **no `Λ` in the constants**: the ladder is a sum of √(nᵢ+1)-weighted
--- raises, each a partial isometry, so unit-weight AM–GM puts the occupation piece on the form with
--- ratio 1/2 and the shift piece is bounded by `Aᵢ²‖x‖²` because raising is injective.  On the
--- momentum side `momentumCol_hs_mass` shows the transfer matrix preserves the symbol's ℓ² mass
--- (`∑_k∑_i ‖momentumCol V k i‖² = ∑_x ‖V x‖²`), so a position-space `σ` reads on the momentum form
--- (`momentumCol_samePointProduct_hs_mass`, `samePointProduct_form_hs_bound`).  On the BRST side the
--- identification is not available and the reason is proved: `gaugeReduce_extTorsionCoef` makes the
--- reduced one-particle matrix momentum-diagonal, so its off-diagonal block vanishes
--- (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`) while the ladder moves one quantum between modes.
+-- comparison. The continuum itself is formalized elsewhere (outer-Fock `dGamma`, and the
+-- coincident-point product as the momentum convolution `samePointProduct_form_eq_momentum`);
+-- what the coefficient model has is a diagonal magnetic slot, so the ladder is a model of the
+-- coupling. §10 proves the sharp uniform bound at the cut-off, `‖q_K‖ ≤ ½Q + ½(ΣAᵢ²)‖x‖²` with
+-- `Q(x) = Σₙ (Σᵢ(nᵢ+1))‖x n‖²` and **no `Λ` in the constants**: the ladder is a sum of
+-- √(nᵢ+1)-weighted raises, each a partial isometry, so unit-weight AM–GM puts the occupation
+-- piece on the form with ratio 1/2 and the shift piece is bounded by `Aᵢ²‖x‖²` because raising
+-- is injective. On the momentum side `momentumCol_hs_mass` shows the transfer matrix preserves
+-- the symbol's ℓ² mass (`∑_k∑_i ‖momentumCol V k i‖² = ∑_x ‖V x‖²`), so a position-space `σ`
+-- reads on the momentum form (`momentumCol_samePointProduct_hs_mass`,
+-- `samePointProduct_form_hs_bound`). On the BRST side the identification is not available and
+-- the reason is proved: `gaugeReduce_extTorsionCoef` makes the reduced one-particle matrix
+-- momentum-diagonal, so its off-diagonal block vanishes
+-- (`gaugeReduce_extTorsionCoef_offDiag_eq_zero`) while the ladder moves one quantum between
+-- modes.
 import BookProof.YangMillsFormClosureNonDiagonal
 import BookProof.YangMillsLadderTransport
 import BookProof.YangMillsLadderOperator
 import BookProof.YangMillsLadderL2
--- 2026-11-05: Kato–Rellich at relative bound `a < 1` **at form level** (`BookProof.YangMillsFormKLMN`).
--- §23 proves the KLMN theorem for diagonal forms: the form norm is finite exactly on `formDom`
--- (`formENN_ne_top_iff`), it is lower semicontinuous (`formENN_le_of_tendsto`, `formTsum_lsc`),
--- the sum form has the *unperturbed* form domain whenever `|b n| ≤ a c n + β` with `a < 1`
--- (`formDom_add_of_relativeBound`, `formDom_of_relativeBound_add`), it is bounded below by
--- `(1 − a)θ − β` on that domain (`formSum_ge_formDom`), and it is the quadratic form of the
--- self-adjoint `diagUnb (c + b)` (`klmn`).  §24 identifies the **reduced (transverse) sector's
--- magnetic slot** with §22's diagonal one: the sector is invariant under the diagonal operator
+-- 2026-11-05: Kato–Rellich at relative bound `a < 1` **at form level**
+-- (`BookProof.YangMillsFormKLMN`). §23 proves the KLMN theorem for diagonal forms: the form norm
+-- is finite exactly on `formDom` (`formENN_ne_top_iff`), it is lower semicontinuous
+-- (`formENN_le_of_tendsto`, `formTsum_lsc`), the sum form has the *unperturbed* form domain
+-- whenever `|b n| ≤ a c n + β` with `a < 1` (`formDom_add_of_relativeBound`,
+-- `formDom_of_relativeBound_add`), it is bounded below by `(1 − a)θ − β` on that domain
+-- (`formSum_ge_formDom`), and it is the quadratic form of the self-adjoint `diagUnb (c + b)`
+-- (`klmn`). §24 identifies the **reduced (transverse) sector's magnetic slot** with §22's
+-- diagonal one: the sector is invariant under the diagonal operator
 -- (`diagUnb_mem_reducedSector`), the barrier is the constant vacuum value there
 -- (`yangMillsSymbol_on_sector`), and the gap `2` survives the restriction (`sector_gap`,
 -- `sector_gap_pos`).
@@ -4135,18 +4147,19 @@ import BookProof.ReflectionPositivity.ChainPartition
 -- rotation of the inverse.
 import BookProof.ReflectionPositivity.WilsonLinkLattice
 
--- The past-class Wilson weight as a concrete, measurable half-space observable (`WilsonPastClass`):
--- the reflected plaquette's time support is the reflected one (`timeSet_reflectPlaq`), so for the
--- middle reflection plane `L = 2M+1` the reflection carries the past side onto the future side
--- (`IsPastSide_reflectPlaq`) and preserves the invariant slice (`IsInvariant_reflectPlaq`).  With the
--- trace identity this gives the **reflection identity for the concrete past-class weight**
--- `pastSideWeight β N (reflectConfig U) M = futureSideWeight β N U M`, its future and invariant
--- companions, and — assembled through `wilsonLatticeAction_split` — the invariance of the action as
--- an identity between the three class sums (`wilsonLatticeAction_reflectConfig_of_split`).  On the
--- measurable side: the entries of `A ↦ A⁻¹` from determinant and adjugate (`measurable_of_inv_apply`),
--- the past-class holonomy entrywise (`measurable_pastHolonomy_apply`, avoiding any measurable
--- structure on `Matrix`), and the past-class sum as a measurable function of the past half-space and
--- boundary data alone (`pastSideObservable`, `measurable_pastSideObservable`,
+-- The past-class Wilson weight as a concrete, measurable half-space observable
+-- (`WilsonPastClass`): the reflected plaquette's time support is the reflected one
+-- (`timeSet_reflectPlaq`), so for the middle reflection plane `L = 2M+1` the reflection carries
+-- the past side onto the future side (`IsPastSide_reflectPlaq`) and preserves the invariant
+-- slice (`IsInvariant_reflectPlaq`). With the trace identity this gives the **reflection
+-- identity for the concrete past-class weight** `pastSideWeight β N (reflectConfig U) M =
+-- futureSideWeight β N U M`, its future and invariant companions, and — assembled through
+-- `wilsonLatticeAction_split` — the invariance of the action as an identity between the three
+-- class sums (`wilsonLatticeAction_reflectConfig_of_split`). On the measurable side: the entries
+-- of `A ↦ A⁻¹` from determinant and adjugate (`measurable_of_inv_apply`), the past-class
+-- holonomy entrywise (`measurable_pastHolonomy_apply`, avoiding any measurable structure on
+-- `Matrix`), and the past-class sum as a measurable function of the past half-space and boundary
+-- data alone (`pastSideObservable`, `measurable_pastSideObservable`,
 -- `pastSideWeight_eq_observable_of_eq`) — the `hmeas` input of `wilson_reflectionPositive`.
 import BookProof.ReflectionPositivity.WilsonPastClass
 

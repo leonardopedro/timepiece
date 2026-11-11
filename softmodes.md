@@ -824,6 +824,26 @@ Two of the pieces the inhabitant needed are built (§3d.0 and the energy contrac
   `quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`, which is exactly why the
   closure-is-the-domain identification, not a continuity argument, is the honest route here.
 
+* **The completion: density is analytic there, and only the reference gap extends.**  The algebraic
+  statement above is not the analytic one, and this bullet is the difference.  `coreLp d` is
+  `lp (Fin d → ℕ → ℂ) 2`, `coreToLp` embeds the finitely supported core in it, and
+  `norm_coreToLp_sq : ‖coreToLp c‖² = coreNormSq c` says the embedding is isometric — so the
+  `coreNormSq` limits of the previous bullet *are* ℓ² limits, and the two closures meet.  `vacuumOrthogonal`
+  (`f 0 = 0`) is closed (`isClosed_vacuumOrthogonal`, evaluation at the vacuum is `1`-Lipschitz), and
+  finite-support **root-domain** vectors are dense in it (`mem_closure_rootDomain_image`, off
+  `lp.hasSum_single`), so `closure_rootDomain_image_eq : closure (coreToLp '' rootDomain) =
+  vacuumOrthogonal`.  That density uses completeness, which is exactly what the coefficient model lacks.
+  The gap: `refEnergy` is unbounded, so the reference form lives on its own domain, `refFormLp ω f =
+  ∑' n, refEnergy ω n ‖f n‖²`, and `ref_spectral_gap_closure` carries `href_spectral_gap` there (a
+  `tsum` comparison, summability as hypothesis).  **B:** the quartic form `quadForm (ymHamiltonian …)`
+  still has no ℓ² *domain* — it is degree four and unbounded, and no closure of the form is
+  constructed.  What is closed is the **bound**, which is the half a Friedrichs-type argument needs:
+  `gap_closed_in_coreLp` says `K‖·‖² ≤ q` survives an ℓ² limit whenever the sequence converges in
+  `coreLp` and the form values converge to `L` — only convergence *along the sequence* is used, never
+  continuity of `q`.  Two corollaries: `root_spectral_gap_closed` (the S2 gap at the limit) and
+  `root_ground_bound_closed` (the ground threshold of any `RootFormDomination`).  This is lower
+  semicontinuity of the bound, not a self-adjoint extension.
+
 **The `su(2)` instantiation, and the colour factor computed.**  The free tensor is now instantiated:
 `su2Struct` is `f_{abc} = ε_{abc}` on the first three colour indices (the `su2Slot`s) and `0` off
 them — `su(2) × U(1)⁵` in place of the free `fabc`.  It satisfies both hypotheses
@@ -831,9 +851,45 @@ them — `su(2) × U(1)⁵` in place of the free `fabc`.  It satisfies both hypo
 quantities become explicit: `K_{abcd} = δ_ac δ_bd − δ_ad δ_bc` (`colourTensor_su2`), the adjoint
 Casimir `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}`, i.e. `C_A = 2` (`su2_casimir_adjoint`,
 `su2_casimir_adjoint_value`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6` (`su2_colourWeight_sum`).
-The fundamental Casimir `C_F = 3/4` is **not** derived: the model carries only the adjoint structure
-constants, and `C_F` needs a fundamental representation (`T^a = σ^a/2`) that the chapter does not
-define.
+The fundamental Casimir is derived too, now that the chapter carries the representation it needs:
+§3b.2c defines `pauli` (`σ^a`) and `fundRep` (`T^a = σ^a/2` on `ℂ²`), shows it closes on the same
+tensor (`fundRep_commutator_su2Struct`, against `su2Struct`), and computes
+`Σ_a T^a T^a = (3/4)·1` (`su2_casimir_fundamental`) plus `tr(T^a T^b) = δ^{ab}/2`
+(`fundRep_trace_mul`).  So `C_A = 2` and `C_F = 3/4` are both computed from the instantiating `ε`,
+each in its own representation.  And the mode factor is now carried: `fundMode d` is
+`lp (fun _ => Fin 2 → ℂ) 2` — the occupation core with a colour fibre — `colourModeVec c v` is a core
+vector with a colour vector attached, and `colourEnergy` applies the Casimir on the fibre.  Then
+`colourEnergy_colourModeVec` is the statement that had been missing: on `c ⊗ v` the Casimir
+multiplies `v` by `C_F = 3/4` and leaves the Fock coefficients `c n` untouched, via
+`casimir_mulVec` (`(Σ_a T^a T^a).mulVec v = (3/4) • v`).  The colour energy is also an operator now:
+`colourEnergy_eq_smul` gives `colourEnergy f = fun n => (3/4) • f n` for *every* `f` in
+`fundMode d`, not only on mode vectors, so `colourEnergyOp` is a continuous linear map on the
+completion; its norm is exactly `3/4` (`norm_colourEnergyOp_eq`), the upper bound attained on a
+single nonzero mode vector.  The factors are also folded into the *field* form now: the core carries
+a colour fibre (`colourSpace N`, `colouredCore N D`), `colouredHamiltonian` is `H ⊗ 1 + 1 ⊗ C`
+acting componentwise, and on the elementary tensor `colourFibre x v` the form is
+`‖v‖² (quadForm H x + C ‖x‖²)` (`colouredHamiltonian_smul_one_quadForm`); with the two Casimirs this
+reads `quadForm (ymHamiltonian …) x + (3/4)‖x‖²` on `ℂ²`
+(`colouredHamiltonian_fundamental_quadForm`) and `+ 2‖x‖²` on `ℂ³`
+(`colouredHamiltonian_adjoint_quadForm`).  Nor is that an elementary-tensor-only statement: the
+colour-diagonal Hamiltonian is diagonal in the components, so the form splits componentwise on the
+whole coloured core (`colouredHamiltonian_smul_one_quadForm_core`, and
+`colouredHamiltonian_fundamental_quadForm_core`/`..._adjoint_quadForm_core`), every core element is a
+finite sum of elementary tensors (`colourFibre_repr`, `colourSum`, with components
+`∑ k, v k i • x k` by `colourSum_ofLp`), and the form of such a sum is
+`colouredHamiltonian_smul_one_quadForm_sum` — the cross terms live in the mixed components, so it is
+not a sum of per-tensor values.  Closedness of the colour operators is not claimed.
+
+The gluon factor is carried on the same footing: `adjRep` is
+the adjoint representation on `ℂ³` (`(T^a)_{bc} = −i ε^{abc}`), it closes on the same algebra
+(`adjRep_commutator`: `[T^a, T^b] = i ε^{abc} T^c`) and its Casimir is a matrix identity,
+`Σ_a (T^a)² = 2 · 1` (`adjRep_casimir`), i.e. `C_A = 2`; so `adjModeVec c v` carries `2 v`
+(`adjColourEnergy_adjModeVec`) and the two factors stand in the ratio `C_A/C_F = 8/3`
+(`casimir_ratio`).  **B:** the fold into `quadForm (ymHamiltonian …)` is proved
+for a diagonal colour energy `µ • 1` on the whole coloured core — a general colour matrix is still
+evaluated only through its diagonal part, nothing is claimed for the norm of the coloured operator,
+and no colour-singlet space combining the `ℂ²` and `ℂ³` fibres is built; the occupation completion
+carrying `colourEnergyOp` is still a separate model from the field fibre.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.

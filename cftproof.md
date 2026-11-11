@@ -99,6 +99,17 @@ coordinate degree, engineering weight and quotient relations. The trace law
 infrared gap. If a nested model is to represent that particular theory, its selected
 observable must pass the same test. An abstract Hilbert-space isomorphism is insufficient.
 
+**Landed 2026-11-11, in exactly that finite form.**
+`BookProof/Sm/ChapterSmFreeModeExclusion.lean` states it as code rather than as prose:
+`shortNorm r = r⁸ log²(1/r)` (the exponent is the weight of two grade-4 insertions,
+`weight = 4 + 4`), `modeKernel E t c r = c · E^t · exp(−rE)` for the external
+`(1/2E) E^timeOrder num(p) exp(−rE)` at fixed momentum, `wickSum` for the finite `List`, and
+`not_eventuallyEq_wickSum` for the exclusion itself. The analytic half is proved
+(`tendsto_shortNorm_modeKernel`: the normalisation kills one mode, hence
+`tendsto_shortNorm_wickSum` kills a finite sum). The trace coefficient enters as a
+**hypothesis** on `F`, so the module assumes nothing about any nested model's observable, and it is
+finite-list only — `not_eventuallyEq_modeKernels` is the form an S3 candidate must fail.
+
 ### Two routes and the proposed common acceptance object
 
 Keep E0–E3 as the Euclidean construction route. Keep S0–S4 of `softmodes.md` and P0–P8
@@ -174,9 +185,15 @@ a direct application of the random-distribution version until that measure is co
 
 Reuse `scripts/axiom-audit`; supplement future bridge work with a manifest of endpoint
 **types and reachable definitions**, source/dependency hashes, complete commands and dated
-logs. The October usage audit distinguishes endpoint-reachable declarations from unrelated
-compiled modules. Negative controls should reject a changed proposition, changed physical
-operator definition or added axiom. Axiom cleanliness alone does not detect a wrong target.
+logs. What that script already enforces (landed 2026-11-11): `axiom_ledger.lean` writes one row
+per theorem — `name` and its transitive axiom closure — to `evidence/axiom-ledger.tsv`, and the
+gate fails on anything outside `{propext, Classical.choice, Quot.sound}`, on a ledger shorter than
+its coverage baseline, and on an axiom **added** to a named declaration against the committed
+baseline. It is wired into `axiom-gate.yml`. What it cannot do is the second half of the sentence
+above: it checks axiom footprints, not that the endpoint type is the intended one, which is why the
+negative controls must reject a changed proposition and a changed physical operator definition as
+well as an added axiom. The October usage audit distinguishes endpoint-reachable declarations from
+unrelated compiled modules. Axiom cleanliness alone does not detect a wrong target.
 The review records separate combined/OPE Comparator runs, cache reuse and macOS development
 mode without an external kernel; do not describe those records as a fresh local replay.
 

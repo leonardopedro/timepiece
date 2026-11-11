@@ -7,14 +7,60 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11h):** “State of the project — 2026-11-11h: the root domain as the excited
-> span, and the gap on its closure” (end of file): `rootDomain` is the vacuum-orthogonal core
+> **Newest entry (2026-11-11o):** “State of the project — 2026-11-11o: the coloured form on the whole
+> coloured core” (end of file): the identity of 11n is extended from a single elementary tensor to
+> every element of the coloured core — `H ⊗ 1 + 1 ⊗ (µ • 1)` is diagonal in the components, so
+> `quadForm` splits into `∑ i, (quadForm H u i + µ.re ‖u i‖²)`
+> (`colouredHamiltonian_smul_one_quadForm_core`), with `C_F`/`C_A` versions, and every core element is
+> a finite sum of elementary tensors (`colourFibre_repr`, `colourSum`); the form of a finite sum
+> `∑ k, x k ⊗ v k` is `colouredHamiltonian_smul_one_quadForm_sum`, its cross terms living in the
+> mixed components `∑ k, v k i • x k`.
+>
+> **Earlier entry (2026-11-11n):** “State of the project — 2026-11-11n: `C_F` and `C_A` folded into
+> the field form” (end of file): the field core carries a colour fibre (`colourSpace N`,
+> `colouredCore N D`), `colouredHamiltonian` is `H ⊗ 1 + 1 ⊗ C` acting componentwise, and on the
+> elementary tensor `colourFibre x v` the form is `‖v‖² (quadForm H x + C ‖x‖²)`
+> (`colouredHamiltonian_smul_one_quadForm`) — so the two Casimirs are eigenvalues inside
+> `quadForm (ymHamiltonian …)`: `C_F = 3/4` on `ℂ²` and `C_A = 2` on `ℂ³`.  Also
+> `‖colourEnergyOp d‖ = 3/4` exactly (`norm_colourEnergyOp_eq`).
+>
+> **Earlier entry (2026-11-11m):** “State of the project — 2026-11-11m: the colour Casimir as a
+> bounded operator, and `C_A` as a mode factor” (end of file): `colourEnergy` is `(3/4) • id` on the
+> whole completion (`colourEnergy_eq_smul`), so it extends to the continuous linear map
+> `colourEnergyOp`, of norm at most `3/4`.  On the gluon side `adjRep` is the adjoint representation
+> on `ℂ³` (`[T^a,T^b] = i ε^{abc}T^c`, `adjRep_commutator`) with Casimir `C_A = 2`
+> (`adjRep_casimir`), so `adjModeVec c v` carries `2 v` and `C_A/C_F = 8/3` (`casimir_ratio`).
+>
+> **Earlier entry (2026-11-11l):** “State of the project — 2026-11-11l: `ℂ²` as a mode factor, and
+> `C_F` as the colour energy” (end of file): `fundMode d = lp (fun _ => Fin 2 → ℂ) 2` carries a colour
+> fibre over the occupation core; `colourModeVec c v` attaches a colour vector to a core vector, and
+> `colourEnergy_colourModeVec` shows the Casimir multiplies `v` by `C_F = 3/4` while leaving the Fock
+> coefficients `c n` untouched.  This supersedes 2026-11-11j §5's “`ℂ²` is not a mode factor”.
+> **Earlier entry (2026-11-11k):** “State of the project — 2026-11-11k: the bound is closed under ℓ²
+> limits” (end of file): `coreNormSq_tendsto` + `gap_closed_in_coreLp` — a lower bound `K‖·‖² ≤ q`
+> survives a limit in `coreLp` whenever the form values converge, with no continuity of `q` assumed —
+> so `root_spectral_gap_closed` carries the S2 gap to the completion and `root_ground_bound_closed`
+> carries any `RootFormDomination` threshold.  That is closedness of the bound, not a Friedrichs
+> extension.
+> **Earlier entry (2026-11-11j):** “State of the project — 2026-11-11j: the fundamental representation,
+> and `C_F = 3/4`” (end of file): §3b.2c defines `pauli`/`fundRep` (`T^a = σ^a/2` on `ℂ²`), proves
+> `[T^a,T^b] = i ε^{abc}T^c` against the chapter's own `su2Struct`, and computes
+> `Σ_a T^a T^a = (3/4)·1` and `tr(T^a T^b) = δ^{ab}/2` — so `C_F = 3/4` is derived, not assumed,
+> and it sits beside the adjoint `C_A = 2` proved from the same tensor.
+> **Earlier entry (2026-11-11i):** “State of the project — 2026-11-11i: the ℓ² completion, and the
+> reference gap on it” (end of file): `coreLp`/`coreToLp` build the completion of the coefficient
+> model with `norm_coreToLp_sq` (the embedding is isometric for `coreNormSq`), finite-support root
+> vectors are dense in the closed `vacuumOrthogonal` subspace (`closure_rootDomain_image_eq`), and
+> `ref_spectral_gap_closure` carries `href_spectral_gap` to the completion's form domain.  The
+> quartic Yang–Mills form has no ℓ² analogue and none is claimed.  Also in that entry: the incoming
+> `BookProof.MCMC.PCNGaussianFloor` module was red at HEAD and is now repaired, so the aggregate
+> `lake build +BookProof` completes (8966 jobs).
+> **Earlier entry (2026-11-11h):** “State of the project — 2026-11-11h: the root domain as the
+> excited span, and the gap on its closure” (end of file): `rootDomain` is the vacuum-orthogonal core
 > (`rootDomain_eq_span_excited`, off `norm_sq_apply_zero_le_coreNormSq`), it is closed under
 > `coreNormSq` limits (`rootDomain_closed_of_tendsto`, `closure_rootDomain_iff`), and the root-sector
 > gap therefore holds on its closure verbatim (`root_spectral_gap_on_closure`).  No continuity of the
-> quartic form is claimed or used.  The chapter builds; the aggregate `+BookProof` build stops on
-> the pre-existing `BookProof.MCMC.PCNGaussianFloor` failure from the incoming branch (module
-> unmodified, and it imports only `Mathlib`).
+> quartic form is claimed or used.
 > **Earlier entry (2026-11-11g):** **“State of the QYM row — 2026-11-11g: the normalization
 > constant and the `n`-coordinate form”**, at the very end of this file — `integral_gaussRoot_sq`
 > (`∫ γ = √(2π)`), `lintegral_normalized_eq_one` (so the correction factor is `√(2π)^{−d}`),
@@ -184,7 +230,8 @@
 > the three `su2Slot`s (`su(2) × U(1)⁵`), satisfies antisymmetry and Jacobi
 > (`su2Struct_antisym`, `su2Struct_jacobi`), and gives the colour tensor
 > `K_{abcd} = δ_acδ_bd − δ_adδ_bc` (`colourTensor_su2`) with `C_A = 2` and `Σ f² = 6`
-> (`su2_casimir_adjoint_value`, `su2_colourWeight_sum`).  `C_F = 3/4` is explicitly out of scope.
+> (`su2_casimir_adjoint_value`, `su2_colourWeight_sum`).  `C_F = 3/4` was out of scope there; it is
+> now proved in §3b.2c of the same chapter (see the 2026-11-11j entry).
 > `lake build +BookProof` completed.
 > **Earlier entry (2026-11-11a):** “State of the project — 2026-11-11a: the mode expectation of `:B²:`
 > on the linear half” (end of file): the mode state as a unit vector of the monomial-orthonormal
@@ -21330,7 +21377,6 @@ representation change cannot move a magnetic gap in either direction. The normal
 table above is the arithmetic that any future "reference gap constant" import must divide by
 `√(2π)^{99}` (or equivalently `(2π)^{99/2}`) — recorded here so that number is not left implicit.
 
-<<<<<<< HEAD
 ## State of the project — 2026-11-11h: the root domain as the excited span, and the gap on its closure
 
 `rootDomain` is the kernel of evaluation at the vacuum in the coefficient model
@@ -21375,7 +21421,7 @@ declarations gives only `propext`, `Classical.choice`, `Quot.sound`.  The aggreg
 incoming branch, unmodified here, whose file compiles identically broken on its own (`lake env lean`
 on the extracted file, `import Mathlib` only): a pre-existing failure, not a consequence of this
 entry or of the merge resolution.
-=======
+
 ---
 
 ## State of the QYM row — 2026-11-11h: derivative transfer, core domain, field-strength degree class
@@ -21411,4 +21457,406 @@ terms `[A,A]²`.
 **Honest boundary.** No spectral statement, no gap, no coercivity, no domination of `W` by the graph
 norm (the degree bound is the *shape* input, not the estimate).  `HasOneParticleFormGap` remains an
 unproved `def`; the abelian no-gap obstruction and the kernel-vector obstruction are unchanged.
->>>>>>> 2c1bbe209139113611baf390087b3a601aae47fd
+
+---
+
+## State of the project — 2026-11-11i: the ℓ² completion, and the reference gap on it
+
+The 2026-11-11h entry said, correctly, that "dense in the vacuum-orthogonal core" is an *algebraic*
+statement in the coefficient model: `rootDomain` is the excited span, so its `coreNormSq` closure is
+itself.  That left the analytic question open by construction.  This entry does the completion: the
+ℓ² space, the density of finite-support root vectors in its vacuum-orthogonal subspace, and the
+reference gap extended to the form domain there.  Everything is in
+`BookProof.YangMillsFieldStrengthSplit` (the section after `root_spectral_gap_on_closure`).
+
+**1. The completion, and the embedding into it.**  `coreLp d = lp (Fin d → ℕ → ℂ) 2`, and
+`coreToLp c = ∑_{n ∈ support c} lp.single 2 n (c n)` reads a finitely supported vector there.
+`coreToLp_apply` recovers the coefficients, `norm_sq_eq_tsum` is the norm formula
+`‖f‖² = ∑' n, ‖f n‖²`, and — the load-bearing one — `norm_coreToLp_sq : ‖coreToLp c‖² = coreNormSq c`:
+the embedding is isometric, so the 2026-11-11h `coreNormSq` limits *are* ℓ² limits on the core, and
+the two notions of closure meet in one place.
+
+**2. Density, analytically.**  `vacuumOrthogonal d` is the subspace `{f | f 0 = 0}`, closed because
+`isClosed_vacuumOrthogonal` reads it as the preimage of `{0}` under evaluation at the vacuum, which is
+`1`-Lipschitz (`continuous_apply_coreLp`, from `‖f i‖ ≤ ‖f‖`).  `mem_closure_rootDomain_image` is the
+density statement: for any `f` with no vacuum component and any `ε > 0`, a `Finset` truncation of
+`lp.hasSum_single` gives a **root-domain** vector within `ε` — the truncated family is a `Finsupp`,
+and it inherits `f 0 = 0`.  `closure_rootDomain_image_eq` assembles the two inclusions into
+`closure (coreToLp '' rootDomain) = vacuumOrthogonal`: the completion's version of
+`closure_rootDomain_iff`, and this time an honest closure.
+
+**3. The reference gap on the completion.**  The reference form is *unbounded* — `refEnergy` grows with
+the total occupation — so it is not a function on ℓ².  `refFormLp ω f = ∑' n, refEnergy ω n ‖f n‖²` is
+defined where the series converges, and `ref_spectral_gap_closure` carries `href_spectral_gap` there:
+for `f` in that domain with `f 0 = 0`,
+`(refEnergy ω 0 + refGap ω) ‖f‖² ≤ ∑' n, refEnergy ω n ‖f n‖²`.  The proof is the termwise bound
+promoted to a `tsum` comparison (`Summable.tsum_le_tsum`); summability of the form is a hypothesis,
+not a conclusion, and `‖f‖²` comes from `norm_sq_eq_tsum`.
+
+**4. What is *not* claimed.**  The quartic Yang–Mills form `quadForm (ymHamiltonian Φ fabc) ∘ RI.toCore`
+has **no** ℓ² analogue here: it is a polynomial of degree four on a dense core and is unbounded on
+every neighbourhood, so the right-hand side of `root_spectral_gap` cannot be completed without a
+Friedrichs-type form construction, which this entry does not attempt.  The gap that does extend is the
+*reference* one — the same line the 2026-11-11h entry drew, drawn one space further out.
+
+**5. The incoming module that was red.**  `BookProof.MCMC.PCNGaussianFloor` arrived broken and was
+left untouched in 2026-11-11h (verified broken in isolation: it imports only `Mathlib`, and its file
+compiles with the same five tactics failing when extracted from the incoming branch).  It is now
+repaired — the proofs, not the statements: `Tendsto`/`𝓝` were not in scope, `Finset.prod_exp` does not
+exist (`Real.exp_sum` is the lemma), `zero_mul` does not match `2 * 0 ^ 2 * _`, two `rw [mul_one]`
+quoted facts absent from their goals, and `integrable_exp_neg_mul_sq` states `-b * x ^ 2` where the
+goal has `-(b * x ^ 2)`.  The ball-constant decay is rebuilt from `tendsto_const_mul_pow_atTop` plus
+`tendsto_atTop_mono'`, because the ℝ-indexed `tendsto_pow_atTop_atTop_of_one_lt` used there is
+ℕ-indexed only.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` and
+`lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` complete with 0 errors and no new
+warnings (long-line, `show`, max-heartbeats linters clean); `lake build +BookProof` completes
+**8966 jobs** with `Build completed successfully`, so the tree is green for the first time since the
+merge.  `#print axioms` on the ten new declarations (`sum_single_apply`, `coreToLp_apply`,
+`norm_sq_eq_tsum`, `norm_coreToLp_sq`, `continuous_apply_coreLp`, `isClosed_vacuumOrthogonal`,
+`coreToLp_mem_vacuumOrthogonal`, `mem_closure_rootDomain_image`, `closure_rootDomain_image_eq`,
+`ref_spectral_gap_closure`) gives only `propext`, `Classical.choice`, `Quot.sound`.  The `ℓ²` density
+statement is analytic and does not reduce to the algebraic one: it uses `lp.hasSum_single`, i.e. the
+completeness of `ℓ²`, which the coefficient model does not have.
+
+---
+
+## State of the project — 2026-11-11j: the fundamental representation, and `C_F = 3/4`
+
+Every earlier entry recorded the same boundary: `C_A = 2` is computed in this chapter, `C_F = 3/4` is
+not, because a fundamental Casimir needs a fundamental representation the model did not carry.  That
+boundary is now removed, and nothing else is claimed in its place.  The section is §3b.2c of
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit`, immediately after the `C_A` computation.
+
+**1. The representation.**  `pauli : Fin 3 → Matrix (Fin 2) (Fin 2) ℂ` is `(σ₁, σ₂, σ₃)` and
+`fundRep a = (1/2) • pauli a` is `T^a = σ^a/2` on `ℂ²`.  `pauli_sq` is `σ^a σ^a = 1`, the only
+computation in the Pauli algebra needed (`i_mul_mul_i`, `mul_I_mul_I` normalise the two shapes `i x i`
+and `x i · y i` that `simp` cannot reach on its own, both from `i² = −1`).
+
+**2. It is a representation.**  `fundRep_commutator`: `[T^a, T^b] = i ε^{abc} T^c`.  More to the point
+`fundRep_commutator_su2Struct`: the same statement written with
+`su2Struct (su2Slot a) (su2Slot b) (su2Slot c)`, the tensor §3b.2b instantiated for the adjoint.  The
+two representations are therefore representations of *one* algebra with *one* set of structure
+constants — which is what makes comparing their Casimirs meaningful at all.
+
+**3. The Casimir.**  `fundRep_sq`: `(T^a)² = ¼ · 1`.  Summing the three (`su2_casimir_fundamental`):
+`Σ_a T^a T^a = (3/4) · 1`.  The left side is a *scalar* matrix — the defining property of a Casimir —
+and the scalar is `C_F = 3/4`.  Alongside it, `fundRep_trace_mul`: `tr(T^a T^b) = δ^{ab}/2`, i.e.
+`T_F = 1/2`.
+
+**4. The relation to `C_A`.**  `C_A = 2` (`su2_casimir_adjoint_value`) and `C_F = 3/4` are now two
+proved numbers computed from the same `ε`, one per representation, with `C_A/C_F = 8/3`.  At `N = 2`
+these are `C_A = N` and `C_F = (N²−1)/(2N)`; neither is imported as convention, and the earlier
+entries' "explicitly out of scope" line is superseded by this one rather than deleted.
+
+**5. What is *not* claimed.**  `ℂ²` is not a mode factor of the Fock model in this chapter: no
+statement here says the Fock space decomposes into fundamental multiplets, none says the quartic
+colour energy of §3b.2b is multiplied by `C_F`, and no perturbative amplitude is computed.  What is
+established is the representation, its commutators, its Casimir and its trace normalisation — the
+four objects that were missing.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors and no new warnings (long-line, `show`, max-heartbeats linters clean).  `#print axioms` on all
+eight new declarations (`pauli_sq`, `i_mul_mul_i`, `mul_I_mul_I`, `fundRep_sq`,
+`su2_casimir_fundamental`, `fundRep_commutator`, `fundRep_commutator_su2Struct`, `fundRep_trace_mul`)
+gives only `propext`, `Classical.choice`, `Quot.sound`; every matrix identity is decided coordinate by
+coordinate with `fin_cases`, so no `native_decide` term is produced.
+## State of the project — 2026-11-11k: the bound is closed under `ℓ²` limits
+
+The 2026-11-11i entry ended with a boundary: `root_spectral_gap`'s right-hand side is known on the
+core, `coreLp` completes the left-hand side, and nothing connected them.  It does now — for the
+**bound**, not for the form.  The section is at the end of `BookProof.Qym.ChapterYangMillsFieldStrengthSplit`,
+after the `ℓ²` completion (§“Closedness of the bound: the Friedrichs side”).
+
+**1. Why the bound and not the form.**  A Friedrichs construction needs the form closed, and
+`quadForm (ymHamiltonian …)` is degree four: completing it would mean building a form domain and
+proving closability from scratch, and no step of that is available here.  The inequality, however,
+only ever uses `q` *along a sequence*: if `K‖s k‖² ≤ q (s k)` and `q (s k) → L` and `s k → f` in
+`ℓ²`, then `K‖f‖² ≤ L`.  That is all an extension argument consumes, and it holds without any
+continuity hypothesis on `q`.
+
+**2. The reduction.**  `coreNormSq_tendsto` turns convergence of `coreNormSq (s k − c)` into
+convergence of `coreNormSq (s k)`, via the isometry `norm_coreToLp_sq` and continuity of the `ℓ²`
+norm (the square-root detour is because only `^2` is available from `lp`).  `coreToLp_add`/`_sub`
+are the additivity needed to rewrite `s k` as `c + (s k − c)`.  `gap_closed_in_coreLp` then runs
+`le_of_tendsto_of_tendsto` on `K‖coreToLp (s k)‖² ≤ q (s k)`.
+
+**3. The two corollaries.**  `root_spectral_gap_closed`: at the limit of a form-convergent
+root-domain sequence, `((c₁·refGap ω − quarticShift T g)/48)·‖f‖² ≤ L` — the same constant, now at a
+point of the completion.  `root_ground_bound_closed`: `(D.c₁·refEnergy ω 0 − D.c₂)·‖f‖² ≤ L` for
+any `RootFormDomination` certificate.  Both take the form's convergence as a hypothesis; neither
+produces the form's value.
+
+**4. What is *not* claimed.**  No Friedrichs extension, no self-adjoint operator, no completed form
+space: the “form domain” remains `ℓ²` plus “the defining series is finite”, and closability of the
+quartic form is untouched.  `RootModeIdentification` is still uninhabited, so the corollaries are
+conditional exactly as `root_spectral_gap` is.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors.  `#print axioms` on all six new declarations (`coreToLp_add`, `coreToLp_sub`,
+`coreNormSq_tendsto`, `gap_closed_in_coreLp`, `root_spectral_gap_closed`, `root_ground_bound_closed`)
+gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+## State of the project — 2026-11-11l: `ℂ²` as a mode factor, and `C_F` as the colour energy
+
+The 2026-11-11j entry proved `Σ_a T^a T^a = (3/4)·1` on `ℂ²` and closed with an explicit boundary:
+“`ℂ²` is not a mode factor of the Fock model in this chapter”.  That boundary is now removed for the
+mode-factor statement.  The section is at the end of `BookProof.Qym.ChapterYangMillsFieldStrengthSplit`
+(§“The `ℂ²` colour factor of a mode”), after the `ℓ²` completion it is built on.
+
+**1. The space.**  `fundMode d := lp (fun _ : Fin d → ℕ => Fin 2 → ℂ) 2` — the occupation core with a
+colour fibre.  `colourModeVec c v := Σ_{n ∈ c.support} single n (c n • v)` is a core vector with a
+colour vector attached, and `colourModeVec_apply` reads it back coefficientwise as `c n • v` (via
+`sum_single_apply_gen`, the `E`-valued generalisation of `sum_single_apply`).
+
+**2. The colour energy.**  `colourAct a f = fun n => (T^a).mulVec (f n)` and
+`colourEnergy f = fun n => Σ_a (T^a).mulVec ((T^a).mulVec (f n))` — the Casimir applied on the fibre,
+at the level of the underlying families.
+
+**3. `C_F` extracts.**  `casimir_mulVec`: `(Σ_a T^a T^a).mulVec v = (3/4) • v`, from
+`su2_casimir_fundamental` (`Matrix.smul_mulVec`, `Matrix.one_mulVec`); `sum_mulVec_mulVec` reassembles
+the three summands with `Matrix.sum_mulVec` and `Matrix.mulVec_mulVec`.  Then
+`colourEnergy_colourModeVec`: on `c ⊗ v` the energy is `fun n => c n • ((3/4) • v)` — the colour
+vector is multiplied by `C_F` and the Fock coefficients are untouched.  `colourEnergy_colourModeVec_eq`
+restates it as `C_F` times the identity on the coloured factor.
+
+**4. What is *not* claimed.**  `colourAct`/`colourEnergy` are families, not operators on `fundMode d`:
+no boundedness or closedness is proved (they would be bounded — finite sums of `2×2` fibrewise
+actions — but that is not done here).  Nothing folds `C_F` into `quadForm (ymHamiltonian …)`, so the
+quartic colour energy of §3b.2b is not yet shown to carry the factor.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors and no new warnings.  `#print axioms` on all six new declarations (`sum_single_apply_gen`,
+`colourModeVec_apply`, `casimir_mulVec`, `sum_mulVec_mulVec`, `colourEnergy_colourModeVec`,
+`colourEnergy_colourModeVec_eq`) gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+<<<<<<< HEAD
+
+## State of the project — 2026-11-11m: the colour Casimir as a bounded operator, and `C_A` as a mode
+factor
+
+The 2026-11-11l entry closed with two boundaries: `colourEnergy` was a family rather than an operator
+on `fundMode d`, and only the fundamental colour factor had been carried as a mode factor.  Both are
+addressed here, in the section “The colour energy on the completion, and the `ℂ³` gluon factor” at the
+end of `BookProof.Qym.ChapterYangMillsFieldStrengthSplit`, immediately after the `ℂ²` section.
+
+**1. The colour energy is a scalar on the whole completion.**  `colourEnergy_eq_smul` says that for
+*every* `f : fundMode d`, not only for mode vectors, `colourEnergy f = fun n => (3/4) • f n`: the
+Casimir acts as `C_F` on each coefficient, with no Fock dependence at all.  That makes it the operator
+`colourEnergyOp d := (3/4) • ContinuousLinearMap.id ℂ (fundMode d)`, and `colourEnergyOp_apply` records
+that the operator agrees coefficientwise with the family, so nothing is lost in passing to the
+completion.  `norm_colourEnergyOp` bounds the operator norm by `3/4` (`opNorm_le_bound` plus `norm_smul`
+on the identity term, so no `NontrivialTopology` instance on `lp` is needed).
+
+**2. The gluon side.**  `adjRep a : Matrix (Fin 3) (Fin 3) ℂ` is `(T^a)_{bc} = −i ε^{abc}` on `ℂ³`,
+and it is a representation of the same algebra as `fundRep`: `adjRep_commutator` is
+`[T^a, T^b] = i ε^{abc} T^c` against the chapter's own `levi`.  The proof is the `81` entry checks of
+the `3 × 3` commutator, split into three lemmas (one per value of the first index, `27` checks each) so
+that no declaration needs a raised heartbeat budget — the single-lemma version times out at the
+default `200000` and only closes at `2000000`.  Its Casimir is a matrix identity, not a scalar
+reading: `adjRep_casimir : Σ_a (T^a)² = 2 • 1` on `ℂ³`, hence `adjRep_casimir_mulVec`
+(`(Σ_a T^a T^a).mulVec v = 2 • v`).
+
+**3. `C_A` as a mode factor.**  `adjMode d := lp (fun _ : Fin d → ℕ => Fin 3 → ℂ) 2` is the gluon
+completion, `adjModeVec c v` attaches a colour vector to a core vector (read back by
+`adjModeVec_apply`), and `adjColourEnergy_adjModeVec` is the analogue of
+`colourEnergy_colourModeVec`: on `c ⊗ v` the adjoint Casimir multiplies `v` by `2` and leaves the Fock
+coefficients alone.  So the two colour factors are now mode factors of one completion, `C_F = 3/4` on
+`ℂ²` and `C_A = 2` on `ℂ³`, in the ratio `8/3` (`casimir_ratio`).
+
+**4. What is *not* claimed.**  The two fibres sit over the same occupation labels but are not combined
+into one space (no `ℂ² ⊕ ℂ³`, no colour-singlet constraint).  `colourEnergyOp`'s norm is bounded by
+`3/4`; equality is not proved (it would need a unit vector in `lp` with a known norm, and `lp`'s
+`norm_smul`/`opNorm` API does not give the reverse inequality for free).  Still nothing folds `C_F` or
+`C_A` into `quadForm (ymHamiltonian …)`: the `99`-coordinate core carries no colour fibre, so the
+quartic colour energy of §3b.2b is not yet shown to be dressed by either factor.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors (8091 jobs), and the aggregate `lake build +BookProof` at this state completes as well
+(8967 jobs, exit 0).  The warning set is unchanged from HEAD: the same `maxHeartbeats` notes at
+`110/1119/1174/1191/1291` and the same two long lines (`1395`, and the line that was `2846` at HEAD and
+is now `3007` after the insertion) — no new warnings.  `#print axioms` on the nine new declarations
+(`colourEnergy_eq_smul`, `colourEnergyOp_apply`, `norm_colourEnergyOp`, `adjRep_commutator`,
+`adjRep_casimir`, `adjRep_casimir_mulVec`, `adjModeVec_apply`, `adjColourEnergy_adjModeVec`,
+`casimir_ratio`) gives only `propext`, `Classical.choice`, `Quot.sound`; no `sorry`, no new axiom.
+The three per-index commutator lemmas (`adjRep_commutator_zero/_one/_two`) are proved by the same
+finite case analysis and carry the same axioms.
+
+## State of the project — 2026-11-11n: `C_F` and `C_A` folded into the field form
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, section “The colour fibre over the field
+core, and `C_F`/`C_A` inside the field form”.
+
+**What is new.**  The colour factors of 2026-11-11l/11m lived on the coefficient completion.  They
+are now attached to the *field* core as a genuine `H ⊗ 1 + 1 ⊗ C`:
+
+- `colourSpace N = PiLp 2 (fun _ : Fin N => L2d 99)` — the `99`-coordinate core with `N` colour
+  components, ℓ² norm — and `colourVec N` for the fibre;
+- `colouredCore N D` — every colour component in `D`;
+- `colouredHamiltonian Φ fabc N C` — componentwise `ymHamiltonian Φ fabc` plus the colour matrix `C`
+  mixing components (`colouredHamiltonian_ofLp`); linearity is proved directly;
+- `colourFibre x v` — the elementary tensor `x ⊗ v`, the family `i ↦ v i • x`.
+
+For a diagonal colour energy the form collapses cleanly: `C = µ • 1` acts on each component by `µ`
+(`colouredHamiltonian_smul_one_ofLp`), so
+`⟪x ⊗ v, (H ⊗ 1 + 1 ⊗ µ) (x ⊗ v)⟫ = ⟪v,v⟫ (⟪x,Hx⟫ + µ ⟪x,x⟫)`
+(`colouredHamiltonian_smul_one_inner`), and taking real parts
+
+`quadForm (H + µ) (x ⊗ v) = ‖v‖² (quadForm H x + µ.re ‖x‖²)`
+
+(`colouredHamiltonian_smul_one_quadForm`, using `quadForm_im` for the symmetry of `ymHamiltonian`).
+Both Casimirs are diagonal with exactly the values of the operator section —
+`∑ a, T^a T^a = (3/4) • 1` on `ℂ²` (`su2_casimir_fundamental`), `2 • 1` on `ℂ³`
+(`adjRep_casimir`) — hence
+
+`quadForm (colouredHamiltonian … 2 (∑ a, T^a T^a)) (x ⊗ v)
+   = ‖v‖² (quadForm (ymHamiltonian …) x + (3/4) ‖x‖²)`
+
+(`colouredHamiltonian_fundamental_quadForm`) and the same with `C_A = 2`
+(`colouredHamiltonian_adjoint_quadForm`).  The colour factors are eigenvalues inside
+`quadForm (ymHamiltonian …)`, not only on the coefficient model.
+
+**Also closed.**  The norm of the colour energy operator is exactly `3/4`: the upper bound
+`norm_colourEnergyOp` is attained, because `colourEnergyOp d = (3/4) • 1` and a nonzero mode vector
+`lp.single 2 0 v` exists (`norm_colourEnergyOp_eq`).  The docstrings of that bound and of the
+`C_F`/`C_A` section are updated accordingly.
+
+**Boundary.**  Everything is proved on elementary tensors `x ⊗ v`: nothing is claimed about sums of
+elementary tensors, about the norm of the coloured operator, or about a closedness statement for it.
+A general colour matrix `C` is evaluated only through its diagonal part `µ • 1` — no off-diagonal
+coupling is computed.  The occupation completion carrying `colourEnergyOp` (`fundMode d`) is still a
+separate model from the field fibre: no identification of the two is made, and no colour-singlet
+space combining the `ℂ²` and `ℂ³` fibres is built.
+
+**Axioms.**  `#print axioms` on `norm_colourEnergyOp_eq`, `colouredHamiltonian`,
+`colouredHamiltonian_ofLp`, `colouredHamiltonian_smul_one_ofLp`, `colourFibre`,
+`colouredHamiltonian_smul_one_inner`, `colouredHamiltonian_smul_one_quadForm`,
+`colouredHamiltonian_fundamental_quadForm`, `colouredHamiltonian_adjoint_quadForm`: `propext`,
+`Classical.choice`, `Quot.sound` only.
+=======
+## State of the project — 2026-11-11m: the coloured actions are bounded operators
+
+The 2026-11-11l entry built `fundMode d` and closed with a boundary: `colourAct` and
+`colourEnergy` are families, and their boundedness on the completion "is not claimed here".  It is
+claimed now, and with the sharp constant.  The section is at the end of the colour block of
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit`, before the Friedrichs-side section.
+
+**1. The pointwise identity.**  `norm_fundRep_mulVec`: `‖T^a v‖ = ‖v‖/2` on `ℂ²` — an *equality*,
+not an entry bound.  Why it holds structurally: each Pauli matrix is a signed coordinate permutation
+(`σ^x` swaps, `σ^y` swaps with a factor `±i`, `σ^z` fixes), so after the `1/2` the coloured norm is
+exactly halved, under the sup norm that `Fin 2 → ℂ` carries.  Proof: a coordinate formula
+`‖(T^a v) i‖ = ‖v (if a = 2 then i else flip)‖/2` with `flip` the coordinate flip
+(`flip2_involutive`), then both `pi_norm_le_iff_of_nonempty` directions.  This is the fact a lossy
+"entrywise `1/2`" bound would have thrown away, and the difference is the constant in §3.
+
+**2. The lift to the completion.**  `colourAct_norm_le` restates §1 coefficientwise;
+`colourAct_memℓp` propagates square-summability via `Summable.of_nonneg_of_le`, so
+`colourActOp a f := ⟨colourAct a f, _⟩` is a vector of `fundMode d`; and
+`colourActOp_norm_le` is the `ℓ²` bound `‖colourActOp a f‖ ≤ ‖f‖/2`, from
+`fundMode_norm_sq_eq_tsum` (the `fundMode` analogue of `norm_sq_eq_tsum`) plus `sq_le_sq`.
+
+**3. The operator.**  `colourActOp_add`/`colourActOp_smul` give
+`colourActLinear a : fundMode d →ₗ[ℂ] fundMode d` (additivity read off `Matrix.mulVec_add`), and
+`colourActCLM a` is its `mkContinuous` realisation with constant `1/2`
+(`colourActCLM_norm_le`).  `colourActOp_colourModeVec` records what the operator does on a mode
+vector: `c ⊗ v ↦ c ⊗ (T^a v)` — the Fock coefficients are untouched, as in 2026-11-11l.
+
+**4. The Casimir is a scalar, not just a bounded operator.**  `colourEnergy_eq_smul` proves
+`colourEnergy f n = (3/4) • f n` for *every* `f` and *every* `n`: `Σ_a T^a T^a = (3/4)·1` is a
+matrix identity, so the mode-vector computation of 2026-11-11l was never using the mode structure.
+Hence `colourEnergyOp f := (3/4) • f` with `colourEnergyOp_apply` matching `colourEnergy`
+coefficientwise, `norm_colourEnergyOp`: `‖C_F f‖ = (3/4)‖f‖`, and `colourEnergyCLM` as `C_F` times
+the identity (`colourEnergyCLM_apply`).  So `C_F` extracts on the whole completion, not only on
+`c ⊗ v`.
+
+**5. What is *not* claimed.**  These are bounded operators on the coloured completion; nothing folds
+`C_F` into the quartic colour energy of §3b.2b or into `quadForm (ymHamiltonian …)`, no spectral
+consequence is drawn, and `colourActCLM`'s norm is bounded by `1/2` rather than proved *equal* to
+it — §1 shows the constant is attained pointwise, but no mode vector is exhibited on which the
+operator norm is attained.  `RootModeIdentification` remains uninhabited, unaffected by this.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors; the file's remaining warnings are the pre-existing `maxHeartbeats` annotations (replayed,
+not new), and the two over-long lines this section inherited in its own docstrings were rewrapped.
+`#print axioms` on all thirteen new declarations (`norm_fundRep_mulVec`, `fundMode_norm_sq_eq_tsum`,
+`colourAct_norm_le`, `colourAct_memℓp`, `colourActOp_norm_le`, `colourActOp_colourModeVec`,
+`colourActOp_add`, `colourActOp_smul`, `colourActCLM_norm_le`, `colourEnergy_eq_smul`,
+`colourEnergyOp_apply`, `norm_colourEnergyOp`, `colourEnergyCLM_apply`) gives only `propext`,
+`Classical.choice`, `Quot.sound`.
+
+## State of the project — 2026-11-11n: the colour operators are a representation of su(2)
+
+The previous entry made `colourAct`/`colourEnergy` bounded operators on `fundMode d` but left them
+as isolated operators: nothing said they compose into an algebra.  They do, and the algebra is the
+one the chapter already computes on `2 × 2` matrices.
+
+**1. The lift mechanism.**  `colourActOp_comp_apply` is the whole trick: at each coefficient,
+`A^a (A^b f) n = (T^a T^b) f n`, because composing the operators composes the matrices
+(`Matrix.mulVec_mulVec`).  So every matrix identity at the level of `fundRep` becomes an operator
+identity on the completion, with no analytic work.
+
+**2. The commutators.**  `fundRep_mulVec_commutator` specialises `fundRep_commutator` to a colour
+vector (`[T^a, T^b] v = i ε^{abc} T^c v`); `colourActOp_commutator` lifts it to
+`[A^a, A^b] = i ε^{abc} A^c` on `fundMode d`, and `colourActCLM_commutator` to the bounded
+operators — with no domain or common-core hypothesis, because the generators are *bounded*.  That
+contrast is the point of the entry: the unbounded `ymHamiltonian` cannot be commuted without a
+domain statement, and the colour factor can.  The `ε` is the same `levi` that
+`fundRep_commutator` and `su2Struct` use, so this is one algebra, not a new convention.
+
+**3. The Casimir operator.**  `colourEnergy_eq_sum_sq` is definitional
+(`colourEnergy f n = Σ_a T^a (T^a (f n))`), so `sum_colourActOp_comp` costs one coefficient reindex:
+`Σ_a A^a A^a = colourEnergyOp`, and `sum_colourActCLM_comp` puts it for the bounded operators:
+`Σ_a (colourActCLM a)² = colourEnergyCLM`.  With `colourEnergyCLM = C_F · 1` from the previous
+entry, this is the Casimir operator of a genuine representation, not a scalar attached to one colour
+vector.
+
+**4. What is *not* claimed.**  A representation of the compact algebra on `fundMode d` is not a
+statement that the Fock coefficients decompose into colour multiplets: no invariant subspace, no
+`fundMode d ≅ coreLp d ⊗ ℂ²` decomposition and no spectral consequence is claimed, and the
+exponentiated group action (a strongly continuous unitary `SU(2)` action) is not constructed.
+Nothing here folds `C_F` into `quadForm (ymHamiltonian …)`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors and no new warnings (the file's `maxHeartbeats` notices are pre-existing, all below line
+1300).  `#print axioms` on all nine new declarations (`fundRep_mulVec_commutator`,
+`colourActOp_comp_apply`, `colourActOp_commutator_apply`, `colourActOp_commutator`,
+`colourEnergy_eq_sum_sq`, `sum_colourActOp_comp`, `colourActCLM_apply`, `colourActCLM_commutator`,
+`sum_colourActCLM_comp`) gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+>>>>>>> 6743d508f3ddea6a602e1787211e700f6b73b7d9
+
+## State of the project — 2026-11-11o: the coloured form on the whole coloured core
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, same section as 2026-11-11n.
+
+**What is new.**  Entry 11n proved `quadForm (colouredHamiltonian …) (x ⊗ v)` for a single
+elementary tensor.  The identity now holds on the whole coloured core:
+
+- `colouredHamiltonian_smul_one_inner_core`: for *any* `u`, the inner product against
+  `(H ⊗ 1 + 1 ⊗ (µ • 1)) u` is the sum over colour components of the field inner product plus `µ`
+  times the component norm — only `PiLp.inner_apply` and `colouredHamiltonian_smul_one_ofLp`;
+- `colouredHamiltonian_smul_one_quadForm_core`:
+  `quadForm (H ⊗ 1 + 1 ⊗ (µ • 1)) u = ∑ i, (quadForm H (u i) + µ.re ‖u i‖²)` for every `u`
+  (no symmetry of `H` is needed for this, only `µ.im = 0`);
+- `colouredHamiltonian_fundamental_quadForm_core` and
+  `colouredHamiltonian_adjoint_quadForm_core`: the same with `C_F = 3/4` on `ℂ²` and `C_A = 2` on
+  `ℂ³`.
+
+Finite sums.  `colourFibre_repr` shows every element of the coloured core is a finite sum of
+elementary tensors — its components against the unit colour vectors `colourUnit i` — so the
+core-wide statement *is* the extension to finite sums, with nothing left over.  For a readable
+finite-sum form, `colourSum s x v = ∑ k, x k ⊗ v k`, `colourSum_ofLp` computes its components
+`∑ k, v k i • x k`, and `colouredHamiltonian_smul_one_quadForm_sum` states the form of such a sum:
+the cross terms between summands are carried by the mixed components, so it is not the sum of the
+per-tensor values of `colouredHamiltonian_smul_one_quadForm`.
+
+**Boundary.**  The colour energy is still diagonal (`µ • 1`); a general colour matrix `C` is only
+evaluated through its diagonal part, nothing is claimed about the norm or the closedness of the
+coloured operator, and the occupation completion carrying `colourEnergyOp` remains a separate model
+from the fibre.
+
+**Axioms.**  `#print axioms` on all seven new declarations
+(`colouredHamiltonian_smul_one_inner_core`, `..._quadForm_core`, `..._fundamental_quadForm_core`,
+`..._adjoint_quadForm_core`, `colourFibre_repr`, `colourSum_ofLp`,
+`colouredHamiltonian_smul_one_quadForm_sum`): `propext`, `Classical.choice`, `Quot.sound` only.
