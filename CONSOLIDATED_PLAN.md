@@ -21657,3 +21657,42 @@ not new), and the two over-long lines this section inherited in its own docstrin
 `colourEnergyOp_apply`, `norm_colourEnergyOp`, `colourEnergyCLM_apply`) gives only `propext`,
 `Classical.choice`, `Quot.sound`.
 
+## State of the project — 2026-11-11n: the colour operators are a representation of su(2)
+
+The previous entry made `colourAct`/`colourEnergy` bounded operators on `fundMode d` but left them
+as isolated operators: nothing said they compose into an algebra.  They do, and the algebra is the
+one the chapter already computes on `2 × 2` matrices.
+
+**1. The lift mechanism.**  `colourActOp_comp_apply` is the whole trick: at each coefficient,
+`A^a (A^b f) n = (T^a T^b) f n`, because composing the operators composes the matrices
+(`Matrix.mulVec_mulVec`).  So every matrix identity at the level of `fundRep` becomes an operator
+identity on the completion, with no analytic work.
+
+**2. The commutators.**  `fundRep_mulVec_commutator` specialises `fundRep_commutator` to a colour
+vector (`[T^a, T^b] v = i ε^{abc} T^c v`); `colourActOp_commutator` lifts it to
+`[A^a, A^b] = i ε^{abc} A^c` on `fundMode d`, and `colourActCLM_commutator` to the bounded
+operators — with no domain or common-core hypothesis, because the generators are *bounded*.  That
+contrast is the point of the entry: the unbounded `ymHamiltonian` cannot be commuted without a
+domain statement, and the colour factor can.  The `ε` is the same `levi` that
+`fundRep_commutator` and `su2Struct` use, so this is one algebra, not a new convention.
+
+**3. The Casimir operator.**  `colourEnergy_eq_sum_sq` is definitional
+(`colourEnergy f n = Σ_a T^a (T^a (f n))`), so `sum_colourActOp_comp` costs one coefficient reindex:
+`Σ_a A^a A^a = colourEnergyOp`, and `sum_colourActCLM_comp` puts it for the bounded operators:
+`Σ_a (colourActCLM a)² = colourEnergyCLM`.  With `colourEnergyCLM = C_F · 1` from the previous
+entry, this is the Casimir operator of a genuine representation, not a scalar attached to one colour
+vector.
+
+**4. What is *not* claimed.**  A representation of the compact algebra on `fundMode d` is not a
+statement that the Fock coefficients decompose into colour multiplets: no invariant subspace, no
+`fundMode d ≅ coreLp d ⊗ ℂ²` decomposition and no spectral consequence is claimed, and the
+exponentiated group action (a strongly continuous unitary `SU(2)` action) is not constructed.
+Nothing here folds `C_F` into `quadForm (ymHamiltonian …)`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors and no new warnings (the file's `maxHeartbeats` notices are pre-existing, all below line
+1300).  `#print axioms` on all nine new declarations (`fundRep_mulVec_commutator`,
+`colourActOp_comp_apply`, `colourActOp_commutator_apply`, `colourActOp_commutator`,
+`colourEnergy_eq_sum_sq`, `sum_colourActOp_comp`, `colourActCLM_apply`, `colourActCLM_commutator`,
+`sum_colourActCLM_comp`) gives only `propext`, `Classical.choice`, `Quot.sound`.
+

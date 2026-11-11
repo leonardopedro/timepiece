@@ -1462,6 +1462,11 @@ above.  This section states that identification and proves what it yields.
   `‖T^a v‖ = ‖v‖/2` pointwise (`norm_fundRep_mulVec`), and `colourEnergyCLM` is `C_F` times the
   identity, with `‖C_F f‖ = (3/4)‖f‖` (`norm_colourEnergyOp`).  Neither touches the Fock
   coefficients (`colourActOp_colourModeVec`);
+* **`colourActCLM_commutator`**, **`sum_colourActCLM_comp`** — those operators are a representation
+  of `su(2)`: `[A^a, A^b] = i ε^{abc} A^c` on the completion with the chapter's own `ε`, and the
+  Casimir of the representation is `Σ_a (A^a)² = colourEnergyCLM`, i.e. `C_F` times the identity.
+  Boundedness is what makes the commutator equality hypothesis-free, which the unbounded
+  Hamiltonian does not allow;
 * **`coreNormSq_tendsto`**, **`gap_closed_in_coreLp`**, **`root_spectral_gap_closed`**,
   **`root_ground_bound_closed`** — closedness of the bound: a lower bound `K‖·‖² ≤ q` survives an
   ℓ² limit whenever the form values converge, so the S2 gap and the certificate's ground threshold
@@ -2680,6 +2685,89 @@ noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
 theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp f := by
   rw [colourEnergyCLM, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply,
     colourEnergyOp]
+
+/-! ##### The colour operators are a representation of `su(2)`
+
+Boundedness alone does not make the colour action a symmetry; the algebra has to lift too.  It does:
+on the completion the generators satisfy `[A^a, A^b] = i ε^{abc} A^c` (`colourActCLM_commutator`),
+and the Casimir is the sum of their squares, `Σ_a (A^a)² = C_F · 1` (`sum_colourActCLM_comp`).  So
+`colourEnergyCLM` is the Casimir *operator* of the representation, not merely the number `3/4`
+acting on one colour vector.
+
+Nothing new about `Fin 2 → ℂ` is needed: the coefficientwise statements are the matrix identities
+already in this chapter (`fundRep_commutator`, `su2_casimir_fundamental`), carried to `f n` through
+`Matrix.mulVec_mulVec` (`colourActOp_comp_apply`).  Because the generators are *bounded*, the
+commutator equality holds on the whole completion with no domain or common-core hypothesis — which
+is precisely what the unbounded Yang–Mills Hamiltonian does not offer.
+
+**Boundary.**  A representation of the compact algebra on `fundMode d` is not a statement that the
+Fock coefficients are organised into colour multiplets: no invariant subspace, no decomposition and
+no spectral consequence is claimed, and the exponentiated group action is not constructed.
+-/
+
+/-- **The commutator of the generators, applied to a colour vector**:
+`[T^a, T^b] v = i ε^{abc} T^c v`, read off `fundRep_commutator`. -/
+theorem fundRep_mulVec_commutator (a b : Fin 3) (v : Fin 2 → ℂ) :
+    (fundRep a).mulVec ((fundRep b).mulVec v) - (fundRep b).mulVec ((fundRep a).mulVec v)
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • ((fundRep c).mulVec v) := by
+  have h := congrArg (fun M : Matrix (Fin 2) (Fin 2) ℂ => M.mulVec v) (fundRep_commutator a b)
+  rw [show (∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • ((fundRep c).mulVec v))
+      = ∑ c : Fin 3, Complex.I • ((levi a b c : ℂ) • ((fundRep c).mulVec v)) from by
+    refine Finset.sum_congr rfl fun c _ => ?_
+    rw [smul_smul]]
+  simpa [Matrix.sub_mulVec, Matrix.smul_mulVec, Matrix.sum_mulVec, Finset.smul_sum] using h
+
+/-- **Composing the colour action multiplies the matrices**: coefficient by coefficient,
+`A^a (A^b f) = (T^a T^b) f`. -/
+theorem colourActOp_comp_apply (a b : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    colourActOp a (colourActOp b f) n = (fundRep a * fundRep b).mulVec (f n) := by
+  simp [colourActOp_apply, ← Matrix.mulVec_mulVec]
+
+/-- The commutator of the colour operators, coefficientwise. -/
+theorem colourActOp_commutator_apply (a b : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    (colourActOp a (colourActOp b f) - colourActOp b (colourActOp a f)) n
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • colourActOp c f n := by
+  simp only [Pi.sub_apply, lp.coeFn_sub, colourActOp_comp_apply, ← Matrix.mulVec_mulVec]
+  rw [fundRep_mulVec_commutator]
+  simp [colourActOp_apply]
+
+/-- **The colour operators are a representation of `su(2)`**: `[A^a, A^b] = i ε^{abc} A^c` on the
+completion, with the same `ε` as `fundRep_commutator` and `su2Struct`. -/
+theorem colourActOp_commutator (a b : Fin 3) (f : fundMode d) :
+    colourActOp a (colourActOp b f) - colourActOp b (colourActOp a f)
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • colourActOp c f := by
+  ext n i
+  simp only [lp.coeFn_sum, lp.coeFn_smul, Finset.sum_apply, Pi.smul_apply]
+  exact congrFun (colourActOp_commutator_apply a b f n) i
+
+/-- The Casimir family is literally the sum of the squared generators, coefficientwise. -/
+theorem colourEnergy_eq_sum_sq (f : fundMode d) (n : Fin d → ℕ) :
+    colourEnergy f n = ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n)) := rfl
+
+/-- **The Casimir operator is the sum of the squares of the generators**:
+`Σ_a A^a A^a = C_F · 1`, on the whole completion. -/
+theorem sum_colourActOp_comp (f : fundMode d) :
+    ∑ a : Fin 3, colourActOp a (colourActOp a f) = colourEnergyOp f := by
+  ext n
+  rw [show (∑ a : Fin 3, colourActOp a (colourActOp a f)) n
+      = ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n)) from by
+    simp [colourActOp_comp_apply, ← Matrix.mulVec_mulVec]]
+  rw [colourEnergyOp_apply, colourEnergy_eq_sum_sq]
+
+theorem colourActCLM_apply (a : Fin 3) (f : fundMode d) : colourActCLM a f = colourActOp a f :=
+  rfl
+
+/-- **The bounded colour operators carry the same commutators**: no domain hypothesis is needed,
+because `colourActCLM a` is bounded. -/
+theorem colourActCLM_commutator (a b : Fin 3) (f : fundMode d) :
+    colourActCLM a (colourActCLM b f) - colourActCLM b (colourActCLM a f)
+      = ∑ c : Fin 3, (Complex.I * (levi a b c : ℂ)) • colourActCLM c f := by
+  simpa [colourActCLM_apply] using colourActOp_commutator a b f
+
+/-- **`colourEnergyCLM` is the Casimir operator**: it equals `Σ_a (colourActCLM a)²`. -/
+theorem sum_colourActCLM_comp (f : fundMode d) :
+    ∑ a : Fin 3, colourActCLM a (colourActCLM a f) = colourEnergyCLM f := by
+  simpa [colourActCLM_apply, colourEnergyCLM_apply] using sum_colourActOp_comp f
 
 /-! #### Closedness of the bound: the Friedrichs side
 
