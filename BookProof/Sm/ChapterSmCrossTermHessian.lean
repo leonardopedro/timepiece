@@ -318,6 +318,112 @@ theorem sm_crossTerm_upper (P : SmParams) (c0 : ℝ) (p : MvPolynomial (Fin 163)
   have h := crossTerm_upper smS (smPotPoly P c0) p (realCoeff_smPotPoly P c0) hH
   linarith
 
+/-! ## 9. What `p = 1` is on the twisted core
+
+The first reading of the `p = 1` test in §40 assumed that the constant test function has
+vanishing gradient and vanishing kinetic term, so that the Hessian gap would collapse to the
+single Gaussian moment of `Δ_S W`.  That is not what the module's `p = 1` is: the twisted
+derivative is `coreD j p = ∂ⱼp − xⱼp/2`, so at the constant polynomial `coreD j 1 = −xⱼ/2`
+and `kinPolyS S 1 ≠ 0`, and the weighted Dirichlet term of the criterion survives.  (In the
+untwisted picture the constant test is vacuous — `‖(W+1)p‖ ≤ ‖(W+1)p‖` — so the Gaussian
+`e^{−‖x‖²/4}`, which is this polynomial `1`, is the only nontrivial `p = 1` test.)  The
+statements below fix the two sides of that test exactly; §40.4 of the plan corrects the
+conclusion that was drawn from the earlier reading.
+
+```text
+hessForm(S, W, 1)            = ∫ Δ_S W · e^{−‖x‖²/2}
+weightedDirichlet(S, W, 1)   = ¼ ∫ W · ‖x_S‖² · e^{−‖x‖²/2}
+```
+
+The right-hand side of the Hessian gap at `p = 1` is therefore not `0`. -/
+
+/-- The twisted derivative of the constant is `−xⱼ/2`, not `0`. -/
+theorem coreD_one (j : Fin d) :
+    coreD j (1 : MvPolynomial (Fin d) ℂ) = C (-(1 / 2) : ℂ) * X j := by
+  simp only [coreD, MvPolynomial.pderiv_one, zero_sub, mul_one]
+  rw [← neg_mul, ← C_neg]
+
+/-- The twisted Laplacian of the constant is quadratic, not zero:
+`−Δ_S 1 = |S|/2 − ¼ ∑_{j∈S} xⱼ²`. -/
+theorem kinPolyS_one (S : Finset (Fin d)) :
+    kinPolyS S (1 : MvPolynomial (Fin d) ℂ)
+      = C ((S.card : ℂ) / 2) - C (1 / 4 : ℂ) * ∑ j ∈ S, X j * X j := by
+  have hterm : ∀ j ∈ S, coreD j (coreD j (1 : MvPolynomial (Fin d) ℂ))
+      = C (-(1 / 2) : ℂ) + C (1 / 4 : ℂ) * (X j * X j) := by
+    intro j _
+    have h2 : coreD j (X j : MvPolynomial (Fin d) ℂ) = 1 - C (1 / 2 : ℂ) * (X j * X j) := by
+      simp [coreD]
+    have hC : (C (1/2 : ℂ) * C (1/2 : ℂ) : MvPolynomial (Fin d) ℂ) = C (1/4 : ℂ) := by
+      rw [← C_mul]
+      norm_num
+    rw [coreD_one, show (C (-(1 / 2) : ℂ) : MvPolynomial (Fin d) ℂ) * X j
+        = (-(1 / 2) : ℂ) • X j from by rw [smul_eq_C_mul], coreD_smul, h2]
+    simp only [smul_eq_C_mul, smul_sub, C_neg, mul_one]
+    rw [← hC]
+    ring
+  rw [kinPolyS, Finset.sum_congr rfl hterm, Finset.sum_add_distrib, Finset.sum_const,
+    ← Finset.mul_sum, neg_add, ← sub_eq_add_neg]
+  have hcard : -(S.card • (C (-(1 / 2) : ℂ) : MvPolynomial (Fin d) ℂ))
+      = C ((S.card : ℂ) / 2) := by
+    rw [← Nat.cast_smul_eq_nsmul ℂ S.card, smul_eq_C_mul, ← C_mul, ← C_neg]
+    congr 1
+    ring
+  rw [hcard]
+
+/-- At `p = 1` the Hessian weight is the Gaussian integral of the Hessian trace — the same
+left-hand side as the untwisted test. -/
+theorem hessForm_one (S : Finset (Fin d)) (Q : MvPolynomial (Fin d) ℂ) (hQ : cpoly Q = Q) :
+    hessForm S Q (1 : MvPolynomial (Fin d) ℂ)
+      = (gaussInt (∑ j ∈ S, pderiv j (pderiv j Q))).re := by
+  rw [hessForm_eq_trace S Q 1 hQ]
+  have hreal : cpoly (∑ j ∈ S, pderiv j (pderiv j Q)) = ∑ j ∈ S, pderiv j (pderiv j Q) := by
+    rw [cpoly_sum]
+    exact Finset.sum_congr rfl fun j _ => by rw [cpoly_pderiv, cpoly_pderiv, hQ]
+  simp only [mul_one, hreal]
+
+/-- At `p = 1` the weighted Dirichlet form of the weight `Q` is `¼ ∫ Q·‖x_S‖²`, not `0`. -/
+theorem weightedDirichlet_one_one (S : Finset (Fin d)) (Q : MvPolynomial (Fin d) ℂ) :
+    weightedDirichlet S Q (1 : MvPolynomial (Fin d) ℂ)
+      = (1 / 4) * (gaussInt (cpoly Q * ∑ j ∈ S, X j * X j)).re := by
+  have hpt : ∀ j ∈ S, cpoly (Q * coreD j (1 : MvPolynomial (Fin d) ℂ))
+        * coreD j (1 : MvPolynomial (Fin d) ℂ)
+      = C (1 / 4 : ℂ) * (cpoly Q * (X j * X j)) := by
+    intro j _
+    have hconj : (starRingEnd ℂ) (-(1 / 2) : ℂ) = -(1 / 2) := by
+      rw [show (-(1 / 2) : ℂ) = ((-(1 / 2) : ℝ) : ℂ) by norm_num, Complex.conj_ofReal]
+    have hC : (C (-(1 / 2) : ℂ) * C (-(1 / 2) : ℂ) : MvPolynomial (Fin d) ℂ)
+        = C (1 / 4 : ℂ) := by
+      rw [← C_mul]
+      norm_num
+    rw [coreD_one]
+    simp only [cpoly_mul, cpoly_C, cpoly_X]
+    rw [hconj, ← hC]
+    ring
+  unfold weightedDirichlet
+  rw [Finset.sum_congr rfl fun j hj => by rw [hpt j hj]]
+  have hstep : ∀ j ∈ S, (gaussInt (C (1 / 4 : ℂ) * (cpoly Q * (X j * X j)))).re
+      = (1 / 4) * (gaussInt (cpoly Q * (X j * X j))).re := by
+    intro j _
+    rw [← smul_eq_C_mul, gaussInt_smul]
+    simp
+  rw [Finset.sum_congr rfl hstep, ← Finset.mul_sum]
+  have hmul : (gaussInt (cpoly Q * ∑ j ∈ S, X j * X j)).re
+      = (∑ j ∈ S, gaussInt (cpoly Q * (X j * X j))).re := by
+    rw [Finset.mul_sum, gaussInt_sum, Complex.re_sum]
+  rw [hmul, Complex.re_sum]
+
+/-- The `p = 1` left-hand side at the SM weight, in closed form. -/
+theorem hessForm_smPotPoly_one (P : SmParams) (c0 : ℝ) :
+    hessForm smS (smPotPoly P c0) 1
+      = (gaussInt (∑ j ∈ smS, pderiv j (pderiv j (smPotPoly P c0)))).re :=
+  hessForm_one smS _ (realCoeff_smPotPoly P c0)
+
+/-- The `p = 1` weighted Dirichlet energy at the SM weight `W + 1`, in closed form. -/
+theorem weightedDirichlet_smPotPoly_one (P : SmParams) (c0 : ℝ) :
+    weightedDirichlet smS (smPotPoly P c0 + 1) 1
+      = (1 / 4) * (gaussInt (cpoly (smPotPoly P c0 + 1) * ∑ j ∈ smS, X j * X j)).re :=
+  weightedDirichlet_one_one smS _
+
 end
 
 end BookProof.SmCrossTermHessian

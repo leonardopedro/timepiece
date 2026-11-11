@@ -1872,7 +1872,7 @@ transfer (`smNormalForm_norm_le_of_pot_self_bound`), a different estimate from E
 
 ## §40. The Hessian gap at `p = 1`: a Gaussian-moment test
 
-### 40.1. What `p = 1` reduces to
+### 40.1. What `p = 1` reduces to — and a correction to the first reading of it
 
 By §38, `PotSelfBound P c₀ 1` is equivalent to
 
@@ -1880,16 +1880,38 @@ By §38, `PotSelfBound P c₀ 1` is equivalent to
 hessForm(W)  ≤  ‖Δ_S p‖²  +  2 · weightedDirichlet(W + 1)        (all p)
 ```
 
-with `W = smPotPoly P c₀` and `S = smS`.  At `p = 1` the kinetic term `‖Δ_S 1‖² = 0` and
-`weightedDirichlet(W + 1)` at `p = 1` is `∑_{j∈S} ∫ (W+1) |∇_j 1|² = 0`.  Hence the whole
-inequality collapses to a single Gaussian moment:
+with `W = smPotPoly P c₀` and `S = smS`.
+
+> **Correction (2026-11-11).**  The first version of this section claimed that at `p = 1`
+> both right-hand terms vanish — `‖Δ_S 1‖² = 0` and `∑_{j∈S} ∫ (W+1)|∇_j 1|² = 0` — so
+> that the criterion would collapse to `∫ Δ_S W · e^{-‖x‖²/2} ≤ 0`.  **That is wrong.**  The
+> sentence uses the *untwisted* gradient, but the module's derivative is the twisted one
+> `coreD_j p = ∂_j p − x_j p / 2`, and on the twisted core the polynomial `1` is the Gaussian
+> `e^{-‖x‖²/4}`, not the constant function.  The corresponding untwisted constant test is
+> vacuous anyway — at a constant `p` the residual inequality reads `‖(W+1)p‖ ≤ ‖(W+1)p‖` — so
+> the only nontrivial `p = 1` test the module has is the Gaussian test, and it keeps the
+> weighted Dirichlet term.
+
+The module's `p = 1` values are exact (`ChapterSmCrossTermHessian` §9):
 
 ```
-PotSelfBound at p = 1  ⟺   ∫_{ℝ^163} (Σ_{m=1}^{40} ∂_{q_m}² W)(x) e^{-‖x‖²/2} dx ≤ 0 .
+coreD_j 1                    =  −x_j / 2
+kinPolyS smS 1               =  20 − ¼ ‖x_S‖²
+hessForm smS W 1             =  ∫ Δ_S W · e^{-‖x‖²/2}
+weightedDirichlet smS W 1    =  ¼ ∫ W · ‖x_S‖² · e^{-‖x‖²/2}
 ```
 
-So the first test of any candidate proof is whether the Gaussian expectation of the
-momentum-Laplacian of `W` is non-positive.  It is a *necessary* condition.
+(`coreD_one`, `kinPolyS_one`, `hessForm_one`, `weightedDirichlet_one_one`,
+`hessForm_smPotPoly_one`, `weightedDirichlet_smPotPoly_one`).  Hence the `p = 1` instance of
+the criterion is
+
+```
+E[Δ_S W]  ≤  (n² + 2n)/16  +  ½ E[(W + 1) ‖x_S‖²] ,        n = |S| = 40 ,
+```
+
+with `(n² + 2n)/16 = 1680/16 = 105`.  The second term is the large one: for the quadratic part
+`‖x_S‖²` of `W` alone it is `½ E[‖x_S‖⁴] = ½ (n² + 2n) = 840`.  So the `p = 1` test is **not**
+the sign test `E[Δ_S W] ≤ 0`; it is the inequality above, and §42 evaluates it.
 
 ### 40.2. Decomposition of `Δ_S W`
 
@@ -1933,56 +1955,74 @@ The family-by-family sign:
   (Verified by direct differentiation: `∂²/∂φ_a²` of `c²(S−v₀²)²` sums to
   `4 c² (S − v₀² + 2 φ_a²)` over `a`, i.e. `24 c² S − 16 c² v₀²`.)
 
-### 40.3. The Gaussian moment
+### 40.3. The Gaussian moment of `Δ_S W`
 
 Under the (unnormalised) Gaussian `e^{-‖x‖²/2}`, the momentum coordinates are
-independent standard normals, so `E[X²] = 1` and `E[S] = 4`.  The non-negative
-contributions of `smMagG`/`smMagW`/`smCovD` have expectations `≥ 0`, and the
-`smMagB` contribution is exactly `0`.  Therefore
+independent standard normals, so `E[X²] = 1` and `E[S] = 4`.  Only the wall has a non-zero
+twisted Laplacian, so the expectation is an **identity**, not an inequality:
 
 ```
-E[Δ_S W]  ≥  80 + 16 c² (6 − v₀²)
-          =  80 + 8 λ (6 − v₀²)            (since 16 c² = 8 λ)
-          =  80 + 48 λ − 8 λ v₀² .
+E[Δ_S W]  =  80  +  E[G]  +  48 λ − 8 λ v₀² ,
 ```
 
-(using `c² = λ/2`, so `16 c² = 8 λ`, and
-`E[wall] = 24 c² · E[S] − 16 c² v₀² = 96 c² − 16 c² v₀² = 48 λ − 8 λ v₀²`.)
+with `G = 2 ∑_{r ∈ {magG, magW, covD}} |∇_S Φ_r|² ≥ 0` (the `smMagB` contribution is exactly
+zero) and `E[wall] = 24 c²·E[S] − 16 c² v₀² = 96 c² − 16 c² v₀² = 48 λ − 8 λ v₀²`.  The
+gradient tail `E[G]` is computed in §42.
 
-### 40.4. Verdict of the test
+### 40.4. Verdict of the test — corrected
 
-The necessary condition `E[Δ_S W] ≤ 0` becomes
+> **Retraction (2026-11-11).**  The first version of this section dropped the weighted
+> Dirichlet term at `p = 1` and concluded `E[Δ_S W] ≤ 0`, hence the threshold
+> `λ v₀² ≥ 10 + 6 λ + E[G]/(8 λ)`.  That threshold is **withdrawn**: it is not a necessary
+> condition for `PotSelfBound`, because at `p = 1` the weighted Dirichlet energy is
+> `½ E[(W+1)‖x_S‖²]`, which is large and positive, not zero.
 
-```
-8 λ v₀²  ≥  80 + 48 λ     ⟺     λ v₀²  ≥  (80 + 48 λ)/8  =  10 + 6 λ .
-```
-
-This is a **condition on the data**, not a theorem:
-
-* If `λ v₀² ≤ 10 + 6 λ` (in particular for `v₀² ≤ 6` or small `λ`), then
-  `E[Δ_S W] > 0` and the `p = 1` gap **fails**.  In that regime `PotSelfBound`
-  cannot hold with any constant, and the cross-term upper bound of §38 is not
-  available at `p = 1`.* The `smMagG`/`smMagW`/`smCovD` non-negative terms raise the threshold further.
-  Writing `G = 2 ∑_{magG,magW,covD} |∇_S Φ_r|² ≥ 0`, the exact necessary condition is
+The `p = 1` test is the inequality of §40.1.  Writing `Φ = ∑_r Φ_r² ≥ 0` for the sum of the
+squared forms, `W = ‖x_S‖² + Φ + c₀`, and using `E[‖x_S‖²] = n`, `E[‖x_S‖⁴] = n² + 2n` with
+`n = 40`:
 
 ```
-  λ v₀²  ≥  10 + 6 λ  +  E[G] / (8 λ) ,
+½ E[(W+1)‖x_S‖²]  =  840 + 20 (c₀ + 1) + ½ E[Φ ‖x_S‖²] ,
+(n² + 2n)/16      =  105 ,
 ```
 
-  so `10 + 6 λ` is a **lower bound** on the required `λ v₀²`, attained only when the
-  non-abelian and covariant-derivative terms vanish (`gs·fabc = gw·eabc = gw·tgen =
-  gy·ygen = 0`).  (For a quadratic form `Q` with
-  `∂_i Q = ∑_j a_{ij} x_j`, `E[|∇Q|²] = ∑_{i,j} a_{ij}²`, so `E[G]` is an explicit
-  non-negative polynomial in the couplings and structure constants.)
+so the test reads
 
-* The origin is the worst point: `Δ_S W|₀ = 80 − 8 λ v₀²`, negative exactly when
-  `λ v₀² > 10`.
+```
+80 + E[G] + 48 λ − 8 λ v₀²   ≤   965 + 20 c₀ + ½ E[Φ ‖x_S‖²] .                     (∗)
+```
 
-Hence the Hessian gap is **not** a consequence of positivity of `W` (cf. §26's
-warning that `one_le_polyW_smPotPoly` does not imply `PotSelfBound`); it is a
-genuine quantitative condition on the Higgs vev and quartic.  `PotSelfBound`
-remains a hypothesis, and the `p = 1` case is the first place a proof would have
-to discharge it.
+Three consequences, in decreasing order of how much they settle:
+
+* **(∗) is not a lower bound on `λ v₀²`.**  It fails only when
+
+```
+  λ v₀²  <  (80 + 48 λ + E[G] − 965 − 20 c₀ − ½ E[Φ ‖x_S‖²]) / 8 ,
+```
+
+  and both `E[G] ≥ 0` and `½ E[Φ ‖x_S‖²] ≥ 0`, while `E[Φ ‖x_S‖²]` carries the quartic and
+  sextic field powers (`Φ_wall` alone contributes `c² E[(S − v₀²)² ‖x_S‖²]`, which is
+  `c² v₀⁴ · 40 + O(c² v₀²)`).  For any positive `λ v₀²` in the range where
+  `½ E[Φ ‖x_S‖²]` is of the size of `8 λ v₀²`, the test is passed — including the physical
+  regime.  Nothing like a threshold at `10 + 6 λ` is implied.
+
+* **(∗) is not scale-covariant.**  The Gaussian has unit variance, while the fields carry
+  whatever normalization the coordinates are written in; the terms of (∗) have different
+  homogeneity (`E[G]` is quartic, `E[Φ‖x_S‖²]` is sextic, `8 λ v₀²` is quartic with the
+  couplings explicit).  Rescaling the fields changes the inequality.  The corpus fixes no
+  field normalization, so (∗) has no numerical verdict until one is fixed — the same
+  scale-blindness that closed the `ExpBounded` route in §39.
+
+* **What survives.**  The pointwise sign analysis of §41 is unaffected (it is a statement
+  about the polynomial `Δ_S W`, not about the Gaussian weight), and the `p = 1` test is now
+  an exact, machine-checked inequality rather than a sign condition.  The honest reading of
+  the test is therefore: *at `p = 1` the Hessian gap is governed by the competition between
+  the negative wall lobe of `Δ_S W` and the positive moment `½ E[(W+1)‖x_S‖²]`.*  That
+  competition is decided at `p = 1`, and it is not the same question as
+  `E[Δ_S W] ≤ 0`.
+
+`PotSelfBound` remains a hypothesis.  The `p = 1` case does not discharge it, and — after the
+correction — the `p = 1` case does not exclude any physically sensible data either.
 
 ### 40.5. What this does not settle
 
@@ -2040,10 +2080,11 @@ field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
    automatic: its hypothesis `hessForm ≥ 0` is a condition on `p` and the data,
    not a consequence of `W ≥ 0`.
 
-2. **The `p = 1` test (§40) is the integrated version of this pointwise fact.**
-   `E[Δ_S W] ≤ 0` requires the negative lobe near the origin to outweigh the
-   positive tails; equivalently `λ v₀² ≥ 10 + 6 λ` (plus the magG/magW/covD
-   tails).
+2. **The `p = 1` test (§40) is the integrated version of this pointwise fact, with the
+   corrected right-hand side.**  The Gaussian expectation `E[Δ_S W] = 80 + E[G] + 48 λ − 8 λ v₀²`
+   is compared not with `0` but with `105 + ½ E[(W+1)‖x_S‖²]` (§40.1); the negative lobe near
+   the origin must outweigh that positive moment.  The earlier threshold
+   `λ v₀² ≥ 10 + 6 λ` came from comparing with `0` and is withdrawn in §40.4.
 
 3. **No proof of `PotSelfBound` is available from this calculus.**  The gap
    requires either (a) a regime restriction on `(λ, v₀)` plus a proof that the
@@ -2057,3 +2098,113 @@ field is small: `24 c² S − 16 c² v₀² < 0  ⟺  S < (2/3) v₀²`.
   point-dependent**, and gives the explicit origin value `80 − 8 λ v₀²`.
 * `PotSelfBound` and `FormDomainComparison` remain hypotheses.  `sm_h_esa` (ESA)
   is unaffected.
+
+---
+
+## §42. The gradient tail `E[G]`, explicitly
+
+### 42.1. The rule for a bilinear form
+
+Every field strength and covariant derivative in `smFormPoly` is, in the momentum coordinates,
+either zero, linear in coordinates outside `S` (the derivative coordinates `smDG`, `smDW`,
+`smDB`, `smDPhi`), or **bilinear in two distinct momentum coordinates**.  The `smMagB` family
+is the first case (its `Φ` is linear in `smDB`, so `∇_S Φ = 0`), and the wall is the only
+family whose twisted Laplacian does not vanish; §40.2 proved that.
+
+For a bilinear form `Φ = ∑_{u,v} M_{uv} x_u x_v`,
+
+```
+∂Φ/∂x_u  =  ∑_v (M_{uv} + M_{vu}) x_v ,
+E[|∇Φ|²] =  ∑_{u,v} (M_{uv} + M_{vu})² ,
+```
+
+because the momentum coordinates are independent standard normals (`E[x_u x_v] = δ_{uv}`).
+This is the general quadratic-form formula §40.4 quoted; the point of this section is to
+evaluate it.
+
+### 42.2. The gluon and weak families
+
+For `smMagG` the coefficient of `G^b_j G^d_k` in `Φ_{a,i}` is
+`½ gs · ε_{ijk} · f^{abd}`, so
+
+```
+(M + Mᵀ)_{(b,j),(d,k)}  =  ½ gs · ε_{ijk} · (f^{abd} − f^{adb}) ,
+E[|∇_S Φ_{a,i}|²]       =  (gs²/4) (∑_{j,k} ε_{ijk}²) · D_f(a)
+                        =  (gs²/2) · D_f(a) ,        D_f(a) = ∑_{b,d} (f^{abd} − f^{adb})² ,
+```
+
+using `∑_{j,k} ε_{ijk}² = 2` for each `i`.  Summing over the `8` colours and `3` directions:
+
+```
+E[∑_{magG} |∇_S Φ_r|²]  =  (3 gs² / 2) · D_f ,      D_f = ∑_{a,b,d} (f^{abd} − f^{adb})² .
+```
+
+The weak family is identical with `gw`, `e^{mbd}` and `Fin 3` colour indices:
+`(3 gw² / 2) · D_e`, `D_e = ∑_{m,b,d} (e^{mbd} − e^{mdb})²`.
+
+Both formulas are stated for a **general** `fabc`/`eabc`: the antisymmetrisation is what the
+levi-Civita contraction produces, so a non-antisymmetric structure-constant table is handled
+without extra hypotheses.  For totally antisymmetric constants `D_f = 4 ∑ f²`, `D_e = 4 ∑ e²`.
+
+### 42.3. The covariant Higgs derivative
+
+`Φ_{a,i} = (D_i φ)_a` is linear in `W^j_i`, `B_i` and `φ_b` through the two bilinears
+`gw · tgen(j,a,b) W^j_i φ_b` and `gy · ygen(a,b) B_i φ_b`.  Differentiating in the momentum
+coordinates:
+
+```
+∂/∂W^j_i  :  coefficient gw · tgen(j,a,b) in φ_b                 (sum over b)
+∂/∂φ_b    :  gw · tgen(j,a,b) in W^j_i   and   gy · ygen(a,b) in B_i
+∂/∂B_i    :  coefficient gy · ygen(a,b) in φ_b
+```
+
+so
+
+```
+E[|∇_S Φ_{a,i}|²]  =  2 gw² ∑_{j,b} tgen(j,a,b)²  +  2 gy² ∑_b ygen(a,b)² ,
+```
+
+and summing over the `4` doublet components and `3` spatial directions:
+
+```
+E[∑_{covD} |∇_S Φ_r|²]  =  6 gw² · T  +  6 gy² · Y ,
+T = ∑_{a,j,b} tgen(j,a,b)² ,       Y = ∑_{a,b} ygen(a,b)² .
+```
+
+### 42.4. The tail
+
+With `G = 2 ∑_{magG, magW, covD} |∇_S Φ_r|²`:
+
+```
+E[G]  =  3 gs² D_f  +  3 gw² D_e  +  12 gw² T  +  12 gy² Y  ≥  0 .
+```
+
+For the standard normalizations (`∑_{abd} f^{abd}² = 24` for `SU(3)`, `e^{mbd} = ε^{mbd}`,
+`tgen = τ_j/2`, `ygen = σ₃/2`, so `D_f = 96`, `D_e = 24`, `T = 3/2`, `Y = 1/2`):
+
+```
+E[G]  =  288 gs²  +  90 gw²  +  6 gy² .
+```
+
+At the physical couplings (`gs² ≈ 1.48`, `gw² ≈ 0.43`, `gy² ≈ 0.13`) this is `≈ 466` — an
+illustration only, because it is evaluated at the unit field normalization that the Gaussian
+weight fixes, and the corpus fixes none (§40.4).
+
+### 42.5. Where it enters — on the left, not the right
+
+`E[Δ_S W] = 80 + E[G] + 48 λ − 8 λ v₀²` (§40.3).  So `E[G]` is a **positive** contribution to
+the Hessian trace's expectation: the non-abelian and covariant-derivative gradients make
+`E[Δ_S W]` larger and the corrected `p = 1` inequality (∗) *easier* to satisfy.  The retracted
+§40.4 put it on the right-hand side as an addition to the required `λ v₀²`; that was a
+consequence of the same dropped term, and it is withdrawn with it.
+
+### 42.6. What is proved and what is not
+
+* `coreD_one`, `kinPolyS_one`, `hessForm_one`, `weightedDirichlet_one_one` and the two SM
+  instances `hessForm_smPotPoly_one`, `weightedDirichlet_smPotPoly_one` are proved, `sorry`-
+  and `axiom`-free, in `BookProof/Sm/ChapterSmCrossTermHessian.lean` §9.  They fix the shape
+  of the `p = 1` test exactly.
+* The evaluations of §42.2–§42.4 are arithmetic on the coefficient data, checked symbolically
+  (including a non-antisymmetric `fabc`); they are not Lean theorems.
+* `PotSelfBound` and `FormDomainComparison` remain hypotheses.  Nothing in §40–§42 proves
+  either, and the `p = 1` test excludes no physically sensible data.

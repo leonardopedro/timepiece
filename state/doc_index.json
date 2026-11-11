@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-11T06:13:43+00:00",
+ "generated_at": "2026-11-11T08:14:08+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 2059,
+   "lines": 2210,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",
@@ -1193,7 +1193,8 @@
     "## 38. The cross term is a Hessian weight: the upper bound §35 asked for (2026-11-10p)",
     "## 39. Can the `ExpBounded` machinery supply the form-domain inclusion? No. (2026-11-10p)",
     "## §40. The Hessian gap at `p = 1`: a Gaussian-moment test",
-    "## §41. Sign of the Hessian trace (momentum Laplacian) of `smPotPoly`"
+    "## §41. Sign of the Hessian trace (momentum Laplacian) of `smPotPoly`",
+    "## §42. The gradient tail `E[G]`, explicitly"
    ]
   },
   {
@@ -1637,7 +1638,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_SPEC.md",
    "title": "MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
-   "lines": 485,
+   "lines": 494,
    "headings": [
     "# MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
     "## 1. The theorem of record (T6)",

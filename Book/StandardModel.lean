@@ -609,25 +609,35 @@ narrow and worth repeating: what is conditional is the relative-bound transfer, 
 of the operator, and the first test any candidate inequality for `PotSelfBound` should pass is
 $`p = 1`.
 
-The outcome of that test is now on the record, and it is a condition on the data.  At $`p = 1` the
-kinetic term and the weighted Dirichlet form both vanish, so the self-bound collapses to a single
-Gaussian moment, $`\int (\sum_{m} \partial_{q_m}^2 W)\, e^{-\lVert x \rVert^2/2}\, dx \le 0`.
-The momentum Laplacian of $`W` decomposes into the constant $`80` from $`\sum_m q_m^2`, the
-non-negative gradients of the magnetic and covariant-derivative forms, and the Higgs wall
-contribution $`24c^2 S - 16c^2 v^2` with $`c = \sqrt{\lambda/2}`$ and $`S = \sum_a \phi_a^2`$.
-The hypercharge field strength contributes nothing here, because it is built from the derivative
-coordinates and not from the momentum coordinates.  With $`\mathbb{E}[S] = 4`$ this gives
-$`\mathbb{E}[\Delta_S W] \ge 80 + 48\lambda - 8\lambda v^2`$, hence the necessary condition
+The outcome of that test is now on the record, and it is not the sign condition one would
+guess.  On the twisted core used by the formal proof the polynomial $`p = 1`$ is the Gaussian
+$`e^{-\lVert x \rVert^2/4}`$, not the constant function, so the twisted derivative does not
+vanish there: $`-\Delta_S 1 = 20 - \tfrac14 \lVert x_S \rVert^2`$ in the $`40`$ momentum
+coordinates, and the weighted Dirichlet energy of $`W + 1`$ at $`p = 1`$ is
+$`\tfrac14 \int (W+1)\, \lVert x_S \rVert^2\, e^{-\lVert x \rVert^2/2}`$.  The test reads
 
-$$`\lambda v^2 \;\ge\; 10 + 6\lambda + \frac{\mathbb{E}[G]}{8\lambda},`$$
+$$`\mathbb{E}[\Delta_S W] \;\le\; 105 + \tfrac12\, \mathbb{E}[(W+1)\lVert x_S \rVert^2],`$$
 
-where $`G \ge 0`$ collects the gradients of the non-abelian and covariant-derivative forms; the
-bound $`10 + 6\lambda`$ is attained only when those couplings vanish.  At the origin the Laplacian
-takes the value $`80 - 8\lambda v^2`$, so the Hessian trace is not sign-definite: it is negative
+not $`\mathbb{E}[\Delta_S W] \le 0`$: the weighted Dirichlet term is the large one, $`840`$
+already for the quadratic part of $`W`$.  The momentum Laplacian of $`W`$ decomposes into the
+constant $`80`$ from $`\sum_m q_m^2`$, the non-negative gradients of the magnetic and
+covariant-derivative forms, and the Higgs wall contribution $`24c^2 S - 16c^2 v^2`$ with
+$`c = \sqrt{\lambda/2}`$ and $`S = \sum_a \phi_a^2`$.  The hypercharge field strength
+contributes nothing here, because it is built from the derivative coordinates and not from the
+momentum coordinates.  With $`\mathbb{E}[S] = 4`$ the expectation is an identity,
+$`\mathbb{E}[\Delta_S W] = 80 + \mathbb{E}[G] + 48\lambda - 8\lambda v^2`$, where $`G \ge 0`$
+is the gradient tail of the non-abelian and covariant-derivative forms, namely
+$`3g_s^2 D_f + 3g_w^2 D_e + 12g_w^2 T + 12g_y^2 Y`$ in the contractions $`D_f`$, $`D_e`$,
+$`T`$, $`Y`$ of the structure constants and generators.  It enters on the left, so it makes the
+test easier rather than harder.  Both $`\mathbb{E}[G]`$ and the moment of
+$`\Phi \lVert x_S \rVert^2`$ are non-negative, so the test excludes only a strongly negative
+$`\lambda v^2`$; and it is not scale-covariant, because the Gaussian weight fixes a unit field
+normalization that this corpus does not fix.  At the origin the Laplacian takes the value
+$`80 - 8\lambda v^2`$, so the Hessian trace is not sign-definite: it is negative
 on a bounded neighbourhood of the origin exactly when $`\lambda v^2 > 10`$, and positive in the
 tails.  The self-bound of the potential is therefore not a consequence of positivity of $`W`$; it
-requires either a regime restriction on $`(\lambda, v)`$ together with a proof for all $`p`$, or the
-elliptic regularity behind the form-domain comparison, and neither is in this corpus.
+requires either a regime restriction on $`(\lambda, v)`$ together with a proof for all $`p`$, or
+the elliptic regularity behind the form-domain comparison, and neither is in this corpus.
 :::
 
 ```
