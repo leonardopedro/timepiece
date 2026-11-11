@@ -399,6 +399,249 @@ theorem colour_contraction_double (P : Fin 3 → Fin 3 → ℂ) (hP : ∀ j k, P
     _ = 2 * ∑ j : Fin 3, ∑ k : Fin 3, P j k * P j k := by
         simp only [Finset.mul_sum]
 
+/-! ### 3b.2b The `su(2)` structure constants, and the colour factor explicitly
+
+§3b.2 leaves `f_{abc}` free and derives only what antisymmetry and Jacobi buy.  Here the tensor is
+*instantiated*: on the first three of the eight colour indices it is the Levi-Civita symbol,
+```
+f_{abc} = ε_{abc}   (a, b, c < 3),      f_{abc} = 0   otherwise,
+```
+which is exactly the `su(2)` structure-constant tensor `ε_{abc}` in the adjoint of `su(2)`
+(`su2Struct`, with the three slots `su2Slot i`).  The remaining five colour directions are abelian
+in this instantiation, so the model then carries `su(2) × U(1)⁵`; every statement below is about the
+`su(2)` block, and the `U(1)` directions are invisible to it.
+
+What becomes *computable* once the tensor is concrete:
+
+* **the hypotheses are met**: `IsAntisymmetric su2Struct` (`su2Struct_antisym`, from the
+  antisymmetry of `ε`) and `SatisfiesJacobi su2Struct` (`su2Struct_jacobi`) — so every theorem of
+  §3b.2 applies to this tensor with no side conditions left;
+* **the colour tensor**, explicitly:
+  `K_{abcd} = Σ_e f_{abe} f_{cde} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}` (`colourTensor_su2`) — the
+  `ε`–`ε` contraction of §3b.0 with the summed index in the third slot;
+* **the colour factor**: `Σ_{ab} f_{abe} f_{abd} = 2 δ_{ed}` (`su2_casimir_adjoint`), so the adjoint
+  Casimir is `C_A = 2` (`su2_casimir_adjoint_value`), and contracting both indices as well gives
+  `Σ_{abc} f_{abc}² = C_A · dim(adj) = 2 · 3 = 6` (`su2_colourWeight_sum`).  This is the number that
+  multiplies the squared amplitude in the perturbative reading; it is *computed* from the structure
+  constants, not assumed.
+
+Where the number `2` enters *this* model: `colour_contraction_double` already shows that
+antisymmetry doubles the `ε`-contraction of the quartic colour energy, and the Casimir above is the
+same `2` — the quartic energy of the non-abelian term is `2` times the direct square, with the `2`
+traceable to `ε_{abc}ε_{abd} = 2δ_{cd}` once the sum runs over the block.
+
+**Boundary.**  The *fundamental* Casimir `C_F = 3/4` is **not** available here: the model carries
+only the adjoint structure constants `f_{abc}`, and `C_F` needs a fundamental representation
+(`T^a = σ^a/2`) that this chapter does not define.  What is proved is the adjoint colour factor;
+`C_F` would be a separate instantiation.
+-/
+
+/-- The **`su(2)` colour slots**: the first three of the eight colour indices, where the non-abelian
+structure constants live in this instantiation. -/
+def su2Slot (i : Fin 3) : Fin 8 := ⟨i.val, by omega⟩
+
+/-- The three slots are distinct. -/
+theorem su2Slot_injective : Function.Injective su2Slot := by
+  intro i j h
+  have hv : i.val = j.val := congrArg (fun x : Fin 8 => x.val) h
+  exact Fin.ext hv
+
+/-- **The `su(2)` structure constants** on the eight colour indices: `f_{abc} = ε_{abc}` on the
+three `su(2)` slots and `0` off them.  The remaining five colour directions are abelian, so this
+is the `su(2) × U(1)⁵` instantiation of the free tensor `fabc`. -/
+def su2Struct (a b c : Fin 8) : ℝ :=
+  if h : a.val < 3 ∧ b.val < 3 ∧ c.val < 3 then
+    levi ⟨a.val, h.1⟩ ⟨b.val, h.2.1⟩ ⟨c.val, h.2.2⟩
+  else 0
+
+/-- On the `su(2)` slots the instantiated tensor **is** `ε`. -/
+theorem su2Struct_slot (i j k : Fin 3) :
+    su2Struct (su2Slot i) (su2Slot j) (su2Slot k) = levi i j k := by
+  unfold su2Struct
+  simp only [su2Slot, Fin.val_mk]
+  rw [dif_pos ⟨i.isLt, j.isLt, k.isLt⟩]
+
+/-- Off the `su(2)` block the tensor vanishes in its first index. -/
+theorem su2Struct_zero_left (a b c : Fin 8) (h : 3 ≤ a.val) : su2Struct a b c = 0 := by
+  unfold su2Struct
+  rw [dif_neg]
+  omega
+
+/-- Off the `su(2)` block the tensor vanishes in its second index. -/
+theorem su2Struct_zero_mid (a b c : Fin 8) (h : 3 ≤ b.val) : su2Struct a b c = 0 := by
+  unfold su2Struct
+  rw [dif_neg]
+  omega
+
+/-- Off the `su(2)` block the tensor vanishes in its third index. -/
+theorem su2Struct_zero_right (a b c : Fin 8) (h : 3 ≤ c.val) : su2Struct a b c = 0 := by
+  unfold su2Struct
+  rw [dif_neg]
+  omega
+
+/-- `ε` is antisymmetric in its last two indices. -/
+theorem levi_antisym (i j k : Fin 3) : levi i j k = -levi i k j := by
+  fin_cases i <;> fin_cases j <;> fin_cases k <;> norm_num [levi]
+
+/-- **Sums over the eight colour indices reduce to sums over the `su(2)` block** when the summand
+vanishes off it: `∑_{e<8} g(e) = ∑_{i<3} g(slot i)`.  This is the bookkeeping lemma that makes
+every colour computation below a computation over `Fin 3`. -/
+theorem sum_fin8_eq_sum_su2 (g : Fin 8 → ℝ) (hg : ∀ e : Fin 8, 3 ≤ e.val → g e = 0) :
+    ∑ e : Fin 8, g e = ∑ i : Fin 3, g (su2Slot i) := by
+  have himg : (Finset.univ.filter (fun e : Fin 8 => e.val < 3))
+      = (Finset.univ : Finset (Fin 3)).image su2Slot := by
+    ext e
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_image]
+    constructor
+    · intro h
+      exact ⟨⟨e.val, h⟩, Fin.ext rfl⟩
+    · rintro ⟨i, rfl⟩
+      exact i.isLt
+  have h1 : ∑ e ∈ Finset.univ.filter (fun e : Fin 8 => e.val < 3), g e = ∑ e : Fin 8, g e := by
+    refine Finset.sum_subset (Finset.filter_subset _ _) ?_
+    intro x _ hx
+    have h3 : 3 ≤ x.val := by
+      by_contra hlt
+      exact hx (by
+        simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+        omega)
+    exact hg x h3
+  rw [← h1, himg, Finset.sum_image]
+  intro i _ j _ h
+  exact su2Slot_injective h
+
+/-- **The `su(2)` tensor is antisymmetric**, so §3b.2's `fabc_self_eq_zero` and the doubling of the
+quartic energy apply to it. -/
+theorem su2Struct_antisym : IsAntisymmetric su2Struct := by
+  intro a b c
+  unfold su2Struct
+  by_cases h : a.val < 3 ∧ b.val < 3 ∧ c.val < 3
+  · obtain ⟨ha, hb, hc⟩ := h
+    rw [dif_pos ⟨ha, hb, hc⟩, dif_pos ⟨ha, hc, hb⟩, levi_antisym]
+  · have h' : ¬ (a.val < 3 ∧ c.val < 3 ∧ b.val < 3) := by tauto
+    rw [dif_neg h, dif_neg h']
+    ring
+
+set_option maxHeartbeats 2000000 in
+-- The identity reduces to 81 concrete three-term `Fin 3` sums; the default budget is too small.
+/-- **The `su(2)` tensor satisfies Jacobi**: the cyclic `ε` identity, `su(2)` being simple.
+With `su2Struct_antisym` this means no hypothesis of §3b.2 is left open for this tensor. -/
+theorem su2Struct_jacobi : SatisfiesJacobi su2Struct := by
+  intro a b c d
+  by_cases h : a.val < 3 ∧ b.val < 3 ∧ c.val < 3 ∧ d.val < 3
+  · obtain ⟨ha, hb, hc, hd⟩ := h
+    obtain ⟨a', rfl⟩ : ∃ a' : Fin 3, su2Slot a' = a := ⟨⟨a.val, ha⟩, Fin.ext rfl⟩
+    obtain ⟨b', rfl⟩ : ∃ b' : Fin 3, su2Slot b' = b := ⟨⟨b.val, hb⟩, Fin.ext rfl⟩
+    obtain ⟨c', rfl⟩ : ∃ c' : Fin 3, su2Slot c' = c := ⟨⟨c.val, hc⟩, Fin.ext rfl⟩
+    obtain ⟨d', rfl⟩ : ∃ d' : Fin 3, su2Slot d' = d := ⟨⟨d.val, hd⟩, Fin.ext rfl⟩
+    have hg : ∀ e : Fin 8, 3 ≤ e.val →
+        su2Struct (su2Slot a') (su2Slot b') e * su2Struct (su2Slot c') (su2Slot d') e
+        + su2Struct (su2Slot b') (su2Slot c') e * su2Struct (su2Slot a') (su2Slot d') e
+        + su2Struct (su2Slot c') (su2Slot a') e * su2Struct (su2Slot b') (su2Slot d') e = 0 := by
+      intro e he
+      rw [su2Struct_zero_right (su2Slot a') (su2Slot b') e he,
+        su2Struct_zero_right (su2Slot c') (su2Slot d') e he,
+        su2Struct_zero_right (su2Slot b') (su2Slot c') e he,
+        su2Struct_zero_right (su2Slot a') (su2Slot d') e he,
+        su2Struct_zero_right (su2Slot c') (su2Slot a') e he,
+        su2Struct_zero_right (su2Slot b') (su2Slot d') e he]
+      norm_num
+    rw [sum_fin8_eq_sum_su2 (g := fun e : Fin 8 =>
+      su2Struct (su2Slot a') (su2Slot b') e * su2Struct (su2Slot c') (su2Slot d') e
+      + su2Struct (su2Slot b') (su2Slot c') e * su2Struct (su2Slot a') (su2Slot d') e
+      + su2Struct (su2Slot c') (su2Slot a') e * su2Struct (su2Slot b') (su2Slot d') e) hg]
+    simp only [su2Struct_slot]
+    fin_cases a' <;> fin_cases b' <;> fin_cases c' <;> fin_cases d' <;>
+      simp only [Fin.sum_univ_three, levi] <;> norm_num
+  · have hz : ∀ e : Fin 8,
+        su2Struct a b e * su2Struct c d e + su2Struct b c e * su2Struct a d e
+        + su2Struct c a e * su2Struct b d e = 0 := by
+      intro e
+      by_cases hb3 : b.val < 3
+      · by_cases hc3 : c.val < 3
+        · by_cases hd3 : d.val < 3
+          · have ha3 : 3 ≤ a.val := by
+              by_contra hlt
+              exact h ⟨by omega, hb3, hc3, hd3⟩
+            rw [su2Struct_zero_left a b e ha3, su2Struct_zero_left a d e ha3,
+              su2Struct_zero_mid c a e ha3]
+            norm_num
+          · have hd3' : 3 ≤ d.val := by omega
+            rw [su2Struct_zero_mid c d e hd3', su2Struct_zero_mid a d e hd3',
+              su2Struct_zero_mid b d e hd3']
+            norm_num
+        · rw [su2Struct_zero_mid b c e (by omega), su2Struct_zero_left c d e (by omega),
+            su2Struct_zero_left c a e (by omega)]
+          norm_num
+      · rw [su2Struct_zero_mid a b e (by omega), su2Struct_zero_left b c e (by omega),
+          su2Struct_zero_left b d e (by omega)]
+        norm_num
+    exact Finset.sum_eq_zero fun e _ => hz e
+
+/-- **The colour tensor of the `su(2)` instantiation**, explicitly:
+`K_{abcd} = Σ_e f_{abe}f_{cde} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}` on the `su(2)` slots — the `ε`–`ε`
+contraction with the summed index in the third slot, and the identity behind the quartic colour
+energy of §3b.2. -/
+theorem colourTensor_su2 (a b c d : Fin 3) :
+    colourTensor su2Struct (su2Slot a) (su2Slot b) (su2Slot c) (su2Slot d)
+      = (if a = c ∧ b = d then 1 else 0) - (if a = d ∧ b = c then 1 else 0) := by
+  have hg : ∀ e : Fin 8, 3 ≤ e.val →
+      su2Struct (su2Slot a) (su2Slot b) e * su2Struct (su2Slot c) (su2Slot d) e = 0 := by
+    intro e he
+    rw [su2Struct_zero_right (su2Slot a) (su2Slot b) e he,
+      su2Struct_zero_right (su2Slot c) (su2Slot d) e he]
+    norm_num
+  unfold colourTensor
+  rw [sum_fin8_eq_sum_su2 (g := fun e : Fin 8 =>
+    su2Struct (su2Slot a) (su2Slot b) e * su2Struct (su2Slot c) (su2Slot d) e) hg]
+  simp only [su2Struct_slot]
+  fin_cases a <;> fin_cases b <;> fin_cases c <;> fin_cases d <;>
+    simp only [Fin.sum_univ_three, levi] <;> norm_num
+
+/-- **The `su(2)` colour factor (adjoint Casimir)**, derived and not assumed:
+`Σ_{ab} f_{abe}f_{abd} = 2 δ_{ed}`, i.e. `C_A = 2`. -/
+theorem su2_casimir_adjoint (i j : Fin 3) :
+    ∑ a : Fin 8, ∑ b : Fin 8, su2Struct a b (su2Slot i) * su2Struct a b (su2Slot j)
+      = if i = j then 2 else 0 := by
+  have hinner : ∀ a : Fin 8,
+      ∑ b : Fin 8, su2Struct a b (su2Slot i) * su2Struct a b (su2Slot j)
+        = ∑ b' : Fin 3, su2Struct a (su2Slot b') (su2Slot i) *
+            su2Struct a (su2Slot b') (su2Slot j) := by
+    intro a
+    refine sum_fin8_eq_sum_su2 (g := fun b : Fin 8 =>
+      su2Struct a b (su2Slot i) * su2Struct a b (su2Slot j)) ?_
+    intro b hb
+    change su2Struct a b (su2Slot i) * su2Struct a b (su2Slot j) = 0
+    rw [su2Struct_zero_mid a b (su2Slot i) hb]
+    norm_num
+  simp only [hinner]
+  have hg : ∀ a : Fin 8, 3 ≤ a.val →
+      (∑ b' : Fin 3, su2Struct a (su2Slot b') (su2Slot i) *
+        su2Struct a (su2Slot b') (su2Slot j)) = 0 := by
+    intro a ha
+    refine Finset.sum_eq_zero fun b' _ => ?_
+    rw [su2Struct_zero_left a (su2Slot b') (su2Slot i) ha]
+    norm_num
+  rw [sum_fin8_eq_sum_su2 (g := fun a : Fin 8 => ∑ b' : Fin 3,
+    su2Struct a (su2Slot b') (su2Slot i) * su2Struct a (su2Slot b') (su2Slot j)) hg]
+  simp only [su2Struct_slot]
+  fin_cases i <;> fin_cases j <;> simp only [Fin.sum_univ_three] <;> norm_num [levi]
+
+/-- **`C_A = 2` for the instantiated `su(2)`**: the diagonal entry of the adjoint Casimir. -/
+theorem su2_casimir_adjoint_value :
+    ∑ a : Fin 8, ∑ b : Fin 8, su2Struct a b (su2Slot 0) * su2Struct a b (su2Slot 0) = 2 := by
+  rw [su2_casimir_adjoint 0 0]
+  norm_num
+
+/-- **The total colour weight** `Σ_{abc} f_{abc}² = C_A · dim(adj) = 2 · 3 = 6`, the number that
+multiplies a squared amplitude in the perturbative reading — computed from the structure constants,
+not assumed. -/
+theorem su2_colourWeight_sum :
+    ∑ c : Fin 3, ∑ a : Fin 8, ∑ b : Fin 8,
+        su2Struct a b (su2Slot c) * su2Struct a b (su2Slot c) = 6 := by
+  simp only [su2_casimir_adjoint]
+  norm_num
+
 /-! ### 3b.1 What the field-strength operator does to a mode
 
 `mag_eq_root` would say that `B_{ia}` acts on the embedded modes like the occupation number of the
@@ -1044,6 +1287,17 @@ above.  This section states that identification and proves what it yields.
   and what they buy: a repeated index vanishes, Jacobi *is* the cyclic vanishing of the colour
   tensor, and antisymmetry makes the `ε` contraction of an antisymmetric pair **double** — the
   factor `2` of the quartic colour energy;
+* **`su2Slot`**, **`su2Struct`**, **`su2Struct_slot`**, **`su2Struct_zero_left`**,
+  **`su2Struct_zero_mid`**, **`su2Struct_zero_right`**, **`sum_fin8_eq_sum_su2`** — the *instance*:
+  `f_{abc} = ε_{abc}` on the first three colour indices and `0` off them is the `su(2)`
+  structure-constant tensor, so the free `fabc` of §3b.2 can be read concretely;
+* **`levi_antisym`**, **`su2Struct_antisym`**, **`su2Struct_jacobi`** — the instance **satisfies**
+  the two hypotheses of §3b.2, so no side condition is left open for it;
+* **`colourTensor_su2`**, **`su2_casimir_adjoint`**, **`su2_casimir_adjoint_value`**,
+  **`su2_colourWeight_sum`** — the colour factor, computed: `K_{abcd} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}`,
+  `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`C_A = 2`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6`.  The
+  fundamental `C_F = 3/4` is *not* here: it needs a fundamental representation, which the model does
+  not carry;
 * **`pderiv_X_mul`**, **`normalOrder_contraction`**, **`coeff_zero_magPoly`**,
   **`magPoly_mul_monomial_ne`** — the normal-ordered side: `[∂ᵢ, Xᵢ] = 1` is the contraction
   constant, and `magPoly`'s multiplication is off-diagonal at every monomial, so the `:N²:` form is

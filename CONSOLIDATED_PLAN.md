@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11a):** “State of the project — 2026-11-11a: the mode expectation of `:B²:`
+> **Newest entry (2026-11-11b):** “State of the project — 2026-11-11b: the `su(2)` structure
+> constants, and `C_A = 2` computed” (end of file): `su2Struct` instantiates `f_{abc} = ε_{abc}` on
+> the three `su2Slot`s (`su(2) × U(1)⁵`), satisfies antisymmetry and Jacobi
+> (`su2Struct_antisym`, `su2Struct_jacobi`), and gives the colour tensor
+> `K_{abcd} = δ_acδ_bd − δ_adδ_bc` (`colourTensor_su2`) with `C_A = 2` and `Σ f² = 6`
+> (`su2_casimir_adjoint_value`, `su2_colourWeight_sum`).  `C_F = 3/4` is explicitly out of scope.
+> `lake build +BookProof` completed.
+> **Earlier entry (2026-11-11a):** “State of the project — 2026-11-11a: the mode expectation of `:B²:`
 > on the linear half” (end of file): the mode state as a unit vector of the monomial-orthonormal
 > model (`modeState`, `modeExp`), the contraction `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`
 > (`coeff_pderiv_X_mul`), and normal ordering as “replace `1 + n` by `n`” for a linear field
@@ -19928,4 +19935,40 @@ two-field computation above.  `RootModeIdentification` therefore still has no in
 entry does not narrow it — it supplies the linear half exactly and marks the quartic half as open.
 
 **Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all twenty new
+declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.
+
+## State of the project — 2026-11-11b: the `su(2)` structure constants, and `C_A = 2` computed
+
+§3b.2 (2026-11-10m) left `f_{abc}` free and derived only what antisymmetry and Jacobi buy, noting
+that the numerical Casimir was *not* derived because it needs specific constants.  This entry
+supplies them: the tensor is instantiated with the `su(2)` structure constants and the colour factor
+is computed explicitly.  All new declarations are in
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit` §3b.2b.
+
+**(1) The instance.**  `su2Struct a b c` is `ε_{abc}` when all three indices are among the three
+`su2Slot`s and `0` otherwise — the adjoint of `su(2)` sitting inside the eight colour coordinates,
+so the model carries `su(2) × U(1)⁵` rather than a free tensor.  `su2Struct_slot` reads the tensor
+on the block as `ε`; `su2Struct_zero_left/mid/right` are its vanishing off it; and
+`sum_fin8_eq_sum_su2` reduces any sum over the eight indices to a sum over the block, which is what
+makes every computation below a `Fin 3` computation.  `levi_antisym` is the antisymmetry of `ε`.
+
+**(2) The hypotheses are met, unconditionally.**  `su2Struct_antisym` (antisymmetry of `ε`) and
+`su2Struct_jacobi` (the cyclic `ε` identity: `su(2)` is simple) mean every theorem of §3b.2 applies
+to the instantiated tensor with no side condition left.  In particular `fabc_self_eq_zero` and
+`colour_contraction_double` — the factor `2` of the quartic colour energy — hold for it.
+
+**(3) The colour factor, computed.**  The colour tensor is explicit:
+`K_{abcd} = Σ_e f_{abe}f_{cde} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}` (`colourTensor_su2`) — the `ε`–`ε`
+contraction with the summed index in the third slot.  Contracting two indices gives the adjoint
+Casimir `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`su2_casimir_adjoint`), so `C_A = 2`
+(`su2_casimir_adjoint_value`), and contracting both gives `Σ_{abc} f_{abc}² = C_A·dim(adj) =
+2·3 = 6` (`su2_colourWeight_sum`).  These are *computed* from the structure constants, not
+hard-coded; the `2` of `colour_contraction_double` is the same `2`.
+
+**(4) What is *not* claimed.**  The fundamental Casimir `C_F = 3/4` is not derived: the model
+carries only the adjoint structure constants `f_{abc}`, and `C_F` requires a fundamental
+representation (`T^a = σ^a/2`) that the chapter does not define.  What is proved is the adjoint
+colour factor; `C_F` would be a separate instantiation.
+
+**Verification.**  `lake build +BookProof` completed, 0 errors; `#print axioms` on all thirteen new
 declarations gives only `propext`, `Classical.choice`, `Quot.sound`; line-length check clean.

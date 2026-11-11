@@ -694,6 +694,17 @@ Two of the pieces the inhabitant needed are built (§3d.0 and the energy contrac
   `magPoly_mul_monomial_ne`: `B_{ia}` has zero diagonal at every monomial.  So `:N²:` is the
   contracted `Σ B†B − (contraction)`, not the diagonal of `magOps`.
 
+**The `su(2)` instantiation, and the colour factor computed.**  The free tensor is now instantiated:
+`su2Struct` is `f_{abc} = ε_{abc}` on the first three colour indices (the `su2Slot`s) and `0` off
+them — `su(2) × U(1)⁵` in place of the free `fabc`.  It satisfies both hypotheses
+(`su2Struct_antisym`, `su2Struct_jacobi`), so §3b.2 applies with nothing left open, and the colour
+quantities become explicit: `K_{abcd} = δ_ac δ_bd − δ_ad δ_bc` (`colourTensor_su2`), the adjoint
+Casimir `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}`, i.e. `C_A = 2` (`su2_casimir_adjoint`,
+`su2_casimir_adjoint_value`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6` (`su2_colourWeight_sum`).
+The fundamental Casimir `C_F = 3/4` is **not** derived: the model carries only the adjoint structure
+constants, and `C_F` needs a fundamental representation (`T^a = σ^a/2`) that the chapter does not
+define.
+
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.
 `mulOp_X_monomial` (`X i * monomial m z = monomial (m + e_i) z`) and `mulOp_X_monomial_ne` (the
