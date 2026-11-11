@@ -1341,6 +1341,17 @@ above.  This section states that identification and proves what it yields.
 * **`root_spectral_gap_on_closure`** — the gap on the closure, i.e. for any point that is a
   `coreNormSq` limit of root-domain vectors: no limiting argument on the quartic form is used (and
   none is available — `quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`);
+* **`coreLp`**, **`coreToLp`**, **`norm_coreToLp_sq`**, **`norm_sq_eq_tsum`** — the ℓ² completion
+  of the coefficient model, the embedding of the finitely supported core into it (isometric:
+  `coreNormSq` is the squared ℓ² norm), and the norm formula `‖f‖² = ∑' n, ‖f n‖²`;
+* **`vacuumOrthogonal`**, **`isClosed_vacuumOrthogonal`**, **`mem_closure_rootDomain_image`**,
+  **`closure_rootDomain_image_eq`** — the vacuum-orthogonal closed subspace of the completion, and
+  the analytic density statement: finite-support root vectors are dense in it, so its closure **is**
+  that subspace;
+* **`refFormLp`**, **`ref_spectral_gap_closure`** — the reference form on its natural (unbounded)
+  domain in ℓ², and `href_spectral_gap` extended to it: the gap holds on the completion wherever the
+  form is finite, with summability carried as a hypothesis.  The quartic Yang–Mills form has no ℓ²
+  analogue here, and none is claimed;
 * **`RootFormDomination`**, **`root_ground_bound`**, **`root_excited_bound`**,
   **`s2RootFormDomination`** — the domination certificate with `dom` required only on the root
   sector, which `RootModeIdentification` supplies;
@@ -2104,6 +2115,195 @@ theorem root_spectral_gap_on_closure (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8
       ≤ quadForm (ymHamiltonian Φ fabc) (RI.toCore c) :=
   root_spectral_gap Φ fabc RI hω hg hc₁ hω₁ c
     (rootDomain_closed_of_tendsto s hs c hlim)
+
+/-! #### The ℓ² completion: the root domain is dense, and the gap holds on it
+
+The coefficient model is finitely supported, so "the closure of the root domain" can only mean the
+completion.  This section builds it: `coreLp` is `ℓ²` on the occupation multi-indices, `coreToLp`
+reads a core vector there, and `vacuumOrthogonal` is the closed subspace of vectors with no vacuum
+component.  Finite-support root vectors are dense in that subspace (`closure_rootDomain_image_eq`),
+which is the analytic form of §3d.3: what is "the excited span" there is literally a dense subspace
+here.
+
+The reference form is *unbounded* — `refEnergy` grows with the total occupation — so it is not a
+function on all of `ℓ²`.  `refFormLp` is defined where its defining series converges, and the gap
+statement carries that summability as a hypothesis; the gap survives the limit unchanged
+(`ref_spectral_gap_closure`), the termwise bound of `href_spectral_gap` becoming a `tsum`
+comparison.
+
+What this section does **not** do is extend the Yang–Mills form to the completion: `quadForm
+(ymHamiltonian …)` is quartic and not continuous in the `ℓ²` norm, so the right-hand side of
+`root_spectral_gap` has no `ℓ²` analogue here, and none is claimed.
+-/
+
+open scoped ENNReal
+
+variable {d : ℕ}
+
+/-- The ℓ² completion of the coefficient model: square-summable families on the occupation
+multi-indices. -/
+abbrev coreLp (d : ℕ) := lp (fun _ : Fin d → ℕ => ℂ) 2
+
+/-- The finite-support coefficient vector `c`, viewed in the completion. -/
+noncomputable def coreToLp (c : CoreCoeff d) : coreLp d :=
+  ∑ n ∈ c.support, lp.single 2 n (c n)
+
+/-- A finite combination of coordinate basis vectors, read at `m`: it is `φ m` when `m` is one of
+the indices used and zero otherwise. -/
+theorem sum_single_apply (s : Finset (Fin d → ℕ)) (φ : (Fin d → ℕ) → ℂ) (m : Fin d → ℕ) :
+    ((∑ i ∈ s, lp.single 2 i (φ i)) : coreLp d) m = if m ∈ s then φ m else 0 := by
+  classical
+  simp only [lp.coeFn_sum, Finset.sum_apply, lp.single_apply]
+  by_cases hm : m ∈ s
+  · rw [Finset.sum_eq_single m (fun b _ hbm => Pi.single_eq_of_ne' hbm _)
+      (fun h => absurd hm h)]
+    simp [hm]
+  · rw [Finset.sum_eq_zero (fun x hx =>
+        Pi.single_eq_of_ne' (fun h => hm (by rw [← h]; exact hx)) _), if_neg hm]
+
+/-- **The embedding reads back the coefficients**: on its support `coreToLp c` is `c`. -/
+theorem coreToLp_apply (c : CoreCoeff d) (n : Fin d → ℕ) : coreToLp c n = c n := by
+  classical
+  rw [coreToLp, sum_single_apply]
+  by_cases hn : n ∈ c.support
+  · simp [hn]
+  · rw [if_neg hn, Finsupp.notMem_support_iff.mp hn]
+
+/-- **The `ℓ²` norm is the completed core norm**: `‖f‖² = ∑' n, ‖f n‖²`. -/
+theorem norm_sq_eq_tsum (f : coreLp d) : ‖f‖ ^ 2 = ∑' n, ‖f n‖ ^ 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  rw [lp.norm_eq_tsum_rpow hp, h2]
+  simp only [Real.rpow_two]
+  rw [← Real.sqrt_eq_rpow, Real.sq_sqrt (tsum_nonneg fun n => by positivity)]
+
+/-- **The embedding is isometric for the core norm**: `coreNormSq` is the squared `ℓ²` norm of the
+image.  So `coreNormSq`-convergence is `ℓ²`-convergence on finite-support vectors, and the two
+notions of closure of §3d.3 meet here. -/
+theorem norm_coreToLp_sq (c : CoreCoeff d) : ‖coreToLp c‖ ^ 2 = coreNormSq c := by
+  have hzero : ∀ n ∉ c.support, ‖coreToLp c n‖ ^ 2 = 0 := by
+    intro n hn
+    rw [coreToLp_apply, Finsupp.notMem_support_iff.mp hn]
+    simp
+  rw [norm_sq_eq_tsum, tsum_eq_sum hzero, coreNormSq]
+  exact Finset.sum_congr rfl fun n _ => by rw [coreToLp_apply]
+
+/-- Evaluation of a completion vector at one multi-index is continuous — in fact `1`-Lipschitz,
+because `‖f i‖ ≤ ‖f‖`. -/
+theorem continuous_apply_coreLp (i : Fin d → ℕ) : Continuous fun f : coreLp d => f i := by
+  have h : LipschitzWith 1 fun f : coreLp d => f i := by
+    refine LipschitzWith.of_dist_le_mul fun f g => ?_
+    have h := lp.norm_apply_le_norm (p := 2) (by simp) (f - g) i
+    simp only [lp.coeFn_sub, Pi.sub_apply] at h
+    simpa [dist_eq_norm] using h
+  exact h.continuous
+
+/-- The vacuum-orthogonal subspace of the completion: the vectors with no vacuum component. -/
+def vacuumOrthogonal (d : ℕ) : Submodule ℂ (coreLp d) where
+  carrier := {f | f 0 = 0}
+  zero_mem' := rfl
+  add_mem' := by
+    intro f g hf hg
+    change (f + g) 0 = 0
+    rw [lp.coeFn_add, Pi.add_apply, hf, hg, add_zero]
+  smul_mem' := by
+    intro a f hf
+    change (a • f) 0 = 0
+    rw [lp.coeFn_smul, Pi.smul_apply, hf, smul_zero]
+
+/-- The vacuum-orthogonal subspace is closed: it is the preimage of `{0}` under a continuous
+functional. -/
+theorem isClosed_vacuumOrthogonal (d : ℕ) : IsClosed (vacuumOrthogonal d : Set (coreLp d)) :=
+  isClosed_eq (continuous_apply_coreLp 0) continuous_const
+
+/-- Root-domain vectors land in the vacuum-orthogonal subspace: the embedding preserves the
+vanishing vacuum coefficient. -/
+theorem coreToLp_mem_vacuumOrthogonal {c : CoreCoeff 24} (hc : c ∈ rootDomain) :
+    coreToLp c ∈ vacuumOrthogonal 24 := by
+  change coreToLp c 0 = 0
+  rw [coreToLp_apply]
+  exact mem_rootDomain.mp hc
+
+/-- **Finite-support root vectors are dense in the vacuum-orthogonal subspace.**  Given `f` with no
+vacuum component and `ε > 0`, the canonical finitely supported approximations of `lp.hasSum_single`
+produce a root-domain vector within `ε` of `f` — the truncation is a `Finsupp`, and it inherits
+`f 0 = 0`. -/
+theorem mem_closure_rootDomain_image (f : coreLp 24) (hf : f 0 = 0) :
+    f ∈ closure (coreToLp '' (rootDomain : Set (CoreCoeff 24))) := by
+  classical
+  rw [Metric.mem_closure_iff]
+  intro ε hε
+  have ht : Filter.Tendsto (fun s : Finset (Fin 24 → ℕ) => ∑ i ∈ s, lp.single 2 i (f i))
+      Filter.atTop (nhds f) := lp.hasSum_single (p := 2) (by simp) f
+  obtain ⟨s, hs⟩ := ((Metric.tendsto_nhds.mp ht) ε hε).exists
+  have hs' : dist (∑ i ∈ s, lp.single 2 i (f i)) f < ε := hs
+  let g : (Fin 24 → ℕ) → ℂ := fun n => if n ∈ s then f n else 0
+  have hfin : (Function.support g).Finite :=
+    s.finite_toSet.subset (by
+      intro n hn
+      by_contra hns
+      have hns' : n ∉ s := by simpa using hns
+      have hz : g n = 0 := by
+        change (if n ∈ s then f n else 0) = 0
+        rw [if_neg hns']
+      exact hn hz)
+  let c : CoreCoeff 24 := Finsupp.ofSupportFinite g hfin
+  have hc_apply : ∀ n, c n = g n := fun n =>
+    congrFun (Finsupp.ofSupportFinite_coe (f := g) (hf := hfin)) n
+  have hc0 : c 0 = 0 := by
+    rw [hc_apply]
+    simp only [g]
+    simp [hf]
+  have hcore : coreToLp c = ∑ i ∈ s, lp.single 2 i (f i) := by
+    ext m
+    rw [coreToLp_apply, hc_apply, sum_single_apply]
+  refine ⟨coreToLp c, ⟨c, mem_rootDomain.mpr hc0, rfl⟩, ?_⟩
+  rw [hcore, dist_comm]
+  exact hs'
+
+/-- **The closure of the root domain is the vacuum-orthogonal subspace**: one inclusion is the
+closedness of the subspace, the other is density.  This is the completion's version of
+`closure_rootDomain_iff`. -/
+theorem closure_rootDomain_image_eq :
+    closure (coreToLp '' (rootDomain : Set (CoreCoeff 24)))
+      = (vacuumOrthogonal 24 : Set (coreLp 24)) := by
+  refine le_antisymm ?_ ?_
+  · refine closure_minimal ?_ (isClosed_vacuumOrthogonal 24)
+    rintro _ ⟨c, hc, rfl⟩
+    exact coreToLp_mem_vacuumOrthogonal hc
+  · intro f hf
+    exact mem_closure_rootDomain_image f hf
+
+/-- The reference form on the completion, where its series converges — the natural domain of the
+unbounded harmonic form, not all of `ℓ²`. -/
+noncomputable def refFormLp (ω : Fin 24 → ℝ) (f : coreLp 24) : ℝ :=
+  ∑' n, refEnergy ω n * ‖f n‖ ^ 2
+
+/-- **The reference gap on the `ℓ²` completion.**  `href_spectral_gap` is a termwise inequality over
+finitely supported vectors; on the form domain of the completion the same comparison holds with the
+finite sum replaced by a `tsum`.  Summability of the form is carried as a hypothesis — this is the
+unbounded part, and `‖f‖²` is recovered from `norm_sq_eq_tsum`. -/
+theorem ref_spectral_gap_closure {ω : Fin 24 → ℝ} (hω : ∀ i, 0 < ω i) (f : coreLp 24)
+    (h0 : f 0 = 0) (hsum : Summable fun n => refEnergy ω n * ‖f n‖ ^ 2) :
+    (refEnergy ω 0 + refGap ω) * ‖f‖ ^ 2 ≤ refFormLp ω f := by
+  have hE0 : 0 < refEnergy ω 0 := by
+    rw [refEnergy_zero]
+    exact Finset.sum_pos (fun i _ => by linarith [hω i]) Finset.univ_nonempty
+  have hc : 0 < refEnergy ω 0 + refGap ω := by
+    have := refGap_pos hω
+    linarith
+  have hterm : ∀ n, (refEnergy ω 0 + refGap ω) * ‖f n‖ ^ 2 ≤ refEnergy ω n * ‖f n‖ ^ 2 := by
+    intro n
+    rcases eq_or_ne n (0 : Fin 24 → ℕ) with rfl | hn
+    · simp [h0]
+    · exact mul_le_mul_of_nonneg_right (refEnergy_ge_vacuum_add_gap hω hn) (by positivity)
+  have hsum' : Summable fun n => ‖f n‖ ^ 2 := by
+    refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_)
+      (hsum.mul_left (1 / (refEnergy ω 0 + refGap ω)))
+    rw [one_div, inv_mul_eq_div, le_div_iff₀ hc]
+    simpa [mul_comm] using hterm n
+  rw [norm_sq_eq_tsum, refFormLp, ← tsum_mul_left]
+  exact (hsum'.mul_left _).tsum_le_tsum hterm hsum
 
 /-! #### The certificate inside the gap chain
 

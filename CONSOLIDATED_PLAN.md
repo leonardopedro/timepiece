@@ -7,14 +7,20 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11h):** “State of the project — 2026-11-11h: the root domain as the excited
-> span, and the gap on its closure” (end of file): `rootDomain` is the vacuum-orthogonal core
+> **Newest entry (2026-11-11i):** “State of the project — 2026-11-11i: the ℓ² completion, and the
+> reference gap on it” (end of file): `coreLp`/`coreToLp` build the completion of the coefficient
+> model with `norm_coreToLp_sq` (the embedding is isometric for `coreNormSq`), finite-support root
+> vectors are dense in the closed `vacuumOrthogonal` subspace (`closure_rootDomain_image_eq`), and
+> `ref_spectral_gap_closure` carries `href_spectral_gap` to the completion's form domain.  The
+> quartic Yang–Mills form has no ℓ² analogue and none is claimed.  Also in that entry: the incoming
+> `BookProof.MCMC.PCNGaussianFloor` module was red at HEAD and is now repaired, so the aggregate
+> `lake build +BookProof` completes (8966 jobs).
+> **Earlier entry (2026-11-11h):** “State of the project — 2026-11-11h: the root domain as the
+> excited span, and the gap on its closure” (end of file): `rootDomain` is the vacuum-orthogonal core
 > (`rootDomain_eq_span_excited`, off `norm_sq_apply_zero_le_coreNormSq`), it is closed under
 > `coreNormSq` limits (`rootDomain_closed_of_tendsto`, `closure_rootDomain_iff`), and the root-sector
 > gap therefore holds on its closure verbatim (`root_spectral_gap_on_closure`).  No continuity of the
-> quartic form is claimed or used.  The chapter builds; the aggregate `+BookProof` build stops on
-> the pre-existing `BookProof.MCMC.PCNGaussianFloor` failure from the incoming branch (module
-> unmodified, and it imports only `Mathlib`).
+> quartic form is claimed or used.
 > **Earlier entry (2026-11-11g):** **“State of the QYM row — 2026-11-11g: the normalization
 > constant and the `n`-coordinate form”**, at the very end of this file — `integral_gaussRoot_sq`
 > (`∫ γ = √(2π)`), `lintegral_normalized_eq_one` (so the correction factor is `√(2π)^{−d}`),
@@ -21330,7 +21336,6 @@ representation change cannot move a magnetic gap in either direction. The normal
 table above is the arithmetic that any future "reference gap constant" import must divide by
 `√(2π)^{99}` (or equivalently `(2π)^{99/2}`) — recorded here so that number is not left implicit.
 
-<<<<<<< HEAD
 ## State of the project — 2026-11-11h: the root domain as the excited span, and the gap on its closure
 
 `rootDomain` is the kernel of evaluation at the vacuum in the coefficient model
@@ -21375,7 +21380,7 @@ declarations gives only `propext`, `Classical.choice`, `Quot.sound`.  The aggreg
 incoming branch, unmodified here, whose file compiles identically broken on its own (`lake env lean`
 on the extracted file, `import Mathlib` only): a pre-existing failure, not a consequence of this
 entry or of the merge resolution.
-=======
+
 ---
 
 ## State of the QYM row — 2026-11-11h: derivative transfer, core domain, field-strength degree class
@@ -21411,4 +21416,65 @@ terms `[A,A]²`.
 **Honest boundary.** No spectral statement, no gap, no coercivity, no domination of `W` by the graph
 norm (the degree bound is the *shape* input, not the estimate).  `HasOneParticleFormGap` remains an
 unproved `def`; the abelian no-gap obstruction and the kernel-vector obstruction are unchanged.
->>>>>>> 2c1bbe209139113611baf390087b3a601aae47fd
+
+---
+
+## State of the project — 2026-11-11i: the ℓ² completion, and the reference gap on it
+
+The 2026-11-11h entry said, correctly, that "dense in the vacuum-orthogonal core" is an *algebraic*
+statement in the coefficient model: `rootDomain` is the excited span, so its `coreNormSq` closure is
+itself.  That left the analytic question open by construction.  This entry does the completion: the
+ℓ² space, the density of finite-support root vectors in its vacuum-orthogonal subspace, and the
+reference gap extended to the form domain there.  Everything is in
+`BookProof.YangMillsFieldStrengthSplit` (the section after `root_spectral_gap_on_closure`).
+
+**1. The completion, and the embedding into it.**  `coreLp d = lp (Fin d → ℕ → ℂ) 2`, and
+`coreToLp c = ∑_{n ∈ support c} lp.single 2 n (c n)` reads a finitely supported vector there.
+`coreToLp_apply` recovers the coefficients, `norm_sq_eq_tsum` is the norm formula
+`‖f‖² = ∑' n, ‖f n‖²`, and — the load-bearing one — `norm_coreToLp_sq : ‖coreToLp c‖² = coreNormSq c`:
+the embedding is isometric, so the 2026-11-11h `coreNormSq` limits *are* ℓ² limits on the core, and
+the two notions of closure meet in one place.
+
+**2. Density, analytically.**  `vacuumOrthogonal d` is the subspace `{f | f 0 = 0}`, closed because
+`isClosed_vacuumOrthogonal` reads it as the preimage of `{0}` under evaluation at the vacuum, which is
+`1`-Lipschitz (`continuous_apply_coreLp`, from `‖f i‖ ≤ ‖f‖`).  `mem_closure_rootDomain_image` is the
+density statement: for any `f` with no vacuum component and any `ε > 0`, a `Finset` truncation of
+`lp.hasSum_single` gives a **root-domain** vector within `ε` — the truncated family is a `Finsupp`,
+and it inherits `f 0 = 0`.  `closure_rootDomain_image_eq` assembles the two inclusions into
+`closure (coreToLp '' rootDomain) = vacuumOrthogonal`: the completion's version of
+`closure_rootDomain_iff`, and this time an honest closure.
+
+**3. The reference gap on the completion.**  The reference form is *unbounded* — `refEnergy` grows with
+the total occupation — so it is not a function on ℓ².  `refFormLp ω f = ∑' n, refEnergy ω n ‖f n‖²` is
+defined where the series converges, and `ref_spectral_gap_closure` carries `href_spectral_gap` there:
+for `f` in that domain with `f 0 = 0`,
+`(refEnergy ω 0 + refGap ω) ‖f‖² ≤ ∑' n, refEnergy ω n ‖f n‖²`.  The proof is the termwise bound
+promoted to a `tsum` comparison (`Summable.tsum_le_tsum`); summability of the form is a hypothesis,
+not a conclusion, and `‖f‖²` comes from `norm_sq_eq_tsum`.
+
+**4. What is *not* claimed.**  The quartic Yang–Mills form `quadForm (ymHamiltonian Φ fabc) ∘ RI.toCore`
+has **no** ℓ² analogue here: it is a polynomial of degree four on a dense core and is unbounded on
+every neighbourhood, so the right-hand side of `root_spectral_gap` cannot be completed without a
+Friedrichs-type form construction, which this entry does not attempt.  The gap that does extend is the
+*reference* one — the same line the 2026-11-11h entry drew, drawn one space further out.
+
+**5. The incoming module that was red.**  `BookProof.MCMC.PCNGaussianFloor` arrived broken and was
+left untouched in 2026-11-11h (verified broken in isolation: it imports only `Mathlib`, and its file
+compiles with the same five tactics failing when extracted from the incoming branch).  It is now
+repaired — the proofs, not the statements: `Tendsto`/`𝓝` were not in scope, `Finset.prod_exp` does not
+exist (`Real.exp_sum` is the lemma), `zero_mul` does not match `2 * 0 ^ 2 * _`, two `rw [mul_one]`
+quoted facts absent from their goals, and `integrable_exp_neg_mul_sq` states `-b * x ^ 2` where the
+goal has `-(b * x ^ 2)`.  The ball-constant decay is rebuilt from `tendsto_const_mul_pow_atTop` plus
+`tendsto_atTop_mono'`, because the ℝ-indexed `tendsto_pow_atTop_atTop_of_one_lt` used there is
+ℕ-indexed only.
+
+**Verification.**  `lake build BookProof.MCMC.PCNGaussianFloor` and
+`lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` complete with 0 errors and no new
+warnings (long-line, `show`, max-heartbeats linters clean); `lake build +BookProof` completes
+**8966 jobs** with `Build completed successfully`, so the tree is green for the first time since the
+merge.  `#print axioms` on the ten new declarations (`sum_single_apply`, `coreToLp_apply`,
+`norm_sq_eq_tsum`, `norm_coreToLp_sq`, `continuous_apply_coreLp`, `isClosed_vacuumOrthogonal`,
+`coreToLp_mem_vacuumOrthogonal`, `mem_closure_rootDomain_image`, `closure_rootDomain_image_eq`,
+`ref_spectral_gap_closure`) gives only `propext`, `Classical.choice`, `Quot.sound`.  The `ℓ²` density
+statement is analytic and does not reduce to the algebraic one: it uses `lp.hasSum_single`, i.e. the
+completeness of `ℓ²`, which the coefficient model does not have.

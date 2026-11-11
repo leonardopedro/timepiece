@@ -708,6 +708,21 @@ Two of the pieces the inhabitant needed are built (§3d.0 and the energy contrac
   `quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`, which is exactly why the
   closure-is-the-domain identification, not a continuity argument, is the honest route here.
 
+* **The completion: density is analytic there, and only the reference gap extends.**  The algebraic
+  statement above is not the analytic one, and this bullet is the difference.  `coreLp d` is
+  `lp (Fin d → ℕ → ℂ) 2`, `coreToLp` embeds the finitely supported core in it, and
+  `norm_coreToLp_sq : ‖coreToLp c‖² = coreNormSq c` says the embedding is isometric — so the
+  `coreNormSq` limits of the previous bullet *are* ℓ² limits, and the two closures meet.  `vacuumOrthogonal`
+  (`f 0 = 0`) is closed (`isClosed_vacuumOrthogonal`, evaluation at the vacuum is `1`-Lipschitz), and
+  finite-support **root-domain** vectors are dense in it (`mem_closure_rootDomain_image`, off
+  `lp.hasSum_single`), so `closure_rootDomain_image_eq : closure (coreToLp '' rootDomain) =
+  vacuumOrthogonal`.  That density uses completeness, which is exactly what the coefficient model lacks.
+  The gap: `refEnergy` is unbounded, so the reference form lives on its own domain, `refFormLp ω f =
+  ∑' n, refEnergy ω n ‖f n‖²`, and `ref_spectral_gap_closure` carries `href_spectral_gap` there (a
+  `tsum` comparison, summability as hypothesis).  **B:** the quartic form `quadForm (ymHamiltonian …)`
+  has no ℓ² analogue — it is degree four and unbounded — so `root_spectral_gap`'s right-hand side is
+  *not* completed, and a Friedrichs-type form construction is what that would take.
+
 **The `su(2)` instantiation, and the colour factor computed.**  The free tensor is now instantiated:
 `su2Struct` is `f_{abc} = ε_{abc}` on the first three colour indices (the `su2Slot`s) and `0` off
 them — `su(2) × U(1)⁵` in place of the free `fabc`.  It satisfies both hypotheses
