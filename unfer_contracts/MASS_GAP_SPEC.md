@@ -423,21 +423,30 @@ reach test (`the_count_reaches_past_the_grid`) decides `N ≤ 26 / 28 / 30`
 inertia — RCM `1.6e-9 / 1.2e-6 / 2.0e-2` bound-to-pivot, nested dissection
 `1.2e-22 / 3.5e-21 / 2.9e-19`, at 85.5 s / 19.3 s at `N ≤ 30`. The ignored wall
 test (`the_count_refuses_past_the_reach`) pins the end: nested dissection decides
-`N ≤ 32` (`n = 27744`, fill 1096, 38.2 s, ratio `7.7e-17`) and refuses `N ≤ 34`
-after 84 s, giving up 725 pivots from the end where the trailing separator's own
-relative errors already run to `1e15`; RCM refuses `N ≤ 32` after 218 s (last
+`N ≤ 33` (`n = 31161`, fill 1212, 52 s, ratio `8.0e-13`) and refuses `N ≤ 34`
+after 85 s, giving up 725 pivots from the end where the trailing separator's own
+relative errors already run to `1e15`; RCM refuses `N ≤ 32` after 216 s (last
 deciding size 30) and `N ≤ 36` costs 329 s to refuse. So the reach now differs by
-ordering (`30` RCM / `32` nested dissection), what ends it is the same
+ordering (`30` RCM / `33` nested dissection), what ends it is the same
 accumulated rounding, and it is not the clock: the bound arrives with the
 elimination nearly finished.
+
+**Two ranges.** `below == 1` only through `N ≤ 30`, so that is the certified
+`λ₂`-witness range; at `N ≤ 32 / 33` the counter still decides but reports three
+and four eigenvalues below `β`, because the 60-step Ritz value no longer
+separates `λ₁` from `λ₂`. A `2×2` block-pivot fallback (for a trailing block in
+which no diagonal has a decidable sign; inertia from the determinant and the
+trace) now counts `[[0,1],[1,0]]` instead of refusing, but it does not move the
+wall: at `N ≤ 34` no determinantal sign is decidable either and the refusal lands
+on the same index `34159`.
 
 **Ordering: smaller fill, and two sizes of reach.** Nested dissection cuts the
 fill by 6–27 % on the grid (18→16, 93→68, 258→226, 534→485) and is 2–2.5× faster
 at the top. Past the grid its fill advantage fades (652 vs 653 at `N ≤ 26`, 961
 vs 927 at `N ≤ 30`), so fill is asserted only on the campaign's own sizes; its
 *bound* advantage does not fade, which is why it is the ordering that reaches
-`N ≤ 32`. Pivoting on relative accuracy instead of magnitude does not move the
-wall (measured). **Symmetric equilibration is a measured no-op**: `D(H − βI)D`
+`N ≤ 33`. Pivoting on relative accuracy instead of magnitude does not move the
+wall (measured), and neither do `2×2` block pivots. **Symmetric equilibration is a measured no-op**: `D(H − βI)D`
 with `D = diag(2ᵏ)` is an exact congruence (the count must come out identical,
 and does, at every size), and the bound-to-pivot ratios are identical to the
 printed digits (`4.689e-10 → 4.689e-10` at `N ≤ 24`, `1.248e-6 → 1.248e-6` at
