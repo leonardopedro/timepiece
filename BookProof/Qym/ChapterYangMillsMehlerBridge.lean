@@ -363,7 +363,12 @@ reference must apply. -/
 theorem lintegral_normalized_eq_one :
     ∫⁻ x, ENNReal.ofReal (gaussRoot x ^ 2) * (ENNReal.ofReal (Real.sqrt (2 * Real.pi)))⁻¹
       ∂(volume : Measure ℝ) = 1 := by
-  rw [lintegral_mul_const, lintegral_gaussRoot_sq]
+  have hmeas : Measurable fun x : ℝ => ENNReal.ofReal (gaussRoot x ^ 2) := by
+    have hc : Continuous fun x : ℝ => gaussRoot x ^ 2 := by
+      unfold gaussRoot
+      fun_prop
+    exact ENNReal.measurable_ofReal.comp hc.measurable
+  rw [lintegral_mul_const _ hmeas, lintegral_gaussRoot_sq]
   refine ENNReal.mul_inv_cancel ?_ ?_
   · simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
     exact Real.sqrt_pos.mpr (by positivity)

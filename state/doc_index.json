@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-11T08:43:43+00:00",
+ "generated_at": "2026-11-11T09:50:34+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -153,7 +153,7 @@
   {
    "path": "CONSOLIDATED_PLAN.md",
    "title": "CONSOLIDATED_PLAN.md — The Single Plan",
-   "lines": 19299,
+   "lines": 19338,
    "headings": [
     "# CONSOLIDATED_PLAN.md — The Single Plan",
     "## Definitions of record — the nested Fock space and the Hamiltonian on it (NS and QG)",
@@ -1639,7 +1639,7 @@
   {
    "path": "unfer_contracts/MASS_GAP_SPEC.md",
    "title": "MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
-   "lines": 500,
+   "lines": 513,
    "headings": [
     "# MASS_GAP_SPEC — the proof-facing seam of the certified mass gap",
     "## 1. The theorem of record (T6)",
