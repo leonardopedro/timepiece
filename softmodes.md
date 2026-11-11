@@ -676,10 +676,19 @@ Two of the pieces the inhabitant needed are built (§3d.0 and the energy contrac
 * `RootFormDomination` / `root_ground_bound` / `root_excited_bound` / `s2RootFormDomination` — the
   certificate with `dom` on the root sector only, built from `s2_gap_constant_root`.
 
-**Boundary.**  `RootModeIdentification` still has no inhabitant: what remains is `mag_eq_root`,
-which is the normal-ordering/Mehler analysis showing `B_m` acts on the embedded mode by `n_m`.  The
-`f` side is not a Casimir identity — this model hypothesises no antisymmetry or Jacobi identity for
-`f_{abc}`, so the contraction stops at the transposed term.
+**Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
+*independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.
+`mulOp_X_monomial` (`X i * monomial m z = monomial (m + e_i) z`) and `mulOp_X_monomial_ne` (the
+raised exponent differs, so no monomial is an eigenvector) show that `magOps` raises the occupation
+of every mode: it is **not** diagonal in the occupation basis.  The `:N²:` identity
+`Σ_m ‖B_m ψ_n‖² = (Σ_a n_a²)‖ψ_n‖²` therefore needs the normal-ordered Wick contraction of these
+multiplication operators, not their diagonal part — and it already fails in the abelian sector
+(§3d.1).  So `RootModeIdentification` stays a hypothesis, with the obstruction now a proved
+computation.
+
+**Boundary.**  `RootModeIdentification` still has no inhabitant.  The `f` side of the contraction is
+not a Casimir identity — this model hypothesises no antisymmetry or Jacobi identity for `f_{abc}`,
+so the contraction stops at the transposed term.
 
 Axioms audited on the theorems of this subsection (including the three S2-carry theorems):
 `propext`, `Classical.choice`, `Quot.sound` only.

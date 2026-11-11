@@ -19812,3 +19812,30 @@ transposed term and the structure constants remain free symbols.
 **Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `#print axioms` on the
 twelve new declarations gives `[propext, Classical.choice, Quot.sound]` (one, `embedL2_mem_polyGaussCore`,
 uses only `propext` and `Quot.sound`); line-length check clean.
+
+## State of the project — 2026-11-10l: why `mag_eq_root` is not derivable from `magOps`
+
+Requested: prove that `magOps` acts diagonally on the embedded modes, giving `mag_eq_root`.  **This
+cannot be done, and the reason is now proved rather than asserted.**
+
+In the book's parametrisation (see §2 of this chapter) the `72` coordinates `∂_j A_{k,a}` are
+*independent* configuration coordinates, so
+`magPoly fabc i a = ∑_{jk} ε_{ijk}(X(∂_j A_{k,a}) + f_{abc} X(A_{j,b})X(A_{k,c}))` is a
+**multiplication** operator built from coordinate functions.  Hence:
+
+* `mulOp_X_monomial` — `X i * monomial m z = monomial (m + e_i) z`: a coordinate raises its own
+  occupation.
+* `mulOp_X_monomial_ne` — the raised exponent vector differs from `m`, so no monomial is an
+  eigenvector of `X i`, and `X i` is never a scalar.
+
+So `magOps Φ fabc m` shifts every mode by one quantum in a derivative coordinate (and by two in the
+`A` coordinates); it has no diagonal basis of occupations.  `mag_eq_root` would require
+`Σ_m ‖B_m ψ_n‖² = (Σ_a n_a²)‖ψ_n‖²`, whose right side is degree-preserving while the left side is
+degree-raising; the identity is a statement about the **normal-ordered** `:N²:` Wick contraction of
+these multiplication operators, not about their diagonal part.  This is the same modelling step the
+chapter already flags ("the form half is the mode-expansion step"), and §3d.1 shows it already fails
+in the abelian sector.  `RootModeIdentification` therefore remains a hypothesis structure, now with
+the obstruction localised in a proved computation instead of prose.
+
+**Verification.**  `lake build +BookProof` completed (8924 jobs, 0 errors); `mulOp_X_monomial` and
+`mulOp_X_monomial_ne` have the standard three-axiom footprint; line-length check clean.

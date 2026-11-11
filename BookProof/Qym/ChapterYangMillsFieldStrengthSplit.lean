@@ -343,6 +343,36 @@ theorem magEnergy_eq_contract (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
   have h := magPoly_sq_contract (fun j k => magFullBilin fabc j k a)
   simpa only [magPoly_eq_sum_levi_magFullBilin] using h
 
+/-! ### 3b.1 What the field-strength operator does to a mode
+
+`mag_eq_root` would say that `B_{ia}` acts on the embedded modes like the occupation number of the
+`A` coordinate.  It does not, and the reason is visible one monomial at a time: the derivative
+coordinates `∂_j A_{k,a}` are *independent* coordinates in the book's parametrisation, so
+multiplication by `X (idxD j k a)` **raises** the occupation of that coordinate.  The two lemmas
+below record this: a coordinate acts on a monomial as a different monomial, hence as a shift, never
+as a scalar.  This is the obstruction `mag_eq_root` runs into; the `:N²:` form needs the
+normal-ordered Wick contraction of this multiplication operator, not its diagonal part. -/
+
+/-- **A coordinate raises its own occupation**: `X i * monomial m z = monomial (m + e_i) z`. -/
+theorem mulOp_X_monomial (i : Fin 99) (m : Fin 99 →₀ ℕ) (z : ℂ) :
+    mulOp (X i) (monomial m z) = monomial (m + Finsupp.single i 1) z := by
+  simp [mulOp_apply, X, monomial_mul, add_comm]
+
+/-- **A coordinate is never scalar on a monomial**: the raised exponent vector is different from
+`m`, so no monomial is an eigenvector of `X i`.  Hence the derivative half of `B_{ia}` has no
+diagonal basis of occupations, which is exactly what `mag_eq_root` would need. -/
+theorem mulOp_X_monomial_ne (i : Fin 99) (m : Fin 99 →₀ ℕ) (z : ℂ) (hz : z ≠ 0) :
+    mulOp (X i) (monomial m z) ≠ monomial m z := by
+  intro h
+  rw [mulOp_X_monomial] at h
+  have hexp : m + Finsupp.single i 1 = m := by
+    rcases (MvPolynomial.monomial_eq_monomial_iff _ _ _ _).mp h with ⟨h1, -⟩ | ⟨h1, -⟩
+    · exact h1
+    · exact absurd h1 hz
+  have hs : Finsupp.single i (1 : ℕ) = 0 :=
+    add_left_cancel (a := m) (by rw [hexp, add_zero])
+  exact one_ne_zero (Finsupp.single_eq_zero.mp hs)
+
 /-- The full magnetic energy has real coefficients, so its operator is Gauss symmetric. -/
 theorem realCoeff_magEnergy (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) : RealCoeff (magEnergy fabc) := by
   refine RealCoeff.sum fun i _ => RealCoeff.sum fun a _ => ?_
@@ -613,10 +643,18 @@ above.  This section states that identification and proves what it yields.
   `A_{j,a}`, which is an orthonormal subfamily of the `ℝ⁹⁹` adapted basis, so the embedding is an
   isometry with no Mehler analysis, and it lands on `polyGaussCore`.  This discharges the
   `norm_sq` field of the root-sector identification for the concrete candidate;
+* **`mulOp_X_monomial`**, **`mulOp_X_monomial_ne`** — what `magOps` does to a mode: the derivative
+  coordinate is independent, so multiplication by `X (idxD j k a)` *raises* its occupation and is
+  never scalar on a monomial.  This is the obstruction to `mag_eq_root`: the field-strength
+  operator is not diagonal in the occupation basis, and the `:N²:` form needs the normal-ordered
+  contraction, not the diagonal part;
 * **`levi_contract`**, **`eps_contract_poly`**, **`magPoly_sq_contract`**, **`magFullBilin`**,
   **`magEnergy_eq_contract`** — the `ε`–`ε` contraction `∑_i ε_{ijk}ε_{ilm} = δ_{jl}δ_{km} −
   δ_{jm}δ_{kl}` and its polynomial form, giving `Σ_{ia}B_{ia}² = Σ_{a,j,k}(P² − P·Pᵀ)` with
   `P = ∂A + f[A,A]`: the `ε` weights disappear and the `f` weights sit inside `P`;
+* **The honest boundary of the identification**: `mag_eq_root` is *not* derivable from
+  `magOps` — `mulOp_X_monomial_ne` shows the derivative half shifts every mode, so no occupation
+  vector is an eigenvector;
 * **`RootFormDomination`**, **`root_ground_bound`**, **`root_excited_bound`**,
   **`s2RootFormDomination`** — the domination certificate with `dom` required only on the root
   sector, which `RootModeIdentification` supplies;
