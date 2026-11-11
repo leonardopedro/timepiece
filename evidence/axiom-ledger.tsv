@@ -1,0 +1,196 @@
+BookProof.GaugeFixing.sMat_nilpotent	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.GhostCAR.betabeta	
+BookProof.NavierStokes.ghostAnnih_sq	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.rayleigh.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.observable_propagation_band	Classical.choice,Quot.sound,propext
+BookProof.MassGap.massGap_shifted_gapless._simp_1_3	Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.mul_bracket_right	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel_B_ne_zero	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.ground_ge_of_no_eigenvalue_below	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.chi_swap4._simp_1_2	
+BookProof.GaugeFixing.GaugeFixingSystem.mk.injEq	propext
+BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual_unit	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.repr_apply_of_symmetric	Classical.choice,Quot.sound,propext
+BookProof.MassGap.heisenberg_number_shift_invariant	Classical.choice,Quot.sound,propext
+BookProof.GhostField.psiDag_sq	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel._proof_2	Classical.choice,Quot.sound,propext
+BookProof.YangMillsFieldStrength.fieldStrengthMul_antisymm	Quot.sound,propext
+BookProof.SirkFinitePrecision.coeff.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.rayleigh_eq_sum_eigenvalues	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModelIntegral._proof_2	Classical.choice,Quot.sound,propext
+BookProof.MassGap.numberOp.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.mem_sub	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.s_sub	
+BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.L_gf_evaluation	
+BookProof.NavierStokes.ghostCreate_sq	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.quartic_term_zero._simp_1_2	propext
+BookProof.MassGap.massGap._proof_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModelIntegral.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.polyEval.eq_def	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.polyEval.eq_1	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostAnticomm_annih	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.quartic_term_zero	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Qm.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.int_L_gf_eq_zero	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.chi_cyc3	Quot.sound,propext
+BookProof.GaugeFixing.sMat_Pm	Classical.choice,Quot.sound,propext
+BookProof.GhostField.psiDag.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.evalHorner.match_1.eq_1	
+BookProof.MassGap.excited.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GhostField.numberOp_selfAdjoint	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Vm.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel_Psi_ne_zero	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.abs_polyEval_le_of_mem	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.evalHorner.match_1.eq_2	
+BookProof.NavierStokes.ghostCreate.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.s_d_phi	
+BookProof.SirkFinitePrecision.CertInterval.mem_widen	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.backward_error_weyl	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.mem_const	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.chi_swap4._simp_1_1	propext
+BookProof.MassGap.excited_nonempty	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel_c_ne_zero	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.beta_move	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Vm_mul_Qm	Classical.choice,Quot.sound,propext
+BookProof.MassGap.massGap_shifted_gapless._simp_1_2	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sMat_leibniz	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.chi_swap4._simp_1_3	propext
+BookProof.GaugeFixing.Pm.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sMat_zero	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel_s_Psi	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghost_CAR	Classical.choice,Quot.sound,propext
+BookProof.GhostField.numberOp_idempotent	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostCreate_eq_conjTranspose	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.beta_move._simp_1_1	propext
+BookProof.BRSTNilpotent.contracted_terms_zero	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.mem_neg	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostNumber_resolution	Classical.choice,Quot.sound,propext
+BookProof.GhostField.psi_sq	Classical.choice,Quot.sound,propext
+BookProof.YangMillsFieldStrength.Dcov.eq_1	
+BookProof.GaugeFixing.s_gaugeField	
+BookProof.BRSTNilpotent.quartic_term_zero._proof_1_1	Classical.choice,Quot.sound,propext
+BookProof.YangMillsFieldStrength.fieldStrengthMul_eq_Fbook	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Pm_mul_Vm	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel._proof_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.s_nilpotent	
+BookProof.BRSTNilpotent.brst_charge_nilpotent	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.d_zero	
+BookProof.GhostField.numberOp_add_hole	Classical.choice,Quot.sound,propext
+BookProof.GhostField.numberOp.eq_1	Classical.choice,Quot.sound,propext
+BookProof.MassGap.shiftedSpectrum_excited	Classical.choice,Quot.sound,propext
+BookProof.YangMillsFieldStrength.Fbook.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.coeff._proof_1	Classical.choice,Quot.sound,propext
+BookProof.MassGap.massGap_shifted_gapless._simp_1_4	propext
+BookProof.GaugeFixing.L_gf_invariant	
+BookProof.BRSTNilpotent.contracted_terms_zero._proof_1_3	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.quartic_term_zero._simp_1_4	propext
+BookProof.GaugeFixing.GaugeFixingSystem.s_mul_c_bar	
+BookProof.GaugeFixing.GaugeFixingSystem.def_s_phi	
+BookProof.SirkFinitePrecision.CertInterval.mid._proof_1	propext
+BookProof.BRSTNilpotent.GhostCAR.betachi	
+BookProof.SirkFinitePrecision.CertInterval.mem_evalHorner	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostNumber.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.sd_commute	
+BookProof.SirkFinitePrecision.CertInterval.polyEval_le_of_mem	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.contracted_terms_zero._proof_1_2	Classical.choice,Quot.sound,propext
+BookProof.MassGap.massGap_shifted_gapless._simp_1_8	propext
+BookProof.GaugeFixing.matrixModelIntegral_ne_zero	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.BrstIntegral.mk.congr_simp	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.int_L_gf_evaluated	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.def_s_c_bar	
+BookProof.GaugeFixing.addDeg_snd	
+BookProof.GaugeFixing.GaugeFixingSystem.sub_zero	
+BookProof.SirkFinitePrecision.CertInterval.abs_le_of_isotone	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.temple_lower_bound	Classical.choice,Quot.sound,propext
+BookProof.GhostField.brst_charge_nilpotent	
+BookProof.GaugeFixing.BrstIntegral.mk.injEq	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Qm_mul_Qm	Classical.choice,Quot.sound,propext
+BookProof.YangMillsFieldStrength.Fbook_antisymm	Classical.choice,Quot.sound,propext
+BookProof.MassGap.shiftedSpectrum.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.evalHorner.eq_def	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.contracted_terms_zero._simp_1_6	Quot.sound,propext
+BookProof.NavierStokes.ghostCreate_eq	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.mk.inj	
+BookProof.BRSTNilpotent.GhostCAR.chichi	
+BookProof.GaugeFixing.GaugeFixingSystem.def_s_v	
+BookProof.BRSTNilpotent.quartic_term_zero._simp_1_6	
+BookProof.BRSTNilpotent.beta_move._proof_1_2	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.mk.sizeOf_spec	
+BookProof.GaugeFixing.Pm_ne_zero	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.polyEval.match_1.eq_2	
+BookProof.SirkFinitePrecision.CertInterval.mk.sizeOf_spec	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.BrstIntegral.int_of_s	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sMat_nilpotent._simp_1_2	
+BookProof.GaugeFixing.matrixModel_Psi	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.mem_add	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.chi_swap4._proof_1_4	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.contracted_terms_zero._simp_1_5	Quot.sound,propext
+BookProof.MassGap.shiftedSpectrum_vacuum	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.mem_ofRounded	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sMat_Vm	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.contracted_terms_zero._simp_1_7	
+BookProof.BRSTNilpotent.quartic_term_zero._simp_1_3	propext
+BookProof.SirkFinitePrecision.ground_le_rayleigh	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Qm_mul_Vm	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sMat_one	Classical.choice,Quot.sound,propext
+BookProof.YangMillsFieldStrength.fieldStrengthMul.eq_1	
+BookProof.SirkFinitePrecision.CertInterval.width.eq_1	Classical.choice,Quot.sound,propext
+BookProof.MassGap.massGap_shifted_gapless	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Qm_ne_zero	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModelIntegral._proof_1	propext
+BookProof.BRSTNilpotent.contracted_terms_zero._simp_1_4	Quot.sound,propext
+BookProof.GaugeFixing.BrstIntegral.mk.sizeOf_spec	Classical.choice,Quot.sound,propext
+BookProof.MassGap.numberOp._proof_1	propext
+BookProof.SirkFinitePrecision.CertInterval.mul_bracket_left	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.s_c_eq_zero	
+BookProof.SirkFinitePrecision.CertInterval.evalHorner.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.norm_apply_sq_eq_sum_eigenvalues	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.chi_swap4	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.quartic_term_zero._simp_1_5	propext
+BookProof.NavierStokes.ghost_annih_create_eq	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Qm_Pm_add_Pm_Qm	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostNumber_idem	Classical.choice,Quot.sound,propext
+BookProof.GhostField.numberOp_eq	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.observable_propagation	Classical.choice,Quot.sound,propext
+BookProof.MassGap.massGap_shifted_gapless._simp_1_7	propext
+BookProof.GaugeFixing.gaugeField.eq_1	
+BookProof.SirkFinitePrecision.CertInterval.mk.inj	
+BookProof.YangMillsFieldStrength.nonabelian_fieldStrength	Quot.sound,propext
+BookProof.SirkFinitePrecision.backward_error_weyl_symm	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.dist_le_width	Classical.choice,Quot.sound,propext
+BookProof.YangMillsFieldStrength.commutator_eq_coupling	Classical.choice,Quot.sound,propext
+BookProof.GhostField.car	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostAnticomm_create	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.matrixModel_s_Psi_ne_zero	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.le_sup_bound_of_isotone	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.contracted_terms_zero._simp_1_1	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostAnnih.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GhostField.psi.eq_1	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.Psi.eq_1	
+BookProof.SirkFinitePrecision.CertInterval.mk.injEq	propext
+BookProof.SirkFinitePrecision.coeff.congr_simp	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sTop.eq_1	
+BookProof.SirkFinitePrecision.CertInterval.polyEval.match_1.eq_1	
+BookProof.GaugeFixing.s_B_eq_zero	
+BookProof.MassGap.massGap_shifted_gapless._simp_1_9	propext
+BookProof.GhostField.psiDag_eq_conjTranspose	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.addDeg_fst	
+BookProof.MassGap.exp_conj_eq_self	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.norm_sq_eq_sum_repr	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sMat.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.widen.eq_1	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.index_nonempty	Classical.choice,Quot.sound,propext
+BookProof.GhostField.brst_charge_nilpotent_ghost	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.sMat_sub	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.GaugeFixingSystem.mk.congr_simp	
+BookProof.SirkFinitePrecision.exists_eigenvalue_dist_le_residual._simp_1_2	Classical.choice,Quot.sound,propext
+BookProof.BRSTNilpotent.brst_charge_nilpotent._simp_1_1	Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.polyEval.eq_2	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.mem_mul	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostNumber_eq	Classical.choice,Quot.sound,propext
+BookProof.NavierStokes.ghostNumber_hermitian	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.hasRealEigenvalue_eigenvalues	Classical.choice,Quot.sound,propext
+BookProof.SirkFinitePrecision.CertInterval.evalHorner.eq_2	Classical.choice,Quot.sound,propext
+BookProof.GaugeFixing.BrstIntegral.mk.inj	Classical.choice,Quot.sound,propext

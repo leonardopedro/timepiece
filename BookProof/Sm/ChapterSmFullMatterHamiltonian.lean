@@ -478,6 +478,32 @@ def coupledParity : SmCoupledSpace →ₗ[ℂ] SmCoupledSpace where
   have h : coupledParity f = coupledParityFun f := rfl
   rw [h, coupledParityFun, WithLp.ofLp_toLp]
 
+/-- **Parity is an involution on the coupled space.**  This is what makes it a *unitary* rather
+than merely an isometry: with `coupledParity_norm` below it is a norm-preserving bijection. -/
+theorem coupledParity_involutive : coupledParity ∘ₗ coupledParity = LinearMap.id := by
+  refine LinearMap.ext fun f => ?_
+  refine WithLp.ofLp_injective 2 (funext fun A => ?_)
+  simp only [LinearMap.comp_apply, LinearMap.id_apply]
+  rw [coupledParity_apply, coupledParity_apply, smul_smul, fockSign_mul_self, one_smul]
+
+/-- **Parity preserves the coupled norm**: `‖P f‖ = ‖f‖`, the `ℓ²` version of `fockParity_norm`. -/
+theorem coupledParity_norm (f : SmCoupledSpace) : ‖coupledParity f‖ = ‖f‖ := by
+  have h2 : ‖coupledParity f‖ ^ 2 = ‖f‖ ^ 2 := by
+    rw [coupledSpace_norm_sq, coupledSpace_norm_sq]
+    refine Finset.sum_congr rfl fun A _ => ?_
+    rw [coupledParity_apply, norm_smul, norm_fockSign, one_mul]
+  calc ‖coupledParity f‖ = Real.sqrt (‖coupledParity f‖ ^ 2) :=
+        (Real.sqrt_sq (norm_nonneg _)).symm
+    _ = Real.sqrt (‖f‖ ^ 2) := by rw [h2]
+    _ = ‖f‖ := Real.sqrt_sq (norm_nonneg _)
+
+/-- **Parity is onto**, since it is its own inverse; with `coupledParity_norm` this is the
+"bounded unitary" half of P5's parity route. -/
+theorem coupledParity_surjective : Function.Surjective coupledParity := fun f =>
+  ⟨coupledParity f, by
+    have h := congrFun (congrArg DFunLike.coe coupledParity_involutive) f
+    simpa using h⟩
+
 /-- **Parity preserves the common core**, componentwise multiplication by `±1`. -/
 theorem coupledParity_mem_core (f : SmCoupledSpace) (hf : f ∈ SmCoupledCore) :
     coupledParity f ∈ SmCoupledCore := fun A => by

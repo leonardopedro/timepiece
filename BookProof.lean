@@ -152,6 +152,18 @@ import BookProof.Ns.ChapterNavierStokesDifferentialL2
 -- Essential self-adjointness selects a unique self-adjoint operator: the closure
 -- of the graph, its uniqueness, and the positivity-free Hashimoto/SIRK selection.
 import BookProof.Toolbox.ChapterEsaClosure
+-- A self-adjoint operator has no proper symmetric extension, in `LinearPMap` form: if `A ≤ B`,
+-- `A` self-adjoint and `B` symmetric then `A = B`.  Consequence used by S0: identifying the
+-- polynomial core with the closure of `gaussOp` needs only `polyOp ≤ gaussOp.closure`, i.e. one
+-- graph-norm approximation, because the polynomial core is already self-adjoint.
+import BookProof.Toolbox.ChapterSelfAdjointMaximal
+-- The reusable diagonal criterion behind S0: an operator acting on an orthonormal Hilbert basis by
+-- real eigenvalues is symmetric on the span (`inner_comm_of_diag`), and if it is closable its
+-- adjoint is contained in the closure (`adjoint_le_closure_of_diag`), so the closure is
+-- self-adjoint (`isSelfAdjoint_closure_of_diag` / `isSelfAdjoint_closure_diagOp`).  No `±i` test and
+-- no hypotheses beyond symmetry and a dense diagonal basis (`…_symm`, where closability is derived):
+-- `Qym/ChapterYangMillsPolySelfAdjoint` is the instance.
+import BookProof.Toolbox.ChapterDiagonalSelfAdjoint
 -- Uniqueness of the closure of a symmetric operator, core-independence of the
 -- closure and of the adjoint, and uniqueness of the `A* A-bar` factorization
 -- (up to a partial isometry; strictly, for a positive self-adjoint factor).
@@ -2125,6 +2137,218 @@ import BookProof.Qym.ChapterYangMillsMehlerBridge
 -- is the `a < 1` relative-bound input S2 owes.
 import BookProof.Qym.ChapterYangMillsSoftDirections
 
+-- `ChapterYangMillsMehlerProduct` (work package S0, product form): the `d`-coordinate Mehler
+-- identity summed over all coordinates.  Rather than invoking the Laplacian Leibniz rule (which
+-- mathlib's `Laplacian` does not provide together with a gradient), it conjugates a *coordinate*
+-- derivative twice: `U ∂ᵢ U⁻¹ = ∂ᵢ + xᵢ/2` (`conj_partial`), hence `U ∂ᵢ² U⁻¹`
+-- (`pd2_invGaussVec_mul`), hence `U (−∂ᵢ² + xᵢ∂ᵢ) U⁻¹ = −∂ᵢ² + xᵢ²/4 − ½` in each coordinate
+-- (`conj_dirichletVec_coord`) and, summed, `U (Σᵢ Dᵢ) U⁻¹ = −Δ + |x|²/4 − d/2`
+-- (`conj_dirichletVec`).  `conj_dirichletVec99` is the `d = 99` instance with its `−99/2`, which
+-- supersedes the bridge chapter's earlier statement that the coordinate-count factor was not
+-- proved.  The weight factorization along a coordinate line is `gaussRootVec_update` /
+-- `invGaussVec_update`.
+import BookProof.Qym.ChapterYangMillsMehlerProduct
+
+-- `ChapterYangMillsMehlerLp` (work package S0, `Lp` level): the squared integral identity lifted
+-- to `Lp`.  `eLpNorm_gaussRoot_mul` is `‖γ^{1/2}f‖_{L²(dx)} = ‖f‖_{L²(γ dx)}` for the density
+-- measure `gaussMeasure`, `memLp_gaussRoot_mul` is the matching membership equivalence, and
+-- `norm_toLp_mehler` is the norm equality on `Lp` elements.  `mehlerLpEquiv` bundles it as a
+-- `LinearIsometryEquiv (Lp ℝ 2 gaussMeasure) (Lp ℝ 2 volume)` with forward map multiplication by
+-- `γ^{1/2}` and inverse multiplication by `γ^{-1/2}`; because mathlib's `Lp` isometry API is the
+-- `compMeasurePreserving` family (a measure-preserving *map*, not a density), every field of the
+-- equivalence is paid for by hand, including the reverse identity `eLpNorm_invGauss_mul` and the
+-- two absolute-continuity lemmas that carry a.e. equality between `volume` and `gaussMeasure`.
+import BookProof.Qym.ChapterYangMillsMehlerLp
+
+-- `ChapterYangMillsGaussForm` (work package S0, closability start): the Gaussian-weighted Dirichlet
+-- form.  `gaussWeight` is the density `γ^{1/2}² = exp(−x²/2)`, `hasDerivAt_gaussWeight` is
+-- `(γ^{1/2}²)' = −x γ^{1/2}²` (the origin of the drift in `−Δ + x·∇`, and the identity the eventual
+-- integration by parts consumes), and `gaussForm f g = ∫ γ^{1/2}² f' g'` is the one-coordinate form
+-- with `gaussForm_comm` (symmetry) and `gaussForm_self_nonneg` (nonnegative diagonal) proved for
+-- *all* functions — the Bochner integral is total, so neither fact needs a domain.  `MemGaussForm`
+-- is the integrability domain predicate.  `gaussForm_eq_integral_gaussDirichlet` is the operator
+-- identity `gaussForm f g = ∫ γ^{1/2}² (−f'' + x f') g` for `f` of class `C²` with compact support
+-- and `g` of class `C¹` (one `integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable`), stated at
+-- `C²`/`C¹` on purpose: the corpus's `ContDiff ℝ ⊤` is mathlib's *analytic* order, and analytic
+-- plus compact support on `ℝ` is zero.  What is *not* here is closability proper, which needs weak
+-- derivatives and `H¹(γ)` as a `LinearPMap` domain, neither of which mathlib provides.
+import BookProof.Qym.ChapterYangMillsGaussForm
+
+-- `ChapterYangMillsGaussFormComplex` (work package S0, the `ℂ` lift): mathlib has no
+-- complexification of real Hilbert spaces and no bundled `Lp.re`/`Lp.im`, so the complex
+-- operator is defined by the same formula on `ℂ`-valued representatives
+-- (`gaussDirichletC f = −f'' + x f'`,
+-- real `deriv`, hence `ℂ`-linear) and related to the real one componentwise: `gaussDirichletC_re`
+-- and `_im` give `(T f).re = T f.re` and `(T f).im = T f.im`, and `memLp_gaussDirichletC` assembles
+-- the `L²(γ dx)` membership from the real chapter through `memLp_re_im_iff`.
+-- `integral_gaussWeight_innerC_comm` is the weighted symmetry `∫ γ ⟪T F, G⟫ = ∫ γ ⟪F, T G⟫`,
+-- obtained by splitting both sides into real and imaginary parts (`Complex.reCLM`/`imCLM` commute
+-- with the Bochner integral) so that each of the four real pairings is the real
+-- `integral_gaussDirichlet_mul_comm`.  On classes this becomes
+-- `gaussOpC_inner_comm` for the `ℂ`-linear partial operator `gaussOpC` on the `C²` core, and
+-- `gaussOpC_inner_self_eq_re` identifies the real part of the diagonal with
+-- `gaussForm F.re F.re + gaussForm F.im F.im`, whence `gaussOpC_quadForm_nonneg`.  With
+-- `gaussOpC_symmetric` those are exactly the hypotheses of `ChapterYangMillsFriedrichs`,
+-- and `gaussOpC_form_closable` is its `form_closable` applied to this operator.
+import BookProof.Qym.ChapterYangMillsGaussFormComplex
+
+-- `ChapterYangMillsGaussFormReal` (work package S0, the real instantiation): `ChapterYangMillsFriedrichs`
+-- states Part B for a complex Hilbert space, so its `form_closable` cannot consume the real operator
+-- `gaussOp` directly.  `BookProof.YangMillsFriedrichsReal` (at the end of that chapter) restates the
+-- form, `formNormSq`, the expansions, Cauchy–Schwarz and `form_closable` for `[InnerProductSpace ℝ F]`
+-- — over `ℝ` there is no conjugation to carry and no `.re` to take — and this module joins it to the
+-- Gaussian chapter: `gaussOp_symmetricOn_real` (from `gaussOp_inner_comm`),
+-- `gaussOp_quadForm_nonneg_real` (from `gaussOp_quadForm_nonneg`) and
+-- `gaussOp_form_closable_real` (the instantiated `form_closable`).  The placement is forced by the
+-- import graph: `ChapterYangMillsGaussForm` already imports `ChapterYangMillsFriedrichs` (through
+-- Mehler, Abelian, Hermite and the Friedrichs extension chapters), so the join has to be a separate
+-- leaf module and not an import in either direction.
+import BookProof.Qym.ChapterYangMillsGaussFormReal
+
+-- `ChapterYangMillsHermiteSpectrum` (work package S0, Route C of the self-adjointness gap): the two
+-- analytic inputs of the Nelson route that do not need missing theory.  `gaussDirichlet_hermiteR`
+-- is the eigen-relation `−H_n'' + x H_n' = n H_n` as an identity of functions — note the eigenvalue
+-- is `n` and the eigenfunction is `hermiteR n` itself, not `H_n(x/√2)` with eigenvalue `2n`, because
+-- the corpus uses the probabilists' `Polynomial.hermite`; `deriv_eval_hermiteR` and
+-- `deriv_deriv_eval_hermiteR` are the polynomial-derivative steps that connect `deriv` to `eval`.
+-- `dense_span_polyLp` is the density of the polynomial classes in `L²(γ dx)`, proved with the same
+-- moment argument as `HermiteCore.hermiteLp_span_dense` after `integral_moment_eq` moves
+-- `∫ xᵏ w d(γ dx)` to the Lebesgue integral of `(xᵏ γ^{1/2}) · (γ^{1/2} w)`; the measure is moved by
+-- `integral_withDensity_eq_integral_toReal_smul` rather than by rewriting `gaussMeasure`, since `rw`
+-- cannot unfold the measure in a goal mentioning an `Lp ℝ 2 gaussMeasure` element.
+-- `ae_eq_zero_of_moments_gaussMeasure` is the moment problem in closed form.
+import BookProof.Qym.ChapterYangMillsHermiteSpectrum
+
+-- `ChapterNelsonAnalyticVectors` (S0 Route C, input (iii)): the analytic-vector machinery —
+-- `InvariantOn` and the iterates `orbitD`/`orbit`, the geometric bound `IsGeometric`, the analytic
+-- condition `IsAnalytic` with `isAnalytic_of_isGeometric`, the orbit identity `inner_orbit` and its
+-- consequence `inner_eq_zero_of_isGeometric` — and, on top of the Faris–Lavine deficiency
+-- propagation (`dense_range_of_deficiencyTrivialAt`, `deficiencyTrivialAt_of_dense_range`),
+-- `essentiallySelfAdjointOn_of_dense_geometric`: Nelson's criterion for a dense set of vectors with
+-- a *common* geometric ratio.  It is not Nelson's theorem: the classical statement allows a radius
+-- per vector, and bridging the two needs the constancy of the deficiency index on each half plane,
+-- which the corpus does not have.  For an operator with an explicit eigenbasis the file's
+-- `essentiallySelfAdjointOn_of_dense_eigenvectors` is both cheaper and stronger — no summability,
+-- no completeness, no symmetry hypothesis.  The criterion that actually closes Route C for a simple
+-- spectrum is the last one in the file, `essentiallySelfAdjointOn_of_dense_span_eigenvectors`: it asks
+-- for the *span* of the eigenvectors to be dense, because a dense *set* of eigenvectors is a very
+-- special situation — the union of the eigenlines of a simple spectrum is nowhere near dense — while
+-- `⟪x, w⟫ = 0` propagates from eigenvectors to their span by conjugate-linearity, which is all the
+-- deficiency argument needs.
+--
+-- The file also carries Nussbaum's reduction, which is how Nelson's theorem is reached when each
+-- vector has its own radius: `IsVectorOfUniqueness T z x` says `x` lies in the closure of the range
+-- of `T - z`, which annihilates the deficiency space at `z̄`
+-- (`inner_eq_zero_of_isVectorOfUniqueness`), so a dense set of such vectors kills it
+-- (`deficiencyTrivialAt_of_dense_vectorsOfUniqueness`) and both at `±i` gives essential
+-- self-adjointness (`essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness`) with no radius and no
+-- summability in the hypothesis.  The geometric theorem above cannot be weakened to per-vector radii
+-- by the same estimate — a factorial bound does not decay against a fixed `|z|` — and Carleman's
+-- criterion, the step that supplies the membership from analyticity, is not in the corpus.
+import BookProof.Toolbox.ChapterNelsonAnalyticVectors
+
+-- `ChapterYangMillsHermiteAnalytic` (S0 Route C, the quantitative input): the polynomial form core
+-- of `gaussDirichlet`.  `dirichletPoly p = −p'' + X p'` is the operator on polynomials and
+-- `dirichletPoly_eval` identifies it with `gaussDirichlet` on representatives, so the polynomial
+-- classes form a core it maps into itself; `dirichletPoly_hermiteR` makes it diagonal there with
+-- eigenvalue `n`.  Because it is diagonal, nothing grows but the eigenvalue:
+-- `dirichletPoly_iterate_hermiteR` is `Tᵐ(H_n) = nᵐ H_n`, `norm_polyLp_iterate_hermiteR` computes
+-- `‖Tᵐ(H_n)‖ = nᵐ ‖H_n‖` in `L²(γ dx)` — the bound on `‖Tⁿp‖` the analytic-vector argument consumes
+-- — `hermiteR_geometric` restates it as a geometric bound, and `hermiteR_summable` is the
+-- convergence of `Σ rᵐ/m! ‖Tᵐ(H_n)‖` for every `r > 0`.  The radius is `n`, so the core has no
+-- *common* radius: it meets Nelson's hypothesis but not the common-radius hypothesis of the theorem
+-- above, which is why the class-level closure is by the eigenbasis criterion
+-- (`ChapterYangMillsPolyCore`) rather than by Nelson's theorem.
+import BookProof.Qym.ChapterYangMillsHermiteAnalytic
+
+-- `ChapterYangMillsPolyCore` (S0 Route C, the closure): the polynomial core as an operator on
+-- classes.  `polyLp_injective` injects the polynomial classes into `L²(γ dx)` (a.e. zero plus
+-- continuity plus `IsOpenPosMeasure gaussMeasure` forces zero everywhere), so `polyRange` is a
+-- submodule and `polyEquiv` an isomorphism onto it; `polyOpRange` is `p ↦ −p'' + X p'` carried across
+-- that isomorphism — well defined *because* the class map is injective — with
+-- `polyOpRange_hermiteR : T(H_n) = n • H_n`.  `mem_span_hermiteR` (the Hermite polynomials span
+-- `Polynomial ℝ`; triangularity from `hermiteR n` monic of degree `n`) makes the Hermite classes
+-- complete, `dense_hermiteSpan`.  `polyOpH` is the operator on the Hermite span, with
+-- `polyOpH_hermiteR : T(H_n) = n • H_n`, and `coreExt` extends it to a global real-linear map so
+-- that inner products can be expanded by bilinearity (`coreExt_apply_mem` restricts it back).  The
+-- earlier plan of transporting the core to the complexification `Cx` is retired: the diagonal
+-- argument over `ℝ` needs no `±i`, and the identification with `gaussOp.closure` is proved in
+-- `ChapterYangMillsPolySelfAdjoint` without it.
+import BookProof.Qym.ChapterYangMillsPolyCore
+
+-- `ChapterYangMillsPolyTail` (S0 Route C, the estimate): the vanishing Gaussian tail of a squared
+-- polynomial.  `exists_lintegral_tail_lt` is `∫⁻_{R ≤ |x|} p² dγ → 0` — the missing half of the
+-- cutoff-and-tail argument, proved by antitone indicator integrals and `lintegral_iInf`, with
+-- `memLp_eval` making the total integral finite.
+import BookProof.Qym.ChapterYangMillsPolyTail
+
+-- `ChapterYangMillsPolyGraphNorm` (S0 Route C, the identification): the one approximation the two
+-- cores are separated by, stated for the actual operators.  `polyOp` is the Hermite-span operator as
+-- a `LinearPMap`, `PolyGraphApprox` is the graph-norm approximation, and
+-- `polyOp_le_gaussOp_closure` / `polyOp_eq_gaussOp_closure` are `le_closure_of_forall_approx` and
+-- `closure_eq_of_le` instantiated at `polyOp` and `gaussOp`.  The annulus estimate that supplies
+-- `PolyGraphApprox` is proved in `ChapterYangMillsPolyAnnulus`.
+import BookProof.Qym.ChapterYangMillsPolyGraphNorm
+
+-- `ChapterYangMillsPolyCutoff` (S0 Route C, the cutoff): the smooth `χ_R(x) = smoothTransition
+-- (2 - x²/R²)` used by the annulus estimate.  `cutFn_eq_one` / `cutFn_eq_zero` place the collar, and
+-- `cutFn_deriv_bound` / `cutFn_deriv2_bound` give `|χ_R'| ≤ C|x|/R²` and `|χ_R''| ≤ C|x|²/R⁴ + C/R²`,
+-- which is the `O(1/R)` and `O(1/R²)` scaling the tail estimate needs.  The constants come from
+-- compactness (`sDerivBound`, `sDerivBound2`), since `smoothTransition` has no `deriv` formula.
+import BookProof.Qym.ChapterYangMillsPolyCutoff
+
+-- `ChapterYangMillsPolyLpNorm` (S0 Route C): the two facts the annulus estimate consumes.  `polyOpH_coe`
+-- and `polyOpH_coeFn` put `T` on polynomial *classes*: on a Hermite-span class it returns the class of
+-- `dirichletPoly p`, whose representative is `gaussDirichlet (p.eval)` (`dirichletPoly_eval`).  The
+-- norm bridge `enorm_toLp_sub`/`norm_toLp_sub_eq`/`ofReal_norm_toLp_sub_sq` states that the norm of a
+-- difference of classes sees only the difference of representatives, in the `lintegral`-of-`ofReal`
+-- form that `exists_lintegral_tail_lt` bounds directly.
+import BookProof.Qym.ChapterYangMillsPolyLpNorm
+
+-- `ChapterYangMillsPolyAnnulus` (S0 Route C, the annulus estimate): the graph-norm approximation,
+-- proved.  `T p = −p'' + x p'` is dominated by `|p''| + |x p'|` with every term Gaussian-finite
+-- (`abs_dirichletPoly_eval_le`, `annulus_terms_finite`), the cutoff's derivatives are bounded
+-- uniformly in `x` (`abs_deriv_cutFn_le`, `abs_mul_deriv_cutFn_le`, `abs_deriv2_cutFn_le`), and the
+-- product rule twice gives `T(χ_R p) − T p = −χ_R'' p − 2χ_R' p' + xχ_R' p + (χ_R − 1) T p`
+-- (`gaussDirichlet_cutFn_mul_sub`).  The pointwise bound against the three tail indicators
+-- (`sq_gaussDirichlet_cutFn_mul_sub_le`) integrates to `lintegral_sq_sub_le`, and with
+-- `exists_cutFn_tail` choosing one radius for all three tails, `approximable_polyLp` and
+-- `polyGraphApprox_holds` deliver `PolyGraphApprox`: the inclusion `polyOp ≤ gaussOp.closure` no
+-- longer has an unproved analytic input.
+import BookProof.Qym.ChapterYangMillsPolyAnnulus
+
+-- `ChapterYangMillsPolyBasis` (S0 Route C, the basis): the Hermite classes in `L²(γ dx)`, taken
+-- orthonormal and completed to a Hilbert basis.  `inner_polyLp_hermiteR` reads the inner product of
+-- two classes as `hermiteInner m n`, so `hermiteInner_eq` gives orthogonality with norms
+-- `n!·√(2π)` (`inner_polyLp_hermiteR_eq`); normalizing gives `orthonormal_hermiteLpR`, rescaling
+-- leaves the span unchanged (`span_hermiteLpR`), and `HilbertBasis.mk` turns `dense_hermiteSpanSet`
+-- into `hermiteBasisR`.
+import BookProof.Qym.ChapterYangMillsPolyBasis
+
+-- `ChapterYangMillsPolySelfAdjoint` (S0 Route C, the closure is self-adjoint): the diagonal-basis
+-- argument, over `ℝ` and so without any deficiency-space test.  `polyOp` is symmetric because
+-- `polyOp b_n = n b_n` in an orthonormal family (`coreExt_inner_comm_span`), and
+-- `closure_isFormalAdjoint` carries that to the closure with a two-sequence limit.  For `y` in the
+-- adjoint's domain the adjoint relation forces `⟪b_n, T† y⟫ = n ⟪b_n, y⟫`
+-- (`inner_adjoint_hermiteLpR`), so the partial sums of the expansion of `y` lie in the domain and
+-- map to the partial sums of the expansion of `T† y`; closedness then gives `T† ≤ T`
+-- (`closure_adjoint_le`).  Hence `isSelfAdjoint_polyOp_closure`, and with
+-- `gaussOp_closure_isSymmetric` maximality yields `polyOp_closure_eq_gaussOp_closure'` with no
+-- hypotheses at all, and `isSelfAdjoint_gaussOp_closure`.  Both halves are instances of the
+-- general criterion `BookProof.DiagonalSelfAdjoint.isSelfAdjoint_closure_diagOp_symm`
+-- (`Toolbox/ChapterDiagonalSelfAdjoint`), whose only inputs are that the operator is symmetric and
+-- diagonal in a Hilbert basis.
+import BookProof.Qym.ChapterYangMillsPolySelfAdjoint
+
+-- `ChapterShiftInvertBookkeeping` (work package S3 of `softmodes.md`): the solve-error bookkeeping
+-- that the shift-invert estimates in `ChapterHashimotoShiftInvert` presuppose.  `norm_solve_error_le`
+-- bounds the error of an inexact solve, and `compressedSolve_defect` / `compression_ne_resolvent`
+-- is the two-dimensional counterexample distinguishing the *compressed* operator from the
+-- *compressed resolvent*: the compressed solve and the exact solve of the compressed problem differ
+-- by `(A+1)⁻¹` applied to the defect, so the `1/6` gap is the defect's image, not a numerical
+-- artifact (`compressed_solve_error_eq_defect_image`).
+import BookProof.Sirk.ChapterShiftInvertBookkeeping
+
 -- `ChapterQgDerivativeRealization` (plan QG-3.2-exec (ii)): the concrete 84-dimensional
 -- derivative-variable fixing `E = ∂e` on the coordinate algebra of
 -- `ChapterQuantumGravity3DGauge`.  A tetrad field polynomial in the spacetime coordinates
@@ -3842,6 +4066,14 @@ import BookProof.YangMillsFieldStrength
 -- operator on the Gauss–polynomial core (`smDerivG_symmetricOn`, `smCommG_symmetricOn`, …),
 -- the commutator part is `¼ ε_{ijk} g [A_j, A_k]` (`smCommG_eq_quarter_bracket`) and vanishes
 -- on the commuting sector (`smCommG_eq_zero_of_symmetric`).
+-- The S3 short-distance exclusion in finite-kernel form (`ChapterSmFreeModeExclusion`):
+-- `shortNorm r = r^8 log²(1/r)` is the normalisation of a grade-8 label, `modeKernel` the external
+-- `(1/2E) E^timeOrder num(p) exp(−rE)` at fixed momentum, and `not_eventuallyEq_wickSum` the
+-- exclusion itself — a nonzero normalised limit of `F` is not eventually equal to any finite sum of
+-- such modes.  Stated by a short-distance asymptotic, so it needs no OS Hamiltonian, and finite-list
+-- only: it is not "excludes every generalized free field".
+import BookProof.Sm.ChapterSmFreeModeExclusion
+
 import BookProof.Sm.ChapterSmFieldStrengthSplit
 
 -- The Wilson plaquette interaction does not spoil the slice split of the lattice gauge

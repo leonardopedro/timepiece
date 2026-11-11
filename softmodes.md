@@ -1,5 +1,121 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
+## External-source audit for the nested Hamiltonian (2026-11-11)
+
+This section replaces the earlier external-source commentary. The mathematical work order
+remains S0–S4 below, in the nested-Fock/Mehler/Hashimoto/SIRK formalism. Its endpoints are
+an absolute inner form bound (target 1), or separation above an identified inner ground
+space (target 2), followed by the appropriate outer lift and certified approximation.
+Neither target requires a Wightman construction or a four-dimensional Euclidean measure.
+The optional comparison with those theories belongs to [cftproof.md](cftproof.md), B0–B3.
+
+### Physical state: one outer particle per informed spatial point
+
+The empty outer vacuum represents mathematical emptiness. The physical prior has one
+outer particle at each point of 3D space about which field information is specified;
+information at several points can give a many-outer-particle state. `N_out = 1` is a
+single spatial contribution, not a global restriction on the real-world model. The
+outer-free Hamiltonian retains the interacting field content inside each inner state.
+
+Read [book.tex](book.tex), “Free field parametrization in Statistical Field Theory”:
+recursive second quantization; the number-density proposition at finitely many distinct
+spatial points; and its normalization using local tensor factors with at most one point.
+Specify joint priors and spatial localization as well as the local occupation. In a
+finite resolved implementation use stated spatial supports and embeddings into the
+existing spatial/field/jet coordinates; refinement is a separate representation task.
+
+Physical expectations are taken in that populated prior, not in empty outer space.
+`dΓ(O)` and products of number densities can have nonzero expectations there. Their
+annihilation of `Ω_out` is not an obstruction and requires no number-changing repair.
+Distinguish the energy to populate empty outer space (target 1) from an excitation gap
+inside a populated physical sector (target 2 with the relevant sector and ground space).
+Neither identifies a generic information prior with a ground or stationary state.
+
+### What the three folders contribute
+
+For snapshot revisions and the exact scope of the review, see `cftproof.md`,
+“Sources, versions and what was actually inspected”. We inspected the
+[October source](../OpenAI-YM-20261028/README.md), the
+[independent review](../YM/README.md), and the
+[Balaban drafts](../Yang--Mills-LLM-experiment/README.md), including the YM4 assembly PDF.
+These provide proof-contract examples and candidate analytic techniques. No external
+construction is identified with our inner operator, physical space or outer Hamiltonian.
+In particular, absence of a gap theorem there does not prove or refute coercivity here.
+The draft corpus warns that its claims remain tentative, including QED3/YM3.
+
+* The October `PublicTheory.lean` separates positivity from a spectral gap, and
+  `ChallengeSpec.lean` binds multiple properties to the same witness. Reuse the discipline,
+  without adding its Wightman axioms to S2's assumptions or acceptance criteria.
+* The review's `AcceptanceSpec.lean` fixes normalization and observable identities before
+  accepting conclusions. For S0–S4 the corresponding contract is the **actual nested**
+  `h`, its Mehler realization, core, physical sector and outer lift, held fixed throughout.
+* The Balaban conditional-law checklist suggests how to audit a future Gaussian
+  comparison, but its CP box is not closed. Its volume-first scalar SU(2) construction
+  and its reflection hypotheses are not hypotheses of this Hamiltonian programme.
+
+### Corrections to the earlier analogy
+
+**The two targets are not the external open-question list.** An inner Hilbert space used
+as the one-particle input to `dΓ_out` need not be a relativistic one-particle mass-shell
+subspace. Identifying such a space would require translations, dispersion and observable
+intertwiners. Our target 2 is an inner excitation separation; it is not construction of
+Wightman single-particle states. Target 1 gives an outer-vacuum gap within the nested
+model, independently of whether any Euclidean/Wightman identification can be proved.
+
+**Retain the vacuum in gap statements.** For `H = dΓ(h)` a successful target 1 yields
+`H ≥ m N_out ≥ m(I − P_Ω)`, and therefore no spectrum in `(0,m)`.
+A claim that the joint energy–momentum projection of a ball containing zero vanishes
+would incorrectly remove the vacuum. For a degenerate ground space use its full
+projection. Positive energy and non-freeness are neither replacement bounds nor evidence
+for either S2 target. A short-distance exclusion of finite Wick profiles is not a spectral
+exclusion suitable for Temple's inequality.
+
+**Coordinate degree and local-field weight are different.** The source-present
+`totalDegree_magPoly_le ≤ 2` and `totalDegree_magWeight_le ≤ 4` count ordinary polynomial
+degree in 99 independent coordinates. `idxD` is one such coordinate, of polynomial
+degree one; it is not an extra differentiation operation on a spacetime label. The
+external curvature/derivative filtration and its gauge/Bianchi quotient require a new
+dictionary in cftproof B0. No OPE exponent or stress-trace coefficient follows from our
+degree bounds. Retain the bounds as growth-class inputs to S2, not as analytic domination.
+
+### Refined S0–S4 deliverables
+
+1. **S0 contract:** record the normalized Mehler measure, unitary, actual momentum action,
+   common core and closure. Match `B = L + Q` and all constants to that same operator.
+   Existing conjugation/norm identities are reusable; Gaussian representation alone adds
+   no confinement and does not identify the physical kinetic form with Hermite degree.
+2. **S1 channel audit:** classify zero/flat directions of the complete magnetic form and
+   kinetic operator together. For each proposed confinement mechanism state which variables
+   carry derivatives, which are parameters, and whether a physical reduction is used.
+   This is the relevant lesson from separating background construction, linear inversion
+   and Gaussian integration in the Balaban diagram: a local Hessian bound does not yet
+   control the global physical operator. Prove any averaging or Schur-complement error.
+3. **S2 estimate packet:** choose target 1 or 2 before estimating. Supply the positive
+   constant, invariant sector/ground projection, dependence on coupling and dimension,
+   extension from core to closed form, and an explicit theorem for the unchanged `h`.
+   Keep graph-norm domination and absolute lower-edge coercivity separate: each needs
+   its own proof. Quartic degree, ESA and nonnegative form data alone prove neither gap.
+4. **S3 approximation packet:** bind Hashimoto/SIRK's generator and bounded resolvent
+   to that same closure. Retain rational approximation, solve defects, orthogonality,
+   rounding and full basis tails separately. Select shifts from the actual spectral or
+   numerical-range bounds; retain the paper's finite shift-budget restrictions below.
+   Keep an independently proved separation threshold for Temple; a positive lattice
+   probe or short-distance coefficient from the external construction cannot provide it.
+   Record the populated spatial prior used as initial data and its outer occupation;
+   the empty outer start alone cannot test physical field predictions. A multi-point
+   prior requires the corresponding many-particle evolution and joint observables.
+5. **S4 acceptance packet:** use one identified operator/core/sector for both the
+   analytic bound and numerical certificate. Check the outer lift and full ground space,
+   then follow §M4.9 before §M4.3. Record endpoint binders, axiom closure and source hashes.
+   Give reference-model diagnostics their own labels rather than calling them physical
+   certificates. No Euclidean reconstruction is an additional S4 completion requirement.
+
+The next task remains the QYM analytic row of
+[CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md). A useful candidate method may be adapted
+from a draft only after its hypotheses are proved for this inner operator. If the method
+also gives the SM graph estimate, pass its precise statement and constants to P4 of
+[SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md); a QYM gap alone does not supply it.
+
 ## Revised work package (2026-11-08)
 
 This revision supersedes the roadmap and completion claims of the dated phases below **as a
@@ -259,6 +375,28 @@ Source paths below are relative to `BookProof/`.
   C, positive one-particle form input.
 * `Qym/ChapterYangMillsOuterFockFL.lean`: U, abelian parcel ESA result;
   B, not the non-abelian gap theorem.
+* `Qym/ChapterYangMillsHermiteAnalytic.lean`, `dirichletPoly`,
+  `norm_polyLp_iterate_hermiteR`: U, the polynomial form core of `gaussDirichlet`, diagonal in the
+  Hermite basis, with `TᵐH_n = nᵐH_n` and the `L²(γ dx)` norm bound; C, an operator on
+  `Lp ℝ 2 gaussMeasure` whose *domain* is that core (`gaussOp`'s domain is the `C²` core).
+* `Toolbox/ChapterNelsonAnalyticVectors.lean`, `essentiallySelfAdjointOn_of_dense_geometric`: U,
+  Nelson's criterion for a dense set of vectors with a common geometric ratio, on the Faris–Lavine
+  deficiency propagation; N, Nelson's theorem with per-vector radii.  The eigenbasis criteria
+  `essentiallySelfAdjointOn_of_dense_span_eigenvectors` (dense *span*, the usable one) and
+  `…_of_dense_eigenvectors` (dense set) need neither summability nor symmetry.  For per-vector data
+  the module proves Nussbaum's reduction instead,
+  `essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness` (dense set of vectors of uniqueness at
+  `±i`); U there is Carleman's analytic ⟹ vector of uniqueness, which is the missing theorem.
+* `Qym/ChapterYangMillsPolyCore.lean`: U, nothing — the polynomial core of `gaussDirichlet` as an
+  operator on classes is now proved self-adjoint at the closure (`isSelfAdjoint_polyOp_closure`,
+  `isSelfAdjoint_gaussOp_closure` in `Qym/ChapterYangMillsPolySelfAdjoint.lean`).  Its earlier ℂ
+  specialization (`polyDomC`/`polyOpC`/`polyCore_essentiallySelfAdjoint`) is retired and removed; the
+  remaining open item is the S0 *book* prose, not a theorem.
+* `Toolbox/ChapterDiagonalSelfAdjoint.lean`, `isSelfAdjoint_closure_diagOp_symm`: U, nothing — a
+  symmetric, densely defined operator diagonal in an orthonormal Hilbert basis with real eigenvalues
+  has self-adjoint closure (closability is derived, not assumed).  This is the reusable form of the
+  S0 argument; `Qym/ChapterYangMillsPolySelfAdjoint` is its instance at `hermiteBasisR` with
+  eigenvalues `n`.
 
 Execution order is **S0 → S1 → S2 → S3 → S4**; approximation bookkeeping in S3 can proceed
 while S2 remains open. The next reviewable deliverable is the S0 representation bridge
@@ -360,10 +498,19 @@ spectrum is not `h`'s.
   (`X = 1`, `Y = −1`, `g = 2` gives `1 < 4`).  So the plan's "do not assume" is a theorem, and the
   counterexample uses no structure constants — non-abelianity is not the source of the failure.
 
+**The outer algebra itself is now small algebra in the corpus.**
+`Toolbox/ChapterFockNumberPreservingGap.lean` carries the S1 identities on `dΓ`:
+`dGamma_shiftPlus` is the scalar shift in additive form `dΓ(h + c·1) = dΓ(h) + cN` (the
+subtractive `dGamma_shiftCol` was already there), `dGamma_comp_one_particle` is composition on the
+one-particle sector, `dΓ(M) dΓ(N)|e_k⟩ = dΓ(M·N)|e_k⟩` with `colMul` the column product, and
+`dGamma_comp_defect` is the multi-particle defect as a theorem: on two quanta `N² = 4` while
+`dΓ(1·1) = N = 2`, so `N² ≠ N`.  Nothing there is conditional.
+
 **What S1 still needs, and what this does not do.** The estimate is a *norm* inequality between two
 vectors, so it inherits every `C` of the concrete split: the derivative and commutator parts of
-`magPoly` must be identified as vectors in this shape (`Qym/ChapterYangMillsFieldStrengthSplit.lean`
-splits the polynomial, it does not say the squares add cross terms this way), the loss
+`magPoly` must be identified as vectors in this shape — the squares now do add up
+(`Qym/ChapterYangMillsFieldStrengthSplit.magEnergy_eq_parts`, the full `Σ B²` is quadratic plus
+cubic plus quartic), but that is an identity, not a domination — the loss
 `(ε⁻¹ − 1)g²‖B_comm‖²` must be dominated by the reference form — the `a < 1` input of
 `YangMillsFormClosureNonDiagonal` — and no IMS/localization statement is made, so partition
 gradients are still unpaid.  The abelian `A_i = ∂_i φ` description of a pure gauge is untouched:
@@ -371,7 +518,955 @@ the inequality is agnostic between the abelian and non-abelian readings, and the
 `BrstLongitudinal.gaussVec_eq_longitudinal_add_comm` remains the record that the orbit is larger for
 `f ≠ 0`.
 
-S2 is unchanged (no positive `m`, no `L₁ − U₀`); S3 and S4 are untouched.
+S3 and S4 are untouched; S2 is the next subsection.
+
+#### S2 — the relative bound, and the coercivity constant it leaves
+
+`Qym/ChapterYangMillsFieldStrengthSplit.lean` §3c now applies the norm estimate to the concrete
+magnetic split and isolates the remaining analytic input.
+
+* **U, unconditional — the cross term.** `magOps_eq_split` is `B = ∂A + [A,A]` for the magnetic
+  *operators* on the core (`magDerivOps`, `magCommOps`), and `magEnergy_form_ge_split` is
+  `(1 − ε)Σ‖∂A‖² − (ε⁻¹ − 1)Σ‖[A,A]‖² ≤ Σ‖B‖²` for every `ε > 0`: `norm_add_sq_ge_split` summed
+  over the `24` field components.  The cubic cross term is thus charged `ε` of the quadratic
+  energy and the remainder to the quartic one, and no information about the interaction enters.
+* **U, unconditional — the identity.** `magEnergy_form_eq` is the exact decomposition
+  `Σ‖B‖² = Σ‖∂A‖² + 2Σ Re⟪∂A, [A,A]⟫ + Σ‖[A,A]‖²`, and `ymHamiltonian_quadForm_split` is the
+  physical-core energy identity `⟪x, H₁x⟫ = ½Σ‖πx‖² + ½(that)`.  This is §3b's decomposition of
+  `ΣB²` read component by component, so the comparison calculation now carries the full
+  interacting energy in its own slot instead of only the quadratic Cartan part.
+* **U, conditional on one input — the assembly.** `magEnergy_form_ge_of_quart_bound`: if the
+  quartic part obeys a relative bound `Σ‖[A,A]‖² ≤ κΣ‖∂A‖² + b‖x‖²`, then for `0 < ε < 1`
+  `(1 − ε − (ε⁻¹ − 1)κ)Σ‖∂A‖² − (ε⁻¹ − 1)b‖x‖² ≤ Σ‖B‖²`.  `magEnergy_form_ge_quarter` is the
+  plan's `ε = 1/2`, `κ = 1/4` case, leaving `¼Σ‖∂A‖² − b‖x‖²`, and
+  `ymHamiltonian_quadForm_ge_of_quart_bound` adds the kinetic half, which is the S2 shape
+  `c₁q_ref − c₂‖·‖²` on the core.
+* **C, isolated rather than claimed.** The relative bound `κ < 1` for the *quartic* part is the
+  hypothesis of the assembly, not a theorem of the split.  On the concrete core `[A,A]²` is a
+  quartic potential; bounding it by the quadratic energy is the Kato-type estimate the coefficient
+  model supplies (`YangMillsMagneticQuartic.magnetic_le_quartic`, and
+  `YangMillsEffectiveBarrier.barrierBound_quartic`, which dominates the free degree form plus
+  Simon's barrier up to an explicit shift), and what is still missing is the mode identification
+  between that model and the `99`-coordinate core — already recorded elsewhere in this file as
+  unformalised.  So the algebraic gate of S2 is closed *given that relative bound*: a strict
+  relative bound now yields a positive coefficient on the quadratic energy with the shift carried
+  explicitly.  No unconditional `m > 0` and no `L₁ − U₀` is claimed, and no cutoff uniformity or
+  IMS/localisation statement is made.
+
+Axioms audited on the seven new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
+
+#### S2 — the mode identification, and why the relative bound is not the route
+
+§3c's assembly takes a quartic relative bound as its hypothesis.  That hypothesis is **false** on
+the coefficient model, and `Qym/ChapterYangMillsFieldStrengthSplit` §3d proves it:
+
+* **N — `not_quartic_relativeBound`.**  For every `κ` and `b`, some `c : CoreCoeff d` has
+  `quarticDegreeForm c > κ · degreeForm c + b · ‖c‖²` (take one mode of occupation `N`:
+  quartic `(dN)²` against degree `dN`).  The quartic `:N²:` form grows like `N²` where the degree
+  form grows like `N`, so no relative bound in the direction `quartic ≤ κ·quadratic + b‖·‖²`
+  exists.  Since §3c needs exactly that direction to pay for the cross term, the norm-inequality
+  route cannot produce coercivity; the quartic has to enter through a *lower* bound.
+
+**The genuine half of the mode identification.**  `softmodes.md` and
+`YangMillsMagneticQuartic` both recorded "the mode expansion is not formalised".  Two pieces of it
+are now proved:
+
+* `modeVec`, `modeIndex`, **`coeffToCore_norm_sq`** — the adapted product-Hermite basis
+  `coreBasis e` is indexed by `ℕ ≃ (Fin d →₀ ℕ)`, and the coefficient vector `c` is sent to
+  `∑ n, c n · ψ_n`; that map is an isometry, `‖coeffToCore c‖² = coreNormSq c`.  So the model's
+  coefficient space *is* a subspace of `L²(ℝᵈ)` with the model's norm, concretely and without
+  hypotheses.
+* **`totalDegree_occMonomial`** — the monomial of a mode, `∏ i, X i ^ nᵢ`, has total degree
+  `∑ i, nᵢ`: the model's multi-index is the field-space degree vector.
+
+**The interface, and what it yields.**
+
+* `ModeIdentification Φ fabc` bundles an isometric map of coefficient vectors into the core whose
+  magnetic-energy form is the model's `magneticEnergyForm diagA`.  The form half is the remaining
+  mode-expansion step (the Wick/Mehler identification of the multiplication form)
+  `∑_m ‖[A,A]_m x‖²` with the diagonal `:N²:` weight `∑_n (∑_a B_a(n)²)‖c n‖²`); the structure has
+  no inhabitant in the corpus, and the next subsection shows that the abelian sector provably
+  cannot supply one.
+* **`magEnergy_ge_of_identification`** — given one, the coefficient model's barrier bound transfers
+  to the core: `1/24 · (degreeForm + barrierForm − quarticShift ‖x‖²) ≤ ∑_m ‖B_m x‖²`.  The factor
+  `24` is `quarticDegreeForm_le_magnetic` (Cauchy–Schwarz), read in the useful direction.
+* **`ymHamiltonian_quadForm_ge_of_identification`** — the S2 shape on the core, with no further
+  hypothesis on the interaction: `1/48 · (degreeForm + barrierForm − shift ‖x‖²) ≤ ⟪x, H₁x⟫`.
+* **`s2_gap_constant`** — the derived constant: on the identified core
+  `c₁/48 · q_ref − ((c₁ μ₀ + quarticShift)/48) ‖x‖² ≤ ⟪x, H₁x⟫`, i.e. the certification ratio is
+  `c₁/48` and the shift is `(c₁ μ₀ + K + (1+K)²/4)/48`, `K = rootCount T · g/2`, where `c₁` is
+  the free/oscillator ratio with `0 < c₁` and `c₁ωᵢ ≤ 1`; with `c₁ = 1`, `ω ≡ 1` that is
+  `m = 1/48 ≈ 0.0208` on the reference form.
+
+So S2's *constant* is now an explicit number rather than an existence claim, and the only missing
+input is a single identification statement — not an estimate.  What is still not claimed: that
+`ModeIdentification` holds (the form half is unformalised), and hence not any unconditional
+`m > 0` for the core.
+
+Axioms audited on the six new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
+
+#### S2 — the abelian sector is a counterexample, not an inhabitant, and the constant as a certificate
+
+The natural try is to inhabit `ModeIdentification` where the commutator vanishes (`fabc = 0`), since
+there the magnetic field is only `∂A`.  That is **impossible**, and §3d.1 proves it:
+
+* **`not_modeIdentification_abelian`.**  The `:N²:` magnetic form is normal-ordered, so it vanishes
+  on the vacuum mode: `magneticEnergyForm diagA (δ₀) = 0` because `magComp diagA a 0 = 0`.  The
+  abelian magnetic operator is not zero there — `magOps_abelian_injective` shows the `0`-th one is
+  injective, since its polynomial `∑ j k, levi i j k • X (idxD j k a)` is nonzero
+  (`magPoly_zero_ne`, by evaluating at the coordinate `idxD 1 2 0`, where the coefficient is
+  `levi 0 1 2 = 1`) and `MvPolynomial` is a domain (`mulOp_eq_zero_imp`).  Combined with the
+  isometry of `coeffToCore`/`MI.norm_sq`, `toCore δ₀ ≠ 0`, so the sum of squares cannot be `0`.
+  The abelian energy therefore carries exactly the constant that the `:N²:` model has dropped, and
+  the identification fails on the vacuum vector — not for an analytic reason, but by normal
+  ordering.
+
+**The normal-ordering identity itself.**  Two statements, both unconditional:
+
+* `YangMillsFieldStrength.hopWord_pair_reverse` — the reversed pair `c_j c_j†` acts on `n` by
+  `n_j + 1`, while `hopWord_pair_same` gives `n_j` for `c_j†c_j`: the difference is the constant
+  `1`, the vacuum subtraction, present per mode in every state.  This is the sandwich-model form of
+  the normal-ordering statement, and it is why the ordered pair needs no subtraction.
+* `YangMillsMagneticQuartic.quartic_eq_magnetic_add_cross` — the two-component identity
+  `quarticDegreeForm c = magneticEnergyForm diagA c + 2 ∑_n n₀n₁‖c n‖²`, i.e.
+  `(n₀+n₁)² = n₀² + n₁² + 2n₀n₁`: the `:N²:` weight is the normal-ordered magnetic energy plus the
+  cross term, and the cross term is the non-abelian piece.  Dropping it is what makes the model
+  coercive, and in the abelian sector it is absent — which is the same fact as
+  `not_modeIdentification_abelian`, read in the coefficient model.
+
+**The constant as a certificate (§3d.2).**  `s2FormDomination` is the S2 ratio packaged as a
+`BookProof.YangMillsFormDomination.FormDomination` on the identified core, with `c₁ = c₁/48` and
+`c₂ = (c₁μ₀ + quarticShift)/48`, so the certificate machinery applies verbatim:
+`s2_ground_threshold` is `−(quarticShift/48)‖x‖² ≤ ⟪x, H₁x⟫` on the whole core, and
+`s2_excited_threshold` is `((c₁ Δ_ref − quarticShift)/48)‖x‖² ≤ ⟪x, H₁x⟫` on the vacuum-orthogonal
+sector.  The excitation threshold is positive exactly when `c₁ Δ_ref > quarticShift`; that is the
+honest form of the S2 number, and it shows the shift — the barrier price, not the normal-ordering
+constant — is what the constant has to beat.
+
+Axioms audited on the nine new theorems: `propext`, `Classical.choice`, `Quot.sound` only.
+
+#### S2 — the mode expansion on the non-abelian root sector
+
+The identification `ModeIdentification` isolates one statement: `∑_m ‖[A,A]_m x‖²` equals the
+diagonal `:N²:` weight on every mode.  Half of it is now unconditional — the *one-pair* amplitude on
+the root sector, and with it the split of the weight itself.
+
+**The root pair hops.**  `YangMillsFieldStrength.hopWord_pair_offdiag`: for `i ≠ j` the pair
+`c_i† c_j` does not act diagonally.  It moves one quantum from mode `j` to mode `i`,
+
+`c_i† c_j |n⟩ = √((nᵢ+1) nⱼ) |n − eⱼ + eᵢ⟩`,
+
+and `hopWord_pair_offdiag_ne` records that the index really changes when `nⱼ ≠ 0` — so no
+off-diagonal component is diagonal in the occupation basis, in contrast with the Cartan
+`sandwich_diag_magComp`.  The squared amplitude is `offdiag_amp_normSq`, `(nᵢ+1) nⱼ`, and
+`offdiag_amp_decomp` splits it as `nᵢ nⱼ + nⱼ`: the **cross term** of the two distinct occupations
+plus the diagonal occupation.  The `+1` is the normal-ordering constant that survives *off* the
+diagonal, precisely because the annihilation and the creation act on different modes; on the
+diagonal it is absent (`hopWord_pair_same`).  Summed over the ordered pairs,
+`sum_offdiag_amp_sq` gives `∑_{i≠j} nᵢ nⱼ + (d−1) ∑_j nⱼ`: the root share of the weight plus
+`d − 1` copies of the occupation per quantum.
+
+**The weight splits accordingly.**  `YangMillsMagneticQuartic.rootCrossWeight` is
+`∑_{i≠j} nᵢ nⱼ`; `sum_sq_eq_diag_add_root` is `(∑ i, nᵢ)² = ∑ i, nᵢ² + (that)`, and
+`quarticDegreeForm_eq_magnetic_add_root` sums it against `‖c n‖²`:
+
+`quarticDegreeForm c = magneticEnergyForm diagA c + ∑_{n∈supp} rootCrossWeight n · ‖c n‖²`.
+
+So the `:N²:` weight is the normal-ordered magnetic weight plus the root-pair weight, with `d`
+components at a time; `rootCrossWeight_two` shows the `d = 2` case is exactly
+`quartic_eq_magnetic_add_cross` (`2 n₀ n₁`), so the two-component identity is a special case and
+not a separate accident.
+
+**Boundary.**  This is the *one-pair* half of the form expansion.  What `ModeIdentification` still
+needs is the amplitude of a *product* of two root pairs — `∑_m ‖[A,A]_m ψ_n‖²` — i.e. the passage
+from `c_i† c_j` to the commutator square; that is a genuine two-particle (Mehler) computation and
+is not done, here or elsewhere.  Nothing about `ModeIdentification`'s inhabitation status changes:
+the abelian sector still cannot supply one, and the root-sector amplitude above is why the
+non-abelian sector is where one would have to be built.
+
+Axioms audited on the nine theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
+#### S2 — the abelian vacuum energy is `1/2` per component: the constant, evaluated
+
+§3d.1 showed the abelian sector fails the identification *because* of a constant, but left the
+constant unnamed.  It is `1/2` per field component, and that is now a theorem.
+
+`YangMillsFieldStrength` §5 adds the coefficient model's vacuum, `vacuumCoeff`, and the oscillator
+chain on it:
+
+* `vacuum_lower_zero` — `a_j Ω = 0`, the `ℓ²` statement (the lowering amplitude is `√(nⱼ) = √0`).
+* `vacuum_raise_normSq` — `‖a_j† Ω‖² = 1`.
+* `vacuum_field_raw` — hence `(a_j† + a_j) Ω = |e_j⟩` with squared norm `1`, *before* any field
+  normalisation is chosen.
+* `fieldOp`, `fieldOp_vacuum` — with the standard oscillator normalisation
+  `A_j = (a_j + a_j†)/√2` (the `1/√2` is the only place a convention enters, and `‖A_j Ω‖² = 1/2`
+  is then a computation, not a definition: `coreNormSq_smul` and `(1/√2)² = 1/2`), the vacuum
+  magnetic energy is `1/2` per component.
+* `sum_fieldOp_vacuum` — `∑_j ‖A_j Ω‖² = d/2`: one half for each of the `d` components, with no
+  cross terms, since the components are independent at the vacuum.
+* `magneticEnergyForm_vacuum` (`YangMillsMagneticQuartic`) — the normal-ordered `:N²:` form on the
+  *same* state is `0`, because `B_a(n) = n_a` vanishes at zero occupation.
+* `abelian_vacuum_energy` — the two side by side: `‖A_j Ω‖² = 1/2` and
+  `magneticEnergyForm diagA Ω = 0`.
+
+So the abelian magnetic energy is `1/2` per component and the normal-ordered model gives zero; the
+difference is the constant that `not_modeIdentification_abelian` detects, now with its value.  It
+also explains the shape of `s2FormDomination`: the `c₂` shift is the *barrier* price, while this
+`1/2` per component is the part of the abelian energy that is state-independent and therefore has
+to be subtracted before any `:N²:` comparison can be made.
+
+Axioms audited on the eleven theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
+#### S2 — the certificate driven through the gap chain
+
+`s2FormDomination` is an ordinary `FormDomination`, so it needs no separate development: the
+chapter's chain applies to it, and §3d.2 now records the instantiations.
+
+* `s2FormDomination_c₁`, `s2FormDomination_c₂` — the certificate's data are the derived numbers:
+  ratio `c₁/48`, shift `(c₁μ₀ + quarticShift)/48`.  (The `rfl`-proofs are the point: no second
+  constant is introduced anywhere in the chain.)
+* `s2_certified_separation` — `certified_separation` at the S2 certificate: the ground and excited
+  comparison thresholds differ by `c₁/48 · Δ_ref`.
+* `s2_separation_pos` — that difference is strictly positive, since `c₁ > 0` and `Δ_ref > 0`.
+* `s2_certified_gap` — the separation in the same shape as `quartic_certified_gap`: on the
+  vacuum-orthogonal sector `c₁Δ_ref/48 · ‖c‖² ≤ q(c) + (quarticShift/48)‖c‖²`.
+* `s2_gap_threshold_pos` — the excited threshold is positive **iff the barrier is smaller**:
+  `quarticShift < c₁ Δ_ref`.  This is the honest condition; nothing in the chain turns a lower
+  comparison bound into a spectral gap, and the chapter is explicit about that.
+
+So the S2 number is no longer a side result: it is the ratio of a certificate the existing chain
+consumes, and the only nontrivial quantitative condition left is `quarticShift < c₁ Δ_ref`.
+
+Axioms audited on the six theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
+#### S2 — the root-sector structure, with the obstruction isolated
+
+The abelian refutation and the vacuum value `1/2` per component say *where* the obstruction lives;
+§3d.3 of `Qym/ChapterYangMillsFieldStrengthSplit` turns that into a structure and an isolation
+theorem.
+
+* `rootSector c : Prop := c 0 = 0` — no vacuum component: the sector where the `:N²:` weight pays for
+  the norm.
+* `RootModeIdentification` — the same data as `ModeIdentification` (`toCore`, the isometry), with
+  `mag_eq` required only on the root sector.  `toRootModeIdentification` shows every unrestricted
+  identification restricts, so the structure is not a weakening invented for convenience: it is
+  exactly `ModeIdentification` minus the vacuum case.
+* `vacuumCoeff_not_rootSector` — the witness of `not_modeIdentification_abelian` is the vacuum
+  coefficient, which is outside the sector.  So the abelian argument cannot be replayed against the
+  restricted structure: its only counterexample is excluded by hypothesis.
+* `magneticEnergyForm_ge_normSq` (in `YangMillsMagneticQuartic`) — off the vacuum the `:N²:` weight
+  dominates the norm, because a nonzero mode has some occupied coordinate, whose square is `≥ 1`.
+  Hence `root_sector_magnetic_pos`: no nonzero root-sector state has vanishing weight, i.e. there is
+  no root-sector analogue of the obstruction.
+* `magEnergy_ge_of_rootIdentification` — the S2 barrier transfer (`1/24` of degree + barrier − shift)
+  only ever applies the form identity to one `c`, so it holds on the root sector with the *weaker*
+  structure.  The vacuum case is needed only to state the identification globally, not for the
+  analytic chain.
+
+The S2 chain then carries the restricted structure to the usable number:
+`ymHamiltonian_quadForm_ge_of_rootIdentification` (shape inequality on the root sector),
+`s2_gap_constant_root` (ratio `c₁/48`, shift `(c₁ μ₀ + quarticShift)/48`), and
+`s2_excited_threshold_root` (`(c₁ Δ_ref − quarticShift)/48 · ‖x‖²`, from `href_spectral_gap`).
+The whole-core `FormDomination` certificate `s2FormDomination` is not restated: its `dom` field
+quantifies over every coefficient, including vacuum mixtures, so it legitimately needs the
+unrestricted structure.  The root-sector theorems are pointwise and therefore sound.
+
+#### S2 — the ℝ²⁴ → ℝ⁹⁹ embedding and the ε contraction
+
+Two of the pieces the inhabitant needed are built (§3d.0 and the energy contract).
+
+* `colourIndex m = idxA (decodeSpace m) (decodeColor m)` is injective: the 24 gauge coordinates sit
+  inside the 99.  `embedIndex e n = e.symm (mapDomain colourIndex n)` reads mode `n` into the
+  `ℝ⁹⁹` adapted basis, and `modeVec99_orthonormal` follows from injectivity.
+* `embedL2 e c = ∑ n, c n • modeVec99 e n` is an **isometry**: `embedL2_norm_sq` gives
+  `‖embedL2 e c‖² = coreNormSq c` from orthonormality alone — no Mehler kernel, no Gaussian
+  integral.  `embedL2_mem_polyGaussCore` puts the image on the Gauss–polynomial core, so
+  `embedCore` is a concrete `toCore` candidate and `embedCore_norm_sq` is its `norm_sq` field.
+* `levi_contract` is the sharp `∑_i ε_{ijk}ε_{ilm} = δ_{jl}δ_{km} − δ_{jm}δ_{kl}`.
+  `eps_contract_poly` lifts it: `∑_i (εP)(εQ) = ∑_{jk}(P_{jk}Q_{jk} − P_{jk}Q_{kj})` for arbitrary
+  bilinear polynomial forms.  `magEnergy_eq_contract` applies it to
+  `magFullBilin = ∂A + f[A,A]`: `Σ_{ia}B_{ia}² = Σ_{a,j,k}(P² − P·Pᵀ)`.  The ε weights vanish and
+  the f weights are inside `P`; the transposed term is where the commutator survives.
+* `RootFormDomination` / `root_ground_bound` / `root_excited_bound` / `s2RootFormDomination` — the
+  certificate with `dom` on the root sector only, built from `s2_gap_constant_root`.
+
+#### S2 — the root gap, the colour factor, and the contraction
+
+* **The gap on its domain.**  `rootSector` is linear (kernel of evaluation at the vacuum), so it is a
+  submodule `rootDomain`; `rootDomain_ne_top` keeps the vacuum out.  On it the certificate's excited
+  threshold applies everywhere and `root_spectral_gap` gives
+  `(c₁ Δ_ref − quarticShift)/48 · ‖c‖² ≤ q(c)` — a genuine positive gap, where `s2_ground_threshold`
+  is only a whole-core lower bound spoilt by the vacuum.  No closure argument is required: the
+  comparison is pointwise on the domain.
+* **Structure constants as hypotheses.**  `IsAntisymmetric` and `SatisfiesJacobi` are *added*, since
+  the polynomial model carries `fabc` as a free tensor.  Derived: `fabc_self_eq_zero`,
+  `colourTensor_cyclic` (Jacobi = cyclic vanishing of `K_{abcd}`), and
+  `colour_contraction_double`: `Σ(P² − P·Pᵀ) = 2Σ P²` for antisymmetric `P` — the factor `2` of the
+  quartic colour energy.  The numerical Casimir is *not* derived; it needs the `su(N)` constants.
+* **The contraction.**  `pderiv_X_mul`: `∂ᵢ(Xᵢ p) = p + Xᵢ ∂ᵢ p`, i.e. `[∂ᵢ, Xᵢ] = 1`
+  (`normalOrder_contraction` at operator level).  With `coeff_zero_magPoly` this yields
+  `magPoly_mul_monomial_ne`: `B_{ia}` has zero diagonal at every monomial.  So `:N²:` is the
+  contracted `Σ B†B − (contraction)`, not the diagonal of `magOps`.
+
+* **The root domain is the excited span, and the gap is closed.**  `rootDomain` is the kernel of
+  evaluation at the vacuum, and in the coefficient model that is exactly the vacuum-orthogonal core:
+  `norm_sq_apply_zero_le_coreNormSq` bounds the vacuum coefficient by the core norm, and
+  `rootDomain_eq_span_excited` shows a core vector has no vacuum component iff it is a finite
+  combination of the *excited* occupation basis vectors.  So the density here is **algebraic** — the
+  excited span *is* the orthogonal core — not analytic.  The only topology the coefficient model
+  supports is `coreNormSq`: `rootDomain_closed_of_tendsto` (a norm limit of root-domain vectors keeps
+  the vanishing vacuum coefficient, because `‖c 0‖² ≤ coreNormSq c`) and `closure_rootDomain_iff`
+  (the closure is the domain), hence `root_spectral_gap_on_closure`: the S2 gap holds for every point
+  of the closure.  No limiting argument on the quartic form is used or claimed —
+  `quadForm (ymHamiltonian …)` is not known to be continuous in `coreNormSq`, which is exactly why the
+  closure-is-the-domain identification, not a continuity argument, is the honest route here.
+
+**The `su(2)` instantiation, and the colour factor computed.**  The free tensor is now instantiated:
+`su2Struct` is `f_{abc} = ε_{abc}` on the first three colour indices (the `su2Slot`s) and `0` off
+them — `su(2) × U(1)⁵` in place of the free `fabc`.  It satisfies both hypotheses
+(`su2Struct_antisym`, `su2Struct_jacobi`), so §3b.2 applies with nothing left open, and the colour
+quantities become explicit: `K_{abcd} = δ_ac δ_bd − δ_ad δ_bc` (`colourTensor_su2`), the adjoint
+Casimir `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}`, i.e. `C_A = 2` (`su2_casimir_adjoint`,
+`su2_casimir_adjoint_value`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6` (`su2_colourWeight_sum`).
+The fundamental Casimir `C_F = 3/4` is **not** derived: the model carries only the adjoint structure
+constants, and `C_F` needs a fundamental representation (`T^a = σ^a/2`) that the chapter does not
+define.
+
+**Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
+*independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.
+`mulOp_X_monomial` (`X i * monomial m z = monomial (m + e_i) z`) and `mulOp_X_monomial_ne` (the
+raised exponent differs, so no monomial is an eigenvector) show that `magOps` raises the occupation
+of every mode: it is **not** diagonal in the occupation basis.  The `:N²:` identity
+`Σ_m ‖B_m ψ_n‖² = (Σ_a n_a²)‖ψ_n‖²` therefore needs the normal-ordered Wick contraction of these
+multiplication operators, not their diagonal part — and it already fails in the abelian sector
+(§3d.1).  So `RootModeIdentification` stays a hypothesis, with the obstruction now a proved
+computation.
+
+**Boundary.**  `RootModeIdentification` still has no inhabitant.  The `f` side of the contraction is
+not a Casimir identity — this model hypothesises no antisymmetry or Jacobi identity for `f_{abc}`,
+so the contraction stops at the transposed term.
+
+Axioms audited on the theorems of this subsection (including the three S2-carry theorems):
+`propext`, `Classical.choice`, `Quot.sound` only.
+
+#### S2 — the mode expectation of `:B²:`, computed for the linear half
+
+`magPoly_mul_monomial_ne` says `B_{ia}` has no eigenmode, so the mode-by-mode expectation has to be
+computed for the *normal-ordered* square, and only where the Wick contraction closes.  The linear
+half is the case where it does, and it is now exact.
+
+* **The mode expectation.**  In the monomial-orthonormal representation the mode state is the monomial
+  `modeState m = monomial m 1`, a unit vector for the coefficient inner product, so the expectation
+  of an endomorphism `T` in it is the single coefficient `modeExp m T = (T ψ_m)_m` — no analytic
+  inner product and no `ModeIdentification` is needed to *state* it.
+* **The contraction.**  `pderiv_X_eq_ite` is `∂_i X_j = δ_{ij}`; `coeff_X_mul_pderiv_monomial` and
+  `coeff_X_mul_pderiv_modeState` are annihilation-after-creation (`n`, no `+1`);
+  `coeff_pderiv_X_mul` is the ordered product, `⟨ψ_m, ∂_l X_{l'} ψ_m⟩ = δ_{ll'}(1 + m_l)`.  The `1`
+  is `[∂, X] = 1` and the `m_l` is the occupation: this single lemma is the whole computation.
+* **Linear fields.**  `linField c l = ∑_t c_t X_{l_t}` with real `c_t` and adjoint
+  `linFieldAdj c l = ∑_t c_t ∂_{l_t}`.  For injective `l`, the cross terms `l_t ≠ l_{t'}` are
+  off-diagonal and `modeExp_linField_adj_comp` gives `∑_t c_t²(1 + m_{l_t})`, whence
+  `modeExp_linField_normalOrdered`: subtracting `∑_t c_t²` leaves `∑_t c_t² m_{l_t}`.  **Normal
+  ordering is exactly "replace `1 + n` by `n`"**, component by component — the abstract statement
+  `magPoly_mul_monomial_ne` only gestures at.
+* **The derivative half of `B`.**  `magDeriv = ε_{ijk} ∂_j A_{k,a}` *is* a linear field in `(j,k)`
+  (`magDeriv_eq_linField`, injectivity by `idxD_pair_injective`), so
+  `modeExp_magDeriv_sq` reads `⟨ψ_m, (B^∂_{ia})† B^∂_{ia} ψ_m⟩ = 2 + ∑_{jk} ε_{ijk}² m_{∂_jA_{k,a}}`:
+  the contraction of one magnetic component is `2` (`levi_sq_sum_magnetic`), the two transverse
+  polarisations.  Summed: `6` per colour index (`levi_sq_sum_total`) and `48 = 24 · 2` over the
+  `24` field components (`levi_sq_sum_all_complex`) — precisely the constant normal ordering
+  removes (`modeExp_magSum_normalOrdered`, `modeExp_magAll_normalOrdered`).
+* **Boundary, stated as a boundary.**  The derivative half is linear, so its square is quadratic and
+  two-field Wick closes.  The commutator half `f_{abc}A_bA_c` is quadratic, so its square is
+  quartic, and its normal-ordered expectation is a *four-field* contraction — not the two-field one
+  proved here, and not implied by it.  `RootModeIdentification` is untouched by this subsection: it
+  needs the quartic contraction.
+
+Axioms audited on all twenty new declarations: `propext`, `Classical.choice`, `Quot.sound` only.
+
+#### S2 — the cross weight is dominated by the count factor `d − 1`
+
+The split `(∑ i, nᵢ)² = ∑ i, nᵢ² + rootCrossWeight n` becomes useful when one weight can pay for
+the other.  `YangMillsMagneticQuartic` now has the sharp bound:
+
+* `rootCrossWeight_le_sq_sum` — `rootCrossWeight n ≤ (d − 1) · ∑ a, n_a²`.  The `d − 1` is *not* a
+  guess: Cauchy–Schwarz gives `(∑ nᵢ)² ≤ d ∑ nᵢ²`, and the diagonal part of that same bound is
+  already `∑ nᵢ²`, so the cross weight inherits exactly `d − 1` copies.  Equivalently it is the
+  number of *other* components each pair can hop into, which is what
+  `sum_offdiag_amp_sq`'s `nᵢ nⱼ + nⱼ` counts.
+* `rootCrossForm_le_magnetic` — summed against `‖c n‖²`:
+  `∑_n rootCrossWeight n ‖c n‖² ≤ (d − 1) · magneticEnergyForm diagA c`.
+* `magneticEnergyForm_le_quartic`, `magnetic_quartic_count_sandwich` — the two directions together:
+
+  `q_mag ≤ (∑ n)² ≤ d · q_mag`,
+
+  so the magnetic and quartic weights are the same form up to the explicit count factor, and the
+  cross weight sits between them.
+* `not_sq_sum_le_rootCross` — the converse is **false**: on `d = 2` with one occupied component,
+  `∑ a, n_a² = 1` while the cross weight is `0`.  So the count factor cannot be dropped or inverted;
+  the diagonal part of the weight is not payable by the cross part.
+
+This is the quantitative form of the earlier observation that dropping the cross term is what makes
+the `:N²:` model coercive: on the canonical background the cross weight is a bounded fraction of
+the magnetic weight, with the bound `d − 1` improving to `0` exactly when only one component is
+occupied.
+
+Axioms audited on the four theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
+#### S2 — the two-pair amplitude on a single mode
+
+The one-pair amplitude left the *product* of two root pairs as the outstanding piece of the mode
+expansion.  `YangMillsFieldStrength` §6 computes it.
+
+* `hopWord_two_pairs` — for four distinct indices, `c_i† c_j c_k† c_l` acts on `|n⟩` by two hops
+  with amplitude
+
+  `√((nᵢ+1)nⱼ) · √((n_k+1)n_l)`,
+
+  the **product** of the two one-pair amplitudes (the second evaluated at the mode reached by the
+  first).  Distinctness is the only hypothesis: it is what makes the intermediate occupations
+  independent of the hops.
+* `two_pairs_normSq` — the squared amplitude: `(nᵢ+1)nⱼ · (n_k+1)n_l · ‖z‖²`.  So the quartic weight
+  of two distinct pairs **factorises** into the root weights of §4.
+* `hopWord_two_pairs_same` — the same pair twice is *not* the square: the second hop sees the
+  shifted mode, giving `√((nᵢ+2)(nⱼ−1))·√((nᵢ+1)nⱼ)`, and `two_pairs_same_normSq` squares it.  The
+  `−1` is the quantum the first pair removed from mode `j` — this is where the two-particle
+  structure actually enters, and where a commutation argument would go wrong.
+* `hopWord_two_pairs_diag` — the diagonal pair twice acts by `nⱼ · nⱼ = nⱼ²`, which is exactly one
+  summand of the per-mode magnetic weight `∑ a, n_a²` in `magneticEnergyForm_diag`.
+
+So the diagonal part of the mode expansion reproduces the `:N²:` weight *as an operator statement*
+(not merely as a formula for a form), and the off-diagonal part contributes the cross weight
+`∑_{i≠j} nᵢ nⱼ` of `quarticDegreeForm_eq_magnetic_add_root`.  **Boundary.**  What remains for
+`ModeIdentification` is the assembly: summing over the `24` components with the `ε`/`f` weights and
+matching to `magneticEnergyForm diagA` through the isometry `coeffToCore`.  The amplitudes are now
+proved; the colour contraction over the core is not.
+
+Axioms audited on the six theorems of this subsection: `propext`, `Classical.choice`,
+`Quot.sound` only.
+
+### Status after the `99`-coordinate product form and the `Lp`-level identity (2026-11-09)
+
+This section supersedes the previous section on three points: the coordinate-count factor `−99/2`
+**is** now proved (so the product form is no longer `C`), acceptance item 2 — the `Lp`-level
+statement — now has its bundled `LinearIsometryEquiv`, not merely the integral identity, and
+acceptance item 1 is most of the way in: the Dirichlet form **and** its operator identity are now in
+the corpus, with only closability proper and core density open.
+
+#### S0 — the product form, with `−99/2`
+
+`BookProof/Qym/ChapterYangMillsMehlerProduct.lean` (namespace
+`BookProof.YangMillsMehlerProduct`) builds the `d`-coordinate statement without the Laplacian
+Leibniz rule — and therefore without needing `Δγ^{1/2} = (|x|²/4 + d/2)γ^{1/2}` as an input.  It
+conjugates a *coordinate derivative* twice, exactly as the one-coordinate chapter does:
+
+* `gaussRootVec` / `invGaussVec` are `exp(−|x|²/4)` and `exp(|x|²/4)` on `Fin d → ℝ`;
+  `sum_sq_update` is `Σⱼ (update y i t)ⱼ² = Σⱼ yⱼ² − yᵢ² + t²`, and `gaussRootVec_update` /
+  `invGaussVec_update` are the resulting factorization of the weight along a coordinate line into a
+  one-dimensional Gaussian root times a constant.
+* `pd` / `pd2` are the partial derivatives along the line `xᵢ ↦ t`, so they are ordinary
+  one-variable `deriv`s; `pd_update` and `pd_pd` record that moving the base point does not change
+  the line and that `pd2` is `pd` of `pd`.
+* `conj_partial` is `U ∂ᵢ U⁻¹ = ∂ᵢ + xᵢ/2` in `d` coordinates; `pd2_invGaussVec_mul` is
+  `U ∂ᵢ² U⁻¹`; `conj_dirichletVec_coord` is `U (−∂ᵢ² + xᵢ∂ᵢ) U⁻¹ = −∂ᵢ² + xᵢ²/4 − ½`.
+* `conj_dirichletVec` sums these: `U (Σᵢ Dᵢ) U⁻¹ = −Δ + |x|²/4 − d/2` with
+  `laplaceVec F = Σᵢ ∂ᵢ²F`, and `conj_dirichletVec99` is the `d = 99` instance with its `−99/2`.
+  `sum_drift` is the step where the per-coordinate `−½` becomes `−d/2`; the coordinate count enters
+  nowhere else.
+
+Hypotheses: one-variable differentiability of `F` along every coordinate line (`h1`) and of `pd F i`
+along the same lines (`h2`).  All proofs are `sorry`-free with axioms `propext`,
+`Classical.choice`, `Quot.sound`.  The module proves the identity on functions; it is still not a
+statement about `L²` domains, form cores or self-adjoint extensions, so acceptance items 1 and 4 of
+the list above are untouched, item 3 is discharged, and item 2 is addressed at the level now
+noted.
+
+#### S0 — the `Lp` level, now including the bundled equivalence
+
+`BookProof/Qym/ChapterYangMillsMehlerLp.lean` lifts the squared integral identity to `Lp` and
+bundles it:
+
+* `gaussMeasure` is `volume.withDensity (ofReal ∘ γ^{1/2}²)`, i.e. `γ dx`;
+  `enorm_sq_eq_ofReal_sq` converts `‖y‖ₑ ^ 2` into `ofReal (y²)`.
+* `eLpNorm_gaussRoot_mul`: `‖γ^{1/2}f‖_{L²(dx)} = ‖f‖_{L²(γ dx)}`, with no integrability
+  hypothesis (both sides are `∞` together); `eLpNorm_gaussRoot_mul_ae` is the a.e.-measurable form.
+* `memLp_gaussRoot_mul`: `γ^{1/2}f ∈ L²(dx)` **iff** `f ∈ L²(γ dx)`; `memLp_gaussRoot_mul_lp` and
+  `memLp_invGauss_mul_lp` are the two membership maps on `Lp` elements.
+* `eLpNorm_invGauss_mul` is the reverse weight identity
+  `‖γ^{-1/2}g‖_{L²(γ dx)} = ‖g‖_{L²(dx)}` (the pointwise step is `γ^{1/2}²·(γ^{-1/2}g)² = g²`,
+  read through `withDensity`).
+* `norm_toLp_mehler` is the norm equality on `Lp` elements, and **`mehlerLpEquiv` is the bundled
+  `LinearIsometryEquiv (Lp ℝ 2 gaussMeasure) (Lp ℝ 2 volume)`** — forward map multiplication by
+  `γ^{1/2}`, inverse by `γ^{-1/2}`.  Axioms: `propext`, `Classical.choice`, `Quot.sound`.
+
+Acceptance item 2 is discharged at the `Lp` level.  What remains true is that mathlib has no
+*generic* density-change isometry: its `Lp` isometry API is the `compMeasurePreserving` family, which
+needs a measure-preserving map `α → β` (`ν = μ.map f`), and a density is not an image measure.
+So the equivalence here is bespoke, with every field paid for: `Lp.ext` plus pointwise identities
+for `map_add'` and `map_smul'` (this mathlib has no `MemLp.toLp_smul`), `gaussRoot * invGauss = 1`
+and `invGauss * gaussRoot = 1` on the nose for the inverse laws, and `Lp.norm_def` plus the
+`eLpNorm` identity for `norm_map'`.  It says nothing about domains, forms or spectra — items 1 and 4
+of the acceptance list are still open.
+
+#### S0 — the Dirichlet form, started (acceptance item 1)
+
+`BookProof/Qym/ChapterYangMillsGaussForm.lean` (namespace `BookProof.YangMillsGaussForm`) begins
+item 1 of the acceptance list at the form level, deliberately below any domain choice:
+
+* `gaussWeight` is the density `γ^{1/2}² = exp(−x²/2)` of `γ dx`, with `gaussWeight_pos`, and
+  `hasDerivAt_gaussWeight` is `(γ^{1/2}²)' = −x γ^{1/2}²`.  That identity is the reason the drift
+  `x·∇` sits in `−Δ + x·∇` at all: the `x` is the weight's, and the sequence is
+  `γ^{1/2}² f' g' = −(γ^{1/2}² f')' g + γ^{1/2}² f'' g`, so the operator that the form represents is
+  `gaussDirichlet f = −f'' + x f'` (`ChapterYangMillsMehlerBridge`), while the form is the
+  *positively* signed `∫ γ^{1/2}² f' g'`.
+* `gaussForm f g = ∫ x, γ^{1/2}(x)² · f'(x) · g'(x) dx` is the one-coordinate form;
+  `gaussForm_comm` is symmetry and `gaussForm_self_nonneg` the nonnegative diagonal.  Both hold for
+  *every* pair of functions, because the Bochner integral is total: symmetry is a pointwise `ring`
+  identity under `∫`, and the diagonal integrand is the density times a square.  So these are
+  statements about the form, not about a form domain — an integrability hypothesis would be needed
+  only to say the value is not the `0`-by-convention integral.
+* `MemGaussForm` names that integrability domain (`γ^{1/2}² f'² ∈ L¹`), and `gaussForm_self_of_mem`
+  records the finiteness obligation on it.
+* **`gaussForm_eq_integral_gaussDirichlet` is the operator identity**: for `f` of class `C²` with
+  compact support and `g` of class `C¹`,
+  `gaussForm f g = ∫ x, γ^{1/2}(x)² · (−f''(x) + x f'(x)) · g(x) dx`, with `gaussDirichlet` the
+  operator of the bridge chapter.  So the form *is* the form of `−Δ + x·∇` on the compactly
+  supported core, not merely a quadratic functional; the proof is one
+  `integral_mul_fderiv_eq_neg_fderiv_mul_of_integrable` (integrability of the three products comes
+  from compact support of `f`, so no growth condition on `g`), plus `deriv_mul` and
+  `deriv_gaussWeight`.
+  The regularity is `C²`/`C¹` rather than `C^∞` because the corpus's `ContDiff ℝ ⊤` is mathlib's
+  *analytic* order `ω`: an analytic function on `ℝ` with compact support is identically zero, so a
+  `ContDiff ℝ ⊤` hypothesis with `HasCompactSupport` would make the identity vacuous.  (The same
+  observation applies to `Toolbox/ChapterDegEnergyEstimate.integral_dcoord_mul` and
+  `Toolbox/ChapterHermiteGraphApprox.integral_conj_dd_mul`, which do use `ContDiff ℝ ⊤` with a
+  compact-support hypothesis; they are not touched here, and it is recorded as an open audit item.)
+* **`integral_gaussDirichlet_mul_comm` is the symmetry of the operator** in `L²(γ dx)` on that
+  core: `⟨−Δf + x·∇f, g⟩_{L²(γ)} = ⟨f, −Δg + x·∇g⟩_{L²(γ)}`.  It is form symmetry read through the
+  operator identity in both orders, and it is the hypothesis a closability argument consumes —
+  symmetry of the operator, not only of the form.
+* **The operator lives on `L²(γ dx)` classes, not just on functions.**  A closure argument needs
+  three things from the core, and all three are now proved:
+  `isOpenPosMeasure_gaussMeasure` (the density is strictly positive, so `gaussMeasure` is positive
+  on nonempty opens — `AbsolutelyContinuous.isOpenPosMeasure` applied to
+  `absolutelyContinuous_volume_gaussMeasure`); `eq_of_ae_eq_gaussMeasure` (a continuous function
+  that is zero `γ`-a.e. *is* zero, i.e. `Measure.eq_of_ae_eq` plus that open-positivity, so "zero
+  a.e." becomes "zero on a dense set"); and `gaussDirichlet_eq_zero_of_ae_eq_zero`, which is the
+  well-definedness statement `T` needs — the operator kills a.e.-zero functions, so its value does
+  not depend on the representative chosen.  On the image side, `hasCompactSupport_gaussDirichlet`
+  (both summands are supported in `supp f' ∪ supp f''`) and `memLp_gaussDirichlet` put the core
+  inside `L²(γ dx)`: multiplying by `γ^{1/2}` swaps the weighted norm for the Lebesgue norm
+  (`memLp_gaussRoot_mul`), and `γ^{1/2}·gaussDirichlet f` is continuous with compact support, hence
+  square-integrable against `volume`.
+* **`gaussOp` is `T` as a `LinearPMap` on `L²(γ dx)`.**  `gaussCore` is the core as a submodule of
+  `L²(γ dx)` (a class is in it when it has a `C²`-compactly-supported representative) and
+  `gaussCoreRep` chooses a representative; the value on a class is
+  `gaussOpFun f = toLp (T (gaussCoreRep f))`.  The choice is invisible:
+  `gaussOpFun_eq_toLp` computes `toLp (T F)` for *any* admissible representative `F`, because
+  `gaussDirichlet_congr_ae` upgrades a.e. equality of continuous representatives to equality of
+  images.  Linearity at the function level is `gaussDirichlet_add`/`gaussDirichlet_smul`; at the
+  `Lp` level addition is `MemLp.toLp_add` (in mathlib, `rfl`), and the one glue lemma mathlib lacks
+  is `memLp_toLp_const_smul`.  Then `gaussOpFun_add`/`gaussOpFun_smul` make `gaussOpFun` a linear
+  map on the core and `gaussOp` the resulting `LinearPMap` (domain `gaussCore`).
+* **`gaussOp` is densely defined**: `dense_gaussCore`, i.e. `dense_gaussOp_domain`.  This is the one
+  place where genuine analysis is needed, and none of it is specific to `γ`:
+  `MemLp.exists_hasCompactSupport_eLpNorm_sub_le` gives a continuous compactly supported
+  approximation in `L²(dx)`; such a function is uniformly continuous
+  (`Continuous.uniformContinuous_of_tendsto_cocompact`), so
+  `UniformContinuous.exists_contDiff_dist_le` smooths it in the sup norm; a `ContDiffBump` that is
+  `1` on `tsupport g` (and `≤ 1` everywhere) cuts the smooth approximation back to compact support
+  without losing that bound, and `eLpNorm_le_of_forall_notMem` integrates the sup bound to
+  `ε · (volume (tsupport χ))^{1/2}` — this is
+  `exists_contDiff_hasCompactSupport_eLpNorm_sub_lt`.  Then `mehlerMapInv_toLp_mem_gaussCore` says
+  the Mehler isometry's inverse sends those classes into the core (their representative is
+  `γ^{-1/2} φ`, smooth and compactly supported because `φ` is), and `dense_gaussCore` carries the
+  density across `mehlerLpEquiv` by isometry plus `memLp_of_hasCompactSupport`.
+* **`gaussOp` is symmetric as a pairing and closable.**  `gaussOp_inner_comm` is
+  `⟪T f, g⟫ = ⟪f, T g⟫` on the core: `integral_gaussDirichlet_mul_comm` read through `L2.inner_def`
+  on `toLp` images, with `integral_gaussMeasure_eq_integral_gaussWeight`
+  (`∫ · d(γ dx) = ∫ γ · dx`) doing the measure translation.  So
+  `gaussOp_isFormalAdjoint : gaussOp.IsFormalAdjoint gaussOp`, hence
+  `gaussOp_le_adjoint : gaussOp ≤ gaussOp†`, and since the adjoint of a densely defined operator is
+  closed (`LinearPMap.adjoint_isClosed`), `IsClosable.leIsClosable` gives
+  `gaussOp_isClosable : gaussOp.IsClosable`.  Note that this route needs **no** weak-derivative or
+  `H¹(γ)` API — it is exactly why the adjoint is the cheap way in.
+
+The `99`-coordinate form is the sum of these over coordinates (`laplaceVec`/`pd` in
+`ChapterYangMillsMehlerProduct`), so the module is not coordinate-count specific.
+
+**Where S0 acceptance item 1 stands.**  It is closed.  The form is defined, symmetric and
+nonnegative; the operator identity holds on the `C²`-compactly-supported core; the operator is
+packaged as `gaussOp : Lp ℝ 2 gaussMeasure →ₗ.[ℝ] Lp ℝ 2 gaussMeasure` with domain `gaussCore`;
+the domain is dense; the operator is closable, so `LinearPMap.closure` exists; and the closure is
+self-adjoint (`isSelfAdjoint_gaussOp_closure`), because it *is* the self-adjoint closure of the
+polynomial core (`polyOp_closure_eq_gaussOp_closure'`).
+
+The **polynomial form core** is recorded in `Qym/ChapterYangMillsHermiteAnalytic.lean` (diagonal on
+the Hermite classes, `‖TᵐH_n‖ = nᵐ‖H_n‖` in `L²(γ dx)`), and it is a real operator on classes in
+`Qym/ChapterYangMillsPolyCore.lean`: the Hermite span with `polyOpH`, whose Hermite classes are
+eigenvectors with the real eigenvalues `n`, plus the global extension `coreExt` that makes the
+symmetry computation bilinear.  `Qym/ChapterYangMillsPolyBasis.lean` turns the family into the
+Hilbert basis `hermiteBasisR`, and `Qym/ChapterYangMillsPolySelfAdjoint.lean` reads the diagonal
+structure: `polyOp.closure` is self-adjoint, and the graph-norm approximation of
+`ChapterYangMillsPolyAnnulus` identifies it with `gaussOp.closure`.  The core is still *not* the
+domain of `gaussOp`, whose core is the compactly supported `C²` one — but their closures agree, which
+is the content of the identification.
+
+What the closure itself is known to satisfy (`ChapterYangMillsGaussForm`):
+
+* `gaussOp_closure_isClosed` — it is closed (by construction);
+* `dense_gaussOp_closure_domain` — its domain contains the dense core;
+* `gaussOp_closure_hasCore` — the `C²` core is a **core for the closure**: the closure of the
+  restriction `gaussOp.closure.domRestrict gaussCore` is `gaussOp.closure` itself
+  (`LinearPMap.closureHasCore` applied to `gaussOp`);
+* `gaussOp_closure_le_adjoint` — it is contained in the adjoint, `gaussOp.closure ≤ gaussOp†`: the
+  adjoint is a closed extension and the closure is the smallest one.
+
+**`gaussOp` is bounded below in the form sense** (`gaussOp_inner_self_eq`, `gaussOp_quadForm_nonneg`):
+`⟪f, gaussOp f⟫ = gaussForm (gaussCoreRep f) (gaussCoreRep f) ≥ 0` for every `f` in the core, because
+the operator identity at `g = f` plus the measure translation `∫ · d(γ dx) = ∫ γ · dx` exhibit the
+quadratic form as the Dirichlet form, whose integrand is a density times a square
+(`gaussForm_self_nonneg`).  Together with `gaussOp_inner_comm` this is exactly the `SymmetricOn` +
+`0 ≤ quadForm` pair that the Friedrichs construction consumes.
+
+### Essential self-adjointness of `−Δ + x·∇` in `L²(γ dx)`: the three classical routes
+
+**The statement.**  `gaussOp.adjoint ≤ gaussOp.closure` — equivalently, every pair `(h, g)` with
+`h ∈ D(gaussOp†)` and `g = gaussOp† h` lies in the closure of the graph of `gaussOp`; equivalently
+`HasCore gaussOp† gaussCore` (the `C²` core is a core for the **adjoint** as well as for
+`gaussOp.closure`); equivalently `gaussOp.closure.IsSelfAdjoint`, i.e.
+`gaussOp.closure = gaussOp†`.  One half is elementary: `gaussOp.closure ≤ gaussOp†`
+(`gaussOp_closure_le_adjoint`).  The other half is the classical theorem “`−Δ + x·∇` is essentially
+self-adjoint on `C_c^∞` in `L²(γ dx)`”; it is now proved (`isSelfAdjoint_gaussOp_closure`) by the
+diagonal argument on the polynomial core, without any of the three classical routes below.
+
+The three routes are recorded because they are the textbook proofs and each is blocked by a specific
+missing API — useful to know if a proof that does not go through the eigenbasis is ever wanted:
+
+**Route A — deficiency indices (the classical route; Weidmann, *Linear Operators in Hilbert
+Spaces*, §3.3).**  Complexify (`L²(γ) ⊗ ℂ`), take `T = −Δ + x·∇` with domain `C_c^∞`, and show
+`ker(T† − z) = 0` for `z = ±i`.  Concretely, `f ∈ ker(T† − z)` solves, in the weak sense and then
+classically (the coefficients are smooth, so distributional solutions are classical),
+
+    −f'' + x f' = z f,     z = ± i,
+
+and essential self-adjointness is the assertion that the only `L²(γ dx)` solution is `0`.  The
+standard reduction: substitute `f = γ^{-1/2} u`, i.e. `u = γ^{1/2} f = e^{-x²/4} f`; then `u ∈ L²(dx)`
+and the equation becomes the Hermite-type equation
+
+    −u'' + (x²/4) u = (1/2 + z) u,
+
+whose solutions for `Im z ≠ 0` behave like `exp(∓x²/4)` at `±∞` — one decaying, one growing, so each
+end admits a one-dimensional space of `L²` solutions, and both deficiency indices vanish once one
+checks that no solution is square-integrable at *both* ends (equivalently `Im z ≠ 0` forces
+`Im(z ‖f‖²) = 0` from the integration-by-parts identity for `⟪T†f, f⟫`).  *What is missing to
+formalize:* the analytic theory of second-order ODEs with a complex parameter (existence,
+uniqueness, asymptotics of the two fundamental solutions), which mathlib does not have at all —
+`Mathlib/Analysis/ODE` is only the basic `IsPicardLindelof`/`IsIntegralCurve` layer.
+
+**Route B — elliptic regularity.**  `h ∈ D(gaussOp†)` means `∫ γ h · (−Δφ + x·∇φ) = ∫ γ g φ` for all
+test `φ ∈ C_c^∞`: the weak form of `−Δh + x·∇h = g`.  Elliptic regularity gives `h ∈ H²_loc` with the
+local estimate `‖h‖²_{H²(K)} ≤ C_K(‖h‖² + ‖g‖²)`, and then a cut-off plus mollification shows
+`h` is a graph-norm limit of `C_c^∞` functions, which is exactly
+`gaussOp.adjoint ≤ gaussOp.closure`.  *What is missing to formalize:* weak derivatives, `H¹`/`H²`,
+`L²`-mollification and the interior `H²` estimate.  Mathlib has **no** weak-derivative or
+distribution API, so the hypothesis “`T†h = g` weakly” cannot even be stated; this route is furthest
+away.
+
+**Route C — analytic vectors (Nelson's theorem, the route the corpus is closest to).**  In `L²(γ dx)`
+the Hermite polynomials are eigenfunctions of `T`: with `A = U T U^{-1} = −∂² + x²/4 − 1/2` under
+`U = ` multiplication by `γ^{1/2}` (the conjugation `U ∂ U^{-1} = ∂ + x/2` is
+`ChapterYangMillsMehlerBridge.conj_deriv`), the eigenfunctions `H_n` of `A` with eigenvalue `n`
+correspond to the polynomials `H_n` in `L²(γ dx)`, and the eigen-relation is exactly the Hermite ODE
+`−H_n'' + x H_n' = n H_n` (`ChapterHermiteFunctions.hermiteR_ode`).  Polynomials are dense in
+`L²(γ dx)` and they are analytic vectors for `T` (`Σ t^n ‖T^n p‖/n! < ∞` since `T^n p` is a
+polynomial of degree `n`), so `T` is essentially self-adjoint by Nelson's analytic-vector theorem.
+*What was missing to formalize:* (iii) **Nelson's theorem itself** — mathlib has no analytic-vector or
+semigroup-generated self-adjointness theory.  This is the route with the least analysis and the most
+bookkeeping.  (iii) is now in the corpus, in the common-radius form, and it turned out *not* to close
+the route for this operator — the Hermite radii are unbounded — so the closure is by the eigenbasis
+criterion instead; see (iii″) below.
+
+*Done* for (i) and (ii) in `BookProof/Qym/ChapterYangMillsHermiteSpectrum.lean` (no `sorry`; axioms
+`propext`, `Classical.choice`, `Quot.sound`): `gaussDirichlet_hermiteR` is the eigen-relation as an
+identity of functions on the real weighted Dirichlet operator of `ChapterYangMillsMehlerBridge`, and
+`dense_span_polyLp` is the density of the polynomial classes `polyLp p` in `Lp ℝ 2 gaussMeasure`.
+`integral_moment_eq` + `ae_eq_zero_of_moments_gaussMeasure` are the moment problem for `γ dx` in
+closed form.  Three traps: (a) the eigenvalue is `n` and the eigenfunction is `hermiteR n` itself,
+**not** `H_n(x/√2)` with eigenvalue `2n` — that is the physicists' convention, while `hermiteR` is
+the probabilists' `Polynomial.hermite`, so no rescaling belongs in the statement; (b) `rw [gaussMeasure]`
+*fails* in any goal that mentions an `Lp ℝ 2 gaussMeasure` element (the coercion's instance
+arguments carry the measure), so the measure is moved with
+`integral_withDensity_eq_integral_toReal_smul` applied to a zero-defeq `volume.withDensity …`;
+(c) the moment hypothesis must be moved to `volume` *before*
+`HermiteCore.ae_eq_zero_of_moments` applies, and the resulting `γ^{1/2} w = 0` divides through by the
+nowhere-vanishing `gaussRoot`.
+
+**(iii) Nelson's criterion, in the form the corpus can prove.**
+`BookProof/Toolbox/ChapterNelsonAnalyticVectors.lean` carries the analytic-vector vocabulary —
+`InvariantOn`, the iterates `orbitD`/`orbit`, the geometric bound `IsGeometric`, the analytic
+condition `IsAnalytic`, and `isAnalytic_of_isGeometric` (a geometric bound makes the factorial series
+`Σ rᵐ/m! ‖Tᵐx‖` converge) — plus the two computations the deficiency argument is made of: the orbit
+identity `inner_orbit` (`⟪Tᵐx, w⟫ = zᵐ⟪x, w⟫` at a deficiency vector) and
+`inner_eq_zero_of_isGeometric` (`x ⟂ w` when the ratio of `x` is below `|z|`).  On top of the
+Faris–Lavine lemmas already in the corpus (`dense_range_of_deficiencyTrivialAt`,
+`deficiencyTrivialAt_of_dense_range`), which carry triviality from `±d i`, `d > r`, to `±i`, this
+gives `essentiallySelfAdjointOn_of_dense_geometric`: Nelson's criterion for a dense set of vectors
+with a **common** geometric ratio `r`.  It is deliberately *not* called Nelson's theorem — the
+classical statement allows a different radius for each vector, and getting from per-vector radii to a
+single one is the constancy of the deficiency index on each half plane, which the corpus does not
+have.  Axioms: `propext`, `Classical.choice`, `Quot.sound`.
+
+**(iii\') The quantitative input, and the polynomial form core.**
+`BookProof/Qym/ChapterYangMillsHermiteAnalytic.lean` puts `T = −∂² + x∂` on polynomials,
+`dirichletPoly p = −p'' + X·p'`; `dirichletPoly_eval` shows it agrees with `gaussDirichlet` on the
+representative (so the polynomial classes are a core it maps into itself), and
+`dirichletPoly_hermiteR` makes it diagonal there, `dirichletPoly (H_n) = n • H_n`.  Because the
+operator is diagonal, nothing grows but the eigenvalue: `dirichletPoly_iterate_hermiteR` is
+`Tᵐ(H_n) = nᵐ H_n`, `norm_polyLp_iterate_hermiteR` is the bound `‖Tᵐ(H_n)‖_{L²(γ)} = nᵐ ‖H_n‖`, and
+`hermiteR_summable` is the convergence of `Σ rᵐ/m! ‖Tᵐ(H_n)‖` for every `r > 0` — the analytic
+vector condition, at radius `n`.  The trap: the radius is `n`, so the Hermite classes have **no
+common radius**, and the polynomial core meets Nelson's hypothesis but not the common-radius
+sufficiency above.  So Nelson's theorem, in the only form the corpus can prove, does **not** close
+Route C for this operator; the eigenbasis route below does.
+
+**(iii″) Route C closed: the polynomial core is self-adjoint, by diagonalization.**
+`BookProof/Qym/ChapterYangMillsPolyCore.lean` (no `sorry`; axioms `propext`, `Classical.choice`,
+`Quot.sound`) supplies what the two modules above still lacked — an operator *on classes* whose domain
+is the Hermite span, and a diagonal structure that needs no radius.  Its inputs are
+`polyLp_injective` (a polynomial class that vanishes is a.e. zero by `MemLp.toLp_eq_toLp_iff`, then
+everywhere by continuity and `IsOpenPosMeasure gaussMeasure` via `IsOpen.eq_empty_of_measure_zero`,
+then by `Polynomial.funext`) and `mem_span_hermiteR` (the Hermite polynomials span `Polynomial ℝ`
+because `hermiteR n` is monic of degree `n`), which with `dense_span_polyLp` gives
+`dense_hermiteSpan`.  Construction: `polyRange`/`polyEquiv` (the class map as an isomorphism onto its
+range), `polyOpRange` (`p ↦ −p'' + X p'` carried across it — well defined precisely because the class
+map is injective), `polyOpRange_hermiteR` (`= n • H_n`), then `polyOpH` on the Hermite span and the global extension `coreExt`.
+`Qym/ChapterYangMillsPolyBasis.lean` reads `⟪H_m, H_n⟫` as `hermiteInner m n`, normalizes and
+turns the family into the Hilbert basis `hermiteBasisR`; `Qym/ChapterYangMillsPolySelfAdjoint.lean`
+then proves `IsSelfAdjoint polyOp.closure` from the diagonal basis.  The earlier ℂ specialization
+(`polyDomC` with the componentwise operator `polyOpC`, and `polyCore_essentiallySelfAdjoint` by
+Nelson's eigenbasis criterion) is **retired and removed**: it was a statement over `ℂ` about a
+different operator on a different space, it proved nothing about `gaussOp.closure`, and no
+complexification equivalence for `LinearPMap`/adjoint exists to transport it.  Over `ℝ` there is no
+`i` to test, so the operator is diagonalized instead.
+
+The criterion itself needed one correction to be usable, and this is the trap of Route C: a *dense set
+of eigenvectors* is not what a simple spectrum supplies — the union of the eigenlines `ℂ • v_n` is
+nowhere near dense — so `ChapterNelsonAnalyticVectors` also carries
+`essentiallySelfAdjointOn_of_dense_span_eigenvectors`, stated for the **span** of the eigenvectors,
+where `⟪x, w⟫ = 0` propagates by conjugate-linearity and dense sets are what a complete eigenbasis
+actually gives.  It needs no symmetry and no summability.  The criterion remains the right tool when a diagonal
+operator is only known on a complex space; for S0 it is no longer on the critical path, since the
+real diagonal argument closes the identification directly.
+
+**(iii‴) The per-vector case, and why the deficiency estimate cannot reach it.**
+`ChapterNelsonAnalyticVectors` also carries Nussbaum's reduction:
+`IsVectorOfUniqueness T z x` (the vector lies in the closure of the range of `T − z`),
+`inner_eq_zero_of_isVectorOfUniqueness` (such a vector annihilates the deficiency space at `z̄`),
+`deficiencyTrivialAt_of_dense_vectorsOfUniqueness` (Nussbaum's lemma) and
+`essentiallySelfAdjointOn_of_dense_vectorsOfUniqueness` — a dense set of vectors, each of which is
+one at both `±i`, already forces essential self-adjointness, with **no radius and no summability**
+anywhere in the hypothesis.  That is the shape Nelson's theorem takes for per-vector data, and the
+reason it is not the geometric theorem with `r_x` in place of `r` is arithmetic: the only decay in
+`|⟪x, w⟫| ≤ ‖Tⁿx‖/|z|ⁿ` comes from a *geometric* bound, while an analytic vector satisfies the
+factorial bound `‖Tⁿx‖ ≤ C n!/ρⁿ`, for which `C n!/|z|ⁿ` grows at every fixed `z`.  Deficiency-index
+constancy does not repair this: it propagates triviality between points of a half plane once one point
+is known, and unbounded radii give no first point.  The classical bridge from analyticity to the
+hypothesis is Carleman's determinacy criterion (Simon, *The classical moment problem as a
+self-adjoint finite difference operator*, Cor. 2.16), which is the one ingredient the corpus does not
+have.  So the per-vector statement is formalized *modulo* that step, with the per-vector data in the
+hypothesis rather than in a missing theorem.
+
+**The `99`-coordinate lift, and where it already is.**  The `d`-coordinate product of the
+one-coordinate statement is already in the corpus, by the same criterion and with the same product
+structure: `BookProof/Qg/ChapterQgHermiteOscillatorEsa.harmonicCore_essentiallySelfAdjoint` is
+`EssentiallySelfAdjointOn (polyGaussCore d) harmCore` for **every** `d`, so `d = 99` is an
+instantiation and not a separate proof.  The eigenbasis is the product Hermite family with
+eigenvalues `|α| + d/2` (`harmCore_hermiteMvLp`), the core is dense (`polyGaussCore_dense`), and
+the polynomial-side identity is `kinPoly_add_harmPoly_hermiteMv`.  This is the S0 operator in the
+**Mehler-conjugated** gauge on `L²(ℝ^d)`: `harmCore = −Δ + ‖x‖²/4 = U (Σᵢ Dᵢ) U⁻¹`, coordinate by
+coordinate from `conj_dirichletVec` in `ChapterYangMillsMehlerProduct`, and
+`isSelfAdjoint_polyOp_closure` above is its `d = 1` unconjugated twin.  So the lift is not
+missing analysis or a criterion.  What a *literal* `99`-coordinate statement in the unconjugated
+gauge would still need is bookkeeping mathlib does not package: the `d`-dimensional Mehler isometry
+`L²(γ^{⊗d}) ≅ L²(ℝ^d)` — `mehlerLpEquiv` is one-dimensional, and there is no product Gauss measure
+in the corpus.
+
+**What identifying the two cores actually costs.**  The identification of `polyOp` with
+`gaussOp.closure` is *one* approximation, not two theorems.  `polyOp.closure` is self-adjoint, and a
+self-adjoint operator has
+no proper symmetric extension — this is now a theorem, not a remark:
+`BookProof.SelfAdjointMaximal.eq_of_le_of_isSelfAdjoint` (`BookProof/Toolbox/ChapterSelfAdjointMaximal.lean`)
+states that `A ≤ B` with `A` self-adjoint and `B` symmetric forces `A = B`, elementwise through
+`B ⊆ B* ⊆ A* = A`; its form for closures, `closure_eq_of_le`, is the one S0 uses.  So it suffices that every
+polynomial class lies in the domain of the closure of `gaussOpC` — a graph-norm approximation of a polynomial by compactly supported `C²` classes — and
+then `gaussOp.closure = polyOp.closure`, one self-adjoint operator described by both cores.  The
+reverse approximation is unnecessary.  That one direction is now half formalized.  `BookProof.YangMillsPolyTail.exists_lintegral_tail_lt`
+is the tail bookkeeping that was missing: the `γ`-mass of a squared polynomial on `{R ≤ |x|}` is
+arbitrarily small, from antitone indicator integrals and `lintegral_iInf`, with `memLp_eval` supplying
+the finiteness that limit needs.  `BookProof.YangMillsPolyGraphNorm` states the approximation for the
+actual operators — `polyOp` on the Hermite span, `PolyGraphApprox` the graph-norm condition — and
+proves it gives `polyOp ≤ gaussOp.closure` (`polyOp_le_gaussOp_closure`, through
+`le_closure_of_forall_approx`), hence `polyOp = gaussOp.closure` once `polyOp` is self-adjoint
+(`polyOp_eq_gaussOp_closure`).  The annulus estimate is now proved too: on the support of
+`−2χ_R' p' − χ_R'' p + x χ_R' p` the tails of `p`, `p'`, `p''` supply the smallness, and
+`|χ_R'| ≤ C/R`, `|χ_R''| ≤ C/R²` turn the fixed cutoff into a uniform-in-`R` bound.
+`BookProof.YangMillsPolyCutoff` builds exactly that `χ_R = smoothTransition (2 - x²/R²)`, with the
+collar at `x² = R²` and `x² = 2R²` and both derivative bounds.
+
+`BookProof.YangMillsPolyAnnulus` carries out the `L²` assembly.  The identity
+`T(χ_R p) − T p = −χ_R'' p − 2χ_R' p' + x χ_R' p + (χ_R − 1) T p` (`gaussDirichlet_cutFn_mul_sub`)
+is the product rule twice; the derivative bounds collapse on the annulus to the `R`-independent
+constants `|χ_R'| ≤ 4C₁/R`, `|x χ_R'| ≤ 4C₁` and `|χ_R''| ≤ 8C₂ + 2C₁` for `R ≥ 1`
+(`abs_deriv_cutFn_le`, `abs_mul_deriv_cutFn_le`, `abs_deriv2_cutFn_le`), so the squared difference
+is dominated on the tail by `2(8C₂ + 6C₁)² p² + 256C₁² p'² + 4 (T p)²` — the constant
+`annulusConst` (`sq_gaussDirichlet_cutFn_mul_sub_le`).  The pointwise bound on the operator itself,
+`|T p| ≤ |p''| + |x p'|` (`abs_dirichletPoly_eval_le`), and the finiteness of the Gaussian mass of
+every polynomial (`lintegral_ofReal_sq_lt_top`, `annulus_terms_finite`) are what make the domination
+integrable; `exists_cutFn_tail` then picks one radius for all three tails, `lintegral_sq_sub_le`
+integrates, and `approximable_polyLp` performs the `ε`-assembly.  So `PolyGraphApprox` holds
+outright (`polyGraphApprox_holds`), and the inclusion `polyOp ≤ gaussOp.closure` has no unproved
+analytic input left.
+`BookProof.YangMillsPolyLpNorm` supplies the two facts that assembly needs: `polyOpH_coe` and
+`polyOpH_coeFn` put `T` on polynomial *classes* (`T` of a Hermite-span class is the class of
+`dirichletPoly p`, represented by `gaussDirichlet (p.eval)`), and `enorm_toLp_sub` /
+`norm_toLp_sub_eq` / `ofReal_norm_toLp_sub_sq` say the norm of a difference of classes only sees the
+difference of representatives, squared into a `lintegral` of `ofReal` — the shape
+`exists_lintegral_tail_lt` bounds.  `polyOp_closure_le_gaussOp_closure` and
+`polyOp_closure_eq_gaussOp_closure` restate the identification over `polyOp.closure`, since
+essential self-adjointness makes the *closure* self-adjoint and not `polyOp` itself.  That route
+left `IsSelfAdjoint polyOp.closure` as a parameter — the ℂ criterion was a statement about
+`polyOpC` on `Cx (Lp ℝ 2 γ)`, while the conclusion is about the real `LinearPMap`, and no
+complexification equivalence for `LinearPMap`/adjoint exists to transport one to the other (the ℂ
+specialization has since been retired).  The diagonal route closes it, and needs no transport: over `ℝ` there is no `i`
+to test against, so the operator is diagonalized instead.  `BookProof.YangMillsPolyBasis` reads
+`⟪H_m, H_n⟫` as `hermiteInner m n` (`inner_polyLp_hermiteR`), applies `hermiteInner_eq`
+(`inner_polyLp_hermiteR_eq`), normalizes to `orthonormal_hermiteLpR`, notes that rescaling does
+not change the span (`span_hermiteLpR`) and hands `dense_hermiteSpanSet` to `HilbertBasis.mk`,
+obtaining `hermiteBasisR`.  `BookProof.YangMillsPolySelfAdjoint` then runs the two halves.
+Symmetry is the diagonal one — `polyOp b_n = n b_n` in an orthonormal family, so
+`⟪T b_m, b_n⟫ = m δ_{mn} = ⟪b_m, T b_n⟫`, and `coreExt_inner_comm_span` propagates it through
+`Submodule.span_induction₂`; `closure_isFormalAdjoint` transfers it to the closure by taking two
+graph sequences and letting both indices go to infinity in `⟪T xₖ, yₗ⟫`.  The adjoint inclusion is
+the diagonal argument: the adjoint relation at `b_n` gives `⟪b_n, T† y⟫ = n ⟪b_n, y⟫`
+(`inner_adjoint_hermiteLpR`), so the partial sums of the basis expansion of `y` lie in the domain
+and their images are the partial sums of the expansion of `T† y`; both converge, and the closed
+graph gives `T† ≤ T` (`closure_adjoint_le`).  Both halves are instances of
+`BookProof.DiagonalSelfAdjoint.adjoint_le_closure_of_diag` /
+`isSelfAdjoint_closure_of_diag_symm` (`Toolbox/ChapterDiagonalSelfAdjoint.lean`), whose only
+inputs are symmetry and a Hilbert basis of real eigenvalues (closability is then derived, since a
+densely defined symmetric operator sits inside its adjoint).  With `SymmetricOp.le_adjoint` this is
+`isSelfAdjoint_polyOp_closure`, and since `gaussOp.closure` is symmetric by the same sequence
+argument (`gaussOp_closure_isSymmetric`), maximality gives
+`polyOp_closure_eq_gaussOp_closure'` — the identification of the two cores with no hypotheses at
+all — and hence `isSelfAdjoint_gaussOp_closure`.
+
+The `ℂ` form was a transport: `polyOpC` and `gaussOpC` live on
+`Cx (Lp ℝ 2 γ)` and `Lp ℂ 2 γ`, and no equivalence between the two has been built, so the
+identification is stated over `ℝ`, where `gaussOp` lives.  With the real diagonal proof in place the
+transport is not needed, and the ℂ specialization of the core has been removed.
+
+**Why the complexification matters here.**  Deficiency spaces are a complex notion: over `ℝ` there is
+no `i`.  So Route A (and the Friedrichs/deficiency vocabulary of `ChapterYangMillsFriedrichs`)
+speaks about a complex Hilbert space.  The corpus has its own complexification for this,
+`BookProof/Realification/Complexification.lean` (`Cx W`, with `InnerProductSpace ℂ`, `cxMapₗ`, the
+`norm_sq` splitting and completeness), and `ChapterYangMillsPolyCore` *was* built on it: the real
+operator was extended to a global `coreExt` by a left inverse of the Hermite span's inclusion and
+complexified with `cxMapₗ`, so ℂ-linearity of `polyOpC` held by construction.  `coreExt` is still
+there and is what the real symmetry proof uses; the complexification layer over it is gone.
+
+**Why the ℂ lift is not just bookkeeping either.**  Mathlib has no complexification of real Hilbert
+spaces (`Complexification` does not exist in this version) and no bundled `Lp.re`/`Lp.im` maps, only
+the function-level `MeasureTheory.memLp_re_im_iff`.  So `Lp ℂ 2 gaussMeasure` cannot be reached from
+`gaussOp` by transport: a ℂ-valued `gaussDirichlet`, ℂ `MemLp` of its image, ℂ-linear well-definedness
+and ℂ inner-product symmetry must be built directly.  The derivative decomposition needed is
+`(deriv f x).re = deriv (fun y => (f y).re) x` (from `Complex.reCLM.comp_hasDerivAt`), and the ℂ
+symmetry then splits into four applications of the real symmetry `integral_gaussDirichlet_mul_comm`;
+the ℂ integrals must be split with `integral`-`re`/`im` lemmas and integrability side conditions.
+
+**Done** in `BookProof/Qym/ChapterYangMillsGaussFormComplex.lean` (no `sorry`; the only axioms are
+`propext`, `Classical.choice`, `Quot.sound`): `gaussDirichletC`, the componentwise splitting
+`gaussDirichletC_re`/`_im`, `memLp_gaussDirichletC`, the weighted ℂ symmetry
+`integral_gaussWeight_innerC_comm`, and — on classes — the ℂ-linear partial map `gaussOpC` with
+`gaussOpC_inner_comm` (symmetry), `gaussOpC_inner_self_eq_re` + `gaussOpC_quadForm_nonneg`
+(positivity) and `gaussOpC_symmetric` + `gaussOpC_form_closable` (the Friedrichs handoff).
+Two API traps cost the time: `⟪_,_⟫_ℂ` **does not exist** in this mathlib (the complex notation is
+plain `⟪x, y⟫` under `open scoped ComplexInnerProductSpace`, and opening `RealInnerProductSpace`
+too makes `⟪gaussDirichletC F x, G x⟫` ambiguous), and `integral_re`/`integral_im` are unusable as
+rewrites against `z.re` — `RCLike.re_to_complex` keys on `reC` and `RCLike.re` does not match it
+syntactically — so the split uses `Complex.reCLM`/`imCLM.integral_comp_comm` instead.
+
+**Also done, over `ℝ`** — the *other* route of gap 1 below, which turns out to be shorter than the ℂ
+lift for everything except the deficiency analysis.  `BookProof.YangMillsFriedrichsReal`
+(appended to `ChapterYangMillsFriedrichs`) is Part B at `[InnerProductSpace ℝ F]`:
+`SymmetricOn`, `quadForm`, `formInner`, `formNormSq`, the expansions
+`formNormSq_add`/`_sub`/`_add_smul`, Cauchy–Schwarz `formInner_sq_le`, and `form_closable`.
+Every proof is the complex one with `starRingEnd`, `Complex.add_re` and `continuous_re`
+deleted; the two places that do *not* simplify mechanically are the swap `⟪H x, y⟫ = ⟪x, H y⟫`
+(this mathlib has `real_inner_comm`, `⟪y,x⟫_ℝ = ⟪x,y⟫_ℝ`, and no `inner_comm`) and the limiting step
+of `form_closable`, where `innerSL ℝ v` must be turned into a
+*plain* continuity statement (`continuous_const.inner continuous_id`) rather than `simpa`d
+through the `ContinuousLinearMap` coercion.  The instantiation lives in
+`BookProof/Qym/ChapterYangMillsGaussFormReal.lean`, a separate leaf module because the import graph
+already runs `ChapterYangMillsGaussForm → … → ChapterYangMillsFriedrichs`: importing the Gaussian
+chapter from inside the Friedrichs chapter is a build cycle, not a style question.  It provides
+`gaussOp_symmetricOn_real`, `gaussOp_quadForm_nonneg_real` and `gaussOp_form_closable_real` —
+`form_closable` on `gaussOp` with no complexification anywhere in statement or proof.
+
+Item 2 is discharged at the `Lp` level and item 3 is discharged.
+
+**What `ChapterYangMillsFriedrichs` still needs.**  That chapter is a self-contained Friedrichs
+construction over an *abstract* complex Hilbert space (`F`, `D : Submodule ℂ F`), with
+`formInner H x y = ⟪x,y⟫ + ⟪x, H y⟫`, `formNormSq`, `form_closable`, and the classical Friedrichs
+theorem entering as the explicit hypothesis `friedrichs` of
+`friedrichs_extension_of_semibounded`.  It has never been instantiated on the Gaussian operator.  The
+gap list, in order of difficulty:
+
+1. **Real-to-complex shim.**  `gaussOp` lives on `Lp ℝ 2 gaussMeasure`; the chapter is `ℂ`-valued
+   (`SymmetricOn D H`, `quadForm H x = (⟪x, H x⟫ : ℂ).re`, `IsPositiveSelfAdjointExtension`).  Either
+   complexify (`Lp ℂ 2 gaussMeasure` with the `ℂ`-linear extension of `gaussOp`) or port Part B of
+   the chapter to `ℝ`.  **Closed both ways**: the first by
+   `ChapterYangMillsGaussFormComplex.gaussOpC : Lp ℂ 2 gaussMeasure →ₗ.[ℂ] Lp ℂ 2 gaussMeasure`
+   with the ℂ-valued `C²` core `gaussCoreC`, the second by `BookProof.YangMillsFriedrichsReal` and
+   `ChapterYangMillsGaussFormReal.gaussOp_form_closable_real`.  The real route is kept because
+   closability does not need `i` — only the deficiency spaces do.
+2. **`SymmetricOn gaussCore gaussOp`** — **closed**: `gaussOpC_inner_comm`, in the `SymmetricOn`
+   form as `gaussOpC_symmetric`.
+3. **Positivity on the core**, `0 ≤ quadForm gaussOp x`, i.e. `0 ≤ ⟪x, T x⟫_γ` — **closed**:
+   `gaussOpC_quadForm_nonneg`, from `gaussOpC_inner_self_eq_re` (the real part of the diagonal is
+   `gaussForm F.re F.re + gaussForm F.im F.im`) and the corpus' `gaussForm_self_nonneg`.
+4. **Closure of the form** — **closed**: `gaussOpC_form_closable` is `form_closable` applied to
+   (2) and (3), already instantiated on this operator.
+5. **Identification** — the extension Friedrichs produces is *some* positive self-adjoint extension;
+   calling it `gaussOp.closure` needs exactly the essential-self-adjointness statement above (or the
+   domain identification “form domain of `gaussForm` = `H¹(γ)`”, which is the same gap in another
+   dress).  And the classical theorem itself stays a hypothesis: the chapter documents it as an
+   admitted theorem (Reed–Simon II, Thm X.23), never as an axiom.
+
+So `ChapterYangMillsFriedrichs` does not lack closability any more — it lacks the instantiation
+(1)–(3) on `gaussOp` and, for the *identification* of its output with `gaussOp.closure`, the same
+essential-self-adjointness theorem that S0 item 1 still needs.
+
+#### S3 — the solve-error bookkeeping
+
+`BookProof/Sirk/ChapterShiftInvertBookkeeping.lean` (namespace
+`BookProof.HashimotoShiftInvertBookkeeping`) supplies the two S3 pieces that the shift-invert
+estimates presuppose, and no spectral claim:
+
+* **Solve error.** `norm_solve_error_le` bounds the error of an inexact linear solve by the
+  residual; `IsShiftInvert.solve_error_le` specializes it to the shift-invert operator, so a
+  residual-level solve is enough for the approximation S3 asks for.
+* **Compressed ≠ compressed resolvent.** `exactSolve` is `(2/3, −1/3)` and `compressedSolve` is
+  `(1/2, 0)` for the `2 × 2` model with `X = (A+1)⁻¹`; both solve their own problems
+  (`exactSolve_solves`, `compressedSolve_solves`) yet differ by `X` applied to the defect
+  (`defect_image_eq_error`, `compressed_solve_error_eq_defect_image`), so
+  `compression_ne_resolvent` is not a numerical artifact.  This is the S3 bookkeeping the plan's
+  "approximation, with a separate spectral gate" wording depends on: the gate is still separate,
+  and no Hashimoto-band statement (S42) is claimed here.
 
 ## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
 

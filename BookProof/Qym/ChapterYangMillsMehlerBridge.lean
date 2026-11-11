@@ -57,9 +57,12 @@ operator — which is exactly why the magnetic field `B = ε ∂ A` needs a sepa
   `U_{99} = ⨂_i U_i` on `⨂_i L²(γ)` with `D_{99} = Σ_i D_i` commuting with it, or the Laplacian
   Leibniz rule `Δ(gF) = gΔF + 2⟨∇g, ∇F⟩ + FΔg` together with the `d`-dimensional Gaussian identity
   `Δ γ^{1/2} = (|x|²/4 + d/2) γ^{1/2}`.  Neither is assembled here, so the coordinate-count factor
-  `−99/2` is not proved in this module.
+  `−99/2` is not proved in this module; it is proved in `ChapterYangMillsMehlerProduct`
+  (`conj_dirichletVec99`), by conjugating a coordinate derivative twice instead of invoking the
+  Leibniz rule.
 * **C — space level and extension inputs:** `lintegral_norm_sq_conj` is an identity of integrals,
-  not the statement that multiplication by `γ^{1/2}` is a `LinearIsometryEquiv` between `Lp` spaces;
+  not the statement that multiplication by `γ^{1/2}` is a `LinearIsometryEquiv` between `Lp` spaces
+  (the `Lp`-level statements are in `ChapterYangMillsMehlerLp`);
   and the module has no closability, form-core or Friedrichs-extension input.  The plan's S0
   acceptance list is exactly these: the closure of the Dirichlet form on the smooth core, the
   identification of its Friedrichs operator with `−Δ + x·∇` on the weighted space, and the same for
@@ -486,6 +489,283 @@ theorem no_absolute_gap_of_kernel_vector {E : Type*} [NormedAddCommGroup E]
     exact h1
   have hnorm : 0 < ‖x₀‖ := norm_pos_iff.mpr hx₀
   nlinarith [pow_pos hnorm 2, hm]
+
+/-! ## The derivative transfer in `n` coordinates
+
+`conj_deriv` is the one-coordinate statement `U ∂ U⁻¹ = ∂ + x/2`.  On the `n`-coordinate mode
+space the derivative is the coordinate derivative along a line, and the same identity holds there:
+the weight factorizes, so the part of it outside the `j`-th coordinate cancels against itself and
+leaves exactly the one-coordinate drift.  This is the derivative half of the 99-coordinate product
+transfer; `lintegral_norm_sq_conj_N` above is the norm half. -/
+
+/-- The squared norm of the coordinates other than `j`. -/
+noncomputable def restSq {n : ℕ} (x : Fin n → ℝ) (j : Fin n) : ℝ :=
+  ∑ i ∈ Finset.univ.erase j, x i ^ 2
+
+theorem sum_sq_update {n : ℕ} (x : Fin n → ℝ) (j : Fin n) (t : ℝ) :
+    ∑ i, Function.update x j t i ^ 2 = t ^ 2 + restSq x j := by
+  rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ j)]
+  congr 1
+  · simp
+  · rw [Finset.sdiff_singleton_eq_erase, restSq]
+    exact Finset.sum_congr rfl fun i hi => by simp [Finset.ne_of_mem_erase hi]
+
+/-- The `n`-coordinate root along the `j`-th line is the one-coordinate root times the constant
+carried by the other coordinates. -/
+theorem gaussRootN_update {n : ℕ} (x : Fin n → ℝ) (j : Fin n) (t : ℝ) :
+    gaussRootN (Function.update x j t) = gaussRoot t * Real.exp (-(restSq x j) / 4) := by
+  rw [gaussRootN, gaussRoot, sum_sq_update, ← Real.exp_add]
+  congr 1
+  ring
+
+/-- The reciprocal weight along the `j`-th line. -/
+theorem invGaussN_update {n : ℕ} (x : Fin n → ℝ) (j : Fin n) (t : ℝ) :
+    invGaussN (Function.update x j t) = invGauss t * Real.exp (restSq x j / 4) := by
+  rw [invGaussN, invGauss, sum_sq_update, ← Real.exp_add]
+  congr 1
+  ring
+
+/-- The value of the `n`-coordinate root at a point, split along coordinate `j`. -/
+theorem gaussRootN_eq_root_mul_rest {n : ℕ} (x : Fin n → ℝ) (j : Fin n) :
+    gaussRootN x = gaussRoot (x j) * Real.exp (-(restSq x j) / 4) :=
+  by simpa [Function.update_eq_self] using gaussRootN_update x j (x j)
+
+/-- **The derivative transfer in `n` coordinates**: conjugating the coordinate derivative `∂_j`
+adds the drift `x_j / 2`, for every `n` — in particular for the `n = 99` mode space.  The inner
+function is the conjugated one, `invGaussN · F`, exactly as on the core. -/
+theorem conj_pderiv {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : Fin n → ℝ) (j : Fin n) {d : ℝ}
+    (hd : HasDerivAt (fun t => F (Function.update x j t)) d (x j)) :
+    gaussRootN x * deriv (fun t => invGaussN (Function.update x j t)
+        * F (Function.update x j t)) (x j) = d + (x j / 2) * F x := by
+  have hfun : (fun t => invGaussN (Function.update x j t) * F (Function.update x j t))
+      = fun t => Real.exp (restSq x j / 4) * (invGauss t * F (Function.update x j t)) := by
+    funext t
+    rw [invGaussN_update]
+    ring
+  rw [hfun]
+  have hd' := (hasDerivAt_invGauss_mul hd).const_mul (Real.exp (restSq x j / 4))
+  have hgg : gaussRoot (x j) * invGauss (x j) = 1 := gaussRoot_mul_invGauss (x j)
+  have hEE : Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4) = 1 := by
+    rw [← Real.exp_add]
+    rw [show -(restSq x j) / 4 + restSq x j / 4 = 0 by ring]
+    rw [Real.exp_zero]
+  rw [hd'.deriv]
+  rw [show F (Function.update x j (x j)) = F x by rw [Function.update_eq_self]]
+  rw [gaussRootN_eq_root_mul_rest]
+  calc gaussRoot (x j) * Real.exp (-(restSq x j) / 4) *
+        (Real.exp (restSq x j / 4) * (invGauss (x j) * (d + (x j / 2) * F x)))
+      = gaussRoot (x j) * invGauss (x j) *
+          (Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4)) *
+          (d + (x j / 2) * F x) := by ring
+    _ = d + (x j / 2) * F x := by rw [hgg, hEE]; ring
+
+/-! ## The core, as an explicit domain -/
+
+/-- **The Gauss–polynomial core in `n` coordinates**, as an explicit domain: the functions
+`p · γ^{1/2}` with `p` a polynomial in the `n` coordinates.  At `n = 99` this is the core the QYM
+one-particle operator is defined on.  Density of this subspace in `L²(γ)` is *not* asserted here;
+that is a separate hypothesis wherever it is needed. -/
+def qymCore (n : ℕ) : Submodule ℝ ((Fin n → ℝ) → ℝ) where
+  carrier := {φ | ∃ p : MvPolynomial (Fin n) ℝ, φ = fun x => MvPolynomial.eval x p * gaussRootN x}
+  zero_mem' := ⟨0, by funext x; simp⟩
+  add_mem' := by
+    rintro φ ψ ⟨p, rfl⟩ ⟨q, rfl⟩
+    refine ⟨p + q, ?_⟩
+    funext x
+    simp [MvPolynomial.eval_add, add_mul]
+  smul_mem' := by
+    rintro c φ ⟨p, rfl⟩
+    refine ⟨MvPolynomial.C c * p, ?_⟩
+    funext x
+    simp only [MvPolynomial.eval_mul, MvPolynomial.eval_C, Pi.smul_apply, smul_eq_mul]
+    ring
+
+/-- Membership in the core is exactly "a polynomial times the root". -/
+theorem qymCore_mem {n : ℕ} {φ : (Fin n → ℝ) → ℝ} :
+    φ ∈ qymCore n ↔
+      ∃ p : MvPolynomial (Fin n) ℝ, φ = fun x => MvPolynomial.eval x p * gaussRootN x :=
+  Iff.rfl
+
+/-- The weight itself is in the core: it is the `p = 1` element. -/
+theorem gaussRootN_mem_qymCore (n : ℕ) :
+    (fun x : Fin n → ℝ => gaussRootN x) ∈ qymCore n :=
+  ⟨1, by funext x; simp⟩
+
+/-- **The second-order conjugation along one coordinate, on the core's coordinate.**  The weighted
+Dirichlet operator of the `n`-coordinate Gaussian measure, restricted to the `j`-th line, conjugates
+to the oscillator: `U (−∂² + x ∂) U⁻¹ = −∂² + x²/4 − 1/2`, with `x` the coordinate `x_j`.  The
+rest of the `n`-coordinate weight cancels because it is constant along that line — which is why the
+`n`-coordinate second-order statement needs no new analytic input. -/
+theorem conj_gaussDirichlet_slice {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : Fin n → ℝ) (j : Fin n)
+    {d e : ℝ → ℝ} (hd : ∀ t, HasDerivAt (fun s => F (Function.update x j s)) (d t) t)
+    (he : ∀ t, HasDerivAt d (e t) t) :
+    gaussRootN x * gaussDirichlet
+        (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+      = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by
+  have hfun : (fun t => invGaussN (Function.update x j t) * F (Function.update x j t))
+      = fun t => invGauss t * (Real.exp (restSq x j / 4) * F (Function.update x j t)) := by
+    funext t
+    rw [invGaussN_update]
+    ring
+  have hd' : ∀ t, HasDerivAt (fun s => Real.exp (restSq x j / 4) * F (Function.update x j s))
+      (Real.exp (restSq x j / 4) * d t) t := fun t => (hd t).const_mul _
+  have he' : ∀ t, HasDerivAt (fun s => Real.exp (restSq x j / 4) * d s)
+      (Real.exp (restSq x j / 4) * e t) t := fun t => (he t).const_mul _
+  have h1 := conj_dirichlet hd' he' (x j)
+  rw [show Function.update x j (x j) = x from Function.update_eq_self j x] at h1
+  have hEE : Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4) = 1 := by
+    rw [← Real.exp_add, show -(restSq x j) / 4 + restSq x j / 4 = 0 by ring, Real.exp_zero]
+  rw [hfun, gaussRootN_eq_root_mul_rest]
+  calc gaussRoot (x j) * Real.exp (-(restSq x j) / 4) *
+        gaussDirichlet
+          (fun t => invGauss t * (Real.exp (restSq x j / 4) * F (Function.update x j t))) (x j)
+      = Real.exp (-(restSq x j) / 4) *
+        (gaussRoot (x j) *
+          gaussDirichlet
+            (fun t => invGauss t * (Real.exp (restSq x j / 4) * F (Function.update x j t)))
+            (x j)) := by ring
+    _ = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by
+        rw [h1]
+        calc Real.exp (-(restSq x j) / 4) *
+              (-(Real.exp (restSq x j / 4) * e (x j)) +
+                (x j ^ 2 / 4 - 1 / 2) * (Real.exp (restSq x j / 4) * F x))
+            = (Real.exp (-(restSq x j) / 4) * Real.exp (restSq x j / 4)) *
+                (-e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x) := by ring
+          _ = -e (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := by rw [hEE]; ring
+
+/-! ## The bundled second-order conjugation in `n` coordinates
+
+`conj_gaussDirichlet_slice` is the identity along one coordinate line.  Summing it over the `n`
+coordinates gives the operator the QYM mode space actually uses: the `n`-coordinate weighted
+Dirichlet operator `−Δ + x·∇`, conjugated by `U`, is the oscillator with the coordinate-count
+factor `−n/2`.  That factor is the only place the number of coordinates enters, and it is why the
+`n = 99` statement is not the one-coordinate statement: it is the sum of `99` copies of it. -/
+
+/-- **The `n`-coordinate weighted Dirichlet operator, coordinate by coordinate**, applied to the
+conjugated function `γ^{-1/2} F`: the sum over `j` of the one-coordinate `gaussDirichlet` along the
+`j`-th line.  This is the operator whose conjugation the next theorem evaluates. -/
+noncomputable def qymDirichletN {n : ℕ} (F : (Fin n → ℝ) → ℝ) (x : Fin n → ℝ) : ℝ :=
+  ∑ j, gaussDirichlet (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+
+/-- The drift term: `∑_j (x_j²/4 − 1/2)` is `‖x‖²/4 − n/2`, the `n/2` being the `n` copies of the
+`−1/2` of the one-coordinate identity. -/
+theorem sum_oscillator_drift {n : ℕ} (x : Fin n → ℝ) (c : ℝ) :
+    (∑ j, (x j ^ 2 / 4 - 1 / 2) * c) = ((∑ j, x j ^ 2) / 4 - n / 2) * c := by
+  rw [← Finset.sum_mul, Finset.sum_sub_distrib, ← Finset.sum_div, Finset.sum_const,
+    Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  ring
+
+/-- **The second-order conjugation, bundled over the `n` coordinates.**  Conjugating the
+`n`-coordinate weighted Dirichlet operator `−Δ + x·∇` by `U f = γ^{1/2} f` gives the
+`n`-coordinate oscillator `−Δ + ‖x‖²/4 − n/2`:
+
+  `U(−Δ + x·∇)U⁻¹ F(x) = −(∑_j e_j(x_j)) + (‖x‖²/4 − n/2) F(x)`,
+
+where `e_j` is the second slice derivative of `F` along coordinate `j`.  The hypothesis is exactly
+what the coordinate identity needs in each direction; on the core (`F` a polynomial) it holds.  At
+`n = 99` this is the second-order half of the mode-space transfer, the first-order half being
+`conj_pderiv`. -/
+theorem conj_gaussDirichlet_bundled {n : ℕ} {F : (Fin n → ℝ) → ℝ} (x : Fin n → ℝ)
+    {d e : Fin n → ℝ → ℝ}
+    (hd : ∀ (j : Fin n) (t : ℝ), HasDerivAt (fun s => F (Function.update x j s)) (d j t) t)
+    (he : ∀ (j : Fin n) (t : ℝ), HasDerivAt (d j) (e j t) t) :
+    gaussRootN x * qymDirichletN F x
+      = -(∑ j, e j (x j)) + ((∑ j, x j ^ 2) / 4 - n / 2) * F x := by
+  have hterm : ∀ j : Fin n, gaussRootN x *
+      gaussDirichlet (fun t => invGaussN (Function.update x j t) * F (Function.update x j t)) (x j)
+      = -e j (x j) + (x j ^ 2 / 4 - 1 / 2) * F x := fun j =>
+    conj_gaussDirichlet_slice x j (hd j) (he j)
+  rw [qymDirichletN, Finset.mul_sum]
+  refine (Finset.sum_congr rfl fun j _ => hterm j).trans ?_
+  rw [Finset.sum_add_distrib, Finset.sum_neg_distrib, sum_oscillator_drift]
+
+/-- **The core's second-order conjugation, in the shape the mode space uses**: for a function whose
+slice derivatives are the given `d` and `e`, the conjugated operator is the oscillator with the
+`99`-coordinate factor.  This is the same statement at `n = 99`, written with `‖x‖²` expanded. -/
+theorem conj_gaussDirichlet_bundled_99 {F : (Fin 99 → ℝ) → ℝ} (x : Fin 99 → ℝ)
+    {d e : Fin 99 → ℝ → ℝ}
+    (hd : ∀ (j : Fin 99) (t : ℝ), HasDerivAt (fun s => F (Function.update x j s)) (d j t) t)
+    (he : ∀ (j : Fin 99) (t : ℝ), HasDerivAt (d j) (e j t) t) :
+    gaussRootN x * qymDirichletN F x
+      = -(∑ j, e j (x j)) + ((∑ j, x j ^ 2) / 4 - 99 / 2) * F x :=
+  conj_gaussDirichlet_bundled x hd he
+
+/-! ## The graph norm, and what it does and does not dominate
+
+The QYM one-particle gap reduces (via the SM's §22/§32/§38 chain) to one input: a **graph-norm
+domination of the quartic weight**, `‖W u‖ ≤ c (‖H u‖ + ‖u‖)` for `H = −Δ + W + 1`.  This section
+settles the half of it that follows from the form alone, and names the half that does not.
+
+The form-side half is sharp and needs no elliptic theory: the quadratic form is bounded by the
+product of the state norm with the graph norm, so any part of the form that is a non-negative
+summand — the quartic magnetic energy of `ymHamiltonian`, the `W` of the Gårding normalization — is
+dominated by `‖u‖ · (‖u‖ + ‖H u‖)`.  What is **not** obtained is the norm-level statement: a weight
+with a large kernel and a large value on a thin set keeps every form small while making `‖W u‖`
+large, so `‖W u‖ ≤ c (‖Hu‖ + ‖u‖)` needs the form-domain (elliptic-regularity) theory this corpus
+does not have, exactly as `ChapterSmFormDomainComparison` records.
+-/
+
+section GraphNorm
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F] {D : Submodule ℂ F}
+
+/-- **The graph norm of `H`** on its domain: `‖u‖ + ‖H u‖`.  The sum form (not the square root of
+the sum of squares) is the one the corpus's relative-bound statements use. -/
+noncomputable def graphNorm (H : D →ₗ[ℂ] F) (x : D) : ℝ := ‖(x : F)‖ + ‖H x‖
+
+/-- **The form is bounded by the state norm times the graph norm.**  `quadForm H x = re⟪x, Hx⟫`, so
+Cauchy–Schwarz gives `≤ ‖x‖‖Hx‖`, and `‖Hx‖ ≤ graphNorm H x`.  This is the only bound on the form
+that holds without a domain hypothesis on `H`. -/
+theorem quadForm_le_norm_mul_graphNorm (H : D →ₗ[ℂ] F) (x : D) :
+    BookProof.FarisLavine.quadForm H x ≤ ‖(x : F)‖ * graphNorm H x := by
+  have hinner : (inner ℂ (x : F) (H x) : ℂ).re ≤ ‖(x : F)‖ * ‖H x‖ :=
+    le_trans (Complex.re_le_norm _) (norm_inner_le_norm (x : F) (H x))
+  have hnorm : (0 : ℝ) ≤ ‖(x : F)‖ := norm_nonneg _
+  have hle : ‖H x‖ ≤ graphNorm H x := by
+    simp only [graphNorm]
+    linarith [norm_nonneg (x : F)]
+  calc BookProof.FarisLavine.quadForm H x
+      = (inner ℂ (x : F) (H x) : ℂ).re := rfl
+    _ ≤ ‖(x : F)‖ * ‖H x‖ := hinner
+    _ ≤ ‖(x : F)‖ * graphNorm H x := mul_le_mul_of_nonneg_left hle hnorm
+
+/-- **The graph norm dominates every non-negative summand of the form.**  If
+`quadForm H x = a x + b x` and `a` is pointwise non-negative, then
+`b x ≤ ‖x‖ · (‖x‖ + ‖H x‖)`.  At `a = 0` this is the form bound; at `a` the kinetic square it is the
+potential half — the quartic magnetic energy in QYM, the `W` of `−Δ + W + 1` in the SM. -/
+theorem potentialPart_le_graphNorm (H : D →ₗ[ℂ] F) (a b : D → ℝ)
+    (hsplit : ∀ x, BookProof.FarisLavine.quadForm H x = a x + b x) (ha : ∀ x, 0 ≤ a x)
+    (x : D) :
+    b x ≤ ‖(x : F)‖ * graphNorm H x := by
+  have h1 : b x ≤ a x + b x := by linarith [ha x]
+  have h2 : a x + b x ≤ ‖(x : F)‖ * graphNorm H x := by
+    rw [← hsplit x]
+    exact quadForm_le_norm_mul_graphNorm H x
+  linarith
+
+/-- **The graph norm dominates the potential energy of the Gårding normalization** `−Δ + W + 1`:
+when the form splits as `w + ‖·‖²`, the potential part `w` is dominated by `‖x‖ · graphNorm`.  That
+is the stated half of the domination; the norm-level `‖W u‖ ≤ c · graphNorm` is the open input. -/
+theorem potentialEnergy_le_graphNorm (H : D →ₗ[ℂ] F) (w : D → ℝ)
+    (hsplit : ∀ x, BookProof.FarisLavine.quadForm H x = w x + ‖(x : F)‖ ^ 2) (x : D) :
+    w x ≤ ‖(x : F)‖ * graphNorm H x := by
+  have h1 : w x ≤ BookProof.FarisLavine.quadForm H x := by
+    rw [hsplit x]
+    linarith [sq_nonneg (‖(x : F)‖ : ℝ)]
+  exact le_trans h1 (quadForm_le_norm_mul_graphNorm H x)
+
+end GraphNorm
+
+/-- **The QYM instance:** every part of the gauge-fixed one-particle form is bounded by the product
+of the state norm with the graph norm of `ymHamiltonian` itself.  No gap, no elliptic estimate and
+no domain hypothesis beyond the core is used — which is also why this cannot be turned into the
+norm-level domination the mass-gap chain needs. -/
+theorem ym_quadForm_le_norm_mul_graphNorm (e : ℕ ≃ (Fin 99 →₀ ℕ))
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : finiteModeDomain (coreBasis e)) :
+    BookProof.FarisLavine.quadForm (ymHamiltonian (coreRepBasis e) fabc) x
+      ≤ ‖(x : L2d 99)‖ *
+        graphNorm (ymHamiltonian (coreRepBasis e) fabc) x :=
+  quadForm_le_norm_mul_graphNorm _ x
 
 end
 
