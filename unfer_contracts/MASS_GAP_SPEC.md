@@ -459,13 +459,16 @@ with the odd ground, `4.1e-4` apart), odd `N ≤ 40` (`n = 64680`,
 `θ₀ = −17.237774`, 620 s, fill 2309, `5.0e-14`) and odd `N ≤ 44` (`n = 93104`,
 `θ₀ = −18.138131`, 978 s, fill 2675, `1.5e-14`); the even block under its **own**
 `β` reports `below == 1` from `N ≤ 20` (`n = 5786`, `θ₀ = −7.512462`, fill 358)
-up. So the reach is at least `44` in the odd block and `38` in the even one and
+up through `N ≤ 40` (`n = 71071`, fill 2218, 479 s, `6.4e-17`) and `N ≤ 42`
+(`n = 85261`, fill 2460, 795 s, `1.3e-14`). So the reach is at least `42` in both
+blocks and `44` in the odd one and
 **the ladder has not stopped, it has become expensive** — `N ≤ 44` keeps
 fourteen orders of headroom to the refusal rule — with the witness range at
 least that rather than `30`, and the `562 s` even refusal was that matrix at the
-*odd* threshold. What grows is the price: the count alone goes
+*odd* threshold. What grows is the price: in the odd block the count alone goes
 `70 → 129 → 230 → 394 → 620 → 978 s` (~1.6× a shell) with fill
-`1960 → 2080 → 2309 → 2675`, so `N ≤ 46` (~`1600 s`) is unrun rather than
+`1960 → 2080 → 2309 → 2675`, the even curve runs `295 → 479 → 795 s` with fill
+`1960 → 2218 → 2460`, so `N ≤ 46` (~`1600 s`) is unrun rather than
 unwalled. The ordering split survives the correction and is now pinned
 rather than bracketed: RCM decides `N ≤ 32` at its own converged `β` (fill 1141,
 `θ₀ = −12.777793`, residual `7.6e-13`, ratio `2.6e-2`, 198 s) and refuses

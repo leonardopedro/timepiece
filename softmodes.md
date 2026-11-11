@@ -871,16 +871,25 @@ acting componentwise, and on the elementary tensor `colourFibre x v` the form is
 `‖v‖² (quadForm H x + C ‖x‖²)` (`colouredHamiltonian_smul_one_quadForm`); with the two Casimirs this
 reads `quadForm (ymHamiltonian …) x + (3/4)‖x‖²` on `ℂ²`
 (`colouredHamiltonian_fundamental_quadForm`) and `+ 2‖x‖²` on `ℂ³`
-(`colouredHamiltonian_adjoint_quadForm`).  Closedness of the colour operators is not claimed.  The gluon factor is carried on the same footing: `adjRep` is
+(`colouredHamiltonian_adjoint_quadForm`).  Nor is that an elementary-tensor-only statement: the
+colour-diagonal Hamiltonian is diagonal in the components, so the form splits componentwise on the
+whole coloured core (`colouredHamiltonian_smul_one_quadForm_core`, and
+`colouredHamiltonian_fundamental_quadForm_core`/`..._adjoint_quadForm_core`), every core element is a
+finite sum of elementary tensors (`colourFibre_repr`, `colourSum`, with components
+`∑ k, v k i • x k` by `colourSum_ofLp`), and the form of such a sum is
+`colouredHamiltonian_smul_one_quadForm_sum` — the cross terms live in the mixed components, so it is
+not a sum of per-tensor values.  Closedness of the colour operators is not claimed.
+
+The gluon factor is carried on the same footing: `adjRep` is
 the adjoint representation on `ℂ³` (`(T^a)_{bc} = −i ε^{abc}`), it closes on the same algebra
 (`adjRep_commutator`: `[T^a, T^b] = i ε^{abc} T^c`) and its Casimir is a matrix identity,
 `Σ_a (T^a)² = 2 · 1` (`adjRep_casimir`), i.e. `C_A = 2`; so `adjModeVec c v` carries `2 v`
 (`adjColourEnergy_adjModeVec`) and the two factors stand in the ratio `C_A/C_F = 8/3`
 (`casimir_ratio`).  **B:** the fold into `quadForm (ymHamiltonian …)` is proved
-on elementary tensors `x ⊗ v` only — nothing is claimed for sums of them or for the norm of the
-coloured operator, a general colour matrix is evaluated only through its diagonal part, and no
-colour-singlet space combining the `ℂ²` and `ℂ³` fibres is built; the occupation completion carrying
-`colourEnergyOp` is still a separate model from the field fibre.
+for a diagonal colour energy `µ • 1` on the whole coloured core — a general colour matrix is still
+evaluated only through its diagonal part, nothing is claimed for the norm of the coloured operator,
+and no colour-singlet space combining the `ℂ²` and `ℂ³` fibres is built; the occupation completion
+carrying `colourEnergyOp` is still a separate model from the field fibre.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.
