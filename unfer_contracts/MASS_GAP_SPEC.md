@@ -446,25 +446,33 @@ above used `β = θ₀ + 0.5` with `θ₀` from 60 Lanczos steps, and 60 steps i
 unconverged on these blocks — the residual is `0.05` (odd `N ≤ 20`), `0.58` (even
 `N ≤ 20`) and `2.60` (odd `N ≤ 30`) — so `θ₀` was a loose upper bound on `λ₁`
 (`−11.8546` against the converged `−13.6716` at `N ≤ 34`) and the count was asked
-to factor `H + 11.35·I`: `1.8` above the ground instead of `0.5`. At 240 steps
-(residual `1e-12`–`1e-9`) every size that refused now decides, in both blocks,
-with `below == 1` — a genuine `λ₂` witness: odd `N ≤ 34` (fill 1298, 68 s,
-`3.8e-19`), odd `N ≤ 36` (`n = 43320`, fill 1494, 126 s, `8.0e-18`), even
-`N ≤ 36` (`n = 48070`, fill 1604, 172 s, `5.2e-15`); the even block under its
-**own** `β` reports `below == 1` from `N ≤ 20` (`n = 5786`, `θ₀ = −7.512462`,
-fill 358) up. So the reach is at least `36` in both blocks and the boundary is
-now unmeasured (`N ≤ 38` has not been run), the witness range is at least `36`
-rather than `30`, and the `562 s` even refusal was that matrix at the *odd*
-threshold. The ordering split survives the correction: RCM still refuses
-`N ≤ 34` at the converged `β` after 422 s, and the even block at `N ≤ 30` decides
-under RCM only at ratio `1.8e-2` against nested dissection's `5.3e-18`.
+to factor `H + 11.35·I`: `1.8` above the ground instead of `0.5`. Doubling the
+step count until the Ritz *residual* is below `1e-9` (`converged_ground`, which
+asserts rather than falling back) every size that refused now decides, in both
+blocks, with `below == 1` — a genuine `λ₂` witness: odd `N ≤ 34` (fill 1298,
+`9.0e-13`, 70 s, `3.8e-19`), odd `N ≤ 36` (`n = 43320`, fill 1494, 129 s,
+`8.0e-18`), even `N ≤ 36` (`n = 48070`, fill 1604, 172 s, `5.2e-15`), odd
+`N ≤ 38` (`n = 53200`, `θ₀ = −15.447014`, 320 steps, 230 s, `2.0e-17`), even
+`N ≤ 38` (`n = 58730`, `θ₀ = −15.447425`, 295 s, `9.1e-18` — near-degenerate
+with the odd ground, `4.1e-4` apart) and odd `N ≤ 40` (`n = 64680`,
+`θ₀ = −16.341870`, 394 s, `8.8e-17`); the even block under its **own** `β`
+reports `below == 1` from `N ≤ 20` (`n = 5786`, `θ₀ = −7.512462`, fill 358) up.
+So the reach is at least `40` in the odd block and `38` in the even one, the
+witness range is at least that rather than `30`, and the `562 s` even refusal was
+that matrix at the *odd* threshold. Each extra shell costs about `1.6×` in both
+time and fill (`70 → 129 → 230 → 394 s`), so `N ≤ 42` is unrun rather than
+unwalled. The ordering split survives the correction and is now pinned rather
+than bracketed: RCM decides `N ≤ 32` at its own converged `β` (fill 1141,
+`θ₀ = −12.777793`, residual `7.6e-13`, ratio `2.6e-2`, 198 s) and refuses
+`N ≤ 34` after 422 s, and the even block at `N ≤ 30` decides under RCM only at
+ratio `1.8e-2` against nested dissection's `5.3e-18`.
 
 **Ordering: smaller fill, and two sizes of reach.** Nested dissection cuts the
 fill by 6–27 % on the grid (18→16, 93→68, 258→226, 534→485) and is 2–2.5× faster
 at the top. Past the grid its fill advantage fades (652 vs 653 at `N ≤ 26`, 961
 vs 927 at `N ≤ 30`), so fill is asserted only on the campaign's own sizes; its
 *bound* advantage does not fade, which is why it is the ordering that reaches
-furthest (`N ≤ 36` where RCM stops at `30`). Pivoting on relative accuracy instead of magnitude does not move the
+furthest (`N ≤ 40` where RCM stops at `32`). Pivoting on relative accuracy instead of magnitude does not move the
 wall (measured), and neither do `2×2` block pivots. **Symmetric equilibration is a measured no-op**: `D(H − βI)D`
 with `D = diag(2ᵏ)` is an exact congruence (the count must come out identical,
 and does, at every size), and the bound-to-pivot ratios are identical to the
