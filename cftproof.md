@@ -73,10 +73,14 @@ specification** (`AcceptanceSpec.lean`, `CombinedAcceptance`), a **per-declarati
 (`AxiomAudit.lean`), **Comparator** re-checks of the endpoint, a **dated evidence ledger**
 (`evidence/README.md`, never overwritten), and **provenance hashes** tying the checked source to the
 submitted source. Our `scripts/health.sh` and `scripts/verify-invariants` cover documentation and
-import drift only: there is no per-declaration axiom audit gate and no evidence ledger. Adding an
-axiom-audit gate that prints the axiom set of every exported theorem (and fails on anything outside
-`propext`, `Classical.choice`, `Quot.sound`) is the single largest verifiability gain available from
-this reading, and it is independent of the QYM row.
+import drift only, and the axiom side used to be a run log: `axiom_gate.lean` printed `OK`/`BAD` per
+theorem and said nothing about *which* declaration changed. **Landed 2026-11-11:**
+`axiom_ledger.lean` writes one row per theorem — `name<TAB>axiom,axiom` — to
+`evidence/axiom-ledger.tsv`, and `scripts/axiom-audit` (in CI, in `axiom-gate.yml`) fails on any
+closure outside `propext`, `Classical.choice`, `Quot.sound`, on a silent short ledger, and on an
+axiom *added* to a declaration against the committed baseline. What is still missing is the other
+half of the October split: a dated evidence ledger for the *external* re-checks (Comparator runs,
+provenance hashes), which has no local equivalent because there is no second checker here.
 
 ### Second reading (2026-11-11): the submission's own Lean source
 

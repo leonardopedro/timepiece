@@ -106,6 +106,15 @@ jobs:
             exit 1
           fi
 
+      # Per-declaration ledger (2026-11-11): the gate above answers "is the
+      # tree clean now"; this answers "did a named declaration's axiom set
+      # change". The cone is already built by the step above, hence
+      # --skip-build. The baseline is the committed evidence/axiom-ledger.tsv,
+      # so a widened closure shows up in review as a diff, not only in a log.
+      - name: per-declaration axiom ledger (fail on foreign axioms or drift)
+        shell: bash
+        run: bash scripts/axiom-audit --skip-build
+
       - name: build the audit scripts (Audits.lean aggregator + the 5 axiom audits)
         run: |
           lake build \

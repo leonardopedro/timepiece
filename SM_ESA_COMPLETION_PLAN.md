@@ -109,8 +109,10 @@ type instead of by prose, which is also what makes the §1.2 sign test in the bu
 mechanical.
 
 Verification discipline (acceptance specification, per-declaration axiom audit, dated evidence
-ledger, provenance hashes) is discussed in [cftproof.md](cftproof.md) and applies here unchanged;
-this file's regression gate in P8 currently has none of it.
+ledger, provenance hashes) is discussed in [cftproof.md](cftproof.md) and applies here unchanged.
+The axiom half landed 2026-11-11 (`scripts/axiom-audit` over `evidence/axiom-ledger.tsv`, in CI via
+`axiom-gate.yml`), so P8's regression gate now inherits a per-declaration baseline instead of the
+prose promise it had; the dated external-re-check ledger is still unbuilt.
 
 ## 1. Fix the mathematical endpoint before proving it
 
