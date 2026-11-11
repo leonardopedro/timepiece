@@ -861,9 +861,35 @@ each in its own representation.  And the mode factor is now carried: `fundMode d
 vector with a colour vector attached, and `colourEnergy` applies the Casimir on the fibre.  Then
 `colourEnergy_colourModeVec` is the statement that had been missing: on `c ⊗ v` the Casimir
 multiplies `v` by `C_F = 3/4` and leaves the Fock coefficients `c n` untouched, via
-`casimir_mulVec` (`(Σ_a T^a T^a).mulVec v = (3/4) • v`).  **B:** `C_F` is not yet folded into
-`quadForm (ymHamiltonian …)`, and `colourAct`/`colourEnergy` are families rather than operators on
-`fundMode d` — no boundedness or closedness of the colour operators is claimed.
+`casimir_mulVec` (`(Σ_a T^a T^a).mulVec v = (3/4) • v`).  The colour energy is also an operator now:
+`colourEnergy_eq_smul` gives `colourEnergy f = fun n => (3/4) • f n` for *every* `f` in
+`fundMode d`, not only on mode vectors, so `colourEnergyOp` is a continuous linear map on the
+completion; its norm is exactly `3/4` (`norm_colourEnergyOp_eq`), the upper bound attained on a
+single nonzero mode vector.  The factors are also folded into the *field* form now: the core carries
+a colour fibre (`colourSpace N`, `colouredCore N D`), `colouredHamiltonian` is `H ⊗ 1 + 1 ⊗ C`
+acting componentwise, and on the elementary tensor `colourFibre x v` the form is
+`‖v‖² (quadForm H x + C ‖x‖²)` (`colouredHamiltonian_smul_one_quadForm`); with the two Casimirs this
+reads `quadForm (ymHamiltonian …) x + (3/4)‖x‖²` on `ℂ²`
+(`colouredHamiltonian_fundamental_quadForm`) and `+ 2‖x‖²` on `ℂ³`
+(`colouredHamiltonian_adjoint_quadForm`).  Nor is that an elementary-tensor-only statement: the
+colour-diagonal Hamiltonian is diagonal in the components, so the form splits componentwise on the
+whole coloured core (`colouredHamiltonian_smul_one_quadForm_core`, and
+`colouredHamiltonian_fundamental_quadForm_core`/`..._adjoint_quadForm_core`), every core element is a
+finite sum of elementary tensors (`colourFibre_repr`, `colourSum`, with components
+`∑ k, v k i • x k` by `colourSum_ofLp`), and the form of such a sum is
+`colouredHamiltonian_smul_one_quadForm_sum` — the cross terms live in the mixed components, so it is
+not a sum of per-tensor values.  Closedness of the colour operators is not claimed.
+
+The gluon factor is carried on the same footing: `adjRep` is
+the adjoint representation on `ℂ³` (`(T^a)_{bc} = −i ε^{abc}`), it closes on the same algebra
+(`adjRep_commutator`: `[T^a, T^b] = i ε^{abc} T^c`) and its Casimir is a matrix identity,
+`Σ_a (T^a)² = 2 · 1` (`adjRep_casimir`), i.e. `C_A = 2`; so `adjModeVec c v` carries `2 v`
+(`adjColourEnergy_adjModeVec`) and the two factors stand in the ratio `C_A/C_F = 8/3`
+(`casimir_ratio`).  **B:** the fold into `quadForm (ymHamiltonian …)` is proved
+for a diagonal colour energy `µ • 1` on the whole coloured core — a general colour matrix is still
+evaluated only through its diagonal part, nothing is claimed for the norm of the coloured operator,
+and no colour-singlet space combining the `ℂ²` and `ℂ³` fibres is built; the occupation completion
+carrying `colourEnergyOp` is still a separate model from the field fibre.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.
