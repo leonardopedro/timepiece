@@ -108,19 +108,36 @@ jobs:
           ./patches/check-katex.sh
 
   # ---------------------------------------------------------------------------
-  # Doc-index freshness. One plain probe, one exit code — the `ax` /healthz
-  # pattern (../ax, Apache-2.0) applied as CI, same shape as ../test's
-  # site-check workflow. Python-stdlib only: DOC_INDEX.md + the versioned
-  # state/doc_index.json must match a fresh rebuild (typos index discipline).
+  # Doc-index determinism. DOC_INDEX.md and state/doc_index.json are rendered
+  # from the doc corpus by scripts/doc_index.py, so they are generated, not
+  # tracked (see .gitignore) — a committed copy conflicts on every merge that
+  # touches a document. The gate is therefore not "the committed copy is
+  # fresh" but "the renderer is deterministic": two consecutive rebuilds must
+  # be byte-identical, which still fails on a renderer bug or an unparseable
+  # document.
   # ---------------------------------------------------------------------------
   docs:
-    name: doc index freshness (doc_index.py --check)
+    name: doc index determinism (two doc_index.py rebuilds agree)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # actions/checkout@v7.0.1
 
-      - name: DOC_INDEX.md + state/doc_index.json fresh?
-        run: python3 scripts/doc_index.py --check
+      - name: DOC_INDEX.md + state/doc_index.json rebuild deterministically
+        run: |
+          python3 scripts/doc_index.py
+          cp DOC_INDEX.md DOC_INDEX.first
+          cp state/doc_index.json doc_index.first.json
+          python3 scripts/doc_index.py
+          diff -u DOC_INDEX.first DOC_INDEX.md
+          python3 - <<'PY'
+          import json, sys
+          a = json.load(open('doc_index.first.json'))
+          b = json.load(open('state/doc_index.json'))
+          a.pop('generated_at', None)
+          b.pop('generated_at', None)
+          if a != b:
+              sys.exit('doc_index.json differs between two rebuilds')
+          PY
 
   # ---------------------------------------------------------------------------
   # G6: the board rollup is a gate, not a script someone has to remember.

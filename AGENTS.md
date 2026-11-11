@@ -22,8 +22,11 @@ formalization project.
   **Read this first** to identify the next development target.
 - **`CONSOLIDATED_PLAN.md`**: the single plan. ~16,400 lines, append-only, newest state
   entry at the end. Reached through the routing table above, not read end to end.
-- **`DOC_INDEX.md`**: generated backlink graph over the documentation corpus
-  (`python3 scripts/doc_index.py`).
+- **`DOC_INDEX.md`** (+ `state/doc_index.json`): the generated backlink graph over the
+  documentation corpus (`python3 scripts/doc_index.py`). Both are **generated and untracked**
+  (`.gitignore`): they are derived entirely from the docs, so a committed copy conflicted on every
+  merge that touched a document. Render them on demand; CI checks that two consecutive rebuilds
+  are byte-identical rather than that a committed copy is fresh.
 - **`/` (repo root)**: The Lean 4 project root. The library entry point is
   `RiemannProof.lean` (root-level aggregator; imports the `UsedRoute.*`,
   `UnusedRoute.*`, `RandomMap.*` modules). The former `RiemannProof/`
