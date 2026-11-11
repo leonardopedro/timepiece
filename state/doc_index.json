@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generated_at": "2026-11-11T06:12:38+00:00",
+ "generated_at": "2026-11-11T06:13:43+00:00",
  "docs": [
   {
    "path": "AGENTS.md",
@@ -1148,7 +1148,7 @@
   {
    "path": "SM_ESA_COMPLETION_PLAN.md",
    "title": "Full Standard-Model ESA: completion plan and implementation audit",
-   "lines": 2051,
+   "lines": 2059,
    "headings": [
     "# Full Standard-Model ESA: completion plan and implementation audit",
     "## 1. Fix the mathematical endpoint before proving it",

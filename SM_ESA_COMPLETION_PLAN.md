@@ -1962,10 +1962,18 @@ This is a **condition on the data**, not a theorem:
 * If `λ v₀² ≤ 10 + 6 λ` (in particular for `v₀² ≤ 6` or small `λ`), then
   `E[Δ_S W] > 0` and the `p = 1` gap **fails**.  In that regime `PotSelfBound`
   cannot hold with any constant, and the cross-term upper bound of §38 is not
-  available at `p = 1`.
+  available at `p = 1`.* The `smMagG`/`smMagW`/`smCovD` non-negative terms raise the threshold further.
+  Writing `G = 2 ∑_{magG,magW,covD} |∇_S Φ_r|² ≥ 0`, the exact necessary condition is
 
-* The `smMagG`/`smMagW`/`smCovD` non-negative terms raise the threshold further,
-  so  `10 + 6 λ` is a **lower bound** on the required `λ v₀²`.
+```
+  λ v₀²  ≥  10 + 6 λ  +  E[G] / (8 λ) ,
+```
+
+  so `10 + 6 λ` is a **lower bound** on the required `λ v₀²`, attained only when the
+  non-abelian and covariant-derivative terms vanish (`gs·fabc = gw·eabc = gw·tgen =
+  gy·ygen = 0`).  (For a quadratic form `Q` with
+  `∂_i Q = ∑_j a_{ij} x_j`, `E[|∇Q|²] = ∑_{i,j} a_{ij}²`, so `E[G]` is an explicit
+  non-negative polynomial in the couplings and structure constants.)
 
 * The origin is the worst point: `Δ_S W|₀ = 80 − 8 λ v₀²`, negative exactly when
   `λ v₀² > 10`.
