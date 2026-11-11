@@ -21607,3 +21607,53 @@ errors and no new warnings.  `#print axioms` on all six new declarations (`sum_s
 `colourModeVec_apply`, `casimir_mulVec`, `sum_mulVec_mulVec`, `colourEnergy_colourModeVec`,
 `colourEnergy_colourModeVec_eq`) gives only `propext`, `Classical.choice`, `Quot.sound`.
 
+## State of the project — 2026-11-11m: the coloured actions are bounded operators
+
+The 2026-11-11l entry built `fundMode d` and closed with a boundary: `colourAct` and
+`colourEnergy` are families, and their boundedness on the completion "is not claimed here".  It is
+claimed now, and with the sharp constant.  The section is at the end of the colour block of
+`BookProof.Qym.ChapterYangMillsFieldStrengthSplit`, before the Friedrichs-side section.
+
+**1. The pointwise identity.**  `norm_fundRep_mulVec`: `‖T^a v‖ = ‖v‖/2` on `ℂ²` — an *equality*,
+not an entry bound.  Why it holds structurally: each Pauli matrix is a signed coordinate permutation
+(`σ^x` swaps, `σ^y` swaps with a factor `±i`, `σ^z` fixes), so after the `1/2` the coloured norm is
+exactly halved, under the sup norm that `Fin 2 → ℂ` carries.  Proof: a coordinate formula
+`‖(T^a v) i‖ = ‖v (if a = 2 then i else flip)‖/2` with `flip` the coordinate flip
+(`flip2_involutive`), then both `pi_norm_le_iff_of_nonempty` directions.  This is the fact a lossy
+"entrywise `1/2`" bound would have thrown away, and the difference is the constant in §3.
+
+**2. The lift to the completion.**  `colourAct_norm_le` restates §1 coefficientwise;
+`colourAct_memℓp` propagates square-summability via `Summable.of_nonneg_of_le`, so
+`colourActOp a f := ⟨colourAct a f, _⟩` is a vector of `fundMode d`; and
+`colourActOp_norm_le` is the `ℓ²` bound `‖colourActOp a f‖ ≤ ‖f‖/2`, from
+`fundMode_norm_sq_eq_tsum` (the `fundMode` analogue of `norm_sq_eq_tsum`) plus `sq_le_sq`.
+
+**3. The operator.**  `colourActOp_add`/`colourActOp_smul` give
+`colourActLinear a : fundMode d →ₗ[ℂ] fundMode d` (additivity read off `Matrix.mulVec_add`), and
+`colourActCLM a` is its `mkContinuous` realisation with constant `1/2`
+(`colourActCLM_norm_le`).  `colourActOp_colourModeVec` records what the operator does on a mode
+vector: `c ⊗ v ↦ c ⊗ (T^a v)` — the Fock coefficients are untouched, as in 2026-11-11l.
+
+**4. The Casimir is a scalar, not just a bounded operator.**  `colourEnergy_eq_smul` proves
+`colourEnergy f n = (3/4) • f n` for *every* `f` and *every* `n`: `Σ_a T^a T^a = (3/4)·1` is a
+matrix identity, so the mode-vector computation of 2026-11-11l was never using the mode structure.
+Hence `colourEnergyOp f := (3/4) • f` with `colourEnergyOp_apply` matching `colourEnergy`
+coefficientwise, `norm_colourEnergyOp`: `‖C_F f‖ = (3/4)‖f‖`, and `colourEnergyCLM` as `C_F` times
+the identity (`colourEnergyCLM_apply`).  So `C_F` extracts on the whole completion, not only on
+`c ⊗ v`.
+
+**5. What is *not* claimed.**  These are bounded operators on the coloured completion; nothing folds
+`C_F` into the quartic colour energy of §3b.2b or into `quadForm (ymHamiltonian …)`, no spectral
+consequence is drawn, and `colourActCLM`'s norm is bounded by `1/2` rather than proved *equal* to
+it — §1 shows the constant is attained pointwise, but no mode vector is exhibited on which the
+operator norm is attained.  `RootModeIdentification` remains uninhabited, unaffected by this.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors; the file's remaining warnings are the pre-existing `maxHeartbeats` annotations (replayed,
+not new), and the two over-long lines this section inherited in its own docstrings were rewrapped.
+`#print axioms` on all thirteen new declarations (`norm_fundRep_mulVec`, `fundMode_norm_sq_eq_tsum`,
+`colourAct_norm_le`, `colourAct_memℓp`, `colourActOp_norm_le`, `colourActOp_colourModeVec`,
+`colourActOp_add`, `colourActOp_smul`, `colourActCLM_norm_le`, `colourEnergy_eq_smul`,
+`colourEnergyOp_apply`, `norm_colourEnergyOp`, `colourEnergyCLM_apply`) gives only `propext`,
+`Classical.choice`, `Quot.sound`.
+

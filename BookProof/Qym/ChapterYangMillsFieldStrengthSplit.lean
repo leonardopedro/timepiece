@@ -1392,7 +1392,8 @@ above.  This section states that identification and proves what it yields.
 * **`levi_antisym`**, **`su2Struct_antisym`**, **`su2Struct_jacobi`** — the instance **satisfies**
   the two hypotheses of §3b.2, so no side condition is left open for it;
 * **`colourTensor_su2`**, **`su2_casimir_adjoint`**, **`su2_casimir_adjoint_value`**,
-  **`su2_colourWeight_sum`** — the colour factor, computed: `K_{abcd} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}`,
+  **`su2_colourWeight_sum`** — the colour factor, computed:
+  `K_{abcd} = δ_{ac}δ_{bd} − δ_{ad}δ_{bc}`,
   `Σ_{ab} f_{abe}f_{abd} = 2δ_{ed}` (`C_A = 2`), and `Σ_{abc} f_{abc}² = C_A·dim(adj) = 6`;
 * **`pauli`**, **`fundRep`**, **`fundRep_commutator`**, **`su2_casimir_fundamental`**,
   **`fundRep_trace_mul`** — the **fundamental representation** `T^a = σ^a/2` on `ℂ²`: it closes with
@@ -1456,6 +1457,11 @@ above.  This section states that identification and proves what it yields.
 * **`fundMode`**, **`colourModeVec`**, **`colourEnergy`** — the `ℂ²` colour factor of a mode: the
   completion carries a colour fibre, and on `c ⊗ v` the Casimir multiplies `v` by `C_F = 3/4` while
   leaving the Fock coefficients `c n` untouched (`colourEnergy_colourModeVec`);
+* **`colourActCLM`**, **`colourEnergyCLM`** — the two coloured actions as *bounded operators* on the
+  completion: `‖colourActCLM a f‖ ≤ (1/2)‖f‖`, the constant being sharp because
+  `‖T^a v‖ = ‖v‖/2` pointwise (`norm_fundRep_mulVec`), and `colourEnergyCLM` is `C_F` times the
+  identity, with `‖C_F f‖ = (3/4)‖f‖` (`norm_colourEnergyOp`).  Neither touches the Fock
+  coefficients (`colourActOp_colourModeVec`);
 * **`coreNormSq_tendsto`**, **`gap_closed_in_coreLp`**, **`root_spectral_gap_closed`**,
   **`root_ground_bound_closed`** — closedness of the bound: a lower bound `K‖·‖² ≤ q` survives an
   ℓ² limit whenever the form values converge, so the S2 gap and the certificate's ground threshold
@@ -2426,8 +2432,10 @@ and leaves the Fock coefficients `c n` untouched.  This is the mode-factor form 
 `su2_casimir_fundamental` — the colour factor is dressed with the number content, and `C_F` still
 extracts as a scalar.
 
-**Boundary.**  `colourAct` and `colourEnergy` are defined on the underlying families, not as
-operators on `fundMode d`; their boundedness on the completion is not claimed here.
+**Boundary.**  `colourAct` and `colourEnergy` are first defined on the underlying families.  The
+bounded operators `colourActCLM`/`colourEnergyCLM` below are their extension to the completion;
+they stay on the colour fibre, so nothing here folds `C_F` into the quartic colour energy of §3b.2b
+or into `quadForm (ymHamiltonian …)`.
 -/
 
 /-- The Fock core completed with a colour `ℂ²` factor: square-summable families on the occupation
@@ -2506,6 +2514,172 @@ theorem colourEnergy_colourModeVec_eq (c : CoreCoeff d) (v : Fin 2 → ℂ) :
   rw [colourModeVec_apply, smul_smul, smul_smul]
   congr 1
   ring
+
+def flip2 (i : Fin 2) : Fin 2 := if i = 0 then 1 else 0
+
+theorem flip2_involutive (i : Fin 2) : flip2 (flip2 i) = i := by
+  fin_cases i <;> simp [flip2]
+
+theorem norm_fundRep_mulVec (a : Fin 3) (v : Fin 2 → ℂ) :
+    ‖(fundRep a).mulVec v‖ = ‖v‖ / 2 := by
+  have hcoord : ∀ i : Fin 2,
+      ‖(fundRep a).mulVec v i‖ = ‖v (if a = 2 then i else flip2 i)‖ / 2 := by
+    intro i
+    by_cases ha : a = 2
+    · subst ha
+      fin_cases i <;>
+        simp [fundRep, pauli, Matrix.mulVec, div_eq_mul_inv, mul_comm]
+    · have ha01 : a = 0 ∨ a = 1 := by fin_cases a <;> simp_all
+      rcases ha01 with rfl | rfl <;> fin_cases i <;>
+        simp [fundRep, pauli, Matrix.mulVec, flip2, ha, div_eq_mul_inv, mul_comm]
+  have hle : ‖(fundRep a).mulVec v‖ ≤ ‖v‖ / 2 := by
+    rw [pi_norm_le_iff_of_nonempty]
+    intro i
+    rw [hcoord i]
+    exact div_le_div_of_nonneg_right (norm_le_pi_norm v _) (by norm_num)
+  have hrev : ∀ i : Fin 2, ‖v i‖ ≤ 2 * ‖(fundRep a).mulVec v‖ := by
+    intro i
+    have hkey : (if a = 2 then (if a = 2 then i else flip2 i)
+        else flip2 (if a = 2 then i else flip2 i)) = i := by
+      by_cases ha : a = 2
+      · simp [ha]
+      · simp only [ha, if_false, flip2_involutive]
+    have h := hcoord (if a = 2 then i else flip2 i)
+    rw [hkey] at h
+    have h2 := norm_le_pi_norm ((fundRep a).mulVec v) (if a = 2 then i else flip2 i)
+    rw [h] at h2
+    linarith
+  have hge : ‖v‖ ≤ 2 * ‖(fundRep a).mulVec v‖ := by
+    rw [pi_norm_le_iff_of_nonempty]
+    exact hrev
+  linarith
+
+theorem fundMode_norm_sq_eq_tsum (f : fundMode d) : ‖f‖ ^ 2 = ∑' n, ‖f n‖ ^ 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  rw [lp.norm_eq_tsum_rpow hp, h2]
+  simp only [Real.rpow_two]
+  rw [← Real.sqrt_eq_rpow, Real.sq_sqrt (tsum_nonneg fun n => by positivity)]
+
+theorem colourAct_norm_le (a : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    ‖colourAct a f n‖ ≤ ‖f n‖ / 2 := by
+  rw [colourAct, norm_fundRep_mulVec]
+
+theorem colourAct_memℓp (a : Fin 3) (f : fundMode d) : Memℓp (colourAct a f) 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  refine memℓp_gen ?_
+  rw [h2]
+  simp only [Real.rpow_two]
+  refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_) (hf.mul_left (1 / 4))
+  have h := colourAct_norm_le a f n
+  have hnn : 0 ≤ ‖colourAct a f n‖ := norm_nonneg _
+  calc ‖colourAct a f n‖ ^ 2 ≤ (‖f n‖ / 2) ^ 2 := pow_le_pow_left₀ hnn h 2
+    _ = 1 / 4 * ‖f n‖ ^ 2 := by ring
+
+theorem colourActOp_norm_le (a : Fin 3) (f : fundMode d) :
+    ‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖ ≤ ‖f‖ / 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  have hterm : ∀ n : Fin d → ℕ, ‖colourAct a f n‖ ^ 2 ≤ 1 / 4 * ‖f n‖ ^ 2 := by
+    intro n
+    have h := colourAct_norm_le a f n
+    have hnn : 0 ≤ ‖colourAct a f n‖ := norm_nonneg _
+    have hmul : ‖colourAct a f n‖ * ‖colourAct a f n‖
+        ≤ (‖f n‖ / 2) * (‖f n‖ / 2) := mul_self_le_mul_self hnn h
+    calc ‖colourAct a f n‖ ^ 2 = ‖colourAct a f n‖ * ‖colourAct a f n‖ := pow_two _
+      _ ≤ (‖f n‖ / 2) * (‖f n‖ / 2) := hmul
+      _ = 1 / 4 * ‖f n‖ ^ 2 := by ring
+  have hsum : Summable fun n => 1 / 4 * ‖f n‖ ^ 2 := hf.mul_left (1 / 4)
+  have hsum' : Summable fun n => ‖colourAct a f n‖ ^ 2 :=
+    hsum.of_nonneg_of_le (fun n => by positivity) hterm
+  have hbound : ∑' n, ‖colourAct a f n‖ ^ 2 ≤ (‖f‖ / 2) ^ 2 := by
+    calc ∑' n, ‖colourAct a f n‖ ^ 2 ≤ ∑' n, 1 / 4 * ‖f n‖ ^ 2 :=
+          hsum'.tsum_le_tsum hterm hsum
+      _ = 1 / 4 * ∑' n, ‖f n‖ ^ 2 := tsum_mul_left
+      _ = 1 / 4 * ‖f‖ ^ 2 := by rw [← fundMode_norm_sq_eq_tsum]
+      _ = (‖f‖ / 2) ^ 2 := by ring
+  have hsq : ‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖ ^ 2
+      ≤ (‖f‖ / 2) ^ 2 := by
+    rw [fundMode_norm_sq_eq_tsum]
+    exact hbound
+  calc ‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖
+      = |‖(⟨colourAct a f, colourAct_memℓp a f⟩ : fundMode d)‖| :=
+        (abs_of_nonneg (norm_nonneg _)).symm
+    _ ≤ |‖f‖ / 2| := sq_le_sq.mp hsq
+    _ = ‖f‖ / 2 := abs_of_nonneg (by positivity)
+
+/-- The colour action as a vector of the coloured completion. -/
+noncomputable def colourActOp (a : Fin 3) (f : fundMode d) : fundMode d :=
+  ⟨colourAct a f, colourAct_memℓp a f⟩
+
+theorem colourActOp_apply (a : Fin 3) (f : fundMode d) (n : Fin d → ℕ) :
+    colourActOp a f n = (fundRep a).mulVec (f n) := rfl
+
+/-- **The colour action leaves the Fock coefficients alone**: on `c ⊗ v` it acts as
+`c ⊗ (T^a v)`. -/
+theorem colourActOp_colourModeVec (a : Fin 3) (c : CoreCoeff d) (v : Fin 2 → ℂ) :
+    colourActOp a (colourModeVec c v) = colourModeVec c ((fundRep a).mulVec v) := by
+  ext n
+  rw [colourActOp_apply, colourModeVec_apply, colourModeVec_apply, Matrix.mulVec_smul]
+
+theorem colourActOp_add (a : Fin 3) (f g : fundMode d) :
+    colourActOp a (f + g) = colourActOp a f + colourActOp a g := by
+  ext n
+  simp only [colourActOp, colourAct, lp.coeFn_add, Pi.add_apply, Matrix.mulVec_add]
+
+theorem colourActOp_smul (a : Fin 3) (c : ℂ) (f : fundMode d) :
+    colourActOp a (c • f) = c • colourActOp a f := by
+  ext n
+  simp only [colourActOp, colourAct, lp.coeFn_smul, Pi.smul_apply, Matrix.mulVec_smul]
+
+/-- **The colour action on the completion** as a linear map. -/
+noncomputable def colourActLinear (a : Fin 3) : fundMode d →ₗ[ℂ] fundMode d where
+  toFun := colourActOp a
+  map_add' := colourActOp_add a
+  map_smul' := colourActOp_smul a
+
+/-- **The colour action is bounded, with constant `1/2`** — the sharp one, since `‖T^a v‖ = ‖v‖/2`
+pointwise. -/
+noncomputable def colourActCLM (a : Fin 3) : fundMode d →L[ℂ] fundMode d :=
+  (colourActLinear a).mkContinuous (1 / 2) fun f => by
+    simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
+
+theorem colourActCLM_norm_le (a : Fin 3) (f : fundMode d) :
+    ‖colourActCLM a f‖ ≤ (1 / 2) * ‖f‖ := by
+  simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
+
+/-- The Casimir acts on every coloured vector as `C_F = 3/4` — not just on mode vectors: the
+`2 × 2` identity is the whole statement. -/
+theorem colourEnergy_eq_smul (f : fundMode d) (n : Fin d → ℕ) :
+    colourEnergy f n = (3 / 4 : ℂ) • f n := by
+  simp only [colourEnergy]
+  rw [sum_mulVec_mulVec, casimir_mulVec]
+
+/-- **The colour energy on the completion**: multiplication by `C_F`. -/
+noncomputable def colourEnergyOp (f : fundMode d) : fundMode d := (3 / 4 : ℂ) • f
+
+theorem colourEnergyOp_apply (f : fundMode d) (n : Fin d → ℕ) :
+    colourEnergyOp f n = colourEnergy f n := by
+  rw [colourEnergyOp, lp.coeFn_smul, Pi.smul_apply, colourEnergy_eq_smul]
+
+/-- **`C_F` extracts on the completion**: `‖C_F f‖ = (3/4)‖f‖`. -/
+theorem norm_colourEnergyOp (f : fundMode d) :
+    ‖colourEnergyOp f‖ = 3 / 4 * ‖f‖ := by
+  rw [colourEnergyOp, norm_smul]
+  norm_num
+
+/-- **The colour energy as a bounded operator**: `C_F` times the identity. -/
+noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
+  (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
+
+theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp f := by
+  rw [colourEnergyCLM, ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply,
+    colourEnergyOp]
 
 /-! #### Closedness of the bound: the Friedrichs side
 
@@ -2843,7 +3017,8 @@ theorem totalDegree_magWeight_le (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
 
 /-! ## 5. The weight is a nonnegative potential
 
-The comparison also needs `W` to be a *potential*: nonnegative, so that it can only raise the energy.
+The comparison also needs `W` to be a *potential*: nonnegative, so that it can only raise the
+energy.
 It is, for a structural reason — `W = Σ B² + 1` and every `B_m` has real coefficients, so at a real
 configuration each square is a genuine real square.  This closes the "the field strength is a
 legitimate potential" chain: `B` quadratic (degree class), `W` quartic and nonnegative. -/
