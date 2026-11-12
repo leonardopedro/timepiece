@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12f):** “State of the project — 2026-11-12f: the two total actions, the
+> **Newest entry (2026-11-12g):** “State of the project — 2026-11-12g: where the essential
+> self-adjointness of the coloured operator actually lives” (end of file): the split chapter's
+“not claimed” boundary was right but too vague — the route is the direct-sum instrument
+> `dsOp_essentiallySelfAdjointOn` fed by `ym_h_esa`, **not** the nested-Fock lift `ym_dGamma_esa`
+> (a different operator) and **not** a Faris–Lavine hypothesis (the colour mixing is bounded).
+>
+> **Earlier entry (2026-11-12f):** “State of the project — 2026-11-12f: the two total actions, the
 > half-sum, and the symmetric operator” (end of file): `mesonRep`/`glueballRep` are representations of
 > `su(2)` by a Kronecker-sum argument (`kronSum_commutator`) carried along a row-major relabelling;
 > the off-diagonal colour sum over `j ≠ i` is twice its `i < j` part
@@ -22125,3 +22131,50 @@ errors (8091 jobs) and no new warnings; `#print axioms` on all fourteen new decl
 `mesonEquiv`, `mesonRep_eq_reindex`, `mesonRep_commutator`, `glueballEquiv`,
 `glueballRep_eq_reindex`, `glueballRep_commutator`, `colourPairSum_eq_two_mul_upper`,
 `colouredHamiltonian_symmetricOn`) gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+
+## State of the project — 2026-11-12g: where the ESA of the coloured operator actually lives
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` — docstring correction only, no new theorem.
+
+The 2026-11-12f boundary said “symmetry on the core is not essential self-adjointness”, which is
+true, and then pointed at “the Friedrichs and form-domination chapters”, which is where the
+*estimates* live but not where the operator statement is made.  The tree already has the statement
+and the instruments, and saying which ones matters, because the two obvious guesses are both wrong:
+
+* **Not the nested-Fock lift.**  `ym_dGamma_esa` (`Qym/ChapterYangMillsNonAbelianEsa.lean`) is
+  essential self-adjointness of `dΓ(H)` on the finite-particle domain.  `colouredHamiltonian` is
+  `H ⊗ 1_C` on `L²(ℝ⁹⁹; ℂ^N)`: `colourSpace N = PiLp 2 (fun _ : Fin N => L2d 99)` is an `N`-fold
+  `ℓ²` sum
+  of the one-particle space, not a Fock space.  The lift does not transfer, and there is nothing for
+  it to do here.
+* **Not Faris–Lavine.**  `BookProof.FarisLavine.essentiallySelfAdjointOn_of_farisLavine` is a
+  comparison-operator theorem for `H₀ + V` with `V` unbounded relative to `H₀`; it needs a positive
+  `N` with `±i[H, N] ≤ cN` and `N + 1` surjective.  Here the unbounded half is already known to be
+  essentially self-adjoint (`ym_h_esa`, by the Gauss-polynomial core and the Deg–Kato theorem) and
+  the colour part `1 ⊗ C` is a finite-rank bounded symmetric perturbation, which cannot change a
+  deficiency space.  There is no relative-bounded potential left to estimate, so no `N` to build.
+  (FL is genuinely used elsewhere in the tree, e.g. the Navier–Stokes and SIRK chapters.)
+
+**The route is the direct sum.**  `BookProof/ChapterDirectSumEsa.lean` proves
+`dsOp_essentiallySelfAdjointOn`: fibrewise essential self-adjointness on `D i` glues to
+essential self-adjointness of `⊕ᵢ Hᵢ` on the algebraic direct sum of the cores, with no relative
+bound and no commutator estimate.  `colourSpace N` and `lp (fun _ : Fin N => L2d 99) 2` are
+isometric, not definitionally equal (`lp` is a subtype of `PreLp`; the isometry is `lpPiLpₗᵢ`, and
+`rfl` fails), so the identification is a short transfer rather than an instance, but it is a
+transfer of the *same* statement.  Feeding `ym_h_esa` at `D = polyGaussCore 99`,
+`Φ = coreRepPoly 99` gives essential self-adjointness of `H ⊗ 1`, and `1 ⊗ C` is then a bounded
+symmetric perturbation.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
+errors; no line over 100 characters; no API change, so no re-elaboration of the ESA or
+tensor-product chapters is implied.  The amended paragraph is a docstring, and the claim it now
+makes is *checked against the tree*, not merely plausible: `#check` on `ym_h_esa`,
+`ym_dGamma_esa`, `dsOp_essentiallySelfAdjointOn` and `lpPiLpₗᵢ` in a scratch file confirmed each
+signature, and `rfl` was run on the `PiLp`/`lp` identification and **failed**, which is why the text
+says “isometric” rather than “the same space”.
+
+**Still not done.**  `colouredHamiltonian_esa` itself is not stated anywhere: it belongs in
+`Qym/ChapterYangMillsNonAbelianEsa.lean` (which imports this module, so the split chapter cannot
+hold it).  That is the natural next theorem, and it is a transfer plus the bounded-perturbation
+step, not new analysis.

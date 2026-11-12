@@ -3119,8 +3119,25 @@ of the other side.
 **Boundary.**  `colouredHamiltonian_quadForm_core` holds for every `u` in the coloured core and
 uses no symmetry of `C`: it is an identity of complex inner products taken before the real part.
 Symmetry on the core is not essential self-adjointness, and no deficiency index, closedness or
-domain statement is claimed; a bound on the cross term is also not claimed.  (The field operator's
-closures are the subject of the Friedrichs and form-domination chapters, not of this one.)
+domain statement is claimed; a bound on the cross term is also not claimed.
+
+The route to that statement is already laid, and it is a *direct-sum* one, not a Fock one.
+`colourSpace N` is the `N`-fold `ℓ²` sum of `L²(ℝ⁹⁹)` and the field half of `colouredHamiltonian`
+is the direct sum of the operators `ymHamiltonian Φ fabc`.  The two spaces are *isometric* rather
+than definitionally equal (`lp` is a subtype of `PreLp`, related to `PiLp` by `lpPiLpₗᵢ`), and over
+that isometry the coloured core is the algebraic direct sum of `N` copies of the field core.  So
+`colouredHamiltonian_symmetricOn` is the constant-family case `G = fun _ => L2d 99` of the toolbox
+theorem `BookProof.DirectSumEsa.dsOp_symmetricOn`, and the same decomposition gives essential
+self-adjointness: `dsOp_essentiallySelfAdjointOn` glues per-fibre essential self-adjointness — for
+`D = polyGaussCore 99` and `Φ = coreRepPoly 99` that per-fibre input is `ym_h_esa` in
+`Qym/ChapterYangMillsNonAbelianEsa.lean` — to essential self-adjointness of `H ⊗ 1`, and `1 ⊗ C`
+is finite-rank on the colour factor, a bounded symmetric perturbation, which leaves the deficiency
+spaces alone.  No Faris–Lavine hypothesis is needed for that: `H` is already
+known to be essentially self-adjoint by the Gauss-polynomial/Deg–Kato route, and the colour mixing
+is bounded, so there is no relative-bounded potential left to estimate.  The statement cannot be
+made *here* — `Qym/ChapterYangMillsNonAbelianEsa.lean` imports this module — and the nested-Fock
+lift `ym_dGamma_esa` is a different operator (`dΓ(H)` on `𝓕_fin`, not `H ⊗ 1_C` on
+`L²(ℝ⁹⁹; ℂ^N)`), so it does not transfer to `colouredHamiltonian`.
 -/
 
 /-- **The coloured inner product with a general colour matrix**: the field part is the sum over

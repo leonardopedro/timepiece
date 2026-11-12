@@ -905,6 +905,9 @@ off-diagonal real parts (`colouredHamiltonian_quadForm_re_split`), with the off-
 to twice its `i < j` part (`colourPairSum_eq_two_mul_upper`).  That is a statement about the
 form; the *operator* is symmetric too, on the whole coloured core
 (`colouredHamiltonian_symmetricOn`), but symmetry on a core is not essential self-adjointness.
+The route to the latter is the direct-sum instrument `dsOp_essentiallySelfAdjointOn` fed by
+`ym_h_esa` — not the nested-Fock lift `ym_dGamma_esa`, which is a different operator, and not a
+Faris–Lavine hypothesis, since the colour mixing is bounded.
 Nothing is claimed for the norm of the coloured operator,
 and the occupation completion carrying `colourEnergyOp` is still a separate model from the field
 fibre.  **Singlet:** the `ℂ² ⊗ ℂ³` fibre is built — `colourVec 6` with the row-major colour
