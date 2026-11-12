@@ -403,6 +403,79 @@ theorem smNormalForm_esd_iff_parity_sectors (D : SmNormalFormData)
 
 end SmInstance
 
+/-! ## 5. The sector cores are dense graph cores -/
+
+section Dense
+
+variable {U : H →ₗ[ℂ] H}
+
+theorem evenSpace_neg (U : H →ₗ[ℂ] H) : evenSpace (-U) = oddSpace U := by
+  ext x
+  simp only [mem_evenSpace_iff, mem_oddSpace_iff, LinearMap.neg_apply, neg_eq_iff_eq_neg]
+
+/-- **The even part of a dense invariant core is dense in the even sector.**  Hence the restriction
+of a core operator to the even sector has a dense graph core, as the sector reduction requires. -/
+theorem topologicalClosure_evenCore (hU : U ∘ₗ U = LinearMap.id)
+    (hUnorm : ∀ x : H, ‖U x‖ = ‖x‖) (D : Submodule ℂ H)
+    (hDU : ∀ x ∈ D, U x ∈ D) (hDense : Dense (D : Set H)) :
+    (evenCore U D).topologicalClosure = evenSpace U := by
+  have hUc : Continuous (U : H → H) :=
+    AddMonoidHomClass.continuous_of_bound U 1 (fun x => by
+      rw [one_mul]
+      exact (hUnorm x).le)
+  have hec : Continuous (evenPart U) := by
+    unfold evenPart
+    exact continuous_const.smul (continuous_id.add hUc)
+  have hclosed : IsClosed (evenSpace U : Set H) := by
+    have hset : (evenSpace U : Set H) = {x : H | U x - x = 0} := by
+      ext x
+      show x ∈ evenSpace U ↔ U x - x = 0
+      rw [mem_evenSpace_iff, sub_eq_zero]
+    rw [hset]
+    exact isClosed_eq (hUc.sub continuous_id) continuous_const
+  refine le_antisymm (Submodule.topologicalClosure_minimal _ ?_ hclosed) ?_
+  · intro x hx
+    exact hx.2
+  · intro x hx
+    have hxfix : evenPart U x = x := by
+      rw [evenPart, (mem_evenSpace_iff x).mp hx, ← two_smul ℂ x, smul_smul]
+      norm_num
+    have hxcl : x ∈ closure (D : Set H) := by
+      have htop : D.topologicalClosure = ⊤ :=
+        (Submodule.dense_iff_topologicalClosure_eq_top).mp hDense
+      rw [← Submodule.topologicalClosure_coe, htop]
+      exact Submodule.mem_top
+    have hsub : (evenPart U) '' (D : Set H) ⊆ ((evenCore U D : Submodule ℂ H) : Set H) := by
+      rintro _ ⟨y, hy, rfl⟩
+      exact evenPart_mem_core D hDU hU hy
+    have hmem : x ∈ closure ((evenPart U) '' (D : Set H)) :=
+      image_closure_subset_closure_image hec ⟨x, hxcl, hxfix⟩
+    exact closure_mono hsub hmem
+
+theorem evenCore_neg (U : H →ₗ[ℂ] H) (D : Submodule ℂ H) :
+    evenCore (-U) D = oddCore U D := by
+  ext x
+  simp [evenCore, oddCore, evenSpace_neg]
+
+/-- **The odd part of a dense invariant core is dense in the odd sector.** -/
+theorem topologicalClosure_oddCore (hU : U ∘ₗ U = LinearMap.id)
+    (hUnorm : ∀ x : H, ‖U x‖ = ‖x‖) (D : Submodule ℂ H)
+    (hDU : ∀ x ∈ D, U x ∈ D) (hDense : Dense (D : Set H)) :
+    (oddCore U D).topologicalClosure = oddSpace U := by
+  have hneg : (-U) ∘ₗ (-U) = LinearMap.id := by
+    ext x
+    simp only [LinearMap.comp_apply, LinearMap.neg_apply, LinearMap.id_apply, map_neg,
+      neg_neg]
+    exact U_apply_U hU x
+  have hUnorm' : ∀ x : H, ‖(-U) x‖ = ‖x‖ := fun x => by simpa using hUnorm x
+  have hDU' : ∀ x ∈ D, (-U) x ∈ D := fun x hx => by
+    simpa using D.neg_mem (hDU x hx)
+  have h := topologicalClosure_evenCore hneg hUnorm' D hDU' hDense
+  rw [evenCore_neg, evenSpace_neg] at h
+  exact h
+
+end Dense
+
 end
 
 end BookProof.SmPhysicalReduction

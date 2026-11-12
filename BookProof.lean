@@ -4087,6 +4087,18 @@ import BookProof.YangMillsFieldStrength
 import BookProof.Sm.ChapterSmFreeModeExclusion
 
 import BookProof.Sm.ChapterSmFieldStrengthSplit
+-- `ChapterSmPhysicalReductionEsa` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §44 / P5): the closure-level
+-- parity reduction that `smNormalForm_parity` alone cannot give.  For a unitary involution of a
+-- complex inner-product space, `evenSpace = ker (U − 1)` and `oddSpace = ker (U + 1)` are orthogonal
+-- (`inner_eq_zero_of_mem_even_of_mem_odd`) and split every vector (`evenPart_add_oddPart`); when the
+-- core `D` is `U`-invariant and the core operator commutes with `U`, the deficiency space at `z` is
+-- trivial iff both sector deficiency problems are trivial (`deficiencyTrivialAt_iff_sectors`), which
+-- is a statement about the closure, not the core.  Instantiated at the full matter normal form
+-- (`smNormalForm_esd_iff_parity_sectors`, no hypothesis beyond `ParityGradedCoeffs`), with dense
+-- sector graph cores (`topologicalClosure_evenCore`, `topologicalClosure_oddCore`).  Essential
+-- self-adjointness of the sector operators themselves is *not* proved: it is P4's elliptic input
+-- (`PotSelfBound` / `FormDomainComparison`).
+import BookProof.Sm.ChapterSmPhysicalReductionEsa
 
 -- The Wilson plaquette interaction does not spoil the slice split of the lattice gauge
 -- measure: the interaction is a nonnegative local potential, so the Gibbs density is a
