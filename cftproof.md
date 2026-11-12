@@ -275,6 +275,45 @@ Boundary recorded there: the refinement is the product `Ω × Γ` (not a general
 continuous law with no atomic support is still not constructed and remains an input, as does the
 continuum estimate `B1ContinuumEstimate`.
 
+**Landed 2026-11-12, the continuum regularization.** `BookProof/OSReconstruction/ContinuumPrior.lean`
+closes the "continuous law" half of that boundary: the information space now carries a genuine
+probability **measure**, and the dictionary is stated with integrals instead of fiber sums. Axiom
+footprint of every headline theorem: `{propext, Classical.choice, Quot.sound}`; no `sorry`.
+
+* **The measure-theoretic prior.** `ContPrior n Ω` is `μ : Measure Ω` with `IsProbabilityMeasure μ`
+  and `n` measurable resolved supports; `ContPrior.mass` / `.joint` are `μ.real` of the informing
+  event and of the conjunction, `.prop` is the normalized indicator, `.expect` is the integral
+  against `μ`. `ContPrior.expect_prop` proves `∫ prop i ∂μ = 1` for every prior of positive mass,
+  and `ContPrior.corr_eq` / `corr_eq_one_iff` restate the B0 dictionary (`joint / (mass * mass)`,
+  unit correlation iff the joint measure factorizes). Nothing here is a point-evaluation vector in
+  `L²`.
+* **Refinement invariance (pushforward).** `ContRefinement` refines `Ω` to `Ω × Γ` with an arbitrary
+  probability measure on the product — the tag may stay correlated with the coarse information —
+  pulls the supports back along `Prod.fst`, and takes `ContRefinement.coarse` to be the pushforward
+  `Measure.map Prod.fst`. Then `mass_refined_eq_coarse`, `joint_refined_eq_coarse`,
+  `corr_refined_eq_coarse` and `expect_refined_eq_coarse` say marginalization changes no B0 number;
+  the proofs are `Measure.map_apply` / `integral_map`, the exact analogue of the finite fiber sums.
+* **Exhaustion/truncation consistency.** For a monotone exhaustion `A k ↑ inf i`,
+  `ContPrior.tendsto_mass_of_iUnion` gives `μ.real (A k) → μ.real (inf i)`, `tendsto_pair_of_iUnion`
+  does the same with both supports exhausted at once, and the bundled
+  `ContPrior.tendsto_dictionary_of_iUnion` states the whole dictionary in one `Tendsto`: the mass
+  vector, the joint matrix and the correlation matrix of the truncations converge coordinatewise to
+  the continuum values (the correlations under the hypothesis that the limiting masses are
+  positive). So the finite regulator's numbers are limits of the continuum ones — the finite packet
+  is a genuine regularization of this object.
+* **Acceptance test on a continuum information space.** `unitIntervalLaw` (Lebesgue measure
+  restricted to `[0,1]`, a genuine probability measure) with both supports `[0, 1/2]`:
+  `correlatedInfoCont_corr : corr 0 1 = 2` and `correlatedInfoCont_corr_ne_one` reproduce the finite
+  acceptance test with integrals rather than sums.
+
+Boundary recorded there: the continuum *law* is still an input — `IsProbabilityMeasure` is assumed,
+never derived, and no Euclidean measure is constructed; supports are measurable sets of positive
+finite measure, and the propositions are normalized indicators (not products of independent number
+densities). The bundled exhaustion statement converges the dictionary coordinatewise, not in a
+single operator topology, and the correlation clause needs the limiting masses to be positive. No
+spatial translation, no unitary `ℋ_OS → ℱ`; B2/B3 remain conditional, and `B1ContinuumEstimate` is
+still an explicit input.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a

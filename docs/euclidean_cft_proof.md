@@ -297,3 +297,35 @@ footprint is `{propext, Classical.choice, Quot.sound}`.
 
 Boundary: the refinement is the product `Ω × Γ`, not a general coarsening map; the resolved support
 is finite, so the continuous law without atomic support and the continuum estimate stay inputs.
+
+### The continuum prior and its consistency estimates (2026-11-12)
+
+`BookProof/OSReconstruction/ContinuumPrior.lean` supplies the continuous law the B0 records leave
+as an input: the information space now carries a genuine probability *measure* and the dictionary
+is stated with integrals.  No `sorry`; headline theorems depend only on
+`{propext, Classical.choice, Quot.sound}`.
+
+* The prior: `ContPrior n Ω` — a probability measure `μ` on a measurable `Ω` plus `n` measurable
+  resolved supports; `ContPrior.mass` / `.joint` are `μ.real` of the informing event and of the
+  conjunction, `.prop` the normalized indicator, `.expect` the integral against `μ`.
+  `ContPrior.expect_prop` (`∫ prop i ∂μ = 1`), `ContPrior.corr_eq`
+  (`joint / (mass * mass)`) and `ContPrior.corr_eq_one_iff` (unit correlation iff the joint
+  factorizes) restate the B0 dictionary.
+* Refinement by pushforward: `ContRefinement` on `Ω × Γ` with an arbitrary joint law, supports
+  pulled back along `Prod.fst`, `ContRefinement.coarse` the pushforward `Measure.map Prod.fst`, and
+  `mass_refined_eq_coarse`, `joint_refined_eq_coarse`, `corr_refined_eq_coarse`,
+  `expect_refined_eq_coarse` — marginalization changes no B0 number (`Measure.map_apply`,
+  `integral_map`: the measure-theoretic fiber sums).
+* Exhaustion: for a monotone `A k ↑ inf i`, `ContPrior.tendsto_mass_of_iUnion` and
+  `tendsto_pair_of_iUnion` (both supports exhausted at once) give convergence of the truncation
+  masses to the continuum masses, and the bundled `ContPrior.tendsto_dictionary_of_iUnion` collects
+  the mass vector, the joint matrix and the correlation matrix into one coordinatewise `Tendsto`
+  (correlations under positive limiting masses). The finite packet is therefore a regularization of
+  this object, not a different one.
+* Acceptance test with integrals: `unitIntervalLaw` (Lebesgue measure on `[0,1]`) with both
+  supports `[0, 1/2]` gives `correlatedInfoCont_corr : corr 0 1 = 2`.
+
+Boundary: the law is assumed (`IsProbabilityMeasure` is never derived) and no Euclidean measure is
+constructed; supports are measurable sets of positive finite measure and the propositions remain
+normalized indicators; the exhaustion lemmas are per support and per pair; `B1ContinuumEstimate`
+stays an explicit input, as do B2/B3.

@@ -637,6 +637,9 @@ import BookProof.OSReconstruction.ObservablePrior
 -- B0's remaining clauses: conditional probability at a spatial point, refinement consistency
 -- and the infinite-information representation (`cftproof.md`, same deliverable).
 import BookProof.OSReconstruction.PriorRefinement
+-- The continuum half of B0: a genuine probability measure on the information space, the dictionary
+-- in integral form, refinement invariance (pushforward) and exhaustion convergence.
+import BookProof.OSReconstruction.ContinuumPrior
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
