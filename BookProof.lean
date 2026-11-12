@@ -4099,6 +4099,30 @@ import BookProof.Sm.ChapterSmFieldStrengthSplit
 -- self-adjointness of the sector operators themselves is *not* proved: it is P4's elliptic input
 -- (`PotSelfBound` / `FormDomainComparison`).
 import BookProof.Sm.ChapterSmPhysicalReductionEsa
+-- `ChapterSmBrstQuotient` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §46): the algebra P5's physical half
+-- needs, on top of §44's parity split.  Nilpotency puts the gauge orbit inside the closed space
+-- (`gauge_le_ker`); with the charge symmetric for the charge form `kform η x y = ⟪x, ηy⟫`, every
+-- exact vector is null against every closed vector (`kform_ghost_null`), so the charge form is
+-- **well defined on the cohomology** (`kform_well_defined`); a unitary involution commuting with the
+-- charge preserves both spaces (`U_mem_closed`, `U_mem_gauge`), the sectors are orthogonal for the
+-- charge form too (`kform_eq_zero_of_mem_even_of_mem_odd`), the quadratic form splits
+-- (`kform_quadForm_split`), and non-negativity is therefore sector-by-sector
+-- (`kform_quadForm_nonneg`, `physicalPositivity_nonneg_of_sectors`).  The Kugo–Ojima condition
+-- `PhysicalPositivity` (non-negative on the closed space, radical exactly the gauge orbit) is a
+-- **named input, not a theorem**: the quartet structure of the matter model's charge is not built, so
+-- no physical inner product is claimed.
+-- `ChapterSmSectorFormDomain` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity
+-- sector, and the answer is that the sector does not exist as a weakening.  `coupledParity` is
+-- diagonal on the outer occupation index (`(coupledParity f).ofLp A = fockSign A • f.ofLp A`) and
+-- leaves the inner 163-coordinate factor alone, so **every elementary tensor is a parity
+-- eigenvector** (`coupledParity_deltaFun`), the inner test class sits inside each sector whole
+-- (`deltaFun_mem_evenSpace_iff`), and the coupled tensor acts on it componentwise
+-- (`coupledOp_one_deltaFun`, `coupledOp_one_add_deltaFun`).  Hence a relative bound on the even
+-- sector alone already yields the scalar bound (`scalarBound_of_evenSectorBound`), and likewise on
+-- the odd sector (`scalarBound_of_oddSectorBound`), while `sectorComparison_iff_formDomainComparison`
+-- shows §32's named input read on any sector is literally the whole statement.  P4 therefore does not
+-- decompose over the parity split: `PotSelfBound` stays a single open analytic problem, and the split
+-- localises the closure (§44), not the elliptic estimate.
 
 -- The Wilson plaquette interaction does not spoil the slice split of the lattice gauge
 -- measure: the interaction is a nonnegative local potential, so the Gibbs density is a
