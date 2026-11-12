@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# SM/BRST section guards — an aggressor gate over the *prose and declaration*
+# pairs whose "simplification" is to delete one side.
+#
+# Background.  Four of the recent SM sections state a result together with the
+# boundary that stops it from being read as more than it is, and in each case the
+# cheap way to make a later edit look green is to drop one half of the pair:
+#
+#   1. §44/§45 (parity reduction) — `deficiencyTrivialAt_iff_sectors` reduces the
+#      closure problem to the two parity sectors, but P4 does **not** decompose
+#      over the split: `sectorComparison_iff_formDomainComparison` says the §32
+#      named input read on a sector is the whole statement, so `PotSelfBound`
+#      stays one open analytic problem.  Resolving the tension by dropping either
+#      the sector reduction or the "no weakening" verdict is the failure mode.
+#   2. §46/§47 (BRST) — the charge form is well defined on the cohomology
+#      (`kform_well_defined`), and `PhysicalPositivity` is *derived* from quartet
+#      data (`physicalPositivity_of_quartet`) while the Standard Model's own
+#      quartet data is still missing.  Dropping either the derivation or the
+#      "SM data missing" caveat is the failure mode.
+#   3. The QYM field-strength split — the Pauli-coordinate entry checks run only
+#      under `set_option maxHeartbeats 1000000 in`, and the dense coloured core
+#      (`dense_colouredCore`) is what makes the split a statement about the core.
+#      Deleting the entry checks, or the denseness, "resolves" the conflict.
+#   4. CONSOLIDATED_PLAN.md — the QYM Stone-flow row and the meson/glueball
+#      square entries are the two-way record of that track; a plan edit that
+#      keeps one and drops the other is the conflict silently closed.
+#
+# The gate is deliberately textual: it cannot certify mathematics, only that a
+# later change did not *remove* the half of a pair that carries the caveat.
+#
+# Exit 0 = all guarded pairs intact, 1 = at least one side missing.
+
+set -u
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$repo_root" || exit 1
+
+FAILED=0
+fail() {
+    echo "[FAIL] $1"
+    FAILED=1
+}
+
+# `require <file> <needle> <why>` — the file must exist and contain the literal.
+require() {
+    local file="$1" needle="$2" why="$3"
+    if [ ! -f "$file" ]; then
+        fail "$file missing ($why)"
+        return
+    fi
+    if ! grep -qF -- "$needle" "$file"; then
+        fail "$file no longer contains '$needle' ($why)"
+    fi
+}
+
+BOOKPLAN=BookProof.lean
+
+# ---- 1. §44 parity reduction (closure level) ---------------------------------
+require "BookProof/Sm/ChapterSmPhysicalReductionEsa.lean" \
+    "theorem deficiencyTrivialAt_iff_sectors" \
+    "§44: the sector reduction of the closure problem"
+require "BookProof/Sm/ChapterSmPhysicalReductionEsa.lean" \
+    "theorem smNormalForm_esd_iff_parity_sectors" \
+    "§44: the instance at the full matter normal form"
+require "$BOOKPLAN" "deficiencyTrivialAt_iff_sectors" \
+    "§44 comment block must keep naming the sector reduction"
+
+# ---- 2. §45 the sector does NOT weaken P4 ------------------------------------
+require "BookProof/Sm/ChapterSmSectorFormDomain.lean" \
+    "theorem coupledParity_deltaFun" \
+    "§45: every elementary tensor is a parity eigenvector"
+require "BookProof/Sm/ChapterSmSectorFormDomain.lean" \
+    "theorem sectorComparison_iff_formDomainComparison" \
+    "§45: a sector reading of the named input IS the whole statement"
+require "$BOOKPLAN" "coupledParity_deltaFun" \
+    "§45 comment block must keep the sector-eigenvector statement"
+require "$BOOKPLAN" "P4 therefore does not decompose" \
+    "§45 comment block must keep the 'no weakening' verdict (the other side of the pair)"
+require "$BOOKPLAN" "PotSelfBound" \
+    "§45 comment block must keep naming the remaining open input"
+
+# ---- 3. §46/§47 BRST: derivation AND its scope -------------------------------
+require "BookProof/Sm/ChapterSmBrstQuotient.lean" \
+    "theorem kform_well_defined" \
+    "§46: the charge form descends to the cohomology"
+require "BookProof/Sm/ChapterSmBrstQuotient.lean" \
+    "def PhysicalPositivity" \
+    "§46: the Kugo–Ojima condition is a named definition"
+require "BookProof/Sm/ChapterSmQuartet.lean" \
+    "theorem physicalPositivity_of_quartet" \
+    "§47: PhysicalPositivity is derived from quartet data"
+require "BookProof/Sm/ChapterSmQuartet.lean" \
+    "theorem exE2_not_exact" \
+    "§47: the worked example has non-trivial cohomology"
+require "$BOOKPLAN" "kform_well_defined" \
+    "§46 comment block must keep the well-definedness statement"
+require "$BOOKPLAN" "PhysicalPositivity" \
+    "§46/§47 comment blocks must keep naming the condition"
+require "$BOOKPLAN" "physicalPositivity_of_quartet" \
+    "§47 comment block must keep the derivation"
+require "$BOOKPLAN" "a proof of SM positivity" \
+    "§47 comment block must keep the 'SM quartet data missing' caveat"
+
+# ---- 4. the QYM field-strength split: both sides ------------------------------
+SPLIT=BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean
+require "$SPLIT" "dense_colouredCore" \
+    "the split is a statement about the dense coloured core"
+require "$SPLIT" "set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks" \
+    "the Pauli-coordinate entry checks need their raised heartbeat budget"
+
+# ---- 5. the plan's two-way record of the QYM / meson / glueball track --------
+require "CONSOLIDATED_PLAN.md" "ymAbelian_stone_flow" \
+    "QYM Stone-flow row"
+require "CONSOLIDATED_PLAN.md" "mesonSymm_glueball_iso" \
+    "meson/glueball square entries"
+
+if [ "$FAILED" -ne 0 ]; then
+    echo
+    echo "The sections above pair a result with its boundary.  If a side is genuinely"
+    echo "obsolete, change the statement (and this gate) in the same commit — do not"
+    echo "delete the caveat to make a check pass."
+    exit 1
+fi
+
+echo "[OK] SM/BRST section guards: all guarded pairs intact"
