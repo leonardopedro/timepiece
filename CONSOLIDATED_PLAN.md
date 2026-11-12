@@ -22695,4 +22695,5 @@ warning naming either module; no line over 100 characters and no trailing whites
 `#print axioms` on `dense_colouredCore`, `colouredCore_polyGaussCore_dense`,
 `exists_stone_flow_of_colouredHamiltonian`, `colourMix_colourFibre`, `colourVecAct_eq_eucMatCLM` and
 `colourVecAct_norm_of_unitary` reports only `propext, Classical.choice, Quot.sound`.  The aggregate
-`lake build BookProof` is rerun after this change and must be green before the packet is pushed.
+`lake build BookProof` on the merged tree (this packet plus the concurrent glueball/BRST commits)
+completed at 8969 jobs with no error.
