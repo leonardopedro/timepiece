@@ -3212,13 +3212,12 @@ theorem colourActCLM_norm_le (a : Fin 3) (f : fundMode d) :
     ‖colourActCLM a f‖ ≤ (1 / 2) * ‖f‖ := by
   simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
 
+
 /-- **The colour energy as a bounded operator**: `C_F` times the identity. -/
 noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
   (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
 
-theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := by
-  rw [colourEnergyCLM, colourEnergyOp, ContinuousLinearMap.smul_apply,
-    ContinuousLinearMap.id_apply]
+theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := rfl
 
 /-! ##### The colour operators are a representation of `su(2)`
 
@@ -3286,7 +3285,7 @@ theorem sum_colourActOp_comp (f : fundMode d) :
   rw [show (∑ a : Fin 3, colourActOp a (colourActOp a f)) n
       = ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n)) from by
     simp [colourActOp_comp_apply, ← Matrix.mulVec_mulVec]]
-  rw [colourEnergyOp_apply, colourEnergy_eq_sum_sq]
+  rw [colourEnergyOp_apply d f n, colourEnergy_eq_sum_sq]
 
 theorem colourActCLM_apply (a : Fin 3) (f : fundMode d) : colourActCLM a f = colourActOp a f :=
   rfl
@@ -3302,7 +3301,6 @@ theorem colourActCLM_commutator (a b : Fin 3) (f : fundMode d) :
 theorem sum_colourActCLM_comp (f : fundMode d) :
     ∑ a : Fin 3, colourActCLM a (colourActCLM a f) = colourEnergyCLM f := by
   simpa [colourActCLM_apply, colourEnergyCLM_apply] using sum_colourActOp_comp f
-
 /-! ##### The operator norm is attained
 
 `colourActCLM_norm_le` bounded the colour action by `1/2`; `colourActOp_norm` upgrades it to an
