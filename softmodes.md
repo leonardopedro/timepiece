@@ -891,11 +891,21 @@ the adjoint representation on `ℂ³` (`(T^a)_{bc} = −i ε^{abc}`), it closes 
 (`adjRep_commutator`: `[T^a, T^b] = i ε^{abc} T^c`) and its Casimir is a matrix identity,
 `Σ_a (T^a)² = 2 · 1` (`adjRep_casimir`), i.e. `C_A = 2`; so `adjModeVec c v` carries `2 v`
 (`adjColourEnergy_adjModeVec`) and the two factors stand in the ratio `C_A/C_F = 8/3`
-(`casimir_ratio`).  **B:** the fold into `quadForm (ymHamiltonian …)` is proved
-for a diagonal colour energy `µ • 1` on the whole coloured core — a general colour matrix is still
-evaluated only through its diagonal part, nothing is claimed for the norm of the coloured operator,
-and no colour-singlet space combining the `ℂ²` and `ℂ³` fibres is built; the occupation completion
-carrying `colourEnergyOp` is still a separate model from the field fibre.
+(`casimir_ratio`).  **B:** the fold into `quadForm (ymHamiltonian …)` is proved on the whole coloured
+core — for a diagonal colour energy `µ • 1` (`colouredHamiltonian_smul_one_quadForm_core`, which
+gives `µ.re ∑ᵢ‖uᵢ‖²`) and for a **general** colour matrix, where the colour part is the
+double sum `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` (`colouredHamiltonian_inner_core`), whose real part is
+the form's colour term (`colouredHamiltonian_quadForm_core`); with `C = [[0, 1], [1, 0]]` that is
+`quadForm H u₀ + quadForm H u₁ + 2 Re ⟨u₀, u₁⟩` (`colouredHamiltonian_swap_quadForm`), a
+cross term no `µ • 1` can produce.  Nothing is claimed for the norm of the coloured operator,
+and the occupation completion carrying `colourEnergyOp` is still a separate model from the field
+fibre.  **Singlet:** the `ℂ² ⊗ ℂ³` fibre is built — `colourVec 6` with the row-major colour
+index (`pairSlotFst`, `pairSlotSnd`) carries the total action `pairRep a = T^a ⊗ 1 + 1 ⊗ T^a`,
+and `colourSinglet` is the set of vectors it annihilates — and its singlet space is **trivial**
+(`colourSinglet_eq_bot`): `2 ⊗ 3 = 4 ⊕ 2` has no trivial summand, six diagonal entries of the three
+actions pinning every coordinate to zero, so a fundamental mode and an adjoint mode over one field
+core are never colour-neutral together (`colourSinglet_fibre_trivial`).  The pairs that do carry a
+singlet, `ℂ² ⊗ ℂ²` and `ℂ³ ⊗ ℂ³`, are not built.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.

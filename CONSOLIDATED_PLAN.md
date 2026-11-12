@@ -7,7 +7,21 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-11q):** “State of the project — 2026-11-11q: the colour operators are a
+> **Newest entry (2026-11-12b):** “State of the project — 2026-11-12b: the coloured form with a
+> general colour matrix” (end of file): the colour part of the coloured form is the double sum
+> `Σ_i Σ_j C_ij ⟨u_i, u_j⟩`, not only its diagonal part
+> (`colouredHamiltonian_inner_core`, `colouredHamiltonian_quadForm_core`); with
+> `C = [[0, 1], [1, 0]]` the form carries the cross term `2 Re ⟨u₀, u₁⟩`
+> (`colouredHamiltonian_swap_quadForm`).
+>
+> **Earlier entry (2026-11-12a):** “State of the project — 2026-11-12a: the colour singlet over the
+> combined `ℂ² ⊗ ℂ³` fibre” (end of file): the two colour factors are one fibre,
+> `colourVec 6` with the total action `pairRep a = T^a ⊗ 1 + 1 ⊗ T^a`, and its singlet space is
+> **trivial** (`colourSinglet_eq_bot`): `2 ⊗ 3 = 4 ⊕ 2` has no trivial summand, so a fundamental and
+> an adjoint mode over one field core are never colour-neutral together
+> (`colourSinglet_fibre_trivial`).
+>
+> **Earlier entry (2026-11-11q):** “State of the project — 2026-11-11q: the colour operators are a
 > representation of su(2)” (end of file): the bounded generators satisfy `[A^a, A^b] = i ε^{abc} A^c`
 > on the completion (`colourActCLM_commutator`) and their Casimir is the sum of their squares
 > `Σ_a (A^a)² = colourEnergyCLM` (`sum_colourActCLM_comp`) — a genuine representation, with no domain
@@ -21872,3 +21886,65 @@ from the fibre.
 (`colouredHamiltonian_smul_one_inner_core`, `..._quadForm_core`, `..._fundamental_quadForm_core`,
 `..._adjoint_quadForm_core`, `colourFibre_repr`, `colourSum_ofLp`,
 `colouredHamiltonian_smul_one_quadForm_sum`): `propext`, `Classical.choice`, `Quot.sound` only.
+
+
+## State of the project — 2026-11-12a: the colour singlet over the combined `ℂ² ⊗ ℂ³` fibre
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, new section “The colour singlet over the
+combined `ℂ² ⊗ ℂ³` fibre”.
+
+**What is new.**  The two colour factors of the earlier entries were separate models.  They are one
+fibre now: `colourVec 6` with the row-major colour index — `3 * (fundamental slot) + (adjoint slot)`
+(`pairSlotFst`, `pairSlotSnd`) — carrying the total colour action `pairRep a = T^a ⊗ 1 + 1 ⊗ T^a`
+(`fundRep` on the fundamental slot, `adjRep` on the adjoint one), and the colour-singlet space
+`colourSinglet`, the vectors annihilated by all three total actions (`colourSinglet_mem`).
+
+**The result is triviality.**  `colourSinglet_eq_bot`: the singlet space is `⊥` — under `su(2)`
+`2 ⊗ 3 = 4 ⊕ 2`, so the fundamental and the adjoint have no trivial summand together and a
+quark-like mode and a gluon mode over one field core are never colour-neutral.  The proof needs six
+entries only, two from each generator: `A^0` at coordinates `0` and `3` kills `v 3` and `v 0`, `A^1`
+at `4` and `1` kills `v 1` and `v 4`, `A^2` at `2` and `5` kills `v 2` and `v 5`.  In fibre language
+the same statement is `colourSinglet_fibre_trivial`: a singlet of the combined fibre placed over any
+field core `x` is `0`.
+
+**Boundary.**  Not claimed: the decomposition of `ℂ² ⊗ ℂ³` into its irreducible summands; that
+`pairRep` is a representation (its commutators would follow from `fundRep_commutator` and
+`adjRep_commutator`); any operator norm or closedness statement for the total action; and the pairs
+that do carry a singlet — `ℂ² ⊗ ℂ²` (meson) and `ℂ³ ⊗ ℂ³` (glueball) — which are not
+constructed.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors.  `#print axioms` on `colourSinglet`, `colourSinglet_mem`, `colourSinglet_eq_bot` and
+`colourSinglet_fibre_trivial` gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+
+## State of the project — 2026-11-12b: the coloured form with a general colour matrix
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, new section “The coloured form with a
+general colour matrix”.
+
+**What is new.**  Every coloured-form identity so far evaluated the colour matrix only through a
+diagonal `C = µ • 1`, so an off-diagonal entry had no effect on the form.  The form now holds for an
+arbitrary `C`:
+
+- `colouredHamiltonian_inner_core`: for every `u` in the coloured core,
+  `⟨u, (H ⊗ 1 + 1 ⊗ C) u⟩ = Σ_i ⟨u_i, H u_i⟩ + Σ_i Σ_j C_ij ⟨u_i, u_j⟩` — the
+  field part is unchanged, the colour part is a double sum with the mixed terms;
+- `colouredHamiltonian_quadForm_core`: the same in form language,
+  `quadForm = Σ_i quadForm H u_i + Σ_i Re (Σ_j C_ij ⟨u_i, u_j⟩)`, which for `C = µ • 1`
+  collapses to `colouredHamiltonian_smul_one_quadForm_core`;
+- `colouredHamiltonian_swap_quadForm`: the off-diagonal case in closed form.  With `C = [[0, 1],
+  [1, 0]]` the form is `quadForm H u₀ + quadForm H u₁ + 2 Re ⟨u₀, u₁⟩`: a cross term no
+  diagonal colour energy can produce, so the off-diagonal entries are seen in the form itself and
+  are not a relabelling of the two Casimir scalars.
+
+No symmetry of `C` is used: the identity is of complex inner products, taken before the real part.
+
+**Boundary.**  Not claimed: Hermiticity of `colouredHamiltonian` for a Hermitian `C` (only the field
+half, `ymHamiltonian_symmetricOn`, is known); a bound on the cross term; and any closedness or domain
+statement for the coloured operator.  The singlet space of the previous entry is unaffected — it is a
+statement about the total colour action, not about `C`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors.  `#print axioms` on `colouredHamiltonian_inner_core`, `colouredHamiltonian_quadForm_core` and
+`colouredHamiltonian_swap_quadForm` gives only `propext`, `Classical.choice`, `Quot.sound`.

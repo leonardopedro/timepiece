@@ -1474,6 +1474,17 @@ above.  This section states that identification and proves what it yields.
   energy is the sum over components of the field form plus `µ.re` times the component norm squared,
   and every core element is a finite sum of elementary tensors (`colourFibre_repr`, `colourSum`),
   whose form is `colouredHamiltonian_smul_one_quadForm_sum`;
+* **`colouredHamiltonian_quadForm_core`** (general `C`), **`colouredHamiltonian_swap_quadForm`**
+  — the coloured form for a colour matrix that is *not* diagonal: the colour part is the double
+  sum `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` (`colouredHamiltonian_inner_core`), so the off-diagonal entries
+  contribute the mixed terms; for `C = [[0, 1], [1, 0]]` the form is
+  `quadForm H u₀ + quadForm H u₁ + 2 Re ⟨u₀, u₁⟩`, a cross term no `µ • 1` can produce;
+* **`colourSinglet`**, **`colourSinglet_eq_bot`** — the colour singlet over the combined
+  `ℂ² ⊗ ℂ³` fibre: the total action `pairRep` is `T^a ⊗ 1 + 1 ⊗ T^a`
+  on `colourVec 6` (`pairSlotFst`, `pairSlotSnd`), and the vectors it annihilates are only the
+  zero one (`colourSinglet_eq_bot`) — `2 ⊗ 3 = 4 ⊕ 2` has no trivial summand, so a
+  fundamental and an adjoint mode over one field core are never colour-neutral together
+  (`colourSinglet_fibre_trivial`);
 * **`colourActCLM`**, **`colourEnergyCLM`** — the two coloured actions as *bounded operators* on the
   completion: `‖colourActCLM a f‖ ≤ (1/2)‖f‖`, the constant being sharp because
   `‖T^a v‖ = ‖v‖/2` pointwise (`norm_fundRep_mulVec`), and `colourEnergyCLM` is `C_F` times the
@@ -3044,6 +3055,191 @@ theorem colouredHamiltonian_smul_one_quadForm_sum {D : Submodule ℂ (L2d 99)}
       = ⟨WithLp.ofLp ((colourSum s x v : colourSpace N)) i, (colourSum s x v).2 i⟩ :=
     Subtype.ext (colourSum_ofLp s x v i).symm
   rw [hsub, ← colourSum_ofLp s x v i]
+/-! #### The coloured form with a general colour matrix
+
+The diagonal fold above evaluates `C = µ • 1` only through `µ`.  With a general `C` the colour
+part is not a scalar: `colouredHamiltonian` mixes the components and its cross terms survive.
+The identity is
+
+`⟨u, (H ⊗ 1 + 1 ⊗ C) u⟩ = Σ_i ⟨u_i, H u_i⟩ + Σ_i Σ_j C_ij ⟨u_i, u_j⟩`
+
+(`colouredHamiltonian_inner_core`) and, in form language,
+`quadForm = Σ_i quadForm H u_i + Σ_i Re (Σ_j C_ij ⟨u_i, u_j⟩)`
+(`colouredHamiltonian_quadForm_core`); the second double sum is exactly what the diagonal version
+drops.
+
+`colouredHamiltonian_swap_quadForm` is an off-diagonal case in closed form: with
+`C = [[0, 1], [1, 0]]` the two components exchange and the form is
+`quadForm H u₀ + quadForm H u₁ + 2 Re ⟨u₀, u₁⟩`.  The cross term `2 Re ⟨u₀, u₁⟩` is invisible
+to any diagonal `µ • 1`, so off-diagonal colour matrix entries genuinely change the form and are
+not a relabelling of the two Casimir scalars.
+
+**Boundary.**  The identity holds for every `u` in the coloured core and uses no symmetry of `C`: it
+is an identity of complex inner products taken before the real part.  Not claimed: Hermiticity of
+`colouredHamiltonian` for a Hermitian `C` (`ymHamiltonian_symmetricOn` covers only the field
+half), a bound on the cross term, and any closedness or domain statement.
+-/
+
+/-- **The coloured inner product with a general colour matrix**: the field part is the sum over
+components of the field inner product, and the colour part is the double sum `Σ_i Σ_j C_ij
+⟨u_i, u_j⟩` — the off-diagonal entries contribute the mixed terms. -/
+theorem colouredHamiltonian_inner_core {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ)
+    (u : colouredCore N D) :
+    (inner ℂ (u : colourSpace N) (colouredHamiltonian Φ fabc N C u) : ℂ)
+      = ∑ i : Fin N, (inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+            (ymHamiltonian Φ fabc ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩)
+          + ∑ j : Fin N, C i j * inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+              (WithLp.ofLp (u : colourSpace N) j)) := by
+  rw [PiLp.inner_apply]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [colouredHamiltonian_ofLp, inner_add_right, inner_sum]
+  congr 1
+  refine Finset.sum_congr rfl fun j _ => ?_
+  rw [inner_smul_right]
+
+/-- **The coloured quadratic form with a general colour matrix**: the sum over components of the
+field form plus the real part of the double sum `Σ_i Σ_j C_ij ⟨u_i, u_j⟩`.  For a diagonal
+`C = µ • 1` the double sum collapses to `µ.re ∑_i ‖u_i‖²`
+(`colouredHamiltonian_smul_one_quadForm_core`). -/
+theorem colouredHamiltonian_quadForm_core {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ)
+    (u : colouredCore N D) :
+    quadForm (colouredHamiltonian Φ fabc N C) u
+      = ∑ i : Fin N, (quadForm (ymHamiltonian Φ fabc)
+            ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+          + (∑ j : Fin N, C i j * inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+              (WithLp.ofLp (u : colourSpace N) j)).re) := by
+  rw [quadForm, colouredHamiltonian_inner_core, Complex.re_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [Complex.add_re, quadForm]
+
+/-- **An off-diagonal colour matrix in closed form**: with `C = [[0, 1], [1, 0]]` the two colour
+components exchange and the form is the two field forms plus the cross term `2 Re ⟨u₀, u₁⟩`.
+No diagonal `µ • 1` produces that term, so the off-diagonal part is seen in the form itself. -/
+theorem colouredHamiltonian_swap_quadForm {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (u : colouredCore 2 D) :
+    quadForm (colouredHamiltonian Φ fabc 2 !![0, 1; 1, 0]) u
+      = quadForm (ymHamiltonian Φ fabc)
+          ⟨WithLp.ofLp (u : colourSpace 2) 0, u.2 0⟩
+        + quadForm (ymHamiltonian Φ fabc)
+            ⟨WithLp.ofLp (u : colourSpace 2) 1, u.2 1⟩
+        + 2 * (inner ℂ (WithLp.ofLp (u : colourSpace 2) 0)
+            (WithLp.ofLp (u : colourSpace 2) 1)).re := by
+  rw [colouredHamiltonian_quadForm_core, Fin.sum_univ_two]
+  simp [Matrix.cons_val_zero, Matrix.cons_val_one]
+  rw [show (inner ℂ (WithLp.ofLp (u : colourSpace 2) 1)
+      (WithLp.ofLp (u : colourSpace 2) 0)).re
+      = (inner ℂ (WithLp.ofLp (u : colourSpace 2) 0)
+        (WithLp.ofLp (u : colourSpace 2) 1)).re from by
+    rw [← inner_conj_symm, Complex.conj_re]]
+  ring
+
+/-! #### The colour singlet over the combined `ℂ² ⊗ ℂ³` fibre
+
+The two colour factors of the sections above are exactly the two irreps a colour-singlet
+question has to put together: the fundamental `ℂ²` (`C_F = 3/4`) and the adjoint `ℂ³`
+(`C_A = 2`).  Over one field core they are a single fibre of six colour components,
+`colourVec 6`, the colour index being row-major — `3 * (fundamental slot) + (adjoint slot)`
+(`pairSlotFst`, `pairSlotSnd`).  The total colour action on that fibre is the Kronecker sum
+`A^a = T^a ⊗ 1 + 1 ⊗ T^a` (`pairRep`), and the **colour-singlet space** `colourSinglet` is
+the part of the fibre that action annihilates: the vectors of vanishing total colour charge.
+
+`colourSinglet_eq_bot` is the content — **it is `{0}`**.  The total action has no invariant
+vector in `ℂ² ⊗ ℂ³`: `2 ⊗ 3 = 4 ⊕ 2` is a quartet and a doublet with no trivial
+summand, so a fundamental mode and an adjoint mode over one field core cannot be
+colour-neutral together.  The computation needs six diagonal entries, two from each action:
+`A^0` kills `v 3` and `v 0`, `A^1` kills `v 4` and `v 1`, `A^2` kills `v 5` and `v 2`.  In
+fibre language the singlet is trivial over *every* field core
+(`colourSinglet_fibre_trivial`);  that is the fibre form of the same six-entry computation.
+
+**Boundary.**  Built here: the singlet space of the fundamental/adjoint pair, and the fact
+that it is trivial.  Not built: the decomposition of `ℂ² ⊗ ℂ³` into its two irreducible
+summands; the representation property of `pairRep`, whose commutators would follow from
+`fundRep_commutator` and `adjRep_commutator` and are not proved; and the pairs that *do*
+carry a singlet — `ℂ² ⊗ ℂ²`, the meson, and `ℂ³ ⊗ ℂ³`, the glueball.
+-/
+
+/-- The fundamental slot of a colour index in the combined `ℂ² ⊗ ℂ³` fibre: `i / 3`. -/
+def pairSlotFst (i : Fin 6) : Fin 2 := ⟨i.val / 3, by have := i.isLt; omega⟩
+
+/-- The adjoint slot of a colour index in the combined `ℂ² ⊗ ℂ³` fibre: `i % 3`. -/
+def pairSlotSnd (i : Fin 6) : Fin 3 := ⟨i.val % 3, Nat.mod_lt _ (by norm_num)⟩
+
+/-- **The total colour action on `ℂ² ⊗ ℂ³`**: the Kronecker sum `T^a ⊗ 1 + 1 ⊗ T^a` in the row-major
+basis of the combined fibre, so that the first factor acts on the fundamental slot and the second on
+the adjoint slot. -/
+noncomputable def pairRep (a : Fin 3) : Matrix (Fin 6) (Fin 6) ℂ :=
+  fun i j => fundRep a (pairSlotFst i) (pairSlotFst j) *
+      (if pairSlotSnd i = pairSlotSnd j then 1 else 0) +
+    (if pairSlotFst i = pairSlotFst j then 1 else 0) * adjRep a (pairSlotSnd i) (pairSlotSnd j)
+
+/-- **The colour-singlet space** of the combined `ℂ² ⊗ ℂ³` fibre: the vectors annihilated by
+every one of the three total colour actions. -/
+noncomputable def colourSinglet : Submodule ℂ (colourVec 6) where
+  carrier := {v | ∀ a, (pairRep a).mulVec (WithLp.ofLp v) = 0}
+  zero_mem' := by
+    intro a
+    simp
+  add_mem' := by
+    intro u w hu hw a
+    rw [WithLp.ofLp_add, Matrix.mulVec_add, hu a, hw a, add_zero]
+  smul_mem' := by
+    intro c u hu a
+    rw [WithLp.ofLp_smul, Matrix.mulVec_smul, hu a, smul_zero]
+
+/-- Membership in `colourSinglet` is annihilation by all three total colour actions. -/
+theorem colourSinglet_mem (v : colourVec 6) :
+    v ∈ colourSinglet ↔ ∀ a, (pairRep a).mulVec (WithLp.ofLp v) = 0 := Iff.rfl
+
+/-- **The singlet space of `ℂ² ⊗ ℂ³` is trivial**: a vector whose total colour charge vanishes is
+zero.  The six diagonal entries of the three total actions already force every coordinate to vanish,
+which is the `su(2)` fact `2 ⊗ 3 = 4 ⊕ 2` — no trivial summand. -/
+theorem colourSinglet_eq_bot : colourSinglet = ⊥ := by
+  rw [Submodule.eq_bot_iff]
+  intro v hv
+  rw [colourSinglet_mem] at hv
+  have h0 : WithLp.ofLp v 0 = 0 := by
+    simpa [pairRep, Matrix.mulVec, dotProduct, Fin.sum_univ_six, pairSlotFst, pairSlotSnd,
+      fundRep, pauli, adjRep, levi] using congrFun (hv 0) 3
+  have h1 : WithLp.ofLp v 1 = 0 := by
+    simpa [pairRep, Matrix.mulVec, dotProduct, Fin.sum_univ_six, pairSlotFst, pairSlotSnd,
+      fundRep, pauli, adjRep, levi] using congrFun (hv 1) 4
+  have h2 : WithLp.ofLp v 2 = 0 := by
+    simpa [pairRep, Matrix.mulVec, dotProduct, Fin.sum_univ_six, pairSlotFst, pairSlotSnd,
+      fundRep, pauli, adjRep, levi] using congrFun (hv 2) 2
+  have h3 : WithLp.ofLp v 3 = 0 := by
+    simpa [pairRep, Matrix.mulVec, dotProduct, Fin.sum_univ_six, pairSlotFst, pairSlotSnd,
+      fundRep, pauli, adjRep, levi] using congrFun (hv 0) 0
+  have h4 : WithLp.ofLp v 4 = 0 := by
+    simpa [pairRep, Matrix.mulVec, dotProduct, Fin.sum_univ_six, pairSlotFst, pairSlotSnd,
+      fundRep, pauli, adjRep, levi] using congrFun (hv 1) 1
+  have h5 : WithLp.ofLp v 5 = 0 := by
+    simpa [pairRep, Matrix.mulVec, dotProduct, Fin.sum_univ_six, pairSlotFst, pairSlotSnd,
+      fundRep, pauli, adjRep, levi] using congrFun (hv 2) 5
+  apply WithLp.ofLp_injective
+  funext k
+  fin_cases k
+  · exact h0
+  · exact h1
+  · exact h2
+  · exact h3
+  · exact h4
+  · exact h5
+
+/-- **No colour singlet over a field core**: a singlet of the combined fibre, placed over any field
+core `x`, is the zero element — the fibre carries no colour-neutral vector to begin with. -/
+theorem colourSinglet_fibre_trivial {D : Submodule ℂ (L2d 99)} (x : D) (v : colourVec 6)
+    (hv : v ∈ colourSinglet) : colourFibre (D := D) x v = 0 := by
+  have hzero : v = 0 := by
+    rw [colourSinglet_eq_bot] at hv
+    simpa using hv
+  rw [hzero]
+  apply Subtype.ext
+  apply WithLp.ofLp_injective
+  funext i
+  simp [colourFibre]
+
 /-! #### The colour actions as bounded operators, and the `su(2)` representation
 
 `colourAct` and `colourEnergy` extend to continuous linear maps on the completion, with the sharp
