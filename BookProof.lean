@@ -4161,13 +4161,14 @@ import BookProof.Sm.ChapterSmReverseEllipticQuartic
 -- `∑_j (∂_j W)² ≤ (16|M| |ι| C + 8) W² + (8|M| |ι| C + 8)` — the structural reason the answer is
 -- affirmative.  `gradDom_flat_plus_quadratic` is the model instance: `X₀²X₁² + X₀² + X₁²` obeys the
 -- domination with `a = 40`, `b = 24`, whereas §48's `not_gradDom_flat_quartic` shows the bare
--- `X₀²X₁²` obeys it for no `a, b` at all.  Two steps remain and are named, not assumed: the
--- per-form support table (that `pderiv j Φ_r` is linear and avoids the derivative coordinates
--- `smDG`/`smDW`/`smDB`/`smDPhi`, which no term of `W` controls) and the passage from the
--- pointwise bound to `GradDom`'s `L²` form, where the non-negative weight `cpoly p * p` multiplies
--- through.  `PotSelfBound` for the SM is therefore still a hypothesis, but the question whether the
--- 49 flat directions refute the domination is answered **no**, with a proved mechanism and a proved
--- counterexample to the naive reading.  §51 carries out the algebra of the first step: `linForm`,
+-- `X₀²X₁²` obeys it for no `a, b` at all.  One input remains and is named, not assumed: the
+-- per-form `pderiv` table (that `pderiv j Φ_r` is linear for `j ∈ smS` and avoids the derivative
+-- coordinates `smDG`/`smDW`/`smDB`/`smDPhi`, which no term of `W` controls).  Everything between
+-- that table and `PotSelfBound` is now proved — `SmGradDomStructural` turns the table into the
+-- pointwise bound and `SmGradDomTransfer` integrates it against the non-negative weight
+-- `cpoly p * p` (`exists_potSelfBound_of_gradBound`).  `PotSelfBound` for the SM is therefore still
+-- a hypothesis, but the question whether the 49 flat directions refute the domination is answered
+-- **no**, with a proved mechanism and a proved counterexample to the naive reading.  §51 carries out the algebra of the first step: `linForm`,
 -- `polyW_linForm`, `sq_polyW_linForm_le` (Cauchy–Schwarz on a support `L ⊆ M`) and
 -- `gradBound_of_linear` show that a support table `∂_j Φ_r = ∑_{i∈L} b_i x_i` with `L ⊆ smS`,
 -- coefficients included, *is* the hypothesis, so what remains of the table is the `pderiv`

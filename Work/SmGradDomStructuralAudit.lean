@@ -5,9 +5,11 @@ Every declaration below must rest on `propext`, `Classical.choice`, `Quot.sound`
 The module proves the *structural* reason `GradDom` holds — a sum of squares plus a coercive
 quadratic with linear form-gradients — and the model case `X₀²X₁² + X₀² + X₁²`.  It does **not**
 check the per-form support facts for the 49 `smPhi` forms, nor transport the pointwise bound to
-`GradDom`'s `L²` form, so `PotSelfBound` stays a hypothesis for the SM's own quartic.  The
-linear-form bridge (`linForm`, `sq_polyW_linForm_le`, `gradBound_of_linear`) is exactly the target
-that support table has to feed.
+`GradDom`'s `L²` form — which is now done: the linear-form bridge (`linForm`,
+`sq_polyW_linForm_le`, `gradBound_of_linear`) reduces the table to a `pderiv` computation, and
+`BookProof.SmGradDomTransfer` carries the pointwise bound to the `L²` form (audited in
+`SmGradDomTransferAudit`), and `smPotPoly_eq_wsSum` is the identification that lets the two meet.  So `PotSelfBound` stays a hypothesis for exactly one reason: the support table itself is not
+written down.
 -/
 import BookProof.Sm.ChapterSmGradDomStructural
 
@@ -40,3 +42,4 @@ open BookProof.SmGradDomStructural
 #print axioms gradBound_of_linear
 #print axioms linForm_unit_eq
 #print axioms sq_polyW_linForm_le_model
+#print axioms smPotPoly_eq_wsSum

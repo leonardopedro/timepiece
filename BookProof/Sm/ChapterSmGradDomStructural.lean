@@ -37,11 +37,13 @@ formal statement needs:
   quartic of §48 `not_gradDom_flat_quartic` **plus** the quadratic term.  The flat quartic alone
   fails for every `a, b`; with the quadratic term it satisfies the domination with `a = b = 32`.
   This is the theorem that says the SM's flat directions are not an obstruction;
+* `smPotPoly_eq_wsSum` — `smPotPoly` is `wsSum` at the 49 forms and the 40 momentum coordinates,
+  which is what lets `pointwise_dom_of_sq_sum` be applied to the Standard Model's potential;
 
 ## 2. What is and is not instantiated
 
-Two steps are needed to turn the structural theorem into `GradDom` for `smPotPoly`, and neither is
-carried out here:
+Turning the structural theorem into `GradDom` for `smPotPoly` needs two steps.  The second (§3c) is
+carried out here; the first (§3b) is reduced to the per-form `pderiv` computation alone:
 
 * **The per-form support table.**  `(∂_j Φ_r)² ≤ C (1 + ∑_m x_m²)` is a statement about
   `smFormPoly`: it needs to know that `pderiv j (smPhi P r)` for `j ∈ smS` is at most linear *and*
@@ -52,13 +54,15 @@ carried out here:
   `L ⊆ smS`, so what remains is the `pderiv` computation for each of the five families, not any
   further analysis.
 * **The `L²` transfer.**  `GradDom` is an `L²` inequality, and `exists_potSelfBound_of_gradDom`
-  consumes that form.  The passage from the pointwise bound to it is Gaussian-integral monotonicity
-  (`gaussInt_re_mono`) against `norm_pgLp_sq`, multiplied pointwise by `cpoly p * p ≥ 0`; it is
-  routine but not formalized, in this module or elsewhere.
+  consumes that form.  The passage is *not* in this module: it is
+  `BookProof.SmGradDomTransfer.l2_gradDom_of_pointwise`, where the pointwise bound is multiplied by
+  `‖p(x)‖² ≥ 0` and integrated (`gaussInt_re_mono` against `norm_pgLp_sq`), and
+  `exists_potSelfBound_of_gradBound` composes it with §3's `pointwise_dom_of_sq_sum` and §3c's
+  identification into `∃ β, PotSelfBound P c₀ β`.
 
-So this module proves the *mechanism* and its model instance.  `GradDom` for `smPotPoly` therefore
-stays conditional on those two steps — the same status §48 gave it, now with the algebraic reason
-for the answer written down.
+So the integration step and the algebra are both closed; `PotSelfBound` for the SM now depends on
+one input, the per-form `pderiv`/support table, which §3b reduces to its stated form.  Until that
+table is written down, `PotSelfBound` stays a hypothesis.
 
 Everything here is `sorry`-free and `axiom`-free.
 -/
@@ -418,6 +422,20 @@ theorem sq_polyW_linForm_le_model (x : Vd 2) :
   have h := sq_polyW_linForm_le (fun _ : Fin 2 => (1 : ℝ)) {1} ({0, 1} : Finset (Fin 2))
     (by decide) x
   simpa using h
+
+/-! ## 3c. The identification of `smPotPoly` with `wsSum`
+
+With the table in hand, `pointwise_dom_of_sq_sum` produces the pointwise domination of
+`smPotPoly`.  That needs `smPotPoly` to *be* `wsSum` at the 49 forms and the 40 momentum
+coordinates, which is the reindexing below; the `L²` transfer is
+`BookProof.SmGradDomTransfer.l2_gradDom_of_pointwise` and the composition is
+`BookProof.SmGradDomTransfer.exists_potSelfBound_of_gradBound`. -/
+
+/-- The assembled potential is `wsSum` at the 49 forms and the 40 momentum coordinates. -/
+theorem smPotPoly_eq_wsSum (P : SmParams) (c0 : ℝ) :
+    smPotPoly P c0 = wsSum (fun r : Fin 49 => smPhi P r) smS c0 := by
+  rw [wsSum, smPotPoly, smQPoly, smS,
+    Finset.sum_image (fun a _ b _ hab => smCoord_injective hab)]
 
 /-! ## 4. The model case: the flat quartic rescued by the coercive quadratic -/
 

@@ -51,8 +51,10 @@ status precise rather than a slogan:
   `|∂_j W|² ≤ a W² + b` holds with explicit `a, b` (`a = 16`, `b = 32`), and the passage from the
   pointwise form to `GradDom` is Gaussian-integral monotonicity `gaussInt_re_mono` against
   `norm_pgLp_sq` and `eval_weighted_self_re`, multiplied pointwise by the non-negative weight
-  `cpoly p * p`.  That transfer is *routine but not formalized* here — it is recorded as such,
-  not as `l2_gradDom_of_pointwise`, which this corpus does not contain.
+  `cpoly p * p`.  That transfer is *not* proved in this module; it is
+  `BookProof.SmGradDomTransfer.l2_gradDom_of_pointwise` (plan §52), which composes with
+  `pointwise_dom_of_sq_sum` into the exact form `exists_potSelfBound_of_gradDom` consumes
+  (`exists_potSelfBound_of_gradBound`).
 * `not_gradDom_flat_quartic` — for a **non-coercive** quartic (`X₀²X₁²`, the prototype of a quartic
   that is non-negative but flat along the hyperplanes `X₀ = 0` and `X₁ = 0`) **no** `a, b` work:
   on the curve `(t, 1/t)` the gradient blows up while `W` stays bounded.  So `GradDom` is a genuine

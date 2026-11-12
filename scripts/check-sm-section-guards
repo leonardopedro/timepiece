@@ -149,12 +149,19 @@ require "$STRUCT" "theorem sq_polyW_linForm_le" \
     "§49.3b: the Cauchy-Schwarz bound that turns a linear form into GradBound"
 require "$STRUCT" "theorem gradBound_of_linear" \
     "§49.3b: GradBound follows from a support table of linear forms, so the remaining gap is the pderiv table alone"
+require "$STRUCT" "theorem smPotPoly_eq_wsSum" \
+    "§49.3c: smPotPoly is wsSum at the 49 forms and the 40 momenta (what GradBound applies to)"
+TRAN=BookProof/Sm/ChapterSmGradDomTransfer.lean
+require "$TRAN" "theorem l2_gradDom_of_pointwise" \
+    "§52: the pointwise-to-L2 transfer is a theorem, not a note"
+require "$TRAN" "theorem exists_potSelfBound_of_gradBound" \
+    "§52: the whole chain GradBound -> PotSelfBound for smPotPoly"
 require "$BOOKPLAN" "not_gradDom_flat_quartic" \
     "§48 comment block must keep the flat counterexample"
 require "$BOOKPLAN" "gradDom_flat_plus_quadratic" \
     "§49 comment block must keep the model instance that rescues the flat pattern"
-require "$BOOKPLAN" 'pointwise bound to `GradDom`' \
-    "§49 comment block must keep the unformalized L² transfer as a caveat"
+require "$BOOKPLAN" 'per-form `pderiv` table' \
+    "§49 comment block must keep the one remaining input (the pderiv table) as a caveat"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

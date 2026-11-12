@@ -212,6 +212,26 @@ bounded rows. -/
 def WCommBound (w : ℕ → ℝ) (col : ℕ → (ℕ →₀ ℂ)) (B : ℝ) : Prop :=
   ∀ k, ∑ j ∈ (col k).support, ‖(col k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j) ≤ B
 
+/-- **With the symbol `w ≡ 1` the column gate is the row gate**, since
+`WColBound 1 col K` is literally `∑_j |A_kj| / 1 ≤ K` over the same finite support.  So for the
+unweighted symbol the two Schur gates are one condition, not two. -/
+theorem wColBound_one_of_wRowBound_one {col : ℕ → (ℕ →₀ ℂ)} {K : ℝ}
+    (hrow : WRowBound (fun _ => 1) col K) : WColBound (fun _ => 1) col K := by
+  intro j
+  simpa using hrow j
+
+/-- **With the symbol `w ≡ 1` the commutator gate is free**: `w_j² - w_k² = 0`, so every term of
+the sum vanishes and any `B ≥ 0` works. -/
+theorem wCommBound_one (col : ℕ → (ℕ →₀ ℂ)) {B : ℝ} (hB : 0 ≤ B) :
+    WCommBound (fun _ => 1) col B := by
+  intro k
+  have hzero : ∑ j ∈ (col k).support, ‖(col k) j‖ * |(1 : ℝ) ^ 2 - (1 : ℝ) ^ 2| / ((1 : ℝ) * 1)
+      = 0 := by
+    refine Finset.sum_eq_zero fun j _ => ?_
+    norm_num
+  rw [hzero]
+  exact hB
+
 theorem sum_le_of_vanishing {f : ℕ → ℝ} {S L : Finset ℕ} (hf : ∀ j, 0 ≤ f j)
     (hz : ∀ j, j ∉ S → f j = 0) : ∑ j ∈ L, f j ≤ ∑ j ∈ S, f j := by
   classical

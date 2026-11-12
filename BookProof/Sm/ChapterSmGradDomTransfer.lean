@@ -161,6 +161,23 @@ theorem exists_potSelfBound_of_pointwise (P : SmParams) {c0 a b : ℝ} (hc0 : 0 
   exists_potSelfBound_of_gradDom P (c0 := c0) (a := a) (b := b) hc0 hb fun p =>
     l2_gradDom_of_pointwise (W := smPotPoly P c0) (p := p) (realCoeff_smPotPoly P c0) smS h
 
+/-! ## 4. `PotSelfBound` from the per-form `GradBound` table alone -/
+
+/-- **`PotSelfBound` follows from `GradBound`.**  The pointwise domination of `smPotPoly` is
+`pointwise_dom_of_sq_sum` (with `smPotPoly_eq_wsSum` supplying the identification with `wsSum`), and
+the pointwise-to-`L²` transfer above closes the rest — so the per-form support table for the 49
+forms is the *only* remaining input for `PotSelfBound`, with no analysis left in between. -/
+theorem exists_potSelfBound_of_gradBound (P : SmParams) {c0 C : ℝ} (hc0 : 0 ≤ c0) (hC : 0 ≤ C)
+    (hdom : GradBound (fun r : Fin 49 => smPhi P r) smS C) :
+    ∃ β, PotSelfBound P c0 β :=
+  exists_potSelfBound_of_pointwise P (c0 := c0)
+    (a := 16 * (smS.card : ℝ) * (Fintype.card (Fin 49) : ℝ) * C + 8)
+    (b := 8 * (smS.card : ℝ) * (Fintype.card (Fin 49) : ℝ) * C + 8) hc0 (by positivity)
+    (fun x => by
+      have h := pointwise_dom_of_sq_sum (fun r : Fin 49 => smPhi P r)
+        (fun r => realCoeff_smPhi P r) smS hc0 hC hdom x
+      rwa [← smPotPoly_eq_wsSum P c0] at h)
+
 end
 
 end BookProof.SmGradDomTransfer

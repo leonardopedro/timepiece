@@ -175,6 +175,23 @@ theorem ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates {w : ℕ → ℝ}
   BookProof.FockWeightedSchur.dGamma_essentiallySelfAdjointOn_core_w
     hw (isHermCol_ymFockCol e fabc) hrow hcolg hK0 hbg
 
+/-- **The ESA of `dΓ(H₁)` from the row estimate alone.**  With the unweighted symbol `w ≡ 1` the
+column gate coincides with the row gate (`wColBound_one_of_wRowBound_one`) and the commutator gate
+is free (`wCommBound_one`), so the three symbol gates of
+`ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` collapse to the single ℓ¹ row estimate
+
+  `∀ k, ∑_{j} |(ymFockCol e fabc k) j| ≤ K`.
+
+That is the minimal form of what is still missing for the physical matrix. -/
+theorem ymFockCol_essentiallySelfAdjointOn_core_of_rowBound {K : ℝ} (hK : 0 ≤ K)
+    (hrow : BookProof.FockWeightedSchur.WRowBound (fun _ => 1) (ymFockCol e fabc) K) :
+    EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymFockCol e fabc)) :=
+  ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates (e := e) (fabc := fabc)
+    (w := fun _ => 1) (K := K) (B := 1) (fun _ => le_rfl) hK hrow
+    (BookProof.FockWeightedSchur.wColBound_one_of_wRowBound_one hrow)
+    (BookProof.FockWeightedSchur.wCommBound_one _ zero_le_one)
+
+
 /-- **The YM generator is determined, not selected.**  Whenever `dΓ(H₁)` is essentially
 self-adjoint on the finite-occupation core — the hypothesis of
 `ymFock_timeIndependent_singleTime_of_esa` — *every* self-adjoint extension of it has the domain

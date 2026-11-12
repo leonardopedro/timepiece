@@ -23147,3 +23147,31 @@ either module; no line over 100 characters and no trailing whitespace; `#print a
 `l2_gradDom_of_pointwise`, `exists_potSelfBound_of_pointwise`, `resolvent_identity`,
 `resolventAt_shift` and `mem_resolventSet_of_near_imag` reports only
 `propext, Classical.choice, Quot.sound`.  Both modules are imported by `BookProof.lean`.
+
+## State of the project — 2026-11-12r: the three symbol gates collapse to one, for the unweighted symbol
+
+Following §2026-11-12q, the weighted-gate question for `ymFockCol` has a sharp answer at `w ≡ 1`,
+now proved rather than asserted:
+
+* `wColBound_one_of_wRowBound_one` — with `w ≡ 1`, `WColBound 1 col K` is *the same expression* as
+  `WRowBound 1 col K` (both sum `‖(col k) j‖ / 1` over `(col k).support`), so the two Schur gates
+  are one condition, not two.
+* `wCommBound_one` — with `w ≡ 1` the commutator gate is free: `w_j² - w_k² = 0`, so every term
+  vanishes and any `B ≥ 0` works.
+* `ymFockCol_essentiallySelfAdjointOn_core_of_rowBound` (`BookProof/ChapterQymTimeIndependentFlow.lean`)
+  — the consequence: the ESA of `dΓ(H₁)` for the physical matrix follows from the single ℓ¹ row
+  estimate `∀ k, ∑_j |(ymFockCol e fabc k) j| ≤ K`, with no symbol to choose.
+
+So the minimal missing input for the physical `ymFockCol` is one estimate, not three: the uniform
+ℓ¹ row bound of the one-particle matrix in the product Hermite basis.  Note what this does and does
+not buy: it removes the *choice* of `w` (and with it the question whether a weighted symbol helps),
+but it does not prove the row estimate, so the ESA of the physical generator remains conditional.
+The weighted gates keep their point only if a symbol can be found that makes the ℓ¹ row sum *easier*
+than it is at `w ≡ 1` — and since the column gate at general `w` is the same finite sum weighted by
+`1/w_k`, a weight can only help through the commutator gate.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa
+BookProof.ChapterQymTimeIndependentFlow` → 8077 / 8140 jobs, no error and no warning naming either
+module; no line over 100 characters; `#print axioms` on `wCommBound_one` reports only
+`propext, Classical.choice, Quot.sound`, and the new theorem is a term application of that lemma,
+of `wColBound_one_of_wRowBound_one` and of the axiom-free symbol-gate reduction.

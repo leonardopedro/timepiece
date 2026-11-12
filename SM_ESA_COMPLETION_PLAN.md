@@ -2995,7 +2995,52 @@ inequality is the sharp one on the flat-quartic model's differentiated coordinat
 ### 51.3. Verification performed (2026-11-12)
 
 * `lake build BookProof.Sm.ChapterSmGradDomStructural` — 8170 jobs, clean, no warnings.
-* `lake env lean Work/SmGradDomStructuralAudit.lean` — 27 declarations, axioms exactly
+* `lake env lean Work/SmGradDomStructuralAudit.lean` — 28 declarations, axioms exactly
   `propext, Classical.choice, Quot.sound`, no `sorryAx`.
 * `scripts/check-sm-section-guards` — green, with new §49.3b needles (`sq_polyW_linForm_le`,
   `gradBound_of_linear`).
+
+## 52. The pointwise-to-`L²` transfer, and `PotSelfBound` from the table alone (P4)
+
+§49 left two steps under `GradDom`: the per-form support table and the passage from the pointwise
+domination to the `L²` inequality.  §51 reduced the first; §52 closes the second, so what is left of
+P4 is a finite algebraic computation.
+
+### 52.1. The transfer
+
+`BookProof/Sm/ChapterSmGradDomTransfer.lean` (concurrent session, commit `f240c22`) carries
+`∑_{j∈M} (∂_j W)(x)² ≤ a W(x)² + b` to
+
+  `∑_{j∈M} ‖(∂_j W) p‖² ≤ a ‖W p‖² + b ‖p‖²`
+
+by Gaussian-integral monotonicity: the pointwise bound is multiplied by the non-negative `‖p(x)‖²`
+and integrated.  The evaluation identities `eval_real_of_realCoeff`, `norm_eval_sq_eq_polyW_sq`,
+`eval_cpoly_mul_re`, `eval_sum_cpoly_re` supply the pointwise shapes, `l2_gradDom_of_pointwise` is
+the transfer, and `exists_potSelfBound_of_pointwise` composes it with §48's
+`exists_potSelfBound_of_gradDom`.
+
+### 52.2. The chain from the table
+
+`exists_potSelfBound_of_gradBound` closes the loop: a `GradBound` for the 49 forms at a constant `C`
+gives `∃ β, PotSelfBound P c₀ β`, with the explicit constants `a = 16 |smS| 49 C + 8`,
+`b = 8 |smS| 49 C + 8`.  The step that makes this an instance of the SM rather than of a generic
+potential is `smPotPoly_eq_wsSum` (§49.3c): `smPotPoly P c₀` *is* `wsSum` at the 49 forms and the 40
+momentum coordinates, `Finset.sum_image` along `smCoord_injective` being the reindexing.
+
+So P4 now depends on one input, the per-form `pderiv` table: `∂_j (smPhi P r)` is a linear form
+supported in `smS` for every `j ∈ smS`.  §51's `gradBound_of_linear` turns that table into
+`GradBound`; §52 turns `GradBound` into `PotSelfBound`.  No analysis and no further algebra lies
+between them, and until the table is written down `PotSelfBound` remains a hypothesis.
+
+### 52.3. Verification performed (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmGradDomStructural BookProof.Sm.ChapterSmGradDomTransfer
+  BookProof.Sm.ChapterSmReverseEllipticQuartic` — clean.
+* `lake env lean Work/SmGradDomStructuralAudit.lean` — 28 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean Work/SmGradDomTransferAudit.lean` — 8 declarations, same three axioms, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0.
+* `scripts/check-sm-section-guards` — green, with the §49.3b/§49.3c and §52 needles.  The old
+  "unformalized `L²` transfer" caveat needle is replaced in the same commit by the §49 block's
+  `per-form \`pderiv\` table` caveat, since the caveat itself is now obsolete; the pderiv table is
+  still not written down, so the caveat is preserved in its narrowed form rather than deleted.
