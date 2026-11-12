@@ -52,6 +52,13 @@ constants `f_{abc}`:
 * **`colourMix_norm_of_unitary`, `colourMixIsometryEquiv`** — for a unitary colour matrix
   (`star C * C = 1`) the colour half `1 ⊗ C` is norm-preserving on `colourSpace N`, hence a
   linear isometric equivalence, for **every** `N` (the `N = 2` case was the only one available);
+* **`colourMix_colouredHamiltonian`, `colourMix_clExt_colouredHamiltonian`** — unitary colour
+  conjugation transports the generator: `1 ⊗ U` intertwines `H ⊗ 1 + 1 ⊗ (U* C U)` with
+  `H ⊗ 1 + 1 ⊗ C` on the core, and by `clExt_comp_of_bounded_intertwines` (a bounded map carries
+  graph closures into graph closures) the same identity holds between the closures;
+* **`colourMix_colourSpread_eigenvector`, `colourSpread_ne_zero`** — a colour eigenvector spread
+  over a field vector is a nonzero eigenvector of the colour half with the same eigenvalue (the
+  only spectral content the colour half carries; see the spectrum boundary note below);
 * **`colourMix_colourFibre`, `colourVecAct_two_eq_eucMatCLM`, `hilbActOp_hilbFibre`** — the
   colour half of the Hamiltonian acts on the fibre of an elementary tensor, and on the
   fundamental fibre that action is `eucMatCLM`, the very operator the `fundHilbert` completion
@@ -595,6 +602,60 @@ def colourMixIsometryEquiv {C : Matrix (Fin N) (Fin N) ℂ} (hC : star C * C = 1
   map_smul' := colourMix_smul C
   norm_map' u := colourMix_norm_of_unitary hC u
 
+/-! ### The colour mixing on the coloured core and as a bounded operator
+
+`colourMix` acts componentwise, so it preserves the coloured core and commutes with the field
+half `H ⊗ 1`.  For a unitary colour matrix it is norm preserving, hence a bounded operator of
+`colourSpace N`; those are the three inputs of the conjugation theorem below.
+-/
+
+/-- **The colour mixing preserves the coloured core**: each output component is a finite
+`ℂ`-linear combination of components of `u`, all of which lie in the field core. -/
+theorem colourMix_mem_core (C : Matrix (Fin N) (Fin N) ℂ) {u : colourSpace N}
+    (hu : u ∈ colouredCore N D) : colourMix C u ∈ colouredCore N D := by
+  intro i
+  rw [colourMix_ofLp]
+  exact Submodule.sum_mem D fun j _ => Submodule.smul_mem D (C i j) (hu j)
+
+/-- The colour mixing as an endomorphism of the coloured core. -/
+def colourMixCore (C : Matrix (Fin N) (Fin N) ℂ) :
+    colouredCore N D →ₗ[ℂ] colouredCore N D where
+  toFun u := ⟨colourMix C (u : colourSpace N), colourMix_mem_core C u.2⟩
+  map_add' u w := Subtype.ext (by simp only [Submodule.coe_add, colourMix_add])
+  map_smul' c u := Subtype.ext (by simp only [SetLike.val_smul, RingHom.id_apply, colourMix_smul])
+
+@[simp] theorem colourMixCore_coe (C : Matrix (Fin N) (Fin N) ℂ) (u : colouredCore N D) :
+    ((colourMixCore C u : colouredCore N D) : colourSpace N) = colourMix C (u : colourSpace N) :=
+  rfl
+
+/-- **The colour mixing as a bounded operator** of the coloured Hilbert space, for a unitary
+colour matrix; its operator norm is `1` (`colourMix_norm_of_unitary`). -/
+noncomputable def colourMixCLM {U : Matrix (Fin N) (Fin N) ℂ} (hU : star U * U = 1) :
+    colourSpace N →L[ℂ] colourSpace N :=
+  (colourMixLinear U).mkContinuous 1 fun u => by
+    rw [colourMixLinear_apply, one_mul]
+    exact le_of_eq (colourMix_norm_of_unitary hU u)
+
+@[simp] theorem colourMixCLM_apply {U : Matrix (Fin N) (Fin N) ℂ} (hU : star U * U = 1)
+    (u : colourSpace N) : colourMixCLM hU u = colourMix U u := rfl
+
+/-- **The colour half commutes with the field half**: both act componentwise, the field
+operator preserves finite sums and scalar multiples, and the matrix only mixes components. -/
+theorem colourMix_colourFieldOp (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (C : Matrix (Fin N) (Fin N) ℂ) (u : colouredCore N D) :
+    colourMix C (colourFieldOp Φ fabc N u) = colourFieldOp Φ fabc N (colourMixCore C u) := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [colourMix_ofLp, colourFieldOp_ofLp]
+  have hcomp : colourComponent (colourMixCore C u) i
+      = ∑ j : Fin N, C i j • colourComponent u j := by
+    refine Subtype.ext ?_
+    simp only [colourComponent_coe, colourMixCore_coe, colourMix_ofLp, Submodule.coe_sum,
+      Submodule.coe_smul]
+  rw [hcomp, map_sum]
+  exact Finset.sum_congr rfl fun j _ =>
+    (map_smul (ymHamiltonian Φ fabc) (C i j) (colourComponent u j)).symm
+
 /-! ### Symmetric perturbations do not create deficiency vectors
 
 The perturbation is not assumed bounded or even linear: what the argument uses is only the
@@ -710,6 +771,78 @@ theorem colouredHamiltonian_eq_field_add_mix (Φ : CoreRep 99 D)
   simp only [colouredHamiltonian_ofLp, colourFieldOp_ofLp, WithLp.ofLp_add, Pi.add_apply,
     colourMix_ofLp, colourComponent]
 
+/-- **Colour conjugation replaces `C` by `U* C U`.**  For a colour matrix `U` with
+`U * U* = 1` the colour half `1 ⊗ U` intertwines `H ⊗ 1 + 1 ⊗ (U* C U)` with `H ⊗ 1 + 1 ⊗ C`:
+the field half commutes with `1 ⊗ U`, and `U * (U* C U) = C * U` collapses the two copies of
+`U` on the colour side. -/
+theorem colourMix_colouredHamiltonian (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {U C : Matrix (Fin N) (Fin N) ℂ}
+    (hU : U * star U = 1) (u : colouredCore N D) :
+    colourMix U (colouredHamiltonian Φ fabc N (star U * C * U) u)
+      = colouredHamiltonian Φ fabc N C (colourMixCore U u) := by
+  have hmat : U * (star U * C * U) = C * U := by
+    rw [← mul_assoc, ← mul_assoc, hU, one_mul]
+  calc colourMix U (colouredHamiltonian Φ fabc N (star U * C * U) u)
+      = colourMix U (colourFieldOp Φ fabc N u)
+          + colourMix U (colourMix (star U * C * U) (u : colourSpace N)) := by
+        rw [colouredHamiltonian_eq_field_add_mix]
+        exact colourMix_add U _ _
+    _ = colourFieldOp Φ fabc N (colourMixCore U u)
+          + colourMix (U * (star U * C * U)) (u : colourSpace N) := by
+        rw [colourMix_colourFieldOp, colourMix_mul]
+    _ = colourFieldOp Φ fabc N (colourMixCore U u)
+          + colourMix (C * U) (u : colourSpace N) := by
+        rw [hmat]
+    _ = colourFieldOp Φ fabc N (colourMixCore U u)
+          + colourMix C (colourMix U (u : colourSpace N)) := by
+        rw [← colourMix_mul]
+    _ = colouredHamiltonian Φ fabc N C (colourMixCore U u) := by
+        refine (congrArg (fun w => colourFieldOp Φ fabc N (colourMixCore U u) + w)
+          (congrArg (colourMix C) (colourMixCore_coe U u).symm)).trans ?_
+        exact (colouredHamiltonian_eq_field_add_mix Φ fabc C (colourMixCore U u)).symm
+
+/-! ### The colour eigenvalues are eigenvalues of the colour half
+
+A colour vector spread over one field vector gives a vector of the coloured space whose `i`-th
+component is `v i • φ`.  For an eigenvector of the colour matrix this is an eigenvector of
+`colourMix C` with the same eigenvalue, because the matrix mixes only the colour labels and the
+field factor rides along untouched.  That is the whole spectral content the colour half carries
+here; the boundary note of the Stone bridge below records what is *not* available about the
+spectrum of the closure.
+-/
+
+/-- The colour vector `v` spread over a single field vector `φ`. -/
+def colourSpread (v : colourVec N) (φ : L2d 99) : colourSpace N :=
+  WithLp.toLp 2 fun i => WithLp.ofLp v i • φ
+
+@[simp] theorem colourSpread_ofLp (v : colourVec N) (φ : L2d 99) (i : Fin N) :
+    (colourSpread v φ : colourSpace N).ofLp i = WithLp.ofLp v i • φ := rfl
+
+/-- **A colour eigenvector is an eigenvector of the colour half**, with the same eigenvalue. -/
+theorem colourMix_colourSpread_eigenvector (C : Matrix (Fin N) (Fin N) ℂ) {v : colourVec N}
+    {a : ℂ} (hv : ∀ i, ∑ j : Fin N, C i j * WithLp.ofLp v j = a * WithLp.ofLp v i)
+    (φ : L2d 99) : colourMix C (colourSpread v φ) = a • colourSpread v φ := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [colourMix_ofLp, colourSpread_ofLp, WithLp.ofLp_smul, Pi.smul_apply, smul_smul]
+  rw [← Finset.sum_smul, hv i]
+
+/-- The spread of a nonzero colour vector over a nonzero field vector is nonzero, so the
+eigenvector above is a genuine one. -/
+theorem colourSpread_ne_zero {v : colourVec N} (hv : v ≠ 0) {φ : L2d 99} (hφ : φ ≠ 0) :
+    colourSpread v φ ≠ 0 := by
+  intro h
+  have hzero : ∀ i, WithLp.ofLp v i = 0 := by
+    intro i
+    have h1 : (colourSpread v φ : colourSpace N).ofLp i = 0 := by rw [h]; simp
+    rw [colourSpread_ofLp] at h1
+    exact (smul_eq_zero.1 h1).resolve_right hφ
+  have hv0 : v = 0 := by
+    apply WithLp.ofLp_injective
+    funext i
+    simpa using hzero i
+  exact hv hv0
+
 /-- **The coloured non-abelian Yang–Mills Hamiltonian `H ⊗ 1 + 1 ⊗ C` is essentially
 self-adjoint** on the coloured core, for a Hermitian colour matrix `C` and arbitrary real
 structure constants.  The field half is the direct sum of `N` copies of `ym_h_esa` glued
@@ -746,8 +879,18 @@ extension and a complete one-parameter unitary group solving the Schrödinger eq
 
 **Boundary.**  The generator is the closure of `H ⊗ 1 + 1 ⊗ C` on the coloured core
 (`colouredHamiltonian_extension_eq_closure`), not a differential expression restricted to an
-independently chosen boundary condition: essential self-adjointness leaves no choice.  No spectral
-or gap statement about `T.op` is claimed.
+independently chosen boundary condition: essential self-adjointness leaves no choice.
+
+**Boundary (spectrum).**  No spectral statement about `T.op` is claimed, and none is reachable
+from what this tree contains.  The unbounded spectrum is not defined here: `BookProof.EsaClosure`
+supplies the closure, `BookProof.ChapterStoneResolvent` the resolvent `(A - il)⁻¹` on the
+imaginary axis, and `spectrum` otherwise appears only for *bounded* operators, so there is no
+`σ(T.op)` for a spectrum of `H ⊗ 1` plus colour eigenvalues to contain.  The natural candidate
+`σ(A + B) ⊆ σ(A) + σ(B)` is false anyway for non-commuting self-adjoint `A`, `B`; its true
+one-sided form needs a resolvent bound at *real* spectral distance and a Neumann series, neither
+of which exists here.  What *is* proved is the colour side of such a statement: a colour
+eigenvector spreads to an eigenvector of `1 ⊗ C` with the same eigenvalue
+(`colourMix_colourSpread_eigenvector`).
 -/
 
 /-- The coloured core over the Gauss–polynomial field core is dense in the coloured Hilbert
@@ -780,6 +923,121 @@ theorem colouredHamiltonian_extension_eq_closure (fabc : Fin 8 → Fin 8 → Fin
       BookProof.EsaClosure.clExt_symmetricOn _ _ _,
       BookProof.EsaClosure.clExt_selfAdjointCriterion _ _ _
         (colouredHamiltonian_esa fabc C hC)⟩
+
+/-! ### Colour conjugation transports the generator
+
+`colourMix_colouredHamiltonian` is a statement about the core.  It lifts to the closures by a
+general fact: a bounded map intertwining two core operators on a dense core maps the closed
+graph of one into the closed graph of the other, because the graph map `(x, y) ↦ (B x, B y)` is
+continuous.  The closure is closed, so the image of the closure lands in the closure of the
+image, which is contained in the target closure.
+-/
+
+section Intertwining
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+variable {Dom : Submodule ℂ F}
+
+/-- **The closed graph is transported by a bounded intertwining map.** -/
+theorem clGraph_image_subset (T S : Dom →ₗ[ℂ] F) (B : F →L[ℂ] F)
+    (hB : ∀ v : Dom, B (v : F) ∈ Dom)
+    (hint : ∀ v : Dom, B (T v) = S ⟨B (v : F), hB v⟩) :
+    (fun p : F × F => (B p.1, B p.2)) '' (BookProof.EsaClosure.clGraph T : Set (F × F))
+      ⊆ (BookProof.EsaClosure.clGraph S : Set (F × F)) := by
+  have hg : Continuous fun p : F × F => (B p.1, B p.2) :=
+    (B.continuous.comp continuous_fst).prodMk (B.continuous.comp continuous_snd)
+  have hsub : (fun p : F × F => (B p.1, B p.2)) ''
+      (BookProof.EsaClosure.opGraph T : Set (F × F)) ⊆
+      (BookProof.EsaClosure.clGraph S : Set (F × F)) := by
+    rintro _ ⟨p, hp, rfl⟩
+    obtain ⟨v, hh, hvp⟩ : ∃ v : Dom, ∃ h : (v : F) ∈ Dom, ((v : F), T ⟨v, h⟩) = p := by
+      simpa [BookProof.EsaClosure.opGraph_eq_range] using hp
+    rw [← hvp]
+    change (B (v : F), B (T ⟨(v : F), hh⟩)) ∈ (BookProof.EsaClosure.clGraph S : Set (F × F))
+    rw [hint v]
+    exact BookProof.EsaClosure.mem_clGraph_of_mem_opGraph
+      (BookProof.EsaClosure.mem_opGraph S ⟨B (v : F), hB v⟩)
+  refine (image_closure_subset_closure_image
+    (s := (BookProof.EsaClosure.opGraph T : Set (F × F))) hg).trans ?_
+  refine (closure_mono hsub).trans ?_
+  exact subset_of_eq (BookProof.EsaClosure.clGraph_isClosed S).closure_eq
+
+/-- **The domain of the closure is transported.** -/
+theorem mem_clDom_of_bounded_intertwines (T S : Dom →ₗ[ℂ] F) (B : F →L[ℂ] F)
+    (hB : ∀ v : Dom, B (v : F) ∈ Dom)
+    (hint : ∀ v : Dom, B (T v) = S ⟨B (v : F), hB v⟩) {x : F}
+    (hx : x ∈ BookProof.EsaClosure.clDom T) : B x ∈ BookProof.EsaClosure.clDom S := by
+  obtain ⟨y, hy⟩ := BookProof.EsaClosure.mem_clDom_iff.1 hx
+  exact BookProof.EsaClosure.mem_clDom_iff.2
+    ⟨B y, clGraph_image_subset T S B hB hint ⟨_, hy, rfl⟩⟩
+
+/-- **The closures are intertwined.**  With `T`, `S` densely defined and symmetric and
+`B (T v) = S (B v)` on the core, `B` conjugates `clExt T` into `clExt S`; no completeness,
+positivity or self-adjointness is used, only that the graph closures are closed. -/
+theorem clExt_comp_of_bounded_intertwines (T S : Dom →ₗ[ℂ] F)
+    (hdense : Dense (Dom : Set F)) (hsymT : SymmetricOn Dom T) (hsymS : SymmetricOn Dom S)
+    (B : F →L[ℂ] F) (hB : ∀ v : Dom, B (v : F) ∈ Dom)
+    (hint : ∀ v : Dom, B (T v) = S ⟨B (v : F), hB v⟩) (x : BookProof.EsaClosure.clDom T) :
+    BookProof.EsaClosure.clExt S hdense hsymS
+        ⟨B (x : F), mem_clDom_of_bounded_intertwines T S B hB hint x.2⟩
+      = B (BookProof.EsaClosure.clExt T hdense hsymT x) :=
+  BookProof.EsaClosure.clFun_unique hdense hsymS
+    (clGraph_image_subset T S B hB hint ⟨_, BookProof.EsaClosure.clFun_spec T x, rfl⟩)
+
+end Intertwining
+
+/-- A Hermitian colour matrix stays Hermitian under conjugation by a colour matrix. -/
+theorem conjTranspose_colourConj {U C : Matrix (Fin N) (Fin N) ℂ}
+    (hC : C.conjTranspose = C) : (star U * C * U).conjTranspose = star U * C * U := by
+  rw [Matrix.conjTranspose_mul, Matrix.conjTranspose_mul, hC]
+  simp only [Matrix.star_eq_conjTranspose, Matrix.conjTranspose_conjTranspose]
+  rw [mul_assoc]
+
+/-- **A unitary colour mixing maps the domain of the closure into the domain of the
+conjugated closure.** -/
+theorem colourMix_mem_clDom_colouredHamiltonian (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ}
+    {U C : Matrix (Fin N) (Fin N) ℂ} (hU : star U * U = 1)
+    (x : BookProof.EsaClosure.clDom
+      (colouredHamiltonian (coreRepPoly 99) fabc N (star U * C * U))) :
+    colourMixCLM hU (x : colourSpace N) ∈
+      BookProof.EsaClosure.clDom (colouredHamiltonian (coreRepPoly 99) fabc N C) := by
+  have hU' : U * star U = 1 := mul_eq_one_comm.mp hU
+  refine mem_clDom_of_bounded_intertwines (T := colouredHamiltonian (coreRepPoly 99) fabc N
+      (star U * C * U)) (S := colouredHamiltonian (coreRepPoly 99) fabc N C)
+    (B := colourMixCLM hU) (hB := fun v => colourMix_mem_core U v.2) (hint := fun v => ?_) x.2
+  rw [colourMixCLM_apply]
+  have h := colourMix_colouredHamiltonian (coreRepPoly 99) fabc (U := U) (C := C) hU' v
+  rw [h]
+  exact congrArg _ (Subtype.ext rfl)
+
+/-- **Unitary colour conjugation conjugates the QYM generator.**  The closure of
+`H ⊗ 1 + 1 ⊗ (U* C U)` is carried by `1 ⊗ U` onto the closure of `H ⊗ 1 + 1 ⊗ C`:
+`clExt (1 ⊗ C) ∘ (1 ⊗ U) = (1 ⊗ U) ∘ clExt (1 ⊗ U* C U)` on the domain of the latter.  Since
+both closures are the unique self-adjoint extensions (`colouredHamiltonian_extension_eq_closure`),
+this is a statement about `T.op` for the extension `T` of the Stone bridge, not about a chosen
+boundary condition. -/
+theorem colourMix_clExt_colouredHamiltonian (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ}
+    {U C : Matrix (Fin N) (Fin N) ℂ} (hU : star U * U = 1) (hC : C.conjTranspose = C)
+    (x : BookProof.EsaClosure.clDom
+      (colouredHamiltonian (coreRepPoly 99) fabc N (star U * C * U))) :
+    BookProof.EsaClosure.clExt (colouredHamiltonian (coreRepPoly 99) fabc N C)
+        (colouredCore_polyGaussCore_dense N) (colouredHamiltonian_symmetricOn _ fabc C hC)
+        ⟨colourMixCLM hU (x : colourSpace N),
+          colourMix_mem_clDom_colouredHamiltonian fabc hU x⟩
+      = colourMixCLM hU (BookProof.EsaClosure.clExt
+          (colouredHamiltonian (coreRepPoly 99) fabc N (star U * C * U))
+          (colouredCore_polyGaussCore_dense N)
+          (colouredHamiltonian_symmetricOn _ fabc (star U * C * U) (conjTranspose_colourConj hC))
+          x) := by
+  have hU' : U * star U = 1 := mul_eq_one_comm.mp hU
+  refine clExt_comp_of_bounded_intertwines (T := colouredHamiltonian (coreRepPoly 99) fabc N
+      (star U * C * U)) (S := colouredHamiltonian (coreRepPoly 99) fabc N C)
+    (colouredCore_polyGaussCore_dense N) _ _ (B := colourMixCLM hU)
+    (hB := fun v => colourMix_mem_core U v.2) (hint := fun v => ?_) x
+  rw [colourMixCLM_apply]
+  have h := colourMix_colouredHamiltonian (coreRepPoly 99) fabc (U := U) (C := C) hU' v
+  rw [h]
+  exact congrArg _ (Subtype.ext rfl)
 
 /-- **The QYM flow on the coloured core.**  For every Hermitian colour energy matrix `C`, the
 coloured Hamiltonian `H ⊗ 1 + 1 ⊗ C` has a self-adjoint extension `T.op` — with domain exactly

@@ -125,7 +125,7 @@ Mathematical Physics*, Thm X.23.  It is a hypothesis, never an `axiom`.
 | D.9 the shift-invert selection theorem with the extension **constructed**, not assumed (unbounded) | `friedrichs_hashimoto_selects` | PROVED |
 | D.10 the same for the Weyl-gauge Hamiltonian in the occupation-number realization | `weyl_hashimoto_selects_friedrichs` | PROVED |
 | D.11 non-vacuity: a genuinely unbounded operator (`A eₙ = n eₙ` on `ℓ²(ℕ,ℂ)`) | `unbounded_friedrichs_example` | PROVED |
-| D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `BookProof.StoneBridge`: `unboundedSelfAdjointOf`, `IsStoneFlow`, `exists_stone_flow_of_selfAdjointExtension`, `exists_stone_flow_of_positive`, `exists_stone_flow_of_esa` | PROVED and **instantiated for QYM** — `colouredHamiltonian_symmetricOn`, `colouredHamiltonian_esa`, `dense_colouredCore` and `exists_stone_flow_of_colouredHamiltonian` (`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`); the extension is **pinned to the closure** (`colouredHamiltonian_extension_eq_closure`), and `colourMix` is a unitary of `colourSpace N` for every `N` (`colourMixIsometryEquiv`); see `CONSOLIDATED_PLAN.md` §2026-11-12k and §2026-11-12l |
+| D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `BookProof.StoneBridge`: `unboundedSelfAdjointOf`, `IsStoneFlow`, `exists_stone_flow_of_selfAdjointExtension`, `exists_stone_flow_of_positive`, `exists_stone_flow_of_esa` | PROVED and **instantiated for QYM** — `colouredHamiltonian_symmetricOn`, `colouredHamiltonian_esa`, `dense_colouredCore` and `exists_stone_flow_of_colouredHamiltonian` (`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`); the extension is **pinned to the closure** (`colouredHamiltonian_extension_eq_closure`), and `colourMix` is a unitary of `colourSpace N` for every `N` (`colourMixIsometryEquiv`); unitary colour conjugation carries one closure onto the other (`colourMix_clExt_colouredHamiltonian`, §2026-11-12m), and a colour eigenvector spreads to an eigenvector of the colour half (`colourMix_colourSpread_eigenvector`); **no** spectral containment for `T.op` is claimed — see the spectrum boundary note of the ESA module and §2026-11-12m; see `CONSOLIDATED_PLAN.md` §2026-11-12k, §2026-11-12l and §2026-11-12m |
 
 D.5–D.8 (also in `BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean`) construct the
 missing limit operator under a boundedness hypothesis and identify it with the
@@ -161,8 +161,10 @@ recorded in prose in the module docstring rather than written as a theorem.
   extension is not merely selected but *determined*: `colouredHamiltonian_extension_eq_closure`
   shows every self-adjoint extension is `clExt` on `clDom` (§2026-11-12l), so the flow
   is that of the closure.  What is still not claimed: no spectral statement about
-  its generator, and no identification of `T.op` with a differential expression on
-  a domain defined by an independently imposed boundary condition.
+  its generator (§2026-11-12m records why none is reachable here — no unbounded spectrum, no
+  bundled `H ⊗ 1`, no resolvent estimate at real spectral distance, and `σ(A + B) ⊆ σ(A) + σ(B)`
+  is false without commutativity), and no identification of `T.op` with a differential
+  expression on a domain defined by an independently imposed boundary condition.
 
 ## Part E — the continuum realization (the definitional choice of §11.4.2)
 

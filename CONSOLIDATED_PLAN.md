@@ -22759,3 +22759,62 @@ module; `#print axioms` on `colourMix_inner_of_unitary`, `colourMix_norm_of_unit
 `colourMixIsometryEquiv`, `colouredHamiltonian_extension_eq_closure`,
 `exists_stone_flow_of_colouredHamiltonian`, `hilbActOp_hilbFibre_colourVecAct` and
 `colourGroupActHilbert_hilbFibre` reports only `propext, Classical.choice, Quot.sound`.
+
+## State of the project — 2026-11-12m: colour conjugation, the colour eigenvalues, and the spectrum verdict
+
+Three follow-ups to §2026-11-12l, of which two are proofs and the third is a negative result
+with a boundary note rather than an invented theorem.
+
+* **Colour conjugation transports the generator.**  `colourMix_colouredHamiltonian` proves on the
+  coloured core that `1 ⊗ U` intertwines `H ⊗ 1 + 1 ⊗ (U* C U)` with `H ⊗ 1 + 1 ⊗ C`
+  (`colourMix_colourFieldOp` for the field half, `colourMix_mul` plus `U * U* = 1` for the colour
+  half).  The lift to closures is a general fact, proved here as
+  `clExt_comp_of_bounded_intertwines`: a bounded `B` with `B (T v) = S (B v)` on a dense core
+  maps the closed graph of `T` into the closed graph of `S`, because `(x, y) ↦ (B x, B y)` is
+  continuous and `clGraph` is closed (`image_closure_subset_closure_image` on the operator graph,
+  `closure_mono`, then `IsClosed.closure_eq`).  No completeness, positivity or self-adjointness
+  enters.  The instantiation is `colourMix_clExt_colouredHamiltonian`, on the
+  Gauss–polynomial core, with `colourMixCLM` as the bounded operator (`‖1 ⊗ U‖ = 1` from
+  `colourMix_norm_of_unitary`) and `colourMix_mem_clDom_colouredHamiltonian` for the domain
+  transfer; `conjTranspose_colourConj` records that a Hermitian `C` stays Hermitian.  By
+  §2026-11-12l the two operators are `T.op` for the *unique* extensions, so this is a statement
+  about the QYM generator and not about a chosen realization.
+* **The colour eigenvalues are eigenvalues of the colour half.**
+  `colourMix_colourSpread_eigenvector`: if `v ≠ 0` is a colour eigenvector (`∑ j, C i j * v j =
+  a * v i`) and `φ ≠ 0`, the spread vector with components `v i • φ` is a nonzero eigenvector of
+  `colourMix C` with the same eigenvalue (`colourSpread_ne_zero`).  This is the provable fragment
+  of "the colour eigenvalues" — the colour half adds exactly the matrix spectrum to the coloured
+  space, carried on the field factor unchanged.
+* **The requested closure spectrum containment is not provable from this tree, and is not
+  claimed.**  The containment "`σ(T.op) ⊆ σ(H ⊗ 1) + {eigenvalues of C}`" needs three inputs, none
+  of which exists here: (i) a spectrum for an unbounded operator — the tree has the closure
+  (`BookProof.EsaClosure`) and the resolvent `(A - il)⁻¹` on the imaginary axis
+  (`BookProof.ChapterStoneResolvent`), while every `spectrum` occurrence is for a *bounded*
+  operator or for the bounded Cayley transform `resOp`; (ii) `H ⊗ 1` as a bundled self-adjoint
+  operator — only the coloured sum is bundled; (iii) a resolvent estimate at real `z` off the
+  spectrum plus a Neumann series, i.e. `‖(A + B - z)⁻¹‖ ≤ ‖(A - z)⁻¹‖ / (1 - ‖B‖ ‖(A - z)⁻¹‖)`.
+  As stated the containment is also false for non-commuting self-adjoint `A`, `B`; the standard
+  true form is one-sided and bounded-perturbation-theoretic.  The imaginary-axis bound
+  `‖(A - il)⁻¹‖ ≤ 1/|l|` gives no containment content, since `A + B` is self-adjoint there
+  anyway.  This is recorded as the *spectrum* boundary note of the ESA module rather than
+  silently attempted.
+* **Sweep of the "selected extension" wording.**  The Qym chapters already use `clExt` and say
+  "nothing to select" wherever essential self-adjointness is available
+  (`ymAbelian_positiveExtension_eq_closure`, `ymAbelianFock_positiveExtension_eq_closure`, whose
+  docstring is titled "the selection problem is empty").  The one place that described the
+  generator as a realized choice was `ChapterQymTimeIndependentFlow.lean`, where `∃ T,
+  IsSelfAdjointExtension (dΓ H₁) T.op` only *asserts* an extension: it now carries
+  `ymFock_dGamma_extension_eq_closure`, which pins every self-adjoint extension of `dΓ(H₁)` to
+  `clDom`/`clExt` *under* the essential-self-adjointness hypothesis of the sibling theorem, and
+  the two docstrings say exactly that ("the statement asserts `IsSelfAdjointExtension` … not
+  selected but determined").  For the physical `ymFockCol` that hypothesis is still open, so no
+  uniqueness is claimed unconditionally.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsNonAbelianEsa
+BookProof.ChapterQymTimeIndependentFlow` → 8177 jobs, no error, no warning naming either module;
+no line over 100 characters and no trailing whitespace in the edited files; `#print axioms` on
+`colourMix_colourFieldOp`, `colourMix_colouredHamiltonian`, `clGraph_image_subset`,
+`clExt_comp_of_bounded_intertwines`, `colourMix_mem_clDom_colouredHamiltonian`,
+`colourMix_clExt_colouredHamiltonian`, `colourMix_colourSpread_eigenvector`,
+`colourSpread_ne_zero` and `ymFock_dGamma_extension_eq_closure` reports only
+`propext, Classical.choice, Quot.sound`.
