@@ -22692,6 +22692,11 @@ identified, but the *operator* is: `colourVec 2` is definitionally `EuclideanSpa
 * `colourVecAct_norm_of_unitary` — hence a unitary `2 × 2` colour matrix acts isometrically on the
   fibre, which is `eucMatCLM_norm_of_unitary` restated on the field-side object.
 
+> *Updated by §2026-11-12l:* the two sentences below that deny an isometry of
+> `colourMix` on `colourSpace N`, an identification of the colour action across
+> the completions, and a determinate extension are superseded.  What remains
+> true is only that the two *completions* are not identified as Hilbert spaces.
+
 So `colourGroupElement a θ`, whose isometry is what makes `colourGroupActHilbert a θ` unitary, is
 also what mixes the components of the coloured core.  What remains un-bridged is only the
 completion: no statement identifies `fundHilbert d` with `colourSpace N` as Hilbert spaces, and the
@@ -22715,6 +22720,7 @@ warning naming either module; no line over 100 characters and no trailing whites
 `lake build BookProof` on the merged tree (this packet plus the concurrent glueball/BRST commits)
 completed at 8969 jobs with no error.
 
+<<<<<<< HEAD
 ## State of the project — 2026-11-12l: the traceless summand is invariant, and the Casimir reads off `3`, `1`, `5`
 
 **What the previous entry left open.**  The 12j colour-algebra entry split the glueball square as
@@ -22787,3 +22793,61 @@ Nothing here asserts that the chapter's Fock space carries these modes as a fact
 `Sym²₀`'s five dimensions are five physical glueball polarisations, or that the Casimir eigenvalue
 `6` is a mass — it is a colour quantum number of the fibre, computed, and the mass statements live
 in the QYM chapters.
+=======
+## State of the project — 2026-11-12l: `colourMix` is a unitary, the extension is the closure
+
+§2026-11-12k closed the D.12 instance but left three statements open, and two of them were
+harder than they looked while the third was easier:
+
+* **`colourMix` is an isometry for every `N`.**  §2026-11-12k recorded the ℓ² matrix-isometry
+  identity as "not in the tree" and proved the fibre case only at `N = 2`.  It is now proved for
+  general `N` — `colourMix_add`/`colourMix_smul` (linearity), `colourMix_one`, `colourMix_mul`
+  (`1 ⊗ C` composes as matrix product), `colourMix_adjoint` (`1 ⊗ C` has adjoint `1 ⊗ C*`),
+  `colourMix_inner_of_unitary`, `colourMix_norm_of_unitary`, `colourMix_isometry_of_unitary`, and
+  `colourMixIsometryEquiv : colourSpace N ≃ₗᵢ[ℂ] colourSpace N` with inverse `1 ⊗ C*` whenever
+  `star C * C = 1`.  No ℓ² spectral theorem is needed: the whole computation is
+  `⟪1⊗C u, 1⊗C w⟫ = ⟪u, 1⊗(C*C) w⟫ = ⟪u, w⟫`, i.e. `Matrix.mul_apply` plus `Finset.sum_comm`.
+  This is the missing "colour half is unitary" half of `H ⊗ 1 + 1 ⊗ C`.
+* **The extension is not chosen, it is the closure.**  §2026-11-12k said the flow was "the
+  abstract Stone flow of the *selected* extension", which is weaker than the mathematics:
+  essential self-adjointness gives deficiency indices `(0, 0)`, and `clExt` on `clDom` is then
+  the *only* self-adjoint extension.  `colouredHamiltonian_extension_eq_closure` states that for
+  an arbitrary `Dom`/`A`, `IsSelfAdjointExtension (H ⊗ 1 + 1 ⊗ C) A` forces
+  `Dom = clDom (H ⊗ 1 + 1 ⊗ C)` and `A = clExt` there — `isSelfAdjointExtension_unique_of_esa`
+  applied to `colouredHamiltonian_esa`.  `exists_stone_flow_of_colouredHamiltonian` now returns
+  exactly that: the extension predicate, `T.domain = clDom …`, the value identity against
+  `clExt …`, and the flow.  So the boundary condition is *determined* rather than fixed by hand;
+  there is nothing left to choose, which is the honest form of the request "fix a boundary
+  condition".
+* **The colour fibre is shared, the completions are not.**  The request was to *identify*
+  `fundHilbert d` with `colourSpace 2` as Hilbert spaces.  They are not identifiable canonically:
+  `colourSpace 2 = PiLp 2 (fun _ : Fin 2 => L2d 99)` is `L²(ℝ⁹⁹) ⊗ ℂ²` and
+  `fundHilbert d = lp (fun _ : Fin d → ℕ => EuclideanSpace ℂ (Fin 2)) 2` is `ℓ²(ℕ^d) ⊗ ℂ²`; the
+  base factors differ, no canonical isometry between them exists in the tree, and a
+  `HilbertBasis` reindexing would be non-canonical *and* would not intertwine the colour actions,
+  so it would not deliver the unitary-conjugation statement it appears to.  What is canonical is
+  the common colour factor, and that is now proved as such: `hilbFibre` embeds `colourVec 2` into
+  the completion at a single occupation multi-index, `hilbActOp_hilbFibre` shows the completion's
+  action never leaves that copy, `hilbActOp_hilbFibre_colourVecAct` and
+  `colourGroupActHilbert_hilbFibre` show it acts there by `colourVecAct` — the same operator the
+  field side applies on the fibre of an elementary tensor (`colourMix_colourFibre`, from
+  §2026-11-12k).  So the unitary colour group acts by one operator on the one fibre, on both
+  sides; only the ambient completions stay distinct.  The boundary note of
+  `ChapterYangMillsFieldStrengthSplit` now says this explicitly instead of leaving the fibre tie
+  unmentioned.
+
+**Boundary / what is *not* claimed.**  `colourMix` is isometric for a **unitary** `C`
+(`star C * C = 1`); for a merely Hermitian `C` only the symmetry `colourMix_inner` holds, and
+nothing is said about `colourGroupActHilbert` at matrices outside the colour group.  The shared
+fibre does **not** give a Hilbert-space isomorphism of the completions, nor a spectral statement
+about `T.op`, nor a gap, nor an identification of `T.op` with a differential expression on a
+domain defined by an imposed boundary condition — the extension is the graph closure of the core
+operator, and that is all.  Nothing here is a statement about the continuum Yang–Mills operator.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsNonAbelianEsa` → 8134 jobs, no error
+and no warning naming the module; no line over 100 characters and no trailing whitespace in the
+module; `#print axioms` on `colourMix_inner_of_unitary`, `colourMix_norm_of_unitary`,
+`colourMixIsometryEquiv`, `colouredHamiltonian_extension_eq_closure`,
+`exists_stone_flow_of_colouredHamiltonian`, `hilbActOp_hilbFibre_colourVecAct` and
+`colourGroupActHilbert_hilbFibre` reports only `propext, Classical.choice, Quot.sound`.
+>>>>>>> 5ba01a3fab25ffb11ecb1788ddc1c76f3349909d

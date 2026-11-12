@@ -4109,8 +4109,22 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- (`kform_quadForm_split`), and non-negativity is therefore sector-by-sector
 -- (`kform_quadForm_nonneg`, `physicalPositivity_nonneg_of_sectors`).  The Kugo–Ojima condition
 -- `PhysicalPositivity` (non-negative on the closed space, radical exactly the gauge orbit) is a
--- **named input, not a theorem**: the quartet structure of the matter model's charge is not built,
--- so no physical inner product is claimed.
+-- **named input here**; §47 derives it from quartet data, but the matter model's own quartet data
+-- is not built, so no physical inner product is claimed.
+-- `ChapterSmQuartet` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §47): the Kugo–Ojima mechanism behind
+-- §46's named input.  A `BrstQuartet Q` is the b-ghost `P` plus the physical projector `V` with
+-- `Q P + P Q = 1 - V` and `V`'s range in `ker Q`; from it `V Q = 0` follows
+-- (`quartet_physProj_comp_Q`), every closed vector splits as `x = Q (P x) + V x`
+-- (`quartet_decompose`), the charge form sees only the physical part (`kform_quartet_reduce`), and
+-- **`PhysicalPositivity` becomes a theorem** (`physicalPositivity_of_quartet`: the form is `‖V x‖²`
+-- on the closed space, and its radical is the gauge orbit).  The parity split composes with it
+-- (`kform_quartet_reduce_sectors`, `physicalPositivity_of_quartet_sectors`), which is the shape a
+-- sector-by-sector attack takes.  `exQuartet`/`exPhysicalPositivity` is a non-vacuous 2⊕1-dimensional
+-- instance (indefinite metric `σ₁` on the block, identity on the physical line; the cohomology is
+-- non-trivial by `exE2_not_exact`), and `isBrst_smBrstCharge` links `IsBrst` to
+-- `smBrstCharge_nilpotent`.  The SM's own `P` and `V` are still missing, so this is a mechanism, not
+-- a proof of SM positivity.
+import BookProof.Sm.ChapterSmQuartet
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index

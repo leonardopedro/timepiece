@@ -43,11 +43,20 @@ constants `f_{abc}`:
   short of; it lives here because this module imports the split chapter;
 * **`colouredCore_polyGaussCore_dense`** — the coloured core is dense in the coloured Hilbert
   space (from `dense_colouredCore`, which needs density of the field core);
+* **`colouredHamiltonian_extension_eq_closure`** — that extension is *the closure*: every
+  self-adjoint extension of `H ⊗ 1 + 1 ⊗ C` is `clExt`, so there is no boundary condition left to
+  choose and the Stone flow is the flow of a determined operator;
 * **`exists_stone_flow_of_colouredHamiltonian`** — the Stone bridge applied to the two inputs
-  above: `H ⊗ 1 + 1 ⊗ C` has a self-adjoint extension and a complete unitary flow;
-* **`colourMix_colourFibre`, `colourVecAct_two_eq_eucMatCLM`** — the colour half of the
-  Hamiltonian acts on the fibre of an elementary tensor, and on the fundamental fibre that action
-  is `eucMatCLM`, the very operator the `fundHilbert` completion applies coefficientwise.
+  above: `H ⊗ 1 + 1 ⊗ C` has a self-adjoint extension — pinned to that closure — and a complete
+  unitary flow;
+* **`colourMix_norm_of_unitary`, `colourMixIsometryEquiv`** — for a unitary colour matrix
+  (`star C * C = 1`) the colour half `1 ⊗ C` is norm-preserving on `colourSpace N`, hence a
+  linear isometric equivalence, for **every** `N` (the `N = 2` case was the only one available);
+* **`colourMix_colourFibre`, `colourVecAct_two_eq_eucMatCLM`, `hilbActOp_hilbFibre`** — the
+  colour half of the Hamiltonian acts on the fibre of an elementary tensor, and on the
+  fundamental fibre that action is `eucMatCLM`, the very operator the `fundHilbert` completion
+  applies coefficientwise; the completion embeds the same fibre at `hilbFibre`, and both ambient
+  spaces act on it through the single operator `colourVecAct`.
 
 Nothing is assumed: the module contains no `axiom` and no `sorry`.
 -/
@@ -482,6 +491,110 @@ theorem colourMix_inner (C : Matrix (Fin N) (Fin N) ℂ) (hC : C.conjTranspose =
   congr 1
   exact hentry i j
 
+/-! ### The colour mixing is an isometry of the coloured space
+
+The colour half `1 ⊗ C` is defined componentwise.  For a unitary colour matrix it preserves the
+inner product — and hence the norm — of `colourSpace N = PiLp 2 (fun _ : Fin N => L2d 99)` for
+*every* `N`, not only on the fibre.  The proof is the matrix computation `star C * C = 1` seen
+through the adjoint `colourMix (star C)`, exactly as on the Euclidean fibre.
+-/
+
+theorem colourMix_add (C : Matrix (Fin N) (Fin N) ℂ) (u w : colourSpace N) :
+    colourMix C (u + w) = colourMix C u + colourMix C w := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [colourMix_ofLp, WithLp.ofLp_add, Pi.add_apply, smul_add, Finset.sum_add_distrib]
+
+theorem colourMix_smul (C : Matrix (Fin N) (Fin N) ℂ) (c : ℂ) (u : colourSpace N) :
+    colourMix C (c • u) = c • colourMix C u := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [colourMix_ofLp, WithLp.ofLp_smul, Pi.smul_apply]
+  rw [Finset.smul_sum]
+  exact Finset.sum_congr rfl fun j _ => (smul_comm c (C i j) (WithLp.ofLp u j)).symm
+
+/-- The colour mixing as a linear map. -/
+def colourMixLinear (C : Matrix (Fin N) (Fin N) ℂ) : colourSpace N →ₗ[ℂ] colourSpace N where
+  toFun := colourMix C
+  map_add' := colourMix_add C
+  map_smul' := colourMix_smul C
+
+theorem colourMixLinear_apply (C : Matrix (Fin N) (Fin N) ℂ) (u : colourSpace N) :
+    colourMixLinear C u = colourMix C u := rfl
+
+theorem colourMix_one (u : colourSpace N) :
+    colourMix (1 : Matrix (Fin N) (Fin N) ℂ) u = u := by
+  apply WithLp.ofLp_injective
+  funext i
+  rw [colourMix_ofLp]
+  refine (Finset.sum_eq_single i ?_ ?_).trans ?_
+  · intro j _ hj
+    rw [Matrix.one_apply_ne (Ne.symm hj)]
+    simp
+  · intro hi
+    exact absurd (Finset.mem_univ i) hi
+  · simp
+
+theorem colourMix_mul (C C' : Matrix (Fin N) (Fin N) ℂ) (u : colourSpace N) :
+    colourMix C (colourMix C' u) = colourMix (C * C') u := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [colourMix_ofLp, Matrix.mul_apply, Finset.smul_sum, smul_smul]
+  rw [Finset.sum_comm]
+  exact Finset.sum_congr rfl fun k _ => (Finset.sum_smul).symm
+
+/-- **The adjoint of the colour mixing is the conjugate-transpose matrix.** -/
+theorem colourMix_adjoint (C : Matrix (Fin N) (Fin N) ℂ) (u w : colourSpace N) :
+    (inner ℂ (colourMix C u) w : ℂ) = inner ℂ u (colourMix (star C) w) := by
+  simp only [PiLp.inner_apply, colourMix_ofLp, sum_inner, inner_sum, inner_smul_left,
+    inner_smul_right]
+  rw [Finset.sum_comm]
+  exact Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun i _ =>
+    congrArg (fun c => c * inner ℂ (WithLp.ofLp u j) (WithLp.ofLp w i))
+      (Matrix.star_apply C j i).symm
+
+/-- **A unitary colour matrix preserves the inner product** of the coloured space. -/
+theorem colourMix_inner_of_unitary {C : Matrix (Fin N) (Fin N) ℂ} (hC : star C * C = 1)
+    (u w : colourSpace N) :
+    (inner ℂ (colourMix C u) (colourMix C w) : ℂ) = inner ℂ u w := by
+  calc (inner ℂ (colourMix C u) (colourMix C w) : ℂ)
+      = inner ℂ u (colourMix (star C) (colourMix C w)) := colourMix_adjoint C u _
+    _ = inner ℂ u (colourMix (star C * C) w) := by rw [colourMix_mul]
+    _ = inner ℂ u w := by rw [hC, colourMix_one]
+
+/-- **A unitary colour matrix is norm-preserving on the coloured space.** -/
+theorem colourMix_norm_of_unitary {C : Matrix (Fin N) (Fin N) ℂ} (hC : star C * C = 1)
+    (u : colourSpace N) : ‖colourMix C u‖ = ‖u‖ := by
+  have h := colourMix_inner_of_unitary hC u u
+  have hsq : ‖colourMix C u‖ ^ 2 = ‖u‖ ^ 2 := by
+    rw [norm_sq_eq_re_inner (𝕜 := ℂ) _, norm_sq_eq_re_inner (𝕜 := ℂ) _, h]
+  nlinarith [norm_nonneg (colourMix C u), norm_nonneg u]
+
+theorem colourMix_isometry_of_unitary {C : Matrix (Fin N) (Fin N) ℂ} (hC : star C * C = 1) :
+    Isometry (colourMix C) := by
+  refine Isometry.of_dist_eq fun u w => ?_
+  rw [dist_eq_norm, dist_eq_norm]
+  have h : colourMix C (u - w) = colourMix C u - colourMix C w :=
+    map_sub (colourMixLinear C) u w
+  rw [← h]
+  exact colourMix_norm_of_unitary hC (u - w)
+
+/-- **A unitary colour matrix is a linear isometric equivalence** of the coloured space: the
+colour half `1 ⊗ C` of the coloured Hamiltonian is a unitary operator, with inverse `1 ⊗ C*`. -/
+def colourMixIsometryEquiv {C : Matrix (Fin N) (Fin N) ℂ} (hC : star C * C = 1) :
+    colourSpace N ≃ₗᵢ[ℂ] colourSpace N where
+  toFun := colourMix C
+  invFun := colourMix (star C)
+  left_inv u := by
+    show colourMix (star C) (colourMix C u) = u
+    rw [colourMix_mul, hC, colourMix_one]
+  right_inv u := by
+    show colourMix C (colourMix (star C) u) = u
+    rw [colourMix_mul, mul_eq_one_comm.mp hC, colourMix_one]
+  map_add' := colourMix_add C
+  map_smul' := colourMix_smul C
+  norm_map' u := colourMix_norm_of_unitary hC u
+
 /-! ### Symmetric perturbations do not create deficiency vectors
 
 The perturbation is not assumed bounded or even linear: what the argument uses is only the
@@ -631,9 +744,10 @@ and `polyGaussCore_dense` is that density.  With the two in place the QYM one-pa
 generator on the coloured space is no longer a formal expression: it *has* a self-adjoint
 extension and a complete one-parameter unitary group solving the Schrödinger equation.
 
-**Boundary.**  The flow is the abstract Stone flow of the selected extension.  Nothing here
-identifies its generator with a differential expression restricted to a boundary condition, and
-no spectral or gap statement about `T.op` is claimed.
+**Boundary.**  The generator is the closure of `H ⊗ 1 + 1 ⊗ C` on the coloured core
+(`colouredHamiltonian_extension_eq_closure`), not a differential expression restricted to an
+independently chosen boundary condition: essential self-adjointness leaves no choice.  No spectral
+or gap statement about `T.op` is claimed.
 -/
 
 /-- The coloured core over the Gauss–polynomial field core is dense in the coloured Hilbert
@@ -643,19 +757,59 @@ theorem colouredCore_polyGaussCore_dense (N : ℕ) :
       Set (colourSpace N)) :=
   dense_colouredCore polyGaussCore_dense N
 
+/-- **The extension is the closure of the graph, so there is no boundary condition to fix.**
+Essential self-adjointness gives deficiency indices `(0, 0)`, and then *every* self-adjoint
+extension of `H ⊗ 1 + 1 ⊗ C` coincides with `clExt` — the operator of the closure of the graph on
+the coloured Gauss–polynomial core.  This is `isSelfAdjointExtension_unique_of_esa` applied to
+`colouredHamiltonian_esa`. -/
+theorem colouredHamiltonian_extension_eq_closure (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ}
+    (C : Matrix (Fin N) (Fin N) ℂ) (hC : C.conjTranspose = C)
+    {Dom : Submodule ℂ (colourSpace N)} (A : Dom →ₗ[ℂ] colourSpace N)
+    (hA : BookProof.EsaClosure.IsSelfAdjointExtension
+      (colouredHamiltonian (coreRepPoly 99) fabc N C) A) :
+    Dom = BookProof.EsaClosure.clDom (colouredHamiltonian (coreRepPoly 99) fabc N C) ∧
+      ∀ (x : colourSpace N) (h : x ∈ Dom)
+        (h' : x ∈ BookProof.EsaClosure.clDom (colouredHamiltonian (coreRepPoly 99) fabc N C)),
+        A ⟨x, h⟩ = BookProof.EsaClosure.clExt (colouredHamiltonian (coreRepPoly 99) fabc N C)
+          (colouredCore_polyGaussCore_dense N)
+          (colouredHamiltonian_symmetricOn _ fabc C hC) ⟨x, h'⟩ :=
+  BookProof.EsaClosure.isSelfAdjointExtension_unique_of_esa
+    (colouredHamiltonian_esa fabc C hC) hA
+    ⟨fun v => ⟨BookProof.EsaClosure.coe_mem_clDom _ v,
+        BookProof.EsaClosure.clExt_extends _ _ _ v⟩,
+      BookProof.EsaClosure.clExt_symmetricOn _ _ _,
+      BookProof.EsaClosure.clExt_selfAdjointCriterion _ _ _
+        (colouredHamiltonian_esa fabc C hC)⟩
+
 /-- **The QYM flow on the coloured core.**  For every Hermitian colour energy matrix `C`, the
-coloured Hamiltonian `H ⊗ 1 + 1 ⊗ C` has a self-adjoint extension `T.op` and a complete
-one-parameter unitary group `U` that solves `d/dt U t x = -i T.op (U t x)` on the domain. -/
+coloured Hamiltonian `H ⊗ 1 + 1 ⊗ C` has a self-adjoint extension `T.op` — with domain exactly
+`clDom` and values exactly `clExt`, so the extension is determined and not chosen — and a
+complete one-parameter unitary group `U` that solves `d/dt U t x = -i T.op (U t x)` on the
+domain. -/
 theorem exists_stone_flow_of_colouredHamiltonian (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ}
     (C : Matrix (Fin N) (Fin N) ℂ) (hC : C.conjTranspose = C) :
     ∃ (T : BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint (colourSpace N))
       (U : ℝ → (colourSpace N →L[ℂ] colourSpace N)),
       BookProof.EsaClosure.IsSelfAdjointExtension
           (colouredHamiltonian (coreRepPoly 99) fabc N C) T.op ∧
-        BookProof.StoneBridge.IsStoneFlow T U :=
-  BookProof.StoneBridge.exists_stone_flow_of_esa _
-    (dense_colouredCore polyGaussCore_dense N)
-    (colouredHamiltonian_symmetricOn _ fabc C hC) (colouredHamiltonian_esa fabc C hC)
+        T.domain = BookProof.EsaClosure.clDom (colouredHamiltonian (coreRepPoly 99) fabc N C) ∧
+        (∀ (x : colourSpace N) (h : x ∈ T.domain)
+          (h' : x ∈ BookProof.EsaClosure.clDom (colouredHamiltonian (coreRepPoly 99) fabc N C)),
+          T.op ⟨x, h⟩ = BookProof.EsaClosure.clExt
+            (colouredHamiltonian (coreRepPoly 99) fabc N C)
+            (colouredCore_polyGaussCore_dense N)
+            (colouredHamiltonian_symmetricOn _ fabc C hC) ⟨x, h'⟩) ∧
+        BookProof.StoneBridge.IsStoneFlow T U := by
+  obtain ⟨Dom, A, hA⟩ :=
+    BookProof.EsaClosure.exists_isSelfAdjointExtension_of_esa
+      (colouredHamiltonian (coreRepPoly 99) fabc N C) (colouredCore_polyGaussCore_dense N)
+      (colouredHamiltonian_symmetricOn _ fabc C hC) (colouredHamiltonian_esa fabc C hC)
+  obtain ⟨hdom, hval⟩ := colouredHamiltonian_extension_eq_closure fabc C hC (A := A) hA
+  let T : BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint (colourSpace N) :=
+    BookProof.StoneBridge.unboundedSelfAdjointOf (colouredCore_polyGaussCore_dense N) hA
+  refine ⟨T, T.stoneU, hA, hdom, ?_, BookProof.StoneBridge.isStoneFlow_stoneU T⟩
+  intro x h h'
+  exact hval x h h'
 
 /-! ### The colour matrix on the fibre is the completion's operator
 
@@ -701,6 +855,63 @@ theorem colourVecAct_norm_of_unitary {C : Matrix (Fin 2) (Fin 2) ℂ} (hC : star
     (v : colourVec 2) : ‖colourVecAct C v‖ = ‖v‖ := by
   rw [colourVecAct_two_eq_eucMatCLM]
   exact eucMatCLM_norm_of_unitary hC v
+
+/-! ### The completion carries the same colour fibre
+
+`colourSpace 2` and `fundHilbert d` are *not* the same Hilbert space: the first is
+`L²(ℝ⁹⁹) ⊗ ℂ²` (`PiLp 2 (fun _ : Fin 2 => L2d 99)`) and the second is `ℓ²(ℕ^d) ⊗ ℂ²`
+(`lp (fun _ : Fin d → ℕ => EuclideanSpace ℂ (Fin 2)) 2`).  No canonical isometry between their
+base factors exists in the tree, so no identification of the completions is claimed here — an
+arbitrary `HilbertBasis` reindexing would be non-canonical and would not intertwine the colour
+actions.
+
+What *is* canonical is the colour factor.  Both spaces contain the common fibre
+`colourVec 2 = EuclideanSpace ℂ (Fin 2)`: field-side on an elementary tensor `x ⊗ v`
+(`colourFibre`, `colourMix_colourFibre`), completion-side as the vector supported at one
+occupation multi-index (`hilbFibre`).  On that fibre both act through the *single* operator
+`colourVecAct`, which at `N = 2` is `eucMatCLM` (`colourMix_colourFibre`,
+`hilbActOp_hilbFibre_colourVecAct`).  So the unitary colour group acts on the same fibre by the
+same operator on both sides, even though the ambient completions differ.
+-/
+
+/-- The colour fibre inside the Hilbert completion, supported on a single occupation
+multi-index. -/
+noncomputable def hilbFibre (d : ℕ) (n : Fin d → ℕ) (v : EuclideanSpace ℂ (Fin 2)) :
+    fundHilbert d :=
+  lp.single 2 n v
+
+theorem hilbFibre_apply (d : ℕ) (n : Fin d → ℕ) (v : EuclideanSpace ℂ (Fin 2))
+    (m : Fin d → ℕ) : (hilbFibre d n v : fundHilbert d) m = if m = n then v else 0 := by
+  rw [hilbFibre, lp.single_apply, Pi.single_apply]
+
+theorem hilbActOp_hilbFibre (d : ℕ) (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w)
+    (n : Fin d → ℕ) (v : EuclideanSpace ℂ (Fin 2)) :
+    hilbActOp M hInner (hilbFibre d n v) = hilbFibre d n (eucMatCLM M v) := by
+  apply Subtype.ext
+  funext m
+  rw [hilbActOp_apply, hilbFibre_apply, hilbFibre_apply]
+  by_cases hm : m = n
+  · rw [if_pos hm, if_pos hm]
+  · rw [if_neg hm, if_neg hm, map_zero]
+
+/-- **The completion and the field act on the colour fibre by the same operator.** -/
+theorem hilbActOp_hilbFibre_colourVecAct (d : ℕ) (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w)
+    (n : Fin d → ℕ) (v : colourVec 2) :
+    hilbActOp M hInner (hilbFibre d n v) = hilbFibre d n (colourVecAct M v) := by
+  rw [hilbActOp_hilbFibre, colourVecAct_two_eq_eucMatCLM]
+
+/-- **The exponentiated colour group acts on the completion through the field-side fibre
+operator**: `colourGroupActHilbert` on the vector supported at `n` is the vector supported at
+`n` with the fibre acted on by `colourVecAct`. -/
+theorem colourGroupActHilbert_hilbFibre (d : ℕ) (a : Fin 3) (θ : ℝ)
+    (n : Fin d → ℕ) (v : colourVec 2) :
+    colourGroupActHilbert (d := d) a θ (hilbFibre d n v)
+      = hilbFibre d n (colourVecAct (colourGroupElement a θ) v) := by
+  rw [colourGroupActHilbert_apply, hilbActOp_hilbFibre, colourVecAct_two_eq_eucMatCLM]
 
 end Coloured
 
