@@ -1,8 +1,8 @@
 import Mathlib
-import BookProof.ChapterScalaronCoreEsa
-import BookProof.ChapterHermiteQuadraticEsa
+import BookProof.Qg.ChapterScalaronCoreEsa
+import BookProof.Toolbox.ChapterHermiteQuadraticEsa
 import BookProof.ChapterDirectSumEsa
-import BookProof.ChapterQgOneParticleCcEsa.Part3
+import BookProof.Qg.ChapterQgOneParticleCcEsa.Part3
 
 /-!
 # The one-particle `R + αR²` Hamiltonian on the compactly supported smooth core
