@@ -931,9 +931,17 @@ gives disjoint symmetric and antisymmetric parts that span the fibre (`meson_dis
 (`mesonAlt_eq_span`, `mesonAlt_finrank`) and the symmetric part has dimension `3`
 (`mesonSymm_finrank`) — the decomposition `1 ⊕ 3` — and both parts are closed under every total
 action (`mesonAct_mem_symm`, `mesonAct_mem_alt`), the action being swap-symmetric
-(`mesonRep_flip_row`).  The glueball's three total actions are given in closed form
-(`glueballRep_zero_mulVec` and siblings), but no `Λ²`/trace/traceless decomposition of
-`3 ⊗ 3 = 5 ⊕ 3 ⊕ 1` is proved: only the trace line is shown to be a singlet.  **Representation:** the total
+(`mesonRep_flip_row`).  The glueball square is split the same way: the slot swap gives `Λ² ⊕ Sym²`
+(`glueball_isCompl`, dimensions `3` and `6` via `glueballAlt_finrank`, `glueballSymm_finrank`),
+and inside the symmetric part the trace line has a traceless complement
+(`glueballTrace_sup`, `glueballTrace_disjoint`), so `ℂ³ ⊗ ℂ³ = Λ² ⊕ (trace line) ⊕ Sym²₀`
+with dimensions `3`, `1`, `5`, the `Λ²` and `Sym²` summands invariant (`glueballAct_mem_alt`,
+`glueballAct_mem_symm`; the traceless piece's invariance is not separated out).  The identification is stronger than a dimension count: the
+`ε`-contraction `glueballAltEquiv` is a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and
+`glueballAltMap_intertwines` shows it carries the total action to `adjRep`, as
+`mesonSymmMap_intertwines` does for the Pauli-coordinate map of the meson symmetric part — so
+`mesonSymm_glueball_iso` states that the two `3`s are one `su(2)`-module.  No Clebsch–Gordan
+expansion is used anywhere: the summands come from the slot swap and the trace functional.  **Representation:** the total
 action `pairRep` obeys `[A^a, A^b] = i ε^{abc}A^c` (`pairRep_commutator`).  The proof runs on the
 product basis `pairRepProd` (`T^a ⊗ 1 + 1 ⊗ T^a` as a Kronecker sum), where `pairRepProd_mul`
 expands a product into four terms and the two mixed terms `T^a ⊗ T^b`, `T^b ⊗ T^a` are equal in

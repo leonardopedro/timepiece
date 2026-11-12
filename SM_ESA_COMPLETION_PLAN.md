@@ -478,6 +478,18 @@ operators' tensor-core sum is ESA. This needs the actual unitary/core transfer,
 not just an algebraic parity commutator. Reuse the ordinary statistics lifts
 on the two reducing factors rather than assuming a general graded theorem.
 
+**Landed 2026-11-12: the strong reduction of the closure (see §44).** `ChapterSmPhysicalReductionEsa`
+turns the core-level identity into a statement about the closure: the deficiency space of
+`smNormalForm D` at a deflation point is trivial **iff** both parity-sector deficiency problems are
+trivial (`deficiencyTrivialAt_iff_sectors` generic, `smNormalForm_esd_iff_parity_sectors` at `h_SM`),
+and each sector core is dense in its sector (`topologicalClosure_evenCore`, `topologicalClosure_oddCore`).
+Deficiency spaces are the corpus's representation of the closure, so this is the "strong commutation
+with the self-adjoint closure" this paragraph asks for, obtained from the unitary/core transfer and
+not from an algebraic parity commutator. What P5 still lacks is the *physical* side: the BRST
+quotient with its positive inner product, and the graded outer lift
+`Γ_s(K_even) ⊗ Γ_a(K_odd)` — the latter consumes essential self-adjointness of each sector
+operator, i.e. P4's elliptic input, which stays a hypothesis.
+
 **Landed 2026-11-11: the unitary/core half of that route.** In
 `ChapterSmFullMatterHamiltonian`, `coupledParity` is now a norm-preserving involution
 (`coupledParity_norm` from the coupled `ℓ²` identity `coupledSpace_norm_sq`,
@@ -2464,3 +2476,110 @@ computed with exact rational arithmetic / high-precision `Γ`-moments; they are 
 and not statements about the full `smPotPoly` (which has 49 forms rather than one radial
 polynomial).  The density argument of §43.2 is a general fact about the core.  `PotSelfBound`
 and `FormDomainComparison` remain hypotheses.
+
+## §44. P5's parity reduction of the closure — landed 2026-11-12
+
+### 44.1. What was missing, in the plan's own words
+
+P5 records the gap exactly: "`smNormalForm_parity` is a **core-level** identity, and the closure's
+graph has no commutation statement, so the strong reduction is not obtained".  Parity was known to be
+a norm-preserving involution of the coupled space, to preserve the common core, and to commute with
+the normal form on that core.  None of that restricts the *closure*: the deficiency criterion is a
+statement about the adjoint's deficiency space, and a core identity does not by itself see it.
+
+### 44.2. The generic statement, and why it is about the closure
+
+`BookProof/Sm/ChapterSmPhysicalReductionEsa.lean` (namespace
+`BookProof.SmPhysicalReduction`) first builds the two sectors of an involution `U` on a complex
+inner-product space together with the algebra that the SM instance needs:
+
+| lemma | content |
+| :-- | :-- |
+| `evenSpace`, `oddSpace` | `ker (U − 1)` and `ker (U + 1)` |
+| `evenPart`, `oddPart`, `evenPart_add_oddPart` | `x = ½(x + Ux) + ½(x − Ux)` |
+| `evenPart_mem`, `oddPart_mem` | the two parts lie in their sectors |
+| `inner_map_map_of_norm_map` | norm preservation ⇒ `⟪Ux, Uy⟫ = ⟪x, y⟫` |
+| `inner_map_left_eq` | a unitary involution is self-adjoint |
+| `inner_eq_zero_of_mem_even_of_mem_odd` (+ odd-first form) | **the sectors are orthogonal** |
+| `evenPart_mem_of_mem`, `oddPart_mem_of_mem`, `evenPart_mem_core`, `oddPart_mem_core` | an invariant core splits |
+| `evenOp`, `oddOp`, `evenOp_mem`, `oddOp_mem` | the two restrictions, and that `T` graded by parity stays graded |
+
+The reduction itself needs only one analytic-shaped lemma, which is pure algebra:
+
+* `deficiency_at_of_even_deficiency` — a vector `w` *of the even sector* satisfying the deficiency
+  equation `⟪T v, w⟫ = z⟪v, w⟫` against the even core satisfies it against the **whole** core.
+
+Proof: write `v = e + o` with `e, o` the two sector parts of `v`.  Both lie in `D` (`D` is
+`U`-invariant) and in their sectors.  `T o` is odd because `U(T o) = T(U o) = T(−o) = −T o` uses
+the core commutation, so `⟪T o, w⟫ = 0` by orthogonality; likewise `e ⊥ w` in the scalar product
+against `v`.  Hence the core equation for `v` follows from the sector equation for `e`.
+
+Consequently
+
+```
+deficiencyTrivialAt_iff_sectors :
+  DeficiencyTrivialAt D T z  ↔
+    SectorDeficiencyTrivial (D ⊓ evenSpace U) (evenOp) (evenSpace U) z  ∧
+    SectorDeficiencyTrivial (D ⊓ oddSpace U) (oddOp) (oddSpace U) z .
+```
+
+This is a statement about the closure because `DeficiencyTrivialAt` is exactly "the deficiency space
+of the adjoint at `z` is trivial", i.e. the range of `T − z̄` is dense; triviality at both `±i` is
+`EssentiallySelfAdjointOn`.  The proof never uses density of `D` and never quantifies over the
+closure explicitly — it shows that the *deficiency* test vectors cannot distinguish the core from
+its closure.  That is the strong commutation the plan asks for, expressed in the corpus's own idiom.
+
+### 44.3. The SM instance
+
+* `coupledParity_inner` — parity preserves the inner product of `PiLp 2 (fun _ => L2d 163)`
+  (from `coupledParity_norm` through `LinearIsometry.inner_map_map`), which is the "bounded
+  unitary" half of P5's sentence.
+* `smNormalForm_parity_core` — `smNormalForm_parity` in the orientation the reduction consumes,
+  with the subtype proof handled through `coe_coupledParityCore`.
+* **`smNormalForm_esd_iff_parity_sectors`** — for every `SmNormalFormData D` and every
+  `ParityGradedCoeffs D`,
+
+```
+EssentiallySelfAdjointOn SmCoupledCore (smNormalForm D)
+  ↔  (sector-deficient on the even core at I) ∧ (on the odd core at I)
+   ∧ (on the even core at −I) ∧ (on the odd core at −I).
+```
+
+  No hypothesis beyond the parity grading is used, and none is added: the equivalence is not a
+  weakening of the demand, it is an equality of the two conditions.
+* `topologicalClosure_evenCore`, `topologicalClosure_oddCore` — the closure of the even (odd) part of
+  a dense invariant core **is** the even (odd) sector, which is P5's "supply a dense graph core for
+  the restriction".  The odd case is the even case at `−U` (`evenSpace_neg`, `evenCore_neg`).
+
+### 44.4. What this does not prove
+
+* **Not** essential self-adjointness of either sector operator.  The reduction *localises* the
+  obstruction: two decoupled sector problems replace one coupled one, and each sector still needs
+  the elliptic/`PotSelfBound`/`FormDomainComparison` input of P4.  That input is unchanged, still a
+  hypothesis, and was not attempted here.  §43's conclusion — that no polynomial test function
+  supplies it — still stands.
+* **Not** the physical (gauge) sector: no BRST quotient, no positive inner product on it, no
+  reducing projection from a gauge-group unitary action.  The parity split is a *kinematic*
+  decomposition of the unreduced Hilbert space, and the plan's "identify the unreduced closure /
+  construct the actual physical Hilbert subspace" is not done.
+* **Not** the outer lift.  `EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa` needs ESA of the
+  one-particle operator, so `Γ_s(K_even) ⊗ Γ_a(K_odd)` and `smComplete_dGamma_esa` remain
+  conditional on §44.4's first bullet.  The graded permutation action's compatibility with the even
+  inner Hamiltonian is likewise untouched.
+* `SectorDeficiencyTrivial` is a *definition introduced here*; it is stated in the same shape as
+  `DeficiencyTrivialAt` with the test vector confined to a sector, and §44.2 is the proof that this
+  is the correct restriction.  It is not a re-labelling of the open problem: the equivalence is
+  proved, and the two sides are then both open or both closed.
+
+### 44.5. Verification performed (2026-11-12)
+
+* `lake build BookProof.Sm.ChapterSmPhysicalReductionEsa` — clean, no `sorry`, no new axioms.
+* `lake build Work.SmPhysicalReductionEsaAudit` — each of the 17 named declarations reports exactly
+  `propext, Classical.choice, Quot.sound`; `sorryAx` does not appear.
+* `import BookProof.Sm.ChapterSmPhysicalReductionEsa` registered in `BookProof.lean` with its
+  scope comment (line 4101); the aggregate file re-elaborates against the built oleans
+  (`lake env lean BookProof.lean`, exit 0, 4.6 s), and the full **`lake build BookProof` completed
+  successfully (8969 jobs, 0 errors)** after the registration, so no downstream module, roadmap
+  audit or aggregate target is disturbed by the new module.
+* No numerical claim is made in this section.  The §40–§43 numbers are unaffected and were not
+  recomputed.

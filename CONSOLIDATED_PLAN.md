@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12i):** “State of the project — 2026-11-12i: the meson square is
+> **Newest entry (2026-11-12j):** “State of the project — 2026-11-12j: the glueball square is
+> `3 ⊕ 1 ⊕ 5`, and the two `3`s are one module” (end of file): the glueball slot swap splits
+> `ℂ³ ⊗ ℂ³` into `Λ² ⊕ Sym²` of dimensions `3` and `6` (`glueball_isCompl`,
+> `glueballAlt_finrank`), the trace line has a five-dimensional invariant complement
+> (`glueball_isCompl_trace`, `glueballTraceless_finrank`), and the `ε`-contraction is a linear
+> isomorphism of `Λ²` onto the adjoint `ℂ³` intertwining with `adjRep` — as is the
+> Pauli-coordinate map of the meson symmetric part, so the meson `3` and the glueball `Λ²` are
+> isomorphic `su(2)`-modules (`mesonSymm_glueball_iso`).
+>
+> **Earlier entry (2026-11-12i):** “State of the project — 2026-11-12i: the meson square is
 > `1 ⊕ 3`, the glueball square is still `6`” (end of file): the slot-swap involution of
 > `ℂ² ⊗ ℂ²` gives disjoint symmetric/antisymmetric parts that span it
 > (`meson_isCompl`), of dimensions `3` and `1` (`mesonSymm_finrank`, `mesonAlt_finrank`), both
@@ -52,6 +61,12 @@
 > (`colouredHamiltonian_inner_core`, `colouredHamiltonian_quadForm_core`); with
 > `C = [[0, 1], [1, 0]]` the form carries the cross term `2 Re ⟨u₀, u₁⟩`
 > (`colouredHamiltonian_swap_quadForm`).
+>
+> **Earlier entry (2026-11-12b, module hygiene):** “State of the project — 2026-11-12b: the split
+> module's last two warnings are cleared” (end of file): the bare module-wide
+> `set_option maxHeartbeats 1000000` becomes four `in`-scoped options with the reason comment
+> *after* the `in`, and the flexible `simp` of `colouredHamiltonian_swap_quadForm` becomes the
+> `simp only` list Lean suggests; no statement or proof step changes.
 >
 > **Earlier entry (2026-11-12a):** “State of the project — 2026-11-12a: the colour singlet over the
 > combined `ℂ² ⊗ ℂ³` fibre” (end of file): the two colour factors are one fibre,
@@ -22449,6 +22464,38 @@ step inside a lemma that never mentions `su(2)`, `levi` or `Complex.I` — the s
 1291 and the flexible-`simp` note at 3190 are unchanged); `mesonRep_commutator` and
 `glueballRep_commutator` still typecheck against the new corollary.
 
+## State of the project — 2026-11-12b: the split module's last two warnings are cleared
+
+§2026-11-12a reported `BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` warning-free.  That
+stopped being true before it was pushed: the concurrently merged meson/glueball section (`2658f72`)
+brought back a bare `set_option maxHeartbeats 1000000` inside `section glueballComputation`, and
+`colouredHamiltonian_swap_quadForm` still carried `simp [Matrix.cons_val_zero,
+Matrix.cons_val_one]`, which `linter.style.flexible` flags as a flexible tactic modifying the goal.
+
+Both are now cleared, and the two fixes differ from the ones §2026-11-12a describes:
+
+* the four declarations of the glueball section (`glueballRep_zero_mulVec`,
+  `glueballRep_one_mulVec`, `glueballRep_two_mulVec`, `glueballCoeff_mem`) each get their own
+  `set_option maxHeartbeats 1000000 in`, and the reason comment goes **after** the `in`, not above
+  it — `DeprecatedSyntaxLinter` inspects the trailing comment of the option command, so a comment on
+  the preceding line does not count and the warning survives;
+* the flexible `simp` is replaced by the exact list Lean's own `simp?` suggested
+  (`Fin.isValue, of_apply, cons_val', cons_val_fin_one, cons_val_zero, Fin.sum_univ_two,
+  inner_self_eq_norm_sq_to_K, Complex.coe_algebraMap, zero_mul, cons_val_one, one_mul, zero_add,
+  add_zero`).  The two `Matrix.cons_val_*` names the old proof passed were already in the default
+  simp set, which is why `simp only` with just those two reduced nothing.
+
+The module now has fifteen `maxHeartbeats` options, **all scoped with `in`**, and no line over 100
+characters.  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes 8091 jobs with
+no warning or error naming the module.
+
+**Boundary.**  No statement, definition or proof obligation changes here: the four glueball lemmas
+and the swap-form identity keep the same tactic steps, with one explicit simp set in place of an
+open-ended `simp`.  Clearing a linter warning is not a strengthening of any theorem.
+
+**Verification.**  The single-module build as above; the aggregate `lake build BookProof` is rerun
+after this change and must be green before the packet is pushed.
+
 ## State of the project — 2026-11-12i: the meson square is `1 ⊕ 3`, the glueball square is still `6`
 
 The singlet sections left one boundary: *"not claimed: a decomposition into the remaining summands
@@ -22517,3 +22564,77 @@ symmetric subspace as `Sym ⊓ ker trace`, and a projector `v ↦ v - (tr v / 3)
 text now says so explicitly rather than lumping the meson and glueball cases together.  Claiming
 `3 ⊕ 5 ⊕ 1` from the singlet line alone would be exactly the kind of overclaim these entries exist
 to avoid.
+
+## State of the project — 2026-11-12j: the glueball square is `3 ⊕ 1 ⊕ 5`, and the two `3`s are one module
+
+Entry 12i closed the meson half of the "not claimed: a decomposition into the remaining summands"
+boundary and left the glueball half open, with the reason: the `9 × 9 × 3` swap check needed a
+raised budget and the three- and five-dimensional pieces had no single-vector description to reuse.
+Both obstacles are now gone, and the glueball square is split the same way.
+
+**The split.**  `BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` gains the section "The
+glueball square splits as `3 ⊕ 1 ⊕ 5`", built on the slot swap
+`glueballFlipIdx i = 3 * (i % 3) + i / 3`:
+
+* `glueballSymm` / `glueballAlt` are the fixed and anti-fixed vectors, disjoint (`glueball_disjoint`)
+  and spanning (`glueball_sup`), so `glueball_isCompl : IsCompl glueballAlt glueballSymm`;
+* `glueballAct_mem_symm` / `glueballAct_mem_alt` make both summands subrepresentations, from the
+  entrywise swap symmetry `glueballRep_flip_row` and the reindexing `glueball_sum_flip`;
+* `glueballAlt_finrank = 3` and `glueballSymm_finrank = 6`.  The dimension of `Λ²` is *not* a
+  determinant: the three upper-triangular coordinates are a linear isomorphism onto `ℂ³`
+  (`glueballAltCoord`), injective because an antisymmetric vector is determined by them
+  (`glueballAlt_coord_repr`), and the complement dimension is `9 - 3` from `IsCompl`;
+* inside the symmetric part, `glueballTraceless` is symmetric with vanishing trace and
+  `glueballTrace_sup` writes any symmetric vector as its trace part plus a traceless one, so
+  `glueballTrace_disjoint` and `glueball_isCompl_trace` give
+  `ℂ³ ⊗ ℂ³ = Λ² ⊕ (trace line) ⊕ Sym²₀`, of dimensions `3`, `1`, `5`
+  (`glueballTraceLine_finrank`, `glueballTraceless_finrank`).
+
+**The identification.**  The `ε`-contraction `glueballAltMap v a = Σ_j ε_{a, fst j, snd j} v_j` is
+a linear map into the space the adjoint generators act on, with the closed form
+`glueballAltMap v = (2 v₅, −2 v₂, 2 v₁)` on `Λ²` (`glueballAltMap_coords`), an explicit inverse
+`glueballAltInv` (`glueballAltInv_mem`, `glueballAltInv_map`), and hence
+`glueballAltEquiv : Λ² ≃ₗ ℂ³`.  The point is not the bijection but that
+`glueballAltMap_intertwines` holds: the `ε`-contraction carries the total action to `adjRep a`.
+That is what "`Λ²` *is* the adjoint `3`" means, and it is proved rather than asserted from the
+dimension count.
+
+For the meson, `mesonSymmMap v = ((v₁₁ − v₀₀)/2, −i(v₀₀ + v₁₁)/2, v₀₁)` is the corresponding
+Pauli-coordinate map, and `mesonSymmMap_intertwines` gives the same statement on `mesonSymm`.
+Composing, `mesonSymm_glueball_iso` states that transporting a symmetric meson tensor to the
+antisymmetric glueball part along `ε` commutes with every total action — the two `3`s of the two
+squares are one `su(2)`-module, which is why the `3` of `2 ⊗ 2` and the `3` of `3 ⊗ 3` can be
+spoken of as the same object at all.
+
+**A Lean trap worth recording.**  Two of the nine entries of `mesonSymmMap_intertwines` involve
+`Complex.I * ... * (Complex.I * ...)`.  `ring` does not know `I² = -1`, so it fails; `simp only
+[Complex.I_mul_I]` cannot help either, because the two `I`s are not syntactic factors of a single
+product (`I * (c * (I * x))`).  `ring_nf` normalizes the goal into a form where `Complex.I ^ 2` *is*
+a factor, and then `simp only [Complex.I_sq]` rewrites it.  The proof therefore ends with
+`all_goals ring_nf` / `all_goals try simp only [Complex.I_sq]` / `all_goals ring`, and the
+`try` is load-bearing: `simp` errors with "made no progress" on the seven entries that do not
+contain `I²`.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs,
+0 errors, no warning naming the module; no line over 100 characters; no `sorry`; `#print axioms` on
+`glueball_isCompl_trace`, `glueballAlt_finrank`, `glueballSymm_finrank`,
+`glueballTraceLine_finrank`, `glueballTraceless_finrank`, `glueballAct_mem_alt`,
+`glueballAct_mem_symm`, `glueballAltEquiv`, `glueballAltMap_intertwines`,
+`mesonSymmMap_intertwines` and `mesonSymm_glueball_iso` all give
+`[propext, Classical.choice, Quot.sound]`.  The aggregate `lake build BookProof` also completes
+(8969 jobs, 0 errors) on the merged tree.
+
+The section is lint-clean on its own terms, which took two fixes: its three `in`-scoped
+`maxHeartbeats` options were initially followed by nothing, and `DeprecatedSyntaxLinter` wants the
+reason comment *after* the `in` (a comment on the preceding line does not count); and the trace
+computation used an open-ended `simp`, replaced by the exact list `simp?` proposed
+(`glueballTraceCoords, Fin.isValue, glueballSingletVec, glueballCoeff, PiLp.smul_apply,
+cons_val_zero, smul_eq_mul, mul_one, cons_val`).  Neither changes a goal.
+
+**Boundary.**  Norms and closedness of these actions remain unclaimed, as does any
+Clebsch–Gordan expansion: the summands are found by the slot swap and by the trace functional,
+never by reducing products of representation matrices.  One gap is real and named rather than
+papered over: the traceless summand's invariance under `glueballAct` is **not** stated separately.
+`glueballAct_mem_symm` and `glueballAct_mem_alt` cover `Sym²` and `Λ²`; the traceless piece would
+follow from the trace functional vanishing on the image of the action, and that is not proved
+here.  The summand's dimension (`glueballTraceless_finrank = 5`) is independent of the point.
