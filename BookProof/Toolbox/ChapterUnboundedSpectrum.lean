@@ -278,13 +278,13 @@ theorem resolventAt_shift {D : Submodule ℂ H} {T : D →ₗ[ℂ] H} {w z : ℂ
     have hNw : N (T x - w • (x : H)) = T x - z • (x : H) := by
       rw [hN_apply, hx]
       module
-    show (R.comp u) (T x - z • (x : H)) = (x : H)
+    change (R.comp u) (T x - z • (x : H)) = (x : H)
     rw [← hNw, ContinuousLinearMap.comp_apply, hleft, hx]
   · intro y
     have hmem : R (u y) ∈ D := (hR.op_apply (u y)).1
     refine ⟨hmem, ?_⟩
     have hstep := (hR.op_apply (u y)).2
-    show T ⟨R (u y), hmem⟩ - z • R (u y) = y
+    change T ⟨R (u y), hmem⟩ - z • R (u y) = y
     calc T ⟨R (u y), hmem⟩ - z • R (u y)
         = (T ⟨R (u y), hmem⟩ - w • R (u y)) - (z - w) • R (u y) := by module
       _ = u y - (z - w) • R (u y) := by rw [hstep]

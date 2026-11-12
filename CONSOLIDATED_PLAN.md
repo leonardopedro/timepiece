@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12p):** “State of the project — 2026-11-12p: the ESA reduction, the P1
+> **Newest entry (2026-11-12q):** “State of the project — 2026-11-12q: the pointwise-to-`L²`
+> transfer, and the resolvent identity in the spectral parameter” (end of file):
+> `BookProof.Sm.ChapterSmGradDomTransfer` formalizes the transfer §48/§49 named as missing, so
+> `PotSelfBound` follows from the pointwise gradient domination alone and the residual input is the
+> finite `GradBound` table on the 49 forms; `BookProof.UnboundedSpectrum` gains the resolvent
+> identity, the parameter transport (`resolventAt_shift`) and the disc `‖z - i l‖ < |l|` in the
+> resolvent set, leaving the real-axis input as the boundary; the weighted symbol gates for
+> `ymFockCol` are still open.
+>
+> **Prev entry (2026-11-12p):** “State of the project — 2026-11-12p: the ESA reduction, the P1
 > bound, and the unbounded spectrum” (end of file): the Fock-space half of the essential
 > self-adjointness of `dΓ(H₁)` is discharged —
 > `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` instantiates the weighted Schur test
@@ -23092,3 +23101,49 @@ no trailing whitespace in the four edited files; `#print axioms` on
 `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` reports only
 `propext, Classical.choice, Quot.sound`.  The SM audit is by inspection plus `#print axioms` on the
 three SM modules named above (8177 jobs, no error); it changed no SM file.
+
+## State of the project — 2026-11-12q: the pointwise-to-`L²` transfer, and the resolvent identity in the spectral parameter
+
+Two of the three inputs the §2026-11-12o boundary notes named as missing are now in the tree.
+
+* **The `L²` transfer is formalized, so `PotSelfBound` rests on the pointwise domination alone.**
+  `BookProof/Sm/ChapterSmGradDomTransfer.lean` (namespace `BookProof.SmGradDomTransfer`) supplies the
+  step both §48 and §49 recorded as "routine but not formalized": from the pointwise gradient
+  domination `∑_{j∈M} (∂_j W)(x)² ≤ a W(x)² + b` it derives the `L²` inequality `GradDom` by
+  Gaussian-integral monotonicity (`gaussInt_re_mono`) against `norm_pgLp_sq`, the pointwise bound
+  multiplied by the non-negative `‖p‖²` (`l2_gradDom_of_pointwise`).  The three evaluation
+  identities it needs are proved there: a real-coefficient polynomial has a real value at a real
+  point (`eval_real_of_realCoeff`), its squared modulus is `polyW²`
+  (`norm_eval_sq_eq_polyW_sq`), and the Gaussian weight of `q p` is `(polyW q)² ‖p‖²`
+  (`eval_cpoly_mul_re`).  Composed with `exists_potSelfBound_of_gradDom`, the new
+  `exists_potSelfBound_of_pointwise` says: **a pointwise domination for `smPotPoly` yields
+  `PotSelfBound`, with `β` explicit**.  So the residual obligation for the Standard Model's own
+  potential is now exactly the per-form `GradBound` table — a finite algebraic check on the 49
+  forms — and no analysis between it and `PotSelfBound` remains.  This does *not* prove the table;
+  `GradBound (smPhi P) smS C` is still open, and `PotSelfBound P c0 β` is therefore still
+  conditional on it.
+
+* **The resolvent identity in the spectral parameter, and the disc around the imaginary axis.**
+  `BookProof.UnboundedSpectrum` gains `resolvent_identity` (`R_z - R_w = (z - w) R_z R_w` for two
+  bounded inverses, no completeness hypothesis), `resolventAt_shift` (if `R` inverts `T - w` and
+  `‖z - w‖ ‖R‖ < 1` then `R (1 - (z - w) R)⁻¹` inverts `T - z`, so the resolvent set is open with
+  an explicit witness), and `mem_resolventSet_of_near_imag`, which combines that with
+  `‖(T - i l)⁻¹‖ ≤ 1/|l|` to place the whole disc `‖z - i l‖ < |l|` in the resolvent set of a
+  self-adjoint operator.  This is what the resolvent identity actually buys: the disc has radius
+  exactly the distance from `i l` to the real axis, so it meets the real axis only in the limit
+  `l → ∞`.  The genuine real-axis bound `‖(T - x)⁻¹‖ ≤ 1/dist(x, σ T)` still needs the spectral
+  theorem and remains the recorded boundary — now sharpened from "no resolvent machinery" to
+  "everything but the real-axis input".
+
+* **Still open: the weighted symbol gates for `ymFockCol`.**  No symbol `w` and no proof of the
+  row/column/commutator gates was produced in this packet.  The Fock half remains as §2026-11-12p
+  left it (`ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates`), with the three gates named and
+  unproved; picking `w` is itself a choice that has to make the commutator gate true, and the
+  product-Hermite off-diagonal sums are not yet in the tree.
+
+**Verification.**  `lake build BookProof.Sm.ChapterSmGradDomTransfer
+BookProof.Toolbox.ChapterUnboundedSpectrum` → 8172 / 8030 jobs, no error and no warning naming
+either module; no line over 100 characters and no trailing whitespace; `#print axioms` on
+`l2_gradDom_of_pointwise`, `exists_potSelfBound_of_pointwise`, `resolvent_identity`,
+`resolventAt_shift` and `mem_resolventSet_of_near_imag` reports only
+`propext, Classical.choice, Quot.sound`.  Both modules are imported by `BookProof.lean`.

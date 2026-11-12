@@ -4173,6 +4173,7 @@ import BookProof.Sm.ChapterSmReverseEllipticQuartic
 -- coefficients included, *is* the hypothesis, so what remains of the table is the `pderiv`
 -- computation alone.
 import BookProof.Sm.ChapterSmGradDomStructural
+import BookProof.Sm.ChapterSmGradDomTransfer
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index
