@@ -3040,7 +3040,11 @@ between them, and until the table is written down `PotSelfBound` remains a hypot
   `propext, Classical.choice, Quot.sound`, no `sorryAx`.
 * `lake env lean Work/SmGradDomTransferAudit.lean` — 8 declarations, same three axioms, no `sorryAx`.
 * `lake env lean BookProof.lean` — exit 0.
-* `scripts/check-sm-section-guards` — green, with the §49.3b/§49.3c and §52 needles.  The old
+* `scripts/check-sm-section-guards` — green, with the §49.3b/§49.3c and §52 needles.
+
+These changes landed inside commit `09aabdd` (the concurrent session's symbol-gate commit took the
+staged files with it), so §52.1–§52.3 and `Work/SmGradDomTransferAudit.lean` are recorded here for
+the provenance the commit message does not carry.  The old
   "unformalized `L²` transfer" caveat needle is replaced in the same commit by the §49 block's
   `per-form \`pderiv\` table` caveat, since the caveat itself is now obsolete; the pderiv table is
   still not written down, so the caveat is preserved in its narrowed form rather than deleted.
