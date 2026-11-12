@@ -310,6 +310,28 @@ theorem mem_resolventSet_of_near_imag (T : UnboundedSelfAdjoint H) {l : ℝ} (hl
   refine ⟨_, resolventAt_shift (resolventAt_selfAdjoint_imag T hl) ?_⟩
   exact lt_of_le_of_lt (mul_le_mul_of_nonneg_left hop (norm_nonneg _)) hz
 
+/-- **The resolvent set of an unbounded operator is open**, and consequently its spectrum is
+closed.  This is `resolventAt_shift` read as a neighbourhood statement: at a resolvent point `w`
+with inverse `R`, the disc of radius `1/(‖R‖ + 1)` about `w` stays in the resolvent set. -/
+theorem isOpen_resolventSet {D : Submodule ℂ H} (T : D →ₗ[ℂ] H) : IsOpen (resolventSet T) := by
+  refine Metric.isOpen_iff.mpr fun z hz => ?_
+  obtain ⟨R, hR⟩ := hz
+  refine ⟨1 / (‖R‖ + 1), by positivity, fun z' hz' => ?_⟩
+  have hball : ‖z' - z‖ < 1 / (‖R‖ + 1) := by
+    simpa [dist_eq_norm] using hz'
+  have hRpos : (0 : ℝ) < ‖R‖ + 1 := by positivity
+  have h1 : ‖z' - z‖ * ‖R‖ ≤ (1 / (‖R‖ + 1)) * ‖R‖ :=
+    mul_le_mul_of_nonneg_right hball.le (norm_nonneg R)
+  have h2 : (1 / (‖R‖ + 1)) * ‖R‖ < 1 := by
+    rw [div_mul_eq_mul_div, one_mul, div_lt_one hRpos]
+    linarith [norm_nonneg R]
+  exact ⟨_, resolventAt_shift hR (lt_of_le_of_lt h1 h2)⟩
+
+/-- **The spectrum of an unbounded operator is closed.** -/
+theorem isClosed_spectrumOf {D : Submodule ℂ H} (T : D →ₗ[ℂ] H) : IsClosed (spectrumOf T) := by
+  have h := isOpen_resolventSet T
+  simpa only [spectrumOf] using h.isClosed_compl
+
 end Complete
 
 end BookProof.UnboundedSpectrum

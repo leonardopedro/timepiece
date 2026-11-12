@@ -23175,3 +23175,15 @@ BookProof.ChapterQymTimeIndependentFlow` → 8077 / 8140 jobs, no error and no w
 module; no line over 100 characters; `#print axioms` on `wCommBound_one` reports only
 `propext, Classical.choice, Quot.sound`, and the new theorem is a term application of that lemma,
 of `wColBound_one_of_wRowBound_one` and of the axiom-free symbol-gate reduction.
+
+## State of the project — 2026-11-12s: the spectrum of an unbounded operator is closed
+
+A short completion of §2026-11-12q's resolvent machinery: `isOpen_resolventSet` (for any densely
+defined `T`, the set of `z` admitting a bounded inverse of `T - z` is open — at a resolvent point
+`w` with inverse `R`, the disc of radius `1/(‖R‖ + 1)` stays inside) and `isClosed_spectrumOf`
+(the spectrum, as its complement, is closed).  Both are `resolventAt_shift` read as a neighbourhood
+statement, so the openness costs nothing beyond §4.  This is the first structural fact about the
+unbounded spectrum in the tree: `σ(T)` is now a closed subset of `ℂ`, not merely a set.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterUnboundedSpectrum` → 8030 jobs, no error and
+no warning naming the module; no line over 100 characters.
