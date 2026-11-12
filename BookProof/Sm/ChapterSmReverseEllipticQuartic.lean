@@ -49,8 +49,10 @@ status precise rather than a slogan:
 
 * `gradDom_coercive_quartic` — for a coercive quartic (`X₀⁴ + X₁⁴`) the pointwise domination
   `|∂_j W|² ≤ a W² + b` holds with explicit `a, b` (`a = 16`, `b = 32`), and the passage from the
-  pointwise form to `GradDom` is the Gaussian-integral monotonicity `gaussInt_re_mono`
-  (`l2_gradDom_of_pointwise`, one coordinate at a time).
+  pointwise form to `GradDom` is Gaussian-integral monotonicity `gaussInt_re_mono` against
+  `norm_pgLp_sq` and `eval_weighted_self_re`, multiplied pointwise by the non-negative weight
+  `cpoly p * p`.  That transfer is *routine but not formalized* here — it is recorded as such,
+  not as `l2_gradDom_of_pointwise`, which this corpus does not contain.
 * `not_gradDom_flat_quartic` — for a **non-coercive** quartic (`X₀²X₁²`, the prototype of a quartic
   that is non-negative but flat along the hyperplanes `X₀ = 0` and `X₁ = 0`) **no** `a, b` work:
   on the curve `(t, 1/t)` the gradient blows up while `W` stays bounded.  So `GradDom` is a genuine
@@ -58,11 +60,14 @@ status precise rather than a slogan:
 
 Therefore: the reverse estimate **for a dominated quartic** is proved; the hypothesis is the
 algebraic statement "the gradient of `W` is controlled by `W`", it holds for coercive quartics, and
-it fails for flat ones.  For the Standard Model's own `W` the domination is *not* established in
-this corpus — `smPotPoly` is a sum of squares of quadratics whose mixed terms can be flat in a
-coordinate direction, which is precisely the `X₀²X₁²` pattern — so `PotSelfBound` for the SM's `W`
-remains a named input.  What changed is that it is now a single algebraic question about `smPotPoly`
-rather than an analytic statement about `−Δ_S + W`.
+it fails for flat ones.  For the Standard Model's own `W` the quartic parts *are* flat in the
+`X₀²X₁²` sense (the gluon quartic term `f^{abd}G^b_jG^d_k` vanishes on the hyperplane `G = 0`), so
+coercivity is not what saves the estimation: §49 shows the structural reason instead — `W`
+also contains the coercive quadratic `∑_m q_m²` and every `∂_j Φ_r` is linear in the momentum
+coordinates, so `|∇W|² ≲ W(1 + W)` (`BookProof/Sm/ChapterSmGradDomStructural.lean`).  §49 does not
+transport that pointwise bound to `GradDom`'s `L²` form, nor check the per-form support facts, so
+`PotSelfBound` for the SM's `W` remains a named input here — but the answer to §48's question is
+affirmative, and the residual obligation is the support table of the 49 forms.
 
 Everything here is `sorry`-free and `axiom`-free.
 -/

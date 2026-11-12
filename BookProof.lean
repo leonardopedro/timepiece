@@ -1106,6 +1106,7 @@ import BookProof.ChapterFullQuadraticEsa
 -- circle `|z|² = Im z` and gives no mass to `z = 0`, so `A` is multiplication by the real
 -- function `Re z/|z|²` on a Hilbert sum of `L²(μ)` spaces.
 import BookProof.ChapterUnboundedSpectralModel
+import BookProof.Toolbox.ChapterUnboundedSpectrum
 -- The Faris–Lavine bounds for an **infinite sum** of operators: a summable family of
 -- symmetric operators on the maximal domain of a comparison symbol, each relatively
 -- bounded by the comparison operator and each with commutator form dominated by it, sums
@@ -4122,8 +4123,16 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- sector-by-sector attack takes.  `exQuartet`/`exPhysicalPositivity` is a non-vacuous
 -- 2⊕1-dimensional instance (indefinite metric `σ₁` on the block, identity on the physical line;
 -- the cohomology is non-trivial by `exE2_not_exact`), and `isBrst_smBrstCharge` links `IsBrst` to
--- `smBrstCharge_nilpotent`.  The SM's own `P` and `V` are still missing, so this is a mechanism,
--- not a proof of SM positivity.
+-- `smBrstCharge_nilpotent`.  **The projector no longer has to be assumed** (§47.5):
+-- `physProjOf Q P = 1 − (QP + PQ) + Q P²Q` is computed from the b-ghost alone, `bGhostOf Q P`
+-- restores the anticommutator `1 − V`, and `quartetOfHomotopy` assembles the quartet from the
+-- contraction identities `Q P Q = Q`, `P Q P = P` — so the physical input is one object (the
+-- gauge-fixed b-ghost) rather than two.  `physicalPositivity_of_homotopy` is the no-ghost theorem
+-- from it, `physProjOf_commute_parity`/`physProjOf_mem_even` give the ghost-parity-even sector (a
+-- parity-even b-ghost gives a parity-even `V`), and `physicalPositivity_of_homotopy_sectors` is
+-- positivity sector by sector.  `exP_exQ_exP_gives_V` shows the construction reproduces the model
+-- projector `exV`.  This is **not** a proof of SM positivity: the SM's own b-ghost is still
+-- missing, so what is proved is the mechanism.
 import BookProof.Sm.ChapterSmQuartet
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
@@ -4143,6 +4152,23 @@ import BookProof.Sm.ChapterSmQuartet
 -- single algebraic question about `smPotPoly` — whose mixed terms can be flat in a coordinate
 -- direction, the `X₀²X₁²` pattern — and `PotSelfBound` remains a hypothesis for the SM's own `W`.
 import BookProof.Sm.ChapterSmReverseEllipticQuartic
+-- `ChapterSmGradDomStructural` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §49): §48 left `GradDom` open
+-- for the SM with the flat `X₀²X₁²` pattern as the stated worry.  The worry is real — the gluon
+-- quartic term `f^{abd}G^b_j G^d_k` is flat on `G = 0` — but it is not the obstruction, because `W`
+-- also carries the coercive quadratic `∑_m q_m²` and every `∂_j Φ_r` is linear in the momentum
+-- coordinates.  `wsSum`, `polyW_wsSum` and `polyW_pderiv_wsSum` record that shape, `GradBound` is
+-- the per-form gradient hypothesis, and **`pointwise_dom_of_sq_sum`** turns it into
+-- `∑_j (∂_j W)² ≤ (16|M| |ι| C + 8) W² + (8|M| |ι| C + 8)` — the structural reason the answer is
+-- affirmative.  `gradDom_flat_plus_quadratic` is the model instance: `X₀²X₁² + X₀² + X₁²` obeys the
+-- domination with `a = 40`, `b = 24`, whereas §48's `not_gradDom_flat_quartic` shows the bare
+-- `X₀²X₁²` obeys it for no `a, b` at all.  Two steps remain and are named, not assumed: the
+-- per-form support table (that `pderiv j Φ_r` is linear and avoids the derivative coordinates
+-- `smDG`/`smDW`/`smDB`/`smDPhi`, which no term of `W` controls) and the passage from the
+-- pointwise bound to `GradDom`'s `L²` form, where the non-negative weight `cpoly p * p` multiplies
+-- through.  `PotSelfBound` for the SM is therefore still a hypothesis, but the question whether the
+-- 49 flat directions refute the domination is answered **no**, with a proved mechanism and a proved
+-- counterexample to the naive reading.
+import BookProof.Sm.ChapterSmGradDomStructural
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index
