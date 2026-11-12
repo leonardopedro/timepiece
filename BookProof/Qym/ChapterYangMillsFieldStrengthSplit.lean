@@ -1485,6 +1485,12 @@ above.  This section states that identification and proves what it yields.
   `glueballSinglet_eq_span`) and the line is nonzero (`mesonSingletVec_ne_zero`,
   `glueballSingletVec_ne_zero`), so unlike `ℂ² ⊗ ℂ³` these fibres do carry colour-neutral
   states `—` a quark–antiquark `ε` and a glueball trace `δ`;
+* **`colourTerm_star_eq`**, **`colourPair_re_symm`**, **`colourDiag_re`**,
+  **`colouredHamiltonian_quadForm_re_split`** — the **Hermitian-`C`** form: for `C` with
+  `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star (it is real), the `(j,i)`
+  and `(i,j)` off-diagonal contributions agree (each unordered pair is counted twice with one real
+  value), and the form splits as `Σ_i (quadForm H u_i + (C_ii).re ‖u_i‖²)` + the off-diagonal real
+  parts.  This is a statement about the *form*, not about the operator being self-adjoint;
 * **`colourSinglet`**, **`colourSinglet_eq_bot`** — the colour singlet over the combined
   `ℂ² ⊗ ℂ³` fibre: the total action `pairRep` is `T^a ⊗ 1 + 1 ⊗ T^a`
   on `colourVec 6` (`pairSlotFst`, `pairSlotSnd`), and the vectors it annihilates are only the
@@ -3084,10 +3090,17 @@ drops.
 to any diagonal `µ • 1`, so off-diagonal colour matrix entries genuinely change the form and are
 not a relabelling of the two Casimir scalars.
 
+For a **Hermitian** `C` the colour part is real and symmetric, and this is the Hermitian form the
+name suggests: the double sum `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star
+(`colourTerm_star_eq`), the `(j, i)` and `(i, j)` contributions of the off-diagonal part agree
+(`colourPair_re_symm`), and the form splits into the *real* diagonal `(C_ii).re ‖u_i‖²` plus the
+real parts of the off-diagonal entries (`colouredHamiltonian_quadForm_re_split`).
+
 **Boundary.**  The identity holds for every `u` in the coloured core and uses no symmetry of `C`: it
 is an identity of complex inner products taken before the real part.  Not claimed: Hermiticity of
-`colouredHamiltonian` for a Hermitian `C` (`ymHamiltonian_symmetricOn` covers only the field
-half), a bound on the cross term, and any closedness or domain statement.
+the *operator* `colouredHamiltonian` for a Hermitian `C` (`ymHamiltonian_symmetricOn` covers only
+the field half; what is shown is that the form's colour term is real, not that the operator is
+self-adjoint), a bound on the cross term, and any closedness or domain statement.
 -/
 
 /-- **The coloured inner product with a general colour matrix**: the field part is the sum over
@@ -3144,6 +3157,79 @@ theorem colouredHamiltonian_swap_quadForm {D : Submodule ℂ (L2d 99)} (Φ : Cor
         (WithLp.ofLp (u : colourSpace 2) 1)).re from by
     rw [← inner_conj_symm, Complex.conj_re]]
   ring
+
+/-- **The diagonal colour coefficient is real for a Hermitian matrix**: `(C_ii ⟨x, x⟩).re` is
+`(C_ii).re ‖x‖²`, because `⟨x, x⟩ = ‖x‖²` is real. -/
+theorem colourDiag_re {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ) (x : L2d 99) (i : Fin N) :
+    (C i i * inner ℂ x x).re = (C i i).re * ‖x‖ ^ 2 := by
+  have h : inner ℂ x x = (↑‖x‖ : ℂ) ^ 2 := inner_self_eq_norm_sq_to_K (𝕜 := ℂ) x
+  rw [h, Complex.mul_re, ← Complex.ofReal_pow, Complex.ofReal_re, Complex.ofReal_im,
+    mul_zero, sub_zero]
+
+/-- **The colour term of the form is real for a Hermitian colour matrix**: the double sum
+`Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star.  Transposing the entry and the inner product at
+once — `C_ij ↦ C_ji`, which Hermiticity identifies with `conj C_ij`, and `⟨u_i, u_j⟩ ↦
+⟨u_j, u_i⟩ = conj ⟨u_i, u_j⟩` — is the substitution `i ↔ j` of the double sum, so the sum is fixed
+by conjugation. -/
+theorem colourTerm_star_eq {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ) (u : Fin N → L2d 99)
+    (hC : C.conjTranspose = C) :
+    star (∑ i, ∑ j, C i j * inner ℂ (u i) (u j))
+      = ∑ i, ∑ j, C i j * inner ℂ (u i) (u j) := by
+  have key : star (∑ i, ∑ j, C i j * inner ℂ (u i) (u j))
+      = ∑ i, ∑ j, C j i * inner ℂ (u j) (u i) := by
+    rw [star_sum]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [star_sum]
+    refine Finset.sum_congr rfl fun j _ => ?_
+    have his : star (inner ℂ (u i) (u j)) = inner ℂ (u j) (u i) := by simp
+    have hc : star (C i j) = C j i := by
+      rw [← Matrix.conjTranspose_apply, hC]
+    rw [StarMul.star_mul, his, hc, mul_comm]
+  rw [key, Finset.sum_comm]
+
+/-- **The off-diagonal pair contribution is symmetric**: for a Hermitian `C` the `(j, i)` term is
+the `(i, j)` one, so the off-diagonal part of the colour term is a sum over unordered pairs, each
+counted twice with the same real value. -/
+theorem colourPair_re_symm {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ) (u : Fin N → L2d 99)
+    (hC : C.conjTranspose = C) (i j : Fin N) :
+    (C j i * inner ℂ (u j) (u i)).re = (C i j * inner ℂ (u i) (u j)).re := by
+  have h1 : C j i = star (C i j) := by
+    rw [← Matrix.conjTranspose_apply, hC]
+  have h2 : inner ℂ (u j) (u i) = star (inner ℂ (u i) (u j)) := by simp
+  rw [h1, h2, ← StarMul.star_mul]
+  have h3 : (star (inner ℂ (u i) (u j) * C i j)).re
+      = (inner ℂ (u i) (u j) * C i j).re :=
+    Complex.conj_re (inner ℂ (u i) (u j) * C i j)
+  rw [h3, mul_comm (C i j) (inner ℂ (u i) (u j))]
+
+/-- **The coloured form split into its diagonal and off-diagonal colour parts**: the diagonal
+contribution is `(C_ii).re ‖u_i‖²` and the off-diagonal one is the real part of the off-diagonal
+entries.  No symmetry of `C` is used; for a Hermitian `C` the diagonal coefficient is real
+(`colourDiag_re`) and the two orientations of each off-diagonal pair agree
+(`colourPair_re_symm`), so this is the form's real symmetric split. -/
+theorem colouredHamiltonian_quadForm_re_split {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ)
+    (u : colouredCore N D) :
+    quadForm (colouredHamiltonian Φ fabc N C) u
+      = ∑ i : Fin N, (quadForm (ymHamiltonian Φ fabc)
+            ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+          + (C i i).re * ‖WithLp.ofLp (u : colourSpace N) i‖ ^ 2)
+        + ∑ i : Fin N, ∑ j ∈ Finset.univ.erase i,
+            (C i j * inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+              (WithLp.ofLp (u : colourSpace N) j)).re := by
+  rw [colouredHamiltonian_quadForm_core]
+  have hsplit : ∀ i : Fin N,
+      (∑ j : Fin N, C i j * inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+        (WithLp.ofLp (u : colourSpace N) j)).re
+        = (C i i).re * ‖WithLp.ofLp (u : colourSpace N) i‖ ^ 2
+          + ∑ j ∈ Finset.univ.erase i,
+              (C i j * inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+                (WithLp.ofLp (u : colourSpace N) j)).re := by
+    intro i
+    rw [← Finset.add_sum_erase _ _ (Finset.mem_univ i), Complex.add_re,
+      Complex.re_sum, colourDiag_re]
+  simp only [hsplit]
+  simp only [Finset.sum_add_distrib, add_assoc]
 
 /-! #### The colour singlet over the combined `ℂ² ⊗ ℂ³` fibre
 

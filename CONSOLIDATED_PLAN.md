@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12d):** “State of the project — 2026-11-12d: the total colour action is a
+> **Newest entry (2026-11-12e):** “State of the project — 2026-11-12e: the Hermitian-`C` form” (end of
+> file): for `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` is real (`colourTerm_star_eq`), the two
+> orientations of an off-diagonal pair agree (`colourPair_re_symm`), and the form splits into a real
+> diagonal plus off-diagonal real parts (`colouredHamiltonian_quadForm_re_split`).
+>
+> **Earlier entry (2026-11-12d):** “State of the project — 2026-11-12d: the total colour action is a
 > representation” (end of file): `[A^a, A^b] = i ε^{abc}A^c` (`pairRep_commutator`), proved on the
 > Kronecker-sum form (`pairRepProd_mul`, `pairRepProd_commutator`) where the mixed products cancel —
 > not by a `6 × 6` entry check — and transported to `colourVec 6` (`pairRep_eq_reindex`).
@@ -22037,3 +22042,35 @@ glueball total actions being representations (the same argument would give it �
 errors (8091 jobs) and no `maxHeartbeats` budget was needed for the new declarations.  `#print
 axioms` on `pairRepProd_mul`, `pairRepProd_commutator`, `pairRep_eq_reindex` and
 `pairRep_commutator` gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+
+## State of the project — 2026-11-12e: the Hermitian-`C` form
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, the general-colour section.
+
+**What is new.**  `colouredHamiltonian_quadForm_core` already evaluated the coloured form for an
+arbitrary colour matrix `C`; the colour part is the complex double sum `S = Σ_i Σ_j C_ij ⟨u_i, u_j⟩`.
+The Hermitian case is now derived:
+
+- `colourTerm_star_eq` — for `Cᴴ = C`, `star S = S`: `S` is **real**.  The proof transposes the
+  entry and the inner product at once (`C_ij ↦ C_ji = conj C_ij`, `⟨u_i, u_j⟩ ↦ ⟨u_j, u_i⟩ =
+  conj ⟨u_i, u_j⟩`), which is the substitution `i ↔ j` of the double sum;
+- `colourPair_re_symm` — the `(j, i)` off-diagonal contribution equals the `(i, j)` one, so the
+  off-diagonal part is a sum over unordered pairs, each counted twice with one real value;
+- `colourDiag_re` — the diagonal coefficient `(C_ii⟨x, x⟩).re` is `(C_ii).re ‖x‖²` (because
+  `⟨x, x⟩ = ‖x‖²` is real);
+- `colouredHamiltonian_quadForm_re_split` — the form itself:
+  `quadForm = Σ_i (quadForm H u_i + (C_ii).re ‖u_i‖²) + Σ_i Σ_{j ≠ i} (C_ij ⟨u_i, u_j⟩).re`,
+  a real diagonal plus the off-diagonal real parts.  The split itself needs no symmetry of `C`; the
+  three identities above are what make it the *Hermitian* form.
+
+**Boundary.**  This is a statement about the **form**, not about the operator: Hermiticity of
+`colouredHamiltonian` for Hermitian `C` is *not* proved (only `ymHamiltonian_symmetricOn` covers the
+field half).  Also not claimed: that the off-diagonal sum written over `i < j` equals half the
+`j ≠ i` sum (the pairing is exhibited pair by pair, not as a reindexed half-sum), a bound on the
+cross term, and any closedness or domain statement.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors (8091 jobs) and no new warnings.  `#print axioms` on `colourDiag_re`, `colourTerm_star_eq`,
+`colourPair_re_symm` and `colouredHamiltonian_quadForm_re_split` gives only `propext`,
+`Classical.choice`, `Quot.sound`.
