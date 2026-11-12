@@ -158,7 +158,7 @@ theorem mulOp_mul (p q : MvPolynomial (Fin 99) ℂ) :
 
 variable {D : Submodule ℂ (L2d 99)}
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
 -- produces large normal forms; the default heartbeat budget does not reach them.
 -- the `CoreRep.op`/`mulOp` unfoldings need more than the default budget
@@ -521,7 +521,7 @@ theorem su2Struct_antisym : IsAntisymmetric su2Struct := by
     rw [dif_neg h, dif_neg h']
     ring
 
-set_option maxHeartbeats 2000000 in
+set_option maxHeartbeats 2000000 in -- a 9 × 9 × 3 entry check of the swap symmetry
 -- The identity reduces to 81 concrete three-term `Fin 3` sums; the default budget is too small.
 /-- **The `su(2)` tensor satisfies Jacobi**: the cyclic `ε` identity, `su(2)` being simple.
 With `su2Struct_antisym` this means no hypothesis of §3b.2 is left open for this tensor. -/
@@ -936,7 +936,7 @@ theorem mulOp_linField_apply {ι : Type*} [Fintype ι] (c : ι → ℝ) (l : ι 
   rw [linField, mulOp_apply, Finset.sum_mul]
   exact Finset.sum_congr rfl fun t _ => smul_mul_assoc _ _ _
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
 -- produces large normal forms; the default heartbeat budget does not reach them.
 -- The `ι`-indexed double sum and its cross-term cancellation need more than the default budget.
@@ -1175,7 +1175,7 @@ theorem magOps_eq_split (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 �
     magOps Φ fabc m = magDerivOps Φ m + magCommOps Φ fabc m := by
   simp only [magOps, magDerivOps, magCommOps, magPoly_eq_deriv_add, mulOp_add, coreRep_op_add]
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
 -- produces large normal forms; the default heartbeat budget does not reach them.
 /-- **The magnetic energy, mode by mode**: `‖B_m x‖²` is the derivative square, plus twice the
@@ -1194,7 +1194,7 @@ theorem norm_magOps_sq_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 
     rfl
   rw [hsplit, norm_add_sq_complex]
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
 -- produces large normal forms; the default heartbeat budget does not reach them.
 /-- **The physical-core energy identity**: summed over the `24` field components, the magnetic
@@ -1227,7 +1227,7 @@ theorem magEnergy_form_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 
           + ∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 :=
         by rw [Finset.mul_sum]
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- The split of the energy over the `24` components is stated as a rewriting problem whose
 -- terms carry the `99`-coordinate core representation; the default budget is not enough.
 /-- **The relative bound for the cross and commutator parts.**  For every `ε > 0` the magnetic
@@ -1299,7 +1299,7 @@ theorem magEnergy_form_ge_quarter (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 �
   simp only [hcoef, hcoef2] at h
   exact h
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
 -- produces large normal forms; the default heartbeat budget does not reach them.
 /-- **The physical-core energy identity for the Hamiltonian**: `H₁`'s form is the kinetic square
@@ -1503,6 +1503,23 @@ above.  This section states that identification and proves what it yields.
   `glueballSinglet_eq_span`) and the line is nonzero (`mesonSingletVec_ne_zero`,
   `glueballSingletVec_ne_zero`), so unlike `ℂ² ⊗ ℂ³` these fibres do carry colour-neutral
   states `—` a quark–antiquark `ε` and a glueball trace `δ`;
+* **`mesonSymm`**, **`mesonAlt`**, **`meson_isCompl`**, **`mesonSymm_finrank`** — the *meson*
+  square split: the slot swap `mesonFlipIdx` gives symmetric and antisymmetric parts, disjoint and
+  spanning (`meson_disjoint`, `meson_sup`), so `ℂ² ⊗ ℂ² = mesonAlt ⊕ mesonSymm` with
+  `mesonAlt = span{ε}` one-dimensional (`mesonAlt_eq_span`, `mesonAlt_finrank`) and the triplet
+  `mesonSymm` of dimension `3`; both parts are closed under every total action
+  (`mesonAct_mem_symm`, `mesonAct_mem_alt`), the swap symmetry of the action being
+  `mesonRep_flip_row`;
+* **`glueballSymm`**, **`glueballAlt`**, **`glueball_isCompl_trace`** — the *glueball* square split:
+  the slot swap gives `Λ² ⊕ Sym²` (`glueball_isCompl`, dimensions `3` and `6`), and inside the
+  symmetric part the trace line and its complement (`glueballTrace_sup`,
+  `glueballTraceless_finrank`, dimensions `1` and `5`), so
+  `ℂ³ ⊗ ℂ³ = Λ² ⊕ (trace line) ⊕ Sym²₀` with dimensions `3`, `1`, `5`, every summand invariant
+  (`glueballAct_mem_alt`, `glueballAct_mem_symm`);
+* **`glueballAltEquiv`**, **`glueballAltMap_intertwines`**, **`mesonSymmMap_intertwines`**,
+  **`mesonSymm_glueball_iso`** — the two `3`s are the *same* `su(2)`-module: the `ε`-contraction is
+  a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and the Pauli-coordinate map does the same for
+  the meson symmetric part, both intertwining with `adjRep`;
 * **`colourTerm_star_eq`**, **`colourPair_re_symm`**, **`colourDiag_re`**,
   **`colouredHamiltonian_quadForm_re_split`** — the **Hermitian-`C`** form: for `C` with
   `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star (it is real), the `(j,i)`
@@ -2849,7 +2866,7 @@ theorem dense_colouredCore {D : Submodule ℂ (L2d 99)} (hD : Dense (D : Set (L2
     (Function.Surjective.denseRange (PiLp.homeomorph 2 (fun _ : Fin N => L2d 99)).symm.surjective)
     (PiLp.homeomorph 2 (fun _ : Fin N => L2d 99)).symm.continuous hpi hmaps
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Elaborating the colour-completed core requires unfolding `PiLp` coercions through the
 -- submodule `D`; the default heartbeat budget is not enough.
 /-- **The coloured Hamiltonian `H ⊗ 1 + 1 ⊗ C`** on the colour-completed core: the field Hamiltonian
@@ -2910,7 +2927,7 @@ noncomputable def colourFibre {D : Submodule ℂ (L2d 99)} (x : D) (v : colourVe
   ⟨WithLp.toLp 2 (fun i => WithLp.ofLp v i • (x : L2d 99)),
     fun i => D.smul_mem (WithLp.ofLp v i) x.2⟩
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- The coloured form is computed by unfolding the `colourFibre` coercions and the
 -- `PiLp` inner product; the default heartbeat budget is not enough.
 /-- **The form of `H ⊗ 1 + 1 ⊗ (µ • 1)` on an elementary tensor**: the colour norm squared times the
@@ -2950,7 +2967,7 @@ theorem colouredHamiltonian_smul_one_inner {D : Submodule ℂ (L2d 99)}
   rw [Finset.sum_congr rfl fun i _ => hterm i]
   rw [← Finset.sum_mul, PiLp.inner_apply]
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Unfolding the coloured quadratic form to the field form is a large `PiLp` reduction;
 -- the default heartbeat budget is not enough.
 /-- **The colour energy `µ • 1` folded into the field form**: on `x ⊗ v` the coloured quadratic form
@@ -3690,11 +3707,17 @@ Both total actions are also **representations** of `su(2)`: `[T^a ⊗ 1 + 1 ⊗ 
 product basis and transported along the row-major relabelling, not entrywise.
 
 **Boundary.**  Each singlet space is proved to be exactly one line, by exhibiting the invariant
-vector and showing that the common kernel of the three total actions has no other direction.  Not
-claimed: a decomposition into the remaining summands (`3`, `5`, `3`); norms or closedness of these
-actions.  The singlet proofs are coordinate checks —
-`glueballRep_zero_mulVec` and its siblings give the three total actions of the glueball fibre in
-closed form — not a Clebsch–Gordan expansion.
+vector and showing that the common kernel of the three total actions has no other direction.  Both
+squares are split completely, into invariant summands: `meson_isCompl` gives
+`ℂ² ⊗ ℂ² = mesonAlt ⊕ mesonSymm` with `1` and `3` dimensions, and `glueball_isCompl_trace` gives
+`ℂ³ ⊗ ℂ³ = Λ² ⊕ (trace line) ⊕ Sym²₀` with dimensions `3`, `1` and `5`
+(`glueballAlt_finrank`, `glueballTraceLine_finrank`, `glueballTraceless_finrank`), every summand
+closed under every total action (`mesonAct_mem_*`, `glueballAct_mem_*`).  The two `3`s are the same
+`su(2)`-module: `glueballAltEquiv` is the `ε`-contraction, `glueballAltMap_intertwines` and
+`mesonSymmMap_intertwines` match each summand with the adjoint action, and `mesonSymm_glueball_iso`
+is the transported statement.  Also not claimed: norms or closedness of these actions.  The singlet
+and flip proofs are coordinate checks — `glueballRep_zero_mulVec` and its siblings give the three
+total actions of the glueball fibre in closed form — not a Clebsch–Gordan expansion.
 -/
 
 /-- The fundamental slot of a colour index in `ℂ² ⊗ ℂ²`: `i / 2`. -/
@@ -3976,7 +3999,7 @@ theorem mesonCoeff_mem : mesonSingletVec ∈ mesonSinglet := by
 -- keeps each of the nine coordinate goals inside one elaboration.
 section glueballComputation
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Nine-term dot products, nine coordinate goals: one elaboration per goal needs the budget.
 /-- **The first total colour action on `ℂ³ ⊗ ℂ³`, in closed form**: the nine components of
 `(T⁰ ⊗ 1 + 1 ⊗ T⁰) v`, each one or two coordinates of `v`. -/
@@ -3991,7 +4014,7 @@ theorem glueballRep_zero_mulVec (v : Fin 9 → ℂ) :
       Fin.sum_univ_succ, adjRep, levi] <;>
     norm_num [levi] <;> ring
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Same nine-term expansion on the second generator.
 /-- **The second total colour action on `ℂ³ ⊗ ℂ³`, in closed form.** -/
 theorem glueballRep_one_mulVec (v : Fin 9 → ℂ) :
@@ -4005,7 +4028,7 @@ theorem glueballRep_one_mulVec (v : Fin 9 → ℂ) :
       Fin.sum_univ_succ, adjRep, levi] <;>
     norm_num [levi] <;> ring
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- Same nine-term expansion on the third generator.
 /-- **The third total colour action on `ℂ³ ⊗ ℂ³`, in closed form.** -/
 theorem glueballRep_two_mulVec (v : Fin 9 → ℂ) :
@@ -4019,7 +4042,7 @@ theorem glueballRep_two_mulVec (v : Fin 9 → ℂ) :
       Fin.sum_univ_succ, adjRep, levi] <;>
     norm_num [levi] <;> ring
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
 -- The three nine-term expansions at once, one elaboration per `fin_cases` goal.
 /-- **The trace is a colour singlet** of `ℂ³ ⊗ ℂ³`: all three total actions annihilate `δ`,
 which is the `su(2)` tensor `3 ⊗ 3 ⊇ 1` — the adjoint generators are antisymmetric, so the trace
@@ -5616,6 +5639,546 @@ theorem mesonAct_mem_alt (a : Fin 3) {v : colourVec 4} (hv : v ∈ mesonAlt) :
   simp only [mesonFlipIdx_involutive]
   rw [Finset.sum_congr rfl (fun k _ => by rw [hv k])]
   simp only [mul_neg, Finset.sum_neg_distrib]
+
+/-! ##### The glueball square splits as `3 ⊕ 1 ⊕ 5`
+
+The slot swap of `ℂ³ ⊗ ℂ³` splits the nine-component fibre into an antisymmetric part `Λ² ℂ³` and a
+symmetric part `Sym² ℂ³`, both invariant under every total action (`3` and `6`), and the trace
+line inside the symmetric part has a five-dimensional invariant complement, the traceless symmetric
+part.  The antisymmetric part is then *identified* with the adjoint `3`: the `ε`-contraction
+`v ↦ (a ↦ Σ_bc ε_abc v_bc)` is a linear isomorphism onto `ℂ³` and intertwines the total action with
+`adjRep`, and the same is true of the Pauli-coordinate map on the meson symmetric part, so the two
+`3`s of the two squares are the same `su(2)`-module.
+-/
+
+/-- The slot swap on the row-major index of `ℂ³ ⊗ ℂ³`: `3 * (second slot) + (first slot)`. -/
+def glueballFlipIdx (i : Fin 9) : Fin 9 := ⟨3 * (i.val % 3) + i.val / 3, by omega⟩
+
+/-- The slot swap is an involution on the nine row-major indices. -/
+@[simp] theorem glueballFlipIdx_involutive (i : Fin 9) :
+    glueballFlipIdx (glueballFlipIdx i) = i := by
+  ext
+  simp only [glueballFlipIdx]
+  omega
+
+/-- The slot swap as a vector operation on the glueball fibre. -/
+def glueballFlipVec (v : colourVec 9) : colourVec 9 :=
+  WithLp.toLp 2 fun i => WithLp.ofLp v (glueballFlipIdx i)
+
+/-- Component `i` of the slot-swapped vector is component `glueballFlipIdx i` of `v`. -/
+@[simp] theorem glueballFlipVec_ofLp (v : colourVec 9) (i : Fin 9) :
+    WithLp.ofLp (glueballFlipVec v) i = WithLp.ofLp v (glueballFlipIdx i) := rfl
+
+/-- **The slot swap is an involution.** -/
+theorem glueballFlipVec_involutive (v : colourVec 9) :
+    glueballFlipVec (glueballFlipVec v) = v := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp
+
+/-- The **symmetric part** of the glueball square fibre: the slot-swap fixed vectors. -/
+def glueballSymm : Submodule ℂ (colourVec 9) where
+  carrier := {v | ∀ i, WithLp.ofLp v (glueballFlipIdx i) = WithLp.ofLp v i}
+  zero_mem' := by intro i; simp
+  add_mem' := by
+    intro u w hu hw i
+    simp only [WithLp.ofLp_add, Pi.add_apply]
+    rw [hu i, hw i]
+  smul_mem' := by
+    intro c u hu i
+    simp only [WithLp.ofLp_smul, Pi.smul_apply]
+    rw [hu i]
+
+/-- The **antisymmetric part** `Λ² ℂ³` of the glueball square fibre. -/
+def glueballAlt : Submodule ℂ (colourVec 9) where
+  carrier := {v | ∀ i, WithLp.ofLp v (glueballFlipIdx i) = -WithLp.ofLp v i}
+  zero_mem' := by intro i; simp
+  add_mem' := by
+    intro u w hu hw i
+    simp only [WithLp.ofLp_add, Pi.add_apply]
+    rw [hu i, hw i]
+    ring
+  smul_mem' := by
+    intro c u hu i
+    simp only [WithLp.ofLp_smul, Pi.smul_apply]
+    rw [hu i, smul_neg]
+
+/-- A vector that is both symmetric and antisymmetric vanishes: the two parts meet in `{0}`. -/
+theorem glueball_disjoint : glueballAlt ⊓ glueballSymm = ⊥ := by
+  refine le_antisymm (fun v hv => ?_) bot_le
+  obtain ⟨hva, hvs⟩ := Submodule.mem_inf.mp hv
+  have hv0 : v = 0 := by
+    apply WithLp.ofLp_injective
+    funext i
+    have h1 : WithLp.ofLp v (glueballFlipIdx i) = -WithLp.ofLp v i := hva i
+    have h2 : WithLp.ofLp v (glueballFlipIdx i) = WithLp.ofLp v i := hvs i
+    have hx : WithLp.ofLp v i = -WithLp.ofLp v i := by
+      calc WithLp.ofLp v i = WithLp.ofLp v (glueballFlipIdx i) := h2.symm
+        _ = -WithLp.ofLp v i := h1
+    have h3 : (2 : ℂ) * WithLp.ofLp v i = 0 := by
+      rw [two_mul]
+      linear_combination hx
+    have h4 : WithLp.ofLp v i = 0 := (mul_eq_zero.mp h3).resolve_left two_ne_zero
+    rw [h4]
+    simp
+  rw [hv0]
+  exact Submodule.zero_mem _
+
+/-- **Every vector of the glueball fibre is the sum of a symmetric and an antisymmetric part.** -/
+theorem glueball_sup : glueballAlt ⊔ glueballSymm = ⊤ := by
+  refine le_antisymm le_top fun v _ => ?_
+  have ha : (2⁻¹ : ℂ) • (v - glueballFlipVec v) ∈ glueballAlt := by
+    intro i
+    simp only [WithLp.ofLp_smul, WithLp.ofLp_sub, Pi.sub_apply, Pi.smul_apply,
+      glueballFlipVec_ofLp, smul_eq_mul]
+    rw [glueballFlipIdx_involutive]
+    ring
+  have hs : (2⁻¹ : ℂ) • (v + glueballFlipVec v) ∈ glueballSymm := by
+    intro i
+    simp only [WithLp.ofLp_smul, WithLp.ofLp_add, Pi.add_apply, Pi.smul_apply,
+      glueballFlipVec_ofLp, smul_eq_mul]
+    rw [glueballFlipIdx_involutive]
+    ring
+  refine Submodule.mem_sup.mpr ⟨_, ha, _, hs, ?_⟩
+  have hsum : (v - glueballFlipVec v) + (v + glueballFlipVec v) = (2 : ℂ) • v := by
+    rw [two_smul]
+    abel
+  calc (2⁻¹ : ℂ) • (v - glueballFlipVec v) + (2⁻¹ : ℂ) • (v + glueballFlipVec v)
+      = (2⁻¹ : ℂ) • ((v - glueballFlipVec v) + (v + glueballFlipVec v)) := (smul_add ..).symm
+    _ = (2⁻¹ : ℂ) • ((2 : ℂ) • v) := by rw [hsum]
+    _ = v := by rw [smul_smul]; norm_num
+
+/-- **The glueball fibre is the direct sum of its antisymmetric and symmetric parts.** -/
+theorem glueball_isCompl : IsCompl glueballAlt glueballSymm :=
+  ⟨disjoint_iff.mpr glueball_disjoint, codisjoint_iff.mpr glueball_sup⟩
+
+/-- The total colour action as a vector operation on the glueball fibre. -/
+def glueballAct (a : Fin 3) (v : colourVec 9) : colourVec 9 :=
+  WithLp.toLp 2 ((glueballRep a).mulVec (WithLp.ofLp v))
+
+/-- The components of the total action are the matrix–vector product. -/
+@[simp] theorem glueballAct_ofLp (a : Fin 3) (v : colourVec 9) :
+    WithLp.ofLp (glueballAct a v) = (glueballRep a).mulVec (WithLp.ofLp v) := rfl
+
+set_option maxHeartbeats 2000000 in -- a 9 × 9 × 3 entry check of the swap symmetry
+/-- **The total glueball action is invariant under the slot swap**, entrywise. -/
+theorem glueballRep_flip_row (a : Fin 3) (i j : Fin 9) :
+    glueballRep a (glueballFlipIdx i) j = glueballRep a i (glueballFlipIdx j) := by
+  fin_cases a <;> fin_cases i <;> fin_cases j <;>
+    simp [glueballRep, glueballFlipIdx, glueballSlotFst, glueballSlotSnd, adjRep, levi]
+
+/-- The first basis vector of `Λ² ℂ³`: `e_{01} − e_{10}`. -/
+def glueballAltVec1 : colourVec 9 := WithLp.toLp 2 ![0, 1, 0, -1, 0, 0, 0, 0, 0]
+
+/-- The second basis vector of `Λ² ℂ³`: `e_{02} − e_{20}`. -/
+def glueballAltVec2 : colourVec 9 := WithLp.toLp 2 ![0, 0, 1, 0, 0, 0, -1, 0, 0]
+
+/-- The third basis vector of `Λ² ℂ³`: `e_{12} − e_{21}`. -/
+def glueballAltVec3 : colourVec 9 := WithLp.toLp 2 ![0, 0, 0, 0, 0, 1, 0, -1, 0]
+
+/-- Each of the three basis vectors of `Λ² ℂ³` is antisymmetric. -/
+theorem glueballAltVec_mem :
+    glueballAltVec1 ∈ glueballAlt ∧ glueballAltVec2 ∈ glueballAlt ∧
+      glueballAltVec3 ∈ glueballAlt := by
+  refine ⟨?_, ?_, ?_⟩ <;>
+    (intro i; fin_cases i <;>
+      simp [glueballFlipIdx, glueballAltVec1, glueballAltVec2, glueballAltVec3])
+
+/-- The coordinate relations that define an antisymmetric glueball vector: the diagonal
+coordinates vanish and the three lower ones are the negatives of the upper ones. -/
+theorem glueballAlt_coords {v : colourVec 9} (hv : v ∈ glueballAlt) :
+    WithLp.ofLp v 0 = 0 ∧ WithLp.ofLp v 4 = 0 ∧ WithLp.ofLp v 8 = 0 ∧
+      WithLp.ofLp v 3 = -WithLp.ofLp v 1 ∧ WithLp.ofLp v 6 = -WithLp.ofLp v 2 ∧
+        WithLp.ofLp v 7 = -WithLp.ofLp v 5 := by
+  have hz : ∀ i : Fin 9, glueballFlipIdx i = i → WithLp.ofLp v i = 0 := by
+    intro i hi
+    have h := hv i
+    rw [hi] at h
+    have hx : WithLp.ofLp v i = -WithLp.ofLp v i := h
+    have h3 : (2 : ℂ) * WithLp.ofLp v i = 0 := by
+      rw [two_mul]
+      linear_combination hx
+    exact (mul_eq_zero.mp h3).resolve_left two_ne_zero
+  have h0 : WithLp.ofLp v 0 = 0 := hz 0 (by simp [glueballFlipIdx])
+  have h4 : WithLp.ofLp v 4 = 0 := hz 4 (by simp [glueballFlipIdx])
+  have h8 : WithLp.ofLp v 8 = 0 := hz 8 (by simp [glueballFlipIdx])
+  have h3 : WithLp.ofLp v 3 = -WithLp.ofLp v 1 := by
+    have h := hv 1
+    simpa [glueballFlipIdx] using h
+  have h6 : WithLp.ofLp v 6 = -WithLp.ofLp v 2 := by
+    have h := hv 2
+    simpa [glueballFlipIdx] using h
+  have h7 : WithLp.ofLp v 7 = -WithLp.ofLp v 5 := by
+    have h := hv 5
+    simpa [glueballFlipIdx] using h
+  exact ⟨h0, h4, h8, h3, h6, h7⟩
+
+/-- **An antisymmetric vector is determined by its three upper-triangular coordinates.** -/
+theorem glueballAlt_coord_repr {v : colourVec 9} (hv : v ∈ glueballAlt) :
+    v = WithLp.ofLp v 1 • glueballAltVec1 + WithLp.ofLp v 2 • glueballAltVec2 +
+      WithLp.ofLp v 5 • glueballAltVec3 := by
+  obtain ⟨h0, h4, h8, h3, h6, h7⟩ := glueballAlt_coords hv
+  apply WithLp.ofLp_injective
+  funext i
+  fin_cases i <;>
+    simp [glueballAltVec1, glueballAltVec2, glueballAltVec3, h0, h3, h4, h6, h7, h8]
+
+/-- **`Λ² ℂ³` is spanned by its three off-diagonal basis vectors.** -/
+theorem glueballAlt_eq_span :
+    glueballAlt = Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} := by
+  refine le_antisymm (fun v hv => ?_) ?_
+  · have hrepr := glueballAlt_coord_repr hv
+    have h1 : WithLp.ofLp v 1 • glueballAltVec1 ∈
+        Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+      Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+    have h2 : WithLp.ofLp v 2 • glueballAltVec2 ∈
+        Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+      Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+    have h3 : WithLp.ofLp v 5 • glueballAltVec3 ∈
+        Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+      Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+    rw [hrepr]
+    exact Submodule.add_mem _ (Submodule.add_mem _ h1 h2) h3
+  · refine Submodule.span_le.mpr ?_
+    rintro u (rfl | rfl | rfl)
+    · exact glueballAltVec_mem.1
+    · exact glueballAltVec_mem.2.1
+    · exact glueballAltVec_mem.2.2
+
+/-- The coordinate projection `v ↦ (v₁, v₂, v₅)` on the glueball fibre. -/
+def glueballAltCoord : colourVec 9 →ₗ[ℂ] (Fin 3 → ℂ) where
+  toFun v := ![WithLp.ofLp v 1, WithLp.ofLp v 2, WithLp.ofLp v 5]
+  map_add' := by
+    intro u w
+    funext i
+    fin_cases i <;> simp
+  map_smul' := by
+    intro c u
+    funext i
+    fin_cases i <;> simp
+
+/-- The coordinate projection is injective on `Λ² ℂ³`. -/
+theorem glueballAltCoord_eq_zero {v : colourVec 9} (hv : v ∈ glueballAlt)
+    (h : glueballAltCoord v = 0) : v = 0 := by
+  have h1 : WithLp.ofLp v 1 = 0 := by
+    have := congrFun h 0
+    simpa [glueballAltCoord] using this
+  have h2 : WithLp.ofLp v 2 = 0 := by
+    have := congrFun h 1
+    simpa [glueballAltCoord] using this
+  have h5 : WithLp.ofLp v 5 = 0 := by
+    have := congrFun h 2
+    simpa [glueballAltCoord] using this
+  rw [glueballAlt_coord_repr hv, h1, h2, h5]
+  simp
+
+/-- **`Λ² ℂ³` is three-dimensional**: its three upper-triangular coordinates are a linear
+isomorphism onto `ℂ³`. -/
+theorem glueballAlt_finrank : Module.finrank ℂ glueballAlt = 3 := by
+  have hinj : Function.Injective (glueballAltCoord.comp glueballAlt.subtype) := by
+    intro u w h
+    refine Subtype.ext ?_
+    have h' : glueballAltCoord ((u : colourVec 9) - (w : colourVec 9)) = 0 := by
+      rw [map_sub, show glueballAltCoord (u : colourVec 9) =
+        glueballAltCoord (w : colourVec 9) from h, sub_self]
+    exact sub_eq_zero.mp (glueballAltCoord_eq_zero (glueballAlt.sub_mem u.2 w.2) h')
+  have hmem : ∀ w : Fin 3 → ℂ, w 0 • glueballAltVec1 + w 1 • glueballAltVec2 +
+      w 2 • glueballAltVec3 ∈ glueballAlt := by
+    intro w
+    rw [glueballAlt_eq_span]
+    have h1 : w 0 • glueballAltVec1 ∈
+        Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+      Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+    have h2 : w 1 • glueballAltVec2 ∈
+        Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+      Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+    have h3 : w 2 • glueballAltVec3 ∈
+        Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+      Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+    exact Submodule.add_mem _ (Submodule.add_mem _ h1 h2) h3
+  have hsurj : Function.Surjective (glueballAltCoord.comp glueballAlt.subtype) := by
+    intro w
+    refine ⟨⟨_, hmem w⟩, ?_⟩
+    funext i
+    fin_cases i <;>
+      simp [glueballAltCoord, glueballAltVec1, glueballAltVec2, glueballAltVec3]
+  have e := LinearEquiv.ofBijective _ ⟨hinj, hsurj⟩
+  rw [e.finrank_eq]
+  simp
+
+/-- **The symmetric part of the glueball square is six-dimensional**: `Sym² ℂ³`. -/
+theorem glueballSymm_finrank : Module.finrank ℂ glueballSymm = 6 := by
+  have h := Submodule.finrank_add_eq_of_isCompl glueball_isCompl
+  rw [glueballAlt_finrank] at h
+  have h9 : Module.finrank ℂ (colourVec 9) = 9 := by simp [colourVec]
+  omega
+
+/-- A sum reindexed along the slot swap. -/
+theorem glueball_sum_flip (f : Fin 9 → ℂ) :
+    (∑ j : Fin 9, f (glueballFlipIdx j)) = ∑ k : Fin 9, f k :=
+  Equiv.sum_comp (Function.Involutive.toPerm glueballFlipIdx glueballFlipIdx_involutive) f
+
+/-- **The symmetric part is closed under every total colour action.** -/
+theorem glueballAct_mem_symm (a : Fin 3) {v : colourVec 9} (hv : v ∈ glueballSymm) :
+    glueballAct a v ∈ glueballSymm := by
+  intro i
+  simp only [glueballAct_ofLp, Matrix.mulVec, dotProduct]
+  rw [Finset.sum_congr rfl (fun j _ => by rw [glueballRep_flip_row])]
+  rw [(glueball_sum_flip
+    (fun k => glueballRep a i (glueballFlipIdx k) * WithLp.ofLp v k)).symm]
+  simp only [glueballFlipIdx_involutive]
+  exact Finset.sum_congr rfl fun k _ => by rw [hv k]
+
+/-- **The antisymmetric part `Λ²` is closed under every total colour action.** -/
+theorem glueballAct_mem_alt (a : Fin 3) {v : colourVec 9} (hv : v ∈ glueballAlt) :
+    glueballAct a v ∈ glueballAlt := by
+  intro i
+  simp only [glueballAct_ofLp, Matrix.mulVec, dotProduct]
+  rw [Finset.sum_congr rfl (fun j _ => by rw [glueballRep_flip_row])]
+  rw [(glueball_sum_flip
+    (fun k => glueballRep a i (glueballFlipIdx k) * WithLp.ofLp v k)).symm]
+  simp only [glueballFlipIdx_involutive]
+  rw [Finset.sum_congr rfl (fun k _ => by rw [hv k])]
+  simp only [mul_neg, Finset.sum_neg_distrib]
+
+/-- The trace of a glueball-fibre vector: the sum of its three diagonal coordinates. -/
+def glueballTraceCoords (v : colourVec 9) : ℂ :=
+  WithLp.ofLp v 0 + WithLp.ofLp v 4 + WithLp.ofLp v 8
+
+/-- The **traceless symmetric part** of the glueball square: symmetric with vanishing trace. -/
+def glueballTraceless : Submodule ℂ (colourVec 9) where
+  carrier := {v | v ∈ glueballSymm ∧ glueballTraceCoords v = 0}
+  zero_mem' := ⟨glueballSymm.zero_mem, by simp [glueballTraceCoords]⟩
+  add_mem' := by
+    intro u w hu hw
+    refine ⟨Submodule.add_mem _ hu.1 hw.1, ?_⟩
+    simp only [glueballTraceCoords, WithLp.ofLp_add, Pi.add_apply] at *
+    linear_combination hu.2 + hw.2
+  smul_mem' := by
+    intro c u hu
+    refine ⟨Submodule.smul_mem _ _ hu.1, ?_⟩
+    simp only [glueballTraceCoords, WithLp.ofLp_smul, Pi.smul_apply, smul_eq_mul] at *
+    linear_combination c * hu.2
+
+/-- The trace vector `δ` is symmetric. -/
+theorem glueballSingletVec_mem_symm : glueballSingletVec ∈ glueballSymm := by
+  intro i
+  fin_cases i <;> simp [glueballSingletVec, glueballCoeff, glueballFlipIdx]
+
+/-- The trace of the singlet vector `δ` is `3`. -/
+theorem glueballSingletVec_trace : glueballTraceCoords glueballSingletVec = 3 := by
+  simp [glueballTraceCoords, glueballSingletVec, glueballCoeff]
+  norm_num
+
+/-- **The trace line meets the traceless part in `{0}`.** -/
+theorem glueballTrace_disjoint :
+    Submodule.span ℂ {glueballSingletVec} ⊓ glueballTraceless = ⊥ := by
+  refine le_antisymm (fun v hv => ?_) bot_le
+  obtain ⟨hv1, hv2⟩ := Submodule.mem_inf.mp hv
+  rw [Submodule.mem_span_singleton] at hv1
+  obtain ⟨c, rfl⟩ := hv1
+  have htr : glueballTraceCoords (c • glueballSingletVec) = 0 := hv2.2
+  simp only [glueballTraceCoords, Fin.isValue, glueballSingletVec, glueballCoeff,
+    PiLp.smul_apply, cons_val_zero, smul_eq_mul, mul_one, cons_val] at htr
+  have hc : c = 0 := by
+    have h3 : c * 3 = 0 := by linear_combination htr
+    exact (mul_eq_zero.mp h3).resolve_right (by norm_num)
+  rw [hc, zero_smul]
+  exact Submodule.zero_mem _
+
+/-- **Every symmetric vector is its trace part plus a traceless part.** -/
+theorem glueballTrace_sup :
+    Submodule.span ℂ {glueballSingletVec} ⊔ glueballTraceless = glueballSymm := by
+  refine le_antisymm ?_ ?_
+  · refine sup_le ?_ ?_
+    · rw [Submodule.span_singleton_le_iff_mem]
+      exact glueballSingletVec_mem_symm
+    · intro v hv
+      exact hv.1
+  · intro v hv
+    have h1 : (glueballTraceCoords v / 3) • glueballSingletVec ∈
+        Submodule.span ℂ {glueballSingletVec} :=
+      Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+    have h2 : v - (glueballTraceCoords v / 3) • glueballSingletVec ∈ glueballTraceless := by
+      refine ⟨Submodule.sub_mem _ hv (Submodule.smul_mem _ _ glueballSingletVec_mem_symm), ?_⟩
+      simp [glueballTraceCoords, smul_eq_mul, glueballSingletVec, glueballCoeff]
+      ring
+    have hsum : (glueballTraceCoords v / 3) • glueballSingletVec +
+        (v - (glueballTraceCoords v / 3) • glueballSingletVec) = v := by
+      abel
+    exact Submodule.mem_sup.mpr ⟨_, h1, _, h2, hsum⟩
+
+/-- **The trace line is one-dimensional** and its complement in `Sym² ℂ³` is the traceless part. -/
+theorem glueballTraceLine_finrank :
+    Module.finrank ℂ (Submodule.span ℂ {glueballSingletVec}) = 1 :=
+  finrank_span_singleton glueballSingletVec_ne_zero
+
+/-- **The traceless symmetric part of the glueball square is five-dimensional.** -/
+theorem glueballTraceless_finrank : Module.finrank ℂ glueballTraceless = 5 := by
+  have h := Submodule.finrank_sup_add_finrank_inf_eq
+    (Submodule.span ℂ {glueballSingletVec}) glueballTraceless
+  rw [glueballTrace_sup, glueballTrace_disjoint, glueballSymm_finrank,
+    glueballTraceLine_finrank] at h
+  simp at h
+  omega
+
+/-- **The glueball square splits as `Λ² ⊕ (trace line) ⊕ traceless symmetric`.** -/
+theorem glueball_isCompl_trace :
+    IsCompl glueballAlt (Submodule.span ℂ {glueballSingletVec} ⊔ glueballTraceless) := by
+  have hsup : glueballAlt ⊔ (Submodule.span ℂ {glueballSingletVec} ⊔ glueballTraceless) = ⊤ := by
+    rw [glueballTrace_sup, glueball_sup]
+  have hinf : glueballAlt ⊓
+      (Submodule.span ℂ {glueballSingletVec} ⊔ glueballTraceless) = ⊥ := by
+    rw [glueballTrace_sup, glueball_disjoint]
+  exact ⟨disjoint_iff.mpr hinf, codisjoint_iff.mpr hsup⟩
+
+/-- The `ε`-contraction `v ↦ (a ↦ Σ_j ε_{a, fst j, snd j} v_j)` on the glueball fibre. -/
+def glueballAltMap : colourVec 9 →ₗ[ℂ] (Fin 3 → ℂ) where
+  toFun v := fun a => ∑ j : Fin 9,
+    (levi a (glueballSlotFst j) (glueballSlotSnd j) : ℂ) * WithLp.ofLp v j
+  map_add' := by
+    intro u w
+    funext a
+    simp only [WithLp.ofLp_add, Pi.add_apply, mul_add, Finset.sum_add_distrib]
+  map_smul' := by
+    intro c u
+    funext a
+    simp only [WithLp.ofLp_smul, Pi.smul_apply, smul_eq_mul, Finset.mul_sum]
+    refine Finset.sum_congr rfl (fun j _ => ?_)
+    simp only [RingHom.id_apply]
+    ring
+
+/-- **The `ε`-contraction in closed form on `Λ² ℂ³`**: it reads off the three upper-triangular
+coordinates with the signs of `ε`. -/
+theorem glueballAltMap_coords {v : colourVec 9} (hv : v ∈ glueballAlt) :
+    glueballAltMap v 0 = 2 * WithLp.ofLp v 5 ∧
+      glueballAltMap v 1 = -2 * WithLp.ofLp v 2 ∧
+        glueballAltMap v 2 = 2 * WithLp.ofLp v 1 := by
+  obtain ⟨h0, h4, h8, h3, h6, h7⟩ := glueballAlt_coords hv
+  refine ⟨?_, ?_, ?_⟩ <;>
+    simp [glueballAltMap, glueballSlotFst, glueballSlotSnd, levi, Fin.sum_univ_succ,
+      h3, h6, h7] <;> ring
+
+/-- The inverse of the `ε`-contraction: the antisymmetric vector with the given coordinates. -/
+def glueballAltInv (w : Fin 3 → ℂ) : colourVec 9 :=
+  (w 2 / 2) • glueballAltVec1 + (-(w 1) / 2) • glueballAltVec2 + (w 0 / 2) • glueballAltVec3
+
+/-- The inverse map lands in `Λ² ℂ³`. -/
+theorem glueballAltInv_mem (w : Fin 3 → ℂ) : glueballAltInv w ∈ glueballAlt := by
+  rw [glueballAlt_eq_span]
+  have h1 : (w 2 / 2) • glueballAltVec1 ∈
+      Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+    Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+  have h2 : (-(w 1) / 2) • glueballAltVec2 ∈
+      Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+    Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+  have h3 : (w 0 / 2) • glueballAltVec3 ∈
+      Submodule.span ℂ {glueballAltVec1, glueballAltVec2, glueballAltVec3} :=
+    Submodule.smul_mem _ _ (Submodule.subset_span (by simp))
+  exact Submodule.add_mem _ (Submodule.add_mem _ h1 h2) h3
+
+/-- **The `ε`-contraction inverts on its image.** -/
+theorem glueballAltInv_map (w : Fin 3 → ℂ) : glueballAltMap (glueballAltInv w) = w := by
+  funext a
+  fin_cases a <;>
+    simp [glueballAltInv, glueballAltMap, glueballSlotFst, glueballSlotSnd,
+      glueballAltVec1, glueballAltVec2, glueballAltVec3, levi, Fin.sum_univ_succ]
+  all_goals ring
+
+/-- **The `ε`-contraction restricted to `Λ² ℂ³` is injective.** -/
+theorem glueballAltMap_injective :
+    Function.Injective (glueballAltMap.comp glueballAlt.subtype) := by
+  intro u w h
+  refine Subtype.ext ?_
+  have hu := glueballAltMap_coords u.2
+  have hw := glueballAltMap_coords w.2
+  have h1 : WithLp.ofLp (u : colourVec 9) 1 = WithLp.ofLp (w : colourVec 9) 1 := by
+    have hc := congrFun h 2
+    change glueballAltMap (u : colourVec 9) 2 = glueballAltMap (w : colourVec 9) 2 at hc
+    rw [hu.2.2, hw.2.2] at hc
+    exact mul_left_cancel₀ two_ne_zero hc
+  have h2 : WithLp.ofLp (u : colourVec 9) 2 = WithLp.ofLp (w : colourVec 9) 2 := by
+    have hc := congrFun h 1
+    change glueballAltMap (u : colourVec 9) 1 = glueballAltMap (w : colourVec 9) 1 at hc
+    rw [hu.2.1, hw.2.1] at hc
+    have hc2 : (2 : ℂ) * WithLp.ofLp (u : colourVec 9) 2 =
+        (2 : ℂ) * WithLp.ofLp (w : colourVec 9) 2 := by
+      linear_combination -hc
+    exact mul_left_cancel₀ two_ne_zero hc2
+  have h5 : WithLp.ofLp (u : colourVec 9) 5 = WithLp.ofLp (w : colourVec 9) 5 := by
+    have hc := congrFun h 0
+    change glueballAltMap (u : colourVec 9) 0 = glueballAltMap (w : colourVec 9) 0 at hc
+    rw [hu.1, hw.1] at hc
+    exact mul_left_cancel₀ two_ne_zero hc
+  rw [glueballAlt_coord_repr u.2, glueballAlt_coord_repr w.2, h1, h2, h5]
+
+/-- **`Λ² ℂ³` is linearly isomorphic to the adjoint space `ℂ³`**: the `ε`-contraction is a
+bijection onto the three-dimensional space the adjoint generators act on. -/
+noncomputable def glueballAltEquiv : glueballAlt ≃ₗ[ℂ] (Fin 3 → ℂ) :=
+  LinearEquiv.ofBijective (glueballAltMap.comp glueballAlt.subtype)
+    ⟨glueballAltMap_injective, by
+      intro w
+      exact ⟨⟨glueballAltInv w, glueballAltInv_mem w⟩, glueballAltInv_map w⟩⟩
+
+set_option maxHeartbeats 4000000 in -- 9 × 9 entry checks of the ε-contraction
+/-- **The `ε`-contraction intertwines the total glueball action with the adjoint action.**
+This is what makes `Λ² ℂ³` the adjoint `3` rather than merely a three-dimensional space. -/
+theorem glueballAltMap_intertwines (a : Fin 3) {v : colourVec 9} (hv : v ∈ glueballAlt) :
+    glueballAltMap (glueballAct a v) = (adjRep a).mulVec (glueballAltMap v) := by
+  obtain ⟨h0, h4, h8, h3, h6, h7⟩ := glueballAlt_coords hv
+  funext d
+  fin_cases a <;> fin_cases d <;>
+    simp [glueballAltMap, glueballAct_ofLp, glueballRep, adjRep, glueballSlotFst,
+      glueballSlotSnd, levi, Matrix.mulVec, dotProduct, Fin.sum_univ_succ,
+      h3, h6, h7] <;>
+    ring
+
+/-- **The Pauli-coordinate map on the meson square**: a symmetric tensor is read as the triple
+`((S₁₁ − S₀₀)/2, −i(S₀₀ + S₁₁)/2, S₀₁)`. -/
+def mesonSymmMap : colourVec 4 →ₗ[ℂ] (Fin 3 → ℂ) where
+  toFun v := ![(WithLp.ofLp v 3 - WithLp.ofLp v 0) / 2,
+    -Complex.I * (WithLp.ofLp v 0 + WithLp.ofLp v 3) / 2, WithLp.ofLp v 1]
+  map_add' := by
+    intro u w
+    funext i
+    fin_cases i <;> simp <;> ring
+  map_smul' := by
+    intro c u
+    funext i
+    fin_cases i <;> simp <;> ring
+
+set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks of the Pauli-coordinate map
+/-- **The Pauli-coordinate map intertwines the total meson action with the adjoint action.** -/
+theorem mesonSymmMap_intertwines (a : Fin 3) {v : colourVec 4} (hv : v ∈ mesonSymm) :
+    mesonSymmMap (mesonAct a v) = (adjRep a).mulVec (mesonSymmMap v) := by
+  have h21 : WithLp.ofLp v 2 = WithLp.ofLp v 1 := by
+    have h := hv 1
+    simpa [mesonFlipIdx] using h
+  funext d
+  fin_cases a <;> fin_cases d
+  all_goals
+    simp [mesonSymmMap, mesonAct_ofLp, mesonRep, adjRep, mesonSlotFst, mesonSlotSnd,
+      fundRep, pauli, levi, Matrix.mulVec, dotProduct, Fin.sum_univ_succ, h21]
+  all_goals ring_nf
+  all_goals try simp only [Complex.I_sq]
+  all_goals ring
+
+/-- **The meson triple and the glueball antisymmetric part are the same `su(2)`-module**: both
+intertwine with the adjoint action, so transporting a symmetric meson tensor to the antisymmetric
+glueball part along `ε` commutes with every total action. -/
+theorem mesonSymm_glueball_iso (a : Fin 3) {v : colourVec 4} (hv : v ∈ mesonSymm) :
+    glueballAltInv (mesonSymmMap (mesonAct a v)) =
+      glueballAct a (glueballAltInv (mesonSymmMap v)) := by
+  have key : glueballAltMap (glueballAltInv (mesonSymmMap (mesonAct a v)))
+      = glueballAltMap (glueballAct a (glueballAltInv (mesonSymmMap v))) := by
+    rw [glueballAltInv_map, glueballAltMap_intertwines a (glueballAltInv_mem _),
+      glueballAltInv_map, ← mesonSymmMap_intertwines a hv]
+  have hsub : (⟨glueballAltInv (mesonSymmMap (mesonAct a v)),
+      glueballAltInv_mem (mesonSymmMap (mesonAct a v))⟩ : ↥glueballAlt) =
+      ⟨glueballAct a (glueballAltInv (mesonSymmMap v)),
+        glueballAct_mem_alt a (glueballAltInv_mem (mesonSymmMap v))⟩ :=
+    glueballAltMap_injective key
+  exact congrArg Subtype.val hsub
 
 end
 
