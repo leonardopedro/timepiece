@@ -946,7 +946,15 @@ second, independent witness to the split is the quadratic Casimir `Σ_a (A^a)²`
 (`glueballCasimir_alt`, `mesonCasimir_symm`), `0` on the trace line and on the meson singlet
 (`glueballCasimir_singletVec`, `mesonCasimir_alt`) and `6` on `Sym²₀`
 (`glueballCasimir_traceless`), with `glueballCasimir_eigenspaces` showing the three summands span
-the square — the `3`, `1`, `5` recovered as eigenvalues rather than counted.  The identification is
+the square — the `3`, `1`, `5` recovered as eigenvalues rather than counted.  The Casimir is natural
+and not merely diagonal in some basis: it commutes with every total action (`glueballCasimir_act`,
+from the closed form `glueballCasimir_eq` together with `glueballAct_flip`,
+`glueballTrace_act_eq_zero` and `glueballAct_singletVec`; `mesonCasimir_act` for the meson square),
+it is self-adjoint on each summand (`glueballCasimir_symmetric_alt`, `_traceless`, `_traceLine` and
+`mesonCasimir_symmetric_symm`, `_alt`, through `inner_smul_real_scalar` and the reality of the
+eigenvalue `2`, `0`, `6`), and `glueball_decompose` splits any vector of the square as
+`u + c·δ + z` along the three eigenspaces, `glueball_decompose_casimir` reading the Casimir off as
+`2•u + 6•z`.  The identification is
 stronger than a dimension count: the
 `ε`-contraction `glueballAltEquiv` is a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and
 `glueballAltMap_intertwines` shows it carries the total action to `adjRep`, as
