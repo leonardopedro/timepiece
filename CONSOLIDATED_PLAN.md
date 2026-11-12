@@ -22442,3 +22442,35 @@ step inside a lemma that never mentions `su(2)`, `levi` or `Complex.I` — the s
 0 errors, no new warnings (the pre-existing `maxHeartbeats` linter notes at 110, 1119, 1174, 1191,
 1291 and the flexible-`simp` note at 3190 are unchanged); `mesonRep_commutator` and
 `glueballRep_commutator` still typecheck against the new corollary.
+
+## State of the project — 2026-11-12b: the split module's last two warnings are cleared
+
+§2026-11-12a reported `BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` warning-free.  That
+stopped being true before it was pushed: the concurrently merged meson/glueball section (`2658f72`)
+brought back a bare `set_option maxHeartbeats 1000000` inside `section glueballComputation`, and
+`colouredHamiltonian_swap_quadForm` still carried `simp [Matrix.cons_val_zero,
+Matrix.cons_val_one]`, which `linter.style.flexible` flags as a flexible tactic modifying the goal.
+
+Both are now cleared, and the two fixes differ from the ones §2026-11-12a describes:
+
+* the four declarations of the glueball section (`glueballRep_zero_mulVec`,
+  `glueballRep_one_mulVec`, `glueballRep_two_mulVec`, `glueballCoeff_mem`) each get their own
+  `set_option maxHeartbeats 1000000 in`, and the reason comment goes **after** the `in`, not above
+  it — `DeprecatedSyntaxLinter` inspects the trailing comment of the option command, so a comment on
+  the preceding line does not count and the warning survives;
+* the flexible `simp` is replaced by the exact list Lean's own `simp?` suggested
+  (`Fin.isValue, of_apply, cons_val', cons_val_fin_one, cons_val_zero, Fin.sum_univ_two,
+  inner_self_eq_norm_sq_to_K, Complex.coe_algebraMap, zero_mul, cons_val_one, one_mul, zero_add,
+  add_zero`).  The two `Matrix.cons_val_*` names the old proof passed were already in the default
+  simp set, which is why `simp only` with just those two reduced nothing.
+
+The module now has fifteen `maxHeartbeats` options, **all scoped with `in`**, and no line over 100
+characters.  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes 8091 jobs with
+no warning or error naming the module.
+
+**Boundary.**  No statement, definition or proof obligation changes here: the four glueball lemmas
+and the swap-form identity keep the same tactic steps, with one explicit simp set in place of an
+open-ended `simp`.  Clearing a linter warning is not a strengthening of any theorem.
+
+**Verification.**  The single-module build as above; the aggregate `lake build BookProof` is rerun
+after this change and must be green before the packet is pushed.

@@ -3209,7 +3209,9 @@ theorem colouredHamiltonian_swap_quadForm {D : Submodule ℂ (L2d 99)} (Φ : Cor
         + 2 * (inner ℂ (WithLp.ofLp (u : colourSpace 2) 0)
             (WithLp.ofLp (u : colourSpace 2) 1)).re := by
   rw [colouredHamiltonian_quadForm_core, Fin.sum_univ_two]
-  simp [Matrix.cons_val_zero, Matrix.cons_val_one]
+  simp only [Fin.isValue, of_apply, cons_val', cons_val_fin_one, cons_val_zero, Fin.sum_univ_two,
+    inner_self_eq_norm_sq_to_K, Complex.coe_algebraMap, zero_mul, cons_val_one, one_mul, zero_add,
+    add_zero]
   rw [show (inner ℂ (WithLp.ofLp (u : colourSpace 2) 1)
       (WithLp.ofLp (u : colourSpace 2) 0)).re
       = (inner ℂ (WithLp.ofLp (u : colourSpace 2) 0)
@@ -3954,8 +3956,8 @@ theorem mesonCoeff_mem : mesonSingletVec ∈ mesonSinglet := by
 -- keeps each of the nine coordinate goals inside one elaboration.
 section glueballComputation
 
-set_option maxHeartbeats 1000000
-
+set_option maxHeartbeats 1000000 in
+-- Nine-term dot products, nine coordinate goals: one elaboration per goal needs the budget.
 /-- **The first total colour action on `ℂ³ ⊗ ℂ³`, in closed form**: the nine components of
 `(T⁰ ⊗ 1 + 1 ⊗ T⁰) v`, each one or two coordinates of `v`. -/
 theorem glueballRep_zero_mulVec (v : Fin 9 → ℂ) :
@@ -3969,6 +3971,8 @@ theorem glueballRep_zero_mulVec (v : Fin 9 → ℂ) :
       Fin.sum_univ_succ, adjRep, levi] <;>
     norm_num [levi] <;> ring
 
+set_option maxHeartbeats 1000000 in
+-- Same nine-term expansion on the second generator.
 /-- **The second total colour action on `ℂ³ ⊗ ℂ³`, in closed form.** -/
 theorem glueballRep_one_mulVec (v : Fin 9 → ℂ) :
     (glueballRep 1).mulVec v
@@ -3981,6 +3985,8 @@ theorem glueballRep_one_mulVec (v : Fin 9 → ℂ) :
       Fin.sum_univ_succ, adjRep, levi] <;>
     norm_num [levi] <;> ring
 
+set_option maxHeartbeats 1000000 in
+-- Same nine-term expansion on the third generator.
 /-- **The third total colour action on `ℂ³ ⊗ ℂ³`, in closed form.** -/
 theorem glueballRep_two_mulVec (v : Fin 9 → ℂ) :
     (glueballRep 2).mulVec v
@@ -3993,6 +3999,8 @@ theorem glueballRep_two_mulVec (v : Fin 9 → ℂ) :
       Fin.sum_univ_succ, adjRep, levi] <;>
     norm_num [levi] <;> ring
 
+set_option maxHeartbeats 1000000 in
+-- The three nine-term expansions at once, one elaboration per `fin_cases` goal.
 /-- **The trace is a colour singlet** of `ℂ³ ⊗ ℂ³`: all three total actions annihilate `δ`,
 which is the `su(2)` tensor `3 ⊗ 3 ⊇ 1` — the adjoint generators are antisymmetric, so the trace
 survives. -/
@@ -4406,12 +4414,14 @@ group law `U(s) U(t) = U(s + t)`.
 Acting coefficientwise on the completion gives a one-parameter group of bounded operators
 (`colourGroupActCLM_mul`), each invertible with inverse the opposite parameter.
 
-**Boundary — a group of *units*, not a unitary group.**  `fundMode d` carries the sup norm on the
-fibre `Fin 2 → ℂ`: there is no `InnerProductSpace ℂ (Fin 2 → ℂ)` instance, so "unitary operator on
-`fundMode`" is not even a well-typed predicate here, and the fibre norm is genuinely not preserved
-(`colourGroupActCLM` is bounded by the constant `2`, not `1`).  What is unitary is the `2 × 2`
-factor; a unitary action on the completion would need the Euclidean fibre norm.  No spectral
-consequence, and no `su(2)`-multiplet structure of the coefficients, is claimed.
+**Boundary — on `fundMode` this is a group of *units*, not a unitary group.**  `fundMode d` carries
+the sup norm on the fibre `Fin 2 → ℂ`: no inner product makes that sup norm a Hilbert norm, so
+"unitary operator on `fundMode`" is not even a well-typed predicate here, and the fibre norm is
+genuinely not preserved (`colourGroupActCLM` is bounded by the constant `2`, not `1`).  What is
+unitary is the `2 × 2` factor.  The Euclidean-fibre companion, where the action *is* unitary on a
+completion, is `fundHilbert d` with `colourGroupActHilbert_mem_unitary` (below); it is a different
+normed space, not a second norm on `fundMode d`.  No spectral consequence, and no `su(2)`-multiplet
+structure of the coefficients, is claimed.
 -/
 
 /-- Act coefficientwise on the coloured completion by a `2 × 2` colour matrix. -/
