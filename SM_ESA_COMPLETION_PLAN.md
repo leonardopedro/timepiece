@@ -2583,3 +2583,110 @@ EssentiallySelfAdjointOn SmCoupledCore (smNormalForm D)
   audit or aggregate target is disturbed by the new module.
 * No numerical claim is made in this section.  The §40–§43 numbers are unaffected and were not
   recomputed.
+
+## §45. P4 in one parity sector: the sector does not exist as a weakening (2026-11-12)
+
+### 45.1. The question
+
+§44 reduced the matter closure to its two parity sectors, under `ParityGradedCoeffs` alone.  The
+obvious next hope is that the same split helps P4: that the analytic input
+(`PotSelfBound` / `FormDomainComparison`) restricted to **one** parity sector is weaker than the
+input on the whole coupled space, so that one sector could be closed first and only the other left
+open.
+
+### 45.2. The answer, and why it is structural
+
+It is not weaker, and the reason is a feature of the model's parity that is visible in its
+definition.  `coupledParity` is diagonal on the **outer** occupation index,
+
+    (coupledParity f).ofLp A = fockSign A • f.ofLp A,      fockSign A = (-1)^{|A|},
+
+and it does not touch the inner 163-coordinate factor.  Consequently:
+
+* **every elementary tensor is a parity eigenvector** (`coupledParity_deltaFun`): for a single outer
+  occupation `A` and any inner vector `v`, `coupledParity (deltaFun A v) = fockSign A • deltaFun A v`,
+  so `deltaFun A v` is in the even sector iff `|A|` is even (`deltaFun_mem_evenSpace_iff`);
+* the **entire inner test class** — every Gauss-polynomial in 163 variables — sits inside each
+  sector whole, with its norm unchanged (`deltaFun_norm` is an isometry);
+* the coupled tensor acts **componentwise** on it (`coupledOp_one_deltaFun`,
+  `coupledOp_one_add_deltaFun`), so the sector inequality at `deltaFun A v` *is* the scalar
+  inequality at `v`.
+
+### 45.3. The two theorems that settle it
+
+* `scalarBound_of_evenSectorBound` — a relative bound `‖T ⊗ I f‖ ≤ c ‖(N ⊗ I + 1) f‖` valid only on
+  the **even** sector already yields the scalar bound `‖T x‖ ≤ c ‖N x + x‖` for every inner core
+  vector, by evaluating at the empty outer occupation (which is even, `fockSign ∅ = 1`).
+* `scalarBound_of_oddSectorBound` — the same from the odd sector, at the single occupation `{0}`
+  (`fockSign {0} = -1`).
+* `sectorComparison_iff_formDomainComparison` — §32's `FormDomainComparison` read on the elementary
+  tensors of *any* sector is literally the whole scalar statement,
+  and `sectorComparison_const_in_sector` records that the sector statement does not depend on which
+  sector is chosen.
+
+So P4 does not decompose over the parity split.  The split localises the **closure** (§44), not the
+elliptic estimate: both sectors inherit the identical open problem, and the sharp constant is the
+same in both.  This is not a limitation of the formalisation but the content of the model's parity.
+
+### 45.4. What this does not prove
+
+`PotSelfBound` / `FormDomainComparison` for the quartic `W` remains a hypothesis, unchanged and with
+its constant free.  Nothing here bounds the potential, produces the reverse elliptic estimate, or
+supplies the missing form-domain comparison: the module shows that the sector route cannot supply it
+either, and removes that route from the search space.
+
+### 45.5. Verification performed (2026-11-12)
+
+* `lake build BookProof.Sm.ChapterSmSectorFormDomain` — clean, no warning, no line over 100 columns.
+* `lake build Work.SmSectorFormDomainAudit` — 17 declarations, each `#print axioms` reporting exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean BookProof.lean` after registering the import — exit 0.
+
+## §46. The BRST quotient on top of the parity split (2026-11-12)
+
+Module: `BookProof/Sm/ChapterSmBrstQuotient.lean`, namespace `BookProof.SmBrstQuotient`.
+
+### 46.1. What is built
+
+The algebra P5's physical half needs, in the indefinite-metric form a BRST charge actually requires
+(in a positive-definite space a nilpotent self-adjoint charge vanishes, so "quotient by the exact
+space and inherit the ambient inner product" is not the physical construction):
+
+* **Nilpotency and the two spaces.**  `IsBrst Q` is `Q² = 0`; the gauge orbit is `gauge Q = im Q`
+  and the closed space is `closed Q = ker Q`; nilpotency puts the former inside the latter
+  (`gauge_le_ker`).
+* **The charge form** `kform η x y = ⟪x, ηy⟫`, with its additivity in both slots.
+* **Ghost nullity.**  If the charge is symmetric for the charge form,
+  `kform η (Qx) y = kform η x (Qy)`, then every exact vector is null against every closed vector
+  (`kform_ghost_null`, and `kform_ghost_null_right` from the Hermitian symmetry).
+* **The form is well defined on the cohomology.**  Two representatives in the closed space that
+  differ by a gauge orbit give the same charge form (`kform_well_defined`) — this is what lets the
+  physical form live on `ker Q / im Q` rather than on `ker Q`.
+* **Parity descent.**  A unitary involution commuting with the charge preserves the closed space and
+  the gauge orbit (`U_mem_closed`, `U_mem_gauge`); the metric operator maps each sector into itself,
+  so the sectors stay **orthogonal for the charge form** (`kform_eq_zero_of_mem_even_of_mem_odd`,
+  `kform_eq_zero_of_mem_odd_of_mem_even`); the quadratic form therefore splits,
+  `kform_quadForm_split`, and non-negativity is a **sector-by-sector** statement
+  (`kform_quadForm_nonneg`, `physicalPositivity_nonneg_of_sectors`).
+
+### 46.2. What is not built — the named input
+
+`PhysicalPositivity Q η` (non-negative on the closed space, radical there exactly the gauge orbit) is
+a **definition, not a theorem**, and it is not proved anywhere in the corpus for the matter model.
+It is the Kugo–Ojima no-ghost condition, and proving it requires the quartet structure of the
+model's actual BRST charge, which has not been constructed.  Consequently:
+
+* no positive physical inner product is produced for the SM;
+* the BRST charge of the matter model itself is not constructed here (the module is generic in `Q`
+  and `η`);
+* what the module supplies is the reduction — well-definedness, the graded splitting and the
+  sector-local positivity criterion — so that a future quartet construction has only the two sector
+  conditions left to verify.
+
+### 46.3. Verification performed (2026-11-12)
+
+* `lake build BookProof.Sm.ChapterSmBrstQuotient` — clean.
+* `lake build Work.SmBrstQuotientAudit` — 22 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx` (note `PhysicalPositivity` is audited as a
+  definition and its axiom list is inherited from the definitions it mentions).
+* `lake env lean BookProof.lean` — exit 0.
