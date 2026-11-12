@@ -881,16 +881,17 @@ extension and a complete one-parameter unitary group solving the Schrödinger eq
 (`colouredHamiltonian_extension_eq_closure`), not a differential expression restricted to an
 independently chosen boundary condition: essential self-adjointness leaves no choice.
 
-**Boundary (spectrum).**  No spectral statement about `T.op` is claimed, and none is reachable
-from what this tree contains.  The unbounded spectrum is not defined here: `BookProof.EsaClosure`
-supplies the closure, `BookProof.ChapterStoneResolvent` the resolvent `(A - il)⁻¹` on the
-imaginary axis, and `spectrum` otherwise appears only for *bounded* operators, so there is no
-`σ(T.op)` for a spectrum of `H ⊗ 1` plus colour eigenvalues to contain.  The natural candidate
-`σ(A + B) ⊆ σ(A) + σ(B)` is false anyway for non-commuting self-adjoint `A`, `B`; its true
-one-sided form needs a resolvent bound at *real* spectral distance and a Neumann series, neither
-of which exists here.  What *is* proved is the colour side of such a statement: a colour
-eigenvector spreads to an eigenvector of `1 ⊗ C` with the same eigenvalue
-(`colourMix_colourSpread_eigenvector`).
+**Boundary (spectrum).**  No spectral statement about `T.op` is claimed, and the containment
+`σ(T.op) ⊆ σ(H ⊗ 1) + {colour eigenvalues}` is not asserted.  The vocabulary now exists
+(`BookProof.UnboundedSpectrum`: `ResolventAt`, `resolventSet`, `spectrumOf`, the Neumann transport
+`resolventAt_add_of_norm_mul_lt_one`, and the imaginary-shift instance
+`resolventAt_selfAdjoint_imag`), but the containment argument itself needs an input that is not in
+the tree: a resolvent bound at *real* spectral distance, `‖(A - x)⁻¹‖ ≤ 1/dist(x, σ A)` for real
+`x`, i.e. the spectral theorem.  The tree's only resolvents are at imaginary shifts, where
+`A + B` is self-adjoint anyway, so no bound there carries spectral information, and
+`σ(A + B) ⊆ σ(A) + σ(B)` is false for non-commuting self-adjoint `A`, `B` in any case.  What *is*
+proved is the colour side of such a statement: a colour eigenvector spreads to an eigenvector of
+`1 ⊗ C` with the same eigenvalue (`colourMix_colourSpread_eigenvector`).
 -/
 
 /-- The coloured core over the Gauss–polynomial field core is dense in the coloured Hilbert

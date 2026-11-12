@@ -7,7 +7,19 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12n):** “State of the project — 2026-11-12n: colour conjugation, the
+> **Newest entry (2026-11-12o):** “State of the project — 2026-11-12o: the ESA reduction, the P1
+> bound, and the unbounded spectrum” (end of file): the Fock-space half of the essential
+> self-adjointness of `dΓ(H₁)` is discharged —
+> `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` instantiates the weighted Schur test
+> at `ymFockCol`, leaving exactly three one-particle symbol
+> gates, which are named and not proved; the P1 Higgs Schur bound
+> (`smCanonical_p1Higgs_commForm_le_opRadius_unconditional`) is unconditional and nothing
+> downstream consumes `PotSelfBound`; and `BookProof.UnboundedSpectrum` supplies the missing
+> vocabulary — `ResolventAt`, `spectrumOf`, the Neumann transport
+> `resolventAt_add_of_norm_mul_lt_one` and the imaginary-shift instance — with the real-axis resolvent bound recorded as the remaining
+> boundary.
+>
+> **Prev entry (2026-11-12n):** “State of the project — 2026-11-12n: colour conjugation, the
 > colour eigenvalues, and the spectrum verdict” (end of file): unitary colour conjugation carries
 > the closure of `H ⊗ 1 + 1 ⊗ (U* C U)` onto the closure of `H ⊗ 1 + 1 ⊗ C`
 > (`colourMix_clExt_colouredHamiltonian`), a colour eigenvector spreads to an eigenvector of the
@@ -22926,3 +22938,78 @@ no line over 100 characters and no trailing whitespace in the edited files; `#pr
 `colourMix_clExt_colouredHamiltonian`, `colourMix_colourSpread_eigenvector`,
 `colourSpread_ne_zero` and `ymFock_dGamma_extension_eq_closure` reports only
 `propext, Classical.choice, Quot.sound`.
+
+## State of the project — 2026-11-12o: the ESA reduction, the P1 bound, and the unbounded spectrum
+
+Three requests answered in one packet: the essential self-adjointness of `dΓ(H₁)` for the physical
+`ymFockCol`, the status of the P1 Higgs Schur bound in the SM track, and the resolvent machinery a
+one-sided spectral containment needs.  The first two are verdicts, not more theorems; the third is
+new code.
+
+* **The ESA of `dΓ(H₁)` is reduced to three named symbol gates, and proved no further.**  The
+  obstruction is one-particle, not Fock-theoretic: the weighted Schur test
+  (`BookProof.FockWeightedSchur.dGamma_essentiallySelfAdjointOn_core_w`) gives
+  `EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp A)` as soon as `A` has a symmetric
+  matrix over an index set with a symbol `w ≥ 1` (`∀ k, 1 ≤ w k`) satisfying three quantitative
+  gates — row `∑_j |A_{kj}| ≤ K w_k`, column `∑_k |A_{jk}| / w_k ≤ K`, and the commutator gate
+  `∑_j |A_{kj}| |w_j² − w_k²| / (w_k w_j) ≤ B`.  The new
+  `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` instantiates that theorem at the
+  physical matrix `ymFockCol e fabc`, so the whole Fock-space obligation is discharged and what is
+  left is exactly the three estimates for the quartic `one-particle` matrix in the product Hermite
+  basis.  Those are *not* proved here, and the docstring says so: `ymFockCol` is a Hamiltonian
+  matrix, so its rows do not decay and even the unweighted `SchurBound` gate of
+  `ChapterFockSchurEsa` is unavailable (it is only proved for a bounded one-particle operator);
+  the weighted gates are genuine analytic estimates and the symbol `w` itself is still to be
+  chosen.  Consequently `ymFock_dGamma_extension_eq_closure` still applies only *conditionally*,
+  and its docstring now states that explicitly while pointing at the reduction.  This is progress
+  in the honest direction — the Fock half is closed, the one-particle half is named — not a
+  discharge.
+
+* **The P1 Higgs Schur bound is unconditional, and nothing in the ESA assembly consumes it.**
+  `smCanonical_p1Higgs_commForm_le_opRadius_unconditional` (SM track, §315 of
+  `ChapterSmFullCommFormBlockP1OpNorm.lean`) bounds the canonical commutator form by the graph
+  norm `‖coupledOp (smFlN P c0) 1 f + f‖²` with `hc0 : 0 ≤ c0` as its *only* hypothesis; it does
+  not assume `PotSelfBound`, positivity of `p1Higgs`, or any decay of `P`.  `#print axioms` on it
+  and on the surrounding SM modules reports only `propext, Classical.choice, Quot.sound`, so the
+  bound is a theorem about the corpus's own definitions, not a hypothesis in disguise.  Where
+  `PotSelfBound` *does* appear is a different, norm-level statement:
+  `smNormalForm_norm_le_of_pot_self_bound` (needs `hpot : PotSelfBound …` and a kinetic bound)
+  controls the norm of the normal-form potential; the commutator-form bound above is the
+  form-level statement and needs neither.  So the ledger reads: P1 Schur bound — **closed,
+  unconditional**; `PotSelfBound` — an *input* to the norm-level relative bound only, still not
+  derived in the SM track's own terms (the later `exists_potSelfBound_of_gradDom` derives it from
+  `GradDom`, which holds for coercive quartics and fails for flat ones).  Nothing downstream of
+  the P1 bound depends on `PotSelfBound`, which is why the P1 item could be closed without it.
+
+* **The unbounded spectrum now exists, with the Neumann transport and the imaginary-shift
+  instance.**  The §2026-11-12n boundary note said the corpus had no spectrum of an unbounded
+  operator.  That is no longer true: `BookProof/Toolbox/ChapterUnboundedSpectrum.lean` (namespace
+  `BookProof.UnboundedSpectrum`, imported by `BookProof.lean`) defines `ResolventAt T z R` — the
+  honest two-sided statement that the *bounded* `R` inverts `T - z`, `R ((T - z) x) = x` on the
+  domain and `(T - z) (R y) = y` with `R y` in the domain — and from it `resolventSet T` and
+  `spectrumOf T` as its complement, so `σ(T)` for a densely defined `T` is a set in this tree for
+  the first time.  On top of it: `isUnit_one_add_clm_comp` (`‖B‖ ‖R‖ < 1` makes `1 + B R`
+  invertible), the Neumann transport `resolventAt_add_of_norm_mul_lt_one` (with `R` inverting
+  `T - z` and `‖B‖ ‖R‖ < 1`, the continuous map `R (1 + B R)⁻¹` inverts `(T + B) - z` where
+  `perturb T B = T + B ∘ domain-inclusion`), its spectrum form
+  `not_mem_spectrumOf_add_of_norm_mul_lt_one`, and the instance `resolventAt_selfAdjoint_imag` for
+  a `UnboundedSelfAdjoint` at `z = i l` (`l ≠ 0`) with the explicit inverse `T.resCLM l`, plus
+  `selfAdjoint_imag_mem_resolventSet` / `selfAdjoint_imag_not_mem_spectrumOf`.  **The real-axis
+  resolvent is still missing and is recorded as such**, in the module docstring and in the
+  spectrum boundary note of `ChapterYangMillsNonAbelianEsa.lean`, which now points at this module
+  instead of claiming the vocabulary is absent.  The reason it cannot be manufactured is stated
+  where it belongs: the transport *converts* a resolvent bound into a containment and never
+  produces one, and the tree's only self-adjoint resolvents sit on the imaginary axis, where
+  `T + B` is self-adjoint anyway and the bound carries no spectral information.  The missing
+  input is the spectral theorem's `‖(T - x)⁻¹‖ ≤ 1/dist(x, σ(T))` at real `x`.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterUnboundedSpectrum
+BookProof.Qym.ChapterYangMillsNonAbelianEsa BookProof.ChapterQymTimeIndependentFlow` → 8135 jobs
+for the first two, no error and no warning naming either module; no line over 100 characters and
+no trailing whitespace in the four edited files; `#print axioms` on
+`resolventAt_add_of_norm_mul_lt_one`, `not_mem_spectrumOf_add_of_norm_mul_lt_one`,
+`resolventAt_selfAdjoint_imag`, `selfAdjoint_imag_mem_resolventSet`,
+`selfAdjoint_imag_not_mem_spectrumOf` and
+`ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` reports only
+`propext, Classical.choice, Quot.sound`.  The SM audit is by inspection plus `#print axioms` on the
+three SM modules named above (8177 jobs, no error); it changed no SM file.
