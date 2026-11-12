@@ -935,8 +935,19 @@ action (`mesonAct_mem_symm`, `mesonAct_mem_alt`), the action being swap-symmetri
 (`glueball_isCompl`, dimensions `3` and `6` via `glueballAlt_finrank`, `glueballSymm_finrank`),
 and inside the symmetric part the trace line has a traceless complement
 (`glueballTrace_sup`, `glueballTrace_disjoint`), so `ℂ³ ⊗ ℂ³ = Λ² ⊕ (trace line) ⊕ Sym²₀`
-with dimensions `3`, `1`, `5`, the `Λ²` and `Sym²` summands invariant (`glueballAct_mem_alt`,
-`glueballAct_mem_symm`; the traceless piece's invariance is not separated out).  The identification is stronger than a dimension count: the
+with dimensions `3`, `1`, `5`, every summand invariant — `glueballAct_mem_alt` and
+`glueballAct_mem_symm` for `Λ²` and `Sym²`, and `glueballAct_mem_traceless` for the traceless part,
+which follows not from the dimension `5` but from `glueballTrace_act_eq_zero`: the trace functional
+annihilates the image of *every* total action (`glueballTrace_coeff`), so a symmetric traceless
+vector stays so.  The trace vector `δ` is annihilated outright (`glueballAct_singletVec`).  A
+second, independent witness to the split is the quadratic Casimir `Σ_a (A^a)²`, computed entrywise
+(`glueballCasimirMat_apply`, `mesonCasimirMat_apply`: `4·1 + 2·(slot transpose) − 2·(trace)·1` on
+`ℂ³ ⊗ ℂ³` and `1 + (slot transpose)` on `ℂ² ⊗ ℂ²`): it is `2` on `Λ²` and on the meson triplet
+(`glueballCasimir_alt`, `mesonCasimir_symm`), `0` on the trace line and on the meson singlet
+(`glueballCasimir_singletVec`, `mesonCasimir_alt`) and `6` on `Sym²₀`
+(`glueballCasimir_traceless`), with `glueballCasimir_eigenspaces` showing the three summands span
+the square — the `3`, `1`, `5` recovered as eigenvalues rather than counted.  The identification is
+stronger than a dimension count: the
 `ε`-contraction `glueballAltEquiv` is a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and
 `glueballAltMap_intertwines` shows it carries the total action to `adjRep`, as
 `mesonSymmMap_intertwines` does for the Pauli-coordinate map of the meson symmetric part — so
