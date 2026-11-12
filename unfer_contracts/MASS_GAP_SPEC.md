@@ -457,21 +457,23 @@ blocks, with `below == 1` — a genuine `λ₂` witness: odd `N ≤ 34` (fill 12
 with the odd ground, `4.1e-4` apart), odd `N ≤ 40` (`n = 64680`,
 `θ₀ = −16.341870`, 394 s, fill 2080, `8.8e-17`), odd `N ≤ 42` (`n = 77924`,
 `θ₀ = −17.237774`, 620 s, fill 2309, `5.0e-14`) and odd `N ≤ 44` (`n = 93104`,
-`θ₀ = −18.138131`, 978 s, fill 2675, `1.5e-14`) and odd `N ≤ 46`
-(`n = 110400`, `θ₀ = −19.039563`, 1552 s, fill 3120, `5.8e-14`); the even
-block under its **own** `β` reports `below == 1` from `N ≤ 20`
+`θ₀ = −18.138131`, 978 s, fill 2675, `1.5e-14`), odd `N ≤ 46`
+(`n = 110400`, `θ₀ = −19.039563`, 1552 s, fill 3120, `5.8e-14`) and odd
+`N ≤ 48` (`n = 130000`, `θ₀ = −19.944042`, 2390 s, fill 3458, `5.9e-14`); the
+even block under its **own** `β` reports `below == 1` from `N ≤ 20`
 (`n = 5786`, `θ₀ = −7.512462`, fill 358) up through `N ≤ 40`
 (`n = 71071`, fill 2218, 479 s, `6.4e-17`), `N ≤ 42` (`n = 85261`, fill 2460,
 795 s, `1.3e-14`) and `N ≤ 44` (`n = 101476`, `θ₀ = −18.137463`, 1214 s, fill
-2958, `8.4e-15`). So the reach is `46` in the odd block and `44` in the even
+2958, `8.4e-15`). So the reach is `48` in the odd block and `44` in the even
 one and **the ladder has not stopped, it has become expensive** — the last rows
-keep fourteen orders of headroom to the refusal rule — with the witness range at
+keep fourteen orders of headroom to the refusal rule, and the ratio is *flat*
+(`5.8e-14` → `5.9e-14`) while the price climbs — with the witness range at
 least that rather than `30`, and the `562 s` even refusal was that matrix at the
 *odd* threshold. What grows is the price: in the odd block the count alone goes
-`70 → 129 → 230 → 394 → 620 → 978 → 1552 s` (~1.6× a shell) with fill
-`1960 → 2080 → 2309 → 2675 → 3120`, the even curve runs
+`70 → 129 → 230 → 394 → 620 → 978 → 1552 → 2390 s` (~1.6× a shell) with fill
+`1960 → 2080 → 2309 → 2675 → 3120 → 3458`, the even curve runs
 `295 → 479 → 795 → 1214 s` with fill `1960 → 2218 → 2460 → 2958`, so the next
-odd shell is ~`2400 s` and is unrun rather than unwalled. The ordering split
+odd shell is ~`3800 s` and is unrun rather than unwalled. The ordering split
 survives the correction and is now pinned
 rather than bracketed: RCM decides `N ≤ 32` at its own converged `β` (fill 1141,
 `θ₀ = −12.777793`, residual `7.6e-13`, ratio `2.6e-2`, 198 s) and refuses
