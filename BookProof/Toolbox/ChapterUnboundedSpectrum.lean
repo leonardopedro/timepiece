@@ -43,7 +43,11 @@ supposed to omit.  The transport above supplies that implication with the hypoth
 `‖B‖ ‖R(z)‖ < 1` **at a point where a resolvent exists**, so it converts a resolvent bound into a
 containment and never produces one.  For a self-adjoint `T` the resolvents available in this tree
 are `T.resCLM l`, i.e. `z = i l` — the imaginary axis — and `T + B` is self-adjoint there anyway,
-so a bound at those points carries no spectral information.  The missing input is the
+so a bound at those points carries no spectral information.  §4 adds the resolvent identity in the
+spectral parameter (`resolvent_identity`, `resolventAt_shift`), which makes the resolvent set open
+with an explicit Neumann inverse and propagates the imaginary-axis resolvent to the disc of radius
+`|l|` about `i l` (`mem_resolventSet_of_near_imag`) — a disc that touches the real axis only in the
+limit `l → ∞`.  The missing input is the
 **real-axis resolvent bound** `‖(T - x)⁻¹‖ ≤ 1/dist(x, σ(T))` for real `x`, which is a theorem of
 the spectral theorem (or of the resolvent identity plus self-adjointness), together with the
 characterization of `σ(T)` for self-adjoint `T` as the set of real `x` at which `T - x` fails to
@@ -99,6 +103,24 @@ def perturb {D : Submodule ℂ H} (T : D →ₗ[ℂ] H) (B : H →L[ℂ] H) : D 
 
 theorem perturb_apply {D : Submodule ℂ H} (T : D →ₗ[ℂ] H) (B : H →L[ℂ] H) (x : D) :
     perturb T B x = T x + B (x : H) := rfl
+
+/-- **The resolvent identity.**  Two left inverses of `T - ·` at different parameters differ by
+`(z - w) R_z R_w`, applied to the range of `R_w`. -/
+theorem resolvent_identity {D : Submodule ℂ H} {T : D →ₗ[ℂ] H} {w z : ℂ} {Rw Rz : H →L[ℂ] H}
+    (hRw : ResolventAt T w Rw) (hRz : ResolventAt T z Rz) (y : H) :
+    Rz y = Rw y + (z - w) • Rz (Rw y) := by
+  have hmem : Rw y ∈ D := (hRw.op_apply y).1
+  have hleft := hRz.apply_op ⟨Rw y, hmem⟩
+  have hright : T ⟨Rw y, hmem⟩ - z • Rw y = y - (z - w) • Rw y := by
+    have hw := (hRw.op_apply y).2
+    calc T ⟨Rw y, hmem⟩ - z • Rw y
+        = (T ⟨Rw y, hmem⟩ - w • Rw y) - (z - w) • Rw y := by module
+      _ = y - (z - w) • Rw y := by rw [hw]
+  rw [hright, map_sub, map_smul] at hleft
+  have hsub : Rz y = Rw y + (z - w) • Rz (Rw y) := by
+    have := sub_eq_iff_eq_add.mp hleft
+    simpa using this
+  exact hsub
 
 /-! ## The Neumann transport of a resolvent by a bounded perturbation -/
 
@@ -211,6 +233,82 @@ theorem selfAdjoint_imag_mem_resolventSet (T : UnboundedSelfAdjoint H) {l : ℝ}
 theorem selfAdjoint_imag_not_mem_spectrumOf (T : UnboundedSelfAdjoint H) {l : ℝ} (hl : l ≠ 0) :
     ((l : ℂ) * Complex.I) ∉ spectrumOf T.op :=
   not_mem_spectrumOf_of_mem_resolventSet (selfAdjoint_imag_mem_resolventSet T hl)
+
+/-! ## 4. The resolvent identity: transport in the spectral parameter
+
+The transport of §3 moves the *operator* by a bounded perturbation at a fixed parameter.  The
+transport below moves the *parameter* at a fixed operator, which is what makes the resolvent set
+open and is the algebraic form of the resolvent identity
+`R_z - R_w = (z - w) R_z R_w`.  Nothing here is specific to self-adjoint operators: it is the
+identity `(T - z) = (1 - (z - w) R_w) (T - w)` read at the level of bounded inverses. -/
+
+/-- `1 - (z - w) R` is invertible when `‖z - w‖ ‖R‖ < 1`; the Neumann series of §3 in the
+spectral parameter. -/
+theorem isUnit_one_sub_smul (R : H →L[ℂ] H) {w z : ℂ} (h : ‖z - w‖ * ‖R‖ < 1) :
+    IsUnit (1 - (z - w) • R : H →L[ℂ] H) := by
+  have hnorm : ‖(z - w) • R‖ < 1 := lt_of_le_of_lt (norm_smul_le _ _) h
+  simpa [sub_eq_add_neg] using isUnit_one_sub_of_norm_lt_one hnorm
+
+/-- **The resolvent set is open, with the Neumann inverse as witness.**  If `R` inverts `T - w` and
+`‖z - w‖ ‖R‖ < 1`, then `R (1 - (z - w) R)⁻¹` inverts `T - z`.  So a resolvent point `w` propagates
+to the whole disc of radius `1/‖R‖` around it, which is the step a spectral-containment argument
+uses at a point where a resolvent is already known. -/
+theorem resolventAt_shift {D : Submodule ℂ H} {T : D →ₗ[ℂ] H} {w z : ℂ} {R : H →L[ℂ] H}
+    (hR : ResolventAt T w R) (h : ‖z - w‖ * ‖R‖ < 1) :
+    ResolventAt T z
+      (R.comp ((((isUnit_one_sub_smul R h).unit)⁻¹ : (H →L[ℂ] H)ˣ) : H →L[ℂ] H)) := by
+  set N : H →L[ℂ] H := 1 - (z - w) • R with hNdef
+  have hu : IsUnit N := isUnit_one_sub_smul R h
+  set u : H →L[ℂ] H := ((hu.unit⁻¹ : (H →L[ℂ] H)ˣ) : H →L[ℂ] H) with hudef
+  have huN : u * N = 1 := IsUnit.val_inv_mul hu
+  have hNu : N * u = 1 := IsUnit.mul_val_inv hu
+  have hleft : ∀ y : H, u (N y) = y := by
+    intro y
+    rw [← ContinuousLinearMap.mul_apply, huN, ContinuousLinearMap.one_apply]
+  have hright : ∀ y : H, N (u y) = y := by
+    intro y
+    rw [← ContinuousLinearMap.mul_apply, hNu, ContinuousLinearMap.one_apply]
+  have hN_apply : ∀ y : H, N y = y - (z - w) • R y := by
+    intro y
+    rw [hNdef, ContinuousLinearMap.sub_apply, ContinuousLinearMap.one_apply,
+      ContinuousLinearMap.smul_apply]
+  constructor
+  · intro x
+    have hx : R (T x - w • (x : H)) = (x : H) := hR.apply_op x
+    have hNw : N (T x - w • (x : H)) = T x - z • (x : H) := by
+      rw [hN_apply, hx]
+      module
+    show (R.comp u) (T x - z • (x : H)) = (x : H)
+    rw [← hNw, ContinuousLinearMap.comp_apply, hleft, hx]
+  · intro y
+    have hmem : R (u y) ∈ D := (hR.op_apply (u y)).1
+    refine ⟨hmem, ?_⟩
+    have hstep := (hR.op_apply (u y)).2
+    show T ⟨R (u y), hmem⟩ - z • R (u y) = y
+    calc T ⟨R (u y), hmem⟩ - z • R (u y)
+        = (T ⟨R (u y), hmem⟩ - w • R (u y)) - (z - w) • R (u y) := by module
+      _ = u y - (z - w) • R (u y) := by rw [hstep]
+      _ = N (u y) := by rw [hN_apply]
+      _ = y := hright y
+
+/-- **Resolvents exist in a strip around the imaginary axis, by the resolvent identity.**  With the
+explicit bound `‖(T - i l)⁻¹‖ ≤ 1/|l|` of `BookProof.ChapterStoneResolvent`, the parameter transport
+above propagates that resolvent point to every `z` with `‖z - i l‖ < |l|`:
+
+  `‖z - i l‖ ‖(T - i l)⁻¹‖ ≤ ‖z - i l‖ / |l| < 1`.
+
+This is the real content the resolvent identity buys: the resolvent set contains the open disc of
+radius `|l|` about `i l`, i.e. it reaches the real axis only in the limit `l → ∞`.  The bound is
+*not* a real-axis bound — the distance from `i l` to the real axis is exactly `|l|`, so no choice of
+`l` puts a real point strictly inside the disc without first knowing a resolvent there. -/
+theorem mem_resolventSet_of_near_imag (T : UnboundedSelfAdjoint H) {l : ℝ} (hl : l ≠ 0) {z : ℂ}
+    (hz : ‖z - (l : ℂ) * Complex.I‖ * (1 / |l|) < 1) : z ∈ resolventSet T.op := by
+  have hlpos : 0 < |l| := abs_pos.mpr hl
+  have hop : ‖T.resCLM l‖ ≤ 1 / |l| :=
+    ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun y =>
+      UnboundedSelfAdjoint.norm_resCLM_apply_le T l y
+  refine ⟨_, resolventAt_shift (resolventAt_selfAdjoint_imag T hl) ?_⟩
+  exact lt_of_le_of_lt (mul_le_mul_of_nonneg_left hop (norm_nonneg _)) hz
 
 end Complete
 
