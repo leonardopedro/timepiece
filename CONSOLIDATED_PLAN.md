@@ -7,7 +7,7 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12l):** “State of the project — 2026-11-12l: the traceless summand is
+> **Newest entry (2026-11-12m):** “State of the project — 2026-11-12m: the traceless summand is
 > invariant, and the Casimir reads off `3`, `1`, `5`” (end of file): the gap the 12j entry named is
 > closed by a stronger lemma — the trace functional annihilates the image of *every* total colour
 > action (`glueballTrace_coeff`, `glueballTrace_act_eq_zero`), so the traceless symmetric summand is
@@ -17,6 +17,13 @@
 > line and `6` on `Sym²₀` (`glueballCasimir_alt`, `glueballCasimir_singletVec`,
 > `glueballCasimir_traceless`, `glueballCasimir_eigenspaces`), and `2`/`0` on the meson triplet and
 > singlet — the `3`, `1`, `5` read off as eigenvalues rather than counted.
+>
+> **Earlier entry (2026-11-12l):** “State of the project — 2026-11-12l: `colourMix` is a unitary,
+> the extension is the closure” (end of file): `1 ⊗ C` is an isometry of `colourSpace N` for a
+> unitary `C` (`colourMix_norm_of_unitary`, `colourMixIsometryEquiv`), the Stone flow is pinned to
+> the graph closure of the core (`colouredHamiltonian_extension_eq_closure`), and
+> `hilbActOp_hilbFibre_colourVecAct` puts both sides on one colour fibre while the ambient
+> completions stay distinct.
 >
 > **Earlier entry (2026-11-12k):** “State of the project — 2026-11-12k: the QYM flow exists” (end of
 > file): density of the coloured core (`dense_colouredCore`) and its Gauss–polynomial instance
@@ -22720,80 +22727,7 @@ warning naming either module; no line over 100 characters and no trailing whites
 `lake build BookProof` on the merged tree (this packet plus the concurrent glueball/BRST commits)
 completed at 8969 jobs with no error.
 
-<<<<<<< HEAD
-## State of the project — 2026-11-12l: the traceless summand is invariant, and the Casimir reads off `3`, `1`, `5`
 
-**What the previous entry left open.**  The 12j colour-algebra entry split the glueball square as
-`Λ² ⊕ (trace line) ⊕ Sym²₀` and closed the first of those summands under the total action
-(`glueballAct_mem_alt`) and the symmetric part containing the other two
-(`glueballAct_mem_symm`).  It named one gap honestly: the traceless symmetric part's own
-invariance under `glueballAct` was not proved, and no dimension count could prove it — a
-five-dimensional subspace can perfectly well be carried off itself by an action, so
-`glueballTraceless_finrank = 5` says nothing about where the action sends it.
-
-**The gap is closed, by a stronger statement.**  `glueballTrace_coeff` observes that in any fixed
-column of `glueballRep a` the three diagonal rows cancel pairwise, which is the antisymmetry of
-`adjRep a` written out.  Therefore `glueballTrace_act_eq_zero` holds for *every* vector: the trace
-functional annihilates the image of each total colour action, not merely the traceless part.  A
-vector that is symmetric and traceless consequently stays both, which is
-`glueballAct_mem_traceless` — and with it the module's Boundary sentence "every summand closed
-under every total action" becomes literally true rather than a claim with a stated exception.
-
-**The Casimir, as an independent check on the split.**  The split was found from the slot swap and
-the trace functional; the quadratic Casimir `Σ_a (A^a)²` is a second, unrelated witness, because it
-must be a scalar on each irreducible summand.  Its closed forms are computed from the
-`ε`-contraction and checked entrywise, exactly as `adjRep_commutator` is:
-`4·1 + 2·(slot transpose) − 2·(trace)·1` on `ℂ³ ⊗ ℂ³` (`glueballCasimirMat_apply`,
-`glueballCasimir_apply`) and `1 + (slot transpose)` on `ℂ² ⊗ ℂ²` (`mesonCasimirMat_apply`,
-`mesonCasimir_apply`).  The eigenvalues then come out as they must:
-
-* `glueballCasimir_alt` — `2` on `Λ² ℂ³`;
-* `glueballCasimir_singletVec` and `glueballCasimir_traceLine` — `0` on the trace line (the singlet
-  vector `δ` is annihilated outright, not merely fixed up to the trace);
-* `glueballCasimir_traceless` — `6` on `Sym²₀`;
-* `mesonCasimir_symm` — `2` on the meson triplet, `mesonCasimir_alt` — `0` on the meson singlet;
-* `glueballCasimir_eigenspaces` — the three glueball summands span the square
-  (`sup_assoc`, `glueballTrace_sup`, `glueball_sup`), so a vector of the square is a sum of
-  eigenvectors with eigenvalues `2`, `0`, `6`.
-
-That is the dimension count `3 + 1 + 5 = 9` recovered from the representation rather than assumed:
-`2` and `2` on the two `3`s, `0` on the `1`, `6` on the `5`.  What it is *not*: a spectral
-decomposition.  The eigenvalues are stated on each summand, and a vector with mixed components is
-not asserted to be an eigenvector.  The trace line is annihilated outright, not merely killed by the
-Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`, so all three summands
-are stable under every generator, not only under the Casimir — the eigenvalue `0` is a consequence
-of that annihilation rather than an additional fact.  (The corresponding claim for a single
-generator was wrong when first written: `T^a` is antisymmetric in the adjoint, so the two
-`T^a`-legs of the Kronecker sum cancel on `Σ_p e_p ⊗ e_p`.  The probe that was meant to refute it
-proved it instead.)
-
-**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs,
-0 errors, no warning naming the module; no line over 100 characters; no `sorry`; `#print axioms` on
-`glueballTrace_coeff`, `glueballTrace_act_eq_zero`, `glueballAct_mem_traceless`,
-`glueballAct_singletVec`, `glueballCasimirMat_apply`, `glueballCasimir_apply`, `glueballCasimir_alt`,
-`glueballCasimir_singletVec`, `glueballCasimir_smul`, `glueballCasimir_traceLine`,
-`glueballCasimir_traceless`, `glueballCasimir_eigenspaces`, `mesonCasimirMat_apply`,
-`mesonCasimir_apply`, `mesonCasimir_symm` and `mesonCasimir_alt` all give
-`[propext, Classical.choice, Quot.sound]`.  Two heartbeat budgets were raised rather than left
-implicit: the entrywise Casimir closed form on `ℂ³ ⊗ ℂ³` is `81` checks each over a nine-term sum
-(`16000000` heartbeats), the meson one `16` checks over four-term sums (`4000000`), and the
-annihilation `glueballAct a δ = 0` `27` entry checks (`2000000`).  The aggregate `lake build
-BookProof` on the rebased tree completed with no error.
-
-**A Lean trap worth recording.**  The entrywise sums are over `Fin 9` and cannot be discharged with
-`Fin.sum_univ_succ` plus `ring`: unrolling produces a right-nested sum ending in `+ 0` whose
-`Fin.succ`-chain numerals are not syntactically the numerals `ring` sees, so the atoms do not match
-and `ring` fails on an identity that is true.  A *full* `simp [Fin.sum_univ_succ, ...]` normalizes
-those chains first and closes the goal outright, after which `norm_num` is only needed for the
-meson entries, where `fundRep = (1/2) • pauli` brings in `I * I` and the existing `mul_I_mul_I`
-lemma is what finishes it.
-
-**Boundary.**  Everything above is representation theory of `su(2)` on finite-dimensional fibres.
-Nothing here asserts that the chapter's Fock space carries these modes as a factor, that
-`Sym²₀`'s five dimensions are five physical glueball polarisations, or that the Casimir eigenvalue
-`6` is a mass — it is a colour quantum number of the fibre, computed, and the mass statements live
-in the QYM chapters.
-=======
 ## State of the project — 2026-11-12l: `colourMix` is a unitary, the extension is the closure
 
 §2026-11-12k closed the D.12 instance but left three statements open, and two of them were
@@ -22850,4 +22784,78 @@ module; `#print axioms` on `colourMix_inner_of_unitary`, `colourMix_norm_of_unit
 `colourMixIsometryEquiv`, `colouredHamiltonian_extension_eq_closure`,
 `exists_stone_flow_of_colouredHamiltonian`, `hilbActOp_hilbFibre_colourVecAct` and
 `colourGroupActHilbert_hilbFibre` reports only `propext, Classical.choice, Quot.sound`.
->>>>>>> 5ba01a3fab25ffb11ecb1788ddc1c76f3349909d
+
+## State of the project — 2026-11-12m: the traceless summand is invariant, and the Casimir reads off `3`, `1`, `5`
+
+**What the previous entry left open.**  The 12j colour-algebra entry split the glueball square as
+`Λ² ⊕ (trace line) ⊕ Sym²₀` and closed the first of those summands under the total action
+(`glueballAct_mem_alt`) and the symmetric part containing the other two
+(`glueballAct_mem_symm`).  It named one gap honestly: the traceless symmetric part's own
+invariance under `glueballAct` was not proved, and no dimension count could prove it — a
+five-dimensional subspace can perfectly well be carried off itself by an action, so
+`glueballTraceless_finrank = 5` says nothing about where the action sends it.
+
+**The gap is closed, by a stronger statement.**  `glueballTrace_coeff` observes that in any fixed
+column of `glueballRep a` the three diagonal rows cancel pairwise, which is the antisymmetry of
+`adjRep a` written out.  Therefore `glueballTrace_act_eq_zero` holds for *every* vector: the trace
+functional annihilates the image of each total colour action, not merely the traceless part.  A
+vector that is symmetric and traceless consequently stays both, which is
+`glueballAct_mem_traceless` — and with it the module's Boundary sentence "every summand closed
+under every total action" becomes literally true rather than a claim with a stated exception.
+
+**The Casimir, as an independent check on the split.**  The split was found from the slot swap and
+the trace functional; the quadratic Casimir `Σ_a (A^a)²` is a second, unrelated witness, because it
+must be a scalar on each irreducible summand.  Its closed forms are computed from the
+`ε`-contraction and checked entrywise, exactly as `adjRep_commutator` is:
+`4·1 + 2·(slot transpose) − 2·(trace)·1` on `ℂ³ ⊗ ℂ³` (`glueballCasimirMat_apply`,
+`glueballCasimir_apply`) and `1 + (slot transpose)` on `ℂ² ⊗ ℂ²` (`mesonCasimirMat_apply`,
+`mesonCasimir_apply`).  The eigenvalues then come out as they must:
+
+* `glueballCasimir_alt` — `2` on `Λ² ℂ³`;
+* `glueballCasimir_singletVec` and `glueballCasimir_traceLine` — `0` on the trace line (the singlet
+  vector `δ` is annihilated outright, not merely fixed up to the trace);
+* `glueballCasimir_traceless` — `6` on `Sym²₀`;
+* `mesonCasimir_symm` — `2` on the meson triplet, `mesonCasimir_alt` — `0` on the meson singlet;
+* `glueballCasimir_eigenspaces` — the three glueball summands span the square
+  (`sup_assoc`, `glueballTrace_sup`, `glueball_sup`), so a vector of the square is a sum of
+  eigenvectors with eigenvalues `2`, `0`, `6`.
+
+That is the dimension count `3 + 1 + 5 = 9` recovered from the representation rather than assumed:
+`2` and `2` on the two `3`s, `0` on the `1`, `6` on the `5`.  What it is *not*: a spectral
+decomposition.  The eigenvalues are stated on each summand, and a vector with mixed components is
+not asserted to be an eigenvector.  The trace line is annihilated outright, not merely killed by the
+Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`, so all three summands
+are stable under every generator, not only under the Casimir — the eigenvalue `0` is a consequence
+of that annihilation rather than an additional fact.  (The corresponding claim for a single
+generator was wrong when first written: `T^a` is antisymmetric in the adjoint, so the two
+`T^a`-legs of the Kronecker sum cancel on `Σ_p e_p ⊗ e_p`.  The probe that was meant to refute it
+proved it instead.)
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs,
+0 errors, no warning naming the module; no line over 100 characters; no `sorry`; `#print axioms` on
+`glueballTrace_coeff`, `glueballTrace_act_eq_zero`, `glueballAct_mem_traceless`,
+`glueballAct_singletVec`, `glueballCasimirMat_apply`, `glueballCasimir_apply`, `glueballCasimir_alt`,
+`glueballCasimir_singletVec`, `glueballCasimir_smul`, `glueballCasimir_traceLine`,
+`glueballCasimir_traceless`, `glueballCasimir_eigenspaces`, `mesonCasimirMat_apply`,
+`mesonCasimir_apply`, `mesonCasimir_symm` and `mesonCasimir_alt` all give
+`[propext, Classical.choice, Quot.sound]`.  Two heartbeat budgets were raised rather than left
+implicit: the entrywise Casimir closed form on `ℂ³ ⊗ ℂ³` is `81` checks each over a nine-term sum
+(`16000000` heartbeats), the meson one `16` checks over four-term sums (`4000000`), and the
+annihilation `glueballAct a δ = 0` `27` entry checks (`2000000`).  The aggregate `lake build
+BookProof` on the merged tree — this entry rebased onto the `12k`/`12l` QYM-flow packets, which
+touch the same chapter file, and onto `ChapterSmQuartet` — completed at 8971 jobs with no error and
+no warning naming this module.
+
+**A Lean trap worth recording.**  The entrywise sums are over `Fin 9` and cannot be discharged with
+`Fin.sum_univ_succ` plus `ring`: unrolling produces a right-nested sum ending in `+ 0` whose
+`Fin.succ`-chain numerals are not syntactically the numerals `ring` sees, so the atoms do not match
+and `ring` fails on an identity that is true.  A *full* `simp [Fin.sum_univ_succ, ...]` normalizes
+those chains first and closes the goal outright, after which `norm_num` is only needed for the
+meson entries, where `fundRep = (1/2) • pauli` brings in `I * I` and the existing `mul_I_mul_I`
+lemma is what finishes it.
+
+**Boundary.**  Everything above is representation theory of `su(2)` on finite-dimensional fibres.
+Nothing here asserts that the chapter's Fock space carries these modes as a factor, that
+`Sym²₀`'s five dimensions are five physical glueball polarisations, or that the Casimir eigenvalue
+`6` is a mass — it is a colour quantum number of the fibre, computed, and the mass statements live
+in the QYM chapters.
