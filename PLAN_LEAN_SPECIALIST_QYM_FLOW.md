@@ -125,7 +125,7 @@ Mathematical Physics*, Thm X.23.  It is a hypothesis, never an `axiom`.
 | D.9 the shift-invert selection theorem with the extension **constructed**, not assumed (unbounded) | `friedrichs_hashimoto_selects` | PROVED |
 | D.10 the same for the Weyl-gauge Hamiltonian in the occupation-number realization | `weyl_hashimoto_selects_friedrichs` | PROVED |
 | D.11 non-vacuity: a genuinely unbounded operator (`A eₙ = n eₙ` on `ℓ²(ℕ,ℂ)`) | `unbounded_friedrichs_example` | PROVED |
-| D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `BookProof.StoneBridge`: `unboundedSelfAdjointOf`, `IsStoneFlow`, `exists_stone_flow_of_selfAdjointExtension`, `exists_stone_flow_of_positive`, `exists_stone_flow_of_esa` | PROVED and **instantiated for QYM** — `colouredHamiltonian_symmetricOn`, `colouredHamiltonian_esa`, `dense_colouredCore` and `exists_stone_flow_of_colouredHamiltonian` (`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`); see `CONSOLIDATED_PLAN.md` §2026-11-12c |
+| D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `BookProof.StoneBridge`: `unboundedSelfAdjointOf`, `IsStoneFlow`, `exists_stone_flow_of_selfAdjointExtension`, `exists_stone_flow_of_positive`, `exists_stone_flow_of_esa` | PROVED and **instantiated for QYM** — `colouredHamiltonian_symmetricOn`, `colouredHamiltonian_esa`, `dense_colouredCore` and `exists_stone_flow_of_colouredHamiltonian` (`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`); see `CONSOLIDATED_PLAN.md` §2026-11-12k |
 
 D.5–D.8 (also in `BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean`) construct the
 missing limit operator under a boundedness hypothesis and identify it with the
@@ -157,7 +157,7 @@ recorded in prose in the module docstring rather than written as a theorem.
 * D.4 is a research item, not a plan deliverable.
 * D.12 is *done*: the bridge wraps `IsSelfAdjointExtension` as
   `UnboundedSelfAdjoint` and applies `stoneGroup`, and the QYM instance is now
-  filled in (`exists_stone_flow_of_colouredHamiltonian`, §2026-11-12c).  What is
+  filled in (`exists_stone_flow_of_colouredHamiltonian`, §2026-11-12k).  What is
   still not claimed: the flow is that of a *selected* extension, so no boundary
   condition is fixed, and no spectral statement about its generator is made.
 
