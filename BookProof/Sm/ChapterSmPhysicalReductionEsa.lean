@@ -68,8 +68,7 @@ theorem mem_oddSpace_iff (x : H) : x ∈ oddSpace U ↔ U x = -x := by
 theorem U_apply_U (hU : U ∘ₗ U = LinearMap.id) (x : H) : U (U x) = x :=
   congrFun (congrArg DFunLike.coe hU) x
 
-theorem evenPart_add_oddPart (hU : U ∘ₗ U = LinearMap.id) (x : H) :
-    evenPart U x + oddPart U x = x := by
+theorem evenPart_add_oddPart (x : H) : evenPart U x + oddPart U x = x := by
   have hsum : (x + U x) + (x - U x) = (2 : ℂ) • x := by
     rw [two_smul]
     abel
@@ -180,8 +179,7 @@ theorem oddOp_apply {U : H →ₗ[ℂ] H} {D : Submodule ℂ H} {T : D →ₗ[�
 /-- The even restriction lands in the even sector. -/
 theorem evenOp_mem {U : H →ₗ[ℂ] H} (D : Submodule ℂ H) (hDU : ∀ x ∈ D, U x ∈ D)
     (T : D →ₗ[ℂ] H) (hTU : ∀ x : D, T ⟨U x, hDU _ x.2⟩ = U (T x))
-    (hU : U ∘ₗ U = LinearMap.id) (x : evenCore U D) :
-    evenOp U D T x ∈ evenSpace U := by
+    (x : evenCore U D) : evenOp U D T x ∈ evenSpace U := by
   have hx : U (x : H) = (x : H) := (mem_evenSpace_iff _).mp x.2.2
   have h2 : (⟨U (x : H), hDU _ x.2.1⟩ : D) = ⟨(x : H), x.2.1⟩ := Subtype.ext hx
   have h := hTU ⟨(x : H), x.2.1⟩
@@ -192,8 +190,7 @@ theorem evenOp_mem {U : H →ₗ[ℂ] H} (D : Submodule ℂ H) (hDU : ∀ x ∈ 
 /-- The odd restriction lands in the odd sector. -/
 theorem oddOp_mem {U : H →ₗ[ℂ] H} (D : Submodule ℂ H) (hDU : ∀ x ∈ D, U x ∈ D)
     (T : D →ₗ[ℂ] H) (hTU : ∀ x : D, T ⟨U x, hDU _ x.2⟩ = U (T x))
-    (hU : U ∘ₗ U = LinearMap.id) (x : oddCore U D) :
-    oddOp U D T x ∈ oddSpace U := by
+    (x : oddCore U D) : oddOp U D T x ∈ oddSpace U := by
   have hx : U (x : H) = -(x : H) := (mem_oddSpace_iff _).mp x.2.2
   have h2 : (⟨U (x : H), hDU _ x.2.1⟩ : D) = (-⟨(x : H), x.2.1⟩ : D) := Subtype.ext hx
   have h := hTU ⟨(x : H), x.2.1⟩
@@ -227,7 +224,7 @@ theorem deficiency_at_of_even_deficiency {U : H →ₗ[ℂ] H} (D : Submodule �
     refine Subtype.ext ?_
     change (v : H) = e + o
     rw [he, ho]
-    exact (evenPart_add_oddPart hU (v : H)).symm
+    exact (evenPart_add_oddPart (v : H)).symm
   have hTo : T ⟨o, hoD⟩ ∈ oddSpace U := by
     have h2 : (⟨U o, hDU _ hoD⟩ : D) = (-⟨o, hoD⟩ : D) :=
       Subtype.ext ((mem_oddSpace_iff _).mp hoO)
@@ -242,7 +239,7 @@ theorem deficiency_at_of_even_deficiency {U : H →ₗ[ℂ] H} (D : Submodule �
   have hsum : ((⟨e, ⟨heD, heE⟩⟩ : evenCore U D) : H) + ((⟨o, hoD⟩ : D) : H) = (v : H) := by
     change e + o = (v : H)
     rw [he, ho]
-    exact evenPart_add_oddPart hU (v : H)
+    exact evenPart_add_oddPart (v : H)
   calc inner ℂ (T v) w
       = inner ℂ (T ((⟨e, heD⟩ : D) + ⟨o, hoD⟩)) w := by rw [hv]
     _ = inner ℂ (T ⟨e, heD⟩ + T ⟨o, hoD⟩) w := by rw [map_add]
@@ -271,7 +268,7 @@ theorem deficiency_at_of_odd_deficiency {U : H →ₗ[ℂ] H} (D : Submodule ℂ
     refine Subtype.ext ?_
     change (v : H) = e + o
     rw [he, ho]
-    exact (evenPart_add_oddPart hU (v : H)).symm
+    exact (evenPart_add_oddPart (v : H)).symm
   have hTe : T ⟨e, heD⟩ ∈ evenSpace U := by
     have h2 : (⟨U e, hDU _ heD⟩ : D) = ⟨e, heD⟩ :=
       Subtype.ext ((mem_evenSpace_iff _).mp heE)
@@ -286,7 +283,7 @@ theorem deficiency_at_of_odd_deficiency {U : H →ₗ[ℂ] H} (D : Submodule ℂ
   have hsum : ((⟨e, heD⟩ : D) : H) + ((⟨o, ⟨hoD, hoO⟩⟩ : oddCore U D) : H) = (v : H) := by
     change e + o = (v : H)
     rw [he, ho]
-    exact evenPart_add_oddPart hU (v : H)
+    exact evenPart_add_oddPart (v : H)
   calc inner ℂ (T v) w
       = inner ℂ (T ((⟨e, heD⟩ : D) + ⟨o, hoD⟩)) w := by rw [hv]
     _ = inner ℂ (T ⟨e, heD⟩ + T ⟨o, hoD⟩) w := by rw [map_add]
@@ -339,7 +336,7 @@ theorem deficiencyTrivialAt_iff_sectors {U : H →ₗ[ℂ] H} (D : Submodule ℂ
         rw [oddPart, smul_sub, sub_eq_add_neg, neg_smul]
       rw [show (oddOp U D T) v = T ⟨(v : H), v.2.1⟩ from oddOp_apply v, hsplit]
       exact hlin (2⁻¹ : ℂ) (-(2⁻¹ : ℂ)) hw hUw ⟨(v : H), v.2.1⟩
-    calc w = evenPart U w + oddPart U w := (evenPart_add_oddPart hU w).symm
+    calc w = evenPart U w + oddPart U w := (evenPart_add_oddPart w).symm
       _ = 0 := by rw [hweven, hwodd, add_zero]
 
 /-! ## 4. The SM instance
@@ -383,7 +380,8 @@ theorem smNormalForm_esd_iff_parity_sectors (D : SmNormalFormData)
     (hD : ParityGradedCoeffs D) :
     EssentiallySelfAdjointOn SmCoupledCore (smNormalForm D) ↔
       (SectorDeficiencyTrivial (evenCore coupledParity SmCoupledCore)
-          (evenOp coupledParity SmCoupledCore (smNormalForm D)) (evenSpace coupledParity) Complex.I ∧
+          (evenOp coupledParity SmCoupledCore (smNormalForm D)) (evenSpace coupledParity)
+            Complex.I ∧
         SectorDeficiencyTrivial (oddCore coupledParity SmCoupledCore)
           (oddOp coupledParity SmCoupledCore (smNormalForm D)) (oddSpace coupledParity) Complex.I) ∧
       (SectorDeficiencyTrivial (evenCore coupledParity SmCoupledCore)
