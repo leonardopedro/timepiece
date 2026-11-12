@@ -1477,13 +1477,23 @@ above.  This section states that identification and proves what it yields.
 * **`colourActCLM`**, **`colourEnergyCLM`** — the two coloured actions as *bounded operators* on the
   completion: `‖colourActCLM a f‖ ≤ (1/2)‖f‖`, the constant being sharp because
   `‖T^a v‖ = ‖v‖/2` pointwise (`norm_fundRep_mulVec`), and `colourEnergyCLM` is `C_F` times the
-  identity, with `‖C_F f‖ = (3/4)‖f‖` (`norm_colourEnergyOp`).  Neither touches the Fock
-  coefficients (`colourActOp_colourModeVec`);
+  identity, `colourEnergyCLM = (3/4) • 1`, so `‖colourEnergyOp d‖ = 3/4` exactly
+  (`norm_colourEnergyOp_eq`).  Neither touches the Fock coefficients (`colourActOp_colourModeVec`);
 * **`colourActCLM_commutator`**, **`sum_colourActCLM_comp`** — those operators are a representation
   of `su(2)`: `[A^a, A^b] = i ε^{abc} A^c` on the completion with the chapter's own `ε`, and the
   Casimir of the representation is `Σ_a (A^a)² = colourEnergyCLM`, i.e. `C_F` times the identity.
   Boundedness is what makes the commutator equality hypothesis-free, which the unbounded
   Hamiltonian does not allow;
+<<<<<<< HEAD
+=======
+* **`norm_colourActCLM`** — the constant `1/2` is attained and not merely a bound: `‖A^a f‖ = ‖f‖/2`
+  for every `f` (`colourActOp_norm`), so `‖colourActCLM a‖ = 1/2` exactly;
+* **`colourGroupElement_mem_unitary`**, **`colourGroupActCLM_mul`** — the exponentiated action:
+  `exp (i θ T^a)`, written in closed form, is a unitary `2 × 2` element and gives a one-parameter
+  group of bounded operators on the completion.  It is a group of invertible operators and *not* a
+  unitary group: the fibre carries the sup norm, `fundMode` has no inner-product structure, and the
+  fibre norm is not preserved (the operator constant is `2`, not `1`);
+>>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 * **`coreNormSq_tendsto`**, **`gap_closed_in_coreLp`**, **`root_spectral_gap_closed`**,
   **`root_ground_bound_closed`** — closedness of the bound: a lower bound `K‖·‖² ≤ q` survives an
   ℓ² limit whenever the form values converge, so the S2 gap and the certificate's ground threshold
@@ -2454,10 +2464,11 @@ and leaves the Fock coefficients `c n` untouched.  This is the mode-factor form 
 `su2_casimir_fundamental` — the colour factor is dressed with the number content, and `C_F` still
 extracts as a scalar.
 
-**Boundary.**  `colourAct` and `colourEnergy` are first defined on the underlying families.  The
-bounded operators `colourActCLM`/`colourEnergyCLM` below are their extension to the completion;
-they stay on the colour fibre, so nothing here folds `C_F` into the quartic colour energy of §3b.2b
-or into `quadForm (ymHamiltonian …)`.
+**Boundary.**  `colourAct` and `colourEnergy` are first defined on the underlying families; the
+bounded operators `colourActCLM`/`colourEnergyCLM` below extend them to the completion, and
+`colourEnergyOp` is the Casimir as a scalar multiple of the identity.  What is not done here is a
+decomposition of `fundMode d` into colour multiplets, or an identification of this completion with
+the field fibre `colouredCore` built further down.
 -/
 
 /-- The Fock core completed with a colour `ℂ²` factor: square-summable families on the occupation
@@ -3036,6 +3047,16 @@ theorem colouredHamiltonian_smul_one_quadForm_sum {D : Submodule ℂ (L2d 99)}
       = ⟨WithLp.ofLp ((colourSum s x v : colourSpace N)) i, (colourSum s x v).2 i⟩ :=
     Subtype.ext (colourSum_ofLp s x v i).symm
   rw [hsub, ← colourSum_ofLp s x v i]
+<<<<<<< HEAD
+=======
+/-! #### The colour actions as bounded operators, and the `su(2)` representation
+
+`colourAct` and `colourEnergy` extend to continuous linear maps on the completion, with the sharp
+pointwise constant `‖T^a v‖ = ‖v‖/2` (`norm_fundRep_mulVec`).  Composing the operators composes the
+matrices (`colourActOp_comp_apply`), so every matrix identity of `fundRep` lifts to an operator
+identity with no analytic work: `[A^a, A^b] = i ε^{abc} A^c` and `Σ_a (A^a)² = C_F · 1` hold on
+`fundMode d` without a domain hypothesis, which the unbounded `ymHamiltonian` does not allow. -/
+>>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 
 def flip2 (i : Fin 2) : Fin 2 := if i = 0 then 1 else 0
 
@@ -3175,14 +3196,23 @@ theorem colourActCLM_norm_le (a : Fin 3) (f : fundMode d) :
     ‖colourActCLM a f‖ ≤ (1 / 2) * ‖f‖ := by
   simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 /-- **The colour energy as a bounded operator**: `C_F` times the identity. -/
 noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
   (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
 
+<<<<<<< HEAD
 theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := rfl
+=======
+theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := by
+  rw [colourEnergyCLM, colourEnergyOp, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.id_apply]
+>>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 
 /-! ##### The colour operators are a representation of `su(2)`
 
@@ -3266,6 +3296,311 @@ theorem colourActCLM_commutator (a b : Fin 3) (f : fundMode d) :
 theorem sum_colourActCLM_comp (f : fundMode d) :
     ∑ a : Fin 3, colourActCLM a (colourActCLM a f) = colourEnergyCLM f := by
   simpa [colourActCLM_apply, colourEnergyCLM_apply] using sum_colourActOp_comp f
+<<<<<<< HEAD
+=======
+
+/-! ##### The operator norm is attained
+
+`colourActCLM_norm_le` bounded the colour action by `1/2`; `colourActOp_norm` upgrades it to an
+identity, so `norm_colourActCLM` is an equality of operator norms rather than a bound.  Nothing is
+lost on the completion: the `ℓ²` norm is a sum of squares, and the sharp pointwise factor `1/2`
+survives termwise.
+
+**Boundary.**  An attained norm says the constant `1/2` is sharp; it does not make `A^a` an
+isometry, and no spectral statement about the colour factor follows.
+-/
+
+/-- **The bound is attained.**  The pointwise identity `‖T^a v‖ = ‖v‖/2` upgrades from an inequality
+on the completion to an equality: `‖A^a f‖ = ‖f‖/2` for every `f`, since the `ℓ²` norm squares and
+the squares sum. -/
+theorem colourActOp_norm (a : Fin 3) (f : fundMode d) : ‖colourActOp a f‖ = ‖f‖ / 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  have hterm : ∀ n : Fin d → ℕ, ‖colourActOp a f n‖ ^ 2 = 1 / 4 * ‖f n‖ ^ 2 := by
+    intro n
+    rw [colourActOp_apply, norm_fundRep_mulVec]
+    ring
+  have hsum : ∑' n, ‖colourActOp a f n‖ ^ 2 = 1 / 4 * ‖f‖ ^ 2 := by
+    rw [tsum_congr hterm, tsum_mul_left, ← fundMode_norm_sq_eq_tsum]
+  have hsq : ‖colourActOp a f‖ ^ 2 = (‖f‖ / 2) ^ 2 := by
+    rw [fundMode_norm_sq_eq_tsum, hsum]
+    ring
+  have habs := (sq_eq_sq_iff_abs_eq_abs _ _).mp hsq
+  rwa [abs_of_nonneg (norm_nonneg _), abs_of_nonneg (by positivity)] at habs
+
+/-- A nonzero coloured vector, so that the operator norm is a genuine supremum over nonzero `f`. -/
+noncomputable def colourProbeVec (d : ℕ) : fundMode d :=
+  lp.single 2 (0 : Fin d → ℕ) (fun i : Fin 2 => if i = 0 then 1 else 0)
+
+theorem colourProbeVec_ne_zero (d : ℕ) : colourProbeVec d ≠ 0 := by
+  intro h
+  have hv : ‖(colourProbeVec d : fundMode d)‖ = 0 := by rw [h, norm_zero]
+  rw [colourProbeVec, lp.norm_single (p := (2 : ℝ≥0∞)) (by norm_num) (0 : Fin d → ℕ) _] at hv
+  have hfib : (fun i : Fin 2 => if i = 0 then (1 : ℂ) else 0) ≠ 0 := by
+    intro h0
+    have := congrFun h0 0
+    simp at this
+  exact hfib (norm_eq_zero.mp hv)
+
+/-- **The operator norm of the colour action is exactly `1/2`**, not merely at most `1/2`. -/
+theorem norm_colourActCLM (a : Fin 3) : ‖colourActCLM (d := d) a‖ = 1 / 2 := by
+  refine le_antisymm
+    (ContinuousLinearMap.opNorm_le_bound _ (by norm_num) (colourActCLM_norm_le (d := d) a)) ?_
+  have hx : colourProbeVec d ≠ 0 := colourProbeVec_ne_zero d
+  have hpos : 0 < ‖(colourProbeVec d : fundMode d)‖ := norm_pos_iff.mpr hx
+  have h := ContinuousLinearMap.ratio_le_opNorm (colourActCLM (d := d) a) (colourProbeVec d)
+  rw [colourActCLM_apply, colourActOp_norm] at h
+  have h' : ‖(colourProbeVec d : fundMode d)‖ / 2 / ‖(colourProbeVec d : fundMode d)‖ = 1 / 2 := by
+    field_simp
+  linarith [h, h'.le, h'.ge]
+/-! ##### The exponentiated colour action
+
+`[A^a, A^b] = i ε^{abc} A^c` is the algebra of a *compact* group, and it is the group, not the
+algebra, that acts on states.  This section exponentiates: `colourGroupElement a θ` is
+`exp (i θ T^a)` in closed form, `cos(θ/2) · 1 + 2i sin(θ/2) · T^a` — the exponential series sums to
+this because `(T^a)² = (1/4) · 1` (`fundRep_sq`) — and it is a genuine unitary element
+(`colourGroupElement_mem_unitary`, an algebraic `star` statement needing no norm at all), with the
+group law `U(s) U(t) = U(s + t)`.
+
+Acting coefficientwise on the completion gives a one-parameter group of bounded operators
+(`colourGroupActCLM_mul`), each invertible with inverse the opposite parameter.
+
+**Boundary — a group of *units*, not a unitary group.**  `fundMode d` carries the sup norm on the
+fibre `Fin 2 → ℂ`: there is no `InnerProductSpace ℂ (Fin 2 → ℂ)` instance, so "unitary operator on
+`fundMode`" is not even a well-typed predicate here, and the fibre norm is genuinely not preserved
+(`colourGroupActCLM` is bounded by the constant `2`, not `1`).  What is unitary is the `2 × 2`
+factor; a unitary action on the completion would need the Euclidean fibre norm.  No spectral
+consequence, and no `su(2)`-multiplet structure of the coefficients, is claimed.
+-/
+
+/-- Act coefficientwise on the coloured completion by a `2 × 2` colour matrix. -/
+noncomputable def matrixAct (M : Matrix (Fin 2) (Fin 2) ℂ) (f : fundMode d) :
+    (Fin d → ℕ) → (Fin 2 → ℂ) := fun n => M.mulVec (f n)
+
+/-- A coefficientwise colour matrix acts on the completion as soon as it is bounded on the colour
+vector. -/
+theorem matrixAct_memℓp (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (f : fundMode d) :
+    Memℓp (matrixAct M f) 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  refine memℓp_gen ?_
+  rw [h2]
+  simp only [Real.rpow_two]
+  refine Summable.of_nonneg_of_le (fun n => by positivity) (fun n => ?_) (hf.mul_left (C ^ 2))
+  have hb := h (f n)
+  calc ‖matrixAct M f n‖ ^ 2 ≤ (C * ‖f n‖) ^ 2 := pow_le_pow_left₀ (norm_nonneg _) hb 2
+    _ = C ^ 2 * ‖f n‖ ^ 2 := by ring
+
+noncomputable def matrixActOp (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (f : fundMode d) : fundMode d :=
+  ⟨matrixAct M f, matrixAct_memℓp M h f⟩
+
+theorem matrixActOp_apply (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (f : fundMode d) (n : Fin d → ℕ) :
+    matrixActOp M h f n = M.mulVec (f n) := rfl
+
+theorem matrixActOp_add (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (f g : fundMode d) :
+    matrixActOp M h (f + g) = matrixActOp M h f + matrixActOp M h g := by
+  ext n
+  simp only [matrixActOp, matrixAct, lp.coeFn_add, Pi.add_apply, Matrix.mulVec_add]
+
+theorem matrixActOp_smul (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (c : ℂ) (f : fundMode d) :
+    matrixActOp M h (c • f) = c • matrixActOp M h f := by
+  ext n
+  simp only [matrixActOp, matrixAct, lp.coeFn_smul, Pi.smul_apply, Matrix.mulVec_smul]
+
+noncomputable def matrixActLinear (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) : fundMode d →ₗ[ℂ] fundMode d where
+  toFun := matrixActOp M h
+  map_add' := matrixActOp_add M h
+  map_smul' := matrixActOp_smul M h
+
+theorem matrixActOp_norm_le (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (hC : 0 ≤ C) (f : fundMode d) :
+    ‖matrixActOp M h f‖ ≤ C * ‖f‖ := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  have hterm : ∀ n : Fin d → ℕ, ‖matrixActOp M h f n‖ ^ 2 ≤ C ^ 2 * ‖f n‖ ^ 2 := by
+    intro n
+    have hb := h (f n)
+    calc ‖matrixActOp M h f n‖ ^ 2 ≤ (C * ‖f n‖) ^ 2 := pow_le_pow_left₀ (norm_nonneg _) hb 2
+      _ = C ^ 2 * ‖f n‖ ^ 2 := by ring
+  have hsum : Summable fun n => C ^ 2 * ‖f n‖ ^ 2 := hf.mul_left (C ^ 2)
+  have hsum' : Summable fun n => ‖matrixActOp M h f n‖ ^ 2 :=
+    hsum.of_nonneg_of_le (fun n => by positivity) hterm
+  have hsq : ‖matrixActOp M h f‖ ^ 2 ≤ (C * ‖f‖) ^ 2 := by
+    rw [show (C * ‖f‖) ^ 2 = C ^ 2 * ‖f‖ ^ 2 by ring, fundMode_norm_sq_eq_tsum]
+    calc ∑' n, ‖matrixActOp M h f n‖ ^ 2 ≤ ∑' n, C ^ 2 * ‖f n‖ ^ 2 :=
+          hsum'.tsum_le_tsum hterm hsum
+      _ = C ^ 2 * ∑' n, ‖f n‖ ^ 2 := tsum_mul_left
+      _ = C ^ 2 * ‖f‖ ^ 2 := by rw [← fundMode_norm_sq_eq_tsum]
+  calc ‖matrixActOp M h f‖ = Real.sqrt (‖matrixActOp M h f‖ ^ 2) :=
+        (Real.sqrt_sq (norm_nonneg _)).symm
+    _ ≤ Real.sqrt ((C * ‖f‖) ^ 2) := Real.sqrt_le_sqrt hsq
+    _ = C * ‖f‖ := Real.sqrt_sq (mul_nonneg hC (norm_nonneg _))
+
+noncomputable def matrixActCLM (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (hC : 0 ≤ C) :
+    fundMode d →L[ℂ] fundMode d :=
+  (matrixActLinear M h).mkContinuous C fun f => matrixActOp_norm_le M h hC f
+
+theorem matrixActCLM_apply (M : Matrix (Fin 2) (Fin 2) ℂ) {C : ℝ}
+    (h : ∀ v : Fin 2 → ℂ, ‖M.mulVec v‖ ≤ C * ‖v‖) (hC : 0 ≤ C) (f : fundMode d) :
+    matrixActCLM M h hC f = matrixActOp M h f := rfl
+
+/-- **The exponentiated colour generator**, `exp (i θ T^a)`, in closed form:
+`cos(θ/2) · 1 + 2i sin(θ/2) · T^a`.  This is what the exponential series sums to, because
+`(T^a)² = (1/4) · 1` (`fundRep_sq`); it is written out rather than exponentiated because the
+`2 × 2` matrices carry no `NormedRing` instance. -/
+noncomputable def colourGroupElement (a : Fin 3) (θ : ℝ) : Matrix (Fin 2) (Fin 2) ℂ :=
+  (Real.cos (θ / 2) : ℂ) • (1 : Matrix (Fin 2) (Fin 2) ℂ) +
+    (2 * Complex.I * (Real.sin (θ / 2) : ℂ)) • fundRep a
+
+theorem colourGroupElement_zero (a : Fin 3) : colourGroupElement a 0 = 1 := by
+  simp [colourGroupElement]
+
+theorem star_fundRep (a : Fin 3) : star (fundRep a) = fundRep a := by
+  ext i j
+  fin_cases a <;> fin_cases i <;> fin_cases j <;>
+    simp [fundRep, pauli, Matrix.star_apply]
+
+/-- The inverse of the exponentiated generator is its conjugate transpose. -/
+theorem star_colourGroupElement (a : Fin 3) (θ : ℝ) :
+    star (colourGroupElement a θ) = colourGroupElement a (-θ) := by
+  have h1 : star ((Real.cos (θ / 2) : ℂ)) = (Real.cos (θ / 2) : ℂ) := Complex.conj_ofReal _
+  have h2 : star (2 * Complex.I * (Real.sin (θ / 2) : ℂ))
+      = -(2 * Complex.I * (Real.sin (θ / 2) : ℂ)) := by
+    rw [StarMul.star_mul, StarMul.star_mul]
+    have hs : star ((Real.sin (θ / 2) : ℂ)) = ((Real.sin (θ / 2) : ℂ)) := Complex.conj_ofReal _
+    have h2c : star (2 : ℂ) = 2 := by norm_num
+    have hsI : star (Complex.I) = -Complex.I := by simp
+    rw [hs, h2c, hsI]
+    ring
+  have h3 : (Real.cos (-θ / 2) : ℂ) = (Real.cos (θ / 2) : ℂ) := by
+    rw [show -θ / 2 = -(θ / 2) by ring, Real.cos_neg]
+  have h4 : (Real.sin (-θ / 2) : ℂ) = -(Real.sin (θ / 2) : ℂ) := by
+    rw [show -θ / 2 = -(θ / 2) by ring, Real.sin_neg, Complex.ofReal_neg]
+  have h5 : star (fundRep a) = fundRep a := star_fundRep a
+  unfold colourGroupElement
+  simp_all
+
+/-- **The exponentiated generators multiply by adding the parameters**: `U(s) U(t) = U(s + t)`.
+This is the addition formula for `cos` and `sin` on half-angles, using `(T^a)² = (1/4) · 1`. -/
+theorem colourGroupElement_mul (a : Fin 3) (s t : ℝ) :
+    colourGroupElement a s * colourGroupElement a t = colourGroupElement a (s + t) := by
+  have hs : s / 2 + t / 2 = (s + t) / 2 := by ring
+  have hc : Real.cos ((s + t) / 2)
+      = Real.cos (s / 2) * Real.cos (t / 2) - Real.sin (s / 2) * Real.sin (t / 2) := by
+    rw [← hs, Real.cos_add]
+  have hsn : Real.sin ((s + t) / 2)
+      = Real.sin (s / 2) * Real.cos (t / 2) + Real.cos (s / 2) * Real.sin (t / 2) := by
+    rw [← hs, Real.sin_add]
+  simp only [colourGroupElement, hc, hsn, Matrix.add_mul, Matrix.mul_add, Matrix.smul_mul,
+    Matrix.mul_smul, Matrix.one_mul, Matrix.mul_one, fundRep_sq, smul_smul]
+  ext i j
+  simp [Matrix.add_apply, smul_eq_mul]
+  ring_nf
+  simp [Complex.I_sq]
+  ring
+
+theorem colourGroupElement_mul_neg (a : Fin 3) (θ : ℝ) :
+    colourGroupElement a θ * colourGroupElement a (-θ) = 1 := by
+  rw [colourGroupElement_mul]
+  simp [colourGroupElement_zero]
+
+/-- **The colour factor carries a genuine unitary element**: `exp (i θ T^a)` is unitary in the
+`2 × 2` matrices — an algebraic statement about `star`, needing no norm at all. -/
+theorem colourGroupElement_mem_unitary (a : Fin 3) (θ : ℝ) :
+    colourGroupElement a θ ∈ unitary (Matrix (Fin 2) (Fin 2) ℂ) := by
+  rw [Unitary.mem_iff]
+  constructor
+  · rw [star_colourGroupElement]
+    simpa [colourGroupElement_zero] using colourGroupElement_mul a (-θ) θ
+  · rw [star_colourGroupElement]
+    simpa [colourGroupElement_zero] using colourGroupElement_mul a θ (-θ)
+
+/-- The colour-vector norm bound behind the action on the completion: the generator part is a
+similarity with factor `1/2`, so the whole group element costs at most a factor `2`. -/
+theorem colourGroupElement_norm_le (a : Fin 3) (θ : ℝ) (v : Fin 2 → ℂ) :
+    ‖(colourGroupElement a θ).mulVec v‖ ≤ 2 * ‖v‖ := by
+  have hc : ‖((Real.cos (θ / 2) : ℂ))‖ ≤ 1 := by
+    have h : ‖((Real.cos (θ / 2) : ℂ))‖ = |Real.cos (θ / 2)| := by
+      rw [Complex.norm_real, Real.norm_eq_abs]
+    rw [h]
+    exact Real.abs_cos_le_one _
+  have hs : ‖(2 * Complex.I * (Real.sin (θ / 2) : ℂ))‖ ≤ 2 := by
+    have h : ‖(2 * Complex.I * (Real.sin (θ / 2) : ℂ))‖ = 2 * |Real.sin (θ / 2)| := by
+      rw [norm_mul, norm_mul, Complex.norm_I, mul_one, Complex.norm_real, Real.norm_eq_abs]
+      norm_num
+    rw [h]
+    have := Real.abs_sin_le_one (θ / 2)
+    linarith
+  rw [colourGroupElement, Matrix.add_mulVec, Matrix.smul_mulVec, Matrix.smul_mulVec,
+    Matrix.one_mulVec]
+  calc ‖((Real.cos (θ / 2) : ℂ)) • v + (2 * Complex.I * (Real.sin (θ / 2) : ℂ)) •
+        (fundRep a).mulVec v‖
+      ≤ ‖((Real.cos (θ / 2) : ℂ)) • v‖ + ‖(2 * Complex.I * (Real.sin (θ / 2) : ℂ)) •
+          (fundRep a).mulVec v‖ := norm_add_le _ _
+    _ = ‖((Real.cos (θ / 2) : ℂ))‖ * ‖v‖ +
+          ‖(2 * Complex.I * (Real.sin (θ / 2) : ℂ))‖ * ‖(fundRep a).mulVec v‖ := by
+        rw [norm_smul, norm_smul]
+    _ ≤ 1 * ‖v‖ + 2 * (‖v‖ / 2) := by
+        have hmul := norm_fundRep_mulVec a v
+        have h1 := mul_le_mul_of_nonneg_right hc (norm_nonneg v)
+        have h2 := mul_le_mul hs hmul.le (norm_nonneg _) (by norm_num : (0 : ℝ) ≤ 2)
+        linarith
+    _ = 2 * ‖v‖ := by ring
+
+/-- **The exponentiated colour action on the completion**: `exp (i θ T^a)` acting
+coefficientwise. -/
+noncomputable def colourGroupAct (a : Fin 3) (θ : ℝ) (f : fundMode d) : fundMode d :=
+  matrixActOp (colourGroupElement a θ) (colourGroupElement_norm_le a θ) f
+
+theorem colourGroupAct_apply (a : Fin 3) (θ : ℝ) (f : fundMode d) (n : Fin d → ℕ) :
+    colourGroupAct a θ f n = (colourGroupElement a θ).mulVec (f n) := rfl
+
+/-- The exponentiated colour action as a bounded operator. -/
+noncomputable def colourGroupActCLM (a : Fin 3) (θ : ℝ) : fundMode d →L[ℂ] fundMode d :=
+  matrixActCLM (colourGroupElement a θ) (colourGroupElement_norm_le a θ) (by norm_num : (0 : ℝ) ≤ 2)
+
+theorem colourGroupActCLM_apply (a : Fin 3) (θ : ℝ) (f : fundMode d) :
+    colourGroupActCLM a θ f = colourGroupAct a θ f := rfl
+
+theorem colourGroupAct_comp (a : Fin 3) (s t : ℝ) (f : fundMode d) :
+    colourGroupAct a s (colourGroupAct a t f) = colourGroupAct a (s + t) f := by
+  ext n
+  rw [colourGroupAct_apply, colourGroupAct_apply, colourGroupAct_apply, Matrix.mulVec_mulVec,
+    colourGroupElement_mul]
+
+/-- **The exponentiated colour action is a one-parameter group of operators**: `U(s) U(t) = U(s+t)`
+as bounded operators on the completion. -/
+theorem colourGroupActCLM_mul (a : Fin 3) (s t : ℝ) :
+    colourGroupActCLM (d := d) a s * colourGroupActCLM a t = colourGroupActCLM a (s + t) := by
+  ext f
+  simp only [ContinuousLinearMap.mul_apply, colourGroupActCLM_apply, colourGroupAct_comp]
+
+/-- Each operator of the one-parameter group is invertible, with inverse the opposite parameter. -/
+theorem colourGroupActCLM_mul_neg (a : Fin 3) (θ : ℝ) :
+    colourGroupActCLM (d := d) a θ * colourGroupActCLM a (-θ) = 1 := by
+  rw [colourGroupActCLM_mul]
+  ext f
+  simp [colourGroupActCLM_apply, colourGroupAct_apply, colourGroupElement_zero]
+
+theorem colourGroupActCLM_neg_mul (a : Fin 3) (θ : ℝ) :
+    colourGroupActCLM (d := d) a (-θ) * colourGroupActCLM a θ = 1 := by
+  rw [colourGroupActCLM_mul]
+  ext f
+  simp [colourGroupActCLM_apply, colourGroupAct_apply, colourGroupElement_zero]
+>>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 
 /-! #### Closedness of the bound: the Friedrichs side
 

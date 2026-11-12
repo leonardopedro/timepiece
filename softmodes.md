@@ -878,7 +878,13 @@ whole coloured core (`colouredHamiltonian_smul_one_quadForm_core`, and
 finite sum of elementary tensors (`colourFibre_repr`, `colourSum`, with components
 `∑ k, v k i • x k` by `colourSum_ofLp`), and the form of such a sum is
 `colouredHamiltonian_smul_one_quadForm_sum` — the cross terms live in the mixed components, so it is
-not a sum of per-tensor values.  Closedness of the colour operators is not claimed.
+not a sum of per-tensor values.  The coloured *actions* are bounded operators too: `‖T^a v‖ = ‖v‖/2`
+pointwise (`norm_fundRep_mulVec`), so `colourAct` extends to `colourActCLM` with constant `1/2`
+(`colourActCLM_norm_le`) and `colourEnergy` to `colourEnergyCLM = (3/4) • 1`; composing the operators
+composes the matrices (`colourActOp_comp_apply`), so `[A^a, A^b] = i ε^{abc} A^c`
+(`colourActCLM_commutator`) and `Σ_a (A^a)² = colourEnergyCLM` (`sum_colourActCLM_comp`) hold on
+`fundMode d` with no domain hypothesis — the colour factor is a representation of `su(2)`, not just a
+scalar.  Closedness of the colour operators is not claimed.
 
 The gluon factor is carried on the same footing: `adjRep` is
 the adjoint representation on `ℂ³` (`(T^a)_{bc} = −i ε^{abc}`), it closes on the same algebra
