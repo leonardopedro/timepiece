@@ -907,7 +907,10 @@ form; the *operator* is symmetric too, on the whole coloured core
 (`colouredHamiltonian_symmetricOn`), but symmetry on a core is not essential self-adjointness.
 The route to the latter is the direct-sum instrument `dsOp_essentiallySelfAdjointOn` fed by
 `ym_h_esa` — not the nested-Fock lift `ym_dGamma_esa`, which is a different operator, and not a
-Faris–Lavine hypothesis, since the colour mixing is bounded.
+Faris–Lavine hypothesis, since the colour mixing is bounded.  That is now proved, not just
+routed: `colouredHamiltonian_esa` in `Qym/ChapterYangMillsNonAbelianEsa.lean` (single-component
+deficiency argument plus `deficiencyTrivialAt_of_symmetric_perturbation`; the `PiLp`/`lp`
+isometry is not needed after all).
 Nothing is claimed for the norm of the coloured operator,
 and the occupation completion carrying `colourEnergyOp` is still a separate model from the field
 fibre.  **Singlet:** the `ℂ² ⊗ ℂ³` fibre is built — `colourVec 6` with the row-major colour

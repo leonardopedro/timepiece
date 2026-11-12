@@ -3686,17 +3686,21 @@ noncomputable def glueballRep (a : Fin 3) : Matrix (Fin 9) (Fin 9) ℂ :=
 `mesonRep` and `glueballRep` are each a **Kronecker sum** `T^a ⊗ 1 + 1 ⊗ T^a` of one irrep with
 itself, so neither representation property is a `4 × 4` or `9 × 9` entry check: it is the general
 fact that a Kronecker sum of two representations is a representation.  `kronSum` is that total
-action on a product basis, `kronSum_mul` multiplies two of them (the mixed `T^a ⊗ T^b` terms appear
-in both orders), and in the commutator the mixed terms cancel while
-`[T^a, T^b] = i ε^{abc}T^c` survives in both slots (`kronSum_commutator`).  The row-major
-relabellings `mesonEquiv`/`glueballEquiv` carry that to `colourVec 4`/`colourVec 9`, so
-`mesonRep_commutator` and `glueballRep_commutator` are transport along an algebra equivalence.
+action on a product basis, over an arbitrary index type; `kronSum_mul` multiplies two of them (the
+mixed `T^a ⊗ T^b` terms appear in both orders), and `kronSum_commutator_gen` is the abstract
+commutator: if the one-slot families commute up to `X` and `Y`, so does the Kronecker sum.  The
+mixed terms cancel there because they occur in both orders, not because of any property of `su(2)`;
+only the corollary `kronSum_commutator` puts `[T^a, T^b] = i ε^{abc}T^c` in both slots and
+absorbs the structure-constant sum.  The row-major relabellings `mesonEquiv`/`glueballEquiv` carry
+that to `colourVec 4`/`colourVec 9`, so `mesonRep_commutator` and `glueballRep_commutator` are
+transport along an algebra equivalence.
 -/
 
-/-- The Kronecker sum of two `Fin 3`-indexed families of matrices. -/
-noncomputable def kronSum {m n : Type*} [DecidableEq m] [DecidableEq n]
-    (T : Fin 3 → Matrix m m ℂ) (S : Fin 3 → Matrix n n ℂ)
-    (a : Fin 3) : Matrix (m × n) (m × n) ℂ :=
+/-- The Kronecker sum of two families of matrices, indexed by an arbitrary type: nothing here
+sees `su(2)` or the structure constants. -/
+noncomputable def kronSum {κ m n : Type*} [DecidableEq m] [DecidableEq n]
+    (T : κ → Matrix m m ℂ) (S : κ → Matrix n n ℂ)
+    (a : κ) : Matrix (m × n) (m × n) ℂ :=
   Matrix.kroneckerMap (· * ·) (T a) (1 : Matrix n n ℂ) +
     Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a)
 
@@ -3730,8 +3734,8 @@ theorem kronMap_sub_right {m n : Type*}
   simp [Matrix.sub_apply, mul_sub]
 
 /-- **A product of two Kronecker sums**: the two same-slot products and the two mixed ones. -/
-theorem kronSum_mul {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n]
-    (T : Fin 3 → Matrix m m ℂ) (S : Fin 3 → Matrix n n ℂ) (a b : Fin 3) :
+theorem kronSum_mul {κ m n : Type*} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n]
+    (T : κ → Matrix m m ℂ) (S : κ → Matrix n n ℂ) (a b : κ) :
     kronSum T S a * kronSum T S b
       = Matrix.kroneckerMap (· * ·) (T a * T b) (1 : Matrix n n ℂ)
         + Matrix.kroneckerMap (· * ·) (T a) (S b)
@@ -3742,20 +3746,24 @@ theorem kronSum_mul {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n] [Decid
   simp only [Matrix.mul_one, Matrix.one_mul]
   abel
 
-/-- **The Kronecker sum is a representation** whenever both factors are. -/
-theorem kronSum_commutator {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n]
-    (T : Fin 3 → Matrix m m ℂ) (S : Fin 3 → Matrix n n ℂ)
-    (hT : ∀ a b : Fin 3,
-      T a * T b - T b * T a = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • T c))
-    (hS : ∀ a b : Fin 3,
-      S a * S b - S b * S a = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • S c))
-    (a b : Fin 3) :
+/-- **The commutator of a Kronecker sum, with no structure constants in sight**: if the
+one-slot families `T` and `S` commute up to arbitrary matrices `X` and `Y`, then the Kronecker
+sum commutes up to the two Kronecker products.  The two mixed terms `T a ⊗ S b` and `T b ⊗ S a`
+appear in both products in both orders, so they cancel; nothing else is used. -/
+theorem kronSum_commutator_gen {κ m n : Type*} [Fintype m] [DecidableEq m] [Fintype n]
+    [DecidableEq n] (T : κ → Matrix m m ℂ) (S : κ → Matrix n n ℂ)
+    (X : κ → κ → Matrix m m ℂ) (Y : κ → κ → Matrix n n ℂ)
+    (hT : ∀ a b, T a * T b - T b * T a = X a b)
+    (hS : ∀ a b, S a * S b - S b * S a = Y a b) (a b : κ) :
     kronSum T S a * kronSum T S b - kronSum T S b * kronSum T S a
-      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • kronSum T S c) := by
+      = Matrix.kroneckerMap (· * ·) (X a b) (1 : Matrix n n ℂ)
+        + Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (Y a b) := by
   have hkey :
       kronSum T S a * kronSum T S b - kronSum T S b * kronSum T S a
-        = Matrix.kroneckerMap (· * ·) (T a * T b - T b * T a) (1 : Matrix n n ℂ)
-          + Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a * S b - S b * S a) := by
+        = Matrix.kroneckerMap (· * ·) (T a * T b) (1 : Matrix n n ℂ)
+            - Matrix.kroneckerMap (· * ·) (T b * T a) (1 : Matrix n n ℂ)
+          + (Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a * S b)
+            - Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S b * S a)) := by
     have hab :
         Matrix.kroneckerMap (· * ·) (T a * T b) (1 : Matrix n n ℂ)
             + Matrix.kroneckerMap (· * ·) (T a) (S b)
@@ -3770,7 +3778,22 @@ theorem kronSum_commutator {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n]
           + (Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a * S b)
               - Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S b * S a)) := by
       abel
-    rw [kronSum_mul T S a b, kronSum_mul T S b a, hab, kronMap_sub, kronMap_sub_right]
+    rw [kronSum_mul T S a b, kronSum_mul T S b a, hab]
+  rw [hkey, kronMap_sub, kronMap_sub_right, hT a b, hS a b]
+
+/-- **The Kronecker sum is a representation** of `su(2)` whenever both factors are. -/
+theorem kronSum_commutator {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n]
+    (T : Fin 3 → Matrix m m ℂ) (S : Fin 3 → Matrix n n ℂ)
+    (hT : ∀ a b : Fin 3,
+      T a * T b - T b * T a = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • T c))
+    (hS : ∀ a b : Fin 3,
+      S a * S b - S b * S a = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • S c))
+    (a b : Fin 3) :
+    kronSum T S a * kronSum T S b - kronSum T S b * kronSum T S a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • kronSum T S c) := by
+  have hgen := kronSum_commutator_gen T S
+    (fun a b => Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • T c))
+    (fun a b => Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • S c)) hT hS a b
   have hfinal :
       Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • kronSum T S c)
         = Matrix.kroneckerMap (· * ·)
@@ -3785,7 +3808,7 @@ theorem kronSum_commutator {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n]
       ← Finset.sum_add_distrib, mul_add]
     refine Finset.sum_congr rfl fun c _ => ?_
     ring
-  rw [hkey, hT a b, hS a b, ← hfinal]
+  rw [hgen, ← hfinal]
 
 /-- The row-major relabelling `ℂ² ⊗ ℂ² → ℂ⁴`. -/
 noncomputable def mesonEquiv : Fin 2 × Fin 2 ≃ Fin 4 where

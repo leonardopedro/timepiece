@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12g):** “State of the project — 2026-11-12g: where the essential
+> **Newest entry (2026-11-12h):** “State of the project — 2026-11-12h: the coloured Hamiltonian
+> *is* essentially self-adjoint, and the Kronecker sum needed no `su(2)`” (end of file):
+> `colouredHamiltonian_esa` in `Qym/ChapterYangMillsNonAbelianEsa.lean` discharges the boundary
+> of the split chapter; `kronSum_commutator_gen` replaces the bespoke commutator argument.
+>
+> **Earlier entry (2026-11-12g):** “State of the project — 2026-11-12g: where the essential
 > self-adjointness of the coloured operator actually lives” (end of file): the split chapter's
 “not claimed” boundary was right but too vague — the route is the direct-sum instrument
 > `dsOp_essentiallySelfAdjointOn` fed by `ym_h_esa`, **not** the nested-Fock lift `ym_dGamma_esa`
@@ -22178,3 +22183,78 @@ says “isometric” rather than “the same space”.
 `Qym/ChapterYangMillsNonAbelianEsa.lean` (which imports this module, so the split chapter cannot
 hold it).  That is the natural next theorem, and it is a transfer plus the bounded-perturbation
 step, not new analysis.
+
+
+## State of the project — 2026-11-12h: the coloured Hamiltonian *is* essentially self-adjoint
+
+Two theorems, both axiom-clean, one in each of the two QYM modules.
+
+### 1. `colouredHamiltonian_esa` (`BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`)
+
+```lean
+theorem colouredHamiltonian_esa (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ}
+    (C : Matrix (Fin N) (Fin N) ℂ) (hC : C.conjTranspose = C) :
+    EssentiallySelfAdjointOn (colouredCore N (polyGaussCore (d := 99)))
+      (colouredHamiltonian (coreRepPoly 99) fabc N C)
+```
+
+This closes the gap recorded in the 2026-11-12g entry and, before that, in the split chapter's
+boundary paragraph.  Three pieces, none of them Faris–Lavine and none of them the nested-Fock lift:
+
+* `colourFieldOp` — the field half `H ⊗ 1` on the coloured core, with `colourComponent`,
+  `colourSingle` (a vector supported in one colour component) and the single-component pairing
+  `inner_colourSingle_left`.  `colourFieldOp_esa` gets essential self-adjointness from `ym_h_esa`
+  by testing the deficiency identity against those single-component vectors: each colour
+  component of a deficiency vector is a deficiency vector of `H`.
+* `colourMix` — the colour half `1 ⊗ C`, everywhere defined on `colourSpace N`; `colourMix_inner`
+  is its symmetry for `Cᴴ = C`, matching the `(i, j)` entry with `star (C i j) = C j i`.
+* `deficiencyTrivialAt_of_symmetric_perturbation` — the perturbation lemma.  Its hypotheses are
+  only *symmetric and everywhere defined*: not bounded, not even linear.  (On a Hilbert space an
+  everywhere-defined linear map with that pairing symmetry is automatically bounded —
+  Hellinger–Toeplitz — so nothing is lost.)  The proof: `w` and the graph limit of `A` from
+  `exists_weak_graph_limit` are graph-limit pairs at the same level `-(K w)`, uniqueness is
+  exactly `A`'s trivial deficiency at `d i`, and then the reality of `⟨z, u⟩` gives
+  `-d ‖w‖² = 0`, hence `w = 0`.  Applied at `d = 1` and `d = -1` it yields triviality at
+  `±i` directly — no need to route through `deficiencyTrivialAt_of_dense_range`.
+
+The transfer is by hand, because the coloured core lives in `PiLp` and `dsOp_essentiallySelfAdjointOn`
+in `lp`; as recorded in 2026-11-12g those two are isometric (`lpPiPpₗᵢ`) but not definitionally
+equal.  In the event the deficiency argument did not need the transport at all: the component
+argument is shorter than moving the operator, and the colour perturbation never touches the
+cores.  So the *instrument* for the diagonal half is the same idea as `dsOp_essentiallySelfAdjointOn`
+(single-fibre test vectors), and the module is where the statement belongs (this module imports
+the split chapter).
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsNonAbelianEsa` → 8134 jobs, 0 errors,
+no new warnings; no line over 100 characters; `#print axioms` on `colouredHamiltonian_esa`,
+`deficiencyTrivialAt_of_symmetric_perturbation`, `colourMix_inner`, `colourFieldOp_esa` and
+`colouredHamiltonian_eq_field_add_mix` all give `[propext, Classical.choice, Quot.sound]`.
+
+**Boundary.** Hermitian `C` only (the symmetry is the hypothesis); `C = 0` is included and gives
+`ym_h_esa ⊗ 1`.  Nothing is claimed about the *spectrum* of `H ⊗ 1 + 1 ⊗ C`, about a Stone flow on
+the coloured space, or about a colour-singlet sector.
+
+### 2. `kronSum_commutator_gen` (`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`)
+
+`kronSum` and `kronSum_mul` are now stated over an arbitrary index type, and the commutator of a
+Kronecker sum is the general lemma
+
+```lean
+theorem kronSum_commutator_gen (T : κ → Matrix m m ℂ) (S : κ → Matrix n n ℂ)
+    (X : κ → κ → Matrix m m ℂ) (Y : κ → κ → Matrix n n ℂ)
+    (hT : ∀ a b, T a * T b - T b * T a = X a b)
+    (hS : ∀ a b, S a * S b - S b * S a = Y a b) (a b : κ) :
+    kronSum T S a * kronSum T S b - kronSum T S b * kronSum T S a
+      = Matrix.kroneckerMap (· * ·) (X a b) 1 + Matrix.kroneckerMap (· * ·) 1 (Y a b)
+```
+
+with `kronSum_commutator` (the `su(2)`, `levi`-Civita statement) now a corollary: it supplies
+`X`/`Y` from `hT`/`hS` and absorbs the structure-constant sum in `hfinal`.  The 20-line
+`abel` rearrangement that used to sit inside the `Fin 3`-specific proof is now the additive
+step inside a lemma that never mentions `su(2)`, `levi` or `Complex.I` — the same genericity the
+`dsOp_*` family has, applied to the tensor square instead of the direct sum.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs,
+0 errors, no new warnings (the pre-existing `maxHeartbeats` linter notes at 110, 1119, 1174, 1191,
+1291 and the flexible-`simp` note at 3190 are unchanged); `mesonRep_commutator` and
+`glueballRep_commutator` still typecheck against the new corollary.

@@ -29,7 +29,18 @@ constants `f_{abc}`:
   `H = ½ Σ π² + ½ Σ B²` is essentially self-adjoint on the Gauss–polynomial core of `L²(ℝ⁹⁹)`;
 * **`ym_dGamma_esa`** — its second quantization `dΓ(H)` (one-particle `H` enclosed between a
   creation on the left and an annihilation on the right) is essentially self-adjoint on the
-  finite-particle domain over that core, by the lift of `BookProof/ChapterEsaOneParticleDGamma`.
+  finite-particle domain over that core, by the lift of `BookProof/ChapterEsaOneParticleDGamma`;
+* **`colourFieldOp_esa`** — the direct sum of `N` copies of `H` on the coloured core is essentially
+  self-adjoint, by the single-component deficiency argument (each component of a deficiency
+  vector is a deficiency vector of `H`);
+* **`deficiencyTrivialAt_of_symmetric_perturbation`** — a symmetric perturbation `K` (bounded or
+  not, all that is used is `⟪K u, w⟫ = ⟪u, K w⟫`) adds no deficiency vector: both `w` and the
+  graph limit of `A` are graph-limit pairs at the same level, uniqueness is `A`'s trivial
+  deficiency, and the reality of `⟪z, u⟫` forces `d ‖w‖² = 0`;
+* **`colouredHamiltonian_esa`** — hence `H ⊗ 1 + 1 ⊗ C` on `L²(ℝ⁹⁹; ℂ^N)` is essentially
+  self-adjoint for every Hermitian colour matrix `C`, with no relative bound and no comparison
+  operator.  This is the statement the split chapter's `colouredHamiltonian_symmetricOn` stops
+  short of; it lives here because this module imports the split chapter.
 
 Nothing is assumed: the module contains no `axiom` and no `sorry`.
 -/
@@ -322,6 +333,290 @@ theorem ym_dGamma_esa (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
   EsaOneParticle.dGamma_essentiallySelfAdjointOn_of_esa (Hs := L2dSpace 99)
     (ymHamiltonian (coreRepPoly 99) fabc) polyGaussCore_dense
     (ymHamiltonian_symmetricOn _ fabc) (ym_h_esa fabc)
+
+/-! ## 5. The coloured operator
+
+The split chapter states symmetry of `colouredHamiltonian Φ fabc N C` on the coloured core and
+stops there.  The deficiency argument needs no relative bound: the field half is a direct sum of
+copies of the one-particle Hamiltonian, and the colour half is a symmetric perturbation, which
+cannot support a deficiency vector. -/
+
+noncomputable section Coloured
+
+open BookProof.YangMillsFieldStrengthSplit
+
+variable {D : Submodule ℂ (L2d 99)} {N : ℕ}
+
+/-- The `i`-th colour component of a coloured-core element, read as an element of the field core. -/
+def colourComponent (u : colouredCore N D) (i : Fin N) : D :=
+  ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+
+@[simp] theorem colourComponent_coe (u : colouredCore N D) (i : Fin N) :
+    ((colourComponent u i : D) : L2d 99) = WithLp.ofLp (u : colourSpace N) i := rfl
+
+theorem colourComponent_add (u v : colouredCore N D) (i : Fin N) :
+    colourComponent (u + v) i = colourComponent u i + colourComponent v i :=
+  Subtype.ext (by simp [colourComponent])
+
+theorem colourComponent_smul (c : ℂ) (u : colouredCore N D) (i : Fin N) :
+    colourComponent (c • u) i = c • colourComponent u i :=
+  Subtype.ext (by simp [colourComponent])
+
+/-- The vector supported in a single colour component. -/
+def colourSingle (i : Fin N) (v : L2d 99) : colourSpace N :=
+  WithLp.toLp 2 (fun j => if j = i then v else 0)
+
+@[simp] theorem colourSingle_ofLp (i : Fin N) (v : L2d 99) (j : Fin N) :
+    (colourSingle i v : colourSpace N).ofLp j = if j = i then v else 0 := rfl
+
+theorem colourSingle_mem (i : Fin N) {v : L2d 99} (hv : v ∈ D) :
+    colourSingle (N := N) i v ∈ colouredCore N D := by
+  intro j
+  rw [colourSingle_ofLp]
+  by_cases hj : j = i
+  · rw [if_pos hj]; exact hv
+  · rw [if_neg hj]; exact Submodule.zero_mem _
+
+@[simp] theorem colourSingle_mem_coe (i : Fin N) {v : L2d 99} (hv : v ∈ D) :
+    ((⟨colourSingle (N := N) i v, colourSingle_mem i hv⟩ : colouredCore N D) : colourSpace N)
+      = colourSingle i v := rfl
+
+/-- **Single components pair with a single component of the other vector.** -/
+theorem inner_colourSingle_left (i : Fin N) (v : L2d 99) (w : colourSpace N) :
+    inner ℂ (colourSingle i v : colourSpace N) w
+      = inner ℂ v (WithLp.ofLp w i) := by
+  rw [PiLp.inner_apply]
+  simp only [colourSingle, WithLp.ofLp_toLp]
+  rw [Finset.sum_eq_single i]
+  · simp
+  · intro j _ hj
+    simp [hj]
+  · intro hi
+    exact absurd (Finset.mem_univ i) hi
+
+/-- The field half `H ⊗ 1` of the coloured Hamiltonian, on the coloured core. -/
+def colourFieldOp (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (N : ℕ) :
+    colouredCore N D →ₗ[ℂ] colourSpace N where
+  toFun u := WithLp.toLp 2 (fun i => ymHamiltonian Φ fabc (colourComponent u i))
+  map_add' u v := by
+    apply WithLp.ofLp_injective
+    funext i
+    simp only [WithLp.ofLp_add, Pi.add_apply, colourComponent_add]
+    exact map_add (ymHamiltonian Φ fabc) _ _
+  map_smul' c u := by
+    apply WithLp.ofLp_injective
+    funext i
+    simp only [WithLp.ofLp_smul, Pi.smul_apply, RingHom.id_apply, colourComponent_smul]
+    exact map_smul (ymHamiltonian Φ fabc) c _
+
+theorem colourFieldOp_ofLp (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (u : colouredCore N D) (i : Fin N) :
+    (colourFieldOp Φ fabc N u : colourSpace N).ofLp i
+      = ymHamiltonian Φ fabc (colourComponent u i) := rfl
+
+theorem colourFieldOp_colourSingle (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (i : Fin N) (v : D) :
+    colourFieldOp Φ fabc N ⟨colourSingle i (v : L2d 99), colourSingle_mem i v.2⟩
+      = colourSingle i (ymHamiltonian Φ fabc v) := by
+  apply WithLp.ofLp_injective
+  funext j
+  by_cases hj : j = i
+  · subst hj
+    simp [colourFieldOp_ofLp, colourComponent]
+  · simp only [colourFieldOp_ofLp, colourComponent, colourSingle_ofLp, if_neg hj]
+    exact congrArg (ymHamiltonian Φ fabc) (Subtype.ext rfl) |>.trans (map_zero _)
+
+/-- The colour half `1 ⊗ C`: the matrix `C` acting on the colour components. -/
+def colourMix (C : Matrix (Fin N) (Fin N) ℂ) (u : colourSpace N) : colourSpace N :=
+  WithLp.toLp 2 (fun i => ∑ j : Fin N, C i j • WithLp.ofLp u j)
+
+@[simp] theorem colourMix_ofLp (C : Matrix (Fin N) (Fin N) ℂ) (u : colourSpace N) (i : Fin N) :
+    (colourMix C u : colourSpace N).ofLp i = ∑ j : Fin N, C i j • WithLp.ofLp u j := rfl
+
+theorem colourFieldOp_symmetricOn (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    SymmetricOn (colouredCore N D) (colourFieldOp Φ fabc N) := by
+  intro u v
+  simp only [PiLp.inner_apply, colourFieldOp_ofLp]
+  exact Finset.sum_congr rfl fun i _ =>
+    ymHamiltonian_symmetricOn Φ fabc (colourComponent u i) (colourComponent v i)
+
+/-- **Single components see only the fibre**: the deficiency identity of the field operator is the
+field deficiency identity, component by component. -/
+theorem colourFieldOp_deficiencyTrivialAt {z : ℂ} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (h : DeficiencyTrivialAt D (ymHamiltonian Φ fabc) z) :
+    DeficiencyTrivialAt (colouredCore N D) (colourFieldOp Φ fabc N) z := by
+  intro w hw
+  apply WithLp.ofLp_injective
+  funext i
+  refine h (WithLp.ofLp w i) fun v => ?_
+  have hv := hw ⟨colourSingle i (v : L2d 99), colourSingle_mem i v.2⟩
+  simp only [colourFieldOp_colourSingle, inner_colourSingle_left] at hv
+  exact hv
+
+theorem colourFieldOp_esa (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (h : EssentiallySelfAdjointOn D (ymHamiltonian Φ fabc)) :
+    EssentiallySelfAdjointOn (colouredCore N D) (colourFieldOp Φ fabc N) :=
+  ⟨colourFieldOp_deficiencyTrivialAt Φ fabc h.1,
+    colourFieldOp_deficiencyTrivialAt Φ fabc h.2⟩
+
+/-- **The colour half is symmetric** for a Hermitian colour matrix. -/
+theorem colourMix_inner (C : Matrix (Fin N) (Fin N) ℂ) (hC : C.conjTranspose = C)
+    (u w : colourSpace N) :
+    (inner ℂ (colourMix C u) w : ℂ) = inner ℂ u (colourMix C w) := by
+  simp only [PiLp.inner_apply, colourMix_ofLp, sum_inner, inner_sum, inner_smul_left,
+    inner_smul_right]
+  rw [Finset.sum_comm]
+  have hentry : ∀ i j : Fin N, starRingEnd ℂ (C i j) = C j i := by
+    intro i j
+    have h : C.conjTranspose j i = C j i := by rw [hC]
+    simpa [Matrix.conjTranspose_apply] using h
+  refine Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun i _ => ?_
+  congr 1
+  exact hentry i j
+
+/-! ### Symmetric perturbations do not create deficiency vectors
+
+The perturbation is not assumed bounded or even linear: what the argument uses is only the
+pairing symmetry `⟪K u, w⟫ = ⟪u, K w⟫`.  (On a Hilbert space an everywhere-defined linear map
+with that symmetry is automatically bounded, so nothing is lost.) -/
+
+section Perturbation
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+variable {Dom : Submodule ℂ F}
+
+/-- **A symmetric perturbation does not create deficiency vectors.**  If `A` is symmetric with no
+deficiency vector at any non-real point, and `B v = A v + K v` where `K` is everywhere defined
+with `⟪K u, w⟫ = ⟪u, K w⟫`, then `B` has no deficiency vector at `d i` either (`d ≠ 0` real).
+
+The proof reads both `w` and the graph limit of `A` provided by `exists_weak_graph_limit` as
+graph-limit pairs at the same level; uniqueness of that pair is exactly `A`'s trivial deficiency
+at `d i`, and the reality of `⟪z, u⟫` then forces `d ‖w‖² = 0`. -/
+theorem deficiencyTrivialAt_of_symmetric_perturbation (A B : Dom →ₗ[ℂ] F) (K : F → F)
+    {d : ℝ} (hd : d ≠ 0) (hA : SymmetricOn Dom A)
+    (hall : ∀ z : ℂ, z.im ≠ 0 → DeficiencyTrivialAt Dom A z)
+    (hB : ∀ v : Dom, B v = A v + K (v : F))
+    (hK : ∀ u w : F, (inner ℂ (K u) w : ℂ) = inner ℂ u (K w)) :
+    DeficiencyTrivialAt Dom B ((d : ℂ) * Complex.I) := by
+  intro w hw
+  have hdi : ((d : ℂ) * Complex.I).im ≠ 0 := by
+    simpa [Complex.mul_im] using hd
+  -- the deficiency identity of `A`, with the vector `(d i) • w - K w`
+  have hwA : ∀ v : Dom, (inner ℂ (A v) w : ℂ)
+      = inner ℂ (v : F) (((d : ℂ) * Complex.I) • w - K w) := by
+    intro v
+    have h := hw v
+    rw [hB v, inner_add_left, hK (v : F) w] at h
+    rw [inner_sub_right, inner_smul_right, eq_sub_iff_add_eq]
+    exact h
+  have hstar : starRingEnd ℂ ((d : ℂ) * Complex.I) = -((d : ℂ) * Complex.I) := by
+    rw [map_mul, Complex.conj_ofReal, Complex.conj_I]
+    ring
+  have hdens : Dense (Set.range fun x : Dom => A x - ((d : ℂ) * Complex.I) • (x : F)) := by
+    refine dense_range_of_deficiencyTrivialAt A ((d : ℂ) * Complex.I) ?_
+    rw [hstar]
+    refine hall _ ?_
+    have him : (-((d : ℂ) * Complex.I)).im = -d := by simp [Complex.mul_im]
+    rw [him]
+    exact neg_ne_zero.mpr hd
+  obtain ⟨u, z, hu, hzu, hzim⟩ :=
+    exists_weak_graph_limit A hA d hd hdens (-(K w))
+  -- both pairs are graph limits at the same level, so they agree
+  have hdiff : z - (((d : ℂ) * Complex.I) • w - K w) = ((d : ℂ) * Complex.I) • (u - w) := by
+    have hz : z = ((d : ℂ) * Complex.I) • u - K w := by
+      have h : z = -(K w) + ((d : ℂ) * Complex.I) • u := sub_eq_iff_eq_add.mp hzu
+      rw [h]
+      abel
+    rw [hz, smul_sub]
+    abel
+  have huv : ∀ v : Dom, (inner ℂ (A v) (u - w) : ℂ)
+      = ((d : ℂ) * Complex.I) * inner ℂ (v : F) (u - w) := by
+    intro v
+    calc inner ℂ (A v) (u - w)
+        = inner ℂ (A v) u - inner ℂ (A v) w := inner_sub_right ..
+      _ = inner ℂ (v : F) z
+            - inner ℂ (v : F) (((d : ℂ) * Complex.I) • w - K w) := by rw [hu v, hwA v]
+      _ = inner ℂ (v : F) (z - (((d : ℂ) * Complex.I) • w - K w)) :=
+          (inner_sub_right ..).symm
+      _ = inner ℂ (v : F) (((d : ℂ) * Complex.I) • (u - w)) := by rw [hdiff]
+      _ = ((d : ℂ) * Complex.I) * inner ℂ (v : F) (u - w) := inner_smul_right ..
+  have huw : u = w := sub_eq_zero.mp (hall _ hdi (u - w) huv)
+  have hzw : z = ((d : ℂ) * Complex.I) • w - K w := by
+    have h1 : z = -(K w) + ((d : ℂ) * Complex.I) • w := by
+      rw [huw] at hzu
+      exact sub_eq_iff_eq_add.mp hzu
+    rw [h1]
+    abel
+  -- the graph limit has real `⟪z, u⟫`
+  rw [hzw, huw] at hzim
+  have hval : (inner ℂ (((d : ℂ) * Complex.I) • w - K w) w : ℂ)
+      = -(((d : ℂ) * Complex.I) * inner ℂ w w) - (inner ℂ (K w) w : ℂ) := by
+    rw [inner_sub_left, inner_smul_left, hstar]
+    ring
+  rw [hval] at hzim
+  have hKreal : ((inner ℂ (K w) w : ℂ)).im = 0 := by
+    have h2 : (inner ℂ (K w) w : ℂ) = starRingEnd ℂ (inner ℂ (K w) w) := by
+      calc (inner ℂ (K w) w : ℂ) = inner ℂ w (K w) := hK w w
+        _ = starRingEnd ℂ (inner ℂ (K w) w) := (inner_conj_symm w (K w)).symm
+    have h3 := congrArg Complex.im h2
+    rw [Complex.conj_im] at h3
+    linarith
+  have hselfre : ((inner ℂ w w : ℂ)).re = ‖w‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℂ) w
+  have hselfim : ((inner ℂ w w : ℂ)).im = 0 := by
+    simpa using inner_self_im (𝕜 := ℂ) w
+  have hprod : (-(((d : ℂ) * Complex.I) * inner ℂ w w)).im = -d * ‖w‖ ^ 2 := by
+    rw [Complex.neg_im, Complex.mul_im]
+    have him : ((d : ℂ) * Complex.I).im = d := by simp [Complex.mul_im]
+    have hre : ((d : ℂ) * Complex.I).re = 0 := by simp [Complex.mul_re]
+    rw [hre, him, hselfim, mul_zero, zero_add, hselfre]
+    ring
+  rw [Complex.sub_im, hprod, hKreal, sub_zero] at hzim
+  rcases mul_eq_zero.mp (by linarith [hzim] : d * ‖w‖ ^ 2 = 0) with h | h
+  · exact absurd h hd
+  · exact norm_eq_zero.mp (by nlinarith [norm_nonneg w])
+
+end Perturbation
+
+/-- **The coloured Hamiltonian is `H ⊗ 1 + 1 ⊗ C`.** -/
+theorem colouredHamiltonian_eq_field_add_mix (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (C : Matrix (Fin N) (Fin N) ℂ)
+    (u : colouredCore N D) :
+    colouredHamiltonian Φ fabc N C u
+      = colourFieldOp Φ fabc N u + colourMix C (u : colourSpace N) := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [colouredHamiltonian_ofLp, colourFieldOp_ofLp, WithLp.ofLp_add, Pi.add_apply,
+    colourMix_ofLp, colourComponent]
+
+/-- **The coloured non-abelian Yang–Mills Hamiltonian `H ⊗ 1 + 1 ⊗ C` is essentially
+self-adjoint** on the coloured core, for a Hermitian colour matrix `C` and arbitrary real
+structure constants.  The field half is the direct sum of `N` copies of `ym_h_esa` glued
+component by component, and the colour half is a symmetric perturbation, which cannot support a
+deficiency vector.  No relative bound and no comparison operator are used. -/
+theorem colouredHamiltonian_esa (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ}
+    (C : Matrix (Fin N) (Fin N) ℂ) (hC : C.conjTranspose = C) :
+    EssentiallySelfAdjointOn (colouredCore N (polyGaussCore (d := 99)))
+      (colouredHamiltonian (coreRepPoly 99) fabc N C) := by
+  have hAesa : EssentiallySelfAdjointOn (colouredCore N (polyGaussCore (d := 99)))
+      (colourFieldOp (coreRepPoly 99) fabc N) :=
+    colourFieldOp_esa _ fabc (ym_h_esa fabc)
+  have hAsym : SymmetricOn (colouredCore N (polyGaussCore (d := 99)))
+      (colourFieldOp (coreRepPoly 99) fabc N) := colourFieldOp_symmetricOn _ fabc
+  have hall : ∀ z : ℂ, z.im ≠ 0 → DeficiencyTrivialAt
+      (colouredCore N (polyGaussCore (d := 99))) (colourFieldOp (coreRepPoly 99) fabc N) z :=
+    fun z hz => deficiencyTrivialAt_of_esa _ hAsym hAesa hz
+  have hpert := fun (d : ℝ) (hd : d ≠ 0) =>
+    deficiencyTrivialAt_of_symmetric_perturbation _ _ (colourMix C) hd hAsym hall
+      (fun v => colouredHamiltonian_eq_field_add_mix _ fabc C v)
+      (fun u w => colourMix_inner C hC u w)
+  refine ⟨?_, ?_⟩
+  · simpa using hpert 1 one_ne_zero
+  · simpa using hpert (-1) (by norm_num)
+
+end Coloured
+
 
 end
 
