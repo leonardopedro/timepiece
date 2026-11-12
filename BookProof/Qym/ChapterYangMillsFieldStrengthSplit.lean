@@ -1479,6 +1479,12 @@ above.  This section states that identification and proves what it yields.
   sum `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` (`colouredHamiltonian_inner_core`), so the off-diagonal entries
   contribute the mixed terms; for `C = [[0, 1], [1, 0]]` the form is
   `quadForm H u₀ + quadForm H u₁ + 2 Re ⟨u₀, u₁⟩`, a cross term no `µ • 1` can produce;
+* **`mesonSinglet`**, **`glueballSinglet`** — the singlets of the two *squares*: `2 ⊗ 2 = 3 ⊕ 1`
+  with `ε` as the singlet (`mesonCoeff_mem`) and `3 ⊗ 3 = 5 ⊕ 3 ⊕ 1` with the trace `δ`
+  (`glueballCoeff_mem`); each singlet space is exactly one line (`mesonSinglet_eq_span`,
+  `glueballSinglet_eq_span`) and the line is nonzero (`mesonSingletVec_ne_zero`,
+  `glueballSingletVec_ne_zero`), so unlike `ℂ² ⊗ ℂ³` these fibres do carry colour-neutral
+  states `—` a quark–antiquark `ε` and a glueball trace `δ`;
 * **`colourSinglet`**, **`colourSinglet_eq_bot`** — the colour singlet over the combined
   `ℂ² ⊗ ℂ³` fibre: the total action `pairRep` is `T^a ⊗ 1 + 1 ⊗ T^a`
   on `colourVec 6` (`pairSlotFst`, `pairSlotSnd`), and the vectors it annihilates are only the
@@ -3239,6 +3245,275 @@ theorem colourSinglet_fibre_trivial {D : Submodule ℂ (L2d 99)} (x : D) (v : co
   apply WithLp.ofLp_injective
   funext i
   simp [colourFibre]
+
+/-! #### The meson and glueball singlets: `ℂ² ⊗ ℂ²` and `ℂ³ ⊗ ℂ³`
+
+The fundamental/adjoint pair has no singlet (previous section).  The pairs that do carry one are the
+two *squares*, and both are built here the same way: the total action `T^a ⊗ 1 + 1 ⊗ T^a`, with the
+same irrep in both slots.
+
+* **Meson**, `ℂ² ⊗ ℂ²` — `mesonRep` on `colourVec 4`, colour index `2 * fst + snd`.  The
+  antisymmetric tensor `ε` (`mesonCoeff`, `mesonSingletVec`) is annihilated by all three total
+  actions (`mesonCoeff_mem`), and the singlet space is exactly the line it spans
+  (`mesonSinglet_eq_span`): `2 ⊗ 2 = 3 ⊕ 1`, one singlet, antisymmetric — the quark–antiquark
+  channel, the two colour indices contracted with `ε`.
+* **Glueball**, `ℂ³ ⊗ ℂ³` — `glueballRep` on `colourVec 9`, colour index `3 * fst + snd`.  The
+  trace `δ` (`glueballCoeff`, `glueballSingletVec`) is a singlet (`glueballCoeff_mem`), and again
+  the singlet space is exactly its line (`glueballSinglet_eq_span`): `3 ⊗ 3 = 5 ⊕ 3 ⊕ 1`, the
+  singlet being `Σ_a |a⟩|a⟩` — a trace because the adjoint generators are antisymmetric.
+
+Both singlet vectors are nonzero (`mesonSingletVec_ne_zero`, `glueballSingletVec_ne_zero`), so
+neither space is trivial.  That contrast with `colourSinglet_eq_bot` is the point of the section:
+whether a colour-neutral state exists is a property of the *pair of irreps*, not of the colour
+group.
+
+**Boundary.**  Each singlet space is proved to be exactly one line, by exhibiting the invariant
+vector and showing that the common kernel of the three total actions has no other direction.  Not
+claimed:
+a decomposition into the remaining summands (`3`, `5`, `3`); the representation property of
+`mesonRep`/`glueballRep`; norms or closedness of these actions.  The proofs are coordinate checks —
+`glueballRep_zero_mulVec` and its siblings give the three total actions of the glueball fibre in
+closed form — not a Clebsch–Gordan expansion.
+-/
+
+/-- The fundamental slot of a colour index in `ℂ² ⊗ ℂ²`: `i / 2`. -/
+def mesonSlotFst (i : Fin 4) : Fin 2 := ⟨i.val / 2, by have := i.isLt; omega⟩
+
+/-- The second fundamental slot of a colour index in `ℂ² ⊗ ℂ²`: `i % 2`. -/
+def mesonSlotSnd (i : Fin 4) : Fin 2 := ⟨i.val % 2, Nat.mod_lt _ (by norm_num)⟩
+
+/-- The adjoint slot of a colour index in `ℂ³ ⊗ ℂ³`: `i / 3`. -/
+def glueballSlotFst (i : Fin 9) : Fin 3 := ⟨i.val / 3, by have := i.isLt; omega⟩
+
+/-- The second adjoint slot of a colour index in `ℂ³ ⊗ ℂ³`: `i % 3`. -/
+def glueballSlotSnd (i : Fin 9) : Fin 3 := ⟨i.val % 3, Nat.mod_lt _ (by norm_num)⟩
+
+/-- **The total colour action on `ℂ² ⊗ ℂ²`**: the Kronecker sum `T^a ⊗ 1 + 1 ⊗ T^a` of the
+fundamental generators, in the row-major basis of the four-component fibre. -/
+noncomputable def mesonRep (a : Fin 3) : Matrix (Fin 4) (Fin 4) ℂ :=
+  fun i j => fundRep a (mesonSlotFst i) (mesonSlotFst j) *
+      (if mesonSlotSnd i = mesonSlotSnd j then 1 else 0) +
+    (if mesonSlotFst i = mesonSlotFst j then 1 else 0) *
+      fundRep a (mesonSlotSnd i) (mesonSlotSnd j)
+
+/-- **The total colour action on `ℂ³ ⊗ ℂ³`**: the Kronecker sum `T^a ⊗ 1 + 1 ⊗ T^a` of the
+adjoint generators, in the row-major basis of the nine-component fibre. -/
+noncomputable def glueballRep (a : Fin 3) : Matrix (Fin 9) (Fin 9) ℂ :=
+  fun i j => adjRep a (glueballSlotFst i) (glueballSlotFst j) *
+      (if glueballSlotSnd i = glueballSlotSnd j then 1 else 0) +
+    (if glueballSlotFst i = glueballSlotFst j then 1 else 0) *
+      adjRep a (glueballSlotSnd i) (glueballSlotSnd j)
+
+/-- **The meson singlet space**: the vectors of the `ℂ² ⊗ ℂ²` fibre annihilated by every one
+of the three total colour actions. -/
+noncomputable def mesonSinglet : Submodule ℂ (colourVec 4) where
+  carrier := {v | ∀ a, (mesonRep a).mulVec (WithLp.ofLp v) = 0}
+  zero_mem' := by
+    intro a
+    simp
+  add_mem' := by
+    intro u w hu hw a
+    rw [WithLp.ofLp_add, Matrix.mulVec_add, hu a, hw a, add_zero]
+  smul_mem' := by
+    intro c u hu a
+    rw [WithLp.ofLp_smul, Matrix.mulVec_smul, hu a, smul_zero]
+
+/-- **The glueball singlet space**: the vectors of the `ℂ³ ⊗ ℂ³` fibre annihilated by every one
+of the three total colour actions. -/
+noncomputable def glueballSinglet : Submodule ℂ (colourVec 9) where
+  carrier := {v | ∀ a, (glueballRep a).mulVec (WithLp.ofLp v) = 0}
+  zero_mem' := by
+    intro a
+    simp
+  add_mem' := by
+    intro u w hu hw a
+    rw [WithLp.ofLp_add, Matrix.mulVec_add, hu a, hw a, add_zero]
+  smul_mem' := by
+    intro c u hu a
+    rw [WithLp.ofLp_smul, Matrix.mulVec_smul, hu a, smul_zero]
+
+/-- Membership in `mesonSinglet` is annihilation by all three total colour actions. -/
+theorem mesonSinglet_mem (v : colourVec 4) :
+    v ∈ mesonSinglet ↔ ∀ a, (mesonRep a).mulVec (WithLp.ofLp v) = 0 := Iff.rfl
+
+/-- Membership in `glueballSinglet` is annihilation by all three total colour actions. -/
+theorem glueballSinglet_mem (v : colourVec 9) :
+    v ∈ glueballSinglet ↔ ∀ a, (glueballRep a).mulVec (WithLp.ofLp v) = 0 := Iff.rfl
+
+/-- The antisymmetric tensor `ε` in the row-major basis of `ℂ² ⊗ ℂ²`: `ε₀₁ = 1`, `ε₁₀ = -1`. -/
+def mesonCoeff : Fin 4 → ℂ := ![0, 1, -1, 0]
+
+/-- The trace `δ` in the row-major basis of `ℂ³ ⊗ ℂ³`: `δᵢⱼ = 1` for `i = j`. -/
+def glueballCoeff : Fin 9 → ℂ := ![1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+/-- The meson singlet vector: `ε` as an element of the `ℂ² ⊗ ℂ²` fibre. -/
+def mesonSingletVec : colourVec 4 := WithLp.toLp 2 mesonCoeff
+
+/-- The glueball singlet vector: `δ` as an element of the `ℂ³ ⊗ ℂ³` fibre. -/
+def glueballSingletVec : colourVec 9 := WithLp.toLp 2 glueballCoeff
+
+/-- **The antisymmetric tensor is a colour singlet** of `ℂ² ⊗ ℂ²`: all three total actions
+annihilate `ε`, which is the `su(2)` tensor `2 ⊗ 2 ⊇ 1`. -/
+theorem mesonCoeff_mem : mesonSingletVec ∈ mesonSinglet := by
+  rw [mesonSinglet_mem]
+  intro a
+  ext k
+  fin_cases a <;> fin_cases k <;>
+    simp [mesonRep, mesonSlotFst, mesonSlotSnd, mesonSingletVec, mesonCoeff, Matrix.mulVec,
+      dotProduct, Fin.sum_univ_four, fundRep, pauli]
+
+-- The glueball computations expand nine-term dot products of `adjRep` entries; the raised budget
+-- keeps each of the nine coordinate goals inside one elaboration.
+section glueballComputation
+
+set_option maxHeartbeats 1000000
+
+/-- **The first total colour action on `ℂ³ ⊗ ℂ³`, in closed form**: the nine components of
+`(T⁰ ⊗ 1 + 1 ⊗ T⁰) v`, each one or two coordinates of `v`. -/
+theorem glueballRep_zero_mulVec (v : Fin 9 → ℂ) :
+    (glueballRep 0).mulVec v
+      = ![0, -Complex.I * v 2, Complex.I * v 1, -Complex.I * v 6,
+          Complex.I * (-v 5 - v 7), Complex.I * (v 4 - v 8), Complex.I * v 3,
+          Complex.I * (v 4 - v 8), Complex.I * (v 5 + v 7)] := by
+  ext k
+  fin_cases k <;>
+    simp [glueballRep, glueballSlotFst, glueballSlotSnd, Matrix.mulVec, dotProduct,
+      Fin.sum_univ_succ, adjRep, levi] <;>
+    norm_num [levi] <;> ring
+
+/-- **The second total colour action on `ℂ³ ⊗ ℂ³`, in closed form.** -/
+theorem glueballRep_one_mulVec (v : Fin 9 → ℂ) :
+    (glueballRep 1).mulVec v
+      = ![Complex.I * (v 2 + v 6), Complex.I * v 7, Complex.I * (v 8 - v 0),
+          Complex.I * v 5, 0, -Complex.I * v 3, Complex.I * (v 8 - v 0),
+          -Complex.I * v 1, Complex.I * (-v 2 - v 6)] := by
+  ext k
+  fin_cases k <;>
+    simp [glueballRep, glueballSlotFst, glueballSlotSnd, Matrix.mulVec, dotProduct,
+      Fin.sum_univ_succ, adjRep, levi] <;>
+    norm_num [levi] <;> ring
+
+/-- **The third total colour action on `ℂ³ ⊗ ℂ³`, in closed form.** -/
+theorem glueballRep_two_mulVec (v : Fin 9 → ℂ) :
+    (glueballRep 2).mulVec v
+      = ![Complex.I * (-v 1 - v 3), Complex.I * (v 0 - v 4), -Complex.I * v 5,
+          Complex.I * (v 0 - v 4), Complex.I * (v 1 + v 3), Complex.I * v 2,
+          -Complex.I * v 7, Complex.I * v 6, 0] := by
+  ext k
+  fin_cases k <;>
+    simp [glueballRep, glueballSlotFst, glueballSlotSnd, Matrix.mulVec, dotProduct,
+      Fin.sum_univ_succ, adjRep, levi] <;>
+    norm_num [levi] <;> ring
+
+/-- **The trace is a colour singlet** of `ℂ³ ⊗ ℂ³`: all three total actions annihilate `δ`,
+which is the `su(2)` tensor `3 ⊗ 3 ⊇ 1` — the adjoint generators are antisymmetric, so the trace
+survives. -/
+theorem glueballCoeff_mem : glueballSingletVec ∈ glueballSinglet := by
+  rw [glueballSinglet_mem]
+  intro a
+  ext k
+  fin_cases a <;> fin_cases k <;>
+    simp [glueballRep, glueballSlotFst, glueballSlotSnd, glueballSingletVec, glueballCoeff,
+      Matrix.mulVec, dotProduct, Fin.sum_univ_succ, adjRep, levi] <;>
+    norm_num [levi]
+
+end glueballComputation
+
+/-- **The meson singlet space is one line**: every vector whose total colour charge vanishes is a
+multiple of the antisymmetric tensor `ε`, which is itself a singlet (`mesonCoeff_mem`).  So the
+singlet of `ℂ² ⊗ ℂ²` is one-dimensional, unlike the trivial singlet of `ℂ² ⊗ ℂ³`. -/
+theorem mesonSinglet_eq_span :
+    mesonSinglet = Submodule.span ℂ ({mesonSingletVec} : Set (colourVec 4)) := by
+  refine le_antisymm ?_ ?_
+  · intro v hv
+    rw [mesonSinglet_mem] at hv
+    have h0 : WithLp.ofLp v 0 = 0 := by
+      simpa [mesonRep, mesonSlotFst, mesonSlotSnd, Matrix.mulVec, dotProduct, Fin.sum_univ_four,
+        fundRep, pauli] using congrFun (hv 2) 0
+    have h3 : WithLp.ofLp v 3 = 0 := by
+      simpa [mesonRep, mesonSlotFst, mesonSlotSnd, Matrix.mulVec, dotProduct, Fin.sum_univ_four,
+        fundRep, pauli] using congrFun (hv 2) 3
+    have h12 : WithLp.ofLp v 1 + WithLp.ofLp v 2 = 0 := by
+      have e := congrFun (hv 0) 0
+      simp [mesonRep, mesonSlotFst, mesonSlotSnd, Matrix.mulVec, dotProduct, Fin.sum_univ_four,
+        fundRep, pauli] at e
+      linear_combination 2 * e
+    have h2 : WithLp.ofLp v 2 = -WithLp.ofLp v 1 := by
+      linear_combination h12
+    rw [Submodule.mem_span_singleton]
+    refine ⟨WithLp.ofLp v 1, ?_⟩
+    apply WithLp.ofLp_injective
+    funext k
+    fin_cases k <;>
+      simp [mesonSingletVec, mesonCoeff, h0, h2, h3]
+  · rw [Submodule.span_singleton_le_iff_mem]
+    exact mesonCoeff_mem
+
+/-- **The glueball singlet space is one line**: every vector whose total colour charge vanishes is a
+multiple of the trace `δ`, which is itself a singlet (`glueballCoeff_mem`).  So the singlet of
+`ℂ³ ⊗ ℂ³` is one-dimensional — the glueball of `3 ⊗ 3 = 5 ⊕ 3 ⊕ 1`. -/
+theorem glueballSinglet_eq_span :
+    glueballSinglet = Submodule.span ℂ ({glueballSingletVec} : Set (colourVec 9)) := by
+  refine le_antisymm ?_ ?_
+  · intro v hv
+    rw [glueballSinglet_mem] at hv
+    have h2 : WithLp.ofLp v 2 = 0 := by
+      have e : -Complex.I * WithLp.ofLp v 2 = 0 := by
+        simpa [glueballRep_zero_mulVec] using congrFun (hv 0) 1
+      exact (mul_eq_zero.mp e).resolve_left (by simp)
+    have h3 : WithLp.ofLp v 3 = 0 := by
+      have e : Complex.I * WithLp.ofLp v 3 = 0 := by
+        simpa [glueballRep_zero_mulVec] using congrFun (hv 0) 6
+      exact (mul_eq_zero.mp e).resolve_left (by simp)
+    have h6 : WithLp.ofLp v 6 = 0 := by
+      have e : -Complex.I * WithLp.ofLp v 6 = 0 := by
+        simpa [glueballRep_zero_mulVec] using congrFun (hv 0) 3
+      exact (mul_eq_zero.mp e).resolve_left (by simp)
+    have h5 : WithLp.ofLp v 5 = 0 := by
+      have e : Complex.I * WithLp.ofLp v 5 = 0 := by
+        simpa [glueballRep_one_mulVec] using congrFun (hv 1) 3
+      exact (mul_eq_zero.mp e).resolve_left (by simp)
+    have h7 : WithLp.ofLp v 7 = 0 := by
+      have e : Complex.I * WithLp.ofLp v 7 = 0 := by
+        simpa [glueballRep_one_mulVec] using congrFun (hv 1) 1
+      exact (mul_eq_zero.mp e).resolve_left (by simp)
+    have h8 : WithLp.ofLp v 8 = WithLp.ofLp v 0 := by
+      have e : Complex.I * (WithLp.ofLp v 8 - WithLp.ofLp v 0) = 0 := by
+        simpa [glueballRep_one_mulVec] using congrFun (hv 1) 2
+      exact sub_eq_zero.mp ((mul_eq_zero.mp e).resolve_left (by simp))
+    have h4 : WithLp.ofLp v 4 = WithLp.ofLp v 8 := by
+      have e : Complex.I * (WithLp.ofLp v 4 - WithLp.ofLp v 8) = 0 := by
+        simpa [glueballRep_zero_mulVec] using congrFun (hv 0) 7
+      exact sub_eq_zero.mp ((mul_eq_zero.mp e).resolve_left (by simp))
+    have h13 : WithLp.ofLp v 1 + WithLp.ofLp v 3 = 0 := by
+      have e : Complex.I * (-WithLp.ofLp v 1 - WithLp.ofLp v 3) = 0 := by
+        simpa [glueballRep_two_mulVec] using congrFun (hv 2) 0
+      have h : -WithLp.ofLp v 1 - WithLp.ofLp v 3 = 0 :=
+        (mul_eq_zero.mp e).resolve_left (by simp)
+      linear_combination -h
+    have h1 : WithLp.ofLp v 1 = 0 := by
+      rw [h3] at h13
+      simpa using h13
+    rw [Submodule.mem_span_singleton]
+    refine ⟨WithLp.ofLp v 0, ?_⟩
+    apply WithLp.ofLp_injective
+    funext k
+    fin_cases k <;>
+      simp [glueballSingletVec, glueballCoeff, h1, h2, h3, h4, h5, h6, h7, h8]
+  · rw [Submodule.span_singleton_le_iff_mem]
+    exact glueballCoeff_mem
+
+/-- The meson singlet vector is nonzero, so the meson singlet space is not the zero space. -/
+theorem mesonSingletVec_ne_zero : mesonSingletVec ≠ 0 := by
+  intro h
+  have := congrArg (fun u : colourVec 4 => WithLp.ofLp u 1) h
+  simp [mesonSingletVec, mesonCoeff] at this
+
+/-- The glueball singlet vector is nonzero, so the glueball singlet space is not the zero space. -/
+theorem glueballSingletVec_ne_zero : glueballSingletVec ≠ 0 := by
+  intro h
+  have := congrArg (fun u : colourVec 9 => WithLp.ofLp u 0) h
+  simp [glueballSingletVec, glueballCoeff] at this
 
 /-! #### The colour actions as bounded operators, and the `su(2)` representation
 

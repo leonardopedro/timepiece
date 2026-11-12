@@ -905,7 +905,14 @@ and `colourSinglet` is the set of vectors it annihilates — and its singlet spa
 (`colourSinglet_eq_bot`): `2 ⊗ 3 = 4 ⊕ 2` has no trivial summand, six diagonal entries of the three
 actions pinning every coordinate to zero, so a fundamental mode and an adjoint mode over one field
 core are never colour-neutral together (`colourSinglet_fibre_trivial`).  The pairs that do carry a
-singlet, `ℂ² ⊗ ℂ²` and `ℂ³ ⊗ ℂ³`, are not built.
+singlet are the two squares, and both are built: the meson `ℂ² ⊗ ℂ²` (`mesonRep` on
+`colourVec 4`, singlet space `mesonSinglet`) with `ε` as the singlet (`mesonCoeff_mem`) and the
+glueball `ℂ³ ⊗ ℂ³` (`glueballRep` on `colourVec 9`, `glueballSinglet`) with the trace `δ`
+(`glueballCoeff_mem`).  Both spaces are exactly one line (`mesonSinglet_eq_span`,
+`glueballSinglet_eq_span`), the singlet vectors are nonzero, and `2 ⊗ 2 = 3 ⊕ 1` versus
+`3 ⊗ 3 = 5 ⊕ 3 ⊕ 1` is the content: a colour-neutral state is a property of the pair of irreps.
+The glueball's three total actions are given in closed form (`glueballRep_zero_mulVec` and
+siblings); no decomposition into the other summands is proved.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.

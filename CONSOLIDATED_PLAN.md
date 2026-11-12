@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12b):** “State of the project — 2026-11-12b: the coloured form with a
+> **Newest entry (2026-11-12c):** “State of the project — 2026-11-12c: the meson and glueball
+> singlets” (end of file): the two squares do carry one — `ε` for `ℂ² ⊗ ℂ²` and the trace `δ`
+> for `ℂ³ ⊗ ℂ³` — and each singlet space is exactly one line (`mesonSinglet_eq_span`,
+> `glueballSinglet_eq_span`), in contrast with the trivial `ℂ² ⊗ ℂ³` singlet.
+>
+> **Earlier entry (2026-11-12b):** “State of the project — 2026-11-12b: the coloured form with a
 > general colour matrix” (end of file): the colour part of the coloured form is the double sum
 > `Σ_i Σ_j C_ij ⟨u_i, u_j⟩`, not only its diagonal part
 > (`colouredHamiltonian_inner_core`, `colouredHamiltonian_quadForm_core`); with
@@ -21948,3 +21953,43 @@ statement about the total colour action, not about `C`.
 **Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
 errors.  `#print axioms` on `colouredHamiltonian_inner_core`, `colouredHamiltonian_quadForm_core` and
 `colouredHamiltonian_swap_quadForm` gives only `propext`, `Classical.choice`, `Quot.sound`.
+
+
+## State of the project — 2026-11-12c: the meson and glueball singlets
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, new section “The meson and glueball
+singlets: `ℂ² ⊗ ℂ²` and `ℂ³ ⊗ ℂ³`”.
+
+**What is new.**  The previous entry proved that `ℂ² ⊗ ℂ³` has no colour singlet.  The two
+squares do, and both spaces are now built with the same total action `T^a ⊗ 1 + 1 ⊗ T^a`:
+
+- **meson**: `mesonRep` on `colourVec 4` (colour index `2 * fst + snd`), singlet space
+  `mesonSinglet`; the antisymmetric tensor `ε` (`mesonCoeff`, `mesonSingletVec`) is a singlet
+  (`mesonCoeff_mem`);
+- **glueball**: `glueballRep` on `colourVec 9` (colour index `3 * fst + snd`), singlet space
+  `glueballSinglet`; the trace `δ` (`glueballCoeff`, `glueballSingletVec`) is a singlet
+  (`glueballCoeff_mem`).
+
+`mesonSinglet_eq_span` and `glueballSinglet_eq_span` give the sharp statement: each singlet space is
+exactly the line of its vector — one-dimensional — which is `2 ⊗ 2 = 3 ⊕ 1` and
+`3 ⊗ 3 = 5 ⊕ 3 ⊕ 1`.  Both vectors are nonzero (`mesonSingletVec_ne_zero`,
+`glueballSingletVec_ne_zero`), so these spaces are not the zero space: the deliberate contrast with
+`colourSinglet_eq_bot`.  Whether a colour-neutral state exists is a property of the pair of irreps,
+not of the colour group.
+
+The three glueball actions are also given in closed form (`glueballRep_zero_mulVec`,
+`glueballRep_one_mulVec`, `glueballRep_two_mulVec`), which is what keeps the kernel computation
+cheap: each action sends `v` to a nine-tuple of one- and two-coordinate expressions, and the kernel
+follows from the antisymmetry of `adjRep` (the trace direction survives, the other eight collapse).
+
+**Boundary.**  Not claimed: the decomposition into the remaining summands (`3` for the meson, `5` and
+`3` for the glueball); the representation property of `mesonRep`/`glueballRep`; norms or closedness
+of these actions; any fibre-level statement.  The proofs are coordinate computations, not a
+Clebsch–Gordan expansion.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors and no new warnings; the glueball computations sit in their own `section` with a raised
+`maxHeartbeats` and a comment saying why.  `#print axioms` on the new declarations (`mesonSinglet`,
+`glueballSinglet`, the two `_mem` membership theorems, the three `glueballRep_*_mulVec` forms, both
+`_eq_span` theorems, both `_ne_zero` theorems) gives only `propext`, `Classical.choice`,
+`Quot.sound`.
