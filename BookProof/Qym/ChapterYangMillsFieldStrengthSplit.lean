@@ -5392,6 +5392,197 @@ theorem magWeightEval_nonneg (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : Vd 
       (fun i => ((x i : ℝ) : ℂ))).re ^ 2 := Finset.sum_nonneg fun m _ => sq_nonneg _
   linarith
 
+/-! ##### The meson square splits as `1 ⊕ 3`
+
+The singlet is one line of the `ℂ² ⊗ ℂ²` fibre (`mesonSinglet_eq_span`).  This section exhibits the
+other summand: the symmetric tensors, invariant under every total action because that action is
+invariant under the slot swap, of dimension `4 - 1 = 3`.  The decomposition is `1 ⊕ 3` —
+antisymmetric singlet plus symmetric triplet — and both summands are subrepresentations.
+-/
+
+/-- The slot swap on the row-major index of `ℂ² ⊗ ℂ²`. -/
+def mesonFlipIdx (i : Fin 4) : Fin 4 := ⟨2 * (i.val % 2) + i.val / 2, by omega⟩
+
+/-- The slot swap is an involution on the four row-major indices. -/
+@[simp] theorem mesonFlipIdx_involutive (i : Fin 4) : mesonFlipIdx (mesonFlipIdx i) = i := by
+  ext
+  simp only [mesonFlipIdx]
+  omega
+
+/-- The slot swap as a vector operation on `ℂ² ⊗ ℂ²`. -/
+def mesonFlipVec (v : colourVec 4) : colourVec 4 :=
+  WithLp.toLp 2 fun i => WithLp.ofLp v (mesonFlipIdx i)
+
+/-- Component `i` of the slot-swapped vector is component `mesonFlipIdx i` of `v`. -/
+@[simp] theorem mesonFlipVec_ofLp (v : colourVec 4) (i : Fin 4) :
+    WithLp.ofLp (mesonFlipVec v) i = WithLp.ofLp v (mesonFlipIdx i) := rfl
+
+/-- **The slot swap is an involution.** -/
+theorem mesonFlipVec_involutive (v : colourVec 4) : mesonFlipVec (mesonFlipVec v) = v := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp
+
+/-- The **symmetric part** of the meson square fibre. -/
+def mesonSymm : Submodule ℂ (colourVec 4) where
+  carrier := {v | ∀ i, WithLp.ofLp v (mesonFlipIdx i) = WithLp.ofLp v i}
+  zero_mem' := by intro i; simp
+  add_mem' := by
+    intro u w hu hw i
+    simp only [WithLp.ofLp_add, Pi.add_apply]
+    rw [hu i, hw i]
+  smul_mem' := by
+    intro c u hu i
+    simp only [WithLp.ofLp_smul, Pi.smul_apply]
+    rw [hu i]
+
+/-- The **antisymmetric part** of the meson square fibre. -/
+def mesonAlt : Submodule ℂ (colourVec 4) where
+  carrier := {v | ∀ i, WithLp.ofLp v (mesonFlipIdx i) = -WithLp.ofLp v i}
+  zero_mem' := by intro i; simp
+  add_mem' := by
+    intro u w hu hw i
+    simp only [WithLp.ofLp_add, Pi.add_apply]
+    rw [hu i, hw i]
+    ring
+  smul_mem' := by
+    intro c u hu i
+    simp only [WithLp.ofLp_smul, Pi.smul_apply]
+    rw [hu i, smul_neg]
+
+/-- A vector that is both symmetric and antisymmetric vanishes. -/
+theorem meson_disjoint : mesonAlt ⊓ mesonSymm = ⊥ := by
+  refine le_antisymm (fun v hv => ?_) bot_le
+  obtain ⟨hva, hvs⟩ := Submodule.mem_inf.mp hv
+  have hv0 : v = 0 := by
+    apply WithLp.ofLp_injective
+    funext i
+    have h1 : WithLp.ofLp v (mesonFlipIdx i) = -WithLp.ofLp v i := hva i
+    have h2 : WithLp.ofLp v (mesonFlipIdx i) = WithLp.ofLp v i := hvs i
+    have hx : WithLp.ofLp v i = -WithLp.ofLp v i := by
+      calc WithLp.ofLp v i = WithLp.ofLp v (mesonFlipIdx i) := h2.symm
+        _ = -WithLp.ofLp v i := h1
+    have h3 : (2 : ℂ) * WithLp.ofLp v i = 0 := by
+      rw [two_mul]
+      linear_combination hx
+    have h4 : WithLp.ofLp v i = 0 := (mul_eq_zero.mp h3).resolve_left two_ne_zero
+    rw [h4]
+    simp
+  rw [hv0]
+  exact Submodule.zero_mem _
+
+/-- Every vector of the square fibre splits into a symmetric and an antisymmetric part. -/
+theorem meson_sup : mesonAlt ⊔ mesonSymm = ⊤ := by
+  refine le_antisymm le_top fun v _ => ?_
+  have ha : (2⁻¹ : ℂ) • (v - mesonFlipVec v) ∈ mesonAlt := by
+    intro i
+    simp only [WithLp.ofLp_smul, WithLp.ofLp_sub, Pi.sub_apply, Pi.smul_apply,
+      mesonFlipVec_ofLp, smul_eq_mul]
+    rw [mesonFlipIdx_involutive]
+    ring
+  have hs : (2⁻¹ : ℂ) • (v + mesonFlipVec v) ∈ mesonSymm := by
+    intro i
+    simp only [WithLp.ofLp_smul, WithLp.ofLp_add, Pi.add_apply, Pi.smul_apply,
+      mesonFlipVec_ofLp, smul_eq_mul]
+    rw [mesonFlipIdx_involutive]
+    ring
+  refine Submodule.mem_sup.mpr ⟨_, ha, _, hs, ?_⟩
+  have hsum : (v - mesonFlipVec v) + (v + mesonFlipVec v) = (2 : ℂ) • v := by
+    rw [two_smul]
+    abel
+  calc (2⁻¹ : ℂ) • (v - mesonFlipVec v) + (2⁻¹ : ℂ) • (v + mesonFlipVec v)
+      = (2⁻¹ : ℂ) • ((v - mesonFlipVec v) + (v + mesonFlipVec v)) := (smul_add ..).symm
+    _ = (2⁻¹ : ℂ) • ((2 : ℂ) • v) := by rw [hsum]
+    _ = v := by rw [smul_smul]; norm_num
+
+/-- **The meson fibre is the direct sum of its antisymmetric and symmetric parts.** -/
+theorem meson_isCompl : IsCompl mesonAlt mesonSymm :=
+  ⟨disjoint_iff.mpr meson_disjoint, codisjoint_iff.mpr meson_sup⟩
+
+/-- The antisymmetric part is exactly the singlet line. -/
+theorem mesonAlt_eq_span : mesonAlt = Submodule.span ℂ {mesonSingletVec} := by
+  refine le_antisymm (fun v hv => ?_) ?_
+  · rw [Submodule.mem_span_singleton]
+    have hzero : ∀ i : Fin 4, mesonFlipIdx i = i → WithLp.ofLp v i = 0 := by
+      intro i hi
+      have h := hv i
+      rw [hi] at h
+      have hx : WithLp.ofLp v i = -WithLp.ofLp v i := h
+      have h3 : (2 : ℂ) * WithLp.ofLp v i = 0 := by
+        rw [two_mul]
+        linear_combination hx
+      exact (mul_eq_zero.mp h3).resolve_left two_ne_zero
+    have h0 : WithLp.ofLp v 0 = 0 := by
+      refine hzero 0 ?_
+      simp [mesonFlipIdx]
+    have h3 : WithLp.ofLp v 3 = 0 := by
+      refine hzero 3 ?_
+      simp [mesonFlipIdx]
+    have h1 : WithLp.ofLp v 1 = -WithLp.ofLp v 2 := by
+      have h := hv 2
+      simp [mesonFlipIdx] at h
+      linear_combination h
+    refine ⟨WithLp.ofLp v 1, ?_⟩
+    apply WithLp.ofLp_injective
+    funext i
+    fin_cases i <;> simp [mesonSingletVec, mesonCoeff, h0, h1, h3]
+  · rw [Submodule.span_singleton_le_iff_mem]
+    intro i
+    fin_cases i <;> simp [mesonSingletVec, mesonCoeff, mesonFlipIdx]
+
+/-- The antisymmetric part of the meson square is one-dimensional. -/
+theorem mesonAlt_finrank : Module.finrank ℂ mesonAlt = 1 := by
+  rw [mesonAlt_eq_span, finrank_span_singleton mesonSingletVec_ne_zero]
+
+/-- **The symmetric part of the meson square is three-dimensional**: the triplet. -/
+theorem mesonSymm_finrank : Module.finrank ℂ mesonSymm = 3 := by
+  have h := Submodule.finrank_add_eq_of_isCompl meson_isCompl
+  rw [mesonAlt_finrank] at h
+  have h4 : Module.finrank ℂ (colourVec 4) = 4 := by simp [colourVec]
+  omega
+
+/-- The total colour action as a vector operation on the meson fibre. -/
+def mesonAct (a : Fin 3) (v : colourVec 4) : colourVec 4 :=
+  WithLp.toLp 2 ((mesonRep a).mulVec (WithLp.ofLp v))
+
+/-- The components of the total action are the matrix–vector product. -/
+@[simp] theorem mesonAct_ofLp (a : Fin 3) (v : colourVec 4) :
+    WithLp.ofLp (mesonAct a v) = (mesonRep a).mulVec (WithLp.ofLp v) := rfl
+
+/-- The total action is invariant under the slot swap. -/
+theorem mesonRep_flip_row (a : Fin 3) (i j : Fin 4) :
+    mesonRep a (mesonFlipIdx i) j = mesonRep a i (mesonFlipIdx j) := by
+  fin_cases a <;> fin_cases i <;> fin_cases j <;>
+    simp [mesonRep, mesonFlipIdx, mesonSlotFst, mesonSlotSnd, fundRep, pauli]
+
+/-- The permutation, inserted in the sum as a reindexing. -/
+theorem meson_sum_flip (f : Fin 4 → ℂ) :
+    (∑ j : Fin 4, f (mesonFlipIdx j)) = ∑ k : Fin 4, f k :=
+  Equiv.sum_comp (Function.Involutive.toPerm mesonFlipIdx mesonFlipIdx_involutive) f
+
+/-- **The symmetric part is closed under every total colour action.** -/
+theorem mesonAct_mem_symm (a : Fin 3) {v : colourVec 4} (hv : v ∈ mesonSymm) :
+    mesonAct a v ∈ mesonSymm := by
+  intro i
+  simp only [mesonAct_ofLp, Matrix.mulVec, dotProduct]
+  rw [Finset.sum_congr rfl (fun j _ => by rw [mesonRep_flip_row])]
+  rw [(meson_sum_flip
+    (fun k => mesonRep a i (mesonFlipIdx k) * WithLp.ofLp v k)).symm]
+  simp only [mesonFlipIdx_involutive]
+  exact Finset.sum_congr rfl fun k _ => by rw [hv k]
+
+/-- **The antisymmetric part is closed under every total colour action.** -/
+theorem mesonAct_mem_alt (a : Fin 3) {v : colourVec 4} (hv : v ∈ mesonAlt) :
+    mesonAct a v ∈ mesonAlt := by
+  intro i
+  simp only [mesonAct_ofLp, Matrix.mulVec, dotProduct]
+  rw [Finset.sum_congr rfl (fun j _ => by rw [mesonRep_flip_row])]
+  rw [(meson_sum_flip
+    (fun k => mesonRep a i (mesonFlipIdx k) * WithLp.ofLp v k)).symm]
+  simp only [mesonFlipIdx_involutive]
+  rw [Finset.sum_congr rfl (fun k _ => by rw [hv k])]
+  simp only [mul_neg, Finset.sum_neg_distrib]
+
 end
 
 end BookProof.YangMillsFieldStrengthSplit
