@@ -107,8 +107,6 @@ open BookProof.FarisLavine
 
 noncomputable section
 
-set_option maxHeartbeats 1000000
-
 /-! ## 1. The split `F = ∂A + g[A,A]` -/
 
 /-- The **derivative part** of the magnetic field: `ε_{ijk} ∂_j A_{k,a}`, linear in the
@@ -161,6 +159,8 @@ theorem mulOp_mul (p q : MvPolynomial (Fin 99) ℂ) :
 variable {D : Submodule ℂ (L2d 99)}
 
 set_option maxHeartbeats 1000000 in
+-- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
+-- produces large normal forms; the default heartbeat budget does not reach them.
 -- the `CoreRep.op`/`mulOp` unfoldings need more than the default budget
 /-- **The operator identity on the core**: the magnetic-field operator `B_{i a}` is the sum of
 the derivative operator and the commutator operator.  Both are multiplication operators by real
@@ -937,6 +937,8 @@ theorem mulOp_linField_apply {ι : Type*} [Fintype ι] (c : ι → ℝ) (l : ι 
   exact Finset.sum_congr rfl fun t _ => smul_mul_assoc _ _ _
 
 set_option maxHeartbeats 1000000 in
+-- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
+-- produces large normal forms; the default heartbeat budget does not reach them.
 -- The `ι`-indexed double sum and its cross-term cancellation need more than the default budget.
 /-- **The un-ordered expectation of a linear field's square**: for an injective family of
 coordinates, `⟨ψ_m, L†L ψ_m⟩ = ∑_t c_t² (1 + m_{l_t})`.  Each component contributes its
@@ -1117,6 +1119,8 @@ theorem mulOp_magEnergy_eq (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) :
   rw [magEnergy_eq_parts, mulOp_add, mulOp_add]
 
 set_option maxHeartbeats 3000000 in
+-- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
+-- produces large normal forms; the default heartbeat budget does not reach them.
 /-- **The energy operator on the core is the sum of the parts' operators.**  The quadratic half is
 the Cartan-sector comparison operator, so this is also the statement that the cubic and quartic
 interactions survive the map into the comparison instead of being absorbed by it. -/
@@ -1172,6 +1176,8 @@ theorem magOps_eq_split (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 �
   simp only [magOps, magDerivOps, magCommOps, magPoly_eq_deriv_add, mulOp_add, coreRep_op_add]
 
 set_option maxHeartbeats 1000000 in
+-- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
+-- produces large normal forms; the default heartbeat budget does not reach them.
 /-- **The magnetic energy, mode by mode**: `‖B_m x‖²` is the derivative square, plus twice the
 real cross term, plus the commutator square. -/
 theorem norm_magOps_sq_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : D)
@@ -1189,6 +1195,8 @@ theorem norm_magOps_sq_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 
   rw [hsplit, norm_add_sq_complex]
 
 set_option maxHeartbeats 1000000 in
+-- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
+-- produces large normal forms; the default heartbeat budget does not reach them.
 /-- **The physical-core energy identity**: summed over the `24` field components, the magnetic
 form is the derivative square plus the cross term plus the commutator square.  Nothing is dropped
 and no term is absorbed into a quadratic model. -/
@@ -1219,6 +1227,9 @@ theorem magEnergy_form_eq (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 → Fin 8 
           + ∑ m : Fin 24, ‖(((magCommOps Φ fabc m) x : D) : L2d 99)‖ ^ 2 :=
         by rw [Finset.mul_sum]
 
+set_option maxHeartbeats 1000000 in
+-- The split of the energy over the `24` components is stated as a rewriting problem whose
+-- terms carry the `99`-coordinate core representation; the default budget is not enough.
 /-- **The relative bound for the cross and commutator parts.**  For every `ε > 0` the magnetic
 energy is at least `(1 − ε)` of the derivative square minus `(ε⁻¹ − 1)` of the commutator square:
 the cubic cross term costs at most the fraction `ε` of the quadratic energy, and its loss is
@@ -1289,6 +1300,8 @@ theorem magEnergy_form_ge_quarter (Φ : CoreRep 99 D) (fabc : Fin 8 → Fin 8 �
   exact h
 
 set_option maxHeartbeats 1000000 in
+-- Expanding the `99`-coordinate magnetic energy into its derivative and commutator parts
+-- produces large normal forms; the default heartbeat budget does not reach them.
 /-- **The physical-core energy identity for the Hamiltonian**: `H₁`'s form is the kinetic square
 plus the magnetic energy, and the magnetic half is the derivative square plus the cross term plus
 the commutator square.  This is `ymHamiltonian_quadForm` with §3b's decomposition substituted, i.e.
@@ -2816,6 +2829,9 @@ def colouredCore (N : ℕ) (D : Submodule ℂ (L2d 99)) : Submodule ℂ (colourS
     rw [PiLp.smul_apply]
     exact D.smul_mem c (hu i)
 
+set_option maxHeartbeats 1000000 in
+-- Elaborating the colour-completed core requires unfolding `PiLp` coercions through the
+-- submodule `D`; the default heartbeat budget is not enough.
 /-- **The coloured Hamiltonian `H ⊗ 1 + 1 ⊗ C`** on the colour-completed core: the field Hamiltonian
 acts on each colour component and the colour matrix `C` mixes the components. -/
 noncomputable def colouredHamiltonian {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
@@ -2874,6 +2890,9 @@ noncomputable def colourFibre {D : Submodule ℂ (L2d 99)} (x : D) (v : colourVe
   ⟨WithLp.toLp 2 (fun i => WithLp.ofLp v i • (x : L2d 99)),
     fun i => D.smul_mem (WithLp.ofLp v i) x.2⟩
 
+set_option maxHeartbeats 1000000 in
+-- The coloured form is computed by unfolding the `colourFibre` coercions and the
+-- `PiLp` inner product; the default heartbeat budget is not enough.
 /-- **The form of `H ⊗ 1 + 1 ⊗ (µ • 1)` on an elementary tensor**: the colour norm squared times the
 field form plus `µ` times the field norm squared. -/
 theorem colouredHamiltonian_smul_one_inner {D : Submodule ℂ (L2d 99)}
@@ -2911,6 +2930,9 @@ theorem colouredHamiltonian_smul_one_inner {D : Submodule ℂ (L2d 99)}
   rw [Finset.sum_congr rfl fun i _ => hterm i]
   rw [← Finset.sum_mul, PiLp.inner_apply]
 
+set_option maxHeartbeats 1000000 in
+-- Unfolding the coloured quadratic form to the field form is a large `PiLp` reduction;
+-- the default heartbeat budget is not enough.
 /-- **The colour energy `µ • 1` folded into the field form**: on `x ⊗ v` the coloured quadratic form
 is the colour norm squared times the field form plus `µ.re` times the field norm squared. -/
 theorem colouredHamiltonian_smul_one_quadForm {D : Submodule ℂ (L2d 99)}
@@ -4227,13 +4249,12 @@ theorem colourActCLM_norm_le (a : Fin 3) (f : fundMode d) :
     ‖colourActCLM a f‖ ≤ (1 / 2) * ‖f‖ := by
   simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
 
+
 /-- **The colour energy as a bounded operator**: `C_F` times the identity. -/
 noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
   (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
 
-theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := by
-  rw [colourEnergyCLM, colourEnergyOp, ContinuousLinearMap.smul_apply,
-    ContinuousLinearMap.id_apply]
+theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := rfl
 
 /-! ##### The colour operators are a representation of `su(2)`
 
@@ -4301,7 +4322,7 @@ theorem sum_colourActOp_comp (f : fundMode d) :
   rw [show (∑ a : Fin 3, colourActOp a (colourActOp a f)) n
       = ∑ a : Fin 3, (fundRep a).mulVec ((fundRep a).mulVec (f n)) from by
     simp [colourActOp_comp_apply, ← Matrix.mulVec_mulVec]]
-  rw [colourEnergyOp_apply, colourEnergy_eq_sum_sq]
+  rw [colourEnergyOp_apply d f n, colourEnergy_eq_sum_sq]
 
 theorem colourActCLM_apply (a : Fin 3) (f : fundMode d) : colourActCLM a f = colourActOp a f :=
   rfl
@@ -4317,7 +4338,6 @@ theorem colourActCLM_commutator (a b : Fin 3) (f : fundMode d) :
 theorem sum_colourActCLM_comp (f : fundMode d) :
     ∑ a : Fin 3, colourActCLM a (colourActCLM a f) = colourEnergyCLM f := by
   simpa [colourActCLM_apply, colourEnergyCLM_apply] using sum_colourActOp_comp f
-
 /-! ##### The operator norm is attained
 
 `colourActCLM_norm_le` bounded the colour action by `1/2`; `colourActOp_norm` upgrades it to an
@@ -4619,6 +4639,358 @@ theorem colourGroupActCLM_neg_mul (a : Fin 3) (θ : ℝ) :
   rw [colourGroupActCLM_mul]
   ext f
   simp [colourGroupActCLM_apply, colourGroupAct_apply, colourGroupElement_zero]
+
+/-! #### The Hilbert completion: a genuine unitary colour group
+
+`fundMode d` puts the sup norm on its colour fibre `Fin 2 → ℂ`.  No norm making that space an inner
+product space can be the sup norm, since the parallelogram law fails, so `InnerProductSpace ℂ
+(fundMode d)` does not exist and "`colourGroupActCLM a θ` is unitary" is not a well-typed
+predicate.  `fundHilbert d` carries the same occupation multi-indices with the Euclidean colour
+fibre.  It is an inner product space through `lp.inner_eq_tsum`, and on it the same exponentiated
+colour group acts by genuine unitary operators:
+
+* `eucMatCLM` is a colour matrix as a continuous linear map of the Euclidean fibre; a unitary
+  matrix preserves the fibre inner product (`eucMatCLM_inner_of_unitary`) and hence its norm
+  (`eucMatCLM_norm_of_unitary`), and the adjoint is the conjugate transpose
+  (`eucMatCLM_adjoint_eq`).
+* `hilbActOp`/`hilbActCLM` act coefficientwise by such a matrix, and an isometry of the fibre
+  gives an isometry of the Hilbert sum (`hilbActOp_inner`, `hilbActOp_norm`).
+* `colourGroupActHilbert a θ` is the exponentiated generator on `fundHilbert d`; it is unitary
+  (`colourGroupActHilbert_mem_unitary`), isometric (`colourGroupActHilbert_norm`) and its group
+  law holds (`colourGroupActHilbert_mul`).
+
+**Boundary.**  This is a different normed space, not a second norm on `fundMode d`: the two
+completions share their coefficients (`ofLp_hilbActCoeff`) but not their norms, and nothing here
+identifies one completion with the fibre `colouredCore` below.  No spectral consequence is
+claimed.
+-/
+
+/-- The occupation-indexed coefficients with the Euclidean (Hilbert) colour fibre. -/
+abbrev fundHilbert (d : ℕ) := lp (fun _ : Fin d → ℕ => EuclideanSpace ℂ (Fin 2)) 2
+
+noncomputable def eucMatCLM (M : Matrix (Fin 2) (Fin 2) ℂ) :
+    EuclideanSpace ℂ (Fin 2) →L[ℂ] EuclideanSpace ℂ (Fin 2) :=
+  LinearMap.toContinuousLinearMap (Matrix.toEuclideanLin M)
+
+theorem eucMatCLM_apply_eq (M : Matrix (Fin 2) (Fin 2) ℂ) (v : EuclideanSpace ℂ (Fin 2)) :
+    eucMatCLM M v = WithLp.toLp 2 (M *ᵥ WithLp.ofLp v) := by
+  rw [show eucMatCLM M v = Matrix.toEuclideanLin M v from rfl, Matrix.toLpLin_apply]
+
+theorem eucMatCLM_one : eucMatCLM (1 : Matrix (Fin 2) (Fin 2) ℂ) = 1 := by
+  ext v
+  simp [eucMatCLM]
+
+theorem eucMatCLM_mul (A B : Matrix (Fin 2) (Fin 2) ℂ) :
+    eucMatCLM (A * B) = eucMatCLM A * eucMatCLM B := by
+  ext v
+  simp only [eucMatCLM_apply_eq, ContinuousLinearMap.mul_apply, WithLp.ofLp_toLp,
+    Matrix.mulVec_mulVec]
+
+theorem eucMatCLM_adjoint (M : Matrix (Fin 2) (Fin 2) ℂ) :
+    eucMatCLM M.conjTranspose = ContinuousLinearMap.adjoint (eucMatCLM M) := by
+  rw [ContinuousLinearMap.eq_adjoint_iff]
+  intro x y
+  have h : Matrix.toEuclideanLin M.conjTranspose = LinearMap.adjoint (Matrix.toEuclideanLin M) :=
+    Matrix.toEuclideanLin_conjTranspose_eq_adjoint M
+  rw [show eucMatCLM M.conjTranspose x = Matrix.toEuclideanLin M.conjTranspose x from rfl,
+    show eucMatCLM M y = Matrix.toEuclideanLin M y from rfl, h]
+  exact LinearMap.adjoint_inner_left (Matrix.toEuclideanLin M) y x
+
+theorem eucMatCLM_star (M : Matrix (Fin 2) (Fin 2) ℂ) :
+    star (eucMatCLM M) = eucMatCLM (star M) := by
+  rw [ContinuousLinearMap.star_eq_adjoint, Matrix.star_eq_conjTranspose]
+  exact (eucMatCLM_adjoint M).symm
+
+theorem eucMatCLM_adjoint_eq (M : Matrix (Fin 2) (Fin 2) ℂ) :
+    ContinuousLinearMap.adjoint (eucMatCLM M) = eucMatCLM (star M) := by
+  rw [← ContinuousLinearMap.star_eq_adjoint]
+  exact eucMatCLM_star M
+
+theorem eucMatCLM_adjoint_star (M : Matrix (Fin 2) (Fin 2) ℂ) :
+    ContinuousLinearMap.adjoint (eucMatCLM (star M)) = eucMatCLM M := by
+  rw [eucMatCLM_adjoint_eq, star_star]
+
+/-- **A unitary colour matrix preserves the fibre inner product.** -/
+theorem eucMatCLM_inner_of_unitary {U : Matrix (Fin 2) (Fin 2) ℂ}
+    (hU : star U * U = 1) (v w : EuclideanSpace ℂ (Fin 2)) :
+    inner ℂ (eucMatCLM U v) (eucMatCLM U w) = inner ℂ v w := by
+  have hcomp : eucMatCLM (star U) * eucMatCLM U = 1 := by
+    rw [← eucMatCLM_mul, hU, eucMatCLM_one]
+  calc inner ℂ (eucMatCLM U v) (eucMatCLM U w)
+      = inner ℂ v (ContinuousLinearMap.adjoint (eucMatCLM U) (eucMatCLM U w)) :=
+        (ContinuousLinearMap.adjoint_inner_right (eucMatCLM U) v (eucMatCLM U w)).symm
+    _ = inner ℂ v (eucMatCLM (star U) (eucMatCLM U w)) := by rw [eucMatCLM_adjoint_eq]
+    _ = inner ℂ v ((eucMatCLM (star U) * eucMatCLM U) w) := by
+        rw [ContinuousLinearMap.mul_apply]
+    _ = inner ℂ v w := by rw [hcomp, ContinuousLinearMap.one_apply]
+
+theorem eucMatCLM_norm_of_inner {U : Matrix (Fin 2) (Fin 2) ℂ}
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM U v) (eucMatCLM U w) = inner ℂ v w)
+    (v : EuclideanSpace ℂ (Fin 2)) : ‖eucMatCLM U v‖ = ‖v‖ := by
+  have h := hInner v v
+  have hsq : ‖eucMatCLM U v‖ ^ 2 = ‖v‖ ^ 2 := by
+    rw [norm_sq_eq_re_inner (𝕜 := ℂ) _, norm_sq_eq_re_inner (𝕜 := ℂ) _, h]
+  nlinarith [norm_nonneg (eucMatCLM U v), norm_nonneg v]
+
+theorem eucMatCLM_norm_of_unitary {U : Matrix (Fin 2) (Fin 2) ℂ}
+    (hU : star U * U = 1) (v : EuclideanSpace ℂ (Fin 2)) :
+    ‖eucMatCLM U v‖ = ‖v‖ :=
+  eucMatCLM_norm_of_inner (eucMatCLM_inner_of_unitary hU) v
+
+/-- The coefficientwise action of a colour matrix on the Hilbert completion. -/
+noncomputable def hilbActCoeff (M : Matrix (Fin 2) (Fin 2) ℂ) (f : fundHilbert d) :
+    (Fin d → ℕ) → EuclideanSpace ℂ (Fin 2) := fun n => eucMatCLM M (f n)
+
+/-- The Hilbert and sup-norm completions agree coefficientwise: the colour matrix acts on the
+readable `ℂ²` vector in both. -/
+theorem ofLp_hilbActCoeff (M : Matrix (Fin 2) (Fin 2) ℂ) (f : fundHilbert d)
+    (n : Fin d → ℕ) :
+    WithLp.ofLp (hilbActCoeff M f n) = M *ᵥ WithLp.ofLp (f n) := by
+  rw [hilbActCoeff, eucMatCLM_apply_eq, WithLp.ofLp_toLp]
+
+theorem hilbActCoeff_memℓp (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (f : fundHilbert d) :
+    Memℓp (hilbActCoeff M f) 2 := by
+  have hp : 0 < (2 : ENNReal).toReal := by norm_num
+  have h2 : (2 : ENNReal).toReal = 2 := by norm_num
+  have hf : Summable fun n => ‖f n‖ ^ 2 := by
+    simpa only [h2, Real.rpow_two] using (lp.memℓp f).summable hp
+  refine memℓp_gen ?_
+  rw [h2]
+  simp only [Real.rpow_two]
+  simpa only [hilbActCoeff, eucMatCLM_norm_of_inner hInner] using hf
+
+noncomputable def hilbActOp (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (f : fundHilbert d) :
+    fundHilbert d :=
+  ⟨hilbActCoeff M f, hilbActCoeff_memℓp M hInner f⟩
+
+theorem hilbActOp_apply (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (f : fundHilbert d)
+    (n : Fin d → ℕ) :
+    (hilbActOp M hInner f : fundHilbert d) n = eucMatCLM M (f n) := rfl
+
+theorem hilbActOp_add (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (f g : fundHilbert d) :
+    hilbActOp M hInner (f + g) = hilbActOp M hInner f + hilbActOp M hInner g := by
+  apply Subtype.ext
+  funext n
+  simp only [hilbActOp_apply, lp.coeFn_add, Pi.add_apply, map_add]
+
+theorem hilbActOp_smul (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (c : ℂ) (f : fundHilbert d) :
+    hilbActOp M hInner (c • f) = c • hilbActOp M hInner f := by
+  apply Subtype.ext
+  funext n
+  simp only [hilbActOp_apply, lp.coeFn_smul, Pi.smul_apply, map_smul]
+
+theorem hilbActOp_inner (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (f g : fundHilbert d) :
+    inner ℂ (hilbActOp M hInner f) (hilbActOp M hInner g) = inner ℂ f g := by
+  rw [lp.inner_eq_tsum, lp.inner_eq_tsum]
+  exact tsum_congr fun n => hInner (f n) (g n)
+
+theorem hilbActOp_norm (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (f : fundHilbert d) :
+    ‖(hilbActOp M hInner f : fundHilbert d)‖ = ‖f‖ := by
+  have h := hilbActOp_inner M hInner f f
+  have hsq : ‖(hilbActOp M hInner f : fundHilbert d)‖ ^ 2 = ‖f‖ ^ 2 := by
+    rw [norm_sq_eq_re_inner (𝕜 := ℂ) _, norm_sq_eq_re_inner (𝕜 := ℂ) _, h]
+  nlinarith [norm_nonneg (hilbActOp M hInner f : fundHilbert d), norm_nonneg f]
+
+noncomputable def hilbActLinear (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) :
+    fundHilbert d →ₗ[ℂ] fundHilbert d where
+  toFun := hilbActOp M hInner
+  map_add' := hilbActOp_add M hInner
+  map_smul' := hilbActOp_smul M hInner
+
+noncomputable def hilbActCLM (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) :
+    fundHilbert d →L[ℂ] fundHilbert d :=
+  (hilbActLinear M hInner).mkContinuous 1 fun f => by
+    change ‖(hilbActOp M hInner f : fundHilbert d)‖ ≤ 1 * ‖f‖
+    rw [hilbActOp_norm M hInner f, one_mul]
+
+theorem hilbActCLM_apply (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hInner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w) (f : fundHilbert d) :
+    hilbActCLM M hInner f = hilbActOp M hInner f := rfl
+
+theorem hilbActOp_comp (A B : Matrix (Fin 2) (Fin 2) ℂ)
+    (hA : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM A v) (eucMatCLM A w) = inner ℂ v w)
+    (hB : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM B v) (eucMatCLM B w) = inner ℂ v w)
+    (hAB : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM (A * B) v) (eucMatCLM (A * B) w) = inner ℂ v w)
+    (f : fundHilbert d) :
+    hilbActOp A hA (hilbActOp B hB f) = hilbActOp (A * B) hAB f := by
+  apply Subtype.ext
+  funext n
+  change eucMatCLM A (eucMatCLM B (f n)) = eucMatCLM (A * B) (f n)
+  rw [eucMatCLM_mul, ContinuousLinearMap.mul_apply]
+
+theorem eucMatCLM_inner_comp (A B : Matrix (Fin 2) (Fin 2) ℂ)
+    (hA : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM A v) (eucMatCLM A w) = inner ℂ v w)
+    (hB : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM B v) (eucMatCLM B w) = inner ℂ v w) :
+    ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM (A * B) v) (eucMatCLM (A * B) w) = inner ℂ v w := by
+  intro v w
+  rw [eucMatCLM_mul, ContinuousLinearMap.mul_apply, ContinuousLinearMap.mul_apply, hA, hB]
+
+theorem hilbActCLM_mul (A B : Matrix (Fin 2) (Fin 2) ℂ)
+    (hA : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM A v) (eucMatCLM A w) = inner ℂ v w)
+    (hB : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM B v) (eucMatCLM B w) = inner ℂ v w)
+    (hAB : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM (A * B) v) (eucMatCLM (A * B) w) = inner ℂ v w) :
+    hilbActCLM (d := d) A hA * hilbActCLM B hB = hilbActCLM (A * B) hAB := by
+  apply ContinuousLinearMap.ext
+  intro f
+  rw [ContinuousLinearMap.mul_apply, hilbActCLM_apply, hilbActCLM_apply, hilbActCLM_apply]
+  exact hilbActOp_comp A B hA hB hAB f
+
+theorem hilbActCLM_congr {M N : Matrix (Fin 2) (Fin 2) ℂ} (h : M = N)
+    (hM : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w)
+    (hN : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM N v) (eucMatCLM N w) = inner ℂ v w) :
+    hilbActCLM (d := d) M hM = hilbActCLM N hN := by
+  subst h
+  rfl
+
+theorem eucMatCLM_one_inner : ∀ v w : EuclideanSpace ℂ (Fin 2),
+    inner ℂ (eucMatCLM (1 : Matrix (Fin 2) (Fin 2) ℂ) v)
+      (eucMatCLM (1 : Matrix (Fin 2) (Fin 2) ℂ) w) = inner ℂ v w := by
+  intro v w
+  rw [eucMatCLM_one, ContinuousLinearMap.one_apply, ContinuousLinearMap.one_apply]
+
+theorem hilbActCLM_one (h1 : ∀ v w : EuclideanSpace ℂ (Fin 2),
+    inner ℂ (eucMatCLM (1 : Matrix (Fin 2) (Fin 2) ℂ) v)
+      (eucMatCLM (1 : Matrix (Fin 2) (Fin 2) ℂ) w) = inner ℂ v w) :
+    hilbActCLM (d := d) 1 h1 = 1 := by
+  apply ContinuousLinearMap.ext
+  intro f
+  rw [hilbActCLM_apply, ContinuousLinearMap.one_apply]
+  apply Subtype.ext
+  funext n
+  simp only [hilbActOp_apply, eucMatCLM_one, ContinuousLinearMap.one_apply]
+
+theorem hilbActOp_inner_adjoint (M N : Matrix (Fin 2) (Fin 2) ℂ)
+    (hM : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w)
+    (hN : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM N v) (eucMatCLM N w) = inner ℂ v w)
+    (hpair : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) w = inner ℂ v (eucMatCLM N w)) (f g : fundHilbert d) :
+    inner ℂ (hilbActOp M hM f) g = inner ℂ f (hilbActOp N hN g) := by
+  rw [lp.inner_eq_tsum, lp.inner_eq_tsum]
+  exact tsum_congr fun n => hpair (f n) (g n)
+
+theorem hilbActCLM_adjoint_eq (M : Matrix (Fin 2) (Fin 2) ℂ)
+    (hM : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM M v) (eucMatCLM M w) = inner ℂ v w)
+    (hMs : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM (star M) v) (eucMatCLM (star M) w) = inner ℂ v w) :
+    ContinuousLinearMap.adjoint (hilbActCLM (d := d) M hM) = hilbActCLM (star M) hMs := by
+  refine (ContinuousLinearMap.eq_adjoint_iff (hilbActCLM (d := d) (star M) hMs)
+    (hilbActCLM (d := d) M hM)).mpr ?_ |>.symm
+  intro f g
+  simp only [hilbActCLM_apply]
+  refine hilbActOp_inner_adjoint (star M) M hMs hM (fun v w => ?_) f g
+  rw [show inner ℂ (eucMatCLM (star M) v) w
+      = inner ℂ v (ContinuousLinearMap.adjoint (eucMatCLM (star M)) w) from
+    (ContinuousLinearMap.adjoint_inner_right (eucMatCLM (star M)) v w).symm,
+    eucMatCLM_adjoint_star]
+
+/-! #### The exponentiated colour action on the Hilbert completion -/
+
+/-- The colour group element is an isometry of the Euclidean fibre. -/
+theorem colourGroupElement_isometry (a : Fin 3) (θ : ℝ) :
+    ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM (colourGroupElement a θ) v)
+        (eucMatCLM (colourGroupElement a θ) w) = inner ℂ v w :=
+  eucMatCLM_inner_of_unitary (Unitary.mem_iff.mp (colourGroupElement_mem_unitary a θ)).1
+
+/-- The exponentiated colour generator acting on the Hilbert completion. -/
+noncomputable def colourGroupActHilbert (a : Fin 3) (θ : ℝ) :
+    fundHilbert d →L[ℂ] fundHilbert d :=
+  hilbActCLM (colourGroupElement a θ) (colourGroupElement_isometry a θ)
+
+theorem colourGroupActHilbert_apply (a : Fin 3) (θ : ℝ) (f : fundHilbert d) :
+    colourGroupActHilbert a θ f = hilbActOp (colourGroupElement a θ)
+      (colourGroupElement_isometry a θ) f := rfl
+
+theorem colourGroupActHilbert_inner (a : Fin 3) (θ : ℝ) (f g : fundHilbert d) :
+    inner ℂ (colourGroupActHilbert a θ f) (colourGroupActHilbert a θ g) = inner ℂ f g := by
+  rw [colourGroupActHilbert_apply, colourGroupActHilbert_apply]
+  exact hilbActOp_inner _ (colourGroupElement_isometry a θ) f g
+
+/-- **The exponentiated colour action is an isometry of the Hilbert completion.** -/
+theorem colourGroupActHilbert_norm (a : Fin 3) (θ : ℝ) (f : fundHilbert d) :
+    ‖colourGroupActHilbert a θ f‖ = ‖f‖ := by
+  rw [colourGroupActHilbert_apply]
+  exact hilbActOp_norm _ (colourGroupElement_isometry a θ) f
+
+/-- **The group law on the completion**: `U(s) U(t) = U(s + t)`. -/
+theorem colourGroupActHilbert_mul (a : Fin 3) (s t : ℝ) :
+    colourGroupActHilbert (d := d) a s * colourGroupActHilbert a t
+      = colourGroupActHilbert a (s + t) := by
+  rw [colourGroupActHilbert, colourGroupActHilbert, colourGroupActHilbert]
+  rw [hilbActCLM_mul (colourGroupElement a s) (colourGroupElement a t)
+    (colourGroupElement_isometry a s) (colourGroupElement_isometry a t)
+    (eucMatCLM_inner_comp (colourGroupElement a s) (colourGroupElement a t)
+      (colourGroupElement_isometry a s) (colourGroupElement_isometry a t))]
+  exact hilbActCLM_congr (colourGroupElement_mul a s t) _
+    (colourGroupElement_isometry a (s + t))
+
+/-- **The exponentiated colour group acts by genuine unitary operators** on the Hilbert
+completion: the adjoint of `U(θ)` is `U(−θ)` and both products are the identity. -/
+theorem colourGroupActHilbert_mem_unitary (a : Fin 3) (θ : ℝ) :
+    colourGroupActHilbert (d := d) a θ ∈ unitary (fundHilbert d →L[ℂ] fundHilbert d) := by
+  have hU := Unitary.mem_iff.mp (colourGroupElement_mem_unitary a θ)
+  have hstar : ∀ v w : EuclideanSpace ℂ (Fin 2),
+      inner ℂ (eucMatCLM (star (colourGroupElement a θ)) v)
+        (eucMatCLM (star (colourGroupElement a θ)) w) = inner ℂ v w := by
+    refine eucMatCLM_inner_of_unitary ?_
+    rw [star_star]
+    exact hU.2
+  have hT : colourGroupActHilbert (d := d) a θ
+      = hilbActCLM (colourGroupElement a θ) (colourGroupElement_isometry a θ) := rfl
+  have hstar_eq : star (hilbActCLM (d := d) (colourGroupElement a θ)
+        (colourGroupElement_isometry a θ)) = hilbActCLM (star (colourGroupElement a θ)) hstar := by
+    rw [ContinuousLinearMap.star_eq_adjoint, hilbActCLM_adjoint_eq]
+  rw [Unitary.mem_iff]
+  constructor
+  · rw [hT, hstar_eq]
+    rw [hilbActCLM_mul (star (colourGroupElement a θ)) (colourGroupElement a θ) hstar
+      (colourGroupElement_isometry a θ)
+      (eucMatCLM_inner_comp (star (colourGroupElement a θ)) (colourGroupElement a θ)
+        hstar (colourGroupElement_isometry a θ))]
+    rw [hilbActCLM_congr hU.1 _ eucMatCLM_one_inner]
+    exact hilbActCLM_one eucMatCLM_one_inner
+  · rw [hT, hstar_eq]
+    rw [hilbActCLM_mul (colourGroupElement a θ) (star (colourGroupElement a θ))
+      (colourGroupElement_isometry a θ) hstar
+      (eucMatCLM_inner_comp (colourGroupElement a θ) (star (colourGroupElement a θ))
+        (colourGroupElement_isometry a θ) hstar)]
+    rw [hilbActCLM_congr hU.2 _ eucMatCLM_one_inner]
+    exact hilbActCLM_one eucMatCLM_one_inner
+
 
 /-! #### Closedness of the bound: the Friedrichs side
 

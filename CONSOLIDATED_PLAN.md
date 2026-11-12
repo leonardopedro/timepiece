@@ -54,6 +54,17 @@
 > an adjoint mode over one field core are never colour-neutral together
 > (`colourSinglet_fibre_trivial`).
 >
+> **Earlier entry (2026-11-11s):** “State of the project — 2026-11-11s: the field-strength merge is
+> resolved, and the aggregate is rebuilt” (end of file): the chapter had been committed with its
+> conflict markers in place, so it did not elaborate; the repair keeps both merged sections and one of
+> the two conflicting `colourEnergyOp` readings, and the aggregate builds again.
+>
+> **Earlier entry (2026-11-11r):** “State of the project — 2026-11-11r: the colour norm is attained,
+> and the colour action is exponentiated” (end of file): `‖A^a f‖ = ‖f‖/2` pointwise, so
+> `‖colourActCLM a‖ = 1/2` exactly (`norm_colourActCLM`), and `exp (i θ T^a)` is written in closed form
+> as a unitary `2 × 2` element whose one-parameter group acts on `fundMode d` by bounded operators
+> (`colourGroupElement_mem_unitary`, `colourGroupActCLM_mul`).
+>
 > **Earlier entry (2026-11-11q):** “State of the project — 2026-11-11q: the colour operators are a
 > representation of su(2)” (end of file): the bounded generators satisfy `[A^a, A^b] = i ε^{abc} A^c`
 > on the completion (`colourActCLM_commutator`) and their Casimir is the sum of their squares
@@ -21921,6 +21932,179 @@ from the fibre.
 `colouredHamiltonian_smul_one_quadForm_sum`): `propext`, `Classical.choice`, `Quot.sound` only.
 
 
+## State of the project — 2026-11-11r: the colour norm is attained, and the colour action is
+## exponentiated
+
+Entry 11n closed the *algebra* of the colour operators.  This entry closes the *bound* and opens the
+*group*: the constant `1/2` is now the exact operator norm of `A^a`, and the exponentiated colour
+generators act on the coloured completion.
+
+**The bound is attained.**  `colourActCLM_norm_le` said `‖A^a‖ ≤ 1/2`.  The sharp statement is
+pointwise: `colourActOp_norm` proves `‖A^a f‖ = ‖f‖ / 2` for *every* `f`, by squaring (`‖·‖²` is a
+sum over the occupation indices), using the single-fibre identity `‖T^a v‖ = ‖v‖ / 2`
+(`norm_fundRep_mulVec`) termwise and `fundMode_norm_sq_eq_tsum`.  An identity, not a supremum
+argument.  `colourProbeVec` (a `lp.single` at the zero occupation vector, with
+`colourProbeVec_ne_zero`) then witnesses that the supremum is not over `0` alone, and
+`ContinuousLinearMap.ratio_le_opNorm` gives the other inequality:
+
+- `norm_colourActCLM a : ‖colourActCLM a‖ = 1 / 2` — an equality of operator norms.
+
+**Exponentiation.**  `[A^a, A^b] = i ε^{abc} A^c` is a compact algebra; what acts on states is the
+group.  `colourGroupElement a θ` is `exp (i θ T^a)` written in closed form,
+`cos(θ/2) · 1 + 2i sin(θ/2) · T^a` — which is what the exponential series sums to, because
+`(T^a)² = (1/4) · 1` (`fundRep_sq`):
+
+- `colourGroupElement_zero`, `colourGroupElement_mul` (`U(s) U(t) = U(s + t)`) and
+  `colourGroupElement_mul_neg` (`U(θ) U(−θ) = 1`): a one-parameter group in `Matrix (Fin 2)`.
+- `star_fundRep`, `star_colourGroupElement` (`star (U θ) = U (−θ)`) and
+  `colourGroupElement_mem_unitary`: `star U * U = 1 ∧ U * star U = 1`, i.e. `U θ` is a genuine
+  unitary *element* through `Unitary.mem_iff`, which needs only `Monoid` + `StarMul` and no norm.
+- `matrixAct`, `matrixAct_memℓp`, `matrixActOp`, `matrixActLinear`, `matrixActOp_norm_le`,
+  `matrixActCLM`: any `2 × 2` colour matrix bounded on the fibre by `C` acts coefficientwise on
+  `fundMode d` as a bounded operator of norm at most `C`.
+- `colourGroupElement_norm_le` (`C = 2`) feeds this, so `colourGroupActCLM a θ` is a bounded
+  operator on the completion, and `colourGroupActCLM_mul`, `colourGroupActCLM_mul_neg`,
+  `colourGroupActCLM_neg_mul` say the operators form a one-parameter group of *units* with inverses
+  `colourGroupActCLM a (−θ)`.
+
+**Boundary — what is *not* claimed.**  `fundMode d` carries the sup norm on its fibre: there is no
+`InnerProductSpace ℂ (Fin 2 → ℂ)` instance (probed: `synthInstanceFailed`), so "a unitary operator
+on `fundMode`" is not a well-typed predicate in this development, and the fibre norm is genuinely
+not preserved — `colourGroupActCLM` is bounded by the constant `2`, not `1`.  Unitarity is proved at
+the `2 × 2` factor, where it is an algebraic `star` fact.  A unitary action on the completion would
+need the Euclidean fibre norm, which this file does not have.  `NormedSpace.exp` was *not* used: the
+probes `NormedAlgebra ℚ (E →L[ℂ] E)` and `NormedRing (Matrix (Fin 2) (Fin 2) ℂ)` both fail to
+synthesize, so `exp_add_of_commute` / `isUnit_exp` are unavailable here — the closed form is the
+honest route.  No spectral consequence, and no `su(2)`-multiplet structure of the coefficients, is
+claimed.
+
+**Axioms.**  `#print axioms` on all eighteen new declarations (`colourActOp_norm`,
+`norm_colourActCLM`, `matrixAct_memℓp`, `matrixActOp_add`, `matrixActOp_smul`,
+`matrixActOp_norm_le`, `star_fundRep`, `colourGroupElement_zero`, `star_colourGroupElement`,
+`colourGroupElement_mul`, `colourGroupElement_mul_neg`, `colourGroupElement_mem_unitary`,
+`colourGroupElement_norm_le`, `colourGroupAct_apply`, `colourGroupAct_comp`,
+`colourGroupActCLM_mul`, `colourGroupActCLM_mul_neg`, `colourGroupActCLM_neg_mul`): `propext`,
+`Classical.choice`, `Quot.sound` only.
+
+## State of the project — 2026-11-11s: the field-strength merge is resolved, and the aggregate is
+## rebuilt
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` had been committed with its conflict markers
+in place (merge `64509ec`, joining `54dfb4f` and `c12f8ac`), so the chapter did not elaborate
+at all:
+three literal `<<<<<<<`/`=======`/`>>>>>>>` blocks and a duplicated
+`colourEnergy_eq_smul`/`colourEnergyOp`/`colourEnergyOp_apply`/`norm_colourEnergyOp` set, with
+`unexpected token '<<<'` / `'=='` / `'>>>'` where the marker lines sat.  `CONSOLIDATED_PLAN.md`
+carried the same conflict over the same section.
+
+**What landed.**  Commit `06ff242` resolved it by keeping both sides and dropping exactly the
+duplicated family.  The two sides had independently introduced a colour energy operator under one
+name with two different types — `colourEnergyOp (d : ℕ) : fundMode d →L[ℂ] fundMode d` on one
+side and
+the pointwise `colourEnergyOp (f : fundMode d) : fundMode d`, i.e. `(3/4) • f`, on the other.  The
+resolution keeps the *operator* reading: `colourEnergyOp` is the continuous linear map, the
+pointwise
+family and its two pointwise restatements are gone, and `colourEnergyCLM` is the same operator with
+`colourEnergyCLM_apply` recording the agreement.  `sum_colourActOp_comp` was restated against
+`colourEnergyOp d f`, so the Casimir identity still composes with the bounded generators.
+Everything
+else from both sides is intact: the adjoint `ℂ³` representation (`adjRep`, `adjModeVec`,
+`adjColourEnergy`, `casimir_ratio`), the coloured core (`colourSpace`, `colouredCore`,
+`colouredHamiltonian`, `colourFibre`, `colourFibre_repr`, `colourSum`), and the bounded `su(2)`
+representation with the attained norm and the exponentiated action of 11r.
+
+**Also repaired.**  `BookProof.lean:4085` held a 101-character comment line from the same merge
+series; it is rewrapped, so the root import file lints clean.
+
+**Verification.**  No conflict marker anywhere in the tree (`*.lean`, `*.md`, `*.toml`, `*.py`);
+`lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` reports 0 errors with no new warnings
+(the five pre-existing `maxHeartbeats` notes at `110/1119/1174/1191/1291` only) and no line over 100
+characters; the aggregate `lake build BookProof` is rebuilt green afterwards.
+
+**Boundary.**  This entry proves nothing: it records a merge repair, which of two conflicting
+`colourEnergyOp` readings is the live one, and that the chapter and the aggregate build again.
+
+
+## State of the project — 2026-11-12a: the colour group is a genuine unitary group, the heartbeat
+## options are scoped, and what blocks the QYM flow is written down
+
+Entry 11r proved that the exponentiated colour action is a one-parameter group of *bounded
+units* on `fundMode d`, and recorded the reason it could not be unitary: `fundMode d` puts the sup
+norm on its colour fibre, and no inner product makes the sup norm a Hilbert norm.  This entry
+removes that boundary by giving the coefficient space a second, Hilbert, completion.
+
+**A genuine unitary group, not only a group of units.**  `fundHilbert d` is the same
+occupation-indexed coefficient space with the Euclidean colour fibre `EuclideanSpace ℂ (Fin 2)`;
+`lp.inner_eq_tsum` makes it an inner product space, so `unitary (fundHilbert d →L[ℂ] fundHilbert d)`
+is a well-typed predicate there.
+
+- Fibre: `eucMatCLM M` is a colour matrix as a continuous linear map of the Euclidean fibre (finite
+  dimension supplies continuity, no bound is exhibited).  A unitary matrix preserves the fibre inner
+  product (`eucMatCLM_inner_of_unitary`) hence its norm (`eucMatCLM_norm_of_unitary`), and the
+  adjoint is the conjugate transpose (`eucMatCLM_adjoint_eq`, `eucMatCLM_adjoint_star`), via
+  `Matrix.toEuclideanLin_conjTranspose_eq_adjoint`.
+- Sum: `hilbActOp`/`hilbActCLM` act coefficientwise, and an isometry of the fibre gives an isometry
+  of the Hilbert sum (`hilbActOp_inner`, `hilbActOp_norm`), so `hilbActOp_norm` is an equality —
+  not the factor-`2` inequality of 11r.
+- Group: `colourGroupActHilbert a θ` is unitary (`colourGroupActHilbert_mem_unitary`, through
+  `Unitary.mem_iff`: the adjoint is the opposite parameter and both products are `1`), isometric
+  (`colourGroupActHilbert_norm`) and multiplicative (`colourGroupActHilbert_mul`).
+
+**Boundary — what is *not* claimed.**  This is a *different normed space*, not a second norm on
+`fundMode d`.  The two completions share their coefficients (`ofLp_hilbActCoeff`), and the sup-norm
+side keeps its own results untouched; nothing here identifies either completion with the field
+fibre `colouredCore`, and no spectral statement follows.  In particular the earlier norm-attained
+result `norm_colourActCLM : ‖colourActCLM a‖ = 1/2` remains a statement about `fundMode`, whose
+operator norm is genuinely not `1`.
+
+**Axioms.**  `#print axioms` on `colourGroupActHilbert_mem_unitary`,
+`colourGroupActHilbert_norm`, `colourGroupActHilbert_mul`, `hilbActOp_norm`,
+`eucMatCLM_adjoint_eq`, `hilbActCLM_adjoint_eq`, `ofLp_hilbActCoeff`: `propext`,
+`Classical.choice`, `Quot.sound` only.
+
+**The module's heartbeat options are now scoped, and it lints clean.**
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` carried one *unscoped*
+`set_option maxHeartbeats 1000000` (old line 110) governing roughly a thousand lines, plus four
+scoped options with no explanatory comment: five `linter.style.setOption` /
+`linter.style.maxHeartbeats` warnings.  The unscoped option is removed; the four scoped ones now
+carry a comment saying which large normal form needs the budget; and the four declarations that
+the unscoped option had actually been covering — `magEnergy_form_ge_split`, `colouredHamiltonian`,
+`colouredHamiltonian_smul_one_inner`, `colouredHamiltonian_smul_one_quadForm` — got their own
+scoped option with a comment.  The module now builds with **no warnings at all** and no line over
+100 characters.
+
+**The QYM flow, and exactly what blocks it.**  `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` row D.12 lists
+the continuous flow `e^{-itA}` as **PENDING, bridge not built**.  That half is stale: the bridge
+is in `BookProof/Toolbox/ChapterStoneBridge.lean` and is imported by `BookProof.lean` —
+`unboundedSelfAdjointOf` packages an `IsSelfAdjointExtension` as `UnboundedSelfAdjoint` (density of
+the extension domain follows from density of the original one),
+`dense_domain_of_isSelfAdjointExtension`, `isSelfAdjointOn_of_isSelfAdjointExtension`, the flow
+predicate `IsStoneFlow` (group law, isometry, Schrödinger equation), and the three entry points
+`exists_stone_flow_of_selfAdjointExtension`, `exists_stone_flow_of_positive`,
+`exists_stone_flow_of_esa`.  So Stone's group is available at the interface the QYM thread
+produces.
+
+What is *not* available is the input, and it is two statements, neither of which exists anywhere in
+the tree:
+
+1. **Density of the coloured core.**  The coloured core is `colouredCore N D ⊆ colourSpace N`,
+   `colourSpace N` being the `N`-fold `PiLp` of `L2d 99`.  `ChapterStoneBridge` needs
+   `Dense (colouredCore N D : Set (colourSpace N))`, and no such statement is proved; the existing
+   density lemmas cover other spaces (`ymFockCore` in `ChapterYangMillsFockFriedrichs`, the Krylov
+   flag in `ChapterYangMillsFriedrichsLimit`).  Proving it is a finite-product density argument
+   (`Dense` of `PiLp`-product of dense subsets), not a research step, but it is not done.
+2. **Symmetry / self-adjointness (and positivity) of `colouredHamiltonian`.**  `colouredHamiltonian
+   Φ fabc N C` is only a linear map on `colouredCore N D`; the module proves the coloured
+   *quadratic form* on elementary tensors (`colouredHamiltonian_smul_one_quadForm`) and nothing
+   about `IsSymmetricOn`, `IsSelfAdjointOn` or positivity.  `IsSelfAdjointExtension` needs all
+   three of its conjuncts, so the Stone entry points cannot be applied to it yet.
+
+Neither gap is closed here, and neither is hidden: the flow instantiation on the coloured core is
+blocked on (1) and (2), in that order — (1) is a density lemma, (2) needs the Friedrichs machinery
+of `ChapterFriedrichsExtension` applied to `colouredHamiltonian`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit`: 8091 jobs, 0
+errors, 0 warnings; the aggregate `lake build BookProof` is rebuilt green afterwards.
 ## State of the project — 2026-11-12a: the colour singlet over the combined `ℂ² ⊗ ℂ³` fibre
 
 `BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, new section “The colour singlet over the

@@ -125,7 +125,7 @@ Mathematical Physics*, Thm X.23.  It is a hypothesis, never an `axiom`.
 | D.9 the shift-invert selection theorem with the extension **constructed**, not assumed (unbounded) | `friedrichs_hashimoto_selects` | PROVED |
 | D.10 the same for the Weyl-gauge Hamiltonian in the occupation-number realization | `weyl_hashimoto_selects_friedrichs` | PROVED |
 | D.11 non-vacuity: a genuinely unbounded operator (`A eₙ = n eₙ` on `ℓ²(ℕ,ℂ)`) | `unbounded_friedrichs_example` | PROVED |
-| D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `stoneGroup` + `UnboundedSelfAdjoint` bridge | **PENDING** — bridge not built |
+| D.12 **the continuous flow `e^{-itA}` for the QYM Hamiltonian** — the abstract Stone theorem (2026-08-20e) applied to the extension of C.11 | `BookProof.StoneBridge`: `unboundedSelfAdjointOf`, `IsStoneFlow`, `exists_stone_flow_of_selfAdjointExtension`, `exists_stone_flow_of_positive`, `exists_stone_flow_of_esa` | PROVED (bridge); the QYM *instance* is open — see `CONSOLIDATED_PLAN.md` §2026-11-12a: the coloured core has no density proof in `colourSpace N`, and `colouredHamiltonian` has no symmetry/self-adjointness statement |
 
 D.5–D.8 (also in `BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean`) construct the
 missing limit operator under a boundedness hypothesis and identify it with the

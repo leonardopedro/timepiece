@@ -1,6 +1,6 @@
 import Mathlib
-import BookProof.ChapterHermiteFunctions
-import BookProof.ChapterHermiteProductCore.Part3
+import BookProof.Toolbox.ChapterHermiteFunctions
+import BookProof.Toolbox.ChapterHermiteProductCore.Part3
 
 /-!
 # The Gauss–polynomial (product Hermite) core of `L²(ℝᵈ)`
