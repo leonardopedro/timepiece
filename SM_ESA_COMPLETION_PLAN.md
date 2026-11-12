@@ -2950,3 +2950,52 @@ inside each sector.
   `propext, Classical.choice, Quot.sound`, no `sorryAx`.
 * `lake env lean BookProof.lean` — exit 0; `scripts/check-sm-section-guards` — green, with the new
   §47.5 needles (`physProjOf`, `physicalPositivity_of_homotopy`, `exP_exQ_exP_gives_V`).
+
+## 51. The linear-form bridge: `GradBound` reduced to a support table (P4)
+
+§49 left `GradDom` conditional on two steps, the first of which was the *per-form support table*:
+for `j ∈ smS`, `pderiv j (smPhi P r)` must be at most linear and must not involve the derivative
+coordinates `smDG`/`smDW`/`smDB`/`smDPhi`.  §51 carries out the algebra of that step, so the table
+becomes the only remaining input.
+
+### 51.1. The reduction
+
+`BookProof/Sm/ChapterSmGradDomStructural.lean` §3b adds:
+
+* `linForm b L = ∑_{i∈L} C (b i) * X i` — a linear form with real coefficients, and
+  `realCoeff_linForm`, `polyW_linForm` (`polyW (linForm b L) x = ∑_{i∈L} b i * x i`);
+* **`sq_polyW_linForm_le`** — for `L ⊆ M`,
+  `(polyW (linForm b L) x)² ≤ (∑_{i∈L} (b i)²) (1 + ∑_{m∈M} x_m²)`.
+  This is `Finset.sum_mul_sq_le_sq_mul_sq` (Cauchy–Schwarz) followed by monotonicity of the sum
+  under `L ⊆ M`, so the coercive quadratic of `W` on `M` alone controls the form;
+* **`gradBound_of_linear`** — if for every `j ∈ M` and every form `r` there are a support `L j r ⊆ M`
+  and coefficients `b j r` with `pderiv j (Φ r) = linForm (b j r) (L j r)`, then
+  `GradBound Φ M (∑_{j∈M} ∑_r ∑_{i∈L j r} (b j r i)²)`.
+
+`gradBound_of_linear` is the composition with `pointwise_dom_of_sq_sum` that §49.3 anticipated: a
+support table plus Cauchy–Schwarz gives the per-form bound, and the per-form bound gives the
+pointwise domination `∑_{j∈M} (∂_j W)² ≤ a W² + b`.  The model check
+`sq_polyW_linForm_le_model` (with `linForm_unit_eq : linForm (fun _ => 1) {1} = X₁`) shows the
+inequality is the sharp one on the flat-quartic model's differentiated coordinate.
+
+### 51.2. What this does and does not close
+
+* **Closed**: no further analysis is needed once the `pderiv` computation for the five families is
+  available.  In particular the *coefficients* are no longer part of the open problem — they enter
+  only through the sum of squares, which `gradBound_of_linear` produces mechanically.
+* **Open**: the `pderiv` computation itself.  It is a finite, per-family statement about
+  `smFormPoly`: `∂(smMagG)` in a gauge coordinate is `½ ε · (structure constant) · X(W)`, `∂(smMagB)`
+  is `0` (the hypercharge form is purely derivative), `∂(smCovD)` in `W`/`B`/`φ` is a constant times
+  `X(φ)` or `X(W)`/`X(B)`, `∂(smWall)` is `√(λ/2) · 2 X(φ)`.  None of these meets a derivative
+  coordinate, which is the substantive content of the table.  Still not formalized, so `GradDom`
+  for `smPotPoly` remains a hypothesis.
+* **Unchanged**: the pointwise→`L²` transfer (`exists_potSelfBound_of_gradDom` consumes the `L²`
+  form), and the SM's own b-ghost.
+
+### 51.3. Verification performed (2026-11-12)
+
+* `lake build BookProof.Sm.ChapterSmGradDomStructural` — 8170 jobs, clean, no warnings.
+* `lake env lean Work/SmGradDomStructuralAudit.lean` — 27 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `scripts/check-sm-section-guards` — green, with new §49.3b needles (`sq_polyW_linForm_le`,
+  `gradBound_of_linear`).

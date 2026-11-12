@@ -4167,7 +4167,11 @@ import BookProof.Sm.ChapterSmReverseEllipticQuartic
 -- pointwise bound to `GradDom`'s `L²` form, where the non-negative weight `cpoly p * p` multiplies
 -- through.  `PotSelfBound` for the SM is therefore still a hypothesis, but the question whether the
 -- 49 flat directions refute the domination is answered **no**, with a proved mechanism and a proved
--- counterexample to the naive reading.
+-- counterexample to the naive reading.  §51 carries out the algebra of the first step: `linForm`,
+-- `polyW_linForm`, `sq_polyW_linForm_le` (Cauchy–Schwarz on a support `L ⊆ M`) and
+-- `gradBound_of_linear` show that a support table `∂_j Φ_r = ∑_{i∈L} b_i x_i` with `L ⊆ smS`,
+-- coefficients included, *is* the hypothesis, so what remains of the table is the `pderiv`
+-- computation alone.
 import BookProof.Sm.ChapterSmGradDomStructural
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector

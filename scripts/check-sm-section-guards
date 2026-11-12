@@ -145,6 +145,10 @@ require "$STRUCT" "theorem gradDom_flat_plus_quadratic" \
     "§49: the flat quartic is rescued by the coercive quadratic term"
 require "$STRUCT" "def GradBound" \
     "§49: the per-form gradient hypothesis is a named object, not prose"
+require "$STRUCT" "theorem sq_polyW_linForm_le" \
+    "§49.3b: the Cauchy-Schwarz bound that turns a linear form into GradBound"
+require "$STRUCT" "theorem gradBound_of_linear" \
+    "§49.3b: GradBound follows from a support table of linear forms, so the remaining gap is the pderiv table alone"
 require "$BOOKPLAN" "not_gradDom_flat_quartic" \
     "§48 comment block must keep the flat counterexample"
 require "$BOOKPLAN" "gradDom_flat_plus_quadratic" \

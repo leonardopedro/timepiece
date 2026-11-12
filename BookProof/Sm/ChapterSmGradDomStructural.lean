@@ -47,7 +47,10 @@ carried out here:
   `smFormPoly`: it needs to know that `pderiv j (smPhi P r)` for `j ∈ smS` is at most linear *and*
   involves no coordinate outside `smS` (the derivative coordinates `smDG`/`smDW`/`smDB`/`smDPhi`
   carry no momentum and are not controlled by `W`).  §49.4 of the plan lists that table for the five
-  families; the formal version needs the `pderiv`/support analysis of each.
+  families.  §3b below reduces it to a single target: `gradBound_of_linear` produces `GradBound`
+  from any support table `L` and coefficient vectors `b` with `∂_j Φ_r = ∑_{i∈L} b_i x_i`, all
+  `L ⊆ smS`, so what remains is the `pderiv` computation for each of the five families, not any
+  further analysis.
 * **The `L²` transfer.**  `GradDom` is an `L²` inequality, and `exists_potSelfBound_of_gradDom`
   consumes that form.  The passage from the pointwise bound to it is Gaussian-integral monotonicity
   (`gaussInt_re_mono`) against `norm_pgLp_sq`, multiplied pointwise by `cpoly p * p ≥ 0`; it is
@@ -328,6 +331,93 @@ theorem pointwise_dom_of_sq_sum {ι : Type} [Fintype ι] (Φ : ι → MvPolynomi
     rw [hcons, hcons']
     exact hmain
   exact hstep.trans hfin
+
+/-! ## 3b. The linear-form bridge
+
+`GradBound` is a statement about the individual forms: `(∂_j Φ_r)² ≤ C (1 + ∑_m x_m²)`.  For the
+Standard Model every `∂_j Φ_r` with `j ∈ smS` is a **linear form** in the momentum coordinates —
+each form is bilinear, so one derivative leaves at most one field factor — and no derivative
+coordinate survives that differentiation.  This section reduces `GradBound` to exactly those two
+facts, so the per-form support table of §49.4 has a single algebraic target:
+
+* `linForm` and `polyW_linForm` — the pointwise value of a linear form is `∑ b_i x_i`;
+* `sq_polyW_linForm_le` — Cauchy–Schwarz, `(∑ b_i x_i)² ≤ (∑ b_i²)(1 + ∑_m x_m²)` for `L ⊆ M`;
+* `gradBound_of_linear` — hence `GradBound` holds with the sum of squared coefficients, given a
+  support table `L` and coefficient vectors `b` for the derivatives.
+
+The model check `sq_polyW_linForm_le_model` instantiates the inequality on `X₁`, whose square is
+`gradBound_flatPlusQuad`'s bound without the `x₀` cross term. -/
+
+theorem realCoeff_C_const (c : ℝ) : RealCoeff (C ((c : ℝ) : ℂ) : MvPolynomial (Fin d) ℂ) := by
+  change starP (C ((c : ℝ) : ℂ)) = C ((c : ℝ) : ℂ)
+  rw [starP_C, Complex.conj_ofReal]
+
+/-- The linear form `∑_{i ∈ L} b_i x_i`. -/
+def linForm (b : Fin d → ℝ) (L : Finset (Fin d)) : MvPolynomial (Fin d) ℂ :=
+  ∑ i ∈ L, C ((b i : ℝ) : ℂ) * X i
+
+theorem realCoeff_linForm (b : Fin d → ℝ) (L : Finset (Fin d)) : RealCoeff (linForm b L) :=
+  RealCoeff.sum fun i _ => (realCoeff_C_const (b i)).mul (realCoeff_X i)
+
+theorem polyW_linForm (b : Fin d → ℝ) (L : Finset (Fin d)) (x : Vd d) :
+    polyW (linForm b L) x = ∑ i ∈ L, b i * x i := by
+  rw [linForm, polyW_sum]
+  exact Finset.sum_congr rfl fun i _ => by
+    rw [polyW_mul (realCoeff_C_const (b i)) (realCoeff_X i), polyW_C_eq]
+    simp [polyW_X_eq]
+
+/-- **Cauchy–Schwarz for a linear form.**  A form supported in `M` is controlled by the coercive
+quadratic restricted to `M`, which is the whole content of `GradBound`. -/
+theorem sq_polyW_linForm_le (b : Fin d → ℝ) (L M : Finset (Fin d)) (hLM : L ⊆ M) (x : Vd d) :
+    (polyW (linForm b L) x) ^ 2 ≤ (∑ i ∈ L, (b i) ^ 2) * (1 + ∑ m ∈ M, (x m) ^ 2) := by
+  have hcs : (∑ i ∈ L, b i * x i) ^ 2 ≤ (∑ i ∈ L, (b i) ^ 2) * ∑ i ∈ L, (x i) ^ 2 :=
+    Finset.sum_mul_sq_le_sq_mul_sq _ _ _
+  have hsub : (∑ i ∈ L, (x i) ^ 2) ≤ ∑ m ∈ M, (x m) ^ 2 :=
+    Finset.sum_le_sum_of_subset_of_nonneg hLM fun i _ _ => sq_nonneg _
+  have hnn : (0 : ℝ) ≤ ∑ i ∈ L, (b i) ^ 2 := Finset.sum_nonneg fun i _ => sq_nonneg _
+  have hM : (0 : ℝ) ≤ ∑ m ∈ M, (x m) ^ 2 := Finset.sum_nonneg fun i _ => sq_nonneg _
+  have hmono : (∑ i ∈ L, (b i) ^ 2) * ∑ i ∈ L, (x i) ^ 2
+      ≤ (∑ i ∈ L, (b i) ^ 2) * (1 + ∑ m ∈ M, (x m) ^ 2) := by
+    nlinarith [hsub, hnn, hM]
+  rw [polyW_linForm]
+  linarith
+
+/-- **`GradBound` from a linear-form support table.**  Each derivative `∂_j Φ_r`, `j ∈ M`, is a
+linear form supported in `M`; then the gradient bound holds with the total squared coefficient. -/
+theorem gradBound_of_linear {ι : Type} [Fintype ι] (Φ : ι → MvPolynomial (Fin d) ℂ)
+    (M : Finset (Fin d)) (b : Fin d → ι → Fin d → ℝ) (L : Fin d → ι → Finset (Fin d))
+    (hLM : ∀ j ∈ M, ∀ r, L j r ⊆ M)
+    (hrepr : ∀ j ∈ M, ∀ r, pderiv j (Φ r) = linForm (b j r) (L j r)) :
+    GradBound Φ M (∑ j ∈ M, ∑ r, ∑ i ∈ L j r, (b j r i) ^ 2) := by
+  intro j hj r x
+  have hbound := sq_polyW_linForm_le (b j r) (L j r) M (hLM j hj r) x
+  rw [← hrepr j hj r] at hbound
+  have hone : (0 : ℝ) ≤ 1 + ∑ m ∈ M, (x m) ^ 2 := by
+    have := Finset.sum_nonneg (f := fun m : Fin d => (x m) ^ 2) (s := M) fun i _ => sq_nonneg _
+    linarith
+  have hstep1 : (∑ i ∈ L j r, (b j r i) ^ 2) ≤ ∑ r', ∑ i ∈ L j r', (b j r' i) ^ 2 :=
+    Finset.single_le_sum (f := fun r' => ∑ i ∈ L j r', (b j r' i) ^ 2)
+      (fun r' _ => Finset.sum_nonneg fun i _ => sq_nonneg _) (Finset.mem_univ r)
+  have hstep2 : ∑ r', ∑ i ∈ L j r', (b j r' i) ^ 2
+      ≤ ∑ j' ∈ M, ∑ r', ∑ i ∈ L j' r', (b j' r' i) ^ 2 :=
+    Finset.single_le_sum (f := fun j' => ∑ r', ∑ i ∈ L j' r', (b j' r' i) ^ 2)
+      (fun j' _ => Finset.sum_nonneg fun r' _ => Finset.sum_nonneg fun i _ => sq_nonneg _) hj
+  have hterm : (∑ i ∈ L j r, (b j r i) ^ 2)
+      ≤ ∑ j' ∈ M, ∑ r', ∑ i ∈ L j' r', (b j' r' i) ^ 2 := hstep1.trans hstep2
+  exact hbound.trans (mul_le_mul_of_nonneg_right hterm hone)
+
+/-- The model check: `linForm (fun _ => 1) {1}` is `X₁`, and its square obeys the bound. -/
+theorem linForm_unit_eq :
+    (linForm (fun _ : Fin 2 => (1 : ℝ)) {1} : MvPolynomial (Fin 2) ℂ) = X 1 := by
+  rw [linForm, Finset.sum_singleton]
+  simp
+
+theorem sq_polyW_linForm_le_model (x : Vd 2) :
+    (polyW (linForm (fun _ : Fin 2 => (1 : ℝ)) {1}) x) ^ 2
+      ≤ (1 : ℝ) * (1 + ∑ m ∈ ({0, 1} : Finset (Fin 2)), (x m) ^ 2) := by
+  have h := sq_polyW_linForm_le (fun _ : Fin 2 => (1 : ℝ)) {1} ({0, 1} : Finset (Fin 2))
+    (by decide) x
+  simpa using h
 
 /-! ## 4. The model case: the flat quartic rescued by the coercive quadratic -/
 
