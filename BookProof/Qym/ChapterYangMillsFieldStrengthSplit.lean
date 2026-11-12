@@ -2829,6 +2829,26 @@ def colouredCore (N : ℕ) (D : Submodule ℂ (L2d 99)) : Submodule ℂ (colourS
     rw [PiLp.smul_apply]
     exact D.smul_mem c (hu i)
 
+/-- **The coloured core is dense when the field core is.**  A finite tuple of components is
+approximated componentwise; `PiLp 2` and the product topology agree on a finite colour index, so
+the product of dense subsets is dense there.  This is the density input the Stone bridge
+(`BookProof.StoneBridge.exists_stone_flow_of_esa`) needs for the coloured Hamiltonian, and it is
+genuinely a statement about `D`: it cannot hold for a non-dense `D`. -/
+theorem dense_colouredCore {D : Submodule ℂ (L2d 99)} (hD : Dense (D : Set (L2d 99))) (N : ℕ) :
+    Dense ((colouredCore N D : Submodule ℂ (colourSpace N)) : Set (colourSpace N)) := by
+  have hpi : Dense (Set.pi Set.univ fun _ : Fin N => (D : Set (L2d 99))) :=
+    dense_pi Set.univ fun _ _ => hD
+  have hmaps : Set.MapsTo (PiLp.homeomorph 2 (fun _ : Fin N => L2d 99)).symm
+      (Set.pi Set.univ fun _ : Fin N => (D : Set (L2d 99)))
+      ((colouredCore N D : Submodule ℂ (colourSpace N)) : Set (colourSpace N)) := by
+    intro v hv
+    simpa only [Submodule.mem_mk, Set.mem_setOf_eq] using fun i => hv i (Set.mem_univ i)
+  exact DenseRange.dense_of_mapsTo
+    (s := Set.pi Set.univ fun _ : Fin N => (D : Set (L2d 99)))
+    (t := ((colouredCore N D : Submodule ℂ (colourSpace N)) : Set (colourSpace N)))
+    (Function.Surjective.denseRange (PiLp.homeomorph 2 (fun _ : Fin N => L2d 99)).symm.surjective)
+    (PiLp.homeomorph 2 (fun _ : Fin N => L2d 99)).symm.continuous hpi hmaps
+
 set_option maxHeartbeats 1000000 in
 -- Elaborating the colour-completed core requires unfolding `PiLp` coercions through the
 -- submodule `D`; the default heartbeat budget is not enough.
@@ -4670,9 +4690,13 @@ colour group acts by genuine unitary operators:
   law holds (`colourGroupActHilbert_mul`).
 
 **Boundary.**  This is a different normed space, not a second norm on `fundMode d`: the two
-completions share their coefficients (`ofLp_hilbActCoeff`) but not their norms, and nothing here
-identifies one completion with the fibre `colouredCore` below.  No spectral consequence is
-claimed.
+completions share their coefficients (`ofLp_hilbActCoeff`) but not their norms.
+
+What *is* shared is the operator on the fundamental fibre: `colourVec 2` is definitionally
+`EuclideanSpace ℂ (Fin 2)`, so `eucMatCLM` is the same operator as the colour mixing `colourMix`
+applies on the fibre of an elementary tensor of the coloured core (`colourMix_colourFibre`,
+`colourVecAct_two_eq_eucMatCLM`, in the ESA chapter, which imports this one).  The completions
+themselves are still not identified, and no spectral consequence is claimed.
 -/
 
 /-- The occupation-indexed coefficients with the Euclidean (Hilbert) colour fibre. -/

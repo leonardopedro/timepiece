@@ -40,7 +40,14 @@ constants `f_{abc}`:
 * **`colouredHamiltonian_esa`** — hence `H ⊗ 1 + 1 ⊗ C` on `L²(ℝ⁹⁹; ℂ^N)` is essentially
   self-adjoint for every Hermitian colour matrix `C`, with no relative bound and no comparison
   operator.  This is the statement the split chapter's `colouredHamiltonian_symmetricOn` stops
-  short of; it lives here because this module imports the split chapter.
+  short of; it lives here because this module imports the split chapter;
+* **`colouredCore_polyGaussCore_dense`** — the coloured core is dense in the coloured Hilbert
+  space (from `dense_colouredCore`, which needs density of the field core);
+* **`exists_stone_flow_of_colouredHamiltonian`** — the Stone bridge applied to the two inputs
+  above: `H ⊗ 1 + 1 ⊗ C` has a self-adjoint extension and a complete unitary flow;
+* **`colourMix_colourFibre`, `colourVecAct_two_eq_eucMatCLM`** — the colour half of the
+  Hamiltonian acts on the fibre of an elementary tensor, and on the fundamental fibre that action
+  is `eucMatCLM`, the very operator the `fundHilbert` completion applies coefficientwise.
 
 Nothing is assumed: the module contains no `axiom` and no `sorry`.
 -/
@@ -614,6 +621,86 @@ theorem colouredHamiltonian_esa (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : 
   refine ⟨?_, ?_⟩
   · simpa using hpert 1 one_ne_zero
   · simpa using hpert (-1) (by norm_num)
+
+/-! ### The Stone bridge: the coloured Hamiltonian generates a flow
+
+Essential self-adjointness is the hypothesis of
+`BookProof.StoneBridge.exists_stone_flow_of_esa`, which needs one more input: the core must be
+dense.  `dense_colouredCore` (in the split chapter) supplies it from density of the field core,
+and `polyGaussCore_dense` is that density.  With the two in place the QYM one-particle
+generator on the coloured space is no longer a formal expression: it *has* a self-adjoint
+extension and a complete one-parameter unitary group solving the Schrödinger equation.
+
+**Boundary.**  The flow is the abstract Stone flow of the selected extension.  Nothing here
+identifies its generator with a differential expression restricted to a boundary condition, and
+no spectral or gap statement about `T.op` is claimed.
+-/
+
+/-- The coloured core over the Gauss–polynomial field core is dense in the coloured Hilbert
+space. -/
+theorem colouredCore_polyGaussCore_dense (N : ℕ) :
+    Dense ((colouredCore N (polyGaussCore (d := 99)) : Submodule ℂ (colourSpace N)) :
+      Set (colourSpace N)) :=
+  dense_colouredCore polyGaussCore_dense N
+
+/-- **The QYM flow on the coloured core.**  For every Hermitian colour energy matrix `C`, the
+coloured Hamiltonian `H ⊗ 1 + 1 ⊗ C` has a self-adjoint extension `T.op` and a complete
+one-parameter unitary group `U` that solves `d/dt U t x = -i T.op (U t x)` on the domain. -/
+theorem exists_stone_flow_of_colouredHamiltonian (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ}
+    (C : Matrix (Fin N) (Fin N) ℂ) (hC : C.conjTranspose = C) :
+    ∃ (T : BookProof.ChapterStoneResolvent.UnboundedSelfAdjoint (colourSpace N))
+      (U : ℝ → (colourSpace N →L[ℂ] colourSpace N)),
+      BookProof.EsaClosure.IsSelfAdjointExtension
+          (colouredHamiltonian (coreRepPoly 99) fabc N C) T.op ∧
+        BookProof.StoneBridge.IsStoneFlow T U :=
+  BookProof.StoneBridge.exists_stone_flow_of_esa _
+    (dense_colouredCore polyGaussCore_dense N)
+    (colouredHamiltonian_symmetricOn _ fabc C hC) (colouredHamiltonian_esa fabc C hC)
+
+/-! ### The colour matrix on the fibre is the completion's operator
+
+`colourVec N = PiLp 2 (fun _ : Fin N => ℂ)`, and `colourVec 2` is *definitionally*
+`EuclideanSpace ℂ (Fin 2)`, the colour fibre of the `fundHilbert` completion.  So the operator
+that `hilbActCLM` applies coefficientwise (`eucMatCLM C`) is the operator the field-side mixing
+ties to the fibre: on an elementary tensor `x ⊗ v` the colour half of the Hamiltonian acts on `v`
+alone, and at `N = 2` that action is `eucMatCLM C`.  In particular a unitary matrix of length two
+acts isometrically on the fibre, which is the same isometry `hilbActOp_norm` uses coefficientwise.
+-/
+
+/-- The colour matrix acting on the colour fibre, in the shape `colourMix` uses. -/
+noncomputable def colourVecAct {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ) (v : colourVec N) :
+    colourVec N :=
+  WithLp.toLp 2 (fun i => ∑ j : Fin N, C i j • WithLp.ofLp v j)
+
+/-- **`1 ⊗ C` on an elementary tensor acts on the fibre**: the field-side mixing of the colour
+components is the colour matrix on `v` alone. -/
+theorem colourMix_colourFibre {D : Submodule ℂ (L2d 99)} (x : D) {N : ℕ}
+    (C : Matrix (Fin N) (Fin N) ℂ) (v : colourVec N) :
+    colourMix C (colourFibre x v : colourSpace N) = colourFibre x (colourVecAct C v) := by
+  apply WithLp.ofLp_injective
+  funext i
+  have h1 : ∀ j : Fin N, ((colourFibre x v : colouredCore N D) : colourSpace N).ofLp j
+      = WithLp.ofLp v j • (x : L2d 99) := fun j => rfl
+  have h2 : ((colourFibre x (colourVecAct C v) : colouredCore N D) : colourSpace N).ofLp i
+      = (∑ j : Fin N, C i j • WithLp.ofLp v j) • (x : L2d 99) := rfl
+  rw [colourMix_ofLp, h2, Finset.sum_smul]
+  exact Finset.sum_congr rfl fun j _ => by rw [h1 j, smul_smul, smul_eq_mul]
+
+/-- **On the fundamental fibre the field-side mixing is `eucMatCLM`**, the operator the Hilbert
+completion applies coefficientwise (`hilbActCoeff`). -/
+theorem colourVecAct_two_eq_eucMatCLM (C : Matrix (Fin 2) (Fin 2) ℂ) (v : colourVec 2) :
+    colourVecAct C v = eucMatCLM C v := by
+  rw [eucMatCLM_apply_eq]
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [colourVecAct, WithLp.ofLp_toLp, Matrix.mulVec, dotProduct, smul_eq_mul]
+
+/-- **A unitary colour matrix acts isometrically on the fundamental fibre**, transported from
+`eucMatCLM_norm_of_unitary` along `colourVecAct_two_eq_eucMatCLM`. -/
+theorem colourVecAct_norm_of_unitary {C : Matrix (Fin 2) (Fin 2) ℂ} (hC : star C * C = 1)
+    (v : colourVec 2) : ‖colourVecAct C v‖ = ‖v‖ := by
+  rw [colourVecAct_two_eq_eucMatCLM]
+  exact eucMatCLM_norm_of_unitary hC v
 
 end Coloured
 

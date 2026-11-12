@@ -22474,3 +22474,62 @@ open-ended `simp`.  Clearing a linter warning is not a strengthening of any theo
 
 **Verification.**  The single-module build as above; the aggregate `lake build BookProof` is rerun
 after this change and must be green before the packet is pushed.
+
+## State of the project — 2026-11-12c: the QYM flow exists
+
+§2026-11-12a recorded two missing inputs for the D.12 instance and one of them was already stale:
+`colouredHamiltonian_symmetricOn` (Hermitian `C`) and `colouredHamiltonian_esa` (essential
+self-adjointness for the Gauss–polynomial core, via the symmetric-perturbation lemma) both already
+existed in `BookProof/Qym/ChapterYangMillsNonAbelianEsa.lean`.  What was genuinely missing for
+`BookProof.StoneBridge.exists_stone_flow_of_esa` was **density**, and it is now proved.
+
+* `dense_colouredCore` (`ChapterYangMillsFieldStrengthSplit.lean`) — if the field core `D` is dense
+  in `L2d 99`, the coloured core is dense in `PiLp 2 (fun _ : Fin N => L2d 99)`.  The proof does not
+  approximate componentwise by hand: `dense_pi` gives density of the product of `N` copies of the
+  core in the product topology, `PiLp.homeomorph 2 β` is a homeomorphism onto that product space,
+  and `DenseRange.dense_of_mapsTo` pushes density through its inverse.  The statement is honestly
+  conditional on `D`: for a non-dense `D` it is false, so the field core's density is a real input
+  and not a definitional triviality.
+* `colouredCore_polyGaussCore_dense` — the instance at `D = polyGaussCore 99`, from
+  `polyGaussCore_dense`.
+* `exists_stone_flow_of_colouredHamiltonian` — **the D.12 item, instantiated**: for an arbitrary
+  real structure-constant family `fabc` and any Hermitian colour matrix `C`, there is a bundled
+  self-adjoint operator `T` on `colourSpace N` whose operator `T.op` extends `H ⊗ 1 + 1 ⊗ C`, and a
+  complete one-parameter unitary group `U` with `U 0 = 1`, the group law, `‖U t x‖ = ‖x‖`, and
+  `d/dt (U t x) = -i T.op (U t x)` on the domain.
+
+**The fibre tie.**  `PLAN_LEAN_SPECIALIST_QYM_FLOW.md`'s remaining concern, and the boundary note at
+the end of §2026-11-12a, was that the unitary colour group lives on the `fundHilbert` completion
+while the Hamiltonian lives on the field-side `colourSpace N`.  Those two *spaces* are still not
+identified, but the *operator* is: `colourVec 2` is definitionally `EuclideanSpace ℂ (Fin 2)`, so
+
+* `colourVecAct` is the colour matrix acting on the fibre in the shape `colourMix` uses;
+* `colourMix_colourFibre` — the colour half `1 ⊗ C` of the Hamiltonian acts on an elementary tensor
+  `x ⊗ v` of the coloured core by acting on `v` alone:
+  `colourMix C (x ⊗ v) = x ⊗ (colourVecAct C v)`;
+* `colourVecAct_two_eq_eucMatCLM` — at the fundamental fibre that action *is* `eucMatCLM C`, the
+  operator `hilbActCoeff`/`hilbActCLM` apply coefficientwise on `fundHilbert`;
+* `colourVecAct_norm_of_unitary` — hence a unitary `2 × 2` colour matrix acts isometrically on the
+  fibre, which is `eucMatCLM_norm_of_unitary` restated on the field-side object.
+
+So `colourGroupElement a θ`, whose isometry is what makes `colourGroupActHilbert a θ` unitary, is
+also what mixes the components of the coloured core.  What remains un-bridged is only the
+completion: no statement identifies `fundHilbert d` with `colourSpace N` as Hilbert spaces, and the
+`colourMix` action is proved for the fibre, not as a unitary operator of `colourSpace N` (that needs
+the ℓ² matrix-isometry identity for general `N`, which is not in the tree).
+
+**Boundary.**  The flow is the abstract Stone flow of a *selected* extension: two different
+self-adjoint extensions, if any existed, would give different flows, and nothing here fixes a
+boundary condition for the differential expression.  No spectral statement, no gap, and no
+identification of `T.op` with `H ⊗ 1 + 1 ⊗ C` on a larger domain than
+`colouredCore N (polyGaussCore 99)` is claimed.
+`colourVecAct` is not proved unitary on `colourVec N` for `N ≠ 2`; the isometry statement is only
+the transported `N = 2` one, and `colourMix` is not proved isometric on `colourSpace N` at all.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, and
+`lake build BookProof.Qym.ChapterYangMillsNonAbelianEsa` → 8134 jobs, both with no error and no
+warning naming either module; no line over 100 characters and no trailing whitespace in either file;
+`#print axioms` on `dense_colouredCore`, `colouredCore_polyGaussCore_dense`,
+`exists_stone_flow_of_colouredHamiltonian`, `colourMix_colourFibre`, `colourVecAct_eq_eucMatCLM` and
+`colourVecAct_norm_of_unitary` reports only `propext, Classical.choice, Quot.sound`.  The aggregate
+`lake build BookProof` is rerun after this change and must be green before the packet is pushed.
