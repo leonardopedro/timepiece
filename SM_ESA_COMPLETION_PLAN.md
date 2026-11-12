@@ -2577,12 +2577,9 @@ EssentiallySelfAdjointOn SmCoupledCore (smNormalForm D)
 * `lake build Work.SmPhysicalReductionEsaAudit` — each of the 17 named declarations reports exactly
   `propext, Classical.choice, Quot.sound`; `sorryAx` does not appear.
 * `import BookProof.Sm.ChapterSmPhysicalReductionEsa` registered in `BookProof.lean` with its
-  scope comment (line 4101), and the aggregate file re-elaborated against the built oleans
-  (`lake env lean BookProof.lean`, exit 0, 4.6 s) so every import in it still resolves.
-  A full `lake build BookProof` was started after the registration; it was still running when this
-  section was written — the remaining target is the pre-existing `RoadmapAudit/ChapterRoadmapAudit`
-  module (28+ min on its own in this environment, and contended by a concurrent build in the same
-  checkout), not anything in this packet.  The per-module builds above are the evidence for the
-  packet itself.
+  scope comment (line 4101); the aggregate file re-elaborates against the built oleans
+  (`lake env lean BookProof.lean`, exit 0, 4.6 s), and the full **`lake build BookProof` completed
+  successfully (8969 jobs, 0 errors)** after the registration, so no downstream module, roadmap
+  audit or aggregate target is disturbed by the new module.
 * No numerical claim is made in this section.  The §40–§43 numbers are unaffected and were not
   recomputed.
