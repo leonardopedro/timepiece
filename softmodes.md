@@ -912,7 +912,13 @@ glueball `ℂ³ ⊗ ℂ³` (`glueballRep` on `colourVec 9`, `glueballSinglet`) w
 `glueballSinglet_eq_span`), the singlet vectors are nonzero, and `2 ⊗ 2 = 3 ⊕ 1` versus
 `3 ⊗ 3 = 5 ⊕ 3 ⊕ 1` is the content: a colour-neutral state is a property of the pair of irreps.
 The glueball's three total actions are given in closed form (`glueballRep_zero_mulVec` and
-siblings); no decomposition into the other summands is proved.
+siblings); no decomposition into the other summands is proved.  **Representation:** the total
+action `pairRep` obeys `[A^a, A^b] = i ε^{abc}A^c` (`pairRep_commutator`).  The proof runs on the
+product basis `pairRepProd` (`T^a ⊗ 1 + 1 ⊗ T^a` as a Kronecker sum), where `pairRepProd_mul`
+expands a product into four terms and the two mixed terms `T^a ⊗ T^b`, `T^b ⊗ T^a` are equal in
+the two orders, so they cancel and only the two factor commutators survive
+(`pairRepProd_commutator`); `pairEquiv` is the row-major relabelling that carries the identity
+to `colourVec 6` (`pairRep_eq_reindex`).  No `6 × 6` entry check is used.
 
 **Why `mag_eq_root` is not derivable (§3b.1).**  The derivative coordinates `∂_j A_{k,a}` are
 *independent* coordinates, so `magPoly` is a multiplication operator made of coordinate functions.

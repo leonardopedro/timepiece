@@ -1491,6 +1491,10 @@ above.  This section states that identification and proves what it yields.
   zero one (`colourSinglet_eq_bot`) — `2 ⊗ 3 = 4 ⊕ 2` has no trivial summand, so a
   fundamental and an adjoint mode over one field core are never colour-neutral together
   (`colourSinglet_fibre_trivial`);
+* **`pairRep_commutator`** — that total action *is* a representation: `[A^a, A^b] = i ε^{abc}A^c`,
+  proved on the product basis (`pairRepProd`, `pairRepProd_commutator`) where the two mixed
+  products `T^a ⊗ T^b` cancel between the two orders, and transported to `colourVec 6` along
+  `pairEquiv` (`pairRep_eq_reindex`);
 * **`colourActCLM`**, **`colourEnergyCLM`** — the two coloured actions as *bounded operators* on the
   completion: `‖colourActCLM a f‖ ≤ (1/2)‖f‖`, the constant being sharp because
   `‖T^a v‖ = ‖v‖/2` pointwise (`norm_fundRep_mulVec`), and `colourEnergyCLM` is `C_F` times the
@@ -3159,11 +3163,18 @@ colour-neutral together.  The computation needs six diagonal entries, two from e
 fibre language the singlet is trivial over *every* field core
 (`colourSinglet_fibre_trivial`);  that is the fibre form of the same six-entry computation.
 
-**Boundary.**  Built here: the singlet space of the fundamental/adjoint pair, and the fact
-that it is trivial.  Not built: the decomposition of `ℂ² ⊗ ℂ³` into its two irreducible
-summands; the representation property of `pairRep`, whose commutators would follow from
-`fundRep_commutator` and `adjRep_commutator` and are not proved; and the pairs that *do*
-carry a singlet — `ℂ² ⊗ ℂ²`, the meson, and `ℂ³ ⊗ ℂ³`, the glueball.
+The total action is also a **representation**: `[A^a, A^b] = i ε^{abc}A^c`
+(`pairRep_commutator`), the total-colour counterpart of `[T^a, T^b] = i ε^{abc}T^c`.  The proof
+is not a `6 × 6` entry check.  On the product basis (`pairRepProd`) the product of two actions is
+the four-term expansion `pairRepProd_mul`, and the two *mixed* terms `T^a ⊗ T^b`, `T^b ⊗ T^a` are
+equal in the two orders, so they cancel and only the two factor commutators survive
+(`pairRepProd_commutator`); `pairEquiv` is the row-major relabelling that carries this back to
+`pairRep` (`pairRep_eq_reindex`).
+
+**Boundary.**  Built here: the singlet space of the fundamental/adjoint pair, the fact that it
+is trivial, and the representation property of the total action.  Not built: the decomposition
+of `ℂ² ⊗ ℂ³` into its two irreducible summands.  The pairs that *do* carry a singlet —
+`ℂ² ⊗ ℂ²`, the meson, and `ℂ³ ⊗ ℂ³`, the glueball — are the next section.
 -/
 
 /-- The fundamental slot of a colour index in the combined `ℂ² ⊗ ℂ³` fibre: `i / 3`. -/
@@ -3179,6 +3190,140 @@ noncomputable def pairRep (a : Fin 3) : Matrix (Fin 6) (Fin 6) ℂ :=
   fun i j => fundRep a (pairSlotFst i) (pairSlotFst j) *
       (if pairSlotSnd i = pairSlotSnd j then 1 else 0) +
     (if pairSlotFst i = pairSlotFst j then 1 else 0) * adjRep a (pairSlotSnd i) (pairSlotSnd j)
+
+/-- **The total colour action in the product basis.**  `pairRep` read on the pair of colour slots
+rather than on the row-major colour index: the Kronecker sum `T^a ⊗ 1 + 1 ⊗ T^a` built from
+`Matrix.kroneckerMap`, so that the two factors are visibly separate. -/
+noncomputable def pairRepProd (a : Fin 3) : Matrix (Fin 2 × Fin 3) (Fin 2 × Fin 3) ℂ :=
+  Matrix.kroneckerMap (· * ·) (fundRep a) (1 : Matrix (Fin 3) (Fin 3) ℂ) +
+    Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ) (adjRep a)
+
+/-- **A product of two total actions**: the two same-slot products `T^a T^b ⊗ 1`, `1 ⊗ T^a T^b`
+and the two mixed ones `T^a ⊗ T^b`, `T^b ⊗ T^a`.  The mixed terms are what cancel in the
+commutator. -/
+theorem pairRepProd_mul (a b : Fin 3) :
+    pairRepProd a * pairRepProd b
+      = Matrix.kroneckerMap (· * ·) (fundRep a * fundRep b) (1 : Matrix (Fin 3) (Fin 3) ℂ)
+        + Matrix.kroneckerMap (· * ·) (fundRep a) (adjRep b)
+        + Matrix.kroneckerMap (· * ·) (fundRep b) (adjRep a)
+        + Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+            (adjRep a * adjRep b) := by
+  ext p q
+  obtain ⟨p1, p2⟩ := p
+  obtain ⟨q1, q2⟩ := q
+  simp [pairRepProd, Matrix.mul_apply, Fintype.sum_prod_type, Matrix.kroneckerMap_apply,
+    Matrix.one_apply, Matrix.add_apply, mul_add, add_mul, Finset.sum_add_distrib,
+    Finset.mul_sum]
+  ring
+
+/-- **The Kronecker sum is a representation**: `[T^a ⊗ 1 + 1 ⊗ T^a, T^b ⊗ 1 + 1 ⊗ T^b] = i ε^{abc}
+(T^c ⊗ 1 + 1 ⊗ T^c)`.  By `pairRepProd_mul` the two mixed products are the same in the two
+orders, so the difference is `[T^a, T^b] ⊗ 1 + 1 ⊗ [T^a, T^b]`, and `fundRep_commutator` with
+`adjRep_commutator` finish. -/
+theorem pairRepProd_commutator (a b : Fin 3) :
+    pairRepProd a * pairRepProd b - pairRepProd b * pairRepProd a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • pairRepProd c) := by
+  have hsub1 :
+      Matrix.kroneckerMap (· * ·) (fundRep a * fundRep b)
+          (1 : Matrix (Fin 3) (Fin 3) ℂ)
+        - Matrix.kroneckerMap (· * ·) (fundRep b * fundRep a)
+            (1 : Matrix (Fin 3) (Fin 3) ℂ)
+      = Matrix.kroneckerMap (· * ·) (fundRep a * fundRep b - fundRep b * fundRep a)
+          (1 : Matrix (Fin 3) (Fin 3) ℂ) := by
+    ext p q
+    simp [Matrix.kroneckerMap_apply, Matrix.sub_apply, Matrix.one_apply]
+    split <;> ring
+  have hsub4 :
+      Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+          (adjRep a * adjRep b)
+        - Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+            (adjRep b * adjRep a)
+      = Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+          (adjRep a * adjRep b - adjRep b * adjRep a) := by
+    ext p q
+    simp [Matrix.kroneckerMap_apply, Matrix.sub_apply, Matrix.one_apply]
+    split <;> ring
+  have hkey :
+      pairRepProd a * pairRepProd b - pairRepProd b * pairRepProd a
+        = Matrix.kroneckerMap (· * ·) (fundRep a * fundRep b - fundRep b * fundRep a)
+            (1 : Matrix (Fin 3) (Fin 3) ℂ)
+          + Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+            (adjRep a * adjRep b - adjRep b * adjRep a) := by
+    rw [pairRepProd_mul a b, pairRepProd_mul b a,
+      show
+        (Matrix.kroneckerMap (· * ·) (fundRep a * fundRep b)
+            (1 : Matrix (Fin 3) (Fin 3) ℂ)
+          + Matrix.kroneckerMap (· * ·) (fundRep a) (adjRep b)
+          + Matrix.kroneckerMap (· * ·) (fundRep b) (adjRep a)
+          + Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+              (adjRep a * adjRep b))
+        - (Matrix.kroneckerMap (· * ·) (fundRep b * fundRep a)
+            (1 : Matrix (Fin 3) (Fin 3) ℂ)
+          + Matrix.kroneckerMap (· * ·) (fundRep b) (adjRep a)
+          + Matrix.kroneckerMap (· * ·) (fundRep a) (adjRep b)
+          + Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+              (adjRep b * adjRep a))
+        = (Matrix.kroneckerMap (· * ·) (fundRep a * fundRep b)
+              (1 : Matrix (Fin 3) (Fin 3) ℂ)
+            - Matrix.kroneckerMap (· * ·) (fundRep b * fundRep a)
+              (1 : Matrix (Fin 3) (Fin 3) ℂ))
+          + (Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+                (adjRep a * adjRep b)
+            - Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+                (adjRep b * adjRep a)) from by abel,
+      hsub1, hsub4]
+  have hfinal :
+      Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • pairRepProd c)
+        = Matrix.kroneckerMap (· * ·)
+            (Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • fundRep c))
+            (1 : Matrix (Fin 3) (Fin 3) ℂ)
+          + Matrix.kroneckerMap (· * ·) (1 : Matrix (Fin 2) (Fin 2) ℂ)
+            (Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • adjRep c)) := by
+    ext p q
+    obtain ⟨p1, p2⟩ := p
+    obtain ⟨q1, q2⟩ := q
+    simp only [pairRepProd, Matrix.add_apply, Matrix.kroneckerMap_apply, Matrix.one_apply,
+      Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul, Finset.mul_sum, Finset.sum_mul,
+      ← Finset.sum_add_distrib, mul_add]
+    refine Finset.sum_congr rfl fun c _ => ?_
+    ring
+  rw [hkey, fundRep_commutator a b, adjRep_commutator a b, ← hfinal]
+
+/-- The row-major relabelling of the combined fibre: `(fundamental slot, adjoint slot) ↦
+3 * fundamental + adjoint`, i.e. `pairSlotFst`/`pairSlotSnd` read backwards. -/
+noncomputable def pairEquiv : Fin 2 × Fin 3 ≃ Fin 6 where
+  toFun p := ⟨3 * p.1.val + p.2.val, by have := p.1.isLt; have := p.2.isLt; omega⟩
+  invFun i := (pairSlotFst i, pairSlotSnd i)
+  left_inv p := by
+    obtain ⟨p1, p2⟩ := p
+    refine Prod.ext (Fin.ext ?_) (Fin.ext ?_)
+    · simp [pairSlotFst]
+      omega
+    · simp [pairSlotSnd]
+  right_inv i := by
+    ext
+    simp only [pairSlotFst, pairSlotSnd]
+    omega
+
+/-- **`pairRep` is `pairRepProd` transported along `pairEquiv`**: the row-major colour index of the
+combined fibre is the product basis read through the relabelling, so the two definitions of the
+total action agree. -/
+theorem pairRep_eq_reindex (a : Fin 3) :
+    pairRep a = Matrix.reindex pairEquiv pairEquiv (pairRepProd a) := by
+  ext i j
+  simp [pairRep, pairRepProd, pairEquiv, Matrix.reindex_apply, Matrix.kroneckerMap_apply,
+    Matrix.add_apply, Matrix.one_apply, pairSlotFst, pairSlotSnd]
+
+/-- **`pairRep` is a representation of `su(2)` on the combined fibre**: the total colour actions
+obey `[A^a, A^b] = i ε^{abc}A^c`, the total-colour form of `[T^a, T^b] = i ε^{abc}T^c`.  Nothing
+is computed entrywise: `pairRepProd_commutator` is the content and `pairEquiv` is an algebra
+equivalence, so the identity transports to `colourVec 6`. -/
+theorem pairRep_commutator (a b : Fin 3) :
+    pairRep a * pairRep b - pairRep b * pairRep a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • pairRep c) := by
+  simp only [pairRep_eq_reindex, ← Matrix.reindexAlgEquiv_apply ℂ ℂ pairEquiv]
+  simp only [← map_mul, ← map_sub, ← map_smul, ← map_sum]
+  rw [pairRepProd_commutator]
 
 /-- **The colour-singlet space** of the combined `ℂ² ⊗ ℂ³` fibre: the vectors annihilated by
 every one of the three total colour actions. -/

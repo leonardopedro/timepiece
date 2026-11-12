@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12c):** “State of the project — 2026-11-12c: the meson and glueball
+> **Newest entry (2026-11-12d):** “State of the project — 2026-11-12d: the total colour action is a
+> representation” (end of file): `[A^a, A^b] = i ε^{abc}A^c` (`pairRep_commutator`), proved on the
+> Kronecker-sum form (`pairRepProd_mul`, `pairRepProd_commutator`) where the mixed products cancel —
+> not by a `6 × 6` entry check — and transported to `colourVec 6` (`pairRep_eq_reindex`).
+>
+> **Earlier entry (2026-11-12c):** “State of the project — 2026-11-12c: the meson and glueball
 > singlets” (end of file): the two squares do carry one — `ε` for `ℂ² ⊗ ℂ²` and the trace `δ`
 > for `ℂ³ ⊗ ℂ³` — and each singlet space is exactly one line (`mesonSinglet_eq_span`,
 > `glueballSinglet_eq_span`), in contrast with the trivial `ℂ² ⊗ ℂ³` singlet.
@@ -21993,3 +21998,42 @@ errors and no new warnings; the glueball computations sit in their own `section`
 `glueballSinglet`, the two `_mem` membership theorems, the three `glueballRep_*_mulVec` forms, both
 `_eq_span` theorems, both `_ne_zero` theorems) gives only `propext`, `Classical.choice`,
 `Quot.sound`.
+
+
+## State of the project — 2026-11-12d: the total colour action is a representation
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`, the `ℂ² ⊗ ℂ³` colour section.
+
+**What is new.**  `pairRep` — the total colour action `T^a ⊗ 1 + 1 ⊗ T^a` on the combined fibre —
+is now proved to be a representation of the same `su(2)` as its two factors:
+
+`[A^a, A^b] = i ε^{abc} A^c`  (`pairRep_commutator`).
+
+**How.**  The proof is not a `6 × 6` entry check (a `fin_cases` version of it was written first and
+measured: 324 scalar goals, minutes of elaboration, and it still needed case-by-case `I²` handling).
+Instead the identity is proved where it is structural:
+
+- `pairRepProd` — the same action on the product basis `Fin 2 × Fin 3`, written as an honest
+  Kronecker sum with `Matrix.kroneckerMap`;
+- `pairRepProd_mul` — a product of two such sums is the four-term expansion
+  `T^aT^b ⊗ 1 + T^a ⊗ T^b + T^b ⊗ T^a + 1 ⊗ T^aT^b` (this is the only entrywise step, and it is
+  a pointwise identity, not a `36`-case split);
+- `pairRepProd_commutator` — the two *mixed* products are the same in the two orders, so they
+  cancel and the difference is `[T^a, T^b] ⊗ 1 + 1 ⊗ [T^a, T^b]`; `fundRep_commutator` and
+  `adjRep_commutator` (both already in the chapter) finish it;
+- `pairEquiv`, `pairRep_eq_reindex` — the row-major relabelling `(f, s) ↦ 3f + s` under which
+  `pairRep` *is* `pairRepProd`; `Matrix.reindexAlgEquiv` then transports the identity, so
+  `pairRep_commutator` is three rewrites.
+
+This is the mathematically substantive route: the cross terms cancel because the two factors act on
+different slots, which is exactly why a Kronecker sum of representations is a representation.
+
+**Boundary.**  Not claimed: the decomposition of the tensor products into irreducibles; the
+Clebsch–Gordan coefficients; norms or closedness of these actions; anything about the meson and
+glueball total actions being representations (the same argument would give it — `mesonRep` and
+`glueballRep` are the same construction — but they are not stated here).
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors (8091 jobs) and no `maxHeartbeats` budget was needed for the new declarations.  `#print
+axioms` on `pairRepProd_mul`, `pairRepProd_commutator`, `pairRep_eq_reindex` and
+`pairRep_commutator` gives only `propext`, `Classical.choice`, `Quot.sound`.
