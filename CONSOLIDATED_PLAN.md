@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12e):** “State of the project — 2026-11-12e: the Hermitian-`C` form” (end of
+> **Newest entry (2026-11-12f):** “State of the project — 2026-11-12f: the two total actions, the
+> half-sum, and the symmetric operator” (end of file): `mesonRep`/`glueballRep` are representations of
+> `su(2)` by a Kronecker-sum argument (`kronSum_commutator`) carried along a row-major relabelling;
+> the off-diagonal colour sum over `j ≠ i` is twice its `i < j` part
+> (`colourPairSum_eq_two_mul_upper`); and for a Hermitian `C` the coloured Hamiltonian is symmetric
+> on the coloured core (`colouredHamiltonian_symmetricOn`).
+>
+> **Earlier entry (2026-11-12e):** “State of the project — 2026-11-12e: the Hermitian-`C` form” (end of
 > file): for `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` is real (`colourTerm_star_eq`), the two
 > orientations of an off-diagonal pair agree (`colourPair_re_symm`), and the form splits into a real
 > diagonal plus off-diagonal real parts (`colouredHamiltonian_quadForm_re_split`).
@@ -22074,3 +22081,47 @@ cross term, and any closedness or domain statement.
 errors (8091 jobs) and no new warnings.  `#print axioms` on `colourDiag_re`, `colourTerm_star_eq`,
 `colourPair_re_symm` and `colouredHamiltonian_quadForm_re_split` gives only `propext`,
 `Classical.choice`, `Quot.sound`.
+
+
+## State of the project — 2026-11-12f: the two total actions, the half-sum, the symmetric operator
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean`.
+
+**1. `mesonRep` and `glueballRep` are representations.**  Both are a Kronecker sum
+`T^a ⊗ 1 + 1 ⊗ T^a` of one irrep with itself, so the statement is the general one.  The framework is
+generic in the two factor types: `kronSum` (the Kronecker sum), `kronMap_mul` (a product of Kronecker
+products is the Kronecker product of the products), `kronSum_mul` (a product of two sums is the two
+same-slot products plus the two mixed ones), and `kronSum_commutator`, in which the mixed terms cancel
+between the two orders while `[T^a, T^b] = i ε^{abc}T^c` survives in both slots.  The row-major
+relabellings `mesonEquiv : Fin 2 × Fin 2 ≃ Fin 4` and `glueballEquiv : Fin 3 × Fin 3 ≃ Fin 9` carry it over
+(`mesonRep_eq_reindex`, `glueballRep_eq_reindex`), and because a reindexing is an algebra equivalence
+the commutator transports (`mesonRep_commutator`, `glueballRep_commutator`).  No entry check is
+involved; done entrywise this would be 16 and 81 goals.
+
+**2. `colourPairSum_eq_two_mul_upper`.**  The off-diagonal colour sum over `j ≠ i` is exactly twice
+its sum over `i < j`.  Two steps: on `univ.erase i` the negation of `i < j` is `j < i`, so each erased
+sum splits into the two strict orderings; and the two orderings are interchanged by `Finset.sum_comm`
+with `colourPair_re_symm` (`g j i = g i j`) at the term.  This upgrades `colourPair_re_symm` from a
+per-pair statement to the sum the form actually carries.
+
+**3. `colouredHamiltonian_symmetricOn`.**  For `Cᴴ = C` the *operator* `H ⊗ 1 + 1 ⊗ C` is symmetric
+on the whole coloured core: `⟨(H ⊗ 1 + 1 ⊗ C) u, v⟩ = ⟨u, (H ⊗ 1 + 1 ⊗ C) v⟩`.  Expanding the
+componentwise action gives the field sum, which `ymHamiltonian_symmetricOn` handles component by
+component, plus the colour double sum; there the `(i, j)` entry on one side is `conj C_ij`, which the
+substitution `i ↔ j` (i.e. `Finset.sum_comm`) turns into the `(i, j)` entry of the other side exactly
+because `C` is Hermitian.  So the earlier boundary — that only the *form* was known to be real, not
+the operator to be symmetric — is now closed for the core.
+
+**Boundary.**  Symmetry on a core is not essential self-adjointness: no deficiency index, closedness
+or domain statement is claimed, and the field operator's closures remain the business of the
+Friedrichs and form-domination chapters.  The representation property is proved for `mesonRep` and
+`glueballRep` (`pairRep` on `ℂ² ⊗ ℂ³` was already `pairRep_commutator`); the decomposition of the
+meson/glueball fibres into their remaining summands (`3`, `5`, `3`) is still not carried out, and no
+bound on the colour cross term is claimed.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` completes with 0
+errors (8091 jobs) and no new warnings; `#print axioms` on all fourteen new declarations
+(`kronSum`, `kronMap_mul`, `kronMap_sub`, `kronMap_sub_right`, `kronSum_mul`, `kronSum_commutator`,
+`mesonEquiv`, `mesonRep_eq_reindex`, `mesonRep_commutator`, `glueballEquiv`,
+`glueballRep_eq_reindex`, `glueballRep_commutator`, `colourPairSum_eq_two_mul_upper`,
+`colouredHamiltonian_symmetricOn`) gives only `propext`, `Classical.choice`, `Quot.sound`.

@@ -1479,6 +1479,11 @@ above.  This section states that identification and proves what it yields.
   sum `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` (`colouredHamiltonian_inner_core`), so the off-diagonal entries
   contribute the mixed terms; for `C = [[0, 1], [1, 0]]` the form is
   `quadForm H u₀ + quadForm H u₁ + 2 Re ⟨u₀, u₁⟩`, a cross term no `µ • 1` can produce;
+* **`mesonRep_commutator`**, **`glueballRep_commutator`** — the two total actions *are*
+  representations: `[A^a, A^b] = i ε^{abc}A^c` on `colourVec 4` and `colourVec 9`, proved by the
+  Kronecker-sum argument (`kronSum`, `kronSum_mul`, `kronSum_commutator`) on the product basis and
+  carried over by the row-major relabellings `mesonEquiv`/`glueballEquiv`, so no entry check is
+  involved;
 * **`mesonSinglet`**, **`glueballSinglet`** — the singlets of the two *squares*: `2 ⊗ 2 = 3 ⊕ 1`
   with `ε` as the singlet (`mesonCoeff_mem`) and `3 ⊗ 3 = 5 ⊕ 3 ⊕ 1` with the trace `δ`
   (`glueballCoeff_mem`); each singlet space is exactly one line (`mesonSinglet_eq_span`,
@@ -1488,9 +1493,15 @@ above.  This section states that identification and proves what it yields.
 * **`colourTerm_star_eq`**, **`colourPair_re_symm`**, **`colourDiag_re`**,
   **`colouredHamiltonian_quadForm_re_split`** — the **Hermitian-`C`** form: for `C` with
   `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star (it is real), the `(j,i)`
-  and `(i,j)` off-diagonal contributions agree (each unordered pair is counted twice with one real
-  value), and the form splits as `Σ_i (quadForm H u_i + (C_ii).re ‖u_i‖²)` + the off-diagonal real
-  parts.  This is a statement about the *form*, not about the operator being self-adjoint;
+  and `(i,j)` off-diagonal contributions agree, and the form splits as
+  `Σ_i (quadForm H u_i + (C_ii).re ‖u_i‖²)` + the off-diagonal real parts;
+* **`colourPairSum_eq_two_mul_upper`** — the same symmetry as an identity of sums: the
+  off-diagonal part over `j ≠ i` is twice its sum over `i < j`, since each unordered pair is counted
+  twice with one real value;
+* **`colouredHamiltonian_symmetricOn`** — and the *operator*: for `Cᴴ = C` the coloured
+  Hamiltonian is symmetric on the whole coloured core,
+  `⟨(H ⊗ 1 + 1 ⊗ C) u, v⟩ = ⟨u, (H ⊗ 1 + 1 ⊗ C) v⟩` — the field half by
+  `ymHamiltonian_symmetricOn`, the colour half by Hermiticity (`conj C_ij = C_ji` under `i ↔ j`);
 * **`colourSinglet`**, **`colourSinglet_eq_bot`** — the colour singlet over the combined
   `ℂ² ⊗ ℂ³` fibre: the total action `pairRep` is `T^a ⊗ 1 + 1 ⊗ T^a`
   on `colourVec 6` (`pairSlotFst`, `pairSlotSnd`), and the vectors it annihilates are only the
@@ -3093,14 +3104,23 @@ not a relabelling of the two Casimir scalars.
 For a **Hermitian** `C` the colour part is real and symmetric, and this is the Hermitian form the
 name suggests: the double sum `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star
 (`colourTerm_star_eq`), the `(j, i)` and `(i, j)` contributions of the off-diagonal part agree
-(`colourPair_re_symm`), and the form splits into the *real* diagonal `(C_ii).re ‖u_i‖²` plus the
-real parts of the off-diagonal entries (`colouredHamiltonian_quadForm_re_split`).
+(`colourPair_re_symm`) so the off-diagonal sum is twice its `i < j` part
+(`colourPairSum_eq_two_mul_upper`), and the form splits into the *real* diagonal
+`(C_ii).re ‖u_i‖²` plus the real parts of the off-diagonal entries
+(`colouredHamiltonian_quadForm_re_split`).
 
-**Boundary.**  The identity holds for every `u` in the coloured core and uses no symmetry of `C`: it
-is an identity of complex inner products taken before the real part.  Not claimed: Hermiticity of
-the *operator* `colouredHamiltonian` for a Hermitian `C` (`ymHamiltonian_symmetricOn` covers only
-the field half; what is shown is that the form's colour term is real, not that the operator is
-self-adjoint), a bound on the cross term, and any closedness or domain statement.
+The **operator** is symmetric as well, not only its form: for `Cᴴ = C`
+`colouredHamiltonian` satisfies `⟨(H ⊗ 1 + 1 ⊗ C) u, v⟩ = ⟨u, (H ⊗ 1 + 1 ⊗ C) v⟩` on the whole
+coloured core (`colouredHamiltonian_symmetricOn`).  The field half is
+`ymHamiltonian_symmetricOn`, and the colour half is the Hermiticity itself: the `(i, j)` entry of
+the colour part is `conj C_ij`, which `i ↔ j` of the double sum turns back into the `(i, j)` entry
+of the other side.
+
+**Boundary.**  `colouredHamiltonian_quadForm_core` holds for every `u` in the coloured core and
+uses no symmetry of `C`: it is an identity of complex inner products taken before the real part.
+Symmetry on the core is not essential self-adjointness, and no deficiency index, closedness or
+domain statement is claimed; a bound on the cross term is also not claimed.  (The field operator's
+closures are the subject of the Friedrichs and form-domination chapters, not of this one.)
 -/
 
 /-- **The coloured inner product with a general colour matrix**: the field part is the sum over
@@ -3202,6 +3222,72 @@ theorem colourPair_re_symm {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ) (u : Fin N
     Complex.conj_re (inner ℂ (u i) (u j) * C i j)
   rw [h3, mul_comm (C i j) (inner ℂ (u i) (u j))]
 
+/-- **The off-diagonal colour sum is twice its `i < j` part**: for a Hermitian colour matrix the
+ordered pairs `(i, j)` and `(j, i)` contribute the same real value, so the sum over `j ≠ i` counts
+each unordered pair twice. -/
+theorem colourPairSum_eq_two_mul_upper {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ)
+    (u : Fin N → L2d 99) (hC : C.conjTranspose = C) :
+    ∑ i : Fin N, ∑ j ∈ Finset.univ.erase i,
+        (C i j * inner ℂ (u i) (u j)).re
+      = 2 * ∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => i < j),
+          (C i j * inner ℂ (u i) (u j)).re := by
+  set g : Fin N → Fin N → ℝ := fun i j => (C i j * inner ℂ (u i) (u j)).re with hg
+  have hsymm : ∀ i j : Fin N, g j i = g i j := fun i j => colourPair_re_symm C u hC i j
+  -- The `erase` of the diagonal splits into the two strict orderings.
+  have hsplit : ∀ i : Fin N,
+      ∑ j ∈ Finset.univ.erase i, g i j
+        = ∑ j ∈ Finset.univ.filter (fun j => i < j), g i j
+          + ∑ j ∈ Finset.univ.filter (fun j => j < i), g i j := by
+    intro i
+    have hpos : (Finset.univ.erase i).filter (fun j => i < j)
+        = Finset.univ.filter (fun j => i < j) := by
+      ext j
+      simp only [Finset.mem_filter, Finset.mem_erase, Finset.mem_univ, and_true, true_and]
+      constructor
+      · rintro ⟨-, h⟩
+        exact h
+      · intro h
+        refine ⟨?_, h⟩
+        simp only [Fin.lt_def] at h
+        omega
+    have hneg : (Finset.univ.erase i).filter (fun j => ¬ i < j)
+        = Finset.univ.filter (fun j => j < i) := by
+      ext j
+      simp only [Finset.mem_filter, Finset.mem_erase, Finset.mem_univ, and_true, true_and,
+        Fin.lt_def]
+      omega
+    rw [← Finset.sum_filter_add_sum_filter_not (s := Finset.univ.erase i)
+      (p := fun j => i < j), hpos, hneg]
+  -- The two orderings are interchanged by `i ↔ j`, with the same value by symmetry.
+  have hif_lo : ∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => j < i), g i j
+      = ∑ i : Fin N, ∑ j : Fin N, (if j < i then g i j else 0) := by
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [Finset.sum_filter]
+  have hif_up : ∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => i < j), g i j
+      = ∑ i : Fin N, ∑ j : Fin N, (if i < j then g i j else 0) := by
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [Finset.sum_filter]
+  have hswap : ∑ i : Fin N, ∑ j : Fin N, (if j < i then g i j else 0)
+      = ∑ i : Fin N, ∑ j : Fin N, (if i < j then g i j else 0) := by
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
+    by_cases h : a < b
+    · simp only [h, g, if_true]
+      exact hsymm a b
+    · simp [h]
+  calc ∑ i : Fin N, ∑ j ∈ Finset.univ.erase i, g i j
+      = ∑ i : Fin N, (∑ j ∈ Finset.univ.filter (fun j => i < j), g i j
+          + ∑ j ∈ Finset.univ.filter (fun j => j < i), g i j) :=
+        Finset.sum_congr rfl fun i _ => hsplit i
+    _ = (∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => i < j), g i j)
+          + ∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => j < i), g i j :=
+        Finset.sum_add_distrib
+    _ = (∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => i < j), g i j)
+          + ∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => i < j), g i j := by
+        rw [hif_lo, hswap, ← hif_up]
+    _ = 2 * ∑ i : Fin N, ∑ j ∈ Finset.univ.filter (fun j => i < j), g i j :=
+        (two_mul _).symm
+
 /-- **The coloured form split into its diagonal and off-diagonal colour parts**: the diagonal
 contribution is `(C_ii).re ‖u_i‖²` and the off-diagonal one is the real part of the off-diagonal
 entries.  No symmetry of `C` is used; for a Hermitian `C` the diagonal coefficient is real
@@ -3230,6 +3316,46 @@ theorem colouredHamiltonian_quadForm_re_split {D : Submodule ℂ (L2d 99)} (Φ :
       Complex.re_sum, colourDiag_re]
   simp only [hsplit]
   simp only [Finset.sum_add_distrib, add_assoc]
+
+/-- **The coloured Hamiltonian is symmetric on the coloured core** for a Hermitian colour matrix:
+`⟪(H ⊗ 1 + 1 ⊗ C) u, v⟫ = ⟪u, (H ⊗ 1 + 1 ⊗ C) v⟫`. -/
+theorem colouredHamiltonian_symmetricOn {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D)
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {N : ℕ} (C : Matrix (Fin N) (Fin N) ℂ)
+    (hC : C.conjTranspose = C) :
+    SymmetricOn (colouredCore N D) (colouredHamiltonian Φ fabc N C) := by
+  intro u v
+  have hcomp : ∀ (w : colouredCore N D) (i : Fin N),
+      (colouredHamiltonian Φ fabc N C w : colourSpace N).ofLp i
+        = ymHamiltonian Φ fabc ⟨WithLp.ofLp (w : colourSpace N) i, w.2 i⟩
+          + ∑ j : Fin N, C i j • WithLp.ofLp (w : colourSpace N) j :=
+    fun w i => colouredHamiltonian_ofLp Φ fabc C w i
+  rw [PiLp.inner_apply, PiLp.inner_apply]
+  simp only [hcomp, inner_add_left, inner_add_right, sum_inner, inner_sum,
+    inner_smul_left, inner_smul_right]
+  have h1 : (∑ i : Fin N, (inner ℂ
+        (ymHamiltonian Φ fabc ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩)
+        (WithLp.ofLp (v : colourSpace N) i) : ℂ))
+      = ∑ i : Fin N, (inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+          (ymHamiltonian Φ fabc ⟨WithLp.ofLp (v : colourSpace N) i, v.2 i⟩) : ℂ) :=
+    Finset.sum_congr rfl fun i _ => ymHamiltonian_symmetricOn Φ fabc
+      ⟨WithLp.ofLp (u : colourSpace N) i, u.2 i⟩
+      ⟨WithLp.ofLp (v : colourSpace N) i, v.2 i⟩
+  have hstep : ∀ i j : Fin N,
+      star (C i j) * inner ℂ (WithLp.ofLp (u : colourSpace N) j)
+          (WithLp.ofLp (v : colourSpace N) i)
+        = C j i * inner ℂ (WithLp.ofLp (u : colourSpace N) j)
+            (WithLp.ofLp (v : colourSpace N) i) := by
+    intro i j
+    rw [← Matrix.conjTranspose_apply, hC]
+  have h2 : (∑ i : Fin N, ∑ j : Fin N,
+        star (C i j) * inner ℂ (WithLp.ofLp (u : colourSpace N) j)
+          (WithLp.ofLp (v : colourSpace N) i))
+      = ∑ i : Fin N, ∑ j : Fin N, C i j * inner ℂ (WithLp.ofLp (u : colourSpace N) i)
+          (WithLp.ofLp (v : colourSpace N) j) := by
+    simp only [hstep]
+    rw [Finset.sum_comm]
+  rw [Finset.sum_add_distrib, Finset.sum_add_distrib, h1]
+  exact add_left_cancel_iff.mpr h2
 
 /-! #### The colour singlet over the combined `ℂ² ⊗ ℂ³` fibre
 
@@ -3498,11 +3624,14 @@ neither space is trivial.  That contrast with `colourSinglet_eq_bot` is the poin
 whether a colour-neutral state exists is a property of the *pair of irreps*, not of the colour
 group.
 
+Both total actions are also **representations** of `su(2)`: `[T^a ⊗ 1 + 1 ⊗ T^a, T^b ⊗ 1 + 1 ⊗ T^b]
+= i ε^{abc}(T^c ⊗ 1 + 1 ⊗ T^c)` (`mesonRep_commutator`, `glueballRep_commutator`), proved on the
+product basis and transported along the row-major relabelling, not entrywise.
+
 **Boundary.**  Each singlet space is proved to be exactly one line, by exhibiting the invariant
 vector and showing that the common kernel of the three total actions has no other direction.  Not
-claimed:
-a decomposition into the remaining summands (`3`, `5`, `3`); the representation property of
-`mesonRep`/`glueballRep`; norms or closedness of these actions.  The proofs are coordinate checks —
+claimed: a decomposition into the remaining summands (`3`, `5`, `3`); norms or closedness of these
+actions.  The singlet proofs are coordinate checks —
 `glueballRep_zero_mulVec` and its siblings give the three total actions of the glueball fibre in
 closed form — not a Clebsch–Gordan expansion.
 -/
@@ -3534,6 +3663,172 @@ noncomputable def glueballRep (a : Fin 3) : Matrix (Fin 9) (Fin 9) ℂ :=
       (if glueballSlotSnd i = glueballSlotSnd j then 1 else 0) +
     (if glueballSlotFst i = glueballSlotFst j then 1 else 0) *
       adjRep a (glueballSlotSnd i) (glueballSlotSnd j)
+
+/-! ##### The two total actions are representations
+
+`mesonRep` and `glueballRep` are each a **Kronecker sum** `T^a ⊗ 1 + 1 ⊗ T^a` of one irrep with
+itself, so neither representation property is a `4 × 4` or `9 × 9` entry check: it is the general
+fact that a Kronecker sum of two representations is a representation.  `kronSum` is that total
+action on a product basis, `kronSum_mul` multiplies two of them (the mixed `T^a ⊗ T^b` terms appear
+in both orders), and in the commutator the mixed terms cancel while
+`[T^a, T^b] = i ε^{abc}T^c` survives in both slots (`kronSum_commutator`).  The row-major
+relabellings `mesonEquiv`/`glueballEquiv` carry that to `colourVec 4`/`colourVec 9`, so
+`mesonRep_commutator` and `glueballRep_commutator` are transport along an algebra equivalence.
+-/
+
+/-- The Kronecker sum of two `Fin 3`-indexed families of matrices. -/
+noncomputable def kronSum {m n : Type*} [DecidableEq m] [DecidableEq n]
+    (T : Fin 3 → Matrix m m ℂ) (S : Fin 3 → Matrix n n ℂ)
+    (a : Fin 3) : Matrix (m × n) (m × n) ℂ :=
+  Matrix.kroneckerMap (· * ·) (T a) (1 : Matrix n n ℂ) +
+    Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a)
+
+/-- The Kronecker product of a product is the product of the Kronecker products. -/
+theorem kronMap_mul {m n : Type*} [Fintype m] [Fintype n]
+    (A A' : Matrix m m ℂ) (B B' : Matrix n n ℂ) :
+    Matrix.kroneckerMap (· * ·) A B * Matrix.kroneckerMap (· * ·) A' B'
+      = Matrix.kroneckerMap (· * ·) (A * A') (B * B') := by
+  ext p q
+  obtain ⟨p1, p2⟩ := p
+  obtain ⟨q1, q2⟩ := q
+  simp only [Matrix.mul_apply, Matrix.kroneckerMap_apply, Fintype.sum_prod_type]
+  rw [Finset.sum_mul_sum]
+  refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ => ?_
+  ring
+
+/-- The Kronecker product of a difference, on the left factor. -/
+theorem kronMap_sub {m n : Type*}
+    (A A' : Matrix m m ℂ) (B : Matrix n n ℂ) :
+    Matrix.kroneckerMap (· * ·) A B - Matrix.kroneckerMap (· * ·) A' B
+      = Matrix.kroneckerMap (· * ·) (A - A') B := by
+  ext p q
+  simp [Matrix.sub_apply, sub_mul]
+
+/-- The Kronecker product of a difference, on the right factor. -/
+theorem kronMap_sub_right {m n : Type*}
+    (A : Matrix m m ℂ) (B B' : Matrix n n ℂ) :
+    Matrix.kroneckerMap (· * ·) A B - Matrix.kroneckerMap (· * ·) A B'
+      = Matrix.kroneckerMap (· * ·) A (B - B') := by
+  ext p q
+  simp [Matrix.sub_apply, mul_sub]
+
+/-- **A product of two Kronecker sums**: the two same-slot products and the two mixed ones. -/
+theorem kronSum_mul {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n]
+    (T : Fin 3 → Matrix m m ℂ) (S : Fin 3 → Matrix n n ℂ) (a b : Fin 3) :
+    kronSum T S a * kronSum T S b
+      = Matrix.kroneckerMap (· * ·) (T a * T b) (1 : Matrix n n ℂ)
+        + Matrix.kroneckerMap (· * ·) (T a) (S b)
+        + Matrix.kroneckerMap (· * ·) (T b) (S a)
+        + Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a * S b) := by
+  unfold kronSum
+  rw [add_mul, mul_add, mul_add, kronMap_mul, kronMap_mul, kronMap_mul, kronMap_mul]
+  simp only [Matrix.mul_one, Matrix.one_mul]
+  abel
+
+/-- **The Kronecker sum is a representation** whenever both factors are. -/
+theorem kronSum_commutator {m n : Type*} [Fintype m] [DecidableEq m] [Fintype n] [DecidableEq n]
+    (T : Fin 3 → Matrix m m ℂ) (S : Fin 3 → Matrix n n ℂ)
+    (hT : ∀ a b : Fin 3,
+      T a * T b - T b * T a = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • T c))
+    (hS : ∀ a b : Fin 3,
+      S a * S b - S b * S a = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • S c))
+    (a b : Fin 3) :
+    kronSum T S a * kronSum T S b - kronSum T S b * kronSum T S a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • kronSum T S c) := by
+  have hkey :
+      kronSum T S a * kronSum T S b - kronSum T S b * kronSum T S a
+        = Matrix.kroneckerMap (· * ·) (T a * T b - T b * T a) (1 : Matrix n n ℂ)
+          + Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a * S b - S b * S a) := by
+    have hab :
+        Matrix.kroneckerMap (· * ·) (T a * T b) (1 : Matrix n n ℂ)
+            + Matrix.kroneckerMap (· * ·) (T a) (S b)
+            + Matrix.kroneckerMap (· * ·) (T b) (S a)
+            + Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a * S b)
+          - (Matrix.kroneckerMap (· * ·) (T b * T a) (1 : Matrix n n ℂ)
+            + Matrix.kroneckerMap (· * ·) (T b) (S a)
+            + Matrix.kroneckerMap (· * ·) (T a) (S b)
+            + Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S b * S a))
+        = (Matrix.kroneckerMap (· * ·) (T a * T b) (1 : Matrix n n ℂ)
+              - Matrix.kroneckerMap (· * ·) (T b * T a) (1 : Matrix n n ℂ))
+          + (Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S a * S b)
+              - Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ) (S b * S a)) := by
+      abel
+    rw [kronSum_mul T S a b, kronSum_mul T S b a, hab, kronMap_sub, kronMap_sub_right]
+  have hfinal :
+      Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • kronSum T S c)
+        = Matrix.kroneckerMap (· * ·)
+            (Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • T c)) (1 : Matrix n n ℂ)
+          + Matrix.kroneckerMap (· * ·) (1 : Matrix m m ℂ)
+            (Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • S c)) := by
+    ext p q
+    obtain ⟨p1, p2⟩ := p
+    obtain ⟨q1, q2⟩ := q
+    simp only [kronSum, Matrix.add_apply, Matrix.kroneckerMap_apply, Matrix.one_apply,
+      Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul, Finset.mul_sum, Finset.sum_mul,
+      ← Finset.sum_add_distrib, mul_add]
+    refine Finset.sum_congr rfl fun c _ => ?_
+    ring
+  rw [hkey, hT a b, hS a b, ← hfinal]
+
+/-- The row-major relabelling `ℂ² ⊗ ℂ² → ℂ⁴`. -/
+noncomputable def mesonEquiv : Fin 2 × Fin 2 ≃ Fin 4 where
+  toFun p := ⟨2 * p.1.val + p.2.val, by have := p.1.isLt; have := p.2.isLt; omega⟩
+  invFun i := (mesonSlotFst i, mesonSlotSnd i)
+  left_inv p := by
+    obtain ⟨p1, p2⟩ := p
+    refine Prod.ext (Fin.ext ?_) (Fin.ext ?_)
+    · simp [mesonSlotFst]
+      omega
+    · simp [mesonSlotSnd]
+  right_inv i := by
+    ext
+    simp only [mesonSlotFst, mesonSlotSnd]
+    omega
+
+/-- `mesonRep` is the Kronecker sum of two fundamental actions, in row-major order. -/
+theorem mesonRep_eq_reindex (a : Fin 3) :
+    mesonRep a = Matrix.reindex mesonEquiv mesonEquiv (kronSum fundRep fundRep a) := by
+  ext i j
+  simp [mesonRep, kronSum, mesonEquiv, Matrix.reindex_apply, Matrix.kroneckerMap_apply,
+    Matrix.add_apply, Matrix.one_apply, mesonSlotFst, mesonSlotSnd]
+
+/-- **`mesonRep` is a representation of `su(2)` on `ℂ² ⊗ ℂ²`.** -/
+theorem mesonRep_commutator (a b : Fin 3) :
+    mesonRep a * mesonRep b - mesonRep b * mesonRep a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • mesonRep c) := by
+  simp only [mesonRep_eq_reindex, ← Matrix.reindexAlgEquiv_apply ℂ ℂ mesonEquiv]
+  simp only [← map_mul, ← map_sub, ← map_smul, ← map_sum]
+  rw [kronSum_commutator fundRep fundRep fundRep_commutator fundRep_commutator]
+
+/-- The row-major relabelling `ℂ³ ⊗ ℂ³ → ℂ⁹`. -/
+noncomputable def glueballEquiv : Fin 3 × Fin 3 ≃ Fin 9 where
+  toFun p := ⟨3 * p.1.val + p.2.val, by have := p.1.isLt; have := p.2.isLt; omega⟩
+  invFun i := (glueballSlotFst i, glueballSlotSnd i)
+  left_inv p := by
+    obtain ⟨p1, p2⟩ := p
+    refine Prod.ext (Fin.ext ?_) (Fin.ext ?_)
+    · simp [glueballSlotFst]
+      omega
+    · simp [glueballSlotSnd]
+  right_inv i := by
+    ext
+    simp only [glueballSlotFst, glueballSlotSnd]
+    omega
+
+/-- `glueballRep` is the Kronecker sum of two adjoint actions, in row-major order. -/
+theorem glueballRep_eq_reindex (a : Fin 3) :
+    glueballRep a = Matrix.reindex glueballEquiv glueballEquiv (kronSum adjRep adjRep a) := by
+  ext i j
+  simp [glueballRep, kronSum, glueballEquiv, Matrix.reindex_apply, Matrix.kroneckerMap_apply,
+    Matrix.add_apply, Matrix.one_apply, glueballSlotFst, glueballSlotSnd]
+
+/-- **`glueballRep` is a representation of `su(2)` on `ℂ³ ⊗ ℂ³`.** -/
+theorem glueballRep_commutator (a b : Fin 3) :
+    glueballRep a * glueballRep b - glueballRep b * glueballRep a
+      = Complex.I • (∑ c : Fin 3, (levi a b c : ℂ) • glueballRep c) := by
+  simp only [glueballRep_eq_reindex, ← Matrix.reindexAlgEquiv_apply ℂ ℂ glueballEquiv]
+  simp only [← map_mul, ← map_sub, ← map_smul, ← map_sum]
+  rw [kronSum_commutator adjRep adjRep adjRep_commutator adjRep_commutator]
 
 /-- **The meson singlet space**: the vectors of the `ℂ² ⊗ ℂ²` fibre annihilated by every one
 of the three total colour actions. -/

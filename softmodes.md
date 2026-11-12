@@ -901,9 +901,11 @@ cross term no `µ • 1` can produce.  For a **Hermitian** `C` the colour part i
 symmetric: the double sum equals its own star (`colourTerm_star_eq`), the `(j, i)` and `(i, j)`
 off-diagonal contributions agree (`colourPair_re_symm`), the diagonal coefficient is real
 (`colourDiag_re`), and the form splits as `Σ_i (quadForm H u_i + (C_ii).re ‖u_i‖²)` plus the
-off-diagonal real parts (`colouredHamiltonian_quadForm_re_split`).  That is a statement about the
-form, not about the operator being self-adjoint.  Nothing is claimed for the norm of the coloured
-operator,
+off-diagonal real parts (`colouredHamiltonian_quadForm_re_split`), with the off-diagonal sum equal
+to twice its `i < j` part (`colourPairSum_eq_two_mul_upper`).  That is a statement about the
+form; the *operator* is symmetric too, on the whole coloured core
+(`colouredHamiltonian_symmetricOn`), but symmetry on a core is not essential self-adjointness.
+Nothing is claimed for the norm of the coloured operator,
 and the occupation completion carrying `colourEnergyOp` is still a separate model from the field
 fibre.  **Singlet:** the `ℂ² ⊗ ℂ³` fibre is built — `colourVec 6` with the row-major colour
 index (`pairSlotFst`, `pairSlotSnd`) carries the total action `pairRep a = T^a ⊗ 1 + 1 ⊗ T^a`,
