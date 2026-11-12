@@ -7,7 +7,7 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12o):** “State of the project — 2026-11-12o: the ESA reduction, the P1
+> **Newest entry (2026-11-12p):** “State of the project — 2026-11-12p: the ESA reduction, the P1
 > bound, and the unbounded spectrum” (end of file): the Fock-space half of the essential
 > self-adjointness of `dΓ(H₁)` is discharged —
 > `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` instantiates the weighted Schur test
@@ -19,7 +19,16 @@
 > `resolventAt_add_of_norm_mul_lt_one` and the imaginary-shift instance — with the real-axis resolvent bound recorded as the remaining
 > boundary.
 >
-> **Prev entry (2026-11-12n):** “State of the project — 2026-11-12n: colour conjugation, the
+> **Prev entry (2026-11-12o):** “State of the project — 2026-11-12o: the Casimir is natural — it
+> commutes, it is self-adjoint, and it splits every vector” (end of file): the eigenvalue list of
+> 12m is upgraded from a table of scalars to a spectral decomposition — the Casimir commutes with
+> every total action (`glueballCasimir_act`, `mesonCasimir_act`, proved from the closed forms),
+> is self-adjoint on each summand (`glueballCasimir_symmetric_alt`/`_traceless`/`_traceLine`,
+> `mesonCasimir_symmetric_symm`/`_alt`), and every vector of the glueball square is
+> `u + c·δ + z` along the three eigenspaces (`glueball_decompose`), where
+> `glueball_decompose_casimir` reads the Casimir off as `2•u + 6•z`.
+>
+> **Earlier entry (2026-11-12n):** “State of the project — 2026-11-12n: colour conjugation, the
 > colour eigenvalues, and the spectrum verdict” (end of file): unitary colour conjugation carries
 > the closure of `H ⊗ 1 + 1 ⊗ (U* C U)` onto the closure of `H ⊗ 1 + 1 ⊗ C`
 > (`colourMix_clExt_colouredHamiltonian`), a colour eigenvector spreads to an eigenvector of the
@@ -28,7 +37,7 @@
 > `H ⊗ 1`, no resolvent at real spectral distance) rather than asserted, and the QYM flow chapter
 > pins its generator to `clExt` under ESA (`ymFock_dGamma_extension_eq_closure`).
 >
-> **Prev entry (2026-11-12m):** “State of the project — 2026-11-12m: the traceless summand is
+> **Earlier entry (2026-11-12m):** “State of the project — 2026-11-12m: the traceless summand is
 > invariant, and the Casimir reads off `3`, `1`, `5`” (end of file): the gap the 12j entry named is
 > closed by a stronger lemma — the trace functional annihilates the image of *every* total colour
 > action (`glueballTrace_coeff`, `glueballTrace_act_eq_zero`), so the traceless symmetric summand is
@@ -22842,9 +22851,11 @@ must be a scalar on each irreducible summand.  Its closed forms are computed fro
   eigenvectors with eigenvalues `2`, `0`, `6`.
 
 That is the dimension count `3 + 1 + 5 = 9` recovered from the representation rather than assumed:
-`2` and `2` on the two `3`s, `0` on the `1`, `6` on the `5`.  What it is *not*: a spectral
-decomposition.  The eigenvalues are stated on each summand, and a vector with mixed components is
-not asserted to be an eigenvector.  The trace line is annihilated outright, not merely killed by the
+`2` and `2` on the two `3`s, `0` on the `1`, `6` on the `5`.  What it is *not*, as entered: a
+spectral decomposition — the eigenvalues are stated on each summand, and a vector with mixed
+components is not asserted there to be an eigenvector.  (The `12o` entry closes exactly that, with
+`glueball_decompose_casimir`, and adds the commutation and self-adjointness the eigenvalue list
+presupposed.)  The trace line is annihilated outright, not merely killed by the
 Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`, so all three summands
 are stable under every generator, not only under the Casimir — the eigenvalue `0` is a consequence
 of that annihilation rather than an additional fact.  (The corresponding claim for a single
@@ -22939,7 +22950,75 @@ no line over 100 characters and no trailing whitespace in the edited files; `#pr
 `colourSpread_ne_zero` and `ymFock_dGamma_extension_eq_closure` reports only
 `propext, Classical.choice, Quot.sound`.
 
-## State of the project — 2026-11-12o: the ESA reduction, the P1 bound, and the unbounded spectrum
+## State of the project — 2026-11-12o: the Casimir is natural — it commutes, it is self-adjoint, and it splits every vector
+
+**What the previous entry left open.**  The 12m entry computed the Casimir's eigenvalues on the three
+glueball summands and the two meson ones, and said plainly what it had not done: the eigenvalues were
+stated on each summand, a vector with mixed components was not asserted to be an eigenvector, and
+nothing connected the Casimir to the action except the invariance of the summands.  An eigenvalue
+list is not a spectral decomposition of the operator, and it is not even a statement about the
+representation until the Casimir is shown to commute with the generators it is built from: `Σ_b (A^b)²`
+diagonalises only if `C` is a function of the representation rather than of a choice of basis.
+
+**The Casimir commutes with every generator.**  `glueballCasimir_act` proves `[C, A^a] = 0` on the
+square, and `mesonCasimir_act` the same for `ℂ² ⊗ ℂ²`.  The proof does not expand the defining sum
+`Σ_b (A^b)²`; it uses the closed form.  `glueballCasimir_eq` restates `glueballCasimir_apply` as the
+vector identity `C v = 4•v + 2•(slot swap)v − 2·tr(v)·δ` (`glueballSingletVec_diag` supplies the
+diagonal indicator for `δ`), and then the three terms commute separately: the slot swap commutes with
+the action (`glueballAct_flip`, the row identity `glueballRep_flip_row` plus the reindexing
+`glueball_sum_flip`), and both the trace functional (`glueballTrace_act_eq_zero`) and the trace vector
+(`glueballAct_singletVec`) are annihilated outright.  The supporting linearity lemmas
+(`glueballAct_add`, `glueballAct_smul`, `glueballAct_neg`, `glueballAct_sub`, `glueballCasimir_add`)
+are what lets the three terms be handled one at a time.  The meson case is the same argument with
+nothing to kill: `mesonCasimir_eq` is `v + (slot swap)v`, so `mesonAct_flip` plus `mesonAct_add` is
+the whole proof.
+
+**Self-adjoint on each summand.**  Where the Casimir is a scalar, self-adjointness for the standard
+Hermitian form is the reality of that scalar: `inner_smul_real_scalar` proves `⟪λ•v, w⟫ = ⟪v, λ•w⟫`
+whenever `λ† = λ` (the inner product here is conjugate-linear in its first argument, so the two sides
+need the same hypothesis for opposite reasons — hence the lemma being worth stating rather than
+leaving to `simp`).  Through it, `glueballCasimir_symmetric_alt` (eigenvalue `2`),
+`glueballCasimir_symmetric_traceless` (`6`), `glueballCasimir_symmetric_traceLine` (`0`),
+`mesonCasimir_symmetric_symm` (`2`) and `mesonCasimir_symmetric_alt` (`0`) say the Casimir is
+self-adjoint on each summand.  In the other direction the same lemmas are the reason the eigenvalues
+are real: a self-adjoint operator on a complex space has real eigenvalues, and the values computed
+here are `2`, `0` and `6`, real numbers, as they must be.
+
+**Every vector splits.**  `glueball_decompose` unpacks `glueballCasimir_eigenspaces` (twice — the
+`⊔` is left-associated, so the first `Submodule.mem_sup` splits off `Sym²₀` and the second the trace
+line) into `v = u + c·δ + z` with `u ∈ Λ² ℂ³` and `z ∈ Sym²₀`, and `glueball_decompose_casimir`
+adds what the Casimir does to that decomposition: `C v = 2•u + 6•z`, using `glueballCasimir_add`,
+`glueballCasimir_smul` and the three eigenvalue lemmas.  This is the statement 12m declined to make,
+and it is what makes the two `3`s and the `5` a decomposition of the fibre: a mixed vector is now
+asserted to be a sum of eigenvectors, and the trace line contributes nothing because it is
+annihilated.  Uniqueness is not part of the statement — distinct eigenvalues make the parts unique,
+but the module claims existence only, and saying so is cheaper than proving an independence lemma
+that nothing here consumes.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
+errors, no warning naming the module; no line over 100 characters; no `sorry`; `#print axioms` on all
+twenty-one new declarations (`glueballAct_add`, `glueballAct_smul`, `glueballAct_neg`,
+`glueballAct_sub`, `glueballCasimir_add`, `glueballSingletVec_diag`, `glueballCasimir_eq`,
+`glueballAct_flip`, `glueballCasimir_act`, `inner_smul_real_scalar`,
+`glueballCasimir_symmetric_alt`, `glueballCasimir_symmetric_traceless`,
+`glueballCasimir_symmetric_traceLine`, `glueball_decompose`, `glueball_decompose_casimir`,
+`mesonAct_add`, `mesonCasimir_eq`, `mesonAct_flip`, `mesonCasimir_act`,
+`mesonCasimir_symmetric_symm`, `mesonCasimir_symmetric_alt`) gives
+`[propext, Classical.choice, Quot.sound]`, and no heartbeat budget had to be raised: every new proof
+is a reindexing or a rewrite, not an entry check.  Re-checked against the tree, the 12m entry's own
+claims still hold as entered — 8091 jobs, the heartbeat budgets `16000000`/`4000000`/`2000000`, the
+finrank lemmas and the `glueballAct_singletVec` argument — with one cross-reference added where it
+said the eigenvalues are not a spectral decomposition.
+
+**Boundary.**  All of this is finite-dimensional representation theory of `su(2)` on the two squares.
+Commuting with the generators says `C` is a Casimir of the algebra acting on the fibre, not that it is
+conserved by any Hamiltonian of the chapter's Fock model; self-adjointness is with respect to the
+standard Hermitian form on `colourVec`, not any graph inner product; and the decomposition says the
+fibre is a direct sum of these three eigenspaces, not that the summands are irreducible — that would
+need a separate argument (the identification of the antisymmetric `3` with the adjoint is the only
+irreducibility statement the chapter has, via `glueballAltEquiv`).
+
+## State of the project — 2026-11-12p: the ESA reduction, the P1 bound, and the unbounded spectrum
 
 Three requests answered in one packet: the essential self-adjointness of `dΓ(H₁)` for the physical
 `ymFockCol`, the status of the P1 Higgs Schur bound in the SM track, and the resolvent machinery a
