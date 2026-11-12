@@ -224,9 +224,10 @@ theorem kform_quadForm_nonneg {Q U η : H →ₗ[ℂ] H}
 /-! ## 4. The named positivity input -/
 
 /-- **The Kugo–Ojima positivity condition**, as a named input: the charge form is non-negative on
-the closed space, and its radical there is exactly the gauge orbit.  Together with `kform_well_defined`
-this is precisely the statement that the descended form is a genuine *inner product* on the
-cohomology.
+the closed space, and its radical there is exactly the gauge orbit.  Together with
+`kform_well_defined` this is precisely the statement that the descended form is a genuine
+*inner product* on the cohomology — derived from a quartet decomposition in §47 rather than
+assumed.
 
 It is **not proved** here — nor anywhere in the corpus — for the matter model: it needs the quartet
 structure of the model's BRST charge, which has not been constructed.  It is the input a physical
