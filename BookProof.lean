@@ -624,6 +624,9 @@ import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
 import BookProof.OSReconstruction.YangMillsBridge
 import BookProof.OSReconstruction.FockIntertwining
+-- B2 on the one-particle sector: a concrete `OsFockBridge` whose `U` is constructed, not assumed
+-- (the point-evaluation state, whose OS Hilbert space is the one-particle line) — `cftproof.md` E4.
+import BookProof.OSReconstruction.OneParticleBridge
 -- Half-space OS reconstruction (`cftproof.md` E3): the quotient of `𝔄₊` by the null space of
 -- the half-space OS form, its vacuum, and the forward transfer semigroup on its completion.
 import BookProof.OSReconstruction.HalfSpaceState
@@ -4120,8 +4123,9 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- `PhysicalPositivity` (non-negative on the closed space, radical exactly the gauge orbit) is a
 -- **named input here**; §47 derives it from quartet data, but the matter model's own quartet data
 -- is not built, so no physical inner product is claimed.
--- `ChapterSmQuartet` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §47): the Kugo–Ojima mechanism behind
--- §46's named input.  A `BrstQuartet Q` is the b-ghost `P` plus the physical projector `V` with
+-- `ChapterSmQuartet` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §47) — **not in the tree, so the import
+-- below is disabled**; the note is kept as the recorded intent of §47.  The Kugo–Ojima mechanism
+-- behind §46's named input.  A `BrstQuartet Q` is the b-ghost `P` plus the physical projector `V` with
 -- `Q P + P Q = 1 - V` and `V`'s range in `ker Q`; from it `V Q = 0` follows
 -- (`quartet_physProj_comp_Q`), every closed vector splits as `x = Q (P x) + V x`
 -- (`quartet_decompose`), the charge form sees only the physical part (`kform_quartet_reduce`), and
@@ -4133,7 +4137,7 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- non-trivial by `exE2_not_exact`), and `isBrst_smBrstCharge` links `IsBrst` to
 -- `smBrstCharge_nilpotent`.  The SM's own `P` and `V` are still missing, so this is a mechanism, not
 -- a proof of SM positivity.
-import BookProof.Sm.ChapterSmQuartet
+-- import BookProof.Sm.ChapterSmQuartet  -- pending: module not written yet
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index

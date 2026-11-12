@@ -314,6 +314,40 @@ single operator topology, and the correlation clause needs the limiting masses t
 spatial translation, no unitary `ℋ_OS → ℱ`; B2/B3 remain conditional, and `B1ContinuumEstimate` is
 still an explicit input.
 
+**Landed 2026-11-12, B2 on the one-particle sector.** `BookProof/OSReconstruction/OneParticleBridge.lean`
+gives `OsFockBridge` an inhabitant **whose `U` is constructed rather than assumed**, which was the
+one thing the bundle's two previous inhabitants (`OsFockBridge.id`, `osFockBridgeOfMulModel`) never
+did. Axiom footprint `{propext, Classical.choice, Quot.sound}`; no `sorry`.
+
+* **A concrete state.** `evalZeroState` is the point-evaluation functional `ω F = F 0` on the full
+  observable algebra — additive and homogeneous for *every* observable, θ-invariant because
+  `fieldReflection` fixes `0`, and reflection positive because its OS form factorizes:
+  `evalZero_osBilin : ⟨F,G⟩ = F(0)·G(0)`, hence `⟨F,F⟩ = F(0)² ≥ 0`.
+* **Its OS space is the one-particle line, and the isometry is built.** The radical is the kernel of
+  evaluation at `0` (`evalZero_mem_radical_iff`); evaluation descends to the quotient as `evalQuot`,
+  which is an isometry onto `ℝ` (`evalQuot_norm : ‖[F]‖ = |F(0)|`, `evalQuot_surjective`), so
+  `𝔄/𝔑 ≃ₗᵢ ℝ`. `LinearMap.extendOfNorm` along the dense embedding gives
+  `evalHphysU : ℋ →ₗᵢ[ℝ] ℝ` (`evalHphysMap_norm`), onto (`evalHphysU_denseRange`).
+* **The bridge.** `oneParticleBridge P : OsFockBridge ℝ P (oneParticleFlow P)` for an arbitrary
+  transfer semigroup `P`, with all three fields proved: `U` is the constructed isometry, its range
+  is dense, and on a one-dimensional sector every vector is `x = U x • Ω`, so linearity gives
+  `U (P τ x) = c τ · U x` with `c τ = U (P τ Ω)` (`oneParticleScalar`) — the Fock-side flow is the
+  scalar flow `c τ • id` (`oneParticleFlow`). The two-point function becomes
+  `⟪x, P τ x⟫ = c τ · ‖x‖²` (`oneParticleBridge_twoPoint`) and `‖P τ x‖ = |c τ| ‖x‖`
+  (`oneParticleBridge_norm`); `oneParticleBridge_unitary` records that the identification is a
+  unitary.
+
+Boundary recorded there, and it is the honest reading: the instance is non-conditional in `U`, but
+it is a **degenerate model**. The point-evaluation state is a character of the observable algebra,
+which is *why* its form is rank one and its Hilbert space is a line — there is no multi-particle
+content to identify. `F = ℝ` is the one-particle sector of the Fock space over a one-dimensional
+one-particle space and `oneParticleFlow` is `dΓ` of `c τ • id` there; it is not the manuscript's
+inner `h_F`, no complex structure, spatial translation or identification with `ℱ_out` is built, and
+`P` stays an input as for every bridge. The interacting B2 — a unitary `ℋ_OS → ℋ_ref ⊆ ℱ_out`
+intertwining the smeared fields and the actual heat semigroup — remains open; this module only
+records that the bundle is satisfiable by a constructed map, so B2's difficulty is the model, not
+the bundle.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a
@@ -643,7 +677,7 @@ The operator-function approximation theorem does not supply that exclusion.
 | E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
 | E2 | Summable increments imply convergence | Actual RG estimates and limits |
 | E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), half-space generator with `H = −A` (`HalfSpaceGenerator`), finite-volume Gibbs state and its measure on the split lattice (`HalfSpaceFreeState`), complexification, complex OS form and `HilbertSpace ℂ` carrier (`HalfSpaceComplex`), quotients, multiplier generators | The exponential `e^{−τH}`, an infinite-volume state |
-| E4 | `OsFockBridge` consequences | Physical spatial prior, field and flow bridge |
+| E4 | `OsFockBridge` consequences, plus one constructed (non-conditional) instance on the one-particle sector (`OneParticleBridge`) | Physical spatial prior, field and flow bridge for the interacting theory |
 | E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
 
 Execute **E0 → E1 → E2 → E3 → E4 → E5** as dependency gates; abstract E3 work and E5

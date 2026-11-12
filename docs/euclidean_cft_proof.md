@@ -329,3 +329,29 @@ Boundary: the law is assumed (`IsProbabilityMeasure` is never derived) and no Eu
 constructed; supports are measurable sets of positive finite measure and the propositions remain
 normalized indicators; the exhaustion lemmas are per support and per pair; `B1ContinuumEstimate`
 stays an explicit input, as do B2/B3.
+
+### B2 on the one-particle sector: a bridge with a constructed `U` (2026-11-12)
+
+`BookProof/OSReconstruction/OneParticleBridge.lean` gives `OsFockBridge` an inhabitant whose `U` is
+**constructed**, not assumed — the one thing neither `OsFockBridge.id` nor `osFockBridgeOfMulModel`
+did.  No `sorry`; the headline declarations depend only on
+`{propext, Classical.choice, Quot.sound}`.
+
+* The state: `evalZeroState`, the point-evaluation functional `ω F = F 0` on the full observable
+algebra — additive and homogeneous for every observable, θ-invariant because `fieldReflection` fixes
+`0`, and reflection positive because its OS form factorizes,
+`evalZero_osBilin : ⟨F,G⟩ = F(0)·G(0)`.
+* The space: the radical is the kernel of evaluation at `0` (`evalZero_mem_radical_iff`), evaluation
+descends to the quotient as an isometry onto `ℝ` (`evalQuot_norm : ‖[F]‖ = |F(0)|`, onto by
+`evalQuot_surjective`), and `LinearMap.extendOfNorm` extends it to
+`evalHphysU : ℋ →ₗᵢ[ℝ] ℝ` (`evalHphysMap_norm`, `evalHphysU_denseRange`).
+* The bridge: for any transfer semigroup `P`, `oneParticleBridge P : OsFockBridge ℝ P
+(oneParticleFlow P)` — all three fields proved, with `oneParticleFlow τ = c τ • id` the scalar flow
+`c τ = U (P τ Ω)`; hence `⟪x, P τ x⟫ = c τ ‖x‖²` (`oneParticleBridge_twoPoint`) and
+`‖P τ x‖ = |c τ| ‖x‖` (`oneParticleBridge_norm`).
+
+Boundary: the model is degenerate.  The point-evaluation state is a character, so its OS form has
+rank one and its Hilbert space is a line; `F = ℝ` is the one-particle sector of the Fock space over
+a one-dimensional one-particle space, `oneParticleFlow` is `dΓ(c τ • id)` there, and none of this is
+the manuscript's inner `h_F` or `ℱ_out`.  The interacting B2 remains open; the bundle itself is now
+known to be satisfiable by a constructed map, so its difficulty is the model, not the axioms.
