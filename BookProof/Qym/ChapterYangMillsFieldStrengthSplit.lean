@@ -1484,8 +1484,6 @@ above.  This section states that identification and proves what it yields.
   Casimir of the representation is `Σ_a (A^a)² = colourEnergyCLM`, i.e. `C_F` times the identity.
   Boundedness is what makes the commutator equality hypothesis-free, which the unbounded
   Hamiltonian does not allow;
-<<<<<<< HEAD
-=======
 * **`norm_colourActCLM`** — the constant `1/2` is attained and not merely a bound: `‖A^a f‖ = ‖f‖/2`
   for every `f` (`colourActOp_norm`), so `‖colourActCLM a‖ = 1/2` exactly;
 * **`colourGroupElement_mem_unitary`**, **`colourGroupActCLM_mul`** — the exponentiated action:
@@ -1493,7 +1491,6 @@ above.  This section states that identification and proves what it yields.
   group of bounded operators on the completion.  It is a group of invertible operators and *not* a
   unitary group: the fibre carries the sup norm, `fundMode` has no inner-product structure, and the
   fibre norm is not preserved (the operator constant is `2`, not `1`);
->>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 * **`coreNormSq_tendsto`**, **`gap_closed_in_coreLp`**, **`root_spectral_gap_closed`**,
   **`root_ground_bound_closed`** — closedness of the bound: a lower bound `K‖·‖² ≤ q` survives an
   ℓ² limit whenever the form values converge, so the S2 gap and the certificate's ground threshold
@@ -3047,8 +3044,6 @@ theorem colouredHamiltonian_smul_one_quadForm_sum {D : Submodule ℂ (L2d 99)}
       = ⟨WithLp.ofLp ((colourSum s x v : colourSpace N)) i, (colourSum s x v).2 i⟩ :=
     Subtype.ext (colourSum_ofLp s x v i).symm
   rw [hsub, ← colourSum_ofLp s x v i]
-<<<<<<< HEAD
-=======
 /-! #### The colour actions as bounded operators, and the `su(2)` representation
 
 `colourAct` and `colourEnergy` extend to continuous linear maps on the completion, with the sharp
@@ -3056,7 +3051,6 @@ pointwise constant `‖T^a v‖ = ‖v‖/2` (`norm_fundRep_mulVec`).  Composing
 matrices (`colourActOp_comp_apply`), so every matrix identity of `fundRep` lifts to an operator
 identity with no analytic work: `[A^a, A^b] = i ε^{abc} A^c` and `Σ_a (A^a)² = C_F · 1` hold on
 `fundMode d` without a domain hypothesis, which the unbounded `ymHamiltonian` does not allow. -/
->>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 
 def flip2 (i : Fin 2) : Fin 2 := if i = 0 then 1 else 0
 
@@ -3196,23 +3190,12 @@ theorem colourActCLM_norm_le (a : Fin 3) (f : fundMode d) :
     ‖colourActCLM a f‖ ≤ (1 / 2) * ‖f‖ := by
   simpa [div_eq_mul_inv, mul_comm] using colourActOp_norm_le a f
 
-<<<<<<< HEAD
 
-
-
-=======
->>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 /-- **The colour energy as a bounded operator**: `C_F` times the identity. -/
 noncomputable def colourEnergyCLM : fundMode d →L[ℂ] fundMode d :=
   (3 / 4 : ℂ) • ContinuousLinearMap.id ℂ (fundMode d)
 
-<<<<<<< HEAD
 theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := rfl
-=======
-theorem colourEnergyCLM_apply (f : fundMode d) : colourEnergyCLM f = colourEnergyOp d f := by
-  rw [colourEnergyCLM, colourEnergyOp, ContinuousLinearMap.smul_apply,
-    ContinuousLinearMap.id_apply]
->>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 
 /-! ##### The colour operators are a representation of `su(2)`
 
@@ -3296,9 +3279,6 @@ theorem colourActCLM_commutator (a b : Fin 3) (f : fundMode d) :
 theorem sum_colourActCLM_comp (f : fundMode d) :
     ∑ a : Fin 3, colourActCLM a (colourActCLM a f) = colourEnergyCLM f := by
   simpa [colourActCLM_apply, colourEnergyCLM_apply] using sum_colourActOp_comp f
-<<<<<<< HEAD
-=======
-
 /-! ##### The operator norm is attained
 
 `colourActCLM_norm_le` bounded the colour action by `1/2`; `colourActOp_norm` upgrades it to an
@@ -3600,7 +3580,6 @@ theorem colourGroupActCLM_neg_mul (a : Fin 3) (θ : ℝ) :
   rw [colourGroupActCLM_mul]
   ext f
   simp [colourGroupActCLM_apply, colourGroupAct_apply, colourGroupElement_zero]
->>>>>>> e2362655f5b068001426a63ae9e5554fa7091647
 
 /-! #### Closedness of the bound: the Friedrichs side
 
