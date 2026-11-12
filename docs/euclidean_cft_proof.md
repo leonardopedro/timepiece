@@ -242,3 +242,58 @@ The dependencies of the new modules that live outside Mathlib are the corpus cha
 `BookProof.Toolbox.ChapterHermiteProductBasis` (the `L²(ℝᵈ)` Hermite basis) and
 `BookProof.Toolbox.PhysHSGaussian` (the Gaussian and sphere measures), both pre-existing and
 already imported by `BookProof.lean`.
+
+## B0 and the finite-regulator B1 (2026-11-12)
+
+`BookProof/OSReconstruction/ObservablePrior.lean` is the plan's own "next local deliverable":
+B0 for one concrete observable and B1 at a finite regulator, with an explicit unproved continuum
+estimate.  It compiles with no `sorry`, and every headline theorem's axiom footprint is
+`{propext, Classical.choice, Quot.sound}` (`#print axioms` checked, not assumed).
+
+* B0 — `SpatialPrior n Ω` carries an arbitrary *joint* prior law on a finite information space
+  plus `n` resolved distinct supports.  `SpatialPrior.prop` is the normalized number-density
+  proposition and `SpatialPrior.expect_prop` proves its expectation is `1` for every prior, so the
+  one-point functions carry no prior information; `SpatialPrior.corr_eq` is
+  `joint i j / (mass i · mass j)` and `SpatialPrior.corr_eq_one_iff` makes "correlation `1`" mean
+  "the joint information factorizes".  `correlatedInformation` is the acceptance-test prior (two
+  distinct supports, informed sets coinciding) with `correlatedInformation_corr = 2`.
+  `emptyVacuum_cannot_distinguish` records that the empty outer vacuum annihilates all of these,
+  so it validates nothing.
+* The outer one-particle sector — `dGamma_diag_one_particle` (the diagonal case of the corpus's
+  `dGamma_one_particle`) and `dGamma_diag_mul_one_particle`
+  (`dΓ(f) (dΓ(g) e_k) = dΓ(f·g) e_k`): products recover inner operator products.
+* B1 at the finite regulator — `gibbsFun_posTime_eq`, `gibbs_separated_moment_factorises`
+  (`⟨F, G⟩_OS = ω F · ω G`) and `gibbs_connected_corr_zero` on `gibbsHalfSpaceState`.  The
+  moment identity holds, but only because both sides are the empty correlation: the regulator's
+  halves are independent draws and `regulatorTimeTranslation` is the identity.
+* The unproved continuum estimate is `B1ContinuumEstimate ω T F m C`, a `Prop`, not an axiom;
+  `b1ContinuumEstimate_of_clustering` identifies it with the specialization of
+  `SchwingerClustering` to one observable, which is the shape the clustering/generator machinery
+  consumes.  The decay itself stays Bałaban's input.
+
+Boundary: finitely many resolved supports and a finite information space; propositions are
+normalized indicators rather than products of independent number densities; B2/B3 untouched (no
+unitary `ℋ_OS → ℱ`, no spatial translations, no ground projection transported).
+
+### Conditioning, refinement and infinite information (2026-11-12, same day)
+
+`BookProof/OSReconstruction/PriorRefinement.lean` finishes the clause the B0 record above leaves
+open: the conditional reading of a spatial point, refinement, and the infinite-information
+representation with its consistency estimate.  No `sorry`; every headline theorem's axiom
+footprint is `{propext, Classical.choice, Quot.sound}`.
+
+* Conditioning: `SpatialPrior.massOn` / `jointOn` (with `massOn_inf`, `jointOn_inf` reducing B0 to
+  the case `A = inf i`), the conditioned law `SpatialPrior.cond` with `cond_sum_one`,
+  `cond_mass` (`jointOn A (inf i) / massOn A`), `cond_expect` (Bayes), `cond_massOn_self` and
+  `cond_expect_prop` (B0's normalization survives conditioning).
+* Refinement: `PriorRefinement` on `Ω × Γ` with an arbitrary joint law and coarse supports, its
+  marginal `PriorRefinement.coarse`, and `mass_refined_eq_coarse`, `joint_refined_eq_coarse`,
+  `corr_refined_eq_coarse`, `expect_refined_eq_coarse` — splitting the information space changes no B0 number.
+* Infinite information: `InfSpatialPrior n Ω` without `[Fintype Ω]`, mass function on an arbitrary
+  type with an explicit finite resolved support `s`; `expect_prop`, `corr_eq`, `corr_eq_one_iff`
+  transfer unchanged, `ofFinite_corr` embeds the finite packet (`s = univ`), and
+  `correlatedInformationNat` repeats the acceptance test on the information space `ℕ`
+  (`corr = 2`).
+
+Boundary: the refinement is the product `Ω × Γ`, not a general coarsening map; the resolved support
+is finite, so the continuous law without atomic support and the continuum estimate stay inputs.

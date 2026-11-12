@@ -631,6 +631,12 @@ import BookProof.OSReconstruction.HalfSpaceHilbert
 import BookProof.OSReconstruction.HalfSpaceGenerator
 import BookProof.OSReconstruction.HalfSpaceFreeState
 import BookProof.OSReconstruction.HalfSpaceComplex
+-- B0 (observable/prior dictionary) and B1 at a finite regulator, with the explicit unproved
+-- continuum estimate (`cftproof.md`, "Next local deliverable").
+import BookProof.OSReconstruction.ObservablePrior
+-- B0's remaining clauses: conditional probability at a spatial point, refinement consistency
+-- and the infinite-information representation (`cftproof.md`, same deliverable).
+import BookProof.OSReconstruction.PriorRefinement
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as

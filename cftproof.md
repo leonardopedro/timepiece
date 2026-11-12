@@ -202,6 +202,79 @@ an explicit unproved continuum estimate. Keep the full E2 limit and B2 unitary c
 until their inputs exist. Hashimoto/SIRK applies after the self-adjoint operator is fixed;
 its approximation error neither constructs a Euclidean law nor proves any bridge packet.
 
+**Landed 2026-11-12, in exactly that finite form.** `BookProof/OSReconstruction/ObservablePrior.lean`
+states the two packets as code, `sorry`-free and with axiom footprint
+`{propext, Classical.choice, Quot.sound}` only.
+
+* **B0.** `SpatialPrior n Ω` is the stated prior: a probability law `μ` on a finite information
+  space together with `n` resolved, distinct supports `inf : Fin n → Ω → Bool`. The law is an
+  arbitrary *joint* law, so local occupation does not imply a product prior. `SpatialPrior.prop`
+  is the **normalized number-density proposition** at a support, and `SpatialPrior.expect_prop`
+  proves `ω (prop i) = 1` for every prior with positive mass there — the one-point functions
+  therefore carry no prior information at all. `SpatialPrior.corr_eq` identifies the two-point
+  function as `joint i j / (mass i · mass j)`, and `SpatialPrior.corr_eq_one_iff` turns that into
+  the dictionary statement **correlation `1` ⇔ joint information factorizes**. The first
+  acceptance test is `correlatedInformation`: two distinct supports whose informed sets coincide,
+  where `correlatedInformation_corr` is `2` and `correlatedInformation_corr_ne_one` says it is
+  not the uncorrelated value. The empty outer vacuum is `emptyVacuum`, and
+  `emptyVacuum_cannot_distinguish` is the plan's remark made precise — its values vanish for
+  every prior, so it validates nothing.
+* **The one-particle sector.** `dGamma_diag_one_particle` is
+  `dGamma_one_particle` specialized to a diagonal column, and `dGamma_diag_mul_one_particle` is
+  the product statement B0 asks for: `dΓ(f) (dΓ(g) e_k) = dΓ(f · g) e_k`, so products recover
+  inner operator products on their common domain.
+* **B1 at the finite regulator**, on `gibbsHalfSpaceState` of `HalfSpaceFreeState`.
+  `gibbsFun_posTime_eq` gives the one-point function as the boundary average,
+  **`gibbs_separated_moment_factorises`** gives
+  `⟨F, G⟩_OS = ω F · ω G`, and `gibbs_connected_corr_zero` concludes that the connected
+  two-point function vanishes identically. The equality B1 asks for therefore holds at the
+  regulator, but only because both sides are the empty correlation: the regulator's two halves
+  are independent draws, and its time translation (`regulatorTimeTranslation`) is trivial.
+* **The unproved continuum estimate** is `B1ContinuumEstimate ω T F m C` — a `def … : Prop`, not
+  an axiom: after the continuum limit the connected two-point function of the chosen observable
+  decays at rate `m > 0`. `b1ContinuumEstimate_of_clustering` shows it is exactly the
+  specialization of the corpus's `SchwingerClustering` to one observable, i.e. the shape
+  `osNorm_evol_le_of_clustering` and `genForm_gap_of_clustering` consume. The decay itself is
+  **not** proved here; it is Bałaban's infrared input.
+
+Boundary of the module, recorded there as well: finitely many resolved supports and a finite
+information space (the continuous/infinite-information representation and its consistency
+estimates are not built and no point-evaluation vectors in `L²` are assumed); the propositions are
+normalized indicators rather than products of independent number densities; and B2/B3 are
+untouched — no unitary `U : ℋ_OS → ℱ` is built (the corpus's `OsFockBridge` still states the
+conditions and proves only their consequences).
+
+**Landed 2026-11-12, the rest of B0's clause.** `BookProof/OSReconstruction/PriorRefinement.lean`
+takes the three remaining items the paragraph above names — the conditional reading of a spatial
+point, refinement, and the infinite-information representation with its consistency estimate — and
+states them as code, `sorry`-free, axiom footprint `{propext, Classical.choice, Quot.sound}` only.
+
+* **Conditional probability at a spatial point.** `SpatialPrior.massOn` / `jointOn` are the prior
+  masses of an arbitrary event and of a conjunction; `massOn_inf` and `jointOn_inf` show the B0
+  quantities are the case `A = inf i`, so no new notion is introduced. `SpatialPrior.cond` is the
+  conditioned law (`cond_sum_one`: it is again a probability law), `cond_mass` reads the conditional
+  mass at a point as `jointOn A (inf i) / massOn A`, `cond_expect` is Bayes' rule, and
+  `cond_massOn_self` says conditioning makes `A` certain. `cond_expect_prop` records that B0's
+  normalization survives conditioning. This is the manuscript's conditional meaning of a spatial
+  point, with no point-evaluation vector in `L²` anywhere.
+* **Refinement consistency.** `PriorRefinement` splits the information space as `Ω × Γ` with an
+  arbitrary *joint* law on the product (the "no product prior" requirement is kept) and reads the
+  resolved supports off the coarse factor; `PriorRefinement.coarse` is its marginal. Then
+  `mass_refined_eq_coarse`, `joint_refined_eq_coarse`, `corr_refined_eq_coarse` and
+  `expect_refined_eq_coarse` prove that splitting the information space changes no B0 number —
+  the finite consistency estimate.
+* **Infinite information.** `InfSpatialPrior n Ω` drops `[Fintype Ω]`: `Ω` is arbitrary, the law is
+  an `ℝ`-valued mass function, and the *resolved* information is an explicit finite support
+  `s : Finset Ω` (states outside `s` are unresolved, not `L²` vectors). `expect_prop`, `corr_eq`
+  and `corr_eq_one_iff` transfer the whole dictionary, `ofFinite_corr` shows the finite packet is
+  the case `s = univ`, and `correlatedInformationNat` repeats the acceptance test on the infinite
+  information space `ℕ`, with `corr = 2 ≠ 1`.
+
+Boundary recorded there: the refinement is the product `Ω × Γ` (not a general coarsening map), and
+`InfSpatialPrior` has a finite *resolved* support inside an infinite information space — the
+continuous law with no atomic support is still not constructed and remains an input, as does the
+continuum estimate `B1ContinuumEstimate`.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a
