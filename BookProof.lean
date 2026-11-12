@@ -4119,12 +4119,30 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- **`PhysicalPositivity` becomes a theorem** (`physicalPositivity_of_quartet`: the form is `‖V x‖²`
 -- on the closed space, and its radical is the gauge orbit).  The parity split composes with it
 -- (`kform_quartet_reduce_sectors`, `physicalPositivity_of_quartet_sectors`), which is the shape a
--- sector-by-sector attack takes.  `exQuartet`/`exPhysicalPositivity` is a non-vacuous 2⊕1-dimensional
--- instance (indefinite metric `σ₁` on the block, identity on the physical line; the cohomology is
--- non-trivial by `exE2_not_exact`), and `isBrst_smBrstCharge` links `IsBrst` to
--- `smBrstCharge_nilpotent`.  The SM's own `P` and `V` are still missing, so this is a mechanism, not
--- a proof of SM positivity.
+-- sector-by-sector attack takes.  `exQuartet`/`exPhysicalPositivity` is a non-vacuous
+-- 2⊕1-dimensional instance (indefinite metric `σ₁` on the block, identity on the physical line;
+-- the cohomology is non-trivial by `exE2_not_exact`), and `isBrst_smBrstCharge` links `IsBrst` to
+-- `smBrstCharge_nilpotent`.  The SM's own `P` and `V` are still missing, so this is a mechanism,
+-- not a proof of SM positivity.
 import BookProof.Sm.ChapterSmQuartet
+-- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
+-- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
+-- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`
+-- one has `B = N − k`, so `‖B‖² = Re ⟪B,N⟫ − Re ⟪B,k⟫`; §23's weighted integration by parts
+-- (`sm_weighted_kinetic_ibp`) evaluates `Re ⟪w,k⟫`, its weighted-Dirichlet half is non-negative
+-- (`gaussInt_weighted_self_nonneg` against `smPotPoly_nonneg`), and what survives is the single
+-- commutator term `∑_j Re ⟪(∂_j W) p, D_j p⟫`.  Cauchy–Schwarz plus Young turn that into
+-- `(1 − 2|a|/(4η)) ‖B‖² ≤ ‖B‖ ‖N‖ + C_η ‖N‖²`, using only `∑_j ‖(∂_j W) p‖² ≤ a ‖W p‖² + b ‖p‖²`
+-- (`GradDom`) together with `‖p‖ ≤ ‖N‖` and `∑_j ‖D_j p‖² ≤ ‖N‖²`.
+-- `exists_potSelfBound_of_gradDom` is that argument, with an explicit `β`;
+-- `sum_coreD_sq_le_shiftNorm_sq` is the Dirichlet half.
+-- **`GradDom` is the residual input, and it is a condition on the polynomial alone**: it holds for
+-- a coercive quartic (`gradDom_coercive_quartic`: `|∂₀W|² + |∂₁W|² = 16(x₀⁶ + x₁⁶)` for `X₀⁴ + X₁⁴`
+-- is `≤ 16W² + 32`) and **fails for the flat one** (`not_gradDom_flat_quartic`: for `X₀²X₁²` no
+-- `a, b` work, since on `(t, 1/t)` the gradient grows without bound while `W ≡ 1`).  P4 is now a
+-- single algebraic question about `smPotPoly` — whose mixed terms can be flat in a coordinate
+-- direction, the `X₀²X₁²` pattern — and `PotSelfBound` remains a hypothesis for the SM's own `W`.
+import BookProof.Sm.ChapterSmReverseEllipticQuartic
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index

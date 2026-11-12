@@ -2690,3 +2690,143 @@ model's actual BRST charge, which has not been constructed.  Consequently:
   `propext, Classical.choice, Quot.sound`, no `sorryAx` (note `PhysicalPositivity` is audited as a
   definition and its axiom list is inherited from the definitions it mentions).
 * `lake env lean BookProof.lean` — exit 0.
+
+## §47. The quartet structure behind the BRST charge (2026-11-12)
+
+Module: `BookProof/Sm/ChapterSmQuartet.lean`, namespace `BookProof.SmQuartet`.
+
+### 47.1. What §46 left open, and what closes it
+
+§46 reduced the physical-positivity question to the Kugo–Ojima condition `PhysicalPositivity`, as a
+**named input**.  That input is not idle: nilpotency alone cannot give it (in a definite space a
+nilpotent self-adjoint charge vanishes).  The mechanism that does give it is the quartet, and it is
+one identity:
+
+  `Q P + P Q = 1 − V`,  with `Q² = 0`, `V` a projector, `V`'s range inside `ker Q`.
+
+On a quartet block the right-hand side is the identity — `Q` pairs the two members and the b-ghost
+`P` pairs them back — and on the physical subspace it vanishes.  `BrstQuartet Q` is that data.
+
+### 47.2. What is proved
+
+* **The hypothesis set is not over-specified.**  `V Q = 0` is *derived* from the quartet identity and
+  `Q² = 0` (`quartet_physProj_comp_Q`): applying `Q` to the identity at `x` gives
+  `Q (P (Q x)) = Q x`, the identity at `Q x` gives `Q (P (Q x)) = Q x − V (Q x)`, hence `V (Q x) = 0`.
+* **Every closed vector splits as exact plus physical**: `x = Q (P x) + V x` (`quartet_decompose`).
+* **The charge form sees only the physical part** (`kform_quartet_reduce`): the exact–exact term
+  vanishes by nilpotency (`kform_exact_self`), and both cross terms vanish by §46's ghost nullity and
+  the symmetry of the form.
+* **The no-ghost theorem** (`physicalPositivity_of_quartet`): if the metric operator fixes the range of
+  `V` — the physical subspace sits in the ghost-parity-even sector, which is what the no-ghost theorem
+  asserts — then on the closed space `⟨x,x⟩_η = ‖V x‖²`, so the form is non-negative and its radical
+  is exactly the gauge orbit (`‖V x‖ = 0` ⟹ `x = Q (P x)`).  **`PhysicalPositivity` is a theorem
+  here, not an input.**
+* **Sector by sector** (`kform_quartet_reduce_sectors`, `physicalPositivity_of_quartet_sectors`):
+  composing with §46's parity split, positivity known one parity sector at a time — non-negativity
+  plus definiteness on the physical subspace inside each sector — assembles into the whole statement.
+  This is the shape a physical smoke test takes.
+* **The 2⊕1-dimensional instance** (`exQuartet`, `exPhysicalPositivity`): `Q : e₀ ↦ e₁`, `P : e₁ ↦ e₀`,
+  `V : e₂ ↦ e₂`, indefinite metric `σ₁` on the block and the identity on the physical line.  All four
+  quartet fields and both metric hypotheses are verified (`exQ_nil`, `exQuartet_anticomm`,
+  `exEta_physProj`, `exKrein`, `exSymm`), and the instance is **not vacuous**: the physical line is
+  closed (`exE2_closed`) but not exact (`exE2_not_exact`), so the cohomology is one-dimensional.
+* **The link to the SM charge**: `isBrst_smBrstCharge` — `IsBrst` for `smBrstCharge` follows from
+  `smBrstCharge_nilpotent` (§36), via `Module.End.mul_eq_comp`.
+
+### 47.3. What is not built
+
+The quartet *data* `(P, V)` for the gauge-fixed matter model.  §47 proves that quartet data yields
+the no-ghost theorem and that the SM charge is a BRST charge; it does **not** construct the b-ghost
+that pairs each longitudinal/ghost mode of the matter model with its partner.  So:
+
+* `PhysicalPositivity` for the SM remains unproved — what changed is that it no longer has to be
+  assumed *in addition* to a quartet decomposition, it is derived from one;
+* the module is generic in the Hilbert space and the charge, which is what allows §47.2's instance to
+  be checked independently of the SM's 163-coordinate normal form.
+
+### 47.4. Verification performed (2026-11-12)
+
+* `lake env lean BookProof/Sm/ChapterSmQuartet.lean` — exit 0, no warnings.
+* `lake build BookProof.Sm.ChapterSmQuartet` — clean (6.1 s).
+* `lake env lean Work/SmQuartetAudit.lean` — 23 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0.
+* `scripts/check-sm-section-guards` — see §48.4.
+
+## §48. The reverse elliptic estimate for the quartic potential (2026-11-12)
+
+Module: `BookProof/Sm/ChapterSmReverseEllipticQuartic.lean`, namespace
+`BookProof.SmReverseEllipticQuartic`.
+
+### 48.1. The estimate, and the one hypothesis it needs
+
+§31 reduced `PotSelfBound P c₀ β` — `‖W p + p‖ ≤ β ‖(−Δ_S + W + 1) p‖` — to an exact residual and
+showed that the sign route lands on a gradient-residual condition comparing a *degree-six* density
+with a *second-order* norm; §35 showed the quartic uncertainty bound is weaker than that condition,
+and one-sided in the wrong direction for closing it.  This section takes the other route.
+
+With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`, one has
+`B = N − k` **identically**, hence
+
+  `‖B‖² = Re ⟪B, N⟫ − Re ⟪B, k⟫`,
+
+and §23's weighted integration-by-parts identity (`sm_weighted_kinetic_ibp`) evaluates the second
+term as `∑_j [Re ⟪(∂_j W) p, D_j p⟫ + Re ⟪W D_j p, D_j p⟫]`.  The second sum is non-negative because
+`W ≥ 0` (`gaussInt_weighted_self_nonneg` against `smPotPoly_nonneg`), so what survives is the **single
+commutator term** `∑_j Re ⟪(∂_j W) p, D_j p⟫`.  Cauchy–Schwarz over `j` (`Finset.sum_mul_sq_le_sq_mul_sq`)
+and Young (`sqrt_mul_le_div`) turn it into
+
+  `(1 − a'/(4η)) ‖B‖² ≤ ‖B‖ ‖N‖ + C_η ‖N‖²`,
+
+with the only inputs besides the algebra
+
+* `‖p‖ ≤ ‖N‖` (§32's `norm_le_shiftNorm_of_coercive`) and
+* `∑_j ‖D_j p‖² ≤ ‖N‖²` (`sum_coreD_sq_le_shiftNorm_sq`), and
+* the **gradient domination**
+
+  `∑_{j∈S} ‖(∂_j W) p‖² ≤ a ‖W p‖² + b ‖p‖²`   (`GradDom`, `b ≥ 0`).
+
+`norm_le_of_quad_le` completes the square and yields an explicit constant, so
+**`exists_potSelfBound_of_gradDom`**: `GradDom` ⟹ `∃ β, PotSelfBound P c₀ β`.  No elliptic regularity
+and no form-domain comparison is used anywhere in that argument.
+
+### 48.2. `GradDom` is the residual input, and it is not automatic
+
+`GradDom` is a condition on the polynomial alone, so §48.3 settles its status rather than leaving it
+as a slogan:
+
+* **It holds for a coercive quartic.**  `gradDom_coercive_quartic`: for `W = X₀⁴ + X₁⁴` one has
+  `|∂₀W|² + |∂₁W|² = 16(x₀⁶ + x₁⁶) ≤ 16 W² + 32` at every point, from `t⁶ ≤ t⁸ + 1`.
+* **It fails for a flat quartic.**  `not_gradDom_flat_quartic`: for `W = X₀²X₁²` — non-negative, degree
+  four, flat on both coordinate hyperplanes — there are **no** `a, b` with
+  `|∂₀W|² + |∂₁W|² ≤ a W² + b`: on the curve `(t, 1/t)` the left side is `4(t² + t⁻²)` while the right
+  side is the constant `a + b`.
+
+So `GradDom` is a genuine restriction, not a consequence of `W ≥ 0` and `deg W = 4`.  This is exactly
+why `PotSelfBound` stays a hypothesis for the SM: `smPotPoly` is a sum of squares of quadratics
+(`polyW_smPotPoly`), and a quadratic factor that couples `X_i` to another coordinate produces the
+`X₀²X₁²` pattern — non-coercive — so the domination must be established for the actual 49 field
+polynomials, and it is not established here.
+
+### 48.3. What this does and does not settle
+
+* **Settled**: the reverse estimate is *not* a matter of elliptic regularity.  Given the gradient
+  domination, it is a two-line consequence of §23's sign identity plus Cauchy–Schwarz–Young, and the
+  argument is complete and axiom-clean (`exists_potSelfBound_of_gradDom`).
+* **Settled**: the domination hypothesis is a genuine algebraic condition — true for coercive
+  quartics, false for flat ones.
+* **Not settled**: `GradDom` for `smPotPoly P c₀`.  `PotSelfBound` therefore remains a named input
+  downstream, and P4 is unchanged in status: it is now *one algebraic question about `smPotPoly`*
+  rather than *an analytic statement about `−Δ_S + W`*.
+
+### 48.4. Verification performed (2026-11-12)
+
+* `lake env lean BookProof/Sm/ChapterSmReverseEllipticQuartic.lean` — exit 0, no warnings.
+* `lake build BookProof.Sm.ChapterSmReverseEllipticQuartic` — clean.
+* `lake env lean Work/SmReverseEllipticQuarticAudit.lean` — 16 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0.
+* `scripts/check-sm-section-guards` — green on the tree; and it was driven adversarially against a
+  synthetic tree to confirm the aggressor property: deleting any one side of a guarded pair makes it
+  exit 1 with a `[FAIL]` line naming the missing statement (verified for the §45 "no weakening"
+  verdict, `dense_colouredCore`, and the plan's meson/glueball entry).

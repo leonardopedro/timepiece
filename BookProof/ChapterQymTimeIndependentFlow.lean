@@ -33,8 +33,9 @@ need for a discretization of time.
 
 * **`ymFock_weylGauge_timeIndependent`** — unconditionally, for the physical second-quantized
   Yang–Mills Hamiltonian `dΓ(H₁)`: the Weyl-gauge sum-of-squares identity (first conjunct,
-  the gauge-fixing content: only spatial fields occur), and the positive self-adjoint
-  (Friedrichs) realization `T`, whose propagator `U(t,s) = e^{−i(t−s)H}` is unitary,
+  the gauge-fixing content: only spatial fields occur), and a self-adjoint extension `T`
+  (the one the Friedrichs construction produces), whose propagator `U(t,s) = e^{−i(t−s)H}` is
+  unitary,
   satisfies Chapman–Kolmogorov, is **time-translation invariant** and **uniquely** solves the
   Schrödinger equation of the one fixed generator.  No time ordering and no Dyson series
   occurs.
@@ -97,7 +98,10 @@ The first conjunct is the gauge-fixing content itself: in the Weyl gauge `A₀ =
 one-particle Hamiltonian is the sum of squares of the *spatial* electric and magnetic field
 operators, `⟪x, H₁ x⟫ = ½ Σ ‖π_m x‖² + ½ Σ ‖B_m x‖²`; no time component of the connection and
 no time derivative occurs.  Consequently its second quantization `dΓ(H₁)` is one fixed
-positive self-adjoint (Friedrichs) operator `T`, and the remaining conjuncts say that its
+positive self-adjoint operator `T` — the statement asserts `IsSelfAdjointExtension`, and
+`ymFock_dGamma_extension_eq_closure` below identifies every such extension with the closure
+`clExt` as soon as `dΓ(H₁)` is essentially self-adjoint, so the operator is then not selected
+but determined — and the remaining conjuncts say that its
 propagator `U(t,s) = e^{−i(t−s)H}` is unitary, obeys Chapman–Kolmogorov, is invariant under a
 common shift of both times and uniquely solves the Schrödinger equation — so the evolution
 problem is the evaluation of one unitary group at one finite time, with no time ordering and
@@ -149,6 +153,25 @@ theorem ymFock_timeIndependent_singleTime_of_esa (en : ℕ ≃ Conf)
         ∀ (v : Fock) (t : ℝ), Tendsto (fun n => (S n).stoneU t v) atTop (𝓝 (T.stoneU t v)) :=
   finiteSection_singleTime (dGammaOp (ymFockCol e fabc))
     (dGammaOp_ymFockCol_symmetricOn e fabc) hesa (windowOfEquiv_exhausts en)
+
+/-- **The YM generator is determined, not selected.**  Whenever `dΓ(H₁)` is essentially
+self-adjoint on the finite-occupation core — the hypothesis of
+`ymFock_timeIndependent_singleTime_of_esa` — *every* self-adjoint extension of it has the domain
+of the closure and agrees with `clExt` there.  So the flow of that theorem, when it exists, is
+the flow of a determined operator, and the Friedrichs realisation is not a choice: it coincides
+with the closure.  Without the essential-self-adjointness hypothesis nothing here applies, and
+for the physical `ymFockCol` that hypothesis is not proved (see the boundary note). -/
+theorem ymFock_dGamma_extension_eq_closure
+    (hesa : EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymFockCol e fabc)))
+    {Dom : Submodule ℂ Fock} {A : Dom →ₗ[ℂ] Fock}
+    (hA : IsSelfAdjointExtension (dGammaOp (ymFockCol e fabc)) A) :
+    Dom = clDom (dGammaOp (ymFockCol e fabc)) ∧
+      ∀ (x : Fock) (h : x ∈ Dom) (h' : x ∈ clDom (dGammaOp (ymFockCol e fabc))),
+        A ⟨x, h⟩ = clExt (dGammaOp (ymFockCol e fabc)) finiteOccupation_dense
+          (dGammaOp_ymFockCol_symmetricOn e fabc) ⟨x, h'⟩ :=
+  isSelfAdjointExtension_unique_of_esa hesa hA
+    ⟨fun v => ⟨coe_mem_clDom _ v, clExt_extends _ _ _ v⟩,
+      clExt_symmetricOn _ _ _, clExt_selfAdjointCriterion _ _ _ hesa⟩
 
 /-- **The unconditional instance: a basis diagonalizing the one-particle Hamiltonian.**  If
 the product Hermite basis diagonalizes the gauge-fixed one-particle Yang–Mills Hamiltonian
