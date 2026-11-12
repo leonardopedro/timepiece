@@ -1,2 +1,2 @@
-/-! Compatibility re-export of `UsedRoute.SolovayHilbert`. -/
+-- Compatibility re-export of `UsedRoute.SolovayHilbert`.
 import UsedRoute.SolovayHilbert

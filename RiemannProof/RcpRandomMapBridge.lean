@@ -1,2 +1,2 @@
-/-! Compatibility re-export of `UnusedRoute.RcpRandomMapBridge`. -/
+-- Compatibility re-export of `UnusedRoute.RcpRandomMapBridge`.
 import UnusedRoute.RcpRandomMapBridge
