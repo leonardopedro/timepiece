@@ -4718,8 +4718,16 @@ completions share their coefficients (`ofLp_hilbActCoeff`) but not their norms.
 What *is* shared is the operator on the fundamental fibre: `colourVec 2` is definitionally
 `EuclideanSpace ℂ (Fin 2)`, so `eucMatCLM` is the same operator as the colour mixing `colourMix`
 applies on the fibre of an elementary tensor of the coloured core (`colourMix_colourFibre`,
-`colourVecAct_two_eq_eucMatCLM`, in the ESA chapter, which imports this one).  The completions
-themselves are still not identified, and no spectral consequence is claimed.
+`colourVecAct_two_eq_eucMatCLM`, in the ESA chapter, which imports this one).  The completion
+embeds that same fibre canonically at a single occupation multi-index (`hilbFibre`), and both
+sides act on it through `colourVecAct` alone (`hilbActOp_hilbFibre_colourVecAct`,
+`colourGroupActHilbert_hilbFibre`).
+
+**Boundary — the completions are *not* identified.**  `colourSpace 2` is `L²(ℝ⁹⁹) ⊗ ℂ²` and
+`fundHilbert d` is `ℓ²(ℕ^d) ⊗ ℂ²`; no canonical isometry between the two base factors exists in
+the tree, and a basis reindexing would not intertwine the colour actions.  The common object is
+the colour factor, and the mixing `1 ⊗ C` is norm-preserving on `colourSpace N` for every `N`
+(`colourMix_norm_of_unitary`, `colourMixIsometryEquiv`).  No spectral consequence is claimed.
 -/
 
 /-- The occupation-indexed coefficients with the Euclidean (Hilbert) colour fibre. -/
