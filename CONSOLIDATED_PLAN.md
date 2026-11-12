@@ -21976,3 +21976,84 @@ characters; the aggregate `lake build BookProof` is rebuilt green afterwards.
 **Boundary.**  This entry proves nothing: it records a merge repair, which of two conflicting
 `colourEnergyOp` readings is the live one, and that the chapter and the aggregate build again.
 
+
+## State of the project — 2026-11-12a: the colour group is a genuine unitary group, the heartbeat
+## options are scoped, and what blocks the QYM flow is written down
+
+Entry 11r proved that the exponentiated colour action is a one-parameter group of *bounded
+units* on `fundMode d`, and recorded the reason it could not be unitary: `fundMode d` puts the sup
+norm on its colour fibre, and no inner product makes the sup norm a Hilbert norm.  This entry
+removes that boundary by giving the coefficient space a second, Hilbert, completion.
+
+**A genuine unitary group, not only a group of units.**  `fundHilbert d` is the same
+occupation-indexed coefficient space with the Euclidean colour fibre `EuclideanSpace ℂ (Fin 2)`;
+`lp.inner_eq_tsum` makes it an inner product space, so `unitary (fundHilbert d →L[ℂ] fundHilbert d)`
+is a well-typed predicate there.
+
+- Fibre: `eucMatCLM M` is a colour matrix as a continuous linear map of the Euclidean fibre (finite
+  dimension supplies continuity, no bound is exhibited).  A unitary matrix preserves the fibre inner
+  product (`eucMatCLM_inner_of_unitary`) hence its norm (`eucMatCLM_norm_of_unitary`), and the
+  adjoint is the conjugate transpose (`eucMatCLM_adjoint_eq`, `eucMatCLM_adjoint_star`), via
+  `Matrix.toEuclideanLin_conjTranspose_eq_adjoint`.
+- Sum: `hilbActOp`/`hilbActCLM` act coefficientwise, and an isometry of the fibre gives an isometry
+  of the Hilbert sum (`hilbActOp_inner`, `hilbActOp_norm`), so `hilbActOp_norm` is an equality —
+  not the factor-`2` inequality of 11r.
+- Group: `colourGroupActHilbert a θ` is unitary (`colourGroupActHilbert_mem_unitary`, through
+  `Unitary.mem_iff`: the adjoint is the opposite parameter and both products are `1`), isometric
+  (`colourGroupActHilbert_norm`) and multiplicative (`colourGroupActHilbert_mul`).
+
+**Boundary — what is *not* claimed.**  This is a *different normed space*, not a second norm on
+`fundMode d`.  The two completions share their coefficients (`ofLp_hilbActCoeff`), and the sup-norm
+side keeps its own results untouched; nothing here identifies either completion with the field
+fibre `colouredCore`, and no spectral statement follows.  In particular the earlier norm-attained
+result `norm_colourActCLM : ‖colourActCLM a‖ = 1/2` remains a statement about `fundMode`, whose
+operator norm is genuinely not `1`.
+
+**Axioms.**  `#print axioms` on `colourGroupActHilbert_mem_unitary`,
+`colourGroupActHilbert_norm`, `colourGroupActHilbert_mul`, `hilbActOp_norm`,
+`eucMatCLM_adjoint_eq`, `hilbActCLM_adjoint_eq`, `ofLp_hilbActCoeff`: `propext`,
+`Classical.choice`, `Quot.sound` only.
+
+**The module's heartbeat options are now scoped, and it lints clean.**
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` carried one *unscoped*
+`set_option maxHeartbeats 1000000` (old line 110) governing roughly a thousand lines, plus four
+scoped options with no explanatory comment: five `linter.style.setOption` /
+`linter.style.maxHeartbeats` warnings.  The unscoped option is removed; the four scoped ones now
+carry a comment saying which large normal form needs the budget; and the four declarations that
+the unscoped option had actually been covering — `magEnergy_form_ge_split`, `colouredHamiltonian`,
+`colouredHamiltonian_smul_one_inner`, `colouredHamiltonian_smul_one_quadForm` — got their own
+scoped option with a comment.  The module now builds with **no warnings at all** and no line over
+100 characters.
+
+**The QYM flow, and exactly what blocks it.**  `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` row D.12 lists
+the continuous flow `e^{-itA}` as **PENDING, bridge not built**.  That half is stale: the bridge
+is in `BookProof/Toolbox/ChapterStoneBridge.lean` and is imported by `BookProof.lean` —
+`unboundedSelfAdjointOf` packages an `IsSelfAdjointExtension` as `UnboundedSelfAdjoint` (density of
+the extension domain follows from density of the original one),
+`dense_domain_of_isSelfAdjointExtension`, `isSelfAdjointOn_of_isSelfAdjointExtension`, the flow
+predicate `IsStoneFlow` (group law, isometry, Schrödinger equation), and the three entry points
+`exists_stone_flow_of_selfAdjointExtension`, `exists_stone_flow_of_positive`,
+`exists_stone_flow_of_esa`.  So Stone's group is available at the interface the QYM thread
+produces.
+
+What is *not* available is the input, and it is two statements, neither of which exists anywhere in
+the tree:
+
+1. **Density of the coloured core.**  The coloured core is `colouredCore N D ⊆ colourSpace N`,
+   `colourSpace N` being the `N`-fold `PiLp` of `L2d 99`.  `ChapterStoneBridge` needs
+   `Dense (colouredCore N D : Set (colourSpace N))`, and no such statement is proved; the existing
+   density lemmas cover other spaces (`ymFockCore` in `ChapterYangMillsFockFriedrichs`, the Krylov
+   flag in `ChapterYangMillsFriedrichsLimit`).  Proving it is a finite-product density argument
+   (`Dense` of `PiLp`-product of dense subsets), not a research step, but it is not done.
+2. **Symmetry / self-adjointness (and positivity) of `colouredHamiltonian`.**  `colouredHamiltonian
+   Φ fabc N C` is only a linear map on `colouredCore N D`; the module proves the coloured
+   *quadratic form* on elementary tensors (`colouredHamiltonian_smul_one_quadForm`) and nothing
+   about `IsSymmetricOn`, `IsSelfAdjointOn` or positivity.  `IsSelfAdjointExtension` needs all
+   three of its conjuncts, so the Stone entry points cannot be applied to it yet.
+
+Neither gap is closed here, and neither is hidden: the flow instantiation on the coloured core is
+blocked on (1) and (2), in that order — (1) is a density lemma, (2) needs the Friedrichs machinery
+of `ChapterFriedrichsExtension` applied to `colouredHamiltonian`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit`: 8091 jobs, 0
+errors, 0 warnings; the aggregate `lake build BookProof` is rebuilt green afterwards.
