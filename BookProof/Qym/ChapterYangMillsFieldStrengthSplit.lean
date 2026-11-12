@@ -1503,6 +1503,13 @@ above.  This section states that identification and proves what it yields.
   `glueballSinglet_eq_span`) and the line is nonzero (`mesonSingletVec_ne_zero`,
   `glueballSingletVec_ne_zero`), so unlike `ℂ² ⊗ ℂ³` these fibres do carry colour-neutral
   states `—` a quark–antiquark `ε` and a glueball trace `δ`;
+* **`mesonSymm`**, **`mesonAlt`**, **`meson_isCompl`**, **`mesonSymm_finrank`** — the *meson*
+  square split: the slot swap `mesonFlipIdx` gives symmetric and antisymmetric parts, disjoint and
+  spanning (`meson_disjoint`, `meson_sup`), so `ℂ² ⊗ ℂ² = mesonAlt ⊕ mesonSymm` with
+  `mesonAlt = span{ε}` one-dimensional (`mesonAlt_eq_span`, `mesonAlt_finrank`) and the triplet
+  `mesonSymm` of dimension `3`; both parts are closed under every total action
+  (`mesonAct_mem_symm`, `mesonAct_mem_alt`), the swap symmetry of the action being
+  `mesonRep_flip_row`;
 * **`colourTerm_star_eq`**, **`colourPair_re_symm`**, **`colourDiag_re`**,
   **`colouredHamiltonian_quadForm_re_split`** — the **Hermitian-`C`** form: for `C` with
   `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star (it is real), the `(j,i)`
@@ -3668,9 +3675,13 @@ Both total actions are also **representations** of `su(2)`: `[T^a ⊗ 1 + 1 ⊗ 
 product basis and transported along the row-major relabelling, not entrywise.
 
 **Boundary.**  Each singlet space is proved to be exactly one line, by exhibiting the invariant
-vector and showing that the common kernel of the three total actions has no other direction.  Not
-claimed: a decomposition into the remaining summands (`3`, `5`, `3`); norms or closedness of these
-actions.  The singlet proofs are coordinate checks —
+vector and showing that the common kernel of the three total actions has no other direction.  The
+meson square is split completely: `meson_isCompl` gives `ℂ² ⊗ ℂ² = mesonAlt ⊕ mesonSymm` with
+`1` and `3` dimensions, both invariant.  For the glueball square only the antisymmetric/symmetric
+separation is not carried out here, so `3 ⊗ 3 = 5 ⊕ 3 ⊕ 1` is not yet a decomposition of
+submodules in this chapter — the trace line is proved to be a singlet, but no complement inside the
+traceless symmetric part, and no `Λ²` summand, is exhibited.  Also not claimed: norms or
+closedness of these actions.  The singlet proofs are coordinate checks —
 `glueballRep_zero_mulVec` and its siblings give the three total actions of the glueball fibre in
 closed form — not a Clebsch–Gordan expansion.
 -/

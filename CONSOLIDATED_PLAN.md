@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12h):** “State of the project — 2026-11-12h: the coloured Hamiltonian
+> **Newest entry (2026-11-12i):** “State of the project — 2026-11-12i: the meson square is
+> `1 ⊕ 3`, the glueball square is still `6`” (end of file): the slot-swap involution of
+> `ℂ² ⊗ ℂ²` gives disjoint symmetric/antisymmetric parts that span it
+> (`meson_isCompl`), of dimensions `3` and `1` (`mesonSymm_finrank`, `mesonAlt_finrank`), both
+> invariant under every total action; the glueball's `3 ⊕ 5 ⊕ 1` is explicitly left open.
+>
+> **Earlier entry (2026-11-12h):** “State of the project — 2026-11-12h: the coloured Hamiltonian
 > *is* essentially self-adjoint, and the Kronecker sum needed no `su(2)`” (end of file):
 > `colouredHamiltonian_esa` in `Qym/ChapterYangMillsNonAbelianEsa.lean` discharges the boundary
 > of the split chapter; `kronSum_commutator_gen` replaces the bespoke commutator argument.
@@ -22442,3 +22448,72 @@ step inside a lemma that never mentions `su(2)`, `levi` or `Complex.I` — the s
 0 errors, no new warnings (the pre-existing `maxHeartbeats` linter notes at 110, 1119, 1174, 1191,
 1291 and the flexible-`simp` note at 3190 are unchanged); `mesonRep_commutator` and
 `glueballRep_commutator` still typecheck against the new corollary.
+
+## State of the project — 2026-11-12i: the meson square is `1 ⊕ 3`, the glueball square is still `6`
+
+The singlet sections left one boundary: *"not claimed: a decomposition into the remaining summands
+(`3`, `5`, `3`)"*.  Half of that boundary is now discharged, for the meson fibre.
+
+`BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean` gains a section **"The meson square splits
+as `1 ⊕ 3`"**.  The instrument is the slot swap on the row-major index of `ℂ² ⊗ ℂ²`:
+
+```lean
+def mesonFlipIdx (i : Fin 4) : Fin 4 := ⟨2 * (i.val % 2) + i.val / 2, by omega⟩
+```
+
+an involution (`mesonFlipIdx_involutive`) whose fixed and anti-fixed vectors
+
+```lean
+def mesonSymm : Submodule ℂ (colourVec 4)  -- v (flip i) =  v i
+def mesonAlt  : Submodule ℂ (colourVec 4)  -- v (flip i) = -v i
+```
+
+are disjoint (`meson_disjoint`: also symmetric and antisymmetric forces `2 v_i = 0`) and together
+span the fibre (`meson_sup`, by `v = (v - swap v)/2 + (v + swap v)/2`), hence
+
+```lean
+theorem meson_isCompl : IsCompl mesonAlt mesonSymm
+```
+
+The antisymmetric part is *exactly* the already-proved singlet line (`mesonAlt_eq_span`, using
+`mesonFlipIdx 0 = 0` and `mesonFlipIdx 3 = 3` to kill the two diagonal coordinates), so
+`mesonAlt_finrank : finrank = 1` is `finrank_span_singleton mesonSingletVec_ne_zero`, and the
+dimension of the rest is bookkeeping rather than a determinant:
+`mesonSymm_finrank : finrank = 3` from `Submodule.finrank_add_eq_of_isCompl` and `finrank = 4` for
+`colourVec 4`.  No `4 × 4` rank computation appears.
+
+Invariance is where the decomposition earns the word *subrepresentation*.  The total action is
+swap-symmetric entrywise,
+
+```lean
+theorem mesonRep_flip_row (a : Fin 3) (i j : Fin 4) :
+    mesonRep a (mesonFlipIdx i) j = mesonRep a i (mesonFlipIdx j)
+```
+
+(a `4 × 4 × 3` entry check — the meson matrix is small enough that the check is cheaper than the
+`kronSum` transport would be), and a sum reindexed along the involution
+(`meson_sum_flip`, from `Equiv.sum_comp` of `Function.Involutive.toPerm`) turns
+`(Rep a v) (flip i)` into `(Rep a v) i` with the *sign of the defining relation of the eigenspace*:
+symmetry is preserved by `mesonAct_mem_symm`, antisymmetry by `mesonAct_mem_alt`.  So
+`1 ⊕ 3` is a decomposition into invariant summands, not merely into subspaces.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs,
+0 errors, no new warnings (the pre-existing `maxHeartbeats` linter notes at 110, 1119, 1174, 1191,
+1291 and the flexible-`simp` note are unchanged); no line over 100 characters; `#print axioms` on
+`meson_isCompl`, `mesonAlt_finrank`, `mesonSymm_finrank`, `mesonAct_mem_symm` and
+`mesonAct_mem_alt` all give `[propext, Classical.choice, Quot.sound]`.
+
+**What this does *not* do, and why.**  For the glueball `ℂ³ ⊗ ℂ³` the analogous slot swap
+(`glueballFlipIdx i = 3 * (i % 3) + i / 3`) does work — the entrywise symmetry lemma is true for
+the same reason, `kronSum T T` being symmetric in its two factors over a commutative ring — but it
+is a `9 × 9 × 3` check: at the default `maxHeartbeats` of 200 000 it times out at `whnf`, and it
+only elaborates under the section-wide `maxHeartbeats` the existing glueball computations already
+need (≈ 23 s).  That is the cheap part.  The expensive part is the *dimensions*: the antisymmetric
+part of `ℂ³ ⊗ ℂ³` is `3`-dimensional but has no `span {single vector}` description to reuse the way
+`mesonAlt_eq_span` reuses `mesonSinglet_eq_span`; it needs a three-vector span with a
+`LinearIndependent` argument, and the requested `5` needs the trace functional, the traceless
+symmetric subspace as `Sym ⊓ ker trace`, and a projector `v ↦ v - (tr v / 3) • δ` for the
+`IsCompl`.  That is a second, larger piece of work, and it is **not** done: the chapter's boundary
+text now says so explicitly rather than lumping the meson and glueball cases together.  Claiming
+`3 ⊕ 5 ⊕ 1` from the singlet line alone would be exactly the kind of overclaim these entries exist
+to avoid.
