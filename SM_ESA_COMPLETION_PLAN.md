@@ -2690,3 +2690,67 @@ model's actual BRST charge, which has not been constructed.  Consequently:
   `propext, Classical.choice, Quot.sound`, no `sorryAx` (note `PhysicalPositivity` is audited as a
   definition and its axiom list is inherited from the definitions it mentions).
 * `lake env lean BookProof.lean` — exit 0.
+
+## §47. The Kugo–Ojima quartet: `PhysicalPositivity` from quartet data (2026-11-13)
+
+§46 ended with `PhysicalPositivity Q η` as a named input, on the grounds that the condition needs
+"the quartet structure of the model's actual BRST charge".  This section builds the mechanism on
+which that condition rests, in `BookProof/Sm/ChapterSmQuartet.lean`.
+
+### 47.1. The quartet as data
+
+`BrstQuartet Q` is the b-ghost `P` together with the physical projector `V`:
+
+`Q P + P Q = 1 - V`,   and   `range V ⊆ ker Q`.
+
+No positivity of `V` and no definiteness of `η` is assumed — this is the algebraic residue of a
+Hodge decomposition `x = Q (P x) + P (Q x) + V x`.  The case this covers is BRST with a ghost pair:
+`P` lowers the ghost number and `V` is the harmonic projection.  In particular `P` is *not*
+required to be `η`-symmetric; only `V`'s range is assumed closed.
+
+### 47.2. What follows
+
+* `quartet_physProj_comp_Q` — `V` annihilates the exact space: `V ∘ Q = 0`.  Applying the charge to
+  the decomposition of `Q y` and using nilpotency gives `Q (P (Q y)) = Q y`, hence `V (Q y) = 0`.
+  So the quartet forces `V` to kill the gauge orbit; only `range V ⊆ ker Q` was assumed.
+* `quartet_decompose` — every closed vector splits as `x = Q (P x) + V x`.
+* `kform_quartet_reduce` — the charge form sees only the physical part: `⟨x, y⟩_η = ⟨V x, V y⟩_η`
+  for closed `x, y`.  The discarded terms are ghost-null (`kform_ghost_null`,
+  `kform_ghost_null_right`), so they pair to zero.
+* `kform_quartet_reduce_sectors` — if the involution `U` preserves `V`, the reduced form still
+  vanishes across the parity sectors, so the quartet attack can be mounted sector by sector.
+* `physicalPositivity_of_quartet` — **§46's named input becomes a theorem**, conditional on the
+  physical subspace being definite for `η`: if `⟨V x, V x⟩_η = ⟪V x, V x⟫`, then on the closed space
+  the form is `‖V x‖²` and its radical is exactly the gauge orbit, i.e. `PhysicalPositivity Q η`.
+* `physicalPositivity_of_quartet_sectors` — the same in the parity shape, with the cross-sector
+  vanishing, so the sector formulation is not a weakening.
+* `isBrst_of_mul_eq_zero` — bridges §46's predicate `IsBrst Q` to the endomorphism form in which the
+  model supplies its charge (`smBrstCharge` is a `Module.End`, `smBrstCharge_nilpotent` a product
+  identity).  The specialised `IsBrst (smBrstCharge …)` was abandoned: it exceeds the heartbeats
+  available for instance search on `FermiFock`, and the general bridge suffices.
+
+### 47.3. Instance, and the boundary
+
+`exQuartet'`/`exPhysicalPositivity` instantiate the bundle on `ℂ³` with `Q = 0`, `P = 0`, `V = 1`,
+`η = 1`.  This is the *only* quartet a definite metric admits, and saying why is the honest content
+of the example: a nilpotent map that is self-adjoint for a definite form vanishes, so the closed
+space is everything, the form is `‖x‖²`, its radical `{0}` is the gauge orbit, and the cohomology is
+the whole space (`exE2_not_exact`: a unit vector is closed, not exact).  The example is therefore a
+consistency check of the definitions, not a model of ghost cancellation.  A non-trivial quartet
+(`P` raising/lowering a ghost pair, `V` onto the physical line) needs the indefinite metric of §46
+and is **not** built here; engineering a `2 ⊕ 1` Krein instance was attempted and set aside rather
+than stated with unverified `conj` algebra.
+
+Consequently, unchanged from §46:
+
+* no positive physical inner product is produced for the SM;
+* the model's own `P` and `V` are still missing — they are now the *only* remaining input, since
+  `physicalPositivity_of_quartet` no longer leaves positivity itself open;
+* the quartet bundle is data, so no statement here is a claim about the SM's physical Hilbert space.
+
+### 47.4. Verification performed (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmQuartet` — clean, no warnings.
+* `lake env lean Work/SmQuartetAudit.lean` — 14 declarations, every axiom list exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0 (the §47 import is enabled again).

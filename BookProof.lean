@@ -627,6 +627,9 @@ import BookProof.OSReconstruction.FockIntertwining
 -- B2 on the one-particle sector: a concrete `OsFockBridge` whose `U` is constructed, not assumed
 -- (the point-evaluation state, whose OS Hilbert space is the one-particle line) — `cftproof.md` E4.
 import BookProof.OSReconstruction.OneParticleBridge
+-- The same bridge for a state that is *not* a character: a two-state finite-volume Gibbs state,
+-- whose OS Hilbert space is constructed to be `ℝ²` and whose transfer semigroup is intertwined.
+import BookProof.OSReconstruction.FiniteVolumeGibbsBridge
 -- Half-space OS reconstruction (`cftproof.md` E3): the quotient of `𝔄₊` by the null space of
 -- the half-space OS form, its vacuum, and the forward transfer semigroup on its completion.
 import BookProof.OSReconstruction.HalfSpaceState
@@ -4123,21 +4126,21 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- `PhysicalPositivity` (non-negative on the closed space, radical exactly the gauge orbit) is a
 -- **named input here**; §47 derives it from quartet data, but the matter model's own quartet data
 -- is not built, so no physical inner product is claimed.
--- `ChapterSmQuartet` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §47) — **not in the tree, so the import
--- below is disabled**; the note is kept as the recorded intent of §47.  The Kugo–Ojima mechanism
--- behind §46's named input.  A `BrstQuartet Q` is the b-ghost `P` plus the physical projector `V` with
+-- `ChapterSmQuartet` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §47): the Kugo–Ojima mechanism behind
+-- §46's named input.  A `BrstQuartet Q` is the b-ghost `P` plus the physical projector `V` with
 -- `Q P + P Q = 1 - V` and `V`'s range in `ker Q`; from it `V Q = 0` follows
 -- (`quartet_physProj_comp_Q`), every closed vector splits as `x = Q (P x) + V x`
 -- (`quartet_decompose`), the charge form sees only the physical part (`kform_quartet_reduce`), and
 -- **`PhysicalPositivity` becomes a theorem** (`physicalPositivity_of_quartet`: the form is `‖V x‖²`
 -- on the closed space, and its radical is the gauge orbit).  The parity split composes with it
 -- (`kform_quartet_reduce_sectors`, `physicalPositivity_of_quartet_sectors`), which is the shape a
--- sector-by-sector attack takes.  `exQuartet`/`exPhysicalPositivity` is a non-vacuous 2⊕1-dimensional
--- instance (indefinite metric `σ₁` on the block, identity on the physical line; the cohomology is
--- non-trivial by `exE2_not_exact`), and `isBrst_smBrstCharge` links `IsBrst` to
--- `smBrstCharge_nilpotent`.  The SM's own `P` and `V` are still missing, so this is a mechanism, not
--- a proof of SM positivity.
--- import BookProof.Sm.ChapterSmQuartet  -- pending: module not written yet
+-- sector-by-sector attack takes.  `isBrst_of_mul_eq_zero` links `IsBrst` to the endomorphism form
+-- of the charge (`smBrstCharge_nilpotent`), and `exQuartet'`/`exPhysicalPositivity` instantiate the
+-- bundle on `ℂ³` in the only way a *definite* metric allows (`Q = 0`, `P = 0`, `V = 1`; the
+-- cohomology is the whole space by `exE2_not_exact`).  A non-trivial quartet needs the indefinite
+-- metric of §46; the SM's own `P` and `V` are still missing, so this is a mechanism, not a proof of
+-- SM positivity.
+import BookProof.Sm.ChapterSmQuartet
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index

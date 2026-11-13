@@ -355,3 +355,33 @@ rank one and its Hilbert space is a line; `F = ℝ` is the one-particle sector o
 a one-dimensional one-particle space, `oneParticleFlow` is `dΓ(c τ • id)` there, and none of this is
 the manuscript's inner `h_F` or `ℱ_out`.  The interacting B2 remains open; the bundle itself is now
 known to be satisfiable by a constructed map, so its difficulty is the model, not the axioms.
+
+### B2 for a physical (non-character) state (2026-11-13)
+
+`BookProof/OSReconstruction/FiniteVolumeGibbsBridge.lean` (namespace `TwoStateGibbs`) repeats the
+construction for a **finite-volume Gibbs state**, which is not a character, and lands on a
+**two-dimensional** OS Hilbert space.  No `sorry`; the theorems depend only on
+`{propext, Classical.choice, Quot.sound}`.
+
+* The state: the two constant field configurations `φ_t = const a_t` with `a = (0,1)`.  A constant
+field is fixed by `fieldReflection` (`fieldReflection_constConfig`), so `θ` acts trivially on the
+support and `gibbs_osBilin : ⟨F,G⟩ = Σ_t w_t F(φ_t) G(φ_t)` is reflection positive termwise
+(`gibbs_reflectionPositive`), with positive normalized Boltzmann weights
+(`gibbsWeight_pos`, `gibbsWeight_sum`) and `gibbsState β : OSState`.
+* Why finite support: `LinearFunctional` requires additivity on all observables `Config → ℝ`, which
+a Bochner integral over an infinite-support measure does not have; the finitely supported
+Boltzmann law `Σ_t w_t δ_{φ_t}` does.
+* Not a character: `gibbs_not_multiplicative : ω(δ₀ δ₁) = 0 ≠ w₀ w₁ = ω δ₀ · ω δ₁`.
+* The space: radical `{F | F(φ₀) = F(φ₁) = 0}` (`gibbs_mem_radical_iff`); `gibbsCoord` is the
+weighted coordinate map, an isometry onto `ℝ²` after quotienting (`gibbsQuot_norm`,
+`gibbsQuot_surjective`), extended to `gibbsU β : ℋ →ₗᵢ[ℝ] ℝ²` by `LinearMap.extendOfNorm`
+(`gibbsHphysMap_norm`, `gibbsU_denseRange`).
+* The bridge: `gibbsBridge β E : OsFockBridge ℝ² (gibbsTransfer β E) (gibbsFlow E)`, with
+`⟪x, P τ x⟫ = exp(−τE) ‖x‖²` and `‖P τ x‖ = |exp(−τE)| ‖x‖`.
+
+Boundary: this is a two-point sub-ensemble of the lattice Gibbs measure, not the full Gaussian
+Gibbs measure; E3's genuine lattice Gibbs state (`gibbsFun V`) is not a state of this carrier — its
+full-algebra OS form is indefinite, and it is reflection positive only on `𝔄₊`, where its OS space
+is again a line.  Both configurations are degenerate in energy, so the transfer semigroup is a
+scalar; `P` remains an input; no spatial translation, complex structure or `ℱ_out` identification
+is built, and the interacting B2 remains open.

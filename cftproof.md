@@ -348,6 +348,45 @@ intertwining the smeared fields and the actual heat semigroup — remains open; 
 records that the bundle is satisfiable by a constructed map, so B2's difficulty is the model, not
 the bundle.
 
+**Landed 2026-11-13, a physical (non-character) instance.**
+`BookProof/OSReconstruction/FiniteVolumeGibbsBridge.lean` (namespace `TwoStateGibbs`) gives the same
+bundle an inhabitant whose state is a **finite-volume Gibbs state** — not a character — with a
+**two-dimensional** OS Hilbert space and a constructed isometry onto `ℝ²`. Axiom footprint
+`{propext, Classical.choice, Quot.sound}`; no `sorry`.
+
+* **The state.** The ensemble is the two *constant* field configurations `φ_t = const a_t`,
+  `a = (0, 1)`. A constant field is fixed by `fieldReflection` whatever the component encoding is
+  (`fieldReflection_constConfig`), so `θ` acts trivially on the support and
+  `gibbs_osBilin : ⟨F,G⟩ = Σ_t w_t · F(φ_t) · G(φ_t)` is reflection positive *termwise*
+  (`gibbs_reflectionPositive`). Boltzmann weights `w_t = exp(−β a_t²)/Z` are positive
+  (`gibbsWeight_pos`) and normalized (`gibbsWeight_sum`); `gibbsState β` is the resulting `OSState`.
+* **Finite support is forced, not a convenience.** `LinearFunctional` asks for additivity on *all*
+  observables `Config → ℝ`, and Lean's Bochner integral is not additive off the integrable
+  functions, so a Gibbs measure with infinite support cannot be a `LinearFunctional`. A
+  finite-support Boltzmann law can, and `Σ_t w_t δ_{φ_t}` is the Gibbs measure of that
+  sub-ensemble.
+* **Non-character.** The indicators of the two configurations have disjoint support, so
+  `gibbs_not_multiplicative : ω(δ₀ δ₁) = 0 ≠ w₀ w₁ = ω δ₀ · ω δ₁` — exactly what the
+  point-evaluation state cannot exhibit.
+* **The space.** The radical is `{F | F(φ₀) = F(φ₁) = 0}` (`gibbs_mem_radical_iff`), so `𝔄/𝔑` is
+  two-dimensional; `gibbsCoord F = (√w_t · F(φ_t))_t` annihilates it exactly
+  (`gibbsCoord_eq_zero_iff`), descends to an isometry `gibbsQuot` (`gibbsQuot_norm`,
+  `gibbsQuot_surjective`), and `LinearMap.extendOfNorm` extends it to
+  `gibbsU β : ℋ →ₗᵢ[ℝ] ℝ²` (`gibbsHphysMap_norm`, `gibbsU_denseRange`).
+* **The bridge.** `gibbsBridge β E : OsFockBridge ℝ² (gibbsTransfer β E) (gibbsFlow E)`, both
+  flows scalar (the two configurations are degenerate in energy), with
+  `⟪x, P τ x⟫ = exp(−τE) ‖x‖²` (`gibbsBridge_twoPoint`) and `‖P τ x‖ = |exp(−τE)| ‖x‖`
+  (`gibbsBridge_norm`).
+
+Boundary recorded there: the state is a **two-point** sub-ensemble of the lattice Gibbs measure, not
+the full Gaussian Gibbs measure; the genuine lattice Gibbs state of E3 (`gibbsFun V`) is not a state
+of this carrier at all — its full-algebra OS form `Σ_{x,y} w x w y F(y,x) G(x,y)` is indefinite
+(take `F(1,2) = 1`, `F(2,1) = −1`), and reflection positivity there holds only on `𝔄₊`, where the
+OS space is a line again. Both configurations carry the same energy, so the transfer semigroup is a
+scalar and no nontrivial dynamics is exhibited; `P` remains an input, as for every occupant of the
+bundle; no spatial translation, complex structure or identification with `ℱ_out` is built. B2 in
+general remains open.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a
@@ -677,7 +716,7 @@ The operator-function approximation theorem does not supply that exclusion.
 | E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
 | E2 | Summable increments imply convergence | Actual RG estimates and limits |
 | E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), half-space generator with `H = −A` (`HalfSpaceGenerator`), finite-volume Gibbs state and its measure on the split lattice (`HalfSpaceFreeState`), complexification, complex OS form and `HilbertSpace ℂ` carrier (`HalfSpaceComplex`), quotients, multiplier generators | The exponential `e^{−τH}`, an infinite-volume state |
-| E4 | `OsFockBridge` consequences, plus one constructed (non-conditional) instance on the one-particle sector (`OneParticleBridge`) | Physical spatial prior, field and flow bridge for the interacting theory |
+| E4 | `OsFockBridge` consequences, plus constructed (non-conditional) instances: the one-particle sector (`OneParticleBridge`) and a two-state finite-volume Gibbs state (`FiniteVolumeGibbsBridge`) | Physical spatial prior, field and flow bridge for the interacting theory |
 | E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
 
 Execute **E0 → E1 → E2 → E3 → E4 → E5** as dependency gates; abstract E3 work and E5
