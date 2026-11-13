@@ -4,6 +4,7 @@ import BookProof.Textbook.ChapterH6
 import BookProof.Textbook.ChapterH7
 import BookProof.Textbook.ChapterH8
 import BookProof.Textbook.ChapterH9
+import BookProof.Sirk.ChapterRitzCertificate
 
 /-!
 # Chapter SirkEndToEnd — the end-to-end SIRK reliability statement (assembly)
@@ -46,6 +47,14 @@ constants `C`, `Dmin`, `h` abstract.
   `‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`, and that worst-case
   error vanishes in the reduction order.  A residual certificate needs the norm
   bound, not the estimate at one seed.
+* `sirk_ritz_resid_le` is the seam that makes both bounds *usable*: a reduced
+  eigenpair `psiB y = μ y` with `‖y‖ = 1` reconstructs to `V y`, and its residual
+  for `X` is bounded by the operator-norm error,
+  `resid X (V y) ≤ ‖X − sirkApprox V psiB‖`, with **no factor 2** —
+  `resid_le_norm_sub_smul` records the geometric reason (the Rayleigh quotient of
+  `V y` is the best approximation of `X (V y)` by multiples of `V y`).  That turns
+  `ChapterRitzCertificate.temple_lower_bound` into a certificate for the SIRK
+  output, which is what `softmodes.md` S3.1 asks for.
 * `sirkApprox_id`, `sirkReconstruction_isIdempotent`,
   `sirkReconstruction_isSelfAdjoint`: the reconstruction step `V ∘ V∗` *is* the
   orthogonal projection onto the retained subspace (§12.2 Gap 4a).
@@ -305,6 +314,85 @@ theorem sirk_flow_error_uniform_in_time
   refine ⟨M, fun m hm t => ?_⟩
   exact lt_of_le_of_lt (hbound t m) (lt_of_abs_lt (hM m hm))
 
+
+/-! ## 7. The residual seam: the operator-norm bound is a Ritz residual -/
+
+/-- **A residual is bounded by the distance to any multiple of a unit vector.**
+
+`RitzCertificate.resid A x` is the distance from `A x` to the *line* spanned by
+`x`.  For self-adjoint `A` and `‖x‖ = 1` that distance is no larger than
+`‖A x − c x‖` for **any** real `c`, even though `resid` measures against the
+Rayleigh quotient of `x` rather than against `c`.  This is what lets an error
+bound on `A − B` be used as an eigenvector residual: it does not matter that the
+Rayleigh quotient of `x` for `A` differs from the eigenvalue `B` gives `x`. -/
+theorem resid_le_norm_sub_smul {A : E →L[ℂ] E} (hA : IsSelfAdjoint A) {x : E}
+    (hx : ‖x‖ = 1) (c : ℝ) :
+    BookProof.RitzCertificate.resid A x ≤ ‖A x - (c : ℂ) • x‖ := by
+  set th := BookProof.RitzCertificate.rayleigh A x with hth
+  have hself : (inner ℂ x (A x) : ℂ) = (inner ℂ (A x) x : ℂ) := by
+    rw [← ContinuousLinearMap.adjoint_inner_left, hA.adjoint_eq]
+  have hz : (inner ℂ (A x) x : ℂ) = (th : ℂ) := by
+    have hc : (inner ℂ (A x) x : ℂ) = (starRingEnd ℂ) (inner ℂ (A x) x : ℂ) := by
+      calc (inner ℂ (A x) x : ℂ) = (inner ℂ x (A x) : ℂ) := hself.symm
+        _ = (starRingEnd ℂ) (inner ℂ (A x) x : ℂ) := by
+          rw [inner_conj_symm]
+    have him : (inner ℂ (A x) x : ℂ).im = 0 := by
+      have h := congrArg Complex.im hc
+      rw [Complex.conj_im] at h
+      linarith
+    have hre : (((inner ℂ (A x) x : ℂ).re : ℝ) : ℂ) = (inner ℂ (A x) x : ℂ) := by
+      have h := Complex.re_add_im (inner ℂ (A x) x : ℂ)
+      rw [him] at h
+      simpa using h
+    rw [← hre, hth, BookProof.RitzCertificate.rayleigh, ← hself]
+  have hsq : ∀ d : ℝ, ‖A x - (d : ℂ) • x‖ ^ 2 = ‖A x‖ ^ 2 - 2 * d * th + d ^ 2 := by
+    intro d
+    rw [@norm_sub_sq ℂ E _ _ _ (A x) ((d : ℂ) • x), inner_smul_right, norm_smul, hx, mul_one,
+      Complex.norm_real, Real.norm_eq_abs, sq_abs, hz]
+    rw [← Complex.ofReal_mul]
+    simp
+    ring
+  have hkey : ‖A x - (th : ℂ) • x‖ ^ 2 ≤ ‖A x - (c : ℂ) • x‖ ^ 2 := by
+    rw [hsq th, hsq c]
+    nlinarith [sq_nonneg (c - th)]
+  have h1 : 0 ≤ ‖A x - (th : ℂ) • x‖ := norm_nonneg _
+  have h2 : 0 ≤ ‖A x - (c : ℂ) • x‖ := norm_nonneg _
+  rw [BookProof.RitzCertificate.resid, ← hth]
+  calc ‖A x - (th : ℂ) • x‖
+      = Real.sqrt (‖A x - (th : ℂ) • x‖ ^ 2) := (Real.sqrt_sq h1).symm
+    _ ≤ Real.sqrt (‖A x - (c : ℂ) • x‖ ^ 2) := Real.sqrt_le_sqrt hkey
+    _ = ‖A x - (c : ℂ) • x‖ := Real.sqrt_sq h2
+
+/-- **The residual seam (`sirk_ritz_resid_le`).**
+
+A reduced eigenpair `psiB y = μ y` of the Galerkin matrix, with `y` a unit vector
+and `V` isometric (`V∗ V = 1`), reconstructs to `V y`, whose `X`-Rayleigh
+quotient is irrelevant: only `sirkApprox V psiB (V y) = μ (V y)` matters.  Hence
+
+`resid X (V y) ≤ ‖X − sirkApprox V psiB‖ ≤ ε_m`,
+
+so the *operator-norm* SIRK error of `sirk_error_opNorm_le` is a genuine Ritz
+residual — the input `ChapterRitzCertificate.temple_lower_bound` consumes.  Both
+inequalities are sharp in the sense that the first is an identity on the
+retained subspace: no factor `2` is lost. -/
+theorem sirk_ritz_resid_le (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) (X : E →L[ℂ] E)
+    (C Dmin h : ℝ) (m : ℕ) (mu : ℝ) (y : F)
+    (hX : IsSelfAdjoint X)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heig : psiB y = (mu : ℂ) • y) (hy : ‖V y‖ = 1)
+    (hbound : ‖X - sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m) :
+    BookProof.RitzCertificate.resid X (V y) ≤ sirkBound C Dmin h 1 m := by
+  have hAy : sirkApprox V psiB (V y) = (mu : ℂ) • (V y) := by
+    have h1 : V.adjoint (V y) = y := by
+      have h := congrArg (fun f : F →L[ℂ] F => f y) hVV
+      simpa using h
+    rw [sirkApprox_apply, h1, heig, map_smul]
+  have hstep : ‖X (V y) - (mu : ℂ) • (V y)‖ ≤ sirkBound C Dmin h 1 m := by
+    have h := ContinuousLinearMap.le_opNorm (X - sirkApprox V psiB) (V y)
+    rw [hy, mul_one] at h
+    refine le_trans ?_ (le_trans h hbound)
+    rw [ContinuousLinearMap.sub_apply, hAy]
+  exact le_trans (resid_le_norm_sub_smul hX hy mu) hstep
 /-! ## 6. Non-vacuity -/
 
 /-- **The hypothesis set of `sirk_end_to_end` is satisfiable with a nonzero

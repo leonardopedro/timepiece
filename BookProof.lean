@@ -1932,6 +1932,7 @@ import BookProof.ChapterBandEnclosure
 -- `temple_nested_certificate` and `fock_mass_gap_of_temple_certificates`, a Fock mass gap
 -- for the free second quantization from finite Rayleigh/residual data with no band
 -- hypothesis at all.
+import BookProof.Sirk.ChapterResolventTransfer
 import BookProof.Sirk.ChapterRitzCertificate
 
 -- `ChapterFockNumberPreservingGap` (CONSOLIDATED_PLAN.md, top work package).  **The `dΓ`

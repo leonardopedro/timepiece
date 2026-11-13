@@ -319,10 +319,10 @@ estimates. Complex shifts in the Lean corpus are a separate extension, not this 
 §4 schedule. Neither a $\phi_k(A)v$ error nor a semigroup approximation error is
 automatically a Temple eigenvector residual or a certificate excluding unseen spectrum.
 
-The rate itself is now a theorem rather than a target — see the 2026-11-13i section — and that
-section names the two things this package was missing: the residual seam `sirk_ritz_resid_le`,
-and the reflection `A' = \gamma^{-1} - X_\gamma` on which Temple is run. In one sentence: run the
-certificate on the resolvent, not on `h_F`.
+The rate itself is now a theorem rather than a target — see the 2026-11-13i section — and the two
+things that section names as missing are proved in the 2026-11-13j one: the residual seam
+`sirk_ritz_resid_le` and the reflection `A' = \gamma^{-1} - X_\gamma` with its gap transfer
+`gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -378,10 +378,16 @@ Source paths below are relative to `BookProof/`.
 * `Textbook/ChapterH4.lean`–`ChapterH6.lean`, `Sirk/ChapterSirkEndToEnd.lean`: U, the error
   bound *as a function of the Krylov order* — `sirkBound C Dmin h nv m = 2 C Dmin e^{-hm} nv`
   is antitone (`sirk_error_bound_antitone`), tends to `0` (`sirk_error_decay_exponential`),
-  and is attained end-to-end at a seed (`sirk_end_to_end`) and in operator norm
-  (`sirk_error_opNorm_le`, `sirk_opNorm_error_tendsto_zero`); C, the rate's two source-paper
-  inputs (Crouzeix's `C` and the deformation `hdecay : D ≤ e^{-hm} Dmin`), and the residual
-  seam recorded in the 2026-11-13i section.
+  is attained end-to-end at a seed (`sirk_end_to_end`) and in operator norm
+  (`sirk_error_opNorm_le`, `sirk_opNorm_error_tendsto_zero`), and *is a Ritz residual*
+  (`sirk_ritz_resid_le`: `resid X (V y) ≤ ‖X − sirkApprox V psiB‖` at a reduced eigenpair,
+  no factor 2, via `resid_le_norm_sub_smul`); C, the rate's two source-paper inputs
+  (Crouzeix's `C` and the deformation `hdecay : D ≤ e^{-hm} Dmin`).
+* `Sirk/ChapterResolventTransfer.lean`: U, the two transfers from the shift-invert to `h_F` —
+  the eigenvector reflection (`resolvent_reflection_eigenvector`: `A' = γ⁻¹ 1 − X_γ` has the
+  eigenvalue `resolventEdge γ e = e/(γ(e+γ))`, strictly increasing on `[0, ∞)`), the inversion
+  `resolventEdge_inv`, and the gap transfer `gap_transfer`: `g ≥ γ² g_X`; C, that `γ` is a
+  *real* shift and that the separation `s_X` is a property of the selected operator (S2).
 * `Sirk/ChapterSirkTruncation.lean`: U, a rank-truncated Gram costs `‖r_X‖·δ`, with `δ` the
   discarded part of the seed (`sirk_end_to_end_truncated`); C, the tolerance → `δ` link.
 * `Sirk/ChapterSirkRestart.lean`: U, `n` restarts cost `n·sirkBound`; N, that is linear in the
@@ -1781,6 +1787,52 @@ itself, so the argument uses the invariance of the Krylov range, not that identi
 arithmetic; S2 is the only item that can fail. The recommendation of this review is therefore to
 spend the next Lean block on `sirk_ritz_resid_le` and the two resolvent-transfer lemmas, not on a
 sharper band.
+
+### S3.1 and S3.2 are now theorems (2026-11-13j)
+
+The two items the 2026-11-13i review named as missing are proved; the entry is `13j` in
+`CONSOLIDATED_PLAN.md`.
+
+**S3.1 — `sirk_ritz_resid_le`** (`Sirk/ChapterSirkEndToEnd.lean`). For a reduced eigenpair
+`psiB y = μ y` with `‖y‖ = 1`, an isometric embedding (`V∗ V = 1`) and `X` self-adjoint,
+
+`resid X (V y) ≤ sirkBound C Dmin h 1 m`  whenever  `‖X − sirkApprox V psiB‖ ≤ sirkBound …`,
+
+so the operator-norm error of `sirk_error_opNorm_le` *is* a Ritz residual, and
+`ChapterRitzCertificate.temple_lower_bound` applies to `V y` with `ε = ε_m`. No factor 2 is
+lost, because the geometric input is not a triangle inequality but
+`resid_le_norm_sub_smul`: `resid A x ≤ ‖A x − c x‖` for every real `c`, the Rayleigh quotient
+`θ = ⟪x, A x⟫` being the *best* approximation of `A x` by multiples of `x`. The step
+`sirkApprox V psiB (V y) = μ (V y)` is where the isometry is spent — outside the retained
+subspace the approximation is not an eigenpair and the seam gives nothing.
+
+**S3.2 — the reflection and the gap transfer** (`Sirk/ChapterResolventTransfer.lean`).
+
+* `shiftInvert_apply_eigenvector`: from `A y = e y` (`y` in the domain) and
+  `IsShiftInvert A γ R`, `R y = (e + γ)⁻¹ y`. Only the two algebraic identities of
+  `IsShiftInvert` are used — no spectral theorem.
+* `resolvent_reflection_eigenvector`: hence `A' = γ⁻¹ 1 − R` has the *same* eigenvector with
+  eigenvalue `resolventEdge γ e = e/(γ(e+γ))`, which is `γ⁻¹ − (e+γ)⁻¹`
+  (`resolventEdge_eq`).
+* `resolventEdge_strictMonoOn`: `e ↦ resolventEdge γ e` is strictly increasing on `[0, ∞)`,
+  so reflection *reverses* the ordering: the top of `X_γ` becomes the bottom of `A'`, which
+  is exactly what a bottom-edge (Temple) certificate needs.
+* `gap_transfer`: `γ² (λ'₁ − λ'₀) ≤ e₁ − e₀`, i.e. `g ≥ γ² g_X`, and `resolventEdge_inv`
+  reads the edge back as `e = λ' γ²/(1 − λ' γ)`.
+
+Together: with `X_γ` bounded (`ChapterHashimotoShiftInvert.exists_isShiftInvert`, `‖R‖ ≤ 1/γ`),
+the SIRK error bound on `R`, and `sirk_ritz_resid_le` run on `A'`, Temple's inequality yields
+a certified band for the edge of `h_F`, widened by the two transfers rather than by a new
+analytic estimate.
+
+**Boundary.** `γ` must be a real positive shift (the complex-shift extension is
+`ChapterHashimotoComplexShifts` and is not used here); `s_X` remains the S2 input, and the
+gap transfer does not create separation, only rescales it. The eigenpair `(μ, y)` of `ψ(B)` is
+an *input*: nothing here says a Galerkin eigendecomposition produced one, nor that `y` is
+well-conditioned. Self-adjointness of `A'` is not proved in the transfer module — it is
+available from `ChapterHashimotoShiftInvert.IsShiftInvert.isSelfAdjoint` for the resolvent and
+is not needed for the eigenvector statement. As always, this certifies the selected/truncated
+operator and claims no mass gap.
 
 ## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
 

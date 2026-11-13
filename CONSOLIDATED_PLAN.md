@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13i):** “State of the project — 2026-11-13i: the SIRK error bound is a
+> **Newest entry (2026-11-13j):** “State of the project — 2026-11-13j: the SIRK error is a Ritz
+> residual” (end of file): `sirk_ritz_resid_le` closes the seam S3.1 asked for —
+> `resid X (V y) ≤ ‖X − sirkApprox V psiB‖` at a reduced eigenpair, with no factor 2, because
+> `resid_le_norm_sub_smul` bounds the residual by the distance to *any* multiple of the unit
+> vector.  The new `Sirk/ChapterResolventTransfer.lean` proves the S3.2 transfers — the
+> eigenvector reflection `A' = γ⁻¹ 1 − X_γ` with eigenvalue `e/(γ(e+γ))`, its strict monotonicity,
+> its inversion, and the gap transfer `g ≥ γ² g_X`.
+>
+> **Earlier entry (2026-11-13i):** “State of the project — 2026-11-13i: the SIRK error bound is a
 > maximum-error theorem” (end of file): `sirk_error_opNorm_le` takes the supremum of the end-to-end
 > SIRK estimate over unit vectors — `‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m` — and
 > `sirk_opNorm_error_tendsto_zero` gives the worst-case convergence in the reduction order;
@@ -23814,3 +23822,60 @@ stop at `s m ≈ N_shift`.
 `ChapterTempleSeparationNecessary` still says residual data alone cannot exclude an unseen lower
 eigenvalue — so S2 remains the gate and no mass gap is claimed.  The residual seam is stated in
 `softmodes.md` as the next item, not proved.
+
+## State of the project — 2026-11-13j: the SIRK error is a Ritz residual
+
+The 2026-11-13i entry ended on a seam: the SIRK bound was an operator-norm bound, and
+`ChapterRitzCertificate` wanted a residual.  This entry proves the seam and the two resolvent
+transfers `softmodes.md` named with it, which is all of S3.1 and S3.2 that is linear algebra.
+
+**S3.1 — `sirk_ritz_resid_le`** (`BookProof/Sirk/ChapterSirkEndToEnd.lean`, §7).  Let
+`V : F →L[ℂ] E` be isometric (`V∗ V = 1`), `psiB : F →L[ℂ] F` have a unit eigenvector
+`psiB y = μ y`, and `X : E →L[ℂ] E` be self-adjoint.  Then
+
+  `resid X (V y) ≤ sirkBound C Dmin h 1 m`
+
+from the operator-norm hypothesis `‖X − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`.
+
+The proof is three steps and no approximation: the reduced eigenpair reconstructs —
+`sirkApprox V psiB (V y) = V (psiB (V∗ (V y))) = V (psiB y) = μ (V y)` — so
+`(X − μ)(V y) = (X − sirkApprox V psiB)(V y)`; its norm is at most `‖X − sirkApprox‖` because
+`‖V y‖ = 1`; and `resid X (V y) ≤ ‖(X − μ)(V y)‖`.
+
+That last inequality is the new lemma `resid_le_norm_sub_smul`: for self-adjoint `A` and a
+unit `x`, `resid A x ≤ ‖A x − c x‖` for *every* real `c`.  It is not a triangle inequality but
+a best-approximation statement: the residual is the distance from `A x` to the line spanned by
+`x`, and the Rayleigh quotient `θ = ⟪x, A x⟫` is the orthogonal projection coefficient, so
+`‖A x − θ x‖² = ‖A x‖² − θ² ≤ ‖A x‖² − 2cθ + c² = ‖A x − c x‖²`.  This is why the seam loses
+no factor 2 — the naive route (compare `θ` with `μ`) would give `2ε_m`, and `softmodes.md`'s
+budget for `m` would then be off by `ln 2/h`.
+
+**S3.2 — `BookProof/Sirk/ChapterResolventTransfer.lean`** (new module).  The transfer from the
+shift-invert to `h_F` is eigenvalue arithmetic on the two algebraic identities of
+`IsShiftInvert`, not a spectral theorem:
+
+* `shiftInvert_apply_eigenvector` — `A y = e y`, `y ∈ Dom`, `R` a shift-invert at `γ`, give
+  `R y = (e + γ)⁻¹ y`.  Hence `A' = γ⁻¹ 1 − R` has the same eigenvector with eigenvalue
+  `resolventEdge γ e := e/(γ(e+γ)) = γ⁻¹ − (e+γ)⁻¹` (`resolventEdge_eq`), which is
+  `resolvent_reflection_eigenvector`.
+* `resolventEdge_strictMonoOn` — the reflection is strictly increasing on `[0, ∞)`.  This is
+  the reason the certificate can run on `A'` at all: reflection reverses the order, so the
+  **top** edge of `X_γ` becomes the **bottom** edge of `A'`, which is what Temple's inequality
+  constrains.
+* `gap_transfer` — `γ² (resolventEdge γ e₁ − resolventEdge γ e₀) ≤ e₁ − e₀` for
+  `0 ≤ e₀ ≤ e₁`, `γ > 0`: `g ≥ γ² g_X`.  `resolventEdge_inv` reads the edge back,
+  `e = λ' γ²/(1 − λ' γ)`.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSirkEndToEnd` and
+`lake build BookProof.Sirk.ChapterResolventTransfer` both succeed; `#print axioms` on
+`sirk_ritz_resid_le`, `resid_le_norm_sub_smul`, `shiftInvert_apply_eigenvector`,
+`resolvent_reflection_eigenvector`, `resolventEdge_strictMonoOn`, `resolventEdge_inv` and
+`gap_transfer` gives `[propext, Classical.choice, Quot.sound]`; no line over 100 code points
+in either module.
+
+**Boundary.**  The eigenpair `(μ, y)` of `ψ(B)` is an input — the corpus does not extract an
+eigendecomposition of a Galerkin matrix, and `y`'s conditioning is not part of this statement.
+`γ` is a real positive shift; `ChapterHashimotoComplexShifts` is untouched.  `s_X` is not
+produced: the transfers rescale a separation, they do not create one, so S2 remains the gate
+and no mass gap is claimed.  `A'`'s self-adjointness is not reproved here (the resolvent's is
+`IsShiftInvert.isSelfAdjoint`, and the eigenvector statement does not need it).
