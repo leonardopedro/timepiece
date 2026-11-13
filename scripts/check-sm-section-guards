@@ -24,6 +24,15 @@
 #   4. CONSOLIDATED_PLAN.md — the QYM Stone-flow row and the meson/glueball
 #      square entries are the two-way record of that track; a plan edit that
 #      keeps one and drops the other is the conflict silently closed.
+#   5. §48/§49 (gradient domination) — `GradDom` holds for a coercive quartic
+#      (`gradDom_coercive_quartic`) and **fails** for the flat `X₀²X₁²`
+#      (`not_gradDom_flat_quartic`), which is why the structural route of §49
+#      (`pointwise_dom_of_sq_sum`) carries the coercive quadratic term
+#      (`gradDom_flat_plus_quadratic`).  Keeping the coercion theorem and
+#      dropping the flat counterexample — or vice versa — turns "the flat
+#      pattern is real and needs an argument" into "the pattern does not occur",
+#      which is the failure mode: the counterexample is what makes the §49
+#      hypothesis non-vacuous.
 #
 # The gate is deliberately textual: it cannot certify mathematics, only that a
 # later change did not *remove* the half of a pair that carries the caveat.
@@ -99,6 +108,14 @@ require "$BOOKPLAN" "physicalPositivity_of_quartet" \
     "§47 comment block must keep the derivation"
 require "$BOOKPLAN" "a proof of SM positivity" \
     "§47 comment block must keep the 'SM quartet data missing' caveat"
+require "BookProof/Sm/ChapterSmQuartet.lean" "def physProjOf" \
+    "§47.5: the projector is constructed from the b-ghost, not assumed"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem physicalPositivity_of_homotopy" \
+    "§47.5: the no-ghost theorem from the contraction identities"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem exP_exQ_exP_gives_V" \
+    "§47.5: the construction is checked against the worked example"
+require "$BOOKPLAN" "physicalPositivity_of_homotopy" \
+    "§47.5 comment block must keep the constructed projector"
 
 # ---- 4. the QYM field-strength split: both sides ------------------------------
 SPLIT=BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean
@@ -112,6 +129,39 @@ require "CONSOLIDATED_PLAN.md" "ymAbelian_stone_flow" \
     "QYM Stone-flow row"
 require "CONSOLIDATED_PLAN.md" "mesonSymm_glueball_iso" \
     "meson/glueball square entries"
+
+# ---- 6. §48/§49 the coercion fact AND the flat counterexample ----------------
+GQ=BookProof/Sm/ChapterSmReverseEllipticQuartic.lean
+require "$GQ" "theorem gradDom_coercive_quartic" \
+    "§48: the domination holds for a coercive quartic"
+require "$GQ" "theorem not_gradDom_flat_quartic" \
+    "§48: the domination fails for the flat quartic (the counterexample that keeps §49 non-vacuous)"
+require "$GQ" "theorem exists_potSelfBound_of_gradDom" \
+    "§48: the reverse estimate from the domination"
+STRUCT=BookProof/Sm/ChapterSmGradDomStructural.lean
+require "$STRUCT" "theorem pointwise_dom_of_sq_sum" \
+    "§49: the structural domination from a linear-gradient bound"
+require "$STRUCT" "theorem gradDom_flat_plus_quadratic" \
+    "§49: the flat quartic is rescued by the coercive quadratic term"
+require "$STRUCT" "def GradBound" \
+    "§49: the per-form gradient hypothesis is a named object, not prose"
+require "$STRUCT" "theorem sq_polyW_linForm_le" \
+    "§49.3b: the Cauchy-Schwarz bound that turns a linear form into GradBound"
+require "$STRUCT" "theorem gradBound_of_linear" \
+    "§49.3b: GradBound follows from a support table of linear forms, so the remaining gap is the pderiv table alone"
+require "$STRUCT" "theorem smPotPoly_eq_wsSum" \
+    "§49.3c: smPotPoly is wsSum at the 49 forms and the 40 momenta (what GradBound applies to)"
+TRAN=BookProof/Sm/ChapterSmGradDomTransfer.lean
+require "$TRAN" "theorem l2_gradDom_of_pointwise" \
+    "§52: the pointwise-to-L2 transfer is a theorem, not a note"
+require "$TRAN" "theorem exists_potSelfBound_of_gradBound" \
+    "§52: the whole chain GradBound -> PotSelfBound for smPotPoly"
+require "$BOOKPLAN" "not_gradDom_flat_quartic" \
+    "§48 comment block must keep the flat counterexample"
+require "$BOOKPLAN" "gradDom_flat_plus_quadratic" \
+    "§49 comment block must keep the model instance that rescues the flat pattern"
+require "$BOOKPLAN" 'per-form `pderiv` table' \
+    "§49 comment block must keep the one remaining input (the pderiv table) as a caveat"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

@@ -242,9 +242,153 @@ theorem physicalPositivity_of_quartet_sectors (hQ : IsBrst Q) (q : BrstQuartet Q
     rw [hzeroV, add_zero] at h
     exact h.symm
 
+
+/-! ## 5. The physical projector is *constructed* from the b-ghost
+
+§47 states the no-ghost theorem from quartet data `(P, V)`.  That leaves two objects to exhibit.
+This section removes one of them: if `P` only contracts — `Q P Q = Q` and `P Q P = P`, which is
+what a b-ghost does — then the projector is *computed*,
+
+  `V = 1 − (Q P + P Q) + Q P² Q`,
+
+and the b-ghost of the quartet is `P − Q P²`.  The correction term is not decoration: with the
+naive `1 − (QP + PQ)` the idempotency fails by exactly `Q P² Q`, and the anticommutator misses
+`− Q P² Q` as well.  Both defects come from the same product `(QP)(PQ) = Q P² Q`, and placing it
+in `V` fixes them simultaneously.
+
+So the physics input for the Standard Model is a single object — the contracting homotopy of the
+ghost complex, i.e. the gauge-fixed b-ghost — and `quartetOfHomotopy` produces the quartet from
+it.  If that `P` is ghost-parity even (`U P = P U` for the parity `U`), `V` is even too, hence
+`V` preserves each parity sector, which is what `physicalPositivity_of_quartet_sectors` consumes:
+positivity on the ghost-parity-even sector and on the odd one. -/
+
+/-- **The physical projector determined by a contracting homotopy**:
+`V = 1 − (Q P + P Q) + Q P² Q`. -/
+def physProjOf (Q P : H →ₗ[ℂ] H) : H →ₗ[ℂ] H :=
+  LinearMap.id - (Q.comp P + P.comp Q) + Q.comp (P.comp (P.comp Q))
+
+/-- **The b-ghost of the quartet**: `P` itself, corrected by `Q P²` so that its anticommutator
+with `Q` is `1 − V` rather than `1 − V + Q P² Q`. -/
+def bGhostOf (Q P : H →ₗ[ℂ] H) : H →ₗ[ℂ] H :=
+  P - Q.comp (P.comp P)
+
+theorem physProjOf_apply (Q P : H →ₗ[ℂ] H) (x : H) :
+    physProjOf Q P x = x - (Q (P x) + P (Q x)) + Q (P (P (Q x))) := rfl
+
+theorem bGhostOf_apply (Q P : H →ₗ[ℂ] H) (x : H) :
+    bGhostOf Q P x = P x - Q (P (P x)) := rfl
+
+/-- **`Q P` is a projection** whenever `P Q P = P`. -/
+theorem QP_idem {Q P : H →ₗ[ℂ] H} (hSQS : ∀ x : H, P (Q (P x)) = P x) (x : H) :
+    Q (P (Q (P x))) = Q (P x) := by
+  rw [hSQS x]
+
+/-- **The range of the constructed projector is BRST-closed.** -/
+theorem physProjOf_Q {Q P : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (x : H) :
+    Q (physProjOf Q P x) = 0 := by
+  simp only [physProjOf_apply, map_add, map_sub, hQSQ x, Q_apply_apply hQ (P x),
+    Q_apply_apply hQ (P (P (Q x))), add_zero]
+  abel
+
+/-- **The constructed projector kills the gauge orbit**: `V Q = 0`. -/
+theorem physProjOf_comp_Q {Q P : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (x : H) :
+    physProjOf Q P (Q x) = 0 := by
+  simp only [physProjOf_apply, hQSQ x, Q_apply_apply hQ x, map_zero]
+  abel
+
+/-- **The correction term is exactly what idempotency needs**: `Q P (V x) = 0`. -/
+theorem QP_physProjOf {Q P : H →ₗ[ℂ] H} (hSQS : ∀ x : H, P (Q (P x)) = P x)
+    (x : H) : Q (P (physProjOf Q P x)) = 0 := by
+  simp only [physProjOf_apply, map_add, map_sub, QP_idem hSQS x, QP_idem hSQS (P (Q x))]
+  abel
+
+/-- **The constructed `V` is a projector.**  `Π = QP + PQ − QP²Q` is idempotent, and `V = 1 − Π`;
+`Π (V x) = 0` because `QP`, `PQ` and `QP²Q` all annihilate `V x` — the first by
+`QP_physProjOf`, the other two because `Q (V x) = 0`. -/
+theorem physProjOf_idem {Q P : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x) (x : H) :
+    physProjOf Q P (physProjOf Q P x) = physProjOf Q P x := by
+  set y : H := physProjOf Q P x with hy
+  have hQy : Q y = 0 := physProjOf_Q hQ hQSQ x
+  have hQPy : Q (P y) = 0 := QP_physProjOf hSQS x
+  have hPQy : P (Q y) = 0 := by rw [hQy, map_zero]
+  rw [show physProjOf Q P y = y - (Q (P y) + P (Q y)) + Q (P (P (Q y)))
+    from physProjOf_apply Q P y]
+  rw [hQPy, hPQy]
+  simp only [map_zero]
+  abel
+
+/-- **The quartet identity for the constructed pair**: `Q P' + P' Q = 1 − V` with
+`P' = P − Q P²`.  The two terms are `Q P` and `P Q − Q P² Q`, whose sum is exactly `1 − V`. -/
+theorem bGhostOf_anticomm {Q : H →ₗ[ℂ] H} (hQ : IsBrst Q) (P : H →ₗ[ℂ] H) (x : H) :
+    Q (bGhostOf Q P x) + bGhostOf Q P (Q x) = x - physProjOf Q P x := by
+  have h1 : Q (Q (P (P x))) = 0 := Q_apply_apply hQ (P (P x))
+  have h2 : Q (Q (P (P (Q x)))) = 0 := Q_apply_apply hQ (P (P (Q x)))
+  simp only [bGhostOf_apply, physProjOf_apply, map_sub, h1]
+  abel
+
+/-- **The quartet assembled from a contracting homotopy.**  `P` is the b-ghost and the physical
+projector is computed from it; nothing about `V` is assumed. -/
+def quartetOfHomotopy {Q : H →ₗ[ℂ] H} (hQ : IsBrst Q) {P : H →ₗ[ℂ] H}
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x) :
+    BrstQuartet Q where
+  bGhost := bGhostOf Q P
+  physProj := physProjOf Q P
+  physProj_idem := physProjOf_idem hQ hQSQ hSQS
+  Q_physProj := physProjOf_Q hQ hQSQ
+  quartet_anticomm := bGhostOf_anticomm hQ P
+
+/-- **Kugo–Ojima positivity from a b-ghost alone.**  The only physical input is the contracting
+homotopy `P` of the ghost complex and the metric hypothesis on its constructed range. -/
+theorem physicalPositivity_of_homotopy {Q P η : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
+    (hKrein : ∀ x y : H, kform η (Q x) y = kform η x (Q y))
+    (hSymm : ∀ x y : H, kform η x y = star (kform η y x))
+    (hEtaPhys : ∀ y : H, η (physProjOf Q P y) = physProjOf Q P y) :
+    PhysicalPositivity Q η :=
+  physicalPositivity_of_quartet hQ (quartetOfHomotopy hQ hQSQ hSQS) hKrein hSymm hEtaPhys
+
+/-- **A parity-even b-ghost gives a parity-even projector.**  `V` is a polynomial in `Q` and `P`,
+so any `U` commuting with both commutes with `V`. -/
+theorem physProjOf_commute_parity {Q P U : H →ₗ[ℂ] H}
+    (hUQ : ∀ x : H, U (Q x) = Q (U x)) (hUP : ∀ x : H, U (P x) = P (U x)) (x : H) :
+    U (physProjOf Q P x) = physProjOf Q P (U x) := by
+  simp only [physProjOf_apply, map_add, map_sub, hUQ, hUP]
+
+/-- **The constructed projector preserves the ghost-parity-even sector**: on the even sector, `V`
+takes values in the same sector, so the physical subspace restricted to the even sector is `V`'s
+range there. -/
+theorem physProjOf_mem_even {Q P U : H →ₗ[ℂ] H}
+    (hUQ : ∀ x : H, U (Q x) = Q (U x)) (hUP : ∀ x : H, U (P x) = P (U x))
+    {x : H} (hx : x ∈ evenSpace U) : physProjOf Q P x ∈ evenSpace U := by
+  have hx' : U x = x := by simpa [evenSpace, sub_eq_zero] using hx
+  refine LinearMap.mem_ker.mpr ?_
+  have hsub : (U - (LinearMap.id : H →ₗ[ℂ] H)) (physProjOf Q P x)
+      = U (physProjOf Q P x) - physProjOf Q P x := by
+    rw [LinearMap.sub_apply, LinearMap.id_apply]
+  rw [hsub, physProjOf_commute_parity hUQ hUP x, hx', sub_self]
+
+/-- **The no-ghost theorem sector by sector, from a parity-even b-ghost.**  Non-negativity and
+definiteness are required only on the physical subspace inside each parity sector; the quartet
+mechanism and the constructed projector assemble them into `PhysicalPositivity`. -/
+theorem physicalPositivity_of_homotopy_sectors {Q P η U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
+    (hU : U ∘ₗ U = LinearMap.id) (hUnorm : ∀ x : H, ‖U x‖ = ‖x‖) (hηU : η ∘ₗ U = U ∘ₗ η)
+    (hKrein : ∀ x y : H, kform η (Q x) y = kform η x (Q y))
+    (hSymm : ∀ x y : H, kform η x y = star (kform η y x))
+    (hev : ∀ y : H, y ∈ evenSpace U → 0 ≤ (kform η y y).re)
+    (hod : ∀ y : H, y ∈ oddSpace U → 0 ≤ (kform η y y).re)
+    (hevDef : ∀ y : H, y ∈ evenSpace U → (kform η y y).re = 0 → y = 0)
+    (hodDef : ∀ y : H, y ∈ oddSpace U → (kform η y y).re = 0 → y = 0) :
+    PhysicalPositivity Q η :=
+  physicalPositivity_of_quartet_sectors hQ (quartetOfHomotopy hQ hQSQ hSQS) hU hUnorm hηU
+    hKrein hSymm hev hod hevDef hodDef
+
 end BrstQuartet
 
-/-! ## 5. The hypotheses are not vacuous: a quartet block plus a physical line -/
+/-! ## 6. The hypotheses are not vacuous: a quartet block plus a physical line -/
 
 /-- Extensionality for `EuclideanSpace` through its coordinate representation. -/
 private theorem lp_ext {x y : EuclideanSpace ℂ (Fin 3)} (h : x.ofLp = y.ofLp) : x = y := by
@@ -307,6 +451,29 @@ theorem exV_apply (v : EuclideanSpace ℂ (Fin 3)) :
 theorem exEta_apply (v : EuclideanSpace ℂ (Fin 3)) :
     (exEta v).ofLp = Pi.single 0 (v.ofLp 1) + Pi.single 1 (v.ofLp 0)
       + Pi.single 2 (v.ofLp 2) := rfl
+
+/-- **The worked example is reconstructed from its b-ghost**: `exP` contracts (`exQ exP exQ = exQ`,
+`exP exQ exP = exP`), and the projector computed from it is `exV`.  So the construction of §5 is
+not vacuous on the model block. -/
+theorem exQ_exP_exQ (v : EuclideanSpace ℂ (Fin 3)) : exQ (exP (exQ v)) = exQ v := by
+  apply lp_ext
+  funext i
+  fin_cases i <;>
+    simp [exQ_apply, exP_apply, Pi.single_eq_same, Pi.single_eq_of_ne]
+
+theorem exP_exQ_exP (v : EuclideanSpace ℂ (Fin 3)) : exP (exQ (exP v)) = exP v := by
+  apply lp_ext
+  funext i
+  fin_cases i <;>
+    simp [exQ_apply, exP_apply, Pi.single_eq_same, Pi.single_eq_of_ne]
+
+theorem exP_exQ_exP_gives_V (v : EuclideanSpace ℂ (Fin 3)) :
+    BrstQuartet.physProjOf exQ exP v = exV v := by
+  apply lp_ext
+  funext i
+  fin_cases i <;>
+    simp [BrstQuartet.physProjOf_apply, exQ_apply, exP_apply, exV_apply, Pi.single_eq_same,
+      Pi.single_eq_of_ne]
 
 theorem exQ_nil : IsBrst exQ := by
   refine LinearMap.ext fun v => lp_ext ?_
@@ -393,7 +560,7 @@ theorem exE2_not_exact : ¬ ∃ w : EuclideanSpace ℂ (Fin 3), exQ w = exE2 := 
   have h := congrArg (fun z : EuclideanSpace ℂ (Fin 3) => z.ofLp 2) hw
   simp [exQ_apply, exE2, Pi.single_eq_of_ne] at h
 
-/-! ## 6. The link to the Standard Model charge -/
+/-! ## 7. The link to the Standard Model charge -/
 
 open BookProof.SmBrstGhost in
 /-- **The Standard-Model charge is a BRST charge in the sense of §46.**  This is the hypothesis
