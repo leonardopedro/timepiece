@@ -272,12 +272,28 @@ def main():
         if r[0] > bestl[0]:
             bestl = (r[0], (seed, r[1], r[2]))
     print(f"large |xi|:       max ratio = {bestl[0]:.6g}  (seed, V, |grad V|^2 = {bestl[1]})")
+    print()
+    print("the refuting sweep: F = I + t N + eps B, ratio vs 4/eps^2")
+    print(f"{'t':>8} {'eps':>8} {'V':>12} {'|grad V|^2':>14} {'ratio':>14} {'4/eps^2':>12}")
+    for eps in (1e-2, 1e-3, 1e-4):
+        for t in (1e2, 1e4, 1e5):
+            x = {(k, a, p): 0.0 for k in range(len(K)) for a in range(3) for p in range(2)}
+            x[(1, 0, 1)] = -t     # the shear, xi-hat_{+k1,x} = -i t
+            x[(0, 1, 0)] = eps    # transversal tilt
+            V = vol_pot(x)
+            g2 = sum(g * g for g in V.g)
+            print(f"{t:>8.0e} {eps:>8} {V.v:>12.6g} {g2:>14.6g} "
+                  f"{g2 / (V.v * V.v + 1.0):>14.6g} {4 / eps ** 2:>12.4g}")
     M = max(best[0], bests[0], bestl[0])
     print()
-    print(f"sampled supremum of (|grad V|^2)/(V^2+1): M = {M:.6g}")
-    print(f"A = B = M suffices on the sampled set: VolDom {M:.6g} {M:.6g}")
-    print("This is a measurement, not a proof: it bounds the constants a proof would need from")
-    print("below and shows they are finite on this truncation.")
+    print(f"sampled supremum over bounded boxes: M = {M:.6g}")
+    print("That finite number is NOT the answer: the shear family diverges.  Along")
+    print("F = I + t N + eps B (N = e_x (x) e_y, B = e_y (x) e_x) the ratio saturates at 4/eps^2 and")
+    print("is unbounded as eps -> 0, so no finite A, B make VolDom hold for this penalty.")
+    print("Run the sweep")
+    print("    t in {1e2,1e4,1e5} x eps in {1e-2,1e-3,1e-4}")
+    print("to see the saturation; this is a measurement on a truncation plus the analytic expansion,")
+    print("not a proof of the negation.")
 
 
 if __name__ == "__main__":
