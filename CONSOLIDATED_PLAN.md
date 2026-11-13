@@ -7,8 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13d):** “State of the project — 2026-11-13d: correction — the commutator
-> gate is not *refuted*, only not supplied” (end of file): the “honest boundary” of the band entry is
+> **Newest entry (2026-11-13f):** “State of the project — 2026-11-13f: the meson square's `3 ⊕ 1`
+> carries the same statements” (end of file): the meson square now has both packets —
+> `mesonSymm_irreducible` (weights `1, 0, -1`, projectors, basis and the ladders `A¹ ∓ i A⁰` on the
+> meson fibre), `mesonAlt_irreducible` (a line, so by dimension), and the existence and uniqueness of
+> the split `v = s + a` (`meson_decompose`, `meson_decompose_unique`).
+>
+> **Earlier entry (2026-11-13d):** “State of the project — 2026-11-13d: correction — the commutator
+> gate is not *refuted*, only not supplied”: the “honest boundary” of the band entry is
 > withdrawn — an upper bound on entries cannot refute the size of the gate's sum — and the module
 > headers and the aggregator comment now say “the proof cannot supply it” rather than “it cannot
 > hold”.
@@ -23624,3 +23630,46 @@ a project.
 clean (8078 jobs); no line over 100 characters, no trailing whitespace in the new module;
 `#print axioms` on the three headlines shows only the three standard axioms; `scripts/check-links`
 and `scripts/health.sh` at their known baseline.
+## State of the project — 2026-11-13f: the meson square's `3 ⊕ 1` carries the same statements
+
+`13a` and `13c` closed uniqueness and irreducibility on the glueball square `ℂ³ ⊗ ℂ³`.  The meson
+square `ℂ² ⊗ ℂ²` was left with only its Casimir eigenvalues and its naturality.  It now has the same
+two packets, and since the triplet is the adjoint and the singlet a line, the proofs are shorter than
+the glueball ones.
+
+**Existence and uniqueness.**  `meson_decompose` reads the split `v = s + a` off `meson_sup`:
+`mesonAlt ⊔ mesonSymm = ⊤`.  `meson_decompose_unique` then shows any two splits of the same vector
+coincide: subtracting gives `s₁ - s₂ = a₂ - a₁`, a vector that is symmetric (a difference of two
+`s ∈ mesonSymm`) and antisymmetric (a difference of two `a ∈ mesonAlt`), hence `0` because
+`mesonSymm ⊓ mesonAlt = ⊥` (`meson_disjoint`), after which `a₁ = a₂` follows by cancellation.
+
+**The triplet.**  `mesonSymm_irreducible`: a subspace `W ≤ mesonSymm` preserved by all three total
+actions is `⊥` or `mesonSymm`.  The weights are the adjoint list `1, 0, -1` (`mesonWeightVec_eigen`;
+the corpus of `13c` already had that list, so `mesonWeight` is `glueballAltWeight` and the
+projectors are `glueballAltLagrange` — the two summands really are the same `su(2)`-module, which is
+what `mesonSymm_glueball_iso` says).  The ladders needed one addition on the meson side, the linear
+maps `mesonActLinear` and its combinations `mesonLadderRaise = A¹ - i A⁰` and
+`mesonLadderLower = A¹ + i A⁰`, with `mesonAct_smul` supplying the homogeneity.  Their action on the
+weight basis is `i`, `2i` or `-i`:
+`mesonLadderLower_zero` (weight `1 → 0`, coefficient `i`), `mesonLadderLower_one` (`0 → -1`, `2i`),
+`mesonLadderRaise_one` (`0 → 1`, `-2i`) and `mesonLadderRaise_two` (`-1 → 0`, `-i`).  Every
+coefficient is nonzero, so the projector-then-ladder argument of `13a` runs verbatim: extract one
+weight vector from a nonzero element of `W`, walk to the other two, and expand an arbitrary element
+in `mesonWeightBasis`.
+
+**The singlet.**  `mesonAlt_irreducible` is a dimension statement: `mesonAlt` is spanned by
+`mesonSingletVec` (`mesonAlt_eq_span`), so a nonzero `W ≤ mesonAlt` contains `c • s ≠ 0` and hence
+`s = c⁻¹ • (c • s) ∈ W`; every element of `mesonAlt` is a multiple of `s`, so `W = mesonAlt`.  The
+invariance hypothesis is carried in the statement for uniformity with the triplet, and it is not
+needed — a line has no proper nonzero submodule.  That is a genuine difference from the glueball
+side, where the singlet `ℂδ` is annihilated outright (`glueballAct_singletVec`) and its
+irreducibility would be that same dimension argument.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
+errors, no `sorry`, no warning naming the module; `#print axioms` on `mesonSymm_irreducible`,
+`mesonAlt_irreducible`, `meson_decompose_unique`, `mesonWeightBasis` and `mesonLadderRaise_one`
+gives `[propext, Classical.choice, Quot.sound]`; the new block has no line over 100 code points.
+
+**Boundary.**  Both squares are now split into irreducibles and both splits are unique; nothing here
+identifies the meson triplet with the glueball antisymmetric part beyond the intertwiner already in
+the corpus, and no norm, closedness or dynamics is claimed.
