@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13a):** “State of the project — 2026-11-13a: the decomposition is unique,
+> **Newest entry (2026-11-13b):** “State of the project — 2026-11-13b: the Yang–Mills band bounds are
+> two of the three gates” (end of file): `BookProof/Qym/ChapterYangMillsWeightedGates.lean` turns
+> `ym_hermCol_band_bounds` (at most `M` entries per column, band radius `4`, entries `≤ C (deg+1)²`)
+> into the row and column gates against the symbol `w_k = ((deg (e k) : ℝ) + 1)²`.
+>
+> **Earlier entry (2026-11-13a):** “State of the project — 2026-11-13a: the decomposition is unique,
 > and the `5` is irreducible” (end of file): the two gaps 12o named are closed — the components of
 > `v = u + c·δ + z` are determined by `v` (`glueball_decompose_unique`, via the trace functional
 > rather than through eigenvalue separation), and `Sym²₀` carries no invariant subspace of its own
@@ -23313,3 +23318,95 @@ Consequences, stated so they are not lost again:
 **Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa
 BookProof.ChapterQymTimeIndependentFlow` → 8140 jobs, no error, no warning naming either module, no
 line over 100 characters (the two long docstring lines found on the first pass were re-wrapped).
+
+## State of the project — 2026-11-12u: cross-reference — the weighted model instance already exists
+
+While looking for the symbol that matches the diagonal growth, §2026-11-12t's follow-through turned
+up that `BookProof/Toolbox/ChapterFockWeightedSchurEsa.lean` **already carries the weighted model
+instance**: the tridiagonal oscillator matrix `oscCol` with the growing symbol `oscW k = √(k+1)`
+satisfies all three gates (`wRow_oscCol`, `wCol_oscCol`, `wComm_oscCol`), yields
+`osc_essentiallySelfAdjointOn_core`, `osc_stone_flow`, and `oscCol_not_schurBound` (no unweighted
+Schur bound at all).  So the weighted criterion is non-vacuous on a genuinely unbounded matrix, and
+the falsity result of §2026-11-12t is sharp rather than a dead end: the same operator family is
+handled by `oscW` and cannot be handled by `w ≡ 1`.
+
+I did not add a second, diagonal-only model to make the same point — a duplicate instance would have
+competed with `oscCol`, which has the structure the physical `H₁` actually has (nearest-neighbour
+coupling, not diagonal).  Instead the docstring of `not_wRowBound_one_numberCol` now points at the
+oscillator packet, so the two halves of the argument sit next to each other.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa` → 8077 jobs, no error,
+no warning naming the module, no line over 100 characters.
+
+## State of the project — 2026-11-12v: the three weighted gates are additive
+
+The composition law needed to assemble the physical `ymFockCol = ½Σπ² + ½ΣB²` from its coordinate
+summands is in place.  In `BookProof/Toolbox/ChapterFockWeightedSchurEsa.lean`:
+
+* `WRowBound.add` — `WRowBound w (col₁ + col₂) (K₁ + K₂)` from the two summands' gates;
+* `WColBound.add` and `WCommBound.add` — the same, for a positive symbol (`hw : ∀ k, 0 < w k`),
+  bounds adding in both cases;
+* `sum_le_of_row_split` — the padding step they share: a sum over any finite set of terms that
+  vanish outside a row is at most that row's sum, because the terms outside the row's support are
+  `0` (via `Finset.sum_subset` to the intersection and monotonicity of a nonnegative sum in the
+  index set).
+
+So a finite sum of matrices satisfying the gates satisfies them with the summed bounds, which is
+exactly the shape a proof for `H₁` needs: prove the gates once per coordinate direction (99 of them,
+each a one-coordinate oscillator `½π_i² + ½(Σ_a B_{ia})²`) and add.
+
+**Note on what was discarded.**  A first attempt bounded the union sum from above by the individual
+row sums, which is the wrong direction — a union's sum dominates each part.  The working proof
+instead bounds the *combined* support's sum termwise by `‖c₁‖ + ‖c₂‖` and then pads each part back to
+its own row.  Two `Finsupp` details cost iterations: `Finset.sum_subset` states
+`∑_{s₁} = ∑_{s₂}` for `s₁ ⊆ s₂` (so the split must be oriented `S ∩ T` first, then rewritten), and
+there is no `Finsupp.not_mem_support_iff` projection to use — `Finsupp.mem_support_iff` with
+`not_not` is the available route.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa` → 8077 jobs, no error,
+no warning naming the module, no line over 100 characters.
+
+## State of the project — 2026-11-13b: the Yang–Mills band bounds are two of the three gates
+
+New module `BookProof/Qym/ChapterYangMillsWeightedGates.lean` (ns `BookProof.YangMillsWeightedGates`),
+registered in the root aggregator next to `ChapterYangMillsBandBounds`.
+
+`ym_hermCol_band_bounds` gives three facts about the non-abelian Hermite matrix: at most `M`
+entries per column, band radius `4` in the total degree, entries `≤ C (deg+1)²`.  The weighted
+Schur theory needs three *gates* against a symbol `w ≥ 1`.  With `w_k = ((deg (e k) : ℝ) + 1)²`
+the entry bound is a multiple of the symbol, and the band supplies the only extra ingredient
+needed — slow variation:
+
+* `ymW`, `ymW_nonneg`, `ymW_one_le`;
+* `ymW_le_of_band` — band radius `4` in the degree implies `w_j ≤ 49 w_k`: `deg j ≤ deg k + 4`,
+  and either `deg j ≤ 3` (then `w_j ≤ 16 ≤ 49 w_k` since `w_k ≥ 1`) or `deg j ≥ 4` (then
+  `deg j + 1 ≤ 7 (deg j − 3) ≤ 7 (deg k + 1)`);
+* **`ymHermCol_row_col_gates`** — `∃ K ≥ 0`, row gate *and* column gate, with the single
+  constant `K = 49 M C`.  Row: `M` entries of size `C w_k`.  Column: entries of the column `j`
+  are `≤ C w_j` uniformly in the row index (the band bound depends only on the first index), and
+  the weight varies by at most `49` across the band, so every term is `≤ 49 C`;
+* **`ymHermCol_essentiallySelfAdjointOn_core_of_commBound`** — with the row and column gates
+  discharged, `dGamma_essentiallySelfAdjointOn_core_w` leaves exactly one hypothesis: the
+  commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B`.  Given it,
+  `dΓ(H₁)` is essentially self-adjoint on the finite-occupation core.
+
+**Honest boundary — the commutator gate cannot hold at order `4`.**  With band radius `r` in the
+degree and `w = (deg+1)²`, the commutator weight is
+`|w_j² − w_k²|/(w_k w_j) = |w_j/w_k − w_k/w_j| = Θ(1/deg)` across the band, while the entries are
+`Θ(deg²)`, so the gate's terms grow like `deg`: no constant `B` bounds them.  A symbol that is
+*smaller* cannot fix this — the row gate forces `K w_k ≥ C (deg k + 1)²`, so `w_k ≳ deg²` — and
+one that is *larger* makes the relative oscillation of `w²` worse.  This is the order obstruction
+`ChapterYangMillsBandBounds`' header records (the gate route is order-`2`-adapted; the abelian
+case is closed via `IsBand2`).  So the weighted-gate route to essential self-adjointness of
+`dΓ(H₁)` for `f_abc ≠ 0` is now *locally closed*: everything except the commutator gate is proved,
+and the commutator gate is false for this symbol.  What remains is a different criterion, not a
+missing estimate.
+
+**Scope caveat.**  These gates are for `ymHermCol`, the matrix in the product Hermite basis
+`hermBasisN e` (`coreRepHerm`).  The Fock-basis object `ymFockCol` of
+`ChapterFockSecondQuantization` uses the Gram–Schmidt basis `coreBasis e` (`coreRepBasis`), and no
+relation between the two bases is proved here; a bridge would be a separate packet.
+
+**Verification.**  `lake env lean` and `lake build BookProof.Qym.ChapterYangMillsWeightedGates`
+(8148 jobs) both clean; `#print axioms` on both headline theorems gives only
+`propext, Classical.choice, Quot.sound`; no line over 100 characters.

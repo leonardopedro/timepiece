@@ -624,6 +624,12 @@ import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
 import BookProof.OSReconstruction.YangMillsBridge
 import BookProof.OSReconstruction.FockIntertwining
+-- B2 on the one-particle sector: a concrete `OsFockBridge` whose `U` is constructed, not assumed
+-- (the point-evaluation state, whose OS Hilbert space is the one-particle line) — `cftproof.md` E4.
+import BookProof.OSReconstruction.OneParticleBridge
+-- The same bridge for a state that is *not* a character: a two-state finite-volume Gibbs state,
+-- whose OS Hilbert space is constructed to be `ℝ²` and whose transfer semigroup is intertwined.
+import BookProof.OSReconstruction.FiniteVolumeGibbsBridge
 -- Half-space OS reconstruction (`cftproof.md` E3): the quotient of `𝔄₊` by the null space of
 -- the half-space OS form, its vacuum, and the forward transfer semigroup on its completion.
 import BookProof.OSReconstruction.HalfSpaceState
@@ -631,6 +637,15 @@ import BookProof.OSReconstruction.HalfSpaceHilbert
 import BookProof.OSReconstruction.HalfSpaceGenerator
 import BookProof.OSReconstruction.HalfSpaceFreeState
 import BookProof.OSReconstruction.HalfSpaceComplex
+-- B0 (observable/prior dictionary) and B1 at a finite regulator, with the explicit unproved
+-- continuum estimate (`cftproof.md`, "Next local deliverable").
+import BookProof.OSReconstruction.ObservablePrior
+-- B0's remaining clauses: conditional probability at a spatial point, refinement consistency
+-- and the infinite-information representation (`cftproof.md`, same deliverable).
+import BookProof.OSReconstruction.PriorRefinement
+-- The continuum half of B0: a genuine probability measure on the information space, the dictionary
+-- in integral form, refinement invariance (pushforward) and exhaustion convergence.
+import BookProof.OSReconstruction.ContinuumPrior
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
@@ -2838,6 +2853,14 @@ import BookProof.Toolbox.ChapterHermiteBandCalculusHigher
 -- by `C(deg+1)²` — the certificate data the Gershgorin/Schur criteria consume.  No
 -- self-adjointness and no gap is claimed for `f_abc ≠ 0`.
 import BookProof.Qym.ChapterYangMillsBandBounds
+
+-- `ChapterYangMillsWeightedGates` (2026-11-13): the band bounds of the chapter above re-read as
+-- the weighted Schur gates of `BookProof.FockWeightedSchur` with the symbol `w_k = (deg+1)²`.
+-- `ymHermCol_row_col_gates` proves the row and column gates with one explicit constant (the band
+-- makes `(deg+1)²` slowly varying across four degrees), so
+-- `ymHermCol_essentiallySelfAdjointOn_core_of_commBound` leaves exactly one hypothesis — the
+-- commutator gate — and the module records why that gate cannot hold at order `4`.
+import BookProof.Qym.ChapterYangMillsWeightedGates
 
 -- `ChapterYangMillsGhostSector` (2026-09-07 wave): the Faddeev–Popov ghost sector of the 3D
 -- gauge-fixed Yang–Mills Hamiltonian, as the orthogonal direct sum over ghost configurations

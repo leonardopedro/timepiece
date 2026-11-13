@@ -212,6 +212,117 @@ bounded rows. -/
 def WCommBound (w : ℕ → ℝ) (col : ℕ → (ℕ →₀ ℂ)) (B : ℝ) : Prop :=
   ∀ k, ∑ j ∈ (col k).support, ‖(col k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j) ≤ B
 
+/-- A sum over any finite set of terms supported in a row is at most that row's sum: the terms
+outside the row's support vanish.  This is the padding step behind additivity of the gates. -/
+theorem sum_le_of_row_split {a : ℕ → ℝ} (ha : ∀ j, 0 ≤ a j) {S T : Finset ℕ}
+    (hS : ∀ j ∈ S, j ∉ T → a j = 0) : ∑ j ∈ S, a j ≤ ∑ j ∈ T, a j := by
+  have hsplit : ∑ j ∈ S ∩ T, a j = ∑ j ∈ S, a j := by
+    refine Finset.sum_subset Finset.inter_subset_left ?_
+    intro j hjS hjST
+    exact hS j hjS (fun hjT => hjST (Finset.mem_inter.mpr ⟨hjS, hjT⟩))
+  rw [← hsplit]
+  exact Finset.sum_le_sum_of_subset_of_nonneg Finset.inter_subset_right (fun j _ _ => ha j)
+
+/-- The row gate is **additive**: sources add on the left, bounds on the right. -/
+theorem WRowBound.add {w : ℕ → ℝ} {col₁ col₂ : ℕ → (ℕ →₀ ℂ)} {K₁ K₂ : ℝ}
+    (h₁ : WRowBound w col₁ K₁) (h₂ : WRowBound w col₂ K₂) :
+    WRowBound w (col₁ + col₂) (K₁ + K₂) := by
+  intro k
+  have hsub : ((col₁ + col₂) k).support ⊆ (col₁ k).support ∪ (col₂ k).support := by
+    rw [Pi.add_apply]
+    exact Finsupp.support_add
+  have hterm : ∑ j ∈ ((col₁ + col₂) k).support, ‖((col₁ + col₂) k) j‖
+      ≤ ∑ j ∈ ((col₁ + col₂) k).support, ‖(col₁ k) j‖
+        + ∑ j ∈ ((col₁ + col₂) k).support, ‖(col₂ k) j‖ := by
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_le_sum fun j _ => ?_
+    rw [Pi.add_apply, Finsupp.add_apply]
+    exact norm_add_le _ _
+  have hvan₁ : ∀ j ∈ ((col₁ + col₂) k).support, j ∉ (col₁ k).support → ‖(col₁ k) j‖ = 0 := by
+    intro j _ hj
+    simp only [Finsupp.mem_support_iff, not_not] at hj
+    rw [hj, norm_zero]
+  have hvan₂ : ∀ j ∈ ((col₁ + col₂) k).support, j ∉ (col₂ k).support → ‖(col₂ k) j‖ = 0 := by
+    intro j _ hj
+    simp only [Finsupp.mem_support_iff, not_not] at hj
+    rw [hj, norm_zero]
+  have hK₁ := sum_le_of_row_split (a := fun j => ‖(col₁ k) j‖) (fun j => norm_nonneg _) hvan₁
+  have hK₂ := sum_le_of_row_split (a := fun j => ‖(col₂ k) j‖) (fun j => norm_nonneg _) hvan₂
+  have hfinal : ∑ j ∈ (col₁ k).support, ‖(col₁ k) j‖
+      + ∑ j ∈ (col₂ k).support, ‖(col₂ k) j‖ ≤ (K₁ + K₂) * w k := by
+    rw [add_mul]
+    linarith [h₁ k, h₂ k]
+  linarith
+
+/-- The column gate is **additive**, for a positive symbol. -/
+theorem WColBound.add {w : ℕ → ℝ} (hw : ∀ k, 0 < w k) {col₁ col₂ : ℕ → (ℕ →₀ ℂ)} {K₁ K₂ : ℝ}
+    (h₁ : WColBound w col₁ K₁) (h₂ : WColBound w col₂ K₂) :
+    WColBound w (col₁ + col₂) (K₁ + K₂) := by
+  intro j
+  have hterm : ∑ k ∈ ((col₁ + col₂) j).support, ‖((col₁ + col₂) j) k‖ / w k
+      ≤ ∑ k ∈ ((col₁ + col₂) j).support, ‖(col₁ j) k‖ / w k
+        + ∑ k ∈ ((col₁ + col₂) j).support, ‖(col₂ j) k‖ / w k := by
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_le_sum fun k _ => ?_
+    rw [Pi.add_apply, Finsupp.add_apply]
+    calc ‖(col₁ j) k + (col₂ j) k‖ / w k
+        ≤ (‖(col₁ j) k‖ + ‖(col₂ j) k‖) / w k :=
+          div_le_div_of_nonneg_right (norm_add_le _ _) (le_of_lt (hw k))
+      _ = ‖(col₁ j) k‖ / w k + ‖(col₂ j) k‖ / w k := by ring
+  have hvan₁ : ∀ k ∈ ((col₁ + col₂) j).support, k ∉ (col₁ j).support →
+      ‖(col₁ j) k‖ / w k = 0 := by
+    intro k _ hk
+    simp only [Finsupp.mem_support_iff, not_not] at hk
+    rw [hk, norm_zero, zero_div]
+  have hvan₂ : ∀ k ∈ ((col₁ + col₂) j).support, k ∉ (col₂ j).support →
+      ‖(col₂ j) k‖ / w k = 0 := by
+    intro k _ hk
+    simp only [Finsupp.mem_support_iff, not_not] at hk
+    rw [hk, norm_zero, zero_div]
+  have hK₁ := sum_le_of_row_split (a := fun k => ‖(col₁ j) k‖ / w k)
+    (fun k => div_nonneg (norm_nonneg _) (le_of_lt (hw k))) hvan₁
+  have hK₂ := sum_le_of_row_split (a := fun k => ‖(col₂ j) k‖ / w k)
+    (fun k => div_nonneg (norm_nonneg _) (le_of_lt (hw k))) hvan₂
+  linarith [h₁ j, h₂ j]
+
+/-- The commutator gate is **additive**. -/
+theorem WCommBound.add {w : ℕ → ℝ} (hw : ∀ k, 0 < w k) {col₁ col₂ : ℕ → (ℕ →₀ ℂ)}
+    {B₁ B₂ : ℝ} (h₁ : WCommBound w col₁ B₁) (h₂ : WCommBound w col₂ B₂) :
+    WCommBound w (col₁ + col₂) (B₁ + B₂) := by
+  intro k
+  have hden : ∀ j, (0 : ℝ) < w k * w j := fun j => mul_pos (hw k) (hw j)
+  have hterm : ∑ j ∈ ((col₁ + col₂) k).support,
+        ‖((col₁ + col₂) k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j)
+      ≤ ∑ j ∈ ((col₁ + col₂) k).support,
+          ‖(col₁ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j)
+        + ∑ j ∈ ((col₁ + col₂) k).support,
+          ‖(col₂ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j) := by
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_le_sum fun j _ => ?_
+    rw [Pi.add_apply, Finsupp.add_apply]
+    calc ‖(col₁ k) j + (col₂ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j)
+        ≤ (‖(col₁ k) j‖ + ‖(col₂ k) j‖) * |w j ^ 2 - w k ^ 2| / (w k * w j) :=
+          div_le_div_of_nonneg_right
+            (mul_le_mul_of_nonneg_right (norm_add_le _ _) (abs_nonneg _)) (le_of_lt (hden j))
+      _ = ‖(col₁ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j)
+            + ‖(col₂ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j) := by
+          ring
+  have hvan₁ : ∀ j ∈ ((col₁ + col₂) k).support, j ∉ (col₁ k).support →
+      ‖(col₁ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j) = 0 := by
+    intro j _ hj
+    simp only [Finsupp.mem_support_iff, not_not] at hj
+    rw [hj, norm_zero, zero_mul, zero_div]
+  have hvan₂ : ∀ j ∈ ((col₁ + col₂) k).support, j ∉ (col₂ k).support →
+      ‖(col₂ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j) = 0 := by
+    intro j _ hj
+    simp only [Finsupp.mem_support_iff, not_not] at hj
+    rw [hj, norm_zero, zero_mul, zero_div]
+  have hK₁ := sum_le_of_row_split (a := fun j => ‖(col₁ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j))
+    (fun j => div_nonneg (mul_nonneg (norm_nonneg _) (abs_nonneg _)) (le_of_lt (hden j))) hvan₁
+  have hK₂ := sum_le_of_row_split (a := fun j => ‖(col₂ k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j))
+    (fun j => div_nonneg (mul_nonneg (norm_nonneg _) (abs_nonneg _)) (le_of_lt (hden j))) hvan₂
+  linarith [h₁ k, h₂ k]
+
 /-- **With the symbol `w ≡ 1` the column gate is the row gate**, since
 `WColBound 1 col K` is literally `∑_j |A_kj| / 1 ≤ K` over the same finite support.  So for the
 unweighted symbol the two Schur gates are one condition, not two. -/
@@ -264,7 +375,9 @@ def numberCol : ℕ → (ℕ →₀ ℂ) := fun k => Finsupp.single k (k : ℂ)
 
 /-- **The unweighted row gate is false for the number operator.**  So the collapse of the three
 Schur gates at `w ≡ 1` reduces the obligation to an estimate that no operator with unbounded
-diagonal can satisfy. -/
+diagonal can satisfy.  What survives is the weighted form, and it is not vacuous: the tridiagonal
+oscillator matrix `oscCol` with the growing symbol `oscW k = √(k+1)` satisfies all three gates
+(`wRow_oscCol`, `wCol_oscCol`, `wComm_oscCol`), giving `osc_essentiallySelfAdjointOn_core`. -/
 theorem not_wRowBound_one_numberCol : ¬ ∃ K : ℝ, WRowBound (fun _ => 1) numberCol K :=
   not_wRowBound_one_of_diag_unbounded (col := numberCol) (d := fun k => (k : ℝ))
     (fun k => by
