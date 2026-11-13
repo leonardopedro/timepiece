@@ -3170,8 +3170,7 @@ QYM potential.  `sq_le` bounds `(∂_j Φ)²` by the coercive quadratic `1 + ∑
 domination needs a `W` that contains that quadratic.  The SM's `smPotPoly` has `∑_m q_m²` (§49); the
 QYM comparison's Weyl potential is `weylPotPoly Φ = ∑_j Φ_j² + 1`, and at a single bilinear form it is
 literally `weylFlat`, which `weylFlat_eq_weylPotPoly` identifies with
-`BookProof/YangMillsNonAbelianEsa`'s `weylPotPoly (fun _ : Fin 1 => X₀X₁)`; an NS potential built from
-bilinear forms alone has the same shape.  Then `not_gradDom_weylFlat`: there are no `a b` with
+`BookProof/YangMillsNonAbelianEsa`'s `weylPotPoly (fun _ : Fin 1 => X₀X₁)`.  Then `not_gradDom_weylFlat`: there are no `a b` with
 `‖∂₀W‖² + ‖∂₁W‖² ≤ a‖W‖² + b` everywhere, because on the curve `(t, 1/t)` the left side is
 `4/t² + 4t²` while `W` stays `2`.  This is §48's flat mechanism, not a new phenomenon.
 
@@ -3181,7 +3180,9 @@ The normal form is reusable — it is the right way to build a per-form `pderiv`
 domination is an *analytic* input specific to potentials carrying a coercive quadratic; for QYM/NS it
 must be supplied from that model's own structure (a confining term, a mass term, or an anisotropic
 weight), not imported from the SM.  Nothing here claims QYM's or NS's elliptic estimate beyond this
-obstruction.
+obstruction — and only the QYM instance is formalised: the corpus's NS modules are operator-level
+(`BookProof/Ns/*`), so there is no NS polynomial potential to run the `(t, 1/t)` computation against,
+and the NS statement is the proof template, not a proved counterexample.
 
 ### 54.4. Verification performed (2026-11-13)
 

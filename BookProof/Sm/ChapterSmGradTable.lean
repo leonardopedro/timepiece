@@ -677,7 +677,13 @@ the *conclusion*, and the reason is structural rather than a gap in the proof: `
 `(∂_j Φ)²` by the coercive quadratic `1 + ∑_{m∈A} x_m²`, and the domination needs a `W` that contains
 that quadratic.  The Standard Model's `smPotPoly` carries `∑_m q_m²` (§49); the QYM comparison's
 Weyl potential `weylPotPoly Φ = ∑_j Φ_j² + 1` (plan §3, `BookProof/Qym/ChapterYangMillsNonAbelianEsa`)
-does not, and neither does an NS potential built from bilinear forms alone.
+does not.
+
+The NS side is *not* instantiated, and this is a limitation rather than an omission: the corpus's NS
+modules are operator-level (`BookProof/Ns/*`), with no polynomial potential of this shape to evaluate,
+so there is nothing to run the `(t, 1/t)` computation against.  What transfers there is only the
+template: a potential built from bilinear forms alone has the same W-shape as the QYM instance below,
+and would fail the same way.
 
 So for those two models there is no `GradDom` instance to prove — the pointwise domination is
 **false**, by the same flat mechanism §48 exhibits.  The proof below is the QYM instance: `weylPotPoly`
