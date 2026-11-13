@@ -28,6 +28,36 @@
 > `sirk_opNorm_error_tendsto_zero` gives the worst-case convergence in the reduction order;
 > `softmodes.md`'s S3 now records the one missing link (a Ritz-residual seam) and why the
 > certificate should run on `γ⁻¹ − X_γ` rather than on `h_F`.
+
+> **Newest entry (2026-11-13k):** “State of the project — 2026-11-13k: the enumeration is
+> constructed, and the quartic entry is computed” (end of file): `BookProof.DegreeEnumeration`
+> builds the degree blocks, the offsets and a rank bijection, so a degree-compatible enumeration
+> exists for every `0 < d` (`exists_degreeCompatible`) and the `coreBasis` ESA theorem needs no
+> basis hypothesis; `BookProof.HermiteQuartic` proves `⟨ψ_{n+4}, x⁴ ψ_n⟩ = √((n+1)(n+2)(n+3)(n+4))`
+> and `⟨ψ_{n+2}, x² ψ_n⟩ = √((n+1)(n+2))` by monic cancellation plus the vanishing lemma; and
+> `not_wCommBound_quartic` feeds that magnitude into `not_wCommBound_of_entry` to show that a unit
+> quartic coefficient already defeats `WCommBound` for every `B`.  The gate for `ymHermCol` is
+> still open: what remains is the *coefficient* of a quartic monomial in `(magPoly)²`.
+>
+> **Earlier entry (2026-11-13j):** “State of the project — 2026-11-13j: the bridge is closed with no
+> phases at all” (end of file): the monomial–Hermite triangularity `x^α − He_α ∈ span{degree <
+> |α|}` is proved from the three-term recurrence alone, the decomposition
+> `x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` holds with `w` in the earlier Gram–Schmidt span and
+> `c = ‖ψ_{e k}‖`, the coefficient has modulus one after normalization
+> (`gramSchmidtNormed_eq_phase_of_decomp`), and consequently `coreBasis e k = hermBasisN e k`
+> exactly — phase `1` — for a degree-compatible enumeration (`DegreeCompatible`), which discharges
+> `BridgePhases` in the Yang–Mills gate module.  The commutator gate gets a one-entry refutation
+> interface (`not_wCommBound_of_entry`); it stays open (expected false for `f_abc ≠ 0`).
+>
+> **Earlier entry (2026-11-13i):** “State of the project — 2026-11-13i: the vanishing lemma, the
+> Gram–Schmidt projection lemma, and the QYM gates in `coreBasis` coordinates” (end of file): the
+> product Hermite function is orthogonal to every monomial Gauss function of strictly smaller
+> coordinatewise degree (`inner_monomial_hermiteMvLp_eq_zero`), the Gram–Schmidt vector is the base
+> vector minus its projection and is reproduced by any unit vector spanning the orthogonal remainder
+> (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
+> (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
+> self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
+
 >
 > **Earlier entry (2026-11-13h):** “State of the project — 2026-11-13h: the two `3`s are isomorphic
 > as `su(2)`-modules” (end of file): the meson triplet and the gluon adjoint triplet are now related
@@ -23938,3 +23968,254 @@ separately below, with its measurement.
 forwarded to it, the `Sirk/ChapterResolventTransfer.lean` ledger row now lists the assembly, and
 the 13j boundary sentence about `A'`'s self-adjointness is corrected — it is proved after all,
 by `isSelfAdjoint_reflection`.
+
+## State of the project — 2026-11-13i: the vanishing lemma, the projection lemma, the QYM gates
+
+`13e` §3 showed that for a degree-compatible enumeration the `coreBasis`↔`hermBasisN` bridge holds
+*up to one phase per level*, and `13g` showed that such phases are invisible to the weighted Schur
+gates.  This entry supplies the two analytic lemmas the bridge argument was missing and then spends
+them: with the bridge stated as an explicit hypothesis, the whole Yang–Mills gate theorem is now
+available in the `coreBasis` coordinates that `finiteModeDomain` and the certificate seam actually
+use.  Three new modules, all `sorry`-free and `axiom`-free.
+
+**1. The monomial–Hermite vanishing lemma** (`BookProof/Toolbox/ChapterHermiteVanishing`,
+`BookProof.HermiteVanishing`).  `BookProof.HermiteProductBasis` computes `⟨ψ_α, ψ_β⟩` but says
+nothing about the pairing of a monomial Gauss function with a Hermite function.  The one-dimensional
+input is `gint_X_pow_hermiteR_zero` — `∫ xᵐ Heₙ(x) e^{-x²/2} dx = 0` for `m < n` — proved from the
+integration-by-parts identity `gint_ibp` by a double induction on `(n, m)`
+(`gint_X_succ_hermiteR`, `gint_X_one_hermiteR`); the `L²(ℝ)` shape is
+`integral_pow_mul_gaussH_mul_hermiteFun(_eq_zero)`.  Fubini over the coordinates
+(`pgFun_monomial_eq_prod`, `integral_prod_coord`) gives
+`inner_monomial_hermiteMv : ⟨x^α e^{-‖x‖²/4}, ψ_β⟩ = ∏ᵢ ∫ x^{αᵢ} He_{βᵢ} e^{-x²/2}`, hence
+`inner_monomial_hermiteMv_eq_zero` and the normalized form
+`inner_monomial_hermiteMvLp_eq_zero` — the vanishing whenever some `βᵢ > αᵢ` that the Gram–Schmidt
+comparison consumes.
+
+**2. Gram–Schmidt versus projection** (`BookProof/Toolbox/ChapterFockGramSchmidtProjection`,
+`BookProof.FockGramSchmidtProjection`).  With `gsSpan f k` the span of the Gram–Schmidt vectors
+strictly before `k` (`gsSpan_eq_span_Iio`, i.e. `InnerProductSpace.span_gramSchmidt_Iio`),
+`sub_gramSchmidt_mem_gsSpan` says the Gram–Schmidt vector is the base vector minus its projection
+onto that span, `gramSchmidt_mem_orthogonal_gsSpan` that it is orthogonal to it, and
+`eq_of_decomp_orthogonal` that this pair of properties pins the vector down.  The comparison lemma
+is `gramSchmidt_eq_smul_of_decomp`: if `f k − c • g` lies in the earlier span and `g ⊥ gsSpan f k`,
+then `gramSchmidt f k = c • g` — i.e. *any* vector realising the orthogonal component reproduces the
+Gram–Schmidt vector up to the scalar `c`, no monomial counting required.  Applied to the core family
+this gives `coreBasis_eq_sub_projection`, `coreFamily_apply`, and — with the degree-compatibility
+hypothesis `∀ j < k, ∃ i, e j i < e k i` — `hermiteMvLp_mem_orthogonal_gsSpan`: the product Hermite
+function `ψ_{e k}` is orthogonal to the earlier Gram–Schmidt span, by part 1.
+
+**3. The Yang–Mills gates in `coreBasis` coordinates**
+(`BookProof/Qym/ChapterYangMillsCoreBasisGates`, `BookProof.YangMillsCoreBasisGates`).  The bridge
+is an explicit hypothesis,
+`BridgePhases e u := (∀ k, ‖u k‖ = 1) ∧ ∀ k, coreBasis e k = u k • ψ_{e k}` (with
+`hermBasisN e k = ψ_{e k}`).  The matrix is the polynomial operator read through the `CoreRep` of
+the core domain: `ymCoreCol e fabc := opCol (coreBasis e) ((coreRepBasis e).op (ymPoly fabc))`, and
+`coreRepBasis_symm` identifies the representing polynomial of the `k`-th core vector as
+`u k • ψ_{e k}`.  Then `ymCoreCol_eq_phase` is
+`PhaseRelated u (ymHermCol e fabc) (ymCoreCol e fabc)` — the core matrix is the Hermite matrix
+under the diagonal phases — `isHermCol_ymCoreCol` its Hermitianity, `ymCoreCol_row_col_gates` the
+row and column gates at the *same* constant as in the Hermite basis, `ymCoreCol_gates_iff` the
+transfer of all three gates with the same constants, and
+end to end `ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound`: from the bridge hypothesis and
+the commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B` in the Hermite coordinates,
+`dΓ(ymCoreCol e fabc)` is essentially self-adjoint on the finite-occupation core.
+
+A note on method: the natural definition of `ymCoreOp` — the Hermite operator conjugated by the
+identity between the two finite-mode domains — is available (`finiteModeDomain (coreBasis e) =
+finiteModeDomain (hermBasisN e)`, from `span_range_coreBasis` and `span_hermiteMvLp_comp`), but its
+`L²(ℝ⁹⁹)` coercions make every value lemma a kernel-level defeq problem and the module does not
+elaborate in acceptable time.  Going through `coreRepBasis`/`opCol` reaches the same matrix with
+cheap elaboration, which is why the delivered statement is column-based like the rest of the gate
+library.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterHermiteVanishing
+BookProof.Toolbox.ChapterFockGramSchmidtProjection BookProof.Qym.ChapterYangMillsCoreBasisGates` →
+0 errors, no warning naming the modules; `#print axioms` on
+`inner_monomial_hermiteMvLp_eq_zero`, `gramSchmidt_eq_smul_of_decomp`,
+`coreBasis_eq_sub_projection`, `ymCoreCol_row_col_gates` and
+`ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`, no line over 100, no trailing whitespace; all
+three modules imported from `BookProof.lean`.
+
+**Boundary.**  The bridge itself is still *not proved*.  Part 2 leaves exactly two inputs open:
+writing `x^{e k} e^{-‖x‖²/4}` as `w + c • ψ_{e k}` with `w` in the earlier span (monic triangularity
+of `He_β` plus a count of the monomials of each degree), and `‖c‖ = 1` after normalization.  Nothing
+here bounds the commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B`; `13d` records that the
+band calculus can neither supply it nor refute it.  So the QYM ESA statement is conditional on two
+hypotheses — the bridge and the commutator gate — and no unconditional Yang–Mills gap is claimed.
+
+## State of the project — 2026-11-13j: the bridge is closed with no phases at all
+
+`§2026-11-13i` left the `coreBasis` ↔ `hermBasisN` bridge conditional on two inputs: writing
+`x^{e k} e^{-‖x‖²/4}` as `w + c • ψ_{e k}` with `w` in the earlier Gram–Schmidt span, and `‖c‖ = 1`
+after normalization.  Both are now theorems, and the conclusion is stronger than a phase: for a
+degree-compatible enumeration the two bases are **equal**, `coreBasis e k = hermBasisN e k`.
+
+**1. Degree-compatible enumerations.**  `BookProof/Toolbox/ChapterHermiteBridgePhases.lean`
+(ns `BookProof.HermiteBridgePhases`).  `DegreeCompatible e` says every multi-index of total degree
+below that of `e k` occurs before `k`:
+
+* `DegreeCompatible.degree_mono` — the total degree is nondecreasing along `e`.  Take `b = e k` in
+  the defining clause: if `deg (e j) > deg (e k)` for some `j < k`, then `e k` occurs at an index
+  `< j < k`, contradicting injectivity;
+* `DegreeCompatible.exists_lt_apply` — the coordinatewise hypothesis `∃ i, e j i < e k i` that
+  `§2026-11-13i`'s `hermiteMvLp_mem_orthogonal_gsSpan` consumes.  If no coordinate of `e j` is
+  below `e k`, then `e k ≤ e j` componentwise with equal sums by `degree_mono`, hence `e j = e k`,
+  contradicting injectivity.  So the two hypotheses of the earlier packet are not independent:
+  degree compatibility implies the vanishing lemma's hypothesis.
+
+**2. The triangularity, from the recurrence alone.**  `monomialSpan d n` is the span of the
+monomials of total degree `< n`, and `monomial_sub_hermiteMv_mem` states
+
+`monomial a 1 − hermiteMv a ∈ monomialSpan d (∑ i, a i)`.
+
+The proof is a strong induction on the total degree.  Pick a nonzero coordinate `i`, put
+`b := a − e i`, and use `hermiteMv_X_mul i b`:
+
+`X i · He_b = He_a + (b i) • He_{b − e i}`.
+
+Multiplying the induction hypothesis `monomial b 1 = He_b + q_b` by `X i` gives
+`monomial a 1 = He_a + (b i)·He_{b−e i} + X i·q_b`, so the claim follows from
+`mul_X_mem_monomialSpan` (multiplying a low-degree span by a coordinate raises the degree by one)
+and `mem_monomialSpan_of_totalDegree_lt` (a polynomial of total degree `< n` is a combination of
+monomials of degree `< n`).  **No monicity of `He_n` is used**: the recurrence already records that
+the leading monomial of `He_a` is `x^a`, which is what monic triangularity would have supplied.  The
+`§2026-11-13g` sketch had listed monic triangularity plus a monomial count as the missing work; the
+count is still what the *next* step needs (it is `DegreeCompatible`), but monic triangularity is
+subsumed.
+
+**3. The decomposition and the coefficient.**  `monomialSpanLp d n` is the same span inside
+`L²(ℝᵈ)`, `pgLp_mem_monomialSpanLp` carries polynomials into it, and `monomialSpanLp_le_gsSpan`
+identifies it with the earlier Gram–Schmidt span under `DegreeCompatible` (each small monomial is
+`coreFamily e j` for some `j < k`, by `gsSpan_eq_span_Iio`).  Then
+
+* `coreFamily_sub_hermiteMvLp_mem` — **the decomposition**:
+  `f k − ‖ψ_{e k}‖ • ψ_{e k} ∈ gsSpan f k`, i.e. `x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` with
+  `w` in the earlier span and `c = ‖ψ_{e k}‖ ≠ 0` (the coefficient is the norm of the
+  *un-normalized* Hermite function, because `pgLp_hermiteMv_eq` writes `pgLp (He_a) = ‖ψ_a‖ • ψ_a`);
+* `norm_hermiteMvLp` — the Hermite functions are unit vectors, `‖ψ_a‖ = 1` (from
+  `inner_hermiteMvLp` and `inner_self_eq_norm_sq`);
+* `gramSchmidtNormed_eq_phase_of_decomp` — **the general `‖c‖ = 1` statement**: for *any* space, any
+  unit vector `g` in the orthogonal complement of the earlier span with `f k − c • g` in that span
+  and `c ≠ 0`, there is `u` with `‖u‖ = 1` and `gramSchmidtNormed f k = u • g`, namely
+  `u = ‖c‖⁻¹ c`.  Nothing here is specific to Hermite functions: any unit vector realising the
+  orthogonal direction is the normalized Gram–Schmidt vector up to a unit phase;
+* `gramSchmidt_coreFamily_eq` — `gramSchmidt f k = ‖ψ_{e k}‖ • ψ_{e k}` for the core family;
+* `coreBasis_eq_hermBasisN` — **the bridge, with phase `1`**: `coreBasis e k = hermBasisN e k`.  The
+  normalization cancels the coefficient exactly, so the diagonal phase of `§2026-11-13g` is trivial
+  in this case; `exists_unit_phase_coreBasis` records the `∃ u, ‖u‖ = 1` form for consumers that
+  want the phase interface.
+
+**4. `BridgePhases` discharged.**  In `BookProof/Qym/ChapterYangMillsCoreBasisGates.lean`:
+`bridgePhases_one` proves `BridgePhases e (fun _ => 1)` from `DegreeCompatible e`, and
+`ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible` is the end-to-end statement with the
+bridge hypothesis gone:
+
+`DegreeCompatible e → WCommBound (ymW e) (ymHermCol e fabc) B →
+   EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymCoreCol e fabc))`.
+
+So of `§2026-11-13i`'s two hypotheses, the bridge is proved and only the commutator gate remains.
+
+**5. The commutator gate: a one-entry refutation interface, not a proof.**
+`BookProof/Toolbox/ChapterFockWeightedGateSharpness.lean` gains `not_wCommBound_of_entry`: if a
+single weighted entry `‖(col k) j‖ · |w_j² − w_k²| / (w_k w_j)` exceeds `B` at a support index `j`,
+then `¬ WCommBound w col B` (the row sum dominates that term and the terms are nonnegative).  This
+is the exact interface the `§2026-11-13e` analysis needs: the expected `Θ(deg²)` size of the quartic
+magnetic entries would refute the gate through this lemma with no combinatorial estimate at all.
+
+**Status of the gate itself: still open, and still expected false for `f_abc ≠ 0`.**  Nothing here
+lowers or raises a bound on `ymHermCol`; the two inputs named in `§2026-11-13e` — an entry
+lower bound for the quartic coefficient against `hermBasisN`, and the non-vanishing of that
+coefficient for `f_abc ≠ 0` — are both still missing, so `¬ WCommBound (ymW e) (ymHermCol e fabc) B`
+is *not* proved and no Yang–Mills gap is claimed.
+
+**Verification.**  `lake build BookProof` → 8989 jobs, `Build completed successfully`, exit 0 (the
+only style warning, `BookProof.lean:4279`, is a pre-existing long comment line).  `#print axioms` on
+`monomial_sub_hermiteMv_mem`, `coreFamily_sub_hermiteMvLp_mem`,
+`gramSchmidtNormed_eq_phase_of_decomp`, `coreBasis_eq_hermBasisN`, `bridgePhases_one`,
+`ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible` and `not_wCommBound_of_entry` gives
+only `[propext, Classical.choice, Quot.sound]`; `grep -c sorry` on the new module is `0`; no line
+over 100 characters and no trailing whitespace in the touched files; the new module is registered in
+`lakefile.toml`'s `BookProofOperatorCore` roots and imported from `BookProof.lean`.
+
+**Boundary.**  `DegreeCompatible` is a hypothesis, not a construction: this packet does not build an
+enumeration of `Fin d →₀ ℕ` sorted by total degree (a counting argument independent of the
+analysis), so every statement above is conditional on it.  Nothing here changes the
+operator-theoretic content: the two finite-mode domains are now known to have the same basis
+vectors, but the ESA conclusion still passes through the commutator gate.
+
+## State of the project — 2026-11-13k: the enumeration is constructed, and the quartic entry is computed
+
+`§2026-11-13j` closed the basis bridge but left `DegreeCompatible` a hypothesis.  This packet
+removes it, and supplies the analytic input the commutator gate was missing.
+
+**1. A degree-compatible enumeration exists** (`BookProof/Toolbox/ChapterDegreeEnumeration`,
+ns `BookProof.DegreeEnumeration`).  For a general `0 < d`:
+
+* `totalDeg b = ∑ i, b i`, `le_totalDeg`, `totalDeg_single`;
+* `instFintypeDegBlock` — the multi-indices of a fixed total degree form a finite type
+  (`Fintype.ofInjective` into the bounded functions `Fin d → Fin (m+1)`), so `blockCard m` and
+  `blockCard_pos` (witness `m • e_{i₀}`) make sense;
+* `blockIdx` — the position inside the degree block (`Fintype.equivFin`), with
+  `blockIdx_val`, `eq_of_blockIdx_eq`;
+* `offset m` — the number of multi-indices of degree `< m`, with `offset_succ`,
+  `offset_mono`, `offset_lt_succ` and `offset_le` (`m ≤ offset m`);
+* `rank b = offset (totalDeg b) + blockIdx b` — `rank_lt`, `rank_val`, and then
+  `rank_injective` (two degrees give different ranks, via `offset_succ` and `blockCard_pos`)
+  and `rank_surjective` (given `k`, the block is `Nat.find` of `k < offset (m+1)`);
+* `degreeEnum hd := (Equiv.ofBijective rank _).symm`, `degreeEnum_rank`,
+  `degreeEnum_apply_rank`, `degreeEnum_degreeCompatible` and `exists_degreeCompatible`.
+
+The `DegreeCompatible` proof is now a two-line estimate: a multi-index of smaller degree has rank
+`< offset (deg+1) ≤ offset (deg of e k) ≤ rank (e k) = k`.  In
+`BookProof/Qym/ChapterYangMillsCoreBasisGates` this gives `ymEnum` (the enumeration at `d = 99`),
+`ymEnum_degreeCompatible`, and **`ymCoreCol_essentiallySelfAdjointOn_core`** — the end-to-end ESA
+statement with **no** basis hypothesis, whose only input is the commutator gate.
+
+**2. The quartic Hermite entry** (`BookProof/Toolbox/ChapterHermiteQuarticEntry`,
+ns `BookProof.HermiteQuartic`):
+
+`⟨ψ_{n+4}, x⁴ ψ_n⟩ = √((n+1)(n+2)(n+3)(n+4))`
+
+and its quadratic companion `⟨ψ_{n+2}, x² ψ_n⟩ = √((n+1)(n+2))`.  The proof needs no integral
+computation beyond the vanishing lemma: `x⁴ He_n` and `He_{n+4}` are both monic of degree `n+4`
+(`isMonicOfDegree_hermiteR`, `IsMonicOfDegree.natDegree_sub_lt`), so
+`x⁴ He_n − He_{n+4}` has degree below `n+4` (`natDegree_X_pow_mul_sub_hermiteR`) and drops out
+against `He_{n+4}` (`gint_hermiteR_mul_eq_zero`, which expands a low-degree polynomial in
+monomials and applies `gint_X_pow_hermiteR_zero`).  What remains is the norm ratio, i.e. four
+applications of `hermiteNorm_succ` (`hermiteNorm_four`, `hermiteNorm_ratio`), so the entry is the
+ratio of consecutive normalizing constants.  Same machinery at exponent `2`
+(`gint_hermiteR_square`, `hermiteNorm_ratio_two`).
+
+**3. The quartic entry defeats the commutator gate**
+(`BookProof/Toolbox/ChapterFockWeightedGateSharpness`).  New:
+`quarticEntryMag n := √((n+1)(n+2)(n+3)(n+4))` together with
+`quarticEntryMag_eq_entry` (**this radical is exactly the entry proved in part 2**),
+`norm_quarticCol`, `gateWeight_eq`, `sq_le_quarticEntryMag` (the magnitude is at least `(n+1)²`),
+`quartic_gate_growth` (with `w_k = (deg k + 1)²`, the weighted entry at row `k` is at least
+`8 (k+1)`) and **`not_wCommBound_quartic`**:
+
+`¬ ∃ B : ℝ, WCommBound (fun k => ((shiftDeg k : ℝ) + 1) ^ 2) quarticCol B`,
+
+via `not_wCommBound_of_entry`.  So a unit quartic coefficient across a band of radius `4` is
+already enough to violate the gate for every `B`: the mechanism of `§2026-11-13e` is now a
+theorem at the *actual* entry magnitude, not a synthetic `Θ(deg²)` witness.
+
+**Boundary — what is still not proved.**  `not_wCommBound_quartic` is about `quarticCol`, a column
+carrying the quartic entry at degree distance exactly `4`.  It is **not** a statement about
+`ymHermCol e fabc`: identifying the two needs the coefficient of a quartic monomial in
+`(magPoly fabc sp col)²`, which is nonzero for `fabc ≠ 0` but is not computed in the corpus (it
+needs the injectivity of `idxA` and the coefficient formula for `magPoly`).  Hence
+`¬ WCommBound (ymW e) (ymHermCol e fabc) B` is still **not** proved for any `fabc`, and no
+Yang–Mills gap is claimed.  What changed is the shape of the remaining obligation: it is now a
+polynomial-coefficient computation, not an analytic one.
+
+**Verification.**  `lake build BookProof` → see the exit status recorded at the end of this entry's
+packet (`Build completed successfully`, 8991 jobs); `lake env lean` clean on all four touched
+modules, no warnings naming them; `#print axioms` on `exists_degreeCompatible`,
+`degreeEnum_degreeCompatible`, `rank_surjective`, `quartic_hermite_entry`,
+`quadratic_hermite_entry`, `quartic_gate_growth` and `not_wCommBound_quartic` gives only
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; no line over 100 characters and no trailing
+whitespace in the new or touched files; both new modules registered in `lakefile.toml`'s
+`BookProofOperatorCore` roots and imported from `BookProof.lean`.
+

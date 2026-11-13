@@ -45,6 +45,23 @@
 #      reading as a limitation of the method rather than of the model.  Separately, the
 #      §55 text must keep saying that the SM quartet data is still unbuilt, since the
 #      attempt to build it was withdrawn and no claim was upgraded.
+#   8. §55 pairing (Kleene-style) — §54's `not_gradDom_weylFlat` and §55's
+#      `gradDom_weylCoercive_flat` are one statement in two halves: *this* model
+#      fails the domination and *this* model with the quadratic term satisfies it.
+#      A plain "both needles exist" test is not enough, because the two needles
+#      can survive in different sections while the prose that ties them together
+#      is rewritten: the pair can be split rather than deleted.  So the check is
+#      a co-occurrence window (`pair_require`): both sides must sit within
+#      §55's width of each other, `not_gradDom_weylFlat` first.  Failing to find
+#      either side, or finding them far apart, fails — the two ways of silently
+#      turning a sharp obstruction into a general one.
+#   9. §56 (NS: reduction + sextic) — the NS Lagrangian potential's domination is
+#      *reduced* to the volume penalty's own estimate (`lagGradDom_of_volDom`, with
+#      `VolDom` named), and the penalty's input is proved not to be free
+#      (`not_gradDom_flatSextic`, the non-negative degree-six polynomial that no
+#      `a, b` dominate).  Dropping the sextic turns `VolDom` into bookkeeping;
+#      dropping the reduction loses the model's free coercive blocks.  Same
+#      co-occurrence discipline as item 8, over §56.
 #
 # The gate is deliberately textual: it cannot certify mathematics, only that a
 # later change did not *remove* the half of a pair that carries the caveat.
@@ -73,7 +90,40 @@ require() {
     fi
 }
 
+# `pair_require <file> <first> <second> <window> <why>` — both literals must occur in the
+# file, `first` before `second`, within `window` lines of each other.  This is the
+# Kleene-style half of the gate: "not both absent" is checked by `require`, and the
+# adjacency here checks "not separated", so the pair cannot be resolved by splitting it.
+pair_require() {
+    local file="$1" first="$2" second="$3" window="$4" why="$5"
+    if [ ! -f "$file" ]; then
+        fail "$file missing ($why)"
+        return
+    fi
+    local a b
+    a=$(grep -nF -- "$first" "$file" | head -1 | cut -d: -f1)
+    b=$(grep -nF -- "$second" "$file" | head -1 | cut -d: -f1)
+    if [ -z "$a" ]; then
+        fail "$file no longer contains '$first' ($why)"
+        return
+    fi
+    if [ -z "$b" ]; then
+        fail "$file no longer contains '$second' ($why)"
+        return
+    fi
+    if [ "$a" -ge "$b" ]; then
+        fail "$file states '$second' before '$first' ($why)"
+        return
+    fi
+    if [ $((b - a)) -gt "$window" ]; then
+        fail "$file separates '$first' (line $a) from '$second' (line $b) by more than \
+$window lines ($why)"
+        return
+    fi
+}
+
 BOOKPLAN=BookProof.lean
+PLAN=SM_ESA_COMPLETION_PLAN.md
 
 # ---- 1. §44 parity reduction (closure level) ---------------------------------
 require "BookProof/Sm/ChapterSmPhysicalReductionEsa.lean" \
@@ -184,6 +234,106 @@ require "$BOOKPLAN" 'gradDom_weylCoercive_flat' \
     "§55 comment block must keep the converse (the quadratic restores the bound at that model)"
 require "$BOOKPLAN" 'still a named input' \
     "§55 comment block must keep saying the SM quartet data is unbuilt"
+
+# ---- 8. §55: the obstruction and its converse stay one statement --------------
+# The window is overridable so the gate can be exercised negatively
+# (`SM_PAIR_WINDOW=10 scripts/check-sm-section-guards` must fail).
+PAIR_WINDOW=${SM_PAIR_WINDOW:-80}
+pair_require "$PLAN" 'not_gradDom_weylFlat' 'gradDom_weylCoercive_flat' "$PAIR_WINDOW" \
+    "§54/§55: the QYM obstruction and the coercive converse must be documented together"
+require "$PLAN" 'weylCoercive_eq_wsSum' \
+    "§55: the converse rests on the identification with the assembled wsSum, not on recomputation"
+
+# ---- 9. §56: the NS reduction and the sextic that keeps it honest --------------
+# §56 replaces §54 (ix)'s "the NS half is a template" with a proved model statement, and the
+# statement is only worth anything as a pair: `lagGradDom_of_volDom` reduces the domination to the
+# penalty's `VolDom`, and `not_gradDom_flatSextic` shows that input cannot be replaced by
+# non-negativity plus degree.  Keeping the reduction but dropping the sextic reads `VolDom` as
+# forgotten bookkeeping instead of an open question; keeping the sextic but dropping the reduction
+# loses that the model's coercive blocks are *free*.  Both live in one module and one plan section.
+NSDOM=BookProof/Ns/ChapterNsGradDomCoercive.lean
+require "$NSDOM" "theorem lagEnergy_vel_gradDom" \
+    "§56: the velocity block is dominated for free (b = 0) — the part QYM needed added"
+require "$NSDOM" "theorem lagGradDom_of_volDom" \
+    "§56: the reduction of the whole potential to the penalty's own estimate"
+require "$NSDOM" "def VolDom" \
+    "§56: the remaining input is a named object, not prose"
+require "$NSDOM" "theorem not_gradDom_flatSextic" \
+    "§56: non-negative degree six is NOT enough (the sextic counterexample)"
+pair_require "$PLAN" 'lagGradDom_of_volDom' 'not_gradDom_flatSextic' "$PAIR_WINDOW" \
+    "§56: the reduction and the sextic counterexample must stay documented together"
+require "$PLAN" 'VolDom' \
+    "§56: the plan must keep naming the one open input"
+require "$BOOKPLAN" 'not_gradDom_flatSextic' \
+    "§56 comment block must keep the sextic counterexample"
+require "$BOOKPLAN" 'lagGradDom_of_volDom' \
+    "§56 comment block must keep the reduction"
+
+# ---- 10. §57: the index-restricted b-ghost, and its non-vacuity ------------------
+# §57 builds the quartet data on `(Fin n × Bool) ⊕ Fin m` and discharges every hypothesis of the
+# no-ghost theorem, so its value is exactly the pair "positivity is a theorem" + "the cohomology is
+# not trivial".  Dropping `physVec_not_exact` would let the model degenerate into the statement that
+# zero is non-negative; dropping `physicalPositivity` loses the construction.  Also keep the plan
+# saying that this is *not* `smBrstCharge`.
+IDXGHOST=BookProof/Sm/ChapterSmIndexGhostQuartet.lean
+require "$IDXGHOST" "theorem physicalPositivity" \
+    "§57: positivity for the restricted ghost complex, from the quartet alone"
+require "$IDXGHOST" "theorem eta_physProj" \
+    "§57: the metric fixes the computed projector's range (the point §47 failed on)"
+require "$IDXGHOST" "theorem physVec_not_exact" \
+    "§57: the model's cohomology is non-trivial"
+pair_require "$PLAN" 'eta_physProj' 'physVec_not_exact' "$PAIR_WINDOW" \
+    "§57: the construction (metric fixing the projector) and its non-vacuity must stay together"
+require "$PLAN" 'It is **not** `smBrstCharge`' \
+    "§57: the plan must keep saying the restricted model is not the SM charge"
+require "$BOOKPLAN" 'physVec_not_exact' \
+    "§57 comment block must keep the non-vacuity check"
+require "$BOOKPLAN" 'is not `smBrstCharge`' \
+    "§57 comment block must keep the 'not the SM charge' caveat"
+
+# ---- 11. §58 `VolDom` is false for the actual volume penalty -------------------
+# §56 reduced NS gradient domination to `VolDom`, and §58 shows `VolDom` is *false*: the unimodular
+# shears make `|grad V|^2/V^2` diverge like `4/eps^2`.  The reduction and the refutation must stay
+# together -- keeping `lagGradDom_of_volDom` and dropping the refutation would read the chain as
+# merely "open", and keeping the refutation while dropping the reduction loses what it refutes.
+VOLDOM=BookProof/Ns/ChapterNsGradDomCoercive.lean
+require "$VOLDOM" "theorem lagGradDom_of_volDom" \
+    "§58: the reduction to the volume penalty's own estimate"
+require "$VOLDOM" "theorem not_gradDom_flatSextic" \
+    "§58: sixth-order flatness is not enough either"
+require "$VOLDOM" "Correction (§58 of the plan, 2026-11-13)" \
+    "§58: the module must record that VolDom is false"
+require "scripts/eval-vol-dom.py" "4/eps^2" \
+    "§58: the evaluator must state the refuting scaling law"
+pair_require "$PLAN" 'the input this section reduces to, `VolDom`, is *false*' \
+    'the ratio `4/ε² → ∞`' "$PAIR_WINDOW" \
+    "§58: the plan's correction must pair the reduction with its refutation"
+
+# ---- 12. §59 sectors: global hypotheses cannot hold, closed-space ones do ------
+SEC=BookProof/Sm/ChapterSmIndexGhostSectors.lean
+require "$SEC" "theorem global_sectors_force_zero" \
+    "§59: the global sector hypotheses force the charge to vanish"
+require "$SEC" "theorem parity_globals_fail" \
+    "§59: the index model is a witness that they fail"
+require "$SEC" "theorem sector_hypotheses_closed" \
+    "§59: the closed-space sector hypotheses hold"
+pair_require "$PLAN" 'global_sectors_force_zero' 'parity_globals_fail' "$PAIR_WINDOW" \
+    "§59: the obstruction and its witness must stay together"
+require "$PLAN" 'have to be read on the closed space' \
+    "§59: the plan must keep the closed-space reading of the sector hypotheses"
+
+# ---- 13. §60 the Fock space already has a product; the identification is partial
+FOCK=BookProof/Sm/ChapterSmIndexGhostFock.lean
+require "$FOCK" "theorem occ_inner" \
+    "§60: the Fock occupation basis is orthonormal"
+require "$FOCK" "theorem ghostVec_orthonormal" \
+    "§60: the twelve ghost modes are an orthonormal system"
+require "$FOCK" "theorem ghost_pairing" \
+    "§60: the metric pairing is the Fock adjunction"
+require "$PLAN" 'No product structure was ever missing' \
+    "§60: the plan must keep the correction to item (xii)"
+require "$PLAN" 'is **not** the index complex at `n = 12`' \
+    "§60: the plan must keep the negative half of the identification"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

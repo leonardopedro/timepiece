@@ -1167,6 +1167,23 @@ import BookProof.Toolbox.ChapterFockSchurEsa
 -- `‖u_k‖ = 1` scales the entries by `u_k conj(u_j)`, and all three gates (row, column, commutator)
 -- read only entry moduli, so they are invariant with the same constants (`gates_phase_iff`).
 import BookProof.Toolbox.ChapterFockGatePhaseInvariance
+-- **The product-Hermite vanishing lemma** `⟨x^α, ψ_β⟩ = 0` whenever some `β_i > α_i`: the
+-- 1-D Gaussian integration-by-parts recurrence, summed over the remaining coordinates.
+import BookProof.Toolbox.ChapterHermiteVanishing
+-- **Gram–Schmidt versus projection**: the Gram–Schmidt vector is the base vector minus its
+-- projection onto the earlier span, and any unit vector spanning the orthogonal complement
+-- reproduces it up to a scalar (`gramSchmidt_eq_smul_of_decomp`); applied to `coreBasis`.
+import BookProof.Toolbox.ChapterFockGramSchmidtProjection
+-- **The bridge is closed**: the monomial–Hermite triangularity `x^α − He_α` in the span of the
+-- lower-degree monomials, the decomposition `x^{e k} e^{-‖x‖²/4} = w + ‖ψ_{e k}‖ • ψ_{e k}`, and
+-- `coreBasis e k = hermBasisN e k` for degree-compatible `e` (`DegreeCompatible`).
+import BookProof.Toolbox.ChapterHermiteBridgePhases
+-- **The enumeration is constructed**: degree blocks, their cardinalities and offsets, and a rank
+-- function that is a bijection, giving a degree-compatible enumeration for every `0 < d`.
+import BookProof.Toolbox.ChapterDegreeEnumeration
+-- **The quartic Hermite entry** `⟨ψ_{n+4}, x⁴ ψ_n⟩ = √((n+1)(n+2)(n+3)(n+4))`, with its
+-- quadratic companion, by monic cancellation plus the monomial–Hermite vanishing lemma.
+import BookProof.Toolbox.ChapterHermiteQuarticEntry
 import BookProof.Toolbox.ChapterFockWeightedGateSharpness
 import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 -- The **graded band calculus** of the product Hermite basis: the ladder operators are
@@ -2867,6 +2884,11 @@ import BookProof.Qym.ChapterYangMillsBandBounds
 -- `ymHermCol_essentiallySelfAdjointOn_core_of_commBound` leaves exactly one hypothesis — the
 -- commutator gate — and the module records why the band calculus cannot supply it at order `4`.
 import BookProof.Qym.ChapterYangMillsWeightedGates
+-- **The Yang–Mills gates in `coreBasis` coordinates.**  The bridge hypothesis
+-- `coreBasis e k = u_k • ψ_{e k}` with `‖u_k‖ = 1` is stated explicitly; from it the
+-- `coreBasis` matrix of `ymPoly fabc` is the Hermite matrix under the diagonal phases, so all
+-- three gates and the essential self-adjointness conclusion transfer unchanged.
+import BookProof.Qym.ChapterYangMillsCoreBasisGates
 
 -- `ChapterYangMillsGhostSector` (2026-09-07 wave): the Faddeev–Popov ghost sector of the 3D
 -- gauge-fixed Yang–Mills Hamiltonian, as the orthogonal direct sum over ghost configurations
@@ -4013,6 +4035,20 @@ import BookProof.Qg.ChapterQgAssembledTransfer
 import BookProof.Qg.ChapterQgFlatContinuumEsa
 import BookProof.Qg.ChapterQgAssembledFlatTransfer
 import BookProof.Ns.ChapterNsLagrangianComparisonEsa
+-- `ChapterNsGradDomCoercive` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §56): the Navier–Stokes half of
+-- §54/§55's question, and it answers *positively* where QYM's did not.  §54 (ix) called the NS
+-- half "the proof template rather than a proved counterexample"; that was wrong — the Lagrangian
+-- energy `lagEnergy = 1 + ½|v|² + V_κ` already carries the coercive quadratic, so
+-- `∂_{v_j} E = v_j` (`pderiv_vel_lagEnergy`) gives `∑ (∂_{v_j}E)² = ∑ v_j² ≤ 2E`
+-- (`lagEnergy_vel_gradDom`) with `b = 0`, and the Lyapunov displacement block contributes
+-- `2 · ½|ξ|²` exactly (`disp_grad_sum`).  The one remaining input is the volume penalty's own
+-- estimate `VolDom A B` on `V_κ`, and `lagGradDom_of_volDom` reduces the whole potential to it with
+-- `a = 2A + 3`, `b = 2B + 3`.  That input is not automatic: `not_gradDom_flatSextic` refutes `(xyz)²`
+-- — non-negative of degree six — on the same `(t, 1/t, 1)` curve as §48's flat quartic, so
+-- sixth-order flatness buys nothing over fourth-order flatness.  Nothing here certifies ESA of the
+-- Lagrangian generator `N_L`, still the explicit hypothesis of
+-- `lagKoopman_esa_of_comparison_esa`.
+import BookProof.Ns.ChapterNsGradDomCoercive
 -- 2026-10-30 (`softmodes.md` Phase 3, milestone 3): the solvable gapped reference operator.
 -- `refEnergy` ports physlib's `eigenEnergy` (`∑ i, ωᵢ (nᵢ + ½)`, `ℏ = 1`, general `ω`) with
 -- its strict monotonicity; `refGap = min_k ω_k`; `href_spectral_gap` is the form inequality
@@ -4170,6 +4206,22 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- projector `exV`.  This is **not** a proof of SM positivity: the SM's own b-ghost is still
 -- missing, so what is proved is the mechanism.
 import BookProof.Sm.ChapterSmQuartet
+-- `ChapterSmIndexGhostQuartet` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §57): the b-ghost built on
+-- an **index-restricted** Euclidean space, which is the `EuclideanSpace` reformulation §47's
+-- withdrawal said was needed.  The index set is `(Fin n × Bool) ⊕ Fin m` — ghost `(a, false)`,
+-- antighost `(a, true)`, physical `inr j` — and the three maps are defined *by index* for every
+-- `n, m`: `Q` shifts ghost → antighost, `P` shifts back, `η` swaps the pair and fixes the
+-- physical modes.  All six hypotheses of `physicalPositivity_of_homotopy` are discharged —
+-- nilpotency (`Q_nil`), the contractions (`QPQ`, `PQP`), Krein self-adjointness (`krein`), symmetry
+-- (`symm`, from `Eta_inner`/`Eta_involutive`: the metric is an involutive isometry) and
+-- `η (V y) = V y` (`eta_physProj`, which is exactly what the index restriction buys, since the
+-- computed projector lands on the physical coordinates where `η` is the identity).  Hence
+-- **`physicalPositivity` at every size**, with non-trivial cohomology (`physVec_not_exact`).  This
+-- is not `smBrstCharge`: that charge lives on `FermiFock (m + 12)` and is known only as a
+-- `Module.End`, so instantiating the model there still needs an inner product on the Fock space and
+-- the identification of its twelve ghost modes with the index pattern.  The named input is now that
+-- identification, not the quartet data.
+import BookProof.Sm.ChapterSmIndexGhostQuartet
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
 -- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`

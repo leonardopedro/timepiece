@@ -3279,3 +3279,337 @@ notes); there are no errors and no `sorry` warnings.
 
 So the substitute check was sound, but "the root module elaborates" and "the whole book builds" are
 different statements, and the weaker one was labelled as the weaker one until it could be replaced.
+
+---
+
+## §56. Gradient domination for the NS potential itself (2026-11-13)
+
+### 56.1. The question, and a correction
+
+> **Correction (§58, 2026-11-13):** the input this section reduces to, `VolDom`, is *false* for the
+> model's own `volPot` — the unimodular shears refute it with the ratio `4/ε² → ∞`.  `lagGradDom_of_volDom`
+> is therefore a reduction to an unsatisfiable hypothesis, and the §49 chain does not reach the NS
+> energy.  The two coercive blocks proved below are not affected.
+
+§54 (ix) answered the cross-model question for Navier–Stokes with "the NS modules are
+operator-level (`BookProof/Ns/*`), so the NS half is the proof template rather than a proved
+counterexample".  That sentence was wrong, and this section corrects it: the Lagrangian NS model
+already carries a potential of exactly the contested shape, and the question can be *answered* for
+it rather than templated.  The request was to "prove the coercive domination for the NS model's own
+potential shape"; what follows separates the part that is free in the model from the one input that
+is not, and proves that the input cannot be dropped.
+
+### 56.2. What the model already carries
+
+`BookProof/Ns/ChapterNsLagrangianDetFarisLavine` defines
+
+```
+lagEnergy S = 1 + ½ ∑_j v_j² + V_κ(ξ),      lagLyap S = lagEnergy S + ½ ∑_j ξ_j²,
+```
+
+with `V_κ = volPot S.kappa S.kvec` the degree-six incompressibility penalty
+(`volPot_eval_nonneg`; its zero set is incompressible by `det_eq_one_of_volPot_eq_zero`).  New
+module `BookProof/Ns/ChapterNsGradDomCoercive.lean` (namespace `BookProof.NsGradDomCoercive`):
+
+* `pderiv_vel_lagEnergy` — `∂_{v_j} E = v_j`; `pderiv_disp_lagLyap` — `∂_{ξ_j} W = ∂_{ξ_j} V_κ + ξ_j`.
+* `vel_grad_sum`, `lagEnergy_vel_gradDom` — the velocity block is *exactly* the kinetic energy,
+  `∑_j (∂_{v_j}E)² = ∑_j v_j² ≤ 2E`, i.e. a domination with `a = 2` and **no constant term**.
+* `disp_grad_sum` — the Lyapunov displacement quadratic contributes `2 · ½∑ ξ²` exactly.
+* `lagGradDom_of_volDom` — if the penalty obeys `VolDom A B`
+  (`∑_j (∂_{ξ_j}V_κ)² ≤ A V_κ² + B`) then the whole of `lagLyap` obeys the pointwise domination
+  with `a = 2A + 3`, `b = 2B + 3`; `volDom_phase` is the same statement in phase-space coordinates.
+
+The difference from QYM is the point: §55 had to *add* `∑_m X_m²` to `weylPotPoly` before §49's
+mechanism applied, while here the quadratic is part of the model.  So for NS the coercive input is
+already there and the open question is only the penalty's own estimate, named `VolDom`.
+
+### 56.3. The input cannot be dropped
+
+`not_gradDom_flatSextic` shows `VolDom` is not a consequence of `V_κ ≥ 0` and `deg V_κ = 6`: the
+flat sextic `(xyz)²` is non-negative of degree six (`ev3_flatSextic_nonneg`) and along
+`(t, 1/t, 1)` its potential is the constant `1` while `∑_j (∂_j)² = 4t² + 4/t² + 4`
+(`ev3_pderiv_zero`/`_one`/`_two`), so no `a, b` dominate it — the same curve as §48's flat quartic.
+Sixth-order flatness is no better than fourth-order flatness, and `lagGradDom_of_volDom` is a
+reduction, not a discharge.
+
+What this does **not** say: nothing about `V_κ`'s actual `A`, `B` (the penalty is not flat, and its
+conic structure `conjP_volPot` is where those constants would come from), and nothing about ESA of
+the Lagrangian generator `N_L`, which remains the explicit hypothesis of
+`lagKoopman_esa_of_comparison_esa` (`lagCan_esa` is unconditional, `N_L`'s ESA is not).
+
+### 56.4. Verification (2026-11-13)
+
+* `lake build BookProof.Ns.ChapterNsGradDomCoercive` — `Build completed successfully`, and no
+  warnings attributed to the module (the >100-character lints of the first draft were fixed).
+* `lake env lean Work/AuditNs.lean` — 10 declarations (`evP_X_re`, `pderiv_vel_lagEnergy`,
+  `pderiv_disp_lagLyap`, `vel_grad_sum`, `lagEnergy_vel_gradDom`, `disp_grad_sum`, `volDom_phase`,
+  `lagGradDom_of_volDom`, `not_gradDom_flatSextic`, `ev3_flatSextic_nonneg`), every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §56 needles; the §56 co-occurrence pair
+  (`lagGradDom_of_volDom` → `not_gradDom_flatSextic`) is exercised negatively by `SM_PAIR_WINDOW=5`.
+* `lake build BookProof` to completion on the post-edit tree: **succeeded** (`8984 jobs`, 29m57s,
+  exit 0; §55.4's run of the same target reported `8982` jobs, the difference being the module added
+  here).  The log carries no errors and no `sorry`; its remaining messages are the pre-existing
+  linter advisories on modules this change did not touch.
+
+---
+
+## §57. The b-ghost on an index-restricted Euclidean space (2026-11-13)
+
+### 57.1. The withdrawal this answers
+
+§47 (x) withdrew the attempt to build the SM's b-ghost for two reasons: this Mathlib has no product
+inner-product space, so a two-slot `K × K` ghost model cannot be handed to `IsBrst`/`BrstQuartet`;
+and the ghost-pairing metric satisfied `η (V x) = V (η x)` but not `η (V y) = V y`.  The first is a
+bookkeeping obstacle and it is now removed; the second is a real obstruction only for the *pairing*
+metric, not for the index-swap metric.  §6 of `ChapterSmQuartet` had already exhibited the whole
+mechanism on a hand-written three-dimensional block; what was missing was a construction that does
+not depend on the size of the sector.  That is what this section adds.
+
+### 57.2. The construction
+
+New module `BookProof/Sm/ChapterSmIndexGhostQuartet.lean` (namespace
+`BookProof.SmIndexGhostQuartet`).  The index set is
+
+```
+Idx n m = (Fin n × Bool) ⊕ Fin m,
+```
+
+with `(a, false)` the ghost of pair `a`, `(a, true)` its antighost, and `inr j` a physical mode, and
+the space is `Space n m = EuclideanSpace ℂ (Idx n m)`.  Three maps, *by index*, for every `n, m`:
+
+* `Q` sends `(a, false) ↦ (a, true)` and kills everything else;
+* `P` sends `(a, true) ↦ (a, false)` and kills everything else;
+* `Eta` swaps `(a, false) ↔ (a, true)` and fixes the physical modes.
+
+The six inputs of `physicalPositivity_of_homotopy` are all discharged:
+
+* `Q_nil : IsBrst (Q n m)`; `QPQ`, `PQP` — the two contraction identities, one `ext_coords`
+  argument each;
+* `krein` — `⟨η (Q x), y⟩ = ⟨η x, Q y⟩`, by expanding the inner product over the index set;
+* `symm` — the charge form is symmetric.  This one is *derived*, not computed: `Eta_inner` says the
+  metric is an isometry (it permutes coordinates) and `Eta_involutive` says `η² = 1`, which turn
+  `⟨x, η y⟩` into `⟨η x, y⟩ = conj ⟨y, η x⟩`;
+* `eta_physProj` — `η (V y) = V y` for the *computed* projector `V = physProjOf Q P`.  This is the
+  point the §47 withdrawal failed on, and the index restriction is why it works: `physProj_ghost`
+  and `physProj_anti` show `V` lands on the physical coordinates, where `η` is the identity.
+
+Hence `physicalPositivity (n m) : PhysicalPositivity (Q n m) (Eta n m)` with **no hypotheses**, and
+`physVec_not_exact` shows the model's cohomology is non-trivial: a physical mode is closed and not a
+gauge orbit, so this is not positivity on a space where everything is exact.  Nothing is chosen per
+pair; `n = 12` — the SM ghost count — is an instance, not a case.
+
+### 57.3. What this does not do
+
+It is **not** `smBrstCharge`.  That charge lives on the fermionic Fock space `FermiFock (m + 12)` and
+is known here only as a `Module.End`; to instantiate this model on it one still needs an
+inner-product structure on the Fock space, the charge as a linear map, and the identification of its
+twelve ghost modes with the index pattern above.  So `PhysicalPositivity` for `smBrstCharge` remains
+a named input — but the input has moved: it is no longer *quartet data* (a b-ghost and a metric,
+which is what §47 and §50 recorded as missing) but an *identification*, since the quartet data now
+exists at every size and the metric is proved to fix the projector's range.  Nothing in the SM claim
+is upgraded until that identification is written down.
+
+### 57.4. Verification (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostQuartet` — `Build completed successfully`, no warnings
+  on the module.
+* `lake env lean Work/SmIndexGhostAudit.lean` — 11 declarations (`Q_nil`, `QPQ`, `PQP`,
+  `physProj_phys`, `eta_physProj`, `Eta_involutive`, `Eta_inner`, `krein`, `symm`,
+  `physicalPositivity`, `physVec_not_exact`), every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §57 needles, and the §57 pair
+  (`eta_physProj` → `physVec_not_exact`, construction then non-vacuity) is exercised negatively by
+  `SM_PAIR_WINDOW=4`.
+* `lake env lean BookProof.lean` then `lake build BookProof` — `Build completed successfully`,
+  `8988 jobs`, exit 0, in 8.9s because every dependency was already built on this tree; §56.4's
+  29m57s run of the same target was the full recompile, so this is a reachability check of the new
+  import rather than a second full build.
+
+---
+
+## §58. `VolDom` is false for the actual volume penalty (2026-11-13)
+
+### 58.1. What §56 left open, and what the answer turned out to be
+
+§56 reduced gradient domination for the NS Lagrangian energy to a single pointwise estimate on the
+incompressibility penalty `V_κ` and proved that non-negativity plus degree six cannot give it
+(`not_gradDom_flatSextic`).  The request was to evaluate `VolDom A B` for the model's own `volPot`
+and report numeric constants.  The measurement below reports a different answer: **no finite `A` and
+`B` exist**.  `VolDom A B` is not merely unproved for `volPot` — it is false, so
+`lagGradDom_of_volDom` can never be applied and the §49-style route does not reach the NS energy at
+all.  §56.3's phrase "the one input" should be read as "the one input, and it is unprovable".
+
+### 58.2. The family that refutes it
+
+Let `F = I + ∇ξ`, and take `N = e_x ⊗ e_y`, the shear generator: `N² = 0`, so `det(I + tN) = 1` for
+every amplitude `t`.  Perturb transversally by `ε B` with `B = e_y ⊗ e_x` (so `tr B = 0` while
+`tr(NB) = 1`).  Then `(I + tN)⁻¹ = I − tN` and
+
+```
+det F − 1 = ε · tr((I − tN) B) + O(ε²) = −ε t + O(ε²),
+```
+
+so `V_κ = (κ/2) ε² t² + O(ε³)`.  The two partial derivatives are `∂_t V_κ ≈ κ ε² t` and
+`∂_ε V_κ ≈ κ ε t²`, hence
+
+```
+|∇V_κ|² / V_κ²  →  (κ² ε² t⁴)/((κ/2)² ε⁴ t⁴)  =  4/ε².
+```
+
+The ratio does not grow with the amplitude `t` — it *saturates* at `4/ε²` — and `ε → 0` makes it
+unbounded.  No `A`, `B` can dominate a quantity whose supremum is infinite, so `VolDom A B` fails for
+every pair.
+
+The obstruction is the shear family, not the degree: `V_κ` is flat along the unimodular directions
+(`det F = 1` exactly there) while its gradient still grows like `t` in the transverse direction.  It
+is the same failure mode as the QYM `weylPotPoly` of §54 and the flat sextic of §56.3, with the
+flatness coming from incompressibility rather than from monomial structure.
+
+### 58.3. The measurement (`scripts/eval-vol-dom.py`)
+
+The script evaluates `volPot` exactly on the truncation `|K| = 2`, `k(k₀) = e_x`, `k(k₁) = e_y`,
+`κ = 1` — 12 real coordinates, 25 momenta — reconstructing `detCoef` as the triple convolution of
+`ChapterNsLagrangianDetConvolution` and differentiating with forward-mode dual numbers, so both `V_κ`
+and `∇V_κ` are exact for that truncation (no finite differences).  Reported quantity:
+`|∇V_κ|²/(V_κ² + 1)`, whose supremum is the quantity any `A = B` must dominate.
+
+| `t` | `ε` | `V_κ` | `|∇V_κ|²` | ratio | `4/ε²` |
+|---|---|---|---|---|---|
+| 1e2 | 1e-2 | 2 | 1.6e5 | 32000 | 4e4 |
+| 1e4 | 1e-2 | 2e4 | 1.6e13 | 40000 | 4e4 |
+| 1e5 | 1e-2 | 2e6 | 1.6e17 | 40000 | 4e4 |
+| 1e2 | 1e-3 | 0.02 | 1600 | 1599.36 | 4e6 |
+| 1e4 | 1e-3 | 200 | 1.6e11 | 3.9999e6 | 4e6 |
+| 1e5 | 1e-3 | 2e4 | 1.6e15 | 4e6 | 4e6 |
+| 1e2 | 1e-4 | 2e-4 | 16 | 16 | 4e8 |
+| 1e4 | 1e-4 | 2 | 1.6e9 | 3.2e8 | 4e8 |
+| 1e5 | 1e-4 | 200 | 1.6e13 | 4e8 | 4e8 |
+
+Three rows of `t` per `ε` show the saturation at `4/ε²` predicted in §58.2, and the last column is
+that prediction; the saturated ratios agree to every printed digit.  The prefactor of `V_κ` itself is
+larger than the two-term expansion of §58.2 by `4` — the shear and its tilt each split over a mode
+and its conjugate — which cancels in the ratio and leaves the `4/ε²` law intact.  Unrestricted random sampling (`400` points,
+scales `1e-1.5`–`1e1`), large-amplitude sampling (`400` points, scales `1e1`–`1e2.5`) and noisy
+shear samples give `7.05`, `0.79` and `334` respectively — the sampled supremum over a *bounded* box
+is finite and small, which is exactly why the failure needs the two-parameter family rather than
+random sampling to be visible.
+
+This is a measurement, not a proof: it is the exact value for a truncation of the model, and it
+matches the analytic expansion §58.2 term by term.  A Lean refutation of `VolDom` at the model's own
+constants would require evaluating `detCoef` on an explicit two-mode model; the analytic expansion
+above is the statement a proof would formalize.
+
+### 58.4. What this changes
+
+* `lagGradDom_of_volDom` stands as a reduction, but its hypothesis is *unsatisfiable*: the NS
+  Lyapunov energy is **not** gradient-dominated, and the §49 chain (`GradBound` →
+  `pointwise_dom_of_sq_sum` → `PotSelfBound`) cannot be run on `lagEnergy`/`lagLyap`.
+* The two blocks that *are* dominated remain true and independent (`lagEnergy_vel_gradDom`,
+  `disp_grad_sum`): the velocity and displacement quadratics are coercive in the model.
+* A repairable route, recorded and not attempted: dominate with a weight that vanishes on the
+  shear family — i.e. replace `V_κ²` by `V_κ² + (deviation from unimodularity)⁴` or restrict the
+  estimate to configurations with a positive lower bound on `|det F − 1| + |∇ det F|`.  Either
+  changes the potential, so it is a different model, not a proof of this one.
+
+---
+
+## §59. The parity sectors of the index-restricted ghost complex (2026-11-13)
+
+### 59.1. The question
+
+§57 proves `PhysicalPositivity` for the index-restricted complex with `eta_physProj` as its last
+input.  The sector refinement of the no-ghost theorem replaces that single hypothesis by two
+estimates, one per parity sector, and the request was to add the parity-even version so that
+`physicalPositivity_of_homotopy_sectors` applies.  It turns out there are two sector statements, and
+exactly one of them can hold.
+
+### 59.2. The global hypotheses are inconsistent — in any space
+
+`physicalPositivity_of_homotopy_sectors` and `physicalPositivity_of_quartet_sectors` ask for
+non-negativity **and definiteness** of the charge form on the whole of each parity sector.  For a
+unitary involution `U` preserving `η`, a vector splits into orthogonal even and odd parts
+(`kform_quadForm_split`), so those four hypotheses make the charge form positive definite on the whole
+space; a nilpotent charge that is self-adjoint for a definite form is zero.  This is
+`global_sectors_force_zero`, proved in the general inner-product setting, and it makes the request as
+literally stated impossible: any nonzero nilpotent BRST charge refutes its own sector hypotheses.  The
+index model is the witness (`parity_globals_fail`, `Q_ne_zero`), and so is every non-abelian gauge
+theory.
+
+### 59.3. The closed-space hypotheses hold, for the ghost parity
+
+With `Par` = `−1` on every ghost and antighost coordinate and `+1` on the physical ones
+(`ChapterSmIndexGhostSectors`), the parity is an involutive isometry commuting with `η`, `Q` and `P`
+(`Par_involutive`, `Par_norm`, `Eta_comm_Par`, `Q_comm_Par`, `P_comm_Par`).  Coordinatewise:
+
+* an even vector has neither ghost nor antighost coordinates (`ghost_eq_zero_of_mem_even`,
+  `anti_eq_zero_of_mem_even`), so `η` fixes it (`Eta_eq_of_mem_even`) and the charge form is `‖v‖²`
+  (`kform_even_nonneg`);
+* an odd *closed* vector is a pure antighost (`phys_eq_zero_of_mem_odd` plus closure), whose `η`-image
+  is a pure ghost, so the form vanishes (`kform_odd_closed`).
+
+Hence the sector hypotheses hold on `ker Q`, which is the shape `kform_quadForm_nonneg` consumes, and
+`kform_nonneg_closed` assembles them into non-negativity on the whole closed space —
+`sector_hypotheses_closed` states them in that form.  The lesson matches §47: the sector hypotheses
+have to be read on the closed space, not on the ambient space.
+
+### 59.4. What is *not* claimed
+
+The radical half of `PhysicalPositivity` still uses `eta_physProj` (as in
+`ChapterSmIndexGhostQuartet.physicalPositivity`): an odd antighost has vanishing charge form, so
+definiteness cannot remove it — only the quartet decomposition can, and that is what the sibling
+module does.  So the sector route supplies the non-negativity, and the radical remains where §57 left
+it.
+
+### 59.5. Verification
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostSectors` — succeeded (10s), no warning attributed to the
+  module.
+* `lake env lean Work/SmIndexGhostSectorAudit.lean` — 11 declarations, every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §59 needles; the pair
+  (`global_sectors_force_zero` → `parity_globals_fail`) is exercised negatively by
+  `SM_PAIR_WINDOW` set below its span.
+
+---
+
+## §60. The Fock side of the ghost sector (2026-11-13)
+
+### 60.1. A correction to item (xii)
+
+`HONEST_BOUNDARIES_SM` (xii) said that to instantiate the index-restricted quartet on
+`smBrstCharge` one still needs "an inner product on that Fock space".  Read literally that is wrong.
+The fermionic Fock space of this corpus is `FermiFock n = ℓ²(Finset (Fin n)) = EuclideanSpace ℂ
+(Finset (Fin n))`, which *is* an inner-product space: its occupation basis is orthonormal
+(`occ_inner`, restated here from `ChapterSmCarAlgebra`) and the CAR creation operators are adjoints
+for it (`inner_creat_left`).  No product structure was ever missing.
+
+### 60.2. The identification that is true
+
+`ChapterSmIndexGhostFock` proves the part of the identification that holds:
+
+* the twelve ghost modes are `ghostMode m a`, the last twelve coordinates of `Fin (m + 12)`, and
+  `ghostMode_injective` makes that an injection of mode labels;
+* their occupation vectors `ghostVec m a = occ {ghostMode m a}` are orthonormal
+  (`ghostVec_orthonormal`), so the one-particle ghost sector is an isometric copy of
+  `EuclideanSpace ℂ (Fin 12)` — one coordinate per ghost pair, which is the index pattern;
+* that copy is exactly the orbit of the vacuum under `ghostCre` (`ghostCre_vac`);
+* the pairing that the index model's metric `η` implements is realized on the Fock side by the
+  adjunction `b_a = (c^a)†` (`ghost_pairing`, from `inner_creat_left`).
+
+### 60.3. The identification that is false
+
+`smBrstCharge` is **not** the index complex at `n = 12`.  It is `∑ a, χ_a G^a − ½ ∑ f χ β`, a
+degree-one derivation whose linear part pairs a ghost with a *matter* bilinear and whose quadratic
+part creates a second ghost, so it does not preserve the one-particle ghost sector: a single ghost is
+not mapped to a single antighost.  The index-restricted quartet is therefore the free (one-particle)
+part of the ghost complex — an isometric slice of the Fock space, not a subcomplex of
+`smBrstCharge`.  What remains open is the b-ghost of the derivation, and that is what (xii) should
+have named.
+
+### 60.4. Verification
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostFock` — succeeded (4.5s), no warning attributed to the
+  module.
+* `lake env lean Work/SmIndexGhostFockAudit.lean` — 5 declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`.
