@@ -7,29 +7,25 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Entry (2026-11-13m), SIRK track:** “State of the project — 2026-11-13m: the certificate runs
-> on the reflected operator” (end of file): `resid_reflection_le` carries the residual through
-> `A' = γ⁻¹ 1 − X_γ` untouched, so `sirk_resid_reflection_le` turns the SIRK operator-norm error
-> into a residual *of* `A'` with the same constant; `sirk_reflected_gap_certificate` composes it
-> with `temple_lower_bound` on `A'` and `gap_transfer`, `γ² λ' ≤ e`.  This is the join of the
-> two 13j halves.
+> **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
+> certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
+> enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
+> `13k`–`13l`, Track A at `13m`.  A number therefore identifies an entry *within its track*, never
+> across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading below carries a
+> track note pointing at its same-numbered twin.
 >
-> **Earlier entry (2026-11-13j):** “State of the project — 2026-11-13j: the SIRK error is a Ritz
-> residual” (end of file): `sirk_ritz_resid_le` closes the seam S3.1 asked for —
-> `resid X (V y) ≤ ‖X − sirkApprox V psiB‖` at a reduced eigenpair, with no factor 2, because
-> `resid_le_norm_sub_smul` bounds the residual by the distance to *any* multiple of the unit
-> vector.  The new `Sirk/ChapterResolventTransfer.lean` proves the S3.2 transfers — the
-> eigenvector reflection `A' = γ⁻¹ 1 − X_γ` with eigenvalue `e/(γ(e+γ))`, its strict monotonicity,
-> its inversion, and the gap transfer `g ≥ γ² g_X`.
+> **Track B — newest (2026-11-13n):** “State of the project — 2026-11-13n: the roadmap audit ledger
+> is sliced eight ways” (end of file): the 2133 `#audit_axioms` directives moved verbatim into
+> `ChapterRoadmapAuditPart1`–`Part8` over one shared import cone, so Lake elaborates them eight
+> ways in parallel — 1520 s became 20.4 s wall for the same audited names.
 >
-> **Earlier entry (2026-11-13i):** “State of the project — 2026-11-13i: the SIRK error bound is a
-> maximum-error theorem” (end of file): `sirk_error_opNorm_le` takes the supremum of the end-to-end
-> SIRK estimate over unit vectors — `‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m` — and
-> `sirk_opNorm_error_tendsto_zero` gives the worst-case convergence in the reduction order;
-> `softmodes.md`'s S3 now records the one missing link (a Ritz-residual seam) and why the
-> certificate should run on `γ⁻¹ − X_γ` rather than on `h_F`.
-
-> **Newest entry (2026-11-13k):** “State of the project — 2026-11-13k: the enumeration is
+> **Track B (2026-11-13l):** “State of the project — 2026-11-13l: the memoized axiom audit
+> reaches the Work/ and Prove2me audits” (end of file): `#audit_axioms` now backs all 96
+> `Work/*.lean` audit files, `scripts/prove2me_audit.py` emits it, and
+> `converted/Prove2me/Audit.lean` carries 322 directives; the command matches stock `#print
+> axioms` on overloaded names and sorts with `Name.lt`, so `SmBrstQuotientAudit.lean` builds.
+>
+> **Track B (2026-11-13k):** “State of the project — 2026-11-13k: the enumeration is
 > constructed, and the quartic entry is computed” (end of file): `BookProof.DegreeEnumeration`
 > builds the degree blocks, the offsets and a rank bijection, so a degree-compatible enumeration
 > exists for every `0 < d` (`exists_degreeCompatible`) and the `coreBasis` ESA theorem needs no
@@ -39,7 +35,7 @@
 > quartic coefficient already defeats `WCommBound` for every `B`.  The gate for `ymHermCol` is
 > still open: what remains is the *coefficient* of a quartic monomial in `(magPoly)²`.
 >
-> **Earlier entry (2026-11-13j):** “State of the project — 2026-11-13j: the bridge is closed with no
+> **Track B (2026-11-13j):** “State of the project — 2026-11-13j: the bridge is closed with no
 > phases at all” (end of file): the monomial–Hermite triangularity `x^α − He_α ∈ span{degree <
 > |α|}` is proved from the three-term recurrence alone, the decomposition
 > `x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` holds with `w` in the earlier Gram–Schmidt span and
@@ -49,7 +45,7 @@
 > `BridgePhases` in the Yang–Mills gate module.  The commutator gate gets a one-entry refutation
 > interface (`not_wCommBound_of_entry`); it stays open (expected false for `f_abc ≠ 0`).
 >
-> **Earlier entry (2026-11-13i):** “State of the project — 2026-11-13i: the vanishing lemma, the
+> **Track B (2026-11-13i):** “State of the project — 2026-11-13i: the vanishing lemma, the
 > Gram–Schmidt projection lemma, and the QYM gates in `coreBasis` coordinates” (end of file): the
 > product Hermite function is orthogonal to every monomial Gauss function of strictly smaller
 > coordinatewise degree (`inner_monomial_hermiteMvLp_eq_zero`), the Gram–Schmidt vector is the base
@@ -57,7 +53,28 @@
 > (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
-
+>
+> **Track A — newest (2026-11-13m):** “State of the project — 2026-11-13m: the certificate runs
+> on the reflected operator” (end of file): `resid_reflection_le` carries the residual through
+> `A' = γ⁻¹ 1 − X_γ` untouched, so `sirk_resid_reflection_le` turns the SIRK operator-norm error
+> into a residual *of* `A'` with the same constant; `sirk_reflected_gap_certificate` composes it
+> with `temple_lower_bound` on `A'` and `gap_transfer`, `γ² λ' ≤ e`.  This is the join of the
+> two `13j` halves on Track A.
+>
+> **Track A (2026-11-13j):** “State of the project — 2026-11-13j: the SIRK error is a Ritz
+> residual” (end of file): `sirk_ritz_resid_le` closes the seam S3.1 asked for —
+> `resid X (V y) ≤ ‖X − sirkApprox V psiB‖` at a reduced eigenpair, with no factor 2, because
+> `resid_le_norm_sub_smul` bounds the residual by the distance to *any* multiple of the unit
+> vector.  The new `Sirk/ChapterResolventTransfer.lean` proves the S3.2 transfers — the
+> eigenvector reflection `A' = γ⁻¹ 1 − X_γ` with eigenvalue `e/(γ(e+γ))`, its strict monotonicity,
+> its inversion, and the gap transfer `g ≥ γ² g_X`.
+>
+> **Track A (2026-11-13i):** “State of the project — 2026-11-13i: the SIRK error bound is a
+> maximum-error theorem” (end of file): `sirk_error_opNorm_le` takes the supremum of the end-to-end
+> SIRK estimate over unit vectors — `‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m` — and
+> `sirk_opNorm_error_tendsto_zero` gives the worst-case convergence in the reduction order;
+> `softmodes.md`'s S3 now records the one missing link (a Ritz-residual seam) and why the
+> certificate should run on `γ⁻¹ − X_γ` rather than on `h_F`.
 >
 > **Earlier entry (2026-11-13h):** “State of the project — 2026-11-13h: the two `3`s are isomorphic
 > as `su(2)`-modules” (end of file): the meson triplet and the gluon adjoint triplet are now related
@@ -23855,6 +23872,9 @@ colour tensor product carries.
 
 ## State of the project — 2026-11-13i: the SIRK error bound is a maximum-error theorem
 
+*Track A.  Track B has its own `13i` — “the vanishing lemma, the projection lemma, and the QYM
+gates” — at the end of the file.*
+
 The S3 work package asks for a bound on the error as the Krylov order grows.  The corpus already
 had that bound at a *seed*: `ChapterH4.sirk_error_bound_decay` gives
 `‖φ_k(A)v − V ψ(B) V∗v‖ ≤ 2 C e^{−hm} Dmin ‖v‖` from Crouzeix's inequality and the paper's
@@ -23901,6 +23921,9 @@ eigenvalue — so S2 remains the gate and no mass gap is claimed.  The residual 
 `softmodes.md` as the next item, not proved.
 
 ## State of the project — 2026-11-13j: the SIRK error is a Ritz residual
+
+*Track A.  Track B has its own `13j` — “the bridge is closed with no phases at all” — at the end of
+the file.*
 
 The 2026-11-13i entry ended on a seam: the SIRK bound was an operator-norm bound, and
 `ChapterRitzCertificate` wanted a residual.  This entry proves the seam and the two resolvent
@@ -23959,7 +23982,9 @@ and no mass gap is claimed.  `A'`'s self-adjointness is not reproved here (the r
 
 ## State of the project — 2026-11-13m: the certificate runs on the reflected operator
 
-The 2026-11-13j entry left two halves that did not touch: `sirk_ritz_resid_le` produced a
+*Track A.  The number is `13m` because Track B already holds `13k` and `13l`.*
+
+Track A's 2026-11-13j entry left two halves that did not touch: `sirk_ritz_resid_le` produced a
 residual for `X`, and the transfer lemmas related the spectra of `A`, `X_γ = (A + γ)⁻¹` and
 `A' = γ⁻¹ 1 − X_γ`.  This entry joins them, in the same module, with no new analysis.
 
@@ -24028,6 +24053,8 @@ stall at `8962/8984` is that single module elaborating, and the fix, if wanted, 
 (split the ledger, or have `#audit_axioms` emit once per module) rather than tactical.
 
 ## State of the project — 2026-11-13i: the vanishing lemma, the projection lemma, the QYM gates
+
+*Track B.  Track A has its own `13i` — “the SIRK error bound is a maximum-error theorem”.*
 
 `13e` §3 showed that for a degree-compatible enumeration the `coreBasis`↔`hermBasisN` bridge holds
 *up to one phase per level*, and `13g` showed that such phases are invisible to the weighted Schur
@@ -24103,6 +24130,8 @@ band calculus can neither supply it nor refute it.  So the QYM ESA statement is 
 hypotheses — the bridge and the commutator gate — and no unconditional Yang–Mills gap is claimed.
 
 ## State of the project — 2026-11-13j: the bridge is closed with no phases at all
+
+*Track B.  Track A has its own `13j` — “the SIRK error is a Ritz residual”.*
 
 `§2026-11-13i` left the `coreBasis` ↔ `hermBasisN` bridge conditional on two inputs: writing
 `x^{e k} e^{-‖x‖²/4}` as `w + c • ψ_{e k}` with `w` in the earlier Gram–Schmidt span, and `‖c‖ = 1`
@@ -24297,3 +24326,41 @@ directive lines; `Work.SmQuartetConstructedAudit` keeps 0 `sorryAx`. Gates green
 
 Boundary: no theorem, statement or audited name changed; the only behavioural difference is that
 overloaded names now yield one line per candidate, exactly as stock `#print axioms` did.
+
+## State of the project — 2026-11-13n: the roadmap audit ledger is sliced eight ways
+
+Track B, build tooling.  Entry 2026-11-13m recorded the measurement that made this the next job:
+`lake build BookProof` was green, but `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` alone cost
+**1520 s** — 25 of the build's 30 minutes — for 2133 `#audit_axioms` directives and two theorems.
+
+**Why one module could not be fixed in place.**  Each directive prints the stock
+`'name' depends on axioms: [...]` line, and the memoised command keeps its cache in an
+`EnvExtension`, so the cache is warm *within* a module and invisible across modules.  A single file
+therefore runs on one core no matter what, and `#print axioms` hashes nothing that a second core
+could reuse.  The only lever left is module-level parallelism.
+
+**What was done.**  The 2133 directives were moved, verbatim and in their original order, into
+`ChapterRoadmapAuditPart1`–`Part8` (250–290 directives each), sliced at blank-line boundaries after
+the `--` comments that introduce a topic, so no `open … in` block and no comment-to-directive
+pairing was cut.  Each slice imports one shared cone module, `ChapterRoadmapAuditImports` (the same
+261 imports, stated once).  `ChapterRoadmapAudit.lean` keeps its module docstring and its two
+aggregate theorems, imports the eight slices, and audits those two theorems itself; every file in
+the chain still raises the same `'…' depends on axioms: […]` lines for the same names.
+
+**Measurement.**  Target `BookProof.RoadmapAudit.ChapterRoadmapAudit` (imports + 8 slices +
+aggregate): **20.4 s wall**, against **1520 s** before — a factor of 74.  Per slice: 17 s, except
+Part1 at 9.4 s; `ChapterRoadmapAuditImports` 26 s (cold) and the aggregate 5.4 s.  The join is
+8-way parallel on 12 cores, so the win is essentially `nproc`, not an algorithmic improvement: the
+audit work itself is unchanged.  That is the honest reading — a bigger win would need the cache
+shared across modules, which the `EnvExtension` seam does not allow.
+
+**Equivalence check.**  `git show HEAD:…/ChapterRoadmapAudit.lean | grep '^#audit_axioms'` versus
+the concatenation of the eight slices plus the aggregate: 2133 directive names on both sides,
+`diff` empty.  The build emits 2256 `depends on axioms` lines for those 2133 directives because
+nine overloaded names print one line per candidate (the 2026-11-13l hardening), and 2142 distinct
+names appear — both properties predate the split and are unchanged by it.
+
+**Boundary.**  No directive, name, theorem or statement changed; the command, its output format
+and the `sorryAx` semantics are untouched.  `docs/euclidean_cft_proof.md`'s "~25 minutes of CPU"
+note and the `AxiomAudit.lean` docstring are updated to the measured figures.  The full aggregate
+(`lake build BookProof`) is re-run below.

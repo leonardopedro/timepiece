@@ -235,8 +235,10 @@ input of the Temple/SIRK chain in the bounded form the corpus can state (the unb
 (`lake build BookProof` is the real gate: it builds the aggregate target over all 3,300 lines of
 `BookProof.lean`'s imports and finishes green (`Build completed successfully (8863 jobs)` when this
 note was last updated, 2026-10-30).  The per-module commands above are kept because they finish in
-seconds, whereas the aggregate includes `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`, which
-alone costs ~25 minutes of CPU.)
+seconds, whereas the aggregate includes the `#audit_axioms` ledger behind
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean` — as a single module that ledger cost ~25 minutes
+of CPU; it is now sliced over `ChapterRoadmapAuditPart1`–`Part8`, which build in parallel and take
+~20 s of wall clock.)
 
 The dependencies of the new modules that live outside Mathlib are the corpus chapters
 `BookProof.Toolbox.ChapterHermiteProductBasis` (the `L²(ℝᵈ)` Hermite basis) and

@@ -12,7 +12,15 @@ import Lean
 starts a fresh `visited` set for **every** call.  A file that audits hundreds or thousands of
 related declarations therefore re-walks their shared dependency closure once per declaration;
 for `ChapterRoadmapAudit` (2133 audits whose closures are almost entirely shared Mathlib) that
-is more than half an hour of pure repetition.
+was 1520 s of pure repetition in one module.
+
+Memoisation alone does not fix the wall clock, because the cache lives in *one* module: it is
+warm after the first audit and useless to the second core.  So the ledger is also *sliced* —
+`ChapterRoadmapAuditPart1`–`Part8` hold the same 2133 directives, verbatim and in the original
+order, and `ChapterRoadmapAudit` imports them, which lets Lake elaborate eight modules in
+parallel.  Measure: 1520 s (one module) before, 20.4 s wall (eight slices of 250–290 directives
+plus the aggregate) after, with the audited name list unchanged — see the 2026-11-13n entry in
+`CONSOLIDATED_PLAN.md` for the check.
 
 `#audit_axioms c` prints the same line — `'c' depends on axioms: [...]` — but memoizes the axiom
 set of every constant it visits in an environment extension, so each constant is traversed at

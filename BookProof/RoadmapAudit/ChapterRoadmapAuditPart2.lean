@@ -1,0 +1,329 @@
+/-
+Copyright (c) 2026. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Aristotle
+-/
+import BookProof.RoadmapAudit.ChapterRoadmapAuditImports
+
+/-!
+# Roadmap headline certificate — audit ledger, slice 2 of 8
+
+Slice 2 of the eight slices of the `#audit_axioms` ledger that used to sit at the end of
+`BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.  The directives are the original ones,
+verbatim and in the original order; the split exists only so that Lake elaborates eight modules in
+parallel instead of one, which is where the aggregate build's 25 minutes went.
+
+Each line prints the stock `'name' depends on axioms: [...]` line for one declaration; nothing
+here asserts an axiom set.
+-/
+
+namespace BookProof.ChapterRoadmapAudit
+
+open BookProof.AxiomAudit
+
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.bilFun_embFun
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.hasSum_inner_blocks
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.blockVec_bilH
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.deficiencyTrivialAt_bilH
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_ne_zero
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_domain_dense
+#audit_axioms BookProof.NavierStokesFlow.BilinearEsa.bilH_not_bounded
+
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_relative_bound
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_commForm_bound
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.PairShift.pairH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.affH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.affH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.affH_coord_succ
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.affH_coord_succ_succ
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.affH_ne_zero_of_pos_shear
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.affH_not_bounded
+#audit_axioms BookProof.NavierStokesFlow.AffineFiber.affH_domain_dense
+
+#audit_axioms BookProof.NavierStokesFlow.AffineBlock.affFun_embFun
+#audit_axioms BookProof.NavierStokesFlow.AffineBlock.blockVec_affBlockH
+#audit_axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.AffineBlock.deficiencyTrivialAt_affBlockH
+#audit_axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_domain_dense
+#audit_axioms BookProof.NavierStokesFlow.AffineBlock.affBlockH_not_bounded
+
+#audit_axioms BookProof.NavierStokesFlow.SignFlip.essentiallySelfAdjointOn_of_intertwine
+#audit_axioms BookProof.NavierStokesFlow.SignFlip.shiftH_flip
+#audit_axioms BookProof.NavierStokesFlow.SignFlip.saffH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.SignFlip.saffH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.SignFlip.saffH_ne_zero_of_shear
+#audit_axioms BookProof.NavierStokesFlow.SignFlip.sblockH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.SignFlip.sblockH_domain_dense
+
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_relative_bound
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_commForm_bound
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.SignedHop.hopH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.listH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.listH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.gaffH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.SignedShift.gaffH_essentiallySelfAdjointOn_core
+
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_pair
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_rot
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_shear
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_coord_diag
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_ne_zero_of_strain
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_ne_zero_of_vorticity
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_not_bounded
+#audit_axioms BookProof.NavierStokesFlow.ThreeComponent.velH_domain_dense
+
+-- `CONSOLIDATED_PLAN.md` §9 item 4: the canonical (ladder / differential) realization
+-- of the full quadratic Navier-Stokes symbol at one fiber.
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.comm_ann_cre
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.comm_mom_pos
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.comm_mom_pos_of_ne
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.canFun_eq_ladFun
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.canH_eq_velH
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.canH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.canH_not_bounded
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.canH_domain_dense
+#audit_axioms BookProof.NavierStokesFlow.CanonicalVector.nsQuadraticH_essentiallySelfAdjointOn_core
+
+-- `CONSOLIDATED_PLAN.md` §9 item 4, differential realization: the product Hermite
+-- orthonormal basis of `L²(ℝᵈ)` and the transport of the canonical picture to
+-- `L²(du₁du₂du₃)`, where `πᵢ` is a genuine derivative and `uᵢ` a genuine
+-- multiplication operator.
+#audit_axioms BookProof.HermiteProductBasis.orthonormal_hermiteMvLp
+#audit_axioms BookProof.HermiteProductBasis.span_hermiteMvLp
+#audit_axioms BookProof.HermiteProductBasis.crePoly_hermiteMvLp
+#audit_axioms BookProof.HermiteProductBasis.annPoly_hermiteMvLp
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.hasDerivAt_pgFun_sec
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.posOp_apply_eq_mul
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.momOp_apply_eq_differential
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.comm_momOp_posOp
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.intertwine_ann
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.intertwine_cre
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.intertwined_canH
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_not_bounded
+#audit_axioms BookProof.NavierStokesFlow.DifferentialL2.nsDiffH_domain_dense
+#audit_axioms
+  BookProof.NavierStokesFlow.DifferentialL2.nsQuadraticDiffH_essentiallySelfAdjointOn_core
+
+-- `CONSOLIDATED_PLAN.md` §9 item 8: essential self-adjointness selects a unique
+-- self-adjoint operator (the closure), and the Hashimoto/SIRK shift-invert limit
+-- computes with it -- instantiated for the Navier-Stokes fiber generator.
+#audit_axioms BookProof.EsaClosure.clGraph_inner
+#audit_axioms BookProof.EsaClosure.clExt_symmetricOn
+#audit_axioms BookProof.EsaClosure.clExt_extends
+#audit_axioms BookProof.EsaClosure.clExt_selfAdjointCriterion
+#audit_axioms BookProof.EsaClosure.exists_isSelfAdjointExtension_of_esa
+#audit_axioms BookProof.EsaClosure.selfAdjointExtension_eq_adjoint
+#audit_axioms BookProof.EsaClosure.isSelfAdjointExtension_unique_of_esa
+#audit_axioms BookProof.EsaClosure.positiveExtension_eq_closure_of_esa
+#audit_axioms BookProof.EsaClosure.norm_add_I_eq_norm_sub_I
+#audit_axioms BookProof.EsaClosure.exists_cayley_unitary
+#audit_axioms BookProof.EsaClosure.exists_selfAdjointExtension_and_cayley_of_esa
+#audit_axioms BookProof.EsaClosure.hashimoto_multishift_selects_esa
+#audit_axioms BookProof.NavierStokesFlow.NSHashimoto.velCore_symmetricOn
+#audit_axioms BookProof.NavierStokesFlow.NSHashimoto.velCore_esa
+#audit_axioms BookProof.NavierStokesFlow.NSHashimoto.ns_selfAdjoint_extension
+#audit_axioms BookProof.NavierStokesFlow.NSHashimoto.ns_selfAdjoint_extension_unique
+#audit_axioms BookProof.NavierStokesFlow.NSHashimoto.ns_hashimoto_selects
+#audit_axioms BookProof.NavierStokesFlow.NSHashimoto.ns_shiftInvert_selects
+#audit_axioms BookProof.NavierStokesFlow.NSHashimoto.exists_velHilbertBasis
+
+#audit_axioms BookProof.GaugeFixing.s_c_eq_zero
+#audit_axioms BookProof.GaugeFixing.s_B_eq_zero
+#audit_axioms BookProof.GaugeFixing.s_gaugeField
+#audit_axioms BookProof.GaugeFixing.L_gf_evaluation
+#audit_axioms BookProof.GaugeFixing.L_gf_invariant
+#audit_axioms BookProof.GaugeFixing.int_L_gf_eq_zero
+#audit_axioms BookProof.GaugeFixing.int_L_gf_evaluated
+#audit_axioms BookProof.GaugeFixing.matrixModel_c_ne_zero
+#audit_axioms BookProof.GaugeFixing.matrixModel_B_ne_zero
+#audit_axioms BookProof.GaugeFixing.matrixModel_Psi_ne_zero
+#audit_axioms BookProof.GaugeFixing.matrixModel_s_Psi_ne_zero
+#audit_axioms BookProof.GaugeFixing.matrixModelIntegral_ne_zero
+
+-- QG-3.2(a), the operator (nested-Fock / Faris–Lavine) half: the lifted quadratic
+-- coupling (a sum of different one-particle Hamiltonians between creation and
+-- annihilation operators on the outer Fock space) is essentially self-adjoint on
+-- the finite-mode core for every weighted-ℓ¹-summable amplitude family.
+#audit_axioms BookProof.QgPhysicalSectorIdentity.coupling_essentiallySelfAdjointOn_core
+#audit_axioms BookProof.QgPhysicalSectorIdentity.deg_pair_le_two
+#audit_axioms BookProof.QgPhysicalSectorIdentity.coupling_weighted_summable
+
+#audit_axioms BookProof.QuantumGravityDensitized.inv_eq_four_mul_deriv_densY_sq
+#audit_axioms BookProof.QuantumGravityDensitized.kinetic_absorption
+#audit_axioms BookProof.QuantumGravityDensitized.conformal_absorption
+#audit_axioms BookProof.QuantumGravityDensitized.densTetrad_det
+#audit_axioms BookProof.QuantumGravityDensitized.densTetrad_recover
+#audit_axioms BookProof.QuantumGravityDensitized.tendsto_inv_det_atTop
+#audit_axioms BookProof.QuantumGravityDensitized.tendsto_densY_zero
+#audit_axioms BookProof.QuantumGravityDensitized.qgSymbol_eq_metric_form
+#audit_axioms BookProof.QuantumGravityDensitized.qgMetric_det_ne_zero
+#audit_axioms BookProof.QuantumGravityDensitized.qgSymbol_indefinite
+#audit_axioms BookProof.QuantumGravityDensitized.christoffel_eq_zero_of_const
+#audit_axioms BookProof.QuantumGravityDensitized.qgMetric_christoffel_zero
+#audit_axioms BookProof.QuantumGravityDensitized.qgFullSymbol_scaling
+#audit_axioms BookProof.QuantumGravityDensitized.qgModeHamiltonian_essentiallySelfAdjoint
+#audit_axioms BookProof.QuantumGravityDensitized.qgModeHamiltonian_deficiencyTrivialAt
+#audit_axioms BookProof.QuantumGravityDensitized.qgModeHamiltonian_not_bounded
+#audit_axioms BookProof.QuantumGravityDensitized.strichartz_esa_of_finiteSpeed
+#audit_axioms BookProof.QuantumGravityDensitized.strichartz_finiteSpeed_satisfiable
+#audit_axioms BookProof.QuantumGravityDensitized.qg_esa_of_farisLavine
+#audit_axioms BookProof.QuantumGravityDensitized.densitized_hasZeroDeficiencyOn_transfer
+
+#audit_axioms BookProof.QuantumGravityHalfDensity.qgSrcMeasure_density_eq_halfDensity_sq
+#audit_axioms BookProof.QuantumGravityHalfDensity.measurePreserving_qgSquare
+#audit_axioms BookProof.QuantumGravityHalfDensity.measurePreserving_qgSqrt
+#audit_axioms BookProof.QuantumGravityHalfDensity.halfDensityUnitary_apply
+#audit_axioms BookProof.QuantumGravityHalfDensity.halfDensityUnitary_symm_apply
+#audit_axioms BookProof.QuantumGravityHalfDensity.exists_halfDensity_unitary
+#audit_axioms BookProof.QuantumGravityHalfDensity.qg_halfDensity_transfer
+
+#audit_axioms BookProof.YangMillsFriedrichs.formNormSq_ge_normSq
+#audit_axioms BookProof.YangMillsFriedrichs.re_formInner_sq_le
+#audit_axioms BookProof.YangMillsFriedrichs.form_closable
+#audit_axioms BookProof.YangMillsFriedrichs.weylOpDom_symmetricOn
+#audit_axioms BookProof.YangMillsFriedrichs.weylOpDom_quadForm
+#audit_axioms BookProof.YangMillsFriedrichs.weylOpDom_quadForm_nonneg
+#audit_axioms BookProof.YangMillsFriedrichs.weylForm_closable
+#audit_axioms BookProof.YangMillsFriedrichs.friedrichs_extension_of_semibounded
+#audit_axioms BookProof.YangMillsFriedrichs.friedrichs_hypothesis_satisfiable
+#audit_axioms BookProof.YangMillsFriedrichs.weyl_friedrichs_extension
+#audit_axioms BookProof.YangMillsFriedrichs.weylKrylov_bestApprox_antitone
+#audit_axioms BookProof.YangMillsFriedrichs.weylKrylov_bestApprox_tendsto_zero
+
+#audit_axioms BookProof.YangMillsFriedrichsLimit.symmetricOn_top_of_dense
+#audit_axioms BookProof.YangMillsFriedrichsLimit.quadForm_top_nonneg_of_dense
+#audit_axioms BookProof.YangMillsFriedrichsLimit.friedrichs_of_bounded
+#audit_axioms BookProof.YangMillsFriedrichsLimit.friedrichs_bounded_nontrivial_example
+#audit_axioms BookProof.YangMillsFriedrichsLimit.not_mem_span_of_repr_ne_zero
+#audit_axioms BookProof.YangMillsFriedrichsLimit.friedrichs_bounded_proper_domain_example
+#audit_axioms BookProof.YangMillsFriedrichsLimit.krylov_starProjection_tendsto
+#audit_axioms BookProof.YangMillsFriedrichsLimit.sirk_compression_tendsto
+#audit_axioms BookProof.YangMillsFriedrichsLimit.sirk_limit_unique
+#audit_axioms BookProof.YangMillsFriedrichsLimit.sirk_limit_eq_positive_selfadjoint_extension
+#audit_axioms BookProof.YangMillsFriedrichsLimit.weyl_friedrichs_bounded
+
+#audit_axioms BookProof.HermiteGalerkin.starProjection_tendsto_of_monotone_dense
+#audit_axioms BookProof.HermiteGalerkin.compression_tendsto_of_starProjection_tendsto
+#audit_axioms BookProof.HermiteGalerkin.exists_mem_galerkinSpan
+#audit_axioms BookProof.HermiteGalerkin.galerkinProj_tendsto
+#audit_axioms BookProof.HermiteGalerkin.galerkinCompression_tendsto
+#audit_axioms BookProof.HermiteGalerkin.inner_galerkinCompression
+#audit_axioms BookProof.HermiteGalerkin.ritzInf_antitone
+#audit_axioms BookProof.HermiteGalerkin.ritzInf_tendsto_domainInf
+#audit_axioms BookProof.HermiteGalerkin.ritzInf_extension_le
+#audit_axioms BookProof.HermiteGalerkin.norm_sub_smul_ge
+#audit_axioms BookProof.HermiteGalerkin.norm_resolvent_apply_le
+#audit_axioms BookProof.HermiteGalerkin.resolvent_tendsto_of_strong_tendsto
+#audit_axioms BookProof.HermiteGalerkin.isSelfAdjoint_galerkinCompression
+#audit_axioms BookProof.HermiteGalerkin.galerkinResolvent_tendsto
+#audit_axioms BookProof.HermiteGalerkin.positive_selfadjoint_extension_unique
+#audit_axioms BookProof.HermiteGalerkin.hermiteGalerkin_selects_friedrichs
+#audit_axioms BookProof.HermiteGalerkin.finiteModeRestrict_selects_operator
+#audit_axioms BookProof.HermiteGalerkin.finiteModeDomain_ne_top
+
+#audit_axioms BookProof.HashimotoShiftInvert.norm_shiftMap_ge
+#audit_axioms BookProof.HashimotoShiftInvert.shiftMap_injective
+#audit_axioms BookProof.HashimotoShiftInvert.closed_of_selfAdjointCriterion
+#audit_axioms BookProof.HashimotoShiftInvert.shiftRange_isClosed
+#audit_axioms BookProof.HashimotoShiftInvert.shiftRange_orthogonal_eq_bot
+#audit_axioms BookProof.HashimotoShiftInvert.shiftMap_surjective
+#audit_axioms BookProof.HashimotoShiftInvert.exists_isShiftInvert
+#audit_axioms BookProof.HashimotoShiftInvert.IsShiftInvert.opNorm_le
+#audit_axioms BookProof.HashimotoShiftInvert.IsShiftInvert.isSelfAdjoint
+#audit_axioms BookProof.HashimotoShiftInvert.IsShiftInvert.inner_nonneg
+#audit_axioms BookProof.HashimotoShiftInvert.IsShiftInvert.dom_eq_range
+#audit_axioms BookProof.HashimotoShiftInvert.shiftInvert_determines
+#audit_axioms BookProof.HashimotoShiftInvert.isShiftInvert_unique
+#audit_axioms BookProof.HashimotoShiftInvert.isShiftInvert_invShiftOperator
+#audit_axioms BookProof.HashimotoShiftInvert.invShiftOperator_isPositiveSelfAdjointExtension
+#audit_axioms BookProof.HashimotoShiftInvert.galerkinCompression_shiftInvert_tendsto
+#audit_axioms BookProof.HashimotoShiftInvert.galerkinResolvent_shiftInvert_tendsto
+#audit_axioms BookProof.HashimotoShiftInvert.hashimoto_shiftInvert_selects_friedrichs
+#audit_axioms BookProof.HashimotoShiftInvert.ell2ExampleMatrix_unbounded
+#audit_axioms BookProof.HashimotoShiftInvert.hashimoto_shiftInvert_unbounded_example
+
+#audit_axioms BookProof.HashimotoShiftInvert.norm_cshiftMap_ge
+#audit_axioms BookProof.HashimotoShiftInvert.cshiftMap_injective
+#audit_axioms BookProof.HashimotoShiftInvert.cshiftRange_isClosed
+#audit_axioms BookProof.HashimotoShiftInvert.cshiftRange_orthogonal_eq_bot
+#audit_axioms BookProof.HashimotoShiftInvert.cshiftMap_surjective
+#audit_axioms BookProof.HashimotoShiftInvert.exists_isShiftInvertC
+#audit_axioms BookProof.HashimotoShiftInvert.IsShiftInvertC.opNorm_le
+#audit_axioms BookProof.HashimotoShiftInvert.IsShiftInvertC.inner_adjoint
+#audit_axioms BookProof.HashimotoShiftInvert.IsShiftInvertC.dom_eq_range
+#audit_axioms BookProof.HashimotoShiftInvert.shiftInvertC_determines
+#audit_axioms BookProof.HashimotoShiftInvert.isShiftInvertC_unique
+#audit_axioms BookProof.HashimotoShiftInvert.isShiftInvertC_neg_of_isShiftInvert
+#audit_axioms BookProof.HashimotoShiftInvert.shiftInvertC_resolvent_identity
+#audit_axioms BookProof.HashimotoShiftInvert.shiftInvertC_commute
+#audit_axioms BookProof.HashimotoShiftInvert.shiftInvertC_comp_one_sub
+#audit_axioms BookProof.HashimotoShiftInvert.sirkDen_rkVec
+#audit_axioms BookProof.HashimotoShiftInvert.rkCompression_tendsto
+#audit_axioms BookProof.HashimotoShiftInvert.hashimoto_multishift_selects_friedrichs
+#audit_axioms BookProof.HashimotoShiftInvert.ell2Resolvent_isShiftInvertC
+#audit_axioms BookProof.HashimotoShiftInvert.hashimoto_multishift_unbounded_example
+
+#audit_axioms BookProof.FriedrichsExtension.FormDom.norm_toAmbient_le
+#audit_axioms BookProof.FriedrichsExtension.FormDom.formExt_coe
+#audit_axioms BookProof.FriedrichsExtension.FormDom.inner_coe_eq
+#audit_axioms BookProof.FriedrichsExtension.FormDom.formExt_injective
+#audit_axioms BookProof.FriedrichsExtension.FormDom.formRiesz_spec
+#audit_axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_isSelfAdjoint
+#audit_axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_pos
+#audit_axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_injective
+#audit_axioms BookProof.FriedrichsExtension.FormDom.friedrichsResolvent_shift
+#audit_axioms BookProof.FriedrichsExtension.friedrichs_extension_exists_of_complete_explicit
+#audit_axioms BookProof.FriedrichsExtension.friedrichs_hypothesis_holds_of_complete_explicit
+#audit_axioms BookProof.FriedrichsExtension.weyl_friedrichs_extension_of_complete_explicit
+#audit_axioms BookProof.FriedrichsExtension.friedrichs_extension_semibounded_of_complete_explicit
+#audit_axioms BookProof.FriedrichsExtension.friedrichs_hashimoto_selects
+#audit_axioms BookProof.FriedrichsExtension.weyl_hashimoto_selects_friedrichs
+#audit_axioms BookProof.FriedrichsExtension.unbounded_friedrichs_example
+
+#audit_axioms BookProof.StrichartzWave.potentialOp_symmetric
+#audit_axioms BookProof.StrichartzWave.potentialOp_deficiencyTrivial
+#audit_axioms BookProof.StrichartzWave.potentialOp_essentiallySelfAdjoint
+#audit_axioms BookProof.StrichartzWave.polynomialPotential_essentiallySelfAdjoint
+#audit_axioms BookProof.StrichartzWave.wave_add_potentialOp_symmetric
+#audit_axioms BookProof.StrichartzWave.multiplierOp_symmetric
+#audit_axioms BookProof.StrichartzWave.multiplierOp_deficiencyTrivial
+#audit_axioms BookProof.StrichartzWave.multiplierOp_essentiallySelfAdjoint
+#audit_axioms BookProof.StrichartzWave.constCoeffOp_eq_multiplierOp
+#audit_axioms BookProof.StrichartzWave.polyharmonic_multiplier_essentiallySelfAdjoint
+#audit_axioms BookProof.StrichartzWave.opL2_potentialOp_eq_mulL2
+#audit_axioms BookProof.StrichartzWave.wave_add_boundedPotentialOp_essentiallySelfAdjoint
+#audit_axioms BookProof.StrichartzWave.wave_add_truncatedPotential_essentiallySelfAdjoint
+
+#audit_axioms BookProof.HarmonicOscillator.hermiteC_oscillator
+#audit_axioms BookProof.HarmonicOscillator.harmonicOscOp_hermiteLp
+#audit_axioms BookProof.HarmonicOscillator.harmonicOscOp_apply_eq_differential
+#audit_axioms BookProof.HarmonicOscillator.harmonicOsc_symmetric
+#audit_axioms BookProof.HarmonicOscillator.harmonicOsc_essentiallySelfAdjoint
+#audit_axioms BookProof.HarmonicOscillator.harmonicOsc_not_bounded
+
+-- `PLAN_LEAN_SPECIALIST_QYM_FLOW.md` Part F: the field-space (Gauss–polynomial /
+-- product Hermite) realization of the Weyl-gauge Yang–Mills Hamiltonian.
+#audit_axioms BookProof.HermiteProductCore.pgMap_injective
+#audit_axioms BookProof.HermiteProductCore.polyGaussCore_dense
+#audit_axioms BookProof.HermiteProductCore.gaussInt_pderiv
+#audit_axioms BookProof.HermiteProductCore.span_range_coreBasis
+#audit_axioms BookProof.HermiteProductCore.polyGaussCore_eq_hermiteSpan
+#audit_axioms BookProof.YangMillsHermite.momOp_polySym
+#audit_axioms BookProof.YangMillsHermite.commutator_coord_mom
+#audit_axioms BookProof.YangMillsHermite.weylProd_polySym
+#audit_axioms BookProof.YangMillsHermite.realCoeff_magPoly
+#audit_axioms BookProof.YangMillsHermite.ymHamiltonian_symmetricOn
+#audit_axioms BookProof.YangMillsHermite.ymHamiltonian_quadForm_nonneg
+#audit_axioms BookProof.YangMillsHermite.ym_hermite_friedrichs_extension
+#audit_axioms BookProof.YangMillsHermite.ym_hermite_hashimoto_selects
+
+
+end BookProof.ChapterRoadmapAudit
