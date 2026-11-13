@@ -59,10 +59,20 @@ is the **second** ingredient:
 The pointwise lower bound is *not* enough, and this is worth recording because it is the trap the
 attempt fell into first: `W ≥ 1` gives no norm comparison between `‖W p‖` and `‖Δp + Wp + p‖`.
 A solution concentrating at high frequency where `W` is order one has a huge `‖Δp‖` and a moderate
-`‖Wp‖`, so `‖Wp + p‖ ≤ β‖Δp + Wp + p‖` cannot come from positivity of `W`; it needs the elliptic
-bootstrap itself, i.e. the very estimate being proved.  §19's `hpoly` and this section's
-`PotSelfBound` are therefore two equivalent spellings of one open problem, and neither is assumed
-downstream.
+`‖Wp‖`, so `‖Wp + p‖ ≤ β‖Δp + Wp + p‖` cannot come from positivity of `W` alone.
+
+**Correction (2026-11-13, plan §53).**  This section used to conclude that the self-bound "needs the
+elliptic bootstrap itself, i.e. the very estimate being proved", and that §19's `hpoly` and
+`PotSelfBound` were "two equivalent spellings of one open problem".  The *equivalence* is right
+(`potSelfBound_of_kinetic_bound`, `kinetic_bound_of_potSelfBound`), but the "open" was wrong:
+neither of the two routes this docstring considered — the sign identity and the uncertainty
+principle — is the route that works.  The reverse elliptic estimate of §48–§52 goes through
+*gradient domination* of the potential (`∑_{j∈S} (∂_j W)² ≤ a W² + b`, from the coercive
+quadratic and the linearity of the derivatives), and §53 supplies the last input — the per-form
+`pderiv` table
+(`BookProof/Sm/ChapterSmGradTable.lean`), giving **`exists_potSelfBound_sm`** —
+`PotSelfBound P c₀ β` for some `β` whenever `0 ≤ c₀`, with no hypothesis on the 49 forms.  So the
+inequality below is no longer assumed downstream: it is instantiated once, in that theorem.
 
 Everything here is `sorry`-free and `axiom`-free.
 -/

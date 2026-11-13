@@ -9,9 +9,10 @@
 #   1. §44/§45 (parity reduction) — `deficiencyTrivialAt_iff_sectors` reduces the
 #      closure problem to the two parity sectors, but P4 does **not** decompose
 #      over the split: `sectorComparison_iff_formDomainComparison` says the §32
-#      named input read on a sector is the whole statement, so `PotSelfBound`
-#      stays one open analytic problem.  Resolving the tension by dropping either
-#      the sector reduction or the "no weakening" verdict is the failure mode.
+#      named input read on a sector is the whole statement, so the input is one
+#      problem rather than two (and, since §53, a *proved* one).  Resolving the
+#      tension by dropping either the sector reduction or the "no weakening"
+#      verdict is the failure mode.
 #   2. §46/§47 (BRST) — the charge form is well defined on the cohomology
 #      (`kform_well_defined`), and `PhysicalPositivity` is *derived* from quartet
 #      data (`physicalPositivity_of_quartet`) while the Standard Model's own
@@ -160,8 +161,10 @@ require "$BOOKPLAN" "not_gradDom_flat_quartic" \
     "§48 comment block must keep the flat counterexample"
 require "$BOOKPLAN" "gradDom_flat_plus_quadratic" \
     "§49 comment block must keep the model instance that rescues the flat pattern"
-require "$BOOKPLAN" 'per-form `pderiv` table' \
-    "§49 comment block must keep the one remaining input (the pderiv table) as a caveat"
+require "$BOOKPLAN" 'exists_potSelfBound_sm' \
+    "§53 comment block must keep naming the theorem that closes the elliptic input"
+require "$BOOKPLAN" 'quartet data' \
+    "§53 comment block must keep the surviving caveat (P5's quartet data is still unbuilt)"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

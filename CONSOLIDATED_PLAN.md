@@ -7,8 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13c):** “State of the project — 2026-11-13c: the antisymmetric `3` is
-> irreducible too” (end of file): `Λ² ℂ³` is handled by the same weight argument one dimension lower —
+> **Newest entry (2026-11-13d):** “State of the project — 2026-11-13d: correction — the commutator
+> gate is not *refuted*, only not supplied” (end of file): the “honest boundary” of the band entry is
+> withdrawn — an upper bound on entries cannot refute the size of the gate's sum — and the module
+> headers and the aggregator comment now say “the proof cannot supply it” rather than “it cannot
+> hold”.
+>
+> **Earlier entry (2026-11-13c):** “State of the project — 2026-11-13c: the antisymmetric `3` is
+> irreducible too”: `Λ² ℂ³` is handled by the same weight argument one dimension lower —
 > weights `1, 0, -1` (`glueballAltWeightVec_eigen`), the Lagrange projector
 > `glueballAltWeightProjection`, the basis `glueballAltWeightBasis`, and the same ladders
 > `A¹ ∓ i A⁰` — so `glueballAlt_irreducible` closes the last gap `13a` named and `3 ⊕ 1 ⊕ 5` is a
@@ -23460,3 +23466,48 @@ line over 100 code points.
 **Boundary.**  Both `3`s and the `5` are now irreducible on the glueball side; the meson square's
 `3` and its `1` are not, which is the remaining half of the same question.  Nothing here concerns
 the chapter's Fock model or any Hamiltonian, and no norm or closedness of the actions is claimed.
+## State of the project — 2026-11-13d: correction — the commutator gate is not *refuted*, only not supplied
+
+This entry corrects the "Honest boundary" of §2026-11-13b (and the module header it was copied
+from).  That text said the commutator gate "cannot hold at order `4`", that its terms "grow like
+`deg`", and that no constant `B` bounds them, closing with "the commutator gate is false for this
+symbol".  **That is withdrawn.**  The argument ran from the Yang–Mills *entry bound*
+`|A_{kj}| ≤ C (deg k + 1)²` to a statement about the size of the gate's sum, and that inference is
+not available in either direction: the band calculus supplies an **upper** bound on entries, and no
+lower bound on any entry of `ymHermCol` (or of any other matrix in the corpus) is proved anywhere.
+An upper bound cannot refute a bounded-sum statement; it can only fail to establish it.
+
+What is true, and all the corpus supports:
+
+* the commutator weight across a band of fixed radius `D` in the degree is
+  `|w_j² − w_k²|/(w_k w_j) = Θ(D/deg)` for `w = (deg+1)²` — a *decaying* factor;
+* multiplying the *uniform* entry bound by that factor gives `Θ(deg)`-sized terms, so the uniform
+  bound is not strong enough to bound the gate;
+* hence **the three gates are not all derivable from `ym_hermCol_band_bounds`**, and the one that
+  is not is the commutator gate.
+
+So the correct status of the order-`4` route is "blocked at the a-priori-bound level", not "closed
+by impossibility".  A proof of the gate — or a disproof — needs the actual coefficient decay of
+`ymPoly fabc` in the Hermite basis (the coefficient vector of the quartic/cubic monomials), which
+the band calculus deliberately discards.  Two consequences for the work order: the gate is still a
+legitimate target, and the honest label on
+`ymHermCol_essentiallySelfAdjointOn_core_of_commBound` is *conditional*, which the theorem's own
+docstring already says.
+
+**Edits in this packet** (no Lean statement changed, no proof changed):
+
+* `BookProof/Qym/ChapterYangMillsWeightedGates.lean` header — the boundary paragraph rewritten, with
+  an explicit **Correction (2026-11-13d)** block naming the withdrawn claim and why it was wrong;
+* `BookProof.lean` — the aggregator comment now reads "why the band calculus cannot supply it at
+  order `4`" instead of "why that gate cannot hold at order `4`".
+
+**A second scope note, unrelated to the correction.**  `ymFockCol`
+(`ChapterFockSecondQuantization`) is the matrix in the Gram–Schmidt basis `coreBasis e`, whose
+vectors are `pgLp (monomial (e k) 1)` Gram–Schmidt-orthonormalized *in the order `e`*; `ymHermCol`
+uses the product Hermite basis.  These agree only when `e` respects the degree flag, and within a
+degree level Gram–Schmidt is order-dependent, so no permutation-independent bridge exists for
+arbitrary `e`.  The gates proved in §2026-11-13b are therefore about the Hermite-basis matrix, and
+transferring them to `ymFockCol` is not a bookkeeping step.
+
+**Verification.**  `lake env lean BookProof/Qym/ChapterYangMillsWeightedGates.lean` clean; no line
+over 100 characters.

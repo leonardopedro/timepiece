@@ -3053,3 +3053,80 @@ the provenance the commit message does not carry.  The old
   "unformalized `L²` transfer" caveat needle is replaced in the same commit by the §49 block's
   `per-form \`pderiv\` table` caveat, since the caveat itself is now obsolete; the pderiv table is
   still not written down, so the caveat is preserved in its narrowed form rather than deleted.
+
+## 53. The per-form `pderiv` table, and `PotSelfBound` discharged (P4 closed)
+
+§52 left P4 depending on one input: for `j ∈ smS`, each `∂_j Φ_r` of the 49 forms is a linear form
+supported in `smS`.  §53 supplies it, and with it `PotSelfBound` stops being a hypothesis.
+
+### 53.1. Normal forms instead of 49 computations
+
+Writing the table out form by form would mean 49 computations through `levi`, `fabc`, `eabc`,
+`tgen`, `ygen` and the `Fin 3`/`Fin 8` index sums, and every one of them would be a place to be
+wrong.  `BookProof/Sm/ChapterSmGradTable.lean` avoids all of it with a *normal form*: `Biform A T`
+carries the polynomial together with its coefficients —
+
+  `poly = C cst + ∑_a C (linf a) · X a + ∑_a ∑_c C (sqf a c) · (X a * X c)`,
+
+with `linf` supported in `T` and `sqf` supported in `A × A`.  The constructors (`const`, `atom`,
+`atomSq`, `lin`, `sq`, `add`, `sub`, `smul`, `sum`) are closed under the shapes the Hamiltonian
+uses, so a form is recognised **by shape alone**, and the coefficients are whatever they are.
+
+Two lemmas then finish the job:
+
+* `pderiv_eq` — for `j ∈ A`, `∂_j poly = ∑_v C (sqf j v + sqf v j) · X v`.  The linear part
+  contributes `linf j`, which is `0` because `A` and `T` are disjoint; the bilinear part
+  contributes the row and the column of `sqf` at `j`.  `pderiv_lin_sum` and `pderiv_sq_sum` are the
+  two computations, both `Finset.sum_eq_single` plus the product rule.
+* `sq_le` — Cauchy–Schwarz against the coercive quadratic on `A`: the derivative's coefficients are
+  square-summed, so **no numerical constant is quoted anywhere**.  The support argument is the whole
+  point: the derivative coordinates `smDG`/`smDW`/`smDB`/`smDPhi` never appear.
+
+### 53.2. The five families and the 49
+
+`smT := univ \ smS`, `Disjoint smS smT` is `Finset.disjoint_sdiff`, and the four derivative families
+are proved outside `smS` by `notMem_of_coord` — membership in `smS` being membership in the image of
+`smMomCoord`, a four-case `SmMom` split resolved by `smIdx.injective`.  Then
+
+`biform_smMagG`/`biform_smMagW`/`biform_smMagB`/`biform_smCovD`/`biform_smWall`
+
+are `Biform smS smT` by `refine` chains of constructors, with the `_poly` lemmas closing by `rfl` —
+the built polynomial *is* the definitional formula, which is worth checking rather than asserting.
+`biform_form` assembles the `SmForm`-indexed family and `biform_smPhi P r := biform_form P
+(smFormFin.symm r)` is all 49.
+
+### 53.3. The discharge
+
+`gradBound_smPhi` is `GradBound` at the constant `∑_{j∈smS} ∑_r ∑_{v∈smS} (sqf j v + sqf v j)²`, by
+two `Finset.single_le_sum` steps, and
+
+  **`exists_potSelfBound_sm (P) (hc0 : 0 ≤ c0) : ∃ β, PotSelfBound P c0 β`**
+
+follows from §52's `exists_potSelfBound_of_gradBound`.  The elliptic input of P4 is therefore
+proved, not assumed — for the potential's own self-bound.
+
+### 53.4. What this does not say
+
+`PotSelfBound` is the *potential's* self-boundedness.  What still stands:
+
+* P5's physical input is untouched: `PhysicalPositivity` still needs the matter model's own quartet
+  data (§46/§47), and no physical inner product is claimed.
+* The joint model's dynamics — the identification of the gauge-fixed joint rational solver with this
+  comparison operator — is not addressed here; `PotSelfBound` is an estimate about `W`, not a
+  spectral statement about the joint operator.
+* `0 ≤ c₀` is needed (the `+1` shift of the comparison), and the constant `β` is produced, not
+  computed sharply.
+
+Six prose blocks claimed the self-bound was still open — §22, §23, §26, §27, §35 in `BookProof.lean`
+and `ChapterSmKineticGarding`'s docstring — and all of them, plus the two `PotSelfBound`-caveat
+needles in `scripts/check-sm-section-guards`, are corrected in this commit rather than left to
+contradict the theorem.
+
+### 53.5. Verification performed (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmGradTable` — clean, no warnings.
+* `lake env lean Work/SmGradTableAudit.lean` — 20 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake build BookProof.Sm.ChapterSmKineticGarding` — clean.
+* `scripts/check-sm-section-guards` — green, with the §53 needles (`exists_potSelfBound_sm`, and the
+  surviving `quartet data` caveat).
