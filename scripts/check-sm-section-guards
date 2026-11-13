@@ -291,6 +291,50 @@ require "$BOOKPLAN" 'physVec_not_exact' \
 require "$BOOKPLAN" 'is not `smBrstCharge`' \
     "§57 comment block must keep the 'not the SM charge' caveat"
 
+# ---- 11. §58 `VolDom` is false for the actual volume penalty -------------------
+# §56 reduced NS gradient domination to `VolDom`, and §58 shows `VolDom` is *false*: the unimodular
+# shears make `|grad V|^2/V^2` diverge like `4/eps^2`.  The reduction and the refutation must stay
+# together -- keeping `lagGradDom_of_volDom` and dropping the refutation would read the chain as
+# merely "open", and keeping the refutation while dropping the reduction loses what it refutes.
+VOLDOM=BookProof/Ns/ChapterNsGradDomCoercive.lean
+require "$VOLDOM" "theorem lagGradDom_of_volDom" \
+    "§58: the reduction to the volume penalty's own estimate"
+require "$VOLDOM" "theorem not_gradDom_flatSextic" \
+    "§58: sixth-order flatness is not enough either"
+require "$VOLDOM" "Correction (§58 of the plan, 2026-11-13)" \
+    "§58: the module must record that VolDom is false"
+require "scripts/eval-vol-dom.py" "4/eps^2" \
+    "§58: the evaluator must state the refuting scaling law"
+pair_require "$PLAN" 'the input this section reduces to, `VolDom`, is *false*' \
+    'the ratio `4/ε² → ∞`' "$PAIR_WINDOW" \
+    "§58: the plan's correction must pair the reduction with its refutation"
+
+# ---- 12. §59 sectors: global hypotheses cannot hold, closed-space ones do ------
+SEC=BookProof/Sm/ChapterSmIndexGhostSectors.lean
+require "$SEC" "theorem global_sectors_force_zero" \
+    "§59: the global sector hypotheses force the charge to vanish"
+require "$SEC" "theorem parity_globals_fail" \
+    "§59: the index model is a witness that they fail"
+require "$SEC" "theorem sector_hypotheses_closed" \
+    "§59: the closed-space sector hypotheses hold"
+pair_require "$PLAN" 'global_sectors_force_zero' 'parity_globals_fail' "$PAIR_WINDOW" \
+    "§59: the obstruction and its witness must stay together"
+require "$PLAN" 'have to be read on the closed space' \
+    "§59: the plan must keep the closed-space reading of the sector hypotheses"
+
+# ---- 13. §60 the Fock space already has a product; the identification is partial
+FOCK=BookProof/Sm/ChapterSmIndexGhostFock.lean
+require "$FOCK" "theorem occ_inner" \
+    "§60: the Fock occupation basis is orthonormal"
+require "$FOCK" "theorem ghostVec_orthonormal" \
+    "§60: the twelve ghost modes are an orthonormal system"
+require "$FOCK" "theorem ghost_pairing" \
+    "§60: the metric pairing is the Fock adjunction"
+require "$PLAN" 'No product structure was ever missing' \
+    "§60: the plan must keep the correction to item (xii)"
+require "$PLAN" 'is **not** the index complex at `n = 12`' \
+    "§60: the plan must keep the negative half of the identification"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

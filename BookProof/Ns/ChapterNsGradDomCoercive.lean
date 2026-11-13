@@ -40,9 +40,22 @@ So the potential splits into three blocks, and they behave differently:
   in §48.  Sixth-order flatness is not better than fourth-order flatness.
 
 So for NS the coercive blocks really are part of the model — this is stronger than the QYM
-`weylCoercive` situation, where the quadratic had to be added by hand — and what remains open is the
-penalty's own estimate, named `VolDom`, with a proof that "non-negative degree six" cannot be
-weakened to give it.
+`weylCoercive` situation, where the quadratic had to be added by hand — and what the model still
+needs is the penalty's own estimate, named `VolDom`, with a proof that "non-negative degree six"
+cannot be weakened to give it.
+
+**Correction (§58 of the plan, 2026-11-13).** `VolDom` is not merely unproved for `volPot`: it is
+**false**, so `lagGradDom_of_volDom` has an unsatisfiable hypothesis and the §49 chain cannot be run
+on `lagEnergy`/`lagLyap` at all.  The refuting family is the unimodular shears.  With `N = e_x ⊗ e_y`
+(`N² = 0`, so `det(I + tN) = 1` for every amplitude `t`) and a transversal tilt `εB`,
+`B = e_y ⊗ e_x`, one has `det F − 1 = −εt + O(ε²)`, hence `V_κ ≈ (κ/2)ε²t²`, `∂_t V_κ ≈ κε²t`,
+`∂_ε V_κ ≈ κεt²` and
+
+  `|∇V_κ|² / V_κ² → 4/ε²`   as `t → ∞`,
+
+which is unbounded as `ε → 0`.  `scripts/eval-vol-dom.py` evaluates the truncated model exactly and
+reproduces the `4/ε²` saturation.  The velocity and displacement blocks above are unaffected: they are
+coercive in the model and dominated with no constant.
 
 Everything here is `sorry`-free and `axiom`-free.
 -/
