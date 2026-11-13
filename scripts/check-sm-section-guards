@@ -34,6 +34,11 @@
 #      pattern is real and needs an argument" into "the pattern does not occur",
 #      which is the failure mode: the counterexample is what makes the §49
 #      hypothesis non-vacuous.
+#   6. §54 (downstream + QYM/NS) — `exists_potSelfBound_sm` is *used* (hpoly and the P2 bound are
+#      instantiated), and the same normal form is shown **not** to give gradient domination for the
+#      QYM potential (`not_gradDom_weylFlat`).  Keeping the instantiation and dropping the
+#      obstruction — or vice versa — reads the generic machinery as a generic theorem, which is the
+#      failure mode.
 #
 # The gate is deliberately textual: it cannot certify mathematics, only that a
 # later change did not *remove* the half of a pair that carries the caveat.
@@ -165,6 +170,10 @@ require "$BOOKPLAN" 'exists_potSelfBound_sm' \
     "§53 comment block must keep naming the theorem that closes the elliptic input"
 require "$BOOKPLAN" 'quartet data' \
     "§53 comment block must keep the surviving caveat (P5's quartet data is still unbuilt)"
+require "$BOOKPLAN" 'exists_kineticSum_bound_sm' \
+    "§54 comment block must keep saying the produced constant is used (hpoly instantiated)"
+require "$BOOKPLAN" 'not_gradDom_weylFlat' \
+    "§54 comment block must keep the QYM obstruction (gradient domination is not generic)"
 
 if [ "$FAILED" -ne 0 ]; then
     echo
