@@ -45,6 +45,16 @@
 #      reading as a limitation of the method rather than of the model.  Separately, the
 #      §55 text must keep saying that the SM quartet data is still unbuilt, since the
 #      attempt to build it was withdrawn and no claim was upgraded.
+#   8. §55 pairing (Kleene-style) — §54's `not_gradDom_weylFlat` and §55's
+#      `gradDom_weylCoercive_flat` are one statement in two halves: *this* model
+#      fails the domination and *this* model with the quadratic term satisfies it.
+#      A plain "both needles exist" test is not enough, because the two needles
+#      can survive in different sections while the prose that ties them together
+#      is rewritten: the pair can be split rather than deleted.  So the check is
+#      a co-occurrence window (`pair_require`): both sides must sit within
+#      §55's width of each other, `not_gradDom_weylFlat` first.  Failing to find
+#      either side, or finding them far apart, fails — the two ways of silently
+#      turning a sharp obstruction into a general one.
 #
 # The gate is deliberately textual: it cannot certify mathematics, only that a
 # later change did not *remove* the half of a pair that carries the caveat.
@@ -73,7 +83,40 @@ require() {
     fi
 }
 
+# `pair_require <file> <first> <second> <window> <why>` — both literals must occur in the
+# file, `first` before `second`, within `window` lines of each other.  This is the
+# Kleene-style half of the gate: "not both absent" is checked by `require`, and the
+# adjacency here checks "not separated", so the pair cannot be resolved by splitting it.
+pair_require() {
+    local file="$1" first="$2" second="$3" window="$4" why="$5"
+    if [ ! -f "$file" ]; then
+        fail "$file missing ($why)"
+        return
+    fi
+    local a b
+    a=$(grep -nF -- "$first" "$file" | head -1 | cut -d: -f1)
+    b=$(grep -nF -- "$second" "$file" | head -1 | cut -d: -f1)
+    if [ -z "$a" ]; then
+        fail "$file no longer contains '$first' ($why)"
+        return
+    fi
+    if [ -z "$b" ]; then
+        fail "$file no longer contains '$second' ($why)"
+        return
+    fi
+    if [ "$a" -ge "$b" ]; then
+        fail "$file states '$second' before '$first' ($why)"
+        return
+    fi
+    if [ $((b - a)) -gt "$window" ]; then
+        fail "$file separates '$first' (line $a) from '$second' (line $b) by more than \
+$window lines ($why)"
+        return
+    fi
+}
+
 BOOKPLAN=BookProof.lean
+PLAN=SM_ESA_COMPLETION_PLAN.md
 
 # ---- 1. §44 parity reduction (closure level) ---------------------------------
 require "BookProof/Sm/ChapterSmPhysicalReductionEsa.lean" \
@@ -184,6 +227,15 @@ require "$BOOKPLAN" 'gradDom_weylCoercive_flat' \
     "§55 comment block must keep the converse (the quadratic restores the bound at that model)"
 require "$BOOKPLAN" 'still a named input' \
     "§55 comment block must keep saying the SM quartet data is unbuilt"
+
+# ---- 8. §55: the obstruction and its converse stay one statement --------------
+# The window is overridable so the gate can be exercised negatively
+# (`SM_PAIR_WINDOW=10 scripts/check-sm-section-guards` must fail).
+PAIR_WINDOW=${SM_PAIR_WINDOW:-80}
+pair_require "$PLAN" 'not_gradDom_weylFlat' 'gradDom_weylCoercive_flat' "$PAIR_WINDOW" \
+    "§54/§55: the QYM obstruction and the coercive converse must be documented together"
+require "$PLAN" 'weylCoercive_eq_wsSum' \
+    "§55: the converse rests on the identification with the assembled wsSum, not on recomputation"
 
 if [ "$FAILED" -ne 0 ]; then
     echo
