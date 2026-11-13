@@ -1,5 +1,6 @@
 import Mathlib
 import BookProof.Sm.ChapterSmGradDomTransfer
+import BookProof.Qym.ChapterYangMillsNonAbelianEsa
 
 /-!
 # The per-form `pderiv` table for the 49 Standard-Model forms
@@ -370,6 +371,8 @@ theorem sq_le {A T : Finset (Fin d)} (b : Biform A T) (hdisj : Disjoint A T) {j 
 
 open BookProof.SmOneParticle BookProof.SmHamiltonian BookProof.SmFarisLavine
 open BookProof.YangMillsHermite
+open BookProof.SmFullMatter BookProof.SmFullCoupledCore BookProof.FarisLavine
+open BookProof.SmFullNormalFormBounds
 
 /-- The *derivative* coordinates: everything except the 40 momentum-carrying coordinates. -/
 noncomputable def smT : Finset (Fin 163) := Finset.univ \ BookProof.SmComparisonEsa.smS
@@ -602,5 +605,174 @@ theorem exists_potSelfBound_sm (P : SmParams) {c0 : ℝ} (hc0 : 0 ≤ c0) :
     (Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ =>
       Finset.sum_nonneg fun _ _ => sq_nonneg _)
     (gradBound_smPhi P)
+
+/-! ## 5. What the discharge unlocks: the elliptic chain, instantiated
+
+`PotSelfBound` is the last input of two theorems that were stated conditionally on it — §19's
+`hpoly` (`kineticSum_norm_le_of_pot_self_bound`) and §15's second-order family bound
+(`smNormalForm_norm_le_of_pot_self_bound`).  With `exists_potSelfBound_sm` both become theorems with
+`0 ≤ c₀` as the only hypothesis on the potential.  The `β` is *produced*: its value is whatever the
+constant of `gradBound_smPhi` gives, so the statements say `∃ β` rather than quoting one. -/
+
+/-- **Monotonicity of the self-bound in `β`** — a larger constant is a weaker inequality, which is
+what lets the produced `β` be replaced by its absolute value. -/
+theorem PotSelfBound_mono {P : SmParams} {c0 β β' : ℝ} (h : β ≤ β')
+    (hpot : BookProof.SmKineticGarding.PotSelfBound P c0 β) :
+    BookProof.SmKineticGarding.PotSelfBound P c0 β' :=
+  fun p => (hpot p).trans (mul_le_mul_of_nonneg_right h (norm_nonneg _))
+
+/-- **The self-bound with a non-negative constant.**  The chain produces some `β`; replacing it by
+`|β|` costs nothing because the inequality weakens as `β` grows. -/
+theorem exists_potSelfBound_sm_nonneg (P : SmParams) {c0 : ℝ} (hc0 : 0 ≤ c0) :
+    ∃ β, 0 ≤ β ∧ BookProof.SmKineticGarding.PotSelfBound P c0 β := by
+  obtain ⟨β, hβ⟩ := exists_potSelfBound_sm P hc0
+  exact ⟨|β|, abs_nonneg β, PotSelfBound_mono (le_abs_self β) hβ⟩
+
+/-- **`hpoly` of §19, instantiated.**  The kinetic sum is bounded by `(1 + β)` times the shifted
+comparison — no conditional self-bound, and no separate kinetic-sum estimate. -/
+theorem exists_kineticSum_bound_sm (P : SmParams) {c0 : ℝ} (hc0 : 0 ≤ c0) :
+    ∃ β, 0 ≤ β ∧ ∀ x : polyGaussCore (d := 163),
+      ‖(((∑ m : Fin 40, smPi m (smPi m x)) : polyGaussCore (d := 163)) : L2d 163)‖
+        ≤ (1 + β) * ‖smFlN P c0 x + ((x : polyGaussCore (d := 163)) : L2d 163)‖ := by
+  obtain ⟨β, hβ, hpot⟩ := exists_potSelfBound_sm_nonneg P hc0
+  exact ⟨β, hβ, fun x =>
+    BookProof.SmKineticGarding.kineticSum_norm_le_of_pot_self_bound P c0 hβ hpot x⟩
+
+/-- **The P2 second-order family bound, instantiated.**  §15's relative bound for the full normal
+form is conditional on the `§15`/`§19` data (`D`'s support).  The potential's self-bound is no longer
+among its hypotheses — it is discharged here with `∃ β`.  The four `_`-prefixed hypotheses
+(`_hpos`, `_hkin`, `_hcoord`, `_hmass`) are carried by `smNormalForm_norm_le_of_pot_self_bound`'s
+signature but not consumed by its proof; they are kept so this theorem is a drop-in replacement. -/
+theorem exists_smNormalForm_norm_le (P : SmParams) (D : SmNormalFormData) {c0 : ℝ} (hc0 : 0 ≤ c0)
+    (hSmom : ∀ j ∉ Finset.image smMomCoordFin Finset.univ, D.mom j = 0)
+    (Skin Scoord : Finset (Fin 163))
+    (hSkin : ∀ j ∉ Skin, D.kinetic j = 0) (hScoord : ∀ j ∉ Scoord, D.coord j = 0) :
+    ∃ β, 0 ≤ β ∧ ∀ f : SmCoupledCore,
+      ∀ (_hpos : ∀ x : polyGaussCore (d := 163), 0 ≤ quadForm (smFlN P c0) x),
+      ∀ (_hkin : ∀ j ∈ Skin, ∀ x : polyGaussCore (d := 163),
+          ‖((smKinetic j x : polyGaussCore (d := 163)) : L2d 163)‖
+            ≤ (1 + β) * ‖smFlN P c0 x + ((x : polyGaussCore (d := 163)) : L2d 163)‖),
+      ∀ (_hcoord : ∀ j ∈ Scoord, ∀ x : polyGaussCore (d := 163),
+          ‖((smPos j x : polyGaussCore (d := 163)) : L2d 163)‖
+            ≤ (1 + β) * ‖smFlN P c0 x + ((x : polyGaussCore (d := 163)) : L2d 163)‖),
+      ∀ (_hmass : ∀ x : polyGaussCore (d := 163),
+          ‖((x : polyGaussCore (d := 163)) : L2d 163)‖
+            ≤ (1 + β) * ‖smFlN P c0 x + ((x : polyGaussCore (d := 163)) : L2d 163)‖),
+      ‖smNormalForm D f‖
+        ≤ (1 + β) * normalFormConst D
+          * ‖coupledOp (smFlN P c0) 1 f + (f : SmCoupledSpace)‖ := by
+  obtain ⟨β, hβ, hpot⟩ := exists_potSelfBound_sm_nonneg P hc0
+  refine ⟨β, hβ, fun f hpos hkin hcoord hmass => ?_⟩
+  exact BookProof.SmKineticGarding.smNormalForm_norm_le_of_pot_self_bound P D c0 hβ hpot
+    hpos hSmom Skin Scoord hSkin hScoord hkin hcoord hmass f
+
+/-! ## 6. QYM and NS: the machinery transfers, the domination does not
+
+The normal form is not an SM artefact.  `Biform A T`, `pderiv_eq` and `sq_le` are stated for an
+arbitrary dimension, atom set and polynomial, so any form built from the constructors — the
+magnetic field strengths, the covariant Higgs derivatives, and equally the QYM Weyl shapes and the NS
+convection terms, all of which are "linear in a derivative, bilinear in a field" — is a normal form
+with its derivative linear and its square bounded by Cauchy–Schwarz.  What does **not** transfer is
+the *conclusion*, and the reason is structural rather than a gap in the proof: `sq_le` bounds
+`(∂_j Φ)²` by the coercive quadratic `1 + ∑_{m∈A} x_m²`, and the domination needs a `W` that contains
+that quadratic.  The Standard Model's `smPotPoly` carries `∑_m q_m²` (§49); the QYM comparison's
+Weyl potential `weylPotPoly Φ = ∑_j Φ_j² + 1` (plan §3, `BookProof/Qym/ChapterYangMillsNonAbelianEsa`)
+does not.
+
+The NS side is *not* instantiated, and this is a limitation rather than an omission: the corpus's NS
+modules are operator-level (`BookProof/Ns/*`), with no polynomial potential of this shape to evaluate,
+so there is nothing to run the `(t, 1/t)` computation against.  What transfers there is only the
+template: a potential built from bilinear forms alone has the same W-shape as the QYM instance below,
+and would fail the same way.
+
+So for those two models there is no `GradDom` instance to prove — the pointwise domination is
+**false**, by the same flat mechanism §48 exhibits.  The proof below is the QYM instance: `weylPotPoly`
+at the single bilinear form `X 0 * X 1` is `(X₀X₁)² + 1`, whose gradient grows without bound on
+`(t, 1/t)` while the potential stays `2`. -/
+
+/-- The QYM Weyl potential at one bilinear form: `weylPotPoly (fun _ : Fin 1 => X 0 * X 1)`. -/
+noncomputable def weylFlat : MvPolynomial (Fin 2) ℂ :=
+  (X (0 : Fin 2) * X 1) * (X (0 : Fin 2) * X 1) + (1 : MvPolynomial (Fin 2) ℂ)
+
+/-- `weylFlat` **is** the QYM potential `weylPotPoly` of the Weyl comparison, at the one bilinear form
+`X 0 * X 1` — so the obstruction below is about that model's potential, not an analogue of it. -/
+theorem weylFlat_eq_weylPotPoly :
+    weylFlat = BookProof.YangMillsNonAbelianEsa.weylPotPoly
+      (fun _ : Fin 1 => (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ)) := by
+  simp [weylFlat, BookProof.YangMillsNonAbelianEsa.weylPotPoly]
+
+theorem weylFlat_eq_flat_add : weylFlat = BookProof.SmReverseEllipticQuartic.flatQuartic + 1 := by
+  rw [weylFlat, BookProof.SmReverseEllipticQuartic.flatQuartic]
+  ring
+
+theorem evAt_add (x y : ℝ) (p q : MvPolynomial (Fin 2) ℂ) :
+    BookProof.SmReverseEllipticQuartic.evAt x y (p + q)
+      = BookProof.SmReverseEllipticQuartic.evAt x y p
+        + BookProof.SmReverseEllipticQuartic.evAt x y q := by
+  simp [BookProof.SmReverseEllipticQuartic.evAt, MvPolynomial.eval_add]
+
+theorem eval_weylFlat_zero (x y : ℝ) :
+    BookProof.SmReverseEllipticQuartic.evAt x y (pderiv 0 weylFlat)
+      = ((2 * x * y ^ 2 : ℝ) : ℂ) := by
+  rw [weylFlat_eq_flat_add, map_add, evAt_add,
+    BookProof.SmReverseEllipticQuartic.eval_flat_zero]
+  simp [BookProof.SmReverseEllipticQuartic.evAt]
+
+theorem eval_weylFlat_one (x y : ℝ) :
+    BookProof.SmReverseEllipticQuartic.evAt x y (pderiv 1 weylFlat)
+      = ((2 * x ^ 2 * y : ℝ) : ℂ) := by
+  rw [weylFlat_eq_flat_add, map_add, evAt_add,
+    BookProof.SmReverseEllipticQuartic.eval_flat_one]
+  simp [BookProof.SmReverseEllipticQuartic.evAt]
+
+theorem eval_weylFlat_self (x y : ℝ) :
+    BookProof.SmReverseEllipticQuartic.evAt x y weylFlat
+      = ((x ^ 2 * y ^ 2 + 1 : ℝ) : ℂ) := by
+  rw [weylFlat_eq_flat_add, evAt_add, BookProof.SmReverseEllipticQuartic.eval_flat_self]
+  simp [BookProof.SmReverseEllipticQuartic.evAt]
+
+/-- **The QYM/NS obstruction.**  For the Weyl-type potential — `Σ_j Φ_j² + c` with `Φ` bilinear, the
+shape QYM's comparison and an NS potential of bilinear forms both have — **no** pair of constants
+gives the pointwise gradient domination.  On `(t, 1/t)` the left side is `4/t² + 4t²` while the right
+side is the constant `4a + b`.  Hence the SM's route (`GradBound` → `pointwise_dom_of_sq_sum` →
+`GradDom`) is not available for those models: the coercive quadratic `∑_m q_m²` is what makes it work,
+and they do not carry one. -/
+theorem not_gradDom_weylFlat :
+    ¬ ∃ a b : ℝ, ∀ x y : ℝ,
+      ‖BookProof.SmReverseEllipticQuartic.evAt x y (pderiv 0 weylFlat)‖ ^ 2
+          + ‖BookProof.SmReverseEllipticQuartic.evAt x y (pderiv 1 weylFlat)‖ ^ 2
+        ≤ a * ‖BookProof.SmReverseEllipticQuartic.evAt x y weylFlat‖ ^ 2 + b := by
+  rintro ⟨a, b, h⟩
+  set t : ℝ := |a| + |b| + 2 with ht
+  have ht1 : 1 ≤ t := by rw [ht]; have := abs_nonneg a; have := abs_nonneg b; linarith
+  have ht0 : 0 < t := by linarith
+  have hpt := h t (1 / t)
+  rw [eval_weylFlat_zero, eval_weylFlat_one, eval_weylFlat_self] at hpt
+  have h0 : ‖((2 * t * (1 / t) ^ 2 : ℝ) : ℂ)‖ ^ 2 = 4 / t ^ 2 := by
+    rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
+    field_simp
+    ring
+  have h1 : ‖((2 * t ^ 2 * (1 / t) : ℝ) : ℂ)‖ ^ 2 = 4 * t ^ 2 := by
+    rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
+    field_simp
+    ring
+  have hW : ‖((t ^ 2 * (1 / t) ^ 2 + 1 : ℝ) : ℂ)‖ ^ 2 = 4 := by
+    rw [Complex.norm_real, Real.norm_eq_abs, sq_abs]
+    have htne : t ≠ 0 := by linarith
+    field_simp
+    ring
+  rw [h0, h1, hW] at hpt
+  have hpos : 0 ≤ 4 / t ^ 2 := by positivity
+  have h1' : 4 * t ^ 2 ≤ 4 * a + b := by linarith
+  have h3 : a ≤ |a| := le_abs_self a
+  have h4 : b ≤ |b| := le_abs_self b
+  have h6 : (0 : ℝ) ≤ |a| := abs_nonneg a
+  have h7 : (0 : ℝ) ≤ |b| := abs_nonneg b
+  have h2 : 4 * a + b ≤ 4 * t := by
+    rw [ht]
+    linarith
+  have h5 : 4 * t < 4 * t ^ 2 := by
+    nlinarith [mul_pos (by linarith : (0:ℝ) < t) (by linarith : (0:ℝ) < t - 1)]
+  linarith
 
 end BookProof.SmGradTable

@@ -3130,3 +3130,65 @@ contradict the theorem.
 * `lake build BookProof.Sm.ChapterSmKineticGarding` — clean.
 * `scripts/check-sm-section-guards` — green, with the §53 needles (`exists_potSelfBound_sm`, and the
   surviving `quartet data` caveat).
+
+## §54. What `PotSelfBound` now yields, and where the normal form stops (2026-11-13)
+
+### 54.1. The downstream statements are instantiated, not conditional
+
+§53 produced `∃ β, PotSelfBound P c₀ β` for `0 ≤ c₀`, while §15 and §19 state their consequences with
+`β` as a *parameter* — so on their own they were conditionals waiting for a value.  Four theorems in
+`ChapterSmGradTable` now discharge the wait:
+
+* `PotSelfBound_mono` — monotone in `β`.  Its use is the next line: the produced `β` can be replaced
+  by `|β|`.
+* `exists_potSelfBound_sm_nonneg` — `∃ β, 0 ≤ β ∧ PotSelfBound P c₀ β`.  Needed because `hpoly` and
+  the P2 bound both carry `1 + β`, where a sign of `β` is a sign inside a bound.
+* `exists_kineticSum_bound_sm` — **§19's `hpoly`**, by §26's `kineticSum_norm_le_of_pot_self_bound`:
+  `∃ β ≥ 0, ∀ x, ‖∑_m smPi m (smPi m x)‖ ≤ (1 + β) ‖smFlN P c₀ x + x‖`.  §22 and §26 recorded
+  `hpoly` and `PotSelfBound` as equivalent spellings of one statement; the equivalence is now an
+  instantiation rather than a promise.
+* `exists_smNormalForm_norm_le` — **§15's P2 second-order family bound**, by
+  `smNormalForm_norm_le_of_pot_self_bound`, at the same `∃ β`.
+
+§15's lemma carries four hypotheses (`_hpos`, `_hkin`, `_hcoord`, `_hmass`) that its proof does not
+consume.  They are kept — `_`-prefixed and documented in the docstring — so this theorem is a drop-in
+replacement; they are not silently deleted, and the statement is not quietly strengthened.
+
+### 54.2. The machinery transfers; the conclusion does not
+
+The second question — does the normal form prove QYM's and NS's gradient domination the same way? — has
+a split answer, and the split is the content.
+
+*The machinery transfers.*  `Biform A T`, `pderiv_eq` and `sq_le` quantify over the dimension, the atom
+set and the polynomial: nothing in them refers to the SM's 163 coordinates, to `smS`, or to the gauge
+content.  Any form that is "linear in a derivative, bilinear in a field" — the QYM field strengths, the
+NS convection terms, the SM's five families — *is* a normal form, with its derivative read off the
+coefficients and its square bounded by Cauchy–Schwarz.
+
+*The conclusion does not transfer*, and not because a proof is missing: `GradDom` is **false** for the
+QYM potential.  `sq_le` bounds `(∂_j Φ)²` by the coercive quadratic `1 + ∑_{m∈A} x_m²`, so the
+domination needs a `W` that contains that quadratic.  The SM's `smPotPoly` has `∑_m q_m²` (§49); the
+QYM comparison's Weyl potential is `weylPotPoly Φ = ∑_j Φ_j² + 1`, and at a single bilinear form it is
+literally `weylFlat`, which `weylFlat_eq_weylPotPoly` identifies with
+`BookProof/YangMillsNonAbelianEsa`'s `weylPotPoly (fun _ : Fin 1 => X₀X₁)`.  Then `not_gradDom_weylFlat`: there are no `a b` with
+`‖∂₀W‖² + ‖∂₁W‖² ≤ a‖W‖² + b` everywhere, because on the curve `(t, 1/t)` the left side is
+`4/t² + 4t²` while `W` stays `2`.  This is §48's flat mechanism, not a new phenomenon.
+
+### 54.3. What that means for P4 in those models
+
+The normal form is reusable — it is the right way to build a per-form `pderiv` table anywhere.  Gradient
+domination is an *analytic* input specific to potentials carrying a coercive quadratic; for QYM/NS it
+must be supplied from that model's own structure (a confining term, a mass term, or an anisotropic
+weight), not imported from the SM.  Nothing here claims QYM's or NS's elliptic estimate beyond this
+obstruction — and only the QYM instance is formalised: the corpus's NS modules are operator-level
+(`BookProof/Ns/*`), so there is no NS polynomial potential to run the `(t, 1/t)` computation against,
+and the NS statement is the proof template, not a proved counterexample.
+
+### 54.4. Verification performed (2026-11-13)
+
+* `lake env lean BookProof/Sm/ChapterSmGradTable.lean` — clean, no warnings.
+* `lake build BookProof.Sm.ChapterSmGradTable` — `Build completed successfully`.
+* `lake env lean Work/SmGradTableAudit.lean` — 30 declarations, every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `lake build BookProof` was **not** run to completion (it exceeded a 600 s budget); compiling the root
+  module `BookProof.lean` directly was the substitute check and is reported as exactly that.

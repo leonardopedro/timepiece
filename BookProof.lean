@@ -4217,6 +4217,17 @@ import BookProof.Sm.ChapterSmGradDomTransfer
 -- **`exists_potSelfBound_sm`** gives `∃ β, PotSelfBound P c₀ β` for `0 ≤ c₀` with no hypothesis on
 -- the forms.  What that does *not* give is any of P5's physical input (§46/§47's quartet data
 -- remains unbuilt) or a claim about the joint model's dynamics.
+-- `SM_ESA_COMPLETION_PLAN` §54 then uses that constant twice more.  Downstream it is made
+-- non-negative (`exists_potSelfBound_sm_nonneg`, `PotSelfBound_mono`), which instantiates §19's `hpoly`
+-- (`exists_kineticSum_bound_sm`) and §15's P2 relative bound (`exists_smNormalForm_norm_le`) at a `β`
+-- that is no longer a hypothesis — the four inert `_`-prefixed §15 hypotheses that remain are carried,
+-- not consumed, and are documented as such.  Across models, the machinery is dimension-generic and
+-- applies to the QYM/NS forms, but the *conclusion is not*: `not_gradDom_weylFlat` proves that no
+-- constants dominate the gradient of the QYM potential `weylPotPoly Φ = Σ_j Φ_j² + 1`
+-- (`weylFlat_eq_weylPotPoly` identifies the instance with `YangMillsNonAbelianEsa`), because it lacks
+-- the coercive quadratic `Σ_m q_m²` that makes `sq_le` pay off — §48's flat mechanism, at the model that
+-- needs it.  So gradient domination is a theorem for the SM and false as stated for QYM/NS: the
+-- reusable asset is the normal form, not the inequality.
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index
