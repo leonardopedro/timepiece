@@ -232,6 +232,46 @@ theorem wCommBound_one (col : ℕ → (ℕ →₀ ℂ)) {B : ℝ} (hB : 0 ≤ B)
   rw [hzero]
   exact hB
 
+/-- **An unbounded diagonal defeats the unweighted row gate.**  If the diagonal of the matrix
+dominates an unbounded sequence `d`, then `WRowBound (fun _ => 1) col K` fails for every `K`: the
+row `k` already contains the single entry `(col k) k`, so its sum is at least `d k`.  This is why
+the symbol `w ≡ 1` cannot serve the physical one-particle Hamiltonian, whose Hermite diagonal grows
+like `|k|`; a growing symbol is what makes the row gate satisfiable there. -/
+theorem not_wRowBound_one_of_diag_unbounded {col : ℕ → (ℕ →₀ ℂ)} {d : ℕ → ℝ}
+    (hdiag : ∀ k, d k ≤ ‖(col k) k‖) (hd : ∀ K : ℝ, ∃ k, K < d k) :
+    ¬ ∃ K : ℝ, WRowBound (fun _ => 1) col K := by
+  rintro ⟨K, hK⟩
+  obtain ⟨k, hk⟩ := hd (max K 0)
+  have hpos : 0 < d k := lt_of_le_of_lt (le_max_right K 0) hk
+  have hne : (col k) k ≠ 0 := by
+    intro h0
+    have h1 := hdiag k
+    rw [h0, norm_zero] at h1
+    linarith
+  have hmem : k ∈ (col k).support := Finsupp.mem_support_iff.mpr hne
+  have hle : ‖(col k) k‖ ≤ ∑ j ∈ (col k).support, ‖(col k) j‖ :=
+    Finset.single_le_sum (f := fun j => ‖(col k) j‖) (fun i _ => norm_nonneg _) hmem
+  have h2 : ∑ j ∈ (col k).support, ‖(col k) j‖ ≤ K := by
+    simpa using hK k
+  have hKg : K < d k := lt_of_le_of_lt (le_max_left K 0) hk
+  have hdK : d k ≤ ∑ j ∈ (col k).support, ‖(col k) j‖ := le_trans (hdiag k) hle
+  exact absurd hdK (not_le.mpr (lt_of_le_of_lt h2 hKg))
+
+/-- The matrix of the number operator `N = Σ_j a_j† a_j`, i.e. `N_kj = δ_kj · k`: diagonal with
+Heisenberg growth, no off-diagonal part.  Its diagonal is the model of the growth the physical
+`H₁ = ½Σπ² + ½ΣB²` shows in the product Hermite basis. -/
+def numberCol : ℕ → (ℕ →₀ ℂ) := fun k => Finsupp.single k (k : ℂ)
+
+/-- **The unweighted row gate is false for the number operator.**  So the collapse of the three
+Schur gates at `w ≡ 1` reduces the obligation to an estimate that no operator with unbounded
+diagonal can satisfy. -/
+theorem not_wRowBound_one_numberCol : ¬ ∃ K : ℝ, WRowBound (fun _ => 1) numberCol K :=
+  not_wRowBound_one_of_diag_unbounded (col := numberCol) (d := fun k => (k : ℝ))
+    (fun k => by
+      rw [numberCol, Finsupp.single_eq_same]
+      exact le_of_eq (Complex.norm_natCast k).symm)
+    (fun K => exists_nat_gt K)
+
 theorem sum_le_of_vanishing {f : ℕ → ℝ} {S L : Finset ℕ} (hf : ∀ j, 0 ≤ f j)
     (hz : ∀ j, j ∉ S → f j = 0) : ∑ j ∈ L, f j ≤ ∑ j ∈ S, f j := by
   classical
