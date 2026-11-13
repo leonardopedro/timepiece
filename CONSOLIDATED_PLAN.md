@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13h):** “State of the project — 2026-11-13h: the two `3`s are isomorphic
+> **Newest entry (2026-11-13i):** “State of the project — 2026-11-13i: the SIRK error bound is a
+> maximum-error theorem” (end of file): `sirk_error_opNorm_le` takes the supremum of the end-to-end
+> SIRK estimate over unit vectors — `‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m` — and
+> `sirk_opNorm_error_tendsto_zero` gives the worst-case convergence in the reduction order;
+> `softmodes.md`'s S3 now records the one missing link (a Ritz-residual seam) and why the
+> certificate should run on `γ⁻¹ − X_γ` rather than on `h_F`.
+>
+> **Earlier entry (2026-11-13h):** “State of the project — 2026-11-13h: the two `3`s are isomorphic
 > as `su(2)`-modules” (end of file): the meson triplet and the gluon adjoint triplet are now related
 > by a bundled linear equivalence `mesonAltEquiv : mesonSymm ≃ₗ glueballAlt`, proved to commute with
 > all three total actions (`mesonAltEquiv_intertwines`) and to carry the weights `1, 0, -1` to
@@ -23760,3 +23767,50 @@ warning naming the module; `#print axioms` on `mesonAltEquiv`, `mesonSymmEquiv�
 Casimir — the two summands sit in different ambient squares, so there is nothing to transport — and
 it says nothing about norms, closedness or dynamics, nor about how many copies of the `3` a larger
 colour tensor product carries.
+
+## State of the project — 2026-11-13i: the SIRK error bound is a maximum-error theorem
+
+The S3 work package asks for a bound on the error as the Krylov order grows.  The corpus already
+had that bound at a *seed*: `ChapterH4.sirk_error_bound_decay` gives
+`‖φ_k(A)v − V ψ(B) V∗v‖ ≤ 2 C e^{−hm} Dmin ‖v‖` from Crouzeix's inequality and the paper's
+Theorem 5 deformation, `ChapterH6.sirkBound` packages the right-hand side, and
+`sirk_error_bound_antitone` / `sirk_error_decay_exponential` / `tendsto_zero_of_le_sirkBound` show
+it decreases and vanishes.  What it did not have was the *maximum* over the space, which is what a
+residual certificate consumes, and it had no link from an approximation error to a Ritz residual
+at all.
+
+**The maximum-error form.**  `sirk_error_opNorm_le` applies
+`ContinuousLinearMap.opNorm_le_bound` to the pointwise estimate: from
+`∀ v, ‖flow v − sirkApprox V psiB v‖ ≤ sirkBound C Dmin h ‖v‖ m` it concludes
+`‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`.  The proof is the homogeneity of `sirkBound`
+in its fourth argument (`2 C Dmin e^{−hm} · ‖v‖ = (2 C Dmin e^{−hm} · 1) ‖v‖`), so the operator
+norm of the error is the same bound at `nv = 1`.  `sirk_opNorm_error_tendsto_zero` feeds that to
+`tendsto_zero_of_le_sirkBound`: when the constants do not depend on the order, the worst-case error
+over the whole space tends to `0` like `e^{−hm}` — no uniformity in the seed is needed, because the
+bound is already independent of it.
+
+**The S3 review.**  `softmodes.md` gains a dated section (2026-11-13i) that supersedes its S3
+paragraph and the `Sirk/` ledger rows on one question: what is proved about the error and what the
+mass-gap route should do next.  Its content is the honest gap analysis.  The rate is available;
+what is missing is (a) the *residual seam* — for a reduced eigenpair `psiB y = μ • y`, `‖y‖ = 1`,
+the reconstruction `V y` has `‖(X − μ)(V y)‖ ≤ ‖X − sirkApprox V psiB‖`, so `ε_m` becomes
+`ChapterRitzCertificate`'s `resid` and its Temple width `ε_m²/(β−θ)`; and (b) the observation that
+the certificate should be run on the shift-invert, not on `h_F`: the Hashimoto error *is* an error
+in `X_γ`, gaps transfer by `g = g_X (e₀+γ)(e₁+γ) ≥ γ² g_X`, and after the reflection
+`A' = γ⁻¹ − X_γ = h_F/(γ(h_F+γ))` Temple's bottom-edge hypothesis is the bounded-operator one.
+The section also records that the paper's admissibility condition `m < N_shift/s` makes the shift
+*budget* the order parameter — the exponent is capped by `N_shift`, not by the Krylov size — so a
+growing-budget theorem needs only `sup_m C_m < ∞` and `inf_m Dmin_m > 0`, and a campaign should
+stop at `s m ≈ N_shift`.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSirkEndToEnd` → `Build completed successfully
+(8034 jobs)`, no error or warning naming the module; `#print axioms` on both new theorems gives
+`[propext, Classical.choice, Quot.sound]`; no new line over 100 code points in the module or in
+`softmodes.md`'s new section.
+
+**Boundary.**  These are corollaries of the existing conditional bound: `C` (Crouzeix) and
+`hdecay : D ≤ e^{−hm} Dmin` remain the two named source-paper inputs, and neither is computed for
+`ymHamiltonian`.  Nothing here supplies the spectral separation `s_X` —
+`ChapterTempleSeparationNecessary` still says residual data alone cannot exclude an unseen lower
+eigenvalue — so S2 remains the gate and no mass gap is claimed.  The residual seam is stated in
+`softmodes.md` as the next item, not proved.

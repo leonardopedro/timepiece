@@ -41,6 +41,11 @@ constants `C`, `Dmin`, `h` abstract.
   convergence conclusions: the reduced flows converge to the exact one as the
   Krylov dimension grows, and — when the constants do not depend on the time —
   the convergence is **uniform in `t`** (the bound half of §12.2 Gap 3).
+* `sirk_error_opNorm_le` and `sirk_opNorm_error_tendsto_zero` are the bound in its
+  **maximum-error** form: the supremum over unit vectors gives
+  `‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`, and that worst-case
+  error vanishes in the reduction order.  A residual certificate needs the norm
+  bound, not the estimate at one seed.
 * `sirkApprox_id`, `sirkReconstruction_isIdempotent`,
   `sirkReconstruction_isSelfAdjoint`: the reconstruction step `V ∘ V∗` *is* the
   orthogonal projection onto the retained subspace (§12.2 Gap 4a).
@@ -244,6 +249,44 @@ theorem sirk_flow_error_tendsto_zero
     (hbound : ∀ m, ‖flow v - sirkApprox (V m) (psiB m) v‖ ≤ sirkBound C Dmin h ‖v‖ m) :
     Tendsto (fun m => ‖flow v - sirkApprox (V m) (psiB m) v‖) atTop (𝓝 0) :=
   tendsto_zero_of_le_sirkBound _ C Dmin h ‖v‖ hh (fun _ => norm_nonneg _) hbound
+
+/-- **The SIRK bound is a bound on the maximum error, not on one seed's error.**
+`sirk_end_to_end` estimates `‖flow v - sirkApprox V psiB v‖` at a single seed
+`v`.  Taking the supremum over the unit sphere turns that pointwise estimate into
+an operator-norm estimate on `flow - sirkApprox V psiB`: the largest error over
+*every* state in the Krylov space is bounded by the same `sirkBound`, evaluated at
+`nv = 1`.  This is the form a spectral certificate consumes — a residual bound
+has to hold for the vector it is given, not only for the seed it was built from. -/
+theorem sirk_error_opNorm_le (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) (flow : E →L[ℂ] E)
+    (C Dmin h : ℝ) (m : ℕ) (hC : 0 ≤ C) (hD : 0 ≤ Dmin)
+    (hpoint : ∀ v : E, ‖flow v - sirkApprox V psiB v‖ ≤ sirkBound C Dmin h ‖v‖ m) :
+    ‖flow - sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m := by
+  have hB : 0 ≤ sirkBound C Dmin h 1 m := by
+    rw [sirkBound]
+    exact mul_nonneg
+      (mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) hC)
+        (le_of_lt (Real.exp_pos _))) hD) (by norm_num)
+  refine ContinuousLinearMap.opNorm_le_bound _ hB fun v => ?_
+  rw [ContinuousLinearMap.sub_apply]
+  calc ‖flow v - sirkApprox V psiB v‖ ≤ sirkBound C Dmin h ‖v‖ m := hpoint v
+    _ = sirkBound C Dmin h 1 m * ‖v‖ := by
+      simp only [sirkBound]
+      ring
+
+/-- **The maximum error tends to zero in the reduction order.**  The operator-norm
+form of `sirk_flow_error_tendsto_zero`: if the end-to-end bound holds at every
+order with the *same* constants, the worst-case error over the whole space — not
+merely the error at the seed — vanishes like `e^{-hm}`.  A spectral certificate at
+a finite order therefore only needs the same three constants the pointwise bound
+already needs. -/
+theorem sirk_opNorm_error_tendsto_zero
+    {G : ℕ → Type*} [∀ m, NormedAddCommGroup (G m)] [∀ m, InnerProductSpace ℂ (G m)]
+    [∀ m, CompleteSpace (G m)]
+    (flow : E →L[ℂ] E) (V : ∀ m, G m →L[ℂ] E) (psiB : ∀ m, G m →L[ℂ] G m)
+    (C Dmin h : ℝ) (hh : 0 < h)
+    (hbound : ∀ m, ‖flow - sirkApprox (V m) (psiB m)‖ ≤ sirkBound C Dmin h 1 m) :
+    Tendsto (fun m => ‖flow - sirkApprox (V m) (psiB m)‖) atTop (𝓝 0) :=
+  tendsto_zero_of_le_sirkBound _ C Dmin h 1 hh (fun _ => norm_nonneg _) hbound
 
 /-- **Uniformity in time (§12.2 Gap 3, the bound half).**  If the SIRK constants
 `C`, `Dmin`, `h` can be chosen independently of the time, then the convergence of
