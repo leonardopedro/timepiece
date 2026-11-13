@@ -23260,13 +23260,19 @@ Nothing in the chapter supplies Schur's lemma or weights, so the argument is wri
 errors, no `sorry`; `#print axioms` on `glueball_decompose_unique`, `glueballTraceless_irreducible`,
 `glueballWeightBasis`, `glueballWeightProjection` and `glueballWeightVec_linearIndependent` gives
 `[propext, Classical.choice, Quot.sound]`; no line of the new block exceeds 100 code points.  The
-build does report linter warnings naming the module, all of them in the eight ladder-coordinate lemmas
-and the weight-eigenvector check: `linter.flexible` and `linter.unusedSimpArgs` on the mechanical
-`simp` sets that expand the closed forms entry by entry — the `simp?`-minimal list differs from
-theorem to theorem and the `ℂ`-arithmetic close differs from coordinate to coordinate, so one fixed
-list per theorem still trips the per-declaration unused-argument check.  These are style warnings; the
-kernel checks are unaffected; they were left in the tree rather than silenced with `set_option`, and
-they should be reworked into per-theorem `simp only` lists if this block is touched again.
+module builds with no warning of its own.  The eight ladder-coordinate lemmas and the weight-eigenvector
+and trace checks are closed by a per-theorem `simp only` list followed by `norm_num` on
+`Complex.ext_iff`, replacing the bare `simp [...]` / `(apply Complex.ext)` chains that tripped
+`linter.flexible`, `linter.unusedSimpArgs`, `linter.unusedTactic` and the multi-goal style linter.  The
+lists follow the shape of each statement rather than a single union: the two Up ladders (and the
+eigenvector and trace checks) reduce through `PiLp.add_apply`, the four Down ladders through
+`PiLp.sub_apply` (the ladder `A¹ - i A⁰` is a subtraction), the closed `![...]` forms through the
+`Matrix.cons_val` simproc, and the `ℂ` arithmetic through `norm_num [Complex.ext_iff, …, Complex.I_mul_I]`
+— so `I² = -1` is no longer discharged by a trailing `try rw [pow_two, Complex.I_mul_I]` that some
+coordinates never reach.  `lake build` still prints nine warnings, but each comes from another module
+in the same import cone (`ChapterHermiteFunctions`, `ChapterWeylHamiltonian`,
+`ChapterYangMillsFriedrichs`, `ChapterFriedrichsExtension`, `ChapterFockNumberPreservingGap`); none
+names this chapter.
 
 **Boundary.**  Still finite-dimensional `su(2)` representation theory on the two squares.  The
 irreducibility statement is for `Sym²₀` only: the antisymmetric `3` is identified with the adjoint as

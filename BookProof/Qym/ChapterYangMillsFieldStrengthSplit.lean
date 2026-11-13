@@ -6756,7 +6756,10 @@ theorem glueballWeightVec_symm (k : Fin 5) : glueballWeightVec k ∈ glueballSym
 /-- Every weight vector is traceless. -/
 theorem glueballWeightVec_traceless (k : Fin 5) : glueballWeightVec k ∈ glueballTraceless := by
   refine ⟨glueballWeightVec_symm k, ?_⟩
-  fin_cases k <;> simp [glueballWeightVec, glueballTraceCoords] <;> norm_num
+  fin_cases k <;>
+    simp only [glueballWeightVec, glueballTraceCoords, WithLp.ofLp_toLp, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, Matrix.cons_val_zero] <;>
+    norm_num
 
 /-- The weight vectors are eigenvectors of the third total action. -/
 theorem glueballWeightVec_eigen (k : Fin 5) :
@@ -6766,8 +6769,10 @@ theorem glueballWeightVec_eigen (k : Fin 5) :
   rw [glueballAct_ofLp, glueballRep_two_mulVec]
   funext i
   fin_cases k <;> fin_cases i <;>
-    simp [glueballWeightVec, glueballWeight] <;>
-    ring_nf <;> (try rw [pow_two, Complex.I_mul_I]) <;> norm_num <;> (try ring)
+    simp only [glueballWeightVec, glueballWeight, WithLp.ofLp_toLp, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, PiLp.smul_apply, smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im,
+      Complex.I_mul_I]
 
 /-- Powers of the third total action act on a weight vector by the power of its weight. -/
 theorem glueballWeightVec_pow (m : ℕ) (k : Fin 5) :
@@ -6847,11 +6852,10 @@ theorem glueballLadderUp_zero :
   rw [glueballLadderUp_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.add_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 theorem glueballLadderUp_one :
     glueballLadderUp (glueballWeightVec 1) = Complex.I • glueballWeightVec 2 := by
@@ -6859,11 +6863,10 @@ theorem glueballLadderUp_one :
   rw [glueballLadderUp_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.add_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 theorem glueballLadderUp_two :
     glueballLadderUp (glueballWeightVec 2) = (-6 * Complex.I) • glueballWeightVec 3 := by
@@ -6871,11 +6874,10 @@ theorem glueballLadderUp_two :
   rw [glueballLadderUp_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.add_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 theorem glueballLadderUp_three :
     glueballLadderUp (glueballWeightVec 3) = (2 * Complex.I) • glueballWeightVec 4 := by
@@ -6883,11 +6885,10 @@ theorem glueballLadderUp_three :
   rw [glueballLadderUp_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.add_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 theorem glueballLadderDown_one :
     glueballLadderDown (glueballWeightVec 1) = (2 * Complex.I) • glueballWeightVec 0 := by
@@ -6895,11 +6896,10 @@ theorem glueballLadderDown_one :
   rw [glueballLadderDown_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.sub_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 theorem glueballLadderDown_two :
     glueballLadderDown (glueballWeightVec 2) = (-6 * Complex.I) • glueballWeightVec 1 := by
@@ -6907,11 +6907,10 @@ theorem glueballLadderDown_two :
   rw [glueballLadderDown_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.sub_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 theorem glueballLadderDown_three :
     glueballLadderDown (glueballWeightVec 3) = Complex.I • glueballWeightVec 2 := by
@@ -6919,11 +6918,10 @@ theorem glueballLadderDown_three :
   rw [glueballLadderDown_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.sub_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 theorem glueballLadderDown_four :
     glueballLadderDown (glueballWeightVec 4) = (-2 * Complex.I) • glueballWeightVec 3 := by
@@ -6931,11 +6929,10 @@ theorem glueballLadderDown_four :
   rw [glueballLadderDown_apply]
   funext i
   fin_cases i <;>
-    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
-      smul_eq_mul]
-  all_goals (apply Complex.ext)
-  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
-  all_goals norm_num
+    simp only [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.sub_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
 
 /-- **The weight vectors are linearly independent**: the Lagrange projector at `k` reads off the
 `k`-th coordinate. -/
