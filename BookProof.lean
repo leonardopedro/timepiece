@@ -2859,7 +2859,7 @@ import BookProof.Qym.ChapterYangMillsBandBounds
 -- `ymHermCol_row_col_gates` proves the row and column gates with one explicit constant (the band
 -- makes `(deg+1)²` slowly varying across four degrees), so
 -- `ymHermCol_essentiallySelfAdjointOn_core_of_commBound` leaves exactly one hypothesis — the
--- commutator gate — and the module records why that gate cannot hold at order `4`.
+-- commutator gate — and the module records why the band calculus cannot supply it at order `4`.
 import BookProof.Qym.ChapterYangMillsWeightedGates
 
 -- `ChapterYangMillsGhostSector` (2026-09-07 wave): the Faddeev–Popov ghost sector of the 3D

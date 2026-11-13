@@ -25,15 +25,26 @@ column gate needs one extra observation — over a band of radius `4` in the deg
 * `ymHermCol_essentiallySelfAdjointOn_core_of_commBound` — **one hypothesis left**: given the
   commutator gate, `dΓ(H₁)` is essentially self-adjoint on the finite-occupation core.
 
-## Honest boundary
+## Honest boundary — and a correction
 
-The commutator gate is *not* proved, and it is not merely unproved.  With `w = (deg+1)²` and a
-band of radius `r` in the degree, the commutator weight
-`|w_j² − w_k²| / (w_k w_j) = |w_j/w_k − w_k/w_j|` is of order `1/deg` across the band while the
-entries are of order `deg²`, so the gate's terms grow like `deg` and no constant bounds them.
-This is the order obstruction the header of `BookProof.YangMillsBandBounds` records: the gate
-route is order-`2`-adapted, and the non-abelian magnetic field makes `H₁` order `4`.  Nothing
-below closes that gap; the second theorem above is explicitly conditional on it.
+The commutator gate is **not proved here, and the band calculus cannot supply it.**  With
+`w = (deg+1)²` the gate's weight factor is
+`|w_j² − w_k²| / (w_k w_j) = |w_j/w_k − w_k/w_j|`, which across a band of fixed radius in the
+degree behaves like `D/deg`; the band calculus offers only the *upper* bound
+`|A_{kj}| ≤ C (deg k + 1)²` on the entries, so that bound alone is consistent with gate terms
+of size `Θ(deg)`, not with a bounded sum.  The gate therefore needs information the band
+calculus does not carry — decay of the actual coefficients, not their degree — and nothing
+below supplies it.  This is the order obstruction the header of
+`BookProof.YangMillsBandBounds` records: the gate route is order-`2`-adapted, and the
+non-abelian magnetic field makes `H₁` order `4`.  The second theorem above is explicitly
+conditional on the gate.
+
+**Correction (2026-11-13b).**  An earlier revision of this header asserted that the gate is
+*false* for this symbol, on the grounds that the entries are `Θ(deg²)`.  That was wrong: only an
+*upper* bound `C(deg+1)²` is available, and no lower bound on any entry is proved anywhere in the
+corpus, so no failure of the gate is established — nor could one be, on upper bounds alone.
+What is established is the weaker, still useful statement: the three gates are not all
+derivable from the band bounds, and the missing one is the commutator gate.
 
 Everything is `sorry`-free and `axiom`-free.
 -/
