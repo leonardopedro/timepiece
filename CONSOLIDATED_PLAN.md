@@ -7,8 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13b):** “State of the project — 2026-11-13b: the Yang–Mills band bounds are
-> two of the three gates” (end of file): `BookProof/Qym/ChapterYangMillsWeightedGates.lean` turns
+> **Newest entry (2026-11-13c):** “State of the project — 2026-11-13c: the antisymmetric `3` is
+> irreducible too” (end of file): `Λ² ℂ³` is handled by the same weight argument one dimension lower —
+> weights `1, 0, -1` (`glueballAltWeightVec_eigen`), the Lagrange projector
+> `glueballAltWeightProjection`, the basis `glueballAltWeightBasis`, and the same ladders
+> `A¹ ∓ i A⁰` — so `glueballAlt_irreducible` closes the last gap `13a` named and `3 ⊕ 1 ⊕ 5` is a
+> split into irreducibles on the glueball side.
+>
+> **Earlier entry (2026-11-13b):** “State of the project — 2026-11-13b: the Yang–Mills band bounds are
+> two of the three gates”: `BookProof/Qym/ChapterYangMillsWeightedGates.lean` turns
 > `ym_hermCol_band_bounds` (at most `M` entries per column, band radius `4`, entries `≤ C (deg+1)²`)
 > into the row and column gates against the symbol `w_k = ((deg (e k) : ℝ) + 1)²`.
 >
@@ -23410,3 +23417,46 @@ relation between the two bases is proved here; a bridge would be a separate pack
 **Verification.**  `lake env lean` and `lake build BookProof.Qym.ChapterYangMillsWeightedGates`
 (8148 jobs) both clean; `#print axioms` on both headline theorems gives only
 `propext, Classical.choice, Quot.sound`; no line over 100 characters.
+
+## State of the project — 2026-11-13c: the antisymmetric `3` is irreducible too
+
+`13a` closed the irreducibility of `Sym²₀` and named the antisymmetric `3` as still unproved — it
+was identified with the adjoint (`glueballAltEquiv`) but not shown irreducible.  The weight argument
+is one dimension lower and is now written out for `Λ² ℂ³`, so `3 ⊕ 1 ⊕ 5` is a split into
+irreducibles on the glueball side.
+
+**The weights.**  `glueballAltWeightVec` lists three antisymmetric vectors of weights `1, 0, -1`
+under the third total action (`glueballAltWeightVec_eigen`): the `1`-weight vector is
+`e₀₂ + i e₁₂` with its antisymmetric partners, the `0`-weight vector is `e₀₁ - e₁₀`, which is
+`glueballAltVec1`, and the `-1`-weight vector is `i e₁₂ - e₀₂`.  That all three lie in `Λ²` is
+`glueballAltWeightVec_mem`, a two-coordinate check each.
+
+**The projectors.**  `glueballAltLagrange` holds the coefficients of `p₁(t) = t(t+1)/2`,
+`p₀(t) = 1 - t²` and `p₋₁(t) = t(t-1)/2`; `glueballAltLagrange_spec` is the Lagrange property
+`Σ_m L_{km} w_i^m = δ_ik`, and `glueballAltWeightProjection` turns it into the operator identity —
+the projector at `k` reads off the `k`-th weight coordinate of any combination of the three vectors.
+Applied to a relation `Σ c_k v_k = 0` that gives `glueballAltWeightVec_linearIndependent`, hence the
+basis `glueballAltWeightBasis` of the summand, whose dimension is `glueballAlt_finrank = 3`.
+
+**The ladders.**  The ladders are the `13a` ones, `A¹ ∓ i A⁰`, and their action on `Λ²` is simpler
+than on `Sym²₀`: `glueballLadderDown_alt_zero` and `glueballLadderUp_alt_zero` send the `0`-weight
+vector to the `1`- and `-1`-weight ones with coefficient `1`, while `glueballLadderUp_alt_one` and
+`glueballLadderDown_alt_two` send each end back to `2` times the `0`-weight vector.  Four relations
+suffice because everything passes through the middle weight; no step out of an end is taken.
+
+**Irreducibility.**  `glueballAlt_irreducible`: a subspace `W ≤ glueballAlt` preserved by all three
+total actions is `⊥` or `glueballAlt`.  The proof is the `13a` one with `Fin 5` replaced by `Fin 3`:
+take `0 ≠ z ∈ W`, expand it in the weight basis, use the projector at a nonzero coefficient to
+extract that weight vector, and reach the other two weights with the four relations — from weight `1`
+by two `Up` steps, from weight `-1` by two `Down` steps, from weight `0` by one step either way.  A
+general vector of `W` is then a combination of all three, so `W = glueballAlt`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
+errors, no `sorry`, no warning naming the module; `#print axioms` on `glueballAlt_irreducible`,
+`glueballAltWeightBasis`, `glueballAltWeightProjection`, `glueballAltWeightVec_eigen` and
+`glueballLadderUp_alt_one` gives `[propext, Classical.choice, Quot.sound]`; the new block has no
+line over 100 code points.
+
+**Boundary.**  Both `3`s and the `5` are now irreducible on the glueball side; the meson square's
+`3` and its `1` are not, which is the remaining half of the same question.  Nothing here concerns
+the chapter's Fock model or any Hamiltonian, and no norm or closedness of the actions is claimed.

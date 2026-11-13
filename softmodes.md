@@ -963,8 +963,14 @@ zero by `glueballAlt_inf_symm`).  The `5` is irreducible, not merely invariant:
 (`glueballWeightVec_eigen`), Lagrange projectors reading off one weight coordinate
 (`glueballLagrange`, `glueballWeightProjection`), the basis `glueballWeightBasis`, and the pure
 ladders `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) that carry a weight vector to a
-nonzero multiple of its neighbour.  Not proved there: the irreducibility of the antisymmetric `3`
-(only its isomorphism with the adjoint) or of the meson triplet.  The identification is
+nonzero multiple of its neighbour.  The antisymmetric `3` is irreducible by the same argument one
+dimension lower: `glueballAlt_irreducible`, with weights `1, 0, -1`
+(`glueballAltWeightVec_eigen`), the Lagrange projector `glueballAltWeightProjection`, the basis
+`glueballAltWeightBasis`, and the same ladders — the `0`-weight vector goes to each end with
+coefficient `1` (`glueballLadderDown_alt_zero`, `glueballLadderUp_alt_zero`) and each end comes back
+to twice it (`glueballLadderUp_alt_one`, `glueballLadderDown_alt_two`), so every invariant subspace
+containing one weight vector contains all three.  Not proved: the irreducibility of the meson
+triplet.  The identification of the two `3`s is
 stronger than a dimension count: the
 `ε`-contraction `glueballAltEquiv` is a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and
 `glueballAltMap_intertwines` shows it carries the total action to `adjRep`, as

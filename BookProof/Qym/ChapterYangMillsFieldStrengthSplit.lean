@@ -1557,6 +1557,12 @@ above.  This section states that identification and proves what it yields.
   the combinations `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) are pure ladders,
   carrying a weight vector to a nonzero multiple of a single neighbour — so a subspace containing
   one weight vector contains all five, and any nonzero vector of a preserved one yields one;
+* **`glueballAlt_irreducible`** — the antisymmetric `3` is irreducible as well, by the same
+  argument one dimension lower: the weights `1`, `0`, `-1` of `Λ² ℂ³` are read off by
+  `glueballAltWeightVec_eigen`, `glueballAltLagrange`'s projectors give
+  `glueballAltWeightProjection`, the three vectors are a basis (`glueballAltWeightBasis`), and the
+  same ladders `A¹ ∓ i A⁰` carry the `0`-weight vector to each end and each end back to twice it —
+  so no invariant subspace sits inside the `3`;
 * **`colourTerm_star_eq`**, **`colourPair_re_symm`**, **`colourDiag_re`**,
   **`colouredHamiltonian_quadForm_re_split`** — the **Hermitian-`C`** form: for `C` with
   `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star (it is real), the `(j,i)`
@@ -3779,16 +3785,19 @@ by the weight argument of `su(2)` — the weights `2`, `1`, `0`, `-1`, `-2`
 (`glueballWeightProjection`), the resulting basis `glueballWeightBasis`, and the pure ladders
 `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) carrying a weight vector to a nonzero
 multiple of its neighbour — so `3 ⊕ 1 ⊕ 5` is a split into blocks with no invariant refinement
-inside the `5`.  Still not proved here: the irreducibility of the antisymmetric `3` (only its
-identification with the adjoint, `glueballAltEquiv`), and the corresponding statement for the meson
-triplet.  The trace line is annihilated outright, not merely killed
-by the Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`, which is what
-"singlet of the Lie algebra" means here, and the eigenvalue `0` follows from it.  The two `3`s are
-the same `su(2)`-module: `glueballAltEquiv` is the `ε`-contraction, `glueballAltMap_intertwines` and
-`mesonSymmMap_intertwines` match each summand with the adjoint action, and `mesonSymm_glueball_iso`
-is the transported statement.  Also not claimed: norms or closedness of these actions.  The singlet
-and flip proofs are coordinate checks — `glueballRep_zero_mulVec` and its siblings give the three
-total actions of the glueball fibre in closed form — not a Clebsch–Gordan expansion.
+inside the `5`, and the antisymmetric `3` is irreducible too (`glueballAlt_irreducible`), by the
+same argument one dimension lower: weights `1`, `0`, `-1` (`glueballAltWeightVec_eigen`), the
+Lagrange projector `glueballAltWeightProjection`, the basis `glueballAltWeightBasis` and the same
+ladders, so `3 ⊕ 1 ⊕ 5` is a split into irreducibles on the glueball side.  Still not proved here:
+the corresponding statement for the meson triplet.  The trace line is annihilated outright, not
+merely killed by the Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`,
+which is what "singlet of the Lie algebra" means here, and the eigenvalue `0` follows from it.  The
+two `3`s are the same `su(2)`-module: `glueballAltEquiv` is the `ε`-contraction,
+`glueballAltMap_intertwines` and `mesonSymmMap_intertwines` match each summand with the adjoint
+action, and `mesonSymm_glueball_iso` is the transported statement.  Also not claimed: norms or
+closedness of these actions.  The singlet and flip proofs are coordinate checks —
+`glueballRep_zero_mulVec` and its siblings give the three total actions of the glueball fibre in
+closed form — not a Clebsch–Gordan expansion.
 -/
 
 /-- The fundamental slot of a colour index in `ℂ² ⊗ ℂ²`: `i / 2`. -/
@@ -7082,6 +7091,300 @@ theorem glueballTraceless_irreducible (W : Submodule ℂ (colourVec 9))
     have hsum := glueballWeightBasis.sum_repr (⟨v, hv⟩ : glueballTraceless)
     have h := congrArg (fun x : glueballTraceless => (x : colourVec 9)) hsum
     simp only [Submodule.coe_sum, Submodule.coe_smul, glueballWeightBasis_apply] at h
+    exact h.symm
+  rw [hvsum]
+  exact Submodule.sum_mem W fun i _ => Submodule.smul_mem W _ (hall i)
+
+/-! ##### The antisymmetric summand is irreducible
+
+`Λ² ℂ³` is the adjoint representation, so the weight argument runs one dimension lower: three
+weights `1, 0, -1` (`glueballAltWeightVec_eigen`), a Lagrange projector that reads off one weight
+coordinate (`glueballAltWeightProjection`), the resulting basis (`glueballAltWeightBasis`) and the
+same ladders `A¹ ∓ i A⁰` (`glueballLadderDown`, `glueballLadderUp`).  The middle weight reaches both
+ends — `A¹ ∓ i A⁰` carries the `0`-weight vector to the `±1`-weight one, and each end back to twice
+the `0`-weight vector — so no step out of an end is needed, and the summand is irreducible
+(`glueballAlt_irreducible`).
+-/
+
+/-- The `T³` weights of the three antisymmetric weight vectors. -/
+def glueballAltWeight : Fin 3 → ℂ := ![1, 0, -1]
+
+/-- A weight basis of the antisymmetric summand: weights `1, 0, -1`. -/
+def glueballAltWeightVec : Fin 3 → colourVec 9 :=
+  ![WithLp.toLp 2 ![0, 0, 1, 0, 0, Complex.I, -1, -Complex.I, 0],
+    WithLp.toLp 2 ![0, 1, 0, -1, 0, 0, 0, 0, 0],
+    WithLp.toLp 2 ![0, 0, -1, 0, 0, Complex.I, 1, -Complex.I, 0]]
+
+/-- Every weight vector of the antisymmetric summand is antisymmetric. -/
+theorem glueballAltWeightVec_mem (k : Fin 3) : glueballAltWeightVec k ∈ glueballAlt := by
+  intro i
+  fin_cases k <;> fin_cases i <;> simp [glueballAltWeightVec, glueballFlipIdx]
+
+/-- The antisymmetric weight vectors are eigenvectors of the third total action. -/
+theorem glueballAltWeightVec_eigen (k : Fin 3) :
+    glueballActLinear 2 (glueballAltWeightVec k) =
+      glueballAltWeight k • glueballAltWeightVec k := by
+  apply WithLp.ofLp_injective
+  simp only [glueballActLinear, LinearMap.coe_mk, AddHom.coe_mk]
+  rw [glueballAct_ofLp, glueballRep_two_mulVec]
+  funext i
+  fin_cases k <;> fin_cases i <;>
+    simp only [glueballAltWeightVec, glueballAltWeight, WithLp.ofLp_toLp, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, PiLp.smul_apply, smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im,
+      Complex.I_mul_I]
+
+/-- Powers of the third total action act on an antisymmetric weight vector by the power of its
+weight. -/
+theorem glueballAltWeightVec_pow (m : ℕ) (k : Fin 3) :
+    (glueballActLinear 2 ^ m) (glueballAltWeightVec k) =
+      (glueballAltWeight k) ^ m • glueballAltWeightVec k := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    rw [pow_succ, Module.End.mul_apply, glueballAltWeightVec_eigen, map_smul, ih, smul_smul,
+      pow_succ, mul_comm]
+
+/-- The Lagrange projector coefficients of the three weights, as a `3 × 3` matrix. -/
+noncomputable def glueballAltLagrange : Fin 3 → Fin 3 → ℂ :=
+  !![0, 1 / 2, 1 / 2;
+     1, 0, -1;
+     0, -1 / 2, 1 / 2]
+
+/-- The antisymmetric Lagrange projectors evaluate to the Kronecker delta on the weights. -/
+theorem glueballAltLagrange_spec (k i : Fin 3) :
+    (∑ m : Fin 3, glueballAltLagrange k m * (glueballAltWeight i) ^ (m : ℕ)) =
+      if i = k then 1 else 0 := by
+  fin_cases k <;> fin_cases i <;>
+    simp [glueballAltLagrange, glueballAltWeight, Fin.sum_univ_succ] <;> norm_num
+
+/-- **The antisymmetric Lagrange projector reads off one weight coordinate.** -/
+theorem glueballAltWeightProjection (k : Fin 3) (c : Fin 3 → ℂ) :
+    (∑ m : Fin 3, glueballAltLagrange k m • (glueballActLinear 2 ^ (m : ℕ)))
+        (∑ i : Fin 3, c i • glueballAltWeightVec i) = c k • glueballAltWeightVec k := by
+  have hterm (i : Fin 3) :
+      (∑ m : Fin 3, glueballAltLagrange k m • (glueballActLinear 2 ^ (m : ℕ)))
+          (c i • glueballAltWeightVec i) =
+        ((∑ m : Fin 3, glueballAltLagrange k m * (glueballAltWeight i) ^ (m : ℕ))) •
+          (c i • glueballAltWeightVec i) := by
+    rw [LinearMap.sum_apply]
+    simp only [LinearMap.smul_apply, map_smul, glueballAltWeightVec_pow, smul_smul]
+    rw [← Finset.sum_smul]
+    congr 1
+    rw [← Finset.mul_sum, mul_comm]
+  rw [map_sum, Finset.sum_congr rfl (fun i _ => hterm i)]
+  simp only [glueballAltLagrange_spec]
+  rw [Finset.sum_eq_single k]
+  · rw [if_pos rfl, one_smul]
+  · intro i _ hi
+    rw [if_neg hi, zero_smul]
+  · intro hk
+    exact absurd (Finset.mem_univ k) hk
+
+/-- Every antisymmetric weight vector is nonzero. -/
+theorem glueballAltWeightVec_ne_zero (k : Fin 3) : glueballAltWeightVec k ≠ 0 := by
+  intro h
+  fin_cases k
+  · have h1 := congrFun (congrArg WithLp.ofLp h) 2
+    simp [glueballAltWeightVec] at h1
+  · have h1 := congrFun (congrArg WithLp.ofLp h) 1
+    simp [glueballAltWeightVec] at h1
+  · have h1 := congrFun (congrArg WithLp.ofLp h) 2
+    simp [glueballAltWeightVec] at h1
+
+/-- The lowering ladder sends the `0`-weight vector of `Λ²` to the `-1`-weight one. -/
+theorem glueballLadderUp_alt_zero :
+    glueballLadderUp (glueballAltWeightVec 1) = glueballAltWeightVec 2 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderUp_apply]
+  funext i
+  fin_cases i <;>
+    simp only [glueballAltWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.add_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- The raising ladder sends the `0`-weight vector of `Λ²` to the `1`-weight one. -/
+theorem glueballLadderDown_alt_zero :
+    glueballLadderDown (glueballAltWeightVec 1) = glueballAltWeightVec 0 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderDown_apply]
+  funext i
+  fin_cases i <;>
+    simp only [glueballAltWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.sub_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- The ladder `A¹ + i A⁰` sends the `1`-weight vector of `Λ²` to twice the `0`-weight one. -/
+theorem glueballLadderUp_alt_one :
+    glueballLadderUp (glueballAltWeightVec 0) = (2 : ℂ) • glueballAltWeightVec 1 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderUp_apply]
+  funext i
+  fin_cases i <;>
+    simp only [glueballAltWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.add_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- The ladder `A¹ - i A⁰` sends the `-1`-weight vector of `Λ²` to twice the `0`-weight one. -/
+theorem glueballLadderDown_alt_two :
+    glueballLadderDown (glueballAltWeightVec 2) = (2 : ℂ) • glueballAltWeightVec 1 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderDown_apply]
+  funext i
+  fin_cases i <;>
+    simp only [glueballAltWeightVec, glueballAct_ofLp, glueballRep_one_mulVec,
+      glueballRep_zero_mulVec, Matrix.cons_val, PiLp.sub_apply, PiLp.smul_apply,
+      smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- **The antisymmetric weight vectors are linearly independent**: the Lagrange projector at `k`
+reads off the `k`-th coordinate. -/
+theorem glueballAltWeightVec_linearIndependent : LinearIndependent ℂ glueballAltWeightVec := by
+  rw [Fintype.linearIndependent_iff]
+  intro c hc k
+  have h := glueballAltWeightProjection k c
+  rw [hc] at h
+  have h0 : (∑ m : Fin 3, glueballAltLagrange k m • (glueballActLinear 2 ^ (m : ℕ))) 0 = 0 := by
+    simp
+  rw [h0] at h
+  have hz : c k • glueballAltWeightVec k = 0 := h.symm
+  rcases smul_eq_zero.mp hz with hv | hsc
+  · exact hv
+  · exact absurd hsc (glueballAltWeightVec_ne_zero k)
+
+/-- The weight vectors, as elements of the antisymmetric summand. -/
+noncomputable def glueballAltWeightBasisVec : Fin 3 → glueballAlt :=
+  fun k => ⟨glueballAltWeightVec k, glueballAltWeightVec_mem k⟩
+
+/-- The antisymmetric weight vectors are independent inside the summand. -/
+theorem glueballAltWeightBasisVec_linearIndependent :
+    LinearIndependent ℂ glueballAltWeightBasisVec := by
+  rw [Fintype.linearIndependent_iff]
+  intro c hc
+  have hc' : ∑ k : Fin 3, c k • glueballAltWeightVec k = 0 := by
+    have h := congrArg (fun x : glueballAlt => (x : colourVec 9)) hc
+    simpa [glueballAltWeightBasisVec] using h
+  exact Fintype.linearIndependent_iff.mp glueballAltWeightVec_linearIndependent c hc'
+
+/-- The three antisymmetric weight vectors are a basis of the antisymmetric summand. -/
+noncomputable def glueballAltWeightBasis : Module.Basis (Fin 3) ℂ glueballAlt :=
+  basisOfLinearIndependentOfCardEqFinrank glueballAltWeightBasisVec_linearIndependent
+    (by simp [glueballAlt_finrank])
+
+/-- The antisymmetric basis vector at `i` is the weight vector at `i`. -/
+theorem glueballAltWeightBasis_apply (i : Fin 3) :
+    (glueballAltWeightBasis i : colourVec 9) = glueballAltWeightVec i := by
+  simp [glueballAltWeightBasis, glueballAltWeightBasisVec]
+
+/-- **The antisymmetric summand is irreducible under the total colour action**: every subspace of
+`Λ² ℂ³` that all three total actions preserve is either zero or the whole summand. -/
+theorem glueballAlt_irreducible (W : Submodule ℂ (colourVec 9))
+    (hWle : W ≤ glueballAlt)
+    (hW : ∀ a : Fin 3, ∀ w ∈ W, glueballAct a w ∈ W) :
+    W = ⊥ ∨ W = glueballAlt := by
+  rcases eq_or_ne W ⊥ with h | h
+  · exact Or.inl h
+  refine Or.inr (le_antisymm hWle ?_)
+  have hne : ∃ z ∈ W, z ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact h (le_antisymm (fun x hx => by simpa [Submodule.mem_bot] using hcon x hx) bot_le)
+  obtain ⟨z, hzW, hz0⟩ := hne
+  have hzT : z ∈ glueballAlt := hWle hzW
+  let z' : glueballAlt := ⟨z, hzT⟩
+  let c : Fin 3 → ℂ := fun k => glueballAltWeightBasis.repr z' k
+  have hzsum : z = ∑ i : Fin 3, c i • glueballAltWeightVec i := by
+    have hsum := glueballAltWeightBasis.sum_repr z'
+    have h := congrArg (fun x : glueballAlt => (x : colourVec 9)) hsum
+    simp only [Submodule.coe_sum, Submodule.coe_smul, glueballAltWeightBasis_apply, z'] at h
+    exact h.symm
+  have hcne : ∃ k, c k ≠ 0 := by
+    by_contra hall
+    push_neg at hall
+    have : z = 0 := by
+      rw [hzsum]
+      simp [hall]
+    exact hz0 this
+  obtain ⟨k, hk⟩ := hcne
+  have hpow : ∀ m : Fin 3, (glueballActLinear 2 ^ (m : ℕ)) z ∈ W := by
+    intro m
+    induction (m : ℕ) with
+    | zero => simpa using hzW
+    | succ n ih =>
+      rw [pow_succ', Module.End.mul_apply]
+      exact hW 2 _ ih
+  have hbk : glueballAltWeightVec k ∈ W := by
+    have hproj : c k • glueballAltWeightVec k ∈ W := by
+      have hPeq : (∑ m : Fin 3, glueballAltLagrange k m • (glueballActLinear 2 ^ (m : ℕ))) z
+          = c k • glueballAltWeightVec k := by
+        rw [hzsum]
+        exact glueballAltWeightProjection k c
+      rw [← hPeq, LinearMap.sum_apply]
+      exact Submodule.sum_mem W fun m _ => Submodule.smul_mem W _ (hpow m)
+    have h := Submodule.smul_mem W ((c k)⁻¹) hproj
+    rwa [smul_smul, inv_mul_cancel₀ hk, one_smul] at h
+  have hdown : ∀ v ∈ W, glueballLadderDown v ∈ W := by
+    intro v hv
+    rw [glueballLadderDown_apply]
+    exact Submodule.sub_mem W (hW 1 v hv) (Submodule.smul_mem W _ (hW 0 v hv))
+  have hup : ∀ v ∈ W, glueballLadderUp v ∈ W := by
+    intro v hv
+    rw [glueballLadderUp_apply]
+    exact Submodule.add_mem W (hW 1 v hv) (Submodule.smul_mem W _ (hW 0 v hv))
+  have hUpMem : ∀ (i j : Fin 3) (q : ℂ), q ≠ 0 →
+      glueballLadderUp (glueballAltWeightVec i) = q • glueballAltWeightVec j →
+      glueballAltWeightVec i ∈ W → glueballAltWeightVec j ∈ W := by
+    intro i j q hq hrel hi
+    have h := hup _ hi
+    rw [hrel] at h
+    have h2 := Submodule.smul_mem W q⁻¹ h
+    rwa [smul_smul, inv_mul_cancel₀ hq, one_smul] at h2
+  have hDownMem : ∀ (i j : Fin 3) (q : ℂ), q ≠ 0 →
+      glueballLadderDown (glueballAltWeightVec i) = q • glueballAltWeightVec j →
+      glueballAltWeightVec i ∈ W → glueballAltWeightVec j ∈ W := by
+    intro i j q hq hrel hi
+    have h := hdown _ hi
+    rw [hrel] at h
+    have h2 := Submodule.smul_mem W q⁻¹ h
+    rwa [smul_smul, inv_mul_cancel₀ hq, one_smul] at h2
+  have hTwo : (2 : ℂ) ≠ 0 := two_ne_zero
+  have hOne : (1 : ℂ) ≠ 0 := one_ne_zero
+  have hU1 : glueballLadderUp (glueballAltWeightVec 1) = (1 : ℂ) • glueballAltWeightVec 2 := by
+    rw [glueballLadderUp_alt_zero, one_smul]
+  have hD1 : glueballLadderDown (glueballAltWeightVec 1) = (1 : ℂ) • glueballAltWeightVec 0 := by
+    rw [glueballLadderDown_alt_zero, one_smul]
+  have hw0 : glueballAltWeightVec 0 ∈ W := by
+    fin_cases k
+    · exact hbk
+    · exact hDownMem 1 0 (1 : ℂ) hOne hD1 hbk
+    · have ha := hDownMem 2 1 (2 : ℂ) hTwo glueballLadderDown_alt_two hbk
+      exact hDownMem 1 0 (1 : ℂ) hOne hD1 ha
+  have hw1 : glueballAltWeightVec 1 ∈ W := by
+    fin_cases k
+    · exact hUpMem 0 1 (2 : ℂ) hTwo glueballLadderUp_alt_one hbk
+    · exact hbk
+    · exact hDownMem 2 1 (2 : ℂ) hTwo glueballLadderDown_alt_two hbk
+  have hw2 : glueballAltWeightVec 2 ∈ W := by
+    fin_cases k
+    · have ha := hUpMem 0 1 (2 : ℂ) hTwo glueballLadderUp_alt_one hbk
+      exact hUpMem 1 2 (1 : ℂ) hOne hU1 ha
+    · exact hUpMem 1 2 (1 : ℂ) hOne hU1 hbk
+    · exact hbk
+  have hall : ∀ j : Fin 3, glueballAltWeightVec j ∈ W := by
+    intro j
+    fin_cases j
+    · exact hw0
+    · exact hw1
+    · exact hw2
+  intro v hv
+  have hvsum : v = ∑ i : Fin 3,
+      glueballAltWeightBasis.repr (⟨v, hv⟩ : glueballAlt) i • glueballAltWeightVec i := by
+    have hsum := glueballAltWeightBasis.sum_repr (⟨v, hv⟩ : glueballAlt)
+    have h := congrArg (fun x : glueballAlt => (x : colourVec 9)) hsum
+    simp only [Submodule.coe_sum, Submodule.coe_smul, glueballAltWeightBasis_apply] at h
     exact h.symm
   rw [hvsum]
   exact Submodule.sum_mem W fun i _ => Submodule.smul_mem W _ (hall i)
