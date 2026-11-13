@@ -1,0 +1,13 @@
+import BookProof.Ns.ChapterNsGradDomCoercive
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.NsGradDomCoercive
+#audit_axioms evP_X_re
+#audit_axioms pderiv_vel_lagEnergy
+#audit_axioms pderiv_disp_lagLyap
+#audit_axioms vel_grad_sum
+#audit_axioms lagEnergy_vel_gradDom
+#audit_axioms disp_grad_sum
+#audit_axioms volDom_phase
+#audit_axioms lagGradDom_of_volDom
+#audit_axioms not_gradDom_flatSextic
+#audit_axioms ev3_flatSextic_nonneg

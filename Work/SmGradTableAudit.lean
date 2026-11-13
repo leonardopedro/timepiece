@@ -44,3 +44,8 @@ open BookProof.SmGradTable
 #audit_axioms eval_weylFlat_one
 #audit_axioms eval_weylFlat_self
 #audit_axioms not_gradDom_weylFlat
+#audit_axioms weylCoercive_eq_wsSum
+#audit_axioms polyW_weylCoercive
+#audit_axioms gradDom_weylCoercive
+#audit_axioms gradBound_weylFlat
+#audit_axioms gradDom_weylCoercive_flat

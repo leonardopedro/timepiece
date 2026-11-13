@@ -1,0 +1,15 @@
+import BookProof.Sm.ChapterSmIndexGhostSectors
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.SmIndexGhostSectors
+open BookProof.SmIndexGhostSectors.Model
+#audit_axioms global_sectors_force_zero
+#audit_axioms Par_involutive
+#audit_axioms Par_inner
+#audit_axioms Par_norm
+#audit_axioms Eta_eq_of_mem_even
+#audit_axioms kform_even_nonneg
+#audit_axioms kform_odd_closed
+#audit_axioms kform_nonneg_closed
+#audit_axioms sector_hypotheses_closed
+#audit_axioms Q_ne_zero
+#audit_axioms parity_globals_fail

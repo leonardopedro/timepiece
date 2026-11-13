@@ -319,6 +319,13 @@ estimates. Complex shifts in the Lean corpus are a separate extension, not this 
 §4 schedule. Neither a $\phi_k(A)v$ error nor a semigroup approximation error is
 automatically a Temple eigenvector residual or a certificate excluding unseen spectrum.
 
+The rate itself is now a theorem rather than a target — see the 2026-11-13i section — and the two
+things that section names as missing are proved in the 2026-11-13j one: the residual seam
+`sirk_ritz_resid_le` and the reflection `A' = \gamma^{-1} - X_\gamma` with its gap transfer
+`gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`. The
+2026-11-13k section closes the composition — the SIRK bound becomes a residual *of* `A'` and
+Temple runs there (`sirk_reflected_gap_certificate`).
+
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
 rounding enclosures and basis tails into the final residual bound. For a Galerkin vector,
@@ -367,8 +374,28 @@ Source paths below are relative to `BookProof/`.
   C, identify physical kernel and close its realization.
 * `Qym/ChapterYangMillsFieldStrengthSplit.lean`: U, concrete polynomial split;
   C, global channel estimate, not equality to a diagonal symbol.
-* `Sirk/ChapterHashimotoShiftInvert.lean`, `exists_isShiftInvert`: U, bounded inverse
-  under extension hypotheses; C, verified rational approximation/solve errors.
+* `Sirk/ChapterHashimotoShiftInvert.lean`, `exists_isShiftInvert`: U, the shift-invert is
+  bounded, unique, and determines the operator (`shiftInvert_determines`); C, a *computed*
+  rational approximant with verified errors.
+* `Textbook/ChapterH4.lean`–`ChapterH6.lean`, `Sirk/ChapterSirkEndToEnd.lean`: U, the error
+  bound *as a function of the Krylov order* — `sirkBound C Dmin h nv m = 2 C Dmin e^{-hm} nv`
+  is antitone (`sirk_error_bound_antitone`), tends to `0` (`sirk_error_decay_exponential`),
+  is attained end-to-end at a seed (`sirk_end_to_end`) and in operator norm
+  (`sirk_error_opNorm_le`, `sirk_opNorm_error_tendsto_zero`), and *is a Ritz residual*
+  (`sirk_ritz_resid_le`: `resid X (V y) ≤ ‖X − sirkApprox V psiB‖` at a reduced eigenpair,
+  no factor 2, via `resid_le_norm_sub_smul`); C, the rate's two source-paper inputs
+  (Crouzeix's `C` and the deformation `hdecay : D ≤ e^{-hm} Dmin`).
+* `Sirk/ChapterResolventTransfer.lean`: U, the two transfers from the shift-invert to `h_F` —
+  the eigenvector reflection (`resolvent_reflection_eigenvector`: `A' = γ⁻¹ 1 − X_γ` has the
+  eigenvalue `resolventEdge γ e = e/(γ(e+γ))`, strictly increasing on `[0, ∞)`), the inversion
+  `resolventEdge_inv`, and the gap transfer `gap_transfer`: `g ≥ γ² g_X`; the assembly
+  `sirk_reflected_gap_certificate` (SIRK bound → `resid` of `A'` → Temple on `A'` → `γ² λ' ≤ e`);
+  C, that `γ` is a *real* shift and that the separation `s_X` is a property of the selected
+  operator (S2).
+* `Sirk/ChapterSirkTruncation.lean`: U, a rank-truncated Gram costs `‖r_X‖·δ`, with `δ` the
+  discarded part of the seed (`sirk_end_to_end_truncated`); C, the tolerance → `δ` link.
+* `Sirk/ChapterSirkRestart.lean`: U, `n` restarts cost `n·sirkBound`; N, that is linear in the
+  restart count, so restarting buys no rate.
 * `Sirk/ChapterTempleSeparationNecessary.lean`: N, residual-only edge inference;
   C, independent full-space separation.
 * `Qym/ChapterYangMillsFockGapChain.lean`: U, conditional concrete outer lift;
@@ -978,7 +1005,10 @@ stronger than a dimension count: the
 `ε`-contraction `glueballAltEquiv` is a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and
 `glueballAltMap_intertwines` shows it carries the total action to `adjRep`, as
 `mesonSymmMap_intertwines` does for the Pauli-coordinate map of the meson symmetric part — so
-`mesonSymm_glueball_iso` states that the two `3`s are one `su(2)`-module.  No Clebsch–Gordan
+`mesonSymm_glueball_iso` states that the two `3`s are one `su(2)`-module, and `mesonAltEquiv`
+makes that an isomorphism of representations: a linear equivalence `mesonSymm ≃ₗ glueballAlt` that
+commutes with all three total actions (`mesonAltEquiv_intertwines`) and carries the weights
+`1, 0, -1` to weight vectors of the same weights (`mesonAltEquiv_weightVec`).  No Clebsch–Gordan
 expansion is used anywhere: the summands come from the slot swap and the trace functional.  **Representation:** the total
 action `pairRep` obeys `[A^a, A^b] = i ε^{abc}A^c` (`pairRep_commutator`).  The proof runs on the
 product basis `pairRepProd` (`T^a ⊗ 1 + 1 ⊗ T^a` as a Kronecker sum), where `pairRepProd_mul`
@@ -1620,7 +1650,239 @@ estimates presuppose, and no spectral claim:
   "approximation, with a separate spectral gate" wording depends on: the gate is still separate,
   and no Hashimoto-band statement (S42) is claimed here.
 
-## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
+### Status after the SIRK error-bound review (2026-11-13i)
+
+This section supersedes the S3 paragraph of the work package and the `Sirk/` rows of the
+completion ledger on one question only: what is proved about the error as the Krylov order grows,
+and what the mass-gap route should do next. It changes nothing in S0, S1, S2 or S4.
+
+#### The rate is proved; what is missing is a seam
+
+The bound the work package asks for — the maximum error bounded as the order increases — is in
+the corpus, in the conditional form the source paper supplies:
+
+* `ChapterH4.sirk_error_bound_decay` gives
+  `‖φ_k(A)v − V ψ(B) V∗v‖ ≤ 2 C e^{−hm} Dmin ‖v‖`, from Crouzeix's inequality (`C`) and the
+  paper's Theorem 5 deformation `hdecay : D ≤ e^{−hm} Dmin`.
+* `ChapterH6.sirkBound C Dmin h nv m := 2 C Dmin e^{−hm} nv` is that right-hand side as a
+  function of `m`; `sirk_error_bound_antitone` (non-increasing in `m`) and
+  `sirk_error_decay_exponential` (`→ 0` for `h > 0`) are proved, and `sirk_error_tendsto_zero`
+  is the `ε`-form.
+* `ChapterSirkEndToEnd.sirk_end_to_end` discharges the rational-transfer hypothesis at the seed,
+  so the bound is a theorem about the *computed* reduced flow, not a hypothesis about the
+  transfer; `sirk_flow_error_tendsto_zero` and `sirk_flow_error_uniform_in_time` are its
+  convergence corollaries.
+* **New in this review.** `sirk_error_opNorm_le` takes the supremum over the unit sphere:
+  `‖flow − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`, from the pointwise estimate by
+  `ContinuousLinearMap.opNorm_le_bound`, and `sirk_opNorm_error_tendsto_zero` gives the same
+  conclusion for the worst-case error. The *maximum* error over the whole space, not the error
+  at one seed, is what a residual certificate consumes.
+* `ChapterSirkTruncation.sirk_end_to_end_truncated` adds the one term rank truncation costs,
+  `‖r_X‖ · δ` with `δ` the discarded part of the seed, and `ChapterSirkRestart` prices `n`
+  restarts at `n · sirkBound`.
+
+So the shape `ε_m ≤ 2 C Dmin e^{−hm}` is available, and its monotonicity and convergence are
+proved. Two inputs stay named: `C` (Crouzeix) and the deformation `hdecay`. The corpus does not
+compute either for the QYM operator.
+
+#### What the bound does not yet give
+
+`ε_m` controls `φ_k(A)v` in the state norm. A spectral certificate consumes the residual of a
+Ritz pair, `‖(A − θ)u‖`, for the vector actually handed to Temple. No theorem converts one into
+the other, so the chain stops one link short:
+
+* `ChapterBandEnclosure.ritz_band_enclosure_of_nested` closes the *limit*: nesting, convergence
+  of the Ritz values, and `ritz_m ∈ [lo m, hi m]` put `sInf (spectrum ℝ A)` in every band. Its
+  `hritz` is an enclosure hypothesis, not a rate, so it does not say how wide the band at a given
+  `m` is.
+* `ChapterRitzCertificate.fock_mass_gap_of_temple_certificates` needs
+  `hres : Tendsto (fun m => resid A (x m)) atTop (𝓝 0)` plus one emitted band. The SIRK bound has
+  exactly that shape and is not yet connected to it.
+
+#### S3.1 — the residual seam (do this first)
+
+One lemma, pure linear algebra, no new analysis:
+
+```
+sirk_ritz_resid_le : psiB y = μ • y → ‖y‖ = 1 → V∗V = 1 →
+  ‖X − sirkApprox V psiB‖ ≤ ε → ‖(X − μ) (V y)‖ ≤ ε
+```
+
+because `sirkApprox V psiB (V y) = V (ψ(V∗V y)) = μ (V y)` and `‖V y‖ = 1`. Instantiating
+`ε = sirkBound C Dmin h 1 m` turns the convergence theorem into the finite-`m` statement
+`resid X (V y) ≤ ε_m`, which is `ChapterRitzCertificate`'s input verbatim. This is the cheapest
+item in the whole S2–S4 programme and the one that makes the rate spendable.
+
+#### S3.2 — run the certificate on the resolvent, not on `h_F`
+
+Two structural reasons.
+
+1. **The error is an error in `X_γ`.** Hashimoto's theorem approximates the shift-invert
+   `X_γ = (γ − A)^{−1}` (real `γ`; non-real shifts are the separate `ChapterHashimotoComplexShifts`
+   extension), so a bound on `X_γ` is exactly what S3.1 consumes. On `h_F` the same error would
+   first have to be transported through an unbounded operator.
+2. **Gaps transfer with explicit constants.** With `A ≥ 0` self-adjoint and `γ > 0` the
+   eigenvalues are `μ = 1/(e + γ)`, so
+   `g_X = μ₀ − μ₁ = g / ((e₀+γ)(e₁+γ))`, hence `g = g_X (e₀+γ)(e₁+γ) ≥ γ² g_X`. A certified gap
+   `g_X` at level `γ` is a certified gap `γ² g_X` for `h_F`.
+
+Temple's inequality is a *bottom*-edge statement, and `X_γ`'s edge is its **largest** eigenvalue,
+so reflect once: `A' := γ^{−1} − X_γ = h_F/(γ(h_F+γ))` is bounded, positive, has the same
+eigenvectors, and its eigenvalues `e/(γ(e+γ))` increase with `e`. Run `temple_lower_bound` on
+`A'`, then recover `e = λ' γ²/(1 − λ' γ)` from the inverse of `e ↦ e/(γ(e+γ))`. Both transfers
+are order arithmetic on `1/(e+γ)`; neither needs more than the eigenbasis hypothesis that
+`fock_mass_gap_of_temple_certificates` already takes.
+
+The payoff is the error budget. Temple on `A'` with residual `ε_m` and separation `s_X` locates
+the edge to within `ε_m²/s_X`, so **positivity** of the certified gap needs only `ε_m < s_X`
+(linear), and its **value** to accuracy `q` needs `ε_m < √(q s_X)` (square root). Both are far
+weaker than `ε_m` below the gap itself, and `ε_m` decays exponentially. Illustrative arithmetic,
+not a measurement: `C = 4`, `Dmin = 1`, `s = 1/2` give `ε_m = 8 e^{−m/2}`; a separation
+`s_X = 0.1` is reached at `m > 2 ln 80 ≈ 8.8`, i.e. `m = 9`, and value accuracy `10^{−2}` at
+`m = 12`. Tens of Krylov vectors — provided the constants are what this paragraph assumes.
+
+#### S3.3 — the shift budget, not the Krylov size, is the order parameter
+
+The paper's real shifts are `γ_j = N_shift − s j > 0`, admissible only while `m < N_shift/s`.
+Hence `s m < N_shift`: the exponent in `e^{−sm}` is capped by the **number of shifts**, not by the
+Krylov dimension. Four consequences the earlier S3 text did not draw.
+
+* At fixed budget, refining `m` past `N_shift/s` is not merely useless, it is inadmissible, and
+  the bound floors at `2 C Dmin e^{−N_shift}`.
+* "Error → 0 as `m` → ∞" must be read as a joint limit `N_shift(m) = s m + N₀` with `s` fixed.
+  `sirkBound` already has that shape (its `m` is free), so the only new hypothesis for a
+  growing-budget theorem is uniformity along the schedule: `sup_m C_m < ∞` and
+  `inf_m Dmin_m ≥ d₀ > 0`.
+* `Dmin = min_j |f_{k,N}(γ_j)|` is the fragile constant, not `C`: a shift near a zero of the
+  approximand makes `Dmin` small. Convexity of the Crouzeix domain bounds `C`; nothing bounds
+  `Dmin`. Shift placement is a *correctness* decision, not a tuning knob.
+* A campaign should report the triple `(m, N_shift, ε_m)` and stop at `s m ≈ N_shift`, so the
+  reported error is again one number per budget, as the paper's estimate says.
+
+#### S3.4 — a finite-`m` certificate, and why the limit is not needed
+
+`certifiedGap_sound` is what makes this route worth more than the rate suggests: a *single* `m`
+with a positive certified value is a proof, with no limit and no nesting. The chain:
+
+1. compute the reduced pair `(θ, y)` and bound `ε_m` with the S3.3 constants;
+2. reflect to `A'` and apply Temple at `λ' = γ^{−1} − 1/(θ+γ)` with separation `s_X`; the
+   residual is unchanged and the width is `ε_m²/s_X` (S3.1, S3.2);
+3. transfer `g ≥ γ² (s_X − ε_m²/s_X)` and `e₀ = λ' γ²/(1 − λ' γ)`;
+4. lift with `fock_mass_gap_of_certified_bands` (one-particle) and
+   `ym_fock_gap_of_one_particle_form_gap` (outer), exactly as S4 already prescribes.
+
+Step 3 is where S2 remains binding: `s_X` is a separation of the *physical* operator, and the
+SIRK error cannot manufacture it (`ChapterTempleSeparationNecessary` stands — residual data alone
+cannot exclude an unseen lower eigenvalue). This route changes *where* the error enters, not
+whether S2 is needed.
+
+#### Boundary
+
+Nothing here proves a gap. `C` and `hdecay` are named source-paper inputs, never axioms, and the
+corpus does not compute them for `ymHamiltonian`; a *verified* numerical error therefore also
+needs the finite-precision enclosures (`ChapterSirkFinitePrecision`, `ChapterSirkGramCutoff`) and
+the Gram-tolerance → `δ` link, which `ChapterSirkTruncation`'s own boundary puts outside the
+exact-arithmetic formalization. `s_X` remains an S2 input. Everything certified this way is the
+truncated/selected operator (`finiteModeRestrict`); the continuum transfer is untouched. And
+`P_Λ X_γ P_Λ ≠ (P_Λ h_F P_Λ + γ)^{−1}` is still a real distinction: S3.1 is stated for `X_γ`
+itself, so the argument uses the invariance of the Krylov range, not that identity.
+
+**Ordering.** S3.1 and S3.2 are pure linear algebra and can be done before S2; S3.3 is schedule
+arithmetic; S2 is the only item that can fail. The recommendation of this review is therefore to
+spend the next Lean block on `sirk_ritz_resid_le` and the two resolvent-transfer lemmas, not on a
+sharper band.
+
+### S3.1 and S3.2 are now theorems (2026-11-13j)
+
+The two items the 2026-11-13i review named as missing are proved; the entry is `13j` in
+`CONSOLIDATED_PLAN.md`.
+
+**S3.1 — `sirk_ritz_resid_le`** (`Sirk/ChapterSirkEndToEnd.lean`). For a reduced eigenpair
+`psiB y = μ y` with `‖y‖ = 1`, an isometric embedding (`V∗ V = 1`) and `X` self-adjoint,
+
+`resid X (V y) ≤ sirkBound C Dmin h 1 m`  whenever  `‖X − sirkApprox V psiB‖ ≤ sirkBound …`,
+
+so the operator-norm error of `sirk_error_opNorm_le` *is* a Ritz residual, and
+`ChapterRitzCertificate.temple_lower_bound` applies to `V y` with `ε = ε_m`. No factor 2 is
+lost, because the geometric input is not a triangle inequality but
+`resid_le_norm_sub_smul`: `resid A x ≤ ‖A x − c x‖` for every real `c`, the Rayleigh quotient
+`θ = ⟪x, A x⟫` being the *best* approximation of `A x` by multiples of `x`. The step
+`sirkApprox V psiB (V y) = μ (V y)` is where the isometry is spent — outside the retained
+subspace the approximation is not an eigenpair and the seam gives nothing.
+
+**S3.2 — the reflection and the gap transfer** (`Sirk/ChapterResolventTransfer.lean`).
+
+* `shiftInvert_apply_eigenvector`: from `A y = e y` (`y` in the domain) and
+  `IsShiftInvert A γ R`, `R y = (e + γ)⁻¹ y`. Only the two algebraic identities of
+  `IsShiftInvert` are used — no spectral theorem.
+* `resolvent_reflection_eigenvector`: hence `A' = γ⁻¹ 1 − R` has the *same* eigenvector with
+  eigenvalue `resolventEdge γ e = e/(γ(e+γ))`, which is `γ⁻¹ − (e+γ)⁻¹`
+  (`resolventEdge_eq`).
+* `resolventEdge_strictMonoOn`: `e ↦ resolventEdge γ e` is strictly increasing on `[0, ∞)`,
+  so reflection *reverses* the ordering: the top of `X_γ` becomes the bottom of `A'`, which
+  is exactly what a bottom-edge (Temple) certificate needs.
+* `gap_transfer`: `γ² (λ'₁ − λ'₀) ≤ e₁ − e₀`, i.e. `g ≥ γ² g_X`, and `resolventEdge_inv`
+  reads the edge back as `e = λ' γ²/(1 − λ' γ)`.
+
+Together: with `X_γ` bounded (`ChapterHashimotoShiftInvert.exists_isShiftInvert`, `‖R‖ ≤ 1/γ`),
+the SIRK error bound on `R`, and `sirk_ritz_resid_le` run on `A'`, Temple's inequality yields
+a certified band for the edge of `h_F`, widened by the two transfers rather than by a new
+analytic estimate.
+
+**Boundary.** `γ` must be a real positive shift (the complex-shift extension is
+`ChapterHashimotoComplexShifts` and is not used here); `s_X` remains the S2 input, and the
+gap transfer does not create separation, only rescales it. The eigenpair `(μ, y)` of `ψ(B)` is
+an *input*: nothing here says a Galerkin eigendecomposition produced one, nor that `y` is
+well-conditioned. Self-adjointness of `A'` is `isSelfAdjoint_reflection`, from the
+self-adjointness of the resolvent that `ChapterHashimotoShiftInvert.IsShiftInvert.isSelfAdjoint`
+supplies; the eigenvector statement alone does not need it. As always, this certifies the
+selected/truncated operator and claims no mass gap.
+
+### The certificate now runs on the reflected operator (2026-11-13k)
+
+Entry `13k`. The two halves of `13j` met at a gap: `sirk_ritz_resid_le` produced a residual for
+`X`, while the operator Temple has to be run on is `A' = γ⁻¹ 1 − X_γ`. Closing it needs no new
+analysis — only the observation that reflection moves the scalar and nothing else.
+
+**`resid_reflection_le`.** For a self-adjoint `R`, a unit `x` and **any** real `c`,
+
+`resid (γ⁻¹ 1 − R) x ≤ ‖R x − c x‖`,
+
+because `A' x − (γ⁻¹ − c) x = −(R x − c x)`: reflecting sends `c` to `γ⁻¹ − c` and flips the sign,
+and the inequality is `resid_le_norm_sub_smul` applied to `A'`.
+
+**`sirk_resid_reflection_le`.** Substituting the SIRK data — `V` isometric, `psiB y = μ y`,
+`‖V y‖ = 1`, and the operator-norm bound — gives
+
+`resid (γ⁻¹ 1 − R) (V y) ≤ sirkBound C Dmin h 1 m`
+
+with the *same* constant as `sirk_ritz_resid_le`: the reflection costs nothing.
+
+**`sirk_reflected_gap_certificate`.** The composition, as a single theorem. From `A y = e y`
+with `0 ≤ e` and `y ∈ Dom`, `IsShiftInvert A γ R`, self-adjoint `R`, the SIRK operator-norm
+bound, the spectral separation of `A'` at `λ' = resolventEdge γ e`, and `θ < b`:
+
+* `A' y = λ' y` — the reflected edge is an eigenvalue (`resolvent_reflection_eigenvector`);
+* `resid A' (V y) ≤ sirkBound C Dmin h 1 m` — the order-`m` error *is* the residual;
+* `θ − resid A' (V y)²/(b − θ) ≤ λ'` — Temple on `A'`, the lower end of the certified band;
+* `γ² λ' ≤ e` — the same edge, read back on `A`.
+
+So the order-`m` data certifies a band around the bottom of `A'`, and the transfer turns that into
+a statement about `A` for the price `γ²`. Nothing in the chain is a new estimate: it is
+`resid_le_norm_sub_smul`, `temple_lower_bound` and `gap_transfer` composed.
+
+**Boundary.** `hsep` — `SpectralSeparation A' λ' b` — is the one input a two-sided enclosure
+cannot avoid, and it is *stated*, not derived; `γ` is a real positive shift; the reduced eigenpair
+`(μ, y)` remains an input. Self-adjointness of `A'` is now `isSelfAdjoint_reflection`, from the
+self-adjointness of `R` that `IsShiftInvert.isSelfAdjoint` supplies. As before, this certifies the
+selected/truncated operator and claims no mass gap.
+
+**Verification.** `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds;
+`#print axioms` on `isSelfAdjoint_reflection`, `resid_reflection_le`,
+`sirk_resid_reflection_le` and `sirk_reflected_gap_certificate` gives
+`[propext, Classical.choice, Quot.sound]`; no line of the module exceeds 100 code points.
+
+ . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
 “unconditional”, “form of record” and “certified gap” below describe the cited model's

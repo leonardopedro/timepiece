@@ -1,4 +1,5 @@
 import BookProof.RoadmapAudit.ChapterRoadmapAudit
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # RandomMap2 roadmap audit quarantine
@@ -33,21 +34,21 @@ unconditional RH declarations are excluded because their dependency chain
 contains the explicitly quarantined RH-strength placeholders.
 -/
 
-#print axioms outer_inner_reduces_to_head
-#print axioms X_coordinate_orthogonal
-#print axioms Var_X_coordinate_bound
-#print axioms X_coordinate_secondMoment_eq
-#print axioms RandomMap2Walk.partialEnergy_expectation_eq
-#print axioms RandomMap2Walk.fullEnergy_expectation_eq
-#print axioms RandomMap2Walk.meanEnergy_expectation_eq
-#print axioms RandomMap2Walk.meanEnergy_expectation_bound
-#print axioms RandomMap2InfiniteWalk.finite_marginals_compatible
-#print axioms RandomMap2InfiniteWalk.totalEnergy_expectation_eq
-#print axioms RandomMap2InfiniteWalk.integrable_totalEnergy
-#print axioms RcpRandomMapBridge.rcp_stateMeasure_decoupling
-#print axioms SolovayHilbert.godelian_trapdoor_sealed
-#print axioms RandomMap2RH.rectangleRH_iff_zeroFreeRightHalfPlane
-#print axioms RandomMap2RH.decoupled_integral_and_zeroFree_of_rectangle
-#print axioms RandomMap2RH.outer_inner_reduces_to_head_generalized
-#print axioms RandomMap2RH.riemann_hypothesis_bridge
+#audit_axioms outer_inner_reduces_to_head
+#audit_axioms X_coordinate_orthogonal
+#audit_axioms Var_X_coordinate_bound
+#audit_axioms X_coordinate_secondMoment_eq
+#audit_axioms RandomMap2Walk.partialEnergy_expectation_eq
+#audit_axioms RandomMap2Walk.fullEnergy_expectation_eq
+#audit_axioms RandomMap2Walk.meanEnergy_expectation_eq
+#audit_axioms RandomMap2Walk.meanEnergy_expectation_bound
+#audit_axioms RandomMap2InfiniteWalk.finite_marginals_compatible
+#audit_axioms RandomMap2InfiniteWalk.totalEnergy_expectation_eq
+#audit_axioms RandomMap2InfiniteWalk.integrable_totalEnergy
+#audit_axioms RcpRandomMapBridge.rcp_stateMeasure_decoupling
+#audit_axioms SolovayHilbert.godelian_trapdoor_sealed
+#audit_axioms RandomMap2RH.rectangleRH_iff_zeroFreeRightHalfPlane
+#audit_axioms RandomMap2RH.decoupled_integral_and_zeroFree_of_rectangle
+#audit_axioms RandomMap2RH.outer_inner_reduces_to_head_generalized
+#audit_axioms RandomMap2RH.riemann_hypothesis_bridge
 -/

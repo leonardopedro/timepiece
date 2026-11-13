@@ -3190,212 +3190,427 @@ and the NS statement is the proof template, not a proved counterexample.
 * `lake build BookProof.Sm.ChapterSmGradTable` — `Build completed successfully`.
 * `lake env lean Work/SmGradTableAudit.lean` — 30 declarations, every one on exactly
   `propext, Classical.choice, Quot.sound`; no `sorryAx`.
-* `lake build BookProof` was **not** run to completion (it exceeded a 600 s budget); compiling the root
-  module `BookProof.lean` directly was the substitute check and is reported as exactly that.
+* `lake build BookProof` was not run to completion *in that round* (it exceeded a 600 s budget), and the
+  root module `BookProof.lean` compiled directly was the substitute check.  **It has since completed:**
+  see §55.4 — the substitute check was sound but is no longer the strongest available statement.
 
-## §55. The Standard-Model charge has its own b-ghost (2026-11-13)
+## §55. What restores the domination, and where the quartet construction stops (2026-11-13)
 
-Module: §8 of `BookProof/Sm/ChapterSmQuartet.lean` (namespace `BookProof.SmQuartet`), audit
-`Work/SmQuartetConstructedAudit.lean`.  Supersedes the "not constructed" bullet of §50.3 and the
-`PhysicalPositivity` bullet of §53.4: the SM's quartet data now exists, and the open input is the
-no-ghost theorem, not the data.
+### 55.1. The converse of §54.2, and what it says about the obstruction
 
-### 55.1. What was open
+§54 proved the domination *fails* for the QYM potential and identified the reason: `sq_le` bounds the
+derivative against the coercive quadratic, and `weylPotPoly Φ = ∑_j Φ_j² + 1` does not contain it.
+An obstruction is only worth the size of its converse, so §7 of `ChapterSmGradTable` puts the
+quadratic back and proves the bound.
 
-§47.5/§50 reduced the quartet data to one object: a b-ghost, i.e. a map `P` with `Q P Q = Q` and
-`P Q P = P`.  §50.3 recorded the SM's own `P` as missing, so `PhysicalPositivity` for
-`smBrstCharge` stayed a named input.  The question §50 left was therefore not analytic but
-structural: does the joint matter ⊗ ghost charge admit such a `P` at all, or does the model's mode
-content obstruct it?
+`weylCoercive Φ M := weylPotPoly Φ + ∑_{m∈M} X_m²` **is** `wsSum Φ M 1`
+(`weylCoercive_eq_wsSum`), so nothing is recomputed: §49's `pointwise_dom_of_sq_sum` applies verbatim
+and gives, for any family of forms admitting a `GradBound C` (`gradDom_weylCoercive`),
 
-### 55.2. The construction
+  `∑_{j∈M} |∂_j W|² ≤ (16|M||ι|C + 8) W² + (8|M||ι|C + 8)`.
 
-It admits one for a reason that has nothing to do with the mode content:
+At the single bilinear form `X₀X₁` the potential is `(X₀X₁)² + 1 + X₀² + X₁²`, the `GradBound` is
+`gradBound_weylFlat` (`C = 1`), and the constants come out as `a = 40`, `b = 24`
+(`gradDom_weylCoercive_flat`) — the same pair §49's `gradDom_flat_plus_quadratic` computes for the
+same potential.
 
-* **`exists_contractingHomotopy`.**  For *every* endomorphism `Q` of a finite-dimensional complex
-  inner-product space there is `P : H →ₗ[ℂ] H` with `Q P Q = Q` and `P Q P = P`.  The proof
-  splits the kernel off a complement `C` (`Submodule.exists_isCompl`); `Q` is injective on `C` and
-  onto its range, so inverting it there and projecting onto the range along `C`
-  (`Submodule.linearProjOfIsCompl`) gives `P`.  This is the theorem §47.5's construction needed and
-  did not have; it is generic, and the model enters only through its dimension.
-* **`smBrstCharge_quartet_nonempty`.**  `FermiFock (m + 12) = EuclideanSpace ℂ (Finset (Fin (m+12)))`
-  is finite-dimensional, so `Nonempty (BrstQuartet (smBrstCharge m T f3))`, by
-  `BrstQuartet.quartetOfHomotopy` at `isBrst_smBrstCharge`.
-* **`smQuartet`, `smBghost`, `smPhysProj`.**  The quartet is chosen once
-  (`Classical.choice`), and its `bGhost`/`physProj` fields are exposed as the two named maps.  They
-  are a b-ghost and a physical projector for the *full joint charge* `smBrstCharge`, not for a
-  reduced block or a toy instance.
-* **`smPhysicalPositivity_of_etaPhys`.**  `PhysicalPositivity (smBrstCharge m T f3) η` follows from
-  `hKrein`, `hSymm` and the single metric hypothesis
-  `hEtaPhys : η (smPhysProj y) = smPhysProj y`, via `physicalPositivity_of_quartet`.
+So §54's obstruction is sharp in the right sense: what the QYM/NS forms lack is not a proof technique
+but a term.  Adding it is a modelling decision (mass, confinement, anisotropic weight); this section
+does not choose it and does not compute a sharp constant — the constants above are whatever the
+generic estimate produces from the coefficient sum.
 
-### 55.3. What this does and does not give
+### 55.2. The SM quartet: what was attempted, and why it is not delivered
 
-* **Gives**: the quartet *data* of the SM charge, hence `PhysicalPositivity` from `hEtaPhys` alone.
-  The quartet identity is the field `(smQuartet …).quartet_anticomm`; the b-ghost and projector are
-  its `bGhost` and `physProj` fields by definition.  §50's mechanism is now instantiated at the
-  actual charge.
-* **Does not give a b-ghost formula.**  `smQuartet` is picked from a `Nonempty` proof, so `smBghost`
-  is an existence statement made usable, not a pairing rule for longitudinal/ghost modes.  Two
-  consequences, both stated in the module docstring: nothing computes with `smBghost`, and the
-  quartet identity is available only as the field of the chosen quartet.
-* **Does not identify the physical subspace.**  `smPhysProj`'s range is *some* complement of
-  `im Q`'s exact part, but nothing proves it is the transverse, ghost-parity-even subspace the
-  no-ghost theorem is about.  That is exactly `hEtaPhys`, and it is the remaining input — P5's open
-  part is now the identification of the physical subspace, not the existence of quartet data.
-* **Why the SM-level identity is not restated as a theorem.**  Attempting it forces the elaborator
-  to unfold the chosen quartet's proof term: the composition-level and pointwise forms both hit a
-  deterministic `whnf` timeout at default heartbeats, even with the quartet marked `@[irreducible]`.
-  The field is cited instead.  This is a presentation choice, not a gap: the identity is proved
-  inside `quartetOfHomotopy` and the audit shows it rests on `propext, Classical.choice,
-  Quot.sound`.
+The request was to build the SM's own quartet data so that `PhysicalPositivity` stops being a named
+input.  It is **not** delivered, and the attempt is recorded because the reason is structural.
 
-### 55.4. Verification performed (2026-11-13)
+`physicalPositivity_of_homotopy` needs a b-ghost `P` with `Q P Q = Q`, `P Q P = P` for
+`smBrstCharge = brstCharge (smStruct f3) ghostCre ghostAnn matterGen`.  The natural first step is the
+abelian (`f3 = 0`) sector, where the charge is `c† ⊗ T` on two ghost slots over the matter space and a
+generalized inverse `S` of `T` gives the candidate b-ghost `b ⊗ S`.  That construction was written
+and then **withdrawn**, for two reasons found while doing it:
 
-* `lake build BookProof.Sm.ChapterSmQuartet` — `Build completed successfully`, no new warnings.
-* `lake env lean Work/SmQuartetConstructedAudit.lean` — 25 declarations, every one on exactly
-  `propext, Classical.choice, Quot.sound`; no `sorryAx`.  The six new ones are
-  `exists_contractingHomotopy`, `smBrstCharge_quartet_nonempty`, `smQuartet`, `smBghost`,
-  `smPhysProj`, `smPhysicalPositivity_of_etaPhys`.
-* `scripts/check-sm-section-guards` — green, with the §55 needles (`smBghost`,
-  `smPhysicalPositivity_of_etaPhys`) added and the two superseded caveats rewritten (§47's
-  "SM b-ghost missing" and §53's "quartet data unbuilt") rather than deleted.
+* this Mathlib has **no product inner-product space** (`InnerProductSpace ℂ (K × K)` does not
+  synthesize), so the two-slot model cannot be fed to the corpus's `IsBrst`/`BrstQuartet` machinery
+  without an index-restricted `EuclideanSpace` reformulation; and
+* more importantly, the ghost-pairing metric `(u, v) ↦ (v, u)` does **not** satisfy the hypothesis
+  `η (V y) = V y` that the no-ghost theorem needs.  The identity it does satisfy is
+  `η (V x) = V (η x)`, i.e. the metric commutes with the projector rather than fixing its range —
+  exactly the difference between "the physical subspace is invariant" and "the physical subspace is
+  definite".  Supplying the right Krein metric is a separate construction, not a line of bookkeeping.
 
-## §56. What the SM physical subspace is, and the fixing hypothesis dropped (2026-11-13)
+So `PhysicalPositivity` for the SM charge remains a named input.  What the attempt clarifies is the
+*size* of what is missing: a contracting homotopy for the non-abelian complex, plus a Krein metric
+that fixes the physical subspace — two objects, both named, neither of them algebraic routine.  No
+module was added for this, and no claim was upgraded on the strength of the attempt.
 
-Module: §9 of `BookProof/Sm/ChapterSmQuartet.lean`, plus `range_physProjOf` in §5; audit
-`Work/SmQuartetConstructedAudit.lean`.  Supersedes the "not constructed / identification missing"
-wording of §55.3 in the precise sense recorded below: the range is now *characterised*, and the
-input `hEtaPhys` is *withdrawn* rather than discharged.
+### 55.3. Verification performed (2026-11-13)
 
-### 56.1. The range of a constructed projector, exactly
+* `lake env lean BookProof/Sm/ChapterSmGradTable.lean` — clean, no warnings (the §7 block fixed the
+  line-length lints introduced by the §6 and §54 prose in the same session).
+* `lake build BookProof.Sm.ChapterSmGradTable` — `Build completed successfully`.
+* `lake env lean Work/SmGradTableAudit.lean` — 35 declarations, every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `lake env lean BookProof.lean` — clean (root-module check).
+* `scripts/check-sm-section-guards` — green with the §55 needles.
+* `lake build BookProof` to completion: **succeeded** (`8982 jobs`, 28m56s, exit 0) — see §55.4.
 
-For a contracting homotopy `P` (`Q P Q = Q`, `P Q P = P`):
+### 55.4. The full build, completed (2026-11-13)
 
-  **`range (physProjOf Q P) = ker Q ⊓ ker P`** — `range_physProjOf`.
+The earlier rounds reported `lake build BookProof` as not run to completion, with the root-module
+`lake env lean BookProof.lean` check as the substitute.  With a real budget it **completes**, on the
+tree this section describes:
 
-Both inclusions are one line each from the contraction identities.  `V x` is closed
-(`physProjOf_Q`) and killed by `P`: applying `P` to `Π = QP + PQ − QP²Q` gives
-`P x + P²Q x − P Q (P²Q) x`, and the last two agree by `P Q P = P` (`P_physProjOf`).  Conversely
-a closed `x` with `P x = 0` has `V x = x − (0 + 0) + 0 = x`.  Supporting API:
-`mem_range_physProj_iff` (range = fixed points) and `range_physProj_le_closed`.
+```
+$ time lake build BookProof
+Build completed successfully (8982 jobs).
 
-This is the honest content of "the physical subspace": the harmonic representatives of the
-cohomology, i.e. the closed states the b-ghost kills.  It is a statement about the *pair*
-`(Q, P)`.  At the SM: `smPhysProj_mem_closed`, the closedness half, for `smBrstCharge`.
+real    28m55.505s
+user    28m55.586s
+sys     0m7.105s
+EXIT=0
+```
 
-### 56.2. Why the range is not identified with "transverse, ghost-parity-even"
+An earlier run finished `8981 jobs` in 30m16s on the tree *before* the §7 block existed; that run is
+why the count differs by one, and it is not the run being relied on.  The reported one is the second,
+started after every edit in this section and §7 was in place.  Warnings in the log are pre-existing
+linter advisories on modules this session did not touch (`setOption`, `longLine`, flexible-`simp`
+notes); there are no errors and no `sorry` warnings.
 
-A b-ghost is a choice of complement of `range Q` inside `ker Q`, and `range V = ker Q ⊓ ker P`
-depends on that choice.  The construction of §8 is choice-based and fixes no mode pairing, so no
-theorem of the form `range smPhysProj = <transverse ∩ parity-even>` can be derived from it —
-that requires (i) a concrete `P`, i.e. the pairing of each longitudinal/ghost mode with its
-partner, and (ii) a ghost parity `U` with `U P = P U`, after which `physProjOf_mem_even` places
-`range V` in the even sector.  Neither exists for `smBrstCharge` in the corpus.  Stating the
-identification without them would be an axiom, so it is not stated.
+So the substitute check was sound, but "the root module elaborates" and "the whole book builds" are
+different statements, and the weaker one was labelled as the weaker one until it could be replaced.
 
-### 56.3. The fixing hypothesis was the wrong form of the input
+---
 
-§47's `physicalPositivity_of_quartet` asks for `η (V y) = V y` at every `y`.  Two things are
-wrong with that as the standing input: it is stronger than the no-ghost argument uses, and it is
-false for an indefinite ghost metric — the physical subspace is where the metric becomes
-positive, not where it becomes the identity.  The quartet reduction
-(`kform_quartet_reduce`) already turns the charge form of a closed state into the charge form of
-its physical part, so positivity is needed *on* `range V` only:
+## §56. Gradient domination for the NS potential itself (2026-11-13)
 
-  **`physicalPositivity_of_quartet_on_range`**: from `0 ≤ (kform η (V y) (V y)).re` and
-  `(…) = 0 → V y = 0` for all `y`, `PhysicalPositivity Q η` follows.
+### 56.1. The question, and a correction
 
-`physicalPositivity_of_homotopy_on_range` is the same statement in terms of `physProjOf Q P`, and
-**`smPhysicalPositivity_of_physForm`** instantiates it at `smBrstCharge`/`smQuartet`.  The fixing
-hypothesis and its theorem (`smPhysicalPositivity_of_etaPhys`) remain as the stronger variant; the
-interface of record is now the positivity-on-range one, because that is the estimate a physical
-smoke test can actually produce.
+> **Correction (§58, 2026-11-13):** the input this section reduces to, `VolDom`, is *false* for the
+> model's own `volPot` — the unimodular shears refute it with the ratio `4/ε² → ∞`.  `lagGradDom_of_volDom`
+> is therefore a reduction to an unsatisfiable hypothesis, and the §49 chain does not reach the NS
+> energy.  The two coercive blocks proved below are not affected.
 
-### 56.4. Verification performed (2026-11-13)
+§54 (ix) answered the cross-model question for Navier–Stokes with "the NS modules are
+operator-level (`BookProof/Ns/*`), so the NS half is the proof template rather than a proved
+counterexample".  That sentence was wrong, and this section corrects it: the Lagrangian NS model
+already carries a potential of exactly the contested shape, and the question can be *answered* for
+it rather than templated.  The request was to "prove the coercive domination for the NS model's own
+potential shape"; what follows separates the part that is free in the model from the one input that
+is not, and proves that the input cannot be dropped.
 
-* `lake build BookProof.Sm.ChapterSmQuartet` — `Build completed successfully`; no new warnings;
-  no line over 100 characters in the added blocks.
-* `lake env lean Work/SmQuartetConstructedAudit.lean` — 33 declarations, every one on exactly
-  `propext, Classical.choice, Quot.sound`; no `sorryAx`.  New in this step:
-  `mem_range_physProj_iff`, `range_physProj_le_closed`, `P_physProjOf`, `range_physProjOf`,
-  `physicalPositivity_of_quartet_on_range`, `physicalPositivity_of_homotopy_on_range`,
-  `smPhysProj_mem_closed`, `smPhysicalPositivity_of_physForm`.
-* `scripts/check-sm-section-guards` — green, with the §56 needles added.
+### 56.2. What the model already carries
 
-## §57. The SM b-ghost has a formula (2026-11-13)
+`BookProof/Ns/ChapterNsLagrangianDetFarisLavine` defines
 
-Module: `BookProof/Sm/ChapterSmBghostFormula.lean` (namespace `BookProof.SmQuartet`), audit
-`Work/SmQuartetConstructedAudit.lean`.  Supersedes the "choice-based, no formula" limitation
-recorded in §55.3 and §56.2: the b-ghost of the SM charge is now an explicit map.
+```
+lagEnergy S = 1 + ½ ∑_j v_j² + V_κ(ξ),      lagLyap S = lagEnergy S + ½ ∑_j ξ_j²,
+```
 
-### 57.1. The formula
+with `V_κ = volPot S.kappa S.kvec` the degree-six incompressibility penalty
+(`volPot_eval_nonneg`; its zero set is incompressible by `det_eq_one_of_volPot_eq_zero`).  New
+module `BookProof/Ns/ChapterNsGradDomCoercive.lean` (namespace `BookProof.NsGradDomCoercive`):
 
-For a finite-dimensional complex inner-product space and `Q : H →ₗ H`,
+* `pderiv_vel_lagEnergy` — `∂_{v_j} E = v_j`; `pderiv_disp_lagLyap` — `∂_{ξ_j} W = ∂_{ξ_j} V_κ + ξ_j`.
+* `vel_grad_sum`, `lagEnergy_vel_gradDom` — the velocity block is *exactly* the kinetic energy,
+  `∑_j (∂_{v_j}E)² = ∑_j v_j² ≤ 2E`, i.e. a domination with `a = 2` and **no constant term**.
+* `disp_grad_sum` — the Lyapunov displacement quadratic contributes `2 · ½∑ ξ²` exactly.
+* `lagGradDom_of_volDom` — if the penalty obeys `VolDom A B`
+  (`∑_j (∂_{ξ_j}V_κ)² ≤ A V_κ² + B`) then the whole of `lagLyap` obeys the pointwise domination
+  with `a = 2A + 3`, `b = 2B + 3`; `volDom_phase` is the same statement in phase-space coordinates.
 
-  **`P = (Q ↾ (ker Q)ᗮ)⁻¹ ∘ π_{range Q}`**  — `canonicalHomotopy`,
+The difference from QYM is the point: §55 had to *add* `∑_m X_m²` to `weylPotPoly` before §49's
+mechanism applied, while here the quadratic is part of the model.  So for NS the coercive input is
+already there and the open question is only the penalty's own estimate, named `VolDom`.
 
-built from two canonical pieces:
+### 56.3. The input cannot be dropped
 
-* **`kerEquivOfBrst : (ker Q)ᗮ ≃ₗ range Q`**, `x ↦ Q x` (`spineMap`).  Injectivity: a vector of
-  `(ker Q)ᗮ` killed by `Q` is orthogonal to itself, hence zero (`spineMap_injective`).
-  Surjectivity: split a preimage along `ker Q ⊕ (ker Q)ᗮ` (`spineMap_surjective`), which uses
-  `IsCompl (ker Q) (ker Q)ᗮ`.
-* **`π_{range Q}`**, Mathlib's orthogonal projection, whose kernel is `(range Q)ᗮ`.
+`not_gradDom_flatSextic` shows `VolDom` is not a consequence of `V_κ ≥ 0` and `deg V_κ = 6`: the
+flat sextic `(xyz)²` is non-negative of degree six (`ev3_flatSextic_nonneg`) and along
+`(t, 1/t, 1)` its potential is the constant `1` while `∑_j (∂_j)² = 4t² + 4/t² + 4`
+(`ev3_pderiv_zero`/`_one`/`_two`), so no `a, b` dominate it — the same curve as §48's flat quartic.
+Sixth-order flatness is no better than fourth-order flatness, and `lagGradDom_of_volDom` is a
+reduction, not a discharge.
 
-Consequences, each one line:
+What this does **not** say: nothing about `V_κ`'s actual `A`, `B` (the penalty is not flat, and its
+conic structure `conjP_volPot` is where those constants would come from), and nothing about ESA of
+the Lagrangian generator `N_L`, which remains the explicit hypothesis of
+`lagKoopman_esa_of_comparison_esa` (`lagCan_esa` is unconditional, `N_L`'s ESA is not).
 
-* `Q P = π_{range Q}` (`Q_canonicalHomotopy`) — because the inverse of the pairing is a right
-  inverse of `Q` (`Q_kerEquivOfBrst_symm`);
-* `Q P Q = Q` (`canonicalHomotopy_QSQ`) and `P Q P = P` (`canonicalHomotopy_SQS`) — the two
-  contraction identities, so `P` is a b-ghost in the sense of §47.5;
-* `ker P = (range Q)ᗮ` (`ker_canonicalHomotopy`).
+### 56.4. Verification (2026-11-13)
 
-No complement and no quartet is chosen: the only noncomputability is that of the orthogonal
-projection itself.  `quartet_canonical` assembles the quartet from it.
+* `lake build BookProof.Ns.ChapterNsGradDomCoercive` — `Build completed successfully`, and no
+  warnings attributed to the module (the >100-character lints of the first draft were fixed).
+* `lake env lean Work/AuditNs.lean` — 10 declarations (`evP_X_re`, `pderiv_vel_lagEnergy`,
+  `pderiv_disp_lagLyap`, `vel_grad_sum`, `lagEnergy_vel_gradDom`, `disp_grad_sum`, `volDom_phase`,
+  `lagGradDom_of_volDom`, `not_gradDom_flatSextic`, `ev3_flatSextic_nonneg`), every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §56 needles; the §56 co-occurrence pair
+  (`lagGradDom_of_volDom` → `not_gradDom_flatSextic`) is exercised negatively by `SM_PAIR_WINDOW=5`.
+* `lake build BookProof` to completion on the post-edit tree: **succeeded** (`8984 jobs`, 29m57s,
+  exit 0; §55.4's run of the same target reported `8982` jobs, the difference being the module added
+  here).  The log carries no errors and no `sorry`; its remaining messages are the pre-existing
+  linter advisories on modules this change did not touch.
 
-### 57.2. The physical subspace is now identified
+---
 
-Feeding the canonical `P` into §5's `physProjOf` gives
+## §57. The b-ghost on an index-restricted Euclidean space (2026-11-13)
 
-  **`range V = ker Q ⊓ (range Q)ᗮ`**  — `range_physProjOf_canonical`,
+### 57.1. The withdrawal this answers
 
-the closed states orthogonal to the exact ones.  This is the *transverse* half of the no-ghost
-statement, and it is now a theorem about an explicit projector rather than a description of an
-arbitrary one (§56.1 could only say `ker Q ⊓ ker P`).  At the charge:
+§47 (x) withdrew the attempt to build the SM's b-ghost for two reasons: this Mathlib has no product
+inner-product space, so a two-slot `K × K` ghost model cannot be handed to `IsBrst`/`BrstQuartet`;
+and the ghost-pairing metric satisfied `η (V x) = V (η x)` but not `η (V y) = V y`.  The first is a
+bookkeeping obstacle and it is now removed; the second is a real obstruction only for the *pairing*
+metric, not for the index-swap metric.  §6 of `ChapterSmQuartet` had already exhibited the whole
+mechanism on a hand-written three-dimensional block; what was missing was a construction that does
+not depend on the size of the sector.  That is what this section adds.
 
-  **`smPhysProjFormula_range : range smPhysProjFormula = closed (smBrstCharge m T f3) ⊓
-  (range (smBrstCharge m T f3))ᗮ`**,
+### 57.2. The construction
 
-with `smBghostFormula = canonicalHomotopy (smBrstCharge m T f3)` and
-`smPhysProjFormula = physProjOf (smBrstCharge m T f3) smBghostFormula`; the kernel statement is
-`ker_smBghostFormula`.
+New module `BookProof/Sm/ChapterSmIndexGhostQuartet.lean` (namespace
+`BookProof.SmIndexGhostQuartet`).  The index set is
 
-### 57.3. What is still missing, and one presentation limit
+```
+Idx n m = (Fin n × Bool) ⊕ Fin m,
+```
 
-* **Ghost parity.**  `range smPhysProjFormula` is proved transverse but *not* proved
-  ghost-parity even: the corpus has no ghost-parity operator on `FermiFock (m + 12)`.  Adding
-  `U` with `U² = 1`, `‖U x‖ = ‖x‖`, `U Q = Q U`, `U P = P U` would put the range in the even
-  sector by §5's `physProjOf_mem_even`; that operator is the next object to build.
-* **Positivity.**  Unchanged from §56.3: `PhysicalPositivity` still needs the charge form to be
-  positive definite on `range V` (`physicalPositivity_of_quartet_on_range`).  The formula does not
-  supply an estimate, only the subspace on which the estimate is taken.
-* **Presentation limit (elaborator, not mathematics).**  The SM-level *restatements*
-  `Ω P Ω = Ω`, `P Ω P = P` as theorems diverge in the elaborator: checking the generic proof
-  term (`canonicalHomotopy_QSQ (smBrstCharge m T f3)`) against the SM statement times out at
-  `isDefEq` even at `maxHeartbeats 1000000`, because the statement applies `smBrstCharge` to
-  compound terms.  The identities are therefore cited generically (`canonicalHomotopy_QSQ`,
-  `canonicalHomotopy_SQS`) and, at the SM, through the formula's definitions, exactly as §55.3
-  treats the quartet identity.  The kernel and range statements do not have this problem and are
-  SM-level theorems.
+with `(a, false)` the ghost of pair `a`, `(a, true)` its antighost, and `inr j` a physical mode, and
+the space is `Space n m = EuclideanSpace ℂ (Idx n m)`.  Three maps, *by index*, for every `n, m`:
 
-### 57.4. Verification performed (2026-11-13)
+* `Q` sends `(a, false) ↦ (a, true)` and kills everything else;
+* `P` sends `(a, true) ↦ (a, false)` and kills everything else;
+* `Eta` swaps `(a, false) ↔ (a, true)` and fixes the physical modes.
 
-* `lake build BookProof.Sm.ChapterSmBghostFormula` — `Build completed successfully`.
-* `lake env lean Work/SmQuartetConstructedAudit.lean` — 49 declarations, every one on
-  `propext, Classical.choice, Quot.sound`; no `sorryAx`.  New in this step: `spineMap`,
-  `spineMap_injective`, `spineMap_surjective`, `kerEquivOfBrst`, `Q_kerEquivOfBrst_symm`,
-  `canonicalHomotopy`, `Q_canonicalHomotopy`, `canonicalHomotopy_QSQ`, `canonicalHomotopy_SQS`,
-  `ker_canonicalHomotopy`, `range_physProjOf_canonical`, `quartet_canonical`, `smBghostFormula`,
-  `smPhysProjFormula`, `ker_smBghostFormula`, `smPhysProjFormula_range`.
-* `scripts/check-sm-section-guards` — green, with the §57 needles added.
+The six inputs of `physicalPositivity_of_homotopy` are all discharged:
+
+* `Q_nil : IsBrst (Q n m)`; `QPQ`, `PQP` — the two contraction identities, one `ext_coords`
+  argument each;
+* `krein` — `⟨η (Q x), y⟩ = ⟨η x, Q y⟩`, by expanding the inner product over the index set;
+* `symm` — the charge form is symmetric.  This one is *derived*, not computed: `Eta_inner` says the
+  metric is an isometry (it permutes coordinates) and `Eta_involutive` says `η² = 1`, which turn
+  `⟨x, η y⟩` into `⟨η x, y⟩ = conj ⟨y, η x⟩`;
+* `eta_physProj` — `η (V y) = V y` for the *computed* projector `V = physProjOf Q P`.  This is the
+  point the §47 withdrawal failed on, and the index restriction is why it works: `physProj_ghost`
+  and `physProj_anti` show `V` lands on the physical coordinates, where `η` is the identity.
+
+Hence `physicalPositivity (n m) : PhysicalPositivity (Q n m) (Eta n m)` with **no hypotheses**, and
+`physVec_not_exact` shows the model's cohomology is non-trivial: a physical mode is closed and not a
+gauge orbit, so this is not positivity on a space where everything is exact.  Nothing is chosen per
+pair; `n = 12` — the SM ghost count — is an instance, not a case.
+
+### 57.3. What this does not do
+
+It is **not** `smBrstCharge`.  That charge lives on the fermionic Fock space `FermiFock (m + 12)` and
+is known here only as a `Module.End`; to instantiate this model on it one still needs an
+inner-product structure on the Fock space, the charge as a linear map, and the identification of its
+twelve ghost modes with the index pattern above.  So `PhysicalPositivity` for `smBrstCharge` remains
+a named input — but the input has moved: it is no longer *quartet data* (a b-ghost and a metric,
+which is what §47 and §50 recorded as missing) but an *identification*, since the quartet data now
+exists at every size and the metric is proved to fix the projector's range.  Nothing in the SM claim
+is upgraded until that identification is written down.
+
+### 57.4. Verification (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostQuartet` — `Build completed successfully`, no warnings
+  on the module.
+* `lake env lean Work/SmIndexGhostAudit.lean` — 11 declarations (`Q_nil`, `QPQ`, `PQP`,
+  `physProj_phys`, `eta_physProj`, `Eta_involutive`, `Eta_inner`, `krein`, `symm`,
+  `physicalPositivity`, `physVec_not_exact`), every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §57 needles, and the §57 pair
+  (`eta_physProj` → `physVec_not_exact`, construction then non-vacuity) is exercised negatively by
+  `SM_PAIR_WINDOW=4`.
+* `lake env lean BookProof.lean` then `lake build BookProof` — `Build completed successfully`,
+  `8988 jobs`, exit 0, in 8.9s because every dependency was already built on this tree; §56.4's
+  29m57s run of the same target was the full recompile, so this is a reachability check of the new
+  import rather than a second full build.
+
+---
+
+## §58. `VolDom` is false for the actual volume penalty (2026-11-13)
+
+### 58.1. What §56 left open, and what the answer turned out to be
+
+§56 reduced gradient domination for the NS Lagrangian energy to a single pointwise estimate on the
+incompressibility penalty `V_κ` and proved that non-negativity plus degree six cannot give it
+(`not_gradDom_flatSextic`).  The request was to evaluate `VolDom A B` for the model's own `volPot`
+and report numeric constants.  The measurement below reports a different answer: **no finite `A` and
+`B` exist**.  `VolDom A B` is not merely unproved for `volPot` — it is false, so
+`lagGradDom_of_volDom` can never be applied and the §49-style route does not reach the NS energy at
+all.  §56.3's phrase "the one input" should be read as "the one input, and it is unprovable".
+
+### 58.2. The family that refutes it
+
+Let `F = I + ∇ξ`, and take `N = e_x ⊗ e_y`, the shear generator: `N² = 0`, so `det(I + tN) = 1` for
+every amplitude `t`.  Perturb transversally by `ε B` with `B = e_y ⊗ e_x` (so `tr B = 0` while
+`tr(NB) = 1`).  Then `(I + tN)⁻¹ = I − tN` and
+
+```
+det F − 1 = ε · tr((I − tN) B) + O(ε²) = −ε t + O(ε²),
+```
+
+so `V_κ = (κ/2) ε² t² + O(ε³)`.  The two partial derivatives are `∂_t V_κ ≈ κ ε² t` and
+`∂_ε V_κ ≈ κ ε t²`, hence
+
+```
+|∇V_κ|² / V_κ²  →  (κ² ε² t⁴)/((κ/2)² ε⁴ t⁴)  =  4/ε².
+```
+
+The ratio does not grow with the amplitude `t` — it *saturates* at `4/ε²` — and `ε → 0` makes it
+unbounded.  No `A`, `B` can dominate a quantity whose supremum is infinite, so `VolDom A B` fails for
+every pair.
+
+The obstruction is the shear family, not the degree: `V_κ` is flat along the unimodular directions
+(`det F = 1` exactly there) while its gradient still grows like `t` in the transverse direction.  It
+is the same failure mode as the QYM `weylPotPoly` of §54 and the flat sextic of §56.3, with the
+flatness coming from incompressibility rather than from monomial structure.
+
+### 58.3. The measurement (`scripts/eval-vol-dom.py`)
+
+The script evaluates `volPot` exactly on the truncation `|K| = 2`, `k(k₀) = e_x`, `k(k₁) = e_y`,
+`κ = 1` — 12 real coordinates, 25 momenta — reconstructing `detCoef` as the triple convolution of
+`ChapterNsLagrangianDetConvolution` and differentiating with forward-mode dual numbers, so both `V_κ`
+and `∇V_κ` are exact for that truncation (no finite differences).  Reported quantity:
+`|∇V_κ|²/(V_κ² + 1)`, whose supremum is the quantity any `A = B` must dominate.
+
+| `t` | `ε` | `V_κ` | `|∇V_κ|²` | ratio | `4/ε²` |
+|---|---|---|---|---|---|
+| 1e2 | 1e-2 | 2 | 1.6e5 | 32000 | 4e4 |
+| 1e4 | 1e-2 | 2e4 | 1.6e13 | 40000 | 4e4 |
+| 1e5 | 1e-2 | 2e6 | 1.6e17 | 40000 | 4e4 |
+| 1e2 | 1e-3 | 0.02 | 1600 | 1599.36 | 4e6 |
+| 1e4 | 1e-3 | 200 | 1.6e11 | 3.9999e6 | 4e6 |
+| 1e5 | 1e-3 | 2e4 | 1.6e15 | 4e6 | 4e6 |
+| 1e2 | 1e-4 | 2e-4 | 16 | 16 | 4e8 |
+| 1e4 | 1e-4 | 2 | 1.6e9 | 3.2e8 | 4e8 |
+| 1e5 | 1e-4 | 200 | 1.6e13 | 4e8 | 4e8 |
+
+Three rows of `t` per `ε` show the saturation at `4/ε²` predicted in §58.2, and the last column is
+that prediction; the saturated ratios agree to every printed digit.  The prefactor of `V_κ` itself is
+larger than the two-term expansion of §58.2 by `4` — the shear and its tilt each split over a mode
+and its conjugate — which cancels in the ratio and leaves the `4/ε²` law intact.  Unrestricted random sampling (`400` points,
+scales `1e-1.5`–`1e1`), large-amplitude sampling (`400` points, scales `1e1`–`1e2.5`) and noisy
+shear samples give `7.05`, `0.79` and `334` respectively — the sampled supremum over a *bounded* box
+is finite and small, which is exactly why the failure needs the two-parameter family rather than
+random sampling to be visible.
+
+This is a measurement, not a proof: it is the exact value for a truncation of the model, and it
+matches the analytic expansion §58.2 term by term.  A Lean refutation of `VolDom` at the model's own
+constants would require evaluating `detCoef` on an explicit two-mode model; the analytic expansion
+above is the statement a proof would formalize.
+
+### 58.4. What this changes
+
+* `lagGradDom_of_volDom` stands as a reduction, but its hypothesis is *unsatisfiable*: the NS
+  Lyapunov energy is **not** gradient-dominated, and the §49 chain (`GradBound` →
+  `pointwise_dom_of_sq_sum` → `PotSelfBound`) cannot be run on `lagEnergy`/`lagLyap`.
+* The two blocks that *are* dominated remain true and independent (`lagEnergy_vel_gradDom`,
+  `disp_grad_sum`): the velocity and displacement quadratics are coercive in the model.
+* A repairable route, recorded and not attempted: dominate with a weight that vanishes on the
+  shear family — i.e. replace `V_κ²` by `V_κ² + (deviation from unimodularity)⁴` or restrict the
+  estimate to configurations with a positive lower bound on `|det F − 1| + |∇ det F|`.  Either
+  changes the potential, so it is a different model, not a proof of this one.
+
+---
+
+## §59. The parity sectors of the index-restricted ghost complex (2026-11-13)
+
+### 59.1. The question
+
+§57 proves `PhysicalPositivity` for the index-restricted complex with `eta_physProj` as its last
+input.  The sector refinement of the no-ghost theorem replaces that single hypothesis by two
+estimates, one per parity sector, and the request was to add the parity-even version so that
+`physicalPositivity_of_homotopy_sectors` applies.  It turns out there are two sector statements, and
+exactly one of them can hold.
+
+### 59.2. The global hypotheses are inconsistent — in any space
+
+`physicalPositivity_of_homotopy_sectors` and `physicalPositivity_of_quartet_sectors` ask for
+non-negativity **and definiteness** of the charge form on the whole of each parity sector.  For a
+unitary involution `U` preserving `η`, a vector splits into orthogonal even and odd parts
+(`kform_quadForm_split`), so those four hypotheses make the charge form positive definite on the whole
+space; a nilpotent charge that is self-adjoint for a definite form is zero.  This is
+`global_sectors_force_zero`, proved in the general inner-product setting, and it makes the request as
+literally stated impossible: any nonzero nilpotent BRST charge refutes its own sector hypotheses.  The
+index model is the witness (`parity_globals_fail`, `Q_ne_zero`), and so is every non-abelian gauge
+theory.
+
+### 59.3. The closed-space hypotheses hold, for the ghost parity
+
+With `Par` = `−1` on every ghost and antighost coordinate and `+1` on the physical ones
+(`ChapterSmIndexGhostSectors`), the parity is an involutive isometry commuting with `η`, `Q` and `P`
+(`Par_involutive`, `Par_norm`, `Eta_comm_Par`, `Q_comm_Par`, `P_comm_Par`).  Coordinatewise:
+
+* an even vector has neither ghost nor antighost coordinates (`ghost_eq_zero_of_mem_even`,
+  `anti_eq_zero_of_mem_even`), so `η` fixes it (`Eta_eq_of_mem_even`) and the charge form is `‖v‖²`
+  (`kform_even_nonneg`);
+* an odd *closed* vector is a pure antighost (`phys_eq_zero_of_mem_odd` plus closure), whose `η`-image
+  is a pure ghost, so the form vanishes (`kform_odd_closed`).
+
+Hence the sector hypotheses hold on `ker Q`, which is the shape `kform_quadForm_nonneg` consumes, and
+`kform_nonneg_closed` assembles them into non-negativity on the whole closed space —
+`sector_hypotheses_closed` states them in that form.  The lesson matches §47: the sector hypotheses
+have to be read on the closed space, not on the ambient space.
+
+### 59.4. What is *not* claimed
+
+The radical half of `PhysicalPositivity` still uses `eta_physProj` (as in
+`ChapterSmIndexGhostQuartet.physicalPositivity`): an odd antighost has vanishing charge form, so
+definiteness cannot remove it — only the quartet decomposition can, and that is what the sibling
+module does.  So the sector route supplies the non-negativity, and the radical remains where §57 left
+it.
+
+### 59.5. Verification
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostSectors` — succeeded (10s), no warning attributed to the
+  module.
+* `lake env lean Work/SmIndexGhostSectorAudit.lean` — 11 declarations, every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §59 needles; the pair
+  (`global_sectors_force_zero` → `parity_globals_fail`) is exercised negatively by
+  `SM_PAIR_WINDOW` set below its span.
+
+---
+
+## §60. The Fock side of the ghost sector (2026-11-13)
+
+### 60.1. A correction to item (xii)
+
+`HONEST_BOUNDARIES_SM` (xii) said that to instantiate the index-restricted quartet on
+`smBrstCharge` one still needs "an inner product on that Fock space".  Read literally that is wrong.
+The fermionic Fock space of this corpus is `FermiFock n = ℓ²(Finset (Fin n)) = EuclideanSpace ℂ
+(Finset (Fin n))`, which *is* an inner-product space: its occupation basis is orthonormal
+(`occ_inner`, restated here from `ChapterSmCarAlgebra`) and the CAR creation operators are adjoints
+for it (`inner_creat_left`).  No product structure was ever missing.
+
+### 60.2. The identification that is true
+
+`ChapterSmIndexGhostFock` proves the part of the identification that holds:
+
+* the twelve ghost modes are `ghostMode m a`, the last twelve coordinates of `Fin (m + 12)`, and
+  `ghostMode_injective` makes that an injection of mode labels;
+* their occupation vectors `ghostVec m a = occ {ghostMode m a}` are orthonormal
+  (`ghostVec_orthonormal`), so the one-particle ghost sector is an isometric copy of
+  `EuclideanSpace ℂ (Fin 12)` — one coordinate per ghost pair, which is the index pattern;
+* that copy is exactly the orbit of the vacuum under `ghostCre` (`ghostCre_vac`);
+* the pairing that the index model's metric `η` implements is realized on the Fock side by the
+  adjunction `b_a = (c^a)†` (`ghost_pairing`, from `inner_creat_left`).
+
+### 60.3. The identification that is false
+
+`smBrstCharge` is **not** the index complex at `n = 12`.  It is `∑ a, χ_a G^a − ½ ∑ f χ β`, a
+degree-one derivation whose linear part pairs a ghost with a *matter* bilinear and whose quadratic
+part creates a second ghost, so it does not preserve the one-particle ghost sector: a single ghost is
+not mapped to a single antighost.  The index-restricted quartet is therefore the free (one-particle)
+part of the ghost complex — an isometric slice of the Fock space, not a subcomplex of
+`smBrstCharge`.  What remains open is the b-ghost of the derivation, and that is what (xii) should
+have named.
+
+### 60.4. Verification
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostFock` — succeeded (4.5s), no warning attributed to the
+  module.
+* `lake env lean Work/SmIndexGhostFockAudit.lean` — 5 declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`.
+

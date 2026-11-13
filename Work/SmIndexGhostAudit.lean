@@ -1,0 +1,14 @@
+import BookProof.Sm.ChapterSmIndexGhostQuartet
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.SmIndexGhostQuartet
+#audit_axioms Q_nil
+#audit_axioms QPQ
+#audit_axioms PQP
+#audit_axioms physProj_phys
+#audit_axioms eta_physProj
+#audit_axioms Eta_involutive
+#audit_axioms Eta_inner
+#audit_axioms krein
+#audit_axioms symm
+#audit_axioms physicalPositivity
+#audit_axioms physVec_not_exact
