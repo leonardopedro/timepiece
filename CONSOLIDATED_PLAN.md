@@ -7,8 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13f):** “State of the project — 2026-11-13f: the meson square's `3 ⊕ 1`
-> carries the same statements” (end of file): the meson square now has both packets —
+> **Newest entry (2026-11-13g):** “State of the project — 2026-11-13g: the weighted gates cannot see
+> diagonal phases” (end of file): `PhaseRelated u col col'` (`col'_{k j} = u_k conj(u_j) col_{k j}`,
+> `‖u_k‖ = 1`) leaves all three weighted Schur gates unchanged — same `K`, same `B` — so the gates
+> transfer across the `coreBasis`/`hermBasisN` bridge once that bridge is known to be diagonal
+> phases.
+>
+> **Earlier entry (2026-11-13f):** “State of the project — 2026-11-13f: the meson square's `3 ⊕ 1`
+> carries the same statements”: the meson square now has both packets —
 > `mesonSymm_irreducible` (weights `1, 0, -1`, projectors, basis and the ladders `A¹ ∓ i A⁰` on the
 > meson fibre), `mesonAlt_irreducible` (a line, so by dimension), and the existence and uniqueness of
 > the split `v = s + a` (`meson_decompose`, `meson_decompose_unique`).
@@ -23674,3 +23680,42 @@ gives `[propext, Classical.choice, Quot.sound]`; the new block has no line over 
 **Boundary.**  Both squares are now split into irreducibles and both splits are unique; nothing here
 identifies the meson triplet with the glueball antisymmetric part beyond the intertwiner already in
 the corpus, and no norm, closedness or dynamics is claimed.
+
+## State of the project — 2026-11-13g: the weighted gates cannot see diagonal phases
+
+`13e` left the `coreBasis`/`hermBasisN` bridge as an analysis: the two bases agree up to one phase
+per level, and the gates read only entry moduli.  The second half is now a theorem, in
+`BookProof/Toolbox/ChapterFockGatePhaseInvariance.lean`
+(namespace `BookProof.FockGatePhaseInvariance`), because it is the half that needs no analysis of
+Hermite coefficients at all.
+
+**The relation.**  `PhaseRelated u col col'` is entrywise
+`col'_{k j} = u_k conj(u_j) col_{k j}` — the matrix form of `A ↦ D A D*` for a diagonal unitary with
+`‖u_k‖ = 1`.  `phaseRelated_star` shows the
+relation is invertible: the phases undo each other because `conj(u) u = ‖u‖² = 1` in one order and
+`u conj(u) = 1` in the other (the two sides of `RCLike.conj_mul`, the second by `mul_comm`).
+
+**Why it is enough.**  All three gates read only moduli.  `support_phase` keeps the support
+(`u_k conj(u_j) c = 0 ↔ c = 0`, from `‖u_k‖ = 1`), and `norm_phase` keeps every entry:
+`‖u_k conj(u_j) c‖ = ‖c‖`.  Then `WRowBound.phase`, `WColBound.phase` and `WCommBound.phase`
+transport the three gates, the `_iff` forms give the converses back through `phaseRelated_star`, and
+`gates_phase_iff` bundles them: same constants `K` and `B`, same symbol `w`, no re-derivation.
+
+**What this closes.**  It removes the last step of the bridge.  Once
+`coreBasis e k = u_k • hermBasisN e k` holds for a degree-compatible enumeration `e`, the Yang–Mills
+gate theorems of `13b` (and with them
+`ymHermCol_essentiallySelfAdjointOn_core_of_commBound`) transfer to the `coreBasis` coordinates with
+their constants unchanged.
+
+**What it does not close.**  The first step of the bridge is still missing and it is a real
+obligation, not a formality: it needs `⟨x^α, ψ_β⟩ = 0` whenever some `β_i > α_i` — the
+product-Hermite counterpart of “`h_n` is orthogonal to every polynomial of degree `< n`”.  The corpus proves
+`hermiteInner_eq` for equal degrees only, so the lower-degree vanishing is unimplemented, and the
+module header states that boundary instead of claiming the bridge.
+
+**Verification.**  `lake env lean` and `lake build BookProof.Toolbox.ChapterFockGatePhaseInvariance`
+clean (8078 jobs, no warning from the new module); `#print axioms` on `gates_phase_iff`,
+`support_phase` and `phaseRelated_star` gives `[propext, Classical.choice, Quot.sound]`; no line
+over 100 characters, no trailing whitespace.  The `BookProof.lean` aggregator imports the module
+with a header comment, and the QYM row of `CURRENT_WORK_ORDER.md` now records the gate-invariance
+step while keeping “no bridge is proved” as the row's standing caveat.

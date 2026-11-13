@@ -1163,6 +1163,10 @@ import BookProof.Toolbox.ChapterFockSchurEsa
 -- quantization `dΓ(A)` obeys `‖dΓ(A)u‖ ≤ K‖(dΓ(w²)+1)u‖` and the Faris–Lavine commutator
 -- estimate on the finite-occupation core, hence is essentially self-adjoint there.  The
 -- witness is the *unbounded* oscillator matrix `A_{k,k+1} = A_{k+1,k} = √(k+1)`.
+-- **Diagonal phases are invisible to the weighted Schur gates.**  A basis change `A ↦ D A D*` with
+-- `‖u_k‖ = 1` scales the entries by `u_k conj(u_j)`, and all three gates (row, column, commutator)
+-- read only entry moduli, so they are invariant with the same constants (`gates_phase_iff`).
+import BookProof.Toolbox.ChapterFockGatePhaseInvariance
 import BookProof.Toolbox.ChapterFockWeightedGateSharpness
 import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 -- The **graded band calculus** of the product Hermite basis: the ladder operators are
