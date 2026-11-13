@@ -1174,6 +1174,10 @@ import BookProof.Toolbox.ChapterHermiteVanishing
 -- projection onto the earlier span, and any unit vector spanning the orthogonal complement
 -- reproduces it up to a scalar (`gramSchmidt_eq_smul_of_decomp`); applied to `coreBasis`.
 import BookProof.Toolbox.ChapterFockGramSchmidtProjection
+-- **The bridge is closed**: the monomial–Hermite triangularity `x^α − He_α` in the span of the
+-- lower-degree monomials, the decomposition `x^{e k} e^{-‖x‖²/4} = w + ‖ψ_{e k}‖ • ψ_{e k}`, and
+-- `coreBasis e k = hermBasisN e k` for degree-compatible `e` (`DegreeCompatible`).
+import BookProof.Toolbox.ChapterHermiteBridgePhases
 import BookProof.Toolbox.ChapterFockWeightedGateSharpness
 import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 -- The **graded band calculus** of the product Hermite basis: the ladder operators are

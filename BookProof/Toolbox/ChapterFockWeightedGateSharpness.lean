@@ -20,6 +20,12 @@ The mechanism is the interplay of two rates.  Across a band of radius `4` the ga
 `|w_j^2 − w_k^2| / (w_k w_j)` with `w_k = (deg k + 1)^2` decays like `1/deg`, so an entry growing
 like `(deg + 1)^p` contributes like `deg^{p−1}`: bounded for `p = 1`, unbounded for `p = 2`.
 
+A third lemma, `not_wCommBound_of_entry`, is the interface to the analysis: if a *single* weighted
+entry exceeds `B`, the gate fails.  A concrete lower bound on one entry of `ymHermCol` would
+therefore refute `WCommBound (ymW e) (ymHermCol e fabc)` outright, with no combinatorial estimate.
+The corpus has no such lower bound; the expected size of the quartic magnetic entries is the
+analysis of `CONSOLIDATED_PLAN.md` §2026-11-13e, not a theorem.
+
 ## What this does *not* say
 
 `not_wCommBound_quadratic` is a statement about the *hypotheses*: it exhibits a matrix satisfying
@@ -147,6 +153,31 @@ theorem wCommBound_of_linear_entries {deg : ℕ → ℕ} {col : ℕ → (ℕ →
   calc ((col k).support.card : ℝ) * (400 * C)
       ≤ M * (400 * C) := mul_le_mul_of_nonneg_right (hcard k) (by positivity)
     _ = 400 * C * M := by ring
+
+/-! ## Turning a single large entry into a refutation
+
+The negative half above is synthetic: it exhibits a matrix satisfying the band hypotheses whose
+entries are too large.  The actual Yang–Mills matrix would have to be refuted by computing one of
+its entries, and the step from such a computation to `¬ WCommBound` is the following. -/
+
+/-- **A single oversized entry refutes the gate.**  If the `(k, j)` entry of the matrix, weighted by
+`|w_j² − w_k²| / (w_k w_j)`, already exceeds `B`, then the `k`-th row sum exceeds `B` and the gate
+fails.  This is the interface between a concrete lower bound on a Hermite coefficient and
+`¬ WCommBound`; it is the form in which an entry computation for the quartic magnetic square
+would be consumed. -/
+theorem not_wCommBound_of_entry {w : ℕ → ℝ} (hw : ∀ k, 0 < w k) {col : ℕ → (ℕ →₀ ℂ)} {B : ℝ}
+    {k j : ℕ} (hj : j ∈ (col k).support)
+    (hbig : B < ‖(col k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j)) :
+    ¬ WCommBound w col B := by
+  intro hgate
+  have hrow := hgate k
+  have hnn : ∀ x ∈ (col k).support, 0 ≤ ‖(col k) x‖ * |w x ^ 2 - w k ^ 2| / (w k * w x) := by
+    intro x _
+    exact div_nonneg (mul_nonneg (norm_nonneg _) (abs_nonneg _)) (mul_pos (hw k) (hw x)).le
+  have hle : ‖(col k) j‖ * |w j ^ 2 - w k ^ 2| / (w k * w j)
+      ≤ ∑ x ∈ (col k).support, ‖(col k) x‖ * |w x ^ 2 - w k ^ 2| / (w k * w x) :=
+    Finset.single_le_sum hnn hj
+  linarith
 
 /-! ## Quadratic entry growth breaks the gate -/
 

@@ -7,7 +7,17 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13i):** “State of the project — 2026-11-13i: the vanishing lemma, the
+> **Newest entry (2026-11-13j):** “State of the project — 2026-11-13j: the bridge is closed with no
+> phases at all” (end of file): the monomial–Hermite triangularity `x^α − He_α ∈ span{degree <
+> |α|}` is proved from the three-term recurrence alone, the decomposition
+> `x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` holds with `w` in the earlier Gram–Schmidt span and
+> `c = ‖ψ_{e k}‖`, the coefficient has modulus one after normalization
+> (`gramSchmidtNormed_eq_phase_of_decomp`), and consequently `coreBasis e k = hermBasisN e k`
+> exactly — phase `1` — for a degree-compatible enumeration (`DegreeCompatible`), which discharges
+> `BridgePhases` in the Yang–Mills gate module.  The commutator gate gets a one-entry refutation
+> interface (`not_wCommBound_of_entry`); it stays open (expected false for `f_abc ≠ 0`).
+>
+> **Earlier entry (2026-11-13i):** “State of the project — 2026-11-13i: the vanishing lemma, the
 > Gram–Schmidt projection lemma, and the QYM gates in `coreBasis` coordinates” (end of file): the
 > product Hermite function is orthogonal to every monomial Gauss function of strictly smaller
 > coordinatewise degree (`inner_monomial_hermiteMvLp_eq_zero`), the Gram–Schmidt vector is the base
@@ -23844,3 +23854,103 @@ of `He_β` plus a count of the monomials of each degree), and `‖c‖ = 1` afte
 here bounds the commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B`; `13d` records that the
 band calculus can neither supply it nor refute it.  So the QYM ESA statement is conditional on two
 hypotheses — the bridge and the commutator gate — and no unconditional Yang–Mills gap is claimed.
+
+## State of the project — 2026-11-13j: the bridge is closed with no phases at all
+
+`§2026-11-13i` left the `coreBasis` ↔ `hermBasisN` bridge conditional on two inputs: writing
+`x^{e k} e^{-‖x‖²/4}` as `w + c • ψ_{e k}` with `w` in the earlier Gram–Schmidt span, and `‖c‖ = 1`
+after normalization.  Both are now theorems, and the conclusion is stronger than a phase: for a
+degree-compatible enumeration the two bases are **equal**, `coreBasis e k = hermBasisN e k`.
+
+**1. Degree-compatible enumerations.**  `BookProof/Toolbox/ChapterHermiteBridgePhases.lean`
+(ns `BookProof.HermiteBridgePhases`).  `DegreeCompatible e` says every multi-index of total degree
+below that of `e k` occurs before `k`:
+
+* `DegreeCompatible.degree_mono` — the total degree is nondecreasing along `e`.  Take `b = e k` in
+  the defining clause: if `deg (e j) > deg (e k)` for some `j < k`, then `e k` occurs at an index
+  `< j < k`, contradicting injectivity;
+* `DegreeCompatible.exists_lt_apply` — the coordinatewise hypothesis `∃ i, e j i < e k i` that
+  `§2026-11-13i`'s `hermiteMvLp_mem_orthogonal_gsSpan` consumes.  If no coordinate of `e j` is
+  below `e k`, then `e k ≤ e j` componentwise with equal sums by `degree_mono`, hence `e j = e k`,
+  contradicting injectivity.  So the two hypotheses of the earlier packet are not independent:
+  degree compatibility implies the vanishing lemma's hypothesis.
+
+**2. The triangularity, from the recurrence alone.**  `monomialSpan d n` is the span of the
+monomials of total degree `< n`, and `monomial_sub_hermiteMv_mem` states
+
+`monomial a 1 − hermiteMv a ∈ monomialSpan d (∑ i, a i)`.
+
+The proof is a strong induction on the total degree.  Pick a nonzero coordinate `i`, put
+`b := a − e i`, and use `hermiteMv_X_mul i b`:
+
+`X i · He_b = He_a + (b i) • He_{b − e i}`.
+
+Multiplying the induction hypothesis `monomial b 1 = He_b + q_b` by `X i` gives
+`monomial a 1 = He_a + (b i)·He_{b−e i} + X i·q_b`, so the claim follows from
+`mul_X_mem_monomialSpan` (multiplying a low-degree span by a coordinate raises the degree by one)
+and `mem_monomialSpan_of_totalDegree_lt` (a polynomial of total degree `< n` is a combination of
+monomials of degree `< n`).  **No monicity of `He_n` is used**: the recurrence already records that
+the leading monomial of `He_a` is `x^a`, which is what monic triangularity would have supplied.  The
+`§2026-11-13g` sketch had listed monic triangularity plus a monomial count as the missing work; the
+count is still what the *next* step needs (it is `DegreeCompatible`), but monic triangularity is
+subsumed.
+
+**3. The decomposition and the coefficient.**  `monomialSpanLp d n` is the same span inside
+`L²(ℝᵈ)`, `pgLp_mem_monomialSpanLp` carries polynomials into it, and `monomialSpanLp_le_gsSpan`
+identifies it with the earlier Gram–Schmidt span under `DegreeCompatible` (each small monomial is
+`coreFamily e j` for some `j < k`, by `gsSpan_eq_span_Iio`).  Then
+
+* `coreFamily_sub_hermiteMvLp_mem` — **the decomposition**:
+  `f k − ‖ψ_{e k}‖ • ψ_{e k} ∈ gsSpan f k`, i.e. `x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` with
+  `w` in the earlier span and `c = ‖ψ_{e k}‖ ≠ 0` (the coefficient is the norm of the
+  *un-normalized* Hermite function, because `pgLp_hermiteMv_eq` writes `pgLp (He_a) = ‖ψ_a‖ • ψ_a`);
+* `norm_hermiteMvLp` — the Hermite functions are unit vectors, `‖ψ_a‖ = 1` (from
+  `inner_hermiteMvLp` and `inner_self_eq_norm_sq`);
+* `gramSchmidtNormed_eq_phase_of_decomp` — **the general `‖c‖ = 1` statement**: for *any* space, any
+  unit vector `g` in the orthogonal complement of the earlier span with `f k − c • g` in that span
+  and `c ≠ 0`, there is `u` with `‖u‖ = 1` and `gramSchmidtNormed f k = u • g`, namely
+  `u = ‖c‖⁻¹ c`.  Nothing here is specific to Hermite functions: any unit vector realising the
+  orthogonal direction is the normalized Gram–Schmidt vector up to a unit phase;
+* `gramSchmidt_coreFamily_eq` — `gramSchmidt f k = ‖ψ_{e k}‖ • ψ_{e k}` for the core family;
+* `coreBasis_eq_hermBasisN` — **the bridge, with phase `1`**: `coreBasis e k = hermBasisN e k`.  The
+  normalization cancels the coefficient exactly, so the diagonal phase of `§2026-11-13g` is trivial
+  in this case; `exists_unit_phase_coreBasis` records the `∃ u, ‖u‖ = 1` form for consumers that
+  want the phase interface.
+
+**4. `BridgePhases` discharged.**  In `BookProof/Qym/ChapterYangMillsCoreBasisGates.lean`:
+`bridgePhases_one` proves `BridgePhases e (fun _ => 1)` from `DegreeCompatible e`, and
+`ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible` is the end-to-end statement with the
+bridge hypothesis gone:
+
+`DegreeCompatible e → WCommBound (ymW e) (ymHermCol e fabc) B →
+   EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymCoreCol e fabc))`.
+
+So of `§2026-11-13i`'s two hypotheses, the bridge is proved and only the commutator gate remains.
+
+**5. The commutator gate: a one-entry refutation interface, not a proof.**
+`BookProof/Toolbox/ChapterFockWeightedGateSharpness.lean` gains `not_wCommBound_of_entry`: if a
+single weighted entry `‖(col k) j‖ · |w_j² − w_k²| / (w_k w_j)` exceeds `B` at a support index `j`,
+then `¬ WCommBound w col B` (the row sum dominates that term and the terms are nonnegative).  This
+is the exact interface the `§2026-11-13e` analysis needs: the expected `Θ(deg²)` size of the quartic
+magnetic entries would refute the gate through this lemma with no combinatorial estimate at all.
+
+**Status of the gate itself: still open, and still expected false for `f_abc ≠ 0`.**  Nothing here
+lowers or raises a bound on `ymHermCol`; the two inputs named in `§2026-11-13e` — an entry
+lower bound for the quartic coefficient against `hermBasisN`, and the non-vanishing of that
+coefficient for `f_abc ≠ 0` — are both still missing, so `¬ WCommBound (ymW e) (ymHermCol e fabc) B`
+is *not* proved and no Yang–Mills gap is claimed.
+
+**Verification.**  `lake build BookProof` → 8989 jobs, `Build completed successfully`, exit 0 (the
+only style warning, `BookProof.lean:4279`, is a pre-existing long comment line).  `#print axioms` on
+`monomial_sub_hermiteMv_mem`, `coreFamily_sub_hermiteMvLp_mem`,
+`gramSchmidtNormed_eq_phase_of_decomp`, `coreBasis_eq_hermBasisN`, `bridgePhases_one`,
+`ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible` and `not_wCommBound_of_entry` gives
+only `[propext, Classical.choice, Quot.sound]`; `grep -c sorry` on the new module is `0`; no line
+over 100 characters and no trailing whitespace in the touched files; the new module is registered in
+`lakefile.toml`'s `BookProofOperatorCore` roots and imported from `BookProof.lean`.
+
+**Boundary.**  `DegreeCompatible` is a hypothesis, not a construction: this packet does not build an
+enumeration of `Fin d →₀ ℕ` sorted by total degree (a counting argument independent of the
+analysis), so every statement above is conditional on it.  Nothing here changes the
+operator-theoretic content: the two finite-mode domains are now known to have the same basis
+vectors, but the ESA conclusion still passes through the commutator gate.

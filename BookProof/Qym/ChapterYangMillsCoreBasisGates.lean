@@ -5,6 +5,7 @@ import BookProof.Toolbox.ChapterHermiteProductCore
 import BookProof.ChapterQuadraticFockEsa
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Toolbox.ChapterHermiteBandCalculus
+import BookProof.Toolbox.ChapterHermiteBridgePhases
 
 /-!
 # The Yang–Mills gates in `coreBasis` coordinates, from an explicit bridge hypothesis
@@ -31,18 +32,25 @@ across it:
 * `ymCoreCol_gates_iff` — all three gates transfer, with the same constants;
 * `ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound` — **end to end**: if the bridge
   hypothesis holds and the commutator gate for `ymW` holds in the Hermite coordinates, then
-  `dΓ` of the core-basis matrix is essentially self-adjoint on the finite-occupation core.
+  `dΓ` of the core-basis matrix is essentially self-adjoint on the finite-occupation core;
+* `bridgePhases_one` — the bridge hypothesis is **proved** for a degree-compatible enumeration
+  (all phases `1`), via `BookProof.HermiteBridgePhases`;
+* `ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible` — the same end-to-end theorem
+  with the bridge discharged, so that only degree compatibility and the commutator gate remain.
 
-## Honest boundary
+## The bridge is discharged for degree-compatible enumerations
 
-`BridgePhases` is *hypothetical here*; nothing below proves the bridge.  What is available
-towards it is `BookProof.FockGramSchmidtProjection`: the Gram–Schmidt vector is the monomial
-minus its projection onto the earlier spans, the product Hermite function is orthogonal to those
-spans when the enumeration is degree-compatible, and any unit vector realising that orthogonal
-direction gives the Gram–Schmidt vector up to a constant.  Still missing is the decomposition
-`x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` with `w` in the earlier span together with `‖c‖ = 1`
-after normalization.  What *is* proved is that the bridge hypothesis is all the gate argument
-needs: the gates and the essential self-adjointness move to `coreBasis` coordinates unchanged.
+`BridgePhases` is no longer an open hypothesis.  `BookProof.HermiteBridgePhases` proves the
+triangularity `x^α − He_α ∈ span{monomials of degree < |α|}` and the decomposition
+`x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` with `w` in the earlier Gram–Schmidt span
+(`coreFamily_sub_hermiteMvLp_mem`); the coefficient is `c = ‖ψ_{e k}‖`, and since the product
+Hermite functions are unit vectors the normalization cancels it exactly, so that
+`coreBasis e k = hermBasisN e k` (`coreBasis_eq_hermBasisN`).  Hence `bridgePhases_one` below:
+for a degree-compatible enumeration `e` the bridge hypothesis holds with all phases `1`.
+
+The remaining hypothesis of the end-to-end theorem is therefore only *degree compatibility* of
+the enumeration plus the commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B` in the Hermite
+coordinates; the bridge itself is proved.
 -/
 
 namespace BookProof.YangMillsCoreBasisGates
@@ -122,6 +130,12 @@ theorem ymCoreCol_gates_iff (e : ℕ ≃ (Fin 99 →₀ ℕ))
         WCommBound (ymW e) (ymCoreCol e fabc) B) :=
   gates_phase_iff hB.1 (ymCoreCol_eq_phase e fabc hB)
 
+/-- **The bridge hypothesis holds for a degree-compatible enumeration**: every phase is `1`. -/
+theorem bridgePhases_one (e : ℕ ≃ (Fin 99 →₀ ℕ))
+    (hdeg : BookProof.HermiteBridgePhases.DegreeCompatible e) : BridgePhases e (fun _ => 1) :=
+  ⟨fun _ => by simp, fun k => by
+    rw [BookProof.HermiteBridgePhases.coreBasis_eq_hermBasisN e hdeg k, one_smul]⟩
+
 /-- **End to end.**  Assume the bridge hypothesis and the commutator gate for the symbol `ymW` in
 the Hermite coordinates.  Then the second quantization of the Yang–Mills Hamiltonian, *as a
 matrix in the `coreBasis` coordinates that the finite-mode theorems use*, is essentially
@@ -133,6 +147,18 @@ theorem ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound
   obtain ⟨K, hK0, hrow, hcol⟩ := ymCoreCol_row_col_gates e fabc hB
   exact dGamma_essentiallySelfAdjointOn_core_w (ymW_one_le e) (isHermCol_ymCoreCol e fabc hB)
     hrow hcol hK0 (WCommBound.phase hB.1 (ymCoreCol_eq_phase e fabc hB) hBg)
+
+/-- **End to end with the bridge discharged.**  If the enumeration is degree-compatible and the
+commutator gate holds for `ymW` in the Hermite coordinates, then the second quantization of the
+Yang–Mills Hamiltonian in the `coreBasis` coordinates is essentially self-adjoint on the
+finite-occupation core.  No statement about the two bases is assumed: `bridgePhases_one` proves
+it. -/
+theorem ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible
+    (e : ℕ ≃ (Fin 99 →₀ ℕ)) (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (hdeg : BookProof.HermiteBridgePhases.DegreeCompatible e) {B : ℝ}
+    (hBg : WCommBound (ymW e) (ymHermCol e fabc) B) :
+    EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymCoreCol e fabc)) :=
+  ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound e fabc (bridgePhases_one e hdeg) hBg
 
 end
 
