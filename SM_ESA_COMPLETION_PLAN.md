@@ -3190,5 +3190,92 @@ and the NS statement is the proof template, not a proved counterexample.
 * `lake build BookProof.Sm.ChapterSmGradTable` — `Build completed successfully`.
 * `lake env lean Work/SmGradTableAudit.lean` — 30 declarations, every one on exactly
   `propext, Classical.choice, Quot.sound`; no `sorryAx`.
-* `lake build BookProof` was **not** run to completion (it exceeded a 600 s budget); compiling the root
-  module `BookProof.lean` directly was the substitute check and is reported as exactly that.
+* `lake build BookProof` was not run to completion *in that round* (it exceeded a 600 s budget), and the
+  root module `BookProof.lean` compiled directly was the substitute check.  **It has since completed:**
+  see §55.4 — the substitute check was sound but is no longer the strongest available statement.
+
+## §55. What restores the domination, and where the quartet construction stops (2026-11-13)
+
+### 55.1. The converse of §54.2, and what it says about the obstruction
+
+§54 proved the domination *fails* for the QYM potential and identified the reason: `sq_le` bounds the
+derivative against the coercive quadratic, and `weylPotPoly Φ = ∑_j Φ_j² + 1` does not contain it.
+An obstruction is only worth the size of its converse, so §7 of `ChapterSmGradTable` puts the
+quadratic back and proves the bound.
+
+`weylCoercive Φ M := weylPotPoly Φ + ∑_{m∈M} X_m²` **is** `wsSum Φ M 1`
+(`weylCoercive_eq_wsSum`), so nothing is recomputed: §49's `pointwise_dom_of_sq_sum` applies verbatim
+and gives, for any family of forms admitting a `GradBound C` (`gradDom_weylCoercive`),
+
+  `∑_{j∈M} |∂_j W|² ≤ (16|M||ι|C + 8) W² + (8|M||ι|C + 8)`.
+
+At the single bilinear form `X₀X₁` the potential is `(X₀X₁)² + 1 + X₀² + X₁²`, the `GradBound` is
+`gradBound_weylFlat` (`C = 1`), and the constants come out as `a = 40`, `b = 24`
+(`gradDom_weylCoercive_flat`) — the same pair §49's `gradDom_flat_plus_quadratic` computes for the
+same potential.
+
+So §54's obstruction is sharp in the right sense: what the QYM/NS forms lack is not a proof technique
+but a term.  Adding it is a modelling decision (mass, confinement, anisotropic weight); this section
+does not choose it and does not compute a sharp constant — the constants above are whatever the
+generic estimate produces from the coefficient sum.
+
+### 55.2. The SM quartet: what was attempted, and why it is not delivered
+
+The request was to build the SM's own quartet data so that `PhysicalPositivity` stops being a named
+input.  It is **not** delivered, and the attempt is recorded because the reason is structural.
+
+`physicalPositivity_of_homotopy` needs a b-ghost `P` with `Q P Q = Q`, `P Q P = P` for
+`smBrstCharge = brstCharge (smStruct f3) ghostCre ghostAnn matterGen`.  The natural first step is the
+abelian (`f3 = 0`) sector, where the charge is `c† ⊗ T` on two ghost slots over the matter space and a
+generalized inverse `S` of `T` gives the candidate b-ghost `b ⊗ S`.  That construction was written
+and then **withdrawn**, for two reasons found while doing it:
+
+* this Mathlib has **no product inner-product space** (`InnerProductSpace ℂ (K × K)` does not
+  synthesize), so the two-slot model cannot be fed to the corpus's `IsBrst`/`BrstQuartet` machinery
+  without an index-restricted `EuclideanSpace` reformulation; and
+* more importantly, the ghost-pairing metric `(u, v) ↦ (v, u)` does **not** satisfy the hypothesis
+  `η (V y) = V y` that the no-ghost theorem needs.  The identity it does satisfy is
+  `η (V x) = V (η x)`, i.e. the metric commutes with the projector rather than fixing its range —
+  exactly the difference between "the physical subspace is invariant" and "the physical subspace is
+  definite".  Supplying the right Krein metric is a separate construction, not a line of bookkeeping.
+
+So `PhysicalPositivity` for the SM charge remains a named input.  What the attempt clarifies is the
+*size* of what is missing: a contracting homotopy for the non-abelian complex, plus a Krein metric
+that fixes the physical subspace — two objects, both named, neither of them algebraic routine.  No
+module was added for this, and no claim was upgraded on the strength of the attempt.
+
+### 55.3. Verification performed (2026-11-13)
+
+* `lake env lean BookProof/Sm/ChapterSmGradTable.lean` — clean, no warnings (the §7 block fixed the
+  line-length lints introduced by the §6 and §54 prose in the same session).
+* `lake build BookProof.Sm.ChapterSmGradTable` — `Build completed successfully`.
+* `lake env lean Work/SmGradTableAudit.lean` — 35 declarations, every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `lake env lean BookProof.lean` — clean (root-module check).
+* `scripts/check-sm-section-guards` — green with the §55 needles.
+* `lake build BookProof` to completion: **succeeded** (`8982 jobs`, 28m56s, exit 0) — see §55.4.
+
+### 55.4. The full build, completed (2026-11-13)
+
+The earlier rounds reported `lake build BookProof` as not run to completion, with the root-module
+`lake env lean BookProof.lean` check as the substitute.  With a real budget it **completes**, on the
+tree this section describes:
+
+```
+$ time lake build BookProof
+Build completed successfully (8982 jobs).
+
+real    28m55.505s
+user    28m55.586s
+sys     0m7.105s
+EXIT=0
+```
+
+An earlier run finished `8981 jobs` in 30m16s on the tree *before* the §7 block existed; that run is
+why the count differs by one, and it is not the run being relied on.  The reported one is the second,
+started after every edit in this section and §7 was in place.  Warnings in the log are pre-existing
+linter advisories on modules this session did not touch (`setOption`, `longLine`, flexible-`simp`
+notes); there are no errors and no `sorry` warnings.
+
+So the substitute check was sound, but "the root module elaborates" and "the whole book builds" are
+different statements, and the weaker one was labelled as the weaker one until it could be replaced.

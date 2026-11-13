@@ -639,7 +639,8 @@ theorem exists_kineticSum_bound_sm (P : SmParams) {c0 : ℝ} (hc0 : 0 ≤ c0) :
     BookProof.SmKineticGarding.kineticSum_norm_le_of_pot_self_bound P c0 hβ hpot x⟩
 
 /-- **The P2 second-order family bound, instantiated.**  §15's relative bound for the full normal
-form is conditional on the `§15`/`§19` data (`D`'s support).  The potential's self-bound is no longer
+form is conditional on the `§15`/`§19` data (`D`'s support).  The potential's self-bound is no
+longer
 among its hypotheses — it is discharged here with `∃ β`.  The four `_`-prefixed hypotheses
 (`_hpos`, `_hkin`, `_hcoord`, `_hmass`) are carried by `smNormalForm_norm_le_of_pot_self_bound`'s
 signature but not consumed by its proof; they are kept so this theorem is a drop-in replacement. -/
@@ -670,32 +671,36 @@ theorem exists_smNormalForm_norm_le (P : SmParams) (D : SmNormalFormData) {c0 : 
 
 The normal form is not an SM artefact.  `Biform A T`, `pderiv_eq` and `sq_le` are stated for an
 arbitrary dimension, atom set and polynomial, so any form built from the constructors — the
-magnetic field strengths, the covariant Higgs derivatives, and equally the QYM Weyl shapes and the NS
+magnetic field strengths, the covariant Higgs derivatives, and equally the QYM Weyl shapes and the
+NS
 convection terms, all of which are "linear in a derivative, bilinear in a field" — is a normal form
 with its derivative linear and its square bounded by Cauchy–Schwarz.  What does **not** transfer is
 the *conclusion*, and the reason is structural rather than a gap in the proof: `sq_le` bounds
-`(∂_j Φ)²` by the coercive quadratic `1 + ∑_{m∈A} x_m²`, and the domination needs a `W` that contains
+`(∂_j Φ)²` by the coercive quadratic `1 + ∑_{m∈A} x_m²`, and the domination needs a `W` that
+contains
 that quadratic.  The Standard Model's `smPotPoly` carries `∑_m q_m²` (§49); the QYM comparison's
-Weyl potential `weylPotPoly Φ = ∑_j Φ_j² + 1` (plan §3, `BookProof/Qym/ChapterYangMillsNonAbelianEsa`)
+Weyl potential `weylPotPoly Φ = ∑_j Φ_j² + 1`
+(plan §3, `BookProof/Qym/ChapterYangMillsNonAbelianEsa`)
 does not.
 
 The NS side is *not* instantiated, and this is a limitation rather than an omission: the corpus's NS
-modules are operator-level (`BookProof/Ns/*`), with no polynomial potential of this shape to evaluate,
-so there is nothing to run the `(t, 1/t)` computation against.  What transfers there is only the
-template: a potential built from bilinear forms alone has the same W-shape as the QYM instance below,
-and would fail the same way.
+modules are operator-level (`BookProof/Ns/*`), with no polynomial potential of this shape to
+evaluate, so there is nothing to run the `(t, 1/t)` computation against.  What transfers there is
+only the
+template: a potential built from bilinear forms alone has the same W-shape as the QYM instance
+below, and would fail the same way.
 
 So for those two models there is no `GradDom` instance to prove — the pointwise domination is
-**false**, by the same flat mechanism §48 exhibits.  The proof below is the QYM instance: `weylPotPoly`
-at the single bilinear form `X 0 * X 1` is `(X₀X₁)² + 1`, whose gradient grows without bound on
-`(t, 1/t)` while the potential stays `2`. -/
+**false**, by the same flat mechanism §48 exhibits.  The proof below is the QYM instance:
+`weylPotPoly` at the single bilinear form `X 0 * X 1` is `(X₀X₁)² + 1`, whose gradient grows without
+bound on `(t, 1/t)` while the potential stays `2`. -/
 
 /-- The QYM Weyl potential at one bilinear form: `weylPotPoly (fun _ : Fin 1 => X 0 * X 1)`. -/
 noncomputable def weylFlat : MvPolynomial (Fin 2) ℂ :=
   (X (0 : Fin 2) * X 1) * (X (0 : Fin 2) * X 1) + (1 : MvPolynomial (Fin 2) ℂ)
 
-/-- `weylFlat` **is** the QYM potential `weylPotPoly` of the Weyl comparison, at the one bilinear form
-`X 0 * X 1` — so the obstruction below is about that model's potential, not an analogue of it. -/
+/-- `weylFlat` **is** the QYM potential `weylPotPoly` of the Weyl comparison, at the one bilinear
+form `X 0 * X 1` — so the obstruction below is about that model's potential, not an analogue. -/
 theorem weylFlat_eq_weylPotPoly :
     weylFlat = BookProof.YangMillsNonAbelianEsa.weylPotPoly
       (fun _ : Fin 1 => (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ)) := by
@@ -733,10 +738,11 @@ theorem eval_weylFlat_self (x y : ℝ) :
 
 /-- **The QYM/NS obstruction.**  For the Weyl-type potential — `Σ_j Φ_j² + c` with `Φ` bilinear, the
 shape QYM's comparison and an NS potential of bilinear forms both have — **no** pair of constants
-gives the pointwise gradient domination.  On `(t, 1/t)` the left side is `4/t² + 4t²` while the right
-side is the constant `4a + b`.  Hence the SM's route (`GradBound` → `pointwise_dom_of_sq_sum` →
-`GradDom`) is not available for those models: the coercive quadratic `∑_m q_m²` is what makes it work,
-and they do not carry one. -/
+gives the pointwise gradient domination.  On `(t, 1/t)` the left side is `4/t² + 4t²` while the
+right side is the constant `4a + b`.  Hence the SM's route
+(`GradBound` → `pointwise_dom_of_sq_sum` →
+`GradDom`) is not available for those models: the coercive quadratic `∑_m q_m²` is what makes it
+work, and they do not carry one. -/
 theorem not_gradDom_weylFlat :
     ¬ ∃ a b : ℝ, ∀ x y : ℝ,
       ‖BookProof.SmReverseEllipticQuartic.evAt x y (pderiv 0 weylFlat)‖ ^ 2
@@ -774,5 +780,108 @@ theorem not_gradDom_weylFlat :
   have h5 : 4 * t < 4 * t ^ 2 := by
     nlinarith [mul_pos (by linarith : (0:ℝ) < t) (by linarith : (0:ℝ) < t - 1)]
   linarith
+
+/-! ## 7. What restores the domination: the coercive quadratic, at the QYM potential
+
+§6 proves the domination *fails* for `weylPotPoly Φ = ∑_j Φ_j² + 1`, and the proof says why: the
+gradient bound `sq_le` is against the coercive quadratic `1 + ∑_m x_m²`, and `weylPotPoly` does not
+contain that quadratic, so Cauchy–Schwarz has nothing to conclude with.  The converse is therefore
+immediate once the quadratic is put back — and it is worth stating, because it is what makes §6 an
+*obstruction* rather than a limitation of this method.
+
+`weylCoercive Φ M` is the QYM potential with `∑_{m∈M} X_m²` added.  It is `wsSum Φ M 1`, so §49's
+`pointwise_dom_of_sq_sum` applies with no new analysis: **if the forms admit a `GradBound` against
+that quadratic** (which for a bilinear form is the Cauchy–Schwarz bound `sq_le` supplies, with the
+coefficient sum as the constant), the gradient domination holds with explicit constants.  At the
+single bilinear form `X₀X₁` that is `(X₀X₁)² + 1 + X₀² + X₁²` and the constants are `a = 40`,
+`b = 24` — the same pair as §49's `gradDom_flat_plus_quadratic`, which is the same potential.
+
+So the meaning of §6 sharpens: the SM's route works for QYM the moment the model carries a coercive
+quadratic, and the choice of that term is a modelling decision (a mass, a confining or an
+anisotropic weight), not a proof step.  Nothing here computes a sharp constant: the constants are
+whatever the
+generic estimate produces from the coefficient sum. -/
+
+/-- The QYM Weyl potential with the coercive quadratic restored on `M`:
+`∑_j Φ_j² + 1 + ∑_{m∈M} X_m²`. -/
+noncomputable def weylCoercive {r : ℕ} (Φ : Fin r → MvPolynomial (Fin d) ℂ) (M : Finset (Fin d)) :
+    MvPolynomial (Fin d) ℂ :=
+  BookProof.YangMillsNonAbelianEsa.weylPotPoly Φ + ∑ m ∈ M, X m * X m
+
+/-- **The modified QYM potential is an assembled `wsSum`** — the constant is the only difference
+from `wsSum Φ M c₀`, and it is `1`.  This is the whole content of "the quadratic restores the
+bound":
+nothing about QYM is recomputed; §49 applies verbatim. -/
+theorem weylCoercive_eq_wsSum {r : ℕ} (Φ : Fin r → MvPolynomial (Fin d) ℂ) (M : Finset (Fin d)) :
+    weylCoercive Φ M = wsSum Φ M 1 := by
+  simp only [weylCoercive, BookProof.YangMillsNonAbelianEsa.weylPotPoly, wsSum]
+  abel
+
+/-- **The value of the modified potential**: `∑_r Φ_r(x)² + ∑_{m∈M} x_m² + 1`. -/
+theorem polyW_weylCoercive {r : ℕ} (Φ : Fin r → MvPolynomial (Fin d) ℂ)
+    (hΦ : ∀ j, RealCoeff (Φ j)) (M : Finset (Fin d)) (x : Vd d) :
+    polyW (weylCoercive Φ M) x = (∑ j : Fin r, (polyW (Φ j) x) ^ 2) + (∑ m ∈ M, (x m) ^ 2) + 1 := by
+  rw [weylCoercive_eq_wsSum]
+  exact polyW_wsSum Φ hΦ M 1 x
+
+/-- **Gradient domination for the modified QYM potential.**  For any family of forms with a
+`GradBound` against the quadratic on `M`, adding `∑_{m∈M} X_m²` gives the pointwise domination, with
+the constants the generic estimate produces.  This is §49's `pointwise_dom_of_sq_sum` at `c₀ = 1`.
+-/
+theorem gradDom_weylCoercive {r : ℕ} (Φ : Fin r → MvPolynomial (Fin d) ℂ)
+    (hΦ : ∀ j, RealCoeff (Φ j)) (M : Finset (Fin d)) {C : ℝ} (hC : 0 ≤ C)
+    (hdom : GradBound Φ M C) (x : Vd d) :
+    ∑ j ∈ M, (polyW (pderiv j (weylCoercive Φ M)) x) ^ 2
+      ≤ (16 * (M.card : ℝ) * (Fintype.card (Fin r) : ℝ) * C + 8)
+          * (polyW (weylCoercive Φ M) x) ^ 2
+        + (8 * (M.card : ℝ) * (Fintype.card (Fin r) : ℝ) * C + 8) :=
+  weylCoercive_eq_wsSum Φ M ▸
+    pointwise_dom_of_sq_sum Φ hΦ M (c0 := 1) (by norm_num) hC hdom x
+
+/-- The gradient bound for the one bilinear form `X₀X₁`: each derivative is a single coordinate, so
+its square is at most `1 + x₀² + x₁²`. -/
+theorem gradBound_weylFlat :
+    GradBound (fun _ : Fin 1 => (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ)) {0, 1} 1 := by
+  intro j hj r x
+  have hmem : j = 0 ∨ j = 1 := by simpa using hj
+  rw [Finset.sum_pair (show (0 : Fin 2) ≠ 1 by decide)]
+  rcases hmem with h | h
+  · subst h
+    have hd : pderiv (0 : Fin 2) (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ) = X 1 := by
+      rw [pderiv_mul, pderiv_X_self, pderiv_X_of_ne (show (1 : Fin 2) ≠ 0 by decide)]
+      simp
+    rw [hd]
+    simp only [polyW_X_eq, one_mul]
+    nlinarith [sq_nonneg (x 0), sq_nonneg (x 1)]
+  · subst h
+    have hd : pderiv (1 : Fin 2) (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ) = X 0 := by
+      rw [pderiv_mul, pderiv_X_self, pderiv_X_of_ne (show (0 : Fin 2) ≠ 1 by decide)]
+      simp
+    rw [hd]
+    simp only [polyW_X_eq, one_mul]
+    nlinarith [sq_nonneg (x 0), sq_nonneg (x 1)]
+
+/-- **The modified QYM potential at `X₀X₁` obeys the gradient domination**, with explicit `a = 40`,
+`b = 24`:
+
+  `|∂₀W|² + |∂₁W|² ≤ 40 W² + 24`,   `W = (X₀X₁)² + 1 + X₀² + X₁²`.
+
+Compare §6's `not_gradDom_weylFlat` for the same potential *without* `X₀² + X₁²`: no constants exist
+there.  The difference between the two statements is exactly the coercive quadratic. -/
+theorem gradDom_weylCoercive_flat (x : Vd 2) :
+    (polyW (pderiv 0 (weylCoercive
+        (fun _ : Fin 1 => (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ)) {0, 1})) x) ^ 2
+      + (polyW (pderiv 1 (weylCoercive
+        (fun _ : Fin 1 => (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ)) {0, 1})) x) ^ 2
+        ≤ 40 * (polyW (weylCoercive
+          (fun _ : Fin 1 => (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ)) {0, 1}) x) ^ 2
+            + 24 := by
+  have hgen := gradDom_weylCoercive
+    (fun _ : Fin 1 => (X (0 : Fin 2) * X 1 : MvPolynomial (Fin 2) ℂ))
+    (fun _ => (realCoeff_X 0).mul (realCoeff_X 1)) {0, 1} (C := 1) zero_le_one
+    gradBound_weylFlat x
+  rw [Finset.sum_pair (show (0 : Fin 2) ≠ 1 by decide)] at hgen
+  norm_num at hgen
+  linarith [hgen]
 
 end BookProof.SmGradTable

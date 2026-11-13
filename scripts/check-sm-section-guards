@@ -39,6 +39,12 @@
 #      QYM potential (`not_gradDom_weylFlat`).  Keeping the instantiation and dropping the
 #      obstruction — or vice versa — reads the generic machinery as a generic theorem, which is the
 #      failure mode.
+#   7. §55 (the converse + the quartet boundary) — `gradDom_weylCoercive_flat` is the
+#      *converse* of `not_gradDom_weylFlat`: the same QYM potential with the coercive
+#      quadratic added does obey the bound.  Dropping it leaves the §54 obstruction
+#      reading as a limitation of the method rather than of the model.  Separately, the
+#      §55 text must keep saying that the SM quartet data is still unbuilt, since the
+#      attempt to build it was withdrawn and no claim was upgraded.
 #
 # The gate is deliberately textual: it cannot certify mathematics, only that a
 # later change did not *remove* the half of a pair that carries the caveat.
@@ -174,6 +180,10 @@ require "$BOOKPLAN" 'exists_kineticSum_bound_sm' \
     "§54 comment block must keep saying the produced constant is used (hpoly instantiated)"
 require "$BOOKPLAN" 'not_gradDom_weylFlat' \
     "§54 comment block must keep the QYM obstruction (gradient domination is not generic)"
+require "$BOOKPLAN" 'gradDom_weylCoercive_flat' \
+    "§55 comment block must keep the converse (the quadratic restores the bound at that model)"
+require "$BOOKPLAN" 'still a named input' \
+    "§55 comment block must keep saying the SM quartet data is unbuilt"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

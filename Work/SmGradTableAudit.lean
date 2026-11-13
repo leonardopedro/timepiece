@@ -43,3 +43,8 @@ open BookProof.SmGradTable
 #print axioms eval_weylFlat_one
 #print axioms eval_weylFlat_self
 #print axioms not_gradDom_weylFlat
+#print axioms weylCoercive_eq_wsSum
+#print axioms polyW_weylCoercive
+#print axioms gradDom_weylCoercive
+#print axioms gradBound_weylFlat
+#print axioms gradDom_weylCoercive_flat

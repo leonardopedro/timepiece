@@ -4228,7 +4228,15 @@ import BookProof.Sm.ChapterSmGradDomTransfer
 -- (`weylFlat_eq_weylPotPoly` identifies the instance with `YangMillsNonAbelianEsa`), because it lacks
 -- the coercive quadratic `Σ_m q_m²` that makes `sq_le` pay off — §48's flat mechanism, at the model that
 -- needs it.  So gradient domination is a theorem for the SM and false as stated for QYM/NS: the
--- reusable asset is the normal form, not the inequality.
+-- reusable asset is the normal form, not the inequality.  §55 proves the converse that makes the
+-- obstruction sharp — `weylCoercive Φ M = weylPotPoly Φ + Σ_{m∈M} X_m²` *is* `wsSum Φ M 1`
+-- (`weylCoercive_eq_wsSum`), so the interference is entirely the missing term: the abelian chain
+-- `gradDom_weylCoercive` reuses §49 verbatim, and at `X₀X₁` the constants are `40`, `24`
+-- (`gradDom_weylCoercive_flat`, from `gradBound_weylFlat`).  §55 also records a *withdrawal*: the
+-- attempt to build the SM's own b-ghost for the abelian ghost sector was not carried through — the
+-- ghost-pairing metric commutes with the computed projector but does not *fix* its range, which is
+-- what the no-ghost theorem needs — so P5's quartet data is still a named input, and nothing above
+-- was upgraded on the strength of the attempt.
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index
