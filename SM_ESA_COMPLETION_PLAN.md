@@ -3346,3 +3346,77 @@ the Lagrangian generator `N_L`, which remains the explicit hypothesis of
   exit 0; §55.4's run of the same target reported `8982` jobs, the difference being the module added
   here).  The log carries no errors and no `sorry`; its remaining messages are the pre-existing
   linter advisories on modules this change did not touch.
+
+---
+
+## §57. The b-ghost on an index-restricted Euclidean space (2026-11-13)
+
+### 57.1. The withdrawal this answers
+
+§47 (x) withdrew the attempt to build the SM's b-ghost for two reasons: this Mathlib has no product
+inner-product space, so a two-slot `K × K` ghost model cannot be handed to `IsBrst`/`BrstQuartet`;
+and the ghost-pairing metric satisfied `η (V x) = V (η x)` but not `η (V y) = V y`.  The first is a
+bookkeeping obstacle and it is now removed; the second is a real obstruction only for the *pairing*
+metric, not for the index-swap metric.  §6 of `ChapterSmQuartet` had already exhibited the whole
+mechanism on a hand-written three-dimensional block; what was missing was a construction that does
+not depend on the size of the sector.  That is what this section adds.
+
+### 57.2. The construction
+
+New module `BookProof/Sm/ChapterSmIndexGhostQuartet.lean` (namespace
+`BookProof.SmIndexGhostQuartet`).  The index set is
+
+```
+Idx n m = (Fin n × Bool) ⊕ Fin m,
+```
+
+with `(a, false)` the ghost of pair `a`, `(a, true)` its antighost, and `inr j` a physical mode, and
+the space is `Space n m = EuclideanSpace ℂ (Idx n m)`.  Three maps, *by index*, for every `n, m`:
+
+* `Q` sends `(a, false) ↦ (a, true)` and kills everything else;
+* `P` sends `(a, true) ↦ (a, false)` and kills everything else;
+* `Eta` swaps `(a, false) ↔ (a, true)` and fixes the physical modes.
+
+The six inputs of `physicalPositivity_of_homotopy` are all discharged:
+
+* `Q_nil : IsBrst (Q n m)`; `QPQ`, `PQP` — the two contraction identities, one `ext_coords`
+  argument each;
+* `krein` — `⟨η (Q x), y⟩ = ⟨η x, Q y⟩`, by expanding the inner product over the index set;
+* `symm` — the charge form is symmetric.  This one is *derived*, not computed: `Eta_inner` says the
+  metric is an isometry (it permutes coordinates) and `Eta_involutive` says `η² = 1`, which turn
+  `⟨x, η y⟩` into `⟨η x, y⟩ = conj ⟨y, η x⟩`;
+* `eta_physProj` — `η (V y) = V y` for the *computed* projector `V = physProjOf Q P`.  This is the
+  point the §47 withdrawal failed on, and the index restriction is why it works: `physProj_ghost`
+  and `physProj_anti` show `V` lands on the physical coordinates, where `η` is the identity.
+
+Hence `physicalPositivity (n m) : PhysicalPositivity (Q n m) (Eta n m)` with **no hypotheses**, and
+`physVec_not_exact` shows the model's cohomology is non-trivial: a physical mode is closed and not a
+gauge orbit, so this is not positivity on a space where everything is exact.  Nothing is chosen per
+pair; `n = 12` — the SM ghost count — is an instance, not a case.
+
+### 57.3. What this does not do
+
+It is **not** `smBrstCharge`.  That charge lives on the fermionic Fock space `FermiFock (m + 12)` and
+is known here only as a `Module.End`; to instantiate this model on it one still needs an
+inner-product structure on the Fock space, the charge as a linear map, and the identification of its
+twelve ghost modes with the index pattern above.  So `PhysicalPositivity` for `smBrstCharge` remains
+a named input — but the input has moved: it is no longer *quartet data* (a b-ghost and a metric,
+which is what §47 and §50 recorded as missing) but an *identification*, since the quartet data now
+exists at every size and the metric is proved to fix the projector's range.  Nothing in the SM claim
+is upgraded until that identification is written down.
+
+### 57.4. Verification (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostQuartet` — `Build completed successfully`, no warnings
+  on the module.
+* `lake env lean Work/SmIndexGhostAudit.lean` — 11 declarations (`Q_nil`, `QPQ`, `PQP`,
+  `physProj_phys`, `eta_physProj`, `Eta_involutive`, `Eta_inner`, `krein`, `symm`,
+  `physicalPositivity`, `physVec_not_exact`), every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §57 needles, and the §57 pair
+  (`eta_physProj` → `physVec_not_exact`, construction then non-vacuity) is exercised negatively by
+  `SM_PAIR_WINDOW=4`.
+* `lake env lean BookProof.lean` then `lake build BookProof` — `Build completed successfully`,
+  `8988 jobs`, exit 0, in 8.9s because every dependency was already built on this tree; §56.4's
+  29m57s run of the same target was the full recompile, so this is a reachability check of the new
+  import rather than a second full build.

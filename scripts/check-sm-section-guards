@@ -269,6 +269,28 @@ require "$BOOKPLAN" 'not_gradDom_flatSextic' \
 require "$BOOKPLAN" 'lagGradDom_of_volDom' \
     "§56 comment block must keep the reduction"
 
+# ---- 10. §57: the index-restricted b-ghost, and its non-vacuity ------------------
+# §57 builds the quartet data on `(Fin n × Bool) ⊕ Fin m` and discharges every hypothesis of the
+# no-ghost theorem, so its value is exactly the pair "positivity is a theorem" + "the cohomology is
+# not trivial".  Dropping `physVec_not_exact` would let the model degenerate into the statement that
+# zero is non-negative; dropping `physicalPositivity` loses the construction.  Also keep the plan
+# saying that this is *not* `smBrstCharge`.
+IDXGHOST=BookProof/Sm/ChapterSmIndexGhostQuartet.lean
+require "$IDXGHOST" "theorem physicalPositivity" \
+    "§57: positivity for the restricted ghost complex, from the quartet alone"
+require "$IDXGHOST" "theorem eta_physProj" \
+    "§57: the metric fixes the computed projector's range (the point §47 failed on)"
+require "$IDXGHOST" "theorem physVec_not_exact" \
+    "§57: the model's cohomology is non-trivial"
+pair_require "$PLAN" 'eta_physProj' 'physVec_not_exact' "$PAIR_WINDOW" \
+    "§57: the construction (metric fixing the projector) and its non-vacuity must stay together"
+require "$PLAN" 'It is **not** `smBrstCharge`' \
+    "§57: the plan must keep saying the restricted model is not the SM charge"
+require "$BOOKPLAN" 'physVec_not_exact' \
+    "§57 comment block must keep the non-vacuity check"
+require "$BOOKPLAN" 'is not `smBrstCharge`' \
+    "§57 comment block must keep the 'not the SM charge' caveat"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

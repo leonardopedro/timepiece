@@ -4195,6 +4195,22 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- projector `exV`.  This is **not** a proof of SM positivity: the SM's own b-ghost is still
 -- missing, so what is proved is the mechanism.
 import BookProof.Sm.ChapterSmQuartet
+-- `ChapterSmIndexGhostQuartet` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §57): the b-ghost built on
+-- an **index-restricted** Euclidean space, which is the `EuclideanSpace` reformulation §47's
+-- withdrawal said was needed.  The index set is `(Fin n × Bool) ⊕ Fin m` — ghost `(a, false)`,
+-- antighost `(a, true)`, physical `inr j` — and the three maps are defined *by index* for every
+-- `n, m`: `Q` shifts ghost → antighost, `P` shifts back, `η` swaps the pair and fixes the
+-- physical modes.  All six hypotheses of `physicalPositivity_of_homotopy` are discharged —
+-- nilpotency (`Q_nil`), the contractions (`QPQ`, `PQP`), Krein self-adjointness (`krein`), symmetry
+-- (`symm`, from `Eta_inner`/`Eta_involutive`: the metric is an involutive isometry) and
+-- `η (V y) = V y` (`eta_physProj`, which is exactly what the index restriction buys, since the
+-- computed projector lands on the physical coordinates where `η` is the identity).  Hence
+-- **`physicalPositivity` at every size**, with non-trivial cohomology (`physVec_not_exact`).  This
+-- is not `smBrstCharge`: that charge lives on `FermiFock (m + 12)` and is known only as a
+-- `Module.End`, so instantiating the model there still needs an inner product on the Fock space and
+-- the identification of its twelve ghost modes with the index pattern.  The named input is now that
+-- identification, not the quartet data.
+import BookProof.Sm.ChapterSmIndexGhostQuartet
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
 -- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`
