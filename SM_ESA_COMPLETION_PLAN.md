@@ -2752,6 +2752,11 @@ that pairs each longitudinal/ghost mode of the matter model with its partner.  S
   `propext, Classical.choice, Quot.sound`, no `sorryAx`.
 * `lake env lean BookProof.lean` — exit 0.
 * `scripts/check-sm-section-guards` — see §48.4.
+* **Merge note (2026-11-13):** a parallel local draft of §47 (a 294-line module with a degenerate
+  `ℂ³` instance, `exQuartet'`) was dropped on merging with this branch.  This section and §50 are
+  the survivor: the instance here is the non-vacuous `2 ⊕ 1` Krein one (`exQuartet`), and §50
+  removes `V` from the inputs altogether.  The merged tree was re-verified on 2026-11-13 (§47.4
+  bullets above, re-run: clean build, axioms unchanged).
 
 ## §48. The reverse elliptic estimate for the quartic potential (2026-11-12)
 

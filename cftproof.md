@@ -202,6 +202,191 @@ an explicit unproved continuum estimate. Keep the full E2 limit and B2 unitary c
 until their inputs exist. Hashimoto/SIRK applies after the self-adjoint operator is fixed;
 its approximation error neither constructs a Euclidean law nor proves any bridge packet.
 
+**Landed 2026-11-12, in exactly that finite form.** `BookProof/OSReconstruction/ObservablePrior.lean`
+states the two packets as code, `sorry`-free and with axiom footprint
+`{propext, Classical.choice, Quot.sound}` only.
+
+* **B0.** `SpatialPrior n Ω` is the stated prior: a probability law `μ` on a finite information
+  space together with `n` resolved, distinct supports `inf : Fin n → Ω → Bool`. The law is an
+  arbitrary *joint* law, so local occupation does not imply a product prior. `SpatialPrior.prop`
+  is the **normalized number-density proposition** at a support, and `SpatialPrior.expect_prop`
+  proves `ω (prop i) = 1` for every prior with positive mass there — the one-point functions
+  therefore carry no prior information at all. `SpatialPrior.corr_eq` identifies the two-point
+  function as `joint i j / (mass i · mass j)`, and `SpatialPrior.corr_eq_one_iff` turns that into
+  the dictionary statement **correlation `1` ⇔ joint information factorizes**. The first
+  acceptance test is `correlatedInformation`: two distinct supports whose informed sets coincide,
+  where `correlatedInformation_corr` is `2` and `correlatedInformation_corr_ne_one` says it is
+  not the uncorrelated value. The empty outer vacuum is `emptyVacuum`, and
+  `emptyVacuum_cannot_distinguish` is the plan's remark made precise — its values vanish for
+  every prior, so it validates nothing.
+* **The one-particle sector.** `dGamma_diag_one_particle` is
+  `dGamma_one_particle` specialized to a diagonal column, and `dGamma_diag_mul_one_particle` is
+  the product statement B0 asks for: `dΓ(f) (dΓ(g) e_k) = dΓ(f · g) e_k`, so products recover
+  inner operator products on their common domain.
+* **B1 at the finite regulator**, on `gibbsHalfSpaceState` of `HalfSpaceFreeState`.
+  `gibbsFun_posTime_eq` gives the one-point function as the boundary average,
+  **`gibbs_separated_moment_factorises`** gives
+  `⟨F, G⟩_OS = ω F · ω G`, and `gibbs_connected_corr_zero` concludes that the connected
+  two-point function vanishes identically. The equality B1 asks for therefore holds at the
+  regulator, but only because both sides are the empty correlation: the regulator's two halves
+  are independent draws, and its time translation (`regulatorTimeTranslation`) is trivial.
+* **The unproved continuum estimate** is `B1ContinuumEstimate ω T F m C` — a `def … : Prop`, not
+  an axiom: after the continuum limit the connected two-point function of the chosen observable
+  decays at rate `m > 0`. `b1ContinuumEstimate_of_clustering` shows it is exactly the
+  specialization of the corpus's `SchwingerClustering` to one observable, i.e. the shape
+  `osNorm_evol_le_of_clustering` and `genForm_gap_of_clustering` consume. The decay itself is
+  **not** proved here; it is Bałaban's infrared input.
+
+Boundary of the module, recorded there as well: finitely many resolved supports and a finite
+information space (the continuous/infinite-information representation and its consistency
+estimates are not built and no point-evaluation vectors in `L²` are assumed); the propositions are
+normalized indicators rather than products of independent number densities; and B2/B3 are
+untouched — no unitary `U : ℋ_OS → ℱ` is built (the corpus's `OsFockBridge` still states the
+conditions and proves only their consequences).
+
+**Landed 2026-11-12, the rest of B0's clause.** `BookProof/OSReconstruction/PriorRefinement.lean`
+takes the three remaining items the paragraph above names — the conditional reading of a spatial
+point, refinement, and the infinite-information representation with its consistency estimate — and
+states them as code, `sorry`-free, axiom footprint `{propext, Classical.choice, Quot.sound}` only.
+
+* **Conditional probability at a spatial point.** `SpatialPrior.massOn` / `jointOn` are the prior
+  masses of an arbitrary event and of a conjunction; `massOn_inf` and `jointOn_inf` show the B0
+  quantities are the case `A = inf i`, so no new notion is introduced. `SpatialPrior.cond` is the
+  conditioned law (`cond_sum_one`: it is again a probability law), `cond_mass` reads the conditional
+  mass at a point as `jointOn A (inf i) / massOn A`, `cond_expect` is Bayes' rule, and
+  `cond_massOn_self` says conditioning makes `A` certain. `cond_expect_prop` records that B0's
+  normalization survives conditioning. This is the manuscript's conditional meaning of a spatial
+  point, with no point-evaluation vector in `L²` anywhere.
+* **Refinement consistency.** `PriorRefinement` splits the information space as `Ω × Γ` with an
+  arbitrary *joint* law on the product (the "no product prior" requirement is kept) and reads the
+  resolved supports off the coarse factor; `PriorRefinement.coarse` is its marginal. Then
+  `mass_refined_eq_coarse`, `joint_refined_eq_coarse`, `corr_refined_eq_coarse` and
+  `expect_refined_eq_coarse` prove that splitting the information space changes no B0 number —
+  the finite consistency estimate.
+* **Infinite information.** `InfSpatialPrior n Ω` drops `[Fintype Ω]`: `Ω` is arbitrary, the law is
+  an `ℝ`-valued mass function, and the *resolved* information is an explicit finite support
+  `s : Finset Ω` (states outside `s` are unresolved, not `L²` vectors). `expect_prop`, `corr_eq`
+  and `corr_eq_one_iff` transfer the whole dictionary, `ofFinite_corr` shows the finite packet is
+  the case `s = univ`, and `correlatedInformationNat` repeats the acceptance test on the infinite
+  information space `ℕ`, with `corr = 2 ≠ 1`.
+
+Boundary recorded there: the refinement is the product `Ω × Γ` (not a general coarsening map), and
+`InfSpatialPrior` has a finite *resolved* support inside an infinite information space — the
+continuous law with no atomic support is still not constructed and remains an input, as does the
+continuum estimate `B1ContinuumEstimate`.
+
+**Landed 2026-11-12, the continuum regularization.** `BookProof/OSReconstruction/ContinuumPrior.lean`
+closes the "continuous law" half of that boundary: the information space now carries a genuine
+probability **measure**, and the dictionary is stated with integrals instead of fiber sums. Axiom
+footprint of every headline theorem: `{propext, Classical.choice, Quot.sound}`; no `sorry`.
+
+* **The measure-theoretic prior.** `ContPrior n Ω` is `μ : Measure Ω` with `IsProbabilityMeasure μ`
+  and `n` measurable resolved supports; `ContPrior.mass` / `.joint` are `μ.real` of the informing
+  event and of the conjunction, `.prop` is the normalized indicator, `.expect` is the integral
+  against `μ`. `ContPrior.expect_prop` proves `∫ prop i ∂μ = 1` for every prior of positive mass,
+  and `ContPrior.corr_eq` / `corr_eq_one_iff` restate the B0 dictionary (`joint / (mass * mass)`,
+  unit correlation iff the joint measure factorizes). Nothing here is a point-evaluation vector in
+  `L²`.
+* **Refinement invariance (pushforward).** `ContRefinement` refines `Ω` to `Ω × Γ` with an arbitrary
+  probability measure on the product — the tag may stay correlated with the coarse information —
+  pulls the supports back along `Prod.fst`, and takes `ContRefinement.coarse` to be the pushforward
+  `Measure.map Prod.fst`. Then `mass_refined_eq_coarse`, `joint_refined_eq_coarse`,
+  `corr_refined_eq_coarse` and `expect_refined_eq_coarse` say marginalization changes no B0 number;
+  the proofs are `Measure.map_apply` / `integral_map`, the exact analogue of the finite fiber sums.
+* **Exhaustion/truncation consistency.** For a monotone exhaustion `A k ↑ inf i`,
+  `ContPrior.tendsto_mass_of_iUnion` gives `μ.real (A k) → μ.real (inf i)`, `tendsto_pair_of_iUnion`
+  does the same with both supports exhausted at once, and the bundled
+  `ContPrior.tendsto_dictionary_of_iUnion` states the whole dictionary in one `Tendsto`: the mass
+  vector, the joint matrix and the correlation matrix of the truncations converge coordinatewise to
+  the continuum values (the correlations under the hypothesis that the limiting masses are
+  positive). So the finite regulator's numbers are limits of the continuum ones — the finite packet
+  is a genuine regularization of this object.
+* **Acceptance test on a continuum information space.** `unitIntervalLaw` (Lebesgue measure
+  restricted to `[0,1]`, a genuine probability measure) with both supports `[0, 1/2]`:
+  `correlatedInfoCont_corr : corr 0 1 = 2` and `correlatedInfoCont_corr_ne_one` reproduce the finite
+  acceptance test with integrals rather than sums.
+
+Boundary recorded there: the continuum *law* is still an input — `IsProbabilityMeasure` is assumed,
+never derived, and no Euclidean measure is constructed; supports are measurable sets of positive
+finite measure, and the propositions are normalized indicators (not products of independent number
+densities). The bundled exhaustion statement converges the dictionary coordinatewise, not in a
+single operator topology, and the correlation clause needs the limiting masses to be positive. No
+spatial translation, no unitary `ℋ_OS → ℱ`; B2/B3 remain conditional, and `B1ContinuumEstimate` is
+still an explicit input.
+
+**Landed 2026-11-12, B2 on the one-particle sector.** `BookProof/OSReconstruction/OneParticleBridge.lean`
+gives `OsFockBridge` an inhabitant **whose `U` is constructed rather than assumed**, which was the
+one thing the bundle's two previous inhabitants (`OsFockBridge.id`, `osFockBridgeOfMulModel`) never
+did. Axiom footprint `{propext, Classical.choice, Quot.sound}`; no `sorry`.
+
+* **A concrete state.** `evalZeroState` is the point-evaluation functional `ω F = F 0` on the full
+  observable algebra — additive and homogeneous for *every* observable, θ-invariant because
+  `fieldReflection` fixes `0`, and reflection positive because its OS form factorizes:
+  `evalZero_osBilin : ⟨F,G⟩ = F(0)·G(0)`, hence `⟨F,F⟩ = F(0)² ≥ 0`.
+* **Its OS space is the one-particle line, and the isometry is built.** The radical is the kernel of
+  evaluation at `0` (`evalZero_mem_radical_iff`); evaluation descends to the quotient as `evalQuot`,
+  which is an isometry onto `ℝ` (`evalQuot_norm : ‖[F]‖ = |F(0)|`, `evalQuot_surjective`), so
+  `𝔄/𝔑 ≃ₗᵢ ℝ`. `LinearMap.extendOfNorm` along the dense embedding gives
+  `evalHphysU : ℋ →ₗᵢ[ℝ] ℝ` (`evalHphysMap_norm`), onto (`evalHphysU_denseRange`).
+* **The bridge.** `oneParticleBridge P : OsFockBridge ℝ P (oneParticleFlow P)` for an arbitrary
+  transfer semigroup `P`, with all three fields proved: `U` is the constructed isometry, its range
+  is dense, and on a one-dimensional sector every vector is `x = U x • Ω`, so linearity gives
+  `U (P τ x) = c τ · U x` with `c τ = U (P τ Ω)` (`oneParticleScalar`) — the Fock-side flow is the
+  scalar flow `c τ • id` (`oneParticleFlow`). The two-point function becomes
+  `⟪x, P τ x⟫ = c τ · ‖x‖²` (`oneParticleBridge_twoPoint`) and `‖P τ x‖ = |c τ| ‖x‖`
+  (`oneParticleBridge_norm`); `oneParticleBridge_unitary` records that the identification is a
+  unitary.
+
+Boundary recorded there, and it is the honest reading: the instance is non-conditional in `U`, but
+it is a **degenerate model**. The point-evaluation state is a character of the observable algebra,
+which is *why* its form is rank one and its Hilbert space is a line — there is no multi-particle
+content to identify. `F = ℝ` is the one-particle sector of the Fock space over a one-dimensional
+one-particle space and `oneParticleFlow` is `dΓ` of `c τ • id` there; it is not the manuscript's
+inner `h_F`, no complex structure, spatial translation or identification with `ℱ_out` is built, and
+`P` stays an input as for every bridge. The interacting B2 — a unitary `ℋ_OS → ℋ_ref ⊆ ℱ_out`
+intertwining the smeared fields and the actual heat semigroup — remains open; this module only
+records that the bundle is satisfiable by a constructed map, so B2's difficulty is the model, not
+the bundle.
+
+**Landed 2026-11-13, a physical (non-character) instance.**
+`BookProof/OSReconstruction/FiniteVolumeGibbsBridge.lean` (namespace `TwoStateGibbs`) gives the same
+bundle an inhabitant whose state is a **finite-volume Gibbs state** — not a character — with a
+**two-dimensional** OS Hilbert space and a constructed isometry onto `ℝ²`. Axiom footprint
+`{propext, Classical.choice, Quot.sound}`; no `sorry`.
+
+* **The state.** The ensemble is the two *constant* field configurations `φ_t = const a_t`,
+  `a = (0, 1)`. A constant field is fixed by `fieldReflection` whatever the component encoding is
+  (`fieldReflection_constConfig`), so `θ` acts trivially on the support and
+  `gibbs_osBilin : ⟨F,G⟩ = Σ_t w_t · F(φ_t) · G(φ_t)` is reflection positive *termwise*
+  (`gibbs_reflectionPositive`). Boltzmann weights `w_t = exp(−β a_t²)/Z` are positive
+  (`gibbsWeight_pos`) and normalized (`gibbsWeight_sum`); `gibbsState β` is the resulting `OSState`.
+* **Finite support is forced, not a convenience.** `LinearFunctional` asks for additivity on *all*
+  observables `Config → ℝ`, and Lean's Bochner integral is not additive off the integrable
+  functions, so a Gibbs measure with infinite support cannot be a `LinearFunctional`. A
+  finite-support Boltzmann law can, and `Σ_t w_t δ_{φ_t}` is the Gibbs measure of that
+  sub-ensemble.
+* **Non-character.** The indicators of the two configurations have disjoint support, so
+  `gibbs_not_multiplicative : ω(δ₀ δ₁) = 0 ≠ w₀ w₁ = ω δ₀ · ω δ₁` — exactly what the
+  point-evaluation state cannot exhibit.
+* **The space.** The radical is `{F | F(φ₀) = F(φ₁) = 0}` (`gibbs_mem_radical_iff`), so `𝔄/𝔑` is
+  two-dimensional; `gibbsCoord F = (√w_t · F(φ_t))_t` annihilates it exactly
+  (`gibbsCoord_eq_zero_iff`), descends to an isometry `gibbsQuot` (`gibbsQuot_norm`,
+  `gibbsQuot_surjective`), and `LinearMap.extendOfNorm` extends it to
+  `gibbsU β : ℋ →ₗᵢ[ℝ] ℝ²` (`gibbsHphysMap_norm`, `gibbsU_denseRange`).
+* **The bridge.** `gibbsBridge β E : OsFockBridge ℝ² (gibbsTransfer β E) (gibbsFlow E)`, both
+  flows scalar (the two configurations are degenerate in energy), with
+  `⟪x, P τ x⟫ = exp(−τE) ‖x‖²` (`gibbsBridge_twoPoint`) and `‖P τ x‖ = |exp(−τE)| ‖x‖`
+  (`gibbsBridge_norm`).
+
+Boundary recorded there: the state is a **two-point** sub-ensemble of the lattice Gibbs measure, not
+the full Gaussian Gibbs measure; the genuine lattice Gibbs state of E3 (`gibbsFun V`) is not a state
+of this carrier at all — its full-algebra OS form `Σ_{x,y} w x w y F(y,x) G(x,y)` is indefinite
+(take `F(1,2) = 1`, `F(2,1) = −1`), and reflection positivity there holds only on `𝔄₊`, where the
+OS space is a line again. Both configurations carry the same energy, so the transfer semigroup is a
+scalar and no nontrivial dynamics is exhibited; `P` remains an input, as for every occupant of the
+bundle; no spatial translation, complex structure or identification with `ℱ_out` is built. B2 in
+general remains open.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a
@@ -531,7 +716,7 @@ The operator-function approximation theorem does not supply that exclusion.
 | E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
 | E2 | Summable increments imply convergence | Actual RG estimates and limits |
 | E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), half-space generator with `H = −A` (`HalfSpaceGenerator`), finite-volume Gibbs state and its measure on the split lattice (`HalfSpaceFreeState`), complexification, complex OS form and `HilbertSpace ℂ` carrier (`HalfSpaceComplex`), quotients, multiplier generators | The exponential `e^{−τH}`, an infinite-volume state |
-| E4 | `OsFockBridge` consequences | Physical spatial prior, field and flow bridge |
+| E4 | `OsFockBridge` consequences, plus constructed (non-conditional) instances: the one-particle sector (`OneParticleBridge`) and a two-state finite-volume Gibbs state (`FiniteVolumeGibbsBridge`) | Physical spatial prior, field and flow bridge for the interacting theory |
 | E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
 
 Execute **E0 → E1 → E2 → E3 → E4 → E5** as dependency gates; abstract E3 work and E5
