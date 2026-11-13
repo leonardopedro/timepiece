@@ -1,4 +1,5 @@
 import BookProof.Ns.ChapterNsPartialFourier
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit — the partial (spatial-only) Fourier transform
@@ -8,16 +9,16 @@ the Navier–Stokes plan items: the partial transform on the fibred one-particle
 the standard axioms only: `propext`, `Classical.choice`, `Quot.sound`.
 -/
 
-#print axioms BookProof.NsPartialFourier.postcompCLM_apply
-#print axioms BookProof.NsPartialFourier.postcompCLM_lineDerivOp
-#print axioms BookProof.NsPartialFourier.fourier_postcompCLM
-#print axioms BookProof.NsPartialFourier.toLp_postcompCLM
-#print axioms BookProof.NsPartialFourier.partialFourier_norm
-#print axioms BookProof.NsPartialFourier.partialFourier_inner
-#print axioms BookProof.NsPartialFourier.partialFourier_fibreOp
-#print axioms BookProof.NsPartialFourier.fourier_vecMomentumOp_apply
-#print axioms BookProof.NsPartialFourier.postcompCLM_vecMomentumOp
-#print axioms BookProof.NsPartialFourier.nsPartialFourier_norm
-#print axioms BookProof.NsPartialFourier.nsPartialFourier_fibreOp
-#print axioms BookProof.NsPartialFourier.nsPartialFourier_fibreFourier
-#print axioms BookProof.NsPartialFourier.nsPartialFourier_comp_fibreFourier_eq
+#audit_axioms BookProof.NsPartialFourier.postcompCLM_apply
+#audit_axioms BookProof.NsPartialFourier.postcompCLM_lineDerivOp
+#audit_axioms BookProof.NsPartialFourier.fourier_postcompCLM
+#audit_axioms BookProof.NsPartialFourier.toLp_postcompCLM
+#audit_axioms BookProof.NsPartialFourier.partialFourier_norm
+#audit_axioms BookProof.NsPartialFourier.partialFourier_inner
+#audit_axioms BookProof.NsPartialFourier.partialFourier_fibreOp
+#audit_axioms BookProof.NsPartialFourier.fourier_vecMomentumOp_apply
+#audit_axioms BookProof.NsPartialFourier.postcompCLM_vecMomentumOp
+#audit_axioms BookProof.NsPartialFourier.nsPartialFourier_norm
+#audit_axioms BookProof.NsPartialFourier.nsPartialFourier_fibreOp
+#audit_axioms BookProof.NsPartialFourier.nsPartialFourier_fibreFourier
+#audit_axioms BookProof.NsPartialFourier.nsPartialFourier_comp_fibreFourier_eq

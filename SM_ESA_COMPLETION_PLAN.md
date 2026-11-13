@@ -3192,3 +3192,210 @@ and the NS statement is the proof template, not a proved counterexample.
   `propext, Classical.choice, Quot.sound`; no `sorryAx`.
 * `lake build BookProof` was **not** run to completion (it exceeded a 600 s budget); compiling the root
   module `BookProof.lean` directly was the substitute check and is reported as exactly that.
+
+## §55. The Standard-Model charge has its own b-ghost (2026-11-13)
+
+Module: §8 of `BookProof/Sm/ChapterSmQuartet.lean` (namespace `BookProof.SmQuartet`), audit
+`Work/SmQuartetConstructedAudit.lean`.  Supersedes the "not constructed" bullet of §50.3 and the
+`PhysicalPositivity` bullet of §53.4: the SM's quartet data now exists, and the open input is the
+no-ghost theorem, not the data.
+
+### 55.1. What was open
+
+§47.5/§50 reduced the quartet data to one object: a b-ghost, i.e. a map `P` with `Q P Q = Q` and
+`P Q P = P`.  §50.3 recorded the SM's own `P` as missing, so `PhysicalPositivity` for
+`smBrstCharge` stayed a named input.  The question §50 left was therefore not analytic but
+structural: does the joint matter ⊗ ghost charge admit such a `P` at all, or does the model's mode
+content obstruct it?
+
+### 55.2. The construction
+
+It admits one for a reason that has nothing to do with the mode content:
+
+* **`exists_contractingHomotopy`.**  For *every* endomorphism `Q` of a finite-dimensional complex
+  inner-product space there is `P : H →ₗ[ℂ] H` with `Q P Q = Q` and `P Q P = P`.  The proof
+  splits the kernel off a complement `C` (`Submodule.exists_isCompl`); `Q` is injective on `C` and
+  onto its range, so inverting it there and projecting onto the range along `C`
+  (`Submodule.linearProjOfIsCompl`) gives `P`.  This is the theorem §47.5's construction needed and
+  did not have; it is generic, and the model enters only through its dimension.
+* **`smBrstCharge_quartet_nonempty`.**  `FermiFock (m + 12) = EuclideanSpace ℂ (Finset (Fin (m+12)))`
+  is finite-dimensional, so `Nonempty (BrstQuartet (smBrstCharge m T f3))`, by
+  `BrstQuartet.quartetOfHomotopy` at `isBrst_smBrstCharge`.
+* **`smQuartet`, `smBghost`, `smPhysProj`.**  The quartet is chosen once
+  (`Classical.choice`), and its `bGhost`/`physProj` fields are exposed as the two named maps.  They
+  are a b-ghost and a physical projector for the *full joint charge* `smBrstCharge`, not for a
+  reduced block or a toy instance.
+* **`smPhysicalPositivity_of_etaPhys`.**  `PhysicalPositivity (smBrstCharge m T f3) η` follows from
+  `hKrein`, `hSymm` and the single metric hypothesis
+  `hEtaPhys : η (smPhysProj y) = smPhysProj y`, via `physicalPositivity_of_quartet`.
+
+### 55.3. What this does and does not give
+
+* **Gives**: the quartet *data* of the SM charge, hence `PhysicalPositivity` from `hEtaPhys` alone.
+  The quartet identity is the field `(smQuartet …).quartet_anticomm`; the b-ghost and projector are
+  its `bGhost` and `physProj` fields by definition.  §50's mechanism is now instantiated at the
+  actual charge.
+* **Does not give a b-ghost formula.**  `smQuartet` is picked from a `Nonempty` proof, so `smBghost`
+  is an existence statement made usable, not a pairing rule for longitudinal/ghost modes.  Two
+  consequences, both stated in the module docstring: nothing computes with `smBghost`, and the
+  quartet identity is available only as the field of the chosen quartet.
+* **Does not identify the physical subspace.**  `smPhysProj`'s range is *some* complement of
+  `im Q`'s exact part, but nothing proves it is the transverse, ghost-parity-even subspace the
+  no-ghost theorem is about.  That is exactly `hEtaPhys`, and it is the remaining input — P5's open
+  part is now the identification of the physical subspace, not the existence of quartet data.
+* **Why the SM-level identity is not restated as a theorem.**  Attempting it forces the elaborator
+  to unfold the chosen quartet's proof term: the composition-level and pointwise forms both hit a
+  deterministic `whnf` timeout at default heartbeats, even with the quartet marked `@[irreducible]`.
+  The field is cited instead.  This is a presentation choice, not a gap: the identity is proved
+  inside `quartetOfHomotopy` and the audit shows it rests on `propext, Classical.choice,
+  Quot.sound`.
+
+### 55.4. Verification performed (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmQuartet` — `Build completed successfully`, no new warnings.
+* `lake env lean Work/SmQuartetConstructedAudit.lean` — 25 declarations, every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.  The six new ones are
+  `exists_contractingHomotopy`, `smBrstCharge_quartet_nonempty`, `smQuartet`, `smBghost`,
+  `smPhysProj`, `smPhysicalPositivity_of_etaPhys`.
+* `scripts/check-sm-section-guards` — green, with the §55 needles (`smBghost`,
+  `smPhysicalPositivity_of_etaPhys`) added and the two superseded caveats rewritten (§47's
+  "SM b-ghost missing" and §53's "quartet data unbuilt") rather than deleted.
+
+## §56. What the SM physical subspace is, and the fixing hypothesis dropped (2026-11-13)
+
+Module: §9 of `BookProof/Sm/ChapterSmQuartet.lean`, plus `range_physProjOf` in §5; audit
+`Work/SmQuartetConstructedAudit.lean`.  Supersedes the "not constructed / identification missing"
+wording of §55.3 in the precise sense recorded below: the range is now *characterised*, and the
+input `hEtaPhys` is *withdrawn* rather than discharged.
+
+### 56.1. The range of a constructed projector, exactly
+
+For a contracting homotopy `P` (`Q P Q = Q`, `P Q P = P`):
+
+  **`range (physProjOf Q P) = ker Q ⊓ ker P`** — `range_physProjOf`.
+
+Both inclusions are one line each from the contraction identities.  `V x` is closed
+(`physProjOf_Q`) and killed by `P`: applying `P` to `Π = QP + PQ − QP²Q` gives
+`P x + P²Q x − P Q (P²Q) x`, and the last two agree by `P Q P = P` (`P_physProjOf`).  Conversely
+a closed `x` with `P x = 0` has `V x = x − (0 + 0) + 0 = x`.  Supporting API:
+`mem_range_physProj_iff` (range = fixed points) and `range_physProj_le_closed`.
+
+This is the honest content of "the physical subspace": the harmonic representatives of the
+cohomology, i.e. the closed states the b-ghost kills.  It is a statement about the *pair*
+`(Q, P)`.  At the SM: `smPhysProj_mem_closed`, the closedness half, for `smBrstCharge`.
+
+### 56.2. Why the range is not identified with "transverse, ghost-parity-even"
+
+A b-ghost is a choice of complement of `range Q` inside `ker Q`, and `range V = ker Q ⊓ ker P`
+depends on that choice.  The construction of §8 is choice-based and fixes no mode pairing, so no
+theorem of the form `range smPhysProj = <transverse ∩ parity-even>` can be derived from it —
+that requires (i) a concrete `P`, i.e. the pairing of each longitudinal/ghost mode with its
+partner, and (ii) a ghost parity `U` with `U P = P U`, after which `physProjOf_mem_even` places
+`range V` in the even sector.  Neither exists for `smBrstCharge` in the corpus.  Stating the
+identification without them would be an axiom, so it is not stated.
+
+### 56.3. The fixing hypothesis was the wrong form of the input
+
+§47's `physicalPositivity_of_quartet` asks for `η (V y) = V y` at every `y`.  Two things are
+wrong with that as the standing input: it is stronger than the no-ghost argument uses, and it is
+false for an indefinite ghost metric — the physical subspace is where the metric becomes
+positive, not where it becomes the identity.  The quartet reduction
+(`kform_quartet_reduce`) already turns the charge form of a closed state into the charge form of
+its physical part, so positivity is needed *on* `range V` only:
+
+  **`physicalPositivity_of_quartet_on_range`**: from `0 ≤ (kform η (V y) (V y)).re` and
+  `(…) = 0 → V y = 0` for all `y`, `PhysicalPositivity Q η` follows.
+
+`physicalPositivity_of_homotopy_on_range` is the same statement in terms of `physProjOf Q P`, and
+**`smPhysicalPositivity_of_physForm`** instantiates it at `smBrstCharge`/`smQuartet`.  The fixing
+hypothesis and its theorem (`smPhysicalPositivity_of_etaPhys`) remain as the stronger variant; the
+interface of record is now the positivity-on-range one, because that is the estimate a physical
+smoke test can actually produce.
+
+### 56.4. Verification performed (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmQuartet` — `Build completed successfully`; no new warnings;
+  no line over 100 characters in the added blocks.
+* `lake env lean Work/SmQuartetConstructedAudit.lean` — 33 declarations, every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.  New in this step:
+  `mem_range_physProj_iff`, `range_physProj_le_closed`, `P_physProjOf`, `range_physProjOf`,
+  `physicalPositivity_of_quartet_on_range`, `physicalPositivity_of_homotopy_on_range`,
+  `smPhysProj_mem_closed`, `smPhysicalPositivity_of_physForm`.
+* `scripts/check-sm-section-guards` — green, with the §56 needles added.
+
+## §57. The SM b-ghost has a formula (2026-11-13)
+
+Module: `BookProof/Sm/ChapterSmBghostFormula.lean` (namespace `BookProof.SmQuartet`), audit
+`Work/SmQuartetConstructedAudit.lean`.  Supersedes the "choice-based, no formula" limitation
+recorded in §55.3 and §56.2: the b-ghost of the SM charge is now an explicit map.
+
+### 57.1. The formula
+
+For a finite-dimensional complex inner-product space and `Q : H →ₗ H`,
+
+  **`P = (Q ↾ (ker Q)ᗮ)⁻¹ ∘ π_{range Q}`**  — `canonicalHomotopy`,
+
+built from two canonical pieces:
+
+* **`kerEquivOfBrst : (ker Q)ᗮ ≃ₗ range Q`**, `x ↦ Q x` (`spineMap`).  Injectivity: a vector of
+  `(ker Q)ᗮ` killed by `Q` is orthogonal to itself, hence zero (`spineMap_injective`).
+  Surjectivity: split a preimage along `ker Q ⊕ (ker Q)ᗮ` (`spineMap_surjective`), which uses
+  `IsCompl (ker Q) (ker Q)ᗮ`.
+* **`π_{range Q}`**, Mathlib's orthogonal projection, whose kernel is `(range Q)ᗮ`.
+
+Consequences, each one line:
+
+* `Q P = π_{range Q}` (`Q_canonicalHomotopy`) — because the inverse of the pairing is a right
+  inverse of `Q` (`Q_kerEquivOfBrst_symm`);
+* `Q P Q = Q` (`canonicalHomotopy_QSQ`) and `P Q P = P` (`canonicalHomotopy_SQS`) — the two
+  contraction identities, so `P` is a b-ghost in the sense of §47.5;
+* `ker P = (range Q)ᗮ` (`ker_canonicalHomotopy`).
+
+No complement and no quartet is chosen: the only noncomputability is that of the orthogonal
+projection itself.  `quartet_canonical` assembles the quartet from it.
+
+### 57.2. The physical subspace is now identified
+
+Feeding the canonical `P` into §5's `physProjOf` gives
+
+  **`range V = ker Q ⊓ (range Q)ᗮ`**  — `range_physProjOf_canonical`,
+
+the closed states orthogonal to the exact ones.  This is the *transverse* half of the no-ghost
+statement, and it is now a theorem about an explicit projector rather than a description of an
+arbitrary one (§56.1 could only say `ker Q ⊓ ker P`).  At the charge:
+
+  **`smPhysProjFormula_range : range smPhysProjFormula = closed (smBrstCharge m T f3) ⊓
+  (range (smBrstCharge m T f3))ᗮ`**,
+
+with `smBghostFormula = canonicalHomotopy (smBrstCharge m T f3)` and
+`smPhysProjFormula = physProjOf (smBrstCharge m T f3) smBghostFormula`; the kernel statement is
+`ker_smBghostFormula`.
+
+### 57.3. What is still missing, and one presentation limit
+
+* **Ghost parity.**  `range smPhysProjFormula` is proved transverse but *not* proved
+  ghost-parity even: the corpus has no ghost-parity operator on `FermiFock (m + 12)`.  Adding
+  `U` with `U² = 1`, `‖U x‖ = ‖x‖`, `U Q = Q U`, `U P = P U` would put the range in the even
+  sector by §5's `physProjOf_mem_even`; that operator is the next object to build.
+* **Positivity.**  Unchanged from §56.3: `PhysicalPositivity` still needs the charge form to be
+  positive definite on `range V` (`physicalPositivity_of_quartet_on_range`).  The formula does not
+  supply an estimate, only the subspace on which the estimate is taken.
+* **Presentation limit (elaborator, not mathematics).**  The SM-level *restatements*
+  `Ω P Ω = Ω`, `P Ω P = P` as theorems diverge in the elaborator: checking the generic proof
+  term (`canonicalHomotopy_QSQ (smBrstCharge m T f3)`) against the SM statement times out at
+  `isDefEq` even at `maxHeartbeats 1000000`, because the statement applies `smBrstCharge` to
+  compound terms.  The identities are therefore cited generically (`canonicalHomotopy_QSQ`,
+  `canonicalHomotopy_SQS`) and, at the SM, through the formula's definitions, exactly as §55.3
+  treats the quartet identity.  The kernel and range statements do not have this problem and are
+  SM-level theorems.
+
+### 57.4. Verification performed (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmBghostFormula` — `Build completed successfully`.
+* `lake env lean Work/SmQuartetConstructedAudit.lean` — 49 declarations, every one on
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.  New in this step: `spineMap`,
+  `spineMap_injective`, `spineMap_surjective`, `kerEquivOfBrst`, `Q_kerEquivOfBrst_symm`,
+  `canonicalHomotopy`, `Q_canonicalHomotopy`, `canonicalHomotopy_QSQ`, `canonicalHomotopy_SQS`,
+  `ker_canonicalHomotopy`, `range_physProjOf_canonical`, `quartet_canonical`, `smBghostFormula`,
+  `smPhysProjFormula`, `ker_smBghostFormula`, `smPhysProjFormula_range`.
+* `scripts/check-sm-section-guards` — green, with the §57 needles added.

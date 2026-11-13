@@ -1,4 +1,5 @@
 import BookProof.Ns.ChapterNsNonlinearFarisLavine
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit: Faris–Lavine on a core and the nonlinear Navier–Stokes generator
@@ -6,18 +7,18 @@ import BookProof.Ns.ChapterNsNonlinearFarisLavine
 `BookProof.ChapterFarisLavineDenseCore`, `BookProof.ChapterNsNonlinearFarisLavine`.
 -/
 
-#print axioms BookProof.FarisLavine.deficiencyTrivialAt_of_farisLavine_dense
-#print axioms BookProof.FarisLavine.essentiallySelfAdjointOn_of_farisLavine_dense
-#print axioms BookProof.FarisLavine.dense_range_add_one_of_esa_of_pos
-#print axioms BookProof.FarisLavine.quadForm_square_comparison
-#print axioms BookProof.FarisLavine.commForm_square_comparison
-#print axioms BookProof.FarisLavine.symmetricOn_square_comparison
-#print axioms BookProof.FarisLavine.norm_le_square_comparison
-#print axioms BookProof.FarisLavine.essentiallySelfAdjointOn_of_square_comparison
-#print axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_symmetricOn
-#print axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_quadForm
-#print axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_quadForm_ge
-#print axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_relBound
-#print axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_commForm
-#print axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_commForm_bound
-#print axioms BookProof.NsNonlinearFarisLavine.nsKoopman_esa_of_squareComparison_esa
+#audit_axioms BookProof.FarisLavine.deficiencyTrivialAt_of_farisLavine_dense
+#audit_axioms BookProof.FarisLavine.essentiallySelfAdjointOn_of_farisLavine_dense
+#audit_axioms BookProof.FarisLavine.dense_range_add_one_of_esa_of_pos
+#audit_axioms BookProof.FarisLavine.quadForm_square_comparison
+#audit_axioms BookProof.FarisLavine.commForm_square_comparison
+#audit_axioms BookProof.FarisLavine.symmetricOn_square_comparison
+#audit_axioms BookProof.FarisLavine.norm_le_square_comparison
+#audit_axioms BookProof.FarisLavine.essentiallySelfAdjointOn_of_square_comparison
+#audit_axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_symmetricOn
+#audit_axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_quadForm
+#audit_axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_quadForm_ge
+#audit_axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_relBound
+#audit_axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_commForm
+#audit_axioms BookProof.NsNonlinearFarisLavine.nsSquareComparison_commForm_bound
+#audit_axioms BookProof.NsNonlinearFarisLavine.nsKoopman_esa_of_squareComparison_esa

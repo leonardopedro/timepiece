@@ -2,6 +2,7 @@ import BookProof.ChapterShannonSampling
 import BookProof.Ode.ChapterOdeSampling
 import BookProof.EnergyBand.ChapterEnergyBoundedEvolution
 import BookProof.ChapterCompactCompleteReducibility
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit — the Whittaker–Shannon sampling theorem and its use in the ODE chapter
@@ -11,45 +12,45 @@ Every declaration below must report only `propext`, `Classical.choice`, `Quot.so
 
 open BookProof.ChapterShannonSampling BookProof.ChapterOdeSampling
 
-#print axioms BookProof.ChapterShannonSampling.sinc_zero
-#print axioms BookProof.ChapterShannonSampling.sinc_intCast
-#print axioms BookProof.ChapterShannonSampling.sinc_neg
-#print axioms BookProof.ChapterShannonSampling.integral_exp_mul_ofReal
-#print axioms BookProof.ChapterShannonSampling.norm_kern
-#print axioms BookProof.ChapterShannonSampling.measurable_kern
-#print axioms BookProof.ChapterShannonSampling.memLp_kern
-#print axioms BookProof.ChapterShannonSampling.bandSignal_eq_circle_integral
-#print axioms BookProof.ChapterShannonSampling.integral_haar_eq
-#print axioms BookProof.ChapterShannonSampling.inner_kernLp_apply
-#print axioms BookProof.ChapterShannonSampling.bandSignal_eq_inner
-#print axioms BookProof.ChapterShannonSampling.inner_kernLp_fourierBasis
-#print axioms BookProof.ChapterShannonSampling.bandSignal_sample
-#print axioms BookProof.ChapterShannonSampling.bandSignal_hasSum_sinc
-#print axioms BookProof.ChapterShannonSampling.integrableOn_spectrum
-#print axioms BookProof.ChapterShannonSampling.continuous_bandSignal
-#print axioms BookProof.ChapterShannonSampling.continuous_bandSignal_lp
-#print axioms BookProof.ChapterShannonSampling.integral_haar_eq_real
-#print axioms BookProof.ChapterShannonSampling.hasSum_sq_samples
-#print axioms BookProof.ChapterShannonSampling.bandSignal_eq_of_samples_eq
+#audit_axioms BookProof.ChapterShannonSampling.sinc_zero
+#audit_axioms BookProof.ChapterShannonSampling.sinc_intCast
+#audit_axioms BookProof.ChapterShannonSampling.sinc_neg
+#audit_axioms BookProof.ChapterShannonSampling.integral_exp_mul_ofReal
+#audit_axioms BookProof.ChapterShannonSampling.norm_kern
+#audit_axioms BookProof.ChapterShannonSampling.measurable_kern
+#audit_axioms BookProof.ChapterShannonSampling.memLp_kern
+#audit_axioms BookProof.ChapterShannonSampling.bandSignal_eq_circle_integral
+#audit_axioms BookProof.ChapterShannonSampling.integral_haar_eq
+#audit_axioms BookProof.ChapterShannonSampling.inner_kernLp_apply
+#audit_axioms BookProof.ChapterShannonSampling.bandSignal_eq_inner
+#audit_axioms BookProof.ChapterShannonSampling.inner_kernLp_fourierBasis
+#audit_axioms BookProof.ChapterShannonSampling.bandSignal_sample
+#audit_axioms BookProof.ChapterShannonSampling.bandSignal_hasSum_sinc
+#audit_axioms BookProof.ChapterShannonSampling.integrableOn_spectrum
+#audit_axioms BookProof.ChapterShannonSampling.continuous_bandSignal
+#audit_axioms BookProof.ChapterShannonSampling.continuous_bandSignal_lp
+#audit_axioms BookProof.ChapterShannonSampling.integral_haar_eq_real
+#audit_axioms BookProof.ChapterShannonSampling.hasSum_sq_samples
+#audit_axioms BookProof.ChapterShannonSampling.bandSignal_eq_of_samples_eq
 
-#print axioms BookProof.ChapterOdeSampling.chartW_sample
-#print axioms BookProof.ChapterOdeSampling.chartW_zero
-#print axioms BookProof.ChapterOdeSampling.eq_of_sample_eq_on_lattice
-#print axioms BookProof.ChapterOdeSampling.hasSum_wavefunction_interpolation
+#audit_axioms BookProof.ChapterOdeSampling.chartW_sample
+#audit_axioms BookProof.ChapterOdeSampling.chartW_zero
+#audit_axioms BookProof.ChapterOdeSampling.eq_of_sample_eq_on_lattice
+#audit_axioms BookProof.ChapterOdeSampling.hasSum_wavefunction_interpolation
 
-#print axioms BookProof.ChapterEnergyBoundedEvolution.norm_evol_apply
-#print axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_evol
-#print axioms BookProof.ChapterEnergyBoundedEvolution.energyLimited_evol
-#print axioms BookProof.ChapterEnergyBoundedEvolution.norm_evol_sub_evol_le_ae
-#print axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_evol_sub_evol_le
-#print axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_evol_sub_self_le
-#print axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_difference_quotient_le
+#audit_axioms BookProof.ChapterEnergyBoundedEvolution.norm_evol_apply
+#audit_axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_evol
+#audit_axioms BookProof.ChapterEnergyBoundedEvolution.energyLimited_evol
+#audit_axioms BookProof.ChapterEnergyBoundedEvolution.norm_evol_sub_evol_le_ae
+#audit_axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_evol_sub_evol_le
+#audit_axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_evol_sub_self_le
+#audit_axioms BookProof.ChapterEnergyBoundedEvolution.eLpNorm_difference_quotient_le
 
-#print axioms BookProof.ChapterCompactCompleteReducibility.continuous_conjOp
-#print axioms BookProof.ChapterCompactCompleteReducibility.integrable_conjOp
-#print axioms BookProof.ChapterCompactCompleteReducibility.avgOp_apply
-#print axioms BookProof.ChapterCompactCompleteReducibility.avgOp_apply_mem
-#print axioms BookProof.ChapterCompactCompleteReducibility.avgOp_apply_eq_self
-#print axioms BookProof.ChapterCompactCompleteReducibility.avgOp_comm
-#print axioms BookProof.ChapterCompactCompleteReducibility.compact_invariant_complement
-#print axioms BookProof.ChapterCompactCompleteReducibility.compact_invariant_complement_haar
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.continuous_conjOp
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.integrable_conjOp
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.avgOp_apply
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.avgOp_apply_mem
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.avgOp_apply_eq_self
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.avgOp_comm
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.compact_invariant_complement
+#audit_axioms BookProof.ChapterCompactCompleteReducibility.compact_invariant_complement_haar

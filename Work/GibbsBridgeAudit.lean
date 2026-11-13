@@ -5,34 +5,35 @@ Every theorem below must rest on `propext`, `Classical.choice`, `Quot.sound` onl
 construction data (`gibbsLF`, `gibbsCoord`, `gibbsU`, `gibbsBridge`, …) is data, not a theorem.
 -/
 import BookProof.OSReconstruction.FiniteVolumeGibbsBridge
+import BookProof.RoadmapAudit.AxiomAudit
 
 open BookProof.OSReconstruction.TwoStateGibbs
 
-#print axioms gibbsZ_pos
-#print axioms gibbsWeight_pos
-#print axioms gibbsWeight_sum
-#print axioms fieldReflection_constConfig
-#print axioms gibbsConfig_injective
-#print axioms gibbs_osBilin
-#print axioms gibbs_reflectionPositive
-#print axioms gibbs_mem_radical_iff
-#print axioms gibbsDelta_self
-#print axioms gibbsDelta_of_ne
-#print axioms gibbsLF_delta
-#print axioms gibbsDelta_mul
-#print axioms gibbsLF_delta_mul
-#print axioms gibbs_not_multiplicative
-#print axioms gibbsCoord_add
-#print axioms gibbsCoord_smul
-#print axioms gibbsCoord_norm_sq
-#print axioms gibbsCoord_eq_zero_iff
-#print axioms gibbsQuot_apply_mk
-#print axioms gibbsQuot_norm
-#print axioms gibbsQuot_surjective
-#print axioms gibbsHphysMap_coe
-#print axioms gibbsHphysMap_norm
-#print axioms gibbsU_apply_coe
-#print axioms gibbsU_surjective
-#print axioms gibbsU_denseRange
-#print axioms gibbsBridge_twoPoint
-#print axioms gibbsBridge_norm
+#audit_axioms gibbsZ_pos
+#audit_axioms gibbsWeight_pos
+#audit_axioms gibbsWeight_sum
+#audit_axioms fieldReflection_constConfig
+#audit_axioms gibbsConfig_injective
+#audit_axioms gibbs_osBilin
+#audit_axioms gibbs_reflectionPositive
+#audit_axioms gibbs_mem_radical_iff
+#audit_axioms gibbsDelta_self
+#audit_axioms gibbsDelta_of_ne
+#audit_axioms gibbsLF_delta
+#audit_axioms gibbsDelta_mul
+#audit_axioms gibbsLF_delta_mul
+#audit_axioms gibbs_not_multiplicative
+#audit_axioms gibbsCoord_add
+#audit_axioms gibbsCoord_smul
+#audit_axioms gibbsCoord_norm_sq
+#audit_axioms gibbsCoord_eq_zero_iff
+#audit_axioms gibbsQuot_apply_mk
+#audit_axioms gibbsQuot_norm
+#audit_axioms gibbsQuot_surjective
+#audit_axioms gibbsHphysMap_coe
+#audit_axioms gibbsHphysMap_norm
+#audit_axioms gibbsU_apply_coe
+#audit_axioms gibbsU_surjective
+#audit_axioms gibbsU_denseRange
+#audit_axioms gibbsBridge_twoPoint
+#audit_axioms gibbsBridge_norm

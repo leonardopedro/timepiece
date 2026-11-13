@@ -1,6 +1,7 @@
 import BookProof.Qym.ChapterYangMillsFockFriedrichs
 import BookProof.Qg.ChapterScalaronNotQuadratic
 import BookProof.ChapterEsaFarisLavineIndex
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 Axiom audit for the 2026-09-12 wave:
@@ -17,25 +18,25 @@ Every result below must report only `propext`, `Classical.choice` and `Quot.soun
 -/
 
 -- Yang–Mills: bounded below, Friedrichs, Stone, number conservation.
-#print axioms BookProof.YmFockFriedrichs.gaussPolyN_eval
-#print axioms BookProof.YmFockFriedrichs.ymSectorHam_symmetricOn
-#print axioms BookProof.YmFockFriedrichs.ymSectorHam_quadForm_nonneg
-#print axioms BookProof.YmFockFriedrichs.ymSector_friedrichs_extension
-#print axioms BookProof.YmFockFriedrichs.ymFockCore_dense
-#print axioms BookProof.YmFockFriedrichs.ymFockHam_symmetricOn
-#print axioms BookProof.YmFockFriedrichs.ymFockHam_quadForm_nonneg
-#print axioms BookProof.YmFockFriedrichs.ymFock_friedrichs_extension
-#print axioms BookProof.YmFockFriedrichs.ymFock_stone_flow
-#print axioms BookProof.YmFockFriedrichs.ymFockHam_number_conserving
+#audit_axioms BookProof.YmFockFriedrichs.gaussPolyN_eval
+#audit_axioms BookProof.YmFockFriedrichs.ymSectorHam_symmetricOn
+#audit_axioms BookProof.YmFockFriedrichs.ymSectorHam_quadForm_nonneg
+#audit_axioms BookProof.YmFockFriedrichs.ymSector_friedrichs_extension
+#audit_axioms BookProof.YmFockFriedrichs.ymFockCore_dense
+#audit_axioms BookProof.YmFockFriedrichs.ymFockHam_symmetricOn
+#audit_axioms BookProof.YmFockFriedrichs.ymFockHam_quadForm_nonneg
+#audit_axioms BookProof.YmFockFriedrichs.ymFock_friedrichs_extension
+#audit_axioms BookProof.YmFockFriedrichs.ymFock_stone_flow
+#audit_axioms BookProof.YmFockFriedrichs.ymFockHam_number_conserving
 
 -- The scalaron obstruction.
-#print axioms BookProof.ScalaronNotQuadratic.starobinskyV_le_plateau
-#print axioms BookProof.ScalaronNotQuadratic.starobinskyV_pos
-#print axioms BookProof.ScalaronNotQuadratic.starobinskyV_not_quadratic
-#print axioms BookProof.ScalaronNotQuadratic.starobinskyPot_not_quadratic
-#print axioms BookProof.ScalaronNotQuadratic.starobinskyPot_not_sum_of_squares
+#audit_axioms BookProof.ScalaronNotQuadratic.starobinskyV_le_plateau
+#audit_axioms BookProof.ScalaronNotQuadratic.starobinskyV_pos
+#audit_axioms BookProof.ScalaronNotQuadratic.starobinskyV_not_quadratic
+#audit_axioms BookProof.ScalaronNotQuadratic.starobinskyPot_not_quadratic
+#audit_axioms BookProof.ScalaronNotQuadratic.starobinskyPot_not_sum_of_squares
 
 -- The index entries.
-#print axioms BookProof.EsaFarisLavineIndex.ym_fock_bddBelow
-#print axioms BookProof.EsaFarisLavineIndex.ym_fock_friedrichs
-#print axioms BookProof.EsaFarisLavineIndex.ym_fock_stone_flow
+#audit_axioms BookProof.EsaFarisLavineIndex.ym_fock_bddBelow
+#audit_axioms BookProof.EsaFarisLavineIndex.ym_fock_friedrichs
+#audit_axioms BookProof.EsaFarisLavineIndex.ym_fock_stone_flow

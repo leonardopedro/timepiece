@@ -1,4 +1,5 @@
 import BookProof.ChapterNumericalRangeSemigroup
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 Axiom audit for Crouzeix's inequality on a **half-plane**, with constant `1`, for the
@@ -9,16 +10,16 @@ constant.
 Every result below must report only `propext`, `Classical.choice` and `Quot.sound`.
 -/
 
-#print axioms BookProof.ChapterNumericalRangeSemigroup.numReLE_iff_numRange_subset
-#print axioms BookProof.ChapterNumericalRangeSemigroup.hasDerivAt_expApply
-#print axioms BookProof.ChapterNumericalRangeSemigroup.hasDerivAt_normSq
-#print axioms BookProof.ChapterNumericalRangeSemigroup.norm_exp_apply_le
-#print axioms BookProof.ChapterNumericalRangeSemigroup.norm_exp_le
-#print axioms BookProof.ChapterNumericalRangeSemigroup.norm_exp_le_one
-#print axioms BookProof.ChapterNumericalRangeSemigroup.norm_cexp_le_of_re_le
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.numReLE_iff_numRange_subset
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.hasDerivAt_expApply
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.hasDerivAt_normSq
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.norm_exp_apply_le
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.norm_exp_le
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.norm_exp_le_one
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.norm_cexp_le_of_re_le
 
 -- The resolvent estimate to the right of the half-plane.
-#print axioms BookProof.ChapterNumericalRangeSemigroup.shift_ker_eq_bot
-#print axioms BookProof.ChapterNumericalRangeSemigroup.shift_range_eq_top
-#print axioms BookProof.ChapterNumericalRangeSemigroup.shift_symm_apply
-#print axioms BookProof.ChapterNumericalRangeSemigroup.norm_resolvent_le
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.shift_ker_eq_bot
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.shift_range_eq_top
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.shift_symm_apply
+#audit_axioms BookProof.ChapterNumericalRangeSemigroup.norm_resolvent_le

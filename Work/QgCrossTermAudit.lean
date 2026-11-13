@@ -1,15 +1,16 @@
 import BookProof.Qg.ChapterQg3DCrossTermEsa
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit of `BookProof.ChapterQg3DCrossTermEsa`
 -/
 
-#print axioms BookProof.Qg3DCrossTermEsa.fqPoly_add_coupling
-#print axioms BookProof.Qg3DCrossTermEsa.qgWithCoupling_esa
-#print axioms BookProof.Qg3DCrossTermEsa.bookCrossMat_eq_sym
-#print axioms BookProof.Qg3DCrossTermEsa.bookCrossMat_idx11
-#print axioms BookProof.Qg3DCrossTermEsa.qg3DCross_eq_fqOp
-#print axioms BookProof.Qg3DCrossTermEsa.qg3DCross_esa
-#print axioms BookProof.Qg3DCrossTermEsa.qg3DCross_stone_flow
-#print axioms BookProof.Qg3DCrossTermEsa.qg3DCross_dGamma_esa
-#print axioms BookProof.Qg3DCrossTermEsa.qg3DCross_dGammaOp_esa
+#audit_axioms BookProof.Qg3DCrossTermEsa.fqPoly_add_coupling
+#audit_axioms BookProof.Qg3DCrossTermEsa.qgWithCoupling_esa
+#audit_axioms BookProof.Qg3DCrossTermEsa.bookCrossMat_eq_sym
+#audit_axioms BookProof.Qg3DCrossTermEsa.bookCrossMat_idx11
+#audit_axioms BookProof.Qg3DCrossTermEsa.qg3DCross_eq_fqOp
+#audit_axioms BookProof.Qg3DCrossTermEsa.qg3DCross_esa
+#audit_axioms BookProof.Qg3DCrossTermEsa.qg3DCross_stone_flow
+#audit_axioms BookProof.Qg3DCrossTermEsa.qg3DCross_dGamma_esa
+#audit_axioms BookProof.Qg3DCrossTermEsa.qg3DCross_dGammaOp_esa

@@ -1,9 +1,10 @@
 import BookProof.Sm.ChapterSmComparisonEsa
+import BookProof.RoadmapAudit.AxiomAudit
 
-#print axioms BookProof.SmComparisonEsa.sm_h_esa
-#print axioms BookProof.SmComparisonEsa.smFlN_esa
-#print axioms BookProof.HermiteGraphApprox.hamCoreS_esa
-#print axioms BookProof.HermiteGraphApprox.exists_core_graph_approx
-#print axioms BookProof.DegKatoEsa.ccHamS_esa
-#print axioms BookProof.DegKatoEsa.deficiencyTrivialAt_ccHamS
-#print axioms BookProof.HermiteLadder.exists_ladderOrd_hamPolyL
+#audit_axioms BookProof.SmComparisonEsa.sm_h_esa
+#audit_axioms BookProof.SmComparisonEsa.smFlN_esa
+#audit_axioms BookProof.HermiteGraphApprox.hamCoreS_esa
+#audit_axioms BookProof.HermiteGraphApprox.exists_core_graph_approx
+#audit_axioms BookProof.DegKatoEsa.ccHamS_esa
+#audit_axioms BookProof.DegKatoEsa.deficiencyTrivialAt_ccHamS
+#audit_axioms BookProof.HermiteLadder.exists_ladderOrd_hamPolyL

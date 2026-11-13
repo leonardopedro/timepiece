@@ -7,14 +7,15 @@ monotonicity, and `exists_potSelfBound_of_gradBound` composes that with the per-
 table, so `PotSelfBound` is a hypothesis on one finite algebraic input.
 -/
 import BookProof.Sm.ChapterSmGradDomTransfer
+import BookProof.RoadmapAudit.AxiomAudit
 
 open BookProof.SmGradDomTransfer
 
-#print axioms eval_real_of_realCoeff
-#print axioms norm_eval_sq_eq_polyW_sq
-#print axioms eval_cpoly_self_re
-#print axioms eval_cpoly_mul_re
-#print axioms eval_sum_cpoly_re
-#print axioms l2_gradDom_of_pointwise
-#print axioms exists_potSelfBound_of_pointwise
-#print axioms exists_potSelfBound_of_gradBound
+#audit_axioms eval_real_of_realCoeff
+#audit_axioms norm_eval_sq_eq_polyW_sq
+#audit_axioms eval_cpoly_self_re
+#audit_axioms eval_cpoly_mul_re
+#audit_axioms eval_sum_cpoly_re
+#audit_axioms l2_gradDom_of_pointwise
+#audit_axioms exists_potSelfBound_of_pointwise
+#audit_axioms exists_potSelfBound_of_gradBound

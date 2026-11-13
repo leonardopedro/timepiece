@@ -1,4 +1,5 @@
 import BookProof.HarmonicAnalysis.ChapterSphericalPlancherel
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 Axiom audit for `BookProof.ChapterSphericalPlancherel`: Plancherel's theorem for
@@ -7,14 +8,14 @@ the Fourier sine transform and the resulting unitarity of the spherical
 `propext`, `Classical.choice` and `Quot.sound`.
 -/
 
-#print axioms BookProof.ChapterSphericalPlancherel.integral_eq_zero_of_odd
-#print axioms BookProof.ChapterSphericalPlancherel.integral_eq_two_smul_of_even
-#print axioms BookProof.ChapterSphericalPlancherel.integral_eq_two_mul_of_even_real
-#print axioms BookProof.ChapterSphericalPlancherel.fourier_eq_cos_sub_sin
-#print axioms BookProof.ChapterSphericalPlancherel.fourier_odd_eq
-#print axioms BookProof.ChapterSphericalPlancherel.sine_plancherel
-#print axioms BookProof.ChapterSphericalPlancherel.sineKernel_plancherel
-#print axioms BookProof.ChapterSphericalPlancherel.sphericalTransform_eq
-#print axioms BookProof.ChapterSphericalPlancherel.spherical_plancherel
-#print axioms BookProof.ChapterSphericalPlancherel.oddSchwartz_ne_zero
-#print axioms BookProof.ChapterSphericalPlancherel.spherical_plancherel_bump
+#audit_axioms BookProof.ChapterSphericalPlancherel.integral_eq_zero_of_odd
+#audit_axioms BookProof.ChapterSphericalPlancherel.integral_eq_two_smul_of_even
+#audit_axioms BookProof.ChapterSphericalPlancherel.integral_eq_two_mul_of_even_real
+#audit_axioms BookProof.ChapterSphericalPlancherel.fourier_eq_cos_sub_sin
+#audit_axioms BookProof.ChapterSphericalPlancherel.fourier_odd_eq
+#audit_axioms BookProof.ChapterSphericalPlancherel.sine_plancherel
+#audit_axioms BookProof.ChapterSphericalPlancherel.sineKernel_plancherel
+#audit_axioms BookProof.ChapterSphericalPlancherel.sphericalTransform_eq
+#audit_axioms BookProof.ChapterSphericalPlancherel.spherical_plancherel
+#audit_axioms BookProof.ChapterSphericalPlancherel.oddSchwartz_ne_zero
+#audit_axioms BookProof.ChapterSphericalPlancherel.spherical_plancherel_bump

@@ -39,7 +39,7 @@ Ground rules this plan inherits:
 
 * **Folder = module path in Lean 4.** `BookProof/X.lean` → `BookProof/<Area>/X.lean`
   renames the module to `BookProof.<Area>.X`. Every import, every `#check @BookProof.X…`
-  in `Book/`, every `#print axioms BookProof.X…` in `ChapterRoadmapAudit.lean`, and every
+  in `Book/`, every `#audit_axioms BookProof.X…` in `ChapterRoadmapAudit.lean`, and every
   `BookProof/ChapterX.lean` path cited in `../test/*.md` (caught by
   `scripts/check-gitbook-drift`, part of `health.sh`) must move in the same step.
 * **Folders do not change the import graph.** A folder is navigation, not a target.
@@ -83,7 +83,8 @@ BookProof/
   Textbook/         the lettered relics ChapterA1…A5, B, B3…B7, C, D, E, F1…F8,
                     G, G2, G3, H1…H9 (80 files) — old textbook-section numbering
                     (§4.B; renames optional, foldering mandatory)
-  RoadmapAudit/     ChapterRoadmapAudit.lean (the #print axioms gate)
+  RoadmapAudit/     ChapterRoadmapAudit.lean (the axiom gate) and
+                    AxiomAudit.lean (the memoized `#audit_axioms` it runs on)
 ```
 
 Three consequences stated deliberately:
@@ -144,8 +145,11 @@ For each group of §6 (start with `operator-qm`, then `analytic-nt`, `prob-conce
 3. Wire into `BookProof.lean`, then `--write-lakefile` + `--check` (the converted
    modules join `BookProofOperatorCore` unless the cross-import matrix of step 2.1
    says they are standalone — most are).
-4. `#print axioms` each new declaration in `ChapterRoadmapAudit.lean`; acceptance
-   is `propext, Classical.choice, Quot.sound` only.
+4. `#audit_axioms` each new declaration in `ChapterRoadmapAudit.lean`; acceptance
+   is `propext, Classical.choice, Quot.sound` only. (`#audit_axioms` is the memoized
+   `#print axioms` of `BookProof/RoadmapAudit/AxiomAudit.lean`: same output, but the
+   dependency closure is walked once per file instead of once per declaration, which
+   is what keeps the 2133 audits of that file at a few seconds rather than 40+ minutes.)
 Do NOT convert during Phases 0–1: the folder renames of Phase 1 would invalidate
 conversion diffs, and the conversion diff is the honesty record that the import
 was faithful.

@@ -79,6 +79,7 @@ COMPONENT_NAMES = {
     "BookProof.Lorentz.ChapterLorentzDecomp": "BookProofLorentz",
     "BookProof.Ode.ChapterOdeSampling": "BookProofSamplingTheory",
     "BookProof.Pauli.ChapterPauliLorentz": "BookProofPauli",
+    "BookProof.RoadmapAudit.AxiomAudit": "BookProofRoadmapAudit",
     "BookProof.RoadmapAudit.ChapterRoadmapAudit": "BookProofRoadmapAudit",
     "BookProof.WeylSL2.ChapterWeylSL2Group": "BookProofWeylSL2",
     "BookProof.WignerOrbit.ChapterWignerLittleGroup": "BookProofWignerOrbit",

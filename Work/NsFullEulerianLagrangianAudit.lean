@@ -1,5 +1,6 @@
 import BookProof.Ns.ChapterNavierStokesFullEulerianFock
 import BookProof.Ns.ChapterNavierStokesFullLagrangianFock
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 Axiom audit for the full (non-linearised) Navier–Stokes Hamiltonians on the nested Fock
@@ -17,31 +18,31 @@ Every result below must report only `propext`, `Classical.choice` and `Quot.soun
 -/
 
 -- Eulerian variables, full nonlinear advection.
-#print axioms BookProof.NsFullEuler.nsSectorHam_symmetricOn
-#print axioms BookProof.NsFullEuler.nsSectorHam_quadForm_nonneg
-#print axioms BookProof.NsFullEuler.nsSector_friedrichs_extension
-#print axioms BookProof.NsFullEuler.nsFockCore_dense
-#print axioms BookProof.NsFullEuler.nsFullFockHam_symmetricOn
-#print axioms BookProof.NsFullEuler.nsFullFockHam_quadForm_nonneg
-#print axioms BookProof.NsFullEuler.nsFullFock_friedrichs_extension
-#print axioms BookProof.NsFullEuler.nsFullOuterN_esa
-#print axioms BookProof.NsFullEuler.nsFullOuterN_isPositiveSelfAdjointExtension
-#print axioms BookProof.NsFullEuler.nsFullFock_stone_flow
-#print axioms BookProof.NsFullEuler.nsFullFockHam_number_conserving
-#print axioms BookProof.NsFullEuler.nsResPoly_eval_testPt
-#print axioms BookProof.NsFullEuler.nsResPoly_not_affine
+#audit_axioms BookProof.NsFullEuler.nsSectorHam_symmetricOn
+#audit_axioms BookProof.NsFullEuler.nsSectorHam_quadForm_nonneg
+#audit_axioms BookProof.NsFullEuler.nsSector_friedrichs_extension
+#audit_axioms BookProof.NsFullEuler.nsFockCore_dense
+#audit_axioms BookProof.NsFullEuler.nsFullFockHam_symmetricOn
+#audit_axioms BookProof.NsFullEuler.nsFullFockHam_quadForm_nonneg
+#audit_axioms BookProof.NsFullEuler.nsFullFock_friedrichs_extension
+#audit_axioms BookProof.NsFullEuler.nsFullOuterN_esa
+#audit_axioms BookProof.NsFullEuler.nsFullOuterN_isPositiveSelfAdjointExtension
+#audit_axioms BookProof.NsFullEuler.nsFullFock_stone_flow
+#audit_axioms BookProof.NsFullEuler.nsFullFockHam_number_conserving
+#audit_axioms BookProof.NsFullEuler.nsResPoly_eval_testPt
+#audit_axioms BookProof.NsFullEuler.nsResPoly_not_affine
 
 -- Lagrangian variables, exact Piola pressure term and exact volume constraint.
-#print axioms BookProof.NsFullLagrangian.lagSectorHam_symmetricOn
-#print axioms BookProof.NsFullLagrangian.lagSectorHam_quadForm_nonneg
-#print axioms BookProof.NsFullLagrangian.lagSector_friedrichs_extension
-#print axioms BookProof.NsFullLagrangian.lagFockCore_dense
-#print axioms BookProof.NsFullLagrangian.lagFullFockHam_symmetricOn
-#print axioms BookProof.NsFullLagrangian.lagFullFockHam_quadForm_nonneg
-#print axioms BookProof.NsFullLagrangian.lagFullFock_friedrichs_extension
-#print axioms BookProof.NsFullLagrangian.lagFullOuterN_esa
-#print axioms BookProof.NsFullLagrangian.lagFullOuterN_isPositiveSelfAdjointExtension
-#print axioms BookProof.NsFullLagrangian.lagFullFock_stone_flow
-#print axioms BookProof.NsFullLagrangian.lagFullFockHam_number_conserving
-#print axioms BookProof.NsFullLagrangian.detPoly_eval_testPt
-#print axioms BookProof.NsFullLagrangian.volumePoly_not_quadratic
+#audit_axioms BookProof.NsFullLagrangian.lagSectorHam_symmetricOn
+#audit_axioms BookProof.NsFullLagrangian.lagSectorHam_quadForm_nonneg
+#audit_axioms BookProof.NsFullLagrangian.lagSector_friedrichs_extension
+#audit_axioms BookProof.NsFullLagrangian.lagFockCore_dense
+#audit_axioms BookProof.NsFullLagrangian.lagFullFockHam_symmetricOn
+#audit_axioms BookProof.NsFullLagrangian.lagFullFockHam_quadForm_nonneg
+#audit_axioms BookProof.NsFullLagrangian.lagFullFock_friedrichs_extension
+#audit_axioms BookProof.NsFullLagrangian.lagFullOuterN_esa
+#audit_axioms BookProof.NsFullLagrangian.lagFullOuterN_isPositiveSelfAdjointExtension
+#audit_axioms BookProof.NsFullLagrangian.lagFullFock_stone_flow
+#audit_axioms BookProof.NsFullLagrangian.lagFullFockHam_number_conserving
+#audit_axioms BookProof.NsFullLagrangian.detPoly_eval_testPt
+#audit_axioms BookProof.NsFullLagrangian.volumePoly_not_quadratic

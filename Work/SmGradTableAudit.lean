@@ -10,36 +10,37 @@ carries the negative result for the QYM/NS forms: `not_gradDom_weylFlat`, whose 
 `Σ Φ_j² + 1` is *not* gradient-dominated, so the normal form applies but its conclusion does not.
 -/
 import BookProof.Sm.ChapterSmGradTable
+import BookProof.RoadmapAudit.AxiomAudit
 
 open BookProof.SmGradTable
 
-#print axioms pderiv_X'
-#print axioms pderiv_C_mul
-#print axioms pderiv_lin_sum
-#print axioms pderiv_sq_sum
-#print axioms pderiv_eq
-#print axioms BookProof.SmGradTable.sq_le
-#print axioms disjoint_smS_smT
-#print axioms smDG_notMem
-#print axioms smDW_notMem
-#print axioms smDB_notMem
-#print axioms smDPhi_notMem
-#print axioms biform_smMagG_poly
-#print axioms biform_smMagW_poly
-#print axioms biform_smCovD_poly
-#print axioms biform_smWall_poly
-#print axioms biform_form_poly
-#print axioms biform_smPhi_poly
-#print axioms gradBound_smPhi
-#print axioms exists_potSelfBound_sm
-#print axioms PotSelfBound_mono
-#print axioms exists_potSelfBound_sm_nonneg
-#print axioms exists_kineticSum_bound_sm
-#print axioms exists_smNormalForm_norm_le
-#print axioms weylFlat_eq_weylPotPoly
-#print axioms weylFlat_eq_flat_add
-#print axioms evAt_add
-#print axioms eval_weylFlat_zero
-#print axioms eval_weylFlat_one
-#print axioms eval_weylFlat_self
-#print axioms not_gradDom_weylFlat
+#audit_axioms pderiv_X'
+#audit_axioms pderiv_C_mul
+#audit_axioms pderiv_lin_sum
+#audit_axioms pderiv_sq_sum
+#audit_axioms pderiv_eq
+#audit_axioms BookProof.SmGradTable.sq_le
+#audit_axioms disjoint_smS_smT
+#audit_axioms smDG_notMem
+#audit_axioms smDW_notMem
+#audit_axioms smDB_notMem
+#audit_axioms smDPhi_notMem
+#audit_axioms biform_smMagG_poly
+#audit_axioms biform_smMagW_poly
+#audit_axioms biform_smCovD_poly
+#audit_axioms biform_smWall_poly
+#audit_axioms biform_form_poly
+#audit_axioms biform_smPhi_poly
+#audit_axioms gradBound_smPhi
+#audit_axioms exists_potSelfBound_sm
+#audit_axioms PotSelfBound_mono
+#audit_axioms exists_potSelfBound_sm_nonneg
+#audit_axioms exists_kineticSum_bound_sm
+#audit_axioms exists_smNormalForm_norm_le
+#audit_axioms weylFlat_eq_weylPotPoly
+#audit_axioms weylFlat_eq_flat_add
+#audit_axioms evAt_add
+#audit_axioms eval_weylFlat_zero
+#audit_axioms eval_weylFlat_one
+#audit_axioms eval_weylFlat_self
+#audit_axioms not_gradDom_weylFlat

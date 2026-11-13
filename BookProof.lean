@@ -4161,9 +4161,31 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- from it, `physProjOf_commute_parity`/`physProjOf_mem_even` give the ghost-parity-even sector (a
 -- parity-even b-ghost gives a parity-even `V`), and `physicalPositivity_of_homotopy_sectors` is
 -- positivity sector by sector.  `exP_exQ_exP_gives_V` shows the construction reproduces the model
--- projector `exV`.  This is **not** a proof of SM positivity: the SM's own b-ghost is still
--- missing, so what is proved is the mechanism.
+-- projector `exV`.  §8 and `SM_ESA_COMPLETION_PLAN` §55 then build the SM's own quartet: every
+-- endomorphism of a finite-dimensional space has a contracting homotopy
+-- (`exists_contractingHomotopy`), so `smQuartet : BrstQuartet (smBrstCharge m T f3)` exists, with
+-- `smBghost`/`smPhysProj` as its fields, and `smPhysicalPositivity_of_etaPhys` derives
+-- `PhysicalPositivity` from the single metric hypothesis `hEtaPhys`.  §56 then characterises that
+-- projector's range exactly — `range V = ker Q ⊓ ker P` (`range_physProjOf`), the closed states
+-- killed by the b-ghost — and withdraws `hEtaPhys` in favour of positivity of the charge form on
+-- that range (`physicalPositivity_of_quartet_on_range`, `smPhysicalPositivity_of_physForm`).  That
+-- is still **not** a proof of SM positivity: the construction is choice-based (no b-ghost
+-- formula, no mode pairing is exhibited), so nothing identifies the range with the transverse,
+-- ghost-parity-even subspace, and the no-ghost estimate on it is the open input.
 import BookProof.Sm.ChapterSmQuartet
+-- `ChapterSmBghostFormula` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §57): the b-ghost of §8 with a
+-- **formula** instead of a choice.  On `FermiFock (m + 12)` (finite-dimensional) set `P = (Ω ↾
+-- (ker Ω)ᗮ)⁻¹ ∘ π_{range Ω}`: pair the exact states with their orthogonal preimages (`spineMap`,
+-- `kerEquivOfBrst`, `canonicalHomotopy`).  Then `Q P = π_{range Q}` and `P Q = π_{(ker Q)ᗮ}`,
+-- giving both contraction identities (`canonicalHomotopy_QSQ`/`_SQS`) and `ker P = (range Q)ᗮ`
+-- (`ker_canonicalHomotopy`).  The projector built from it has the *proved* range `range V = ker Q
+-- ⊓ (range Q)ᗮ` (`range_physProjOf_canonical`), and at the charge `range smPhysProjFormula =
+-- closed (smBrstCharge m T f3) ⊓ (range (smBrstCharge m T f3))ᗮ` (`smPhysProjFormula_range`) — the
+-- closed states orthogonal to the exact ones, i.e. the transverse half of the no-ghost theorem,
+-- now identified rather than merely described.  Ghost parity is still not available (no ghost-
+-- parity operator for `smBrstCharge`), and positivity of the charge form on that range is still
+-- §56's input, so this is not yet **a proof of SM positivity**.
+import BookProof.Sm.ChapterSmBghostFormula
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
 -- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`
@@ -4215,8 +4237,10 @@ import BookProof.Sm.ChapterSmGradDomTransfer
 -- `levi`, `fabc`, `eabc`, `tgen` or `ygen` bookkeeping appears, and the constant in
 -- `gradBound_smPhi` is the total squared coefficient, not a quoted number.  Consequently
 -- **`exists_potSelfBound_sm`** gives `∃ β, PotSelfBound P c₀ β` for `0 ≤ c₀` with no hypothesis on
--- the forms.  What that does *not* give is any of P5's physical input (§46/§47's quartet data
--- remains unbuilt) or a claim about the joint model's dynamics.
+-- the forms.  What that does *not* give is P5's remaining physical input — §46/§47's quartet data
+-- now exists for `smBrstCharge` (plan §55), but nothing identifies its projector's range with the
+-- physical subspace, so `PhysicalPositivity` still rests on the metric hypothesis — nor any claim
+-- about the joint model's dynamics.
 -- `SM_ESA_COMPLETION_PLAN` §54 then uses that constant twice more.  Downstream it is made
 -- non-negative (`exists_potSelfBound_sm_nonneg`, `PotSelfBound_mono`), which instantiates §19's `hpoly`
 -- (`exists_kineticSum_bound_sm`) and §15's P2 relative bound (`exists_smNormalForm_norm_le`) at a `β`

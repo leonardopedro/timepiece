@@ -1,4 +1,5 @@
 import BookProof.Ns.ChapterNsSpatialMomentumMultiplier
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit — the Plancherel identification and the diagonal spatial derivative
@@ -8,12 +9,12 @@ the Navier–Stokes plan items: the momentum-side form of the spatial derivative
 standard axioms only: `propext`, `Classical.choice`, `Quot.sound`.
 -/
 
-#print axioms BookProof.NsSpatialMultiplier.l2Fourier_norm
-#print axioms BookProof.NsSpatialMultiplier.l2Fourier_inner
-#print axioms BookProof.NsSpatialMultiplier.fourier_opL2_eq_mulSymbol
-#print axioms BookProof.NsSpatialMultiplier.fourier_opL2_firstOrderOp
-#print axioms BookProof.NsSpatialMultiplier.fourier_opL2_momentumOp
-#print axioms BookProof.NsSpatialMultiplier.foSymbolFn_congr_of_inner_eq
-#print axioms BookProof.NsSpatialMultiplier.foSymbolFn_add_fibre
-#print axioms BookProof.NsSpatialMultiplier.euclidean_foSymbolFn_add_fibre
-#print axioms BookProof.NsSpatialMultiplier.spatialMomentum_esa
+#audit_axioms BookProof.NsSpatialMultiplier.l2Fourier_norm
+#audit_axioms BookProof.NsSpatialMultiplier.l2Fourier_inner
+#audit_axioms BookProof.NsSpatialMultiplier.fourier_opL2_eq_mulSymbol
+#audit_axioms BookProof.NsSpatialMultiplier.fourier_opL2_firstOrderOp
+#audit_axioms BookProof.NsSpatialMultiplier.fourier_opL2_momentumOp
+#audit_axioms BookProof.NsSpatialMultiplier.foSymbolFn_congr_of_inner_eq
+#audit_axioms BookProof.NsSpatialMultiplier.foSymbolFn_add_fibre
+#audit_axioms BookProof.NsSpatialMultiplier.euclidean_foSymbolFn_add_fibre
+#audit_axioms BookProof.NsSpatialMultiplier.spatialMomentum_esa

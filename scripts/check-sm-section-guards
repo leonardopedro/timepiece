@@ -15,9 +15,10 @@
 #      verdict is the failure mode.
 #   2. §46/§47 (BRST) — the charge form is well defined on the cohomology
 #      (`kform_well_defined`), and `PhysicalPositivity` is *derived* from quartet
-#      data (`physicalPositivity_of_quartet`) while the Standard Model's own
-#      quartet data is still missing.  Dropping either the derivation or the
-#      "SM data missing" caveat is the failure mode.
+#      data (`physicalPositivity_of_quartet`).  Since §55 the Standard Model's own
+#      quartet data exists (`smQuartet`, `smBghost`), but its projector's range is
+#      not identified with the physical subspace.  Dropping either the derivation
+#      or that surviving caveat is the failure mode.
 #   3. The QYM field-strength split — the Pauli-coordinate entry checks run only
 #      under `set_option maxHeartbeats 1000000 in`, and the dense coloured core
 #      (`dense_colouredCore`) is what makes the split a statement about the core.
@@ -39,6 +40,17 @@
 #      QYM potential (`not_gradDom_weylFlat`).  Keeping the instantiation and dropping the
 #      obstruction — or vice versa — reads the generic machinery as a generic theorem, which is the
 #      failure mode.
+#   7. §55/§56 (the SM's own b-ghost) — `smBghost`/`smQuartet` exist, §56 characterises
+#      the projector's range (`range V = ker Q ⊓ ker P`) and derives positivity from
+#      positivity *on* that range, *and* the construction is choice-based: no mode
+#      pairing, hence no identification with the transverse parity-even subspace.
+#      Deleting the construction oversells the gap; deleting the caveat oversells the
+#      construction (a characterised range is not a no-ghost theorem).
+#   8. §57 (the b-ghost formula) — `canonicalHomotopy` is an explicit, choice-free b-ghost and
+#      its projector's range is the harmonic subspace `ker Q ⊓ (range Q)ᗮ`, *and* ghost parity is
+#      still missing and positivity on that range is still the input.  Deleting the formula
+#      oversells the gap; deleting the caveats turns a transverse range theorem into a no-ghost
+#      theorem.
 #
 # The gate is deliberately textual: it cannot certify mathematics, only that a
 # later change did not *remove* the half of a pair that carries the caveat.
@@ -113,7 +125,31 @@ require "$BOOKPLAN" "PhysicalPositivity" \
 require "$BOOKPLAN" "physicalPositivity_of_quartet" \
     "§47 comment block must keep the derivation"
 require "$BOOKPLAN" "a proof of SM positivity" \
-    "§47 comment block must keep the 'SM quartet data missing' caveat"
+    "§47 comment block must keep the caveat that quartet data is not a no-ghost theorem"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem exists_contractingHomotopy" \
+    "§55: every finite-dimensional endomorphism has a contracting homotopy"
+require "BookProof/Sm/ChapterSmQuartet.lean" "def smBghost" \
+    "§55: the Standard Model's own b-ghost is constructed, not assumed"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem smPhysicalPositivity_of_etaPhys" \
+    "§55: positivity for smBrstCharge from the one remaining metric hypothesis"
+require "$BOOKPLAN" "smQuartet" \
+    "§55 comment block must keep naming the constructed SM quartet"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem range_physProjOf" \
+    "§56: the physical subspace of a contracting homotopy is ker Q ⊓ ker P"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem smPhysicalPositivity_of_physForm" \
+    "§56: positivity from the charge form on the physical subspace"
+require "$BOOKPLAN" "range_physProjOf" \
+    "§56 comment block must keep the range characterisation"
+require "BookProof/Sm/ChapterSmBghostFormula.lean" "def canonicalHomotopy" \
+    "§57: the b-ghost is an explicit formula, not a choice"
+require "BookProof/Sm/ChapterSmBghostFormula.lean" "def kerEquivOfBrst" \
+    "§57: the pairing between the exact states and (ker Q)ᗮ is a linear equivalence"
+require "BookProof/Sm/ChapterSmBghostFormula.lean" "theorem canonicalHomotopy_QSQ" \
+    "§57: the formula contracts the charge"
+require "BookProof/Sm/ChapterSmBghostFormula.lean" "theorem smPhysProjFormula_range" \
+    "§57: the formula's physical subspace is ker Ω ⊓ (range Ω)ᗮ"
+require "$BOOKPLAN" "smPhysProjFormula_range" \
+    "§57 comment block must keep the formula and its proved range"
 require "BookProof/Sm/ChapterSmQuartet.lean" "def physProjOf" \
     "§47.5: the projector is constructed from the b-ghost, not assumed"
 require "BookProof/Sm/ChapterSmQuartet.lean" "theorem physicalPositivity_of_homotopy" \
@@ -169,7 +205,7 @@ require "$BOOKPLAN" "gradDom_flat_plus_quadratic" \
 require "$BOOKPLAN" 'exists_potSelfBound_sm' \
     "§53 comment block must keep naming the theorem that closes the elliptic input"
 require "$BOOKPLAN" 'quartet data' \
-    "§53 comment block must keep the surviving caveat (P5's quartet data is still unbuilt)"
+    "§53 comment block must keep the surviving caveat (the SM projector's range is not identified)"
 require "$BOOKPLAN" 'exists_kineticSum_bound_sm' \
     "§54 comment block must keep saying the produced constant is used (hpoly instantiated)"
 require "$BOOKPLAN" 'not_gradDom_weylFlat' \

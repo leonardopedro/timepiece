@@ -1,4 +1,5 @@
 import BookProof.Realification.ChapterSchurFiniteDimensional
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 Axiom audit for Lemma 20 (Schur's lemma for finite-dimensional representations, with no
@@ -9,8 +10,8 @@ operator"* of `book.tex`.
 Every result below must report only `propext`, `Classical.choice` and `Quot.sound`.
 -/
 
-#print axioms BookProof.ChapterSchurFiniteDimensional.isSchurFull_of_irreducible_finiteDimensional
-#print axioms BookProof.ChapterSchurFiniteDimensional.isSchurUnitary_of_irreducible_finiteDimensional
-#print axioms BookProof.ChapterSchurFiniteDimensional.antiUnitary_sq_of_irreducible_finiteDimensional
-#print axioms BookProof.ChapterSchurFiniteDimensional.isConjugation_or_sq_eq_neg_one
-#print axioms BookProof.ChapterSchurFiniteDimensional.Rreal_commutant_eq_real_scalars_finiteDimensional
+#audit_axioms BookProof.ChapterSchurFiniteDimensional.isSchurFull_of_irreducible_finiteDimensional
+#audit_axioms BookProof.ChapterSchurFiniteDimensional.isSchurUnitary_of_irreducible_finiteDimensional
+#audit_axioms BookProof.ChapterSchurFiniteDimensional.antiUnitary_sq_of_irreducible_finiteDimensional
+#audit_axioms BookProof.ChapterSchurFiniteDimensional.isConjugation_or_sq_eq_neg_one
+#audit_axioms BookProof.ChapterSchurFiniteDimensional.Rreal_commutant_eq_real_scalars_finiteDimensional

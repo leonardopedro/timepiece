@@ -12,34 +12,35 @@ check the per-form support facts for the 49 `smPhi` forms, nor transport the poi
 written down.
 -/
 import BookProof.Sm.ChapterSmGradDomStructural
+import BookProof.RoadmapAudit.AxiomAudit
 
 open BookProof.SmGradDomStructural
 
-#print axioms polyW_add
-#print axioms polyW_sum
-#print axioms polyW_mul
-#print axioms polyW_C_eq
-#print axioms polyW_X_eq
-#print axioms realCoeff_pderiv'
-#print axioms polyW_pderiv_sq
-#print axioms pderiv_sum_sq_X
-#print axioms wsSum
-#print axioms realCoeff_wsSum
-#print axioms polyW_wsSum
-#print axioms polyW_pderiv_wsSum
-#print axioms GradBound
-#print axioms sq_pderiv_le
-#print axioms pointwise_dom_of_sq_sum
-#print axioms flatPlusQuad
-#print axioms wsSum_unit_eq
-#print axioms gradBound_flatPlusQuad
-#print axioms gradDom_flat_plus_quadratic
-#print axioms realCoeff_C_const
-#print axioms linForm
-#print axioms realCoeff_linForm
-#print axioms polyW_linForm
-#print axioms sq_polyW_linForm_le
-#print axioms gradBound_of_linear
-#print axioms linForm_unit_eq
-#print axioms sq_polyW_linForm_le_model
-#print axioms smPotPoly_eq_wsSum
+#audit_axioms polyW_add
+#audit_axioms polyW_sum
+#audit_axioms polyW_mul
+#audit_axioms polyW_C_eq
+#audit_axioms polyW_X_eq
+#audit_axioms realCoeff_pderiv'
+#audit_axioms polyW_pderiv_sq
+#audit_axioms pderiv_sum_sq_X
+#audit_axioms wsSum
+#audit_axioms realCoeff_wsSum
+#audit_axioms polyW_wsSum
+#audit_axioms polyW_pderiv_wsSum
+#audit_axioms GradBound
+#audit_axioms sq_pderiv_le
+#audit_axioms pointwise_dom_of_sq_sum
+#audit_axioms flatPlusQuad
+#audit_axioms wsSum_unit_eq
+#audit_axioms gradBound_flatPlusQuad
+#audit_axioms gradDom_flat_plus_quadratic
+#audit_axioms realCoeff_C_const
+#audit_axioms linForm
+#audit_axioms realCoeff_linForm
+#audit_axioms polyW_linForm
+#audit_axioms sq_polyW_linForm_le
+#audit_axioms gradBound_of_linear
+#audit_axioms linForm_unit_eq
+#audit_axioms sq_polyW_linForm_le_model
+#audit_axioms smPotPoly_eq_wsSum

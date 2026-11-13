@@ -1,4 +1,5 @@
 import BookProof.ChapterNsAdvectionConvolution
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit — the convolution algebra of the advection
@@ -8,8 +9,8 @@ Navier–Stokes plan items) must rest on the standard axioms only: `propext`, `C
 `Quot.sound`.
 -/
 
-#print axioms BookProof.NsAdvectionConvolution.fourier_fourier_apply
-#print axioms BookProof.NsAdvectionConvolution.fourier_mul_eq_convolution
-#print axioms BookProof.NsAdvectionConvolution.fourier_lineDeriv_apply
-#print axioms BookProof.NsAdvectionConvolution.fourier_advection_convolution
-#print axioms BookProof.NsAdvectionConvolution.fourier_advection_sum
+#audit_axioms BookProof.NsAdvectionConvolution.fourier_fourier_apply
+#audit_axioms BookProof.NsAdvectionConvolution.fourier_mul_eq_convolution
+#audit_axioms BookProof.NsAdvectionConvolution.fourier_lineDeriv_apply
+#audit_axioms BookProof.NsAdvectionConvolution.fourier_advection_convolution
+#audit_axioms BookProof.NsAdvectionConvolution.fourier_advection_sum

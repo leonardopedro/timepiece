@@ -1,4 +1,5 @@
 import BookProof.HarmonicAnalysis.ChapterNote68AllModes
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 Axiom audit for the solid-harmonic wave: Legendre polynomials from Rodrigues'
@@ -11,39 +12,39 @@ and equal to `rˡ P_l^μ(cos θ) cos(μφ)` in spherical coordinates), and Note 
 
 /-! Legendre polynomials and the Gegenbauer recursion. -/
 
-#print axioms BookProof.ChapterLegendrePolynomial.rodrigues_step
-#print axioms BookProof.ChapterLegendrePolynomial.legendreAux_ode
-#print axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_ode
-#print axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_rec
-#print axioms BookProof.ChapterLegendrePolynomial.legendre_natDegree_le
-#print axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_eq_zero
-#print axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_top_ne_zero
-#print axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_parity
+#audit_axioms BookProof.ChapterLegendrePolynomial.rodrigues_step
+#audit_axioms BookProof.ChapterLegendrePolynomial.legendreAux_ode
+#audit_axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_ode
+#audit_axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_rec
+#audit_axioms BookProof.ChapterLegendrePolynomial.legendre_natDegree_le
+#audit_axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_eq_zero
+#audit_axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_top_ne_zero
+#audit_axioms BookProof.ChapterLegendrePolynomial.legendre_deriv_coeff_parity
 
 /-! The analytic toolkit. -/
 
-#print axioms BookProof.ChapterSolidHarmonicTools.laplacian_clmPow
-#print axioms BookProof.ChapterSolidHarmonicTools.laplacian_rclmPow
-#print axioms BookProof.ChapterSolidHarmonicTools.laplacian_normSqPow
-#print axioms BookProof.ChapterSolidHarmonicTools.laplacian_cylTerm
-#print axioms BookProof.ChapterSolidHarmonicTools.laplacian_angular_mul_cylTerm
+#audit_axioms BookProof.ChapterSolidHarmonicTools.laplacian_clmPow
+#audit_axioms BookProof.ChapterSolidHarmonicTools.laplacian_rclmPow
+#audit_axioms BookProof.ChapterSolidHarmonicTools.laplacian_normSqPow
+#audit_axioms BookProof.ChapterSolidHarmonicTools.laplacian_cylTerm
+#audit_axioms BookProof.ChapterSolidHarmonicTools.laplacian_angular_mul_cylTerm
 
 /-! Solid harmonics for all `l, μ`. -/
 
-#print axioms BookProof.ChapterSolidHarmonic.angular_harmonic
-#print axioms BookProof.ChapterSolidHarmonic.angular_euler
-#print axioms BookProof.ChapterSolidHarmonic.laplacian_angular_mul_sum
-#print axioms BookProof.ChapterSolidHarmonic.legendre_rec_factored
-#print axioms BookProof.ChapterSolidHarmonic.solidHarmonic_harmonic
-#print axioms BookProof.ChapterSolidHarmonic.solidHarmonicIm_harmonic
-#print axioms BookProof.ChapterSolidHarmonic.solidHarmonic_euler
-#print axioms BookProof.ChapterSolidHarmonic.solidHarmonicIm_euler
-#print axioms BookProof.ChapterSolidHarmonic.radialFactor_eval
-#print axioms BookProof.ChapterSolidHarmonic.solidHarmonic_spherical_frames_explicit
+#audit_axioms BookProof.ChapterSolidHarmonic.angular_harmonic
+#audit_axioms BookProof.ChapterSolidHarmonic.angular_euler
+#audit_axioms BookProof.ChapterSolidHarmonic.laplacian_angular_mul_sum
+#audit_axioms BookProof.ChapterSolidHarmonic.legendre_rec_factored
+#audit_axioms BookProof.ChapterSolidHarmonic.solidHarmonic_harmonic
+#audit_axioms BookProof.ChapterSolidHarmonic.solidHarmonicIm_harmonic
+#audit_axioms BookProof.ChapterSolidHarmonic.solidHarmonic_euler
+#audit_axioms BookProof.ChapterSolidHarmonic.solidHarmonicIm_euler
+#audit_axioms BookProof.ChapterSolidHarmonic.radialFactor_eval
+#audit_axioms BookProof.ChapterSolidHarmonic.solidHarmonic_spherical_frames_explicit
 
 /-! Note 68 in every mode. -/
 
-#print axioms BookProof.ChapterNote68AllModes.helmholtz_sbessel_solidHarmonic
-#print axioms BookProof.ChapterNote68AllModes.helmholtz_sbessel_solidHarmonicIm
-#print axioms BookProof.ChapterNote68AllModes.helmholtz_sbessel_solidHarmonic_euclidean
-#print axioms BookProof.ChapterNote68AllModes.solidHarmonic_spherical_euclidean
+#audit_axioms BookProof.ChapterNote68AllModes.helmholtz_sbessel_solidHarmonic
+#audit_axioms BookProof.ChapterNote68AllModes.helmholtz_sbessel_solidHarmonicIm
+#audit_axioms BookProof.ChapterNote68AllModes.helmholtz_sbessel_solidHarmonic_euclidean
+#audit_axioms BookProof.ChapterNote68AllModes.solidHarmonic_spherical_euclidean

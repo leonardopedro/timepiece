@@ -1,4 +1,5 @@
 import BookProof.ChapterFockDegreesOfFreedom
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit for `BookProof.ChapterFockDegreesOfFreedom`
@@ -7,14 +8,14 @@ Run with `lake build Work.FockDegreesOfFreedomAudit`.  Each line must report onl
 `propext`, `Classical.choice`, `Quot.sound`.
 -/
 
-#print axioms BookProof.FockDegreesOfFreedom.card_ghost_eq_two_mul
-#print axioms BookProof.FockDegreesOfFreedom.NavierStokes.card_symPair
-#print axioms BookProof.FockDegreesOfFreedom.NavierStokes.jetCard
-#print axioms BookProof.FockDegreesOfFreedom.NavierStokes.jetCard_firstOrder
-#print axioms BookProof.FockDegreesOfFreedom.NavierStokes.ghostRawCard_navierStokes
-#print axioms BookProof.FockDegreesOfFreedom.YangMills3D.jetCard
-#print axioms BookProof.FockDegreesOfFreedom.YangMills3D.ghostRawCard_yangMills3D
-#print axioms BookProof.FockDegreesOfFreedom.YangMills4D.jetCard
-#print axioms BookProof.FockDegreesOfFreedom.YangMills4D.ghostRawCard_yangMills4D
-#print axioms BookProof.FockDegreesOfFreedom.Gravity.jetCard
-#print axioms BookProof.FockDegreesOfFreedom.Gravity.ghostRawCard_gravity
+#audit_axioms BookProof.FockDegreesOfFreedom.card_ghost_eq_two_mul
+#audit_axioms BookProof.FockDegreesOfFreedom.NavierStokes.card_symPair
+#audit_axioms BookProof.FockDegreesOfFreedom.NavierStokes.jetCard
+#audit_axioms BookProof.FockDegreesOfFreedom.NavierStokes.jetCard_firstOrder
+#audit_axioms BookProof.FockDegreesOfFreedom.NavierStokes.ghostRawCard_navierStokes
+#audit_axioms BookProof.FockDegreesOfFreedom.YangMills3D.jetCard
+#audit_axioms BookProof.FockDegreesOfFreedom.YangMills3D.ghostRawCard_yangMills3D
+#audit_axioms BookProof.FockDegreesOfFreedom.YangMills4D.jetCard
+#audit_axioms BookProof.FockDegreesOfFreedom.YangMills4D.ghostRawCard_yangMills4D
+#audit_axioms BookProof.FockDegreesOfFreedom.Gravity.jetCard
+#audit_axioms BookProof.FockDegreesOfFreedom.Gravity.ghostRawCard_gravity

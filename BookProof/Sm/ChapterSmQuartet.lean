@@ -45,14 +45,28 @@ What the identity buys, and what is *proved* here:
   the physical subspace is only known one parity sector at a time, the split of
   §46 assembles the two halves, which is the shape a physical smoke test takes.
 
-**What remains open, and is not claimed.** The quartet *data* `(P, V)` for the
-Standard-Model charge `smBrstCharge` is not constructed: this module proves that
-such data yields the no-ghost theorem, and links `IsBrst` to the already-proved
-nilpotency (`isBrst_smBrstCharge`), but the b-ghost of the gauge-fixed matter
-model — the operator that pairs each longitudinal/ghost mode with its partner —
-is still missing.  `PhysicalPositivity` for the SM therefore remains unproved; what
-changed is that it no longer has to be assumed *in addition* to a quartet
-decomposition, it is derived from one.
+**The b-ghost of the Standard-Model charge.**  §8 constructs it: on a
+finite-dimensional space every endomorphism has a contracting homotopy
+(`exists_contractingHomotopy`), obtained by splitting the range off a complement of
+the kernel, and `FermiFock (m + 12)` is finite-dimensional.  So `smBghost` is a
+b-ghost for `smBrstCharge` and `smQuartet` is its quartet, not a toy block.
+
+**What the construction pins down, and what it does not.**  §5 characterises the
+physical subspace of a contracting homotopy exactly: `range V = ker Q ⊓ ker P`
+(`range_physProjOf`), the harmonic representatives of the cohomology.  That
+characterisation is a property of the *chosen* `P`: a b-ghost is a choice of
+complement of the exact states, so the range is not the transverse, ghost-parity-even
+subspace unless `P` is the model's own mode pairing (and a ghost parity `U` with
+`U P = P U` is supplied).  §8 does not fix such a pairing — the quartet is
+choice-based — so that identification is not made, and `smPhysProj_mem_closed` is
+the SM-level half of it that does hold.
+
+The standing input was written in §3 as the fixing hypothesis `hEtaPhys`
+(`η (V y) = V y`), which is stronger than the no-ghost argument needs and is not
+what an indefinite ghost metric gives.  `physicalPositivity_of_quartet_on_range`
+replaces it by positivity of the charge form *on* the range of `V`, and
+`smPhysicalPositivity_of_physForm` is that statement at `smBrstCharge`: the open
+input is a no-ghost estimate on `range smPhysProj`, not an identity on `η`.
 
 Everything here is `sorry`-free and `axiom`-free.
 -/
@@ -113,6 +127,21 @@ theorem quartet_physProj_comp_Q (hQ : IsBrst Q) (q : BrstQuartet Q) (x : H) :
 /-- A vector in the range of the physical projector is closed. -/
 theorem mem_closed_physProj (q : BrstQuartet Q) (y : H) : q.physProj y ∈ closed Q :=
   q.Q_physProj y
+
+/-- **The range of the physical projector, as a set of fixed points.**  For an idempotent `V`,
+being in the range and being fixed are the same condition, which is the form in which a
+concrete `V` (an orthogonal projection, say) is usually recognised. -/
+theorem mem_range_physProj_iff (q : BrstQuartet Q) (x : H) :
+    x ∈ LinearMap.range q.physProj ↔ q.physProj x = x := by
+  refine ⟨?_, fun h => ⟨x, h⟩⟩
+  rintro ⟨y, rfl⟩
+  exact q.physProj_idem y
+
+/-- The range of the physical projector lies in the closed space. -/
+theorem range_physProj_le_closed (q : BrstQuartet Q) :
+    LinearMap.range q.physProj ≤ closed Q := by
+  rintro _ ⟨y, rfl⟩
+  exact q.mem_closed_physProj y
 
 /-- **Every closed vector is exact plus physical**: `x = Q (P x) + V x`.  This is the
 quartet decomposition of the state space. -/
@@ -182,6 +211,29 @@ theorem physicalPositivity_of_quartet (hQ : IsBrst Q) (q : BrstQuartet Q) {η : 
     have hv : q.physProj x = 0 := by
       have : ‖q.physProj x‖ = 0 := pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hzero'
       exact norm_eq_zero.mp this
+    refine ⟨q.bGhost x, ?_⟩
+    have h := q.quartet_decompose hx
+    rw [hv, add_zero] at h
+    exact h.symm
+
+/-- **Kugo–Ojima positivity from positivity *on the physical subspace*.**  The fixing hypothesis
+`η (V y) = V y` of `physicalPositivity_of_quartet` is stronger than the no-ghost argument needs:
+a metric that merely *defines an inner product* on the range of `V` suffices, because the quartet
+reduction turns the charge form of a closed state into the charge form of its physical part.  So
+this version replaces "`η` fixes the physical subspace" — false for an indefinite ghost metric —
+by "`η` is positive definite there", which is what a no-ghost estimate actually establishes. -/
+theorem physicalPositivity_of_quartet_on_range (hQ : IsBrst Q) (q : BrstQuartet Q)
+    {η : H →ₗ[ℂ] H}
+    (hKrein : ∀ x y : H, kform η (Q x) y = kform η x (Q y))
+    (hSymm : ∀ x y : H, kform η x y = star (kform η y x))
+    (hPos : ∀ y : H, 0 ≤ (kform η (q.physProj y) (q.physProj y)).re)
+    (hDef : ∀ y : H, (kform η (q.physProj y) (q.physProj y)).re = 0 → q.physProj y = 0) :
+    PhysicalPositivity Q η := by
+  refine ⟨fun x hx => ?_, fun x hx hzero => ?_⟩
+  · rw [kform_quartet_reduce hQ q hKrein hSymm hx]
+    exact hPos x
+  · rw [kform_quartet_reduce hQ q hKrein hSymm hx] at hzero
+    have hv : q.physProj x = 0 := hDef x hzero
     refine ⟨q.bGhost x, ?_⟩
     have h := q.quartet_decompose hx
     rw [hv, add_zero] at h
@@ -320,6 +372,38 @@ theorem physProjOf_idem {Q P : H →ₗ[ℂ] H} (hQ : IsBrst Q)
   simp only [map_zero]
   abel
 
+/-- **The b-ghost kills its own projector's range**: `P (V x) = 0`.  `P` applied to
+`Π = QP + PQ − QP²Q` is `P x + P²Q x − P Q (P²Q) x`, and the last two terms agree by the
+contraction identity `P Q P = P`, so `P (V x) = P x − P (Π x) = 0`. -/
+theorem P_physProjOf {Q P : H →ₗ[ℂ] H} (hSQS : ∀ x : H, P (Q (P x)) = P x) (x : H) :
+    P (physProjOf Q P x) = 0 := by
+  have ht : P (Q (P (P (Q x)))) = P (P (Q x)) := hSQS (P (Q x))
+  simp only [physProjOf_apply, map_add, map_sub, hSQS x, ht]
+  abel
+
+/-- **The physical subspace of a contracting homotopy, exactly**: the range of the constructed
+projector is the closed states that the contracting homotopy kills,
+
+  `range V = ker Q ⊓ ker P`.
+
+Both inclusions are immediate from the contraction identities: `V x` is closed and
+`P (V x) = 0` by `P_physProjOf`, while a closed vector with `P x = 0` has `V x = x`.  This is the
+precise content of "harmonic representatives"; note that *which* complement of the exact states
+it cuts out is entirely a property of `P` — nothing here singles out a transverse or parity
+description. -/
+theorem range_physProjOf {Q P : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x) :
+    LinearMap.range (physProjOf Q P) = closed Q ⊓ LinearMap.ker P := by
+  refine le_antisymm ?_ ?_
+  · rintro _ ⟨y, rfl⟩
+    exact ⟨physProjOf_Q hQ hQSQ y, P_physProjOf hSQS y⟩
+  · rintro x ⟨hx, hPx⟩
+    refine ⟨x, ?_⟩
+    have hQx : Q x = 0 := hx
+    have hP : P x = 0 := hPx
+    rw [physProjOf_apply, hQx, hP, map_zero, map_zero, map_zero, map_zero]
+    abel
+
 /-- **The quartet identity for the constructed pair**: `Q P' + P' Q = 1 − V` with
 `P' = P − Q P²`.  The two terms are `Q P` and `P Q − Q P² Q`, whose sum is exactly `1 − V`. -/
 theorem bGhostOf_anticomm {Q : H →ₗ[ℂ] H} (hQ : IsBrst Q) (P : H →ₗ[ℂ] H) (x : H) :
@@ -349,6 +433,20 @@ theorem physicalPositivity_of_homotopy {Q P η : H →ₗ[ℂ] H} (hQ : IsBrst Q
     (hEtaPhys : ∀ y : H, η (physProjOf Q P y) = physProjOf Q P y) :
     PhysicalPositivity Q η :=
   physicalPositivity_of_quartet hQ (quartetOfHomotopy hQ hQSQ hSQS) hKrein hSymm hEtaPhys
+
+/-- **The no-ghost theorem from a b-ghost, with positivity only on the constructed range.**  The
+fixing hypothesis `η (V y) = V y` is dropped in favour of `η` being positive definite on `ker Q ⊓
+ker P` — the subspace `range_physProjOf` identifies — so the physical input is a genuine
+no-ghost estimate on the physical subspace rather than an identity on the metric. -/
+theorem physicalPositivity_of_homotopy_on_range {Q P η : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
+    (hKrein : ∀ x y : H, kform η (Q x) y = kform η x (Q y))
+    (hSymm : ∀ x y : H, kform η x y = star (kform η y x))
+    (hPos : ∀ y : H, 0 ≤ (kform η (physProjOf Q P y) (physProjOf Q P y)).re)
+    (hDef : ∀ y : H, (kform η (physProjOf Q P y) (physProjOf Q P y)).re = 0 →
+      physProjOf Q P y = 0) :
+    PhysicalPositivity Q η :=
+  physicalPositivity_of_quartet_on_range hQ (quartetOfHomotopy hQ hQSQ hSQS) hKrein hSymm hPos hDef
 
 /-- **A parity-even b-ghost gives a parity-even projector.**  `V` is a polynomial in `Q` and `P`,
 so any `U` commuting with both commutes with `V`. -/
@@ -565,9 +663,10 @@ theorem exE2_not_exact : ¬ ∃ w : EuclideanSpace ℂ (Fin 3), exQ w = exE2 := 
 open BookProof.SmBrstGhost in
 /-- **The Standard-Model charge is a BRST charge in the sense of §46.**  This is the hypothesis
 `IsBrst` of the quartet mechanism, discharged for `smBrstCharge` by the nilpotency proved in
-`ChapterSmBrstGhost`.  What is *not* available is the rest of the quartet data — the b-ghost `P`
-and the physical projector `V` for the gauge-fixed matter model — so
-`physicalPositivity_of_quartet` cannot yet be applied to the SM. -/
+`ChapterSmBrstGhost`.  The rest of the quartet data — the b-ghost `P` and the projector `V` — is
+constructed in §8 (`smBghost`, `smQuartet`), so `physicalPositivity_of_quartet` does apply to the
+SM; what stays a hypothesis is positivity of the charge form on `V`'s range (§9,
+`smPhysicalPositivity_of_physForm`). -/
 theorem isBrst_smBrstCharge {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
     {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
     (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
@@ -577,6 +676,245 @@ theorem isBrst_smBrstCharge {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ
     IsBrst (smBrstCharge m T f3) := by
   rw [IsBrst, ← Module.End.mul_eq_comp]
   exact smBrstCharge_nilpotent hT h3anti h3jac
+
+/-! ## 8. The b-ghost of the Standard-Model charge
+
+§47.5 reduced the quartet data to a single object, a contracting homotopy of the charge.  On a
+finite-dimensional space `Q` is injective on a complement `C` of its kernel and onto its range, so
+inverting `Q` on `C` and projecting onto the range produces `P` with `Q P Q = Q` and
+`P Q P = P` (`exists_contractingHomotopy`).  `FermiFock (m + 12)` is finite-dimensional, so nothing
+about the model's mode content obstructs the construction: `smQuartet` is the quartet of
+`smBrstCharge` itself, `smBghost` its b-ghost, and `smPhysProj` its physical projector.
+
+The construction is *choice-based*: `smQuartet` is picked from a `Nonempty` proof, so no formula
+for the b-ghost is exhibited.  That is also its limit.  The quartet *data* exists, the quartet
+identity holds, and §9 characterises the range of the projector exactly
+(`range V = ker Q ⊓ ker P`), but nothing identifies that range with the transverse,
+ghost-parity-even states of the gauge-fixed model — that needs a concrete mode pairing, which a
+chosen homotopy does not supply.  §9 therefore also shows that the fixing hypothesis `hEtaPhys`
+is not needed: positivity of the charge form on `range smPhysProj` suffices
+(`smPhysicalPositivity_of_physForm`), so P5's open part is a no-ghost estimate on the physical
+subspace, not the existence of the quartet data. -/
+
+/-- **Every endomorphism of a finite-dimensional space has a contracting homotopy.**  Split the
+kernel off a complement `C`: `Q` is injective on `C` and onto its range, so inverting `Q` there and
+projecting onto the range gives `Q P Q = Q` and `P Q P = P`.  Nilpotency is *not* used here; it
+enters only when the homotopy is turned into a quartet. -/
+theorem exists_contractingHomotopy [FiniteDimensional ℂ H] (Q : H →ₗ[ℂ] H) :
+    ∃ P : H →ₗ[ℂ] H, (∀ x : H, Q (P (Q x)) = Q x) ∧ ∀ x : H, P (Q (P x)) = P x := by
+  classical
+  obtain ⟨C, hC⟩ := Submodule.exists_isCompl (LinearMap.ker Q)
+  obtain ⟨D, hD⟩ := Submodule.exists_isCompl (LinearMap.range Q)
+  let πK : H →ₗ[ℂ] H := Submodule.IsCompl.projection hC
+  have hπK_range : πK.range = LinearMap.ker Q := Submodule.IsCompl.projection_range hC
+  have hQπK : ∀ x : H, Q (πK x) = 0 := by
+    intro x
+    have hx : πK x ∈ LinearMap.ker Q := by
+      rw [← hπK_range]
+      exact LinearMap.mem_range_self πK x
+    exact hx
+  have hCmem : ∀ x : H, x - πK x ∈ C := by
+    intro x
+    have hfix : πK (πK x) = πK x := by
+      have hmem : πK x ∈ LinearMap.ker Q := by
+        rw [← hπK_range]
+        exact LinearMap.mem_range_self πK x
+      exact Submodule.IsCompl.projection_apply_left hC ⟨πK x, hmem⟩
+    have hidem : πK (x - πK x) = 0 := by
+      rw [map_sub, hfix, sub_self]
+    exact Submodule.IsCompl.projection_apply_eq_zero_iff hC |>.mp hidem
+  let φ : C →ₗ[ℂ] (LinearMap.range Q) :=
+    (Q.domRestrict C).codRestrict (LinearMap.range Q)
+      (fun c => LinearMap.mem_range_self Q (c : H))
+  have hφ_inj : Function.Injective φ := by
+    rw [← LinearMap.ker_eq_bot, Submodule.eq_bot_iff]
+    intro c hc
+    rw [LinearMap.mem_ker] at hc
+    have hQc : Q (c : H) = 0 := by
+      have h := congrArg Subtype.val hc
+      simpa [φ] using h
+    have hboth : (c : H) ∈ (LinearMap.ker Q) ⊓ C := ⟨hQc, c.property⟩
+    rw [hC.inf_eq_bot] at hboth
+    exact Subtype.ext (by simpa using hboth)
+  have hφ_surj : Function.Surjective φ := by
+    intro r
+    obtain ⟨x, hx⟩ := r.property
+    refine ⟨⟨x - πK x, hCmem x⟩, ?_⟩
+    apply Subtype.ext
+    have hQz : Q ((⟨x - πK x, hCmem x⟩ : C) : H) = Q x := by
+      change Q (x - πK x) = Q x
+      rw [map_sub, hQπK x, sub_zero]
+    have hφz : (φ ⟨x - πK x, hCmem x⟩ : H) = Q ((⟨x - πK x, hCmem x⟩ : C) : H) := rfl
+    change (φ ⟨x - πK x, hCmem x⟩ : H) = (r : H)
+    rw [hφz, hQz, hx]
+  have hbij : Function.Bijective φ := ⟨hφ_inj, hφ_surj⟩
+  let e : C ≃ₗ[ℂ] (LinearMap.range Q) := LinearEquiv.ofBijective φ hbij
+  let πR : H →ₗ[ℂ] (LinearMap.range Q) := (LinearMap.range Q).linearProjOfIsCompl D hD
+  let P : H →ₗ[ℂ] H := C.subtype.comp (e.symm.toLinearMap.comp πR)
+  have hψ : ∀ r : LinearMap.range Q, (φ (e.symm r) : H) = (r : H) := by
+    intro r
+    have he : (e (e.symm r) : LinearMap.range Q) = φ (e.symm r) :=
+      LinearEquiv.ofBijective_apply (f := φ) (hf := hbij) (e.symm r)
+    have h := congrArg Subtype.val (LinearEquiv.apply_symm_apply e r)
+    rw [he] at h
+    exact h
+  have hQP : ∀ z : H, Q (P z) = (πR z : H) := by
+    intro z
+    have hz : Q (P z) = (φ (e.symm (πR z)) : H) := rfl
+    rw [hz, hψ (πR z)]
+  refine ⟨P, ?_, ?_⟩
+  · intro y
+    rw [hQP (Q y)]
+    exact congrArg Subtype.val
+      (Submodule.linearProjOfIsCompl_apply_left hD ⟨Q y, LinearMap.mem_range_self Q y⟩)
+  · intro y
+    rw [hQP y]
+    have hfix : πR (πR y : H) = πR y := Submodule.linearProjOfIsCompl_apply_left hD (πR y)
+    simp [P, hfix]
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The quartet data of the Standard-Model charge exists.**  The contracting homotopy of
+`smBrstCharge` is turned into a quartet by §47.5's construction; `FermiFock (m + 12)` is
+finite-dimensional, so no property of the mode content is needed. -/
+theorem smBrstCharge_quartet_nonempty {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    Nonempty (BrstQuartet (smBrstCharge m T f3)) := by
+  classical
+  obtain ⟨P, hQSQ, hSQS⟩ := exists_contractingHomotopy (smBrstCharge m T f3)
+  exact ⟨BrstQuartet.quartetOfHomotopy (isBrst_smBrstCharge hT h3anti h3jac) hQSQ hSQS⟩
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The quartet of the Standard-Model charge**, chosen from `smBrstCharge_quartet_nonempty`.
+The b-ghost `smBghost` and the physical projector `smPhysProj` are its fields. -/
+noncomputable def smQuartet {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    BrstQuartet (smBrstCharge m T f3) :=
+  Classical.choice (smBrstCharge_quartet_nonempty hT h3anti h3jac)
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The b-ghost of the Standard-Model charge**: the `bGhost` field of `smQuartet`, a b-ghost for
+the full joint matter ⊗ ghost charge `smBrstCharge` rather than for a reduced block. -/
+noncomputable def smBghost {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    BookProof.SmCar.FermiFock (m + 12) →ₗ[ℂ] BookProof.SmCar.FermiFock (m + 12) :=
+  (smQuartet hT h3anti h3jac).bGhost
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The physical projector of the Standard-Model charge**: the `physProj` field of `smQuartet`.
+It is determined by the b-ghost, not assumed. -/
+noncomputable def smPhysProj {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    BookProof.SmCar.FermiFock (m + 12) →ₗ[ℂ] BookProof.SmCar.FermiFock (m + 12) :=
+  (smQuartet hT h3anti h3jac).physProj
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **Kugo–Ojima positivity for the Standard-Model charge from one metric hypothesis.**  The
+quartet is `smQuartet` and the b-ghost is `smBghost`; the only remaining input is that the metric
+`η` fixes the range of `smPhysProj` — the no-ghost statement, which is not derived here.  The
+quartet identity itself is the field `(smQuartet hT h3anti h3jac).quartet_anticomm`, whose
+`bGhost` and `physProj` are `smBghost` and `smPhysProj` by definition.  The fixing hypothesis is
+stronger than necessary: `smPhysicalPositivity_of_physForm` derives the same conclusion from
+positivity of the charge form on that range, which is the form a no-ghost estimate takes. -/
+theorem smPhysicalPositivity_of_etaPhys {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (η : BookProof.SmCar.FermiFock (m + 12) →ₗ[ℂ] BookProof.SmCar.FermiFock (m + 12))
+    (hKrein : ∀ x y : BookProof.SmCar.FermiFock (m + 12),
+      kform η (smBrstCharge m T f3 x) y = kform η x (smBrstCharge m T f3 y))
+    (hSymm : ∀ x y : BookProof.SmCar.FermiFock (m + 12),
+      kform η x y = star (kform η y x))
+    (hEtaPhys : ∀ y : BookProof.SmCar.FermiFock (m + 12),
+      η (smPhysProj hT h3anti h3jac y) = smPhysProj hT h3anti h3jac y) :
+    PhysicalPositivity (smBrstCharge m T f3) η :=
+  BrstQuartet.physicalPositivity_of_quartet (isBrst_smBrstCharge hT h3anti h3jac)
+    (smQuartet hT h3anti h3jac) hKrein hSymm hEtaPhys
+
+/-! ## 9. The range of the SM physical projector
+
+What §8 constructs is a projector whose range is *characterised*, not identified.  The general
+statement `BrstQuartet.range_physProjOf` says that for a contracting homotopy `P`,
+
+  `range V = ker Q ⊓ ker P`,
+
+i.e. the physical subspace is the closed states killed by the b-ghost — the harmonic
+representatives of the cohomology.  For the SM quartet this reads: the range of `smPhysProj` is
+contained in the closed space of `smBrstCharge` (`smPhysProj_mem_closed`), and it is exactly the
+intersection cut out by the chosen contracting homotopy.
+
+That is as far as a *choice-based* construction reaches, and the limit is intrinsic: a
+contracting homotopy is a choice of complement of the exact states inside the closed space, and
+`range V = ker Q ⊓ ker P` depends on that choice.  Nothing in §8 fixes a mode pairing, so
+nothing there singles out the transverse, ghost-parity-even subspace: that would need (i) a
+concrete `P` (the pairing of each longitudinal/ghost mode with its partner), and (ii) a ghost
+parity `U` with `U P = P U`, after which `physProjOf_mem_even` would place `range V` in the even
+sector.  Neither is available for `smBrstCharge` in the corpus.
+
+The compensating point is that the fixing hypothesis `hEtaPhys` was never the right form of the
+input.  `physicalPositivity_of_quartet_on_range` derives `PhysicalPositivity` from `η` being
+positive definite *on* the range of `V`, with no fixing of individual vectors — which is what a
+no-ghost estimate on the physical subspace establishes — and `smPhysicalPositivity_of_physForm`
+is that statement at `smBrstCharge`.  So the remaining input is positivity of the charge form on
+`range smPhysProj`, not an identity `η (V y) = V y`. -/
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The range of the SM physical projector is closed.**  Pointwise form of
+`BrstQuartet.mem_closed_physProj` at `smBrstCharge`, i.e. the first half of the description
+`range V = ker Q ⊓ ker P`. -/
+theorem smPhysProj_mem_closed {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (y : BookProof.SmCar.FermiFock (m + 12)) :
+    smPhysProj hT h3anti h3jac y ∈ closed (smBrstCharge m T f3) :=
+  BrstQuartet.mem_closed_physProj (smQuartet hT h3anti h3jac) y
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **Kugo–Ojima positivity for the Standard-Model charge from positivity on its physical
+subspace.**  This is the weakest correct form of the remaining input: `η` defines an inner
+product on the range of `smPhysProj` (non-negative there, and vanishing only at `0`).  No
+identity `η (V y) = V y` is assumed, and no identification of that range with a transverse or
+parity-even subspace is used — the quartet mechanism turns the charge form of a closed state
+into the charge form of its physical part, and the estimate is taken there. -/
+theorem smPhysicalPositivity_of_physForm {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (η : BookProof.SmCar.FermiFock (m + 12) →ₗ[ℂ] BookProof.SmCar.FermiFock (m + 12))
+    (hKrein : ∀ x y : BookProof.SmCar.FermiFock (m + 12),
+      kform η (smBrstCharge m T f3 x) y = kform η x (smBrstCharge m T f3 y))
+    (hSymm : ∀ x y : BookProof.SmCar.FermiFock (m + 12),
+      kform η x y = star (kform η y x))
+    (hPos : ∀ y : BookProof.SmCar.FermiFock (m + 12),
+      0 ≤ (kform η (smPhysProj hT h3anti h3jac y) (smPhysProj hT h3anti h3jac y)).re)
+    (hDef : ∀ y : BookProof.SmCar.FermiFock (m + 12),
+      (kform η (smPhysProj hT h3anti h3jac y) (smPhysProj hT h3anti h3jac y)).re = 0 →
+        smPhysProj hT h3anti h3jac y = 0) :
+    PhysicalPositivity (smBrstCharge m T f3) η :=
+  BrstQuartet.physicalPositivity_of_quartet_on_range (isBrst_smBrstCharge hT h3anti h3jac)
+    (smQuartet hT h3anti h3jac) hKrein hSymm hPos hDef
 
 end
 

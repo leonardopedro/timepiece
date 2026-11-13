@@ -1,5 +1,5 @@
 /-
-`#print axioms` audit for the gauge-symmetry modules added for the
+`#audit_axioms` audit for the gauge-symmetry modules added for the
 "formalize everything related with gauge symmetry" request.  Run on demand:
 
 ```
@@ -11,30 +11,31 @@ import BookProof.ChapterGaugeAdjointAlgebra
 import BookProof.ChapterGaugeWeylResidual
 import BookProof.ChapterGaugeMechanicsCharge
 import BookProof.ChapterGhostMajoranaRep
+import BookProof.RoadmapAudit.AxiomAudit
 
 open BookProof
 
-#print axioms ChapterGaugeVariantVanishing.expectation_gauge_variant_eq_zero
-#print axioms ChapterGaugeVariantVanishing.no_spontaneous_gauge_symmetry_breaking
-#print axioms ChapterGaugeVariantVanishing.expectation_gauge_invariant_operator
-#print axioms ChapterGaugeAdjointAlgebra.adj_closure
-#print axioms ChapterGaugeAdjointAlgebra.covariantDeriv_covariant
-#print axioms ChapterGaugeAdjointAlgebra.gaussLaw_covariant
-#print axioms ChapterGaugeAdjointAlgebra.gaussLaw_constraint_surface_invariant
-#print axioms ChapterGaugeAdjointAlgebra.magnetic_covariant
-#print axioms ChapterGaugeAdjointAlgebra.weylEnergy_gauge_invariant
-#print axioms ChapterGaugeAdjointAlgebra.weylEnergy_nonneg
-#print axioms ChapterGaugeWeylResidual.weyl_residual_iff_time_independent
-#print axioms ChapterGaugeWeylResidual.remnant_moves_every_configuration
-#print axioms ChapterGaugeWeylResidual.weyl_gauge_fixing_incomplete
-#print axioms ChapterGaugeMechanicsCharge.ccr_phi_pi
-#print axioms ChapterGaugeMechanicsCharge.ccr_phi_piStar
-#print axioms ChapterGaugeMechanicsCharge.chargeQ_homogeneous
-#print axioms ChapterGaugeMechanicsCharge.chargeQ_not_commute_field
-#print axioms ChapterGaugeMechanicsCharge.mul_commutes_chargeQ_iff_euler_zero
-#print axioms ChapterGaugeMechanicsCharge.bilinear_commutes_chargeQ
-#print axioms ChapterGaugeMechanicsCharge.brst_nilpotent
-#print axioms ChapterGaugeMechanicsCharge.brst_ne_zero
-#print axioms ChapterGhostMajoranaRep.chi1_selfAdjoint
-#print axioms ChapterGhostMajoranaRep.chi_anticomm
-#print axioms ChapterGhostMajoranaRep.psi_of_chi
+#audit_axioms ChapterGaugeVariantVanishing.expectation_gauge_variant_eq_zero
+#audit_axioms ChapterGaugeVariantVanishing.no_spontaneous_gauge_symmetry_breaking
+#audit_axioms ChapterGaugeVariantVanishing.expectation_gauge_invariant_operator
+#audit_axioms ChapterGaugeAdjointAlgebra.adj_closure
+#audit_axioms ChapterGaugeAdjointAlgebra.covariantDeriv_covariant
+#audit_axioms ChapterGaugeAdjointAlgebra.gaussLaw_covariant
+#audit_axioms ChapterGaugeAdjointAlgebra.gaussLaw_constraint_surface_invariant
+#audit_axioms ChapterGaugeAdjointAlgebra.magnetic_covariant
+#audit_axioms ChapterGaugeAdjointAlgebra.weylEnergy_gauge_invariant
+#audit_axioms ChapterGaugeAdjointAlgebra.weylEnergy_nonneg
+#audit_axioms ChapterGaugeWeylResidual.weyl_residual_iff_time_independent
+#audit_axioms ChapterGaugeWeylResidual.remnant_moves_every_configuration
+#audit_axioms ChapterGaugeWeylResidual.weyl_gauge_fixing_incomplete
+#audit_axioms ChapterGaugeMechanicsCharge.ccr_phi_pi
+#audit_axioms ChapterGaugeMechanicsCharge.ccr_phi_piStar
+#audit_axioms ChapterGaugeMechanicsCharge.chargeQ_homogeneous
+#audit_axioms ChapterGaugeMechanicsCharge.chargeQ_not_commute_field
+#audit_axioms ChapterGaugeMechanicsCharge.mul_commutes_chargeQ_iff_euler_zero
+#audit_axioms ChapterGaugeMechanicsCharge.bilinear_commutes_chargeQ
+#audit_axioms ChapterGaugeMechanicsCharge.brst_nilpotent
+#audit_axioms ChapterGaugeMechanicsCharge.brst_ne_zero
+#audit_axioms ChapterGhostMajoranaRep.chi1_selfAdjoint
+#audit_axioms ChapterGhostMajoranaRep.chi_anticomm
+#audit_axioms ChapterGhostMajoranaRep.psi_of_chi

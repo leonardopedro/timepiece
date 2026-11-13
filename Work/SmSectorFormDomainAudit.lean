@@ -4,23 +4,24 @@ Axiom audit for `BookProof.SmSectorFormDomain` (SM_ESA_COMPLETION_PLAN §45).
 Every declaration below must rest on `propext`, `Classical.choice`, `Quot.sound` only.
 -/
 import BookProof.Sm.ChapterSmSectorFormDomain
+import BookProof.RoadmapAudit.AxiomAudit
 
 open BookProof.SmSectorFormDomain
 
-#print axioms deltaFun
-#print axioms deltaFun_ofLp_self
-#print axioms deltaFun_ofLp_ne
-#print axioms deltaFun_norm
-#print axioms deltaFun_mem_core
-#print axioms coreComp_deltaFun
-#print axioms coreComp_deltaFun_ne
-#print axioms coupledParity_deltaFun
-#print axioms deltaFun_mem_evenSpace_iff
-#print axioms coupledOp_one_deltaFun
-#print axioms coupledOp_one_add_deltaFun
-#print axioms fockSign_empty
-#print axioms fockSign_singleton
-#print axioms scalarBound_of_evenSectorBound
-#print axioms scalarBound_of_oddSectorBound
-#print axioms sectorComparison_iff_formDomainComparison
-#print axioms sectorComparison_const_in_sector
+#audit_axioms deltaFun
+#audit_axioms deltaFun_ofLp_self
+#audit_axioms deltaFun_ofLp_ne
+#audit_axioms deltaFun_norm
+#audit_axioms deltaFun_mem_core
+#audit_axioms coreComp_deltaFun
+#audit_axioms coreComp_deltaFun_ne
+#audit_axioms coupledParity_deltaFun
+#audit_axioms deltaFun_mem_evenSpace_iff
+#audit_axioms coupledOp_one_deltaFun
+#audit_axioms coupledOp_one_add_deltaFun
+#audit_axioms fockSign_empty
+#audit_axioms fockSign_singleton
+#audit_axioms scalarBound_of_evenSectorBound
+#audit_axioms scalarBound_of_oddSectorBound
+#audit_axioms sectorComparison_iff_formDomainComparison
+#audit_axioms sectorComparison_const_in_sector

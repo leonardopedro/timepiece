@@ -6,6 +6,7 @@ import BookProof.InducedSystems.ChapterMackeyImprimitivity
 import BookProof.InducedSystems.ChapterMackeyInducedSystem
 import BookProof.InducedSystems.ChapterWignerSymmetry
 import BookProof.InducedSystems.ChapterWignerSymmetryUniqueness
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 Axiom audit for the wave that discharges the remaining representation-theoretic
@@ -17,97 +18,97 @@ Every result below must report only `propext`, `Classical.choice` and `Quot.soun
 -/
 
 -- Wigner's little-group classification in the `SL(2,ℂ)` model.
-#print axioms BookProof.ChapterWignerLittleGroup.hermOfMom_det
-#print axioms BookProof.ChapterWignerLittleGroup.hermOfMom_trace
-#print axioms BookProof.ChapterWignerLittleGroup.act_det_of_sl
-#print axioms BookProof.ChapterWignerLittleGroup.mass_invariant
-#print axioms BookProof.ChapterWignerLittleGroup.littleGroup_rest
-#print axioms BookProof.ChapterWignerLittleGroup.littleGroup_null
-#print axioms BookProof.ChapterWignerLittleGroup.nullElt_mul
-#print axioms BookProof.ChapterWignerLittleGroup.nullTranslations_mul
-#print axioms BookProof.ChapterWignerLittleGroup.nullTranslations_comm
-#print axioms BookProof.ChapterWignerLittleGroup.nullElt_conj_translation
-#print axioms BookProof.ChapterWignerLittleGroup.exists_boost_massive
-#print axioms BookProof.ChapterWignerLittleGroup.exists_boost_null
-#print axioms BookProof.ChapterWignerLittleGroup.littleGroup_conj
-#print axioms BookProof.ChapterWignerLittleGroup.littleGroup_massive_conj_SU2
-#print axioms BookProof.ChapterWignerLittleGroup.littleGroup_null_conj_SE2
+#audit_axioms BookProof.ChapterWignerLittleGroup.hermOfMom_det
+#audit_axioms BookProof.ChapterWignerLittleGroup.hermOfMom_trace
+#audit_axioms BookProof.ChapterWignerLittleGroup.act_det_of_sl
+#audit_axioms BookProof.ChapterWignerLittleGroup.mass_invariant
+#audit_axioms BookProof.ChapterWignerLittleGroup.littleGroup_rest
+#audit_axioms BookProof.ChapterWignerLittleGroup.littleGroup_null
+#audit_axioms BookProof.ChapterWignerLittleGroup.nullElt_mul
+#audit_axioms BookProof.ChapterWignerLittleGroup.nullTranslations_mul
+#audit_axioms BookProof.ChapterWignerLittleGroup.nullTranslations_comm
+#audit_axioms BookProof.ChapterWignerLittleGroup.nullElt_conj_translation
+#audit_axioms BookProof.ChapterWignerLittleGroup.exists_boost_massive
+#audit_axioms BookProof.ChapterWignerLittleGroup.exists_boost_null
+#audit_axioms BookProof.ChapterWignerLittleGroup.littleGroup_conj
+#audit_axioms BookProof.ChapterWignerLittleGroup.littleGroup_massive_conj_SU2
+#audit_axioms BookProof.ChapterWignerLittleGroup.littleGroup_null_conj_SE2
 
 -- Mackey's imprimitivity theorem (transitive discrete case).
-#print axioms BookProof.ChapterMackeyImprimitivity.sum_norm_sq_of_orthogonal
-#print axioms BookProof.ChapterMackeyImprimitivity.ImprimitivitySystem.pvm_parseval
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_eq
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_mem_inducedSpace
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_norm_sq
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_reconstruct
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_injective
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_surjective
-#print axioms BookProof.ChapterMackeyImprimitivity.cocycle_mem_stabilizer
-#print axioms BookProof.ChapterMackeyImprimitivity.fibre_stabilizer_invariant
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_intertwines_U
-#print axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_intertwines_pvm
-#print axioms BookProof.ChapterMackeyImprimitivity.mackey_imprimitivity
+#audit_axioms BookProof.ChapterMackeyImprimitivity.sum_norm_sq_of_orthogonal
+#audit_axioms BookProof.ChapterMackeyImprimitivity.ImprimitivitySystem.pvm_parseval
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_eq
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_mem_inducedSpace
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_norm_sq
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_reconstruct
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_injective
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_surjective
+#audit_axioms BookProof.ChapterMackeyImprimitivity.cocycle_mem_stabilizer
+#audit_axioms BookProof.ChapterMackeyImprimitivity.fibre_stabilizer_invariant
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_intertwines_U
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackeyMap_intertwines_pvm
+#audit_axioms BookProof.ChapterMackeyImprimitivity.mackey_imprimitivity
 
 -- Wigner's symmetry theorem.
-#print axioms BookProof.ChapterWignerSymmetry.norm_map
-#print axioms BookProof.ChapterWignerSymmetry.key_complex
-#print axioms BookProof.ChapterWignerSymmetry.key_complex'
-#print axioms BookProof.ChapterWignerSymmetry.modulus_add
-#print axioms BookProof.ChapterWignerSymmetry.exists_zeta
-#print axioms BookProof.ChapterWignerSymmetry.key_index
-#print axioms BookProof.ChapterWignerSymmetry.key_consistent
-#print axioms BookProof.ChapterWignerSymmetry.key_global
-#print axioms BookProof.ChapterWignerSymmetry.coord_of_key
-#print axioms BookProof.ChapterWignerSymmetry.wigner_coord
-#print axioms BookProof.ChapterWignerSymmetry.orthonormal_imgVec
-#print axioms BookProof.ChapterWignerSymmetry.wignerCoord_coordMap
-#print axioms BookProof.ChapterWignerSymmetry.wigner_symmetry
-#print axioms BookProof.ChapterWignerSymmetry.wigner_symmetry_of_finiteDimensional
+#audit_axioms BookProof.ChapterWignerSymmetry.norm_map
+#audit_axioms BookProof.ChapterWignerSymmetry.key_complex
+#audit_axioms BookProof.ChapterWignerSymmetry.key_complex'
+#audit_axioms BookProof.ChapterWignerSymmetry.modulus_add
+#audit_axioms BookProof.ChapterWignerSymmetry.exists_zeta
+#audit_axioms BookProof.ChapterWignerSymmetry.key_index
+#audit_axioms BookProof.ChapterWignerSymmetry.key_consistent
+#audit_axioms BookProof.ChapterWignerSymmetry.key_global
+#audit_axioms BookProof.ChapterWignerSymmetry.coord_of_key
+#audit_axioms BookProof.ChapterWignerSymmetry.wigner_coord
+#audit_axioms BookProof.ChapterWignerSymmetry.orthonormal_imgVec
+#audit_axioms BookProof.ChapterWignerSymmetry.wignerCoord_coordMap
+#audit_axioms BookProof.ChapterWignerSymmetry.wigner_symmetry
+#audit_axioms BookProof.ChapterWignerSymmetry.wigner_symmetry_of_finiteDimensional
 
 -- The converse half of Mackey's theorem: the induced data really form a system of
 -- imprimitivity, and the induced system reproduces the representation it came from.
-#print axioms BookProof.ChapterMackeyInducedSystem.cocycle_one
-#print axioms BookProof.ChapterMackeyInducedSystem.cocycle_mul
-#print axioms BookProof.ChapterMackeyInducedSystem.indRepLin_one
-#print axioms BookProof.ChapterMackeyInducedSystem.indRepLin_comp
-#print axioms BookProof.ChapterMackeyInducedSystem.indRepLin_norm
-#print axioms BookProof.ChapterMackeyInducedSystem.indRepHom
-#print axioms BookProof.ChapterMackeyInducedSystem.indPvm
-#print axioms BookProof.ChapterMackeyInducedSystem.inducedSystem
-#print axioms BookProof.ChapterMackeyInducedSystem.inducedSystem_fibre
-#print axioms BookProof.ChapterMackeyInducedSystem.inducedSystem_stabilizer_rep
-#print axioms BookProof.ChapterMackeyInducedSystem.mackey_correspondence
+#audit_axioms BookProof.ChapterMackeyInducedSystem.cocycle_one
+#audit_axioms BookProof.ChapterMackeyInducedSystem.cocycle_mul
+#audit_axioms BookProof.ChapterMackeyInducedSystem.indRepLin_one
+#audit_axioms BookProof.ChapterMackeyInducedSystem.indRepLin_comp
+#audit_axioms BookProof.ChapterMackeyInducedSystem.indRepLin_norm
+#audit_axioms BookProof.ChapterMackeyInducedSystem.indRepHom
+#audit_axioms BookProof.ChapterMackeyInducedSystem.indPvm
+#audit_axioms BookProof.ChapterMackeyInducedSystem.inducedSystem
+#audit_axioms BookProof.ChapterMackeyInducedSystem.inducedSystem_fibre
+#audit_axioms BookProof.ChapterMackeyInducedSystem.inducedSystem_stabilizer_rep
+#audit_axioms BookProof.ChapterMackeyInducedSystem.mackey_correspondence
 
 -- The orbits of the action: energy sign invariance and the complete set of invariants.
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.hermOfMom_injective
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.hermOfMom_eq_zero_iff
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.posSemidef_diag2
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.hermOfMom_posSemidef
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.act_inv_of_act
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.energy_nonneg_of_act
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.energy_pos_of_act
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.future_cone_invariant
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.orbit_iff_massSq_eq
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.littleGroup_zero
-#print axioms BookProof.ChapterWignerLittleGroupOrbits.littleGroup_spacelike
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.hermOfMom_injective
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.hermOfMom_eq_zero_iff
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.posSemidef_diag2
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.hermOfMom_posSemidef
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.act_inv_of_act
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.energy_nonneg_of_act
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.energy_pos_of_act
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.future_cone_invariant
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.orbit_iff_massSq_eq
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.littleGroup_zero
+#audit_axioms BookProof.ChapterWignerLittleGroupOrbits.littleGroup_spacelike
 
 -- Weyl's complete reducibility theorem, for `sl(2,ℂ)` and for `SL(2,ℂ)`.
-#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.cas_comm_E
-#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.exists_highestWeight
-#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.cas_highestWeight
-#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.codim_one
-#print axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.weyl_complete_reducibility
-#print axioms BookProof.ChapterWeylSL2Group.coeff_mem_of_poly_mem
-#print axioms BookProof.ChapterWeylSL2Group.exists_factorization
-#print axioms BookProof.ChapterWeylSL2Group.isInv_of_rho
-#print axioms BookProof.ChapterWeylSL2Group.rho_mem_of_unipotent_inv
-#print axioms BookProof.ChapterWeylSL2Group.weyl_complete_reducibility_SL2
-#print axioms BookProof.ChapterWeylSL2Group.isExpOfSl2_stdRep
+#audit_axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.cas_comm_E
+#audit_axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.exists_highestWeight
+#audit_axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.cas_highestWeight
+#audit_axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.codim_one
+#audit_axioms BookProof.ChapterWeylSL2Algebra.Sl2Rep.weyl_complete_reducibility
+#audit_axioms BookProof.ChapterWeylSL2Group.coeff_mem_of_poly_mem
+#audit_axioms BookProof.ChapterWeylSL2Group.exists_factorization
+#audit_axioms BookProof.ChapterWeylSL2Group.isInv_of_rho
+#audit_axioms BookProof.ChapterWeylSL2Group.rho_mem_of_unipotent_inv
+#audit_axioms BookProof.ChapterWeylSL2Group.weyl_complete_reducibility_SL2
+#audit_axioms BookProof.ChapterWeylSL2Group.isExpOfSl2_stdRep
 
 -- The uniqueness clause of Wigner's theorem.
-#print axioms BookProof.ChapterWignerSymmetryUniqueness.eq_smul_of_forall_eigenvector
-#print axioms BookProof.ChapterWignerSymmetryUniqueness.wigner_unique_unitary
-#print axioms BookProof.ChapterWignerSymmetryUniqueness.antiunitary_norm_map
-#print axioms BookProof.ChapterWignerSymmetryUniqueness.antiunitary_injective
-#print axioms BookProof.ChapterWignerSymmetryUniqueness.wigner_unique_antiunitary
-#print axioms BookProof.ChapterWignerSymmetryUniqueness.not_linear_and_antiunitary
+#audit_axioms BookProof.ChapterWignerSymmetryUniqueness.eq_smul_of_forall_eigenvector
+#audit_axioms BookProof.ChapterWignerSymmetryUniqueness.wigner_unique_unitary
+#audit_axioms BookProof.ChapterWignerSymmetryUniqueness.antiunitary_norm_map
+#audit_axioms BookProof.ChapterWignerSymmetryUniqueness.antiunitary_injective
+#audit_axioms BookProof.ChapterWignerSymmetryUniqueness.wigner_unique_antiunitary
+#audit_axioms BookProof.ChapterWignerSymmetryUniqueness.not_linear_and_antiunitary

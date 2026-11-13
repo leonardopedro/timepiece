@@ -1,4 +1,5 @@
 import BookProof.Sm.ChapterSmPhysicalReductionEsa
+import BookProof.RoadmapAudit.AxiomAudit
 
 /-!
 # Axiom audit for `BookProof.Sm.ChapterSmPhysicalReductionEsa`
@@ -7,20 +8,20 @@ Run with `lake build Work.SmPhysicalReductionEsaAudit`.  Each line must report o
 `propext`, `Classical.choice`, `Quot.sound`.
 -/
 
-#print axioms BookProof.SmPhysicalReduction.evenPart_add_oddPart
-#print axioms BookProof.SmPhysicalReduction.evenPart_mem
-#print axioms BookProof.SmPhysicalReduction.oddPart_mem
-#print axioms BookProof.SmPhysicalReduction.inner_map_map_of_norm_map
-#print axioms BookProof.SmPhysicalReduction.inner_map_left_eq
-#print axioms BookProof.SmPhysicalReduction.inner_eq_zero_of_mem_even_of_mem_odd
-#print axioms BookProof.SmPhysicalReduction.inner_eq_zero_of_mem_odd_of_mem_even
-#print axioms BookProof.SmPhysicalReduction.evenOp_mem
-#print axioms BookProof.SmPhysicalReduction.oddOp_mem
-#print axioms BookProof.SmPhysicalReduction.deficiency_at_of_even_deficiency
-#print axioms BookProof.SmPhysicalReduction.deficiency_at_of_odd_deficiency
-#print axioms BookProof.SmPhysicalReduction.deficiencyTrivialAt_iff_sectors
-#print axioms BookProof.SmPhysicalReduction.coupledParity_inner
-#print axioms BookProof.SmPhysicalReduction.smNormalForm_parity_core
-#print axioms BookProof.SmPhysicalReduction.smNormalForm_esd_iff_parity_sectors
-#print axioms BookProof.SmPhysicalReduction.topologicalClosure_evenCore
-#print axioms BookProof.SmPhysicalReduction.topologicalClosure_oddCore
+#audit_axioms BookProof.SmPhysicalReduction.evenPart_add_oddPart
+#audit_axioms BookProof.SmPhysicalReduction.evenPart_mem
+#audit_axioms BookProof.SmPhysicalReduction.oddPart_mem
+#audit_axioms BookProof.SmPhysicalReduction.inner_map_map_of_norm_map
+#audit_axioms BookProof.SmPhysicalReduction.inner_map_left_eq
+#audit_axioms BookProof.SmPhysicalReduction.inner_eq_zero_of_mem_even_of_mem_odd
+#audit_axioms BookProof.SmPhysicalReduction.inner_eq_zero_of_mem_odd_of_mem_even
+#audit_axioms BookProof.SmPhysicalReduction.evenOp_mem
+#audit_axioms BookProof.SmPhysicalReduction.oddOp_mem
+#audit_axioms BookProof.SmPhysicalReduction.deficiency_at_of_even_deficiency
+#audit_axioms BookProof.SmPhysicalReduction.deficiency_at_of_odd_deficiency
+#audit_axioms BookProof.SmPhysicalReduction.deficiencyTrivialAt_iff_sectors
+#audit_axioms BookProof.SmPhysicalReduction.coupledParity_inner
+#audit_axioms BookProof.SmPhysicalReduction.smNormalForm_parity_core
+#audit_axioms BookProof.SmPhysicalReduction.smNormalForm_esd_iff_parity_sectors
+#audit_axioms BookProof.SmPhysicalReduction.topologicalClosure_evenCore
+#audit_axioms BookProof.SmPhysicalReduction.topologicalClosure_oddCore
