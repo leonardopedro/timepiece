@@ -2854,6 +2854,14 @@ import BookProof.Toolbox.ChapterHermiteBandCalculusHigher
 -- self-adjointness and no gap is claimed for `f_abc ≠ 0`.
 import BookProof.Qym.ChapterYangMillsBandBounds
 
+-- `ChapterYangMillsWeightedGates` (2026-11-13): the band bounds of the chapter above re-read as
+-- the weighted Schur gates of `BookProof.FockWeightedSchur` with the symbol `w_k = (deg+1)²`.
+-- `ymHermCol_row_col_gates` proves the row and column gates with one explicit constant (the band
+-- makes `(deg+1)²` slowly varying across four degrees), so
+-- `ymHermCol_essentiallySelfAdjointOn_core_of_commBound` leaves exactly one hypothesis — the
+-- commutator gate — and the module records why that gate cannot hold at order `4`.
+import BookProof.Qym.ChapterYangMillsWeightedGates
+
 -- `ChapterYangMillsGhostSector` (2026-09-07 wave): the Faddeev–Popov ghost sector of the 3D
 -- gauge-fixed Yang–Mills Hamiltonian, as the orthogonal direct sum over ghost configurations
 -- of copies of `L²(ℝ⁹⁹)`.  Symmetry, ghost-number conservation and the decoupling of the

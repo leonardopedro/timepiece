@@ -23354,3 +23354,48 @@ there is no `Finsupp.not_mem_support_iff` projection to use — `Finsupp.mem_sup
 
 **Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa` → 8077 jobs, no error,
 no warning naming the module, no line over 100 characters.
+
+## State of the project — 2026-11-13a: the Yang–Mills band bounds are two of the three gates
+
+New module `BookProof/Qym/ChapterYangMillsWeightedGates.lean` (ns `BookProof.YangMillsWeightedGates`),
+registered in the root aggregator next to `ChapterYangMillsBandBounds`.
+
+`ym_hermCol_band_bounds` gives three facts about the non-abelian Hermite matrix: at most `M`
+entries per column, band radius `4` in the total degree, entries `≤ C (deg+1)²`.  The weighted
+Schur theory needs three *gates* against a symbol `w ≥ 1`.  With `w_k = ((deg (e k) : ℝ) + 1)²`
+the entry bound is a multiple of the symbol, and the band supplies the only extra ingredient
+needed — slow variation:
+
+* `ymW`, `ymW_nonneg`, `ymW_one_le`;
+* `ymW_le_of_band` — band radius `4` in the degree implies `w_j ≤ 49 w_k`: `deg j ≤ deg k + 4`,
+  and either `deg j ≤ 3` (then `w_j ≤ 16 ≤ 49 w_k` since `w_k ≥ 1`) or `deg j ≥ 4` (then
+  `deg j + 1 ≤ 7 (deg j − 3) ≤ 7 (deg k + 1)`);
+* **`ymHermCol_row_col_gates`** — `∃ K ≥ 0`, row gate *and* column gate, with the single
+  constant `K = 49 M C`.  Row: `M` entries of size `C w_k`.  Column: entries of the column `j`
+  are `≤ C w_j` uniformly in the row index (the band bound depends only on the first index), and
+  the weight varies by at most `49` across the band, so every term is `≤ 49 C`;
+* **`ymHermCol_essentiallySelfAdjointOn_core_of_commBound`** — with the row and column gates
+  discharged, `dGamma_essentiallySelfAdjointOn_core_w` leaves exactly one hypothesis: the
+  commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B`.  Given it,
+  `dΓ(H₁)` is essentially self-adjoint on the finite-occupation core.
+
+**Honest boundary — the commutator gate cannot hold at order `4`.**  With band radius `r` in the
+degree and `w = (deg+1)²`, the commutator weight is
+`|w_j² − w_k²|/(w_k w_j) = |w_j/w_k − w_k/w_j| = Θ(1/deg)` across the band, while the entries are
+`Θ(deg²)`, so the gate's terms grow like `deg`: no constant `B` bounds them.  A symbol that is
+*smaller* cannot fix this — the row gate forces `K w_k ≥ C (deg k + 1)²`, so `w_k ≳ deg²` — and
+one that is *larger* makes the relative oscillation of `w²` worse.  This is the order obstruction
+`ChapterYangMillsBandBounds`' header records (the gate route is order-`2`-adapted; the abelian
+case is closed via `IsBand2`).  So the weighted-gate route to essential self-adjointness of
+`dΓ(H₁)` for `f_abc ≠ 0` is now *locally closed*: everything except the commutator gate is proved,
+and the commutator gate is false for this symbol.  What remains is a different criterion, not a
+missing estimate.
+
+**Scope caveat.**  These gates are for `ymHermCol`, the matrix in the product Hermite basis
+`hermBasisN e` (`coreRepHerm`).  The Fock-basis object `ymFockCol` of
+`ChapterFockSecondQuantization` uses the Gram–Schmidt basis `coreBasis e` (`coreRepBasis`), and no
+relation between the two bases is proved here; a bridge would be a separate packet.
+
+**Verification.**  `lake env lean` and `lake build BookProof.Qym.ChapterYangMillsWeightedGates`
+(8148 jobs) both clean; `#print axioms` on both headline theorems gives only
+`propext, Classical.choice, Quot.sound`; no line over 100 characters.
