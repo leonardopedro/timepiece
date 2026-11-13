@@ -1563,6 +1563,14 @@ above.  This section states that identification and proves what it yields.
   `glueballAltWeightProjection`, the three vectors are a basis (`glueballAltWeightBasis`), and the
   same ladders `A¹ ∓ i A⁰` carry the `0`-weight vector to each end and each end back to twice it —
   so no invariant subspace sits inside the `3`;
+* **`mesonSymm_irreducible`**, **`mesonAlt_irreducible`**, **`meson_decompose_unique`** — the
+  meson square `3 ⊕ 1` carries the same statements: the triplet is irreducible
+  (`mesonSymm_irreducible`, weights `1`, `0`, `-1` in `mesonWeightVec_eigen`, projectors
+  `mesonWeightProjection`, basis `mesonWeightBasis`, ladders `mesonLadderRaise` and
+  `mesonLadderLower`), the singlet is irreducible because it is a line (`mesonAlt_irreducible`,
+  every subspace of `mesonAlt` is `⊥` or the whole line), and the split `v = s + a` exists and is
+  unique (`meson_decompose`, `meson_decompose_unique`, the difference being symmetric and
+  antisymmetric at once);
 * **`colourTerm_star_eq`**, **`colourPair_re_symm`**, **`colourDiag_re`**,
   **`colouredHamiltonian_quadForm_re_split`** — the **Hermitian-`C`** form: for `C` with
   `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star (it is real), the `(j,i)`
@@ -3788,8 +3796,12 @@ multiple of its neighbour — so `3 ⊕ 1 ⊕ 5` is a split into blocks with no 
 inside the `5`, and the antisymmetric `3` is irreducible too (`glueballAlt_irreducible`), by the
 same argument one dimension lower: weights `1`, `0`, `-1` (`glueballAltWeightVec_eigen`), the
 Lagrange projector `glueballAltWeightProjection`, the basis `glueballAltWeightBasis` and the same
-ladders, so `3 ⊕ 1 ⊕ 5` is a split into irreducibles on the glueball side.  Still not proved here:
-the corresponding statement for the meson triplet.  The trace line is annihilated outright, not
+ladders, so `3 ⊕ 1 ⊕ 5` is a split into irreducibles on the glueball side.  The meson square carries
+the same two statements: `Sym²` is irreducible (`mesonSymm_irreducible`, with the weights `1, 0, -1`
+of `mesonWeightVec_eigen`, the projectors `mesonWeightProjection` and the ladders
+`mesonLadderRaise`, `mesonLadderLower`), its one-dimensional `Λ²` is irreducible by dimension
+(`mesonAlt_irreducible`), and the split `v = s + a` exists and is unique (`meson_decompose`,
+`meson_decompose_unique`).  The trace line is annihilated outright, not
 merely killed by the Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`,
 which is what "singlet of the Lie algebra" means here, and the eigenvalue `0` follows from it.  The
 two `3`s are the same `su(2)`-module: `glueballAltEquiv` is the `ε`-contraction,
@@ -7481,6 +7493,398 @@ theorem mesonCasimir_symmetric_symm {v w : colourVec 4}
     inner ℂ (mesonCasimir v) w = inner ℂ v (mesonCasimir w) := by
   rw [mesonCasimir_symm hv, mesonCasimir_symm hw]
   exact inner_smul_real_scalar (by norm_num [map_ofNat]) v w
+/-! ##### The meson square has the same two statements
+
+`ℂ² ⊗ ℂ² = Sym² ⊕ Λ²` is `3 ⊕ 1`, and both halves are handled exactly as on the glueball side.  The
+triplet is the adjoint representation, so its weights are again `1, 0, -1` — the same list the
+antisymmetric glueball summand uses, which is why the flow reuses `glueballAltWeight` and its
+Lagrange matrix — and the ladders are `A¹ ∓ i A⁰` on the meson fibre (`mesonLadderRaise`,
+`mesonLadderLower`).  Here they move one step with coefficient `i` or `2i` rather than carrying a
+single weight vector across the whole list, which is all the irreducibility argument needs.  The
+singlet is one-dimensional, so `meson_decompose_unique` — the split `v = s + a` is unique — is the
+only other statement, together with its existence half `meson_decompose`.
+-/
+
+/-- **The total meson action is homogeneous in the vector.** -/
+theorem mesonAct_smul (a : Fin 3) (c : ℂ) (v : colourVec 4) :
+    mesonAct a (c • v) = c • mesonAct a v := by
+  apply WithLp.ofLp_injective
+  funext i
+  simp only [mesonAct_ofLp, WithLp.ofLp_smul, Pi.smul_apply, Matrix.mulVec, dotProduct,
+    smul_eq_mul]
+  rw [Finset.mul_sum]
+  exact Finset.sum_congr rfl fun j _ => by ring
+
+/-- The three total meson actions, as linear maps of the meson fibre. -/
+noncomputable def mesonActLinear (a : Fin 3) : colourVec 4 →ₗ[ℂ] colourVec 4 where
+  toFun := mesonAct a
+  map_add' := mesonAct_add a
+  map_smul' := mesonAct_smul a
+
+/-- The raising ladder `A¹ - i A⁰` on the meson fibre. -/
+noncomputable def mesonLadderRaise : colourVec 4 →ₗ[ℂ] colourVec 4 :=
+  mesonActLinear 1 - Complex.I • mesonActLinear 0
+
+/-- The lowering ladder `A¹ + i A⁰` on the meson fibre. -/
+noncomputable def mesonLadderLower : colourVec 4 →ₗ[ℂ] colourVec 4 :=
+  mesonActLinear 1 + Complex.I • mesonActLinear 0
+
+/-- The raising ladder in closed form. -/
+theorem mesonLadderRaise_apply (v : colourVec 4) :
+    mesonLadderRaise v = mesonAct 1 v - Complex.I • mesonAct 0 v := by
+  simp [mesonLadderRaise, mesonActLinear]
+
+/-- The lowering ladder in closed form. -/
+theorem mesonLadderLower_apply (v : colourVec 4) :
+    mesonLadderLower v = mesonAct 1 v + Complex.I • mesonAct 0 v := by
+  simp [mesonLadderLower, mesonActLinear]
+
+/-- The `T³` weights of the meson symmetric square: the adjoint list, so `glueballAltWeight` is
+reused verbatim. -/
+def mesonWeight : Fin 3 → ℂ := glueballAltWeight
+
+/-- A weight basis of the meson symmetric summand: weights `1, 0, -1`. -/
+def mesonWeightVec : Fin 3 → colourVec 4 :=
+  ![WithLp.toLp 2 ![1, 0, 0, 0],
+    WithLp.toLp 2 ![0, 1, 1, 0],
+    WithLp.toLp 2 ![0, 0, 0, 1]]
+
+/-- Every weight vector of the meson symmetric summand is symmetric. -/
+theorem mesonWeightVec_symm (k : Fin 3) : mesonWeightVec k ∈ mesonSymm := by
+  intro i
+  fin_cases k <;> fin_cases i <;> simp [mesonWeightVec, mesonFlipIdx]
+
+/-- The meson weight vectors are eigenvectors of the third total action. -/
+theorem mesonWeightVec_eigen (k : Fin 3) :
+    mesonActLinear 2 (mesonWeightVec k) = mesonWeight k • mesonWeightVec k := by
+  apply WithLp.ofLp_injective
+  simp only [mesonActLinear, LinearMap.coe_mk, AddHom.coe_mk]
+  rw [mesonAct_ofLp]
+  funext i
+  fin_cases k <;> fin_cases i <;>
+    simp only [mesonWeightVec, mesonWeight, glueballAltWeight, WithLp.ofLp_toLp, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, mesonRep, fundRep, pauli, mesonSlotFst, mesonSlotSnd,
+      Matrix.mulVec, dotProduct, Fin.sum_univ_four, PiLp.smul_apply, smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im,
+      Complex.I_mul_I]
+
+/-- Powers of the third total action act on a meson weight vector by the power of its weight. -/
+theorem mesonWeightVec_pow (m : ℕ) (k : Fin 3) :
+    (mesonActLinear 2 ^ m) (mesonWeightVec k) = (mesonWeight k) ^ m • mesonWeightVec k := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    rw [pow_succ, Module.End.mul_apply, mesonWeightVec_eigen, map_smul, ih, smul_smul,
+      pow_succ, mul_comm]
+
+/-- **The meson Lagrange projector reads off one weight coordinate** — the same three projectors
+`glueballAltLagrange` as on `Λ²`, since the weights coincide. -/
+theorem mesonWeightProjection (k : Fin 3) (c : Fin 3 → ℂ) :
+    (∑ m : Fin 3, glueballAltLagrange k m • (mesonActLinear 2 ^ (m : ℕ)))
+        (∑ i : Fin 3, c i • mesonWeightVec i) = c k • mesonWeightVec k := by
+  have hterm (i : Fin 3) :
+      (∑ m : Fin 3, glueballAltLagrange k m • (mesonActLinear 2 ^ (m : ℕ)))
+          (c i • mesonWeightVec i) =
+        ((∑ m : Fin 3, glueballAltLagrange k m * (mesonWeight i) ^ (m : ℕ))) •
+          (c i • mesonWeightVec i) := by
+    rw [LinearMap.sum_apply]
+    simp only [LinearMap.smul_apply, map_smul, mesonWeightVec_pow, smul_smul]
+    rw [← Finset.sum_smul]
+    congr 1
+    rw [← Finset.mul_sum, mul_comm]
+  rw [map_sum, Finset.sum_congr rfl (fun i _ => hterm i)]
+  simp only [mesonWeight, glueballAltLagrange_spec]
+  rw [Finset.sum_eq_single k]
+  · rw [if_pos rfl, one_smul]
+  · intro i _ hi
+    rw [if_neg hi, zero_smul]
+  · intro hk
+    exact absurd (Finset.mem_univ k) hk
+
+/-- Every meson weight vector is nonzero. -/
+theorem mesonWeightVec_ne_zero (k : Fin 3) : mesonWeightVec k ≠ 0 := by
+  intro h
+  fin_cases k
+  · have h1 := congrFun (congrArg WithLp.ofLp h) 0
+    simp [mesonWeightVec] at h1
+  · have h1 := congrFun (congrArg WithLp.ofLp h) 1
+    simp [mesonWeightVec] at h1
+  · have h1 := congrFun (congrArg WithLp.ofLp h) 3
+    simp [mesonWeightVec] at h1
+
+/-- The lowering ladder sends the `1`-weight vector of the meson triplet to `i` times the
+`0`-weight one. -/
+theorem mesonLadderLower_zero :
+    mesonLadderLower (mesonWeightVec 0) = Complex.I • mesonWeightVec 1 := by
+  apply WithLp.ofLp_injective
+  rw [mesonLadderLower_apply]
+  funext i
+  fin_cases i <;>
+    simp only [mesonWeightVec, mesonAct_ofLp, mesonRep, fundRep, pauli, mesonSlotFst,
+      mesonSlotSnd, Matrix.mulVec, dotProduct, Fin.sum_univ_four, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val',
+      PiLp.add_apply, PiLp.smul_apply, smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- The lowering ladder sends the `0`-weight vector of the meson triplet to `2i` times the
+`-1`-weight one. -/
+theorem mesonLadderLower_one :
+    mesonLadderLower (mesonWeightVec 1) = (2 * Complex.I) • mesonWeightVec 2 := by
+  apply WithLp.ofLp_injective
+  rw [mesonLadderLower_apply]
+  funext i
+  fin_cases i <;>
+    simp only [mesonWeightVec, mesonAct_ofLp, mesonRep, fundRep, pauli, mesonSlotFst,
+      mesonSlotSnd, Matrix.mulVec, dotProduct, Fin.sum_univ_four, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val',
+      PiLp.add_apply, PiLp.smul_apply, smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- The raising ladder sends the `0`-weight vector of the meson triplet to `-2i` times the
+`1`-weight one. -/
+theorem mesonLadderRaise_one :
+    mesonLadderRaise (mesonWeightVec 1) = (-2 * Complex.I) • mesonWeightVec 0 := by
+  apply WithLp.ofLp_injective
+  rw [mesonLadderRaise_apply]
+  funext i
+  fin_cases i <;>
+    simp only [mesonWeightVec, mesonAct_ofLp, mesonRep, fundRep, pauli, mesonSlotFst,
+      mesonSlotSnd, Matrix.mulVec, dotProduct, Fin.sum_univ_four, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val',
+      PiLp.sub_apply, PiLp.smul_apply, smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- The raising ladder sends the `-1`-weight vector of the meson triplet to `-i` times the
+`0`-weight one. -/
+theorem mesonLadderRaise_two :
+    mesonLadderRaise (mesonWeightVec 2) = (-Complex.I) • mesonWeightVec 1 := by
+  apply WithLp.ofLp_injective
+  rw [mesonLadderRaise_apply]
+  funext i
+  fin_cases i <;>
+    simp only [mesonWeightVec, mesonAct_ofLp, mesonRep, fundRep, pauli, mesonSlotFst,
+      mesonSlotSnd, Matrix.mulVec, dotProduct, Fin.sum_univ_four, Fin.isValue,
+      Fin.reduceFinMk, Matrix.cons_val, Matrix.smul_apply, Matrix.of_apply, Matrix.cons_val',
+      PiLp.sub_apply, PiLp.smul_apply, smul_eq_mul] <;>
+    norm_num [Complex.ext_iff, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+
+/-- **The meson weight vectors are linearly independent**: the projector at `k` reads off the
+`k`-th coordinate. -/
+theorem mesonWeightVec_linearIndependent : LinearIndependent ℂ mesonWeightVec := by
+  rw [Fintype.linearIndependent_iff]
+  intro c hc k
+  have h := mesonWeightProjection k c
+  rw [hc] at h
+  have h0 : (∑ m : Fin 3, glueballAltLagrange k m • (mesonActLinear 2 ^ (m : ℕ))) 0 = 0 := by
+    simp
+  rw [h0] at h
+  have hz : c k • mesonWeightVec k = 0 := h.symm
+  rcases smul_eq_zero.mp hz with hv | hsc
+  · exact hv
+  · exact absurd hsc (mesonWeightVec_ne_zero k)
+
+/-- The weight vectors, as elements of the meson symmetric summand. -/
+noncomputable def mesonWeightBasisVec : Fin 3 → mesonSymm :=
+  fun k => ⟨mesonWeightVec k, mesonWeightVec_symm k⟩
+
+/-- The meson weight vectors are independent inside the symmetric summand. -/
+theorem mesonWeightBasisVec_linearIndependent :
+    LinearIndependent ℂ mesonWeightBasisVec := by
+  rw [Fintype.linearIndependent_iff]
+  intro c hc
+  have hc' : ∑ k : Fin 3, c k • mesonWeightVec k = 0 := by
+    have h := congrArg (fun x : mesonSymm => (x : colourVec 4)) hc
+    simpa [mesonWeightBasisVec] using h
+  exact Fintype.linearIndependent_iff.mp mesonWeightVec_linearIndependent c hc'
+
+/-- The three meson weight vectors are a basis of the symmetric summand. -/
+noncomputable def mesonWeightBasis : Module.Basis (Fin 3) ℂ mesonSymm :=
+  basisOfLinearIndependentOfCardEqFinrank mesonWeightBasisVec_linearIndependent
+    (by simp [mesonSymm_finrank])
+
+/-- The meson basis vector at `i` is the weight vector at `i`. -/
+theorem mesonWeightBasis_apply (i : Fin 3) :
+    (mesonWeightBasis i : colourVec 4) = mesonWeightVec i := by
+  simp [mesonWeightBasis, mesonWeightBasisVec]
+
+/-- **Every vector of the meson square splits as a symmetric plus an antisymmetric part.** -/
+theorem meson_decompose (v : colourVec 4) :
+    ∃ s ∈ mesonSymm, ∃ a ∈ mesonAlt, v = s + a := by
+  have hv : v ∈ mesonAlt ⊔ mesonSymm := by
+    rw [meson_sup]
+    exact Submodule.mem_top
+  obtain ⟨a, ha, s, hs, h⟩ := Submodule.mem_sup.mp hv
+  exact ⟨s, hs, a, ha, by rw [← h, add_comm]⟩
+
+/-- **The meson split is unique**: two decompositions of one vector have the same symmetric and
+antisymmetric parts, because their difference is symmetric and antisymmetric at once and
+`mesonSymm ⊓ mesonAlt = ⊥`. -/
+theorem meson_decompose_unique {v s₁ s₂ a₁ a₂ : colourVec 4}
+    (hs₁ : s₁ ∈ mesonSymm) (ha₁ : a₁ ∈ mesonAlt)
+    (hs₂ : s₂ ∈ mesonSymm) (ha₂ : a₂ ∈ mesonAlt)
+    (h₁ : v = s₁ + a₁) (h₂ : v = s₂ + a₂) :
+    s₁ = s₂ ∧ a₁ = a₂ := by
+  have hsum : s₁ + a₁ = s₂ + a₂ := h₁.symm.trans h₂
+  have hdiff : s₁ - s₂ = a₂ - a₁ := by
+    rw [sub_eq_sub_iff_add_eq_add, add_comm a₂]
+    exact hsum
+  have hmem : s₁ - s₂ ∈ mesonSymm ⊓ mesonAlt :=
+    Submodule.mem_inf.mpr
+      ⟨Submodule.sub_mem _ hs₁ hs₂, by rw [hdiff]; exact Submodule.sub_mem _ ha₂ ha₁⟩
+  have hbot : s₁ - s₂ = 0 := by
+    have hd : mesonSymm ⊓ mesonAlt = ⊥ := by
+      rw [inf_comm]
+      exact meson_disjoint
+    rw [hd] at hmem
+    simpa using hmem
+  have hs : s₁ = s₂ := sub_eq_zero.mp hbot
+  refine ⟨hs, ?_⟩
+  subst hs
+  exact add_left_cancel hsum
+
+/-- **The meson singlet is irreducible**: it is one-dimensional, so a subspace inside it is
+`⊥` or the whole line — the scatter of the invariance hypothesis is unused because a line cannot
+carry a proper nonzero submodule. -/
+theorem mesonAlt_irreducible (W : Submodule ℂ (colourVec 4))
+    (hWle : W ≤ mesonAlt)
+    (_hW : ∀ a : Fin 3, ∀ w ∈ W, mesonAct a w ∈ W) :
+    W = ⊥ ∨ W = mesonAlt := by
+  rcases eq_or_ne W ⊥ with h | h
+  · exact Or.inl h
+  refine Or.inr (le_antisymm hWle ?_)
+  have hne : ∃ z ∈ W, z ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact h (le_antisymm (fun x hx => by simpa [Submodule.mem_bot] using hcon x hx) bot_le)
+  obtain ⟨z, hzW, hz0⟩ := hne
+  have hzspan : z ∈ Submodule.span ℂ {mesonSingletVec} := by
+    rw [← mesonAlt_eq_span]
+    exact hWle hzW
+  obtain ⟨c, hc⟩ := Submodule.mem_span_singleton.mp hzspan
+  have hc0 : c ≠ 0 := by
+    intro hcz
+    rw [hcz, zero_smul] at hc
+    exact hz0 hc.symm
+  have hsing : mesonSingletVec ∈ W := by
+    have h := Submodule.smul_mem W c⁻¹ hzW
+    rw [← hc, smul_smul, inv_mul_cancel₀ hc0, one_smul] at h
+    exact h
+  intro x hx
+  have hxspan : x ∈ Submodule.span ℂ {mesonSingletVec} := by
+    rw [← mesonAlt_eq_span]
+    exact hx
+  obtain ⟨d, hd⟩ := Submodule.mem_span_singleton.mp hxspan
+  rw [← hd]
+  exact Submodule.smul_mem W d hsing
+
+/-- **The meson triplet is irreducible under the total colour action**: every subspace of `Sym²`
+preserved by all three total actions is `⊥` or `mesonSymm`.  The argument is the `Fin 3` one of
+`Λ²`: weights `1, 0, -1`, the projectors of `glueballAltLagrange`, and the meson ladders, each
+carrying a weight vector to a nonzero multiple of its neighbour. -/
+theorem mesonSymm_irreducible (W : Submodule ℂ (colourVec 4))
+    (hWle : W ≤ mesonSymm)
+    (hW : ∀ a : Fin 3, ∀ w ∈ W, mesonAct a w ∈ W) :
+    W = ⊥ ∨ W = mesonSymm := by
+  rcases eq_or_ne W ⊥ with h | h
+  · exact Or.inl h
+  refine Or.inr (le_antisymm hWle ?_)
+  have hne : ∃ z ∈ W, z ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact h (le_antisymm (fun x hx => by simpa [Submodule.mem_bot] using hcon x hx) bot_le)
+  obtain ⟨z, hzW, hz0⟩ := hne
+  let z' : mesonSymm := ⟨z, hWle hzW⟩
+  let c : Fin 3 → ℂ := fun k => mesonWeightBasis.repr z' k
+  have hzsum : z = ∑ i : Fin 3, c i • mesonWeightVec i := by
+    have hsum := mesonWeightBasis.sum_repr z'
+    have h := congrArg (fun x : mesonSymm => (x : colourVec 4)) hsum
+    simp only [Submodule.coe_sum, Submodule.coe_smul, mesonWeightBasis_apply, z'] at h
+    exact h.symm
+  have hcne : ∃ k, c k ≠ 0 := by
+    by_contra hall
+    push_neg at hall
+    have : z = 0 := by
+      rw [hzsum]
+      simp [hall]
+    exact hz0 this
+  obtain ⟨k, hk⟩ := hcne
+  have hpow : ∀ m : Fin 3, (mesonActLinear 2 ^ (m : ℕ)) z ∈ W := by
+    intro m
+    induction (m : ℕ) with
+    | zero => simpa using hzW
+    | succ n ih =>
+      rw [pow_succ', Module.End.mul_apply]
+      exact hW 2 _ ih
+  have hbk : mesonWeightVec k ∈ W := by
+    have hproj : c k • mesonWeightVec k ∈ W := by
+      have hPeq : (∑ m : Fin 3, glueballAltLagrange k m • (mesonActLinear 2 ^ (m : ℕ))) z
+          = c k • mesonWeightVec k := by
+        rw [hzsum]
+        exact mesonWeightProjection k c
+      rw [← hPeq, LinearMap.sum_apply]
+      exact Submodule.sum_mem W fun m _ => Submodule.smul_mem W _ (hpow m)
+    have h := Submodule.smul_mem W ((c k)⁻¹) hproj
+    rwa [smul_smul, inv_mul_cancel₀ hk, one_smul] at h
+  have hraise : ∀ v ∈ W, mesonLadderRaise v ∈ W := by
+    intro v hv
+    rw [mesonLadderRaise_apply]
+    exact Submodule.sub_mem W (hW 1 v hv) (Submodule.smul_mem W _ (hW 0 v hv))
+  have hlower : ∀ v ∈ W, mesonLadderLower v ∈ W := by
+    intro v hv
+    rw [mesonLadderLower_apply]
+    exact Submodule.add_mem W (hW 1 v hv) (Submodule.smul_mem W _ (hW 0 v hv))
+  have hRaiseMem : ∀ (i j : Fin 3) (q : ℂ), q ≠ 0 →
+      mesonLadderRaise (mesonWeightVec i) = q • mesonWeightVec j →
+      mesonWeightVec i ∈ W → mesonWeightVec j ∈ W := by
+    intro i j q hq hrel hi
+    have h := hraise _ hi
+    rw [hrel] at h
+    have h2 := Submodule.smul_mem W q⁻¹ h
+    rwa [smul_smul, inv_mul_cancel₀ hq, one_smul] at h2
+  have hLowerMem : ∀ (i j : Fin 3) (q : ℂ), q ≠ 0 →
+      mesonLadderLower (mesonWeightVec i) = q • mesonWeightVec j →
+      mesonWeightVec i ∈ W → mesonWeightVec j ∈ W := by
+    intro i j q hq hrel hi
+    have h := hlower _ hi
+    rw [hrel] at h
+    have h2 := Submodule.smul_mem W q⁻¹ h
+    rwa [smul_smul, inv_mul_cancel₀ hq, one_smul] at h2
+  have hI : Complex.I ≠ 0 := Complex.I_ne_zero
+  have h2I : (2 * Complex.I) ≠ 0 := mul_ne_zero two_ne_zero Complex.I_ne_zero
+  have hI2 : (-2 * Complex.I) ≠ 0 := mul_ne_zero (by norm_num) Complex.I_ne_zero
+  have hIn : (-Complex.I) ≠ 0 := neg_ne_zero.mpr Complex.I_ne_zero
+  have hw0 : mesonWeightVec 0 ∈ W := by
+    fin_cases k
+    · exact hbk
+    · exact hRaiseMem 1 0 (-2 * Complex.I) hI2 mesonLadderRaise_one hbk
+    · have ha := hRaiseMem 2 1 (-Complex.I) hIn mesonLadderRaise_two hbk
+      exact hRaiseMem 1 0 (-2 * Complex.I) hI2 mesonLadderRaise_one ha
+  have hw1 : mesonWeightVec 1 ∈ W := by
+    fin_cases k
+    · exact hLowerMem 0 1 Complex.I hI mesonLadderLower_zero hbk
+    · exact hbk
+    · exact hRaiseMem 2 1 (-Complex.I) hIn mesonLadderRaise_two hbk
+  have hw2 : mesonWeightVec 2 ∈ W := by
+    fin_cases k
+    · have ha := hLowerMem 0 1 Complex.I hI mesonLadderLower_zero hbk
+      exact hLowerMem 1 2 (2 * Complex.I) h2I mesonLadderLower_one ha
+    · exact hLowerMem 1 2 (2 * Complex.I) h2I mesonLadderLower_one hbk
+    · exact hbk
+  have hall : ∀ j : Fin 3, mesonWeightVec j ∈ W := by
+    intro j
+    fin_cases j
+    · exact hw0
+    · exact hw1
+    · exact hw2
+  intro v hv
+  have hvsum : v = ∑ i : Fin 3,
+      mesonWeightBasis.repr (⟨v, hv⟩ : mesonSymm) i • mesonWeightVec i := by
+    have hsum := mesonWeightBasis.sum_repr (⟨v, hv⟩ : mesonSymm)
+    have h := congrArg (fun x : mesonSymm => (x : colourVec 4)) hsum
+    simp only [Submodule.coe_sum, Submodule.coe_smul, mesonWeightBasis_apply] at h
+    exact h.symm
+  rw [hvsum]
+  exact Submodule.sum_mem W fun i _ => Submodule.smul_mem W _ (hall i)
 
 /-- **The meson Casimir is self-adjoint on the antisymmetric singlet**, where it is `0`. -/
 theorem mesonCasimir_symmetric_alt {v w : colourVec 4}
