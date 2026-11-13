@@ -3783,10 +3783,13 @@ import BookProof.Sm.ChapterSmKineticElliptic
 -- potential), so §19's `hpoly` reduces to the **self-bound** `PotSelfBound P c₀ β`;
 -- `kineticSum_norm_le_of_pot_self_bound` gives the elliptic estimate with `c = 1 + β`, and
 -- `smNormalForm_norm_le_of_pot_self_bound` composes it with §19's interpolation so the whole P2
--- relative bound rests on that one inequality.  The quartic self-bound itself remains open; the
--- module docstring records why (the gradient cannot be interpolated against the graph norm, and the
--- corpus's only uncertainty bound is quadratic).  §26 adds the formal equivalence of `PotSelfBound`
--- with §19's `hpoly` (`potSelfBound_of_kinetic_bound`) and the interpolation §23 does afford.
+-- relative bound rests on that one inequality.  *Correction (§53, 2026-11-13):* the quartic
+-- self-bound is **proved**, by `ChapterSmGradTable`'s `exists_potSelfBound_sm`, so this section's
+-- hypothesis is discharged on the SM's own potential.  It is not discharged by interpolating `∇`
+-- against the graph norm — the route this block and the module docstring proposed — but by the
+-- gradient domination of §49–§52, which is a different (and sufficient) inequality.  §26 adds the
+-- formal equivalence of `PotSelfBound` with §19's `hpoly` (`potSelfBound_of_kinetic_bound`) and the
+-- interpolation §23 does afford.
 import BookProof.Sm.ChapterSmKineticGarding
 -- `ChapterSmGaussWeightedIbp` (2026-11-10k, `SM_ESA_COMPLETION_PLAN` §23): the weighted
 -- integration-by-parts identity on the Gauss–polynomial core, `⟪Q u, −Δ_S u⟫` = weighted Dirichlet
@@ -3794,8 +3797,9 @@ import BookProof.Sm.ChapterSmKineticGarding
 -- form `eval_weighted_self_re`, the non-negativity `gaussInt_weighted_self_nonneg` /
 -- `inner_weighted_kinPolyS_dirichlet_nonneg`, the sign `inner_weighted_kinPolyS_ge`, and the SM
 -- instance at the quartic potential (`sm_weighted_kinetic_ibp`, `_ge`).  It supplies the
--- first ingredient of §22's `PotSelfBound`; the interpolation of `∇` is still missing, so
--- `PotSelfBound` stays a hypothesis.
+-- first ingredient of §22's `PotSelfBound`.  The second ingredient is *not* an interpolation of `∇`
+-- against the graph norm — that is what this block used to record as missing — but the gradient
+-- domination of §49–§52; with it `PotSelfBound` is proved (`exists_potSelfBound_sm`, §53).
 import BookProof.Sm.ChapterSmGaussWeightedIbp
 -- `ChapterSmGradInterpolation` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §26): what §23's weighted
 -- identity affords quantitatively — `‖∇_j p‖² ≤ ‖√W ∇_j p‖²` one coordinate at a time, the
@@ -3803,7 +3807,8 @@ import BookProof.Sm.ChapterSmGaussWeightedIbp
 -- `dirichlet_le_weighted_form`: `∑_{j∈S} ‖∇_j p‖² ≤ 2 Re ⟪W p, −Δ_S p⟫ + ∑_{j∈S} ‖(∂_j W)p‖²`,
 -- with `sm_dirichlet_le_weighted_form` at the quartic potential.  It also proves the direction §22
 -- only asserted: `potSelfBound_of_kinetic_bound`, i.e. §19's `hpoly` implies `PotSelfBound`, so the
--- two are equivalent spellings of the same open problem rather than separate hypotheses.
+-- two are equivalent spellings of one statement rather than separate hypotheses.  Both sides are now
+-- proved: `exists_potSelfBound_sm` (§53) gives the self-bound, hence `hpoly` at the SM potential.
 import BookProof.Sm.ChapterSmGradInterpolation
 -- `ChapterSmFullCommFormBlockP1OpNorm` (2026-11-10l, `SM_ESA_COMPLETION_PLAN` §27): the P1 Schur
 -- radii as **operator norms** instead of `ℓ¹` masses — `p1HiggsOpMass D a = ‖p1HiggsMat D a‖` under
@@ -3839,8 +3844,9 @@ import BookProof.Sm.ChapterSmP1BlockStructure
 -- the decomposition `norm_shift_sq_decomp`, `inner_KT_eq`, and
 -- `potSelfBound_one_iff_remainder`: `PotSelfBound P c₀ 1` **is** the non-negativity of
 -- `‖Δ_S p‖² + 2 ℜ⟪−Δ_S p, W p + p⟫`.  The sharpest condition the sign route reaches is
--- `potSelfBound_one_of_grad_residual` (`∑_j ‖(∂_j W)p‖² ≤ ‖Δ_S p‖² + 3 ∑_j ‖∇_j p‖²`), which is not
--- proved; the module states that a proof must compare form domains, and `PotSelfBound` stays open.
+-- `potSelfBound_one_of_grad_residual` (`∑_j ‖(∂_j W)p‖² ≤ ‖Δ_S p‖² + 3 ∑_j ‖∇_j p‖²`), which this
+-- module leaves unproved; the module states that a proof must compare form domains.  `PotSelfBound`
+-- no longer waits on either: §53 proves it through the gradient domination (`exists_potSelfBound_sm`).
 import BookProof.Sm.ChapterSmReverseEllipticResidual
 -- `ChapterSmFormDomainComparison` (2026-11-10n, `SM_ESA_COMPLETION_PLAN` §32): the form-domain
 -- comparison as a **named input** — `FormDomainComparison P c₀ c`, i.e. the graph norm of
@@ -3887,9 +3893,10 @@ import BookProof.Sm.ChapterSmQuadraticWeightLemmas
 -- identity's missing direction, from a non-negative Hessian weight, `sm_crossTerm_upper` at the
 -- SM weight) and `residual_eq_hessForm` / `potSelfBound_one_iff_hessForm`: `PotSelfBound P c₀ 1`
 -- **is** the Hessian gap, a comparison of two quadratic forms with no degree-six density left.
--- The gap is not proved, so `PotSelfBound` stays a hypothesis; the section removes the cubic
--- obstruction and names the remaining sign of the Hessian trace, which the corpus does not
--- compute.
+-- That sign of the Hessian trace is not computed here — the section removes the cubic obstruction
+-- and names it.  It is no longer needed for `PotSelfBound`: §53's gradient domination proves the
+-- self-bound without it (`exists_potSelfBound_sm`), so the gap closed by a different route than the
+-- sign identity this block proposed.
 import BookProof.Sm.ChapterSmCrossTermHessian
 
 -- 2026-09-24a work order, steps 1–2: the instruments of the Kato-type wave applied to the
@@ -4189,15 +4196,27 @@ import BookProof.Sm.ChapterSmReverseEllipticQuartic
 -- coordinates `smDG`/`smDW`/`smDB`/`smDPhi`, which no term of `W` controls).  Everything between
 -- that table and `PotSelfBound` is now proved — `SmGradDomStructural` turns the table into the
 -- pointwise bound and `SmGradDomTransfer` integrates it against the non-negative weight
--- `cpoly p * p` (`exists_potSelfBound_of_gradBound`).  `PotSelfBound` for the SM is therefore still
--- a hypothesis, but the question whether the 49 flat directions refute the domination is answered
--- **no**, with a proved mechanism and a proved counterexample to the naive reading.  §51 carries out the algebra of the first step: `linForm`,
--- `polyW_linForm`, `sq_polyW_linForm_le` (Cauchy–Schwarz on a support `L ⊆ M`) and
+-- `cpoly p * p` (`exists_potSelfBound_of_gradBound`).  §51 carries out the algebra of the table:
+-- `linForm`, `polyW_linForm`, `sq_polyW_linForm_le` (Cauchy–Schwarz on a support `L ⊆ M`) and
 -- `gradBound_of_linear` show that a support table `∂_j Φ_r = ∑_{i∈L} b_i x_i` with `L ⊆ smS`,
--- coefficients included, *is* the hypothesis, so what remains of the table is the `pderiv`
--- computation alone.
+-- coefficients included, *is* the hypothesis.  §53 then supplies the table, and with it
+-- `PotSelfBound` **is no longer a hypothesis**: see the `ChapterSmGradTable` block below.
+-- The question whether the 49 flat directions refute the domination is answered **no**, with a
+-- proved mechanism and a proved counterexample to the naive reading.
 import BookProof.Sm.ChapterSmGradDomStructural
 import BookProof.Sm.ChapterSmGradDomTransfer
+-- `ChapterSmGradTable` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §53): the per-form `pderiv` table, and
+-- with it the discharge of P4's elliptic input.  Rather than compute 49 derivatives, every form is
+-- recognised as a **normal form** — `Biform A T`, carrying its own coefficients: a constant, linear
+-- atoms in `T`, bilinear atoms in `A` — with `Biform.pderiv_eq` reading the derivative off the data
+-- (`∂_j Φ_r = ∑_v C (sqf j v + sqf v j) · X v` for `j ∈ A`, the linear part contributing nothing
+-- because `A` and `T` are disjoint) and `sq_le` turning that into Cauchy–Schwarz.  The five families
+-- (`biform_smMagG`/`_smMagW`/`_smMagB`/`_smCovD`/`_smWall`) are normal forms *by shape alone*: no
+-- `levi`, `fabc`, `eabc`, `tgen` or `ygen` bookkeeping appears, and the constant in
+-- `gradBound_smPhi` is the total squared coefficient, not a quoted number.  Consequently
+-- **`exists_potSelfBound_sm`** gives `∃ β, PotSelfBound P c₀ β` for `0 ≤ c₀` with no hypothesis on
+-- the forms.  What that does *not* give is any of P5's physical input (§46/§47's quartet data
+-- remains unbuilt) or a claim about the joint model's dynamics.
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index
@@ -4209,8 +4228,10 @@ import BookProof.Sm.ChapterSmGradDomTransfer
 -- (`scalarBound_of_evenSectorBound`), and likewise on the odd sector
 -- (`scalarBound_of_oddSectorBound`), while `sectorComparison_iff_formDomainComparison` shows §32's
 -- named input read on any sector is literally the whole statement.  P4 therefore does not decompose
--- over the parity split: `PotSelfBound` stays a single open analytic problem, and the split
--- localises the closure (§44), not the elliptic estimate.
+-- over the parity split: the elliptic input is one analytic problem, not two, and the split
+-- localises the closure (§44), not the estimate.  Since §53 that input is *proved* at the
+-- potential's own level (`exists_potSelfBound_sm`), so the sector argument no longer marks a gap —
+-- it marks why no sector-local *derivation* could have closed it.
 
 -- The Wilson plaquette interaction does not spoil the slice split of the lattice gauge
 -- measure: the interaction is a nonnegative local potential, so the Gibbs density is a

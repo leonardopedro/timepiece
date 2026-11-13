@@ -40,8 +40,8 @@ variable {d : ℕ}
 
 /-- A polynomial with *coefficient data*: a constant, coefficients for linear atoms and
 coefficients for bilinear atoms, with the linear atoms restricted to `T` and the bilinear ones to
-`A`.  Data rather than a `Prop`, because the derivative coefficients are read off it: for `j ∈ A` the
-derivative of the third summand is the row plus the column of `sqf` at `j`. -/
+`A`.  Data rather than a `Prop`, because the derivative coefficients are read off it: for `j ∈ A`
+the derivative of the third summand is the row plus the column of `sqf` at `j`. -/
 structure Biform (A T : Finset (Fin d)) where
   /-- the polynomial -/
   poly : MvPolynomial (Fin d) ℂ
@@ -60,6 +60,7 @@ structure Biform (A T : Finset (Fin d)) where
   /-- the data represents the polynomial -/
   rep : poly = C cst + ∑ a, C (linf a) * X a
       + ∑ a, ∑ c, C (sqf a c) * (X a * X c)
+
 
 namespace Biform
 
@@ -448,6 +449,8 @@ noncomputable def biform_smMagB (i : Fin 3) : Biform BookProof.SmComparisonEsa.s
 theorem biform_smMagB_poly (i : Fin 3) :
     (biform_smMagB i).poly = smMagB (id : Fin 163 → Fin 163) i := rfl
 
+set_option maxHeartbeats 1000000 in
+-- the nested `Fin 3`/`Fin 8` index sums exceed the default elaboration budget
 /-- **The gluon magnetic form is a normal form.** -/
 noncomputable def biform_smMagG (P : SmParams) (a : Fin 8) (i : Fin 3) :
     Biform BookProof.SmComparisonEsa.smS smT := by
@@ -461,13 +464,17 @@ noncomputable def biform_smMagG (P : SmParams) (a : Fin 8) (i : Fin 3) :
     · exact Biform.atom _ (mem_smT (smDG_notMem a j k))
   · refine Biform.smul ((P.gs : ℝ) : ℂ) ?_
     refine Biform.sum (s := (Finset.univ : Finset (Fin 8))) fun b => ?_
-    refine Biform.sum (s := (Finset.univ : Finset (Fin 3))) fun d => ?_
+    refine Biform.sum (s := (Finset.univ : Finset (Fin 8))) fun d => ?_
     refine Biform.smul ((P.fabc a b d : ℝ) : ℂ) ?_
     exact Biform.atomSq _ _ (smG_mem b j) (smG_mem d k)
 
+set_option maxHeartbeats 1000000 in
+-- the definitional unfolding of the nested index sums exceeds the default budget
 theorem biform_smMagG_poly (P : SmParams) (a : Fin 8) (i : Fin 3) :
     (biform_smMagG P a i).poly = smMagG P (id : Fin 163 → Fin 163) a i := rfl
 
+set_option maxHeartbeats 1000000 in
+-- the nested `Fin 3` index sums exceed the default elaboration budget
 /-- **The weak magnetic form is a normal form.** -/
 noncomputable def biform_smMagW (P : SmParams) (m : Fin 3) (i : Fin 3) :
     Biform BookProof.SmComparisonEsa.smS smT := by
@@ -485,9 +492,13 @@ noncomputable def biform_smMagW (P : SmParams) (m : Fin 3) (i : Fin 3) :
     refine Biform.smul ((P.eabc m b d : ℝ) : ℂ) ?_
     exact Biform.atomSq _ _ (smW_mem b j) (smW_mem d k)
 
+set_option maxHeartbeats 1000000 in
+-- the definitional unfolding of the nested index sums exceeds the default budget
 theorem biform_smMagW_poly (P : SmParams) (m : Fin 3) (i : Fin 3) :
     (biform_smMagW P m i).poly = smMagW P (id : Fin 163 → Fin 163) m i := rfl
 
+set_option maxHeartbeats 1000000 in
+-- the nested `Fin 3`/`Fin 4` index sums exceed the default elaboration budget
 /-- **The covariant Higgs derivative is a normal form.** -/
 noncomputable def biform_smCovD (P : SmParams) (a : Fin 4) (i : Fin 3) :
     Biform BookProof.SmComparisonEsa.smS smT := by
@@ -504,9 +515,13 @@ noncomputable def biform_smCovD (P : SmParams) (a : Fin 4) (i : Fin 3) :
     refine Biform.smul ((P.ygen a b : ℝ) : ℂ) ?_
     exact Biform.atomSq _ _ (smB_mem i) (smPhi_mem b)
 
+set_option maxHeartbeats 1000000 in
+-- the definitional unfolding of the nested index sums exceeds the default budget
 theorem biform_smCovD_poly (P : SmParams) (a : Fin 4) (i : Fin 3) :
     (biform_smCovD P a i).poly = smCovD P (id : Fin 163 → Fin 163) a i := rfl
 
+set_option maxHeartbeats 1000000 in
+-- the `Fin 4` index sum exceeds the default elaboration budget
 /-- **The Higgs wall is a normal form.** -/
 noncomputable def biform_smWall (P : SmParams) : Biform BookProof.SmComparisonEsa.smS smT := by
   refine Biform.smul ((Real.sqrt (P.lam / 2) : ℝ) : ℂ) ?_
@@ -515,6 +530,8 @@ noncomputable def biform_smWall (P : SmParams) : Biform BookProof.SmComparisonEs
     exact Biform.atomSq _ _ (smPhi_mem a) (smPhi_mem a)
   · exact Biform.const ((P.vev ^ 2 : ℝ) : ℂ)
 
+set_option maxHeartbeats 1000000 in
+-- the definitional unfolding of the index sum exceeds the default budget
 theorem biform_smWall_poly (P : SmParams) :
     (biform_smWall P).poly = smWall P (id : Fin 163 → Fin 163) := rfl
 
@@ -553,20 +570,37 @@ theorem gradBound_smPhi (P : SmParams) :
         ∑ v ∈ BookProof.SmComparisonEsa.smS,
           (((biform_smPhi P r).sqf j v + (biform_smPhi P r).sqf v j).re) ^ 2) := by
   intro j hj r x
-  rw [← biform_smPhi_poly P r]
-  refine (Biform.sq_le (biform_smPhi P r) disjoint_smS_smT hj x).trans ?_
-  refine mul_le_mul_of_nonneg_right ?_ ?_
-  · exact Finset.single_le_sum
-      (f := fun j' => ∑ r' : Fin 49, ∑ v ∈ BookProof.SmComparisonEsa.smS,
-        (((biform_smPhi P r').sqf j' v + (biform_smPhi P r').sqf v j').re) ^ 2)
+  rw [show (fun r : Fin 49 => BookProof.SmComparisonEsa.smPhi P r) r
+      = BookProof.SmComparisonEsa.smPhi P r from rfl, ← biform_smPhi_poly P r]
+  set S := BookProof.SmComparisonEsa.smS with hS
+  set g : Fin 163 → Fin 49 → ℝ := fun j' r' => ∑ v ∈ S,
+    (((biform_smPhi P r').sqf j' v + (biform_smPhi P r').sqf v j').re) ^ 2 with hg
+  have h1 : g j r ≤ ∑ r' : Fin 49, g j r' :=
+    Finset.single_le_sum (f := fun r' => g j r')
+      (fun r' _ => Finset.sum_nonneg fun v _ => sq_nonneg _) (Finset.mem_univ r)
+  have h2 : (∑ r' : Fin 49, g j r') ≤ ∑ j' ∈ S, ∑ r' : Fin 49, g j' r' :=
+    Finset.single_le_sum (f := fun j' => ∑ r' : Fin 49, g j' r')
       (fun j' _ => Finset.sum_nonneg fun r' _ =>
-        Finset.sum_nonneg fun v _ => sq_nonneg _)
-      (Finset.single_le_sum
-        (f := fun r' => ∑ v ∈ BookProof.SmComparisonEsa.smS,
-          (((biform_smPhi P r').sqf j v + (biform_smPhi P r').sqf v j).re) ^ 2)
-        (fun r' _ => Finset.sum_nonneg fun v _ => sq_nonneg _) (Finset.mem_univ r)) hj
-  · have := Finset.sum_nonneg (f := fun m : Fin 163 => (x m) ^ 2)
-      (s := BookProof.SmComparisonEsa.smS) fun i _ => sq_nonneg _
-    linarith
+        Finset.sum_nonneg fun v _ => sq_nonneg _) hj
+  refine (sq_le (biform_smPhi P r) disjoint_smS_smT hj x).trans ?_
+  refine mul_le_mul_of_nonneg_right (h1.trans h2) ?_
+  have := Finset.sum_nonneg (f := fun m : Fin 163 => (x m) ^ 2) (s := S) fun i _ => sq_nonneg _
+  linarith
+
+set_option maxHeartbeats 1000000 in
+-- the `163`-coordinate coefficient sums exceed the default elaboration budget
+/-- **`PotSelfBound` for the Standard Model potential, with no hypothesis on the forms.**
+
+This is the closure of the chain `§3b`–`§52` of the plan: the 49 forms are normal forms (§4), a
+normal form's derivative at a momentum coordinate is a linear form supported in `smS`
+(`Biform.pderiv_eq`, hence `sq_le`), that is `GradBound` (`gradBound_smPhi`), and `GradBound` is
+`PotSelfBound` (`exists_potSelfBound_of_gradBound`).  The constant `C` is the total squared
+coefficient, never a quoted number. -/
+theorem exists_potSelfBound_sm (P : SmParams) {c0 : ℝ} (hc0 : 0 ≤ c0) :
+    ∃ β, BookProof.SmKineticGarding.PotSelfBound P c0 β :=
+  BookProof.SmGradDomTransfer.exists_potSelfBound_of_gradBound P hc0
+    (Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ =>
+      Finset.sum_nonneg fun _ _ => sq_nonneg _)
+    (gradBound_smPhi P)
 
 end BookProof.SmGradTable
