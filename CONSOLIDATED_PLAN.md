@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13h):** “State of the project — 2026-11-13h: the two `3`s are isomorphic
+> **Newest entry (2026-11-13i):** “State of the project — 2026-11-13i: the vanishing lemma, the
+> Gram–Schmidt projection lemma, and the QYM gates in `coreBasis` coordinates” (end of file): the
+> product Hermite function is orthogonal to every monomial Gauss function of strictly smaller
+> coordinatewise degree (`inner_monomial_hermiteMvLp_eq_zero`), the Gram–Schmidt vector is the base
+> vector minus its projection and is reproduced by any unit vector spanning the orthogonal remainder
+> (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
+> (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
+> self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
+>
+> **Earlier entry (2026-11-13h):** “State of the project — 2026-11-13h: the two `3`s are isomorphic
 > as `su(2)`-modules” (end of file): the meson triplet and the gluon adjoint triplet are now related
 > by a bundled linear equivalence `mesonAltEquiv : mesonSymm ≃ₗ glueballAlt`, proved to commute with
 > all three total actions (`mesonAltEquiv_intertwines`) and to carry the weights `1, 0, -1` to
@@ -23760,3 +23769,78 @@ warning naming the module; `#print axioms` on `mesonAltEquiv`, `mesonSymmEquiv�
 Casimir — the two summands sit in different ambient squares, so there is nothing to transport — and
 it says nothing about norms, closedness or dynamics, nor about how many copies of the `3` a larger
 colour tensor product carries.
+
+## State of the project — 2026-11-13i: the vanishing lemma, the projection lemma, the QYM gates
+
+`13e` §3 showed that for a degree-compatible enumeration the `coreBasis`↔`hermBasisN` bridge holds
+*up to one phase per level*, and `13g` showed that such phases are invisible to the weighted Schur
+gates.  This entry supplies the two analytic lemmas the bridge argument was missing and then spends
+them: with the bridge stated as an explicit hypothesis, the whole Yang–Mills gate theorem is now
+available in the `coreBasis` coordinates that `finiteModeDomain` and the certificate seam actually
+use.  Three new modules, all `sorry`-free and `axiom`-free.
+
+**1. The monomial–Hermite vanishing lemma** (`BookProof/Toolbox/ChapterHermiteVanishing`,
+`BookProof.HermiteVanishing`).  `BookProof.HermiteProductBasis` computes `⟨ψ_α, ψ_β⟩` but says
+nothing about the pairing of a monomial Gauss function with a Hermite function.  The one-dimensional
+input is `gint_X_pow_hermiteR_zero` — `∫ xᵐ Heₙ(x) e^{-x²/2} dx = 0` for `m < n` — proved from the
+integration-by-parts identity `gint_ibp` by a double induction on `(n, m)`
+(`gint_X_succ_hermiteR`, `gint_X_one_hermiteR`); the `L²(ℝ)` shape is
+`integral_pow_mul_gaussH_mul_hermiteFun(_eq_zero)`.  Fubini over the coordinates
+(`pgFun_monomial_eq_prod`, `integral_prod_coord`) gives
+`inner_monomial_hermiteMv : ⟨x^α e^{-‖x‖²/4}, ψ_β⟩ = ∏ᵢ ∫ x^{αᵢ} He_{βᵢ} e^{-x²/2}`, hence
+`inner_monomial_hermiteMv_eq_zero` and the normalized form
+`inner_monomial_hermiteMvLp_eq_zero` — the vanishing whenever some `βᵢ > αᵢ` that the Gram–Schmidt
+comparison consumes.
+
+**2. Gram–Schmidt versus projection** (`BookProof/Toolbox/ChapterFockGramSchmidtProjection`,
+`BookProof.FockGramSchmidtProjection`).  With `gsSpan f k` the span of the Gram–Schmidt vectors
+strictly before `k` (`gsSpan_eq_span_Iio`, i.e. `InnerProductSpace.span_gramSchmidt_Iio`),
+`sub_gramSchmidt_mem_gsSpan` says the Gram–Schmidt vector is the base vector minus its projection
+onto that span, `gramSchmidt_mem_orthogonal_gsSpan` that it is orthogonal to it, and
+`eq_of_decomp_orthogonal` that this pair of properties pins the vector down.  The comparison lemma
+is `gramSchmidt_eq_smul_of_decomp`: if `f k − c • g` lies in the earlier span and `g ⊥ gsSpan f k`,
+then `gramSchmidt f k = c • g` — i.e. *any* vector realising the orthogonal component reproduces the
+Gram–Schmidt vector up to the scalar `c`, no monomial counting required.  Applied to the core family
+this gives `coreBasis_eq_sub_projection`, `coreFamily_apply`, and — with the degree-compatibility
+hypothesis `∀ j < k, ∃ i, e j i < e k i` — `hermiteMvLp_mem_orthogonal_gsSpan`: the product Hermite
+function `ψ_{e k}` is orthogonal to the earlier Gram–Schmidt span, by part 1.
+
+**3. The Yang–Mills gates in `coreBasis` coordinates**
+(`BookProof/Qym/ChapterYangMillsCoreBasisGates`, `BookProof.YangMillsCoreBasisGates`).  The bridge
+is an explicit hypothesis,
+`BridgePhases e u := (∀ k, ‖u k‖ = 1) ∧ ∀ k, coreBasis e k = u k • ψ_{e k}` (with
+`hermBasisN e k = ψ_{e k}`).  The matrix is the polynomial operator read through the `CoreRep` of
+the core domain: `ymCoreCol e fabc := opCol (coreBasis e) ((coreRepBasis e).op (ymPoly fabc))`, and
+`coreRepBasis_symm` identifies the representing polynomial of the `k`-th core vector as
+`u k • ψ_{e k}`.  Then `ymCoreCol_eq_phase` is
+`PhaseRelated u (ymHermCol e fabc) (ymCoreCol e fabc)` — the core matrix is the Hermite matrix
+under the diagonal phases — `isHermCol_ymCoreCol` its Hermitianity, `ymCoreCol_row_col_gates` the
+row and column gates at the *same* constant as in the Hermite basis, `ymCoreCol_gates_iff` the
+transfer of all three gates with the same constants, and
+end to end `ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound`: from the bridge hypothesis and
+the commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B` in the Hermite coordinates,
+`dΓ(ymCoreCol e fabc)` is essentially self-adjoint on the finite-occupation core.
+
+A note on method: the natural definition of `ymCoreOp` — the Hermite operator conjugated by the
+identity between the two finite-mode domains — is available (`finiteModeDomain (coreBasis e) =
+finiteModeDomain (hermBasisN e)`, from `span_range_coreBasis` and `span_hermiteMvLp_comp`), but its
+`L²(ℝ⁹⁹)` coercions make every value lemma a kernel-level defeq problem and the module does not
+elaborate in acceptable time.  Going through `coreRepBasis`/`opCol` reaches the same matrix with
+cheap elaboration, which is why the delivered statement is column-based like the rest of the gate
+library.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterHermiteVanishing
+BookProof.Toolbox.ChapterFockGramSchmidtProjection BookProof.Qym.ChapterYangMillsCoreBasisGates` →
+0 errors, no warning naming the modules; `#print axioms` on
+`inner_monomial_hermiteMvLp_eq_zero`, `gramSchmidt_eq_smul_of_decomp`,
+`coreBasis_eq_sub_projection`, `ymCoreCol_row_col_gates` and
+`ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`, no line over 100, no trailing whitespace; all
+three modules imported from `BookProof.lean`.
+
+**Boundary.**  The bridge itself is still *not proved*.  Part 2 leaves exactly two inputs open:
+writing `x^{e k} e^{-‖x‖²/4}` as `w + c • ψ_{e k}` with `w` in the earlier span (monic triangularity
+of `He_β` plus a count of the monomials of each degree), and `‖c‖ = 1` after normalization.  Nothing
+here bounds the commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B`; `13d` records that the
+band calculus can neither supply it nor refute it.  So the QYM ESA statement is conditional on two
+hypotheses — the bridge and the commutator gate — and no unconditional Yang–Mills gap is claimed.

@@ -1167,6 +1167,13 @@ import BookProof.Toolbox.ChapterFockSchurEsa
 -- `‖u_k‖ = 1` scales the entries by `u_k conj(u_j)`, and all three gates (row, column, commutator)
 -- read only entry moduli, so they are invariant with the same constants (`gates_phase_iff`).
 import BookProof.Toolbox.ChapterFockGatePhaseInvariance
+-- **The product-Hermite vanishing lemma** `⟨x^α, ψ_β⟩ = 0` whenever some `β_i > α_i`: the
+-- 1-D Gaussian integration-by-parts recurrence, summed over the remaining coordinates.
+import BookProof.Toolbox.ChapterHermiteVanishing
+-- **Gram–Schmidt versus projection**: the Gram–Schmidt vector is the base vector minus its
+-- projection onto the earlier span, and any unit vector spanning the orthogonal complement
+-- reproduces it up to a scalar (`gramSchmidt_eq_smul_of_decomp`); applied to `coreBasis`.
+import BookProof.Toolbox.ChapterFockGramSchmidtProjection
 import BookProof.Toolbox.ChapterFockWeightedGateSharpness
 import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 -- The **graded band calculus** of the product Hermite basis: the ladder operators are
@@ -2866,6 +2873,11 @@ import BookProof.Qym.ChapterYangMillsBandBounds
 -- `ymHermCol_essentiallySelfAdjointOn_core_of_commBound` leaves exactly one hypothesis — the
 -- commutator gate — and the module records why the band calculus cannot supply it at order `4`.
 import BookProof.Qym.ChapterYangMillsWeightedGates
+-- **The Yang–Mills gates in `coreBasis` coordinates.**  The bridge hypothesis
+-- `coreBasis e k = u_k • ψ_{e k}` with `‖u_k‖ = 1` is stated explicitly; from it the
+-- `coreBasis` matrix of `ymPoly fabc` is the Hermite matrix under the diagonal phases, so all
+-- three gates and the essential self-adjointness conclusion transfer unchanged.
+import BookProof.Qym.ChapterYangMillsCoreBasisGates
 
 -- `ChapterYangMillsGhostSector` (2026-09-07 wave): the Faddeev–Popov ghost sector of the 3D
 -- gauge-fixed Yang–Mills Hamiltonian, as the orthogonal direct sum over ghost configurations
