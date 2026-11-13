@@ -371,6 +371,43 @@ require "$PLAN" 'No product structure was ever missing' \
 require "$PLAN" 'is **not** the index complex at `n = 12`' \
     "§60: the plan must keep the negative half of the identification"
 
+# ---- 14. §61 `VolDom` in normal form: the law is an identity, and it stays false -
+# §58 measured `4/eps^2`; §61 proves the law as an identity on the family's normal form and re-proves
+# the non-domination there.  The scope caveat must stay with them: the normal form is not the model's
+# literal `volPot`, and a reader who drops the caveat reads more than was shown.
+SHEAR=BookProof/Ns/ChapterNsVolDomShear.lean
+require "$SHEAR" "theorem shear_grad_sq" \
+    "§61: the exact law 4/t^2 + 4/eps^2"
+require "$SHEAR" "theorem not_volDom_shear" \
+    "§61: no constants dominate the normal form"
+require "$SHEAR" "theorem ev2_shearPot_flat" \
+    "§61: the potential is flat at every shear amplitude"
+pair_require "$SHEAR" 'theorem shear_grad_sq' 'theorem not_volDom_shear' "30" \
+    "§61: the law and the refutation must stay in the same module"
+require "$PLAN" 'does not refute it for the model' \
+    "§61: the plan must keep the normal-form scope caveat"
+require "$PLAN" 'is *not* data' \
+    "§61: the plan must keep the cancellation caveat on the mu = 0 column"
+require "$BOOKPLAN" 'ChapterNsVolDomShear' \
+    "§61: the root must import the shear module"
+
+# ---- 15. §62 the b-ghost of the derivation contracts onto matter ----------------
+DERIV=BookProof/Sm/ChapterSmIndexGhostDerivation.lean
+require "$DERIV" "theorem bGhost_anticomm" \
+    "§62: the anticommutator with the derivation is the Gauss generator"
+require "$DERIV" "theorem bGhost_no_contraction" \
+    "§62: {Q, b} = 1 would force the Gauss generators to sum to 1"
+require "$DERIV" "theorem bGhost_anticomm_abelian" \
+    "§62: the index quartet is the abelian fibre"
+pair_require "$DERIV" 'theorem bGhost_anticomm' 'theorem bGhost_no_contraction' "30" \
+    "§62: the identity and its non-contraction corollary must stay together"
+require "$PLAN" 'contraction has nowhere else to land' \
+    "§62: the plan must keep the statement of what the contraction lands on"
+require "$PLAN" 'structure-constant half' \
+    "§62: the plan must keep the boundary on the structure-constant remainder"
+require "$BOOKPLAN" 'ChapterSmIndexGhostDerivation' \
+    "§62: the root must import the derivation module"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

@@ -4049,6 +4049,14 @@ import BookProof.Ns.ChapterNsLagrangianComparisonEsa
 -- Lagrangian generator `N_L`, still the explicit hypothesis of
 -- `lagKoopman_esa_of_comparison_esa`.
 import BookProof.Ns.ChapterNsGradDomCoercive
+-- `ChapterNsVolDomShear` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §61): `VolDom` refuted on the shear
+-- family's normal form.  With `t` the shear amplitude and `ε` the transversal tilt, the penalty's
+-- leading behaviour is `(ε t)²/2`, and `shear_grad_sq` is the exact law
+-- `∑(∂V)² = V² · (4/t² + 4/ε²)` — the `4/ε²` the measurement saturates at, plus the `4/t²`
+-- correction.  `not_volDom_shear` then shows no `A`, `B` dominate: on the family `(1/d, d)` the
+-- potential is the constant `1/2` while the gradient grows like `1/d`.  The bridge from the model's
+-- literal `volPot` to this normal form is the second-order expansion of §58.1 and is not formalized.
+import BookProof.Ns.ChapterNsVolDomShear
 -- 2026-10-30 (`softmodes.md` Phase 3, milestone 3): the solvable gapped reference operator.
 -- `refEnergy` ports physlib's `eigenEnergy` (`∑ i, ωᵢ (nᵢ + ½)`, `ℏ = 1`, general `ω`) with
 -- its strict monotonicity; `refGap = min_k ω_k`; `href_spectral_gap` is the form inequality
@@ -4244,6 +4252,30 @@ import BookProof.Sm.ChapterSmBghostFormula
 -- the identification of its twelve ghost modes with the index pattern.  The named input is now that
 -- identification, not the quartet data.
 import BookProof.Sm.ChapterSmIndexGhostQuartet
+-- `ChapterSmIndexGhostSectors` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §59): the parity sectors, and
+-- why the *global* sector hypotheses cannot hold.  `global_sectors_force_zero` proves that four
+-- estimates — non-negativity and definiteness of the charge form on each parity sector of a unitary
+-- involution — make the form positive definite on the whole space, whence a nilpotent self-adjoint
+-- charge vanishes; `parity_globals_fail` witnesses it on the index model.  Read on the closed space
+-- the hypotheses do hold for the ghost parity (`sector_hypotheses_closed`, assembled into
+-- `kform_nonneg_closed`), which is the form `kform_quadForm_nonneg` consumes; the radical half still
+-- needs `eta_physProj`, since an odd antighost has zero form.
+import BookProof.Sm.ChapterSmIndexGhostSectors
+-- `ChapterSmIndexGhostFock` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §60): the Fock side of that
+-- identification.  `FermiFock n` *is* an `EuclideanSpace`, so §57's missing "inner product on the Fock
+-- space" was not missing: `ghostVec_orthonormal` shows the twelve ghost occupation vectors are an
+-- isometric copy of `EuclideanSpace ℂ (Fin 12)`, `ghostCre_vac` that the copy is the vacuum orbit of
+-- `ghostCre`, and `ghost_pairing` that the model's `η` pairing is the Fock adjunction `b_a = (c^a)†`.
+-- What is false is that `smBrstCharge` is that complex: it is a derivation.
+import BookProof.Sm.ChapterSmIndexGhostFock
+-- `ChapterSmIndexGhostDerivation` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §62): the b-ghost of the
+-- *derivation* — the antighost sum `b = ∑_a β_a` — and what it contracts onto.  `bGhost_anticomm`
+-- proves `{∑_a χ_a G^a, ∑_b β_b} = ∑_a G^a`: the anticommutator is the Gauss-law generator, not the
+-- identity, so `bGhost_no_contraction` says a homotopy for the derivation exists only if the gauge
+-- generators sum to `1`.  The index quartet of §57 is the `∑ G^a = 0` fibre
+-- (`bGhost_anticomm_abelian`), which is why it is a comparison model rather than a subcomplex.  The
+-- structure-constant half of the charge is not covered.
+import BookProof.Sm.ChapterSmIndexGhostDerivation
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
 -- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`

@@ -1,0 +1,10 @@
+import BookProof.Ns.ChapterNsVolDomShear
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.NsVolDomShear
+#audit_axioms ev2_shearPot
+#audit_axioms ev2_shearPot_flat
+#audit_axioms ev2_shearPot_nonneg
+#audit_axioms ev2_pderiv_zero
+#audit_axioms ev2_pderiv_one
+#audit_axioms shear_grad_sq
+#audit_axioms not_volDom_shear

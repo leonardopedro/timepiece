@@ -3614,3 +3614,150 @@ have named.
 * `lake env lean Work/SmIndexGhostFockAudit.lean` — 5 declarations, all on exactly
   `propext, Classical.choice, Quot.sound`.
 
+---
+
+## §61. `VolDom` in normal form, and whether a deformation norm repairs it (2026-11-13)
+
+### 61.1. The law of §58 is an identity, not an asymptotics
+
+§58 measured `|∇V_κ|²/V_κ² → 4/ε²` along the shear family `F = I + t N + ε B` and used the second-order
+expansion `det F − 1 = −ε t + O(ε²)` to explain it. The leading term of the penalty across that family
+is the two-parameter polynomial `(ε t)²/2`, and for *that* polynomial the ratio is exact:
+
+    ∑_j (∂_j V)²  =  V² · (4/t² + 4/ε²).
+
+New module `BookProof/Ns/ChapterNsVolDomShear.lean` (namespace `BookProof.NsVolDomShear`) proves it:
+`shearPot = ½ (X₀X₁)²` with `x 0 = t`, `x 1 = ε`; `ev2_shearPot_flat` is the flatness at *every*
+amplitude (zero tilt gives zero potential, not just zero derivative); `ev2_pderiv_zero`/
+`ev2_pderiv_one` compute `∂_t V = ε²t`, `∂_ε V = εt²`; `shear_grad_sq` is the identity above. Both
+terms are visible: `4/ε²` is what the sweep saturates at, and `4/t²` is the correction that shows up at
+moderate `t` — at `t = 1e2, ε = 1e-3` the law gives `4e6 + 4e-4`, and the measurement printed `1599.36`
+because at that `t` the truncated penalty has not yet reached the asymptotic regime.
+
+Then `not_volDom_shear`:
+
+    ¬ ∃ A B, ∀ x : Fin 2 → ℝ, ∑(∂V)² ≤ A V² + B.
+
+The proof is one family: at `x = (1/d, d)` the product `εt` is the constant `1`, so `V ≡ 1/2` while
+`∑(∂V)² = d² + d⁻²` blows up as `d → 0`. Choosing `d = 1/(|A| + |B| + 4)` makes the right-hand side
+`A/4 + B ≤ 1/d` and the left-hand side at least `(1/d)² > 1/d`.
+
+**Scope.** This refutes the estimate for the *normal form* of the penalty across the shear family. It
+does not refute it for the model's literal `volPot`, whose passage to the normal form is the
+second-order expansion of §58.1 plus the measurement; that bridge is not formalized, and the module
+says so in this many words. What the module does establish is that the mechanism of §58 is not an
+artifact of the truncation: a potential that is quadratic in `ε t` fails this estimate at *any* degree
+and *any* truncation, so no change of truncation can rescue `VolDom`.
+
+### 61.2. A deformation norm does repair it — measured
+
+The failure is that `V_κ` is flat on the unimodular set while its gradient is not, so any fix has to
+add a term that does *not* vanish there. Weighting the penalty by a function of `det F` cannot work
+(any weight vanishing at `det F = 1` leaves the shear flat); what can work is a term in the
+deformation itself. The evaluator now measures
+
+    V_μ = V_κ + (μ/2) · ∑_{k,j} (1 + |k|²) |ξ̂_{k,j}|²,
+
+the `H¹`-type deformation norm written in Fourier space, with exact dual-number gradients as before.
+
+Sampled supremum of `|∇V_μ|²/(V_μ² + 1)` over four boxes (the refuting shear family incl. `ε` down to
+`1e-4`, 200 random points, the noisy shear family, 200 large-`|ξ|` points):
+
+| `μ` | shear family | random | shear + noise | large `|ξ|` |
+|---|---|---|---|---|
+| 0 | `4e6` | 7.04 | 334 | 0.154 |
+| 1e-3 | 1111 | 7.04 | 302 | 0.154 |
+| 1e-2 | 15.4 | 6.95 | 142 | 0.154 |
+| 0.1 | 0.160 | 6.16 | 19.8 | 0.153 |
+| 1 | 0.00200 | 3.92 | 2.23 | 0.141 |
+| 10 | 0.000416 | 20.6 | 16.6 | 0.090 |
+
+The discriminating column is the shear family, and the diagnostic sharpens it — shrink the tilt at
+fixed shear amplitude `t = 1e4`:
+
+| `ε` | `μ = 0` | `μ = 0.01` | `μ = 0.1` | `μ = 1` |
+|---|---|---|---|---|
+| 1e-2 | `4.00e4` | 15.4 | 0.159 | 0.00160 |
+| 1e-3 | `4.00e6` | 0.160 | 0.00160 | `1.60e-5` |
+| 1e-4 | `3.20e8` | 0.00160 | `1.60e-5` | `2.00e-7` |
+| 1e-5 | (cancellation) | `1.60e-5` | `2.00e-7` | `4.16e-8` |
+| 1e-6 | (cancellation) | `2.00e-7` | `4.16e-8` | `4.00e-8` |
+
+Read column by column: at `μ = 0` the ratio grows like `4/ε²`; at every `μ > 0` it *decreases* as the
+tilt shrinks, which is the opposite of a divergence. So a finite `A` exists for each `μ > 0`, and on
+these boxes `A ≈ 21` suffices at `μ = 0.01`, `A ≈ 8` at `μ = 0.1`. This is a measurement on a
+truncation, not a proof, and the repair is a *different model* — the penalty is no longer the pure
+volume penalty, so `lagGradDom_of_volDom`'s chain would have to be re-run for the modified Lagrangian.
+
+**A caveat the table itself forced.** From `ε ≤ 1e-4` on, the `μ = 0` column is *not* data: `V` is so
+small that the dual-number gradient loses its digits to cancellation and the printed numbers fall back
+down. The script now prints that warning next to the table, and the exact law for `μ = 0` is
+`shear_grad_sq`, not the float.
+
+### 61.3. Verification (2026-11-13)
+
+* `lake build BookProof.Ns.ChapterNsVolDomShear` — `Build completed successfully`; no warning attributed
+  to the module.
+* `lake env lean Work/NsVolDomShearAudit.lean` — 7 declarations (`ev2_shearPot`,
+  `ev2_shearPot_flat`, `ev2_shearPot_nonneg`, `ev2_pderiv_zero`, `ev2_pderiv_one`, `shear_grad_sq`,
+  `not_volDom_shear`), each on exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `python3 scripts/eval-vol-dom.py` — the two new tables above, ~1m20s.
+* `scripts/check-sm-section-guards` — §61 pair (`shear_grad_sq` → `not_volDom_shear`) guarded.
+
+## §62. The b-ghost of the derivation, and where it contracts to (2026-11-13)
+
+### 62.1. What was open
+
+§60 ended with: "`smBrstCharge` is a degree-one derivation, so it does not preserve the one-particle
+ghost sector … the open object is the b-ghost of the derivation." This section names that object and
+proves its defining identity.
+
+### 62.2. The construction
+
+New module `BookProof/Sm/ChapterSmIndexGhostDerivation.lean` (namespace
+`BookProof.SmIndexGhostDerivation`). Three maps on `FermiFock (m + 12)`:
+
+* `matterHalf = ∑_a χ_a G^a`, the matter half of the charge (`χ_a = ghostCre m a`,
+  `G^a = matterGen m T a`);
+* `bGhost = ∑_b β_b`, the **antighost sum** — the b-ghost of the derivation;
+* `gaussSum = ∑_a G^a`, the Gauss-law generator.
+
+Then `bGhost_anticomm`:
+
+    { ∑_a χ_a G^a , ∑_b β_b }  =  ∑_a G^a ,
+
+proved per pair (`pair_anticomm`: `χ_a G^a β_b + β_b χ_a G^a = δ_{ab} G^a`, using
+`matterGen_comm_ghostAnn` and the CAR `{β_b, χ_a} = δ_{ba}`) and summed with
+`Finset.sum_ite_eq`. Two corollaries follow, and they are the answer to §60:
+
+* `bGhost_no_contraction` — if `{matterHalf, bGhost} = 1` then `gaussSum = 1`. Since the sum of the
+  Gauss generators is not the identity, the antighost is *not* a contracting homotopy for the
+  derivation. It contracts onto **matter**. That is the precise sense in which the ghost sector of
+  `smBrstCharge` is not the index complex: the contraction has nowhere else to land.
+* `bGhost_anticomm_abelian` — when `gaussSum = 0` the anticommutator vanishes, so §57's index quartet
+  is exactly the `∑ G^a = 0` fibre of the derivation. The quartet is therefore a *comparison model*
+  for the SM charge, which is what §57.3 said and this now proves.
+
+### 62.3. What is not covered
+
+The structure-constant half `−½ ∑_{a,b,c} f_{abc} χ_a χ_b β_c` is not treated. Its anticommutator with
+`bGhost` is a ghost–antighost bilinear carrying `f`, so `{Ω, b}` picks up a term proportional to the
+structure constants in addition to `gaussSum`; that is the statement that the free ghost complex is not
+a subcomplex of the interacting one, and writing the remainder down — let alone its cohomological
+meaning — is open. So `PhysicalPositivity` for `smBrstCharge` remains a named input. What has changed is
+its shape: it is no longer "find a b-ghost" (§57 supplied quartet data at every size, §62 supplies the
+derivation's own antighost) but "show the Gauss sector is what the contraction lands in", which is a
+statement about the matter representation, not about ghost bookkeeping.
+
+### 62.4. Verification (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostDerivation` — `Build completed successfully`; no warning
+  attributed to the module.
+* `lake env lean Work/SmIndexGhostDerivationAudit.lean` — 4 declarations (`pair_anticomm`,
+  `bGhost_anticomm`, `bGhost_no_contraction`, `bGhost_anticomm_abelian`), all on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `lake build BookProof` — `Build completed successfully`, **8998 jobs**, 1m54s, exit 0, with all four
+  new modules imported (the run also re-elaborated the modules the concurrent work order added, which
+  is why the job count moved from 8988).
+* `scripts/check-sm-section-guards` — §62 pair (`bGhost_anticomm` → `gaussSum = 1` consequence)
+  guarded.
