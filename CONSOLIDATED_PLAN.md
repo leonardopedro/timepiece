@@ -7,7 +7,14 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13j):** “State of the project — 2026-11-13j: the SIRK error is a Ritz
+> **Newest entry (2026-11-13k):** “State of the project — 2026-11-13k: the certificate runs on the
+> reflected operator” (end of file): `resid_reflection_le` carries the residual through
+> `A' = γ⁻¹ 1 − X_γ` untouched, so `sirk_resid_reflection_le` turns the SIRK operator-norm error
+> into a residual *of* `A'` with the same constant; `sirk_reflected_gap_certificate` composes it
+> with `temple_lower_bound` on `A'` and `gap_transfer`, `γ² λ' ≤ e`.  This is the join of the
+> two 13j halves.
+>
+> **Earlier entry (2026-11-13j):** “State of the project — 2026-11-13j: the SIRK error is a Ritz
 > residual” (end of file): `sirk_ritz_resid_le` closes the seam S3.1 asked for —
 > `resid X (V y) ≤ ‖X − sirkApprox V psiB‖` at a reduced eigenpair, with no factor 2, because
 > `resid_le_norm_sub_smul` bounds the residual by the distance to *any* multiple of the unit
@@ -23879,3 +23886,55 @@ eigendecomposition of a Galerkin matrix, and `y`'s conditioning is not part of t
 produced: the transfers rescale a separation, they do not create one, so S2 remains the gate
 and no mass gap is claimed.  `A'`'s self-adjointness is not reproved here (the resolvent's is
 `IsShiftInvert.isSelfAdjoint`, and the eigenvector statement does not need it).
+
+## State of the project — 2026-11-13k: the certificate runs on the reflected operator
+
+The 2026-11-13j entry left two halves that did not touch: `sirk_ritz_resid_le` produced a
+residual for `X`, and the transfer lemmas related the spectra of `A`, `X_γ = (A + γ)⁻¹` and
+`A' = γ⁻¹ 1 − X_γ`.  This entry joins them, in the same module, with no new analysis.
+
+**The residual survives the reflection.**  `resid_reflection_le`: for self-adjoint `R`, a unit
+`x` and any real `c`,
+
+  `resid (γ⁻¹ 1 − R) x ≤ ‖R x − c x‖`.
+
+The reason is one line of algebra — `A' x − (γ⁻¹ − c) x = −(R x − c x)` — so reflecting sends `c`
+to `γ⁻¹ − c` and flips the sign, and `resid_le_norm_sub_smul` (applied to `A'`) does the rest.
+`isSelfAdjoint_reflection` supplies the self-adjointness `A'` needs, from
+`IsShiftInvert.isSelfAdjoint` and `RitzCertificate.isSelfAdjoint_sub_const`.
+
+**The SIRK error becomes that residual.**  `sirk_resid_reflection_le`: the reduced eigenpair
+`psiB y = μ y` with `‖V y‖ = 1` and the operator-norm hypothesis
+`‖R − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m` give
+
+  `resid (γ⁻¹ 1 − R) (V y) ≤ sirkBound C Dmin h 1 m`,
+
+the same constant as `sirk_ritz_resid_le` — a reflection costs nothing.
+
+**The composition.**  `sirk_reflected_gap_certificate` states it as one theorem.  From
+`A y = e y` with `0 ≤ e` and `y ∈ Dom`, `IsShiftInvert A γ R`, self-adjoint `R`, the SIRK
+operator-norm bound, `SpectralSeparation A' λ' b` at `λ' = resolventEdge γ e`, and `θ < b`:
+
+* `A' y = λ' y`;
+* `resid A' (V y) ≤ sirkBound C Dmin h 1 m`;
+* `θ − resid A' (V y)²/(b − θ) ≤ λ'` (`temple_lower_bound` on `A'`);
+* `γ² λ' ≤ e` (`gap_transfer` with the bottom edge `0`).
+
+So the order-`m` finite data certifies a band around the bottom of `A'`, and the transfer reads
+it back on `A` for the price of `γ²`.  The chain is composition, not a new estimate:
+`resid_le_norm_sub_smul` → `temple_lower_bound` → `gap_transfer`.
+
+**Boundary.**  `hsep : SpectralSeparation A' λ' b` is the one input a two-sided enclosure cannot
+do without; it is stated, never derived.  `γ` is a real positive shift, `(μ, y)` is an input, and
+`s_X` remains the S2 gate: the transfer rescales a separation, it does not create one.  No mass
+gap is claimed.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds (8069 jobs);
+`#print axioms` on the four new theorems gives `[propext, Classical.choice, Quot.sound]`; the
+module has no line over 100 code points and no lint warnings.  The full-book build is reported
+separately below, with its measurement.
+
+**Documentation.**  `softmodes.md` gains a dated section (2026-11-13k), its S3 pointer is
+forwarded to it, the `Sirk/ChapterResolventTransfer.lean` ledger row now lists the assembly, and
+the 13j boundary sentence about `A'`'s self-adjointness is corrected — it is proved after all,
+by `isSelfAdjoint_reflection`.

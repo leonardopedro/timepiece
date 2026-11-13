@@ -1,5 +1,6 @@
 import Mathlib
 import BookProof.Sirk.ChapterHashimotoShiftInvert
+import BookProof.Sirk.ChapterSirkEndToEnd
 
 /-!
 # Chapter ResolventTransfer — moving a certified gap from `X_γ` to `h_F`
@@ -22,6 +23,13 @@ The mass-gap route runs its certificate on the Hashimoto shift-invert
 * **the gap transfer.**  `g = (e₁ − e₀) ≥ γ² (λ'₁ − λ'₀) = γ² g_{X_γ}`:
   the eigenvalues are close to `γ⁻¹` on the scale of `γ`, so a resolvent gap
   shrinks by at most `γ²` when read back on `A`.
+
+* **the assembly.**  `sirk_reflected_gap_certificate` moves the SIRK residual seam
+  from `X_γ` to `A'` (`sirk_resid_reflection_le`): a residual measured against
+  a multiple of the vector survives the reflection untouched, since
+  `A' x − (γ⁻¹ − c) x = −(X_γ x − c x)`.  Temple on `A'` then certifies its
+  bottom edge from the order-`m` data alone, and `γ² λ' ≤ e` reads the
+  certificate back on `A`.
 
 Nothing here needs a spectral theorem: both are arithmetic on eigenvalues plus
 the two algebraic identities the shift-invert satisfies.  What is *not* proved
@@ -161,4 +169,121 @@ theorem resolvent_reflection_eigenvector {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R :
 
 end Eigenvector
 
+
+/-! ## 4. The assembly: the SIRK error is a certificate on the reflected operator -/
+
+section Reflected
+
+variable {E F : Type*}
+  [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+  [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+  {Dom : Submodule ℂ E}
+
+/-- The reflected operator `A' = γ⁻¹ 1 − X_γ` is self-adjoint whenever the
+shift-invert is. -/
+theorem isSelfAdjoint_reflection (R : E →L[ℂ] E) (hR : IsSelfAdjoint R) (γ : ℝ) :
+    IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) := by
+  have h := BookProof.RitzCertificate.isSelfAdjoint_sub_const hR γ⁻¹
+  simpa [neg_sub] using h.neg
+
+/-- **A residual survives the reflection unchanged.**
+
+For a unit vector `x`, the `A'`-residual of `x` is at most `‖X_γ x − c x‖` for
+*any* real `c` — the same bound `resid_le_norm_sub_smul` gives for `X_γ` itself.
+The reason is that `A' x − (γ⁻¹ − c) x = −(X_γ x − c x)`, so reflecting only
+moves the scalar: nothing is lost, and the SIRK operator-norm error becomes a
+Temple residual on the operator Temple is actually run on. -/
+theorem resid_reflection_le (R : E →L[ℂ] E) (hR : IsSelfAdjoint R) {γ : ℝ} {x : E}
+    (hx : ‖x‖ = 1) (c : ℝ) :
+    BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) x
+      ≤ ‖R x - (c : ℂ) • x‖ := by
+  have hvec : ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) x - ((γ⁻¹ - c : ℝ) : ℂ) • x
+      = -(R x - (c : ℂ) • x) := by
+    have hone : ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E)) x = (((γ⁻¹ : ℝ) : ℂ)) • x := by
+      rw [ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply]
+      simpa using (IsScalarTower.smul_assoc (γ⁻¹ : ℝ) (1 : ℂ) x).symm
+    have hsub : ((γ⁻¹ - c : ℝ) : ℂ) • x = ((γ⁻¹ : ℝ) : ℂ) • x - (c : ℂ) • x := by
+      rw [Complex.ofReal_sub, sub_smul]
+    rw [ContinuousLinearMap.sub_apply, hone, hsub, sub_sub_sub_cancel_left, neg_sub]
+  refine le_trans
+    (BookProof.ChapterSirkEndToEnd.resid_le_norm_sub_smul
+      (isSelfAdjoint_reflection R hR γ) hx (γ⁻¹ - c)) (le_of_eq ?_)
+  rw [hvec, norm_neg]
+/-- **The SIRK operator-norm error is a residual for `A' = γ⁻¹ 1 − X_γ`.**  Run
+`sirk_ritz_resid_le`'s two steps (the reduced eigenpair fixes a multiple of
+`V y`, and the operator-norm bound controls the difference) with the reflection
+in place of `X`: the constant is unchanged, `sirkBound C Dmin h 1 m`. -/
+theorem sirk_resid_reflection_le (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) (R : E →L[ℂ] E)
+    (hR : IsSelfAdjoint R) (γ : ℝ) (C Dmin h : ℝ) (m : ℕ) (mu : ℝ) (y : F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heig : psiB y = (mu : ℂ) • y) (hy : ‖V y‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m) :
+    BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V y)
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m := by
+  have hAy : BookProof.ChapterSirkEndToEnd.sirkApprox V psiB (V y) = (mu : ℂ) • (V y) := by
+    have h1 : V.adjoint (V y) = y := by
+      have h := congrArg (fun f : F →L[ℂ] F => f y) hVV
+      simpa using h
+    rw [BookProof.ChapterSirkEndToEnd.sirkApprox_apply, h1, heig, map_smul]
+  have hstep : ‖R (V y) - (mu : ℂ) • (V y)‖ ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m := by
+    have h := ContinuousLinearMap.le_opNorm
+      (R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB) (V y)
+    rw [hy, mul_one] at h
+    refine le_trans ?_ (le_trans h hbound)
+    rw [ContinuousLinearMap.sub_apply, hAy]
+  exact le_trans (resid_reflection_le R hR hy mu) hstep
+
+/-- **The certified edge on the reflected operator (`sirk_reflected_gap_certificate`).**
+
+This is the single statement the S3 route needs, and it composes the three
+pieces proved in this development:
+
+* `resolvent_reflection_eigenvector` — the bottom eigenvector `y` of `A` is an
+  eigenvector of `A'` with the reflected edge `λ' = e/(γ(e+γ))`, so `A'` is the
+  operator Temple can be run on;
+* `sirk_resid_reflection_le` — the SIRK operator-norm error at order `m` is a
+  *residual* for `A'` at the reconstructed vector `V y`, with the same constant;
+* `temple_lower_bound` on `A'` and `gap_transfer` — the Temple band
+  `[θ − ε²/(β − θ), θ]` sits above `λ'`, and the edge transfers back with the
+  factor `γ²`: `γ² λ' ≤ e`.
+
+The spectral separation `hsep` is the one input a two-sided enclosure cannot
+avoid; it is stated for `A'`, whose bottom edge is `λ'`. -/
+theorem sirk_reflected_gap_certificate
+    {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    {y : E} (hy : y ∈ Dom) {e : ℝ} (he : 0 ≤ e)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) {yy : F} (mu C Dmin h : ℝ) (m : ℕ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heigB : psiB yy = (mu : ℂ) • yy) (hyy : ‖V yy‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
+    {b : ℝ}
+    (hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e) b)
+    (hlt : BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < b) :
+    ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e : ℂ) • y ∧
+      BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)
+        ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m ∧
+      BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) -
+          BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) ^ 2 /
+            (b - BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy))
+        ≤ resolventEdge γ e ∧
+      γ ^ 2 * resolventEdge γ e ≤ e := by
+  have hsym : IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) :=
+    isSelfAdjoint_reflection R hRsym γ
+  refine ⟨resolvent_reflection_eigenvector hR hγ hy he heig, ?_, ?_, ?_⟩
+  · exact sirk_resid_reflection_le V psiB R hRsym γ C Dmin h m mu yy hVV heigB hyy hbound
+  · exact BookProof.RitzCertificate.temple_lower_bound hsym hsep hyy hlt
+  · have h := gap_transfer (γ := γ) (e₀ := 0) (e₁ := e) hγ (le_refl 0) he
+    simpa using h
+
+end Reflected
+
 end BookProof.ChapterResolventTransfer
+
+end

@@ -322,7 +322,9 @@ automatically a Temple eigenvector residual or a certificate excluding unseen sp
 The rate itself is now a theorem rather than a target — see the 2026-11-13i section — and the two
 things that section names as missing are proved in the 2026-11-13j one: the residual seam
 `sirk_ritz_resid_le` and the reflection `A' = \gamma^{-1} - X_\gamma` with its gap transfer
-`gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`.
+`gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`. The
+2026-11-13k section closes the composition — the SIRK bound becomes a residual *of* `A'` and
+Temple runs there (`sirk_reflected_gap_certificate`).
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -386,8 +388,10 @@ Source paths below are relative to `BookProof/`.
 * `Sirk/ChapterResolventTransfer.lean`: U, the two transfers from the shift-invert to `h_F` —
   the eigenvector reflection (`resolvent_reflection_eigenvector`: `A' = γ⁻¹ 1 − X_γ` has the
   eigenvalue `resolventEdge γ e = e/(γ(e+γ))`, strictly increasing on `[0, ∞)`), the inversion
-  `resolventEdge_inv`, and the gap transfer `gap_transfer`: `g ≥ γ² g_X`; C, that `γ` is a
-  *real* shift and that the separation `s_X` is a property of the selected operator (S2).
+  `resolventEdge_inv`, and the gap transfer `gap_transfer`: `g ≥ γ² g_X`; the assembly
+  `sirk_reflected_gap_certificate` (SIRK bound → `resid` of `A'` → Temple on `A'` → `γ² λ' ≤ e`);
+  C, that `γ` is a *real* shift and that the separation `s_X` is a property of the selected
+  operator (S2).
 * `Sirk/ChapterSirkTruncation.lean`: U, a rank-truncated Gram costs `‖r_X‖·δ`, with `δ` the
   discarded part of the seed (`sirk_end_to_end_truncated`); C, the tolerance → `δ` link.
 * `Sirk/ChapterSirkRestart.lean`: U, `n` restarts cost `n·sirkBound`; N, that is linear in the
@@ -1829,12 +1833,56 @@ analytic estimate.
 `ChapterHashimotoComplexShifts` and is not used here); `s_X` remains the S2 input, and the
 gap transfer does not create separation, only rescales it. The eigenpair `(μ, y)` of `ψ(B)` is
 an *input*: nothing here says a Galerkin eigendecomposition produced one, nor that `y` is
-well-conditioned. Self-adjointness of `A'` is not proved in the transfer module — it is
-available from `ChapterHashimotoShiftInvert.IsShiftInvert.isSelfAdjoint` for the resolvent and
-is not needed for the eigenvector statement. As always, this certifies the selected/truncated
-operator and claims no mass gap.
+well-conditioned. Self-adjointness of `A'` is `isSelfAdjoint_reflection`, from the
+self-adjointness of the resolvent that `ChapterHashimotoShiftInvert.IsShiftInvert.isSelfAdjoint`
+supplies; the eigenvector statement alone does not need it. As always, this certifies the
+selected/truncated operator and claims no mass gap.
 
-## Historical phases and implementation notes (2026-10-30 to 2026-11-04)
+### The certificate now runs on the reflected operator (2026-11-13k)
+
+Entry `13k`. The two halves of `13j` met at a gap: `sirk_ritz_resid_le` produced a residual for
+`X`, while the operator Temple has to be run on is `A' = γ⁻¹ 1 − X_γ`. Closing it needs no new
+analysis — only the observation that reflection moves the scalar and nothing else.
+
+**`resid_reflection_le`.** For a self-adjoint `R`, a unit `x` and **any** real `c`,
+
+`resid (γ⁻¹ 1 − R) x ≤ ‖R x − c x‖`,
+
+because `A' x − (γ⁻¹ − c) x = −(R x − c x)`: reflecting sends `c` to `γ⁻¹ − c` and flips the sign,
+and the inequality is `resid_le_norm_sub_smul` applied to `A'`.
+
+**`sirk_resid_reflection_le`.** Substituting the SIRK data — `V` isometric, `psiB y = μ y`,
+`‖V y‖ = 1`, and the operator-norm bound — gives
+
+`resid (γ⁻¹ 1 − R) (V y) ≤ sirkBound C Dmin h 1 m`
+
+with the *same* constant as `sirk_ritz_resid_le`: the reflection costs nothing.
+
+**`sirk_reflected_gap_certificate`.** The composition, as a single theorem. From `A y = e y`
+with `0 ≤ e` and `y ∈ Dom`, `IsShiftInvert A γ R`, self-adjoint `R`, the SIRK operator-norm
+bound, the spectral separation of `A'` at `λ' = resolventEdge γ e`, and `θ < b`:
+
+* `A' y = λ' y` — the reflected edge is an eigenvalue (`resolvent_reflection_eigenvector`);
+* `resid A' (V y) ≤ sirkBound C Dmin h 1 m` — the order-`m` error *is* the residual;
+* `θ − resid A' (V y)²/(b − θ) ≤ λ'` — Temple on `A'`, the lower end of the certified band;
+* `γ² λ' ≤ e` — the same edge, read back on `A`.
+
+So the order-`m` data certifies a band around the bottom of `A'`, and the transfer turns that into
+a statement about `A` for the price `γ²`. Nothing in the chain is a new estimate: it is
+`resid_le_norm_sub_smul`, `temple_lower_bound` and `gap_transfer` composed.
+
+**Boundary.** `hsep` — `SpectralSeparation A' λ' b` — is the one input a two-sided enclosure
+cannot avoid, and it is *stated*, not derived; `γ` is a real positive shift; the reduced eigenpair
+`(μ, y)` remains an input. Self-adjointness of `A'` is now `isSelfAdjoint_reflection`, from the
+self-adjointness of `R` that `IsShiftInvert.isSelfAdjoint` supplies. As before, this certifies the
+selected/truncated operator and claims no mass gap.
+
+**Verification.** `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds;
+`#print axioms` on `isSelfAdjoint_reflection`, `resid_reflection_le`,
+`sirk_resid_reflection_le` and `sirk_reflected_gap_certificate` gives
+`[propext, Classical.choice, Quot.sound]`; no line of the module exceeds 100 code points.
+
+ . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
 “unconditional”, “form of record” and “certified gap” below describe the cited model's
