@@ -23326,3 +23326,31 @@ oscillator packet, so the two halves of the argument sit next to each other.
 
 **Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa` → 8077 jobs, no error,
 no warning naming the module, no line over 100 characters.
+
+## State of the project — 2026-11-12v: the three weighted gates are additive
+
+The composition law needed to assemble the physical `ymFockCol = ½Σπ² + ½ΣB²` from its coordinate
+summands is in place.  In `BookProof/Toolbox/ChapterFockWeightedSchurEsa.lean`:
+
+* `WRowBound.add` — `WRowBound w (col₁ + col₂) (K₁ + K₂)` from the two summands' gates;
+* `WColBound.add` and `WCommBound.add` — the same, for a positive symbol (`hw : ∀ k, 0 < w k`),
+  bounds adding in both cases;
+* `sum_le_of_row_split` — the padding step they share: a sum over any finite set of terms that
+  vanish outside a row is at most that row's sum, because the terms outside the row's support are
+  `0` (via `Finset.sum_subset` to the intersection and monotonicity of a nonnegative sum in the
+  index set).
+
+So a finite sum of matrices satisfying the gates satisfies them with the summed bounds, which is
+exactly the shape a proof for `H₁` needs: prove the gates once per coordinate direction (99 of them,
+each a one-coordinate oscillator `½π_i² + ½(Σ_a B_{ia})²`) and add.
+
+**Note on what was discarded.**  A first attempt bounded the union sum from above by the individual
+row sums, which is the wrong direction — a union's sum dominates each part.  The working proof
+instead bounds the *combined* support's sum termwise by `‖c₁‖ + ‖c₂‖` and then pads each part back to
+its own row.  Two `Finsupp` details cost iterations: `Finset.sum_subset` states
+`∑_{s₁} = ∑_{s₂}` for `s₁ ⊆ s₂` (so the split must be oriented `S ∩ T` first, then rewritten), and
+there is no `Finsupp.not_mem_support_iff` projection to use — `Finsupp.mem_support_iff` with
+`not_not` is the available route.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa` → 8077 jobs, no error,
+no warning naming the module, no line over 100 characters.
