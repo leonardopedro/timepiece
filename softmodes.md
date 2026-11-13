@@ -978,7 +978,10 @@ stronger than a dimension count: the
 `ε`-contraction `glueballAltEquiv` is a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and
 `glueballAltMap_intertwines` shows it carries the total action to `adjRep`, as
 `mesonSymmMap_intertwines` does for the Pauli-coordinate map of the meson symmetric part — so
-`mesonSymm_glueball_iso` states that the two `3`s are one `su(2)`-module.  No Clebsch–Gordan
+`mesonSymm_glueball_iso` states that the two `3`s are one `su(2)`-module, and `mesonAltEquiv`
+makes that an isomorphism of representations: a linear equivalence `mesonSymm ≃ₗ glueballAlt` that
+commutes with all three total actions (`mesonAltEquiv_intertwines`) and carries the weights
+`1, 0, -1` to weight vectors of the same weights (`mesonAltEquiv_weightVec`).  No Clebsch–Gordan
 expansion is used anywhere: the summands come from the slot swap and the trace functional.  **Representation:** the total
 action `pairRep` obeys `[A^a, A^b] = i ε^{abc}A^c` (`pairRep_commutator`).  The proof runs on the
 product basis `pairRepProd` (`T^a ⊗ 1 + 1 ⊗ T^a` as a Kronecker sum), where `pairRepProd_mul`

@@ -7,7 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13e):** “State of the project — 2026-11-13e: the meson square's `3 ⊕ 1`
+> **Newest entry (2026-11-13f):** “State of the project — 2026-11-13f: the two `3`s are
+> isomorphic as `su(2)`-modules” (end of file): the meson triplet and the gluon adjoint triplet are
+> now related by a bundled linear equivalence `mesonAltEquiv : mesonSymm ≃ₗ glueballAlt`, proved to
+> commute with all three total actions (`mesonAltEquiv_intertwines`) and to carry the weights
+> `1, 0, -1` to weight vectors of the same weights (`mesonAltEquiv_weightVec`).
+>
+> **Earlier entry (2026-11-13e):** “State of the project — 2026-11-13e: the meson square's `3 ⊕ 1`
 > carries the same statements” (end of file): the meson square now has both packets —
 > `mesonSymm_irreducible` (weights `1, 0, -1`, projectors, basis and the ladders `A¹ ∓ i A⁰` on the
 > meson fibre), `mesonAlt_irreducible` (a line, so by dimension), and the existence and uniqueness of
@@ -23561,3 +23567,38 @@ gives `[propext, Classical.choice, Quot.sound]`; the new block has no line over 
 **Boundary.**  Both squares are now split into irreducibles and both splits are unique; nothing here
 identifies the meson triplet with the glueball antisymmetric part beyond the intertwiner already in
 the corpus, and no norm, closedness or dynamics is claimed.
+
+## State of the project — 2026-11-13f: the two `3`s are isomorphic as `su(2)`-modules
+
+`13e` closed the meson square's `3 ⊕ 1`, and the corpus already had `mesonSymm_glueball_iso`: the
+`ε`-contraction of the Pauli coordinates commutes with the total action.  That statement is about the
+*image* of a coordinate map, and it is true of any transport along a map intertwining with `adjRep`;
+on its own it does not say the meson triplet and the gluon adjoint triplet are one module, only that
+a certain transport is equivariant.  `13f` adds the missing half.
+
+**The equivalence.**  `mesonSymmMap` reads a symmetric meson tensor as the triple
+`((S₁₁ − S₀₀)/2, −i(S₀₀ + S₁₁)/2, S₀₁)`; `mesonSymmMapInv` inverts it,
+`mesonSymmMapInv w = (i w₁ − w₀, w₂, w₂, i w₁ + w₀)`, whose middle two coordinates are equal by
+construction, so the inverse lands in `mesonSymm` (`mesonSymmMapInv_mem`).  Both round trips are
+coordinate checks — `mesonSymmMap_comp_inv`, and `mesonSymmMapInv_comp`, which uses the symmetry
+`v₁ = v₂` — so `mesonSymmMap` is injective and surjective on the summand (`mesonSymmMap_injective`,
+`mesonSymmMap_surjective`) and `mesonSymmEquivℂ` is a linear equivalence `mesonSymm ≃ₗ ℂ³`.
+Composing with `glueballAltEquiv.symm`, whose underlying map is `glueballAltInv`
+(`glueballAltEquiv_symm_coe`), gives `mesonAltEquiv : mesonSymm ≃ₗ glueballAlt`.
+
+**What makes it a module isomorphism.**  `mesonAltEquiv_intertwines` is
+`mesonAltEquiv (Aᵃ v) = Aᵃ (mesonAltEquiv v)` for each of the three generators `a` — a map of
+representations, not a dimension match.  `mesonAltEquiv_weightVec` carries the meson weight vectors
+to weight vectors of the same weights `1, 0, -1` of the third total action on `Λ² ℂ³`, and
+`mesonAltEquiv_weightVec_ne_zero` shows those images are nonzero, so both sides realize the same
+three weights and the equivalence does not collapse them.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 0 errors, no
+warning naming the module; `#print axioms` on `mesonAltEquiv`, `mesonSymmEquivℂ`,
+`mesonAltEquiv_intertwines` and `mesonAltEquiv_weightVec` gives
+`[propext, Classical.choice, Quot.sound]`; no new line over 100 code points.
+
+**Boundary.**  This is an isomorphism of the two summands as `su(2)`-modules.  It transports no
+Casimir — the two summands sit in different ambient squares, so there is nothing to transport — and
+it says nothing about norms, closedness or dynamics, nor about how many copies of the `3` a larger
+colour tensor product carries.

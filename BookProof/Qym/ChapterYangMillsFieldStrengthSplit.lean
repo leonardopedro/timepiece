@@ -1518,9 +1518,13 @@ above.  This section states that identification and proves what it yields.
   (`glueballAct_mem_alt`, `glueballAct_mem_symm`, and `glueballAct_mem_traceless` for the last,
   through `glueballTrace_act_eq_zero`: the trace functional kills the action's whole image);
 * **`glueballAltEquiv`**, **`glueballAltMap_intertwines`**, **`mesonSymmMap_intertwines`**,
-  **`mesonSymm_glueball_iso`** — the two `3`s are the *same* `su(2)`-module: the `ε`-contraction is
-  a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and the Pauli-coordinate map does the same for
-  the meson symmetric part, both intertwining with `adjRep`;
+  **`mesonSymm_glueball_iso`**, **`mesonAltEquiv`** — the two `3`s are the *same* `su(2)`-module,
+  not merely of the same dimension: the `ε`-contraction is a linear isomorphism of `Λ²` onto the
+  adjoint `ℂ³` and the Pauli-coordinate map does the same for the meson symmetric part, both
+  intertwining with `adjRep`; `mesonAltEquiv` bundles them into one linear equivalence of the two
+  summands, `mesonAltEquiv_intertwines` is its compatibility with all three generators, and
+  `mesonAltEquiv_weightVec` carries the meson weights `1, 0, -1` to weight vectors of the same
+  weights (nonzero by `mesonAltEquiv_weightVec_ne_zero`);
 * **`glueballCasimirMat`**, **`glueballCasimir_apply`**, **`glueballCasimir_alt`**,
   **`glueballCasimir_singletVec`**, **`glueballCasimir_traceless`**, **`mesonCasimirMat`**,
   **`mesonCasimir_symm`**, **`mesonCasimir_alt`** — the **Casimir eigenvalues** of the two squares,
@@ -3804,10 +3808,14 @@ of `mesonWeightVec_eigen`, the projectors `mesonWeightProjection` and the ladder
 `meson_decompose_unique`).  The trace line is annihilated outright, not
 merely killed by the Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`,
 which is what "singlet of the Lie algebra" means here, and the eigenvalue `0` follows from it.  The
-two `3`s are the same `su(2)`-module: `glueballAltEquiv` is the `ε`-contraction,
-`glueballAltMap_intertwines` and `mesonSymmMap_intertwines` match each summand with the adjoint
-action, and `mesonSymm_glueball_iso` is the transported statement.  Also not claimed: norms or
-closedness of these actions.  The singlet and flip proofs are coordinate checks —
+two `3`s are the same `su(2)`-module, and not merely of the same dimension:
+`glueballAltEquiv` is the `ε`-contraction, `glueballAltMap_intertwines` and
+`mesonSymmMap_intertwines` match each summand with the adjoint action, `mesonSymm_glueball_iso` is
+the transported statement, and `mesonAltEquiv` bundles the two coordinate maps into one linear
+equivalence `mesonSymm ≃ₗ Λ² ℂ³` that `mesonAltEquiv_intertwines` shows commutes with all three
+generators and `mesonAltEquiv_weightVec` shows carries the meson weights `1, 0, -1` to weight
+vectors of the same weights, nonzero by `mesonAltEquiv_weightVec_ne_zero`.  Also not
+claimed: norms or closedness of these actions.  The singlet and flip proofs are coordinate checks —
 `glueballRep_zero_mulVec` and its siblings give the three total actions of the glueball fibre in
 closed form — not a Clebsch–Gordan expansion.
 -/
@@ -7892,6 +7900,139 @@ theorem mesonCasimir_symmetric_alt {v w : colourVec 4}
     inner ℂ (mesonCasimir v) w = inner ℂ v (mesonCasimir w) := by
   rw [mesonCasimir_alt hv, mesonCasimir_alt hw]
   simp
+
+/-! ##### The two `3`s are the same `su(2)`-module
+
+`mesonSymm_glueball_iso` says that the `ε`-contraction of the Pauli coordinates commutes with the
+total action.  Commuting with a transport along a map is weaker than saying the two summands *are*
+one module, which is the claim "same representation, not merely same dimension": it needs a linear
+equivalence between the two summands, compatibility with all three generators, and the weights
+carried over.  All three are below.
+
+The equivalence is `mesonAltEquiv`, built from the Pauli-coordinate map (`mesonSymmMap`, a linear
+equivalence onto the adjoint coordinates once `mesonSymmMapInv` inverts it) and the `ε`-contraction
+`glueballAltEquiv`.  `mesonAltEquiv_intertwines` is the module-map property, and
+`mesonAltEquiv_weightVec` shows the meson weight vectors go to weight vectors of the *same* weights,
+which no dimension count can supply.
+-/
+
+/-- The inverse of the Pauli-coordinate map: the symmetric meson tensor whose triple is `w`. -/
+def mesonSymmMapInv (w : Fin 3 → ℂ) : colourVec 4 :=
+  WithLp.toLp 2 ![Complex.I * w 1 - w 0, w 2, w 2, Complex.I * w 1 + w 0]
+
+/-- The Pauli coordinates of a symmetric meson tensor invert back to a symmetric tensor. -/
+theorem mesonSymmMapInv_mem (w : Fin 3 → ℂ) : mesonSymmMapInv w ∈ mesonSymm := by
+  intro i
+  fin_cases i <;> simp [mesonSymmMapInv, mesonFlipIdx]
+
+/-- The Pauli-coordinate map is a left inverse of `mesonSymmMapInv`. -/
+theorem mesonSymmMap_comp_inv (w : Fin 3 → ℂ) : mesonSymmMap (mesonSymmMapInv w) = w := by
+  funext d
+  fin_cases d
+  · simp [mesonSymmMap, mesonSymmMapInv]
+  · simp [mesonSymmMap, mesonSymmMapInv]
+    ring_nf
+    simp only [Complex.I_sq]
+    ring
+  · simp [mesonSymmMap, mesonSymmMapInv]
+
+/-- The Pauli-coordinate map is a right inverse of `mesonSymmMapInv` on the symmetric part. -/
+theorem mesonSymmMapInv_comp {v : colourVec 4} (hv : v ∈ mesonSymm) :
+    mesonSymmMapInv (mesonSymmMap v) = v := by
+  apply WithLp.ofLp_injective
+  funext i
+  fin_cases i
+  · simp [mesonSymmMapInv, mesonSymmMap]
+    ring_nf
+    simp only [Complex.I_sq]
+    ring
+  · rfl
+  · simp only [mesonSymmMapInv, mesonSymmMap]
+    exact (hv 1).symm
+  · simp [mesonSymmMapInv, mesonSymmMap]
+    ring_nf
+    simp only [Complex.I_sq]
+    ring
+
+/-- The Pauli-coordinate map is injective on the meson triplet. -/
+theorem mesonSymmMap_injective : Function.Injective (mesonSymmMap.comp mesonSymm.subtype) := by
+  intro u w h
+  refine Subtype.ext ?_
+  have hu := mesonSymmMapInv_comp u.2
+  have hw := mesonSymmMapInv_comp w.2
+  rw [← hu, ← hw]
+  exact congrArg mesonSymmMapInv h
+
+/-- The Pauli-coordinate map is surjective onto the adjoint coordinates. -/
+theorem mesonSymmMap_surjective : Function.Surjective (mesonSymmMap.comp mesonSymm.subtype) :=
+  fun w => ⟨⟨mesonSymmMapInv w, mesonSymmMapInv_mem w⟩, mesonSymmMap_comp_inv w⟩
+
+/-- **The Pauli-coordinate map is a linear equivalence of the meson triplet with the adjoint
+coordinates.** -/
+noncomputable def mesonSymmEquivℂ : mesonSymm ≃ₗ[ℂ] (Fin 3 → ℂ) :=
+  LinearEquiv.ofBijective (mesonSymmMap.comp mesonSymm.subtype)
+    ⟨mesonSymmMap_injective, mesonSymmMap_surjective⟩
+
+/-- The `ε`-contraction on an element of `Λ²` is the `ε`-contraction of its coordinates. -/
+theorem glueballAltEquiv_apply_coe (x : glueballAlt) :
+    (glueballAltEquiv x : Fin 3 → ℂ) = glueballAltMap (x : colourVec 9) := rfl
+
+/-- **The inverse `ε`-contraction of `glueballAltEquiv` is `glueballAltInv`**, as a vector. -/
+theorem glueballAltEquiv_symm_coe (w : Fin 3 → ℂ) :
+    ((glueballAltEquiv.symm w : glueballAlt) : colourVec 9) = glueballAltInv w := by
+  have h : ((⟨glueballAltInv w, glueballAltInv_mem w⟩ : glueballAlt)) =
+      glueballAltEquiv.symm w := by
+    refine glueballAltEquiv.injective ?_
+    rw [LinearEquiv.apply_symm_apply]
+    exact glueballAltInv_map w
+  rw [← h]
+
+/-- **The meson triplet and the glueball antisymmetric `3` are linearly equivalent**: the
+`ε`-contraction of the Pauli coordinates is an isomorphism of the two summands. -/
+noncomputable def mesonAltEquiv : mesonSymm ≃ₗ[ℂ] glueballAlt :=
+  mesonSymmEquivℂ.trans glueballAltEquiv.symm
+
+/-- The equivalence in coordinates: a symmetric meson tensor is read off by `mesonSymmMap` and
+contracted to `Λ² ℂ³` by `glueballAltInv`. -/
+theorem mesonAltEquiv_apply (v : mesonSymm) :
+    ((mesonAltEquiv v : glueballAlt) : colourVec 9) =
+      glueballAltInv (mesonSymmMap (v : colourVec 4)) := by
+  simp [mesonAltEquiv, mesonSymmEquivℂ, glueballAltEquiv_symm_coe, LinearEquiv.trans_apply]
+
+/-- **`mesonAltEquiv` is an isomorphism of `su(2)`-modules**: it carries the total action on the
+meson triplet to the total action on `Λ² ℂ³`, for each of the three generators. -/
+theorem mesonAltEquiv_intertwines (a : Fin 3) (v : mesonSymm) :
+    ((mesonAltEquiv ⟨mesonAct a (v : colourVec 4), mesonAct_mem_symm a v.2⟩ : glueballAlt) :
+        colourVec 9) =
+      glueballAct a ((mesonAltEquiv v : glueballAlt) : colourVec 9) := by
+  rw [mesonAltEquiv_apply, mesonAltEquiv_apply]
+  exact mesonSymm_glueball_iso a v.2
+
+/-- **The isomorphism carries weight vectors to weight vectors of the same weight**: the image of
+`mesonWeightVec k` is a `mesonWeight k`-eigenvector of the third total action. -/
+theorem mesonAltEquiv_weightVec (k : Fin 3) :
+    ((mesonAltEquiv ⟨mesonAct 2 (mesonWeightVec k),
+        mesonAct_mem_symm 2 (mesonWeightVec_symm k)⟩ : glueballAlt) : colourVec 9) =
+      mesonWeight k • ((mesonAltEquiv ⟨mesonWeightVec k, mesonWeightVec_symm k⟩ :
+        glueballAlt) : colourVec 9) := by
+  have h : (⟨mesonAct 2 (mesonWeightVec k), mesonAct_mem_symm 2 (mesonWeightVec_symm k)⟩ :
+      mesonSymm) = mesonWeight k • ⟨mesonWeightVec k, mesonWeightVec_symm k⟩ :=
+    Subtype.ext (mesonWeightVec_eigen k)
+  rw [h, map_smul]
+  rfl
+
+/-- The image of a meson weight vector is nonzero, so the weights above are realized on both
+sides and not collapsed by the equivalence. -/
+theorem mesonAltEquiv_weightVec_ne_zero (k : Fin 3) :
+    ((mesonAltEquiv ⟨mesonWeightVec k, mesonWeightVec_symm k⟩ : glueballAlt) :
+      colourVec 9) ≠ 0 := by
+  intro h
+  have hz : (⟨mesonWeightVec k, mesonWeightVec_symm k⟩ : mesonSymm) = 0 := by
+    refine mesonAltEquiv.injective ?_
+    rw [map_zero]
+    exact Subtype.ext (by simpa using h)
+  have hc := congrArg (fun x : mesonSymm => (x : colourVec 4)) hz
+  exact mesonWeightVec_ne_zero k (by simpa using hc)
 
 end
 
