@@ -7,8 +7,8 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13k):** “State of the project — 2026-11-13k: the certificate runs on the
-> reflected operator” (end of file): `resid_reflection_le` carries the residual through
+> **Entry (2026-11-13m), SIRK track:** “State of the project — 2026-11-13m: the certificate runs
+> on the reflected operator” (end of file): `resid_reflection_le` carries the residual through
 > `A' = γ⁻¹ 1 − X_γ` untouched, so `sirk_resid_reflection_le` turns the SIRK operator-norm error
 > into a residual *of* `A'` with the same constant; `sirk_reflected_gap_certificate` composes it
 > with `temple_lower_bound` on `A'` and `gap_transfer`, `γ² λ' ≤ e`.  This is the join of the
@@ -23957,7 +23957,7 @@ produced: the transfers rescale a separation, they do not create one, so S2 rema
 and no mass gap is claimed.  `A'`'s self-adjointness is not reproved here (the resolvent's is
 `IsShiftInvert.isSelfAdjoint`, and the eigenvector statement does not need it).
 
-## State of the project — 2026-11-13k: the certificate runs on the reflected operator
+## State of the project — 2026-11-13m: the certificate runs on the reflected operator
 
 The 2026-11-13j entry left two halves that did not touch: `sirk_ritz_resid_le` produced a
 residual for `X`, and the transfer lemmas related the spectra of `A`, `X_γ = (A + γ)⁻¹` and
@@ -24001,13 +24001,31 @@ gap is claimed.
 
 **Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds (8069 jobs);
 `#print axioms` on the four new theorems gives `[propext, Classical.choice, Quot.sound]`; the
-module has no line over 100 code points and no lint warnings.  The full-book build is reported
-separately below, with its measurement.
+module has no line over 100 code points and no lint warnings.  The full-book build is measured
+below.
 
-**Documentation.**  `softmodes.md` gains a dated section (2026-11-13k), its S3 pointer is
+**Documentation.**  `softmodes.md` gains a dated section (2026-11-13m), its S3 pointer is
 forwarded to it, the `Sirk/ChapterResolventTransfer.lean` ledger row now lists the assembly, and
 the 13j boundary sentence about `A'`'s self-adjointness is corrected — it is proved after all,
 by `isSelfAdjoint_reflection`.
+
+**Full-book build — measured.**  `lake build BookProof` on this tree: `Build completed
+successfully (8984 jobs)`, exit 0, about 30 min wall clock.  The cost is one module, not the book:
+
+| module | lines | compile time |
+|---|---|---|
+| `RoadmapAudit/ChapterRoadmapAudit.lean` | 3325 | 1520 s |
+| `ReflectionPositivity/HaarReference.lean` | 432 | 3.2 s |
+| everything else | — | ≤ 4.1 s each (replayed from cache) |
+
+The job count is the one from this run; the parallel track has since added modules.  `HaarReference`
+was blamed wrongly: its `set_option maxHeartbeats 8000000` is real but cheap, and its linter
+warnings are replayed instantly from cache.  The module that owns the wall clock is
+`ChapterRoadmapAudit`: 261 imports (nearly the whole book), 2134 `#audit_axioms` commands and only
+two theorems — an audit ledger, not a proof.  It contains no `decide`, `native_decide` or
+`set_option`; the ~0.7 s per `#print axioms`, times 2134, is the whole budget.  So an apparent
+stall at `8962/8984` is that single module elaborating, and the fix, if wanted, is structural
+(split the ledger, or have `#audit_axioms` emit once per module) rather than tactical.
 
 ## State of the project — 2026-11-13i: the vanishing lemma, the projection lemma, the QYM gates
 

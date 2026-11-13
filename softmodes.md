@@ -323,7 +323,7 @@ The rate itself is now a theorem rather than a target — see the 2026-11-13i se
 things that section names as missing are proved in the 2026-11-13j one: the residual seam
 `sirk_ritz_resid_le` and the reflection `A' = \gamma^{-1} - X_\gamma` with its gap transfer
 `gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`. The
-2026-11-13k section closes the composition — the SIRK bound becomes a residual *of* `A'` and
+2026-11-13m section closes the composition — the SIRK bound becomes a residual *of* `A'` and
 Temple runs there (`sirk_reflected_gap_certificate`).
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
@@ -1838,9 +1838,9 @@ self-adjointness of the resolvent that `ChapterHashimotoShiftInvert.IsShiftInver
 supplies; the eigenvector statement alone does not need it. As always, this certifies the
 selected/truncated operator and claims no mass gap.
 
-### The certificate now runs on the reflected operator (2026-11-13k)
+### The certificate now runs on the reflected operator (2026-11-13m)
 
-Entry `13k`. The two halves of `13j` met at a gap: `sirk_ritz_resid_le` produced a residual for
+Entry `13m` (the parallel track holds `13i`–`13l` of its own, so this one is numbered past them). The two halves of `13j` met at a gap: `sirk_ritz_resid_le` produced a residual for
 `X`, while the operator Temple has to be run on is `A' = γ⁻¹ 1 − X_γ`. Closing it needs no new
 analysis — only the observation that reflection moves the scalar and nothing else.
 
