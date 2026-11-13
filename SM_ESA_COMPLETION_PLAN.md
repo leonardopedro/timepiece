@@ -3279,3 +3279,70 @@ notes); there are no errors and no `sorry` warnings.
 
 So the substitute check was sound, but "the root module elaborates" and "the whole book builds" are
 different statements, and the weaker one was labelled as the weaker one until it could be replaced.
+
+---
+
+## §56. Gradient domination for the NS potential itself (2026-11-13)
+
+### 56.1. The question, and a correction
+
+§54 (ix) answered the cross-model question for Navier–Stokes with "the NS modules are
+operator-level (`BookProof/Ns/*`), so the NS half is the proof template rather than a proved
+counterexample".  That sentence was wrong, and this section corrects it: the Lagrangian NS model
+already carries a potential of exactly the contested shape, and the question can be *answered* for
+it rather than templated.  The request was to "prove the coercive domination for the NS model's own
+potential shape"; what follows separates the part that is free in the model from the one input that
+is not, and proves that the input cannot be dropped.
+
+### 56.2. What the model already carries
+
+`BookProof/Ns/ChapterNsLagrangianDetFarisLavine` defines
+
+```
+lagEnergy S = 1 + ½ ∑_j v_j² + V_κ(ξ),      lagLyap S = lagEnergy S + ½ ∑_j ξ_j²,
+```
+
+with `V_κ = volPot S.kappa S.kvec` the degree-six incompressibility penalty
+(`volPot_eval_nonneg`; its zero set is incompressible by `det_eq_one_of_volPot_eq_zero`).  New
+module `BookProof/Ns/ChapterNsGradDomCoercive.lean` (namespace `BookProof.NsGradDomCoercive`):
+
+* `pderiv_vel_lagEnergy` — `∂_{v_j} E = v_j`; `pderiv_disp_lagLyap` — `∂_{ξ_j} W = ∂_{ξ_j} V_κ + ξ_j`.
+* `vel_grad_sum`, `lagEnergy_vel_gradDom` — the velocity block is *exactly* the kinetic energy,
+  `∑_j (∂_{v_j}E)² = ∑_j v_j² ≤ 2E`, i.e. a domination with `a = 2` and **no constant term**.
+* `disp_grad_sum` — the Lyapunov displacement quadratic contributes `2 · ½∑ ξ²` exactly.
+* `lagGradDom_of_volDom` — if the penalty obeys `VolDom A B`
+  (`∑_j (∂_{ξ_j}V_κ)² ≤ A V_κ² + B`) then the whole of `lagLyap` obeys the pointwise domination
+  with `a = 2A + 3`, `b = 2B + 3`; `volDom_phase` is the same statement in phase-space coordinates.
+
+The difference from QYM is the point: §55 had to *add* `∑_m X_m²` to `weylPotPoly` before §49's
+mechanism applied, while here the quadratic is part of the model.  So for NS the coercive input is
+already there and the open question is only the penalty's own estimate, named `VolDom`.
+
+### 56.3. The input cannot be dropped
+
+`not_gradDom_flatSextic` shows `VolDom` is not a consequence of `V_κ ≥ 0` and `deg V_κ = 6`: the
+flat sextic `(xyz)²` is non-negative of degree six (`ev3_flatSextic_nonneg`) and along
+`(t, 1/t, 1)` its potential is the constant `1` while `∑_j (∂_j)² = 4t² + 4/t² + 4`
+(`ev3_pderiv_zero`/`_one`/`_two`), so no `a, b` dominate it — the same curve as §48's flat quartic.
+Sixth-order flatness is no better than fourth-order flatness, and `lagGradDom_of_volDom` is a
+reduction, not a discharge.
+
+What this does **not** say: nothing about `V_κ`'s actual `A`, `B` (the penalty is not flat, and its
+conic structure `conjP_volPot` is where those constants would come from), and nothing about ESA of
+the Lagrangian generator `N_L`, which remains the explicit hypothesis of
+`lagKoopman_esa_of_comparison_esa` (`lagCan_esa` is unconditional, `N_L`'s ESA is not).
+
+### 56.4. Verification (2026-11-13)
+
+* `lake build BookProof.Ns.ChapterNsGradDomCoercive` — `Build completed successfully`, and no
+  warnings attributed to the module (the >100-character lints of the first draft were fixed).
+* `lake env lean Work/AuditNs.lean` — 10 declarations (`evP_X_re`, `pderiv_vel_lagEnergy`,
+  `pderiv_disp_lagLyap`, `vel_grad_sum`, `lagEnergy_vel_gradDom`, `disp_grad_sum`, `volDom_phase`,
+  `lagGradDom_of_volDom`, `not_gradDom_flatSextic`, `ev3_flatSextic_nonneg`), every one on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `scripts/check-sm-section-guards` — green with the §56 needles; the §56 co-occurrence pair
+  (`lagGradDom_of_volDom` → `not_gradDom_flatSextic`) is exercised negatively by `SM_PAIR_WINDOW=5`.
+* `lake build BookProof` to completion on the post-edit tree: **succeeded** (`8984 jobs`, 29m57s,
+  exit 0; §55.4's run of the same target reported `8982` jobs, the difference being the module added
+  here).  The log carries no errors and no `sorry`; its remaining messages are the pre-existing
+  linter advisories on modules this change did not touch.

@@ -4012,6 +4012,20 @@ import BookProof.Qg.ChapterQgAssembledTransfer
 import BookProof.Qg.ChapterQgFlatContinuumEsa
 import BookProof.Qg.ChapterQgAssembledFlatTransfer
 import BookProof.Ns.ChapterNsLagrangianComparisonEsa
+-- `ChapterNsGradDomCoercive` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §56): the Navier–Stokes half of
+-- §54/§55's question, and it answers *positively* where QYM's did not.  §54 (ix) called the NS
+-- half "the proof template rather than a proved counterexample"; that was wrong — the Lagrangian
+-- energy `lagEnergy = 1 + ½|v|² + V_κ` already carries the coercive quadratic, so
+-- `∂_{v_j} E = v_j` (`pderiv_vel_lagEnergy`) gives `∑ (∂_{v_j}E)² = ∑ v_j² ≤ 2E`
+-- (`lagEnergy_vel_gradDom`) with `b = 0`, and the Lyapunov displacement block contributes
+-- `2 · ½|ξ|²` exactly (`disp_grad_sum`).  The one remaining input is the volume penalty's own
+-- estimate `VolDom A B` on `V_κ`, and `lagGradDom_of_volDom` reduces the whole potential to it with
+-- `a = 2A + 3`, `b = 2B + 3`.  That input is not automatic: `not_gradDom_flatSextic` refutes `(xyz)²`
+-- — non-negative of degree six — on the same `(t, 1/t, 1)` curve as §48's flat quartic, so
+-- sixth-order flatness buys nothing over fourth-order flatness.  Nothing here certifies ESA of the
+-- Lagrangian generator `N_L`, still the explicit hypothesis of
+-- `lagKoopman_esa_of_comparison_esa`.
+import BookProof.Ns.ChapterNsGradDomCoercive
 -- 2026-10-30 (`softmodes.md` Phase 3, milestone 3): the solvable gapped reference operator.
 -- `refEnergy` ports physlib's `eigenEnergy` (`∑ i, ωᵢ (nᵢ + ½)`, `ℏ = 1`, general `ω`) with
 -- its strict monotonicity; `refGap = min_k ω_k`; `href_spectral_gap` is the form inequality

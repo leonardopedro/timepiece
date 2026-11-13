@@ -55,6 +55,13 @@
 #      §55's width of each other, `not_gradDom_weylFlat` first.  Failing to find
 #      either side, or finding them far apart, fails — the two ways of silently
 #      turning a sharp obstruction into a general one.
+#   9. §56 (NS: reduction + sextic) — the NS Lagrangian potential's domination is
+#      *reduced* to the volume penalty's own estimate (`lagGradDom_of_volDom`, with
+#      `VolDom` named), and the penalty's input is proved not to be free
+#      (`not_gradDom_flatSextic`, the non-negative degree-six polynomial that no
+#      `a, b` dominate).  Dropping the sextic turns `VolDom` into bookkeeping;
+#      dropping the reduction loses the model's free coercive blocks.  Same
+#      co-occurrence discipline as item 8, over §56.
 #
 # The gate is deliberately textual: it cannot certify mathematics, only that a
 # later change did not *remove* the half of a pair that carries the caveat.
@@ -236,6 +243,31 @@ pair_require "$PLAN" 'not_gradDom_weylFlat' 'gradDom_weylCoercive_flat' "$PAIR_W
     "§54/§55: the QYM obstruction and the coercive converse must be documented together"
 require "$PLAN" 'weylCoercive_eq_wsSum' \
     "§55: the converse rests on the identification with the assembled wsSum, not on recomputation"
+
+# ---- 9. §56: the NS reduction and the sextic that keeps it honest --------------
+# §56 replaces §54 (ix)'s "the NS half is a template" with a proved model statement, and the
+# statement is only worth anything as a pair: `lagGradDom_of_volDom` reduces the domination to the
+# penalty's `VolDom`, and `not_gradDom_flatSextic` shows that input cannot be replaced by
+# non-negativity plus degree.  Keeping the reduction but dropping the sextic reads `VolDom` as
+# forgotten bookkeeping instead of an open question; keeping the sextic but dropping the reduction
+# loses that the model's coercive blocks are *free*.  Both live in one module and one plan section.
+NSDOM=BookProof/Ns/ChapterNsGradDomCoercive.lean
+require "$NSDOM" "theorem lagEnergy_vel_gradDom" \
+    "§56: the velocity block is dominated for free (b = 0) — the part QYM needed added"
+require "$NSDOM" "theorem lagGradDom_of_volDom" \
+    "§56: the reduction of the whole potential to the penalty's own estimate"
+require "$NSDOM" "def VolDom" \
+    "§56: the remaining input is a named object, not prose"
+require "$NSDOM" "theorem not_gradDom_flatSextic" \
+    "§56: non-negative degree six is NOT enough (the sextic counterexample)"
+pair_require "$PLAN" 'lagGradDom_of_volDom' 'not_gradDom_flatSextic' "$PAIR_WINDOW" \
+    "§56: the reduction and the sextic counterexample must stay documented together"
+require "$PLAN" 'VolDom' \
+    "§56: the plan must keep naming the one open input"
+require "$BOOKPLAN" 'not_gradDom_flatSextic' \
+    "§56 comment block must keep the sextic counterexample"
+require "$BOOKPLAN" 'lagGradDom_of_volDom' \
+    "§56 comment block must keep the reduction"
 
 if [ "$FAILED" -ne 0 ]; then
     echo
