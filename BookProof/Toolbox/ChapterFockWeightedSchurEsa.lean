@@ -264,7 +264,9 @@ def numberCol : ℕ → (ℕ →₀ ℂ) := fun k => Finsupp.single k (k : ℂ)
 
 /-- **The unweighted row gate is false for the number operator.**  So the collapse of the three
 Schur gates at `w ≡ 1` reduces the obligation to an estimate that no operator with unbounded
-diagonal can satisfy. -/
+diagonal can satisfy.  What survives is the weighted form, and it is not vacuous: the tridiagonal
+oscillator matrix `oscCol` with the growing symbol `oscW k = √(k+1)` satisfies all three gates
+(`wRow_oscCol`, `wCol_oscCol`, `wComm_oscCol`), giving `osc_essentiallySelfAdjointOn_core`. -/
 theorem not_wRowBound_one_numberCol : ¬ ∃ K : ℝ, WRowBound (fun _ => 1) numberCol K :=
   not_wRowBound_one_of_diag_unbounded (col := numberCol) (d := fun k => (k : ℝ))
     (fun k => by

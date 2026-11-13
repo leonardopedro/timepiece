@@ -23219,3 +23219,22 @@ Consequences, stated so they are not lost again:
 **Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa
 BookProof.ChapterQymTimeIndependentFlow` → 8140 jobs, no error, no warning naming either module, no
 line over 100 characters (the two long docstring lines found on the first pass were re-wrapped).
+
+## State of the project — 2026-11-12u: cross-reference — the weighted model instance already exists
+
+While looking for the symbol that matches the diagonal growth, §2026-11-12t's follow-through turned
+up that `BookProof/Toolbox/ChapterFockWeightedSchurEsa.lean` **already carries the weighted model
+instance**: the tridiagonal oscillator matrix `oscCol` with the growing symbol `oscW k = √(k+1)`
+satisfies all three gates (`wRow_oscCol`, `wCol_oscCol`, `wComm_oscCol`), yields
+`osc_essentiallySelfAdjointOn_core`, `osc_stone_flow`, and `oscCol_not_schurBound` (no unweighted
+Schur bound at all).  So the weighted criterion is non-vacuous on a genuinely unbounded matrix, and
+the falsity result of §2026-11-12t is sharp rather than a dead end: the same operator family is
+handled by `oscW` and cannot be handled by `w ≡ 1`.
+
+I did not add a second, diagonal-only model to make the same point — a duplicate instance would have
+competed with `oscCol`, which has the structure the physical `H₁` actually has (nearest-neighbour
+coupling, not diagonal).  Instead the docstring of `not_wRowBound_one_numberCol` now points at the
+oscillator packet, so the two halves of the argument sit next to each other.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa` → 8077 jobs, no error,
+no warning naming the module, no line over 100 characters.
