@@ -23187,3 +23187,35 @@ unbounded spectrum in the tree: `σ(T)` is now a closed subset of `ℂ`, not mer
 
 **Verification.**  `lake build BookProof.Toolbox.ChapterUnboundedSpectrum` → 8030 jobs, no error and
 no warning naming the module; no line over 100 characters.
+
+## State of the project — 2026-11-12t: correction — the unweighted row gate is false, not merely open
+
+§2026-11-12r ended by calling the ℓ¹ row estimate "the minimal missing input" for the physical
+`ymFockCol`.  That was wrong about the physical matrix, and the error is now a theorem:
+
+* `not_wRowBound_one_of_diag_unbounded` (`BookProof/Toolbox/ChapterFockWeightedSchurEsa.lean`) —
+  if the diagonal of the matrix dominates an unbounded sequence `d`, then
+  `WRowBound (fun _ => 1) col K` fails for *every* `K`: row `k` already contains the entry
+  `(col k) k`, so its sum is at least `d k`.
+* `not_wRowBound_one_numberCol` — the witness: the number operator `N_kj = δ_kj · k`, whose
+  diagonal is exactly the Heisenberg growth the physical `H₁ = ½Σπ² + ½ΣB²` shows in the product
+  Hermite basis (each of the 99 coordinates contributes `2k_i + 1`).  So
+  `¬ ∃ K, WRowBound 1 numberCol K`.
+
+Consequences, stated so they are not lost again:
+
+1. `ymFockCol_essentiallySelfAdjointOn_core_of_rowBound` is a genuine reduction of the *hypothesis
+   count* (three gates → one), but it is **not** a route to the physical generator: its hypothesis
+   is false for any matrix with unbounded diagonal, so instantiating it at `ymFockCol` is not
+   possible in principle, not merely unproved.  Its docstring now says this.
+2. The weighted form is therefore the only live form of the criterion.  Since the row gate reads
+   `∑_j |A_kj| ≤ K w_k` while the column gate divides by `w_k`, a symbol growing like the diagonal
+   (e.g. `w_k ≈ 1 + |k|`) is what makes both satisfiable at once — that is the shape any real proof
+   for `ymFockCol` must take.
+3. The earlier claim in §2026-11-12r that "a weight can only help through the commutator gate" is
+   withdrawn: the weight enters the row gate through its right-hand side, which is exactly where the
+   growth has to be absorbed.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa
+BookProof.ChapterQymTimeIndependentFlow` → 8140 jobs, no error, no warning naming either module, no
+line over 100 characters (the two long docstring lines found on the first pass were re-wrapped).

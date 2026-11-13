@@ -182,7 +182,11 @@ is free (`wCommBound_one`), so the three symbol gates of
 
   `∀ k, ∑_{j} |(ymFockCol e fabc k) j| ≤ K`.
 
-That is the minimal form of what is still missing for the physical matrix. -/
+**Boundary.**  This is the minimal *sufficient* form, but it is not a form the physical matrix can
+meet: the Hermite diagonal of `H₁ = ½Σπ² + ½ΣB²` grows like `|k|`, and
+`not_wRowBound_one_of_diag_unbounded` shows that an unbounded diagonal defeats the unweighted row
+gate for every `K`.  So this theorem reduces the hypothesis count, it is not a route to the physical
+case; there a *growing* symbol is needed, which is why the weighted gates exist. -/
 theorem ymFockCol_essentiallySelfAdjointOn_core_of_rowBound {K : ℝ} (hK : 0 ≤ K)
     (hrow : BookProof.FockWeightedSchur.WRowBound (fun _ => 1) (ymFockCol e fabc) K) :
     EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymFockCol e fabc)) :=
