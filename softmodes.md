@@ -954,7 +954,17 @@ it is self-adjoint on each summand (`glueballCasimir_symmetric_alt`, `_traceless
 `mesonCasimir_symmetric_symm`, `_alt`, through `inner_smul_real_scalar` and the reality of the
 eigenvalue `2`, `0`, `6`), and `glueball_decompose` splits any vector of the square as
 `u + c·δ + z` along the three eigenspaces, `glueball_decompose_casimir` reading the Casimir off as
-`2•u + 6•z`.  The identification is
+`2•u + 6•z` — that split being not a choice but a function of the vector
+(`glueball_decompose_unique`: the trace functional kills `Λ²` and `Sym²₀` and reads `3` on `δ`, so
+`c = trace v / 3`, and two decompositions differ by a vector both antisymmetric and symmetric, hence
+zero by `glueballAlt_inf_symm`).  The `5` is irreducible, not merely invariant:
+`glueballTraceless_irreducible` shows a subspace of `Sym²₀` preserved by all three total actions is
+`0` or the whole summand, by the `su(2)` weight argument — weights `2, 1, 0, -1, -2`
+(`glueballWeightVec_eigen`), Lagrange projectors reading off one weight coordinate
+(`glueballLagrange`, `glueballWeightProjection`), the basis `glueballWeightBasis`, and the pure
+ladders `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) that carry a weight vector to a
+nonzero multiple of its neighbour.  Not proved there: the irreducibility of the antisymmetric `3`
+(only its isomorphism with the adjoint) or of the meson triplet.  The identification is
 stronger than a dimension count: the
 `ε`-contraction `glueballAltEquiv` is a linear isomorphism of `Λ²` onto the adjoint `ℂ³` and
 `glueballAltMap_intertwines` shows it carries the total action to `adjRep`, as

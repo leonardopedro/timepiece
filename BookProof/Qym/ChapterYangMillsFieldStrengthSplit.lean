@@ -1541,6 +1541,22 @@ above.  This section states that identification and proves what it yields.
   three eigenspaces (`glueball_decompose`), where `glueball_decompose_casimir` reads the Casimir
   off as `2•u + 6•z`; the meson square carries the same two statements (`mesonCasimir_act`,
   `mesonCasimir_symmetric_symm`, `mesonCasimir_symmetric_alt`);
+* **`glueball_decompose_unique`** — the split is a *function* of the vector, not a choice: the
+  trace functional annihilates `Λ²` (`glueballTraceLinear'_alt`) and `Sym²₀`
+  (`glueballTraceLinear'_traceless`) and reads `3` on `δ` (`glueballTraceLinear'_singlet`), so the
+  trace coefficient is `trace v / 3`; two decompositions of the same vector then differ by
+  `u₁ - u₂ = -(z₁ - z₂)`, which is antisymmetric and symmetric at once and hence `0` because the
+  two swap-eigenspaces meet only at `0` (`glueballAlt_inf_symm`) — so `u` and `z` are forced as
+  well;
+* **`glueballTraceless_irreducible`** — `Sym²₀` carries no invariant subspace of its own: the
+  weight argument of `su(2)`, written without Lie theory.  `glueballWeightVec` lists five traceless
+  symmetric vectors of weights `2`, `1`, `0`, `-1`, `-2` under the third total action
+  (`glueballWeightVec_eigen`), `glueballLagrange`'s projectors read off one weight coordinate at a
+  time (`glueballWeightProjection`), which makes the five independent
+  (`glueballWeightVec_linearIndependent`) and a basis of the summand (`glueballWeightBasis`), and
+  the combinations `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) are pure ladders,
+  carrying a weight vector to a nonzero multiple of a single neighbour — so a subspace containing
+  one weight vector contains all five, and any nonzero vector of a preserved one yields one;
 * **`colourTerm_star_eq`**, **`colourPair_re_symm`**, **`colourDiag_re`**,
   **`colouredHamiltonian_quadForm_re_split`** — the **Hermitian-`C`** form: for `C` with
   `Cᴴ = C` the colour term `Σ_i Σ_j C_ij ⟨u_i, u_j⟩` equals its own star (it is real), the `(j,i)`
@@ -3749,8 +3765,23 @@ rather than of a basis because the Casimir is natural: `glueballCasimir_act` giv
 for every `a` (the closed form's three terms each commute), and `glueballCasimir_symmetric_alt`,
 `_traceless` and `_traceLine` give self-adjointness on each summand — the eigenvalue there being
 real, as it must be — with `mesonCasimir_act`, `mesonCasimir_symmetric_symm` and
-`mesonCasimir_symmetric_alt` the same two statements on the meson square.  The trace line is
-annihilated outright, not merely killed
+`mesonCasimir_symmetric_alt` the same two statements on the meson square.  The split is not a
+choice of coordinates either: `glueball_decompose_unique` shows the three components of a vector
+are determined by the vector — the trace functional annihilates `Λ²` and `Sym²₀` and reads `3`
+on `δ`
+(`glueballTraceLinear'_singlet`), so the coefficient of `δ` is `trace v / 3`, and a difference of
+two decompositions is antisymmetric and symmetric at once, hence `0` since the two swap-eigenspaces
+meet only at `0` (`glueballAlt_inf_symm`).  Nor is the `5` merely invariant: every subspace of
+`Sym²₀` preserved by all three total actions is `0` or the whole summand
+(`glueballTraceless_irreducible`),
+by the weight argument of `su(2)` — the weights `2`, `1`, `0`, `-1`, `-2`
+(`glueballWeightVec_eigen`), Lagrange projectors reading off one weight coordinate
+(`glueballWeightProjection`), the resulting basis `glueballWeightBasis`, and the pure ladders
+`A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) carrying a weight vector to a nonzero
+multiple of its neighbour — so `3 ⊕ 1 ⊕ 5` is a split into blocks with no invariant refinement
+inside the `5`.  Still not proved here: the irreducibility of the antisymmetric `3` (only its
+identification with the adjoint, `glueballAltEquiv`), and the corresponding statement for the meson
+triplet.  The trace line is annihilated outright, not merely killed
 by the Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`, which is what
 "singlet of the Lie algebra" means here, and the eigenvalue `0` follows from it.  The two `3`s are
 the same `su(2)`-module: `glueballAltEquiv` is the `ε`-contraction, `glueballAltMap_intertwines` and
@@ -6526,10 +6557,10 @@ theorem glueballCasimir_symmetric_traceLine {v w : colourVec 9}
 
 /-! ##### The spectral decomposition
 
-The spanning statement `glueballCasimir_eigenspaces` becomes a decomposition once its two `sup`s are
-unpacked: every vector of the square is `u + c·δ + z` with `u ∈ Λ²`, `z ∈ Sym²₀`, and then the
-eigenvalue lemmas computed the Casimir's value on it — `2•u + 6•z`, the trace line contributing
-nothing because it is annihilated. -/
+The spanning statement `glueballCasimir_eigenspaces` becomes a decomposition once its two `sup`s
+are unpacked: every vector of the square is `u + c·δ + z` with `u ∈ Λ²`, `z ∈ Sym²₀`, and then
+the eigenvalue lemmas computed the Casimir's value on it — `2•u + 6•z`, the trace line
+contributing nothing because it is annihilated. -/
 
 /-- **Every vector of the glueball square decomposes into the three eigenspaces.** -/
 theorem glueball_decompose (v : colourVec 9) :
@@ -6553,6 +6584,510 @@ theorem glueball_decompose_casimir (v : colourVec 9) :
   refine ⟨u, hu, c, z, hz, rfl, ?_⟩
   rw [glueballCasimir_add, glueballCasimir_add, glueballCasimir_smul, glueballCasimir_alt hu,
     glueballCasimir_singletVec, smul_zero, add_zero, glueballCasimir_traceless hz]
+
+/-! ##### The decomposition is unique
+
+`glueball_decompose` produced *some* decomposition `v = u + c • δ + z`.  It is the only one: the
+trace functional kills the antisymmetric part (`glueballTraceLinear'_alt`, from the three
+vanishing diagonal coordinates of `glueballAlt_coords`) and the traceless part by definition, and
+reads `3` on `δ`, so the coefficient of the trace vector is `trace v / 3`.  What is left of the
+difference is antisymmetric and symmetric at once, hence zero, because the two swap-eigenspaces
+meet only at `0` (`glueballAlt_inf_symm`).  So the three components are functions of the vector,
+not choices.
+
+-/
+
+
+/-- The trace functional is additive. -/
+theorem glueballTraceCoords_add' (u w : colourVec 9) :
+    glueballTraceCoords (u + w) = glueballTraceCoords u + glueballTraceCoords w := by
+  simp only [glueballTraceCoords, WithLp.ofLp_add, Pi.add_apply]
+  ring
+
+/-- The trace functional is homogeneous. -/
+theorem glueballTraceCoords_smul' (c : ℂ) (u : colourVec 9) :
+    glueballTraceCoords (c • u) = c * glueballTraceCoords u := by
+  simp only [glueballTraceCoords, WithLp.ofLp_smul, Pi.smul_apply, smul_eq_mul]
+  ring
+
+/-- The trace functional as a linear map. -/
+noncomputable def glueballTraceLinear' : colourVec 9 →ₗ[ℂ] ℂ where
+  toFun := glueballTraceCoords
+  map_add' := glueballTraceCoords_add'
+  map_smul' := glueballTraceCoords_smul'
+
+theorem glueballTraceLinear'_apply (v : colourVec 9) :
+    glueballTraceLinear' v = glueballTraceCoords v := rfl
+
+/-- The trace functional vanishes on the antisymmetric part. -/
+theorem glueballTraceLinear'_alt {v : colourVec 9} (hv : v ∈ glueballAlt) :
+    glueballTraceLinear' v = 0 := by
+  obtain ⟨h0, h4, h8, -, -, -⟩ := glueballAlt_coords hv
+  simp only [glueballTraceLinear', LinearMap.coe_mk, AddHom.coe_mk, glueballTraceCoords, h0, h4,
+    h8, add_zero]
+
+/-- The trace functional on the trace vector is `3`. -/
+theorem glueballTraceLinear'_singlet : glueballTraceLinear' glueballSingletVec = 3 :=
+  glueballSingletVec_trace
+
+/-- The trace functional vanishes on the traceless part. -/
+theorem glueballTraceLinear'_traceless {v : colourVec 9} (hv : v ∈ glueballTraceless) :
+    glueballTraceLinear' v = 0 := hv.2
+
+/-- **The antisymmetric and symmetric parts meet only at zero.** -/
+theorem glueballAlt_inf_symm : glueballAlt ⊓ glueballSymm = ⊥ := by
+  refine le_antisymm (fun v hv => ?_) bot_le
+  obtain ⟨ha, hs⟩ := Submodule.mem_inf.mp hv
+  rw [Submodule.mem_bot]
+  have hneg : glueballFlipVec v = -v := by
+    apply WithLp.ofLp_injective
+    funext i
+    simpa using ha i
+  have hfix : glueballFlipVec v = v := by
+    apply WithLp.ofLp_injective
+    funext i
+    simpa using hs i
+  have hvv : v + v = 0 := by
+    rw [hfix] at hneg
+    nth_rewrite 2 [hneg]
+    exact add_neg_cancel v
+  have h2 : (2 : ℂ) • v = 0 := by
+    rw [two_smul]
+    exact hvv
+  rcases smul_eq_zero.mp h2 with h | h
+  · exact absurd h (by norm_num)
+  · exact h
+
+/-- **The decomposition of a glueball-fibre vector is unique.**  The trace fixes the coefficient of
+`δ`, and the remainder splits along `Λ²` and `Sym²₀`, which meet only at zero. -/
+theorem glueball_decompose_unique {v u₁ u₂ : colourVec 9} {c₁ c₂ : ℂ}
+    {z₁ z₂ : colourVec 9}
+    (hu₁ : u₁ ∈ glueballAlt) (hz₁ : z₁ ∈ glueballTraceless)
+    (hu₂ : u₂ ∈ glueballAlt) (hz₂ : z₂ ∈ glueballTraceless)
+    (h₁ : v = u₁ + c₁ • glueballSingletVec + z₁)
+    (h₂ : v = u₂ + c₂ • glueballSingletVec + z₂) :
+    u₁ = u₂ ∧ c₁ = c₂ ∧ z₁ = z₂ := by
+  have h1tr : glueballTraceLinear' v = 3 * c₁ := by
+    rw [h₁, map_add, map_add, map_smul, glueballTraceLinear'_alt hu₁,
+      glueballTraceLinear'_singlet, glueballTraceLinear'_traceless hz₁]
+    simp only [smul_eq_mul]
+    ring
+  have h2tr : glueballTraceLinear' v = 3 * c₂ := by
+    rw [h₂, map_add, map_add, map_smul, glueballTraceLinear'_alt hu₂,
+      glueballTraceLinear'_singlet, glueballTraceLinear'_traceless hz₂]
+    simp only [smul_eq_mul]
+    ring
+  have hc : c₁ = c₂ := by
+    have h3 : (3 : ℂ) * c₁ = (3 : ℂ) * c₂ := by rw [← h1tr, h2tr]
+    exact mul_left_cancel₀ (by norm_num : (3 : ℂ) ≠ 0) h3
+  have hsum : (u₁ - u₂) + (z₁ - z₂) = 0 := by
+    have hv : u₁ + c₁ • glueballSingletVec + z₁ =
+        u₂ + c₂ • glueballSingletVec + z₂ := by
+      rw [← h₁, h₂]
+    rw [hc] at hv
+    calc (u₁ - u₂) + (z₁ - z₂)
+        = (u₁ + c₂ • glueballSingletVec + z₁) - (u₂ + c₂ • glueballSingletVec + z₂) :=
+          by abel
+      _ = 0 := by rw [← hv, sub_self]
+  have hdu : u₁ - u₂ ∈ glueballAlt := Submodule.sub_mem _ hu₁ hu₂
+  have hdz : z₁ - z₂ ∈ glueballTraceless := Submodule.sub_mem _ hz₁ hz₂
+  have hdmem : u₁ - u₂ ∈ glueballAlt ⊓ glueballSymm := by
+    refine ⟨hdu, ?_⟩
+    have hneg : u₁ - u₂ = -(z₁ - z₂) := by
+      rw [eq_neg_iff_add_eq_zero]
+      exact hsum
+    rw [hneg]
+    exact Submodule.neg_mem _ hdz.1
+  have hdu0 : u₁ - u₂ = 0 := by
+    have hmem : u₁ - u₂ ∈ (⊥ : Submodule ℂ (colourVec 9)) := by
+      rw [← glueballAlt_inf_symm]
+      exact hdmem
+    rwa [Submodule.mem_bot] at hmem
+  have hdz0 : z₁ - z₂ = 0 := by
+    have h := hsum
+    rw [hdu0, zero_add] at h
+    exact h
+  exact ⟨sub_eq_zero.mp hdu0, hc, sub_eq_zero.mp hdz0⟩
+
+
+/-! ##### The five-dimensional summand is irreducible
+
+The eigenvalue `6` of the Casimir on `Sym²₀` and the dimension `5` leave open whether the summand
+carries an invariant subspace of its own.  It does not: every subspace preserved by all three
+total actions is either `0` or the whole summand (`glueballTraceless_irreducible`), so
+`ℂ³ ⊗ ℂ³ = Λ² ⊕ ℂδ ⊕ Sym²₀` is a decomposition into irreducibles, and the `3`, `1`, `5` of
+the Casimir eigenvalues are the dimensions of irreducible blocks, not of merely invariant ones.
+
+The proof is the weight argument of `su(2)`, written without Lie theory.  `glueballWeightVec` lists
+five traceless symmetric vectors of weights `2, 1, 0, -1, -2` under the third total action
+(`glueballWeightVec_eigen`), and the Lagrange projectors `glueballLagrange` read off one weight
+coordinate at a time (`glueballWeightProjection`), which is also what makes the five independent
+(`glueballWeightVec_linearIndependent`) and hence a basis of the summand.  The combinations
+`A¹ ∓ i A⁰` (`glueballLadderDown`, `glueballLadderUp`) are pure ladders: each carries a weight
+vector to a nonzero multiple of a single neighbour, so a subspace containing one weight vector
+contains all five.  Given a nonzero `z` of such a subspace, the projector at a nonzero coordinate
+extracts a weight vector from it, and the ladders supply the rest.
+
+-/
+
+
+/-- The three total colour actions, as linear maps of the glueball fibre. -/
+noncomputable def glueballActLinear (a : Fin 3) : colourVec 9 →ₗ[ℂ] colourVec 9 where
+  toFun := glueballAct a
+  map_add' := glueballAct_add a
+  map_smul' := glueballAct_smul a
+
+/-- The `T³` weights of the five traceless symmetric weight vectors. -/
+def glueballWeight : Fin 5 → ℂ := ![2, 1, 0, -1, -2]
+
+/-- A weight basis of the traceless symmetric summand: highest weight first. -/
+def glueballWeightVec : Fin 5 → colourVec 9 :=
+  ![WithLp.toLp 2 ![1, Complex.I, 0, Complex.I, -1, 0, 0, 0, 0],
+    WithLp.toLp 2 ![0, 0, 1, 0, 0, Complex.I, 1, Complex.I, 0],
+    WithLp.toLp 2 ![2, 0, 0, 0, 2, 0, 0, 0, -4],
+    WithLp.toLp 2 ![0, 0, 1, 0, 0, -Complex.I, 1, -Complex.I, 0],
+    WithLp.toLp 2 ![1, -Complex.I, 0, -Complex.I, -1, 0, 0, 0, 0]]
+
+/-- Every weight vector is symmetric. -/
+theorem glueballWeightVec_symm (k : Fin 5) : glueballWeightVec k ∈ glueballSymm := by
+  intro i
+  fin_cases k <;> fin_cases i <;> simp [glueballWeightVec, glueballFlipIdx]
+
+/-- Every weight vector is traceless. -/
+theorem glueballWeightVec_traceless (k : Fin 5) : glueballWeightVec k ∈ glueballTraceless := by
+  refine ⟨glueballWeightVec_symm k, ?_⟩
+  fin_cases k <;> simp [glueballWeightVec, glueballTraceCoords] <;> norm_num
+
+/-- The weight vectors are eigenvectors of the third total action. -/
+theorem glueballWeightVec_eigen (k : Fin 5) :
+    glueballActLinear 2 (glueballWeightVec k) = glueballWeight k • glueballWeightVec k := by
+  apply WithLp.ofLp_injective
+  simp only [glueballActLinear, LinearMap.coe_mk, AddHom.coe_mk]
+  rw [glueballAct_ofLp, glueballRep_two_mulVec]
+  funext i
+  fin_cases k <;> fin_cases i <;>
+    simp [glueballWeightVec, glueballWeight] <;>
+    ring_nf <;> (try rw [pow_two, Complex.I_mul_I]) <;> norm_num <;> (try ring)
+
+/-- Powers of the third total action act on a weight vector by the power of its weight. -/
+theorem glueballWeightVec_pow (m : ℕ) (k : Fin 5) :
+    (glueballActLinear 2 ^ m) (glueballWeightVec k) =
+      (glueballWeight k) ^ m • glueballWeightVec k := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    rw [pow_succ, Module.End.mul_apply, glueballWeightVec_eigen, map_smul, ih, smul_smul,
+      pow_succ, mul_comm]
+
+/-- The Lagrange projector coefficients of the five weights, as a `5 × 5` matrix. -/
+noncomputable def glueballLagrange : Fin 5 → Fin 5 → ℂ :=
+  !![0, -1 / 12, -1 / 24, 1 / 12, 1 / 24;
+     0, 2 / 3, 2 / 3, -1 / 6, -1 / 6;
+     1, 0, -5 / 4, 0, 1 / 4;
+     0, -2 / 3, 2 / 3, 1 / 6, -1 / 6;
+     0, 1 / 12, -1 / 24, -1 / 12, 1 / 24]
+
+/-- The Lagrange projectors evaluate to the Kronecker delta on the weights. -/
+theorem glueballLagrange_spec (k i : Fin 5) :
+    (∑ m : Fin 5, glueballLagrange k m * (glueballWeight i) ^ (m : ℕ)) =
+      if i = k then 1 else 0 := by
+  fin_cases k <;> fin_cases i <;>
+    simp [glueballLagrange, glueballWeight, Fin.sum_univ_succ] <;> norm_num
+
+/-- **The Lagrange projector reads off one weight coordinate.** -/
+theorem glueballWeightProjection (k : Fin 5) (c : Fin 5 → ℂ) :
+    (∑ m : Fin 5, glueballLagrange k m • (glueballActLinear 2 ^ (m : ℕ)))
+        (∑ i : Fin 5, c i • glueballWeightVec i) = c k • glueballWeightVec k := by
+  have hterm (i : Fin 5) :
+      (∑ m : Fin 5, glueballLagrange k m • (glueballActLinear 2 ^ (m : ℕ)))
+          (c i • glueballWeightVec i) =
+        ((∑ m : Fin 5, glueballLagrange k m * (glueballWeight i) ^ (m : ℕ))) •
+          (c i • glueballWeightVec i) := by
+    rw [LinearMap.sum_apply]
+    simp only [LinearMap.smul_apply, map_smul, glueballWeightVec_pow, smul_smul]
+    rw [← Finset.sum_smul]
+    congr 1
+    rw [← Finset.mul_sum, mul_comm]
+  rw [map_sum, Finset.sum_congr rfl (fun i _ => hterm i)]
+  simp only [glueballLagrange_spec]
+  rw [Finset.sum_eq_single k]
+  · rw [if_pos rfl, one_smul]
+  · intro i _ hi
+    rw [if_neg hi, zero_smul]
+  · intro hk
+    exact absurd (Finset.mem_univ k) hk
+
+/-- The raising ladder: `A¹ - i A⁰` moves down the weight list. -/
+noncomputable def glueballLadderDown : colourVec 9 →ₗ[ℂ] colourVec 9 :=
+  glueballActLinear 1 - Complex.I • glueballActLinear 0
+
+/-- The lowering ladder: `A¹ + i A⁰` moves up the weight list. -/
+noncomputable def glueballLadderUp : colourVec 9 →ₗ[ℂ] colourVec 9 :=
+  glueballActLinear 1 + Complex.I • glueballActLinear 0
+
+theorem glueballLadderDown_apply (v : colourVec 9) :
+    glueballLadderDown v = glueballAct 1 v - Complex.I • glueballAct 0 v := by
+  simp [glueballLadderDown, glueballActLinear]
+
+theorem glueballLadderUp_apply (v : colourVec 9) :
+    glueballLadderUp v = glueballAct 1 v + Complex.I • glueballAct 0 v := by
+  simp [glueballLadderUp, glueballActLinear]
+
+/-- Every weight vector is nonzero. -/
+theorem glueballWeightVec_ne_zero (k : Fin 5) : glueballWeightVec k ≠ 0 := by
+  intro h
+  fin_cases k <;>
+    (have h1 := congrFun (congrArg WithLp.ofLp h) 0; simp [glueballWeightVec] at h1) <;>
+    (have h2 := congrFun (congrArg WithLp.ofLp h) 2; simp [glueballWeightVec] at h2)
+
+/-- The two ladders act on each weight vector. -/
+theorem glueballLadderUp_zero :
+    glueballLadderUp (glueballWeightVec 0) = (-2 * Complex.I) • glueballWeightVec 1 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderUp_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+theorem glueballLadderUp_one :
+    glueballLadderUp (glueballWeightVec 1) = Complex.I • glueballWeightVec 2 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderUp_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+theorem glueballLadderUp_two :
+    glueballLadderUp (glueballWeightVec 2) = (-6 * Complex.I) • glueballWeightVec 3 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderUp_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+theorem glueballLadderUp_three :
+    glueballLadderUp (glueballWeightVec 3) = (2 * Complex.I) • glueballWeightVec 4 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderUp_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+theorem glueballLadderDown_one :
+    glueballLadderDown (glueballWeightVec 1) = (2 * Complex.I) • glueballWeightVec 0 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderDown_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+theorem glueballLadderDown_two :
+    glueballLadderDown (glueballWeightVec 2) = (-6 * Complex.I) • glueballWeightVec 1 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderDown_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+theorem glueballLadderDown_three :
+    glueballLadderDown (glueballWeightVec 3) = Complex.I • glueballWeightVec 2 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderDown_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+theorem glueballLadderDown_four :
+    glueballLadderDown (glueballWeightVec 4) = (-2 * Complex.I) • glueballWeightVec 3 := by
+  apply WithLp.ofLp_injective
+  rw [glueballLadderDown_apply]
+  funext i
+  fin_cases i <;>
+    simp [glueballWeightVec, glueballAct_ofLp, glueballRep_one_mulVec, glueballRep_zero_mulVec,
+      smul_eq_mul]
+  all_goals (apply Complex.ext)
+  all_goals simp [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im]
+  all_goals norm_num
+
+/-- **The weight vectors are linearly independent**: the Lagrange projector at `k` reads off the
+`k`-th coordinate. -/
+theorem glueballWeightVec_linearIndependent : LinearIndependent ℂ glueballWeightVec := by
+  rw [Fintype.linearIndependent_iff]
+  intro c hc k
+  have h := glueballWeightProjection k c
+  rw [hc] at h
+  have h0 : (∑ m : Fin 5, glueballLagrange k m • (glueballActLinear 2 ^ (m : ℕ))) 0 = 0 := by
+    simp
+  rw [h0] at h
+  have hz : c k • glueballWeightVec k = 0 := h.symm
+  rcases smul_eq_zero.mp hz with hv | hsc
+  · exact hv
+  · exact absurd hsc (glueballWeightVec_ne_zero k)
+
+/-- The weight vectors, as elements of the traceless symmetric summand. -/
+noncomputable def glueballWeightBasisVec : Fin 5 → glueballTraceless :=
+  fun k => ⟨glueballWeightVec k, glueballWeightVec_traceless k⟩
+
+/-- The weight vectors are independent inside the traceless summand. -/
+theorem glueballWeightBasisVec_linearIndependent :
+    LinearIndependent ℂ glueballWeightBasisVec := by
+  rw [Fintype.linearIndependent_iff]
+  intro c hc
+  have hc' : ∑ k : Fin 5, c k • glueballWeightVec k = 0 := by
+    have h := congrArg (fun x : glueballTraceless => (x : colourVec 9)) hc
+    simpa [glueballWeightBasisVec] using h
+  exact Fintype.linearIndependent_iff.mp glueballWeightVec_linearIndependent c hc'
+
+/-- The five weight vectors are a basis of the traceless symmetric summand. -/
+noncomputable def glueballWeightBasis : Module.Basis (Fin 5) ℂ glueballTraceless :=
+  basisOfLinearIndependentOfCardEqFinrank glueballWeightBasisVec_linearIndependent
+    (by simp [glueballTraceless_finrank])
+
+/-- The basis vector at `i` is the weight vector at `i`. -/
+theorem glueballWeightBasis_apply (i : Fin 5) :
+    (glueballWeightBasis i : colourVec 9) = glueballWeightVec i := by
+  simp [glueballWeightBasis, glueballWeightBasisVec]
+
+/-- **The traceless symmetric summand is irreducible under the total colour action**: every
+subspace it carries that all three total actions preserve is either zero or the whole summand. -/
+theorem glueballTraceless_irreducible (W : Submodule ℂ (colourVec 9))
+    (hWle : W ≤ glueballTraceless)
+    (hW : ∀ a : Fin 3, ∀ w ∈ W, glueballAct a w ∈ W) :
+    W = ⊥ ∨ W = glueballTraceless := by
+  rcases eq_or_ne W ⊥ with h | h
+  · exact Or.inl h
+  refine Or.inr (le_antisymm hWle ?_)
+  have hne : ∃ z ∈ W, z ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact h (le_antisymm (fun x hx => by simpa [Submodule.mem_bot] using hcon x hx) bot_le)
+  obtain ⟨z, hzW, hz0⟩ := hne
+  have hzT : z ∈ glueballTraceless := hWle hzW
+  let z' : glueballTraceless := ⟨z, hzT⟩
+  let c : Fin 5 → ℂ := fun k => glueballWeightBasis.repr z' k
+  have hzsum : z = ∑ i : Fin 5, c i • glueballWeightVec i := by
+    have hsum := glueballWeightBasis.sum_repr z'
+    have h := congrArg (fun x : glueballTraceless => (x : colourVec 9)) hsum
+    simp only [Submodule.coe_sum, Submodule.coe_smul, glueballWeightBasis_apply, z'] at h
+    exact h.symm
+  have hcne : ∃ k, c k ≠ 0 := by
+    by_contra hall
+    push_neg at hall
+    have : z = 0 := by
+      rw [hzsum]
+      simp [hall]
+    exact hz0 this
+  obtain ⟨k, hk⟩ := hcne
+  have hpow : ∀ m : Fin 5, (glueballActLinear 2 ^ (m : ℕ)) z ∈ W := by
+    intro m
+    induction (m : ℕ) with
+    | zero => simpa using hzW
+    | succ n ih =>
+      rw [pow_succ', Module.End.mul_apply]
+      exact hW 2 _ ih
+  have hbk : glueballWeightVec k ∈ W := by
+    have hproj : c k • glueballWeightVec k ∈ W := by
+      have hPeq : (∑ m : Fin 5, glueballLagrange k m • (glueballActLinear 2 ^ (m : ℕ))) z
+          = c k • glueballWeightVec k := by
+        rw [hzsum]
+        exact glueballWeightProjection k c
+      rw [← hPeq, LinearMap.sum_apply]
+      exact Submodule.sum_mem W fun m _ => Submodule.smul_mem W _ (hpow m)
+    have h := Submodule.smul_mem W ((c k)⁻¹) hproj
+    rwa [smul_smul, inv_mul_cancel₀ hk, one_smul] at h
+  have hdown : ∀ v ∈ W, glueballLadderDown v ∈ W := by
+    intro v hv
+    rw [glueballLadderDown_apply]
+    exact Submodule.sub_mem W (hW 1 v hv) (Submodule.smul_mem W _ (hW 0 v hv))
+  have hup : ∀ v ∈ W, glueballLadderUp v ∈ W := by
+    intro v hv
+    rw [glueballLadderUp_apply]
+    exact Submodule.add_mem W (hW 1 v hv) (Submodule.smul_mem W _ (hW 0 v hv))
+  have hUpMem : ∀ (i j : Fin 5) (q : ℂ), q ≠ 0 →
+      glueballLadderUp (glueballWeightVec i) = q • glueballWeightVec j →
+      glueballWeightVec i ∈ W → glueballWeightVec j ∈ W := by
+    intro i j q hq hrel hi
+    have h := hup _ hi
+    rw [hrel] at h
+    have h2 := Submodule.smul_mem W q⁻¹ h
+    rwa [smul_smul, inv_mul_cancel₀ hq, one_smul] at h2
+  have hDownMem : ∀ (i j : Fin 5) (q : ℂ), q ≠ 0 →
+      glueballLadderDown (glueballWeightVec i) = q • glueballWeightVec j →
+      glueballWeightVec i ∈ W → glueballWeightVec j ∈ W := by
+    intro i j q hq hrel hi
+    have h := hdown _ hi
+    rw [hrel] at h
+    have h2 := Submodule.smul_mem W q⁻¹ h
+    rwa [smul_smul, inv_mul_cancel₀ hq, one_smul] at h2
+  have hI2 : (2 * Complex.I) ≠ 0 := mul_ne_zero (by norm_num) Complex.I_ne_zero
+  have hI6 : (-6 * Complex.I) ≠ 0 := mul_ne_zero (by norm_num) Complex.I_ne_zero
+  have hI1 : Complex.I ≠ 0 := Complex.I_ne_zero
+  have hIw2 : (-2 * Complex.I) ≠ 0 := mul_ne_zero (by norm_num) Complex.I_ne_zero
+  have hw0 : glueballWeightVec 0 ∈ W := by
+    fin_cases k
+    · exact hbk
+    · exact hDownMem 1 0 (2 * Complex.I) hI2 glueballLadderDown_one hbk
+    · have ha := hDownMem 2 1 (-6 * Complex.I) hI6 glueballLadderDown_two hbk
+      exact hDownMem 1 0 (2 * Complex.I) hI2 glueballLadderDown_one ha
+    · have ha := hDownMem 3 2 Complex.I hI1 glueballLadderDown_three hbk
+      have hb := hDownMem 2 1 (-6 * Complex.I) hI6 glueballLadderDown_two ha
+      exact hDownMem 1 0 (2 * Complex.I) hI2 glueballLadderDown_one hb
+    · have ha := hDownMem 4 3 (-2 * Complex.I) hIw2 glueballLadderDown_four hbk
+      have hb := hDownMem 3 2 Complex.I hI1 glueballLadderDown_three ha
+      have hc := hDownMem 2 1 (-6 * Complex.I) hI6 glueballLadderDown_two hb
+      exact hDownMem 1 0 (2 * Complex.I) hI2 glueballLadderDown_one hc
+  have hw1 : glueballWeightVec 1 ∈ W :=
+    hUpMem 0 1 (-2 * Complex.I) hIw2 glueballLadderUp_zero hw0
+  have hw2 : glueballWeightVec 2 ∈ W := hUpMem 1 2 Complex.I hI1 glueballLadderUp_one hw1
+  have hw3 : glueballWeightVec 3 ∈ W :=
+    hUpMem 2 3 (-6 * Complex.I) hI6 glueballLadderUp_two hw2
+  have hw4 : glueballWeightVec 4 ∈ W :=
+    hUpMem 3 4 (2 * Complex.I) hI2 glueballLadderUp_three hw3
+  have hall : ∀ j : Fin 5, glueballWeightVec j ∈ W := by
+    intro j
+    fin_cases j
+    · exact hw0
+    · exact hw1
+    · exact hw2
+    · exact hw3
+    · exact hw4
+  intro v hv
+  have hvsum : v = ∑ i : Fin 5, glueballWeightBasis.repr (⟨v, hv⟩ : glueballTraceless) i •
+      glueballWeightVec i := by
+    have hsum := glueballWeightBasis.sum_repr (⟨v, hv⟩ : glueballTraceless)
+    have h := congrArg (fun x : glueballTraceless => (x : colourVec 9)) hsum
+    simp only [Submodule.coe_sum, Submodule.coe_smul, glueballWeightBasis_apply] at h
+    exact h.symm
+  rw [hvsum]
+  exact Submodule.sum_mem W fun i _ => Submodule.smul_mem W _ (hall i)
 
 /-- The quadratic Casimir of the total meson action, `Σ_a (T^a_total)²`. -/
 noncomputable def mesonCasimirMat : Matrix (Fin 4) (Fin 4) ℂ :=
