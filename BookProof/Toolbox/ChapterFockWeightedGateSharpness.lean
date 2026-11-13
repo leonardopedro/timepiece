@@ -23,8 +23,14 @@ like `(deg + 1)^p` contributes like `deg^{p−1}`: bounded for `p = 1`, unbounde
 A third lemma, `not_wCommBound_of_entry`, is the interface to the analysis: if a *single* weighted
 entry exceeds `B`, the gate fails.  A concrete lower bound on one entry of `ymHermCol` would
 therefore refute `WCommBound (ymW e) (ymHermCol e fabc)` outright, with no combinatorial estimate.
-The corpus has no such lower bound; the expected size of the quartic magnetic entries is the
-analysis of `CONSOLIDATED_PLAN.md` §2026-11-13e, not a theorem.
+
+The final section carries out that step for the *actual quartic entry magnitude*: `quarticEntryMag`
+is the Hermite entry `⟨ψ_{n+4}, x⁴ ψ_n⟩` proved in `BookProof.HermiteQuartic` (the radical
+`√((n+1)(n+2)(n+3)(n+4))`), `quarticCol` is the column carrying it at degree distance exactly `4`,
+and `not_wCommBound_quartic` shows the gate fails for *every* `B`.  The quartic entry is therefore
+large enough to defeat the gate on its own; what this does **not** do is identify `quarticCol` with
+a column of `ymHermCol`, which needs the coefficient of a quartic monomial in `(magPoly)²` — see
+`CONSOLIDATED_PLAN.md` §2026-11-13k.
 
 ## What this does *not* say
 
@@ -34,10 +40,14 @@ statement about `ymHermCol`, and the distinction matters — the Yang–Mills en
 *upper* bound, so nothing here shows the actual Yang–Mills matrix fails the gate, and no lower
 bound on any of its entries is proved anywhere in the corpus.  Deciding the gate for `ymHermCol`
 requires the actual Hermite-basis coefficients of the quartic magnetic square
-`mulOp (magPoly)²`, which the band calculus discards by design.
+`mulOp (magPoly)²`, which the band calculus discards by design.  `not_wCommBound_quartic` settles
+the *magnitude* question — a unit quartic coefficient is already enough to defeat the gate — and
+leaves only the *coefficient* question, i.e. that `(magPoly fabc sp col)²` has a nonzero quartic
+coefficient for `fabc ≠ 0`.
 -/
 import Mathlib
 import BookProof.Toolbox.ChapterFockWeightedSchurEsa
+import BookProof.Toolbox.ChapterHermiteQuarticEntry
 
 namespace BookProof.FockWeightedGateSharpness
 
@@ -248,5 +258,132 @@ theorem not_wCommBound_quadratic :
     nlinarith [h1, h2, ha0]
   have hk16 : B / 16 < a := by rw [ha_def]; linarith
   nlinarith [hrow, hgrow, hk16]
+
+/-! ## The quartic entry defeats the gate
+
+The quartic Hermite entry of `BookProof.HermiteQuartic` is `√((n+1)(n+2)(n+3)(n+4))`, whose growth
+is quadratic in the degree with a unit coefficient.  Across a band of radius `4` the gate weight
+decays like `1/deg`, so the weighted entry grows linearly and no `B` works.  This is the negative
+half for the *actual* quartic magnitude rather than for a synthetic one. -/
+
+/-- The magnitude of the quartic Hermite entry between `ψ_{n+4}` and `ψ_n`. -/
+noncomputable def quarticEntryMag (n : ℕ) : ℝ :=
+  Real.sqrt (((n : ℝ) + 1) * ((n : ℝ) + 2) * ((n : ℝ) + 3) * ((n : ℝ) + 4))
+
+/-- **The radical is the Hermite entry**: `quarticEntryMag` is exactly the normalized entry
+`⟨ψ_{n+4}, x⁴ ψ_n⟩` proved in `BookProof.HermiteQuartic`. -/
+theorem quarticEntryMag_eq_entry (n : ℕ) :
+    quarticEntryMag n
+      = BookProof.HermiteCore.gint (BookProof.HermiteCore.hermiteR (n + 4)
+          * (Polynomial.X ^ 4 * BookProof.HermiteCore.hermiteR n))
+        / (BookProof.HermiteCore.hermiteNorm (n + 4)
+          * BookProof.HermiteCore.hermiteNorm n) :=
+  (BookProof.HermiteQuartic.quartic_hermite_entry n).symm
+
+/-- The quartic entry is nonnegative. -/
+theorem quarticEntryMag_nonneg (n : ℕ) : 0 ≤ quarticEntryMag n := by
+  rw [quarticEntryMag]
+  positivity
+
+/-- A column whose single entry, at degree distance exactly `4`, has the quartic entry magnitude. -/
+noncomputable def quarticCol (k : ℕ) : ℕ →₀ ℂ :=
+  Finsupp.single (k + 4) ((quarticEntryMag k : ℝ) : ℂ)
+
+/-- The quartic magnitude is positive. -/
+theorem quarticEntryMag_pos (n : ℕ) : 0 < quarticEntryMag n := by
+  rw [quarticEntryMag]
+  refine Real.sqrt_pos.mpr ?_
+  have h1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  have h2 : (0 : ℝ) < (n : ℝ) + 2 := by positivity
+  have h3 : (0 : ℝ) < (n : ℝ) + 3 := by positivity
+  have h4 : (0 : ℝ) < (n : ℝ) + 4 := by positivity
+  positivity
+
+theorem quarticCol_support (k : ℕ) : (quarticCol k).support = {k + 4} :=
+  Finsupp.support_single_ne_zero _ (by
+    exact_mod_cast ne_of_gt (quarticEntryMag_pos k))
+
+/-- The quartic magnitude is at least the square of the degree. -/
+theorem sq_le_quarticEntryMag (n : ℕ) : ((n : ℝ) + 1) ^ 2 ≤ quarticEntryMag n := by
+  rw [quarticEntryMag, ← Real.sqrt_sq (show (0 : ℝ) ≤ ((n : ℝ) + 1) ^ 2 by positivity)]
+  refine Real.sqrt_le_sqrt ?_
+  have ha : ((n : ℝ) + 1) ^ 2 ≤ ((n : ℝ) + 1) * ((n : ℝ) + 2) := by nlinarith
+  have hb : ((n : ℝ) + 1) ^ 2 ≤ ((n : ℝ) + 3) * ((n : ℝ) + 4) := by nlinarith
+  have hstep : ((n : ℝ) + 1) ^ 2 * ((n : ℝ) + 1) ^ 2
+      ≤ (((n : ℝ) + 1) * ((n : ℝ) + 2)) * (((n : ℝ) + 3) * ((n : ℝ) + 4)) :=
+    mul_le_mul ha hb (by positivity) (by positivity)
+  calc (((n : ℝ) + 1) ^ 2) ^ 2 = ((n : ℝ) + 1) ^ 2 * ((n : ℝ) + 1) ^ 2 := by ring
+    _ ≤ (((n : ℝ) + 1) * ((n : ℝ) + 2)) * (((n : ℝ) + 3) * ((n : ℝ) + 4)) := hstep
+    _ = ((n : ℝ) + 1) * ((n : ℝ) + 2) * ((n : ℝ) + 3) * ((n : ℝ) + 4) := by ring
+
+/-- The norm of the lone entry of `quarticCol`. -/
+theorem norm_quarticCol (k : ℕ) : ‖(quarticCol k) (k + 4)‖ = quarticEntryMag k := by
+  rw [quarticCol, Finsupp.single_eq_same, Complex.norm_real, Real.norm_eq_abs,
+    abs_of_nonneg (quarticEntryMag_nonneg k)]
+
+/-- The gate weight across a band of radius `4`, for `a b > 0` and `a ^ 4 < b ^ 4`. -/
+theorem gateWeight_eq (a b : ℝ) (h : a ^ 4 < b ^ 4) :
+    |(b ^ 2) ^ 2 - (a ^ 2) ^ 2| / (a ^ 2 * b ^ 2) = (b ^ 4 - a ^ 4) / (a ^ 2 * b ^ 2) := by
+  rw [show (b ^ 2) ^ 2 = b ^ 4 by ring, show (a ^ 2) ^ 2 = a ^ 4 by ring,
+    abs_of_pos (by linarith)]
+
+/-- **The quartic entry, weighted, grows linearly**: at row `k` the weighted entry is at least
+`8 (k + 1)`, unbounded in the degree. -/
+theorem quartic_gate_growth (k : ℕ) :
+    8 * ((k : ℝ) + 1) ≤ quarticEntryMag k
+      * |(((shiftDeg (k + 4) : ℝ) + 1) ^ 2) ^ 2 - (((shiftDeg k : ℝ) + 1) ^ 2) ^ 2|
+        / (((shiftDeg k : ℝ) + 1) ^ 2 * ((shiftDeg (k + 4) : ℝ) + 1) ^ 2) := by
+  set a : ℝ := (k : ℝ) + 1 with ha_def
+  set b : ℝ := (k : ℝ) + 5 with hb_def
+  have ha0 : (0 : ℝ) < a := by rw [ha_def]; positivity
+  have hb0 : (0 : ℝ) < b := by rw [hb_def]; positivity
+  have hba : b = a + 4 := by rw [ha_def, hb_def]; ring
+  have hk4 : ((shiftDeg (k + 4) : ℝ) + 1) = b := by
+    simp only [shiftDeg]; rw [hb_def]; push_cast; ring
+  have hk0 : ((shiftDeg k : ℝ) + 1) = a := by
+    simp only [shiftDeg]; rw [ha_def]
+  rw [hk4, hk0]
+  have hab : a < b := by rw [hba]; linarith
+  have hlt : a ^ 4 < b ^ 4 := by
+    have hfac : b ^ 4 - a ^ 4 = (b - a) * (b + a) * (b ^ 2 + a ^ 2) := by ring
+    have h1 : 0 < b - a := by linarith
+    have h2 : 0 < b + a := by linarith
+    have h3 : (0 : ℝ) < b ^ 2 + a ^ 2 := by positivity
+    have hprod : 0 < (b - a) * (b + a) * (b ^ 2 + a ^ 2) := mul_pos (mul_pos h1 h2) h3
+    linarith [hfac]
+  rw [mul_div_assoc, gateWeight_eq a b hlt]
+  have hmagsq : a ^ 2 ≤ quarticEntryMag k := by
+    have h := sq_le_quarticEntryMag k
+    rw [ha_def]
+    exact h
+  have hquot : (0 : ℝ) ≤ (b ^ 4 - a ^ 4) / (a ^ 2 * b ^ 2) :=
+    div_nonneg (by linarith) (by positivity)
+  have hge : (b ^ 4 - a ^ 4) / b ^ 2
+      ≤ quarticEntryMag k * ((b ^ 4 - a ^ 4) / (a ^ 2 * b ^ 2)) := by
+    have h := mul_le_mul_of_nonneg_right hmagsq hquot
+    have heq : a ^ 2 * ((b ^ 4 - a ^ 4) / (a ^ 2 * b ^ 2)) = (b ^ 4 - a ^ 4) / b ^ 2 := by
+      field_simp
+    linarith [h, heq.le]
+  have hb8 : 8 * a ≤ (b ^ 4 - a ^ 4) / b ^ 2 := by
+    rw [le_div_iff₀ (by positivity : (0 : ℝ) < b ^ 2)]
+    nlinarith [ha0, hb0, hba]
+  linarith [hge, hb8]
+
+/-- **The quartic entry defeats the commutator gate.**  A column carrying the quartic entry
+magnitude at degree distance exactly `4` fails `WCommBound` for *every* `B`, because its weighted
+entry at row `k` is at least `8 (k + 1)`. -/
+theorem not_wCommBound_quartic :
+    ¬ ∃ B : ℝ, WCommBound (fun k => ((shiftDeg k : ℝ) + 1) ^ 2) quarticCol B := by
+  rintro ⟨B, hB⟩
+  obtain ⟨k, hk⟩ := exists_nat_gt (B / 8)
+  have hmem : k + 4 ∈ (quarticCol k).support := by
+    rw [quarticCol_support]
+    simp
+  refine not_wCommBound_of_entry (w := fun k => ((shiftDeg k : ℝ) + 1) ^ 2)
+    (fun m => by positivity) hmem ?_ hB
+  have hgrowth := quartic_gate_growth k
+  rw [norm_quarticCol]
+  have hka : B / 8 < (k : ℝ) + 1 := by linarith [hk]
+  linarith [hgrowth, hka]
 
 end BookProof.FockWeightedGateSharpness

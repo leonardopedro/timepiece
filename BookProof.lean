@@ -1178,6 +1178,12 @@ import BookProof.Toolbox.ChapterFockGramSchmidtProjection
 -- lower-degree monomials, the decomposition `x^{e k} e^{-‖x‖²/4} = w + ‖ψ_{e k}‖ • ψ_{e k}`, and
 -- `coreBasis e k = hermBasisN e k` for degree-compatible `e` (`DegreeCompatible`).
 import BookProof.Toolbox.ChapterHermiteBridgePhases
+-- **The enumeration is constructed**: degree blocks, their cardinalities and offsets, and a rank
+-- function that is a bijection, giving a degree-compatible enumeration for every `0 < d`.
+import BookProof.Toolbox.ChapterDegreeEnumeration
+-- **The quartic Hermite entry** `⟨ψ_{n+4}, x⁴ ψ_n⟩ = √((n+1)(n+2)(n+3)(n+4))`, with its
+-- quadratic companion, by monic cancellation plus the monomial–Hermite vanishing lemma.
+import BookProof.Toolbox.ChapterHermiteQuarticEntry
 import BookProof.Toolbox.ChapterFockWeightedGateSharpness
 import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 -- The **graded band calculus** of the product Hermite basis: the ladder operators are
@@ -4215,29 +4221,6 @@ import BookProof.Sm.ChapterSmQuartet
 -- the identification of its twelve ghost modes with the index pattern.  The named input is now that
 -- identification, not the quartet data.
 import BookProof.Sm.ChapterSmIndexGhostQuartet
--- `ChapterSmIndexGhostSectors` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §59): the parity sectors of
--- that complex.  The *global* sector hypotheses of `physicalPositivity_of_homotopy_sectors` cannot
--- hold for any nonzero nilpotent charge — `global_sectors_force_zero` proves they make the charge
--- form positive definite, hence `Q = 0`, and `parity_globals_fail` witnesses it on the index model.
--- Read on the closed space they do hold: with the ghost parity (`-1` on ghosts and antighosts, `+1`
--- on physical modes, an involutive isometry commuting with `η`, `Q`, `P`) an even vector is purely
--- physical (`kform_even_nonneg`) and an odd closed vector is a pure antighost with vanishing form
--- (`kform_odd_closed`), so `kform_quadForm_nonneg` gives `kform_nonneg_closed`, and
--- `sector_hypotheses_closed` states the two hypotheses in the form the sector machinery consumes.
--- The radical half still comes from `eta_physProj`, as §57 has it.
-import BookProof.Sm.ChapterSmIndexGhostSectors
--- `ChapterSmIndexGhostFock` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §60): what the ghost sector of
--- `smBrstCharge` shares with that complex, correcting item (xii) of `HONEST_BOUNDARIES_SM`.  The
--- Fock space is `EuclideanSpace ℂ (Finset (Fin n))`, so it **already** carries the ℓ² inner product
--- (`occ_inner`), and `inner_creat_left` makes the CAR creation operators its adjoints; nothing was
--- missing there.  What is identified here: the twelve ghost modes `ghostMode m a` (injective into
--- `Fin (m + 12)`), their orthonormal occupation vectors `ghostVec` — an isometric copy of
--- `EuclideanSpace ℂ (Fin 12)` — that copy as the orbit of the vacuum (`ghostCre_vac`), and the
--- metric pairing as the Fock adjunction `b_a = (c^a)†` (`ghost_pairing`).  What is **not**:
--- `smBrstCharge` is a degree-one derivation (`∑ χ_a G^a − ½ ∑ f χ β`), so it does not preserve the
--- one-particle ghost sector; the index quartet is the free part of the ghost complex, not a
--- subcomplex of the SM charge, and the b-ghost of the derivation is still open.
-import BookProof.Sm.ChapterSmIndexGhostFock
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
 -- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`

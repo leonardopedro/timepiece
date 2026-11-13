@@ -6,6 +6,7 @@ import BookProof.ChapterQuadraticFockEsa
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Toolbox.ChapterHermiteBandCalculus
 import BookProof.Toolbox.ChapterHermiteBridgePhases
+import BookProof.Toolbox.ChapterDegreeEnumeration
 
 /-!
 # The Yang–Mills gates in `coreBasis` coordinates, from an explicit bridge hypothesis
@@ -36,7 +37,11 @@ across it:
 * `bridgePhases_one` — the bridge hypothesis is **proved** for a degree-compatible enumeration
   (all phases `1`), via `BookProof.HermiteBridgePhases`;
 * `ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible` — the same end-to-end theorem
-  with the bridge discharged, so that only degree compatibility and the commutator gate remain.
+  with the bridge discharged, so that only degree compatibility and the commutator gate remain;
+* `ymEnum`, `ymEnum_degreeCompatible` — the degree-compatible enumeration of `Fin 99 →₀ ℕ`
+  constructed in `BookProof.DegreeEnumeration`, and its compatibility proof;
+* `ymCoreCol_essentiallySelfAdjointOn_core` — the end-to-end theorem with **no** basis
+  hypothesis: the commutator gate is its only input.
 
 ## The bridge is discharged for degree-compatible enumerations
 
@@ -51,6 +56,14 @@ for a degree-compatible enumeration `e` the bridge hypothesis holds with all pha
 The remaining hypothesis of the end-to-end theorem is therefore only *degree compatibility* of
 the enumeration plus the commutator gate `WCommBound (ymW e) (ymHermCol e fabc) B` in the Hermite
 coordinates; the bridge itself is proved.
+
+## The enumeration is constructed
+
+`BookProof.DegreeEnumeration` builds a degree-compatible enumeration for every `0 < d` — degree
+blocks, their cardinalities, the offsets and a rank function that is a bijection — so degree
+compatibility is not a hypothesis either.  At `d = 99` it is recorded below as `ymEnum`, and
+`ymCoreCol_essentiallySelfAdjointOn_core` is the end-to-end theorem with **no** basis hypothesis:
+only the commutator gate remains.
 -/
 
 namespace BookProof.YangMillsCoreBasisGates
@@ -159,6 +172,29 @@ theorem ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible
     (hBg : WCommBound (ymW e) (ymHermCol e fabc) B) :
     EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymCoreCol e fabc)) :=
   ymCoreCol_essentiallySelfAdjointOn_core_of_ymCommBound e fabc (bridgePhases_one e hdeg) hBg
+
+/-- **The degree-compatible enumeration at `d = 99`**, constructed in
+`BookProof.DegreeEnumeration`. -/
+noncomputable def ymEnum : ℕ ≃ (Fin 99 →₀ ℕ) :=
+  BookProof.DegreeEnumeration.degreeEnum (by norm_num)
+
+/-- `ymEnum` lists the multi-indices in nondecreasing total degree. -/
+theorem ymEnum_degreeCompatible :
+    BookProof.HermiteBridgePhases.DegreeCompatible ymEnum :=
+  BookProof.DegreeEnumeration.degreeEnum_degreeCompatible (by norm_num)
+
+/-- **End to end, with no basis hypothesis at all.**  Both the bridge between the two bases and
+the degree compatibility of the enumeration are theorems (with `ymEnum` the constructed
+enumeration at `d = 99`), so the
+essential self-adjointness of the second-quantized Yang–Mills Hamiltonian in `coreBasis`
+coordinates rests on the commutator gate `WCommBound (ymW ymEnum) (ymHermCol ymEnum fabc) B`
+alone. -/
+theorem ymCoreCol_essentiallySelfAdjointOn_core
+    (fabc : Fin 8 → Fin 8 → Fin 8 → ℝ) {B : ℝ}
+    (hBg : WCommBound (ymW ymEnum) (ymHermCol ymEnum fabc) B) :
+    EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymCoreCol ymEnum fabc)) :=
+  ymCoreCol_essentiallySelfAdjointOn_core_of_degreeCompatible ymEnum fabc
+    ymEnum_degreeCompatible hBg
 
 end
 

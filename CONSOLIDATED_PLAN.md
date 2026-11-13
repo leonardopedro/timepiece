@@ -7,7 +7,17 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-13j):** “State of the project — 2026-11-13j: the bridge is closed with no
+> **Newest entry (2026-11-13k):** “State of the project — 2026-11-13k: the enumeration is
+> constructed, and the quartic entry is computed” (end of file): `BookProof.DegreeEnumeration`
+> builds the degree blocks, the offsets and a rank bijection, so a degree-compatible enumeration
+> exists for every `0 < d` (`exists_degreeCompatible`) and the `coreBasis` ESA theorem needs no
+> basis hypothesis; `BookProof.HermiteQuartic` proves `⟨ψ_{n+4}, x⁴ ψ_n⟩ = √((n+1)(n+2)(n+3)(n+4))`
+> and `⟨ψ_{n+2}, x² ψ_n⟩ = √((n+1)(n+2))` by monic cancellation plus the vanishing lemma; and
+> `not_wCommBound_quartic` feeds that magnitude into `not_wCommBound_of_entry` to show that a unit
+> quartic coefficient already defeats `WCommBound` for every `B`.  The gate for `ymHermCol` is
+> still open: what remains is the *coefficient* of a quartic monomial in `(magPoly)²`.
+>
+> **Earlier entry (2026-11-13j):** “State of the project — 2026-11-13j: the bridge is closed with no
 > phases at all” (end of file): the monomial–Hermite triangularity `x^α − He_α ∈ span{degree <
 > |α|}` is proved from the three-term recurrence alone, the decomposition
 > `x^{e k} e^{-‖x‖²/4} = w + c • ψ_{e k}` holds with `w` in the earlier Gram–Schmidt span and
@@ -23954,3 +23964,78 @@ enumeration of `Fin d →₀ ℕ` sorted by total degree (a counting argument in
 analysis), so every statement above is conditional on it.  Nothing here changes the
 operator-theoretic content: the two finite-mode domains are now known to have the same basis
 vectors, but the ESA conclusion still passes through the commutator gate.
+
+## State of the project — 2026-11-13k: the enumeration is constructed, and the quartic entry is computed
+
+`§2026-11-13j` closed the basis bridge but left `DegreeCompatible` a hypothesis.  This packet
+removes it, and supplies the analytic input the commutator gate was missing.
+
+**1. A degree-compatible enumeration exists** (`BookProof/Toolbox/ChapterDegreeEnumeration`,
+ns `BookProof.DegreeEnumeration`).  For a general `0 < d`:
+
+* `totalDeg b = ∑ i, b i`, `le_totalDeg`, `totalDeg_single`;
+* `instFintypeDegBlock` — the multi-indices of a fixed total degree form a finite type
+  (`Fintype.ofInjective` into the bounded functions `Fin d → Fin (m+1)`), so `blockCard m` and
+  `blockCard_pos` (witness `m • e_{i₀}`) make sense;
+* `blockIdx` — the position inside the degree block (`Fintype.equivFin`), with
+  `blockIdx_val`, `eq_of_blockIdx_eq`;
+* `offset m` — the number of multi-indices of degree `< m`, with `offset_succ`,
+  `offset_mono`, `offset_lt_succ` and `offset_le` (`m ≤ offset m`);
+* `rank b = offset (totalDeg b) + blockIdx b` — `rank_lt`, `rank_val`, and then
+  `rank_injective` (two degrees give different ranks, via `offset_succ` and `blockCard_pos`)
+  and `rank_surjective` (given `k`, the block is `Nat.find` of `k < offset (m+1)`);
+* `degreeEnum hd := (Equiv.ofBijective rank _).symm`, `degreeEnum_rank`,
+  `degreeEnum_apply_rank`, `degreeEnum_degreeCompatible` and `exists_degreeCompatible`.
+
+The `DegreeCompatible` proof is now a two-line estimate: a multi-index of smaller degree has rank
+`< offset (deg+1) ≤ offset (deg of e k) ≤ rank (e k) = k`.  In
+`BookProof/Qym/ChapterYangMillsCoreBasisGates` this gives `ymEnum` (the enumeration at `d = 99`),
+`ymEnum_degreeCompatible`, and **`ymCoreCol_essentiallySelfAdjointOn_core`** — the end-to-end ESA
+statement with **no** basis hypothesis, whose only input is the commutator gate.
+
+**2. The quartic Hermite entry** (`BookProof/Toolbox/ChapterHermiteQuarticEntry`,
+ns `BookProof.HermiteQuartic`):
+
+`⟨ψ_{n+4}, x⁴ ψ_n⟩ = √((n+1)(n+2)(n+3)(n+4))`
+
+and its quadratic companion `⟨ψ_{n+2}, x² ψ_n⟩ = √((n+1)(n+2))`.  The proof needs no integral
+computation beyond the vanishing lemma: `x⁴ He_n` and `He_{n+4}` are both monic of degree `n+4`
+(`isMonicOfDegree_hermiteR`, `IsMonicOfDegree.natDegree_sub_lt`), so
+`x⁴ He_n − He_{n+4}` has degree below `n+4` (`natDegree_X_pow_mul_sub_hermiteR`) and drops out
+against `He_{n+4}` (`gint_hermiteR_mul_eq_zero`, which expands a low-degree polynomial in
+monomials and applies `gint_X_pow_hermiteR_zero`).  What remains is the norm ratio, i.e. four
+applications of `hermiteNorm_succ` (`hermiteNorm_four`, `hermiteNorm_ratio`), so the entry is the
+ratio of consecutive normalizing constants.  Same machinery at exponent `2`
+(`gint_hermiteR_square`, `hermiteNorm_ratio_two`).
+
+**3. The quartic entry defeats the commutator gate**
+(`BookProof/Toolbox/ChapterFockWeightedGateSharpness`).  New:
+`quarticEntryMag n := √((n+1)(n+2)(n+3)(n+4))` together with
+`quarticEntryMag_eq_entry` (**this radical is exactly the entry proved in part 2**),
+`norm_quarticCol`, `gateWeight_eq`, `sq_le_quarticEntryMag` (the magnitude is at least `(n+1)²`),
+`quartic_gate_growth` (with `w_k = (deg k + 1)²`, the weighted entry at row `k` is at least
+`8 (k+1)`) and **`not_wCommBound_quartic`**:
+
+`¬ ∃ B : ℝ, WCommBound (fun k => ((shiftDeg k : ℝ) + 1) ^ 2) quarticCol B`,
+
+via `not_wCommBound_of_entry`.  So a unit quartic coefficient across a band of radius `4` is
+already enough to violate the gate for every `B`: the mechanism of `§2026-11-13e` is now a
+theorem at the *actual* entry magnitude, not a synthetic `Θ(deg²)` witness.
+
+**Boundary — what is still not proved.**  `not_wCommBound_quartic` is about `quarticCol`, a column
+carrying the quartic entry at degree distance exactly `4`.  It is **not** a statement about
+`ymHermCol e fabc`: identifying the two needs the coefficient of a quartic monomial in
+`(magPoly fabc sp col)²`, which is nonzero for `fabc ≠ 0` but is not computed in the corpus (it
+needs the injectivity of `idxA` and the coefficient formula for `magPoly`).  Hence
+`¬ WCommBound (ymW e) (ymHermCol e fabc) B` is still **not** proved for any `fabc`, and no
+Yang–Mills gap is claimed.  What changed is the shape of the remaining obligation: it is now a
+polynomial-coefficient computation, not an analytic one.
+
+**Verification.**  `lake build BookProof` → see the exit status recorded at the end of this entry's
+packet (`Build completed successfully`, 8991 jobs); `lake env lean` clean on all four touched
+modules, no warnings naming them; `#print axioms` on `exists_degreeCompatible`,
+`degreeEnum_degreeCompatible`, `rank_surjective`, `quartic_hermite_entry`,
+`quadratic_hermite_entry`, `quartic_gate_growth` and `not_wCommBound_quartic` gives only
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; no line over 100 characters and no trailing
+whitespace in the new or touched files; both new modules registered in `lakefile.toml`'s
+`BookProofOperatorCore` roots and imported from `BookProof.lean`.
