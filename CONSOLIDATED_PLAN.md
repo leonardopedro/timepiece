@@ -23605,10 +23605,11 @@ a project.
 
 `CURRENT_WORK_ORDER.md` was checked row by row against the plan's section dates.
 
-* **QYM** — was stale at §2026-11-12p; §2026-11-13c already extended it through §2026-11-12v and the
-  gate packets.  **Correction:** the merge that disambiguated the two §2026-11-13a headings
-  renumbered the packets (this entry's module discussion is §2026-11-13b, the gate-entry caveat §…-13d),
-  and the row's new text still used the pre-merge labels.  Fixed here: the row now cites §2026-11-13b
+* **QYM** — was stale at §2026-11-12p; the router commit before this one extended it through
+  §2026-11-12v and the gate packets.  **Correction:** that extension used the pre-merge section labels,
+  because the merge that disambiguated the two §2026-11-13a headings
+  renumbered the packets (this entry's module discussion is §2026-11-13b, the gate-entry caveat §…-13d).
+  Fixed here: the row now cites §2026-11-13b
   for the gates, §2026-11-13d for the caveat, and marks §2026-11-13a/§2026-11-13c as colour-decomposition
   entries unrelated to the gates.
 * **SM** — stale by one packet: the row's chain stopped at 2026-11-11 and never cited §2026-11-12p/12q,
