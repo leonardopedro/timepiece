@@ -23511,3 +23511,116 @@ transferring them to `ymFockCol` is not a bookkeeping step.
 
 **Verification.**  `lake env lean BookProof/Qym/ChapterYangMillsWeightedGates.lean` clean; no line
 over 100 characters.
+
+## State of the project — 2026-11-13e: the gate is sharp at order `2`, the bridge is a diagonal phase, the router audited
+
+Three questions were open after §2026-11-13d.  All three now have answers; one is a theorem, one
+is an analysis with a named next step, and one was maintenance.
+
+### 1. Which entry growth does the commutator gate tolerate?  Exactly linear — new module
+
+`BookProof/Toolbox/ChapterFockWeightedGateSharpness.lean` (ns `BookProof.FockWeightedGateSharpness`),
+registered in the root aggregator, `sorry`-free and `axiom`-free (`#print axioms` on all three
+headlines: `propext`, `Classical.choice`, `Quot.sound`).  `lake build` 8078 jobs.
+
+* `commWeight_le`, `commTerm_le` — the arithmetic.  Across a band of radius `4` in the degree and
+  with `w_k = (deg k + 1)²`, the gate weight decays like `1/deg`, so the degree factor cancels: the
+  per-term quantity `(deg j + 1) · |w_j² − w_k²| / (w_k w_j)` is bounded by `400`.
+* `wCommBound_of_linear_entries` — **the positive half**.  Row support `≤ M`, band radius `4`,
+  entries `≤ C (deg j + 1)` imply `WCommBound w col (400 C M)`.  So at order `≤ 2` the commutator
+  gate is *automatic*: it costs nothing beyond the row gate.  This is the abstract reason the
+  quadratic (abelian) route never needed it.
+* `not_wCommBound_quadratic` — **the negative half, and the precise sense in which the band
+  calculus is insufficient**.  The witness `shiftCol k = (k+5)² · e_{k+4}` has row support `1`,
+  band radius exactly `4`, and entries `= (deg j + 1)²`, i.e. it satisfies every hypothesis the
+  Yang–Mills band bound delivers with `C = 1`; yet its gate sum at row `k` is `≥ 16 (k + 1)`, so no
+  `B` works.
+
+The two together say the gate's threshold is `p = 1` in `(deg + 1)^p`, and the Yang–Mills matrix
+sits at `p = 2` by *bound*.  Note what this does **not** say: the witness is synthetic, so this
+does not refute the gate for `ymHermCol` — that distinction is the whole content of §2026-11-13d.
+
+### 2. The actual decay of `ymPoly fabc` in the Hermite basis — computed, and the answer is unfavourable
+
+`ymPoly = ½ (Σ_{m} momOp² + Σ_m mulOp (magPoly)²)`, so the two halves behave differently:
+
+* the momentum half is a second-order operator, and its Hermite entries are `Θ(deg + 1)` — the
+  linear regime, where §1 says the gate is free;
+* the magnetic half is `mulOp (q_m)² = mulOp (q_m²)` with `q_m = magPoly fabc (decodeSpace m)
+  (decodeColor m)` **quadratic** in the coordinates, so it is multiplication by a **quartic**.  In
+  the orthonormal product-Hermite basis the one-dimensional element is
+  `⟨ψ_{n+4}, x⁴ ψ_n⟩ = ¼ √((n+1)(n+2)(n+3)(n+4)) ≈ n²/4`, so a quartic coefficient `c` of `q_m²`
+  in the coordinate `x_i` produces a band-`4` entry of size `≈ |c| n²/4` with `n` the `i`-th
+  occupation — `Θ(deg²)` when `n ~ deg`.
+
+Multiplying by the `Θ(1/deg)` weight gives gate terms `Θ(|c| deg)`: **the commutator gate fails for
+`ymHermCol` whenever the `x_i⁴` coefficient of `q_m²` is nonzero**, which it generically is — that
+coefficient is the square of the `x_i²` coefficient of `q_m`, so it vanishes only when a specific
+vanishing combination of `f_abc` does.  The gate survives the abelian case (`q_m` linear in the
+fields, quartic coefficient zero) precisely as §1 predicts.
+
+**Status of this paragraph: analysis, not a theorem.**  It needs two lower bounds that the corpus
+does not have: an entry lower bound for `mulOp (X i ^ 4)` against `hermBasisN`, and the non-vanishing
+of that quartic coefficient for `f_abc ≠ 0`.  Recorded here as the target for the next packet, with
+the honest reading that the weighted-gate route is *expected to fail* at order `4` — proved failure
+would need exactly these two lemmas, and until they land the gate stays "open, not false".
+
+### 3. The `coreBasis` ↔ `hermBasisN` bridge for degree-compatible `e` — it holds, up to phases, and that is enough
+
+`coreBasis e` is Gram–Schmidt of `n ↦ pgLp (monomial (e n) 1)` in the order `e`; `hermBasisN e` is
+the product Hermite basis.  **For `e` that respects total degree** (every monomial of degree below
+`deg (e k)` occurs among `e 0, …, e (k−1)`) the two agree up to a diagonal phase:
+
+* Gram–Schmidt preserves spans, so the step-`k` vector is `x^α − (orthogonal projection onto the
+  polynomials of degree `< deg α`)` times a unit;
+* the expansion `x^α = Σ_{β ≠ α} c_β h_β + c_α h_α` with `|β| ≤ |α|` and `c_β = ⟨x^α, h_β⟩`
+  factorizes over coordinates, and `c_β = 0` for `β ≠ α` of the same degree: some coordinate has
+  `β_j > α_j`, and there `h_{β_j}` is orthogonal to all polynomials of degree `< β_j`, in
+  particular to `x^{α_j}` (`hermiteInner_eq` is the one-variable input);
+* so every lower-degree component drops out and the step-`k` vector is parallel to `h_{e k}`, hence
+  `coreBasis e k = u_k · hermBasisN e k` with `‖u_k‖ = 1`.
+
+**Why this matters more than it looks:** the gates read `‖A_{k j}‖` and the symbol only, so they are
+*invariant* under conjugating by a diagonal unitary — `‖u_k A_{k j} \overline{u_j}‖ = ‖A_{k j}‖`.
+Hence for degree-compatible `e` the Hermite-basis gates *do* transfer to `ymFockCol`, which closes
+the scope caveat recorded in §2026-11-13d.  For `e` that does not respect the degree flag the
+Gram–Schmidt order interleaves levels and the result is not a phase of the Hermite basis.  The
+corpus's statements are generic in `e` (`hermBasisN`, `hermCol`, `ymHermOp` take any equivalence),
+so nothing in the tree supplies the compatibility hypothesis: the bridge must carry it explicitly
+rather than be stated unconditionally.
+
+**Status: analysis with a proof sketch, not formalized.**  Formalizing it needs the
+Gram–Schmidt-versus-projection lemma (`span` of the first `k` vectors) plus the factorized vanishing
+of the monomial–Hermite inner product; the one-variable orthogonality (`hermiteInner_eq`) and the
+Fubini step (`inner_pgLp_hermiteMv`) are already in the tree, which is why this is a packet and not
+a project.
+
+### 4. Audit of the routing table
+
+`CURRENT_WORK_ORDER.md` was checked row by row against the plan's section dates.
+
+* **QYM** — was stale at §2026-11-12p; §2026-11-13c already extended it through §2026-11-12v and the
+  gate packets.  **Correction:** the merge that disambiguated the two §2026-11-13a headings
+  renumbered the packets (this entry's module discussion is §2026-11-13b, the gate-entry caveat §…-13d),
+  and the row's new text still used the pre-merge labels.  Fixed here: the row now cites §2026-11-13b
+  for the gates, §2026-11-13d for the caveat, and marks §2026-11-13a/§2026-11-13c as colour-decomposition
+  entries unrelated to the gates.
+* **SM** — stale by one packet: the row's chain stopped at 2026-11-11 and never cited §2026-11-12p/12q,
+  although §2026-11-12q lands `BookProof/Sm/ChapterSmGradDomTransfer.lean` (pointwise gradient domination
+  → `GradDom`, so `PotSelfBound` rests on the per-form `GradBound` table).  Row extended.
+* **NS** — consistent: §09-25 §5 item 3 remains the entry point, and the latest NS-flavoured findings
+  (`nsKoopmanOp_not_bounded_below`, `nsResPoly_not_affine`, the vacuity inventory) sit in the
+  2026-10-19 entry listed as its baseline, not after it.
+* **QG** — consistent: §09-25 §5 item 2 plus the §2026-10-19b QG-D-C closure is still the latest
+  QG-specific order; later Casimir sections are colour (QYM) content.
+* **book** — consistent: §2026-11-08f **S0** is the entry point, and the only later build mentions
+  (§2026-11-09, §2026-11-12a's heartbeat note) are inside other tracks' narratives.
+* **RandomMap** — unchanged and correct as flagged: no current work order exists (flag **F2**).
+* **BookProof layout** — technically one entry behind (§2026-10-19 platform move is newer than the cited
+  §2026-10-17b), but that entry is a platform-move record, not a change to the split order; left as is
+  with this note.
+
+**Verification.**  `lake env lean` and `lake build BookProof.Toolbox.ChapterFockWeightedGateSharpness`
+clean (8078 jobs); no line over 100 characters, no trailing whitespace in the new module;
+`#print axioms` on the three headlines shows only the three standard axioms; `scripts/check-links`
+and `scripts/health.sh` at their known baseline.

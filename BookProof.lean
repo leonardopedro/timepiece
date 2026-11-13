@@ -1163,6 +1163,7 @@ import BookProof.Toolbox.ChapterFockSchurEsa
 -- quantization `dΓ(A)` obeys `‖dΓ(A)u‖ ≤ K‖(dΓ(w²)+1)u‖` and the Faris–Lavine commutator
 -- estimate on the finite-occupation core, hence is essentially self-adjoint there.  The
 -- witness is the *unbounded* oscillator matrix `A_{k,k+1} = A_{k+1,k} = √(k+1)`.
+import BookProof.Toolbox.ChapterFockWeightedGateSharpness
 import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 -- The **graded band calculus** of the product Hermite basis: the ladder operators are
 -- first-order band operators, a product of two of them is second order, and therefore the
