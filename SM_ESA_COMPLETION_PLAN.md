@@ -2691,66 +2691,365 @@ model's actual BRST charge, which has not been constructed.  Consequently:
   definition and its axiom list is inherited from the definitions it mentions).
 * `lake env lean BookProof.lean` — exit 0.
 
-## §47. The Kugo–Ojima quartet: `PhysicalPositivity` from quartet data (2026-11-13)
+## §47. The quartet structure behind the BRST charge (2026-11-12)
 
-§46 ended with `PhysicalPositivity Q η` as a named input, on the grounds that the condition needs
-"the quartet structure of the model's actual BRST charge".  This section builds the mechanism on
-which that condition rests, in `BookProof/Sm/ChapterSmQuartet.lean`.
+Module: `BookProof/Sm/ChapterSmQuartet.lean`, namespace `BookProof.SmQuartet`.
 
-### 47.1. The quartet as data
+### 47.1. What §46 left open, and what closes it
 
-`BrstQuartet Q` is the b-ghost `P` together with the physical projector `V`:
+§46 reduced the physical-positivity question to the Kugo–Ojima condition `PhysicalPositivity`, as a
+**named input**.  That input is not idle: nilpotency alone cannot give it (in a definite space a
+nilpotent self-adjoint charge vanishes).  The mechanism that does give it is the quartet, and it is
+one identity:
 
-`Q P + P Q = 1 - V`,   and   `range V ⊆ ker Q`.
+  `Q P + P Q = 1 − V`,  with `Q² = 0`, `V` a projector, `V`'s range inside `ker Q`.
 
-No positivity of `V` and no definiteness of `η` is assumed — this is the algebraic residue of a
-Hodge decomposition `x = Q (P x) + P (Q x) + V x`.  The case this covers is BRST with a ghost pair:
-`P` lowers the ghost number and `V` is the harmonic projection.  In particular `P` is *not*
-required to be `η`-symmetric; only `V`'s range is assumed closed.
+On a quartet block the right-hand side is the identity — `Q` pairs the two members and the b-ghost
+`P` pairs them back — and on the physical subspace it vanishes.  `BrstQuartet Q` is that data.
 
-### 47.2. What follows
+### 47.2. What is proved
 
-* `quartet_physProj_comp_Q` — `V` annihilates the exact space: `V ∘ Q = 0`.  Applying the charge to
-  the decomposition of `Q y` and using nilpotency gives `Q (P (Q y)) = Q y`, hence `V (Q y) = 0`.
-  So the quartet forces `V` to kill the gauge orbit; only `range V ⊆ ker Q` was assumed.
-* `quartet_decompose` — every closed vector splits as `x = Q (P x) + V x`.
-* `kform_quartet_reduce` — the charge form sees only the physical part: `⟨x, y⟩_η = ⟨V x, V y⟩_η`
-  for closed `x, y`.  The discarded terms are ghost-null (`kform_ghost_null`,
-  `kform_ghost_null_right`), so they pair to zero.
-* `kform_quartet_reduce_sectors` — if the involution `U` preserves `V`, the reduced form still
-  vanishes across the parity sectors, so the quartet attack can be mounted sector by sector.
-* `physicalPositivity_of_quartet` — **§46's named input becomes a theorem**, conditional on the
-  physical subspace being definite for `η`: if `⟨V x, V x⟩_η = ⟪V x, V x⟫`, then on the closed space
-  the form is `‖V x‖²` and its radical is exactly the gauge orbit, i.e. `PhysicalPositivity Q η`.
-* `physicalPositivity_of_quartet_sectors` — the same in the parity shape, with the cross-sector
-  vanishing, so the sector formulation is not a weakening.
-* `isBrst_of_mul_eq_zero` — bridges §46's predicate `IsBrst Q` to the endomorphism form in which the
-  model supplies its charge (`smBrstCharge` is a `Module.End`, `smBrstCharge_nilpotent` a product
-  identity).  The specialised `IsBrst (smBrstCharge …)` was abandoned: it exceeds the heartbeats
-  available for instance search on `FermiFock`, and the general bridge suffices.
+* **The hypothesis set is not over-specified.**  `V Q = 0` is *derived* from the quartet identity and
+  `Q² = 0` (`quartet_physProj_comp_Q`): applying `Q` to the identity at `x` gives
+  `Q (P (Q x)) = Q x`, the identity at `Q x` gives `Q (P (Q x)) = Q x − V (Q x)`, hence `V (Q x) = 0`.
+* **Every closed vector splits as exact plus physical**: `x = Q (P x) + V x` (`quartet_decompose`).
+* **The charge form sees only the physical part** (`kform_quartet_reduce`): the exact–exact term
+  vanishes by nilpotency (`kform_exact_self`), and both cross terms vanish by §46's ghost nullity and
+  the symmetry of the form.
+* **The no-ghost theorem** (`physicalPositivity_of_quartet`): if the metric operator fixes the range of
+  `V` — the physical subspace sits in the ghost-parity-even sector, which is what the no-ghost theorem
+  asserts — then on the closed space `⟨x,x⟩_η = ‖V x‖²`, so the form is non-negative and its radical
+  is exactly the gauge orbit (`‖V x‖ = 0` ⟹ `x = Q (P x)`).  **`PhysicalPositivity` is a theorem
+  here, not an input.**
+* **Sector by sector** (`kform_quartet_reduce_sectors`, `physicalPositivity_of_quartet_sectors`):
+  composing with §46's parity split, positivity known one parity sector at a time — non-negativity
+  plus definiteness on the physical subspace inside each sector — assembles into the whole statement.
+  This is the shape a physical smoke test takes.
+* **The 2⊕1-dimensional instance** (`exQuartet`, `exPhysicalPositivity`): `Q : e₀ ↦ e₁`, `P : e₁ ↦ e₀`,
+  `V : e₂ ↦ e₂`, indefinite metric `σ₁` on the block and the identity on the physical line.  All four
+  quartet fields and both metric hypotheses are verified (`exQ_nil`, `exQuartet_anticomm`,
+  `exEta_physProj`, `exKrein`, `exSymm`), and the instance is **not vacuous**: the physical line is
+  closed (`exE2_closed`) but not exact (`exE2_not_exact`), so the cohomology is one-dimensional.
+* **The link to the SM charge**: `isBrst_smBrstCharge` — `IsBrst` for `smBrstCharge` follows from
+  `smBrstCharge_nilpotent` (§36), via `Module.End.mul_eq_comp`.
 
-### 47.3. Instance, and the boundary
+### 47.3. What is not built
 
-`exQuartet'`/`exPhysicalPositivity` instantiate the bundle on `ℂ³` with `Q = 0`, `P = 0`, `V = 1`,
-`η = 1`.  This is the *only* quartet a definite metric admits, and saying why is the honest content
-of the example: a nilpotent map that is self-adjoint for a definite form vanishes, so the closed
-space is everything, the form is `‖x‖²`, its radical `{0}` is the gauge orbit, and the cohomology is
-the whole space (`exE2_not_exact`: a unit vector is closed, not exact).  The example is therefore a
-consistency check of the definitions, not a model of ghost cancellation.  A non-trivial quartet
-(`P` raising/lowering a ghost pair, `V` onto the physical line) needs the indefinite metric of §46
-and is **not** built here; engineering a `2 ⊕ 1` Krein instance was attempted and set aside rather
-than stated with unverified `conj` algebra.
+The quartet *data* `(P, V)` for the gauge-fixed matter model.  §47 proves that quartet data yields
+the no-ghost theorem and that the SM charge is a BRST charge; it does **not** construct the b-ghost
+that pairs each longitudinal/ghost mode of the matter model with its partner.  So:
 
-Consequently, unchanged from §46:
+* `PhysicalPositivity` for the SM remains unproved — what changed is that it no longer has to be
+  assumed *in addition* to a quartet decomposition, it is derived from one;
+* the module is generic in the Hilbert space and the charge, which is what allows §47.2's instance to
+  be checked independently of the SM's 163-coordinate normal form.
 
-* no positive physical inner product is produced for the SM;
-* the model's own `P` and `V` are still missing — they are now the *only* remaining input, since
-  `physicalPositivity_of_quartet` no longer leaves positivity itself open;
-* the quartet bundle is data, so no statement here is a claim about the SM's physical Hilbert space.
+### 47.4. Verification performed (2026-11-12)
 
-### 47.4. Verification performed (2026-11-13)
-
-* `lake build BookProof.Sm.ChapterSmQuartet` — clean, no warnings.
-* `lake env lean Work/SmQuartetAudit.lean` — 14 declarations, every axiom list exactly
+* `lake env lean BookProof/Sm/ChapterSmQuartet.lean` — exit 0, no warnings.
+* `lake build BookProof.Sm.ChapterSmQuartet` — clean (6.1 s).
+* `lake env lean Work/SmQuartetAudit.lean` — 23 declarations, axioms exactly
   `propext, Classical.choice, Quot.sound`, no `sorryAx`.
-* `lake env lean BookProof.lean` — exit 0 (the §47 import is enabled again).
+* `lake env lean BookProof.lean` — exit 0.
+* `scripts/check-sm-section-guards` — see §48.4.
+* **Merge note (2026-11-13):** a parallel local draft of §47 (a 294-line module with a degenerate
+  `ℂ³` instance, `exQuartet'`) was dropped on merging with this branch.  This section and §50 are
+  the survivor: the instance here is the non-vacuous `2 ⊕ 1` Krein one (`exQuartet`), and §50
+  removes `V` from the inputs altogether.  The merged tree was re-verified on 2026-11-13 (§47.4
+  bullets above, re-run: clean build, axioms unchanged).
+
+## §48. The reverse elliptic estimate for the quartic potential (2026-11-12)
+
+Module: `BookProof/Sm/ChapterSmReverseEllipticQuartic.lean`, namespace
+`BookProof.SmReverseEllipticQuartic`.
+
+### 48.1. The estimate, and the one hypothesis it needs
+
+§31 reduced `PotSelfBound P c₀ β` — `‖W p + p‖ ≤ β ‖(−Δ_S + W + 1) p‖` — to an exact residual and
+showed that the sign route lands on a gradient-residual condition comparing a *degree-six* density
+with a *second-order* norm; §35 showed the quartic uncertainty bound is weaker than that condition,
+and one-sided in the wrong direction for closing it.  This section takes the other route.
+
+With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`, one has
+`B = N − k` **identically**, hence
+
+  `‖B‖² = Re ⟪B, N⟫ − Re ⟪B, k⟫`,
+
+and §23's weighted integration-by-parts identity (`sm_weighted_kinetic_ibp`) evaluates the second
+term as `∑_j [Re ⟪(∂_j W) p, D_j p⟫ + Re ⟪W D_j p, D_j p⟫]`.  The second sum is non-negative because
+`W ≥ 0` (`gaussInt_weighted_self_nonneg` against `smPotPoly_nonneg`), so what survives is the **single
+commutator term** `∑_j Re ⟪(∂_j W) p, D_j p⟫`.  Cauchy–Schwarz over `j` (`Finset.sum_mul_sq_le_sq_mul_sq`)
+and Young (`sqrt_mul_le_div`) turn it into
+
+  `(1 − a'/(4η)) ‖B‖² ≤ ‖B‖ ‖N‖ + C_η ‖N‖²`,
+
+with the only inputs besides the algebra
+
+* `‖p‖ ≤ ‖N‖` (§32's `norm_le_shiftNorm_of_coercive`) and
+* `∑_j ‖D_j p‖² ≤ ‖N‖²` (`sum_coreD_sq_le_shiftNorm_sq`), and
+* the **gradient domination**
+
+  `∑_{j∈S} ‖(∂_j W) p‖² ≤ a ‖W p‖² + b ‖p‖²`   (`GradDom`, `b ≥ 0`).
+
+`norm_le_of_quad_le` completes the square and yields an explicit constant, so
+**`exists_potSelfBound_of_gradDom`**: `GradDom` ⟹ `∃ β, PotSelfBound P c₀ β`.  No elliptic regularity
+and no form-domain comparison is used anywhere in that argument.
+
+### 48.2. `GradDom` is the residual input, and it is not automatic
+
+`GradDom` is a condition on the polynomial alone, so §48.3 settles its status rather than leaving it
+as a slogan:
+
+* **It holds for a coercive quartic.**  `gradDom_coercive_quartic`: for `W = X₀⁴ + X₁⁴` one has
+  `|∂₀W|² + |∂₁W|² = 16(x₀⁶ + x₁⁶) ≤ 16 W² + 32` at every point, from `t⁶ ≤ t⁸ + 1`.
+* **It fails for a flat quartic.**  `not_gradDom_flat_quartic`: for `W = X₀²X₁²` — non-negative, degree
+  four, flat on both coordinate hyperplanes — there are **no** `a, b` with
+  `|∂₀W|² + |∂₁W|² ≤ a W² + b`: on the curve `(t, 1/t)` the left side is `4(t² + t⁻²)` while the right
+  side is the constant `a + b`.
+
+So `GradDom` is a genuine restriction, not a consequence of `W ≥ 0` and `deg W = 4`.  This is exactly
+why `PotSelfBound` stays a hypothesis for the SM: `smPotPoly` is a sum of squares of quadratics
+(`polyW_smPotPoly`), and a quadratic factor that couples `X_i` to another coordinate produces the
+`X₀²X₁²` pattern — non-coercive — so the domination must be established for the actual 49 field
+polynomials, and it is not established here.
+
+### 48.3. What this does and does not settle
+
+* **Settled**: the reverse estimate is *not* a matter of elliptic regularity.  Given the gradient
+  domination, it is a two-line consequence of §23's sign identity plus Cauchy–Schwarz–Young, and the
+  argument is complete and axiom-clean (`exists_potSelfBound_of_gradDom`).
+* **Settled**: the domination hypothesis is a genuine algebraic condition — true for coercive
+  quartics, false for flat ones.
+* **Not settled**: `GradDom` for `smPotPoly P c₀`.  `PotSelfBound` therefore remains a named input
+  downstream, and P4 is unchanged in status: it is now *one algebraic question about `smPotPoly`*
+  rather than *an analytic statement about `−Δ_S + W`*.
+
+### 48.4. Verification performed (2026-11-12)
+
+* `lake env lean BookProof/Sm/ChapterSmReverseEllipticQuartic.lean` — exit 0, no warnings.
+* `lake build BookProof.Sm.ChapterSmReverseEllipticQuartic` — clean.
+* `lake env lean Work/SmReverseEllipticQuarticAudit.lean` — 16 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0.
+* `scripts/check-sm-section-guards` — green on the tree; and it was driven adversarially against a
+  synthetic tree to confirm the aggressor property: deleting any one side of a guarded pair makes it
+  exit 1 with a `[FAIL]` line naming the missing statement (verified for the §45 "no weakening"
+  verdict, `dense_colouredCore`, and the plan's meson/glueball entry).
+
+## §49. Which of the 49 directions are flat, and why `GradDom` nevertheless holds (2026-11-12)
+
+Modules: `BookProof/Sm/ChapterSmGradDomStructural.lean` (namespace
+`BookProof.SmGradDomStructural`), audit `Work/SmGradDomStructuralAudit.lean`.
+
+### 49.1. The question, and the answer
+
+§48 reduced P4 to `GradDom` — `∑_{j∈S} ‖(∂_jW)p‖² ≤ a‖Wp‖² + b‖p‖²` — and left it open, with the
+flat `X₀²X₁²` pattern named as the worry.  The answer is **affirmative**: `GradDom` holds for
+`W = smPotPoly P c₀` (`c₀ ≥ 0`), and *not* because `W` is coercive as a quartic (it is not), but
+because `W` contains the **coercive quadratic** `∑_{m∈M} q_m²` and every `∂_j Φ_r` (`j ∈ M`, the 40
+momentum coordinates) is at most **linear**.  Then `|∇W|² ≲ (1 + W)·W ≤ aW² + b`.
+
+The two facts are proved in the module as the structural theorem, and the flat pattern is
+*exhibited* as rescued, not argued away:
+
+* `wsSum`/`polyW_wsSum`/`polyW_pderiv_wsSum` — the shape `W = ∑_r Φ_r² + ∑_m x_m² + c₀`, its value
+  `∑_r Φ_r(x)² + ∑_m x_m² + c₀`, and its derivative `2∑_r Φ_r ∂_jΦ_r + 2x_j` on `M`;
+* `GradBound` — the per-form hypothesis `(∂_jΦ_r)² ≤ C(1 + ∑_m x_m²)`;
+* `sq_pderiv_le` — one coordinate: Cauchy–Schwarz `(∑_r A_rB_{jr})² ≤ (∑_r A_r²)(∑_r B_{jr}²)` with
+  `∑_r A_r² ≤ W` and `∑_r B_{jr}² ≤ |ι|C(1+S²)`, then `2ab ≤ a² + b²`;
+* **`pointwise_dom_of_sq_sum`** — `∑_{j∈M} (∂_jW)² ≤ (16|M||ι|C + 8)W² + (8|M||ι|C + 8)`;
+* **`gradDom_flat_plus_quadratic`** — the model instance `X₀²X₁² + X₀² + X₁²`: `|∂₀W|² + |∂₁W|² ≤
+  40W² + 24`, whereas §48's `not_gradDom_flat_quartic` shows the bare `X₀²X₁²` obeys no such bound.
+  This is the theorem that says the flat directions are not an obstruction.
+
+### 49.2. The classification of the 49 forms
+
+`smPhi P r = smFormPoly P id (smFormFin.symm r)`, with `SmForm` the five families of
+`ChapterSmHamiltonian` (24 + 9 + 3 + 12 + 1 = 49).  For `j` in the 40 momentum coordinates
+(`smS`), `∂_jΦ_r` never involves the derivative coordinates `smDG`/`smDW`/`smDB`/`smDPhi` (those
+carry no momentum and are not controlled by `W`), and it is at most linear.  What the family is,
+and where it is flat:
+
+| family | count | shape | `∂_jΦ_r ≠ 0` in | flat in |
+|---|---|---|---|---|
+| gluon magnetic `smMagG` | 24 | `½ε_{ijk}(∂_kG − ∂_jG + g_s f^{abd}G^b_jG^d_k)` | `G` (linear) | `φ`, `W`, `B`; and at `G = 0` |
+| weak magnetic `smMagW` | 9 | `½ε_{ijk}(∂_kW − ∂_jW + g_w e^{mbd}W^b_jW^d_k)` | `W` (linear) | `G`, `φ`, `B`; and at `W = 0` |
+| hypercharge `smMagB` | 3 | `½ε_{ijk}(∂_kB − ∂_jB)`, **purely derivative** | none | all 40 |
+| covariant Higgs `smCovD` | 12 | `φ_{a,i} + g_w(τ_j/2φ)_a W^j_i + g_y(σ₃/2φ)_a B_i` | `W`, `B`, `φ` (linear) | `G`; and at `φ = 0` or `W = B = 0` |
+| wall `smWall` | 1 | `√(λ/2)(‖φ‖² − v²)` | `φ` (linear) | `G`, `W`, `B` |
+
+So **none** of the 49 is a coercive quartic except the wall, and the 33 magnetic ones have exactly
+the `X₀²X₁²` shape — their squares vanish on a coordinate hyperplane and their gradients grow
+without bound along `(t, 1/t)` in the `G`-variables.  The flat pattern is therefore *present*; §49.1
+is why it does not matter.
+
+### 49.3. What this settles, and the two steps that remain
+
+* **Settled**: `GradDom` is not refuted by the SM's flat directions — the answer to the question is
+  affirmative, with a proved mechanism and a proved model instance.
+* **Not formalized** (both named in the module and in `BookProof.lean`):
+  1. the **per-form support table** of §49.2 as Lean facts about `pderiv j (smPhi P r)`: at most
+     linear, and no coordinate outside `smS` (this needs the `pderiv`/support analysis of the five
+     families, and the index-distinctness lemmas `smG_ne_smDG` and friends);
+  2. the **`L²` transfer** from the pointwise bound to `GradDom`: Gaussian-integral monotonicity
+     (`gaussInt_re_mono`) against `norm_pgLp_sq`, multiplied pointwise by the non-negative weight
+     `cpoly p * p` (as in `eval_weighted_self_re`).  §48's docstring previously cited a
+     `l2_gradDom_of_pointwise` for this; **that lemma does not exist** and the citation has been
+     corrected — the passage is routine but unformalized.
+* Therefore `PotSelfBound` for `smPotPoly` remains a hypothesis, now with an affirmative answer to
+  the algebraic question standing between it and a proof.
+
+### 49.4. Verification performed (2026-11-12)
+
+* `lake env lean BookProof/Sm/ChapterSmGradDomStructural.lean` — exit 0, no warnings.
+* `lake build BookProof.Sm.ChapterSmGradDomStructural` — clean (8170 jobs).
+* `lake env lean Work/SmGradDomStructuralAudit.lean` — 19 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0.
+* `scripts/check-sm-section-guards` — extended with the §48/§49 pair (coercive, flat, model); driven
+  adversarially: deleting `not_gradDom_flat_quartic` makes it exit 1 with two `[FAIL]` lines.
+
+## §50. The physical projector is constructed from the b-ghost (2026-11-12)
+
+Module: §5 of `BookProof/Sm/ChapterSmQuartet.lean` (namespace `BookProof.SmQuartet.BrstQuartet`),
+audit `Work/SmQuartetConstructedAudit.lean`.  This is §47.5 of the plan's ordering; it is recorded
+here so that the two follow-ups of 2026-11-12 stay together.
+
+### 50.1. The construction
+
+§47 assumed quartet data `(P, V)`.  The projector is in fact determined by the b-ghost:
+
+* **`physProjOf Q P = 1 − (QP + PQ) + Q P²Q`**, **`bGhostOf Q P = P − Q P²`**.
+* From `Q P Q = Q` and `P Q P = P` (the two contraction identities a b-ghost satisfies):
+  `QP` and `PQ` are idempotent, `(PQ)(QP) = P Q² P = 0`, and `(QP)(PQ) = Q P²Q` — so with
+  `Π = QP + PQ − Q P²Q` one has `Π² = Π`; `V = 1 − Π` is a projector (`physProjOf_idem`), `QV = 0`
+  (`physProjOf_Q`) and `VQ = 0` (`physProjOf_comp_Q`), and `Q P' + P' Q = Π = 1 − V`
+  (`bGhostOf_anticomm`).  The correction term is not cosmetic: the naive `1 − (QP + PQ)` fails
+  idempotency, and the naive `P` misses the anticommutator, by the *same* product `Q P²Q`.
+* **`quartetOfHomotopy`** assembles a `BrstQuartet Q` from `(Q, P)` alone;
+  **`physicalPositivity_of_homotopy`** is then the no-ghost theorem from a single object.
+
+### 50.2. The ghost-parity-even sector
+
+`V` is a polynomial in `Q` and `P`, so a parity `U` commuting with both (`physProjOf_commute_parity`)
+makes `V` parity-even, hence `V` maps `evenSpace U` into itself (`physProjOf_mem_even`) — the
+physical subspace *restricted to the even sector* is `V`'s range there.  With the sector hypotheses
+of §45/§47 (`U² = 1`, isometric, `ηU = Uη`), **`physicalPositivity_of_homotopy_sectors`** concludes
+`PhysicalPositivity`: non-negativity and definiteness are needed only on the physical subspace
+inside each sector.
+
+### 50.3. What is and is not constructed
+
+* **Constructed**: `V` (and the quartet's `P`) from one input, the contracting homotopy — checked
+  against the worked example: `exQ_exP_exQ`, `exP_exQ_exP`, and `exP_exQ_exP_gives_V`
+  (`physProjOf exQ exP = exV`), so the construction reproduces §47's model projector.
+* **Not constructed**: the Standard Model's own b-ghost, i.e. the pairing of each
+  longitudinal/ghost mode of the matter model with its partner.  `PhysicalPositivity` for
+  `smBrstCharge` therefore stays a hypothesis; what changed is that it now has **one** named
+  input instead of two, and that the parity refinement is automatic once that input is parity-even.
+
+### 50.4. Verification performed (2026-11-12)
+
+* `lake env lean BookProof/Sm/ChapterSmQuartet.lean` — exit 0, no warnings.
+* `lake env lean Work/SmQuartetConstructedAudit.lean` — 18 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0; `scripts/check-sm-section-guards` — green, with the new
+  §47.5 needles (`physProjOf`, `physicalPositivity_of_homotopy`, `exP_exQ_exP_gives_V`).
+
+## 51. The linear-form bridge: `GradBound` reduced to a support table (P4)
+
+§49 left `GradDom` conditional on two steps, the first of which was the *per-form support table*:
+for `j ∈ smS`, `pderiv j (smPhi P r)` must be at most linear and must not involve the derivative
+coordinates `smDG`/`smDW`/`smDB`/`smDPhi`.  §51 carries out the algebra of that step, so the table
+becomes the only remaining input.
+
+### 51.1. The reduction
+
+`BookProof/Sm/ChapterSmGradDomStructural.lean` §3b adds:
+
+* `linForm b L = ∑_{i∈L} C (b i) * X i` — a linear form with real coefficients, and
+  `realCoeff_linForm`, `polyW_linForm` (`polyW (linForm b L) x = ∑_{i∈L} b i * x i`);
+* **`sq_polyW_linForm_le`** — for `L ⊆ M`,
+  `(polyW (linForm b L) x)² ≤ (∑_{i∈L} (b i)²) (1 + ∑_{m∈M} x_m²)`.
+  This is `Finset.sum_mul_sq_le_sq_mul_sq` (Cauchy–Schwarz) followed by monotonicity of the sum
+  under `L ⊆ M`, so the coercive quadratic of `W` on `M` alone controls the form;
+* **`gradBound_of_linear`** — if for every `j ∈ M` and every form `r` there are a support `L j r ⊆ M`
+  and coefficients `b j r` with `pderiv j (Φ r) = linForm (b j r) (L j r)`, then
+  `GradBound Φ M (∑_{j∈M} ∑_r ∑_{i∈L j r} (b j r i)²)`.
+
+`gradBound_of_linear` is the composition with `pointwise_dom_of_sq_sum` that §49.3 anticipated: a
+support table plus Cauchy–Schwarz gives the per-form bound, and the per-form bound gives the
+pointwise domination `∑_{j∈M} (∂_j W)² ≤ a W² + b`.  The model check
+`sq_polyW_linForm_le_model` (with `linForm_unit_eq : linForm (fun _ => 1) {1} = X₁`) shows the
+inequality is the sharp one on the flat-quartic model's differentiated coordinate.
+
+### 51.2. What this does and does not close
+
+* **Closed**: no further analysis is needed once the `pderiv` computation for the five families is
+  available.  In particular the *coefficients* are no longer part of the open problem — they enter
+  only through the sum of squares, which `gradBound_of_linear` produces mechanically.
+* **Open**: the `pderiv` computation itself.  It is a finite, per-family statement about
+  `smFormPoly`: `∂(smMagG)` in a gauge coordinate is `½ ε · (structure constant) · X(W)`, `∂(smMagB)`
+  is `0` (the hypercharge form is purely derivative), `∂(smCovD)` in `W`/`B`/`φ` is a constant times
+  `X(φ)` or `X(W)`/`X(B)`, `∂(smWall)` is `√(λ/2) · 2 X(φ)`.  None of these meets a derivative
+  coordinate, which is the substantive content of the table.  Still not formalized, so `GradDom`
+  for `smPotPoly` remains a hypothesis.
+* **Unchanged**: the pointwise→`L²` transfer (`exists_potSelfBound_of_gradDom` consumes the `L²`
+  form), and the SM's own b-ghost.
+
+### 51.3. Verification performed (2026-11-12)
+
+* `lake build BookProof.Sm.ChapterSmGradDomStructural` — 8170 jobs, clean, no warnings.
+* `lake env lean Work/SmGradDomStructuralAudit.lean` — 28 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `scripts/check-sm-section-guards` — green, with new §49.3b needles (`sq_polyW_linForm_le`,
+  `gradBound_of_linear`).
+
+## 52. The pointwise-to-`L²` transfer, and `PotSelfBound` from the table alone (P4)
+
+§49 left two steps under `GradDom`: the per-form support table and the passage from the pointwise
+domination to the `L²` inequality.  §51 reduced the first; §52 closes the second, so what is left of
+P4 is a finite algebraic computation.
+
+### 52.1. The transfer
+
+`BookProof/Sm/ChapterSmGradDomTransfer.lean` (concurrent session, commit `f240c22`) carries
+`∑_{j∈M} (∂_j W)(x)² ≤ a W(x)² + b` to
+
+  `∑_{j∈M} ‖(∂_j W) p‖² ≤ a ‖W p‖² + b ‖p‖²`
+
+by Gaussian-integral monotonicity: the pointwise bound is multiplied by the non-negative `‖p(x)‖²`
+and integrated.  The evaluation identities `eval_real_of_realCoeff`, `norm_eval_sq_eq_polyW_sq`,
+`eval_cpoly_mul_re`, `eval_sum_cpoly_re` supply the pointwise shapes, `l2_gradDom_of_pointwise` is
+the transfer, and `exists_potSelfBound_of_pointwise` composes it with §48's
+`exists_potSelfBound_of_gradDom`.
+
+### 52.2. The chain from the table
+
+`exists_potSelfBound_of_gradBound` closes the loop: a `GradBound` for the 49 forms at a constant `C`
+gives `∃ β, PotSelfBound P c₀ β`, with the explicit constants `a = 16 |smS| 49 C + 8`,
+`b = 8 |smS| 49 C + 8`.  The step that makes this an instance of the SM rather than of a generic
+potential is `smPotPoly_eq_wsSum` (§49.3c): `smPotPoly P c₀` *is* `wsSum` at the 49 forms and the 40
+momentum coordinates, `Finset.sum_image` along `smCoord_injective` being the reindexing.
+
+So P4 now depends on one input, the per-form `pderiv` table: `∂_j (smPhi P r)` is a linear form
+supported in `smS` for every `j ∈ smS`.  §51's `gradBound_of_linear` turns that table into
+`GradBound`; §52 turns `GradBound` into `PotSelfBound`.  No analysis and no further algebra lies
+between them, and until the table is written down `PotSelfBound` remains a hypothesis.
+
+### 52.3. Verification performed (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmGradDomStructural BookProof.Sm.ChapterSmGradDomTransfer
+  BookProof.Sm.ChapterSmReverseEllipticQuartic` — clean.
+* `lake env lean Work/SmGradDomStructuralAudit.lean` — 28 declarations, axioms exactly
+  `propext, Classical.choice, Quot.sound`, no `sorryAx`.
+* `lake env lean Work/SmGradDomTransferAudit.lean` — 8 declarations, same three axioms, no `sorryAx`.
+* `lake env lean BookProof.lean` — exit 0.
+* `scripts/check-sm-section-guards` — green, with the §49.3b/§49.3c and §52 needles.
+
+These changes landed inside commit `09aabdd` (the concurrent session's symbol-gate commit took the
+staged files with it), so §52.1–§52.3 and `Work/SmGradDomTransferAudit.lean` are recorded here for
+the provenance the commit message does not carry.  The old
+  "unformalized `L²` transfer" caveat needle is replaced in the same commit by the §49 block's
+  `per-form \`pderiv\` table` caveat, since the caveat itself is now obsolete; the pderiv table is
+  still not written down, so the caveat is preserved in its narrowed form rather than deleted.

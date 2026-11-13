@@ -2,6 +2,7 @@ import Mathlib
 import BookProof.ChapterFiniteSectionSingleTime
 import BookProof.Toolbox.ChapterFockSecondQuantization
 import BookProof.Qg.ChapterQgCouplingDGammaSum
+import BookProof.Toolbox.ChapterFockWeightedSchurEsa
 
 /-!
 # The Weyl-gauge quantum Yang–Mills Hamiltonian is time-independent, and one finite time
@@ -33,8 +34,9 @@ need for a discretization of time.
 
 * **`ymFock_weylGauge_timeIndependent`** — unconditionally, for the physical second-quantized
   Yang–Mills Hamiltonian `dΓ(H₁)`: the Weyl-gauge sum-of-squares identity (first conjunct,
-  the gauge-fixing content: only spatial fields occur), and the positive self-adjoint
-  (Friedrichs) realization `T`, whose propagator `U(t,s) = e^{−i(t−s)H}` is unitary,
+  the gauge-fixing content: only spatial fields occur), and a self-adjoint extension `T`
+  (the one the Friedrichs construction produces), whose propagator `U(t,s) = e^{−i(t−s)H}` is
+  unitary,
   satisfies Chapman–Kolmogorov, is **time-translation invariant** and **uniquely** solves the
   Schrödinger equation of the one fixed generator.  No time ordering and no Dyson series
   occurs.
@@ -97,7 +99,10 @@ The first conjunct is the gauge-fixing content itself: in the Weyl gauge `A₀ =
 one-particle Hamiltonian is the sum of squares of the *spatial* electric and magnetic field
 operators, `⟪x, H₁ x⟫ = ½ Σ ‖π_m x‖² + ½ Σ ‖B_m x‖²`; no time component of the connection and
 no time derivative occurs.  Consequently its second quantization `dΓ(H₁)` is one fixed
-positive self-adjoint (Friedrichs) operator `T`, and the remaining conjuncts say that its
+positive self-adjoint operator `T` — the statement asserts `IsSelfAdjointExtension`, and
+`ymFock_dGamma_extension_eq_closure` below identifies every such extension with the closure
+`clExt` as soon as `dΓ(H₁)` is essentially self-adjoint, so the operator is then not selected
+but determined — and the remaining conjuncts say that its
 propagator `U(t,s) = e^{−i(t−s)H}` is unitary, obeys Chapman–Kolmogorov, is invariant under a
 common shift of both times and uniquely solves the Schrödinger equation — so the evolution
 problem is the evaluation of one unitary group at one finite time, with no time ordering and
@@ -149,6 +154,68 @@ theorem ymFock_timeIndependent_singleTime_of_esa (en : ℕ ≃ Conf)
         ∀ (v : Fock) (t : ℝ), Tendsto (fun n => (S n).stoneU t v) atTop (𝓝 (T.stoneU t v)) :=
   finiteSection_singleTime (dGammaOp (ymFockCol e fabc))
     (dGammaOp_ymFockCol_symmetricOn e fabc) hesa (windowOfEquiv_exhausts en)
+
+/-- **The ESA of `dΓ(H₁)`, reduced to the one-particle symbol gates.**  The obstruction to
+proving `EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymFockCol e fabc))` outright is
+not the Fock space: `dGamma_essentiallySelfAdjointOn_core_w` (weighted Schur test, §Toolbox)
+makes the second quantization essentially self-adjoint on the finite-occupation core as soon as
+the one-particle matrix satisfies three quantitative gates against a symbol `w ≥ 1` — rows
+`∑_j |A_{kj}| ≤ K w_k`, columns `∑_k |A_{jk}| / w_k ≤ K`, and the commutator gate
+`∑_j |A_{kj}| |w_j² − w_k²| / (w_k w_j) ≤ B`.  This theorem is the instantiation for the
+physical Yang–Mills matrix, so what remains is exactly those three estimates for `ymFockCol`.
+They are *not* proved here: `ymFockCol` is the matrix of the quartic one-particle Hamiltonian, so
+its rows do not decay (the unweighted `SchurBound` gate of `ChapterFockSchurEsa` cannot hold) and
+the weighted gates are genuine analytic estimates in the product Hermite basis. -/
+theorem ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates {w : ℕ → ℝ} (hw : ∀ k, 1 ≤ w k)
+    {K B : ℝ} (hK0 : 0 ≤ K)
+    (hrow : BookProof.FockWeightedSchur.WRowBound w (ymFockCol e fabc) K)
+    (hcolg : BookProof.FockWeightedSchur.WColBound w (ymFockCol e fabc) K)
+    (hbg : BookProof.FockWeightedSchur.WCommBound w (ymFockCol e fabc) B) :
+    EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymFockCol e fabc)) :=
+  BookProof.FockWeightedSchur.dGamma_essentiallySelfAdjointOn_core_w
+    hw (isHermCol_ymFockCol e fabc) hrow hcolg hK0 hbg
+
+/-- **The ESA of `dΓ(H₁)` from the row estimate alone.**  With the unweighted symbol `w ≡ 1` the
+column gate coincides with the row gate (`wColBound_one_of_wRowBound_one`) and the commutator gate
+is free (`wCommBound_one`), so the three symbol gates of
+`ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` collapse to the single ℓ¹ row estimate
+
+  `∀ k, ∑_{j} |(ymFockCol e fabc k) j| ≤ K`.
+
+**Boundary.**  This is the minimal *sufficient* form, but it is not a form the physical matrix can
+meet: the Hermite diagonal of `H₁ = ½Σπ² + ½ΣB²` grows like `|k|`, and
+`not_wRowBound_one_of_diag_unbounded` shows that an unbounded diagonal defeats the unweighted row
+gate for every `K`.  So this theorem reduces the hypothesis count, it is not a route to the physical
+case; there a *growing* symbol is needed, which is why the weighted gates exist. -/
+theorem ymFockCol_essentiallySelfAdjointOn_core_of_rowBound {K : ℝ} (hK : 0 ≤ K)
+    (hrow : BookProof.FockWeightedSchur.WRowBound (fun _ => 1) (ymFockCol e fabc) K) :
+    EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymFockCol e fabc)) :=
+  ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates (e := e) (fabc := fabc)
+    (w := fun _ => 1) (K := K) (B := 1) (fun _ => le_rfl) hK hrow
+    (BookProof.FockWeightedSchur.wColBound_one_of_wRowBound_one hrow)
+    (BookProof.FockWeightedSchur.wCommBound_one _ zero_le_one)
+
+
+/-- **The YM generator is determined, not selected.**  Whenever `dΓ(H₁)` is essentially
+self-adjoint on the finite-occupation core — the hypothesis of
+`ymFock_timeIndependent_singleTime_of_esa` — *every* self-adjoint extension of it has the domain
+of the closure and agrees with `clExt` there.  So the flow of that theorem, when it exists, is
+the flow of a determined operator, and the Friedrichs realisation is not a choice: it coincides
+with the closure.  Without the essential-self-adjointness hypothesis nothing here applies; for the
+physical `ymFockCol` that hypothesis is not proved, and
+`ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` reduces it to the three symbol gates
+(row, column and commutator) for the Yang–Mills matrix. -/
+theorem ymFock_dGamma_extension_eq_closure
+    (hesa : EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp (ymFockCol e fabc)))
+    {Dom : Submodule ℂ Fock} {A : Dom →ₗ[ℂ] Fock}
+    (hA : IsSelfAdjointExtension (dGammaOp (ymFockCol e fabc)) A) :
+    Dom = clDom (dGammaOp (ymFockCol e fabc)) ∧
+      ∀ (x : Fock) (h : x ∈ Dom) (h' : x ∈ clDom (dGammaOp (ymFockCol e fabc))),
+        A ⟨x, h⟩ = clExt (dGammaOp (ymFockCol e fabc)) finiteOccupation_dense
+          (dGammaOp_ymFockCol_symmetricOn e fabc) ⟨x, h'⟩ :=
+  isSelfAdjointExtension_unique_of_esa hesa hA
+    ⟨fun v => ⟨coe_mem_clDom _ v, clExt_extends _ _ _ v⟩,
+      clExt_symmetricOn _ _ _, clExt_selfAdjointCriterion _ _ _ hesa⟩
 
 /-- **The unconditional instance: a basis diagonalizing the one-particle Hamiltonian.**  If
 the product Hermite basis diagonalizes the gauge-fixed one-particle Yang–Mills Hamiltonian

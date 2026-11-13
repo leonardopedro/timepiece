@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+# SM/BRST section guards — an aggressor gate over the *prose and declaration*
+# pairs whose "simplification" is to delete one side.
+#
+# Background.  Four of the recent SM sections state a result together with the
+# boundary that stops it from being read as more than it is, and in each case the
+# cheap way to make a later edit look green is to drop one half of the pair:
+#
+#   1. §44/§45 (parity reduction) — `deficiencyTrivialAt_iff_sectors` reduces the
+#      closure problem to the two parity sectors, but P4 does **not** decompose
+#      over the split: `sectorComparison_iff_formDomainComparison` says the §32
+#      named input read on a sector is the whole statement, so `PotSelfBound`
+#      stays one open analytic problem.  Resolving the tension by dropping either
+#      the sector reduction or the "no weakening" verdict is the failure mode.
+#   2. §46/§47 (BRST) — the charge form is well defined on the cohomology
+#      (`kform_well_defined`), and `PhysicalPositivity` is *derived* from quartet
+#      data (`physicalPositivity_of_quartet`) while the Standard Model's own
+#      quartet data is still missing.  Dropping either the derivation or the
+#      "SM data missing" caveat is the failure mode.
+#   3. The QYM field-strength split — the Pauli-coordinate entry checks run only
+#      under `set_option maxHeartbeats 1000000 in`, and the dense coloured core
+#      (`dense_colouredCore`) is what makes the split a statement about the core.
+#      Deleting the entry checks, or the denseness, "resolves" the conflict.
+#   4. CONSOLIDATED_PLAN.md — the QYM Stone-flow row and the meson/glueball
+#      square entries are the two-way record of that track; a plan edit that
+#      keeps one and drops the other is the conflict silently closed.
+#   5. §48/§49 (gradient domination) — `GradDom` holds for a coercive quartic
+#      (`gradDom_coercive_quartic`) and **fails** for the flat `X₀²X₁²`
+#      (`not_gradDom_flat_quartic`), which is why the structural route of §49
+#      (`pointwise_dom_of_sq_sum`) carries the coercive quadratic term
+#      (`gradDom_flat_plus_quadratic`).  Keeping the coercion theorem and
+#      dropping the flat counterexample — or vice versa — turns "the flat
+#      pattern is real and needs an argument" into "the pattern does not occur",
+#      which is the failure mode: the counterexample is what makes the §49
+#      hypothesis non-vacuous.
+#
+# The gate is deliberately textual: it cannot certify mathematics, only that a
+# later change did not *remove* the half of a pair that carries the caveat.
+#
+# Exit 0 = all guarded pairs intact, 1 = at least one side missing.
+
+set -u
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$repo_root" || exit 1
+
+FAILED=0
+fail() {
+    echo "[FAIL] $1"
+    FAILED=1
+}
+
+# `require <file> <needle> <why>` — the file must exist and contain the literal.
+require() {
+    local file="$1" needle="$2" why="$3"
+    if [ ! -f "$file" ]; then
+        fail "$file missing ($why)"
+        return
+    fi
+    if ! grep -qF -- "$needle" "$file"; then
+        fail "$file no longer contains '$needle' ($why)"
+    fi
+}
+
+BOOKPLAN=BookProof.lean
+
+# ---- 1. §44 parity reduction (closure level) ---------------------------------
+require "BookProof/Sm/ChapterSmPhysicalReductionEsa.lean" \
+    "theorem deficiencyTrivialAt_iff_sectors" \
+    "§44: the sector reduction of the closure problem"
+require "BookProof/Sm/ChapterSmPhysicalReductionEsa.lean" \
+    "theorem smNormalForm_esd_iff_parity_sectors" \
+    "§44: the instance at the full matter normal form"
+require "$BOOKPLAN" "deficiencyTrivialAt_iff_sectors" \
+    "§44 comment block must keep naming the sector reduction"
+
+# ---- 2. §45 the sector does NOT weaken P4 ------------------------------------
+require "BookProof/Sm/ChapterSmSectorFormDomain.lean" \
+    "theorem coupledParity_deltaFun" \
+    "§45: every elementary tensor is a parity eigenvector"
+require "BookProof/Sm/ChapterSmSectorFormDomain.lean" \
+    "theorem sectorComparison_iff_formDomainComparison" \
+    "§45: a sector reading of the named input IS the whole statement"
+require "$BOOKPLAN" "coupledParity_deltaFun" \
+    "§45 comment block must keep the sector-eigenvector statement"
+require "$BOOKPLAN" "P4 therefore does not decompose" \
+    "§45 comment block must keep the 'no weakening' verdict (the other side of the pair)"
+require "$BOOKPLAN" "PotSelfBound" \
+    "§45 comment block must keep naming the remaining open input"
+
+# ---- 3. §46/§47 BRST: derivation AND its scope -------------------------------
+require "BookProof/Sm/ChapterSmBrstQuotient.lean" \
+    "theorem kform_well_defined" \
+    "§46: the charge form descends to the cohomology"
+require "BookProof/Sm/ChapterSmBrstQuotient.lean" \
+    "def PhysicalPositivity" \
+    "§46: the Kugo–Ojima condition is a named definition"
+require "BookProof/Sm/ChapterSmQuartet.lean" \
+    "theorem physicalPositivity_of_quartet" \
+    "§47: PhysicalPositivity is derived from quartet data"
+require "BookProof/Sm/ChapterSmQuartet.lean" \
+    "theorem exE2_not_exact" \
+    "§47: the worked example has non-trivial cohomology"
+require "$BOOKPLAN" "kform_well_defined" \
+    "§46 comment block must keep the well-definedness statement"
+require "$BOOKPLAN" "PhysicalPositivity" \
+    "§46/§47 comment blocks must keep naming the condition"
+require "$BOOKPLAN" "physicalPositivity_of_quartet" \
+    "§47 comment block must keep the derivation"
+require "$BOOKPLAN" "a proof of SM positivity" \
+    "§47 comment block must keep the 'SM quartet data missing' caveat"
+require "BookProof/Sm/ChapterSmQuartet.lean" "def physProjOf" \
+    "§47.5: the projector is constructed from the b-ghost, not assumed"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem physicalPositivity_of_homotopy" \
+    "§47.5: the no-ghost theorem from the contraction identities"
+require "BookProof/Sm/ChapterSmQuartet.lean" "theorem exP_exQ_exP_gives_V" \
+    "§47.5: the construction is checked against the worked example"
+require "$BOOKPLAN" "physicalPositivity_of_homotopy" \
+    "§47.5 comment block must keep the constructed projector"
+
+# ---- 4. the QYM field-strength split: both sides ------------------------------
+SPLIT=BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean
+require "$SPLIT" "dense_colouredCore" \
+    "the split is a statement about the dense coloured core"
+require "$SPLIT" "set_option maxHeartbeats 1000000 in -- 3 × 3 entry checks" \
+    "the Pauli-coordinate entry checks need their raised heartbeat budget"
+
+# ---- 5. the plan's two-way record of the QYM / meson / glueball track --------
+require "CONSOLIDATED_PLAN.md" "ymAbelian_stone_flow" \
+    "QYM Stone-flow row"
+require "CONSOLIDATED_PLAN.md" "mesonSymm_glueball_iso" \
+    "meson/glueball square entries"
+
+# ---- 6. §48/§49 the coercion fact AND the flat counterexample ----------------
+GQ=BookProof/Sm/ChapterSmReverseEllipticQuartic.lean
+require "$GQ" "theorem gradDom_coercive_quartic" \
+    "§48: the domination holds for a coercive quartic"
+require "$GQ" "theorem not_gradDom_flat_quartic" \
+    "§48: the domination fails for the flat quartic (the counterexample that keeps §49 non-vacuous)"
+require "$GQ" "theorem exists_potSelfBound_of_gradDom" \
+    "§48: the reverse estimate from the domination"
+STRUCT=BookProof/Sm/ChapterSmGradDomStructural.lean
+require "$STRUCT" "theorem pointwise_dom_of_sq_sum" \
+    "§49: the structural domination from a linear-gradient bound"
+require "$STRUCT" "theorem gradDom_flat_plus_quadratic" \
+    "§49: the flat quartic is rescued by the coercive quadratic term"
+require "$STRUCT" "def GradBound" \
+    "§49: the per-form gradient hypothesis is a named object, not prose"
+require "$STRUCT" "theorem sq_polyW_linForm_le" \
+    "§49.3b: the Cauchy-Schwarz bound that turns a linear form into GradBound"
+require "$STRUCT" "theorem gradBound_of_linear" \
+    "§49.3b: GradBound follows from a support table of linear forms, so the remaining gap is the pderiv table alone"
+require "$STRUCT" "theorem smPotPoly_eq_wsSum" \
+    "§49.3c: smPotPoly is wsSum at the 49 forms and the 40 momenta (what GradBound applies to)"
+TRAN=BookProof/Sm/ChapterSmGradDomTransfer.lean
+require "$TRAN" "theorem l2_gradDom_of_pointwise" \
+    "§52: the pointwise-to-L2 transfer is a theorem, not a note"
+require "$TRAN" "theorem exists_potSelfBound_of_gradBound" \
+    "§52: the whole chain GradBound -> PotSelfBound for smPotPoly"
+require "$BOOKPLAN" "not_gradDom_flat_quartic" \
+    "§48 comment block must keep the flat counterexample"
+require "$BOOKPLAN" "gradDom_flat_plus_quadratic" \
+    "§49 comment block must keep the model instance that rescues the flat pattern"
+require "$BOOKPLAN" 'per-form `pderiv` table' \
+    "§49 comment block must keep the one remaining input (the pderiv table) as a caveat"
+
+if [ "$FAILED" -ne 0 ]; then
+    echo
+    echo "The sections above pair a result with its boundary.  If a side is genuinely"
+    echo "obsolete, change the statement (and this gate) in the same commit — do not"
+    echo "delete the caveat to make a check pass."
+    exit 1
+fi
+
+echo "[OK] SM/BRST section guards: all guarded pairs intact"

@@ -1121,6 +1121,7 @@ import BookProof.ChapterFullQuadraticEsa
 -- circle `|z|² = Im z` and gives no mass to `z = 0`, so `A` is multiplication by the real
 -- function `Re z/|z|²` on a Hilbert sum of `L²(μ)` spaces.
 import BookProof.ChapterUnboundedSpectralModel
+import BookProof.Toolbox.ChapterUnboundedSpectrum
 -- The Faris–Lavine bounds for an **infinite sum** of operators: a summable family of
 -- symmetric operators on the maximal domain of a comparison symbol, each relatively
 -- bounded by the comparison operator and each with commutator form dominated by it, sums
@@ -4126,7 +4127,7 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- `PhysicalPositivity` (non-negative on the closed space, radical exactly the gauge orbit) is a
 -- **named input here**; §47 derives it from quartet data, but the matter model's own quartet data
 -- is not built, so no physical inner product is claimed.
--- `ChapterSmQuartet` (2026-11-13, `SM_ESA_COMPLETION_PLAN` §47): the Kugo–Ojima mechanism behind
+-- `ChapterSmQuartet` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §47): the Kugo–Ojima mechanism behind
 -- §46's named input.  A `BrstQuartet Q` is the b-ghost `P` plus the physical projector `V` with
 -- `Q P + P Q = 1 - V` and `V`'s range in `ker Q`; from it `V Q = 0` follows
 -- (`quartet_physProj_comp_Q`), every closed vector splits as `x = Q (P x) + V x`
@@ -4134,13 +4135,61 @@ import BookProof.Sm.ChapterSmPhysicalReductionEsa
 -- **`PhysicalPositivity` becomes a theorem** (`physicalPositivity_of_quartet`: the form is `‖V x‖²`
 -- on the closed space, and its radical is the gauge orbit).  The parity split composes with it
 -- (`kform_quartet_reduce_sectors`, `physicalPositivity_of_quartet_sectors`), which is the shape a
--- sector-by-sector attack takes.  `isBrst_of_mul_eq_zero` links `IsBrst` to the endomorphism form
--- of the charge (`smBrstCharge_nilpotent`), and `exQuartet'`/`exPhysicalPositivity` instantiate the
--- bundle on `ℂ³` in the only way a *definite* metric allows (`Q = 0`, `P = 0`, `V = 1`; the
--- cohomology is the whole space by `exE2_not_exact`).  A non-trivial quartet needs the indefinite
--- metric of §46; the SM's own `P` and `V` are still missing, so this is a mechanism, not a proof of
--- SM positivity.
+-- sector-by-sector attack takes.  `exQuartet`/`exPhysicalPositivity` is a non-vacuous
+-- 2⊕1-dimensional instance (indefinite metric `σ₁` on the block, identity on the physical line;
+-- the cohomology is non-trivial by `exE2_not_exact`), and `isBrst_smBrstCharge` links `IsBrst` to
+-- `smBrstCharge_nilpotent`.  **The projector no longer has to be assumed** (§47.5):
+-- `physProjOf Q P = 1 − (QP + PQ) + Q P²Q` is computed from the b-ghost alone, `bGhostOf Q P`
+-- restores the anticommutator `1 − V`, and `quartetOfHomotopy` assembles the quartet from the
+-- contraction identities `Q P Q = Q`, `P Q P = P` — so the physical input is one object (the
+-- gauge-fixed b-ghost) rather than two.  `physicalPositivity_of_homotopy` is the no-ghost theorem
+-- from it, `physProjOf_commute_parity`/`physProjOf_mem_even` give the ghost-parity-even sector (a
+-- parity-even b-ghost gives a parity-even `V`), and `physicalPositivity_of_homotopy_sectors` is
+-- positivity sector by sector.  `exP_exQ_exP_gives_V` shows the construction reproduces the model
+-- projector `exV`.  This is **not** a proof of SM positivity: the SM's own b-ghost is still
+-- missing, so what is proved is the mechanism.
 import BookProof.Sm.ChapterSmQuartet
+-- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
+-- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
+-- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`
+-- one has `B = N − k`, so `‖B‖² = Re ⟪B,N⟫ − Re ⟪B,k⟫`; §23's weighted integration by parts
+-- (`sm_weighted_kinetic_ibp`) evaluates `Re ⟪w,k⟫`, its weighted-Dirichlet half is non-negative
+-- (`gaussInt_weighted_self_nonneg` against `smPotPoly_nonneg`), and what survives is the single
+-- commutator term `∑_j Re ⟪(∂_j W) p, D_j p⟫`.  Cauchy–Schwarz plus Young turn that into
+-- `(1 − 2|a|/(4η)) ‖B‖² ≤ ‖B‖ ‖N‖ + C_η ‖N‖²`, using only `∑_j ‖(∂_j W) p‖² ≤ a ‖W p‖² + b ‖p‖²`
+-- (`GradDom`) together with `‖p‖ ≤ ‖N‖` and `∑_j ‖D_j p‖² ≤ ‖N‖²`.
+-- `exists_potSelfBound_of_gradDom` is that argument, with an explicit `β`;
+-- `sum_coreD_sq_le_shiftNorm_sq` is the Dirichlet half.
+-- **`GradDom` is the residual input, and it is a condition on the polynomial alone**: it holds for
+-- a coercive quartic (`gradDom_coercive_quartic`: `|∂₀W|² + |∂₁W|² = 16(x₀⁶ + x₁⁶)` for `X₀⁴ + X₁⁴`
+-- is `≤ 16W² + 32`) and **fails for the flat one** (`not_gradDom_flat_quartic`: for `X₀²X₁²` no
+-- `a, b` work, since on `(t, 1/t)` the gradient grows without bound while `W ≡ 1`).  P4 is now a
+-- single algebraic question about `smPotPoly` — whose mixed terms can be flat in a coordinate
+-- direction, the `X₀²X₁²` pattern — and `PotSelfBound` remains a hypothesis for the SM's own `W`.
+import BookProof.Sm.ChapterSmReverseEllipticQuartic
+-- `ChapterSmGradDomStructural` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §49): §48 left `GradDom` open
+-- for the SM with the flat `X₀²X₁²` pattern as the stated worry.  The worry is real — the gluon
+-- quartic term `f^{abd}G^b_j G^d_k` is flat on `G = 0` — but it is not the obstruction, because `W`
+-- also carries the coercive quadratic `∑_m q_m²` and every `∂_j Φ_r` is linear in the momentum
+-- coordinates.  `wsSum`, `polyW_wsSum` and `polyW_pderiv_wsSum` record that shape, `GradBound` is
+-- the per-form gradient hypothesis, and **`pointwise_dom_of_sq_sum`** turns it into
+-- `∑_j (∂_j W)² ≤ (16|M| |ι| C + 8) W² + (8|M| |ι| C + 8)` — the structural reason the answer is
+-- affirmative.  `gradDom_flat_plus_quadratic` is the model instance: `X₀²X₁² + X₀² + X₁²` obeys the
+-- domination with `a = 40`, `b = 24`, whereas §48's `not_gradDom_flat_quartic` shows the bare
+-- `X₀²X₁²` obeys it for no `a, b` at all.  One input remains and is named, not assumed: the
+-- per-form `pderiv` table (that `pderiv j Φ_r` is linear for `j ∈ smS` and avoids the derivative
+-- coordinates `smDG`/`smDW`/`smDB`/`smDPhi`, which no term of `W` controls).  Everything between
+-- that table and `PotSelfBound` is now proved — `SmGradDomStructural` turns the table into the
+-- pointwise bound and `SmGradDomTransfer` integrates it against the non-negative weight
+-- `cpoly p * p` (`exists_potSelfBound_of_gradBound`).  `PotSelfBound` for the SM is therefore still
+-- a hypothesis, but the question whether the 49 flat directions refute the domination is answered
+-- **no**, with a proved mechanism and a proved counterexample to the naive reading.  §51 carries out the algebra of the first step: `linForm`,
+-- `polyW_linForm`, `sq_polyW_linForm_le` (Cauchy–Schwarz on a support `L ⊆ M`) and
+-- `gradBound_of_linear` show that a support table `∂_j Φ_r = ∑_{i∈L} b_i x_i` with `L ⊆ smS`,
+-- coefficients included, *is* the hypothesis, so what remains of the table is the `pderiv`
+-- computation alone.
+import BookProof.Sm.ChapterSmGradDomStructural
+import BookProof.Sm.ChapterSmGradDomTransfer
 -- `ChapterSmSectorFormDomain` (2026-11-12,
 -- `SM_ESA_COMPLETION_PLAN` §45): P4 asked for one parity sector, and the answer is that the sector
 -- does not exist as a weakening.  `coupledParity` is diagonal on the outer occupation index

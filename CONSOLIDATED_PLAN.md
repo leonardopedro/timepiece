@@ -7,7 +7,79 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12j):** “State of the project — 2026-11-12j: the glueball square is
+> **Newest entry (2026-11-13a):** “State of the project — 2026-11-13a: the decomposition is unique,
+> and the `5` is irreducible” (end of file): the two gaps 12o named are closed — the components of
+> `v = u + c·δ + z` are determined by `v` (`glueball_decompose_unique`, via the trace functional
+> rather than through eigenvalue separation), and `Sym²₀` carries no invariant subspace of its own
+> (`glueballTraceless_irreducible`), by the `su(2)` weight argument written out — weights
+> `2, 1, 0, -1, -2` (`glueballWeightVec_eigen`), Lagrange projectors that read off one weight
+> coordinate (`glueballWeightProjection`), a basis (`glueballWeightBasis`) and pure ladders
+> `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`).
+>
+> **Earlier entry (2026-11-12q):** “State of the project — 2026-11-12q: the pointwise-to-`L²`
+> transfer, and the resolvent identity in the spectral parameter” (end of file):
+> `BookProof.Sm.ChapterSmGradDomTransfer` formalizes the transfer §48/§49 named as missing, so
+> `PotSelfBound` follows from the pointwise gradient domination alone and the residual input is the
+> finite `GradBound` table on the 49 forms; `BookProof.UnboundedSpectrum` gains the resolvent
+> identity, the parameter transport (`resolventAt_shift`) and the disc `‖z - i l‖ < |l|` in the
+> resolvent set, leaving the real-axis input as the boundary; the weighted symbol gates for
+> `ymFockCol` are still open.
+>
+> **Earlier entry (2026-11-12p):** “State of the project — 2026-11-12p: the ESA reduction, the P1
+> bound, and the unbounded spectrum” (end of file): the Fock-space half of the essential
+> self-adjointness of `dΓ(H₁)` is discharged —
+> `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` instantiates the weighted Schur test
+> at `ymFockCol`, leaving exactly three one-particle symbol
+> gates, which are named and not proved; the P1 Higgs Schur bound
+> (`smCanonical_p1Higgs_commForm_le_opRadius_unconditional`) is unconditional and nothing
+> downstream consumes `PotSelfBound`; and `BookProof.UnboundedSpectrum` supplies the missing
+> vocabulary — `ResolventAt`, `spectrumOf`, the Neumann transport
+> `resolventAt_add_of_norm_mul_lt_one` and the imaginary-shift instance — with the real-axis resolvent bound recorded as the remaining
+> boundary.
+>
+> **Earlier entry (2026-11-12o):** “State of the project — 2026-11-12o: the Casimir is natural — it
+> commutes, it is self-adjoint, and it splits every vector” (end of file): the eigenvalue list of
+> 12m is upgraded from a table of scalars to a spectral decomposition — the Casimir commutes with
+> every total action (`glueballCasimir_act`, `mesonCasimir_act`, proved from the closed forms),
+> is self-adjoint on each summand (`glueballCasimir_symmetric_alt`/`_traceless`/`_traceLine`,
+> `mesonCasimir_symmetric_symm`/`_alt`), and every vector of the glueball square is
+> `u + c·δ + z` along the three eigenspaces (`glueball_decompose`), where
+> `glueball_decompose_casimir` reads the Casimir off as `2•u + 6•z`.
+>
+> **Earlier entry (2026-11-12n):** “State of the project — 2026-11-12n: colour conjugation, the
+> colour eigenvalues, and the spectrum verdict” (end of file): unitary colour conjugation carries
+> the closure of `H ⊗ 1 + 1 ⊗ (U* C U)` onto the closure of `H ⊗ 1 + 1 ⊗ C`
+> (`colourMix_clExt_colouredHamiltonian`), a colour eigenvector spreads to an eigenvector of the
+> colour half with the same eigenvalue (`colourMix_colourSpread_eigenvector`), the requested
+> closure-spectrum containment is recorded as out of reach (no unbounded spectrum, no bundled
+> `H ⊗ 1`, no resolvent at real spectral distance) rather than asserted, and the QYM flow chapter
+> pins its generator to `clExt` under ESA (`ymFock_dGamma_extension_eq_closure`).
+>
+> **Earlier entry (2026-11-12m):** “State of the project — 2026-11-12m: the traceless summand is
+> invariant, and the Casimir reads off `3`, `1`, `5`” (end of file): the gap the 12j entry named is
+> closed by a stronger lemma — the trace functional annihilates the image of *every* total colour
+> action (`glueballTrace_coeff`, `glueballTrace_act_eq_zero`), so the traceless symmetric summand is
+> invariant (`glueballAct_mem_traceless`) and all three summands are stable under every generator,
+> the trace vector `δ` being annihilated outright (`glueballAct_singletVec`).  The quadratic Casimir
+> is computed entrywise in closed form and gives the eigenvalues `2` on `Λ² ℂ³`, `0` on the trace
+> line and `6` on `Sym²₀` (`glueballCasimir_alt`, `glueballCasimir_singletVec`,
+> `glueballCasimir_traceless`, `glueballCasimir_eigenspaces`), and `2`/`0` on the meson triplet and
+> singlet — the `3`, `1`, `5` read off as eigenvalues rather than counted.
+>
+> **Earlier entry (2026-11-12l):** “State of the project — 2026-11-12l: `colourMix` is a unitary,
+> the extension is the closure” (end of file): `1 ⊗ C` is an isometry of `colourSpace N` for a
+> unitary `C` (`colourMix_norm_of_unitary`, `colourMixIsometryEquiv`), the Stone flow is pinned to
+> the graph closure of the core (`colouredHamiltonian_extension_eq_closure`), and
+> `hilbActOp_hilbFibre_colourVecAct` puts both sides on one colour fibre while the ambient
+> completions stay distinct.
+>
+> **Earlier entry (2026-11-12k):** “State of the project — 2026-11-12k: the QYM flow exists” (end of
+> file): density of the coloured core (`dense_colouredCore`) and its Gauss–polynomial instance
+> (`colouredCore_polyGaussCore_dense`) feed `exists_stone_flow_of_colouredHamiltonian`, the D.12
+> Stone-flow item for any real structure-constant family and Hermitian `C`; the fibre tie is made
+> on the operator (`colourMix_colourFibre`, `colourVecAct_eq_eucMatCLM`), not on the completion.
+>
+> **Earlier entry (2026-11-12j):** “State of the project — 2026-11-12j: the glueball square is
 > `3 ⊕ 1 ⊕ 5`, and the two `3`s are one module” (end of file): the glueball slot swap splits
 > `ℂ³ ⊗ ℂ³` into `Λ² ⊕ Sym²` of dimensions `3` and `6` (`glueball_isCompl`,
 > `glueballAlt_finrank`), the trace line has a five-dimensional invariant complement
@@ -22703,6 +22775,7 @@ warning naming either module; no line over 100 characters and no trailing whites
 `lake build BookProof` on the merged tree (this packet plus the concurrent glueball/BRST commits)
 completed at 8969 jobs with no error.
 
+
 ## State of the project — 2026-11-12l: `colourMix` is a unitary, the extension is the closure
 
 §2026-11-12k closed the D.12 instance but left three statements open, and two of them were
@@ -22759,3 +22832,478 @@ module; `#print axioms` on `colourMix_inner_of_unitary`, `colourMix_norm_of_unit
 `colourMixIsometryEquiv`, `colouredHamiltonian_extension_eq_closure`,
 `exists_stone_flow_of_colouredHamiltonian`, `hilbActOp_hilbFibre_colourVecAct` and
 `colourGroupActHilbert_hilbFibre` reports only `propext, Classical.choice, Quot.sound`.
+
+## State of the project — 2026-11-12m: the traceless summand is invariant, and the Casimir reads off `3`, `1`, `5`
+
+**What the previous entry left open.**  The 12j colour-algebra entry split the glueball square as
+`Λ² ⊕ (trace line) ⊕ Sym²₀` and closed the first of those summands under the total action
+(`glueballAct_mem_alt`) and the symmetric part containing the other two
+(`glueballAct_mem_symm`).  It named one gap honestly: the traceless symmetric part's own
+invariance under `glueballAct` was not proved, and no dimension count could prove it — a
+five-dimensional subspace can perfectly well be carried off itself by an action, so
+`glueballTraceless_finrank = 5` says nothing about where the action sends it.
+
+**The gap is closed, by a stronger statement.**  `glueballTrace_coeff` observes that in any fixed
+column of `glueballRep a` the three diagonal rows cancel pairwise, which is the antisymmetry of
+`adjRep a` written out.  Therefore `glueballTrace_act_eq_zero` holds for *every* vector: the trace
+functional annihilates the image of each total colour action, not merely the traceless part.  A
+vector that is symmetric and traceless consequently stays both, which is
+`glueballAct_mem_traceless` — and with it the module's Boundary sentence "every summand closed
+under every total action" becomes literally true rather than a claim with a stated exception.
+
+**The Casimir, as an independent check on the split.**  The split was found from the slot swap and
+the trace functional; the quadratic Casimir `Σ_a (A^a)²` is a second, unrelated witness, because it
+must be a scalar on each irreducible summand.  Its closed forms are computed from the
+`ε`-contraction and checked entrywise, exactly as `adjRep_commutator` is:
+`4·1 + 2·(slot transpose) − 2·(trace)·1` on `ℂ³ ⊗ ℂ³` (`glueballCasimirMat_apply`,
+`glueballCasimir_apply`) and `1 + (slot transpose)` on `ℂ² ⊗ ℂ²` (`mesonCasimirMat_apply`,
+`mesonCasimir_apply`).  The eigenvalues then come out as they must:
+
+* `glueballCasimir_alt` — `2` on `Λ² ℂ³`;
+* `glueballCasimir_singletVec` and `glueballCasimir_traceLine` — `0` on the trace line (the singlet
+  vector `δ` is annihilated outright, not merely fixed up to the trace);
+* `glueballCasimir_traceless` — `6` on `Sym²₀`;
+* `mesonCasimir_symm` — `2` on the meson triplet, `mesonCasimir_alt` — `0` on the meson singlet;
+* `glueballCasimir_eigenspaces` — the three glueball summands span the square
+  (`sup_assoc`, `glueballTrace_sup`, `glueball_sup`), so a vector of the square is a sum of
+  eigenvectors with eigenvalues `2`, `0`, `6`.
+
+That is the dimension count `3 + 1 + 5 = 9` recovered from the representation rather than assumed:
+`2` and `2` on the two `3`s, `0` on the `1`, `6` on the `5`.  What it is *not*, as entered: a
+spectral decomposition — the eigenvalues are stated on each summand, and a vector with mixed
+components is not asserted there to be an eigenvector.  (The `12o` entry closes exactly that, with
+`glueball_decompose_casimir`, and adds the commutation and self-adjointness the eigenvalue list
+presupposed.)  The trace line is annihilated outright, not merely killed by the
+Casimir: `glueballAct_singletVec` shows every total action sends `δ` to `0`, so all three summands
+are stable under every generator, not only under the Casimir — the eigenvalue `0` is a consequence
+of that annihilation rather than an additional fact.  (The corresponding claim for a single
+generator was wrong when first written: `T^a` is antisymmetric in the adjoint, so the two
+`T^a`-legs of the Kronecker sum cancel on `Σ_p e_p ⊗ e_p`.  The probe that was meant to refute it
+proved it instead.)
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs,
+0 errors, no warning naming the module; no line over 100 characters; no `sorry`; `#print axioms` on
+`glueballTrace_coeff`, `glueballTrace_act_eq_zero`, `glueballAct_mem_traceless`,
+`glueballAct_singletVec`, `glueballCasimirMat_apply`, `glueballCasimir_apply`, `glueballCasimir_alt`,
+`glueballCasimir_singletVec`, `glueballCasimir_smul`, `glueballCasimir_traceLine`,
+`glueballCasimir_traceless`, `glueballCasimir_eigenspaces`, `mesonCasimirMat_apply`,
+`mesonCasimir_apply`, `mesonCasimir_symm` and `mesonCasimir_alt` all give
+`[propext, Classical.choice, Quot.sound]`.  Two heartbeat budgets were raised rather than left
+implicit: the entrywise Casimir closed form on `ℂ³ ⊗ ℂ³` is `81` checks each over a nine-term sum
+(`16000000` heartbeats), the meson one `16` checks over four-term sums (`4000000`), and the
+annihilation `glueballAct a δ = 0` `27` entry checks (`2000000`).  The aggregate `lake build
+BookProof` on the merged tree — this entry rebased onto the `12k`/`12l` QYM-flow packets, which
+touch the same chapter file, and onto `ChapterSmQuartet` — completed at 8971 jobs with no error and
+no warning naming this module.
+
+**A Lean trap worth recording.**  The entrywise sums are over `Fin 9` and cannot be discharged with
+`Fin.sum_univ_succ` plus `ring`: unrolling produces a right-nested sum ending in `+ 0` whose
+`Fin.succ`-chain numerals are not syntactically the numerals `ring` sees, so the atoms do not match
+and `ring` fails on an identity that is true.  A *full* `simp [Fin.sum_univ_succ, ...]` normalizes
+those chains first and closes the goal outright, after which `norm_num` is only needed for the
+meson entries, where `fundRep = (1/2) • pauli` brings in `I * I` and the existing `mul_I_mul_I`
+lemma is what finishes it.
+
+**Boundary.**  Everything above is representation theory of `su(2)` on finite-dimensional fibres.
+Nothing here asserts that the chapter's Fock space carries these modes as a factor, that
+`Sym²₀`'s five dimensions are five physical glueball polarisations, or that the Casimir eigenvalue
+`6` is a mass — it is a colour quantum number of the fibre, computed, and the mass statements live
+in the QYM chapters.
+## State of the project — 2026-11-12n: colour conjugation, the colour eigenvalues, and the spectrum verdict
+
+Three follow-ups to §2026-11-12l, of which two are proofs and the third is a negative result
+with a boundary note rather than an invented theorem.
+
+* **Colour conjugation transports the generator.**  `colourMix_colouredHamiltonian` proves on the
+  coloured core that `1 ⊗ U` intertwines `H ⊗ 1 + 1 ⊗ (U* C U)` with `H ⊗ 1 + 1 ⊗ C`
+  (`colourMix_colourFieldOp` for the field half, `colourMix_mul` plus `U * U* = 1` for the colour
+  half).  The lift to closures is a general fact, proved here as
+  `clExt_comp_of_bounded_intertwines`: a bounded `B` with `B (T v) = S (B v)` on a dense core
+  maps the closed graph of `T` into the closed graph of `S`, because `(x, y) ↦ (B x, B y)` is
+  continuous and `clGraph` is closed (`image_closure_subset_closure_image` on the operator graph,
+  `closure_mono`, then `IsClosed.closure_eq`).  No completeness, positivity or self-adjointness
+  enters.  The instantiation is `colourMix_clExt_colouredHamiltonian`, on the
+  Gauss–polynomial core, with `colourMixCLM` as the bounded operator (`‖1 ⊗ U‖ = 1` from
+  `colourMix_norm_of_unitary`) and `colourMix_mem_clDom_colouredHamiltonian` for the domain
+  transfer; `conjTranspose_colourConj` records that a Hermitian `C` stays Hermitian.  By
+  §2026-11-12l the two operators are `T.op` for the *unique* extensions, so this is a statement
+  about the QYM generator and not about a chosen realization.
+* **The colour eigenvalues are eigenvalues of the colour half.**
+  `colourMix_colourSpread_eigenvector`: if `v ≠ 0` is a colour eigenvector (`∑ j, C i j * v j =
+  a * v i`) and `φ ≠ 0`, the spread vector with components `v i • φ` is a nonzero eigenvector of
+  `colourMix C` with the same eigenvalue (`colourSpread_ne_zero`).  This is the provable fragment
+  of "the colour eigenvalues" — the colour half adds exactly the matrix spectrum to the coloured
+  space, carried on the field factor unchanged.
+* **The requested closure spectrum containment is not provable from this tree, and is not
+  claimed.**  The containment "`σ(T.op) ⊆ σ(H ⊗ 1) + {eigenvalues of C}`" needs three inputs, none
+  of which exists here: (i) a spectrum for an unbounded operator — the tree has the closure
+  (`BookProof.EsaClosure`) and the resolvent `(A - il)⁻¹` on the imaginary axis
+  (`BookProof.ChapterStoneResolvent`), while every `spectrum` occurrence is for a *bounded*
+  operator or for the bounded Cayley transform `resOp`; (ii) `H ⊗ 1` as a bundled self-adjoint
+  operator — only the coloured sum is bundled; (iii) a resolvent estimate at real `z` off the
+  spectrum plus a Neumann series, i.e. `‖(A + B - z)⁻¹‖ ≤ ‖(A - z)⁻¹‖ / (1 - ‖B‖ ‖(A - z)⁻¹‖)`.
+  As stated the containment is also false for non-commuting self-adjoint `A`, `B`; the standard
+  true form is one-sided and bounded-perturbation-theoretic.  The imaginary-axis bound
+  `‖(A - il)⁻¹‖ ≤ 1/|l|` gives no containment content, since `A + B` is self-adjoint there
+  anyway.  This is recorded as the *spectrum* boundary note of the ESA module rather than
+  silently attempted.
+* **Sweep of the "selected extension" wording.**  The Qym chapters already use `clExt` and say
+  "nothing to select" wherever essential self-adjointness is available
+  (`ymAbelian_positiveExtension_eq_closure`, `ymAbelianFock_positiveExtension_eq_closure`, whose
+  docstring is titled "the selection problem is empty").  The one place that described the
+  generator as a realized choice was `ChapterQymTimeIndependentFlow.lean`, where `∃ T,
+  IsSelfAdjointExtension (dΓ H₁) T.op` only *asserts* an extension: it now carries
+  `ymFock_dGamma_extension_eq_closure`, which pins every self-adjoint extension of `dΓ(H₁)` to
+  `clDom`/`clExt` *under* the essential-self-adjointness hypothesis of the sibling theorem, and
+  the two docstrings say exactly that ("the statement asserts `IsSelfAdjointExtension` … not
+  selected but determined").  For the physical `ymFockCol` that hypothesis is still open, so no
+  uniqueness is claimed unconditionally.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsNonAbelianEsa
+BookProof.ChapterQymTimeIndependentFlow` → 8177 jobs, no error, no warning naming either module;
+no line over 100 characters and no trailing whitespace in the edited files; `#print axioms` on
+`colourMix_colourFieldOp`, `colourMix_colouredHamiltonian`, `clGraph_image_subset`,
+`clExt_comp_of_bounded_intertwines`, `colourMix_mem_clDom_colouredHamiltonian`,
+`colourMix_clExt_colouredHamiltonian`, `colourMix_colourSpread_eigenvector`,
+`colourSpread_ne_zero` and `ymFock_dGamma_extension_eq_closure` reports only
+`propext, Classical.choice, Quot.sound`.
+
+## State of the project — 2026-11-12o: the Casimir is natural — it commutes, it is self-adjoint, and it splits every vector
+
+**What the previous entry left open.**  The 12m entry computed the Casimir's eigenvalues on the three
+glueball summands and the two meson ones, and said plainly what it had not done: the eigenvalues were
+stated on each summand, a vector with mixed components was not asserted to be an eigenvector, and
+nothing connected the Casimir to the action except the invariance of the summands.  An eigenvalue
+list is not a spectral decomposition of the operator, and it is not even a statement about the
+representation until the Casimir is shown to commute with the generators it is built from: `Σ_b (A^b)²`
+diagonalises only if `C` is a function of the representation rather than of a choice of basis.
+
+**The Casimir commutes with every generator.**  `glueballCasimir_act` proves `[C, A^a] = 0` on the
+square, and `mesonCasimir_act` the same for `ℂ² ⊗ ℂ²`.  The proof does not expand the defining sum
+`Σ_b (A^b)²`; it uses the closed form.  `glueballCasimir_eq` restates `glueballCasimir_apply` as the
+vector identity `C v = 4•v + 2•(slot swap)v − 2·tr(v)·δ` (`glueballSingletVec_diag` supplies the
+diagonal indicator for `δ`), and then the three terms commute separately: the slot swap commutes with
+the action (`glueballAct_flip`, the row identity `glueballRep_flip_row` plus the reindexing
+`glueball_sum_flip`), and both the trace functional (`glueballTrace_act_eq_zero`) and the trace vector
+(`glueballAct_singletVec`) are annihilated outright.  The supporting linearity lemmas
+(`glueballAct_add`, `glueballAct_smul`, `glueballAct_neg`, `glueballAct_sub`, `glueballCasimir_add`)
+are what lets the three terms be handled one at a time.  The meson case is the same argument with
+nothing to kill: `mesonCasimir_eq` is `v + (slot swap)v`, so `mesonAct_flip` plus `mesonAct_add` is
+the whole proof.
+
+**Self-adjoint on each summand.**  Where the Casimir is a scalar, self-adjointness for the standard
+Hermitian form is the reality of that scalar: `inner_smul_real_scalar` proves `⟪λ•v, w⟫ = ⟪v, λ•w⟫`
+whenever `λ† = λ` (the inner product here is conjugate-linear in its first argument, so the two sides
+need the same hypothesis for opposite reasons — hence the lemma being worth stating rather than
+leaving to `simp`).  Through it, `glueballCasimir_symmetric_alt` (eigenvalue `2`),
+`glueballCasimir_symmetric_traceless` (`6`), `glueballCasimir_symmetric_traceLine` (`0`),
+`mesonCasimir_symmetric_symm` (`2`) and `mesonCasimir_symmetric_alt` (`0`) say the Casimir is
+self-adjoint on each summand.  In the other direction the same lemmas are the reason the eigenvalues
+are real: a self-adjoint operator on a complex space has real eigenvalues, and the values computed
+here are `2`, `0` and `6`, real numbers, as they must be.
+
+**Every vector splits.**  `glueball_decompose` unpacks `glueballCasimir_eigenspaces` (twice — the
+`⊔` is left-associated, so the first `Submodule.mem_sup` splits off `Sym²₀` and the second the trace
+line) into `v = u + c·δ + z` with `u ∈ Λ² ℂ³` and `z ∈ Sym²₀`, and `glueball_decompose_casimir`
+adds what the Casimir does to that decomposition: `C v = 2•u + 6•z`, using `glueballCasimir_add`,
+`glueballCasimir_smul` and the three eigenvalue lemmas.  This is the statement 12m declined to make,
+and it is what makes the two `3`s and the `5` a decomposition of the fibre: a mixed vector is now
+asserted to be a sum of eigenvectors, and the trace line contributes nothing because it is
+annihilated.  Uniqueness is not part of the statement — distinct eigenvalues make the parts unique,
+but this entry claims existence only, and saying so was cheaper than proving an independence lemma;
+the uniqueness half is supplied in `13a` below (`glueball_decompose_unique`, by the trace functional
+rather than by separating eigenvalues), and `13a` is also what closes the irreducibility caveat in
+the next paragraph.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
+errors, no warning naming the module; no line over 100 characters; no `sorry`; `#print axioms` on all
+twenty-one new declarations (`glueballAct_add`, `glueballAct_smul`, `glueballAct_neg`,
+`glueballAct_sub`, `glueballCasimir_add`, `glueballSingletVec_diag`, `glueballCasimir_eq`,
+`glueballAct_flip`, `glueballCasimir_act`, `inner_smul_real_scalar`,
+`glueballCasimir_symmetric_alt`, `glueballCasimir_symmetric_traceless`,
+`glueballCasimir_symmetric_traceLine`, `glueball_decompose`, `glueball_decompose_casimir`,
+`mesonAct_add`, `mesonCasimir_eq`, `mesonAct_flip`, `mesonCasimir_act`,
+`mesonCasimir_symmetric_symm`, `mesonCasimir_symmetric_alt`) gives
+`[propext, Classical.choice, Quot.sound]`, and no heartbeat budget had to be raised: every new proof
+is a reindexing or a rewrite, not an entry check.  Re-checked against the tree, the 12m entry's own
+claims still hold as entered — 8091 jobs, the heartbeat budgets `16000000`/`4000000`/`2000000`, the
+finrank lemmas and the `glueballAct_singletVec` argument — with one cross-reference added where it
+said the eigenvalues are not a spectral decomposition.
+
+**Boundary.**  All of this is finite-dimensional representation theory of `su(2)` on the two squares.
+Commuting with the generators says `C` is a Casimir of the algebra acting on the fibre, not that it is
+conserved by any Hamiltonian of the chapter's Fock model; self-adjointness is with respect to the
+standard Hermitian form on `colourVec`, not any graph inner product; and the decomposition says the
+fibre is a direct sum of these three eigenspaces, not that the summands are irreducible; that
+argument is supplied for `Sym²₀` in `13a` below (`glueballTraceless_irreducible`), the antisymmetric
+`3` still being identified with the adjoint only as a module (`glueballAltEquiv`) rather than proved
+irreducible in its own right.
+
+## State of the project — 2026-11-12p: the ESA reduction, the P1 bound, and the unbounded spectrum
+
+Three requests answered in one packet: the essential self-adjointness of `dΓ(H₁)` for the physical
+`ymFockCol`, the status of the P1 Higgs Schur bound in the SM track, and the resolvent machinery a
+one-sided spectral containment needs.  The first two are verdicts, not more theorems; the third is
+new code.
+
+* **The ESA of `dΓ(H₁)` is reduced to three named symbol gates, and proved no further.**  The
+  obstruction is one-particle, not Fock-theoretic: the weighted Schur test
+  (`BookProof.FockWeightedSchur.dGamma_essentiallySelfAdjointOn_core_w`) gives
+  `EssentiallySelfAdjointOn (lpFiniteModes Conf) (dGammaOp A)` as soon as `A` has a symmetric
+  matrix over an index set with a symbol `w ≥ 1` (`∀ k, 1 ≤ w k`) satisfying three quantitative
+  gates — row `∑_j |A_{kj}| ≤ K w_k`, column `∑_k |A_{jk}| / w_k ≤ K`, and the commutator gate
+  `∑_j |A_{kj}| |w_j² − w_k²| / (w_k w_j) ≤ B`.  The new
+  `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` instantiates that theorem at the
+  physical matrix `ymFockCol e fabc`, so the whole Fock-space obligation is discharged and what is
+  left is exactly the three estimates for the quartic `one-particle` matrix in the product Hermite
+  basis.  Those are *not* proved here, and the docstring says so: `ymFockCol` is a Hamiltonian
+  matrix, so its rows do not decay and even the unweighted `SchurBound` gate of
+  `ChapterFockSchurEsa` is unavailable (it is only proved for a bounded one-particle operator);
+  the weighted gates are genuine analytic estimates and the symbol `w` itself is still to be
+  chosen.  Consequently `ymFock_dGamma_extension_eq_closure` still applies only *conditionally*,
+  and its docstring now states that explicitly while pointing at the reduction.  This is progress
+  in the honest direction — the Fock half is closed, the one-particle half is named — not a
+  discharge.
+
+* **The P1 Higgs Schur bound is unconditional, and nothing in the ESA assembly consumes it.**
+  `smCanonical_p1Higgs_commForm_le_opRadius_unconditional` (SM track, §315 of
+  `ChapterSmFullCommFormBlockP1OpNorm.lean`) bounds the canonical commutator form by the graph
+  norm `‖coupledOp (smFlN P c0) 1 f + f‖²` with `hc0 : 0 ≤ c0` as its *only* hypothesis; it does
+  not assume `PotSelfBound`, positivity of `p1Higgs`, or any decay of `P`.  `#print axioms` on it
+  and on the surrounding SM modules reports only `propext, Classical.choice, Quot.sound`, so the
+  bound is a theorem about the corpus's own definitions, not a hypothesis in disguise.  Where
+  `PotSelfBound` *does* appear is a different, norm-level statement:
+  `smNormalForm_norm_le_of_pot_self_bound` (needs `hpot : PotSelfBound …` and a kinetic bound)
+  controls the norm of the normal-form potential; the commutator-form bound above is the
+  form-level statement and needs neither.  So the ledger reads: P1 Schur bound — **closed,
+  unconditional**; `PotSelfBound` — an *input* to the norm-level relative bound only, still not
+  derived in the SM track's own terms (the later `exists_potSelfBound_of_gradDom` derives it from
+  `GradDom`, which holds for coercive quartics and fails for flat ones).  Nothing downstream of
+  the P1 bound depends on `PotSelfBound`, which is why the P1 item could be closed without it.
+
+* **The unbounded spectrum now exists, with the Neumann transport and the imaginary-shift
+  instance.**  The §2026-11-12n boundary note said the corpus had no spectrum of an unbounded
+  operator.  That is no longer true: `BookProof/Toolbox/ChapterUnboundedSpectrum.lean` (namespace
+  `BookProof.UnboundedSpectrum`, imported by `BookProof.lean`) defines `ResolventAt T z R` — the
+  honest two-sided statement that the *bounded* `R` inverts `T - z`, `R ((T - z) x) = x` on the
+  domain and `(T - z) (R y) = y` with `R y` in the domain — and from it `resolventSet T` and
+  `spectrumOf T` as its complement, so `σ(T)` for a densely defined `T` is a set in this tree for
+  the first time.  On top of it: `isUnit_one_add_clm_comp` (`‖B‖ ‖R‖ < 1` makes `1 + B R`
+  invertible), the Neumann transport `resolventAt_add_of_norm_mul_lt_one` (with `R` inverting
+  `T - z` and `‖B‖ ‖R‖ < 1`, the continuous map `R (1 + B R)⁻¹` inverts `(T + B) - z` where
+  `perturb T B = T + B ∘ domain-inclusion`), its spectrum form
+  `not_mem_spectrumOf_add_of_norm_mul_lt_one`, and the instance `resolventAt_selfAdjoint_imag` for
+  a `UnboundedSelfAdjoint` at `z = i l` (`l ≠ 0`) with the explicit inverse `T.resCLM l`, plus
+  `selfAdjoint_imag_mem_resolventSet` / `selfAdjoint_imag_not_mem_spectrumOf`.  **The real-axis
+  resolvent is still missing and is recorded as such**, in the module docstring and in the
+  spectrum boundary note of `ChapterYangMillsNonAbelianEsa.lean`, which now points at this module
+  instead of claiming the vocabulary is absent.  The reason it cannot be manufactured is stated
+  where it belongs: the transport *converts* a resolvent bound into a containment and never
+  produces one, and the tree's only self-adjoint resolvents sit on the imaginary axis, where
+  `T + B` is self-adjoint anyway and the bound carries no spectral information.  The missing
+  input is the spectral theorem's `‖(T - x)⁻¹‖ ≤ 1/dist(x, σ(T))` at real `x`.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterUnboundedSpectrum
+BookProof.Qym.ChapterYangMillsNonAbelianEsa BookProof.ChapterQymTimeIndependentFlow` → 8135 jobs
+for the first two, no error and no warning naming either module; no line over 100 characters and
+no trailing whitespace in the four edited files; `#print axioms` on
+`resolventAt_add_of_norm_mul_lt_one`, `not_mem_spectrumOf_add_of_norm_mul_lt_one`,
+`resolventAt_selfAdjoint_imag`, `selfAdjoint_imag_mem_resolventSet`,
+`selfAdjoint_imag_not_mem_spectrumOf` and
+`ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` reports only
+`propext, Classical.choice, Quot.sound`.  The SM audit is by inspection plus `#print axioms` on the
+three SM modules named above (8177 jobs, no error); it changed no SM file.
+
+## State of the project — 2026-11-12q: the pointwise-to-`L²` transfer, and the resolvent identity in the spectral parameter
+
+Two of the three inputs the §2026-11-12o boundary notes named as missing are now in the tree.
+
+* **The `L²` transfer is formalized, so `PotSelfBound` rests on the pointwise domination alone.**
+  `BookProof/Sm/ChapterSmGradDomTransfer.lean` (namespace `BookProof.SmGradDomTransfer`) supplies the
+  step both §48 and §49 recorded as "routine but not formalized": from the pointwise gradient
+  domination `∑_{j∈M} (∂_j W)(x)² ≤ a W(x)² + b` it derives the `L²` inequality `GradDom` by
+  Gaussian-integral monotonicity (`gaussInt_re_mono`) against `norm_pgLp_sq`, the pointwise bound
+  multiplied by the non-negative `‖p‖²` (`l2_gradDom_of_pointwise`).  The three evaluation
+  identities it needs are proved there: a real-coefficient polynomial has a real value at a real
+  point (`eval_real_of_realCoeff`), its squared modulus is `polyW²`
+  (`norm_eval_sq_eq_polyW_sq`), and the Gaussian weight of `q p` is `(polyW q)² ‖p‖²`
+  (`eval_cpoly_mul_re`).  Composed with `exists_potSelfBound_of_gradDom`, the new
+  `exists_potSelfBound_of_pointwise` says: **a pointwise domination for `smPotPoly` yields
+  `PotSelfBound`, with `β` explicit**.  So the residual obligation for the Standard Model's own
+  potential is now exactly the per-form `GradBound` table — a finite algebraic check on the 49
+  forms — and no analysis between it and `PotSelfBound` remains.  This does *not* prove the table;
+  `GradBound (smPhi P) smS C` is still open, and `PotSelfBound P c0 β` is therefore still
+  conditional on it.
+
+* **The resolvent identity in the spectral parameter, and the disc around the imaginary axis.**
+  `BookProof.UnboundedSpectrum` gains `resolvent_identity` (`R_z - R_w = (z - w) R_z R_w` for two
+  bounded inverses, no completeness hypothesis), `resolventAt_shift` (if `R` inverts `T - w` and
+  `‖z - w‖ ‖R‖ < 1` then `R (1 - (z - w) R)⁻¹` inverts `T - z`, so the resolvent set is open with
+  an explicit witness), and `mem_resolventSet_of_near_imag`, which combines that with
+  `‖(T - i l)⁻¹‖ ≤ 1/|l|` to place the whole disc `‖z - i l‖ < |l|` in the resolvent set of a
+  self-adjoint operator.  This is what the resolvent identity actually buys: the disc has radius
+  exactly the distance from `i l` to the real axis, so it meets the real axis only in the limit
+  `l → ∞`.  The genuine real-axis bound `‖(T - x)⁻¹‖ ≤ 1/dist(x, σ T)` still needs the spectral
+  theorem and remains the recorded boundary — now sharpened from "no resolvent machinery" to
+  "everything but the real-axis input".
+
+* **Still open: the weighted symbol gates for `ymFockCol`.**  No symbol `w` and no proof of the
+  row/column/commutator gates was produced in this packet.  The Fock half remains as §2026-11-12p
+  left it (`ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates`), with the three gates named and
+  unproved; picking `w` is itself a choice that has to make the commutator gate true, and the
+  product-Hermite off-diagonal sums are not yet in the tree.
+
+**Verification.**  `lake build BookProof.Sm.ChapterSmGradDomTransfer
+BookProof.Toolbox.ChapterUnboundedSpectrum` → 8172 / 8030 jobs, no error and no warning naming
+either module; no line over 100 characters and no trailing whitespace; `#print axioms` on
+`l2_gradDom_of_pointwise`, `exists_potSelfBound_of_pointwise`, `resolvent_identity`,
+`resolventAt_shift` and `mem_resolventSet_of_near_imag` reports only
+`propext, Classical.choice, Quot.sound`.  Both modules are imported by `BookProof.lean`.
+
+## State of the project — 2026-11-12r: the three symbol gates collapse to one, for the unweighted symbol
+
+Following §2026-11-12q, the weighted-gate question for `ymFockCol` has a sharp answer at `w ≡ 1`,
+now proved rather than asserted:
+
+* `wColBound_one_of_wRowBound_one` — with `w ≡ 1`, `WColBound 1 col K` is *the same expression* as
+  `WRowBound 1 col K` (both sum `‖(col k) j‖ / 1` over `(col k).support`), so the two Schur gates
+  are one condition, not two.
+* `wCommBound_one` — with `w ≡ 1` the commutator gate is free: `w_j² - w_k² = 0`, so every term
+  vanishes and any `B ≥ 0` works.
+* `ymFockCol_essentiallySelfAdjointOn_core_of_rowBound` (`BookProof/ChapterQymTimeIndependentFlow.lean`)
+  — the consequence: the ESA of `dΓ(H₁)` for the physical matrix follows from the single ℓ¹ row
+  estimate `∀ k, ∑_j |(ymFockCol e fabc k) j| ≤ K`, with no symbol to choose.
+
+So the minimal missing input for the physical `ymFockCol` is one estimate, not three: the uniform
+ℓ¹ row bound of the one-particle matrix in the product Hermite basis.  Note what this does and does
+not buy: it removes the *choice* of `w` (and with it the question whether a weighted symbol helps),
+but it does not prove the row estimate, so the ESA of the physical generator remains conditional.
+The weighted gates keep their point only if a symbol can be found that makes the ℓ¹ row sum *easier*
+than it is at `w ≡ 1` — and since the column gate at general `w` is the same finite sum weighted by
+`1/w_k`, a weight can only help through the commutator gate.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa
+BookProof.ChapterQymTimeIndependentFlow` → 8077 / 8140 jobs, no error and no warning naming either
+module; no line over 100 characters; `#print axioms` on `wCommBound_one` reports only
+`propext, Classical.choice, Quot.sound`, and the new theorem is a term application of that lemma,
+of `wColBound_one_of_wRowBound_one` and of the axiom-free symbol-gate reduction.
+
+## State of the project — 2026-11-12s: the spectrum of an unbounded operator is closed
+
+A short completion of §2026-11-12q's resolvent machinery: `isOpen_resolventSet` (for any densely
+defined `T`, the set of `z` admitting a bounded inverse of `T - z` is open — at a resolvent point
+`w` with inverse `R`, the disc of radius `1/(‖R‖ + 1)` stays inside) and `isClosed_spectrumOf`
+(the spectrum, as its complement, is closed).  Both are `resolventAt_shift` read as a neighbourhood
+statement, so the openness costs nothing beyond §4.  This is the first structural fact about the
+unbounded spectrum in the tree: `σ(T)` is now a closed subset of `ℂ`, not merely a set.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterUnboundedSpectrum` → 8030 jobs, no error and
+no warning naming the module; no line over 100 characters.
+
+## State of the project — 2026-11-13a: the decomposition is unique, and the `5` is irreducible
+
+**What the previous entry left open.**  `12o` proved that every vector of `ℂ³ ⊗ ℂ³` splits as
+`u + c·δ + z`, and named two things it did not do: the split was stated as existence only ("distinct
+eigenvalues make the parts unique, but the module claims existence only"), and the three summands
+were invariant pieces whose irreducibility "would need a separate argument".  Both are closed here,
+and the irreducibility argument is the `su(2)` weight argument written out, not a Lie-theoretic detour.
+
+**Uniqueness by the trace.**  `glueball_decompose_unique` takes two decompositions of one vector and
+returns `u₁ = u₂`, `c₁ = c₂`, `z₁ = z₂`.  The trace functional is linear — additivity
+`glueballTraceCoords_add'` and homogeneity `glueballTraceCoords_smul'` are stated separately, each
+a `ring` on the three diagonal coordinates, since `glueballTraceLinear'` is then a definition away.
+It vanishes on the antisymmetric part (`glueballTraceLinear'_alt`, from the three vanishing diagonal
+coordinates in `glueballAlt_coords`), vanishes on the traceless part by definition
+(`glueballTraceLinear'_traceless`), and reads `3` on `δ` (`glueballTraceLinear'_singlet`, which is
+`glueballSingletVec_trace`).  So each decomposition gives `trace v = 3·c`, and `c₁ = c₂` follows by
+cancelling `3`.
+
+**Uniqueness of the pieces.**  With the coefficients equal, subtracting the two decompositions leaves
+`(u₁ - u₂) + (z₁ - z₂) = 0`, so `u₁ - u₂ = -(z₁ - z₂)`: that vector is antisymmetric (a difference of
+two elements of `glueballAlt`) and symmetric (the negative of a difference of traceless parts, each
+of which lies in `glueballSymm`).  The intersection is trivial — `glueballAlt_inf_symm`, proved from
+the two swap relations `flip v = -v` and `flip v = v` by `v + v = 0` and then `2 • v = 0` over `ℂ` —
+so both differences vanish and the components are functions of the vector.  This is cheaper than the
+eigenvalue route `12o` gestured at: once the trace has fixed `c`, no separation of eigenspaces is
+needed.
+
+**`Sym²₀` is irreducible.**  `glueballTraceless_irreducible` states: a subspace `W` of the square
+with `W ≤ glueballTraceless`, preserved by all three total actions, is `⊥` or `glueballTraceless`.
+Nothing in the chapter supplies Schur's lemma or weights, so the argument is written out.
+
+* The five vectors `glueballWeightVec k` are symmetric and traceless (`glueballWeightVec_symm`,
+  `glueballWeightVec_traceless`), nonzero (`glueballWeightVec_ne_zero`), and eigenvectors of the
+  third total action with eigenvalues `glueballWeight = ![2, 1, 0, -1, -2]`
+  (`glueballWeightVec_eigen`), the powers being `glueballWeightVec_pow`.
+* The Lagrange projectors `glueballLagrange` read off one weight coordinate at a time:
+  `glueballWeightProjection` gives `Σ_m L_{km} (A³)^m (Σ_i c_i • b_i) = c_k • b_k`.  That is what
+  makes the five linearly independent (`glueballWeightVec_linearIndependent`): a vanishing
+  combination has every projector applied to it zero, leaving `c_k • b_k = 0`, hence `c_k = 0` by
+  `glueballWeightVec_ne_zero`.  The summand has dimension `5` (`glueballTraceless_finrank`), so they
+  are a basis (`glueballWeightBasis`), the independence inside the subtype being
+  `glueballWeightBasisVec_linearIndependent`, carried down from the ambient one.
+* The ladders are `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) and are *pure*: each sends a
+  weight vector to a nonzero multiple of a single neighbour — `b₀ ↦ -2i·b₁ ↦ i·b₂ ↦ -6i·b₃ ↦ 2i·b₄`
+  upward and `b₁ ↦ 2i·b₀`, `b₂ ↦ -6i·b₁`, `b₃ ↦ i·b₂`, `b₄ ↦ -2i·b₃` downward, the eight lemmas
+  `glueballLadderUp_zero` … `glueballLadderDown_four`, each a nine-coordinate check against the closed
+  forms `glueballRep_one_mulVec` and `glueballRep_zero_mulVec`.  No projection is needed for a ladder:
+  the neighbour comes out as a scalar multiple.
+* Given `0 ≠ z ∈ W`, write `z = Σ c_i • b_i` in that basis; some `c_k ≠ 0`, and the projector at `k`
+  applied to `z` is `c_k • b_k` — a sum of powers of `A³` applied to `z`, all in `W` by induction on
+  the exponent (`pow_succ'` plus closure of `W` under `A³`) — so `b_k ∈ W` after multiplying by
+  `c_k⁻¹`.  The ladders then keep `W` and carry `b_k` to its neighbours, so all five weight vectors
+  lie in `W` and `W` is the whole summand.  Combining `glueballTraceless_irreducible` with the two
+  `3`s being `Λ² ≅ adjoint` (`glueballAltEquiv`) and the trace line, `3 ⊕ 1 ⊕ 5` is a split into
+  blocks with no invariant refinement inside the `5`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
+errors, no `sorry`; `#print axioms` on `glueball_decompose_unique`, `glueballTraceless_irreducible`,
+`glueballWeightBasis`, `glueballWeightProjection` and `glueballWeightVec_linearIndependent` gives
+`[propext, Classical.choice, Quot.sound]`; no line of the new block exceeds 100 code points.  The
+build does report linter warnings naming the module, all of them in the eight ladder-coordinate lemmas
+and the weight-eigenvector check: `linter.flexible` and `linter.unusedSimpArgs` on the mechanical
+`simp` sets that expand the closed forms entry by entry — the `simp?`-minimal list differs from
+theorem to theorem and the `ℂ`-arithmetic close differs from coordinate to coordinate, so one fixed
+list per theorem still trips the per-declaration unused-argument check.  These are style warnings; the
+kernel checks are unaffected; they were left in the tree rather than silenced with `set_option`, and
+they should be reworked into per-theorem `simp only` lists if this block is touched again.
+
+**Boundary.**  Still finite-dimensional `su(2)` representation theory on the two squares.  The
+irreducibility statement is for `Sym²₀` only: the antisymmetric `3` is identified with the adjoint as
+a module (`glueballAltEquiv`) but is not proved irreducible here, and the meson triplet likewise.  The
+uniqueness statement is uniqueness of the sum decomposition `Λ² ⊕ ℂδ ⊕ Sym²₀` at the level of vectors;
+it does not say the summands are pairwise non-isomorphic — the two `3`s in fact are isomorphic.  And
+nothing here concerns the chapter's Fock model or any Hamiltonian: no dynamics, no constraints, no
+unbounded operators.
+
+## State of the project — 2026-11-12t: correction — the unweighted row gate is false, not merely open
+
+§2026-11-12r ended by calling the ℓ¹ row estimate "the minimal missing input" for the physical
+`ymFockCol`.  That was wrong about the physical matrix, and the error is now a theorem:
+
+* `not_wRowBound_one_of_diag_unbounded` (`BookProof/Toolbox/ChapterFockWeightedSchurEsa.lean`) —
+  if the diagonal of the matrix dominates an unbounded sequence `d`, then
+  `WRowBound (fun _ => 1) col K` fails for *every* `K`: row `k` already contains the entry
+  `(col k) k`, so its sum is at least `d k`.
+* `not_wRowBound_one_numberCol` — the witness: the number operator `N_kj = δ_kj · k`, whose
+  diagonal is exactly the Heisenberg growth the physical `H₁ = ½Σπ² + ½ΣB²` shows in the product
+  Hermite basis (each of the 99 coordinates contributes `2k_i + 1`).  So
+  `¬ ∃ K, WRowBound 1 numberCol K`.
+
+Consequences, stated so they are not lost again:
+
+1. `ymFockCol_essentiallySelfAdjointOn_core_of_rowBound` is a genuine reduction of the *hypothesis
+   count* (three gates → one), but it is **not** a route to the physical generator: its hypothesis
+   is false for any matrix with unbounded diagonal, so instantiating it at `ymFockCol` is not
+   possible in principle, not merely unproved.  Its docstring now says this.
+2. The weighted form is therefore the only live form of the criterion.  Since the row gate reads
+   `∑_j |A_kj| ≤ K w_k` while the column gate divides by `w_k`, a symbol growing like the diagonal
+   (e.g. `w_k ≈ 1 + |k|`) is what makes both satisfiable at once — that is the shape any real proof
+   for `ymFockCol` must take.
+3. The earlier claim in §2026-11-12r that "a weight can only help through the commutator gate" is
+   withdrawn: the weight enters the row gate through its right-hand side, which is exactly where the
+   growth has to be absorbed.
+
+**Verification.**  `lake build BookProof.Toolbox.ChapterFockWeightedSchurEsa
+BookProof.ChapterQymTimeIndependentFlow` → 8140 jobs, no error, no warning naming either module, no
+line over 100 characters (the two long docstring lines found on the first pass were re-wrapped).
