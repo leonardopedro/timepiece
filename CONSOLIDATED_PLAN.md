@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest entry (2026-11-12q):** “State of the project — 2026-11-12q: the pointwise-to-`L²`
+> **Newest entry (2026-11-13a):** “State of the project — 2026-11-13a: the decomposition is unique,
+> and the `5` is irreducible” (end of file): the two gaps 12o named are closed — the components of
+> `v = u + c·δ + z` are determined by `v` (`glueball_decompose_unique`, via the trace functional
+> rather than through eigenvalue separation), and `Sym²₀` carries no invariant subspace of its own
+> (`glueballTraceless_irreducible`), by the `su(2)` weight argument written out — weights
+> `2, 1, 0, -1, -2` (`glueballWeightVec_eigen`), Lagrange projectors that read off one weight
+> coordinate (`glueballWeightProjection`), a basis (`glueballWeightBasis`) and pure ladders
+> `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`).
+>
+> **Earlier entry (2026-11-12q):** “State of the project — 2026-11-12q: the pointwise-to-`L²`
 > transfer, and the resolvent identity in the spectral parameter” (end of file):
 > `BookProof.Sm.ChapterSmGradDomTransfer` formalizes the transfer §48/§49 named as missing, so
 > `PotSelfBound` follows from the pointwise gradient domination alone and the residual input is the
@@ -16,7 +25,7 @@
 > resolvent set, leaving the real-axis input as the boundary; the weighted symbol gates for
 > `ymFockCol` are still open.
 >
-> **Prev entry (2026-11-12p):** “State of the project — 2026-11-12p: the ESA reduction, the P1
+> **Earlier entry (2026-11-12p):** “State of the project — 2026-11-12p: the ESA reduction, the P1
 > bound, and the unbounded spectrum” (end of file): the Fock-space half of the essential
 > self-adjointness of `dΓ(H₁)` is discharged —
 > `ymFockCol_essentiallySelfAdjointOn_core_of_symbolGates` instantiates the weighted Schur test
@@ -28,7 +37,7 @@
 > `resolventAt_add_of_norm_mul_lt_one` and the imaginary-shift instance — with the real-axis resolvent bound recorded as the remaining
 > boundary.
 >
-> **Prev entry (2026-11-12o):** “State of the project — 2026-11-12o: the Casimir is natural — it
+> **Earlier entry (2026-11-12o):** “State of the project — 2026-11-12o: the Casimir is natural — it
 > commutes, it is self-adjoint, and it splits every vector” (end of file): the eigenvalue list of
 > 12m is upgraded from a table of scalars to a spectral decomposition — the Casimir commutes with
 > every total action (`glueballCasimir_act`, `mesonCasimir_act`, proved from the closed forms),
@@ -23001,8 +23010,10 @@ adds what the Casimir does to that decomposition: `C v = 2•u + 6•z`, using `
 and it is what makes the two `3`s and the `5` a decomposition of the fibre: a mixed vector is now
 asserted to be a sum of eigenvectors, and the trace line contributes nothing because it is
 annihilated.  Uniqueness is not part of the statement — distinct eigenvalues make the parts unique,
-but the module claims existence only, and saying so is cheaper than proving an independence lemma
-that nothing here consumes.
+but this entry claims existence only, and saying so was cheaper than proving an independence lemma;
+the uniqueness half is supplied in `13a` below (`glueball_decompose_unique`, by the trace functional
+rather than by separating eigenvalues), and `13a` is also what closes the irreducibility caveat in
+the next paragraph.
 
 **Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
 errors, no warning naming the module; no line over 100 characters; no `sorry`; `#print axioms` on all
@@ -23023,9 +23034,10 @@ said the eigenvalues are not a spectral decomposition.
 Commuting with the generators says `C` is a Casimir of the algebra acting on the fibre, not that it is
 conserved by any Hamiltonian of the chapter's Fock model; self-adjointness is with respect to the
 standard Hermitian form on `colourVec`, not any graph inner product; and the decomposition says the
-fibre is a direct sum of these three eigenspaces, not that the summands are irreducible — that would
-need a separate argument (the identification of the antisymmetric `3` with the adjoint is the only
-irreducibility statement the chapter has, via `glueballAltEquiv`).
+fibre is a direct sum of these three eigenspaces, not that the summands are irreducible; that
+argument is supplied for `Sym²₀` in `13a` below (`glueballTraceless_irreducible`), the antisymmetric
+`3` still being identified with the adjoint only as a module (`glueballAltEquiv`) rather than proved
+irreducible in its own right.
 
 ## State of the project — 2026-11-12p: the ESA reduction, the P1 bound, and the unbounded spectrum
 
@@ -23187,6 +23199,82 @@ unbounded spectrum in the tree: `σ(T)` is now a closed subset of `ℂ`, not mer
 
 **Verification.**  `lake build BookProof.Toolbox.ChapterUnboundedSpectrum` → 8030 jobs, no error and
 no warning naming the module; no line over 100 characters.
+
+## State of the project — 2026-11-13a: the decomposition is unique, and the `5` is irreducible
+
+**What the previous entry left open.**  `12o` proved that every vector of `ℂ³ ⊗ ℂ³` splits as
+`u + c·δ + z`, and named two things it did not do: the split was stated as existence only ("distinct
+eigenvalues make the parts unique, but the module claims existence only"), and the three summands
+were invariant pieces whose irreducibility "would need a separate argument".  Both are closed here,
+and the irreducibility argument is the `su(2)` weight argument written out, not a Lie-theoretic detour.
+
+**Uniqueness by the trace.**  `glueball_decompose_unique` takes two decompositions of one vector and
+returns `u₁ = u₂`, `c₁ = c₂`, `z₁ = z₂`.  The trace functional is linear — additivity
+`glueballTraceCoords_add'` and homogeneity `glueballTraceCoords_smul'` are stated separately, each
+a `ring` on the three diagonal coordinates, since `glueballTraceLinear'` is then a definition away.
+It vanishes on the antisymmetric part (`glueballTraceLinear'_alt`, from the three vanishing diagonal
+coordinates in `glueballAlt_coords`), vanishes on the traceless part by definition
+(`glueballTraceLinear'_traceless`), and reads `3` on `δ` (`glueballTraceLinear'_singlet`, which is
+`glueballSingletVec_trace`).  So each decomposition gives `trace v = 3·c`, and `c₁ = c₂` follows by
+cancelling `3`.
+
+**Uniqueness of the pieces.**  With the coefficients equal, subtracting the two decompositions leaves
+`(u₁ - u₂) + (z₁ - z₂) = 0`, so `u₁ - u₂ = -(z₁ - z₂)`: that vector is antisymmetric (a difference of
+two elements of `glueballAlt`) and symmetric (the negative of a difference of traceless parts, each
+of which lies in `glueballSymm`).  The intersection is trivial — `glueballAlt_inf_symm`, proved from
+the two swap relations `flip v = -v` and `flip v = v` by `v + v = 0` and then `2 • v = 0` over `ℂ` —
+so both differences vanish and the components are functions of the vector.  This is cheaper than the
+eigenvalue route `12o` gestured at: once the trace has fixed `c`, no separation of eigenspaces is
+needed.
+
+**`Sym²₀` is irreducible.**  `glueballTraceless_irreducible` states: a subspace `W` of the square
+with `W ≤ glueballTraceless`, preserved by all three total actions, is `⊥` or `glueballTraceless`.
+Nothing in the chapter supplies Schur's lemma or weights, so the argument is written out.
+
+* The five vectors `glueballWeightVec k` are symmetric and traceless (`glueballWeightVec_symm`,
+  `glueballWeightVec_traceless`), nonzero (`glueballWeightVec_ne_zero`), and eigenvectors of the
+  third total action with eigenvalues `glueballWeight = ![2, 1, 0, -1, -2]`
+  (`glueballWeightVec_eigen`), the powers being `glueballWeightVec_pow`.
+* The Lagrange projectors `glueballLagrange` read off one weight coordinate at a time:
+  `glueballWeightProjection` gives `Σ_m L_{km} (A³)^m (Σ_i c_i • b_i) = c_k • b_k`.  That is what
+  makes the five linearly independent (`glueballWeightVec_linearIndependent`): a vanishing
+  combination has every projector applied to it zero, leaving `c_k • b_k = 0`, hence `c_k = 0` by
+  `glueballWeightVec_ne_zero`.  The summand has dimension `5` (`glueballTraceless_finrank`), so they
+  are a basis (`glueballWeightBasis`), the independence inside the subtype being
+  `glueballWeightBasisVec_linearIndependent`, carried down from the ambient one.
+* The ladders are `A¹ ∓ i A⁰` (`glueballLadderUp`, `glueballLadderDown`) and are *pure*: each sends a
+  weight vector to a nonzero multiple of a single neighbour — `b₀ ↦ -2i·b₁ ↦ i·b₂ ↦ -6i·b₃ ↦ 2i·b₄`
+  upward and `b₁ ↦ 2i·b₀`, `b₂ ↦ -6i·b₁`, `b₃ ↦ i·b₂`, `b₄ ↦ -2i·b₃` downward, the eight lemmas
+  `glueballLadderUp_zero` … `glueballLadderDown_four`, each a nine-coordinate check against the closed
+  forms `glueballRep_one_mulVec` and `glueballRep_zero_mulVec`.  No projection is needed for a ladder:
+  the neighbour comes out as a scalar multiple.
+* Given `0 ≠ z ∈ W`, write `z = Σ c_i • b_i` in that basis; some `c_k ≠ 0`, and the projector at `k`
+  applied to `z` is `c_k • b_k` — a sum of powers of `A³` applied to `z`, all in `W` by induction on
+  the exponent (`pow_succ'` plus closure of `W` under `A³`) — so `b_k ∈ W` after multiplying by
+  `c_k⁻¹`.  The ladders then keep `W` and carry `b_k` to its neighbours, so all five weight vectors
+  lie in `W` and `W` is the whole summand.  Combining `glueballTraceless_irreducible` with the two
+  `3`s being `Λ² ≅ adjoint` (`glueballAltEquiv`) and the trace line, `3 ⊕ 1 ⊕ 5` is a split into
+  blocks with no invariant refinement inside the `5`.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsFieldStrengthSplit` → 8091 jobs, 0
+errors, no `sorry`; `#print axioms` on `glueball_decompose_unique`, `glueballTraceless_irreducible`,
+`glueballWeightBasis`, `glueballWeightProjection` and `glueballWeightVec_linearIndependent` gives
+`[propext, Classical.choice, Quot.sound]`; no line of the new block exceeds 100 code points.  The
+build does report linter warnings naming the module, all of them in the eight ladder-coordinate lemmas
+and the weight-eigenvector check: `linter.flexible` and `linter.unusedSimpArgs` on the mechanical
+`simp` sets that expand the closed forms entry by entry — the `simp?`-minimal list differs from
+theorem to theorem and the `ℂ`-arithmetic close differs from coordinate to coordinate, so one fixed
+list per theorem still trips the per-declaration unused-argument check.  These are style warnings; the
+kernel checks are unaffected; they were left in the tree rather than silenced with `set_option`, and
+they should be reworked into per-theorem `simp only` lists if this block is touched again.
+
+**Boundary.**  Still finite-dimensional `su(2)` representation theory on the two squares.  The
+irreducibility statement is for `Sym²₀` only: the antisymmetric `3` is identified with the adjoint as
+a module (`glueballAltEquiv`) but is not proved irreducible here, and the meson triplet likewise.  The
+uniqueness statement is uniqueness of the sum decomposition `Λ² ⊕ ℂδ ⊕ Sym²₀` at the level of vectors;
+it does not say the summands are pairwise non-isomorphic — the two `3`s in fact are isomorphic.  And
+nothing here concerns the chapter's Fock model or any Hamiltonian: no dynamics, no constraints, no
+unbounded operators.
 
 ## State of the project — 2026-11-12t: correction — the unweighted row gate is false, not merely open
 
