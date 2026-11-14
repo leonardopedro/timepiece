@@ -2268,6 +2268,42 @@ remains an input — of the same kind as the certified gap it feeds, not somethi
 warning and no line above 100 code points; `#print axioms` on the six new theorems gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004
 jobs.
+
+### The gap's upper end, a recorded row, and why the tag is needed (2026-11-13x)
+
+Track A, closing out `13w`. Three loose ends: the band's upper end, a row with real data, and what
+exactly the source type's constructor tag buys.
+
+**The upper end.** `gap_transfer` is one-sided because `resolventEdge_sub` is an *identity*,
+`λ'₁ - λ'₀ = (e₁ - e₀)/((e₀ + γ)(e₁ + γ))`; the gap is the reflected gap times the two shifted
+eigenvalues. `edge_sub_le_of_upperBounds` turns that into
+`e₁ - e₀ ≤ (λ'₁ - λ'₀)(E₀ + γ)(E₁ + γ)` given `e_i ≤ E_i`, and
+`gap_interval_of_reflected_bands` combines both halves:
+`γ²(lo₁ - hi₀) ≤ e₁ - e₀ ≤ (hi₁ - lo₀)(E₀ + γ)(E₁ + γ)`. So a reflected band's `hi` does reach an
+upper bound on `e` — at the price of one further input, the upper bounds `E_i` on the two edges.
+That price is not removable: the factor `(e₀ + γ)(e₁ + γ)` depends on `e`, and no band on `λ'`
+determines it.
+
+**A row with data.** `qcdG2M4BandRow γ hγ` puts the recorded `g = 2`, `m = 4` solve into the
+reflected table: its band is the ledger's window (`qcdG2M4BandRow_band`: `Set.Icc 1.932 2.043`) and
+`qcdG2M4BandRow_positive` reads a strictly positive gap off it. Two honest limits are in the
+docstrings: the ledger stores the window and not `(θ, ε)`, so the row is transcribed rather than
+rebuilt by `ofTemple`; and the entry records no shift, so the row is parametric in `γ > 0` instead
+of inventing one.
+
+**Why the tag.** `compressionInput_holds_wholeSpaceInput_fails`: on `diag (5, 2)` with `vOther` the
+eigenvector of eigenvalue `2`, the level `3` satisfies the complement form bound (at `vTrial` the
+form is `5`, and `inner_trial_other` puts `vTrial` in `vOtherᗮ`) and fails the whole-space bound (at
+`vOther` the form is `2`). The docstring is explicit about what that does *not* say: the two
+certificates are not logically independent, since a separation on `A'` makes `λ'` the bottom of the
+reflected spectrum; what fails is interchangeability of the *hypotheses* at one numeric level. That
+is why `ReflectedSeparationSource` tags its constructor instead of collapsing both to a single
+inequality.
+
+**Verification.** `ChapterResolventTransfer`, `ChapterSpectralSplitting` and `ChapterSirkGapTable`
+build with no warning and no line above 100 code points; `#print axioms` on the five new
+declarations gives `[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is
+green at 9004 jobs.
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

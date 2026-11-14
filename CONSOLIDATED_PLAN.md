@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13w`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13x`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,14 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13w):** “State of the project — 2026-11-13w: one type for the two
+> **Track A — newest (2026-11-13x):** “State of the project — 2026-11-13x: the gap's upper end, and
+> a row with data” (end of file): `edge_sub_le_of_upperBounds` plus
+> `gap_interval_of_reflected_bands` close the gap's upper side from a reflected band and upper
+> bounds `e_i ≤ E_i`; `qcdG2M4BandRow` is the recorded `g = 2`, `m = 4` solve as a band row
+> (`qcdG2M4BandRow_positive`); and `compressionInput_holds_wholeSpaceInput_fails` shows at level `3`
+> on `diag (5, 2)` the complement bound holds while the whole-space one fails.
+>
+> **Track A (2026-11-13w):** “State of the project — 2026-11-13w: one type for the two
 > inputs, the band in the table” (end of file): `ReflectedSeparationSource` makes the bottom edge
 > and the compression form bound two branches of one input, both discharged into the same
 > `SpectralSeparation` by `spectralSeparation_of_source`; `ReflectedBandRow` with
@@ -24888,3 +24895,38 @@ succeed with no warning and no line above 100 code points; `#print axioms` on th
 (`spectralSeparation_of_source`, `sirk_reflected_gap_certificate_of_source`, `A2_inner_re_nonneg`,
 `reflected_band_table`, `reflected_band_row_positive`, `bottomEdge_not_implied_by_positivity`)
 gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-13x: the gap's upper end, and a row with data
+
+Track A, closing the three loose ends of `13w`.
+
+**The upper end of the gap.**  `13w` recorded that a band's upper end could not bound `e`, because
+`gap_transfer` is one-sided.  The reason is an identity, not a defect of the band:
+`resolventEdge_sub` says `λ'₁ - λ'₀ = (e₁ - e₀)/((e₀ + γ)(e₁ + γ))`, so the gap is the reflected gap
+times the two shifted eigenvalues.  `edge_sub_le_of_upperBounds` gives
+`e₁ - e₀ ≤ (λ'₁ - λ'₀)(E₀ + γ)(E₁ + γ)` from upper bounds `e_i ≤ E_i`, and
+`gap_interval_of_reflected_bands` combines it with `gap_transfer` into the two-sided interval
+`γ²(lo₁ - hi₀) ≤ e₁ - e₀ ≤ (hi₁ - lo₀)(E₀ + γ)(E₁ + γ)`.  Both ends then come from band data plus
+the two edge bounds; the `E_i` are the one input the band cannot supply, and the docstrings say so
+rather than folding them away.
+
+**A recorded row.**  `qcdG2M4BandRow γ hγ` presents the recorded `g = 2`, `m = 4` solve as a
+`ReflectedBandRow`: `qcdG2M4BandRow_band` identifies its band with the ledger window
+`Set.Icc 1.932 2.043`, and `qcdG2M4BandRow_positive` turns that into a strictly positive gap through
+`reflected_band_row_positive`.  The ledger stores the window, not `(θ, ε)`, so the row is
+transcribed rather than rebuilt by `ofTemple`; and it records no shift, so the row is parametric in
+`γ > 0` instead of inventing one.  Both limitations are in the docstring.
+
+**What the constructor tag buys.**  `compressionInput_holds_wholeSpaceInput_fails`: on `diag (5, 2)`
+the level `3` satisfies the complement form bound (`vTrial` spans `vOtherᗮ`, where the form is `5`)
+and fails the whole-space bound (`vOther` sees `2`).  The two hypotheses are therefore not
+interchangeable at one numeric level, which is why `ReflectedSeparationSource` tags its constructor.
+The docstring states the other half plainly: the *certificates* are not logically independent, since
+a separation on `A'` already makes `λ'` the bottom of the reflected spectrum.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer`,
+`BookProof.Sirk.ChapterSpectralSplitting`, `BookProof.Sirk.ChapterSirkGapTable` and `BookProof`
+succeed with no warning and no line above 100 code points; `#print axioms` on the five new
+declarations (`edge_sub_le_of_upperBounds`, `gap_interval_of_reflected_bands`,
+`compressionInput_holds_wholeSpaceInput_fails`, `qcdG2M4BandRow_band`,
+`qcdG2M4BandRow_positive`) gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.

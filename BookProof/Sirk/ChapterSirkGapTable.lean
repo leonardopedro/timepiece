@@ -46,7 +46,9 @@ Two things are still wanted around it:
   `reflected_band_row_positive` — the reflected table: a coupling row is the two-sided Temple
   band `[θ − ε²/(b − θ), θ]` the SIRK certificate emits for that coupling's reflected edge, so
   the row reports an *interval* (`λ' ∈ band`) instead of a lower endpoint, and its lower end
-  transfers to `γ² lo ≤ e` (`gap_transfer`), which is a strictly positive gap whenever `lo > 0`.
+  transfers to `γ² lo ≤ e` (`gap_transfer`), which is a strictly positive gap whenever `lo > 0`;
+  `qcdG2M4BandRow` is the recorded `g = 2`, `m = 4` solve as such a row, and
+  `qcdG2M4BandRow_positive` reads a strictly positive gap off it.
 * **T12** `richardson`, `richardson_exact` (the extrapolation is exact for a pure
   `C·l^{-p}` correction), `richardson_error` (its error propagation), and
   `richardson_qym_g4` — the evaluation on the recorded finite-size data.
@@ -200,8 +202,9 @@ def ReflectedBandRow.ofTemple (g γ theta eps b : ℝ) (hgamma : 0 < γ) (hlt : 
 `lam` is the reflected edge `resolventEdge γ e` of each coupling and `e` the corresponding edge of
 the Hamiltonian.  The transfer `γ² λ' ≤ e` (`gap_transfer`) is one-sided, so the row emits the band
 in the *reflected* variable and a **lower** bound `γ² lo ≤ e` for the original edge; the upper end
-`hi` bounds `λ'`, not `e` — an upper bound on `e` would need a separate bound on the shifted
-eigenvalues, which no band on `λ'` alone supplies. -/
+`hi` bounds `λ'` directly; bounding `e` above needs the two shifted eigenvalues, and
+`ChapterResolventTransfer.gap_interval_of_reflected_bands` supplies that combination
+(`edge_sub_le_of_upperBounds` is its upper half). -/
 theorem reflected_band_table {n : ℕ} (row : Fin n → ReflectedBandRow) (lam e : Fin n → ℝ)
     (hband : ∀ i, lam i ∈ (row i).band)
     (htransfer : ∀ i, (row i).gamma ^ 2 * lam i ≤ e i) :
@@ -281,6 +284,35 @@ theorem qcdG2M4Row_lo : qcdG2M4Row.lo = 1.932 ∧ qcdG2M4Row.hi = 2.043 := by
 theorem qcdG2M4_strongCoupling_consistent : qcdG2M4Row.strongCouplingConsistent := by
   constructor <;>
     norm_num [CouplingCertificate.lo, CouplingCertificate.hi, qcdG2M4Row, strongCoupling]
+
+/-- **The recorded `g = 2`, `m = 4` solve as a reflected band row.**  The ledger stores the
+certified window `[1.932, 2.043]` and not the pair `(θ, ε)` that produced it, so the band is
+transcribed from the window rather than rebuilt by `ReflectedBandRow.ofTemple`; and the entry
+records no shift, so the row is parametric in `γ > 0` instead of inventing one. -/
+def qcdG2M4BandRow (γ : ℝ) (hγ : 0 < γ) : ReflectedBandRow where
+  g := 2
+  gamma := γ
+  gamma_pos := hγ
+  lo := qcdG2M4Row.lo
+  hi := qcdG2M4Row.hi
+  lo_le_hi := qcdG2M4Row.lo_le_hi
+
+/-- The recorded row's band is the ledger's window. -/
+theorem qcdG2M4BandRow_band (γ : ℝ) (hγ : 0 < γ) :
+    (qcdG2M4BandRow γ hγ).band = Set.Icc 1.932 2.043 := by
+  obtain ⟨h1, h2⟩ := qcdG2M4Row_lo
+  simp [ReflectedBandRow.band, qcdG2M4BandRow, h1, h2]
+
+/-- **The recorded row certifies a strictly positive gap.**  The window's lower end is `1.932 > 0`,
+so any edge the band's point feeds through the transfer is positive — the row-level payoff of
+`reflected_band_row_positive`, on data rather than on a hypothetical band. -/
+theorem qcdG2M4BandRow_positive (γ : ℝ) (hγ : 0 < γ) {lam e : ℝ}
+    (hband : lam ∈ (qcdG2M4BandRow γ hγ).band)
+    (htransfer : (qcdG2M4BandRow γ hγ).gamma ^ 2 * lam ≤ e) : 0 < e := by
+  refine reflected_band_row_positive _ hband htransfer ?_
+  simp only [qcdG2M4BandRow, CouplingCertificate.lo, qcdG2M4Row]
+  norm_num
+
 
 /-! ## 4. T12 — Richardson extrapolation of the finite-size gaps
 

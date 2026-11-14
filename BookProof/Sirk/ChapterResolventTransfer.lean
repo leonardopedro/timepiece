@@ -776,6 +776,98 @@ theorem bottomEdge_not_implied_by_positivity :
       BookProof.SpectralSplitting.inner_other_other,
       BookProof.SpectralSplitting.norm_other_sq] at hv
     norm_num at hv
+
+/-! ## 14. Closing the upper end of the gap
+
+`gap_transfer` is one-sided (`γ² (λ'₁ − λ'₀) ≤ e₁ − e₀`), which is why a ReflectedBandRow could
+transfer only its lower end.  The reason is not a defect of the band: `resolventEdge_sub` is an
+*identity*,
+
+  `λ'₁ − λ'₀ = (e₁ − e₀) / ((e₀ + γ)(e₁ + γ))`,
+
+so the gap is recovered from the reflected gap up to the two shifted eigenvalues.  An upper bound
+on the gap therefore needs one extra input — upper bounds `e_i ≤ E_i` on the two edges — and then
+the band's *upper* end transfers as well.  This section supplies that half. -/
+
+/-- **The upper transfer.**  Given upper bounds `e₀ ≤ E₀`, `e₁ ≤ E₁` on the two edges, the gap is
+bounded above by the reflected gap times the shifted bounds:
+`e₁ − e₀ ≤ (λ'₁ − λ'₀) (E₀ + γ)(E₁ + γ)`.  Without the `E`'s there is no upper bound at all — the
+factor `(e₀ + γ)(e₁ + γ)` is what the identity contributes, and it is not determined by `λ'`. -/
+theorem edge_sub_le_of_upperBounds {γ e₀ e₁ E₀ E₁ : ℝ} (hγ : 0 < γ)
+    (h0 : 0 ≤ e₀) (hle : e₀ ≤ e₁) (hE₀ : e₀ ≤ E₀) (hE₁ : e₁ ≤ E₁) :
+    e₁ - e₀ ≤ (resolventEdge γ e₁ - resolventEdge γ e₀) * ((E₀ + γ) * (E₁ + γ)) := by
+  have h1 : 0 < e₀ + γ := by linarith
+  have h2 : 0 < e₁ + γ := by linarith
+  have hP : 0 < (e₀ + γ) * (e₁ + γ) := mul_pos h1 h2
+  have hPE : (e₀ + γ) * (e₁ + γ) ≤ (E₀ + γ) * (E₁ + γ) := by
+    exact mul_le_mul (by linarith) (by linarith) (le_of_lt h2) (by linarith)
+  have hd : resolventEdge γ e₁ - resolventEdge γ e₀ = (e₁ - e₀) / ((e₀ + γ) * (e₁ + γ)) :=
+    resolventEdge_sub hγ h0 hle
+  have hq : 0 ≤ (e₁ - e₀) / ((e₀ + γ) * (e₁ + γ)) := div_nonneg (by linarith) hP.le
+  rw [hd]
+  calc e₁ - e₀ = ((e₁ - e₀) / ((e₀ + γ) * (e₁ + γ))) * ((e₀ + γ) * (e₁ + γ)) := by
+        rw [div_mul_cancel₀ _ (ne_of_gt hP)]
+    _ ≤ ((e₁ - e₀) / ((e₀ + γ) * (e₁ + γ))) * ((E₀ + γ) * (E₁ + γ)) :=
+        mul_le_mul_of_nonneg_left hPE hq
+
+/-- **The two-sided gap interval from two reflected bands.**  If `[lo₀, hi₀]` and `[lo₁, hi₁]`
+contain the reflected edges of the bottom and top edge, and `E₀, E₁` bound the edges above, then
+
+  `γ² (lo₁ − hi₀) ≤ e₁ − e₀ ≤ (hi₁ − lo₀) (E₀ + γ)(E₁ + γ)`:
+
+both ends are computed from the finite band data plus the two edge bounds, and neither is assumed.
+This is the companion of `gap_transfer`, which is the lower half with `E`'s absent. -/
+theorem gap_interval_of_reflected_bands {γ e₀ e₁ lo₀ hi₀ lo₁ hi₁ E₀ E₁ : ℝ}
+    (hγ : 0 < γ) (h0 : 0 ≤ e₀) (hle : e₀ ≤ e₁)
+    (hband₀ : resolventEdge γ e₀ ∈ Set.Icc lo₀ hi₀)
+    (hband₁ : resolventEdge γ e₁ ∈ Set.Icc lo₁ hi₁)
+    (hE₀ : e₀ ≤ E₀) (hE₁ : e₁ ≤ E₁) :
+    γ ^ 2 * (lo₁ - hi₀) ≤ e₁ - e₀ ∧
+      e₁ - e₀ ≤ (hi₁ - lo₀) * ((E₀ + γ) * (E₁ + γ)) := by
+  have hsq : 0 ≤ γ ^ 2 := sq_nonneg γ
+  have hlam : resolventEdge γ e₁ - resolventEdge γ e₀ ≤ hi₁ - lo₀ := by
+    linarith [hband₁.2, hband₀.1]
+  have hfac : 0 ≤ (E₀ + γ) * (E₁ + γ) := by
+    have hE₁' : 0 ≤ E₁ := le_trans (le_trans h0 hle) hE₁
+    have h1' : 0 ≤ E₀ + γ := by linarith
+    have h2' : 0 ≤ E₁ + γ := by linarith
+    exact mul_nonneg h1' h2'
+  refine ⟨?_, ?_⟩
+  · have hlow : lo₁ - hi₀ ≤ resolventEdge γ e₁ - resolventEdge γ e₀ := by
+      linarith [hband₁.1, hband₀.2]
+    have h := mul_le_mul_of_nonneg_left hlow hsq
+    linarith [gap_transfer (γ := γ) (e₀ := e₀) (e₁ := e₁) hγ h0 hle]
+  · have h := mul_le_mul_of_nonneg_left hlam hfac
+    linarith [edge_sub_le_of_upperBounds hγ h0 hle hE₀ hE₁]
+
+/-! ## 15. The two inputs are not one inequality
+
+`ReflectedSeparationSource` carries a constructor tag, not a single number, because the two
+hypotheses are *different shapes*: one is a global bound on the domain of `A`, the other a bound on
+the complement of the certified eigenvector.  This section records a finite witness that the tag is
+necessary — on the running `diag (5, 2)` instance, the level `3` satisfies the complement form bound
+and fails the whole-space one. -/
+
+/-- **The complement form bound holds at a level where the whole-space bound fails.**  On the
+`diag (5, 2)` instance with `vOther` the eigenvector of eigenvalue `2`: `vTrial` is orthogonal to
+`vOther` (`inner_trial_other`), so it spans the complement, and there the form is `5 ≥ 3`
+(`bound_on_complement`); on the whole space `vOther` sees only `2 ≱ 3`
+(`fails_off_complement`).
+
+What this does *not* say: the two certificates are not logically independent — a separation on
+`A'` does make `λ'` the bottom of the reflected spectrum, so the two routes conclude compatible
+things from compatible data.  What fails is interchangeability of the *hypotheses* at one numeric
+level, which is exactly why the source type tags its constructor instead of collapsing both to one
+inequality. -/
+theorem compressionInput_holds_wholeSpaceInput_fails :
+    (3 : ℝ) * ‖BookProof.SpectralSplitting.vTrial‖ ^ 2 ≤
+        (inner ℂ BookProof.SpectralSplitting.vTrial
+          (BookProof.SpectralSplitting.A2 BookProof.SpectralSplitting.vTrial) : ℂ).re ∧
+      ¬ ((3 : ℝ) * ‖BookProof.SpectralSplitting.vOther‖ ^ 2 ≤
+        (inner ℂ BookProof.SpectralSplitting.vOther
+          (BookProof.SpectralSplitting.A2 BookProof.SpectralSplitting.vOther) : ℂ).re) :=
+  ⟨BookProof.SpectralSplitting.bound_on_complement,
+    BookProof.SpectralSplitting.fails_off_complement⟩
 end BookProof.ChapterResolventTransfer
 
 end
