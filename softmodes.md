@@ -339,7 +339,10 @@ itself from the complement form bound
 `b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ` — and the 2026-11-13t section supplies it from an
 operator-norm measurement `‖A - c • 1‖ ≤ c - b`, and the 2026-11-13u section feeds that from
 the shift-invert itself: `‖R‖ ≤ γ⁻¹ - b` gives `‖A' - γ⁻¹ • 1‖ ≤ γ⁻¹ - b` and the end-to-end
-certificate with no separation hypothesis left.
+certificate with no separation hypothesis left.  The 2026-11-13v section then makes the level
+strictly positive: a bottom edge `e` gives `‖R‖ ≤ (e + γ)⁻¹ = γ⁻¹ - resolventEdge γ e`, so the
+separation runs at `b = resolventEdge γ e > 0`, and the two-sided Temple band closes around
+`sInf (spectrum ℝ A') = λ'`.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -2176,6 +2179,51 @@ trial vector refutes a level and cannot establish one.
 `#print axioms` on the five new declarations gives `[propext, Classical.choice, Quot.sound]`; no
 `sorry`; `lake build BookProof` is green at 9004 jobs.
 
+
+### The bottom edge makes the level positive (2026-11-13v)
+
+Track A, continuing `13u`. That section left one quantity unconnected: the level `b`. This one
+derives it from the ground-state energy, so `b` stops being a free parameter and is strictly
+positive whenever the edge is.
+
+**The strict per-system bound.** `norm_shiftMap_ge_edge` is `norm_shiftMap_ge` with the edge added
+on both sides: if `e * ‖x‖² ≤ quadForm A x` on the domain of `A`, then
+`‖(A + γ)x‖ ≥ (e + γ)‖x‖`. `IsShiftInvert.norm_apply_le_edge` and `IsShiftInvert.opNorm_le_edge`
+turn that into `‖R u‖ ≤ (e + γ)⁻¹ ‖u‖` and `‖R‖ ≤ (e + γ)⁻¹`, strictly below `γ⁻¹` for `e > 0` —
+the strict case `13u` recorded positivity cannot reach. The hypothesis is not free: it *is* the
+bottom edge, the quantity a mass-gap claim would certify. What the route gains is that no separate
+spectral statement about `yᗮ` is needed.
+
+**The level is the reflected edge.** `inv_sub_inv_eq_resolventEdge` and `sub_resolventEdge_eq_inv`
+identify `γ⁻¹ - (e + γ)⁻¹` with `resolventEdge γ e` in both directions, so the strict bound *is*
+the norm hypothesis `‖R‖ ≤ γ⁻¹ - b` at `b = resolventEdge γ e`; `resolventEdge_pos` records that
+`e > 0` makes that level positive, and `shiftInvert_opNorm_le_of_bottom` packages
+`‖R‖ ≤ γ⁻¹ - resolventEdge γ e`.
+
+**End to end, at a positive level.** `sirk_reflected_gap_certificate_of_bottomEdge` is
+`sirk_reflected_gap_certificate` with `hsep` derived and with `b = resolventEdge γ e`; the one
+extra input is the lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain.
+
+**The two-sided Temple band.** `sirk_reflected_temple_band_of_shiftInvertNorm` adds the
+Rayleigh–Ritz half the one-sided statement omits: Temple's lower bound together with
+`sInf_spectrum_le_rayleigh` encloses `sInf (spectrum ℝ A')` in `Set.Icc (θ - ε²/(b-θ)) θ`, where
+`θ = rayleigh A' (V yy)` and `ε = resid A' (V yy) ≤ sirkBound C Dmin h 1 m` is bounded by the SIRK
+operator-norm error, and `γ² λ' ≤ e` transfers the edge back. The separation also pins the edge
+down: every spectral point is `λ'` or at least `b`, so `sInf (spectrum ℝ A') = resolventEdge γ e` —
+the infimum is computed from the finite data, not assumed.
+`sirk_reflected_temple_band_of_bottomEdge` specialises the level to `resolventEdge γ e`.
+
+**The arithmetic on `diag (5, 2)`.** `diag52_bottomEdge_arithmetic`: with `γ = 1`, bottom edge `2`
+and complement level `5`, the strict bound is `(2 + 1)⁻¹ = 1/3`, the level is
+`1 - 1/3 = 2/3 = resolventEdge 1 2 > 0`, the reflected values are `2/3` and `5/6`, and their
+difference `1/6` equals `resolventEdge_sub`'s `(5 - 2)/((2 + 1)(5 + 1))` — the level sits strictly
+below the reflected trial value by exactly the transferred gap.
+
+**Verification.** `lake build BookProof.Sirk.ChapterHashimotoShiftInvert`,
+`BookProof.Sirk.ChapterResolventTransfer` and `BookProof` succeed with no warning and no line above
+100 code points; `#print axioms` on all twelve new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004
+jobs.
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

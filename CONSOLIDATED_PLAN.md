@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13u`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13v`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,15 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13u):** “State of the project — 2026-11-13u: the shift-invert bound
+> **Track A — newest (2026-11-13v):** “State of the project — 2026-11-13v: the bottom edge makes
+> the level positive” (end of file): a lower bound `e` for `A` gives
+> `‖(A + γ)x‖ ≥ (e + γ)‖x‖` (`norm_shiftMap_ge_edge`) and hence
+> `‖R‖ ≤ (e + γ)⁻¹` (`IsShiftInvert.opNorm_le_edge`), which is `γ⁻¹ - resolventEdge γ e`
+> (`sub_resolventEdge_eq_inv`), so `sirk_reflected_gap_certificate_of_bottomEdge` runs at the
+> positive level `b = resolventEdge γ e`; `sirk_reflected_temple_band_of_shiftInvertNorm` adds the
+> Rayleigh–Ritz half, enclosing `sInf (spectrum ℝ A')` two-sidedly and pinning it at `λ'`.
+>
+> **Track A (2026-11-13u):** “State of the project — 2026-11-13u: the shift-invert bound
 > feeds the certificate” (end of file): `reflected_norm_sub_smul_one_le` turns `‖R‖ ≤ ρ` into
 > `‖A' - γ⁻¹ • 1‖ ≤ ρ` because `A' - γ⁻¹ • 1 = -R`, so
 > `sirk_reflected_gap_certificate_of_shiftInvertNorm` derives `hsep` from `‖R‖ ≤ γ⁻¹ - b` and
@@ -24768,3 +24776,63 @@ establishes one.
 `reflected_norm_sub_smul_one_le_inv`, `sirk_reflected_gap_certificate_of_shiftInvertNorm` and
 `galerkin_refutes_level_six` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`;
 `lake build BookProof` is green at 9004 jobs.
+
+## State of the project — 2026-11-13v: the bottom edge makes the level positive
+
+Track A.  `13u` connected the separation `hsep` to a shift-invert norm bound `‖R‖ ≤ γ⁻¹ - b` but
+left the level `b` as an input, and recorded that the generic bound `IsShiftInvert.opNorm_le`
+(`‖R‖ ≤ γ⁻¹`) reaches only `b = 0`.  This entry derives a strictly positive level from the one
+piece of spectral data the mass-gap setting already has — a lower bound for `A`.
+
+**The strict per-system bound.**  `norm_shiftMap_ge_edge` adds the edge to `norm_shiftMap_ge`:
+from `e * ‖x‖² ≤ quadForm A x` on the domain of `A` it proves
+`‖(A + γ)x‖ ≥ (e + γ)‖x‖`.  `IsShiftInvert.norm_apply_le_edge` and
+`IsShiftInvert.opNorm_le_edge` carry that to the shift-invert, `‖R u‖ ≤ (e + γ)⁻¹ ‖u‖` and
+`‖R‖ ≤ (e + γ)⁻¹`, which is strictly smaller than `γ⁻¹` as soon as `e > 0`.  The hypothesis is
+not free — it *is* the bottom edge, the quantity a mass-gap claim certifies — but it is structural
+data about `A`, not a spectral assertion about the complement `yᗮ`.
+
+**The level is the reflected edge.**  `inv_sub_inv_eq_resolventEdge` and
+`sub_resolventEdge_eq_inv` identify `γ⁻¹ - (e + γ)⁻¹` with `resolventEdge γ e` in both
+directions, so the strict bound is literally the norm hypothesis `‖R‖ ≤ γ⁻¹ - b` at
+`b = resolventEdge γ e`; `resolventEdge_pos` records that `e > 0` makes that level positive, and
+`shiftInvert_opNorm_le_of_bottom` packages `‖R‖ ≤ γ⁻¹ - resolventEdge γ e` for the routes that
+consume a bound on `R` itself.
+
+**End to end, at a positive level.**  `sirk_reflected_gap_certificate_of_bottomEdge` is
+`sirk_reflected_gap_certificate` with `hsep` derived and `b = resolventEdge γ e`; it repeats the
+whole conclusion (eigenvector identity, residual bound, Temple band, `γ² λ' ≤ e`) with no
+separation input beyond the bottom-edge hypothesis.
+
+**The two-sided Temple band.**  The one-sided certificates give only Temple's lower bound.
+`sirk_reflected_temple_band_of_shiftInvertNorm` adds the Rayleigh–Ritz half
+(`sInf_spectrum_le_rayleigh`) and so encloses the edge of the *infinite* reflected operator:
+
+  `sInf (spectrum ℝ A') ∈ [θ - ε²/(b - θ), θ]`,  `θ = rayleigh A' (V yy)`, `ε = resid A' (V yy)`,
+
+with `ε ≤ sirkBound C Dmin h 1 m` supplied by the SIRK operator-norm error
+(`sirk_resid_reflection_le`) and `γ² λ' ≤ e` transferring the edge back.  The separation also
+determines the infimum: every spectral point is `λ'` or at least `b`, and Rayleigh quotients see
+the bottom, so `sInf (spectrum ℝ A') = resolventEdge γ e`.  The point is that both endpoints of
+the band and the edge itself are computed rather than assumed.
+`sirk_reflected_temple_band_of_bottomEdge` specialises the level to `resolventEdge γ e`.
+
+**The arithmetic on `diag (5, 2)`.**  `diag52_bottomEdge_arithmetic` checks the numbers the route
+produces on the instance of `ChapterSpectralSplitting` section 12, with `γ = 1`, bottom edge `2`
+(the eigenvalue of `vOther`) and complement level `5` (the eigenvalue of `vTrial`): the strict
+bound is `(2 + 1)⁻¹ = 1/3` and the level is `1 - 1/3 = 2/3 = resolventEdge 1 2`, which is
+positive; the reflected values are `resolventEdge 1 2 = 2/3` and `resolventEdge 1 5 = 5/6`, and
+their difference `1/6` matches `resolventEdge_sub`'s exact `(5 - 2)/((2 + 1)(5 + 1))`.  So the
+level sits strictly below the reflected trial value by exactly the transferred gap — the
+positivity is not merely asserted, it is the gap.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterHashimotoShiftInvert`,
+`BookProof.Sirk.ChapterResolventTransfer` and `BookProof` succeed with no warning and no line
+above 100 code points; `#print axioms` on all twelve new declarations
+(`norm_shiftMap_ge_edge`, `IsShiftInvert.{norm_apply_le_edge, opNorm_le_edge}`,
+`inv_sub_inv_eq_resolventEdge`, `sub_resolventEdge_eq_inv`, `resolventEdge_pos`,
+`reflected_norm_sub_smul_one_le_edge`, `shiftInvert_opNorm_le_of_bottom`,
+`sirk_reflected_gap_certificate_of_bottomEdge`, `sirk_reflected_temple_band_of_shiftInvertNorm`,
+`sirk_reflected_temple_band_of_bottomEdge`, `diag52_bottomEdge_arithmetic`) gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at
+9004 jobs.

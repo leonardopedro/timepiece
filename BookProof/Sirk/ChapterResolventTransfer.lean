@@ -52,6 +52,14 @@ into the norm hypothesis of the one-step route, and the certificate
 else.  The generic
 per-system bound `IsShiftInvert.opNorm_le` (`‖R‖ ≤ γ⁻¹`) gives the `b = 0` endpoint
 (`reflected_norm_sub_smul_one_le_inv`); a positive `b` is exactly a strict improvement on it.
+A known bottom edge supplies one.  `IsShiftInvert.opNorm_le_edge` gives `‖R‖ ≤ (e + γ)⁻¹`,
+which is `γ⁻¹ - resolventEdge γ e` (`sub_resolventEdge_eq_inv`), so
+`sirk_reflected_gap_certificate_of_bottomEdge` runs at the level `b = resolventEdge γ e` —
+positive whenever the ground-state energy is (`resolventEdge_pos`).  The two-sided form is
+`sirk_reflected_temple_band_of_shiftInvertNorm`: Temple's lower bound together with
+Rayleigh–Ritz's upper bound encloses `sInf (spectrum ℝ A')`, and the separation pins that edge
+at `λ'` (`sInf ... = resolventEdge γ e`).  All of it comes from the single hypothesis
+`e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A`.
 -/
 noncomputable section
 
@@ -424,7 +432,214 @@ theorem sirk_reflected_gap_certificate_of_shiftInvertNorm
       (reflected_norm_sub_smul_one_le R γ hRnorm)
   exact sirk_reflected_gap_certificate (A := A) (γ := γ) (R := R) (e := e) (b := b)
     hR hγ hRsym hy he heig V psiB mu C Dmin h m hVV heigB hyy hbound hsep hlt
+
+/-! ## 10. The bottom-edge route: a strictly positive level from the known ground state -/
+
+/-- **The level is the strict bound.**  `‖R‖ ≤ (e + γ)⁻¹` is the norm hypothesis
+`‖R‖ ≤ γ⁻¹ - b` at `b = γ⁻¹ - (e + γ)⁻¹`, and by `resolventEdge_eq` that level is exactly
+the reflected edge `resolventEdge γ e`.  This is the identification the certificate below
+uses: the level `b` the one-step route consumes is not a free parameter but the reflected
+ground-state edge. -/
+theorem inv_sub_inv_eq_resolventEdge {γ e : ℝ} (hγ : 0 < γ) (he : 0 ≤ e) :
+    γ⁻¹ - (e + γ)⁻¹ = resolventEdge γ e :=
+  (resolventEdge_eq (ne_of_gt hγ) (ne_of_gt (show (0 : ℝ) < e + γ by linarith))).symm
+
+/-- **The complement of the reflected edge is the strict bound.**  `γ⁻¹ - resolventEdge γ e`
+is exactly `(e + γ)⁻¹`, which is how the strict shift-invert bound becomes a separation
+level: `‖R‖ ≤ (e + γ)⁻¹ = γ⁻¹ - b` with `b = resolventEdge γ e`. -/
+theorem sub_resolventEdge_eq_inv {γ e : ℝ} (hγ : 0 < γ) (he : 0 ≤ e) :
+    γ⁻¹ - resolventEdge γ e = (e + γ)⁻¹ := by
+  rw [resolventEdge_eq (ne_of_gt hγ) (ne_of_gt (show (0 : ℝ) < e + γ by linarith))]
+  ring
+
+/-- **The level is positive** once the ground state is: `e > 0` gives
+`resolventEdge γ e > 0`, so the `b = 0` endpoint of the generic positivity route is beaten
+by the bottom-edge route. -/
+theorem resolventEdge_pos {γ e : ℝ} (hγ : 0 < γ) (he : 0 < e) : 0 < resolventEdge γ e := by
+  rw [resolventEdge_def]
+  positivity
+
+omit [CompleteSpace E] in
+/-- **The bottom edge feeds the norm route.**  `IsShiftInvert.opNorm_le_edge` gives
+`‖R‖ ≤ (e + γ)⁻¹`, which `inv_sub_inv_eq_resolventEdge` rewrites as
+`‖A' - γ⁻¹ 1‖ ≤ γ⁻¹ - resolventEdge γ e`: the norm hypothesis of the separation, with the
+level set to the reflected edge. -/
+theorem reflected_norm_sub_smul_one_le_edge {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) {e : ℝ} (he : 0 ≤ e)
+    (hbot : ∀ x : Dom, e * ‖(x : E)‖ ^ 2 ≤ BookProof.FarisLavine.quadForm A x) :
+    ‖(((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) - ((γ⁻¹ : ℝ) : ℂ) • 1)‖
+      ≤ γ⁻¹ - resolventEdge γ e := by
+  rw [sub_resolventEdge_eq_inv hγ he]
+  exact reflected_norm_sub_smul_one_le R γ (hR.opNorm_le_edge hbot hγ he)
+
+omit [CompleteSpace E] in
+/-- **The strict shift-invert bound as a separation level.**  `‖R‖ ≤ γ⁻¹ - b` with
+`b = resolventEdge γ e`, read directly off the bottom edge. -/
+theorem shiftInvert_opNorm_le_of_bottom {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) {e : ℝ} (he : 0 ≤ e)
+    (hbot : ∀ x : Dom, e * ‖(x : E)‖ ^ 2 ≤ BookProof.FarisLavine.quadForm A x) :
+    ‖R‖ ≤ γ⁻¹ - resolventEdge γ e := by
+  rw [sub_resolventEdge_eq_inv hγ he]
+  exact hR.opNorm_le_edge hbot hγ he
+
+/-- **The end-to-end certificate with a positive level, from the bottom edge.**
+
+The same conclusion as `sirk_reflected_gap_certificate_of_shiftInvertNorm`, but the norm
+hypothesis `‖R‖ ≤ γ⁻¹ - b` and the level `b` are *both* derived from one piece of data: the
+lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A`.  `opNorm_le_edge` turns it into
+`‖R‖ ≤ (e + γ)⁻¹`, `inv_sub_inv_eq_resolventEdge` identifies `γ⁻¹ - (e + γ)⁻¹` with the
+reflected edge, so the separation level is `b = resolventEdge γ e` — positive whenever the
+ground-state energy is (`resolventEdge_pos`), which the generic route cannot reach. -/
+theorem sirk_reflected_gap_certificate_of_bottomEdge
+    {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    {y : E} (hy : y ∈ Dom) (hy0 : y ≠ 0) {e : ℝ} (he : 0 ≤ e)
+    (hbot : ∀ x : Dom, e * ‖(x : E)‖ ^ 2 ≤ BookProof.FarisLavine.quadForm A x)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) {yy : F} (mu C Dmin h : ℝ) (m : ℕ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heigB : psiB yy = (mu : ℂ) • yy) (hyy : ‖V yy‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
+    (hlt : BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < resolventEdge γ e) :
+    ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e : ℂ) • y ∧
+      BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)
+        ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m ∧
+      BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) -
+          BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) ^ 2 /
+            (resolventEdge γ e - BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy))
+        ≤ resolventEdge γ e ∧
+      γ ^ 2 * resolventEdge γ e ≤ e := by
+  exact sirk_reflected_gap_certificate_of_shiftInvertNorm (A := A) (γ := γ) (R := R)
+    (e := e) (b := resolventEdge γ e) hR hγ hRsym hy hy0 he heig V psiB mu C Dmin h m
+    hVV heigB hyy hbound (shiftInvert_opNorm_le_of_bottom hR hγ he hbot) (le_refl _) hlt
+
+/-- **The two-sided Temple band on the reflected operator, fed by the norm bound.**
+
+`sirk_reflected_gap_certificate_of_shiftInvertNorm` gives only the *lower* half of Temple's
+enclosure.  The upper half is Rayleigh–Ritz (`sInf_spectrum_le_rayleigh`), and together the
+two halves enclose the edge of the *infinite* reflected operator, not just one eigenvalue:
+both endpoints, `θ = rayleigh A' (V yy)` and `ε = resid A' (V yy)`, are computed from the
+finite data, and `ε` is in turn bounded by the SIRK operator-norm error.  The level `b` is
+supplied by `‖R‖ ≤ γ⁻¹ - b`, exactly as in the one-sided statement.
+
+The separation does more than bound the edge: every spectral point is either `λ'` or at least
+`b`, so `sInf (spectrum ℝ A') = λ' = resolventEdge γ e`.  Reflection rescales the bottom of
+the spectrum, it does not move it. -/
+theorem sirk_reflected_temple_band_of_shiftInvertNorm [Nontrivial E]
+    {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    {y : E} (hy : y ∈ Dom) (hy0 : y ≠ 0) {e : ℝ} (he : 0 ≤ e)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) {yy : F} (mu C Dmin h : ℝ) (m : ℕ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heigB : psiB yy = (mu : ℂ) • yy) (hyy : ‖V yy‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
+    {b : ℝ} (hRnorm : ‖R‖ ≤ γ⁻¹ - b)
+    (hlb : resolventEdge γ e ≤ b)
+    (hlt : BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < b) :
+    sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) ∈ Set.Icc
+        (BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) -
+          BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) ^ 2 /
+            (b - BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)))
+        (BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)) ∧
+      sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e ∧
+      γ ^ 2 * resolventEdge γ e ≤ e ∧
+      BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)
+        ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m := by
+  have hA' : IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) :=
+    isSelfAdjoint_reflection R hRsym γ
+  have hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e) b :=
+    BookProof.SpectralSplitting.spectralSeparation_of_norm_le
+      (A := (γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (hA := hA')
+      (y := y) (l := resolventEdge γ e) (c := γ⁻¹) hy0
+      (resolvent_reflection_eigenvector hR hγ hy he heig) hlb
+      (reflected_norm_sub_smul_one_le R γ hRnorm)
+  -- every spectral point lies at or above the reflected edge
+  have hle : resolventEdge γ e ≤ sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) :=
+    le_csInf (BookProof.ChapterSirkRitzSpectrum.spectrum_real_nonempty _ hA')
+      (fun t ht => by
+        rcases hsep.2 t ht with h | h
+        · exact le_of_eq h.symm
+        · exact le_trans hlb h)
+  -- and the edge lies at or above the infimum: Rayleigh quotients see the bottom
+  have hypos : 0 < ‖y‖ ^ 2 := by
+    have : 0 < ‖y‖ := norm_pos_iff.mpr hy0
+    positivity
+  have hge : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) ≤ resolventEdge γ e := by
+    have hray := BookProof.ChapterSirkRitzSpectrum.rayleighInf_mul_normSq_le
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y
+    rw [← BookProof.ChapterSirkRitzSpectrum.sInf_spectrum_eq_rayleighInf _ hA'] at hray
+    have hinner : (inner ℂ y y : ℂ) = ((‖y‖ ^ 2 : ℝ) : ℂ) := by
+      rw [inner_self_eq_norm_sq_to_K]
+      simp
+    rw [resolvent_reflection_eigenvector hR hγ hy he heig, inner_smul_right, hinner,
+      ← Complex.ofReal_mul, Complex.ofReal_re] at hray
+    exact le_of_mul_le_mul_right hray hypos
+  have hEq : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e :=
+    le_antisymm hge hle
+  refine ⟨⟨?_, ?_⟩, hEq, ?_, ?_⟩
+  · rw [hEq]
+    exact BookProof.RitzCertificate.temple_lower_bound hA' hsep hyy hlt
+  · exact BookProof.RitzCertificate.sInf_spectrum_le_rayleigh _ hA' hyy
+  · simpa using gap_transfer (γ := γ) (e₀ := 0) (e₁ := e) hγ (le_refl 0) he
+  · exact sirk_resid_reflection_le V psiB R hRsym γ C Dmin h m mu yy hVV heigB hyy hbound
+
+/-- **The two-sided Temple band with the level set by the bottom edge.**  The specialization of
+`sirk_reflected_temple_band_of_shiftInvertNorm` to `b = resolventEdge γ e`: the complete
+two-sided enclosure of the reflected edge, with its strictness, follows from the lower bound
+`e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A` alone. -/
+theorem sirk_reflected_temple_band_of_bottomEdge [Nontrivial E]
+    {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    {y : E} (hy : y ∈ Dom) (hy0 : y ≠ 0) {e : ℝ} (he : 0 ≤ e)
+    (hbot : ∀ x : Dom, e * ‖(x : E)‖ ^ 2 ≤ BookProof.FarisLavine.quadForm A x)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) {yy : F} (mu C Dmin h : ℝ) (m : ℕ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heigB : psiB yy = (mu : ℂ) • yy) (hyy : ‖V yy‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
+    (hlt : BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < resolventEdge γ e) :
+    sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) ∈ Set.Icc
+        (BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) -
+          BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) ^ 2 /
+            (resolventEdge γ e - BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)))
+        (BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)) ∧
+      sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e ∧
+      γ ^ 2 * resolventEdge γ e ≤ e ∧
+      BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)
+        ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m :=
+  sirk_reflected_temple_band_of_shiftInvertNorm (A := A) (γ := γ) (R := R) (e := e)
+    (b := resolventEdge γ e) hR hγ hRsym hy hy0 he heig V psiB mu C Dmin h m hVV heigB hyy
+    hbound (shiftInvert_opNorm_le_of_bottom hR hγ he hbot) (le_refl _) hlt
 end Reflected
+
+/-! ## 11. The bottom-edge arithmetic on the `diag (5, 2)` instance
+
+The instance of `BookProof.SpectralSplitting` §12 has bottom edge `2` (the eigenvalue of
+`vOther`) and complement level `5` (the eigenvalue of `vTrial`), so with shift `γ = 1` the
+bottom-edge route reads: strict shift-invert bound `(2 + 1)⁻¹ = 1/3`, hence the level
+`b = γ⁻¹ - 1/3 = 2/3 = resolventEdge 1 2`, which is positive.  The two reflected eigenvalues
+are `resolventEdge 1 2 = 2/3` and `resolventEdge 1 5 = 5/6`; their difference is `1/6`, and it
+agrees with `resolventEdge_sub`'s exact formula `(5 - 2)/((2 + 1)(5 + 1))`.  So the level is
+strictly below the reflected trial value by exactly the transferred gap. -/
+
+/-- **The numbers the bottom-edge route produces on `diag (5, 2)`.** -/
+theorem diag52_bottomEdge_arithmetic :
+    (1 : ℝ)⁻¹ - (2 + 1)⁻¹ = resolventEdge 1 2 ∧
+      resolventEdge 1 2 = 2 / 3 ∧ 0 < resolventEdge 1 2 ∧
+      resolventEdge 1 5 = 5 / 6 ∧
+      resolventEdge 1 5 - resolventEdge 1 2 = (5 - 2) / ((2 + 1) * (5 + 1)) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩ <;> norm_num [resolventEdge_def]
 
 end BookProof.ChapterResolventTransfer
 
