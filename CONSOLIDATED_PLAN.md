@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13o`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13p`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,12 +54,20 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13o):** “State of the project — 2026-11-13o: the separation input
+> **Track A — newest (2026-11-13p):** “State of the project — 2026-11-13p: the spectrum union
+> is a factorization, not a spectral theorem” (end of file): `spectrum A ⊆ spectrum (A ∘ Q) ∪
+> {l}` from `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)` and the explicit inverse of the
+> rank-one factor, so `spectralSeparation_of_complementBound` is proved and
+> `sirk_reflected_gap_certificate_of_deflated` takes a bound on the deflated spectrum instead
+> of `hsep`.  Self-adjointness is not needed for the union and was dropped from it; min–max at
+> `k = 1` is still the step from a form bound to a spectrum bound.
+>
+> **Track A (2026-11-13o):** “State of the project — 2026-11-13o: the separation input
 > is deflated to a form bound” (end of file): the projections onto the line `ℂ ∙ y` and its
 > complement, the invariance of `yᗮ` under a self-adjoint `A` with `A y = lam • y`,
 > `Q ∘ A = A ∘ Q`, the splitting `A = lam • P + A ∘ Q`, and the transfer of a lower bound on
-> `yᗮ` to the deflated operator.  The spectrum union that would finish `SpectralSeparation` is
-> not in mathlib and is not claimed.
+> `yᗮ` to the deflated operator.  The spectrum union that would finish `SpectralSeparation`
+> is proved in the 2026-11-13p entry.
 >
 > **Track A (2026-11-13m):** “State of the project — 2026-11-13m: the certificate runs
 > on the reflected operator” (end of file): `resid_reflection_le` carries the residual through
@@ -24414,3 +24422,49 @@ warning in the new file; `#print axioms` on `mapsTo_orthogonal`, `complementProj
 `isSelfAdjoint_deflated`, `eq_smul_eigenProjection_add_deflated` and `deflated_re_inner_ge` gives
 `[propext, Classical.choice, Quot.sound]` for each; no `sorry`, no new axiom.  The module is
 imported from `BookProof.lean`, so the full aggregate covers it.
+
+## State of the project — 2026-11-13p: the spectrum union is a factorization, not a spectral theorem
+
+Track A, spectral certificate.  Entry 2026-11-13o moved the separation input of the
+reflected-gap certificate down to a bound on the deflated operator `A' ∘ Q`, but left one
+step unchecked: `spectrum A' ⊆ spectrum (A' ∘ Q) ∪ {λ'}`.  mathlib has no block-spectrum
+lemma for a complemented invariant subspace of a bounded operator on an abstract Hilbert
+space, so this entry proves the union directly — and the proof turns out to need no
+spectral theory at all.
+
+**The union.**  Write `P` for the projection onto `ℂ ∙ y`, `Q = 1 − P`, `D = A ∘ Q`, and
+`A y = l • y`.  Then `A = l • P + D` (`eq_smul_eigenProjection_add_deflated`) and
+`D ∘ P = 0` (`deflated_mul_eigenProjection`), so for `t ≠ 0`
+
+`t • 1 − A = (t • 1 − D) * (1 − (l/t) • P)`
+
+(`sub_smul_one_eq_mul`): the `D ∘ P` term vanishes and `t · (l/t) = l`.  The second factor
+is a unit whenever `l/t ≠ 1` — `1 − a • P` is inverted by `1 + (a/(1−a)) • P` for any
+idempotent `P` and `a ≠ 1` (`isUnit_one_sub_smul_of_mul_self`; the pointwise product is
+`1 + (−a + (b − a b)) • P`, and the coefficient vanishes at `b = a/(1−a)`).  Hence `t` in
+the resolvent of `D` with `t ≠ l` puts `t` in the resolvent of `A`, and the remaining
+point `t = 0` is impossible because `D y = 0` with `y ≠ 0` makes `D` non-injective.  That
+is `spectrum_subset_union_deflated`, stated for **any** bounded `A` — self-adjointness of
+`A` is not used, only `A y = l • y` — so the hypothesis `IsSelfAdjoint` was dropped from
+the statement rather than carried unused.
+
+**The consequence.**  `spectralSeparation_of_complementBound` is now proved, not a target:
+`(∀ t ∈ spectrum ℝ (A ∘ Q), b ≤ t)` and `l ≤ b` give `SpectralSeparation A l b`.  In the
+certificate module, `sirk_reflected_gap_certificate_of_deflated` is the reflected-gap
+certificate with `hsep` replaced by exactly that input — the eigenvalue equation for `A'`
+at `y` comes from `resolvent_reflection_eigenvector`, and everything else is the `13m`
+composition.
+
+**What is still open.**  The remaining gap is between section 5 and section 6 of
+`ChapterSpectralSplitting`: `deflated_re_inner_ge` bounds the *form* of `A ∘ Q` below by
+`b ‖Q x‖²`, while the union consumes a bound on its *spectrum*.  Bridging them is min–max
+at `k = 1` (or a Rayleigh–Ritz theorem for the self-adjoint deflation), which
+`ChapterSirkRitzMinMax` records as unproved — only `k = 0` is identified.  So the input is
+now a spectral bound on an operator with the certified eigenvector removed, which is
+strictly weaker than the old `hsep` but still not produced by a finite computation.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSpectralSplitting` and
+`lake build BookProof.Sirk.ChapterResolventTransfer` both succeed with no warning in either
+file and no line above 100 code points; `#print axioms` on the seven new declarations and on
+`sirk_reflected_gap_certificate_of_deflated` gives `[propext, Classical.choice, Quot.sound]`
+for each; no `sorry`, no new axiom; `lake build BookProof` is green at 9004 jobs.

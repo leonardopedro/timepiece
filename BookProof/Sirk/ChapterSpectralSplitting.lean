@@ -23,12 +23,21 @@ That reduction needs three pieces of linear algebra, which this chapter builds:
   `inner ℂ (P x) (A (Q x))` is zero, so a lower bound `b ‖z‖² ≤ re (inner ℂ z (A z))` on
   `yᗮ` transfers to the deflated operator as
   `b ‖Q x‖² ≤ re (inner ℂ x ((A ∘ Q) x))`.
+* **the spectrum union** `spectrum A ⊆ spectrum (A ∘ Q) ∪ {l}`.  mathlib has no
+  block-spectrum lemma, but none is needed: because `A = l • P + A ∘ Q` and
+  `(A ∘ Q) ∘ P = 0`, the identity `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)` writes
+  `t • 1 − A` as a product of units for every `t` in the resolvent of the deflation with
+  `t ≠ l`, and the second factor `1 − (l/t) • P` is inverted by `1 + (l/(t−l)) • P`.
+  Accordingly `spectralSeparation_of_complementBound` derives
+  `SpectralSeparation A l b` from a lower bound on the spectrum of `A ∘ Q`, and
+  `ChapterResolventTransfer.sirk_reflected_gap_certificate_of_deflated` is the certificate
+  with `hsep` replaced by that hypothesis.
 
-What is *not* here is the spectrum union `spectrum A ⊆ spectrum (A ∘ Q) ∪ {lam}`: mathlib
-has no block-spectrum lemma for a complemented invariant subspace of a bounded operator on
-an abstract Hilbert space, and `ChapterSirkRitzMinMax` records that min–max at `k = 1` is
-not available either.  So `spectralSeparation_of_complementBound` stays a target; this
-chapter is the layer it needs.
+What is *not* here is the step from a bound on the *form* of `A ∘ Q` (section 5) to the
+bound on its *spectrum* that the union consumes: that is min–max at `k = 1`, which
+`ChapterSirkRitzMinMax` records as open (only `k = 0` is identified).  So the input is now
+"the deflated operator is bounded below", not "`A` is separated at `l`", but the two are
+not yet interchangeable.
 -/
 
 noncomputable section
@@ -232,5 +241,175 @@ theorem deflated_re_inner_ge (A : F →L[ℂ] F) (hA : IsSelfAdjoint A) {y : F} 
     simp
   rw [hinner]
   exact hb _ hmem
+
+/-! ## 6. The spectrum union: deflation removes the eigenvector and nothing else
+
+The reduction of `hsep` to a bound on the deflated operator needs one spectral input that
+mathlib does not package: for a self-adjoint `A` with `A y = l y` and `y ≠ 0`,
+
+  `spectrum A ⊆ spectrum (A ∘ Q) ∪ {l}`.
+
+The proof is a factorization, not a spectral theorem.  Since `A = l • P + A ∘ Q`
+(`eq_smul_eigenProjection_add_deflated`) and `(A ∘ Q) ∘ P = 0`, the identity
+
+  `t • 1 − A = (t • 1 − A ∘ Q) * (1 − (l/t) • P)`      (`t ≠ 0`)
+
+exhibits `t • 1 − A` as a product of two units whenever `t` is in the resolvent of the
+deflated operator and `t ≠ l`: the second factor is inverted explicitly by
+`1 + (l/(t−l)) • P`.  The point `t = 0` is never in the resolvent of the deflation,
+because the deflation kills the nonzero vector `y`. -/
+
+omit [CompleteSpace F] in
+/-- `P` is idempotent: `P (P x) = P x`, since `P x` already lies on the line. -/
+theorem eigenProjection_mul_self (y : F) :
+    eigenProjection y * eigenProjection y = eigenProjection y := by
+  refine ContinuousLinearMap.ext fun x => ?_
+  exact eigenProjection_apply_of_mem (eigenProjection_apply_mem y x)
+
+omit [CompleteSpace F] in
+/-- The deflation is zero on the eigen-line: `(A ∘ Q) ∘ P = 0`. -/
+theorem deflated_mul_eigenProjection (A : F →L[ℂ] F) (y : F) :
+    deflated A y * eigenProjection y = 0 := by
+  refine ContinuousLinearMap.ext fun x => ?_
+  rw [ContinuousLinearMap.mul_apply, ContinuousLinearMap.zero_apply, deflated_apply,
+    complementProjection_apply_of_mem_eigenLine (eigenProjection_apply_mem y x), map_zero]
+
+omit [CompleteSpace F] in
+/-- **The rank-one factor is a unit.**  For an idempotent `P` and `a ≠ 1`, `1 − a • P` is
+invertible, with inverse `1 + (a/(1−a)) • P`: the product is
+`1 + (−a + (b − a b)) • P` in either order, and the coefficient vanishes at
+`b = a/(1−a)`. -/
+theorem isUnit_one_sub_smul_of_mul_self {P : F →L[ℂ] F} (hPP : P * P = P) {a : ℂ}
+    (ha : a ≠ 1) : IsUnit ((1 : F →L[ℂ] F) - a • P) := by
+  have hne : (1 : ℂ) - a ≠ 0 := sub_ne_zero.mpr ha.symm
+  set b : ℂ := a / (1 - a) with hbdef
+  have hb1 : -a + (b - a * b) = 0 := by
+    rw [hbdef]
+    field_simp
+    ring
+  have hb2 : -a + (b - b * a) = 0 := by
+    rw [hbdef]
+    field_simp
+    ring
+  have hexp1 : (1 - a • P) * (1 + b • P) = 1 - a • P + (b • P - (a * b) • P) := by
+    rw [mul_add, mul_one, sub_mul, one_mul, smul_mul_assoc, mul_smul_comm, smul_smul, hPP]
+  have hmain1 : (1 - a • P) * (1 + b • P) = 1 := by
+    rw [hexp1, sub_eq_add_neg, ← neg_smul, add_assoc, ← sub_smul, ← add_smul, hb1,
+      zero_smul, add_zero]
+  have hexp2 : (1 + b • P) * (1 - a • P) = 1 - a • P + (b • P - (b * a) • P) := by
+    rw [mul_sub, mul_one, add_mul, one_mul, smul_mul_assoc, mul_smul_comm, smul_smul, hPP]
+    abel
+  have hmain2 : (1 + b • P) * (1 - a • P) = 1 := by
+    rw [hexp2, sub_eq_add_neg, ← neg_smul, add_assoc, ← sub_smul, ← add_smul, hb2,
+      zero_smul, add_zero]
+  exact ⟨⟨1 - a • P, 1 + b • P, hmain1, hmain2⟩, rfl⟩
+
+omit [CompleteSpace F] in
+/-- The eigen-projection instance of `isUnit_one_sub_smul_of_mul_self`. -/
+theorem isUnit_one_sub_smul_eigenProjection (y : F) {a : ℂ} (ha : a ≠ 1) :
+    IsUnit ((1 : F →L[ℂ] F) - a • eigenProjection y) :=
+  isUnit_one_sub_smul_of_mul_self (eigenProjection_mul_self y) ha
+
+omit [CompleteSpace F] in
+/-- **The factorization of the resolvent difference.**  For `t ≠ 0`,
+`t • 1 − A = (t • 1 − A ∘ Q) * (1 − (l/t) • P)`.  Only `(A ∘ Q) ∘ P = 0` and the
+coefficient identity `t · (l/t) = l` are used. -/
+theorem sub_smul_one_eq_mul (A : F →L[ℂ] F) {y : F} {l : ℝ}
+    (hAy : A y = (l : ℂ) • y) {t : ℝ} (ht : t ≠ 0) :
+    (t : ℂ) • (1 : F →L[ℂ] F) - A
+      = ((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y) *
+          ((1 : F →L[ℂ] F) - ((l : ℂ) / (t : ℂ)) • eigenProjection y) := by
+  have ht' : (t : ℂ) ≠ 0 := by exact_mod_cast ht
+  have hcoef : (t : ℂ) * ((l : ℂ) / (t : ℂ)) = (l : ℂ) := by
+    field_simp
+  have hDP := deflated_mul_eigenProjection A y
+  have hDaP : deflated A y * (((l : ℂ) / (t : ℂ)) • eigenProjection y) = 0 := by
+    rw [mul_smul_comm, hDP, smul_zero]
+  have htP : ((t : ℂ) • (1 : F →L[ℂ] F)) * (((l : ℂ) / (t : ℂ)) • eigenProjection y)
+      = (l : ℂ) • eigenProjection y := by
+    rw [smul_mul_assoc, one_mul, smul_smul, hcoef]
+  calc (t : ℂ) • (1 : F →L[ℂ] F) - A
+      = (t : ℂ) • (1 : F →L[ℂ] F) - ((l : ℂ) • eigenProjection y + deflated A y) := by
+        conv_lhs => rw [eq_smul_eigenProjection_add_deflated A hAy]
+    _ = ((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y) - (l : ℂ) • eigenProjection y := by
+        abel
+    _ = ((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y)
+          - ((t : ℂ) • (1 : F →L[ℂ] F)) * (((l : ℂ) / (t : ℂ)) • eigenProjection y) := by
+        rw [htP]
+    _ = ((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y)
+          - (((t : ℂ) • (1 : F →L[ℂ] F)) * (((l : ℂ) / (t : ℂ)) • eigenProjection y)
+            - (deflated A y) * (((l : ℂ) / (t : ℂ)) • eigenProjection y)) := by
+        rw [hDaP, sub_zero]
+    _ = ((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y)
+          - (((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y)
+            * (((l : ℂ) / (t : ℂ)) • eigenProjection y)) := by
+        rw [sub_mul]
+    _ = ((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y)
+          * ((1 : F →L[ℂ] F) - ((l : ℂ) / (t : ℂ)) • eigenProjection y) := by
+        rw [mul_sub, mul_one]
+
+omit [CompleteSpace F] in
+/-- **The spectrum union.**  For a self-adjoint `A` with eigenvector `y ≠ 0` at the real
+eigenvalue `l`, every spectral point of `A` is either `l` or a spectral point of the
+deflated operator `A ∘ Q`. -/
+theorem spectrum_subset_union_deflated (A : F →L[ℂ] F)
+    {y : F} (hy : y ≠ 0) {l : ℝ} (hAy : A y = (l : ℂ) • y) :
+    spectrum ℝ A ⊆ spectrum ℝ (deflated A y) ∪ {(l : ℝ)} := by
+  intro t ht
+  rcases eq_or_ne t l with rfl | htl
+  · exact Or.inr (Set.mem_singleton _)
+  refine Or.inl ?_
+  rw [spectrum.mem_iff]
+  intro hunit
+  have hunitC : IsUnit ((t : ℂ) • (1 : F →L[ℂ] F) - deflated A y) := by
+    have h : IsUnit ((t : ℝ) • (1 : F →L[ℂ] F) - deflated A y) := by
+      rwa [Algebra.algebraMap_eq_smul_one] at hunit
+    rwa [RCLike.real_smul_eq_coe_smul (K := ℂ) t (1 : F →L[ℂ] F)] at h
+  by_cases ht0 : t = 0
+  · subst ht0
+    have hDunit : IsUnit (deflated A y) := by
+      have h : IsUnit (-(deflated A y)) := by simpa using hunitC
+      simpa using h.neg
+    obtain ⟨u, hu⟩ := hDunit
+    have h0 : (u : F →L[ℂ] F) y = 0 := by
+      rw [hu]
+      exact deflated_apply_self A y
+    have hy0 : y = 0 := by
+      have h1 : u.inv ((u : F →L[ℂ] F) y) = u.inv 0 := by rw [h0]
+      rw [← ContinuousLinearMap.mul_apply, u.inv_val, ContinuousLinearMap.one_apply,
+        map_zero] at h1
+      exact h1
+    exact hy hy0
+  · have ha1 : (l : ℂ) / (t : ℂ) ≠ 1 := by
+      intro h
+      have ht' : (t : ℂ) ≠ 0 := by exact_mod_cast ht0
+      have hl : (l : ℂ) = (t : ℂ) := by
+        have := (div_eq_iff ht').mp h
+        simpa using this
+      exact htl (by exact_mod_cast hl.symm)
+    have hunitP : IsUnit ((1 : F →L[ℂ] F) - ((l : ℂ) / (t : ℂ)) • eigenProjection y) :=
+      isUnit_one_sub_smul_eigenProjection y ha1
+    have hunitTA : IsUnit ((t : ℂ) • (1 : F →L[ℂ] F) - A) := by
+      rw [sub_smul_one_eq_mul A hAy ht0]
+      exact hunitC.mul hunitP
+    have hnot : ¬ IsUnit ((t : ℝ) • (1 : F →L[ℂ] F) - A) := by
+      simpa [Algebra.algebraMap_eq_smul_one] using (spectrum.mem_iff.mp ht)
+    refine hnot ?_
+    rw [RCLike.real_smul_eq_coe_smul (K := ℂ) t (1 : F →L[ℂ] F)]
+    exact hunitTA
+
+omit [CompleteSpace F] in
+/-- **The separation transfers to the deflated operator.**  If the deflated operator
+`A ∘ Q` is bounded below by `b` on its whole spectrum and `l ≤ b`, then `A` is spectrally
+separated at `l` with lower bound `b` — the `hsep` input, stated at the level of the
+operator left after the certified eigenvector is removed. -/
+theorem spectralSeparation_of_complementBound (A : F →L[ℂ] F)
+    {y : F} (hy : y ≠ 0) {l b : ℝ} (hAy : A y = (l : ℂ) • y) (hlb : l ≤ b)
+    (hD : ∀ t ∈ spectrum ℝ (deflated A y), b ≤ t) :
+    BookProof.RitzCertificate.SpectralSeparation A l b := by
+  refine ⟨hlb, fun t ht => ?_⟩
+  rcases spectrum_subset_union_deflated A hy hAy ht with h | h
+  · exact Or.inr (hD t h)
+  · exact Or.inl (Set.mem_singleton_iff.mp h)
 
 end BookProof.SpectralSplitting

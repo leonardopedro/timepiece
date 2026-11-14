@@ -1,6 +1,7 @@
 import Mathlib
 import BookProof.Sirk.ChapterHashimotoShiftInvert
 import BookProof.Sirk.ChapterSirkEndToEnd
+import BookProof.Sirk.ChapterSpectralSplitting
 
 /-!
 # Chapter ResolventTransfer — moving a certified gap from `X_γ` to `h_F`
@@ -34,6 +35,10 @@ The mass-gap route runs its certificate on the Hashimoto shift-invert
 Nothing here needs a spectral theorem: both are arithmetic on eigenvalues plus
 the two algebraic identities the shift-invert satisfies.  What is *not* proved
 here is the spectral separation of `A` itself — that stays the S2 input.
+The one weakening of it that *is* proved is
+`sirk_reflected_gap_certificate_of_deflated`: it takes a lower bound on the spectrum of
+`A' ∘ Q` instead, where `Q` projects away the certified eigenvector, and recovers
+`hsep` from the spectrum union in `SpectralSplitting` — a factorization, not a theorem.
 -/
 
 noncomputable section
@@ -281,6 +286,42 @@ theorem sirk_reflected_gap_certificate
   · exact BookProof.RitzCertificate.temple_lower_bound hsym hsep hyy hlt
   · have h := gap_transfer (γ := γ) (e₀ := 0) (e₁ := e) hγ (le_refl 0) he
     simpa using h
+
+/-- **The certificate with the separation stated on the deflated operator.**  The same
+conclusion as `sirk_reflected_gap_certificate`, but `hsep` is *not* an input: the caller
+bounds the spectrum of `A' ∘ Q` — the reflected operator with the certified eigenvector
+projected away (`SpectralSplitting.deflated`) — below by `b`, and supplies `λ' ≤ b`.  The
+separation of `A'` at `λ'` then follows from
+`spectrum A' ⊆ spectrum (A' ∘ Q) ∪ {λ'}` (`SpectralSplitting.spectrum_subset_union_deflated`),
+whose proof is the factorization `t • 1 − A' = (t • 1 − A' ∘ Q)(1 − (λ'/t) • P)`. -/
+theorem sirk_reflected_gap_certificate_of_deflated
+    {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    {y : E} (hy : y ∈ Dom) (hy0 : y ≠ 0) {e : ℝ} (he : 0 ≤ e)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) {yy : F} (mu C Dmin h : ℝ) (m : ℕ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heigB : psiB yy = (mu : ℂ) • yy) (hyy : ‖V yy‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
+    {b : ℝ}
+    (hD : ∀ t ∈ spectrum ℝ
+      (BookProof.SpectralSplitting.deflated ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y), b ≤ t)
+    (hlb : resolventEdge γ e ≤ b)
+    (hlt : BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < b) :
+    ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e : ℂ) • y ∧
+      BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)
+        ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m ∧
+      BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) -
+          BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) ^ 2 /
+            (b - BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy))
+        ≤ resolventEdge γ e ∧
+      γ ^ 2 * resolventEdge γ e ≤ e :=
+  sirk_reflected_gap_certificate hR hγ hRsym hy he heig V psiB mu C Dmin h m hVV heigB hyy
+    hbound (BookProof.SpectralSplitting.spectralSeparation_of_complementBound _
+      hy0 (resolvent_reflection_eigenvector hR hγ hy he heig) hlb hD) hlt
 
 end Reflected
 

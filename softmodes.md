@@ -325,9 +325,13 @@ things that section names as missing are proved in the 2026-11-13j one: the resi
 `gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`. The
 2026-11-13m section closes the composition — the SIRK bound becomes a residual *of* `A'` and
 Temple runs there (`sirk_reflected_gap_certificate`). The 2026-11-13o section then takes the one
-input that composition still states, `hsep`, and moves it to a form bound on the complement of the
-certified eigenvector (`SpectralSplitting.deflated_re_inner_ge`); the spectrum union that would
-finish the reduction is not available and is not claimed.
+input that composition still states, `hsep`, and moves it to a form bound on the complement of
+the certified eigenvector (`SpectralSplitting.deflated_re_inner_ge`). The 2026-11-13p section
+supplies the spectrum union that reduction needs — `spectrum A ⊆ spectrum (A ∘ Q) ∪ {l}`, proved
+as the factorization `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)` — so
+`spectralSeparation_of_complementBound` is a theorem and the certificate exists in a form that
+takes a deflated-spectrum bound (`sirk_reflected_gap_certificate_of_deflated`). What remains
+between a form bound and that spectrum bound is min–max at `k = 1`.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -1921,6 +1925,54 @@ module docstring says so, and no theorem here is numbered as if the gap were clo
 **Verification.** `lake build BookProof.Sirk.ChapterSpectralSplitting` → `(8068 jobs)`; `#print
 axioms` on the five named theorems gives `[propext, Classical.choice, Quot.sound]`; no `sorry`, no
 new axiom, no line above 100 code points.
+
+### The spectrum union is a factorization, not a spectral theorem (2026-11-13p)
+
+Track A. The `13o` section moved the separation input of the certificate down to a bound on
+the deflated operator `A ∘ Q`, but the reduction had one unchecked step:
+`spectrum A ⊆ spectrum (A ∘ Q) ∪ {l}`. mathlib has no block-spectrum lemma for a
+complemented invariant subspace of a bounded operator on an abstract Hilbert space. It turns
+out one is not needed — the union follows from the same two algebraic facts the `13o` layer
+already established, `A = l • P + A ∘ Q` and `(A ∘ Q) ∘ P = 0`.
+
+**The factorization.** For `t ≠ 0`,
+
+`t • 1 − A = (t • 1 − A ∘ Q) * (1 − (l/t) • P)`
+
+(`sub_smul_one_eq_mul`): the product expands to `t • 1 − (l/t)·t • P − A ∘ Q + (A ∘ Q) ∘ P · (l/t)`,
+the last term vanishes, and `t · (l/t) = l` turns the middle one into `l • P`.
+
+**The rank-one factor.** `1 − a • P` is a unit for every idempotent `P` and `a ≠ 1`, with
+inverse `1 + (a/(1−a)) • P`: pointwise the two products are `1 + (−a + (b − a b)) • P` and
+`1 + (−a + (b − b a)) • P` at `b = a/(1−a)`, and both coefficients vanish
+(`isUnit_one_sub_smul_of_mul_self`). So a point `t` in the resolvent of the deflation with
+`t ≠ l` lies in the resolvent of `A`.
+
+**The point `t = 0`.** It is never in the resolvent of the deflation: `(A ∘ Q) y = 0` with
+`y ≠ 0`, so a unit would carry `y` to `0` and back to a nonzero vector.
+
+Together: `spectrum_subset_union_deflated`, stated for **any** bounded `A` with
+`A y = l • y`. Self-adjointness is genuinely unused — it entered `13o` through the invariance
+of `yᗮ`, which this argument does not need — so the hypothesis was dropped rather than
+carried unused.
+
+**What this buys.** `spectralSeparation_of_complementBound` is proved:
+`(∀ t ∈ spectrum ℝ (A ∘ Q), b ≤ t)` plus `l ≤ b` gives `SpectralSeparation A l b`. And
+`ChapterResolventTransfer.sirk_reflected_gap_certificate_of_deflated` is the `13m`
+certificate with `hsep` replaced by that hypothesis, the eigenvalue equation of `A'` coming
+from `resolvent_reflection_eigenvector`.
+
+**What it does not buy.** Bridging the *form* bound of the `13o` section
+(`b ‖Q x‖² ≤ re (inner ℂ x ((A ∘ Q) x))`) to the *spectrum* bound the union consumes. That
+is min–max at `k = 1` — or a Rayleigh–Ritz theorem for the self-adjoint deflation — which
+`ChapterSirkRitzMinMax` records as open (only `k = 0` is identified). So the certificate now
+needs a bound on the spectrum of an operator with the certified eigenvector removed, which is
+strictly weaker than `hsep` but still not something a finite computation produces.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on the seven new declarations and on
+`sirk_reflected_gap_certificate_of_deflated` gives `[propext, Classical.choice, Quot.sound]`;
+`lake build BookProof` is green at 9004 jobs.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
