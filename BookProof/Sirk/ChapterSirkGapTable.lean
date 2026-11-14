@@ -42,6 +42,11 @@ Two things are still wanted around it:
   per-row consistency check; `qcdG2M4_row`, `qcdG2M4_row_lo`,
   `qcdG2M4_strongCoupling_consistent` — the one recorded row, whose certified window
   `[1.932, 2.043]` does contain the analytic value `g²/2 = 2` at `g = 2`.
+* `ReflectedBandRow`, `ReflectedBandRow.ofTemple`, `reflected_band_table`,
+  `reflected_band_row_positive` — the reflected table: a coupling row is the two-sided Temple
+  band `[θ − ε²/(b − θ), θ]` the SIRK certificate emits for that coupling's reflected edge, so
+  the row reports an *interval* (`λ' ∈ band`) instead of a lower endpoint, and its lower end
+  transfers to `γ² lo ≤ e` (`gap_transfer`), which is a strictly positive gap whenever `lo > 0`.
 * **T12** `richardson`, `richardson_exact` (the extrapolation is exact for a pure
   `C·l^{-p}` correction), `richardson_error` (its error propagation), and
   `richardson_qym_g4` — the evaluation on the recorded finite-size data.
@@ -150,6 +155,75 @@ theorem certified_gap_table_interval {n : ℕ} (row : Fin n → CouplingCertific
   simp only [CouplingCertificate.lo, CouplingCertificate.hi, hgap i, hwidth i]
   exact h
 
+
+/-! ## 2b. The reflected band as a row, so a coupling emits an interval -/
+
+/-- One row of the **reflected** gap table: a coupling constant, the shift it was run at, and
+the Temple band `[lo, hi]` the SIRK certificate emits for that coupling's reflected edge.  The
+band is exactly the enclosure of `sirk_reflected_temple_band_of_shiftInvertNorm` — `lo` and `hi`
+are computed from the finite Ritz data, not assumed. -/
+structure ReflectedBandRow where
+  /-- The coupling constant `g` of the row. -/
+  g : ℝ
+  /-- The shift `γ` the row was run at. -/
+  gamma : ℝ
+  /-- The shift is positive. -/
+  gamma_pos : 0 < gamma
+  /-- The lower end `θ − ε²/(b − θ)` of the reflected band. -/
+  lo : ℝ
+  /-- The upper end `θ` of the reflected band. -/
+  hi : ℝ
+  /-- The band is nonempty. -/
+  lo_le_hi : lo ≤ hi
+
+/-- The interval a row emits. -/
+def ReflectedBandRow.band (r : ReflectedBandRow) : Set ℝ := Set.Icc r.lo r.hi
+
+/-- **Build a row from the emitted Temple band.**  With `θ` the Rayleigh quotient of the
+reconstructed vector, `ε` its residual and `b` the certified separation level above `θ`, the
+band is `[θ − ε²/(b − θ), θ]` and it is nonempty. -/
+def ReflectedBandRow.ofTemple (g γ theta eps b : ℝ) (hgamma : 0 < γ) (hlt : theta < b) :
+    ReflectedBandRow where
+  g := g
+  gamma := γ
+  gamma_pos := hgamma
+  lo := theta - eps ^ 2 / (b - theta)
+  hi := theta
+  lo_le_hi := by
+    have hb : 0 < b - theta := by linarith
+    have hq : 0 ≤ eps ^ 2 / (b - theta) := div_nonneg (sq_nonneg eps) hb.le
+    have : theta - eps ^ 2 / (b - theta) ≤ theta := by linarith
+    exact this
+
+/-- **The reflected table: every coupling row emits its band, and its lower end transfers.**
+
+`lam` is the reflected edge `resolventEdge γ e` of each coupling and `e` the corresponding edge of
+the Hamiltonian.  The transfer `γ² λ' ≤ e` (`gap_transfer`) is one-sided, so the row emits the band
+in the *reflected* variable and a **lower** bound `γ² lo ≤ e` for the original edge; the upper end
+`hi` bounds `λ'`, not `e` — an upper bound on `e` would need a separate bound on the shifted
+eigenvalues, which no band on `λ'` alone supplies. -/
+theorem reflected_band_table {n : ℕ} (row : Fin n → ReflectedBandRow) (lam e : Fin n → ℝ)
+    (hband : ∀ i, lam i ∈ (row i).band)
+    (htransfer : ∀ i, (row i).gamma ^ 2 * lam i ≤ e i) :
+    ∀ i, lam i ∈ (row i).band ∧ (row i).gamma ^ 2 * (row i).lo ≤ e i := by
+  intro i
+  refine ⟨hband i, ?_⟩
+  have hlo : (row i).lo ≤ lam i := (hband i).1
+  have hsq : 0 ≤ (row i).gamma ^ 2 := sq_nonneg _
+  calc (row i).gamma ^ 2 * (row i).lo ≤ (row i).gamma ^ 2 * lam i := by
+        exact mul_le_mul_of_nonneg_left hlo hsq
+    _ ≤ e i := htransfer i
+
+/-- **The payoff: a strictly positive gap.**  When a row's band starts strictly above `0`, the
+lower-endpoint table's `b = 0` endpoint is beaten: the coupling's edge is strictly positive. -/
+theorem reflected_band_row_positive (row : ReflectedBandRow) {lam e : ℝ}
+    (hband : lam ∈ row.band) (htransfer : row.gamma ^ 2 * lam ≤ e) (hlo : 0 < row.lo) :
+    0 < e := by
+  have hle : row.lo ≤ lam := hband.1
+  have hpos : 0 < row.gamma ^ 2 * row.lo := by
+    have := row.gamma_pos
+    positivity
+  linarith [mul_le_mul_of_nonneg_left hle (sq_nonneg row.gamma)]
 end Table
 
 /-! ## 3. The analytic strong-coupling value and the per-row check -/

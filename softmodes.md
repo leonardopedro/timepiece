@@ -342,7 +342,12 @@ the shift-invert itself: `‖R‖ ≤ γ⁻¹ - b` gives `‖A' - γ⁻¹ • 1�
 certificate with no separation hypothesis left.  The 2026-11-13v section then makes the level
 strictly positive: a bottom edge `e` gives `‖R‖ ≤ (e + γ)⁻¹ = γ⁻¹ - resolventEdge γ e`, so the
 separation runs at `b = resolventEdge γ e > 0`, and the two-sided Temple band closes around
-`sInf (spectrum ℝ A') = λ'`.
+`sInf (spectrum ℝ A') = λ'`.  The 2026-11-13w section makes the choice of input explicit: a single
+type `ReflectedSeparationSource` accepts *either* that bottom edge or the `13s` complement form
+bound, and `spectralSeparation_of_source` discharges both into the same separation; it also puts
+the band into the per-coupling gap table (`ReflectedBandRow`, `reflected_band_table`) and shows the
+edge cannot be replaced by positivity plus a certified eigenvector
+(`bottomEdge_not_implied_by_positivity`).
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -2176,7 +2181,7 @@ Galerkin vector `vTrial` has Rayleigh quotient `5`, so `b = 6` fails there (`6 >
 trial vector refutes a level and cannot establish one.
 
 **Verification.** Both modules build with no warning and no line above 100 code points;
-`#print axioms` on the five new declarations gives `[propext, Classical.choice, Quot.sound]`; no
+`#print axioms` on the six new theorems gives `[propext, Classical.choice, Quot.sound]`; no
 `sorry`; `lake build BookProof` is green at 9004 jobs.
 
 
@@ -2222,6 +2227,45 @@ below the reflected trial value by exactly the transferred gap.
 **Verification.** `lake build BookProof.Sirk.ChapterHashimotoShiftInvert`,
 `BookProof.Sirk.ChapterResolventTransfer` and `BookProof` succeed with no warning and no line above
 100 code points; `#print axioms` on all twelve new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004
+jobs.
+
+### Either input, one certificate; and the band in the table (2026-11-13w)
+
+Track A, continuing `13v`, which ran on the bottom edge `e`. Three follow-ups: merge the two
+spectral inputs into one certificate, put the two-sided band into the per-coupling gap table, and
+settle whether the bottom edge can after all be manufactured from what a finite computation has.
+
+**One type for two inputs.** `ReflectedSeparationSource A γ R e y : ℝ → Prop` has two
+constructors. `ofBottomEdge` carries a lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain and
+certifies the level `resolventEdge γ e`; `ofCompression` carries the form bound
+`b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ` and certifies its own `b`. `spectralSeparation_of_source`
+dispatches: the first branch through `shiftInvert_opNorm_le_of_bottom` and the norm route, the
+second through `spectralSeparation_of_compressionBound`. Both land in the same
+`SpectralSeparation A' (resolventEdge γ e) b`, so `sirk_reflected_gap_certificate_of_source` is the
+single certificate that consumes either. Neither input implies the other: the edge is global data
+about `A`, the compression bound is data about `A'|yᗮ`.
+
+**The band becomes a table row.** `ReflectedBandRow` carries `(g, γ > 0, lo, hi, lo ≤ hi)` and
+`ReflectedBandRow.ofTemple` builds it from exactly the emitted band, `lo = θ - ε²/(b-θ)`,
+`hi = θ`. `reflected_band_table` then states, per coupling, both `λ' ∈ Set.Icc lo hi` and the
+transferred `γ² lo ≤ e`, and `reflected_band_row_positive` draws the consequence the lower-endpoint
+table could not: if `0 < lo` then the coupling's edge is strictly positive. The honest limit is
+recorded in the theorem's docstring — `gap_transfer` is one-sided, so `hi` bounds `λ'` and not `e`;
+an upper bound on `e` needs a separate bound on the shifted eigenvalues, which no band on `λ'`
+supplies.
+
+**The bottom edge is not finite data.** `A2` is positive (`A2_inner_re_nonneg`:
+`re ⟪x, A2 x⟫ = 2‖x‖² + 3 normSq ⟪vTrial, x⟫`) and `vTrial` is a unit eigenvector with eigenvalue
+`5`, yet `5 ‖x‖² ≤ re ⟪x, A2 x⟫` fails at `vOther`, where the form is `2`
+(`bottomEdge_not_implied_by_positivity`). So positivity plus a certified eigenvector is not the
+bottom edge: an eigenvector pins one point of the spectrum, the edge is its infimum. Positivity
+alone yields `e = 0`, i.e. the `b = 0` endpoint of the generic route. The hypothesis therefore
+remains an input — of the same kind as the certified gap it feeds, not something smaller.
+
+**Verification.**  `BookProof.Sirk.ChapterHashimotoShiftInvert` is unchanged;
+`ChapterSpectralSplitting`, `ChapterResolventTransfer` and `ChapterSirkGapTable` build with no
+warning and no line above 100 code points; `#print axioms` on the six new theorems gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004
 jobs.
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)

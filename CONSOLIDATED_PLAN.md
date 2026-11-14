@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13v`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13w`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,17 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13v):** “State of the project — 2026-11-13v: the bottom edge makes
+> **Track A — newest (2026-11-13w):** “State of the project — 2026-11-13w: one type for the two
+> inputs, the band in the table” (end of file): `ReflectedSeparationSource` makes the bottom edge
+> and the compression form bound two branches of one input, both discharged into the same
+> `SpectralSeparation` by `spectralSeparation_of_source`; `ReflectedBandRow` with
+> `reflected_band_table` put the two-sided Temple band into the per-coupling table, so a row
+> emits an interval and `reflected_band_row_positive` turns `lo > 0` into a strictly
+> positive gap; and `bottomEdge_not_implied_by_positivity` shows the bottom edge cannot be
+> built from positivity plus a certified eigenvector (`diag (5, 2)`: positive, unit eigenvector
+> at `5`, form `2` at `vOther`).
+>
+> **Track A (2026-11-13v):** “State of the project — 2026-11-13v: the bottom edge makes
 > the level positive” (end of file): a lower bound `e` for `A` gives
 > `‖(A + γ)x‖ ≥ (e + γ)‖x‖` (`norm_shiftMap_ge_edge`) and hence
 > `‖R‖ ≤ (e + γ)⁻¹` (`IsShiftInvert.opNorm_le_edge`), which is `γ⁻¹ - resolventEdge γ e`
@@ -24836,3 +24846,45 @@ above 100 code points; `#print axioms` on all twelve new declarations
 `sirk_reflected_temple_band_of_bottomEdge`, `diag52_bottomEdge_arithmetic`) gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at
 9004 jobs.
+
+## State of the project — 2026-11-13w: one type for the two inputs, the band in the table
+
+Track A, continuing `13v`.  Three questions left by the bottom-edge route: whether the two
+spectral inputs can be merged into a single certificate, whether the two-sided band can reach the
+per-coupling gap table, and whether the bottom edge can after all be obtained from what a finite
+computation produces.
+
+**The two inputs are branches of one type.**  `ReflectedSeparationSource A γ R e y : ℝ → Prop`
+has `ofBottomEdge` (a lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain, certifying the level
+`resolventEdge γ e`) and `ofCompression` (the form bound `b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ`,
+certifying its own `b`).  `spectralSeparation_of_source` discharges either branch into the same
+`SpectralSeparation A' (resolventEdge γ e) b` — through `shiftInvert_opNorm_le_of_bottom` and the
+norm route in the first case, `spectralSeparation_of_compressionBound` in the second — and
+`sirk_reflected_gap_certificate_of_source` is the single certificate over it.  Neither constructor
+implies the other: the edge is a global statement about `A`, the compression bound is a statement
+about `A'` restricted to `yᗮ`.
+
+**The band reaches the table.**  `ChapterSirkGapTable` gains `ReflectedBandRow` — the coupling, the
+shift, and the emitted Temple band `[lo, hi]` with `lo = θ - ε²/(b-θ)`, `hi = θ`, built by
+`ReflectedBandRow.ofTemple` — so a coupling row reports an *interval* in the reflected variable
+instead of a single lower endpoint.  `reflected_band_table` emits, per row, `λ' ∈ Set.Icc lo hi`
+together with the transferred `γ² lo ≤ e`, and `reflected_band_row_positive` draws the consequence
+the lower-endpoint table could not state: `lo > 0` gives a strictly positive gap.  The limit is
+recorded: `gap_transfer` is one-sided, so `hi` bounds `λ'` and not `e`; an upper bound on `e` needs
+a separate bound on the shifted eigenvalues, which no band on `λ'` alone can supply.
+
+**The bottom edge is not finite data.**  `A2_inner_re_nonneg` proves `A2` positive
+(`re ⟪x, A2 x⟫ = 2‖x‖² + 3 normSq ⟪vTrial, x⟫`), and
+`bottomEdge_not_implied_by_positivity` shows that positivity plus a certified unit eigenvector at
+`5` coexist with failure of the bottom-edge hypothesis at `5` (at `vOther` the form is `2`).  So
+the hypothesis cannot be manufactured from the standard finite output: an eigenvector pins one
+spectral point, the edge is the infimum of all of them, and positivity alone gives `e = 0` — the
+`b = 0` endpoint of the generic route.  The bottom edge stays an input of the same kind as the gap
+it certifies, which is the honest accounting of what `13v` bought.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSpectralSplitting`,
+`BookProof.Sirk.ChapterResolventTransfer`, `BookProof.Sirk.ChapterSirkGapTable` and `BookProof`
+succeed with no warning and no line above 100 code points; `#print axioms` on the six new theorems
+(`spectralSeparation_of_source`, `sirk_reflected_gap_certificate_of_source`, `A2_inner_re_nonneg`,
+`reflected_band_table`, `reflected_band_row_positive`, `bottomEdge_not_implied_by_positivity`)
+gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.

@@ -937,5 +937,26 @@ theorem galerkin_refutes_level_six :
     (6 : ℝ) * ‖vTrial‖ ^ 2 > (inner ℂ vTrial (A2 vTrial) : ℂ).re := by
   rw [A2_trial, inner_smul_right, inner_trial_trial, norm_trial_sq]
   norm_num
+/-- **`A2` is positive.**  `A2 = 2 • 1 + 3 • P` and `P` is a projection, so
+`re ⟪x, A2 x⟫ = 2‖x‖² + 3 normSq ⟪vTrial, x⟫ ≥ 0`. -/
+theorem A2_inner_re_nonneg (x : E2) : 0 ≤ (inner ℂ x (A2 x) : ℂ).re := by
+  have hx2 : (inner ℂ x x : ℂ) = ((‖x‖ ^ 2 : ℝ) : ℂ) := by
+    rw [inner_self_eq_norm_sq_to_K]
+    simp
+  have hproj : (inner ℂ x (projT x) : ℂ) = ((Complex.normSq (inner ℂ vTrial x) : ℝ) : ℂ) := by
+    rw [projT_apply, inner_smul_right, ← inner_conj_symm (𝕜 := ℂ) x vTrial]
+    exact Complex.mul_conj _
+  have hexp : (inner ℂ x (A2 x) : ℂ)
+      = (2 : ℂ) * (inner ℂ x x) + (3 : ℂ) * (inner ℂ x (projT x)) := by
+    simp [A2]
+  have hreal : (inner ℂ x (A2 x) : ℂ)
+      = (((2 : ℝ) * ‖x‖ ^ 2 + 3 * Complex.normSq (inner ℂ vTrial x) : ℝ) : ℂ) := by
+    rw [hexp, hx2, hproj]
+    push_cast
+    ring
+  rw [hreal, Complex.ofReal_re]
+  have := Complex.normSq_nonneg (inner ℂ vTrial x)
+  positivity
+
 end NumericInstance
 end BookProof.SpectralSplitting

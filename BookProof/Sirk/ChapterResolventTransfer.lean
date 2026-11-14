@@ -60,6 +60,15 @@ positive whenever the ground-state energy is (`resolventEdge_pos`).  The two-sid
 Rayleigh–Ritz's upper bound encloses `sInf (spectrum ℝ A')`, and the separation pins that edge
 at `λ'` (`sInf ... = resolventEdge γ e`).  All of it comes from the single hypothesis
 `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A`.
+
+The two inputs are two *branches of one type*.  `ReflectedSeparationSource` says that the caller
+has either a bottom edge `e` on the domain of `A` or a form bound on the compression of `A'` to
+`yᗮ`; `spectralSeparation_of_source` discharges either branch into the same
+`SpectralSeparation A' (resolventEdge γ e) b`, and `sirk_reflected_gap_certificate_of_source`
+consumes it.  The bottom edge is not something positivity and an eigenvector can supply:
+`bottomEdge_not_implied_by_positivity` exhibits `diag (5, 2)` as a positive operator with a
+certified unit eigenvector at `5` on which the bottom-edge hypothesis at `5` fails, because the
+edge is the bottom of the spectrum and an eigenvector pins one point of it.
 -/
 noncomputable section
 
@@ -623,7 +632,102 @@ theorem sirk_reflected_temple_band_of_bottomEdge [Nontrivial E]
     hbound (shiftInvert_opNorm_le_of_bottom hR hγ he hbot) (le_refl _) hlt
 end Reflected
 
-/-! ## 11. The bottom-edge arithmetic on the `diag (5, 2)` instance
+/-! ## 11. Whichever spectral input you have
+
+The two routes above take different data — a bottom edge `e` on the domain, or a form bound on
+the compression to `yᗮ` — and produce the *same* separation, at the same level.  This section
+makes that a single object: `ReflectedSeparationSource` is the disjunction of the two inputs, and
+`spectralSeparation_of_source` discharges it either way, so a caller holding either can use one
+certificate. -/
+
+section Source
+
+variable {E F : Type*}
+  [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+  [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+  {Dom : Submodule ℂ E}
+
+/-- **The two admissible spectral inputs**, as one type indexed by the level `b` they certify.
+
+* `ofBottomEdge` — a lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A`.  It certifies the
+  level `b = resolventEdge γ e`, the reflected bottom edge (`IsShiftInvert.opNorm_le_edge`).
+* `ofCompression` — the form bound `b ‖z‖² ≤ re ⟪z, A' z⟫` on the complement of the certified
+  eigenvector, for its own level `b`.
+
+Both are sufficient for the same conclusion; neither implies the other (the bottom edge is global
+data about `A`, the compression bound is data about `A'` restricted to `yᗮ`). -/
+inductive ReflectedSeparationSource (A : Dom →ₗ[ℂ] E) (γ : ℝ) (R : E →L[ℂ] E)
+    (e : ℝ) (y : E) : ℝ → Prop
+  /-- The bottom edge of `A` certifies the reflected edge `resolventEdge γ e`. -/
+  | ofBottomEdge (hbot : ∀ x : Dom, e * ‖(x : E)‖ ^ 2 ≤ BookProof.FarisLavine.quadForm A x) :
+      ReflectedSeparationSource A γ R e y (resolventEdge γ e)
+  /-- A form bound on the compression of `A'` to `yᗮ` certifies its own level. -/
+  | ofCompression {b : ℝ} (hlb : resolventEdge γ e ≤ b)
+      (hC : ∀ z : ↥(BookProof.SpectralSplitting.eigenLine y)ᗮ,
+        b * ‖(z : E)‖ ^ 2 ≤ (inner ℂ (z : E)
+          (((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (z : E)) : ℂ).re) :
+      ReflectedSeparationSource A γ R e y b
+
+/-- **Either input discharges the same separation.**  Both constructors of
+`ReflectedSeparationSource` produce `SpectralSeparation A' (resolventEdge γ e) b`; the bottom-edge
+branch goes through the strict shift-invert bound (`shiftInvert_opNorm_le_of_bottom`) and the
+norm route, the compression branch through `spectralSeparation_of_compressionBound`. -/
+theorem spectralSeparation_of_source {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    {e : ℝ} {y : E} {b : ℝ}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    (hy : y ∈ Dom) (hy0 : y ≠ 0) (he : 0 ≤ e)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (hsrc : ReflectedSeparationSource A γ R e y b) :
+    BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e) b := by
+  cases hsrc with
+  | ofBottomEdge hbot =>
+    exact BookProof.SpectralSplitting.spectralSeparation_of_norm_le
+      (A := (γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (hA := isSelfAdjoint_reflection R hRsym γ)
+      (y := y) (l := resolventEdge γ e) (c := γ⁻¹) hy0
+      (resolvent_reflection_eigenvector hR hγ hy he heig) (le_refl _)
+      (reflected_norm_sub_smul_one_le R γ (shiftInvert_opNorm_le_of_bottom hR hγ he hbot))
+  | ofCompression hlb hC =>
+    refine BookProof.SpectralSplitting.spectralSeparation_of_compressionBound _
+      (isSelfAdjoint_reflection R hRsym γ) hy0
+      (resolvent_reflection_eigenvector hR hγ hy he heig) hlb ?_
+    intro z
+    rw [Submodule.coe_norm, Submodule.coe_inner,
+      BookProof.SpectralSplitting.compressed_apply_coe]
+    exact hC z
+
+/-- **The certificate from either input.**  `sirk_reflected_gap_certificate` with `hsep` supplied
+by `spectralSeparation_of_source`: the caller needs a bottom edge *or* a compression form bound,
+not both, and no other spectral statement. -/
+theorem sirk_reflected_gap_certificate_of_source
+    {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    {y : E} (hy : y ∈ Dom) (hy0 : y ≠ 0) {e : ℝ} (he : 0 ≤ e)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) {yy : F} (mu C Dmin h : ℝ) (m : ℕ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heigB : psiB yy = (mu : ℂ) • yy) (hyy : ‖V yy‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
+    {b : ℝ} (hsrc : ReflectedSeparationSource A γ R e y b)
+    (hlt : BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < b) :
+    ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e : ℂ) • y ∧
+      BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)
+        ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m ∧
+      BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) -
+          BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) ^ 2 /
+            (b - BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy))
+        ≤ resolventEdge γ e ∧
+      γ ^ 2 * resolventEdge γ e ≤ e :=
+  sirk_reflected_gap_certificate (A := A) (γ := γ) (R := R) (e := e) (b := b)
+    hR hγ hRsym hy he heig V psiB mu C Dmin h m hVV heigB hyy hbound
+    (spectralSeparation_of_source hR hγ hRsym hy hy0 he heig hsrc) hlt
+
+end Source
+
+/-! ## 12. The bottom-edge arithmetic on the `diag (5, 2)` instance
 
 The instance of `BookProof.SpectralSplitting` §12 has bottom edge `2` (the eigenvalue of
 `vOther`) and complement level `5` (the eigenvalue of `vTrial`), so with shift `γ = 1` the
@@ -641,6 +745,37 @@ theorem diag52_bottomEdge_arithmetic :
       resolventEdge 1 5 - resolventEdge 1 2 = (5 - 2) / ((2 + 1) * (5 + 1)) := by
   refine ⟨?_, ?_, ?_, ?_, ?_⟩ <;> norm_num [resolventEdge_def]
 
+
+/-! ## 13. Why the bottom edge cannot be manufactured from positivity and an eigenvector
+
+`13v` derived the certificate's level from a bottom edge.  It is worth recording exactly why that
+hypothesis cannot be replaced by the data a finite computation actually produces — positivity of
+`A` plus a certified eigenvector with eigenvalue `e`.  It cannot: on `diag (5, 2)` the operator is
+positive and `vTrial` is a unit eigenvector with eigenvalue `5`, yet `5 ‖x‖² ≤ re ⟪x, A2 x⟫` fails
+at `vOther`, where the form is `2`.  The bottom edge is the *bottom* of the spectrum, and no
+eigenvector pins the bottom: it pins one point.  Positivity alone gives the edge `e = 0`, which is
+precisely the `b = 0` endpoint of the generic route. -/
+
+/-- **Positivity plus a certified eigenvector is not a bottom edge.**  `A2` is a positive operator,
+`vTrial` is a unit eigenvector with eigenvalue `5`, and the bottom-edge hypothesis at `e = 5` is
+nevertheless false. -/
+theorem bottomEdge_not_implied_by_positivity :
+    (∀ x : BookProof.SpectralSplitting.E2,
+        0 ≤ (inner ℂ x (BookProof.SpectralSplitting.A2 x) : ℂ).re) ∧
+      BookProof.SpectralSplitting.A2 BookProof.SpectralSplitting.vTrial
+        = (5 : ℂ) • BookProof.SpectralSplitting.vTrial ∧
+      ‖BookProof.SpectralSplitting.vTrial‖ = 1 ∧
+      ¬ (∀ x : BookProof.SpectralSplitting.E2,
+        (5 : ℝ) * ‖x‖ ^ 2 ≤ (inner ℂ x (BookProof.SpectralSplitting.A2 x) : ℂ).re) := by
+  refine ⟨BookProof.SpectralSplitting.A2_inner_re_nonneg,
+    BookProof.SpectralSplitting.A2_trial, ?_, ?_⟩
+  · simp [BookProof.SpectralSplitting.vTrial]
+  · intro h
+    have hv := h BookProof.SpectralSplitting.vOther
+    rw [BookProof.SpectralSplitting.A2_other, inner_smul_right,
+      BookProof.SpectralSplitting.inner_other_other,
+      BookProof.SpectralSplitting.norm_other_sq] at hv
+    norm_num at hv
 end BookProof.ChapterResolventTransfer
 
 end
