@@ -927,6 +927,309 @@ theorem smBrstCharge_nilpotent {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) 
     (matterGen_comm_ghostCre m T) (matterGen_comm_ghostAnn m T)
     (fun a b => matterGen_lie hT a b) (smStruct_antisymm h3anti) (smStruct_jacobi h3jac)
 
+/-! ## 6. The ghost-parity operator
+
+`ghostNumber` is diagonal in the occupation basis with integer eigenvalue the number of occupied
+ghost modes.  Its parity — `U = (-1)^{N_ghost}` — is the fundamental symmetry of the indefinite Fock
+space: an involution, an isometry of the ambient inner product, and self-adjoint, so that
+`kform U x y = ⟪x, U y⟫` is a Krein form.  The charge is *odd* for it
+(`smGhostParity_mul_smBrstCharge`, `U Ω = -Ω U`): the Gauss term carries one ghost field and the
+cubic term three.  That is what lets the sector split of `ChapterSmBrstQuotient` §3 be applied to the
+SM charge, and it is the operator against which the no-ghost sign on `range smPhysProj` is computed
+(`ChapterSmQuartet` §12).
+
+The parity is written in the occupation basis rather than as the product `∏_a (1 - 2 c^a b_a)` so
+that its metric properties (involution, isometry, self-adjointness) are one computation each; the
+product form is the same operator, but nothing below needs that identification.
+-/
+
+/-- The eigenvalue of the ghost parity on the occupation state `S`: `(-1)` to the number of
+occupied ghost modes. -/
+noncomputable def ghostParitySign (m : ℕ) (S : Finset (Fin (m + 12))) : ℂ :=
+  (-1 : ℂ) ^ (S.filter (fun i => ∃ a : Fin 12, ghostMode m a = i)).card
+
+theorem ghostParitySign_sq (m : ℕ) (S : Finset (Fin (m + 12))) :
+    ghostParitySign m S * ghostParitySign m S = 1 := by
+  rw [ghostParitySign, ← pow_add, ← two_mul, pow_mul]
+  norm_num
+
+@[simp] theorem conj_ghostParitySign (m : ℕ) (S : Finset (Fin (m + 12))) :
+    (starRingEnd ℂ) (ghostParitySign m S) = ghostParitySign m S := by
+  simp [ghostParitySign]
+
+@[simp] theorem norm_ghostParitySign (m : ℕ) (S : Finset (Fin (m + 12))) :
+    ‖ghostParitySign m S‖ = 1 := by
+  simp [ghostParitySign]
+
+/-- Occupying a ghost mode flips the parity. -/
+theorem ghostParitySign_insert_ghost (m : ℕ) (a : Fin 12) {S : Finset (Fin (m + 12))}
+    (h : ghostMode m a ∉ S) :
+    ghostParitySign m (insert (ghostMode m a) S) = -ghostParitySign m S := by
+  rw [ghostParitySign, ghostParitySign, Finset.filter_insert, if_pos ⟨a, rfl⟩,
+    Finset.card_insert_of_notMem (fun hmem => h (Finset.mem_filter.mp hmem).1), pow_succ]
+  ring
+
+/-- Occupying a matter mode leaves the parity alone. -/
+theorem ghostParitySign_insert_matter (m : ℕ) {i : Fin (m + 12)}
+    (h : ∀ a : Fin 12, ghostMode m a ≠ i) (S : Finset (Fin (m + 12))) :
+    ghostParitySign m (insert i S) = ghostParitySign m S := by
+  rw [ghostParitySign, ghostParitySign, Finset.filter_insert, if_neg (fun hx => hx.elim h)]
+
+/-- The same flip, in the direction needed when erasing an occupied ghost. -/
+theorem ghostParitySign_erase_ghost (m : ℕ) (a : Fin 12) {S : Finset (Fin (m + 12))}
+    (h : ghostMode m a ∈ S) :
+    ghostParitySign m S = -ghostParitySign m (S.erase (ghostMode m a)) := by
+  nth_rewrite 1 [← Finset.insert_erase h]
+  exact ghostParitySign_insert_ghost m a (Finset.notMem_erase _ _)
+
+/-- The same, for a matter mode. -/
+theorem ghostParitySign_erase_matter (m : ℕ) {i : Fin (m + 12)}
+    (h : ∀ a : Fin 12, ghostMode m a ≠ i) {S : Finset (Fin (m + 12))} (hi : i ∈ S) :
+    ghostParitySign m S = ghostParitySign m (S.erase i) := by
+  nth_rewrite 1 [← Finset.insert_erase hi]
+  exact ghostParitySign_insert_matter m h _
+
+/-- **The ghost parity** `U = (-1)^{N_ghost}`, diagonal in the occupation basis. -/
+noncomputable def smGhostParity (m : ℕ) : Module.End ℂ (FermiFock (m + 12)) where
+  toFun ψ := WithLp.toLp 2 (fun S => ghostParitySign m S * ψ S)
+  map_add' x y := by
+    ext S
+    simp [mul_add]
+  map_smul' c x := by
+    ext S
+    simp [mul_left_comm]
+
+@[simp] theorem smGhostParity_apply (m : ℕ) (ψ : FermiFock (m + 12))
+    (S : Finset (Fin (m + 12))) :
+    smGhostParity m ψ S = ghostParitySign m S * ψ S := rfl
+
+/-- The ghost parity is an involution. -/
+theorem smGhostParity_involutive (m : ℕ) (ψ : FermiFock (m + 12)) :
+    smGhostParity m (smGhostParity m ψ) = ψ := by
+  ext S
+  rw [smGhostParity_apply, smGhostParity_apply, ← mul_assoc, ghostParitySign_sq, one_mul]
+
+/-- The ghost parity composed with itself is the identity, in `End` form. -/
+theorem smGhostParity_comp (m : ℕ) :
+    smGhostParity m ∘ₗ smGhostParity m = LinearMap.id :=
+  LinearMap.ext (smGhostParity_involutive m)
+
+/-- The ghost parity is an isometry of the ambient inner product. -/
+theorem smGhostParity_isometry (m : ℕ) (ψ : FermiFock (m + 12)) :
+    ‖smGhostParity m ψ‖ = ‖ψ‖ := by
+  have h : ‖smGhostParity m ψ‖ ^ 2 = ‖ψ‖ ^ 2 := by
+    rw [normSq_eq_sum, normSq_eq_sum]
+    exact Finset.sum_congr rfl fun S _ => by
+      rw [smGhostParity_apply, norm_mul, norm_ghostParitySign, one_mul]
+  nlinarith [norm_nonneg (smGhostParity m ψ), norm_nonneg ψ]
+
+/-- The ghost parity is self-adjoint for the ambient inner product, which is what makes
+`kform U` a symmetric form. -/
+theorem smGhostParity_selfAdjoint (m : ℕ) (x y : FermiFock (m + 12)) :
+    inner ℂ (smGhostParity m x) y = inner ℂ x (smGhostParity m y) := by
+  rw [inner_eq_sum, inner_eq_sum]
+  refine Finset.sum_congr rfl fun S _ => ?_
+  rw [smGhostParity_apply, smGhostParity_apply, map_mul, conj_ghostParitySign]
+  ring
+
+/-- **A ghost creation operator anticommutes with the parity**: it flips the number of occupied
+ghost modes. -/
+theorem smGhostParity_add_ghostCre (m : ℕ) (a : Fin 12) :
+    smGhostParity m * ghostCre m a + ghostCre m a * smGhostParity m = 0 := by
+  refine LinearMap.ext fun ψ => ?_
+  ext S
+  by_cases h : ghostMode m a ∈ S
+  · simp only [Module.End.mul_apply, smGhostParity_apply, ghostCre, creat_apply,
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_pos h]
+    rw [ghostParitySign_erase_ghost m a h]
+    ring
+  · simp only [Module.End.mul_apply, smGhostParity_apply, ghostCre, creat_apply,
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_neg h, mul_zero, add_zero]
+
+theorem smGhostParity_mul_ghostCre (m : ℕ) (a : Fin 12) :
+    smGhostParity m * ghostCre m a = -(ghostCre m a * smGhostParity m) :=
+  eq_neg_of_add_eq_zero_left (smGhostParity_add_ghostCre m a)
+
+/-- A ghost annihilation operator anticommutes with the parity. -/
+theorem smGhostParity_add_ghostAnn (m : ℕ) (a : Fin 12) :
+    smGhostParity m * ghostAnn m a + ghostAnn m a * smGhostParity m = 0 := by
+  refine LinearMap.ext fun ψ => ?_
+  ext S
+  by_cases h : ghostMode m a ∈ S
+  · simp only [Module.End.mul_apply, smGhostParity_apply, ghostAnn, annih_apply,
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_pos h, mul_zero, add_zero]
+  · simp only [Module.End.mul_apply, smGhostParity_apply, ghostAnn, annih_apply,
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_neg h]
+    rw [ghostParitySign_insert_ghost m a h]
+    ring
+
+theorem smGhostParity_mul_ghostAnn (m : ℕ) (a : Fin 12) :
+    smGhostParity m * ghostAnn m a = -(ghostAnn m a * smGhostParity m) :=
+  eq_neg_of_add_eq_zero_left (smGhostParity_add_ghostAnn m a)
+
+/-- A matter creation operator commutes with the parity: it does not change the number of
+occupied ghost modes. -/
+theorem smGhostParity_mul_creat_matter (m : ℕ) {i : Fin (m + 12)}
+    (h : ∀ a : Fin 12, ghostMode m a ≠ i) :
+    smGhostParity m * creat i = creat i * smGhostParity m := by
+  refine LinearMap.ext fun ψ => ?_
+  ext S
+  by_cases hi : i ∈ S
+  · simp only [Module.End.mul_apply, smGhostParity_apply, creat_apply, if_pos hi]
+    rw [ghostParitySign_erase_matter m h hi]
+    ring
+  · simp only [Module.End.mul_apply, smGhostParity_apply, creat_apply, if_neg hi, mul_zero]
+
+/-- A matter annihilation operator commutes with the parity. -/
+theorem smGhostParity_mul_annih_matter (m : ℕ) {i : Fin (m + 12)}
+    (h : ∀ a : Fin 12, ghostMode m a ≠ i) :
+    smGhostParity m * annih i = annih i * smGhostParity m := by
+  refine LinearMap.ext fun ψ => ?_
+  ext S
+  by_cases hi : i ∈ S
+  · simp only [Module.End.mul_apply, smGhostParity_apply, annih_apply, if_pos hi, mul_zero]
+  · simp only [Module.End.mul_apply, smGhostParity_apply, annih_apply, if_neg hi]
+    rw [ghostParitySign_insert_matter m h S]
+    ring
+
+/-- **The parity commutes with second quantization of a matter-only matrix**: every mode it touches
+is a matter mode. -/
+theorem smGhostParity_comm_fermiBilin_matter (m : ℕ) (M : Matrix (Fin m) (Fin m) ℂ) :
+    smGhostParity m * fermiBilin (embedMatter m M)
+      = fermiBilin (embedMatter m M) * smGhostParity m := by
+  rw [fermiBilin_eq4, Finset.mul_sum, Finset.sum_mul]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [Finset.mul_sum, Finset.sum_mul]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  by_cases hi : ∃ a : Fin 12, ghostMode m a = i
+  · obtain ⟨a, rfl⟩ := hi
+    rw [embedMatter_row_ghost]
+    simp
+  by_cases hj : ∃ a : Fin 12, ghostMode m a = j
+  · obtain ⟨a, rfl⟩ := hj
+    rw [embedMatter_col_ghost]
+    simp
+  push_neg at hi hj
+  rw [mul_smul_comm]
+  conv_rhs => rw [smul_mul_assoc]
+  congr 1
+  calc smGhostParity m * (creat i * annih j)
+      = (smGhostParity m * creat i) * annih j := by rw [mul_assoc]
+    _ = (creat i * smGhostParity m) * annih j := by
+          rw [smGhostParity_mul_creat_matter m hi]
+    _ = creat i * (smGhostParity m * annih j) := by rw [mul_assoc]
+    _ = creat i * (annih j * smGhostParity m) := by
+          rw [smGhostParity_mul_annih_matter m hj]
+    _ = (creat i * annih j) * smGhostParity m := by rw [mul_assoc]
+
+/-- The parity commutes with the Gauss generators. -/
+theorem smGhostParity_comm_matterGen (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (a : Fin 12) : smGhostParity m * matterGen m T a = matterGen m T a * smGhostParity m := by
+  rw [matterGen, mul_smul_comm, smul_mul_assoc, smGhostParity_comm_fermiBilin_matter]
+
+/-- **A Gauss term is parity-odd**: one ghost field. -/
+theorem smGhostParity_mul_gauss (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (a : Fin 12) :
+    smGhostParity m * (ghostCre m a * matterGen m T a)
+      = -(ghostCre m a * matterGen m T a * smGhostParity m) := by
+  calc smGhostParity m * (ghostCre m a * matterGen m T a)
+      = (smGhostParity m * ghostCre m a) * matterGen m T a := by rw [mul_assoc]
+    _ = (-(ghostCre m a * smGhostParity m)) * matterGen m T a := by
+          rw [smGhostParity_mul_ghostCre]
+    _ = -(ghostCre m a * (smGhostParity m * matterGen m T a)) := by noncomm_ring
+    _ = -(ghostCre m a * (matterGen m T a * smGhostParity m)) := by
+          rw [smGhostParity_comm_matterGen]
+    _ = -(ghostCre m a * matterGen m T a * smGhostParity m) := by noncomm_ring
+
+/-- **odd · odd is even** for the parity. -/
+theorem smGhostParity_mul_mul_odd_odd {A B : Module.End ℂ (FermiFock (m + 12))}
+    (hA : smGhostParity m * A = -(A * smGhostParity m))
+    (hB : smGhostParity m * B = -(B * smGhostParity m)) :
+    smGhostParity m * (A * B) = A * B * smGhostParity m := by
+  rw [← mul_assoc, hA, neg_mul, mul_assoc, hB, mul_neg, neg_neg, mul_assoc]
+
+/-- **odd · even is odd** for the parity. -/
+theorem smGhostParity_mul_mul_odd_even {A B : Module.End ℂ (FermiFock (m + 12))}
+    (hA : smGhostParity m * A = -(A * smGhostParity m))
+    (hB : smGhostParity m * B = B * smGhostParity m) :
+    smGhostParity m * (A * B) = -(A * B * smGhostParity m) := by
+  rw [← mul_assoc, hA, neg_mul, mul_assoc, hB, mul_assoc]
+
+/-- **even · odd is odd** for the parity. -/
+theorem smGhostParity_mul_mul_even_odd {A B : Module.End ℂ (FermiFock (m + 12))}
+    (hA : smGhostParity m * A = A * smGhostParity m)
+    (hB : smGhostParity m * B = -(B * smGhostParity m)) :
+    smGhostParity m * (A * B) = -(A * B * smGhostParity m) := by
+  rw [← mul_assoc, hA, mul_assoc, hB, mul_neg, mul_assoc]
+
+/-- **A cubic ghost term is parity-odd**: three ghost fields. -/
+theorem smGhostParity_mul_cubic (m : ℕ) (a b e : Fin 12) :
+    smGhostParity m * (ghostCre m a * ghostCre m b * ghostAnn m e)
+      = -(ghostCre m a * ghostCre m b * ghostAnn m e * smGhostParity m) :=
+  smGhostParity_mul_mul_even_odd
+    (smGhostParity_mul_mul_odd_odd (smGhostParity_mul_ghostCre m a)
+      (smGhostParity_mul_ghostCre m b))
+    (smGhostParity_mul_ghostAnn m e)
+
+/-! ### Oddness is closed under sums and scalar multiples -/
+
+/-- A sum of parity-odd operators is parity-odd. -/
+theorem smGhostParity_mul_sum {ι : Type*} (s : Finset ι)
+    (A : ι → Module.End ℂ (FermiFock (m + 12)))
+    (h : ∀ i ∈ s, smGhostParity m * A i = -(A i * smGhostParity m)) :
+    smGhostParity m * (∑ i ∈ s, A i) = -((∑ i ∈ s, A i) * smGhostParity m) := by
+  rw [Finset.mul_sum, Finset.sum_mul, ← Finset.sum_neg_distrib]
+  exact Finset.sum_congr rfl fun i hi => h i hi
+
+/-- A complex multiple of a parity-odd operator is parity-odd. -/
+theorem smGhostParity_mul_smul {c : ℂ} {A : Module.End ℂ (FermiFock (m + 12))}
+    (h : smGhostParity m * A = -(A * smGhostParity m)) :
+    smGhostParity m * (c • A) = -(c • A * smGhostParity m) := by
+  rw [mul_smul_comm, smul_mul_assoc, h, smul_neg]
+
+-- the `Algebra ℝ (Module.End ℂ (FermiFock _))` instance is over the typeclass budget here
+set_option maxHeartbeats 800000 in
+set_option synthInstance.maxHeartbeats 800000 in
+/-- A real multiple of a parity-odd operator is parity-odd. -/
+theorem smGhostParity_mul_real_smul {c : ℝ} {A : Module.End ℂ (FermiFock (m + 12))}
+    (h : smGhostParity m * A = -(A * smGhostParity m)) :
+    smGhostParity m * (c • A) = -(c • A * smGhostParity m) := by
+  rw [mul_smul_comm, h, smul_neg, smul_mul_assoc]
+
+/-! ### The charge is parity-odd -/
+
+set_option maxHeartbeats 800000 in
+set_option synthInstance.maxHeartbeats 800000 in
+/-- **The Standard-Model charge anticommutes with the ghost parity**: `U Ω = -Ω U`.  Every term of
+the charge carries an odd number of ghost fields — one in `c^a G^a`, three in the cubic term — so
+the charge exchanges the two parity sectors, which is the grading the sector split consumes. -/
+theorem smGhostParity_mul_smBrstCharge (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    smGhostParity m * smBrstCharge m T f3 = -(smBrstCharge m T f3 * smGhostParity m) := by
+  have hA : smGhostParity m * (∑ a : Fin 12, ghostCre m a * matterGen m T a)
+      = -((∑ a : Fin 12, ghostCre m a * matterGen m T a) * smGhostParity m) :=
+    smGhostParity_mul_sum (m := m) Finset.univ
+      (fun a : Fin 12 => ghostCre m a * matterGen m T a) fun a _ =>
+        smGhostParity_mul_gauss m T a
+  have hB : smGhostParity m
+      * (∑ a : Fin 12, ∑ b : Fin 12, ∑ e : Fin 12,
+          smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e))
+      = -((∑ a : Fin 12, ∑ b : Fin 12, ∑ e : Fin 12,
+          smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e)) * smGhostParity m) := by
+    refine smGhostParity_mul_sum (m := m) Finset.univ
+      (fun a : Fin 12 => ∑ b : Fin 12, ∑ e : Fin 12,
+        smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e)) fun a _ => ?_
+    refine smGhostParity_mul_sum (m := m) Finset.univ
+      (fun b : Fin 12 => ∑ e : Fin 12,
+        smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e)) fun b _ => ?_
+    exact smGhostParity_mul_sum (m := m) Finset.univ
+      (fun e : Fin 12 => smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e))
+      fun e _ => smGhostParity_mul_real_smul (m := m) (smGhostParity_mul_cubic m a b e)
+  unfold smBrstCharge brstCharge Q
+  rw [mul_sub, sub_mul, mul_smul_comm, smul_mul_assoc, hA, hB]
+  simp only [smul_neg]
+  abel
+
 end
 
 end BookProof.SmBrstGhost
