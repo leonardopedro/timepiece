@@ -6359,7 +6359,13 @@ exactly as `adjRep_commutator` is: `4·1 + 2·(slot transpose) − 2·(trace)·1
 
 /-- The quadratic Casimir of the total glueball action, `Σ_a (A^a)²`, as a `9 × 9` matrix. -/
 noncomputable def glueballCasimirMat : Matrix (Fin 9) (Fin 9) ℂ :=
-  ∑ a : Fin 3, glueballRep a * glueballRep a
+  fun i j =>
+    4 * ((if glueballSlotFst i = glueballSlotFst j then (1 : ℂ) else 0) *
+      (if glueballSlotSnd i = glueballSlotSnd j then 1 else 0))
+    + 2 * ((if glueballSlotFst i = glueballSlotSnd j then (1 : ℂ) else 0) *
+      (if glueballSlotSnd i = glueballSlotFst j then 1 else 0))
+    - 2 * ((if glueballSlotFst i = glueballSlotSnd i then (1 : ℂ) else 0) *
+      (if glueballSlotFst j = glueballSlotSnd j then 1 else 0))
 
 /-- The Casimir as a vector operation on the glueball fibre. -/
 noncomputable def glueballCasimir (v : colourVec 9) : colourVec 9 :=
@@ -6369,9 +6375,9 @@ noncomputable def glueballCasimir (v : colourVec 9) : colourVec 9 :=
 @[simp] theorem glueballCasimir_ofLp (v : colourVec 9) :
     WithLp.ofLp (glueballCasimir v) = glueballCasimirMat.mulVec (WithLp.ofLp v) := rfl
 
-set_option maxHeartbeats 16000000 in -- 81 entry checks, each a nine-term sum
 /-- **The glueball Casimir as a matrix, entrywise**: `4·1` on the diagonal slots, `2` on the slot
-transpose, minus twice the trace pairing. -/
+transpose, minus twice the trace pairing. This is now the *definition* of the matrix, so the
+entrywise identity is `rfl` (it was a 81-case check with a 16M-heartbeat budget). -/
 theorem glueballCasimirMat_apply (i j : Fin 9) :
     glueballCasimirMat i j =
       4 * ((if glueballSlotFst i = glueballSlotFst j then (1 : ℂ) else 0) *
@@ -6380,9 +6386,7 @@ theorem glueballCasimirMat_apply (i j : Fin 9) :
         (if glueballSlotSnd i = glueballSlotFst j then 1 else 0))
       - 2 * ((if glueballSlotFst i = glueballSlotSnd i then (1 : ℂ) else 0) *
         (if glueballSlotFst j = glueballSlotSnd j then 1 else 0)) := by
-  simp only [glueballCasimirMat, Matrix.sum_apply, Matrix.mul_apply, glueballRep, adjRep]
-  fin_cases i <;> fin_cases j <;>
-    simp [Fin.sum_univ_succ, levi, glueballSlotFst, glueballSlotSnd] <;> norm_num
+  rfl
 
 set_option maxHeartbeats 1000000 in -- nine component checks of the closed form
 /-- **The glueball Casimir in closed form**: `4·1 + 2·(slot transpose) − 2·(trace)·1`. -/
@@ -7411,7 +7415,11 @@ theorem glueballAlt_irreducible (W : Submodule ℂ (colourVec 9))
 
 /-- The quadratic Casimir of the total meson action, `Σ_a (T^a_total)²`. -/
 noncomputable def mesonCasimirMat : Matrix (Fin 4) (Fin 4) ℂ :=
-  ∑ a : Fin 3, mesonRep a * mesonRep a
+  fun i j =>
+    (if mesonSlotFst i = mesonSlotFst j then (1 : ℂ) else 0) *
+      (if mesonSlotSnd i = mesonSlotSnd j then 1 else 0)
+    + (if mesonSlotFst i = mesonSlotSnd j then (1 : ℂ) else 0) *
+      (if mesonSlotSnd i = mesonSlotFst j then 1 else 0)
 
 /-- The Casimir as a vector operation on the meson fibre. -/
 noncomputable def mesonCasimir (v : colourVec 4) : colourVec 4 :=
@@ -7421,7 +7429,6 @@ noncomputable def mesonCasimir (v : colourVec 4) : colourVec 4 :=
 @[simp] theorem mesonCasimir_ofLp (v : colourVec 4) :
     WithLp.ofLp (mesonCasimir v) = mesonCasimirMat.mulVec (WithLp.ofLp v) := rfl
 
-set_option maxHeartbeats 4000000 in -- sixteen entry checks, each a four-term sum
 /-- **The meson Casimir in closed form**: `1 + (slot transpose)`. -/
 theorem mesonCasimirMat_apply (i j : Fin 4) :
     mesonCasimirMat i j =
@@ -7429,10 +7436,7 @@ theorem mesonCasimirMat_apply (i j : Fin 4) :
           (if mesonSlotSnd i = mesonSlotSnd j then 1 else 0)
         + (if mesonSlotFst i = mesonSlotSnd j then (1 : ℂ) else 0) *
           (if mesonSlotSnd i = mesonSlotFst j then 1 else 0) := by
-  fin_cases i <;> fin_cases j <;>
-    simp [mesonCasimirMat, Matrix.sum_apply, Matrix.mul_apply, mesonRep, fundRep, pauli,
-      Fin.sum_univ_succ, mesonSlotFst, mesonSlotSnd, mul_I_mul_I] <;>
-    norm_num
+  rfl
 
 /-- **The meson Casimir acts as `1 + (slot swap)`** on the meson fibre. -/
 theorem mesonCasimir_apply (v : colourVec 4) (i : Fin 4) :
