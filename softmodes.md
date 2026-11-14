@@ -2048,6 +2048,18 @@ the deflated version degenerate in `13q`. The certificate itself is unchanged:
 turning a compression-form bound plus this union into `SpectralSeparation`, then promoting that
 wrapper to primary.
 
+**Prior art checked before building.** Mathlib exposes no spectrum for an operator restricted
+to a submodule: there is no `Submodule.spectrum`, no
+`ContinuousLinearMap.spectrum_restrict` and no `spectrum.subset_restrict`, and there is no
+block-product spectrum either (`spectrum.prod` does not exist), so the union cannot be
+assembled from library pieces.  What *is* available, and what the construction uses, is the
+transport layer — `Submodule.subtypeL`, `ContinuousLinearMap.codRestrict`,
+`Submodule.starProjection`, and the generic `spectrum.mem_iff` interface — rather than any
+spectral statement.  The nearest structural analogue,
+`Subalgebra.spectrum_sUnion_connectedComponentIn`, is spectral permanence for a closed
+*subalgebra* and does not apply: the compression is not the image of `A` under an algebra map,
+since the inclusion is not multiplicative and `A` itself does not kill the line.
+
 **Verification.** The module builds with no warning and no line above 100 code points;
 `#print axioms` on the thirteen new declarations gives `[propext, Classical.choice,
 Quot.sound]` for each; `lake build BookProof` is green at 9004 jobs.

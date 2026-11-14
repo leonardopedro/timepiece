@@ -24575,6 +24575,18 @@ is the wrapper that turns a compression-form bound plus this union into `Spectra
 then making that the primary certificate.  Nothing here is vacuous, unlike the deflated form
 retired in `13q`.
 
+**Prior art checked before building.** Mathlib exposes no spectrum for an operator restricted
+to a submodule: there is no `Submodule.spectrum`, no
+`ContinuousLinearMap.spectrum_restrict` and no `spectrum.subset_restrict`, and there is no
+block-product spectrum either (`spectrum.prod` does not exist), so the union cannot be
+assembled from library pieces.  What *is* available, and what the construction uses, is the
+transport layer — `Submodule.subtypeL`, `ContinuousLinearMap.codRestrict`,
+`Submodule.starProjection`, and the generic `spectrum.mem_iff` interface — rather than any
+spectral statement.  The nearest structural analogue,
+`Subalgebra.spectrum_sUnion_connectedComponentIn`, is spectral permanence for a closed
+*subalgebra* and does not apply: the compression is not the image of `A` under an algebra map,
+since the inclusion is not multiplicative and `A` itself does not kill the line.
+
 **Verification.**  `lake build BookProof.Sirk.ChapterSpectralSplitting` succeeds with no warning
 and no line above 100 code points; `#print axioms` on the thirteen new declarations (the two
 definitions `compressed` and `complementProjectionCod`, and the eleven lemmas and theorems from
