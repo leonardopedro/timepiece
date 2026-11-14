@@ -2488,6 +2488,38 @@ audit note and point at `not_rayleigh_lt_resolventEdge`.
 no line above 100 code points; `#print axioms` on the eight new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
+### The second-edge band, discharged and instantiated (2026-11-13af)
+
+Track A. Three short steps: §19's separation is derived from the compression form bound, the
+eventual enclosure becomes a one-order rate, and the second-edge band is instantiated on a concrete
+diagonal operator.
+
+**No `hsep` input.**  The theorem
+`spectralSeparation_at_secondEdge_of_compressionBound` builds
+`SpectralSeparation A' (resolventEdge γ e₀) (resolventEdge γ e₁)` from
+`ChapterSpectralSplitting.spectralSeparation_of_compressionBound`: the eigenvector `y` at the
+bottom edge, `l ≤ b` read off `secondEdge_lt_level`, and a form bound
+`resolventEdge γ e₁ ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ`.  Composing it with §19 gives
+`reflected_band_closes_at_secondEdge_of_formBound`, which runs with no spectral input at all.
+
+**Rate instead of a limit.** `ChapterRitzCertificate.temple_membership_rate`: if `θ ≤ b − δ` and
+`ε² ≤ δ η` then `sInf (spectrum ℝ A) ∈ [θ − η, θ]`. The enclosure no longer waits for a limit;
+the threshold `ε ≤ √(δ η)` is what a finite run checks.
+
+**The instance.** §20 of `ChapterResolventTransfer` puts `Aedge = 5/6 − (1/6) P_{vOther}` on
+`EuclideanSpace ℂ (Fin 2)` — `diag (5/6, 2/3)` in the `(vTrial, vOther)` frame, i.e. the reflected
+operator of `diag (2, 5)` at `γ = 1`. Facts proved: `Aedge` is self-adjoint; the spectrum is
+bounded below by `2/3` in form; `2/3` is attained, so `Aedge_sInf : sInf (spectrum ℝ Aedge) = 2/3`.
+The mixed vector `wMix = (3/5) vTrial + (4/5) vOther` is a unit vector with `Aedge wMix`
+`= (1/2) vTrial + (8/15) vOther`, hence `rayleigh = 109/150` and `resid² = 4/625`; at the level
+`b = 5/6` the band is `[109/150 − (4/625)/(5/6 − 109/150), 109/150] = [2/3, 109/150]`, so the edge
+sits exactly on its lower end — `Aedge_band_membership` and `Aedge_band_membership_num`, both
+proved by `norm_num`.
+
+**Verification.** `ChapterRitzCertificate` and `ChapterResolventTransfer` build with no warning and
+no line above 100 code points; `#print axioms` on the three new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

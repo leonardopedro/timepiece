@@ -197,6 +197,24 @@ theorem temple_band_mem [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAdjoint A
       Set.Icc (rayleigh A x - resid A x ^ 2 / (b - rayleigh A x)) (rayleigh A x) :=
   ⟨temple_lower_bound hA hsep hx hlt, sInf_spectrum_le_rayleigh A hA hx⟩
 
+/-- **Temple membership as a rate, not a limit.**  `temple_band_eventually_mem` needs a limit; here
+the same enclosure is produced at a single order from two numbers.  If the quotients sit a fixed
+`δ` below the level and `ε² ≤ δ η`, the band's lower end is within `η` of `θ`, so the edge lies in
+`[θ − η, θ]`.  The threshold `resid ≤ √(δ η)` is what a finite run can check. -/
+theorem temple_membership_rate [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAdjoint A)
+    {b delta eta : ℝ} (hdelta : 0 < delta) (heta : 0 < eta) {x : F}
+    (hsep : SpectralSeparation A (sInf (spectrum ℝ A)) b) (hx : ‖x‖ = 1)
+    (hle : rayleigh A x ≤ b - delta) (hres : resid A x ^ 2 ≤ delta * eta) :
+    sInf (spectrum ℝ A) ∈ Set.Icc (rayleigh A x - eta) (rayleigh A x) := by
+  have hlt : rayleigh A x < b := by linarith
+  have hb : delta ≤ b - rayleigh A x := by linarith
+  have hquot : resid A x ^ 2 / (b - rayleigh A x) ≤ eta := by
+    rw [div_le_iff₀ (by linarith)]
+    nlinarith [hres, heta.le]
+  refine ⟨?_, sInf_spectrum_le_rayleigh A hA hx⟩
+  have hlow := temple_lower_bound hA hsep hx hlt
+  linarith
+
 omit [CompleteSpace F] in
 /-- The width of the emitted Temple band is `ε²/(β−θ)`, so it vanishes as soon as the
 residuals do, provided the Rayleigh quotients stay a fixed distance below `β`. -/

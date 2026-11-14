@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13ad`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13af`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -53,6 +53,14 @@
 > (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
+>
+> **Track A — newest (2026-11-13af):** “State of the project — 2026-11-13af: the second-edge band,
+> discharged and instantiated” (end of file): `spectralSeparation_at_secondEdge_of_compressionBound`
+> derives the separation from a form bound on the compression to `yᗮ`, so
+> `reflected_band_closes_at_secondEdge_of_formBound` no longer needs `hsep`;
+> `temple_membership_rate` turns the eventual Temple enclosure into a one-order threshold
+> `ε² ≤ δ η`; §20 instantiates the band on `diag (5/6, 2/3)`, where `θ = 109/150` and `ε² = 4/625`
+> put the edge exactly on the band's lower end.
 >
 > **Track A — newest (2026-11-13ad):** “State of the project — 2026-11-13ad: the quotient reaches
 > the edge” (end of file): `rayleigh_tendsto_sInf` derives
@@ -25194,3 +25202,42 @@ from either file and no line above 100 code points; `#print axioms` on `rayleigh
 `reflected_resid_tendsto_zero`, `reflected_rayleigh_tendsto_edge`,
 `reflected_band_closes_of_sirk_of_resid`, `reflected_band_closes_at_secondEdge` gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-13af: the second-edge band, discharged and instantiated
+
+Track A.  The second-edge band of `13ad` took its spectral separation as data, and the enclosure it
+produced was an eventual statement.  Both are now removed: the separation is derived from a form
+bound on the compression to the edge eigenvector's complement, the enclosure has a one-order
+criterion, and §20 of `ChapterResolventTransfer` runs the whole band on a concrete diagonal
+operator.
+
+**Separation from the compression.**  `spectralSeparation_at_secondEdge_of_compressionBound`
+assembles `SpectralSeparation A' (resolventEdge γ e₀) (resolventEdge γ e₁)` out of three pieces
+that are not choices: the eigenvector `y` at the bottom edge, `l ≤ b` from `secondEdge_lt_level`,
+and `ChapterSpectralSplitting.spectralSeparation_of_compressionBound` fed the form bound
+`resolventEdge γ e₁ ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ`.  Composing it with §19 gives
+`reflected_band_closes_at_secondEdge_of_formBound`, whose hypotheses no longer include `hsep`;
+the only spectral number left is on the complement, where a run can estimate it.
+
+**Rate instead of a limit.**  `ChapterRitzCertificate.temple_membership_rate`: if `θ ≤ b − δ` and
+`resid ≤ √(δ η)`, then `sInf (spectrum ℝ A) ∈ [θ − η, θ]`.  This is the finite-order form of
+`temple_band_eventually_mem`; the enclosure no longer waits for `m → ∞`, and the threshold is the
+quantity a numerical run checks.
+
+**The instance.**  §20 puts `Aedge = 5/6 − (1/6) P_{vOther}` on `EuclideanSpace ℂ (Fin 2)` —
+`diag (5/6, 2/3)` in `ChapterSpectralSplitting`'s `(vTrial, vOther)` frame, which is the reflected
+operator of `diag (2, 5)` at `γ = 1`.  Proved there: `Aedge` is self-adjoint; the whole-space form
+bound `2/3 ‖x‖² ≤ re ⟪x, Aedge x⟫` holds; `2/3` is a spectral point (the unit would have to kill
+`vOther`), so `sInf (spectrum ℝ Aedge) = 2/3`.  The unit vector
+`wMix = (3/5) vTrial + (4/5) vOther` satisfies `Aedge wMix = (1/2) vTrial + (8/15) vOther`, hence
+`rayleigh = 109/150` and `resid² = 4/625`; the band at `b = 5/6` is
+`[109/150 − (4/625)/(5/6 − 109/150), 109/150] = [2/3, 109/150]`, so the edge lies exactly on its
+lower end.  `Aedge_band_membership` states the enclosure, `Aedge_band_membership_num` the closed
+form, and `norm_num` checks both.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterRitzCertificate`,
+`lake build BookProof.Sirk.ChapterResolventTransfer` and `lake build BookProof` succeed; no warning
+from either file and no line above 100 code points; `#print axioms` on
+`temple_membership_rate`, `spectralSeparation_at_secondEdge_of_compressionBound`,
+`reflected_band_closes_at_secondEdge_of_formBound`, `Aedge_sInf` and
+`Aedge_band_membership_num` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.

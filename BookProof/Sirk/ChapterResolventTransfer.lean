@@ -1449,9 +1449,279 @@ theorem reflected_band_closes_at_secondEdge [Nontrivial E]
     exact hlvl
   exact BookProof.RitzCertificate.temple_band_eventually_mem hsym hsep' hyy hθ' hlvl'
 
+/-- **The second-edge separation from the compression form bound.**  `hsep` in
+`reflected_band_closes_at_secondEdge` is not data a caller has to own: `ChapterSpectralSplitting`
+turns a *form* bound on the compression to `yᗮ` into a spectrum bound, and with `y` the reflected
+edge eigenvector the remaining hypothesis `l ≤ b` is `secondEdge_lt_level`.  What is left is the
+number a run can estimate — `resolventEdge γ e₁ ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ`. -/
+theorem spectralSeparation_at_secondEdge_of_compressionBound [Nontrivial E]
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ e₀ e₁ : ℝ} (hγ : 0 < γ) (h0 : 0 ≤ e₀)
+    (hlt : e₀ < e₁) {y : E} (hy0 : y ≠ 0)
+    (hAy : ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e₀ : ℂ) • y)
+    (hC : ∀ z : ↥(BookProof.SpectralSplitting.eigenLine y)ᗮ,
+      resolventEdge γ e₁ * ‖z‖ ^ 2 ≤
+        (inner ℂ z (BookProof.SpectralSplitting.compressed
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (isSelfAdjoint_reflection R hRsym γ) hAy z)
+          : ℂ).re) :
+    BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e₀) (resolventEdge γ e₁) :=
+  BookProof.SpectralSplitting.spectralSeparation_of_compressionBound _ 
+    (isSelfAdjoint_reflection R hRsym γ) hy0 hAy
+    (le_of_lt (secondEdge_lt_level hγ h0 hlt)) hC
+
+/-- **The second-edge band closes from a form bound, with no `hsep`.**  The hypothesis of
+`reflected_band_closes_at_secondEdge` is discharged by the compression bound of
+`spectralSeparation_at_secondEdge_of_compressionBound`; everything else is unchanged, so the widths
+vanish and the edge lies in the emitted band eventually. -/
+theorem reflected_band_closes_at_secondEdge_of_formBound [Nontrivial E]
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {e₀ e₁ : ℝ} (hγ : 0 < γ) (h0 : 0 ≤ e₀) (hlt : e₀ < e₁)
+    (hsInf : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e₀)
+    {y : E} (hy0 : y ≠ 0)
+    (hAy : ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e₀ : ℂ) • y)
+    (hC : ∀ z : ↥(BookProof.SpectralSplitting.eigenLine y)ᗮ,
+      resolventEdge γ e₁ * ‖z‖ ^ 2 ≤
+        (inner ℂ z (BookProof.SpectralSplitting.compressed
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (isSelfAdjoint_reflection R hRsym γ) hAy z)
+          : ℂ).re)
+    {delta : ℝ} (hdelta : 0 < delta)
+    (hgap : ∀ m, BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ≤ resolventEdge γ e₁ - delta) :
+    Tendsto (templeBandWidth
+        (fun m => BookProof.RitzCertificate.rayleigh
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)))
+        (fun m => BookProof.RitzCertificate.resid
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)))
+        (resolventEdge γ e₁)) atTop (𝓝 0) ∧
+      ∀ᶠ m in atTop,
+        sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) ∈
+          Set.Icc (BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) -
+            BookProof.RitzCertificate.resid
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ^ 2 /
+              (resolventEdge γ e₁ - BookProof.RitzCertificate.rayleigh
+                ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))))
+            (BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) :=
+  reflected_band_closes_at_secondEdge hRsym hh V psiB hVV heigB hyy hbound hγ h0 hlt hsInf
+    (spectralSeparation_at_secondEdge_of_compressionBound hRsym hγ h0 hlt hy0 hAy hC)
+    hdelta hgap
 
 end BandNondegenerate
 
+
+/-! ## 20. A worked second-edge instance
+
+The two-dimensional model `diag (5/6, 2/3)` on `EuclideanSpace ℂ (Fin 2)`, in the frame of
+`vTrial` / `vOther` from `ChapterSpectralSplitting`, the operator written as
+`5/6 − (1/6) P_{vOther}`.  Its bottom spectral point is `2/3` (`Aedge_sInf`) — the reflected edge
+of `diag (2, 5)` at `γ = 1`, since `resolventEdge 1 2 = 2/3` and `resolventEdge 1 5 = 5/6`.  The
+mixed vector `wMix` has Rayleigh quotient `109/150` and residual squared `4/625`, and at the level
+`b = 5/6` the band `[θ − ε²/(b − θ), θ]` has lower end exactly `2/3`: the enclosure
+`Aedge_band_membership` is an equality on the left, and `norm_num` checks it. -/
+
+section SecondEdgeInstance
+
+open BookProof.RitzCertificate
+open BookProof.SpectralSplitting
+
+
+noncomputable def projO : E2 →L[ℂ] E2 := (innerSL ℂ vOther).smulRight vOther
+
+noncomputable def Aedge : E2 →L[ℂ] E2 := (5 / 6 : ℂ) • 1 - (1 / 6 : ℂ) • projO
+
+theorem projO_apply (x : E2) : projO x = (inner ℂ vOther x) • vOther := rfl
+
+theorem projO_sa : IsSelfAdjoint projO := by
+  refine ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr fun x y => ?_
+  change (inner ℂ (projO x) y) = (inner ℂ x (projO y))
+  rw [projO_apply, projO_apply, inner_smul_left, inner_smul_right]
+  have hx' : (inner ℂ x vOther) = starRingEnd ℂ (inner ℂ vOther x) := by rw [inner_conj_symm]
+  rw [hx']
+  ring
+
+theorem Aedge_sa : IsSelfAdjoint Aedge := by
+  refine ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr fun x y => ?_
+  change (inner ℂ (Aedge x) y) = (inner ℂ x (Aedge y))
+  have hAx : Aedge x = (5 / 6 : ℂ) • x - (1 / 6 : ℂ) • (projO x) := rfl
+  have hAy : Aedge y = (5 / 6 : ℂ) • y - (1 / 6 : ℂ) • (projO y) := rfl
+  simp only [hAx, hAy, inner_sub_left, inner_sub_right, inner_smul_left, inner_smul_right,
+    projO_apply]
+  have hx : (inner ℂ x vOther) = starRingEnd ℂ (inner ℂ vOther x) := by rw [inner_conj_symm]
+  rw [hx]
+  simp only [map_div₀, map_one, Complex.conj_ofNat]
+  ring
+
+theorem projO_self : projO vOther = vOther := by
+  rw [projO_apply, inner_other_other]
+  simp
+
+theorem Aedge_other : Aedge vOther = (2 / 3 : ℂ) • vOther := by
+  rw [Aedge, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, projO_self]
+  module
+
+theorem inner_other_trial : (inner ℂ vOther vTrial) = 0 := by
+  have h' : (inner ℂ vOther vTrial) = starRingEnd ℂ (inner ℂ vTrial vOther) := by
+    rw [inner_conj_symm]
+  rw [h', inner_trial_other]
+  simp
+
+theorem Aedge_orth (z : ↥(eigenLine vOther)ᗮ) :
+    Aedge (z : E2) = (5 / 6 : ℂ) • (z : E2) := by
+  have hz0 : (inner ℂ (z : E2) vOther) = 0 :=
+    (Submodule.mem_orthogonal' (K := eigenLine vOther) (z : E2)).mp z.2 vOther
+      (Submodule.mem_span_singleton_self vOther)
+  have hz : (inner ℂ vOther (z : E2)) = 0 := by
+    have h' : (inner ℂ vOther (z : E2)) = starRingEnd ℂ (inner ℂ (z : E2) vOther) := by
+      rw [inner_conj_symm]
+    rw [h', hz0]
+    simp
+  rw [Aedge, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, projO_apply, hz]
+  module
+
+theorem Aedge_form (x : E2) : (2 / 3 : ℝ) * ‖x‖ ^ 2 ≤ (inner ℂ x (Aedge x)).re := by
+  have hx2 : (inner ℂ x x) = ((‖x‖ ^ 2 : ℝ) : ℂ) := by
+    rw [inner_self_eq_norm_sq_to_K]
+    simp
+  have hproj : (inner ℂ x (projO x)) = ((Complex.normSq (inner ℂ vOther x) : ℝ) : ℂ) := by
+    rw [projO_apply, inner_smul_right, ← inner_conj_symm (𝕜 := ℂ) x vOther]
+    exact Complex.mul_conj _
+  have hexp : (inner ℂ x (Aedge x))
+      = (5 / 6 : ℂ) * (inner ℂ x x) - (1 / 6 : ℂ) * (inner ℂ x (projO x)) := by
+    simp only [Aedge, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.one_apply, inner_sub_right, inner_smul_right]
+  have hreal : (inner ℂ x (Aedge x))
+      = (((5 / 6 : ℝ) * ‖x‖ ^ 2 - (1 / 6) * Complex.normSq (inner ℂ vOther x) : ℝ) : ℂ) := by
+    rw [hexp, hx2, hproj]
+    push_cast
+    ring
+  rw [hreal, Complex.ofReal_re]
+  have hb : Complex.normSq (inner ℂ vOther x) ≤ ‖x‖ ^ 2 := by
+    have h1 : ‖inner ℂ vOther x‖ ≤ ‖x‖ := by
+      have h2 := norm_inner_le_norm (𝕜 := ℂ) vOther x
+      simpa [show ‖vOther‖ = 1 from by simp [vOther]] using h2
+    rw [Complex.normSq_eq_norm_sq]
+    nlinarith [norm_nonneg (inner ℂ vOther x)]
+  nlinarith
+
+theorem Aedge_spectrum_lower : ∀ t ∈ spectrum ℝ Aedge, (2 / 3 : ℝ) ≤ t :=
+  (BookProof.ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum Aedge Aedge_sa (2 / 3)).mp
+    Aedge_form
+
+theorem Aedge_two_thirds_mem : (2 / 3 : ℝ) ∈ spectrum ℝ Aedge := by
+  rw [spectrum.mem_iff]
+  intro hunit
+  have hkill : ((algebraMap ℝ (E2 →L[ℂ] E2)) (2 / 3) - Aedge) vOther = 0 := by
+    rw [Algebra.algebraMap_eq_smul_one,
+      RCLike.real_smul_eq_coe_smul (K := ℂ) (2 / 3) (1 : E2 →L[ℂ] E2)]
+    simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.one_apply, Aedge_other]
+    module
+  obtain ⟨u, hu⟩ := hunit
+  have h0 : (u : E2 →L[ℂ] E2) vOther = 0 := by rw [hu]; exact hkill
+  have hv0 : vOther = 0 := by
+    have h1 : u.inv ((u : E2 →L[ℂ] E2) vOther) = u.inv 0 := by rw [h0]
+    rw [← ContinuousLinearMap.mul_apply, u.inv_val, ContinuousLinearMap.one_apply,
+      map_zero] at h1
+    exact h1
+  have : (vOther : E2) ≠ 0 := by simp [vOther]
+  exact this hv0
+
+theorem Aedge_sInf : sInf (spectrum ℝ Aedge) = 2 / 3 := by
+  refine le_antisymm ?_ ?_
+  · exact csInf_le (BookProof.ChapterSirkRitzSpectrum.spectrum_real_bddBelow Aedge Aedge_sa)
+      Aedge_two_thirds_mem
+  · exact le_csInf (BookProof.ChapterSirkRitzSpectrum.spectrum_real_nonempty Aedge Aedge_sa)
+      Aedge_spectrum_lower
+
+
+/-- The mixed test vector: three fifths `vTrial` and four fifths `vOther`. -/
+noncomputable def wMix : E2 := (3 / 5 : ℂ) • vTrial + (4 / 5 : ℂ) • vOther
+
+theorem projO_trial : projO vTrial = 0 := by
+  rw [projO_apply, inner_other_trial]
+  simp
+
+theorem Aedge_trial : Aedge vTrial = (5 / 6 : ℂ) • vTrial := by
+  rw [Aedge, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, projO_trial]
+  module
+
+theorem Aedge_wMix : Aedge wMix = (1 / 2 : ℂ) • vTrial + (8 / 15 : ℂ) • vOther := by
+  rw [wMix, map_add, map_smul, map_smul, Aedge_trial, Aedge_other]
+  module
+
+theorem wMix_inner_self : (inner ℂ wMix wMix) = 1 := by
+  simp only [wMix, inner_add_left, inner_add_right, inner_smul_left, inner_smul_right,
+    inner_trial_trial, inner_other_other, inner_trial_other, inner_other_trial, map_div₀,
+    Complex.conj_ofNat, mul_zero, mul_one, add_zero, zero_add]
+  norm_num
+
+theorem wMix_norm : ‖wMix‖ = 1 := by
+  have h : (inner ℂ wMix wMix) = ((‖wMix‖ : ℂ)) ^ 2 := inner_self_eq_norm_sq_to_K wMix
+  rw [wMix_inner_self, ← Complex.ofReal_pow] at h
+  have h2 : ‖wMix‖ ^ 2 = 1 := by exact_mod_cast h.symm
+  nlinarith [norm_nonneg wMix]
+
+theorem rayleigh_wMix : rayleigh Aedge wMix = 109 / 150 := by
+  rw [rayleigh, Aedge_wMix]
+  have h : (inner ℂ wMix ((1 / 2 : ℂ) • vTrial + (8 / 15 : ℂ) • vOther))
+      = ((109 / 150 : ℝ) : ℂ) := by
+    simp only [wMix, inner_add_left, inner_add_right, inner_smul_left, inner_smul_right,
+      inner_trial_trial, inner_other_other, inner_trial_other, inner_other_trial, map_div₀,
+      Complex.conj_ofNat, mul_zero, mul_one, add_zero, zero_add]
+    norm_num
+  rw [h, Complex.ofReal_re]
+
+theorem norm_A_wMix_sq : ‖Aedge wMix‖ ^ 2 = 481 / 900 := by
+  have hinner : (inner ℂ ((1 / 2 : ℂ) • vTrial + (8 / 15 : ℂ) • vOther)
+      ((1 / 2 : ℂ) • vTrial + (8 / 15 : ℂ) • vOther)) = ((481 / 900 : ℝ) : ℂ) := by
+    simp only [inner_add_left, inner_add_right, inner_smul_left, inner_smul_right,
+      inner_trial_trial, inner_other_other, inner_trial_other, inner_other_trial, map_div₀,
+      Complex.conj_ofNat, mul_zero, mul_one, add_zero, zero_add]
+    norm_num
+  have h : (inner ℂ (Aedge wMix) (Aedge wMix)) = ((481 / 900 : ℝ) : ℂ) := by
+    rw [Aedge_wMix]
+    exact hinner
+  have h' : (inner ℂ (Aedge wMix) (Aedge wMix)) = ((‖Aedge wMix‖ : ℂ)) ^ 2 :=
+    inner_self_eq_norm_sq_to_K _
+  rw [← Complex.ofReal_pow] at h'
+  rw [h'] at h
+  exact_mod_cast h
+
+theorem resid_wMix_sq : resid Aedge wMix ^ 2 = 4 / 625 := by
+  have h := norm_apply_sq Aedge wMix wMix_norm
+  rw [rayleigh_wMix, norm_A_wMix_sq] at h
+  linarith
+
+/-- **The second-edge band holds numerically on `diag (5/6, 2/3)`.**  With `vTrial` a unit vector
+of quotient `5/6` and `vOther` the edge eigenvector, the mixed vector `wMix` has
+`θ = 109/150` and `ε² = 4/625`; at the level `b = 5/6` the band's lower end is exactly `2/3`, so
+`sInf (spectrum ℝ Aedge) = 2/3` lies in `[θ − ε²/(b − θ), θ]`.  The endpoints are `norm_num`. -/
+theorem Aedge_band_membership :
+    (2 / 3 : ℝ) ∈ Set.Icc (rayleigh Aedge wMix - resid Aedge wMix ^ 2 /
+      (5 / 6 - rayleigh Aedge wMix)) (rayleigh Aedge wMix) := by
+  rw [rayleigh_wMix, resid_wMix_sq]
+  norm_num
+
+/-- The same membership with the numbers exposed: the band is `[2/3, 109/150]`. -/
+theorem Aedge_band_membership_num :
+    (2 / 3 : ℝ) ∈ Set.Icc ((109 : ℝ) / 150 - (4 : ℝ) / 625 / (5 / 6 - 109 / 150))
+      (109 / 150) := by
+  rw [← rayleigh_wMix, ← resid_wMix_sq]
+  exact Aedge_band_membership
+
+
+end SecondEdgeInstance
 
 end BookProof.ChapterResolventTransfer
 
