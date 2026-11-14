@@ -4423,3 +4423,9 @@ import BookProof.ReflectionPositivity.WilsonPastClass
 -- `ρ ⊗ ν_z ⊗ ν_z` (`haarGibbsMeasure`, `haarGibbsMeasure_eq`), and it is reflection positive
 -- (`haarWilson_reflectionPositive`).
 import BookProof.ReflectionPositivity.HaarReference
+
+-- The reflected-gap certificate takes its spectral-separation input as a hypothesis.  The
+-- layer that shrinks that input to a form bound on the complement of the certified
+-- eigenvector: `SpectralSplitting.mapsTo_orthogonal`, `complementProjection_commutes`,
+-- `eq_smul_eigenProjection_add_deflated`, `deflated_re_inner_ge`.
+import BookProof.Sirk.ChapterSpectralSplitting

@@ -10,9 +10,9 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`.  A number therefore identifies an entry *within its track*, never
-> across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading below carries a
-> track note pointing at its same-numbered twin.
+> `13k`–`13l`, Track A at `13m`–`13o`.  A number therefore identifies an entry *within its
+> track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
+> below carries a track note pointing at its same-numbered twin.
 >
 > **Track B — newest (2026-11-13n):** “State of the project — 2026-11-13n: the roadmap audit ledger
 > is sliced eight ways” (end of file): the 2133 `#audit_axioms` directives moved verbatim into
@@ -54,7 +54,14 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13m):** “State of the project — 2026-11-13m: the certificate runs
+> **Track A — newest (2026-11-13o):** “State of the project — 2026-11-13o: the separation input
+> is deflated to a form bound” (end of file): the projections onto the line `ℂ ∙ y` and its
+> complement, the invariance of `yᗮ` under a self-adjoint `A` with `A y = lam • y`,
+> `Q ∘ A = A ∘ Q`, the splitting `A = lam • P + A ∘ Q`, and the transfer of a lower bound on
+> `yᗮ` to the deflated operator.  The spectrum union that would finish `SpectralSeparation` is
+> not in mathlib and is not claimed.
+>
+> **Track A (2026-11-13m):** “State of the project — 2026-11-13m: the certificate runs
 > on the reflected operator” (end of file): `resid_reflection_le` carries the residual through
 > `A' = γ⁻¹ 1 − X_γ` untouched, so `sirk_resid_reflection_le` turns the SIRK operator-norm error
 > into a residual *of* `A'` with the same constant; `sirk_reflected_gap_certificate` composes it
@@ -24364,3 +24371,46 @@ names appear — both properties predate the split and are unchanged by it.
 and the `sorryAx` semantics are untouched.  `docs/euclidean_cft_proof.md`'s "~25 minutes of CPU"
 note and the `AxiomAudit.lean` docstring are updated to the measured figures.  The full aggregate
 (`lake build BookProof`) is re-run below.
+
+## State of the project — 2026-11-13o: the separation input is deflated to a form bound
+
+Track A, spectral certificate.  Entry 2026-11-13m ended the reflected-gap certificate on one
+side condition, `SpectralSeparation A' λ' b`, and a previous investigation established that it
+cannot be *derived* from the certificate's data: `ChapterTempleSeparationNecessary` exhibits, for
+every `M`, a bounded self-adjoint operator with a unit **exact** eigenvector
+(`rayleigh = resid = 0`) whose `sInf (spectrum ℝ ·) ≤ −M`, so no Rayleigh/residual bound can
+reach the spectral edge.  The honest way to shrink the input is to move it from spectral points
+to **forms on the complement of the eigenvector**, which needs linear algebra the corpus did not
+have.  This entry builds that layer.
+
+**What is new — `BookProof/Sirk/ChapterSpectralSplitting.lean`.**  For a vector `y` and the line
+`ℂ ∙ y`:
+
+* `eigenLine`, `eigenProjection` (onto the line) and `complementProjection` (onto `yᗮ`), with
+  `eigenProjection_add_complementProjection` (`P + Q = 1`), `complementProjection_apply_self`
+  (`Q y = 0`) and the two fix/annihilate lemmas on the eigen-line;
+* **invariance** — `mapsTo_orthogonal`: a self-adjoint `A` with `A y = lam • y` maps `yᗮ` into
+  itself, from `inner ℂ (A x) y = inner ℂ x (A y) = lam * inner ℂ x y = 0`; and
+  `complementProjection_commutes`, `Q ∘ A = A ∘ Q`, the operator-level statement that `y` spans
+  an invariant summand;
+* the **deflation** `deflated A y = A ∘ Q`, killed on the eigenvector
+  (`deflated_apply_self`), with range inside `yᗮ` (`deflated_apply_mem`) and self-adjoint
+  whenever `A` is (`isSelfAdjoint_deflated` — `(A Q)† = Q† A† = Q A = A Q`);
+* the **splitting** `A = lam • P + A ∘ Q` (`eq_smul_eigenProjection_add_deflated`);
+* the **cross term vanishes** (`inner_eigenProjection_deflated`) and, with it, the transfer
+  `deflated_re_inner_ge`: a bound `b ‖z‖² ≤ re (inner ℂ z (A z))` for `z ∈ yᗮ` becomes
+  `b ‖Q x‖² ≤ re (inner ℂ x ((A ∘ Q) x))` on the whole space.
+
+**What is explicitly *not* claimed.**  The remaining step is the spectrum union
+`spectrum A ⊆ spectrum (A ∘ Q) ∪ {lam}`.  mathlib has no block-spectrum lemma for a complemented
+invariant subspace of a bounded operator on an abstract Hilbert space, and
+`ChapterSirkRitzMinMax` records that min–max at `k = 1` is not proved either (only
+`minmaxLevel T 0 = sInf (spectrum ℝ T)`), so `spectralSeparation_of_complementBound` is *not*
+stated.  Writing it now would mean assuming the union under a new name; the module docstring says
+so, and the five theorems are the honest half.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSpectralSplitting` → `(8068 jobs)`, no
+warning in the new file; `#print axioms` on `mapsTo_orthogonal`, `complementProjection_commutes`,
+`isSelfAdjoint_deflated`, `eq_smul_eigenProjection_add_deflated` and `deflated_re_inner_ge` gives
+`[propext, Classical.choice, Quot.sound]` for each; no `sorry`, no new axiom.  The module is
+imported from `BookProof.lean`, so the full aggregate covers it.

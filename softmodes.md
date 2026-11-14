@@ -324,7 +324,10 @@ things that section names as missing are proved in the 2026-11-13j one: the resi
 `sirk_ritz_resid_le` and the reflection `A' = \gamma^{-1} - X_\gamma` with its gap transfer
 `gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`. The
 2026-11-13m section closes the composition — the SIRK bound becomes a residual *of* `A'` and
-Temple runs there (`sirk_reflected_gap_certificate`).
+Temple runs there (`sirk_reflected_gap_certificate`). The 2026-11-13o section then takes the one
+input that composition still states, `hsep`, and moves it to a form bound on the complement of the
+certified eigenvector (`SpectralSplitting.deflated_re_inner_ge`); the spectrum union that would
+finish the reduction is not available and is not claimed.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -1881,6 +1884,43 @@ selected/truncated operator and claims no mass gap.
 `#print axioms` on `isSelfAdjoint_reflection`, `resid_reflection_le`,
 `sirk_resid_reflection_le` and `sirk_reflected_gap_certificate` gives
 `[propext, Classical.choice, Quot.sound]`; no line of the module exceeds 100 code points.
+
+### The separation input is deflated to a form bound (2026-11-13o)
+
+Track A. The `13m` section closed on one stated side condition — `hsep :
+SpectralSeparation A' λ' b`. It cannot be *derived*: `ChapterTempleSeparationNecessary` shows
+that for every `M` a bounded self-adjoint operator can have a unit **exact** eigenvector
+(`rayleigh = resid = 0`, the best finite data there is) while `sInf (spectrum ℝ ·) ≤ −M`. What can
+be done is to move the hypothesis from spectral points to **forms on the complement of the
+certified eigenvector**, which is a statement a computation can check. The new module
+`Sirk/ChapterSpectralSplitting.lean` supplies the linear algebra that reduction needs.
+
+**Projections.** `eigenLine y = ℂ ∙ y`, `eigenProjection y` and `complementProjection y` onto it
+and onto `yᗮ`, with `P + Q = 1` (`eigenProjection_add_complementProjection`) and `Q y = 0`.
+
+**Invariance.** If `A` is self-adjoint and `A y = lam • y`, then `mapsTo_orthogonal` gives
+`A '' yᗮ ⊆ yᗮ`, because `inner ℂ (A x) y = inner ℂ x (A y) = lam * inner ℂ x y = 0` for `x ∈ yᗮ`;
+`complementProjection_commutes` upgrades this to `Q ∘ A = A ∘ Q`.
+
+**Deflation.** `deflated A y = A ∘ Q` kills the eigenvector (`deflated_apply_self`), has range in
+`yᗮ` (`deflated_apply_mem`) and is self-adjoint when `A` is (`isSelfAdjoint_deflated`), since
+`(A Q)† = Q† A† = Q A = A Q`. The operator splits as `A = lam • P + A ∘ Q`
+(`eq_smul_eigenProjection_add_deflated`).
+
+**The cross term vanishes, so the bound transfers.** `inner_eigenProjection_deflated` shows
+`inner ℂ (P x) (A (Q x)) = 0`; hence `deflated_re_inner_ge`: a bound
+`b ‖z‖² ≤ re (inner ℂ z (A z))` for `z ∈ yᗮ` becomes `b ‖Q x‖² ≤ re (inner ℂ x ((A ∘ Q) x))` on
+the whole space.
+
+**Boundary.** `spectralSeparation_of_complementBound` is **not** stated. Its missing step is the
+spectrum union `spectrum A ⊆ spectrum (A ∘ Q) ∪ {lam}`; mathlib has no block-spectrum lemma for a
+complemented invariant subspace of a bounded operator on an abstract Hilbert space, and
+`ChapterSirkRitzMinMax` records that min–max at `k = 1` is open (only `k = 0` is identified). The
+module docstring says so, and no theorem here is numbered as if the gap were closed.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSpectralSplitting` → `(8068 jobs)`; `#print
+axioms` on the five named theorems gives `[propext, Classical.choice, Quot.sound]`; no `sorry`, no
+new axiom, no line above 100 code points.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
