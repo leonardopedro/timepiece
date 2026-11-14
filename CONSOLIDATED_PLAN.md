@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13z`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13aa`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -53,6 +53,13 @@
 > (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
+>
+> **Track A — newest (2026-11-13aa):** “State of the project — 2026-11-13aa: the enclosure closes,
+> at a rate” (end of file): the reflected Temple band's width is `ε²/(b − θ) ≤ ε²/δ`, so
+> `templeBandWidth_tendsto_zero` sends it to `0` and `band_closes_of_width_tendsto_zero` makes both
+> band ends converge to the edge; `reflected_band_closes_of_sirk` derives the residual input from the
+> SIRK operator-norm bound instead of assuming it.  The `δ`-gap stays an input: no width bound
+> replaces knowing the Rayleigh quotient is below `b`.
 >
 > **Track A — newest (2026-11-13z):** “State of the project — 2026-11-13z: one table theorem for
 > both row kinds” (end of file): `CertificateRow` (solve or band, with `scale` `1` or `γ²`) and
@@ -24996,3 +25003,38 @@ with no warning and no line above 100 code points; `#print axioms` on
 `CertificateRow.scale_mul_lo_le`, `CertificateRow.certifies_of_solve`,
 `CertificateRow.certifies_of_band`, `certified_gap_table_unified`, `certified_gap_table_of_unified`
 gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-13aa: the enclosure closes, at a rate
+
+Track A.  §10–§16 gave a band around the reflected edge `λ'` at each order `m`.  This entry states
+the limit those per-order certificates are usually asked for, and it is a *rate*, not just a limit.
+
+**The width.**  `templeBandWidth θ ε b m = ε m ^ 2 / (b - θ m)`, the width of the Temple band
+`ε²/(b − θ)` of `ReflectedBandRow.ofTemple` written as a function of the order.
+`templeBandWidth_le` bounds it by `ε²/δ` as soon as `θ m ≤ b − δ`: the denominator is never smaller
+than `δ`, so the width inherits the *square* of the residual.
+
+**The two convergence steps.**  `templeBandWidth_tendsto_zero`: if `θ m ≤ b − δ` for all `m` and
+`ε m → 0`, then the widths `→ 0` (squeeze between `0` and `ε²/δ`).
+`band_closes_of_width_tendsto_zero`: if `λ ∈ [lo m, hi m]` at every order and
+`hi m − lo m → 0`, then both `lo` and `hi` tend to `λ`
+— the nested intervals shrink *onto* the edge, which is the statement that the enclosure
+closes rather than merely tightens.
+
+**Where the residual input comes from.**  `reflected_band_closes_of_sirk` does not assume `ε → 0`.
+It takes the SIRK approximation data (`V`, `psiB`, `V†V = 1`, the eigenpair
+`psiB (y m) = μ m • y m`, normalised `‖V (y m)‖ = 1`) and the operator-norm bound
+`‖R − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`, extracts `resid ≤ sirkBound …` at each
+order by `sirk_resid_reflection_le`, and feeds `sirk_error_decay_exponential` — so the widths
+vanish like `e^{−2hm}/δ`, and both ends of the band converge to `λ'`.
+
+**What stays an input.**  The `δ`-separation: `θ m ≤ b − δ` for one fixed `δ > 0`.  A rate cannot
+replace it — if the Rayleigh quotients approach `b`, the denominator `b − θ m` degenerates and the
+width bound says nothing, which is exactly the `b = resolventEdge γ e > 0` requirement of §10.  The
+docstring records this as the hypothesis it is, rather than hiding it inside the limit statement.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer` and `lake build BookProof`
+succeed with no warning from this file and no line above 100 code points; `#print axioms` on
+`templeBandWidth`, `templeBandWidth_le`, `templeBandWidth_tendsto_zero`,
+`band_closes_of_width_tendsto_zero`, `reflected_band_closes_of_sirk` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

@@ -893,6 +893,103 @@ theorem diag52_gap_interval :
     (E₀ := 2) (E₁ := 5) one_pos (by norm_num) (by norm_num)
     ⟨le_refl _, le_refl _⟩ ⟨le_refl _, le_refl _⟩ (le_refl _) (le_refl _)
   exact ⟨h.1, h.2, by norm_num [resolventEdge_def], by norm_num [resolventEdge_def]⟩
+
+/-! ## 17. The band closes: a rate
+
+The certificates in §10–§15 enclose the reflected edge `λ'` in a band at each order.  This section
+shows the enclosure *closes*: the band's width is `ε²/(b − θ)`, it vanishes at the SIRK rate because
+`ε` is bounded by `sirkBound C Dmin h 1 m` and that decays like `e^{−hm}`, and once the widths
+vanish both ends of the band converge to `λ'`.  That is the limit statement the per-order
+certificate is usually asked for, and it is a rate, not just a limit: the width is at most
+`ε²/δ` where `δ` is the fixed distance from the Rayleigh quotient to the level. -/
+
+
+section BandRate
+
+variable {E F : Type*}
+  [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+  [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+  {Dom : Submodule ℂ E}
+
+open Filter
+open scoped Topology
+
+/-- The width of the reflected Temple band at order `m`: `ε m ^ 2 / (b - θ m)`. -/
+def templeBandWidth (θ ε : ℕ → ℝ) (b : ℝ) (m : ℕ) : ℝ := ε m ^ 2 / (b - θ m)
+
+/-- The width is at most `ε²/δ` once the Rayleigh quotient stays `δ` below `b`. -/
+theorem templeBandWidth_le {θ ε : ℕ → ℝ} {b delta : ℝ} (m : ℕ) (hdelta : 0 < delta)
+    (hgap : θ m ≤ b - delta) : templeBandWidth θ ε b m ≤ ε m ^ 2 / delta := by
+  have hbθ : delta ≤ b - θ m := by linarith
+  exact div_le_div_of_nonneg_left (sq_nonneg (ε m)) hdelta hbθ
+
+/-- **The width vanishes.**  If the Rayleigh quotients stay a fixed distance below `b` and the
+residuals tend to `0`, the bands' widths tend to `0` — at the rate `ε²/δ`. -/
+theorem templeBandWidth_tendsto_zero {b delta : ℝ} (hdelta : 0 < delta) {θ ε : ℕ → ℝ}
+    (hgap : ∀ m, θ m ≤ b - delta) (hε : Tendsto ε atTop (𝓝 0)) :
+    Tendsto (templeBandWidth θ ε b) atTop (𝓝 0) := by
+  have hε2 : Tendsto (fun m => ε m ^ 2) atTop (𝓝 0) := by simpa using hε.pow 2
+  refine squeeze_zero (fun m => ?_) (fun m => templeBandWidth_le m hdelta (hgap m)) ?_
+  · have hbθ : 0 < b - θ m := by
+      have := hgap m
+      linarith
+    exact div_nonneg (sq_nonneg _) hbθ.le
+  · have := hε2.div_const delta
+    simpa using this
+
+/-- **The enclosure closes.**  If `λ` lies in `[lo m, hi m]` at every order and the widths tend to
+`0`, both ends converge to `λ`: the nested intervals shrink onto the certified edge. -/
+theorem band_closes_of_width_tendsto_zero {lam : ℝ} {lo hi : ℕ → ℝ}
+    (hlo : ∀ m, lo m ≤ lam) (hhi : ∀ m, lam ≤ hi m)
+    (hw : Tendsto (fun m => hi m - lo m) atTop (𝓝 0)) :
+    Tendsto lo atTop (𝓝 lam) ∧ Tendsto hi atTop (𝓝 lam) := by
+  have hhi0 : Tendsto (fun m => hi m - lam) atTop (𝓝 0) :=
+    squeeze_zero (fun m => by linarith [hhi m]) (fun m => by linarith [hlo m]) hw
+  have hlo0 : Tendsto (fun m => lam - lo m) atTop (𝓝 0) :=
+    squeeze_zero (fun m => by linarith [hlo m]) (fun m => by linarith [hhi m]) hw
+  refine ⟨?_, ?_⟩
+  · have := hlo0.const_sub lam
+    simpa using this
+  · have := hhi0.add_const lam
+    simpa using this
+
+
+/-- **The reflected band closes along a SIRK sequence.**  The residual at order `m` is bounded by
+the SIRK operator-norm error (`sirk_resid_reflection_le`), which
+`sirk_error_decay_exponential` sends to `0` like `e^{-h m}`; so the band widths vanish at the
+rate `ε²/δ`, and by `band_closes_of_width_tendsto_zero` both ends of the band converge to the
+reflected edge. -/
+theorem reflected_band_closes_of_sirk
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {b delta : ℝ} (hdelta : 0 < delta)
+    (hgap : ∀ m, BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ≤ b - delta) :
+    Tendsto (templeBandWidth
+        (fun m => BookProof.RitzCertificate.rayleigh
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)))
+        (fun m => BookProof.RitzCertificate.resid
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) b) atTop (𝓝 0) := by
+  have hres : ∀ m, BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))
+        ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m :=
+    fun m => sirk_resid_reflection_le V psiB R hRsym γ C Dmin hstep m (mu m) (yy m) hVV
+      (heigB m) (hyy m) (hbound m)
+  have hreslim : Tendsto (fun m => BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) atTop (𝓝 0) :=
+    squeeze_zero (fun m => by
+      simp only [BookProof.RitzCertificate.resid]
+      exact norm_nonneg _) hres
+      (BookProof.ChapterH6.sirk_error_decay_exponential C Dmin hstep 1 hh)
+  exact templeBandWidth_tendsto_zero hdelta hgap hreslim
+end BandRate
+
 end BookProof.ChapterResolventTransfer
 
 end

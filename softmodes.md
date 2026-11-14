@@ -2354,6 +2354,38 @@ combining both would be a distinct claim, not a unification — so it is not mad
 **Verification.** `ChapterSirkGapTable` builds with no warning and no line above 100 code points;
 `#print axioms` on the five new declarations gives `[propext, Classical.choice, Quot.sound]`; no
 `sorry`; `lake build BookProof` is green at 9004 jobs.
+
+### The enclosure closes, at a rate (2026-11-13aa)
+
+Track A. Sections 10–16 fixed a band around the reflected edge `λ'` at each order `m`. This entry
+states the limit those per-order certificates are usually asked for, together with the rate.
+
+**The width.** `templeBandWidth θ ε b m = ε m ^ 2 / (b - θ m)` is the width `ε²/(b − θ)` of the
+Temple band `ReflectedBandRow.ofTemple` carries, written as a function of the order.
+`templeBandWidth_le` bounds it by `ε²/δ` whenever `θ m ≤ b − δ`, because the denominator is never
+below `δ`; the width therefore inherits the *square* of the residual, not the residual itself.
+
+**Two convergence steps.** `templeBandWidth_tendsto_zero` squeezes the widths between `0` and
+`ε²/δ`, so `ε m → 0` gives `templeBandWidth → 0`. `band_closes_of_width_tendsto_zero` then takes a
+nested `λ ∈ [lo m, hi m]` with `hi m − lo m → 0` and concludes `lo → λ` and `hi → λ`: the intervals
+shrink *onto* the edge. That second step is the one that says the enclosure closes rather than
+merely tightens, and it is stated for sequences only — no operator appears in it.
+
+**Where the residual comes from.** `reflected_band_closes_of_sirk` does not assume `ε → 0`. From the
+SIRK data (`V`, `psiB`, `V†V = 1`, the eigenpair `psiB (y m) = μ m • y m`, normalised
+`‖V (y m)‖ = 1`) and the operator-norm bound `‖R − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`, it
+extracts `resid ≤ sirkBound …` at each order via `sirk_resid_reflection_le` and hands the bound to
+`sirk_error_decay_exponential`. The widths then vanish like `e^{−2hm}/δ` and both ends of the band
+converge to `λ'`.
+
+**What stays an input.** The `δ`-separation `θ m ≤ b − δ` for one fixed `δ > 0`. No rate replaces
+it: if the Rayleigh quotients approach `b` the denominator `b − θ m` degenerates and the bound says
+nothing at all — the same requirement as `b = resolventEdge γ e > 0` in §10. The hypothesis is kept
+visible in the statements rather than folded into the limit.
+
+**Verification.** `ChapterResolventTransfer` builds with no warning and no line above 100 code
+points; `lake build BookProof` is green at 9004 jobs; `#print axioms` on the five new declarations
+gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
