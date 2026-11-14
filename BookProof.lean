@@ -4057,6 +4057,22 @@ import BookProof.Ns.ChapterNsGradDomCoercive
 -- potential is the constant `1/2` while the gradient grows like `1/d`.  The bridge from the model's
 -- literal `volPot` to this normal form is the second-order expansion of §58.1 and is not formalized.
 import BookProof.Ns.ChapterNsVolDomShear
+-- `ChapterNsVolDomExpansion` (2026-11-13b, `SM_ESA_COMPLETION_PLAN` §63): the algebraic half of
+-- that bridge.  For the indicator matrices `N = δ_{i0}δ_{j1}`, `B = δ_{i1}δ_{j0}` both squares
+-- vanish, so `det(I + tN) = 1` at every amplitude and `det(I + tN + εB) = 1 − εt` exactly: the
+-- residual has no `t²`, `ε²` or `O(ε²)` term, only the mixed one.  `normForm_grad_sq` proves the
+-- ratio law for *every* amplitude constant `c`, so `not_volDom_normForm` refutes domination for
+-- every nonzero multiple of the normal form (and `shearPot_eq_normForm` identifies §61's potential
+-- as the `c = 1/2` one).  The passage from the model's `volPot` to `c(εt)²` — the Fourier
+-- reconstruction of `det F − 1` — is still measurement, not proof.
+import BookProof.Ns.ChapterNsVolDomExpansion
+-- `ChapterNsVolDomMuRepair` (2026-11-13b, `SM_ESA_COMPLETION_PLAN` §64): gradient domination
+-- *does* close for the deformation-norm repair `V_μ = ½(εt)² + (μ/2)(t² + ε²)`, with explicit
+-- constants `muPot_dom : ∑(∂V_μ)² ≤ (5/μ + 1)·V_μ² + μ²`.  `muPot_no_hom_dom` shows the constant
+-- `B = μ²` is necessary (no homogeneous bound holds), and `muPot_zero` records that the repair's
+-- `μ = 0` member is exactly §61's potential — so this is a family-level closure of a **changed**
+-- Lagrangian, not of the model's own penalty.
+import BookProof.Ns.ChapterNsVolDomMuRepair
 -- 2026-10-30 (`softmodes.md` Phase 3, milestone 3): the solvable gapped reference operator.
 -- `refEnergy` ports physlib's `eigenEnergy` (`∑ i, ωᵢ (nᵢ + ½)`, `ℏ = 1`, general `ω`) with
 -- its strict monotonicity; `refGap = min_k ω_k`; `href_spectral_gap` is the form inequality
@@ -4276,6 +4292,17 @@ import BookProof.Sm.ChapterSmIndexGhostFock
 -- (`bGhost_anticomm_abelian`), which is why it is a comparison model rather than a subcomplex.  The
 -- structure-constant half of the charge is not covered.
 import BookProof.Sm.ChapterSmIndexGhostDerivation
+-- `ChapterSmIndexGhostRemainder` (2026-11-13b, `SM_ESA_COMPLETION_PLAN` §65): that remainder,
+-- computed.  Pushing one antighost through `χ_a χ_b` leaves *two* contraction channels
+-- (`cubic_anticomm`), and antisymmetry makes them equal, so `{Q, b} = 2·∑(∑_y f_{yxe})χ_x β_e`
+-- (`Q_anticomm_bGhost`) and `{Ω, b} = ∑_a G^a − ∑ (first-slot trace of f)·χ_x β_e`
+-- (`brstCharge_anticomm_bGhost`).  The trace is *not* killed by antisymmetry
+-- (`su2Trace_nonzero`: `su2Trace 1 0 = −1`), so `b` is not a homotopy for the full charge; when
+-- the trace does vanish `b` anticommutes with the whole charge (`…_of_trace_zero`, `…_abelian`).
+-- `smBrstCharge_def` is the definitional identification with `brstCharge`; a standalone
+-- SM-specialized corollary is *not* asserted (the `Module.End ℂ (FermiFock …)`-at-`n = 12`
+-- unification does not terminate in the heartbeat budget, documented in the module).
+import BookProof.Sm.ChapterSmIndexGhostRemainder
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic
 -- regularity.  With `u = pgLp p`, `w = pgLp (W p)`, `k = pgLp (Δ_S p)`, `B = w + u`, `N = k + B`

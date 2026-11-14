@@ -408,6 +408,75 @@ require "$PLAN" 'structure-constant half' \
 require "$BOOKPLAN" 'ChapterSmIndexGhostDerivation' \
     "§62: the root must import the derivation module"
 
+# ---- 16. §63 the second-order expansion is exact; the transfer is amplitude-independent
+# §61 refuted domination on the normal form and left the bridge from `volPot` open.  §63 formalizes the
+# algebraic half: the determinant identity `det(I + tN + eps B) = 1 - eps t` (so no `t^2`/`eps^2` term
+# exists at all) and the ratio law for *every* amplitude constant.  The scope caveat must stay with the
+# identity: the Fourier reconstruction from `volPot` to `c(eps t)^2` is still measurement.  Keeping the
+# identity and dropping the caveat turns a normal-form theorem into a statement about `volPot`.
+EXP=BookProof/Ns/ChapterNsVolDomExpansion.lean
+require "$EXP" "theorem det_one_add_smul" \
+    "§63: the volume residual is exactly the mixed term"
+require "$EXP" "theorem det_one_add_shM" \
+    "§63: the shear is unimodular at every amplitude"
+require "$EXP" "theorem normForm_grad_sq" \
+    "§63: the ratio law holds for every amplitude constant"
+require "$EXP" "theorem not_volDom_normForm" \
+    "§63: no nonzero multiple of the normal form is dominated"
+pair_require "$EXP" 'theorem normForm_grad_sq' 'theorem not_volDom_normForm' "40" \
+    "§63: the law and the refutation must stay in the same module"
+require "$PLAN" 'The non-domination therefore holds for any truncation' \
+    "§63: the plan must keep the transfer's scope"
+require "$PLAN" 'Fourier reconstruction of `det F − 1`' \
+    "§63: the plan must keep the un-formalized reconstruction caveat"
+require "$BOOKPLAN" 'ChapterNsVolDomExpansion' \
+    "§63: the root must import the expansion module"
+
+# ---- 17. §64 the deformation-norm repair closes, and its constant is necessary
+# §61.2 measured that a deformation norm repairs the estimate.  §64 proves it with explicit constants
+# and proves the constant term is *forced*.  Dropping `muPot_no_hom_dom` would make the affine shape
+# look like slack; dropping `muPot_dom` would lose the closure.  The "changed Lagrangian" caveat must
+# stay with both: the model's own `volPot` is the `mu = 0` member, which remains un-dominated.
+MUREP=BookProof/Ns/ChapterNsVolDomMuRepair.lean
+require "$MUREP" "theorem muPot_dom" \
+    "§64: gradient domination holds with A = 5/mu + 1, B = mu^2"
+require "$MUREP" "theorem muPot_no_hom_dom" \
+    "§64: no homogeneous bound exists, so B > 0 is necessary"
+require "$MUREP" "theorem muPot_zero" \
+    "§64: the repair's mu = 0 member is §61's potential"
+pair_require "$MUREP" 'theorem muPot_dom' 'theorem muPot_no_hom_dom' "50" \
+    "§64: the closure and the necessity of its constant must stay together"
+require "$PLAN" '`B > 0` is necessary, not slack' \
+    "§64: the plan must keep the sharpness statement"
+require "$PLAN" 'family-level' \
+    "§64: the plan must keep the changed-Lagrangian scope"
+require "$BOOKPLAN" 'ChapterNsVolDomMuRepair' \
+    "§64: the root must import the repair module"
+
+# ---- 18. §65 the structure-constant remainder of {Omega, b}
+# §62.3 left the cubic ghost half as an unnamed remainder.  §65 computes it: two contraction channels
+# (`cubic_anticomm`), equal by antisymmetry, giving `{Q, b} = 2 * (first-slot trace) * chi beta`.  The
+# trace does *not* vanish (`su2Trace_nonzero`), which is what makes "the free complex is not a
+# subcomplex" a theorem rather than a slogan; and when it does vanish the corollary upgrades to the full
+# charge.  Keeping the trace computation and dropping its non-vanishing witness is the failure mode.
+REM=BookProof/Sm/ChapterSmIndexGhostRemainder.lean
+require "$REM" "theorem cubic_anticomm" \
+    "§65: one antighost leaves two contraction channels"
+require "$REM" "theorem Q_anticomm_bGhost" \
+    "§65: {Q, b} is twice the first-slot trace"
+require "$REM" "theorem brstCharge_anticomm_bGhost" \
+    "§65: {Omega, b} is the Gauss sum minus the trace"
+require "$REM" "theorem su2Trace_nonzero" \
+    "§65: the trace does not vanish for su(2)"
+pair_require "$REM" 'theorem Q_anticomm_bGhost' 'theorem brstCharge_anticomm_bGhost' "90" \
+    "§65: the ghost half and the full charge must stay together"
+require "$PLAN" 'first-slot trace' \
+    "§65: the plan must keep the remainder's exact coefficient"
+require "$PLAN" 'does not terminate' \
+    "§65: the plan must keep the SM-instantiation limitation"
+require "$BOOKPLAN" 'ChapterSmIndexGhostRemainder' \
+    "§65: the root must import the remainder module"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

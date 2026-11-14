@@ -3740,14 +3740,16 @@ proved per pair (`pair_anticomm`: `χ_a G^a β_b + β_b χ_a G^a = δ_{ab} G^a`,
 
 ### 62.3. What is not covered
 
-The structure-constant half `−½ ∑_{a,b,c} f_{abc} χ_a χ_b β_c` is not treated. Its anticommutator with
-`bGhost` is a ghost–antighost bilinear carrying `f`, so `{Ω, b}` picks up a term proportional to the
-structure constants in addition to `gaussSum`; that is the statement that the free ghost complex is not
-a subcomplex of the interacting one, and writing the remainder down — let alone its cohomological
-meaning — is open. So `PhysicalPositivity` for `smBrstCharge` remains a named input. What has changed is
-its shape: it is no longer "find a b-ghost" (§57 supplied quartet data at every size, §62 supplies the
-derivation's own antighost) but "show the Gauss sector is what the contraction lands in", which is a
-statement about the matter representation, not about ghost bookkeeping.
+The structure-constant half `−½ ∑_{a,b,c} f_{abc} χ_a χ_b β_c` was left open when this section was
+first written. **§65 computes it** (2026-11-13b): its anticommutator with `bGhost` is a
+ghost–antighost bilinear carrying `f`, and the coefficient is the *first-slot trace* `Σ_y f_{yxe}`,
+which antisymmetry does **not** kill — so the remainder is real, it now has an exact form,
+`{Ω, b} = Σ_a G^a − Σ_{x,e} (Σ_y f_{yxe}) χ_x β_e`, and the free ghost complex is not a subcomplex of
+the interacting one. The cohomological meaning of that remainder is still open, and
+`PhysicalPositivity` for `smBrstCharge` remains a named input. What has changed is its shape: it is no
+longer "find a b-ghost" (§57 supplied quartet data at every size, §62 supplies the derivation's own
+antighost) but "show the Gauss sector is what the contraction lands in", which is a statement about
+the matter representation, not about ghost bookkeeping.
 
 ### 62.4. Verification (2026-11-13)
 
@@ -3761,3 +3763,171 @@ statement about the matter representation, not about ghost bookkeeping.
   is why the job count moved from 8988).
 * `scripts/check-sm-section-guards` — §62 pair (`bGhost_anticomm` → `gaussSum = 1` consequence)
   guarded.
+
+## §63. The expansion behind the shear normal form (2026-11-13b)
+
+### 63.1. What §61 left open
+
+§61 proved the law `∑(∂V)² = V²(4/t² + 4/ε²)` for the *normal form* `V = (εt)²/2` and refuted domination
+for it, and said in as many words that the bridge from the model's literal `volPot` to that normal form
+was not formalized. This section formalizes the algebraic half of the bridge and isolates exactly what is
+left. New module `BookProof/Ns/ChapterNsVolDomExpansion.lean` (namespace
+`BookProof.NsVolDomExpansion`).
+
+### 63.2. The determinant identity
+
+Write the shear and tilt of §58 as indicator matrices, `shM i j = δ_{i0}δ_{j1}` and
+`tlM i j = δ_{i1}δ_{j0}`, so that neither is a matrix literal:
+
+* `shM_mul_self : shM * shM = 0`, hence `det_one_add_shM : det(I + t·shM) = 1` **at every amplitude**
+  (not merely to first order). This is the algebraic content of §58's "the shears are flat".
+* `tlM_mul_self : tlM * tlM = 0`, so the tilt contributes no pure `ε²` term.
+* `det_one_add_smul : det(I + t·shM + ε·tlM) = 1 − ε t`, exactly — the expansion §58.1 expanded to has
+  **no** `t²`, `ε²` or `O(ε²)` term, only the mixed one.
+
+The residual `volResid t ε = det(I + t·shM + ε·tlM) − 1` therefore satisfies
+`volResid t 0 = 0` (`volResid_zero_tilt`), `volResid 0 ε = 0` (`volResid_zero_shear`) and
+`volResid t ε = −(εt)` identically (`volResid_eq`).
+
+### 63.3. Transfer to every amplitude constant
+
+The penalty across the family is a *positive multiple* of `(εt)²`: the multiplier is the profile's
+amplitude together with `κ/2`. The module therefore works with `normForm c = c·((X₀X₁)²)` and proves the
+law for every `c` (`normForm_grad_sq`, with `ev2_normForm`, `pderiv_normForm_zero/one` giving
+`∂₀ = 2c(εt)t`, `∂₁ = 2c(εt)ε`), so nothing in §61 depended on the profile constant. Then
+`shearPot_eq_normForm : shearPot = normForm (1/2)` identifies §61's potential as the `c = 1/2` member, and
+`not_volDom_normForm c (hc : c ≠ 0)` refutes domination for **every** nonzero multiple: on the family
+`x = (K, 1/K)` the value is `c` while the gradient grows like `K`, with `K` absorbing `|A|`, `|B|` and
+`1/(4c²)`. `volDom_fails_of_normal_form` restates it as a hypothesis on an arbitrary potential whose value
+is `c(εt)²`.
+
+### 63.4. Scope
+
+What is *not* formalized is the passage from the model's `volPot` to a value of the form `c(εt)²` on the
+family, i.e. the Fourier reconstruction of `det F − 1` (Parseval with the convolution `detCoef`); that is
+where the profile constant is produced, and §58's measurement is its numerical evidence. So the chain now
+reads: model penalty → (measured, not formalized) normal form → (proved here) law and non-domination at
+every amplitude. The non-domination therefore holds for any truncation of the penalty that reproduces the
+`(εt)²` normal form, which is §61's claim made precise.
+
+### 63.5. Verification (2026-11-13b)
+
+* `lake build BookProof.Ns.ChapterNsVolDomExpansion` — `Build completed successfully`; no warning
+  attributed to the module.
+* `lake env lean Work/NsVolDomExpansionAudit.lean` — 12 declarations (`shM_mul_self`, `tlM_mul_self`,
+  `det_one_add_shM`, `det_one_add_smul`, `volResid_eq`, `ev2_normForm`, `pderiv_normForm_zero`,
+  `pderiv_normForm_one`, `normForm_grad_sq`, `shearPot_eq_normForm`, `not_volDom_normForm`,
+  `volDom_fails_of_normal_form`), all on exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+
+## §64. Gradient domination for the deformation-norm repair (2026-11-13b)
+
+### 64.1. The repair §61.2 measured
+
+§61.2 measured that adding `(μ/2)∑(1 + |k|²)|ξ̂|²` makes the ratio `|∇V_μ|²/(V_μ² + 1)` bounded for
+`μ > 0` and *decreasing* as the tilt shrinks. This section proves that closure for the two-parameter
+model of the family, with explicit constants, and states what it changes. New module
+`BookProof/Ns/ChapterNsVolDomMuRepair.lean` (namespace `BookProof.NsVolDomMuRepair`), with
+
+    V_μ(t, ε) = ½(εt)² + (μ/2)(t² + ε²),   μ > 0   (`muPot`).
+
+`muPot_zero : muPot 0 = normForm (1/2)` records that the `μ = 0` member is exactly §61's potential, so
+the repair is a genuine deformation of the same object, not a different ansatz. On `a = t²`, `b = ε²`:
+
+    ∑(∂V_μ)² = ab(a+b) + 4μab + μ²(a+b),     V_μ = ½(ab + μ(a+b))
+
+(`pderiv_muPot_zero/one`, `ev2_muPot`), and the algebraic core `muPot_quad_bound` proves
+
+    4μ·∑(∂V_μ)² ≤ (5 + μ)(ab + μ(a+b))² + 4μ³
+
+by three polynomial estimates: `4μ·ab(a+b) ≤ (ab+μ(a+b))²` (AM–GM), `16μ²ab ≤ 4(ab+μ(a+b))²`, and
+`4μ³(a+b) ≤ μ(ab+μ(a+b))² + 4μ³` from `μ(a+b) ≤ ab+μ(a+b)` and `(s−2μ)² ≥ 0`. Dividing gives
+`muPot_dom`:
+
+    ∃ A B, ∀ x, ∑(∂V_μ)² ≤ A·V_μ² + B,   with A = 5/μ + 1, B = μ².
+
+**`B > 0` is necessary, not slack.** `muPot_no_hom_dom` shows that for *every* `A` there is a state with
+`∑(∂V_μ)² > A·V_μ²`: on the diagonal `t = ε = δ → 0` the gradient sum decays like `δ²` while `V_μ²`
+decays like `δ⁴`, so no homogeneous bound exists. The affine shape of `muPot_dom` is therefore forced by
+the model.
+
+Measured support for the constants (30000 sampled points per μ, μ from `1e-6` to `1e6`, log-uniform
+`t, ε` over `1e-12..1e12`): the maximum of `∑(∂V_μ)² − (A·V_μ² + B)` over the grid is `0` (never
+violated), and the `μ = 0` point `(t, ε) = (1e6, 1e-6)` has `V² = 0.25` against a gradient sum of `1e12`,
+i.e. ratio `4e12`. So `5/μ + 1` is a valid `A` where §61.2's sampled `A ≈ 21` was only an estimate on
+four boxes.
+
+### 64.2. Scope
+
+This is a **family-level** closure of a **changed** Lagrangian. The model's own `volPot` is the `μ = 0`
+member and stays un-dominated (`muPot_zero` plus §61's `not_volDom_shear`); what is proved is that the
+deformation-norm augmentation removes the obstruction with constants uniform in the state and explicit in
+`μ`. `lagGradDom_of_volDom`'s chain has therefore been re-run for the modified potential, not for the
+original one, which is the caveat §61.2 asked for.
+
+### 64.3. Verification (2026-11-13b)
+
+* `lake build BookProof.Ns.ChapterNsVolDomMuRepair` — `Build completed successfully`; no warning
+  attributed to the module.
+* `lake env lean Work/NsVolDomMuRepairAudit.lean` — 7 declarations (`muPot_zero`, `ev2_muPot`,
+  `pderiv_muPot_zero`, `pderiv_muPot_one`, `muPot_quad_bound`, `muPot_dom`, `muPot_no_hom_dom`), all on
+  exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* the grid check above, run as a standalone script over 11 values of `μ`.
+
+## §65. The structure-constant remainder of `{Ω, b}` (2026-11-13b)
+
+### 65.1. The remainder, exactly
+
+§62.3 could only say that the cubic ghost half of `smBrstCharge` "picks up a term proportional to the
+structure constants". New module `BookProof/Sm/ChapterSmIndexGhostRemainder.lean` (namespace
+`BookProof.SmGhostRemainder`) computes it. Each cubic ghost term carries one antighost, but pushing a
+single `β_d` through the pair `χ_a χ_b` produces **two** contraction channels:
+
+    { χ_a χ_b β_e , β_d }  =  δ_{da} χ_b β_e − δ_{db} χ_a β_e      (`cubic_anticomm`),
+
+and summing over `d` gives `χ_b β_e − χ_a β_e` (`sum_d_cubic_anticomm`). Over the charge, antisymmetry in
+the first two slots makes the two channels equal, so
+
+    { Q f χ β , b }  =  2 · ∑_{x,e} (∑_y f_{yxe}) · χ_x β_e          (`Q_anticomm_bGhost`),
+
+and hence, with the matter half of §62,
+
+    { Ω , b }  =  ∑_a G^a  −  ∑_{x,e} (∑_y f_{yxe}) χ_x β_e          (`brstCharge_anticomm_bGhost`).
+
+The sign is a minus: the charge is `∑χG − ½Q`, so `{Ω,b} = {∑χG,b} − ½{Q,b}`. The coefficient is the
+**first-slot trace** of `f`, `structTrace f x e = Σ_y f_{yxe}`, and antisymmetry in the first two slots
+does *not* make it vanish — this is the precise sense in which "the free ghost complex is not a
+subcomplex of the interacting one".
+
+Two consequences. `brstCharge_anticomm_bGhost_of_trace_zero`: if the trace vanishes (in particular for
+an abelian algebra, `brstCharge_anticomm_bGhost_abelian`) then `b` anticommutes with the *full* charge,
+not only its matter half — §62's corollary upgraded from the derivation to the charge. And
+`su2Trace_nonzero`: for `su(2)` structure constants `f_{abc} = ε_{abc}` the trace is `su2Trace 1 0 = −1`
+(`epsZ_trace_ten`, `by decide`), so the full charge does **not** admit `b` as a contracting homotopy —
+the same structural reason as §62's matter half: the contraction lands in the Gauss sector.
+
+### 65.2. The SM instance: definitional, and the limitation is Lean's
+
+`smBrstCharge_def : smBrstCharge m T f3 = brstCharge (smStruct f3) (ghostCre m) (ghostAnn m) (matterGen
+m T)` is `rfl`, so the general theorem *is* the SM statement once that identification is used.
+
+Instantiating the general theorem at `R := Module.End ℂ (FermiFock (m + 12))` with `n = 12` as a separate
+declaration was **attempted and dropped**: the unification of `brstCharge`'s arguments does not terminate
+in the heartbeat budget (reproduced in isolation with abstract operators at 400k, 1M, 2M and 8M
+heartbeats; 2m38s at 8M before timeout). The cause is the `OfNat (Module.End …) 1` /
+`DecidableEq (Fin 12)` interplay, not the mathematics; at `n = 3` or `R = ℂ` the instantiation is
+immediate. The module documents this in the docstring of `smBrstCharge_def` rather than hiding it behind a
+`sorry`. What is proven is the general theorem plus the definitional identification; what is not is a
+standalone SM-specialized corollary term.
+
+### 65.3. Verification (2026-11-13b)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostRemainder` — `Build completed successfully`, **8030 jobs**;
+  no warning attributed to the module.
+* `lake env lean Work/SmIndexGhostRemainderAudit.lean` — 7 declarations (`cubic_anticomm`,
+  `sum_d_cubic_anticomm`, `Q_anticomm_bGhost`, `brstCharge_anticomm_bGhost`,
+  `brstCharge_anticomm_bGhost_of_trace_zero`, `brstCharge_anticomm_bGhost_abelian`, `su2Trace_nonzero`),
+  all on exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* independent `#eval`-free check that `su2Trace 1 0 = -1` is `by decide` on `Fin 3` (`epsZ_trace_ten`).
+* `lake build BookProof` — `Build completed successfully`, **9001 jobs**, exit 0, with all three new
+  modules imported and registered in the root (§63's and §64's too).
+* `scripts/check-sm-section-guards` — green, including the new §63/§64/§65 sections.

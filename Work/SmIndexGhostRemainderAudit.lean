@@ -1,0 +1,10 @@
+import BookProof.Sm.ChapterSmIndexGhostRemainder
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.SmGhostRemainder
+#audit_axioms cubic_anticomm
+#audit_axioms sum_d_cubic_anticomm
+#audit_axioms Q_anticomm_bGhost
+#audit_axioms brstCharge_anticomm_bGhost
+#audit_axioms brstCharge_anticomm_bGhost_of_trace_zero
+#audit_axioms brstCharge_anticomm_bGhost_abelian
+#audit_axioms su2Trace_nonzero
