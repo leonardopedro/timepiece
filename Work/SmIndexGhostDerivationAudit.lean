@@ -1,0 +1,7 @@
+import BookProof.Sm.ChapterSmIndexGhostDerivation
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.SmIndexGhostDerivation
+#audit_axioms pair_anticomm
+#audit_axioms bGhost_anticomm
+#audit_axioms bGhost_no_contraction
+#audit_axioms bGhost_anticomm_abelian

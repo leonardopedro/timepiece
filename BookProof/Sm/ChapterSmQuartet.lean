@@ -68,6 +68,15 @@ replaces it by positivity of the charge form *on* the range of `V`, and
 `smPhysicalPositivity_of_physForm` is that statement at `smBrstCharge`: the open
 input is a no-ghost estimate on `range smPhysProj`, not an identity on `η`.
 
+**What §10 and §11 add.**  §10 exhibits a quartet — charge, b-ghost, projector,
+and a self-adjoint metric for which the charge is symmetric — whose physical
+direction is *negative*, so positivity is not a consequence of the schema.  §11
+turns the remaining input into an equivalence: `PhysicalPositivity` holds exactly
+when `η` is positive definite on `range V`, so the metric's action in the ghost
+directions is irrelevant and the check is a sign computation on the physical
+subspace — for the SM charge, on `ker Ω ⊓ (range Ω)ᗮ`.  No metric for
+`smBrstCharge` is constructed here, so that sign computation is not performed.
+
 Everything here is `sorry`-free and `axiom`-free.
 -/
 
@@ -915,6 +924,258 @@ theorem smPhysicalPositivity_of_physForm {m : ℕ} {T : Fin 12 → Matrix (Fin m
     PhysicalPositivity (smBrstCharge m T f3) η :=
   BrstQuartet.physicalPositivity_of_quartet_on_range (isBrst_smBrstCharge hT h3anti h3jac)
     (smQuartet hT h3anti h3jac) hKrein hSymm hPos hDef
+
+/-! ## 10. The quartet does not supply positivity: a decided counterexample
+
+§9 reduced Kugo–Ojima positivity to positivity of the charge form on the physical range.  This
+section shows that the reduction cannot be sharpened any further *by the quartet mechanism alone*:
+there is a three-dimensional quartet — nilpotent charge, b-ghost, quartet identity, and a metric
+that is self-adjoint and for which the charge is symmetric, i.e. all of §1's hypotheses except
+positivity itself — for which the physical direction is negative.
+
+The model: `Q` maps `e₀ ↦ e₁` and kills `e₁, e₂`; `b` maps `e₁ ↦ e₀`; `Q b + b Q = 1 − V` with `V`
+the projection onto `e₂`, so `e₂` is the physical state — closed, and fixed by `V`.  The metric
+`η x = x₁ e₀ + x₀ e₁ − x₂ e₂` is the ghost pairing on the `(e₀, e₁)` pair and `−1` on `e₂`; it is
+self-adjoint (`kform_exEtah_symm`) and the charge is symmetric for it (`kform_exEtah_Q`), which are
+exactly §3's `hSymm` and `hKrein`.  Positivity fails at the physical state itself:
+`(kform η e₂ e₂).re = −1` (`exNotPhysicalPositivity`), so no strengthening of the *projection*
+side can recover positivity — a no-ghost estimate on the metric must do it.
+
+**Scope.**  This is a statement about the quartet *schema*, not about the Standard Model: the
+model's charge is not this `Q`, and the section does not claim that the SM's physical sector is
+negative.
+What it decides is that `PhysicalPositivity` is an independent input rather than a consequence of
+§1–§9, which is why §8's `smQuartet` does not discharge it.
+
+-/
+
+/-- The three-dimensional model space of the counterexample. -/
+abbrev ExSpace := EuclideanSpace ℂ (Fin 3)
+
+/-- The `i`-th coordinate functional on `EuclideanSpace ℂ (Fin 3)`. -/
+def exProjL (i : Fin 3) : ExSpace →ₗ[ℂ] ℂ := (EuclideanSpace.proj i).toLinearMap
+
+/-- The `i`-th basis vector. -/
+def exE3 (i : Fin 3) : ExSpace := EuclideanSpace.single i 1
+
+/-- The charge: `e₀ ↦ e₁`, `e₁, e₂ ↦ 0`. -/
+def exQh : ExSpace →ₗ[ℂ] ExSpace := (LinearMap.toSpanSingleton ℂ ExSpace (exE3 1)).comp (exProjL 0)
+
+/-- The b-ghost: `e₁ ↦ e₀`. -/
+def exBh : ExSpace →ₗ[ℂ] ExSpace := (LinearMap.toSpanSingleton ℂ ExSpace (exE3 0)).comp (exProjL 1)
+
+/-- The physical projector: onto `e₂`. -/
+def exVh : ExSpace →ₗ[ℂ] ExSpace := (LinearMap.toSpanSingleton ℂ ExSpace (exE3 2)).comp (exProjL 2)
+
+/-- The Krein metric: the ghost pairing on `0, 1` and `−1` on the physical direction. -/
+def exEtah : ExSpace →ₗ[ℂ] ExSpace :=
+  (LinearMap.toSpanSingleton ℂ ExSpace (exE3 0)).comp (exProjL 1)
+    + (LinearMap.toSpanSingleton ℂ ExSpace (exE3 1)).comp (exProjL 0)
+    - (LinearMap.toSpanSingleton ℂ ExSpace (exE3 2)).comp (exProjL 2)
+
+theorem exQh_apply (x : ExSpace) : exQh x = x.ofLp 0 • exE3 1 := rfl
+
+theorem exBh_apply (x : ExSpace) : exBh x = x.ofLp 1 • exE3 0 := rfl
+
+theorem exVh_apply (x : ExSpace) : exVh x = x.ofLp 2 • exE3 2 := rfl
+
+theorem exEtah_apply (x : ExSpace) :
+    exEtah x = x.ofLp 1 • exE3 0 + x.ofLp 0 • exE3 1 - x.ofLp 2 • exE3 2 := by
+  simp [exEtah, LinearMap.sub_apply, LinearMap.add_apply, LinearMap.comp_apply, exProjL]
+
+theorem exOfLpSingle (i j : Fin 3) :
+    (EuclideanSpace.single i (1 : ℂ)).ofLp j = if i = j then 1 else 0 := by
+  simp [EuclideanSpace.single_apply, eq_comm]
+
+theorem exInnerE3 (i j : Fin 3) (a b : ℂ) :
+    inner ℂ (a • exE3 i) (b • exE3 j) = (starRingEnd ℂ) a * b * (if i = j then 1 else 0) := by
+  rw [exE3, exE3, inner_smul_left, inner_smul_right, EuclideanSpace.inner_single_left, exOfLpSingle]
+  simp only [map_one]
+  by_cases h : i = j
+  · subst h; simp
+  · simp [h, Ne.symm h]
+
+/-- The coordinate of a scaled basis vector. -/
+theorem exSmulE3 (i j : Fin 3) (a : ℂ) : (a • exE3 i).ofLp j = a * (if i = j then 1 else 0) := by
+  rw [PiLp.smul_apply, smul_eq_mul, exE3, exOfLpSingle]
+
+theorem exQh_comp : exQh ∘ₗ exQh = 0 := by
+  refine LinearMap.ext fun x => ?_
+  have h : exQh (exQh x) = 0 := by
+    rw [exQh_apply, exQh_apply, exSmulE3]
+    simp
+  simpa using h
+
+theorem quartet_pt (x : ExSpace) : exQh (exBh x) + exBh (exQh x) = x - exVh x := by
+  rw [exBh_apply, exQh_apply, exQh_apply, exBh_apply, exVh_apply]
+  refine PiLp.ext fun i => ?_
+  rw [PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  fin_cases i <;> simp [PiLp.smul_apply, smul_eq_mul, exE3]
+
+theorem isBrst_exQh : IsBrst exQh := exQh_comp
+
+theorem exInnerE3r (i j : Fin 3) (a : ℂ) :
+    inner ℂ (a • exE3 i) (exE3 j) = (starRingEnd ℂ) a * (if i = j then 1 else 0) := by
+  simpa using exInnerE3 i j a 1
+
+theorem exInnerE3l (i j : Fin 3) (b : ℂ) :
+    inner ℂ (exE3 i) (b • exE3 j) = b * (if i = j then 1 else 0) := by
+  simpa using exInnerE3 i j 1 b
+
+theorem exInnerE3b (i j : Fin 3) :
+    inner ℂ (exE3 i) (exE3 j) = (if i = j then 1 else 0) := by
+  simpa using exInnerE3 i j 1 1
+
+theorem kform_exEtah_Q (x y : ExSpace) : kform exEtah (exQh x) y = kform exEtah x (exQh y) := by
+  rw [exQh_apply, exQh_apply, kform, kform, exEtah_apply, exEtah_apply, exSmulE3, exSmulE3,
+    exSmulE3]
+  simp only [inner_add_right, inner_sub_right, inner_smul_right,
+    EuclideanSpace.inner_single_right, exE3, PiLp.smul_apply, smul_eq_mul, map_mul]
+  simp
+
+theorem kform_exEtah_symm (x y : ExSpace) : kform exEtah x y = star (kform exEtah y x) := by
+  rw [kform, kform, exEtah_apply, exEtah_apply]
+  simp only [inner_add_right, inner_sub_right, inner_smul_right, EuclideanSpace.inner_single_right,
+    exE3, star_add, star_sub, star_mul, star_one]
+  have h3 : ∀ z : ℂ, (starRingEnd ℂ) z = star z := fun z => rfl
+  simp only [h3, star_star]
+  ring
+
+theorem exVh_idem (x : ExSpace) : exVh (exVh x) = exVh x := by
+  rw [exVh_apply, exVh_apply, exSmulE3]
+  simp
+
+theorem exQh_Vh (x : ExSpace) : exQh (exVh x) = 0 := by
+  rw [exVh_apply, exQh_apply, exSmulE3]
+  simp
+
+noncomputable def exQuartet3 : BrstQuartet exQh where
+  bGhost := exBh
+  physProj := exVh
+  physProj_idem := exVh_idem
+  Q_physProj := exQh_Vh
+  quartet_anticomm := quartet_pt
+
+theorem exNotPhysicalPositivity : ¬ PhysicalPositivity exQh exEtah := by
+  intro h
+  have hx : (exE3 2 : ExSpace) ∈ closed exQh := by
+    show exQh (exE3 2) = 0
+    rw [exQh_apply, exE3, exOfLpSingle]
+    simp
+  have hval := h.1 (exE3 2) hx
+  have hneg : (kform exEtah (exE3 2) (exE3 2)).re = -1 := by
+    rw [kform, exEtah_apply]
+    simp only [exE3, inner_add_right, inner_sub_right, inner_smul_right,
+      EuclideanSpace.inner_single_right, exOfLpSingle]
+    simp
+  rw [hneg] at hval
+  norm_num at hval
+
+/-! ## 11. Which metrics are no-ghost, and where the check on the SM's metric lives
+
+§9–§10 reduced Kugo–Ojima positivity to positivity of the charge form on `range V` and then showed
+that the quartet axioms do not decide that sign.  This section says exactly what *does*: the
+no-ghost condition is an equivalence, not an implication — if the metric is positive definite on the
+physical range it descends to an inner product on the cohomology, and conversely: a metric that
+satisfies `PhysicalPositivity` (non-negative on all closed vectors, with radical the gauge orbit) is
+positive definite on `range V`.  Hence
+
+* the metric's action in the ghost directions is completely irrelevant (`physicalPositivity_congr`):
+  any two metrics agreeing on `range V` are no-ghost together;
+* the check on a concrete metric is a sign computation on a concretely described subspace — for the
+  SM charge, on `range smPhysProj = ker Ω ⊓ (range Ω)ᗮ` — which is why
+  `smPhysicalPositivity_iff_physForm` is the form in which that computation must be stated.
+
+**Boundary.**  The converse needs the radical half of `PhysicalPositivity`, whose proof uses the
+projector identity and not the metric.  Neither direction produces the sign, and §10's model shows
+why: the same hypotheses with the opposite sign on `range V` also satisfy them.  No metric for
+`smBrstCharge` is constructed in this corpus, so the SM-level theorem is an equivalence in `η`, not
+a verification for a particular `η`.
+-/
+
+namespace BrstQuartet
+
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+variable {Q : H →ₗ[ℂ] H}
+
+/-- **The physical range is the joint kernel of the charge and the b-ghost**, when the b-ghost kills
+the physical subspace: the physical states are the harmonic representatives of the cohomology. -/
+theorem range_physProj_eq_inf (_hQ : IsBrst Q) (q : BrstQuartet Q)
+    (hbV : ∀ y : H, q.bGhost (q.physProj y) = 0) :
+    LinearMap.range q.physProj = closed Q ⊓ LinearMap.ker q.bGhost := by
+  refine le_antisymm ?_ ?_
+  · rintro _ ⟨y, rfl⟩
+    exact ⟨q.Q_physProj y, hbV y⟩
+  · rintro x ⟨hxQ, hxP⟩
+    refine ⟨x, ?_⟩
+    have h := q.quartet_anticomm x
+    rw [show Q x = 0 from hxQ, show q.bGhost x = 0 from hxP] at h
+    simp only [map_zero, add_zero] at h
+    exact (sub_eq_zero.mp h.symm).symm
+
+/-- **The no-ghost condition is positivity of the metric on the physical range.**  `η` satisfies
+Kugo–Ojima positivity exactly when the charge form is positive definite on `range V`: the quartet
+reduction turns the form of a closed state into the form of its physical part, so nothing off
+`range V` is seen. -/
+theorem physicalPositivity_iff_physForm (hQ : IsBrst Q) (q : BrstQuartet Q) {η : H →ₗ[ℂ] H}
+    (hKrein : ∀ x y : H, kform η (Q x) y = kform η x (Q y))
+    (hSymm : ∀ x y : H, kform η x y = star (kform η y x)) :
+    PhysicalPositivity Q η ↔
+      (∀ y : H, 0 ≤ (kform η (q.physProj y) (q.physProj y)).re) ∧
+        (∀ y : H, (kform η (q.physProj y) (q.physProj y)).re = 0 → q.physProj y = 0) := by
+  constructor
+  · intro h
+    refine ⟨fun y => h.1 _ (q.mem_closed_physProj y), fun y hy => ?_⟩
+    obtain ⟨z, hz⟩ := h.2 _ (q.mem_closed_physProj y) hy
+    rw [show q.physProj y = q.physProj (q.physProj y) from (q.physProj_idem y).symm, ← hz,
+      quartet_physProj_comp_Q hQ q z]
+  · intro h
+    exact physicalPositivity_of_quartet_on_range hQ q hKrein hSymm h.1 h.2
+
+/-- **Ghost directions are irrelevant.**  Two metrics that agree on the physical range are no-ghost
+together, so the condition depends only on the compression of the metric to `range V`. -/
+theorem physicalPositivity_congr (hQ : IsBrst Q) (q : BrstQuartet Q) {η η' : H →ₗ[ℂ] H}
+    (h : ∀ x y : H, x ∈ LinearMap.range q.physProj → y ∈ LinearMap.range q.physProj →
+      kform η' x y = kform η x y)
+    (hKrein : ∀ x y : H, kform η (Q x) y = kform η x (Q y))
+    (hSymm : ∀ x y : H, kform η x y = star (kform η y x))
+    (hKrein' : ∀ x y : H, kform η' (Q x) y = kform η' x (Q y))
+    (hSymm' : ∀ x y : H, kform η' x y = star (kform η' y x)) :
+    PhysicalPositivity Q η ↔ PhysicalPositivity Q η' := by
+  rw [physicalPositivity_iff_physForm hQ q hKrein hSymm,
+    physicalPositivity_iff_physForm hQ q hKrein' hSymm']
+  have hmem : ∀ y : H, q.physProj y ∈ LinearMap.range q.physProj := fun y => ⟨y, rfl⟩
+  have hval : ∀ y : H, kform η' (q.physProj y) (q.physProj y)
+      = kform η (q.physProj y) (q.physProj y) := fun y => h _ _ (hmem y) (hmem y)
+  simp only [hval]
+
+end BrstQuartet
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The no-ghost condition at the SM charge is positivity on the physical range** — an
+*equivalence*, so a verification for a particular metric is carried out on `range smPhysProj` and
+nowhere else.  Combined with `smPhysProjFormula_range` that range is
+`ker Ω ⊓ (range Ω)ᗮ`, so the check is a sign computation on the transverse physical subspace; §11
+shows it also cannot be avoided by changing the metric in the ghost directions. -/
+theorem smPhysicalPositivity_iff_physForm {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (η : BookProof.SmCar.FermiFock (m + 12) →ₗ[ℂ] BookProof.SmCar.FermiFock (m + 12))
+    (hKrein : ∀ x y : BookProof.SmCar.FermiFock (m + 12),
+      kform η (smBrstCharge m T f3 x) y = kform η x (smBrstCharge m T f3 y))
+    (hSymm : ∀ x y : BookProof.SmCar.FermiFock (m + 12),
+      kform η x y = star (kform η y x)) :
+    PhysicalPositivity (smBrstCharge m T f3) η ↔
+      (∀ y : BookProof.SmCar.FermiFock (m + 12),
+        0 ≤ (kform η (smPhysProj hT h3anti h3jac y) (smPhysProj hT h3anti h3jac y)).re) ∧
+      (∀ y : BookProof.SmCar.FermiFock (m + 12),
+        (kform η (smPhysProj hT h3anti h3jac y) (smPhysProj hT h3anti h3jac y)).re = 0 →
+          smPhysProj hT h3anti h3jac y = 0) :=
+  BrstQuartet.physicalPositivity_iff_physForm (isBrst_smBrstCharge hT h3anti h3jac)
+    (smQuartet hT h3anti h3jac) hKrein hSymm
 
 end
 

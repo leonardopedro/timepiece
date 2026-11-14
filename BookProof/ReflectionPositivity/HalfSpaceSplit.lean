@@ -37,6 +37,15 @@ This file makes that choice and carries it out.
   coordinates: `ω(θF·F) = ∫ p, fkOSForm f ((), p) ∂(ω.map configSplit)`, which is the shape the
   lattice theorems state their conclusion in, so **`isReflectionPositive_of_splitIntegral`** feeds
   them into `reflection_positivity_continuum`'s `hRP`.
+* **`isReflectionPositive_of_fkKernelMeasure`** (§6) — that hypothesis is discharged from
+  `fkKernel_reflectionPositive` as soon as `splitMap ω` *is* the lattice kernel law read on the
+  future half (with `wilsonMeasure_eq_fkKernelMeasure` giving the Wilson case), and §7 constructs
+  the first such `ω`: `gffConfigMeasure m`, the Gibbs measure of the mass action on `Config`.
+* **`gffConfigMeasure_osForm_nonneg`, `gffConfigMeasure_isReflectionPositive`** (§8) — for that
+  state the remaining bookkeeping is carried out: the split law is `ν ⊗ ν` with the same half-space
+  density on both sides, so the Feynman–Kac square applies and the OS form is nonnegative for
+  **every** future-half observable, with no hypothesis on the state and no integrability side
+  condition.
 
 ## Honest boundary
 
@@ -49,11 +58,13 @@ rather than `Gz × (Gy × Gy)` with a non-trivial `Gz`, and `PUnit` carries the 
 product-model integral `∫ p, fkOSForm f ((), p) ∂(splitMap ω)`.  So the hypothesis
 **`isReflectionPositive_of_splitIntegral`** consumes is literally the conclusion of
 `fkKernel_reflectionPositive`/`wilson_reflectionPositive` — nonnegativity of the `ρ ⊗ ν_z ⊗ ν_z`
-integral — and the continuum theorem's `hRP` follows from it.  What is *not* formalised is the
-identification of `splitMap ω` with `fkKernelMeasure`/`wilsonMeasure`: that needs the index
-arithmetic between `PosTime × PosTime` and `Z₀ × (Y × Y)` (and, for Wilson, the plaquette link
-classification), and `fkKernel_integral_eq` is where it would land.  The half-space algebra
-itself (`PositiveTimeAlgebra`, `thetaObs_dependsOn_negTime`) is untouched: this file supplies the
+integral — and the continuum theorem's `hRP` follows from it.  §6 formalises the identification of
+`splitMap ω` with `fkKernelMeasure`/`wilsonMeasure` (conditionally on `ω`), and §8 carries it out
+for the mass model `gffConfigMeasure m`, so `hRP` is a theorem for that state.  What stays a
+modelling step is the *coupled* case: a nearest-neighbour action does not split as `ν ⊗ ν`, which
+is why the free-field OS theorem is stated on the `2n+1`-slice model with a boundary slice
+(`latticeGFFMeasure`, law `ρ ⊗ ν_z ⊗ ν_z`).  The half-space algebra itself
+(`PositiveTimeAlgebra`, `thetaObs_dependsOn_negTime`) is untouched: this file supplies the
 coordinate split underneath it.
 -/
 
@@ -578,6 +589,98 @@ theorem splitMap_gffConfigMeasure (m : ℝ) :
   congr 1
   congr 1
   ring
+
+/-! ## 8. The mass model's OS form is nonnegative, with no hypothesis on the state
+
+§7 constructed `gffConfigMeasure m` and computed its split law, leaving one bookkeeping step to
+§6's `hsplit`: rewrite the product `ν ⊗ ν` as `(fkKernelMeasure (Z₀ := PUnit) ρd νd).map Prod.snd`.
+This section takes the same step in the form the lattice theorem actually needs — the OS
+*integral* rather than the measure — and is shorter for it: the Mathlib lemma
+`integral_withDensity_eq_integral_toReal_smul` (unconditional in the integrand) turns the split
+integral into the two-density integral, and `fkKernel_inner` evaluates it at the single boundary
+point `()`.
+
+* **`gffHalfDensity`** — `exp(−h)`, the half of `configGibbsDensity` on one half-space;
+* **`integral_splitMap_gffConfigMeasure`** — `∫ G d(splitMap (gffConfigMeasure m))` is the
+  integral of `a y₋ · a y₊ · G` against Lebesgue on `(Y × Y)`, with `a = gffHalfDensity m`;
+* **`gffConfigMeasure_osForm_nonneg`** — hence `0 ≤ ∫ fkOSForm f ((), ·) d(splitMap ω)` for
+  **every** future-half observable, with no hypothesis on the OS form and no integrability
+  condition: this is item 3's remaining bookkeeping carried out, in the shape
+  `isReflectionPositive_of_splitIntegral` consumes;
+* **`gffConfigMeasure_isReflectionPositive`** — and therefore the `hRP` of
+  `reflection_positivity_continuum` holds for the functional of the mass model.
+
+Honest boundary, unchanged from §7: the state is the *mass* (ultralocal) Gibbs measure on `Config`,
+not a nearest-neighbour one, and it is unnormalised — positivity of the OS form is invariant under
+rescaling by a positive constant, which is all that is used.  What is *not* assumed anywhere below
+is reflection positivity itself. -/
+
+/-- The half-space Boltzmann density `exp(−h)`, one half of `configGibbsDensity m`. -/
+def gffHalfDensity (m : ℝ) (y : PosTime → ℝ) : ℝ := Real.exp (-(halfMassAction m y))
+
+theorem gffHalfDensity_pos (m : ℝ) (y : PosTime → ℝ) : 0 < gffHalfDensity m y :=
+  Real.exp_pos _
+
+theorem measurable_halfMassAction (m : ℝ) :
+    Measurable fun y : PosTime → ℝ => halfMassAction m y := by
+  unfold halfMassAction
+  exact measurable_const.mul
+    (Finset.measurable_sum _ fun j _ => (measurable_pi_apply j).pow_const 2)
+
+theorem measurable_gffHalfDensity (m : ℝ) : Measurable (gffHalfDensity m) :=
+  Real.measurable_exp.comp (measurable_halfMassAction m).neg
+
+/-- **The split mass measure integrates its density.**  Pushing `gffConfigMeasure m` to split
+coordinates gives the product of the two half-space densities, so the integral of any `G` against
+it is the integral of `a y₋ · a y₊ · G` against Lebesgue measure on the product. -/
+theorem integral_splitMap_gffConfigMeasure (m : ℝ)
+    (G : (PosTime → ℝ) × (PosTime → ℝ) → ℝ) :
+    ∫ p, G p ∂(splitMap (gffConfigMeasure m))
+      = ∫ p, (gffHalfDensity m p.1 * gffHalfDensity m p.2) * G p
+          ∂((volume : MeasureTheory.Measure (PosTime → ℝ)).prod
+            (volume : MeasureTheory.Measure (PosTime → ℝ))) := by
+  have hmeas : Measurable fun p : (PosTime → ℝ) × (PosTime → ℝ) =>
+      ENNReal.ofReal (Real.exp (-(halfMassAction m p.1)) * Real.exp (-(halfMassAction m p.2))) := by
+    refine ENNReal.measurable_ofReal.comp
+      (((measurable_halfMassAction m).comp measurable_fst).neg.exp.mul
+        (((measurable_halfMassAction m).comp measurable_snd).neg.exp))
+  rw [splitMap_gffConfigMeasure m,
+    integral_withDensity_eq_integral_toReal_smul (f_meas := hmeas)
+      (hf_lt_top := Filter.Eventually.of_forall fun _ => ENNReal.ofReal_lt_top)]
+  refine integral_congr_ae (Filter.Eventually.of_forall fun p => ?_)
+  simp only [Pi.smul_apply, gffHalfDensity, smul_eq_mul]
+  rw [ENNReal.toReal_ofReal (mul_nonneg (Real.exp_pos _).le (Real.exp_pos _).le)]
+
+/-- **Reflection positivity of the finite-volume mass model on `Config`, unconditionally.**  For
+every future-half observable `f` the OS integrand `fkOSForm f` is nonnegative-in-integral against
+the split law of `gffConfigMeasure m` — because the split law is `ν ⊗ ν` with the *same* `ν` on
+both halves, which is the one input of the Feynman–Kac square.  No hypothesis on `f` (beyond
+measurability of the integrand, which is not even needed here) and none on the state. -/
+theorem gffConfigMeasure_osForm_nonneg (m : ℝ) (f : PUnit → (PosTime → ℝ) → ℝ) :
+    0 ≤ ∫ p, fkOSForm f ((), p) ∂(splitMap (gffConfigMeasure m)) := by
+  rw [integral_splitMap_gffConfigMeasure m (fun p => fkOSForm f ((), p))]
+  have hfk : ∀ p : (PosTime → ℝ) × (PosTime → ℝ),
+      (gffHalfDensity m p.1 * gffHalfDensity m p.2) * fkOSForm f ((), p)
+        = fkKernelDensity (fun _ => (1 : ℝ)) (fun _ => gffHalfDensity m) ((), p)
+            * fkOSForm f ((), p) := by
+    intro p
+    simp only [fkKernelDensity, one_mul]
+  rw [integral_congr_ae (Filter.Eventually.of_forall hfk),
+    fkKernel_inner (ρd := fun _ => (1 : ℝ)) (νd := fun _ => gffHalfDensity m) (F := f) ()]
+  exact mul_nonneg (sq_nonneg _) zero_le_one
+
+/-- **`hRP` for the mass model, with no hypothesis on the OS form.**  The functional
+`F ↦ ∫ F d(gffConfigMeasure m)` satisfies the reflection-positivity hypothesis that
+`reflection_positivity_continuum` consumes, on the future-half observables of the split — by
+`gffConfigMeasure_osForm_nonneg` through `isReflectionPositive_of_splitIntegral`. -/
+theorem gffConfigMeasure_isReflectionPositive (m : ℝ) (f : PUnit → (PosTime → ℝ) → ℝ)
+    (hf : MeasureTheory.AEStronglyMeasurable
+      (fun p : (PosTime → ℝ) × (PosTime → ℝ) => fkOSForm f ((), p))
+        (splitMap (gffConfigMeasure m))) :
+    0 ≤ osForm (fun F => ∫ x, F x ∂(gffConfigMeasure m))
+      (fun y => f () ((configSplit y).2)) (fun y => f () ((configSplit y).2)) :=
+  isReflectionPositive_of_splitIntegral (gffConfigMeasure m)
+    (fun g => gffConfigMeasure_osForm_nonneg m g) f hf
 
 end
 

@@ -1,0 +1,15 @@
+import BookProof.Ns.ChapterNsVolDomExpansion
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.NsVolDomExpansion
+#audit_axioms shM_mul_self
+#audit_axioms tlM_mul_self
+#audit_axioms det_one_add_shM
+#audit_axioms det_one_add_smul
+#audit_axioms volResid_eq
+#audit_axioms ev2_normForm
+#audit_axioms pderiv_normForm_zero
+#audit_axioms pderiv_normForm_one
+#audit_axioms normForm_grad_sq
+#audit_axioms shearPot_eq_normForm
+#audit_axioms not_volDom_normForm
+#audit_axioms volDom_fails_of_normal_form

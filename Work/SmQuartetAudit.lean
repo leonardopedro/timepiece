@@ -32,3 +32,11 @@ open BookProof.SmQuartet
 #audit_axioms exE2_closed
 #audit_axioms exE2_not_exact
 #audit_axioms isBrst_smBrstCharge
+#audit_axioms exQuartet3
+#audit_axioms kform_exEtah_Q
+#audit_axioms kform_exEtah_symm
+#audit_axioms exNotPhysicalPositivity
+#audit_axioms BrstQuartet.range_physProj_eq_inf
+#audit_axioms BrstQuartet.physicalPositivity_iff_physForm
+#audit_axioms BrstQuartet.physicalPositivity_congr
+#audit_axioms smPhysicalPositivity_iff_physForm

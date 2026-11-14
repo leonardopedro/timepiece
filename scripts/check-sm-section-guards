@@ -371,6 +371,304 @@ require "$PLAN" 'No product structure was ever missing' \
 require "$PLAN" 'is **not** the index complex at `n = 12`' \
     "§60: the plan must keep the negative half of the identification"
 
+# ---- 14. §61 `VolDom` in normal form: the law is an identity, and it stays false -
+# §58 measured `4/eps^2`; §61 proves the law as an identity on the family's normal form and re-proves
+# the non-domination there.  The scope caveat must stay with them: the normal form is not the model's
+# literal `volPot`, and a reader who drops the caveat reads more than was shown.
+SHEAR=BookProof/Ns/ChapterNsVolDomShear.lean
+require "$SHEAR" "theorem shear_grad_sq" \
+    "§61: the exact law 4/t^2 + 4/eps^2"
+require "$SHEAR" "theorem not_volDom_shear" \
+    "§61: no constants dominate the normal form"
+require "$SHEAR" "theorem ev2_shearPot_flat" \
+    "§61: the potential is flat at every shear amplitude"
+pair_require "$SHEAR" 'theorem shear_grad_sq' 'theorem not_volDom_shear' "30" \
+    "§61: the law and the refutation must stay in the same module"
+require "$PLAN" 'does not refute it for the model' \
+    "§61: the plan must keep the normal-form scope caveat"
+require "$PLAN" 'is *not* data' \
+    "§61: the plan must keep the cancellation caveat on the mu = 0 column"
+require "$BOOKPLAN" 'ChapterNsVolDomShear' \
+    "§61: the root must import the shear module"
+
+# ---- 15. §62 the b-ghost of the derivation contracts onto matter ----------------
+DERIV=BookProof/Sm/ChapterSmIndexGhostDerivation.lean
+require "$DERIV" "theorem bGhost_anticomm" \
+    "§62: the anticommutator with the derivation is the Gauss generator"
+require "$DERIV" "theorem bGhost_no_contraction" \
+    "§62: {Q, b} = 1 would force the Gauss generators to sum to 1"
+require "$DERIV" "theorem bGhost_anticomm_abelian" \
+    "§62: the index quartet is the abelian fibre"
+pair_require "$DERIV" 'theorem bGhost_anticomm' 'theorem bGhost_no_contraction' "30" \
+    "§62: the identity and its non-contraction corollary must stay together"
+require "$PLAN" 'contraction has nowhere else to land' \
+    "§62: the plan must keep the statement of what the contraction lands on"
+require "$PLAN" 'structure-constant half' \
+    "§62: the plan must keep the boundary on the structure-constant remainder"
+require "$BOOKPLAN" 'ChapterSmIndexGhostDerivation' \
+    "§62: the root must import the derivation module"
+
+# ---- 16. §63 the second-order expansion is exact; the transfer is amplitude-independent
+# §61 refuted domination on the normal form and left the bridge from `volPot` open.  §63 formalizes the
+# algebraic half: the determinant identity `det(I + tN + eps B) = 1 - eps t` (so no `t^2`/`eps^2` term
+# exists at all) and the ratio law for *every* amplitude constant.  The scope caveat must stay with the
+# identity: the Fourier reconstruction from `volPot` to `c(eps t)^2` is still measurement.  Keeping the
+# identity and dropping the caveat turns a normal-form theorem into a statement about `volPot`.
+EXP=BookProof/Ns/ChapterNsVolDomExpansion.lean
+require "$EXP" "theorem det_one_add_smul" \
+    "§63: the volume residual is exactly the mixed term"
+require "$EXP" "theorem det_one_add_shM" \
+    "§63: the shear is unimodular at every amplitude"
+require "$EXP" "theorem normForm_grad_sq" \
+    "§63: the ratio law holds for every amplitude constant"
+require "$EXP" "theorem not_volDom_normForm" \
+    "§63: no nonzero multiple of the normal form is dominated"
+pair_require "$EXP" 'theorem normForm_grad_sq' 'theorem not_volDom_normForm' "40" \
+    "§63: the law and the refutation must stay in the same module"
+require "$PLAN" 'The non-domination therefore holds for any truncation' \
+    "§63: the plan must keep the transfer's scope"
+require "$PLAN" 'Fourier reconstruction of `det F − 1`' \
+    "§63: the plan must keep the un-formalized reconstruction caveat"
+require "$BOOKPLAN" 'ChapterNsVolDomExpansion' \
+    "§63: the root must import the expansion module"
+
+# ---- 17. §64 the deformation-norm repair closes, and its constant is necessary
+# §61.2 measured that a deformation norm repairs the estimate.  §64 proves it with explicit constants
+# and proves the constant term is *forced*.  Dropping `muPot_no_hom_dom` would make the affine shape
+# look like slack; dropping `muPot_dom` would lose the closure.  The "changed Lagrangian" caveat must
+# stay with both: the model's own `volPot` is the `mu = 0` member, which remains un-dominated.
+MUREP=BookProof/Ns/ChapterNsVolDomMuRepair.lean
+require "$MUREP" "theorem muPot_dom" \
+    "§64: gradient domination holds with A = 5/mu + 1, B = mu^2"
+require "$MUREP" "theorem muPot_no_hom_dom" \
+    "§64: no homogeneous bound exists, so B > 0 is necessary"
+require "$MUREP" "theorem muPot_zero" \
+    "§64: the repair's mu = 0 member is §61's potential"
+pair_require "$MUREP" 'theorem muPot_dom' 'theorem muPot_no_hom_dom' "50" \
+    "§64: the closure and the necessity of its constant must stay together"
+require "$PLAN" '`B > 0` is necessary, not slack' \
+    "§64: the plan must keep the sharpness statement"
+require "$PLAN" 'family-level' \
+    "§64: the plan must keep the changed-Lagrangian scope"
+require "$BOOKPLAN" 'ChapterNsVolDomMuRepair' \
+    "§64: the root must import the repair module"
+
+# ---- 18. §65 the structure-constant remainder of {Omega, b}
+# §62.3 left the cubic ghost half as an unnamed remainder.  §65 computes it: two contraction channels
+# (`cubic_anticomm`), equal by antisymmetry, giving `{Q, b} = 2 * (first-slot trace) * chi beta`.  The
+# trace does *not* vanish (`su2Trace_nonzero`), which is what makes "the free complex is not a
+# subcomplex" a theorem rather than a slogan; and when it does vanish the corollary upgrades to the full
+# charge.  Keeping the trace computation and dropping its non-vanishing witness is the failure mode.
+REM=BookProof/Sm/ChapterSmIndexGhostRemainder.lean
+require "$REM" "theorem cubic_anticomm" \
+    "§65: one antighost leaves two contraction channels"
+require "$REM" "theorem Q_anticomm_bGhost" \
+    "§65: {Q, b} is twice the first-slot trace"
+require "$REM" "theorem brstCharge_anticomm_bGhost" \
+    "§65: {Omega, b} is the Gauss sum minus the trace"
+require "$REM" "theorem su2Trace_nonzero" \
+    "§65: the trace does not vanish for su(2)"
+pair_require "$REM" 'theorem Q_anticomm_bGhost' 'theorem brstCharge_anticomm_bGhost' "90" \
+    "§65: the ghost half and the full charge must stay together"
+require "$PLAN" 'first-slot trace' \
+    "§65: the plan must keep the remainder's exact coefficient"
+require "$PLAN" 'does not terminate' \
+    "§65: the plan must keep the SM-instantiation limitation"
+# §65.2 was corrected: the SM-specialized corollary *is* asserted (module §6).  Keeping only the
+# "does not terminate" half would leave the plan saying the corollary is missing when it is proved.
+require "$REM" "theorem smBrstCharge_anticomm_bGhost" \
+    "§65: the SM-specialized corollary must stay asserted"
+require "$PLAN" 'is asserted anyway' \
+    "§65: the plan must keep the correction (the corollary is proved, not dropped)"
+require "$BOOKPLAN" 'ChapterSmIndexGhostRemainder' \
+    "§65: the root must import the remainder module"
+
+# ---- 19. §66 the Fourier reconstruction, as far as it is algebraic
+# §63 named the gap: the normal-form refutation is a theorem, the passage from `volPot` to `c(εt)²` was
+# measurement.  §66 proves the grid half (discrete orthogonality) and the single-mode transfer, and says
+# exactly what is still assumed (`hspec`, the Plancherel assembly).  Keeping the transfer without the
+# boundary is the failure mode: it would read as if `volPot` had been reconstructed.
+REC=BookProof/Ns/ChapterNsVolDomReconstruction.lean
+require "$REC" "theorem dft_orthogonal" \
+    "§66: a mode the grid cannot resolve averages to nothing"
+require "$REC" "theorem volPot_of_single_mode" \
+    "§66: a single-mode residual is exactly its coefficient"
+require "$REC" "theorem volPot_of_shear_constant" \
+    "§66: the constant transfers as c*eps*t"
+require "$REC" "theorem volPot_of_shear_constant_normForm" \
+    "§66: the penalty is (kappa/2) times the normal form's value"
+pair_require "$REC" 'theorem volPot_of_single_mode' 'theorem volPot_of_shear_constant' "80" \
+    "§66: the transfer and its shear instance must stay together"
+require "$PLAN" 'as far as it is algebraic' \
+    "§66: the plan must keep the boundary in the title"
+require "$PLAN" 'unitarity of the discrete' \
+    "§66: the plan must keep the un-formalized Plancherel step"
+require "$BOOKPLAN" 'ChapterNsVolDomReconstruction' \
+    "§66: the root must import the reconstruction module"
+
+# ---- 20. §67 the augmented Lagrangian: VolDom discharged, not assumed
+# §61 refuted `VolDom` for the model's penalty, leaving `lagGradDom_of_volDom` with an unsatisfiable
+# hypothesis.  §67 feeds §64's estimate back in and closes the chain on the augmented Lagrangian with no
+# hypothesis.  The scope caveat must stay: this is the two shear coordinates, not `LagNsData`'s `volPot`.
+LAG=BookProof/Ns/ChapterNsVolDomMuLagrangian.lean
+require "$LAG" "theorem lagGradDom_mu" \
+    "§67: gradient domination holds with no hypothesis"
+require "$MUREP" "theorem muPot_dom_nonneg" \
+    "§67: the comparison needs non-negative constants"
+require "$LAG" "theorem one_le_ev2_lagMu" \
+    "§67: the Lagrangian is at least 1"
+pair_require "$LAG" 'theorem one_le_ev2_lagMu' 'theorem lagGradDom_mu' "90" \
+    "§67: the estimate and its coercivity input must stay together"
+require "$PLAN" 'discharged rather than assumed' \
+    "§67: the plan must keep the verdict"
+require "$PLAN" 'not a claim about the three-dimensional model' \
+    "§67: the plan must keep the two-coordinate scope"
+require "$BOOKPLAN" 'ChapterNsVolDomMuLagrangian' \
+    "§67: the root must import the Lagrangian module"
+
+# ---- 21. §68 the Plancherel assembly: hspec derived, not assumed
+# §66 assumed that the residual has no nonzero frequency.  §68 inverts the discrete transform on a grid
+# and derives it from spatial constancy, so the hypothesis is gone from the new theorems.  The boundary
+# must travel with the result: the grid unitarity itself is assumed, and the concrete commensurate
+# instantiation is not done.
+require "$REC" "theorem coeff_eq_zero_of_grid_vanishing" \
+    "§68: the discrete transform must be inverted, not assumed"
+require "$REC" "theorem volPot_of_single_mode_of_constant" \
+    "§68: the penalty value must be derived from constancy"
+require "$REC" "theorem volCoef_eq_zero_of_constant" \
+    "§68: the spectrum must be derived, not hypothesised"
+pair_require "$REC" 'theorem coeff_eq_zero_of_grid_vanishing' \
+    'theorem coeff_eq_zero_of_grid_const' "90" \
+    "§68: the inversion and its constant case must stay together"
+require "$PLAN" 'derived, not assumed' \
+    "§68: the plan must keep the verdict"
+require "$PLAN" 'is a statement about the numerical grid' \
+    "§68: the plan must keep the residual hypothesis (horth)"
+
+# ---- 22. §69 the constants do not depend on the dimension
+# §67 proved the chain in two shear coordinates; a reader may take the estimate for a two-dimensional
+# accident.  §69 gives the n-coordinate theorem and the nine-component instance, with the same
+# constants — and must keep saying that the model's own volPot is still un-dominated (§61).
+require "$LAG" "theorem lagGradDom_family" \
+    "§69: the estimate must be stated for every n"
+require "$LAG" "theorem lagGradDom_mu_nine" \
+    "§69: the nine-component instance must exist"
+require "$PLAN" 'constants do not depend on the dimension' \
+    "§69: the plan must keep the verdict"
+require "$PLAN" 'no gradient domination at all' \
+    "§69: the plan must keep §61's obstruction in view"
+
+# ---- 23. §70 the quartet condition and the explicit antighost
+# The SM quartet data exists (choice-based); what §70 adds is why the explicit antighost cannot be it:
+# Q P Q = Q with P = bGhost is equivalent to a Gauss-sector identity.  The section must not be read as
+# proving positivity — that boundary is guarded too.
+require "$REM" "theorem bGhost_quartet_iff" \
+    "§70: the quartet condition must be reduced to the Gauss-sector identity"
+require "$REM" "def traceEnd" \
+    "§70: the trace remainder must stay named"
+require "$PLAN" 'Nothing in §70 proves positivity' \
+    "§70: the plan must keep the honest boundary"
+require "$PLAN" 'the trace-corrected Gauss generators' \
+    "§70: the plan must keep what the condition says"
+
+# ---- 24. §71 the commensurate reduction: `horth` discharged at its grid
+# §68 removed `hspec` but assumed the grid unitarity.  §71 derives it.  The failure mode is stated: the
+# replacement is a modelling hypothesis about the truncation, *not* something read off `kv`, and the grid
+# is a line of N points rather than a 3D lattice.  Dropping either half would overstate the gain.
+require "$REC" "theorem phase_smul_eq_gridRoot" \
+    "§71: a commensurate mode is a power of the grid root"
+require "$REC" "theorem geom_sum_gridRoot" \
+    "§71: the geometric sum must be computed for integer mode numbers"
+require "$REC" "theorem horth_of_commensurate" \
+    "§71: unitarity must be derived from commensurability"
+require "$REC" "theorem volPot_of_shear_constant_of_commensurate" \
+    "§71: the payload theorem must carry no abstract horth"
+pair_require "$REC" 'theorem geom_sum_gridRoot' 'theorem horth_of_commensurate' "60" \
+    "§71: the sum and its assembly must stay together"
+require "$PLAN" 'no *abstract* unitarity input left' \
+    "§71: the plan must keep the verdict"
+require "$PLAN" 'a statement about which modes the truncation keeps' \
+    "§71: the plan must keep what replaces horth"
+require "$PLAN" 'one line of' \
+    "§71: the plan must keep the grid's dimension"
+
+# ---- 25. §72 positivity is not a consequence of the quartet schema
+# The reduction of §9 could be misread as "positivity is now bookkeeping".  §72 decides the opposite with
+# an explicit quartet, so the counterexample and the statement it refutes must both stay.
+QUARTET=BookProof/Sm/ChapterSmQuartet.lean
+require "$QUARTET" "theorem exNotPhysicalPositivity" \
+    "§72: the counterexample must stay asserted"
+require "$QUARTET" "def exQuartet3" \
+    "§72: the quartet must be exhibited, not assumed"
+require "$QUARTET" "theorem kform_exEtah_Q" \
+    "§72: the charge must be symmetric for the counterexample's metric"
+require "$QUARTET" "theorem kform_exEtah_symm" \
+    "§72: the metric must be self-adjoint in the counterexample"
+pair_require "$QUARTET" 'theorem kform_exEtah_Q' 'theorem exNotPhysicalPositivity' "120" \
+    "§72: the two hypotheses and the failure must stay together"
+require "$PLAN" 'not a consequence of the quartet schema' \
+    "§72: the plan must keep the verdict"
+require "$PLAN" 'the metric decides' \
+    "§72: the plan must say what actually decides positivity"
+
+# ---- 26. §73 the quartet condition is a ring identity
+# §70's equivalence is not specific to `FermiFock`; the abstract form makes that clear and states the
+# honest answer to "can it be decided": the equation is a matter-sector statement, not a ghost identity.
+require "$REM" "theorem quartet_iff_of_anticomm" \
+    "§73: the equivalence must be proved in the abstract ring"
+require "$PLAN" 'a matter-sector statement' \
+    "§73: the plan must keep what the equation says"
+require "$PLAN" 'cannot settle it for a different candidate' \
+    "§73: the plan must keep the decidability verdict"
+
+# ---- 27. §74 the three-dimensional box and its aliasing
+# §71 analysed one line of the grid.  The box adds a direction the line cannot see: the sum factorises,
+# so commensurability is needed in every direction at once, and the alias classes are the residue
+# vectors — the total wave number is irrelevant.  Dropping either half of that pair is the failure mode.
+require "$REC" "theorem geom_sum_latBox" \
+    "§74: the box's geometric sum must stay factorised"
+require "$REC" "theorem latBox_character_one_iff" \
+    "§74: the alias classes must stay identified"
+require "$REC" "theorem horth_of_lattice_commensurate" \
+    "§74: unitarity on the box must stay derived, not assumed"
+pair_require "$REC" 'theorem geom_sum_latBox' 'theorem latBox_character_one_iff' "80" \
+    "§74: the vanishing in one direction and the residue classes must stay together"
+require "$PLAN" 'One non-commensurate direction kills the whole sum' \
+    "§74: the plan must keep what the factorisation decides"
+require "$PLAN" 'The *total* wave number is' \
+    "§74: the plan must keep the alias description"
+
+# ---- 28. §75 the no-ghost condition is an equivalence, not a reduction with a gap
+# §72 decided that the quartet schema does not supply the sign.  §75 says exactly what does, and its
+# boundary is that an equivalence in `η` is not a verification for a particular `η`.
+require "$QUARTET" "theorem physicalPositivity_iff_physForm" \
+    "§75: the equivalence must stay an equivalence"
+require "$QUARTET" "theorem physicalPositivity_congr" \
+    "§75: ghost-direction irrelevance must stay stated"
+require "$QUARTET" "theorem smPhysicalPositivity_iff_physForm" \
+    "§75: the SM-level equivalence must stay"
+pair_require "$QUARTET" 'theorem exNotPhysicalPositivity' 'theorem physicalPositivity_iff_physForm' "160" \
+    "§75: the equivalence and §72's counterexample must stay in the same file"
+require "$PLAN" 'the equivalence does not *produce* the sign' \
+    "§75: the plan must keep the boundary"
+require "$PLAN" 'no metric for `smBrstCharge` is constructed in this corpus' \
+    "§75: the plan must keep the missing input"
+
+# ---- 29. §76 the candidate: what the trace-corrected equation asks of a b-ghost
+# §73 left the equation undecided for a candidate.  §76 decides its form — one identity, invisible to
+# a correction that kills the range, satisfied by a contracting map — and its positive model.  The
+# boundary is that no b-ghost for `smBrstCharge` is constructed.
+require "$REM" "theorem QbQ_eq_SQ" \
+    "§76: the one-identity form must stay"
+require "$REM" "theorem trace_correction_iff" \
+    "§76: the correction's invisibility must stay stated"
+require "$REM" "theorem quartet_condition_of_contracting" \
+    "§76: the contracting candidate must stay"
+require "$REM" "theorem cand_equation" \
+    "§76: the positive model must stay exhibited"
+require "$PLAN" 'this does not construct a b-ghost for `smBrstCharge`' \
+    "§76: the plan must keep the boundary"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"
