@@ -387,6 +387,36 @@ scalar and no nontrivial dynamics is exhibited; `P` remains an input, as for eve
 bundle; no spatial translation, complex structure or identification with `ℱ_out` is built. B2 in
 general remains open.
 
+**Landed 2026-11-14, the `Config`-side reflection positivity of item 3.** `BookProof/ReflectionPositivity/HalfSpaceSplit.lean`
+§8 carries out the one bookkeeping step `gffConfigMeasure` left open, and it does so in the form the
+lattice theorem needs — the OS *integral* rather than the measure — so the step costs three short
+lemmas rather than a `Measure.map`-through-`withDensity` fight. No `sorry`; axiom footprint of every
+theorem below `{propext, Classical.choice, Quot.sound}` only (`Work/HalfSpaceSplitAudit.lean`).
+
+* **`gffHalfDensity`** is `exp(−h)`, one half of `configGibbsDensity`, with `gffHalfDensity_pos`,
+  `measurable_halfMassAction` and `measurable_gffHalfDensity` supplying what the density argument
+  needs.
+* **`integral_splitMap_gffConfigMeasure`** — for any `G`,
+  `∫ G d(splitMap (gffConfigMeasure m)) = ∫ a y₋ · a y₊ · G dLeb` on `(Y × Y)` with `a = gffHalfDensity m`.
+  The proof is `integral_withDensity_eq_integral_toReal_smul`, which is unconditional in the
+  integrand, plus `ENNReal.toReal_ofReal` — no integrability hypothesis on `G`.
+* **`gffConfigMeasure_osForm_nonneg`** — hence `0 ≤ ∫ fkOSForm f ((), ·) d(splitMap ω)` for **every**
+  future-half observable `f`, with no hypothesis on the state and none on `f`. This is §6's `hsplit`
+  consumed at the one place `fkKernel_reflectionPositive` uses it: `fkKernel_inner` evaluated at the
+  single boundary point `()`, where the product `ν ⊗ ν` *is* the Feynman–Kac square.
+* **`gffConfigMeasure_isReflectionPositive`** — therefore the `hRP` of `reflection_positivity_continuum`
+  holds for the functional `F ↦ ∫ F d(gffConfigMeasure m)` on the future-half observables, via
+  `isReflectionPositive_of_splitIntegral`. Reflection positivity is not assumed anywhere in the
+  chain; it is derived.
+
+Boundary, in the same shape as §7's: the state is the **mass (ultralocal)** Gibbs measure on `Config`,
+not the nearest-neighbour one, and it is unnormalised (positivity is invariant under a positive
+rescaling, which is all that is used, so `m` is arbitrary). The coupled case stays the input its
+module records: a nearest-neighbour action has no `ν ⊗ ν` split, which is exactly why the free-field
+OS theorem is stated on the `2n+1`-slice model with a boundary slice and law `ρ ⊗ ν_z ⊗ ν_z`. No
+spatial translation, no infinite-volume limit, and no unitarity `ℋ_OS → ℱ_out` is added here; E2 and
+B2/B3 are untouched.
+
 ## Revised work order (2026-11-08)
 
 This section supersedes the architecture, priority list and completion claims below **as a
@@ -715,7 +745,7 @@ The operator-function approximation theorem does not supply that exclusion.
 | E0 | Gaussian laws, Hermite bases | Euclidean field law and chart |
 | E1 | Kernel RP, lattice splits, Haar/partition results | One matched 4D gauge model |
 | E2 | Summable increments imply convergence | Actual RG estimates and limits |
-| E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), half-space generator with `H = −A` (`HalfSpaceGenerator`), finite-volume Gibbs state and its measure on the split lattice (`HalfSpaceFreeState`), complexification, complex OS form and `HilbertSpace ℂ` carrier (`HalfSpaceComplex`), quotients, multiplier generators | The exponential `e^{−τH}`, an infinite-volume state |
+| E3 | Half-space state/quotient (`HalfSpaceState`), forward semigroup (`HalfSpaceHilbert`), half-space generator with `H = −A` (`HalfSpaceGenerator`), finite-volume Gibbs state and its measure on the split lattice (`HalfSpaceFreeState`), complexification, complex OS form and `HilbertSpace ℂ` carrier (`HalfSpaceComplex`), quotients, multiplier generators, the bounded exponential `e^{−τH}` with its semigroup/contractivity/continuity laws (`HalfSpaceExponential`), its identification with the abstract `hsEvolCompletion` (`HalfSpaceExpIdentification`), the unbounded Hamiltonian in the multiplier model (`HalfSpaceUnboundedExp`) with dense domain and self-adjointness (`HalfSpaceMultiplierAdjoint`), the concrete lattice shift with the negative result on positive-time preservation (`HalfSpaceLatticeTranslation`), the two-point form of `hflow` (`HalfSpaceFlowMatrixElement`), the one-sided `ℕ`-indexed API (`HalfSpaceDiscreteSemigroup`) with an inhabiting half-preserving step and `HsHinvNat` for the Gibbs state (`HalfSpaceLatticeShiftSemigroup`), and the ultralocal infinite-volume free-field state via Ionescu–Tulcea (`HalfSpaceInfiniteVolumeGaussian`) with its reflection positivity on general positive-time cylinders (`HalfSpaceInfiniteVolumePositivity`), the two-site non-diagonal covariance pushforward matching `λ • (−Δ+m²)⁻¹` (`HalfSpaceCovariancePushforward`), the banded `n`-site chain covariance with its Hilbert–Schmidt norm (`HalfSpaceChainCovariance`), reflection positivity for a coupled covariant state (`HalfSpaceCovariantReflectionPositivity`), the covariance matrix `[[Cov T + 1, Cov T], [Cov T, Cov T + 1]]` of that state with its banded (`chainLaw`) and width-`k` (`bandLaw`) instantiations (`HalfSpaceCovStateCovariance`, `HalfSpaceChainBandCovariance`) | An infinite-volume *interacting* state and the *infinite* Hilbert–Schmidt pushforward by `(−Δ+m²)⁻¹`; the carrier identification `Hhalf Λ ≃ₗᵢ L²(ν)`; `hflow` itself (only its two-point consequence is proved) |
 | E4 | `OsFockBridge` consequences, plus constructed (non-conditional) instances: the one-particle sector (`OneParticleBridge`) and a two-state finite-volume Gibbs state (`FiniteVolumeGibbsBridge`) | Physical spatial prior, field and flow bridge for the interacting theory |
 | E5 | Conditional clustering and certificate receivers | Uniform infrared exclusion |
 
@@ -757,7 +787,9 @@ work listed as missing above now exists.
   **`H = −A`** on the dense domain, self-adjointness carried by the symmetric-contraction
   hypotheses. The `H = −A` identification is conditional on
   `∀ z, HasDerivWithinAt (fun τ => hsEvolCompletionFun Λ hT hinv τ z) (-(H z)) (Ioi 0) 0`, the
-  local form of `P(τ) = e^{−τH}`; the exponential itself is not constructed.
+  local form of `P(τ) = e^{−τH}`. (That shape is now realised by a constructed family —
+  `hsExpOp_hasDerivWithinAt_zero` below — though the family itself is not identified with
+  `hsEvolCompletionFun`.)
 * `HalfSpaceFreeState` **instantiates `HalfSpaceState` with a concrete state**: the finite-volume
   Gibbs functional `gibbsFun (V : GibbsVolume)` on the block lattice, with the configuration
   split `Config ≃ (HalfIdx → ℝ) × (HalfIdx → ℝ)` (`cellsPerBlock = 16 = 8 + 8`, no reflection
@@ -789,9 +821,211 @@ work listed as missing above now exists.
   `hhalfC_complete` takes coordinate Cauchy limits from the completeness of `Hhalf` and rebuilds
   the limit with `norm_eq_zero_iff_hhalfC`.
 
-Still missing at E3: the exponential `e^{−τH}` (the generator identification is conditional on
-its defining derivative), and an infinite-volume/continuum state — `gibbsMeasure` is supported on
-the declared finite grid and is not identified with `freeFieldMeasure`. Separability of the
+**Landed 2026-11-14, the exponential `e^{−τH}` of E3.** `BookProof/OSReconstruction/HalfSpaceExponential.lean`
+constructs the family the generator identification names, for a **bounded**
+`H : Hhalf Λ →L[ℝ] Hhalf Λ`, as `hsExpOp Λ H τ = NormedSpace.exp (τ • (-H))`, and proves the
+semigroup laws on it rather than assuming them. No `sorry`; axiom footprint of every theorem below
+`{propext, Classical.choice, Quot.sound}` only (`Work/HalfSpaceExponentialAudit.lean`).
+
+* **`hsExpOp_zero`, `hsExpOp_add`** — `P(0) = I` and `P(s+t) = P(s)P(t)`, the latter from
+  `exp_add_of_commute_of_mem_ball` applied to the two commuting scalar multiples `s • −H`, `t • −H`
+  (`commute_smul_neg`); the ball condition is free because `expSeries_radius_eq_top` makes the
+  radius `⊤`.
+* **`hsExpOp_isSelfAdjoint`** — **`P(τ)* = P(τ)`** for self-adjoint `H`, via `NormedSpace.star_exp`
+  and `star (τ • −H) = τ • −H`. Symmetry is therefore derived from `H`, not postulated as it is
+  (`HsSymmetric`) for the abstract `hsEvolCompletion`.
+* **`hasDerivAt_hsExpOp`, `hasDerivAt_hsExpOp_apply`, `hsExpOp_hasDerivWithinAt_zero`** — the
+  operator derivative `P'(τ) = P(τ)·(−H)`, the orbit derivative `d/dτ P(τ)z = −H(P(τ)z)`, and hence
+  `d/dτ P(τ)z = −H z` at `0` **from the right, with no condition on `z`**. The last statement is
+  literally the `hflow` hypothesis of `hsGenerator_eq_neg`, so that hypothesis is non-vacuous: it is
+  discharged by `fun _ => hsExpOp_hasDerivWithinAt_zero …` once the two families are identified.
+* **`norm_hsExpOp_antitone`, `norm_hsExpOp_le`** — **contractivity** for `τ ≥ 0` under the quadratic
+  form condition `∀ z, 0 ≤ ⟪H z, z⟫` (for self-adjoint `H` this *is* `H ≥ 0`): the derivative of
+  `‖P(τ)z‖²` is `−2⟪H(P(τ)z), P(τ)z⟫ ≤ 0`, so `‖P(·)z‖` is antitone.
+* **`continuous_hsExpOp`, `tendsto_hsExpOp_zero`** — **strong continuity at `0⁺`**, `P(τ)z → z`.
+
+Boundary: `H` is bounded; the exponential of the unbounded physical Hamiltonian is not constructed
+(that is the multiplier/spectral-theorem job `MultiplierSelfAdjoint` does inside its `MulModel`, and
+E3's remaining infinite-volume work). What was established at that point is that the exponential
+exists, is a symmetric strongly continuous contraction semigroup, and has generator `−H` — the input
+`hsGenerator_eq_neg` was missing. The identification with `hsEvolCompletion` and the unbounded case
+were landed the same day; see the next two paragraphs.
+
+**Landed 2026-11-14, the identification of the semigroup with the exponential.**
+`BookProof/OSReconstruction/HalfSpaceExpIdentification.lean`. Under the very hypothesis
+`hsGenerator_eq_neg` assumes (`hflow`), the abstract semigroup **is** the exponential: no separate
+uniqueness theorem for `ẋ = −H x` has to be built, Grönwall supplies it. No `sorry`; axiom footprint
+`{propext, Classical.choice, Quot.sound}` only (`Work/HalfSpaceExpIdentificationAudit.lean`).
+
+* `hsEvolCompletionFun_comp_neg` — the semigroup commutes with `H` (`A P(τ) = P(τ)A` for `A = −H` on
+  all of `Hhalf`), by pushing the difference quotient through the continuous `P(τ)`.
+* `hasDerivWithinAt_hsEvol_flow` — hence the orbit's right derivative at every `τ ≥ 0` is `−H(P(τ)z)`,
+  and `Ici`/`Ioi` are interchanged through `hasDerivWithinAt_iff_tendsto_slope` (they cut out the
+  same punctured neighbourhood).
+* `hsEvolCompletionFun_eq_hsExpOp` — `P(τ)z = e^{−τH}z` for `τ ≥ 0`: both orbits solve `v' = −H v`
+  from `0`, so `norm_le_gronwallBound_of_norm_deriv_right_le` with `δ = ε = 0` gives `‖v‖ ≤ 0`.
+* `hsGenerator_eq_neg_exp` — `hsGenerator_eq_neg` plus the identification in one statement: every
+  `z` is in the domain, `A z = −H z`, **and** the semigroup at `z` is the exponential.
+* `hsExpOp_iff_flow` — `hflow` holds **iff** `P` is the exponential. The hypothesis is therefore not
+  independent information about the flow: it pins it down completely.
+
+Boundary: `hflow` is still an assumption (nothing derives the flow from the lattice translation), and
+`H` is still bounded.
+
+**Landed 2026-11-14, the unbounded Hamiltonian in the multiplier model.**
+`BookProof/OSReconstruction/HalfSpaceUnboundedExp.lean`, on top of `L2Multiplier`. `NormedSpace.exp`
+is never applied to an unbounded operator: the exponential of the multiplication operator `M_f` *is*
+the multiplier `e^{−τ f}`, and an isometric equivalence `e : Hhalf Λ ≃ₗᵢ[ℝ] L²(ν)` transports it back
+to the half-space carrier. No `sorry`; axiom footprint `{propext, Classical.choice, Quot.sound}` only
+(`Work/HalfSpaceUnboundedExpAudit.lean`).
+
+* `HsMulModel` — the datum: `ν`, a measurable `f ≥ 0` a.e., and `e`. The family
+  `HsMulModel.flow τ = e⁻¹ ∘ (multiplication by e^{−τf}) ∘ e` is **constructed**, not assumed.
+* `flow_zero`, `flow_comp`, `flow_contractive`, `flow_tendsto` — `P(0)=I`, `P(s+t)=P(s)P(t)`,
+  contraction, strong continuity at `0⁺` (the last on the natural domain, which is all the corpus's
+  `tendsto_expFlow_zero` requires).
+* `HsMulModel.domain` — the natural domain `{z | f · e z ∈ L²(ν)}`, a submodule; `opValue` is `−M_f z`
+  and `e_opValue` records `e (opValue z) = −f · e z`.
+* `hasDerivWithinAt_flow` — **the unbounded generator statement**: `d/dτ P(τ)z = −M_f z` at `0⁺` for
+  every `z` in that domain, the unbounded analogue of `hsExpOp_hasDerivWithinAt_zero`.
+* `mem_domain_of_bounded` — when `f` is essentially bounded the domain is everything, so the bounded
+  exponential of `HalfSpaceExponential` is the special case.
+
+Boundary: `HsMulModel` assumes the carrier *is* `L²(ν)` (an isometric equivalence), which is
+stronger than the dense-range `MulModel.U`; producing that equivalence for the concrete half-space
+theory remains open. Density of the domain and self-adjointness of `M_f`, which were open here, are
+closed by the next paragraph.
+
+**Landed 2026-11-14, density and self-adjointness of the unbounded Hamiltonian.**
+`BookProof/OSReconstruction/HalfSpaceMultiplierAdjoint.lean`. For **every** measurable real `f` — no
+boundedness, no positivity, no `HinvRight`, no multiplier law — the domain is dense and the operator
+is self-adjoint. No `sorry`; axiom footprint `{propext, Classical.choice, Quot.sound}` only
+(`Work/HalfSpaceMultiplierAdjointAudit.lean`).
+
+* `dense_domain` — the truncations `1_{|f| ≤ n} · u` lie in the domain and converge to `u` in `L²`:
+  dominated convergence on `(u_n − u)²` (pointwise convergence is *everywhere*, because a real-valued
+  `f` is finite at each point), then `‖v‖² = ∫ v²` (`norm_sq_eq_integral`) turns it into norm
+  convergence; the isometric equivalence carries the dense set back to `Hhalf Λ`.
+* `isFormalAdjoint_hamiltonian` — symmetry, from reality of `f`: `∫ (f u) v = ∫ u (f v)`.
+* `le_adjoint_hamiltonian` — the non-trivial inclusion `H† ≤ H`, by the comparison multiplier
+`φ = (1 + |f|)⁻¹`. Since `f φ` is bounded by one, `g = e⁻¹ (φ · u) ∈ dom H` for every `u ∈ L²`, so
+the adjoint relation gives `∫ u · (φ(e w) + φ f (e v)) = 0` for all `u`; testing on the bracket
+itself forces it to vanish, and `φ > 0` a.e. gives `f · e v = −(e w)` a.e. Hence `v ∈ dom H` and
+`H v = w`.
+* `hamiltonian_isSelfAdjoint` — `IsSelfAdjoint H`, combining the two inclusions with
+`IsFormalAdjoint.le_adjoint`.
+
+So the multiplier Hamiltonian is a genuine self-adjoint operator, not a formally symmetric one; what
+`HsMulModel` still assumes is only the identification of the carrier with `L²(ν)`.
+
+Two further E3 results settle what `hflow` can and cannot rest on.
+`BookProof/OSReconstruction/HalfSpaceLatticeTranslation.lean` builds the translation the lattice
+actually supplies — the cyclic cell rotation, lifted to an automorphism `obsShift k` (`k : ℤ`) of
+the observable algebra — and proves `PreservesPositiveTime` is **false** for it: the last
+positive-time cell rotates onto the first negative-time cell, so
+`not_preservesPositiveTime_of_shift` rules out any `TimeTranslation` whose time-one map is the
+shift. The hypothesis quantifies over all real `τ`, while the lattice gives a `ℤ`-action, so this
+is an API mismatch rather than a missing proof.
+`BookProof/OSReconstruction/HalfSpaceFlowMatrixElement.lean` proves the weaker form that does
+follow: `hflow` implies the two-point derivative `d/dτ ⟪y, P τ z⟫ = ⟪y, −H z⟫` at `0⁺`
+(`hasDerivWithinAt_inner_hsEvol`), in derivative and slope form. The converse fails in general
+(weak convergence plus a norm bound is not strong convergence), so matrix elements cannot replace
+`hflow`.
+
+Three further E3 modules act on that API decision and on the infinite-volume question.
+`BookProof/OSReconstruction/HalfSpaceDiscreteSemigroup.lean` weakens the evolution API from the
+`ℝ`-indexed `TimeTranslation` to an `ℕ`-indexed semigroup `DiscreteTimeTranslation`
+(`map_zero`, `map_add`, `discreteTimeTranslation_semigroup`), with `PreservesPositiveTimeNat`,
+`hsEvolNat` and the contractivity hypothesis `HsHinvNat`; the old API embeds in it by
+restriction (`ofTimeTranslation`, `hsEvolNat_ofTimeTranslation`, `hsHinvNat_of_hsHinv`), so nothing
+is lost. `BookProof/OSReconstruction/HalfSpaceLatticeShiftSemigroup.lean` **inhabits the weakened
+API**: `cellHalfRotate` rotates each time half internally (so
+`preservesPositiveTimeNat_halfRotateTranslation` holds — exactly what the cyclic shift cannot
+deliver), the step commutes with the reflection (`siteHalfRotate_reflectCoord`,
+`thetaObs_obsHalfRotate`), and the finite-volume Gibbs state is invariant under it, so
+`hsHinvNat_gibbsHalfSpaceState` proves `HsHinvNat` as an **equality** `⟨T n F, T n F⟩ = ⟨F, F⟩`
+for any grid closed under the rotation (`IsHalfRotateInvariant`, a hypothesis on `V.support`).
+`BookProof/OSReconstruction/HalfSpaceInfiniteVolumeGaussian.lean` builds the infinite-volume
+free-field reference state `freeFieldInfinite` on `ℕ → Config`: the Ionescu–Tulcea product of the
+block laws, shown to be `Measure.infinitePiNat` itself (`freeFieldInfinite_eq_infinitePiNat`), with
+its cylinder marginals (`freeFieldInfinite_restrict`, `freeFieldInfinite_pi`) and the one-block
+pushforward `map_blockProj_freeFieldInfinite : (freeFieldInfinite).map (blockProj k) =
+freeFieldMeasure`. With independent blocks the covariance is the identity, so this is the
+ultralocal free field, not `(−Δ+m²)⁻¹` and not the interacting Gibbs measure.
+
+Two more E3 modules close the ambient statement and the covariance question as far as the
+available measure theory allows. `BookProof/OSReconstruction/HalfSpaceInfiniteVolumePositivity.lean`
+proves **reflection positivity of the infinite-volume free-field state**: with the state written in
+half coordinates (`splitFreeField`), the reflection swapping the halves of every block
+(`chainReflect`, an involution), and a positive-time cylinder observable — a finite product over
+time slices of functions of the positive half — `0 ≤ ∫ θF · F` (`posCylinder_reflectionPositive`),
+by `integral_restrict_infinitePi` plus Fubini over the finite product of blocks. The hypothesis
+`IsHalfRotateInvariant` of `hsHinvNat_gibbsHalfSpaceState` is also discharged: the constant grid
+`constGrid m` is rotation invariant (`isHalfRotateInvariant_constGrid`), so
+`hsHinvNat_constGrid` and `constGrid_transfer_contractive` hold with no hypothesis left.
+`BookProof/OSReconstruction/HalfSpaceCovariancePushforward.lean` builds a **non-diagonal covariance
+pushforward** on the two-site truncation: the Cholesky map `p ↦ (p.1, ρ p.1 + s p.2)` pushes the
+product of two unit Gaussians to a state with covariance `ρ` off the diagonal and `1` on it
+(`corrLaw_cov`, `corrLaw_var`), covariance matrix of finite Hilbert–Schmidt norm `2 + 2ρ²`
+(`covMatrix_hsNormSq`), and for `ρ = 1/(1+m²)` exactly `λ • (−Δ+m²)⁻¹` entrywise
+(`covMatrix_eq_lapInv`).
+
+Three further E3 modules extend that. `BookProof/OSReconstruction/HalfSpaceChainCovariance.lean`
+carries the non-diagonal covariance from two sites to an `n`-site **chain**: for a permutation `σ` of
+the sites, the additive-neighbour pushforward `Y i = X i + ρ X (σ i)` of white noise has covariance
+`δ_{ij} + ρ(δ_{σ i,j} + δ_{i,σ j}) + ρ²δ_{ij}` (`chainLaw_cov`), which **vanishes off the band**
+`{i, σ i, σ⁻¹ i}` (`chainCov_eq_zero`; the diagonal is `1 + ρ²`) and whose squared Hilbert–Schmidt
+norm is `card ι · ((1+ρ²)² + 2ρ²)` (`chainCov_hsNormSq`), instantiated on the `(n+1)`-site cycle as
+`cycleChain_cov_hsNormSq`. The banded matrix is the nearest-neighbour *truncation* of
+`(−Δ+m²)⁻¹` (the inverse of a chain Laplacian is dense), so only the two-site case is an exact
+multiple of `(−Δ+m²)⁻¹`; and the chain is finite, so no infinite covariance operator is involved.
+The positivity module was also widened from slice products to the **whole positive-time algebra**:
+`map_pi_prod_pi` proves that a finite product of pair laws separates into the product of the two
+half-marginals (from `Measure.pi_eq_generateFrom` on measurable rectangles), and hence for an
+*arbitrary* measurable `G` of the positive halves the OS form is `(∫ G)² ≥ 0`
+(`posCyl_reflectionPositive`). Finally `BookProof/OSReconstruction/HalfSpaceCovariantReflectionPositivity.lean`
+proves reflection positivity for a state that is **not a product of its halves**: the two halves are
+white noise shifted by a common random vector `T` (`covState`), so they are coupled, and for a
+bounded measurable observable of one half `0 ≤ ∫ θF · F` (`covState_reflectionPositive`), because
+conditioning on `T` makes the halves independent and the OS form becomes the `ν`-average of
+`(∫ F (t + x) ∂γ)²`.
+
+That state's covariance matrix was described there only informally; it is now **proved**
+(`BookProof/OSReconstruction/HalfSpaceCovStateCovariance.lean`).  For any shift law `ν` with finite
+second moments the blocks of `covState ν` are `Cov T + 1` on the diagonal
+(`covState_cov_fst_fst`, `covState_cov_snd_snd`) and `Cov T` off it (`covState_cov_fst_snd`), i.e.
+`[[Cov T + 1, Cov T], [Cov T, Cov T + 1]]`, the `+1` being the white noise of the halves — the proof
+is the observation that a covariance only reads the marginal it uses
+(`covariance_fst_fst_prod`, `covariance_snd_snd_prod`).  Instantiating at the chain law makes the
+coupling a banded equality rather than a posit: the cross-covariance of the two halves of
+`covState (chainLaw σ ρ)` is `chainCov σ ρ` and vanishes off `{i, σ i, σ⁻¹ i}`
+(`covState_chainLaw_cov_fst_snd_eq_zero`).  The band width is also no longer restricted to one:
+`BookProof/OSReconstruction/HalfSpaceChainBandCovariance.lean` pushes white noise forward by
+`1 + ρ ∑_{a=1}^{k} P_σ^a`, whose covariance
+`δ_{ij} + ρ ∑_a (δ_{σ^a i,j} + δ_{i,σ^a j}) + ρ² ∑_{a,b} δ_{σ^a i,σ^b j}` (`bandLaw_cov`) is
+supported exactly on `{σ^d i : |d| ≤ k}` (`bandCov_eq_zero`), has diagonal `1 + ρ²k` on a site with
+no short cycle (`bandCov_diag`), and returns `chainCov` at `k = 1` (`bandCov_one`); at width `k` the
+coupled state's off-diagonal block vanishes off that band
+(`covState_bandLaw_cov_fst_snd_eq_zero`).  The bi-infinite width-`k` kernel is now recorded in
+`BookProof/OSReconstruction/HalfSpaceInfiniteBandedCovariance.lean` (`bandedCovZ`, `bandedCovZ_banded`),
+with the row norm `(1+ρ²k)² + 2ρ²(…)` and the observation that a banded Toeplitz matrix is not
+Hilbert–Schmidt on `ℓ²(ℤ)`.  What remains unbuilt is the Gaussian *measure* on `ℤ → ℝ` with that
+kernel and any Hilbert–Schmidt square root of it.
+
+The chain is collected, link by link with its remaining hypotheses, in
+[E3_RECONSTRUCTION_CHAIN.md](E3_RECONSTRUCTION_CHAIN.md); its §4.2 surveys what an infinite-volume
+state would require and inventories the Mathlib projective-limit/Ionescu–Tulcea machinery that is
+already available.
+
+Still missing at E3: an infinite-volume *interacting* or continuum state — the ultralocal free-field
+reference state now exists, but `gibbsMeasure` is supported on the declared finite grid, is not a
+marginal of `freeFieldInfinite`, and is not identified with `freeFieldMeasure`; the Hilbert–Schmidt
+pushforward by the *infinite* non-diagonal covariance `(−Δ+m²)⁻¹`, which is what would couple the
+blocks — only a banded `n`-site truncation and a coupled (covariant) state with proved positivity
+exist; the carrier identification
+`Hhalf Λ ≃ₗᵢ L²(ν)` that `HsMulModel` takes as datum; `hflow` itself (the lattice shift cannot
+witness `PreservesPositiveTime`, and only the two-point consequence is proved); and surjectivity of
+`λ − A` (Lumer–Phillips' range condition). Separability of the
 complexified carrier, support preservation, contractivity and two-point symmetry remain named
 hypotheses, as `HinvRight` and `∀ τ, IsSelfAdjoint (P τ)` already are in the corpus.
 
@@ -1086,12 +1320,15 @@ is the verification gate; no module below contains `sorry`.
   across the halves with the *same* half action on both, Lebesgue measure on `Config` is proved
   invariant under the split (`measurePreserving_configSplitEquiv`), and
   **`splitMap_gffConfigMeasure`** identifies the split law as the product `ν ⊗ ν` of the same
-  half-space Gibbs density — the kernel law with a trivial boundary factor.  Two things are still
+  half-space Gibbs density — the kernel law with a trivial boundary factor.  Two things were still
   open: rewriting that product into the exact `(fkKernelMeasure (Z₀ := PUnit) …).map Prod.snd`
-  shape §6 consumes (bookkeeping over the trivial base measure, not carried out), and the coupled
+  shape §6 consumes (bookkeeping over the trivial base measure), and the coupled
   case — a nearest-neighbour action does *not* split this way, its cross-plane edge couples the
   halves, which is why the free-field theorem uses the `2n+1`-slice model with a boundary slice
-  where the boundary carries a non-trivial law. What is proved is its preservation under limit
+  where the boundary carries a non-trivial law.  The first is now closed (§8 of the same file,
+  2026-11-14; see the landing above): the OS form of the mass model on `Config` is nonnegative for
+  every future-half observable, with no hypothesis on the state.  What is proved is its
+  preservation under limit
   (`reflection_positivity_continuum`), the momentum-space form for a free field — degree one in
   `MomentumBasis`, degree two in `QuadraticWick`, and  all degrees in `FeynmanKac` *given* the Markov/product structure of the measure — **that
   structure holding for the concrete lattice free field in the kernel form `ρ ⊗ ν_z ⊗ ν_z`

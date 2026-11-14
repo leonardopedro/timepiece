@@ -323,8 +323,31 @@ The rate itself is now a theorem rather than a target — see the 2026-11-13i se
 things that section names as missing are proved in the 2026-11-13j one: the residual seam
 `sirk_ritz_resid_le` and the reflection `A' = \gamma^{-1} - X_\gamma` with its gap transfer
 `gap_transfer`. In one sentence: run the certificate on the resolvent, not on `h_F`. The
-2026-11-13k section closes the composition — the SIRK bound becomes a residual *of* `A'` and
-Temple runs there (`sirk_reflected_gap_certificate`).
+2026-11-13m section closes the composition — the SIRK bound becomes a residual *of* `A'` and
+Temple runs there (`sirk_reflected_gap_certificate`). The 2026-11-13o section then takes the one
+input that composition still states, `hsep`, and moves it to a form bound on the complement of
+the certified eigenvector (`SpectralSplitting.deflated_re_inner_ge`). The 2026-11-13p section
+supplies the spectrum union that reduction needs — `spectrum A ⊆ spectrum (A ∘ Q) ∪ {l}`, proved
+as the factorization `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)`. It does **not** close the
+reduction, and the 2026-11-13q section says why: `A ∘ Q` kills the eigenvector, so `0` is always
+in the deflated spectrum and a deflated-spectrum bound forces `b ≤ 0`. The form bound therefore
+has to be read on the *compression* of `A'` to `yᗮ`, not on the deflation — and the
+2026-11-13r section builds that operator (`SpectralSplitting.compressed`) and proves
+`spectrum A ⊆ spectrum (compressed) ∪ {lam}`; the 2026-11-13s section then derives `hsep`
+itself from the complement form bound
+(`SpectralSplitting.spectralSeparation_of_compressionBound`), so the only remaining input is
+`b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ` — and the 2026-11-13t section supplies it from an
+operator-norm measurement `‖A - c • 1‖ ≤ c - b`, and the 2026-11-13u section feeds that from
+the shift-invert itself: `‖R‖ ≤ γ⁻¹ - b` gives `‖A' - γ⁻¹ • 1‖ ≤ γ⁻¹ - b` and the end-to-end
+certificate with no separation hypothesis left.  The 2026-11-13v section then makes the level
+strictly positive: a bottom edge `e` gives `‖R‖ ≤ (e + γ)⁻¹ = γ⁻¹ - resolventEdge γ e`, so the
+separation runs at `b = resolventEdge γ e > 0`, and the two-sided Temple band closes around
+`sInf (spectrum ℝ A') = λ'`.  The 2026-11-13w section makes the choice of input explicit: a single
+type `ReflectedSeparationSource` accepts *either* that bottom edge or the `13s` complement form
+bound, and `spectralSeparation_of_source` discharges both into the same separation; it also puts
+the band into the per-coupling gap table (`ReflectedBandRow`, `reflected_band_table`) and shows the
+edge cannot be replaced by positivity plus a certified eigenvector
+(`bottomEdge_not_implied_by_positivity`).
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -1838,9 +1861,9 @@ self-adjointness of the resolvent that `ChapterHashimotoShiftInvert.IsShiftInver
 supplies; the eigenvector statement alone does not need it. As always, this certifies the
 selected/truncated operator and claims no mass gap.
 
-### The certificate now runs on the reflected operator (2026-11-13k)
+### The certificate now runs on the reflected operator (2026-11-13m)
 
-Entry `13k`. The two halves of `13j` met at a gap: `sirk_ritz_resid_le` produced a residual for
+Entry `13m` (the parallel track holds `13i`–`13l` of its own, so this one is numbered past them). The two halves of `13j` met at a gap: `sirk_ritz_resid_le` produced a residual for
 `X`, while the operator Temple has to be run on is `A' = γ⁻¹ 1 − X_γ`. Closing it needs no new
 analysis — only the observation that reflection moves the scalar and nothing else.
 
@@ -1881,6 +1904,621 @@ selected/truncated operator and claims no mass gap.
 `#print axioms` on `isSelfAdjoint_reflection`, `resid_reflection_le`,
 `sirk_resid_reflection_le` and `sirk_reflected_gap_certificate` gives
 `[propext, Classical.choice, Quot.sound]`; no line of the module exceeds 100 code points.
+
+### The separation input is deflated to a form bound (2026-11-13o)
+
+Track A. The `13m` section closed on one stated side condition — `hsep :
+SpectralSeparation A' λ' b`. It cannot be *derived*: `ChapterTempleSeparationNecessary` shows
+that for every `M` a bounded self-adjoint operator can have a unit **exact** eigenvector
+(`rayleigh = resid = 0`, the best finite data there is) while `sInf (spectrum ℝ ·) ≤ −M`. What can
+be done is to move the hypothesis from spectral points to **forms on the complement of the
+certified eigenvector**, which is a statement a computation can check. The new module
+`Sirk/ChapterSpectralSplitting.lean` supplies the linear algebra that reduction needs.
+
+**Projections.** `eigenLine y = ℂ ∙ y`, `eigenProjection y` and `complementProjection y` onto it
+and onto `yᗮ`, with `P + Q = 1` (`eigenProjection_add_complementProjection`) and `Q y = 0`.
+
+**Invariance.** If `A` is self-adjoint and `A y = lam • y`, then `mapsTo_orthogonal` gives
+`A '' yᗮ ⊆ yᗮ`, because `inner ℂ (A x) y = inner ℂ x (A y) = lam * inner ℂ x y = 0` for `x ∈ yᗮ`;
+`complementProjection_commutes` upgrades this to `Q ∘ A = A ∘ Q`.
+
+**Deflation.** `deflated A y = A ∘ Q` kills the eigenvector (`deflated_apply_self`), has range in
+`yᗮ` (`deflated_apply_mem`) and is self-adjoint when `A` is (`isSelfAdjoint_deflated`), since
+`(A Q)† = Q† A† = Q A = A Q`. The operator splits as `A = lam • P + A ∘ Q`
+(`eq_smul_eigenProjection_add_deflated`).
+
+**The cross term vanishes, so the bound transfers.** `inner_eigenProjection_deflated` shows
+`inner ℂ (P x) (A (Q x)) = 0`; hence `deflated_re_inner_ge`: a bound
+`b ‖z‖² ≤ re (inner ℂ z (A z))` for `z ∈ yᗮ` becomes `b ‖Q x‖² ≤ re (inner ℂ x ((A ∘ Q) x))` on
+the whole space.
+
+**Boundary.** `spectralSeparation_of_complementBound` is **not** stated. Its missing step is the
+spectrum union `spectrum A ⊆ spectrum (A ∘ Q) ∪ {lam}`; mathlib has no block-spectrum lemma for a
+complemented invariant subspace of a bounded operator on an abstract Hilbert space, and
+`ChapterSirkRitzMinMax` records that min–max at `k = 1` is open (only `k = 0` is identified). The
+module docstring says so, and no theorem here is numbered as if the gap were closed.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSpectralSplitting` → `(8068 jobs)`; `#print
+axioms` on the five named theorems gives `[propext, Classical.choice, Quot.sound]`; no `sorry`, no
+new axiom, no line above 100 code points.
+
+### The spectrum union is a factorization, not a spectral theorem (2026-11-13p)
+
+Track A. The `13o` section moved the separation input of the certificate down to a bound on
+the deflated operator `A ∘ Q`, but the reduction had one unchecked step:
+`spectrum A ⊆ spectrum (A ∘ Q) ∪ {l}`. mathlib has no block-spectrum lemma for a
+complemented invariant subspace of a bounded operator on an abstract Hilbert space. It turns
+out one is not needed — the union follows from the same two algebraic facts the `13o` layer
+already established, `A = l • P + A ∘ Q` and `(A ∘ Q) ∘ P = 0`.
+
+**The factorization.** For `t ≠ 0`,
+
+`t • 1 − A = (t • 1 − A ∘ Q) * (1 − (l/t) • P)`
+
+(`sub_smul_one_eq_mul`): the product expands to `t • 1 − (l/t)·t • P − A ∘ Q + (A ∘ Q) ∘ P · (l/t)`,
+the last term vanishes, and `t · (l/t) = l` turns the middle one into `l • P`.
+
+**The rank-one factor.** `1 − a • P` is a unit for every idempotent `P` and `a ≠ 1`, with
+inverse `1 + (a/(1−a)) • P`: pointwise the two products are `1 + (−a + (b − a b)) • P` and
+`1 + (−a + (b − b a)) • P` at `b = a/(1−a)`, and both coefficients vanish
+(`isUnit_one_sub_smul_of_mul_self`). So a point `t` in the resolvent of the deflation with
+`t ≠ l` lies in the resolvent of `A`.
+
+**The point `t = 0`.** It is never in the resolvent of the deflation: `(A ∘ Q) y = 0` with
+`y ≠ 0`, so a unit would carry `y` to `0` and back to a nonzero vector.
+
+Together: `spectrum_subset_union_deflated`, stated for **any** bounded `A` with
+`A y = l • y`. Self-adjointness is genuinely unused — it entered `13o` through the invariance
+of `yᗮ`, which this argument does not need — so the hypothesis was dropped rather than
+carried unused.
+
+**What this buys.** `spectralSeparation_of_complementBound` is proved:
+`(∀ t ∈ spectrum ℝ (A ∘ Q), b ≤ t)` plus `l ≤ b` gives `SpectralSeparation A l b`. And
+`ChapterResolventTransfer.sirk_reflected_gap_certificate_of_deflated` is the `13m`
+certificate with `hsep` replaced by that hypothesis, the eigenvalue equation of `A'` coming
+from `resolvent_reflection_eigenvector`.
+
+**What it does not buy** (corrected by the `13q` section, which see): the bridge from the *form*
+bound of the `13o` section to a *spectrum* bound. The bridge itself already exists —
+`ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum` is exactly "form bound ⟺ spectrum bound"
+for a self-adjoint operator — but it does not compose with the deflation, because `A ∘ Q` kills
+`y` and therefore always has `0` in its spectrum. So the certificate's input is not "strictly
+weaker than `hsep`"; it is degenerate for a positive gap.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on the seven new declarations and on
+`sirk_reflected_gap_certificate_of_deflated` gives `[propext, Classical.choice, Quot.sound]`;
+`lake build BookProof` is green at 9004 jobs.
+
+### The deflation cannot carry a positive gap (2026-11-13q)
+
+Track A, correction of `13o`/`13p`. Those sections reduced the separation input of the
+reflected-gap certificate to a bound on the spectrum of the deflated operator, and called that
+input "strictly weaker than `hsep`". It is not, and the reason is one line.
+
+**The obstruction.** `A ∘ Q` annihilates the certified eigenvector: `(A ∘ Q) y = 0` with
+`y ≠ 0`. Hence `0 ∈ spectrum ℝ (A ∘ Q)` — `zero_mem_spectrum_deflated`: if `A ∘ Q` were a unit,
+`u.inv (u y) = u.inv 0` would give `y = 0`. So any bound "every spectral point of `A ∘ Q` is
+`≥ b`" forces `b ≤ 0` (`le_zero_of_spectrum_ge_deflated`), and `λ' ≤ b` then leaves
+`λ' = b = 0`: the certificate's deflated form is satisfiable only in the vacuum case `e = 0`.
+It is kept as a theorem because the reduction is correct and reusable, but it is not promoted
+to the primary certificate — making a vacuously-instantiated statement primary would be worse
+than leaving `hsep` stated.
+
+**The misdiagnosis in `13p`.** That section named min–max at `k = 1` as the missing step from a
+form bound to a spectrum bound. Wrong on both counts. The form-to-spectrum implication for a
+self-adjoint operator is `ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum`, already proved,
+and it is a *bottom*-level statement (`k = 0`) — exactly what a bottom-edge certificate needs.
+What blocks the reduction is the object, not the level: `A ∘ Q` is the compression of `A` to
+`yᗮ` extended by `0` on `ℂ ∙ y`, and the extended `0` is a genuine spectral point that no
+hypothesis on the deflation can remove.
+
+**Where the form bound actually belongs.** On the compression `A'|yᗮ : yᗮ →L[ℂ] yᗮ`, for which
+`le_rayleigh_iff_le_spectrum` would apply verbatim once its spectrum is related to `A'`'s. The
+remaining work is therefore: build that operator, prove
+`spectrum A' ⊆ spectrum (A'|yᗮ) ∪ {λ'}` (a block decomposition on the summand, not on all of
+`F`), and run Temple on it. Nothing in `13o`/`13p` is wasted — the union and the rank-one
+linear algebra are correct — but the certificate's input cannot come from the deflation.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on `zero_mem_spectrum_deflated` and `le_zero_of_spectrum_ge_deflated` gives
+`[propext, Classical.choice, Quot.sound]`; `lake build BookProof` is green at 9004 jobs.
+
+
+### The compression carries the gap the deflation could not (2026-11-13r)
+
+Track A, the step `13q` named as the remaining route. That section ended with the compression
+`A'|yᗮ : yᗮ →L[ℂ] yᗮ` as the object a positive gap has to be read off, since the deflation
+`A' ∘ Q` carries a spurious `0` that no hypothesis removes. This section supplies that object
+and its block spectrum.
+
+**The operator.** `SpectralSplitting.compressed A hA hy : yᗮ →L[ℂ] yᗮ` is `z ↦ A z`, i.e.
+`A ∘ subtypeL` codomain-restricted along `mapsTo_orthogonal` — a self-adjoint `A` with
+`A y = lam • y` maps `yᗮ` into itself. `compressed_apply_coe` records that the underlying vector
+is `A z`. Moving between `F` and the subspace uses `complementProjectionCod y : F →L[ℂ] yᗮ`
+(the complement projection with restricted codomain) and the inclusion `sub : yᗮ →L[ℂ] F`, with
+`Q̃ ∘ sub = 1` (`complementProjectionCod_comp_subtype`) and `sub ∘ Q̃ = Q`
+(`subtype_comp_complementProjectionCod`).
+
+**The block decomposition and the block spectrum.** `eq_smul_eigenProjection_add_compressed`
+gives `A = lam • P + sub ∘ compressed ∘ Q̃`, which is `13o`'s `A = lam • P + A ∘ Q` with the
+deflation replaced by the compression. `spectrum_subset_union_compressed` then gives
+
+  `spectrum ℝ A ⊆ spectrum ℝ (compressed A hA hy) ∪ {(lam : ℝ)}`,
+
+under `y ≠ 0`, self-adjointness and `A y = (lam : ℂ) • y` only. The proof is elementary: for
+`t ≠ lam` the operator `A − t` is the block diagonal `(lam − t) • P + sub ∘ (C − t) ∘ Q̃`, the
+cross terms vanish (`P ∘ sub = 0`, `Q̃ ∘ P = 0`) and `Q̃ ∘ sub = 1` makes the two blocks
+compose to the identity, so
+`(lam − t)⁻¹ • P + sub ∘ (C − t)⁻¹ ∘ Q̃` is a two-sided inverse of `A − t`. The block product
+under `g ∘ f = 1` is factored out as `comp_sub_comp_mul`.
+
+**What it does and does not do.** A form bound on `yᗮ` now moves to the spectrum of
+`compressed`, where `le_rayleigh_iff_le_spectrum` is a bottom-level statement — the input
+`13o`'s `spectralSeparation_of_complementBound` asks for, without the spurious `0` that made
+the deflated version degenerate in `13q`. The certificate itself is unchanged:
+`sirk_reflected_gap_certificate` still takes `hsep`, and the remaining step is the wrapper
+turning a compression-form bound plus this union into `SpectralSeparation`, then promoting that
+wrapper to primary.
+
+**Prior art checked before building.** Mathlib exposes no spectrum for an operator restricted
+to a submodule: there is no `Submodule.spectrum`, no
+`ContinuousLinearMap.spectrum_restrict` and no `spectrum.subset_restrict`, and there is no
+block-product spectrum either (`spectrum.prod` does not exist), so the union cannot be
+assembled from library pieces.  What *is* available, and what the construction uses, is the
+transport layer — `Submodule.subtypeL`, `ContinuousLinearMap.codRestrict`,
+`Submodule.starProjection`, and the generic `spectrum.mem_iff` interface — rather than any
+spectral statement.  The nearest structural analogue,
+`Subalgebra.spectrum_sUnion_connectedComponentIn`, is spectral permanence for a closed
+*subalgebra* and does not apply: the compression is not the image of `A` under an algebra map,
+since the inclusion is not multiplicative and `A` itself does not kill the line.
+
+**Verification.** The module builds with no warning and no line above 100 code points;
+`#print axioms` on the thirteen new declarations gives `[propext, Classical.choice,
+Quot.sound]` for each; `lake build BookProof` is green at 9004 jobs.
+
+
+### `hsep` is derived from a form bound on the compression (2026-11-13s)
+
+Track A, closing the loop `13o`–`13r`. `13o` moved the separation input of the reflected-gap
+certificate to the complement of the certified eigenvector, `13p` proved the spectrum union the
+reduction needs, `13q` showed the deflated form of the input is degenerate, `13r` built the
+compression. This section uses the compression to *derive* the separation.
+
+**The separation lemma.** `SpectralSplitting.spectralSeparation_of_compressionBound`: from
+`y ≠ 0`, `A y = (l : ℂ) • y`, `l ≤ b` and the form bound
+`b ‖z‖² ≤ re ⟪z, compressed A hA hy z⟫` for every `z ∈ yᗮ`, conclude
+`SpectralSeparation A l b`. The composition is the one `13q` identified: the compression is
+self-adjoint (`isSelfAdjoint_compressed`, proved by coercing to `F` where `A` is symmetric),
+`yᗮ` is closed hence complete so `le_rayleigh_iff_le_spectrum` applies on the subspace and
+turns the form bound into `b ≤ μ` on `spectrum ℝ (compressed)`; then
+`spectrum_subset_union_compressed` sends each `t ∈ spectrum ℝ A` to the compression or to the
+singleton `{l}`.
+
+**The certificate.** `sirk_reflected_gap_certificate_of_compression` **replaces**
+`sirk_reflected_gap_certificate_of_deflated`, which is removed: that one took a spectrum bound
+on `A' ∘ Q`, and `13q` showed such a bound forces `b ≤ 0`. The new input is
+
+  `b ‖z‖² ≤ re ⟪z, A' z⟫` for every `z ∈ yᗮ`, with `A' = γ⁻¹ • 1 − R`,
+
+plus `λ' ≤ b`; the `E`-level bound converts to the subspace-level one by
+`Submodule.coe_norm`, `Submodule.coe_inner` and `compressed_apply_coe`. The conclusion is
+unchanged, the input is now satisfiable with `b > 0`. `sirk_reflected_gap_certificate` keeps
+taking `hsep` as the general-purpose form; the compression certificate is its derived special
+case.
+
+**What remains.** The complement form bound itself — the statement that the complement of the
+certified eigenvector has nothing below `b` — is still an input a finite computation must
+supply (Temple/Lanczos on the compression, or a Sobolev-type estimate). The *reduction* is
+closed: no spurious `0`, no min–max at level `k ≥ 1`, no spectral theorem.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on `isSelfAdjoint_compressed`, `spectralSeparation_of_compressionBound` and
+`sirk_reflected_gap_certificate_of_compression` gives `[propext, Classical.choice,
+Quot.sound]`; no `sorry`; no remaining occurrence of `sirk_reflected_gap_certificate_of_deflated`
+in `BookProof/`; `lake build BookProof` is green at 9004 jobs.
+
+
+### The form bound from a measurement, and what cannot give it (2026-11-13t)
+
+Track A, following `13s`. The form bound `b ‖z‖² ≤ re ⟪z, compressed z⟫` on `yᗮ` was left as
+an input; this section settles where it can come from.
+
+**Residual data cannot supply it.** `ChapterTempleSeparationNecessary.separation_necessary`
+exhibits, for every `M`, a self-adjoint operator on a two-dimensional space and a unit trial
+vector with Rayleigh quotient and residual both `0` while the spectrum reaches `-M`. So "the
+residual bounds the complement spectrum" is false, not merely unproved.
+
+**Galerkin quotients cannot supply it, but they obey it.** `le_minmaxLevel_of_formBound`
+(`ChapterSirkRitzMinMax`): `c ‖x‖² ≤ rayleighVal T x` for all `x` implies `c ≤ minmaxLevel T k`
+for every `k` with a nonempty value set. At `T = compressed A hA hy` the separation says `b`
+lies below *every* Courant–Fischer level of the compression. The converse fails structurally:
+the Ritz levels are upper bounds (`minmaxLevel_le_minmaxLevelIn`), so a finite Galerkin
+computation can refute the bound by exhibiting a trial vector below `b`, never establish it;
+`galerkin_minmaxLevel_tendsto` gives convergence from above.
+
+**What works: an operator-norm measurement.** `formBound_of_norm_sub_le`: if
+`‖T - c • 1‖ ≤ c - b` then `b ‖z‖² ≤ re ⟪z, T z⟫` for every `z`, since
+`re ⟪z, (T - c•1) z⟫ ≥ -‖T - c•1‖ ‖z‖²`. Restricting to `yᗮ` is
+`formBound_compressed_of_norm_le`, and `spectralSeparation_of_norm_le` composes it with `13s`,
+leaving no spectral hypothesis about the complement. This is the SIRK-shaped input: the
+measured quantity is the numerical-range/flow distance of `A'` from a scalar.
+
+**Worked instance** (section 12 of the chapter): on `EuclideanSpace ℂ (Fin 2)`,
+`A = 2 • 1 + 3 • P` is `diag (5, 2)` in the `(vTrial, vOther)` basis. `vOther` has eigenvalue
+`2`, the compression has eigenvalue `5`, and `norm_num` checks `3 ≤ 5` on the complement
+(`bound_on_complement`) and `3 ≰ 2` off it (`fails_off_complement`).
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on the five new theorems gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`; `lake build BookProof` is green at 9004 jobs.
+
+
+### The shift-invert bound feeds the certificate (2026-11-13u)
+
+Track A, following `13t`. That section reduced the separation to `‖A' - c • 1‖ ≤ c - b` but left
+the measurement unconnected to SIRK data; this one connects it.
+
+**The distance is `‖R‖`.** With `A' = γ⁻¹ • 1 − R`, `reflected_sub_smul_one` proves
+`(A' - γ⁻¹ • 1) = -R`, so `reflected_norm_sub_smul_one_le` turns any `‖R‖ ≤ ρ` into
+`‖A' - γ⁻¹ • 1‖ ≤ ρ` — a number about the operator the algorithm applies, with no spectral
+hypothesis anywhere.
+
+**What the existing bound gives.** `IsShiftInvert.opNorm_le` (`‖R‖ ≤ γ⁻¹` for positive `A`) is
+the per-system flow bound; via `reflected_norm_sub_smul_one_le_inv` it gives the `b = 0` endpoint.
+A positive `b` needs the strict bound `‖R‖ ≤ γ⁻¹ - b` — a quantitative gap statement, since
+`‖R‖ = (e + γ)⁻¹` at the bottom edge and `γ⁻¹ - (e + γ)⁻¹ = resolventEdge γ e`. The generic bound
+cannot supply it.
+
+**End to end.** `sirk_reflected_gap_certificate_of_shiftInvertNorm`: same conclusion as
+`sirk_reflected_gap_certificate` (eigenvector identity, residual bound, Temple band,
+`γ² λ' ≤ e`), with `hsep` derived from `‖R‖ ≤ γ⁻¹ - b` through
+`reflected_norm_sub_smul_one_le` → `spectralSeparation_of_norm_le` → the certificate. Neither the
+`13s` form bound nor the `13t` norm hypothesis remains as an input.
+
+**The finite side, with numbers.** `galerkin_refutes_level_six`: in the `diag (5, 2)` instance the
+Galerkin vector `vTrial` has Rayleigh quotient `5`, so `b = 6` fails there (`6 > 5`) — a finite
+trial vector refutes a level and cannot establish one.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on the six new theorems gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`; `lake build BookProof` is green at 9004 jobs.
+
+
+### The bottom edge makes the level positive (2026-11-13v)
+
+Track A, continuing `13u`. That section left one quantity unconnected: the level `b`. This one
+derives it from the ground-state energy, so `b` stops being a free parameter and is strictly
+positive whenever the edge is.
+
+**The strict per-system bound.** `norm_shiftMap_ge_edge` is `norm_shiftMap_ge` with the edge added
+on both sides: if `e * ‖x‖² ≤ quadForm A x` on the domain of `A`, then
+`‖(A + γ)x‖ ≥ (e + γ)‖x‖`. `IsShiftInvert.norm_apply_le_edge` and `IsShiftInvert.opNorm_le_edge`
+turn that into `‖R u‖ ≤ (e + γ)⁻¹ ‖u‖` and `‖R‖ ≤ (e + γ)⁻¹`, strictly below `γ⁻¹` for `e > 0` —
+the strict case `13u` recorded positivity cannot reach. The hypothesis is not free: it *is* the
+bottom edge, the quantity a mass-gap claim would certify. What the route gains is that no separate
+spectral statement about `yᗮ` is needed.
+
+**The level is the reflected edge.** `inv_sub_inv_eq_resolventEdge` and `sub_resolventEdge_eq_inv`
+identify `γ⁻¹ - (e + γ)⁻¹` with `resolventEdge γ e` in both directions, so the strict bound *is*
+the norm hypothesis `‖R‖ ≤ γ⁻¹ - b` at `b = resolventEdge γ e`; `resolventEdge_pos` records that
+`e > 0` makes that level positive, and `shiftInvert_opNorm_le_of_bottom` packages
+`‖R‖ ≤ γ⁻¹ - resolventEdge γ e`.
+
+**End to end, at a positive level.** `sirk_reflected_gap_certificate_of_bottomEdge` is
+`sirk_reflected_gap_certificate` with `hsep` derived and with `b = resolventEdge γ e`; the one
+extra input is the lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain.
+
+**The two-sided Temple band.** `sirk_reflected_temple_band_of_shiftInvertNorm` adds the
+Rayleigh–Ritz half the one-sided statement omits: Temple's lower bound together with
+`sInf_spectrum_le_rayleigh` encloses `sInf (spectrum ℝ A')` in `Set.Icc (θ - ε²/(b-θ)) θ`, where
+`θ = rayleigh A' (V yy)` and `ε = resid A' (V yy) ≤ sirkBound C Dmin h 1 m` is bounded by the SIRK
+operator-norm error, and `γ² λ' ≤ e` transfers the edge back. The separation also pins the edge
+down: every spectral point is `λ'` or at least `b`, so `sInf (spectrum ℝ A') = resolventEdge γ e` —
+the infimum is computed from the finite data, not assumed.
+`sirk_reflected_temple_band_of_bottomEdge` specialises the level to `resolventEdge γ e`.
+
+**The arithmetic on `diag (5, 2)`.** `diag52_bottomEdge_arithmetic`: with `γ = 1`, bottom edge `2`
+and complement level `5`, the strict bound is `(2 + 1)⁻¹ = 1/3`, the level is
+`1 - 1/3 = 2/3 = resolventEdge 1 2 > 0`, the reflected values are `2/3` and `5/6`, and their
+difference `1/6` equals `resolventEdge_sub`'s `(5 - 2)/((2 + 1)(5 + 1))` — the level sits strictly
+below the reflected trial value by exactly the transferred gap.
+
+**Verification.** `lake build BookProof.Sirk.ChapterHashimotoShiftInvert`,
+`BookProof.Sirk.ChapterResolventTransfer` and `BookProof` succeed with no warning and no line above
+100 code points; `#print axioms` on all twelve new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004
+jobs.
+
+### Either input, one certificate; and the band in the table (2026-11-13w)
+
+Track A, continuing `13v`, which ran on the bottom edge `e`. Three follow-ups: merge the two
+spectral inputs into one certificate, put the two-sided band into the per-coupling gap table, and
+settle whether the bottom edge can after all be manufactured from what a finite computation has.
+
+**One type for two inputs.** `ReflectedSeparationSource A γ R e y : ℝ → Prop` has two
+constructors. `ofBottomEdge` carries a lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain and
+certifies the level `resolventEdge γ e`; `ofCompression` carries the form bound
+`b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ` and certifies its own `b`. `spectralSeparation_of_source`
+dispatches: the first branch through `shiftInvert_opNorm_le_of_bottom` and the norm route, the
+second through `spectralSeparation_of_compressionBound`. Both land in the same
+`SpectralSeparation A' (resolventEdge γ e) b`, so `sirk_reflected_gap_certificate_of_source` is the
+single certificate that consumes either. Neither input implies the other: the edge is global data
+about `A`, the compression bound is data about `A'|yᗮ`.
+
+**The band becomes a table row.** `ReflectedBandRow` carries `(g, γ > 0, lo, hi, lo ≤ hi)` and
+`ReflectedBandRow.ofTemple` builds it from exactly the emitted band, `lo = θ - ε²/(b-θ)`,
+`hi = θ`. `reflected_band_table` then states, per coupling, both `λ' ∈ Set.Icc lo hi` and the
+transferred `γ² lo ≤ e`, and `reflected_band_row_positive` draws the consequence the lower-endpoint
+table could not: if `0 < lo` then the coupling's edge is strictly positive. The honest limit is
+recorded in the theorem's docstring — `gap_transfer` is one-sided, so `hi` bounds `λ'` and not `e`;
+an upper bound on `e` needs a separate bound on the shifted eigenvalues, which no band on `λ'`
+supplies.
+
+**The bottom edge is not finite data.** `A2` is positive (`A2_inner_re_nonneg`:
+`re ⟪x, A2 x⟫ = 2‖x‖² + 3 normSq ⟪vTrial, x⟫`) and `vTrial` is a unit eigenvector with eigenvalue
+`5`, yet `5 ‖x‖² ≤ re ⟪x, A2 x⟫` fails at `vOther`, where the form is `2`
+(`bottomEdge_not_implied_by_positivity`). So positivity plus a certified eigenvector is not the
+bottom edge: an eigenvector pins one point of the spectrum, the edge is its infimum. Positivity
+alone yields `e = 0`, i.e. the `b = 0` endpoint of the generic route. The hypothesis therefore
+remains an input — of the same kind as the certified gap it feeds, not something smaller.
+
+**Verification.**  `BookProof.Sirk.ChapterHashimotoShiftInvert` is unchanged;
+`ChapterSpectralSplitting`, `ChapterResolventTransfer` and `ChapterSirkGapTable` build with no
+warning and no line above 100 code points; `#print axioms` on the six new theorems gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004
+jobs.
+
+### The gap's upper end, a recorded row, and why the tag is needed (2026-11-13x)
+
+Track A, closing out `13w`. Three loose ends: the band's upper end, a row with real data, and what
+exactly the source type's constructor tag buys.
+
+**The upper end.** `gap_transfer` is one-sided because `resolventEdge_sub` is an *identity*,
+`λ'₁ - λ'₀ = (e₁ - e₀)/((e₀ + γ)(e₁ + γ))`; the gap is the reflected gap times the two shifted
+eigenvalues. `edge_sub_le_of_upperBounds` turns that into
+`e₁ - e₀ ≤ (λ'₁ - λ'₀)(E₀ + γ)(E₁ + γ)` given `e_i ≤ E_i`, and
+`gap_interval_of_reflected_bands` combines both halves:
+`γ²(lo₁ - hi₀) ≤ e₁ - e₀ ≤ (hi₁ - lo₀)(E₀ + γ)(E₁ + γ)`. So a reflected band's `hi` does reach an
+upper bound on `e` — at the price of one further input, the upper bounds `E_i` on the two edges.
+That price is not removable: the factor `(e₀ + γ)(e₁ + γ)` depends on `e`, and no band on `λ'`
+determines it.
+
+**A row with data.** `qcdG2M4BandRow γ hγ` puts the recorded `g = 2`, `m = 4` solve into the
+reflected table: its band is the ledger's window (`qcdG2M4BandRow_band`: `Set.Icc 1.932 2.043`) and
+`qcdG2M4BandRow_positive` reads a strictly positive gap off it. Two honest limits are in the
+docstrings: the ledger stores the window and not `(θ, ε)`, so the row is transcribed rather than
+rebuilt by `ofTemple`; and the entry records no shift, so the row is parametric in `γ > 0` instead
+of inventing one.
+
+**Why the tag.** `compressionInput_holds_wholeSpaceInput_fails`: on `diag (5, 2)` with `vOther` the
+eigenvector of eigenvalue `2`, the level `3` satisfies the complement form bound (at `vTrial` the
+form is `5`, and `inner_trial_other` puts `vTrial` in `vOtherᗮ`) and fails the whole-space bound (at
+`vOther` the form is `2`). The docstring is explicit about what that does *not* say: the two
+certificates are not logically independent, since a separation on `A'` makes `λ'` the bottom of the
+reflected spectrum; what fails is interchangeability of the *hypotheses* at one numeric level. That
+is why `ReflectedSeparationSource` tags its constructor instead of collapsing both to a single
+inequality.
+
+**Verification.** `ChapterResolventTransfer`, `ChapterSpectralSplitting` and `ChapterSirkGapTable`
+build with no warning and no line above 100 code points; `#print axioms` on the five new
+declarations gives `[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is
+green at 9004 jobs.
+
+### The two-sided interval, checked on the instance (2026-11-13y)
+
+Track A. `13x` stated `gap_interval_of_reflected_bands`; this entry evaluates it on the running
+`diag (5, 2)` instance so the arithmetic is checked rather than asserted.
+
+`diag52_gap_interval` applies the theorem with `γ = 1`, edges `e₀ = 2` (`A2_other`) and `e₁ = 5`
+(`A2_trial`), the degenerate bands at the exact reflected edges (`resolventEdge 1 2 = 2/3`,
+`resolventEdge 1 5 = 5/6`) and the edges as their own upper bounds (`E₀ = 2`, `E₁ = 5`), then reads
+off both ends:
+
+* lower: `1² · (5/6 − 2/3) = 1/6 ≤ 3 = e₁ − e₀` — the `γ²`-scaled half, deliberately lossy (it must
+  hold for every band, since the transfer only sees the endpoints);
+* upper: `3 ≤ (1/6)((2 + 1)(5 + 1)) = 3` — *tight*, because both the bands and the `E`'s are exact
+  here, which is also why the degenerate bands are legitimate for this instance and not for a real
+  solve (where they would be the Temple bands of `13v`).
+
+**Verification.** `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds with no warning and no
+line above 100 code points; `#print axioms diag52_gap_interval` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004 jobs.
+
+### One table theorem, two row kinds (2026-11-13z)
+
+Track A. The gap table held two unrelated row types: `CouplingCertificate` (a T11 solve window) and
+`ReflectedBandRow` (a reflected Temple band). This entry gives them one interface, so a single
+theorem consumes either.
+
+**The row type.** `CertificateRow` is `ofSolve c` or `ofBand r`, with projections `g`, `lo`, `hi`, and
+— the piece that makes one statement possible — `scale`: `1` for a solve row, whose window is already
+in gap units, and `γ²` for a band row, whose lower end transfers through `gap_transfer`. Its
+`Certifies x v` is what each kind can honestly claim: `c.lo ≤ v` for a solve row, `γ² lo ≤ v` for a
+band row. `CertificateRow.scale_mul_lo_le` turns either into `scale * lo ≤ v`.
+
+**The two supplies.** `certifies_of_solve` builds the solve case from the two sector enclosures (as
+`certified_gap_table` does), `certifies_of_band` builds the band case from band membership plus the
+one-sided transfer. So each route feeds the same `Certifies`, from its own data.
+
+**The one theorem.** `certified_gap_table_unified` consumes a `Fin n`-family of either kind and
+concludes `scale * lo ≤ val` per row. `certified_gap_table_of_unified` recovers the T11 lower bound as
+its solve-only case, which is the consistency check that the unification lost nothing on the rows the
+old theorem covered.
+
+**The missing half is deliberate.** There is no unified upper end, and the docstring says why: for a
+solve row `hi` bounds the gap, but for a band row `hi` bounds the *reflected* edge; turning that into
+an upper bound on the edge needs the `E`'s of `gap_interval_of_reflected_bands`. A single `hi`
+combining both would be a distinct claim, not a unification — so it is not made.
+
+**Verification.** `ChapterSirkGapTable` builds with no warning and no line above 100 code points;
+`#print axioms` on the five new declarations gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`; `lake build BookProof` is green at 9004 jobs.
+
+### The enclosure closes, at a rate (2026-11-13aa)
+
+Track A. Sections 10–16 fixed a band around the reflected edge `λ'` at each order `m`. This entry
+states the limit those per-order certificates are usually asked for, together with the rate.
+
+**The width.** `templeBandWidth θ ε b m = ε m ^ 2 / (b - θ m)` is the width `ε²/(b − θ)` of the
+Temple band `ReflectedBandRow.ofTemple` carries, written as a function of the order.
+`templeBandWidth_le` bounds it by `ε²/δ` whenever `θ m ≤ b − δ`, because the denominator is never
+below `δ`; the width therefore inherits the *square* of the residual, not the residual itself.
+
+**Two convergence steps.** `templeBandWidth_tendsto_zero` squeezes the widths between `0` and
+`ε²/δ`, so `ε m → 0` gives `templeBandWidth → 0`. `band_closes_of_width_tendsto_zero` then takes a
+nested `λ ∈ [lo m, hi m]` with `hi m − lo m → 0` and concludes `lo → λ` and `hi → λ`: the intervals
+shrink *onto* the edge. That second step is the one that says the enclosure closes rather than
+merely tightens, and it is stated for sequences only — no operator appears in it.
+
+**Where the residual comes from.** `reflected_band_closes_of_sirk` does not assume `ε → 0`. From the
+SIRK data (`V`, `psiB`, `V†V = 1`, the eigenpair `psiB (y m) = μ m • y m`, normalised
+`‖V (y m)‖ = 1`) and the operator-norm bound `‖R − sirkApprox V psiB‖ ≤ sirkBound C Dmin h 1 m`, it
+extracts `resid ≤ sirkBound …` at each order via `sirk_resid_reflection_le` and hands the bound to
+`sirk_error_decay_exponential`. The widths then vanish like `e^{−2hm}/δ` and both ends of the band
+converge to `λ'`.
+
+**What stays an input.** The `δ`-separation `θ m ≤ b − δ` for one fixed `δ > 0`. No rate replaces
+it: if the Rayleigh quotients approach `b` the denominator `b − θ m` degenerates and the bound says
+nothing at all — the same requirement as `b = resolventEdge γ e > 0` in §10. The hypothesis is kept
+visible in the statements rather than folded into the limit.
+
+**Verification.** `ChapterResolventTransfer` builds with no warning and no line above 100 code
+points; `lake build BookProof` is green at 9004 jobs; `#print axioms` on the five new
+declarations gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The gap is an edge difference, and the limit is the edge (2026-11-13ab)
+
+Track A. Section 17 left the `δ` in `θ m ≤ b − δ` free and stated the closure as a limit of
+sequences. This entry derives that `δ` where it can be derived, and states the limit as the edge.
+
+**The derived `δ`.** Taking the level at the next reflected edge, `b = resolventEdge γ e₁`, the
+denominator becomes `resolventEdge γ e₁ - resolventEdge γ e₀` — nothing left to choose.
+`resolventEdge_gap_pos` gets its positivity from `resolventEdge_strictMonoOn` (the edges order once
+`0 ≤ e₀ < e₁`), and `templeBandWidth_le_edgeGap` feeds that to `templeBandWidth_le`.
+
+**The price.** The hypothesis is `θ m ≤ resolventEdge γ e₀`, while Rayleigh–Ritz only gives `θ` at
+or above the bottom edge — so the derived-`δ` form holds exactly when the Rayleigh quotient is
+pinned at the edge, the degenerate case again. A trial vector strictly inside `(λ', b)` still needs
+§17's per-order hypothesis. The docstrings say so instead of letting the theorem look unconditional.
+
+**The `diag (5, 2)` numbers.** `diag52_edgeGap` evaluates the gap:
+`resolventEdge 1 5 - resolventEdge 1 2 = 1/6`. With residuals `2^{-m}`, `diag52_bandWidth_le` gives
+`width ≤ 6 · 4^{-m}` — the `6` is the reciprocal of the edge gap — and `diag52_bandWidth_closes`
+sends it to `0`; `diag52_band_ends_converge` closes `[2/3 - 6·4^{-m}, 2/3]` at both ends. As with
+§13's degenerate bands this is arithmetic on the bound: `θ = λ'` with a nonzero residual is not
+attained by a non-eigenvector, and what the instance checks is the constant.
+
+**The limit is the edge.** `sInf_range_eq_of_tendsto` and `sSup_range_eq_of_tendsto` are the
+order-theoretic counterparts of the convergences (infimum of the upper ends, supremum of the lower
+ends, both `λ`), and `band_limit_is_edge` packs them: `sSup (range lo) = λ` and
+`sInf (range hi) = λ`, so `⋂ m, [lo m, hi m]` is the point `{λ'}` — read at the level of the two
+number families, not of `Set.iInter`.
+
+**Verification.** `ChapterResolventTransfer` builds with no warning and no line above 100 code
+points; `lake build BookProof` is green at 9004 jobs; `#print axioms` on the nine new declarations
+gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The per-order gap, and a level equal to the edge carries nothing (2026-11-13ac)
+
+Track A. Section 18 removed the freedom in `δ` but kept `θ m ≤ λ'`, which Rayleigh–Ritz forces to
+`θ m = λ'`. Section 19 drops that too: the quotients may sit strictly inside `(λ', b)` and converge
+to `λ'`, and the isolated eigenvalue `λ' < b` supplies the gap.
+
+**The per-order gap.** `eventually_half_gap_le`: `θ → l` and `l < b` give `b - θ m ≥ (b - l)/2`
+from some order on. `templeBandWidth_le_half_gap` turns that into
+`width ≤ ε m²/((b-l)/2) = 2 ε m²/(b-l)`, and `templeBandWidth_tendsto_zero_of_tendsto` concludes
+`width → 0` from `ε → 0` alone. The gap `δ m = b - θ m` is defined by the data; no `δ` is chosen and
+no per-order hypothesis on `θ` is asked for.
+
+**On the data.** `reflected_band_closes_of_sirk_of_tendsto` is §17's theorem with `hgap` replaced by
+`resolventEdge γ e < b` plus convergence of the Rayleigh quotients to the edge; the residual bound
+is still `sirk_resid_reflection_le`. `reflected_band_closes_at_nextEdge` takes the level at the next
+edge, where `resolventEdge_gap_pos` gives `λ' < b` — §18's setting without the pinning. On
+`diag (5, 2)`, `diag52_band_closes_nonDegenerate` runs `θ m = 2/3 + 2^{-m}`, strictly inside
+`(2/3, 5/6)` at every order.
+
+**The audit of §10.** `sirk_reflected_gap_certificate_of_bottomEdge` sets `b = resolventEdge γ e`,
+and §10 proves `sInf (spectrum ℝ A') = resolventEdge γ e`; the hypothesis `θ < b` then reads
+`θ < sInf`, which contradicts Rayleigh–Ritz, so the theorem is vacuous as an implication.
+`not_rayleigh_lt_sInf` is the general statement, and the §10 docstring now names what survives: the
+separation at the edge and `‖R‖ ≤ γ⁻¹ - λ'`. The general two-parameter theorem is not affected;
+only its bottom-edge instantiation is.
+
+**Verification.** `ChapterResolventTransfer` builds with no warning and no line above 100 code
+points; `#print axioms` on the seven new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The quotient reaches the edge (2026-11-13ad)
+
+Track A. §19 left two inputs on the table: convergence of the Rayleigh quotients to the bottom
+edge, and a level strictly above it. Both are now derived, and §10's bottom-edge band gets a
+non-vacuous replacement at the second reflected edge.
+
+**The squeeze.** `rayleigh_tendsto_sInf` (`ChapterRitzCertificate`): Rayleigh–Ritz bounds the edge
+from above by `θ m`, Temple bounds it from below by `θ m − ε m²/(b − θ m)`, and `θ m ≤ b − δ`
+turns the subtracted term into `ε m²/δ → 0`. Hence `θ m → sInf (spectrum ℝ A)` from vanishing
+residuals plus one fixed distance to the level. `temple_band_eventually_mem` is the companion: at a
+level strictly above the edge, `θ m < b` holds eventually, so the band `[θ − ε²/(b−θ), θ]`
+encloses the edge from some order on.
+
+**Derived for SIRK.** `reflected_resid_tendsto_zero` is the residual limit for
+`A' = γ⁻¹ • 1 − R` (`sirk_resid_reflection_le` pointwise, `sirk_error_decay_exponential` in the
+limit). `reflected_rayleigh_tendsto_edge` applies the squeeze on `A'` and rewrites `sInf` to
+`resolventEdge γ e`, so `hθ` in §19 is not data. `reflected_band_closes_of_sirk_of_resid` composes
+it with the convergence-form width theorem: the widths vanish with no hypothesis on `θ`, the
+strictness `λ' < b` coming from Rayleigh–Ritz and `θ m ≤ b − δ`.
+
+**Second edge.** `secondEdge_lt_level` gives `resolventEdge γ e₀ < resolventEdge γ e₁` for
+`0 ≤ e₀ < e₁`. `reflected_band_closes_at_secondEdge` runs the band at `b = resolventEdge γ e₁`
+and proves both halves — widths → 0 and `∀ᶠ m`, `sInf (spectrum ℝ A') ∈ [θ − ε²/(b−θ), θ]` — with
+`θ m < b` supplied by convergence. That is the honest counterpart of
+`sirk_reflected_temple_band_of_bottomEdge`, where the level is the edge and `hlt` is unsatisfiable.
+In `ChapterRitzCertificate`, `temple_nested_certificate` and `fock_mass_gap_of_temple_certificates`
+still take `0 < δ` with `θ ≤ b − δ`; that is inhabited data and is left alone.
+
+**The sweep.** No chapter outside `ChapterResolventTransfer` instantiates a Temple level at an edge
+value: `hlt : rayleigh … < resolventEdge γ e` and `hlt : … < b` with `b` an edge occur only in the
+two bottom-edge certificates there. `ChapterTempleContinuumGap` (`0 < (b − l)/2`),
+`ChapterTempleSeparationBound` (`0 < c`, `c ≤ b − rayleigh A x`) and `ChapterRitzCertificate`'s
+nested certificate (`0 < δ`) all keep the level free. Both vacuous instantiations now carry the
+audit note and point at `not_rayleigh_lt_resolventEdge`.
+
+**Verification.** `ChapterRitzCertificate` and `ChapterResolventTransfer` build with no warning and
+no line above 100 code points; `#print axioms` on the eight new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The second-edge band, discharged and instantiated (2026-11-13af)
+
+Track A. Three short steps: §19's separation is derived from the compression form bound, the
+eventual enclosure becomes a one-order rate, and the second-edge band is instantiated on a concrete
+diagonal operator.
+
+**No `hsep` input.**  The theorem
+`spectralSeparation_at_secondEdge_of_compressionBound` builds
+`SpectralSeparation A' (resolventEdge γ e₀) (resolventEdge γ e₁)` from
+`ChapterSpectralSplitting.spectralSeparation_of_compressionBound`: the eigenvector `y` at the
+bottom edge, `l ≤ b` read off `secondEdge_lt_level`, and a form bound
+`resolventEdge γ e₁ ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ`.  Composing it with §19 gives
+`reflected_band_closes_at_secondEdge_of_formBound`, which runs with no spectral input at all.
+
+**Rate instead of a limit.** `ChapterRitzCertificate.temple_membership_rate`: if `θ ≤ b − δ` and
+`ε² ≤ δ η` then `sInf (spectrum ℝ A) ∈ [θ − η, θ]`. The enclosure no longer waits for a limit;
+the threshold `ε ≤ √(δ η)` is what a finite run checks.
+
+**The instance.** §20 of `ChapterResolventTransfer` puts `Aedge = 5/6 − (1/6) P_{vOther}` on
+`EuclideanSpace ℂ (Fin 2)` — `diag (5/6, 2/3)` in the `(vTrial, vOther)` frame, i.e. the reflected
+operator of `diag (2, 5)` at `γ = 1`. Facts proved: `Aedge` is self-adjoint; the spectrum is
+bounded below by `2/3` in form; `2/3` is attained, so `Aedge_sInf : sInf (spectrum ℝ Aedge) = 2/3`.
+The mixed vector `wMix = (3/5) vTrial + (4/5) vOther` is a unit vector with `Aedge wMix`
+`= (1/2) vTrial + (8/15) vOther`, hence `rayleigh = 109/150` and `resid² = 4/625`; at the level
+`b = 5/6` the band is `[109/150 − (4/625)/(5/6 − 109/150), 109/150] = [2/3, 109/150]`, so the edge
+sits exactly on its lower end — `Aedge_band_membership` and `Aedge_band_membership_num`, both
+proved by `norm_num`.
+
+**Verification.** `ChapterRitzCertificate` and `ChapterResolventTransfer` build with no warning and
+no line above 100 code points; `#print axioms` on the three new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 

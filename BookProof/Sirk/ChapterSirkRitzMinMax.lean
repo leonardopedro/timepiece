@@ -311,6 +311,25 @@ theorem minmaxLevel_zero_eq_sInf_spectrum [Nontrivial F] (T : F →L[ℂ] F)
     (hT : IsSelfAdjoint T) : minmaxLevel T 0 = sInf (spectrum ℝ T) := by
   rw [minmaxLevel_zero_eq_rayleighInf T, ← sInf_spectrum_eq_rayleighInf T hT]
 
+omit [CompleteSpace F] in
+/-- **A form bound bounds every Courant–Fischer level.**  If `c * ‖x‖² ≤ rayleighVal T x` for
+every `x`, then `c` lies below every level `minmaxLevel T k` whose value set is nonempty.
+Applied with `T` the compression of a self-adjoint operator to `yᗮ`, this is the min–max
+reading of the separation certificate: *every* Ritz level of the compression is at least `c`.
+Note the direction — the levels are upper bounds for the Galerkin values
+(`minmaxLevel_le_minmaxLevelIn`), so a finite computation can refute the form bound but never
+establish it. -/
+theorem le_minmaxLevel_of_formBound (T : F →L[ℂ] F) {c : ℝ}
+    (h : ∀ x : F, c * ‖x‖ ^ 2 ≤ rayleighVal T x) {k : ℕ}
+    (hne : (minmaxSet T k).Nonempty) : c ≤ minmaxLevel T k := by
+  refine le_csInf hne ?_
+  rintro t ⟨S, hrank, rfl⟩
+  obtain ⟨x, hxS, hx1⟩ := exists_unit_mem S (by rw [hrank]; omega)
+  have hcx : c ≤ rayleighVal T x := by
+    have := h x
+    rwa [hx1, one_pow, mul_one] at this
+  exact hcx.trans (rayleighVal_le_rayleighSup T hxS hx1)
+
 /-! ## 4. The Galerkin flag: dimensions and approximation -/
 
 omit [CompleteSpace F] in

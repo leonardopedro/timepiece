@@ -197,6 +197,24 @@ theorem temple_band_mem [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAdjoint A
       Set.Icc (rayleigh A x - resid A x ^ 2 / (b - rayleigh A x)) (rayleigh A x) :=
   ⟨temple_lower_bound hA hsep hx hlt, sInf_spectrum_le_rayleigh A hA hx⟩
 
+/-- **Temple membership as a rate, not a limit.**  `temple_band_eventually_mem` needs a limit; here
+the same enclosure is produced at a single order from two numbers.  If the quotients sit a fixed
+`δ` below the level and `ε² ≤ δ η`, the band's lower end is within `η` of `θ`, so the edge lies in
+`[θ − η, θ]`.  The threshold `resid ≤ √(δ η)` is what a finite run can check. -/
+theorem temple_membership_rate [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAdjoint A)
+    {b delta eta : ℝ} (hdelta : 0 < delta) (heta : 0 < eta) {x : F}
+    (hsep : SpectralSeparation A (sInf (spectrum ℝ A)) b) (hx : ‖x‖ = 1)
+    (hle : rayleigh A x ≤ b - delta) (hres : resid A x ^ 2 ≤ delta * eta) :
+    sInf (spectrum ℝ A) ∈ Set.Icc (rayleigh A x - eta) (rayleigh A x) := by
+  have hlt : rayleigh A x < b := by linarith
+  have hb : delta ≤ b - rayleigh A x := by linarith
+  have hquot : resid A x ^ 2 / (b - rayleigh A x) ≤ eta := by
+    rw [div_le_iff₀ (by linarith)]
+    nlinarith [hres, heta.le]
+  refine ⟨?_, sInf_spectrum_le_rayleigh A hA hx⟩
+  have hlow := temple_lower_bound hA hsep hx hlt
+  linarith
+
 omit [CompleteSpace F] in
 /-- The width of the emitted Temple band is `ε²/(β−θ)`, so it vanishes as soon as the
 residuals do, provided the Rayleigh quotients stay a fixed distance below `β`. -/
@@ -222,6 +240,50 @@ theorem temple_width_tendsto_zero {A : F →L[ℂ] F} {b delta : ℝ} {x : ℕ �
   have hbound : Tendsto (fun m => resid A (x m) ^ 2 / delta) atTop (𝓝 0) := by
     simpa using hsq.div_const delta
   exact squeeze_zero_norm hsqueeze hbound
+
+/-- **Rayleigh quotients converge to the edge when the residuals vanish.**  This is the
+converse direction of the emitted band: the lower end `θ − ε²/(β−θ)` and the upper end `θ` both
+approach `sInf (spectrum ℝ A)`, so the quotients themselves converge to it.  The two inputs are
+the residuals (`hres`) and the quotients staying a fixed distance below the level (`hle`); no
+eigenvector is needed, and no rate is assumed. -/
+theorem rayleigh_tendsto_sInf [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAdjoint A)
+    {b delta : ℝ} {x : ℕ → F} (hsep : SpectralSeparation A (sInf (spectrum ℝ A)) b)
+    (hdelta : 0 < delta) (hx : ∀ m, ‖x m‖ = 1) (hle : ∀ m, rayleigh A (x m) ≤ b - delta)
+    (hres : Tendsto (fun m => resid A (x m)) atTop (𝓝 0)) :
+    Tendsto (fun m => rayleigh A (x m)) atTop (𝓝 (sInf (spectrum ℝ A))) := by
+  have hnonneg : ∀ᶠ m in atTop, 0 ≤ rayleigh A (x m) - sInf (spectrum ℝ A) :=
+    Eventually.of_forall fun m => sub_nonneg.mpr (sInf_spectrum_le_rayleigh A hA (hx m))
+  have hbnd : ∀ᶠ m in atTop,
+      rayleigh A (x m) - sInf (spectrum ℝ A) ≤ resid A (x m) ^ 2 / delta := by
+    filter_upwards with m
+    have hb : delta ≤ b - rayleigh A (x m) := by linarith [hle m]
+    have hlt : rayleigh A (x m) < b := by linarith [hle m]
+    have hlow := temple_lower_bound hA hsep (hx m) hlt
+    have hmono : resid A (x m) ^ 2 / (b - rayleigh A (x m))
+        ≤ resid A (x m) ^ 2 / delta :=
+      div_le_div_of_nonneg_left (sq_nonneg _) hdelta hb
+    linarith
+  have hzero : Tendsto (fun m => resid A (x m) ^ 2 / delta) atTop (𝓝 0) := by
+    simpa using (hres.pow 2).div_const delta
+  have hdiff : Tendsto (fun m => rayleigh A (x m) - sInf (spectrum ℝ A)) atTop (𝓝 0) :=
+    squeeze_zero' hnonneg hbnd hzero
+  simpa using hdiff.add_const (sInf (spectrum ℝ A))
+
+/-- **The Temple hypothesis holds from some order on.**  Once the Rayleigh quotients converge to
+the edge and the level is *strictly* above it, `θ m < β` eventually — so the band is not vacuous:
+the hypothesis `hlt` of `temple_band_mem` is supplied by the convergence, not assumed, and from
+that order on every emitted band encloses the edge. -/
+theorem temple_band_eventually_mem [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAdjoint A)
+    {b : ℝ} {x : ℕ → F} (hsep : SpectralSeparation A (sInf (spectrum ℝ A)) b)
+    (hx : ∀ m, ‖x m‖ = 1)
+    (hθ : Tendsto (fun m => rayleigh A (x m)) atTop (𝓝 (sInf (spectrum ℝ A))))
+    (hlb : sInf (spectrum ℝ A) < b) :
+    ∀ᶠ m in atTop, sInf (spectrum ℝ A) ∈
+      Set.Icc (rayleigh A (x m) - resid A (x m) ^ 2 / (b - rayleigh A (x m)))
+        (rayleigh A (x m)) := by
+  have hlt : ∀ᶠ m in atTop, rayleigh A (x m) < b := (tendsto_order.1 hθ).2 b hlb
+  filter_upwards [hlt] with m hm
+  exact temple_band_mem hA hsep (hx m) hm
 
 end TempleBand
 

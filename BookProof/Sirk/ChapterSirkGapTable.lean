@@ -42,6 +42,18 @@ Two things are still wanted around it:
   per-row consistency check; `qcdG2M4_row`, `qcdG2M4_row_lo`,
   `qcdG2M4_strongCoupling_consistent` — the one recorded row, whose certified window
   `[1.932, 2.043]` does contain the analytic value `g²/2 = 2` at `g = 2`.
+* `ReflectedBandRow`, `ReflectedBandRow.ofTemple`, `reflected_band_table`,
+  `reflected_band_row_positive` — the reflected table: a coupling row is the two-sided Temple
+  band `[θ − ε²/(b − θ), θ]` the SIRK certificate emits for that coupling's reflected edge, so
+  the row reports an *interval* (`λ' ∈ band`) instead of a lower endpoint, and its lower end
+  transfers to `γ² lo ≤ e` (`gap_transfer`), which is a strictly positive gap whenever `lo > 0`;
+  `qcdG2M4BandRow` is the recorded `g = 2`, `m = 4` solve as such a row, and
+  `qcdG2M4BandRow_positive` reads a strictly positive gap off it.
+* `CertificateRow`, `CertificateRow.Certifies`, `certified_gap_table_unified` — **one table theorem
+  for both row kinds**: a solve row (`ofSolve`, scale `1`, `certifies_of_solve`) and a band row
+  (`ofBand`, scale `γ²`, `certifies_of_band`) are consumed by one statement, and
+  `certified_gap_table_of_unified` recovers the T11 lower bound as its solve-only case.  There is no
+  unified upper end, for the reason recorded in the theorem's docstring.
 * **T12** `richardson`, `richardson_exact` (the extrapolation is exact for a pure
   `C·l^{-p}` correction), `richardson_error` (its error propagation), and
   `richardson_qym_g4` — the evaluation on the recorded finite-size data.
@@ -150,6 +162,183 @@ theorem certified_gap_table_interval {n : ℕ} (row : Fin n → CouplingCertific
   simp only [CouplingCertificate.lo, CouplingCertificate.hi, hgap i, hwidth i]
   exact h
 
+
+/-! ## 2b. The reflected band as a row, so a coupling emits an interval -/
+
+/-- One row of the **reflected** gap table: a coupling constant, the shift it was run at, and
+the Temple band `[lo, hi]` the SIRK certificate emits for that coupling's reflected edge.  The
+band is exactly the enclosure of `sirk_reflected_temple_band_of_shiftInvertNorm` — `lo` and `hi`
+are computed from the finite Ritz data, not assumed. -/
+structure ReflectedBandRow where
+  /-- The coupling constant `g` of the row. -/
+  g : ℝ
+  /-- The shift `γ` the row was run at. -/
+  gamma : ℝ
+  /-- The shift is positive. -/
+  gamma_pos : 0 < gamma
+  /-- The lower end `θ − ε²/(b − θ)` of the reflected band. -/
+  lo : ℝ
+  /-- The upper end `θ` of the reflected band. -/
+  hi : ℝ
+  /-- The band is nonempty. -/
+  lo_le_hi : lo ≤ hi
+
+/-- The interval a row emits. -/
+def ReflectedBandRow.band (r : ReflectedBandRow) : Set ℝ := Set.Icc r.lo r.hi
+
+/-- **Build a row from the emitted Temple band.**  With `θ` the Rayleigh quotient of the
+reconstructed vector, `ε` its residual and `b` the certified separation level above `θ`, the
+band is `[θ − ε²/(b − θ), θ]` and it is nonempty. -/
+def ReflectedBandRow.ofTemple (g γ theta eps b : ℝ) (hgamma : 0 < γ) (hlt : theta < b) :
+    ReflectedBandRow where
+  g := g
+  gamma := γ
+  gamma_pos := hgamma
+  lo := theta - eps ^ 2 / (b - theta)
+  hi := theta
+  lo_le_hi := by
+    have hb : 0 < b - theta := by linarith
+    have hq : 0 ≤ eps ^ 2 / (b - theta) := div_nonneg (sq_nonneg eps) hb.le
+    have : theta - eps ^ 2 / (b - theta) ≤ theta := by linarith
+    exact this
+
+/-- **The reflected table: every coupling row emits its band, and its lower end transfers.**
+
+`lam` is the reflected edge `resolventEdge γ e` of each coupling and `e` the corresponding edge of
+the Hamiltonian.  The transfer `γ² λ' ≤ e` (`gap_transfer`) is one-sided, so the row emits the band
+in the *reflected* variable and a **lower** bound `γ² lo ≤ e` for the original edge; the upper end
+`hi` bounds `λ'` directly; bounding `e` above needs the two shifted eigenvalues, and
+`ChapterResolventTransfer.gap_interval_of_reflected_bands` supplies that combination
+(`edge_sub_le_of_upperBounds` is its upper half). -/
+theorem reflected_band_table {n : ℕ} (row : Fin n → ReflectedBandRow) (lam e : Fin n → ℝ)
+    (hband : ∀ i, lam i ∈ (row i).band)
+    (htransfer : ∀ i, (row i).gamma ^ 2 * lam i ≤ e i) :
+    ∀ i, lam i ∈ (row i).band ∧ (row i).gamma ^ 2 * (row i).lo ≤ e i := by
+  intro i
+  refine ⟨hband i, ?_⟩
+  have hlo : (row i).lo ≤ lam i := (hband i).1
+  have hsq : 0 ≤ (row i).gamma ^ 2 := sq_nonneg _
+  calc (row i).gamma ^ 2 * (row i).lo ≤ (row i).gamma ^ 2 * lam i := by
+        exact mul_le_mul_of_nonneg_left hlo hsq
+    _ ≤ e i := htransfer i
+
+/-- **The payoff: a strictly positive gap.**  When a row's band starts strictly above `0`, the
+lower-endpoint table's `b = 0` endpoint is beaten: the coupling's edge is strictly positive. -/
+theorem reflected_band_row_positive (row : ReflectedBandRow) {lam e : ℝ}
+    (hband : lam ∈ row.band) (htransfer : row.gamma ^ 2 * lam ≤ e) (hlo : 0 < row.lo) :
+    0 < e := by
+  have hle : row.lo ≤ lam := hband.1
+  have hpos : 0 < row.gamma ^ 2 * row.lo := by
+    have := row.gamma_pos
+    positivity
+  linarith [mul_le_mul_of_nonneg_left hle (sq_nonneg row.gamma)]
+
+/-! ## 2c. One table theorem for both row kinds -/
+
+/-- A row of the gap table, either kind.  A **solve** row certifies the parity gap of its truncated
+Hamiltonian from the sector enclosures (T11); a **band** row certifies an edge from the reflected
+Temple band (`reflected_band_table`).  Putting both under one type lets a single theorem consume
+either, without pretending they certify the same quantity. -/
+inductive CertificateRow where
+  /-- A row from a solve: the T11 window `[gap - width, gap + width]`. -/
+  | ofSolve (c : CouplingCertificate)
+  /-- A row from a reflected band: the Temple window `[lo, hi]` at shift `γ`. -/
+  | ofBand (r : ReflectedBandRow)
+
+namespace CertificateRow
+
+/-- The coupling of a row. -/
+def g : CertificateRow → ℝ
+  | ofSolve c => c.g
+  | ofBand r => r.g
+
+/-- The lower end of the row's window. -/
+def lo : CertificateRow → ℝ
+  | ofSolve c => c.lo
+  | ofBand r => r.lo
+
+/-- The upper end of the row's window. -/
+def hi : CertificateRow → ℝ
+  | ofSolve c => c.hi
+  | ofBand r => r.hi
+
+/-- The scale at which the lower end applies to the certified quantity: `1` for a solve row (its
+window is already in gap units) and `γ²` for a band row (`gap_transfer`). -/
+def scale : CertificateRow → ℝ
+  | ofSolve _ => 1
+  | ofBand r => r.gamma ^ 2
+
+theorem scale_pos (x : CertificateRow) : 0 < x.scale := by
+  cases x with
+  | ofSolve _ => simp [scale]
+  | ofBand r => exact pow_pos r.gamma_pos 2
+
+theorem lo_le_hi (x : CertificateRow) : x.lo ≤ x.hi := by
+  cases x with
+  | ofSolve c => exact c.lo_le_hi
+  | ofBand r => exact r.lo_le_hi
+
+/-- **What a row certifies**: `v` dominates the row's scaled lower end.  The kinds state it in their
+own units — the parity gap for a solve row, the edge for a band row. -/
+def Certifies (x : CertificateRow) (v : ℝ) : Prop :=
+  match x with
+  | ofSolve c => c.lo ≤ v
+  | ofBand r => r.gamma ^ 2 * r.lo ≤ v
+
+/-- A certified value dominates the row's scaled lower end. -/
+theorem scale_mul_lo_le {x : CertificateRow} {v : ℝ} (h : x.Certifies v) : x.scale * x.lo ≤ v := by
+  cases x with
+  | ofSolve c => simpa [Certifies, scale, lo] using h
+  | ofBand r => simpa [Certifies, scale, lo] using h
+
+/-- A solve row certifies its parity gap from the two sector enclosures. -/
+theorem certifies_of_solve {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
+    {c : CouplingCertificate} {T P : E →ₗ[ℂ] E} {thetaE thetaO deltaE deltaO : ℝ}
+    (hgap : c.gap = thetaO - thetaE) (hwidth : c.width = deltaO + deltaE)
+    (hEven : sectorGround T P 1 ≤ thetaE + deltaE)
+    (hOdd : thetaO - deltaO ≤ sectorGround T P (-1)) :
+    (ofSolve c).Certifies (sectorGround T P (-1) - sectorGround T P 1) := by
+  change c.lo ≤ _
+  have h := certified_parity_gap hEven hOdd
+  simp only [CouplingCertificate.lo, hgap, hwidth]
+  linarith
+
+/-- A band row certifies an edge from the band and the one-sided transfer. -/
+theorem certifies_of_band (r : ReflectedBandRow) {lam e : ℝ}
+    (hband : lam ∈ r.band) (htransfer : r.gamma ^ 2 * lam ≤ e) :
+    (ofBand r).Certifies e := by
+  change r.gamma ^ 2 * r.lo ≤ e
+  exact le_trans (mul_le_mul_of_nonneg_left hband.1 (sq_nonneg r.gamma)) htransfer
+
+end CertificateRow
+
+/-- **The gap table, once, for both row kinds.**  Given, per coupling, a row of either kind together
+with the fact that it certifies that coupling's value, every row's scaled lower end bounds its
+value.  A solve row contributes `lo` at scale `1` (`certifies_of_solve`), a band row `lo` at scale
+`γ²` (`certifies_of_band`); the two are supplied by the appropriate route and this theorem
+consumes them together.
+
+There is deliberately no unified *upper* end: for a solve row `hi` bounds the gap, while for a band
+row `hi` bounds the reflected edge, not the edge itself (the upper transfer needs the `E`'s of
+`ChapterResolventTransfer.gap_interval_of_reflected_bands`). -/
+theorem certified_gap_table_unified {n : ℕ} (row : Fin n → CertificateRow) (val : Fin n → ℝ)
+    (h : ∀ i, (row i).Certifies (val i)) :
+    ∀ i, (row i).scale * (row i).lo ≤ val i :=
+  fun i => CertificateRow.scale_mul_lo_le (h i)
+
+/-- **The solve-only table is the unified theorem on solve rows.**  With `scale = 1` the conclusion
+is the T11 lower bound, so the two statements agree on the rows `certified_gap_table` covers. -/
+theorem certified_gap_table_of_unified {n : ℕ} (row : Fin n → CouplingCertificate)
+    (T P : Fin n → E →ₗ[ℂ] E) (thetaE thetaO deltaE deltaO : Fin n → ℝ)
+    (hgap : ∀ i, (row i).gap = thetaO i - thetaE i)
+    (hwidth : ∀ i, (row i).width = deltaO i + deltaE i)
+    (hEven : ∀ i, sectorGround (T i) (P i) 1 ≤ thetaE i + deltaE i)
+    (hOdd : ∀ i, thetaO i - deltaO i ≤ sectorGround (T i) (P i) (-1)) :
+    ∀ i, (CertificateRow.ofSolve (row i)).scale * (CertificateRow.ofSolve (row i)).lo ≤
+      sectorGround (T i) (P i) (-1) - sectorGround (T i) (P i) 1 := by
+  refine certified_gap_table_unified (fun i => CertificateRow.ofSolve (row i)) _ ?_
+  intro i
+  exact CertificateRow.certifies_of_solve (hgap i) (hwidth i) (hEven i) (hOdd i)
 end Table
 
 /-! ## 3. The analytic strong-coupling value and the per-row check -/
@@ -207,6 +396,35 @@ theorem qcdG2M4Row_lo : qcdG2M4Row.lo = 1.932 ∧ qcdG2M4Row.hi = 2.043 := by
 theorem qcdG2M4_strongCoupling_consistent : qcdG2M4Row.strongCouplingConsistent := by
   constructor <;>
     norm_num [CouplingCertificate.lo, CouplingCertificate.hi, qcdG2M4Row, strongCoupling]
+
+/-- **The recorded `g = 2`, `m = 4` solve as a reflected band row.**  The ledger stores the
+certified window `[1.932, 2.043]` and not the pair `(θ, ε)` that produced it, so the band is
+transcribed from the window rather than rebuilt by `ReflectedBandRow.ofTemple`; and the entry
+records no shift, so the row is parametric in `γ > 0` instead of inventing one. -/
+def qcdG2M4BandRow (γ : ℝ) (hγ : 0 < γ) : ReflectedBandRow where
+  g := 2
+  gamma := γ
+  gamma_pos := hγ
+  lo := qcdG2M4Row.lo
+  hi := qcdG2M4Row.hi
+  lo_le_hi := qcdG2M4Row.lo_le_hi
+
+/-- The recorded row's band is the ledger's window. -/
+theorem qcdG2M4BandRow_band (γ : ℝ) (hγ : 0 < γ) :
+    (qcdG2M4BandRow γ hγ).band = Set.Icc 1.932 2.043 := by
+  obtain ⟨h1, h2⟩ := qcdG2M4Row_lo
+  simp [ReflectedBandRow.band, qcdG2M4BandRow, h1, h2]
+
+/-- **The recorded row certifies a strictly positive gap.**  The window's lower end is `1.932 > 0`,
+so any edge the band's point feeds through the transfer is positive — the row-level payoff of
+`reflected_band_row_positive`, on data rather than on a hypothetical band. -/
+theorem qcdG2M4BandRow_positive (γ : ℝ) (hγ : 0 < γ) {lam e : ℝ}
+    (hband : lam ∈ (qcdG2M4BandRow γ hγ).band)
+    (htransfer : (qcdG2M4BandRow γ hγ).gamma ^ 2 * lam ≤ e) : 0 < e := by
+  refine reflected_band_row_positive _ hband htransfer ?_
+  simp only [qcdG2M4BandRow, CouplingCertificate.lo, qcdG2M4Row]
+  norm_num
+
 
 /-! ## 4. T12 — Richardson extrapolation of the finite-size gaps
 

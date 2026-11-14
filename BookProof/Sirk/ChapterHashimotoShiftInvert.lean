@@ -29,6 +29,10 @@ because of positivity.  This module makes that precise and closes the gap:
   `R = (A + γ)⁻¹` exists as a genuine element of `F →L[ℂ] F`, with
   `‖R‖ ≤ γ⁻¹` (`IsShiftInvert.opNorm_le`), self-adjoint
   (`IsShiftInvert.isSelfAdjoint`), positive and injective.
+* `norm_shiftMap_ge_edge`, `IsShiftInvert.opNorm_le_edge` — the same bounds with a known
+  ground-state energy `e` added: `‖(A + γ)x‖ ≥ (e + γ)‖x‖` and `‖R‖ ≤ (e + γ)⁻¹`, strictly
+  better than `γ⁻¹` as soon as `e > 0`.  This is the strict ingredient the reflected-gap
+  certificate needs at a positive level.
 * `IsShiftInvert.dom_eq_range`, `IsShiftInvert.apply_eq`,
   `shiftInvert_determines` — `R` remembers everything: its range is the domain
   of `A`, and `A = R⁻¹ − γ` there.  Two positive self-adjoint operators with the
@@ -92,6 +96,28 @@ theorem norm_shiftMap_ge {A : Dom →ₗ[ℂ] F} (hpos : ∀ x : Dom, 0 ≤ quad
     simp [← Complex.ofReal_pow]
   have h1 : γ * ‖(x : F)‖ ^ 2 ≤ (inner ℂ (x : F) (shiftMap A γ x) : ℂ).re := by
     rw [hxy]; linarith [hpos x]
+  have h2 : (inner ℂ (x : F) (shiftMap A γ x) : ℂ).re ≤ ‖(x : F)‖ * ‖shiftMap A γ x‖ :=
+    le_trans (Complex.re_le_norm _) (norm_inner_le_norm _ _)
+  rcases eq_or_lt_of_le (norm_nonneg (x : F)) with h0 | hpx
+  · rw [← h0]
+    simp
+  · nlinarith
+
+/-- **The bottom-edge shift bound.**  When `e` is a lower bound for `A` — the ground-state
+energy, in the mass-gap setting — the shifted operator is bounded below by `e + γ` and not
+merely by `γ`: the estimate `‖(A + γ)x‖ ≥ (e + γ)‖x‖` is `norm_shiftMap_ge` with the edge
+added on both sides.  It is what turns a known edge into a *strict* bound on the
+shift-invert. -/
+theorem norm_shiftMap_ge_edge {A : Dom →ₗ[ℂ] F} {e : ℝ}
+    (hbot : ∀ x : Dom, e * ‖(x : F)‖ ^ 2 ≤ quadForm A x) {γ : ℝ} (x : Dom) :
+    (e + γ) * ‖(x : F)‖ ≤ ‖shiftMap A γ x‖ := by
+  have hxy : (inner ℂ (x : F) (shiftMap A γ x) : ℂ).re = quadForm A x + γ * ‖(x : F)‖ ^ 2 := by
+    simp only [shiftMap_apply, inner_add_right, inner_smul_right, Complex.add_re, quadForm]
+    rw [inner_self_eq_norm_sq_to_K]
+    simp [← Complex.ofReal_pow]
+  have h1 : (e + γ) * ‖(x : F)‖ ^ 2 ≤ (inner ℂ (x : F) (shiftMap A γ x) : ℂ).re := by
+    rw [hxy]
+    nlinarith [hbot x]
   have h2 : (inner ℂ (x : F) (shiftMap A γ x) : ℂ).re ≤ ‖(x : F)‖ * ‖shiftMap A γ x‖ :=
     le_trans (Complex.re_le_norm _) (norm_inner_le_norm _ _)
   rcases eq_or_lt_of_le (norm_nonneg (x : F)) with h0 | hpx
@@ -262,6 +288,29 @@ theorem IsShiftInvert.opNorm_le {A : Dom →ₗ[ℂ] F} {γ : ℝ} {R : F →L[�
     (h : IsShiftInvert A γ R) (hpos : ∀ x : Dom, 0 ≤ quadForm A x) (hγ : 0 < γ) :
     ‖R‖ ≤ γ⁻¹ :=
   R.opNorm_le_bound (by positivity) (h.norm_apply_le hpos hγ)
+
+/-- **The strict per-system bound `‖R‖ ≤ (e + γ)⁻¹`.**  `opNorm_le` is the case `e = 0` of
+this: a lower bound `e` for `A` sharpens the bound on the shift-invert to `(e + γ)⁻¹`,
+which is strictly smaller than `γ⁻¹` as soon as `e > 0`.  Positivity alone cannot supply
+this — it is the one piece of information about the bottom of the spectrum that the
+reflected-gap route consumes. -/
+theorem IsShiftInvert.norm_apply_le_edge {A : Dom →ₗ[ℂ] F} {γ : ℝ} {R : F →L[ℂ] F}
+    (h : IsShiftInvert A γ R) {e : ℝ}
+    (hbot : ∀ x : Dom, e * ‖(x : F)‖ ^ 2 ≤ quadForm A x) (hγ : 0 < γ) (he : 0 ≤ e) (u : F) :
+    ‖R u‖ ≤ (e + γ)⁻¹ * ‖u‖ := by
+  have hb : (e + γ) * ‖((⟨R u, h.mem u⟩ : Dom) : F)‖ ≤ ‖shiftMap A γ ⟨R u, h.mem u⟩‖ :=
+    norm_shiftMap_ge_edge hbot _
+  rw [show shiftMap A γ ⟨R u, h.mem u⟩ = u from h.shift_apply u] at hb
+  have hpos : 0 < e + γ := by linarith
+  rw [inv_mul_eq_div, le_div_iff₀ hpos, mul_comm]
+  simpa using hb
+
+/-- **The strict per-system operator bound.**  `‖R‖ ≤ (e + γ)⁻¹`, strictly below `γ⁻¹`. -/
+theorem IsShiftInvert.opNorm_le_edge {A : Dom →ₗ[ℂ] F} {γ : ℝ} {R : F →L[ℂ] F}
+    (h : IsShiftInvert A γ R) {e : ℝ}
+    (hbot : ∀ x : Dom, e * ‖(x : F)‖ ^ 2 ≤ quadForm A x) (hγ : 0 < γ) (he : 0 ≤ e) :
+    ‖R‖ ≤ (e + γ)⁻¹ :=
+  R.opNorm_le_bound (by positivity) (h.norm_apply_le_edge hbot hγ he)
 
 /-- The shift-invert of a symmetric operator is symmetric, hence (being bounded
 and everywhere defined) self-adjoint. -/
