@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13p`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13q`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,13 +54,21 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13p):** “State of the project — 2026-11-13p: the spectrum union
+> **Track A — newest (2026-11-13q):** “State of the project — 2026-11-13q: the deflation cannot
+> carry a positive gap” (end of file): `A ∘ Q` kills `y`, so `0` is in the deflated spectrum
+> (`zero_mem_spectrum_deflated`) and every deflated-spectrum bound forces `b ≤ 0`
+> (`le_zero_of_spectrum_ge_deflated`) — the 13o/13p "weaker input" is degenerate for a positive
+> gap, and the form-to-spectrum step was never min–max at `k = 1` but the already-proved
+> `le_rayleigh_iff_le_spectrum`.  The remaining route is the compression `A'|yᗮ`.
+>
+> **Track A (2026-11-13p):** “State of the project — 2026-11-13p: the spectrum union
 > is a factorization, not a spectral theorem” (end of file): `spectrum A ⊆ spectrum (A ∘ Q) ∪
 > {l}` from `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)` and the explicit inverse of the
 > rank-one factor, so `spectralSeparation_of_complementBound` is proved and
 > `sirk_reflected_gap_certificate_of_deflated` takes a bound on the deflated spectrum instead
 > of `hsep`.  Self-adjointness is not needed for the union and was dropped from it; min–max at
-> `k = 1` is still the step from a form bound to a spectrum bound.
+> `k = 1` was believed to be the missing step there; the 2026-11-13q entry shows the
+> obstruction is the spurious `0` of the deflation, not the level of the min–max principle.
 >
 > **Track A (2026-11-13o):** “State of the project — 2026-11-13o: the separation input
 > is deflated to a form bound” (end of file): the projections onto the line `ℂ ∙ y` and its
@@ -24468,3 +24476,41 @@ strictly weaker than the old `hsep` but still not produced by a finite computati
 file and no line above 100 code points; `#print axioms` on the seven new declarations and on
 `sirk_reflected_gap_certificate_of_deflated` gives `[propext, Classical.choice, Quot.sound]`
 for each; no `sorry`, no new axiom; `lake build BookProof` is green at 9004 jobs.
+
+## State of the project — 2026-11-13q: the deflation cannot carry a positive gap
+
+Track A, correction of 2026-11-13o/13p.  Those entries reduced the separation input of the
+reflected-gap certificate to a bound on the spectrum of the deflated operator `A' ∘ Q`, and
+described that input as "strictly weaker than `hsep`".  It is not.  This entry records the
+counter-theorem and the corrected reading.
+
+**The obstruction.**  `A' ∘ Q` annihilates the certified eigenvector: `(A' ∘ Q) y = 0` for
+`y ≠ 0`.  So `0` is always in its spectrum —
+`SpectralSplitting.zero_mem_spectrum_deflated`: a unit of `E →L[ℂ] E` would carry the nonzero
+`y` to `0` and back to `y`.  Hence any bound `∀ t ∈ spectrum ℝ (A' ∘ Q), b ≤ t` forces
+`b ≤ 0` (`SpectralSplitting.le_zero_of_spectrum_ge_deflated`), and with `λ' ≤ b` that leaves
+`λ' = b = 0`.  `sirk_reflected_gap_certificate_of_deflated` is therefore satisfiable only in
+the vacuum case `e = 0`; it is kept because the reduction is correct, but it must not be
+advertised as a weakening of `hsep`, and it is not made the primary certificate.
+
+**What was actually wrong in 13p's "still open".**  That entry said the remaining step was
+min–max at `k = 1`.  It is not: the form-to-spectrum implication is the already-proved
+`ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum`, and it holds at the bottom level
+(`k = 0`), which is all a bottom-edge certificate needs.  What blocks the reduction is the
+*object*, not the level: `A' ∘ Q` is the compression of `A'` to `yᗮ` extended by `0` on
+`ℂ ∙ y`, and that extended `0` is a genuine spectral point that no hypothesis can remove.  A
+positive gap has to be read off the compression itself, i.e. an operator on the Hilbert space
+`yᗮ`, whose spectrum mathlib does not currently expose for a `Submodule`.
+
+**Consequence for the plan.**  The `13m` certificate still takes `hsep` as an input; the
+`13o`/`13p` union and deflation remain valid linear algebra (a factorization, proved with
+three standard axioms) and are reusable once the compression's spectrum is available.  The
+route that remains is: build `A'|yᗮ : yᗮ →L[ℂ] yᗮ`, prove
+`spectrum A' ⊆ spectrum (A'|yᗮ) ∪ {λ'}`, and apply `le_rayleigh_iff_le_spectrum` there — the
+form bound of `13o` then lands exactly where it belongs.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSpectralSplitting` and
+`lake build BookProof.Sirk.ChapterResolventTransfer` succeed with no warning and no line above
+100 code points; `#print axioms` on `zero_mem_spectrum_deflated` and
+`le_zero_of_spectrum_ge_deflated` gives `[propext, Classical.choice, Quot.sound]`;
+`lake build BookProof` is green at 9004 jobs.

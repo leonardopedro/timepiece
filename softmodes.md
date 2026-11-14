@@ -328,10 +328,10 @@ Temple runs there (`sirk_reflected_gap_certificate`). The 2026-11-13o section th
 input that composition still states, `hsep`, and moves it to a form bound on the complement of
 the certified eigenvector (`SpectralSplitting.deflated_re_inner_ge`). The 2026-11-13p section
 supplies the spectrum union that reduction needs — `spectrum A ⊆ spectrum (A ∘ Q) ∪ {l}`, proved
-as the factorization `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)` — so
-`spectralSeparation_of_complementBound` is a theorem and the certificate exists in a form that
-takes a deflated-spectrum bound (`sirk_reflected_gap_certificate_of_deflated`). What remains
-between a form bound and that spectrum bound is min–max at `k = 1`.
+as the factorization `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)`. It does **not** close the
+reduction, and the 2026-11-13q section says why: `A ∘ Q` kills the eigenvector, so `0` is always
+in the deflated spectrum and a deflated-spectrum bound forces `b ≤ 0`. The form bound therefore
+has to be read on the *compression* of `A'` to `yᗮ`, not on the deflation.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -1962,17 +1962,51 @@ carried unused.
 certificate with `hsep` replaced by that hypothesis, the eigenvalue equation of `A'` coming
 from `resolvent_reflection_eigenvector`.
 
-**What it does not buy.** Bridging the *form* bound of the `13o` section
-(`b ‖Q x‖² ≤ re (inner ℂ x ((A ∘ Q) x))`) to the *spectrum* bound the union consumes. That
-is min–max at `k = 1` — or a Rayleigh–Ritz theorem for the self-adjoint deflation — which
-`ChapterSirkRitzMinMax` records as open (only `k = 0` is identified). So the certificate now
-needs a bound on the spectrum of an operator with the certified eigenvector removed, which is
-strictly weaker than `hsep` but still not something a finite computation produces.
+**What it does not buy** (corrected by the `13q` section, which see): the bridge from the *form*
+bound of the `13o` section to a *spectrum* bound. The bridge itself already exists —
+`ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum` is exactly "form bound ⟺ spectrum bound"
+for a self-adjoint operator — but it does not compose with the deflation, because `A ∘ Q` kills
+`y` and therefore always has `0` in its spectrum. So the certificate's input is not "strictly
+weaker than `hsep`"; it is degenerate for a positive gap.
 
 **Verification.** Both modules build with no warning and no line above 100 code points;
 `#print axioms` on the seven new declarations and on
 `sirk_reflected_gap_certificate_of_deflated` gives `[propext, Classical.choice, Quot.sound]`;
 `lake build BookProof` is green at 9004 jobs.
+
+### The deflation cannot carry a positive gap (2026-11-13q)
+
+Track A, correction of `13o`/`13p`. Those sections reduced the separation input of the
+reflected-gap certificate to a bound on the spectrum of the deflated operator, and called that
+input "strictly weaker than `hsep`". It is not, and the reason is one line.
+
+**The obstruction.** `A ∘ Q` annihilates the certified eigenvector: `(A ∘ Q) y = 0` with
+`y ≠ 0`. Hence `0 ∈ spectrum ℝ (A ∘ Q)` — `zero_mem_spectrum_deflated`: if `A ∘ Q` were a unit,
+`u.inv (u y) = u.inv 0` would give `y = 0`. So any bound "every spectral point of `A ∘ Q` is
+`≥ b`" forces `b ≤ 0` (`le_zero_of_spectrum_ge_deflated`), and `λ' ≤ b` then leaves
+`λ' = b = 0`: the certificate's deflated form is satisfiable only in the vacuum case `e = 0`.
+It is kept as a theorem because the reduction is correct and reusable, but it is not promoted
+to the primary certificate — making a vacuously-instantiated statement primary would be worse
+than leaving `hsep` stated.
+
+**The misdiagnosis in `13p`.** That section named min–max at `k = 1` as the missing step from a
+form bound to a spectrum bound. Wrong on both counts. The form-to-spectrum implication for a
+self-adjoint operator is `ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum`, already proved,
+and it is a *bottom*-level statement (`k = 0`) — exactly what a bottom-edge certificate needs.
+What blocks the reduction is the object, not the level: `A ∘ Q` is the compression of `A` to
+`yᗮ` extended by `0` on `ℂ ∙ y`, and the extended `0` is a genuine spectral point that no
+hypothesis on the deflation can remove.
+
+**Where the form bound actually belongs.** On the compression `A'|yᗮ : yᗮ →L[ℂ] yᗮ`, for which
+`le_rayleigh_iff_le_spectrum` would apply verbatim once its spectrum is related to `A'`'s. The
+remaining work is therefore: build that operator, prove
+`spectrum A' ⊆ spectrum (A'|yᗮ) ∪ {λ'}` (a block decomposition on the summand, not on all of
+`F`), and run Temple on it. Nothing in `13o`/`13p` is wasted — the union and the rank-one
+linear algebra are correct — but the certificate's input cannot come from the deflation.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on `zero_mem_spectrum_deflated` and `le_zero_of_spectrum_ge_deflated` gives
+`[propext, Classical.choice, Quot.sound]`; `lake build BookProof` is green at 9004 jobs.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 

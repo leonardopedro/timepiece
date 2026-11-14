@@ -1,5 +1,6 @@
 import Mathlib
 import BookProof.Sirk.ChapterRitzCertificate
+import BookProof.Sirk.ChapterSirkRitzSpectrum
 
 /-!
 # Chapter SpectralSplitting — deflating a certified eigenvector
@@ -33,11 +34,15 @@ That reduction needs three pieces of linear algebra, which this chapter builds:
   `ChapterResolventTransfer.sirk_reflected_gap_certificate_of_deflated` is the certificate
   with `hsep` replaced by that hypothesis.
 
-What is *not* here is the step from a bound on the *form* of `A ∘ Q` (section 5) to the
-bound on its *spectrum* that the union consumes: that is min–max at `k = 1`, which
-`ChapterSirkRitzMinMax` records as open (only `k = 0` is identified).  So the input is now
-"the deflated operator is bounded below", not "`A` is separated at `l`", but the two are
-not yet interchangeable.
+The step from a *form* bound on `yᗮ` (section 5) to a *spectrum* bound is Rayleigh–Ritz,
+`ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum`, and it is already in the corpus — but
+it does **not** compose with the deflation, for a structural reason: `A ∘ Q` kills `y`, so
+`0 ∈ spectrum ℝ (A ∘ Q)` for every eigenvector (`zero_mem_spectrum_deflated`), and a bound on
+the whole deflated spectrum therefore forces `b ≤ 0` (`le_zero_of_spectrum_ge_deflated`).
+With `l ≤ b` that leaves only `l = b = 0`.  A positive gap has to be read off the
+*compression* of `A` to `yᗮ`; the deflation is that compression extended by zero, and the
+zero is the obstruction.  So `hsep` is reduced to a statement about the complement, but not
+yet to one a finite computation can discharge.
 -/
 
 noncomputable section
@@ -402,7 +407,12 @@ omit [CompleteSpace F] in
 /-- **The separation transfers to the deflated operator.**  If the deflated operator
 `A ∘ Q` is bounded below by `b` on its whole spectrum and `l ≤ b`, then `A` is spectrally
 separated at `l` with lower bound `b` — the `hsep` input, stated at the level of the
-operator left after the certified eigenvector is removed. -/
+operator left after the certified eigenvector is removed.
+
+Section 7 explains why this is *not* a weakening for a positive gap: the deflation contains
+`0` in its spectrum (`zero_mem_spectrum_deflated`), so `hD` forces `b ≤ 0`, and `l ≤ b` leaves
+`l = b = 0`.  The statement is the correct reduction for a *spectrum* bound; a *form* bound has
+to be taken on the compression to `yᗮ`. -/
 theorem spectralSeparation_of_complementBound (A : F →L[ℂ] F)
     {y : F} (hy : y ≠ 0) {l b : ℝ} (hAy : A y = (l : ℂ) • y) (hlb : l ≤ b)
     (hD : ∀ t ∈ spectrum ℝ (deflated A y), b ≤ t) :
@@ -411,5 +421,48 @@ theorem spectralSeparation_of_complementBound (A : F →L[ℂ] F)
   rcases spectrum_subset_union_deflated A hy hAy ht with h | h
   · exact Or.inr (hD t h)
   · exact Or.inl (Set.mem_singleton_iff.mp h)
+
+/-! ## 7. Why the deflation cannot carry a positive gap
+
+Section 5 gives `b ‖Q x‖² ≤ re (inner ℂ x ((A ∘ Q) x))` from a bound on `yᗮ`, and
+`ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum` turns a *whole-space* form bound into a
+whole-space spectrum bound.  The two do **not** compose, and the obstruction is structural:
+the deflation `A ∘ Q` kills `y`, so `0` is always in its spectrum, and a bound `b ≤ t` on
+*all* of `spectrum ℝ (A ∘ Q)` therefore forces `b ≤ 0`.  Together with `l ≤ b` that leaves
+only the degenerate case `l = b = 0`.
+
+The object whose spectrum really carries the complement bound is the **compression** of `A`
+to `yᗮ`.  `A ∘ Q` is that compression extended by `0` on `ℂ ∙ y`, and the extra `0` is
+exactly what rules out a positive `b`.  A gap statement therefore cannot be routed through
+`A ∘ Q`; the block decomposition has to be taken on the subspace itself. -/
+
+omit [CompleteSpace F] in
+/-- **The deflation always has `0` in its spectrum.**  `A ∘ Q` annihilates the eigenvector,
+so a unit of the algebra would carry the nonzero `y` to `0` and back. -/
+theorem zero_mem_spectrum_deflated (A : F →L[ℂ] F) {y : F} (hy : y ≠ 0) :
+    (0 : ℝ) ∈ spectrum ℝ (deflated A y) := by
+  rw [spectrum.mem_iff]
+  intro hunit
+  have hDunit : IsUnit (deflated A y) := by
+    have h : IsUnit (-(deflated A y)) := by simpa using hunit
+    simpa using h.neg
+  obtain ⟨u, hu⟩ := hDunit
+  have h0 : (u : F →L[ℂ] F) y = 0 := by
+    rw [hu]
+    exact deflated_apply_self A y
+  have hy0 : y = 0 := by
+    have h1 : u.inv ((u : F →L[ℂ] F) y) = u.inv 0 := by rw [h0]
+    rw [← ContinuousLinearMap.mul_apply, u.inv_val, ContinuousLinearMap.one_apply,
+      map_zero] at h1
+    exact h1
+  exact hy hy0
+
+omit [CompleteSpace F] in
+/-- **A spectrum bound on the deflation forces `b ≤ 0`.**  This is the obstruction: the
+hypothesis of `spectralSeparation_of_complementBound` is satisfiable only when the lower
+bound is nonpositive, so it cannot certify a gap `l < b` with `0 < b`. -/
+theorem le_zero_of_spectrum_ge_deflated (A : F →L[ℂ] F) {y : F} (hy : y ≠ 0) {b : ℝ}
+    (hD : ∀ t ∈ spectrum ℝ (deflated A y), b ≤ t) : b ≤ 0 :=
+  hD 0 (zero_mem_spectrum_deflated A hy)
 
 end BookProof.SpectralSplitting

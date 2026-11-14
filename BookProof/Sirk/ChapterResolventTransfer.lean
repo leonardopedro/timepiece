@@ -35,10 +35,11 @@ The mass-gap route runs its certificate on the Hashimoto shift-invert
 Nothing here needs a spectral theorem: both are arithmetic on eigenvalues plus
 the two algebraic identities the shift-invert satisfies.  What is *not* proved
 here is the spectral separation of `A` itself — that stays the S2 input.
-The one weakening of it that *is* proved is
-`sirk_reflected_gap_certificate_of_deflated`: it takes a lower bound on the spectrum of
-`A' ∘ Q` instead, where `Q` projects away the certified eigenvector, and recovers
-`hsep` from the spectrum union in `SpectralSplitting` — a factorization, not a theorem.
+`sirk_reflected_gap_certificate_of_deflated` states it on the deflated operator `A' ∘ Q`
+instead, but that is **degenerate for a positive gap**: `A' ∘ Q` annihilates the eigenvector,
+so `0` is always in its spectrum (`SpectralSplitting.zero_mem_spectrum_deflated`) and the
+hypothesis forces `b ≤ 0` (`SpectralSplitting.le_zero_of_spectrum_ge_deflated`), leaving only
+`λ' = b = 0`.  A genuine gap needs the spectrum of the *compression* of `A'` to `yᗮ`.
 -/
 
 noncomputable section
@@ -288,12 +289,17 @@ theorem sirk_reflected_gap_certificate
     simpa using h
 
 /-- **The certificate with the separation stated on the deflated operator.**  The same
-conclusion as `sirk_reflected_gap_certificate`, but `hsep` is *not* an input: the caller
-bounds the spectrum of `A' ∘ Q` — the reflected operator with the certified eigenvector
-projected away (`SpectralSplitting.deflated`) — below by `b`, and supplies `λ' ≤ b`.  The
-separation of `A'` at `λ'` then follows from
+conclusion as `sirk_reflected_gap_certificate`, but `hsep` is taken as "every spectral point of
+`A' ∘ Q` is `≥ b`" together with `λ' ≤ b`, where `A' ∘ Q` is the deflated operator of
+`SpectralSplitting.deflated`.  The separation then follows from
 `spectrum A' ⊆ spectrum (A' ∘ Q) ∪ {λ'}` (`SpectralSplitting.spectrum_subset_union_deflated`),
-whose proof is the factorization `t • 1 − A' = (t • 1 − A' ∘ Q)(1 − (λ'/t) • P)`. -/
+whose proof is the factorization `t • 1 − A' = (t • 1 − A' ∘ Q)(1 − (λ'/t) • P)`.
+
+**This is degenerate for a positive gap.**  `A' ∘ Q` kills `y`, so `0 ∈ spectrum ℝ (A' ∘ Q)`
+whenever `y ≠ 0` (`SpectralSplitting.zero_mem_spectrum_deflated`); the hypothesis therefore
+forces `b ≤ 0`, and `λ' ≤ b` leaves `λ' = b = 0`.  The reduction is correct and reusable, but it
+does not weaken `hsep` for `b > 0`: that needs the spectrum of the *compression* of `A'` to
+`yᗮ`, not of the deflation. -/
 theorem sirk_reflected_gap_certificate_of_deflated
     {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
     (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
