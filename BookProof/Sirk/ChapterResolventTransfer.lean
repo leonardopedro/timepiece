@@ -990,6 +990,131 @@ theorem reflected_band_closes_of_sirk
   exact templeBandWidth_tendsto_zero hdelta hgap hreslim
 end BandRate
 
+/-! ## 18. The gap comes from the edges, and the limit is the edge
+
+§17 needs a fixed `δ` with `θ m ≤ b − δ`.  This section removes that freedom where it can be
+removed: with the level `b = resolventEdge γ e₁` and the Rayleigh quotients pinned at the bottom
+edge `resolventEdge γ e₀`, the gap is the *difference of the two edge values*, positive by strict
+monotonicity of `resolventEdge γ` as soon as `e₀ < e₁` — nothing is chosen.  On the same
+`diag (5, 2)` numbers as §13 it is `5/6 − 2/3 = 1/6`.
+
+The second half turns the limit into an `sInf`/`sSup` statement: the sup of the lower ends and the
+inf of the upper ends are both the edge, so the nested family's intersection *is* `{λ'}`. -/
+
+section BandEdge
+
+open Filter
+open scoped Topology
+
+/-- **The edge gap is a difference of edge values.**  For `0 ≤ e₀ < e₁` and `γ > 0` the reflected
+edges are ordered, so `resolventEdge γ e₁ - resolventEdge γ e₀ > 0`. -/
+theorem resolventEdge_gap_pos {γ : ℝ} (hγ : 0 < γ) {e₀ e₁ : ℝ} (h0 : 0 ≤ e₀) (hlt : e₀ < e₁) :
+    0 < resolventEdge γ e₁ - resolventEdge γ e₀ := by
+  have h := resolventEdge_strictMonoOn (γ := γ) hγ
+    (show e₀ ∈ Set.Ici (0 : ℝ) from Set.mem_Ici.mpr h0)
+    (show e₁ ∈ Set.Ici (0 : ℝ) from Set.mem_Ici.mpr (h0.trans hlt.le)) hlt
+  exact sub_pos.mpr h
+
+/-- **The band's denominator is the edge gap, not a parameter.**  With the level
+`b = resolventEdge γ e₁` and `θ m ≤ resolventEdge γ e₀`, the Temple width is at most `ε²/δ` where
+`δ = resolventEdge γ e₁ - resolventEdge γ e₀` — derived from the edges, not chosen.
+
+The price is visible in the hypothesis: `θ ≤ resolventEdge γ e₀` puts the Rayleigh quotient *at* the
+bottom edge, and Rayleigh–Ritz only ever gives `θ` at or above it, so this is the degenerate case.
+A trial vector strictly inside `(λ', b)` therefore still needs §17's per-order `θ m ≤ b - δ`; what
+this theorem removes is the freedom to *pick* `δ` when the quotient does sit at the edge. -/
+theorem templeBandWidth_le_edgeGap {γ e₀ e₁ : ℝ} {θ ε : ℕ → ℝ} (m : ℕ)
+    (hγ : 0 < γ) (h0 : 0 ≤ e₀) (hlt : e₀ < e₁) (hθ : θ m ≤ resolventEdge γ e₀) :
+    templeBandWidth θ ε (resolventEdge γ e₁) m
+      ≤ ε m ^ 2 / (resolventEdge γ e₁ - resolventEdge γ e₀) :=
+  templeBandWidth_le m (resolventEdge_gap_pos hγ h0 hlt) (by linarith)
+
+/-- On the `diag (5, 2)` numbers (`γ = 1`, edges `2` and `5`) the derived gap is `1/6`. -/
+theorem diag52_edgeGap : resolventEdge 1 5 - resolventEdge 1 2 = 1 / 6 := by
+  rw [resolventEdge_def, resolventEdge_def]
+  norm_num
+
+/-- **The explicit rate on `diag (5, 2)`.**  Rayleigh quotients at the bottom edge `λ' = 2/3`,
+residuals `2^{-m}`, level `b = 5/6`: the widths are at most `6 · 4^{-m}`, with `6 = 1/(1/6)` the
+reciprocal of the derived edge gap.
+
+This is arithmetic on the bound, not a numerical solve: as §13's degenerate bands, both inputs are
+not attained together by a non-eigenvector (`θ = λ'` pins the trial vector to the bottom eigenspace,
+where the residual vanishes).  What it checks is the *constant*: the edge gap `1/6` turns into
+`6 · ε²` with nothing left free. -/
+theorem diag52_bandWidth_le (m : ℕ) :
+    templeBandWidth (fun _ => 2 / 3) (fun k => (1 / 2 : ℝ) ^ k) (5 / 6) m
+      ≤ 6 * ((1 / 2 : ℝ) ^ m) ^ 2 := by
+  have hb : resolventEdge (1 : ℝ) 5 = 5 / 6 := by
+    rw [resolventEdge_def]; norm_num
+  have h := templeBandWidth_le_edgeGap (γ := 1) (e₀ := 2) (e₁ := 5)
+    (θ := fun _ => 2 / 3) (ε := fun k => (1 / 2 : ℝ) ^ k) m
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+  rw [diag52_edgeGap] at h
+  rw [hb] at h
+  calc templeBandWidth (fun _ => 2 / 3) (fun k => (1 / 2 : ℝ) ^ k) (5 / 6) m
+      ≤ ((1 / 2 : ℝ) ^ m) ^ 2 / (1 / 6) := h
+    _ = 6 * ((1 / 2 : ℝ) ^ m) ^ 2 := by ring
+
+/-- **The `diag (5, 2)` band closes.**  With residuals `2^{-m}` the widths vanish, so the edge is
+the only point left in the limit. -/
+theorem diag52_bandWidth_closes :
+    Tendsto (templeBandWidth (fun _ => 2 / 3) (fun k => (1 / 2 : ℝ) ^ k) (5 / 6))
+      atTop (𝓝 0) := by
+  have hε : Tendsto (fun k : ℕ => (1 / 2 : ℝ) ^ k) atTop (𝓝 0) :=
+    tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num) (by norm_num)
+  refine templeBandWidth_tendsto_zero (b := 5 / 6) (delta := 1 / 6) (by norm_num)
+    (fun m => by norm_num) hε
+
+/-- **The `diag (5, 2)` enclosure closes.**  The band `[2/3 - 6·4^{-m}, 2/3]` has both ends at the
+reflected edge `2/3` in the limit. -/
+theorem diag52_band_ends_converge :
+    Tendsto (fun m => (2 : ℝ) / 3 - 6 * ((1 / 2 : ℝ) ^ m) ^ 2) atTop (𝓝 (2 / 3)) ∧
+      Tendsto (fun _ : ℕ => (2 : ℝ) / 3) atTop (𝓝 (2 / 3)) := by
+  have hε : Tendsto (fun k : ℕ => (1 / 2 : ℝ) ^ k) atTop (𝓝 0) :=
+    tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num) (by norm_num)
+  have hsq : Tendsto (fun m : ℕ => ((1 / 2 : ℝ) ^ m) ^ 2) atTop (𝓝 0) := by
+    simpa [pow_two, mul_zero] using hε.mul hε
+  have hw : Tendsto (fun m : ℕ => (2 : ℝ) / 3 - ((2 : ℝ) / 3 - 6 * ((1 / 2 : ℝ) ^ m) ^ 2))
+      atTop (𝓝 0) := by
+    have := hsq.const_mul 6
+    simpa using this
+  refine band_closes_of_width_tendsto_zero (lam := 2 / 3)
+    (lo := fun m => (2 : ℝ) / 3 - 6 * ((1 / 2 : ℝ) ^ m) ^ 2)
+    (hi := fun _ => (2 : ℝ) / 3) (fun m => ?_) (fun m => le_refl _) hw
+  have : 0 ≤ 6 * ((1 / 2 : ℝ) ^ m) ^ 2 := by positivity
+  linarith
+
+/-- The upper ends of a band shrinking down to `λ` have infimum exactly `λ`. -/
+theorem sInf_range_eq_of_tendsto {lam : ℝ} {hi : ℕ → ℝ} (hhi : ∀ m, lam ≤ hi m)
+    (h : Tendsto hi atTop (𝓝 lam)) : sInf (Set.range hi) = lam := by
+  have hbdd : BddBelow (Set.range hi) := ⟨lam, by rintro _ ⟨m, rfl⟩; exact hhi m⟩
+  refine le_antisymm (le_of_tendsto_of_tendsto' tendsto_const_nhds h
+    (fun m => csInf_le hbdd (Set.mem_range_self m))) ?_
+  exact le_csInf ⟨hi 0, Set.mem_range_self 0⟩ (fun y hy => by
+    rcases hy with ⟨m, rfl⟩; exact hhi m)
+
+/-- The lower ends of a band growing up to `λ` have supremum exactly `λ`. -/
+theorem sSup_range_eq_of_tendsto {lam : ℝ} {lo : ℕ → ℝ} (hlo : ∀ m, lo m ≤ lam)
+    (h : Tendsto lo atTop (𝓝 lam)) : sSup (Set.range lo) = lam := by
+  have hbdd : BddAbove (Set.range lo) := ⟨lam, by rintro _ ⟨m, rfl⟩; exact hlo m⟩
+  refine le_antisymm (csSup_le ⟨lo 0, Set.mem_range_self 0⟩ (fun y hy => by
+    rcases hy with ⟨m, rfl⟩; exact hlo m)) ?_
+  exact le_of_tendsto h (Eventually.of_forall (fun m => le_csSup hbdd (Set.mem_range_self m)))
+
+/-- **The limit is exactly the edge.**  A nested band whose width vanishes has its lower ends'
+supremum and its upper ends' infimum both equal to `λ`: the limit set `⋂ m, [lo m, hi m]` is the
+single point `{λ}`. -/
+theorem band_limit_is_edge {lam : ℝ} {lo hi : ℕ → ℝ}
+    (hlo : ∀ m, lo m ≤ lam) (hhi : ∀ m, lam ≤ hi m)
+    (hw : Tendsto (fun m => hi m - lo m) atTop (𝓝 0)) :
+    sSup (Set.range lo) = lam ∧ sInf (Set.range hi) = lam := by
+  obtain ⟨h1, h2⟩ := band_closes_of_width_tendsto_zero (lam := lam) hlo hhi hw
+  exact ⟨sSup_range_eq_of_tendsto hlo h1, sInf_range_eq_of_tendsto hhi h2⟩
+
+end BandEdge
+
+
 end BookProof.ChapterResolventTransfer
 
 end

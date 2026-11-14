@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13aa`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13ab`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,12 +54,19 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
+> **Track A — newest (2026-11-13ab):** “State of the project — 2026-11-13ab: the gap is an edge
+> difference, and the limit is the edge” (end of file): `templeBandWidth_le_edgeGap` makes
+> `δ = resolventEdge γ e₁ - resolventEdge γ e₀` — positive by `resolventEdge_strictMonoOn` — into
+> the denominator instead of a parameter, at the price that `θ` must sit at the bottom edge;
+> `sInf_range_eq_of_tendsto`, `sSup_range_eq_of_tendsto` and `band_limit_is_edge` state the limit
+> as the edge itself, and the `diag (5, 2)` numbers give the rate `6 · 4^{-m}`.
+>
 > **Track A — newest (2026-11-13aa):** “State of the project — 2026-11-13aa: the enclosure closes,
 > at a rate” (end of file): the reflected Temple band's width is `ε²/(b − θ) ≤ ε²/δ`, so
-> `templeBandWidth_tendsto_zero` sends it to `0` and `band_closes_of_width_tendsto_zero` makes both
-> band ends converge to the edge; `reflected_band_closes_of_sirk` derives the residual input from the
-> SIRK operator-norm bound instead of assuming it.  The `δ`-gap stays an input: no width bound
-> replaces knowing the Rayleigh quotient is below `b`.
+> `templeBandWidth_tendsto_zero` sends it to `0` and `band_closes_of_width_tendsto_zero` makes
+> both band ends converge to the edge; `reflected_band_closes_of_sirk` derives the residual input
+> from the SIRK operator-norm bound instead of assuming it.  The `δ`-gap stays an input: no width
+> bound replaces knowing the Rayleigh quotient is below `b`.
 >
 > **Track A — newest (2026-11-13z):** “State of the project — 2026-11-13z: one table theorem for
 > both row kinds” (end of file): `CertificateRow` (solve or band, with `scale` `1` or `γ²`) and
@@ -25038,3 +25045,43 @@ succeed with no warning from this file and no line above 100 code points; `#prin
 `templeBandWidth`, `templeBandWidth_le`, `templeBandWidth_tendsto_zero`,
 `band_closes_of_width_tendsto_zero`, `reflected_band_closes_of_sirk` gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-13ab: the gap is an edge difference, and the limit is the edge
+
+Track A.  §17 left one free number, the `δ` in `θ m ≤ b − δ`, and stated the closure as a limit of
+sequences.  This entry derives that `δ` where it can be derived and turns the limit into a statement
+about the edge itself.
+
+**The derived `δ`.**  With the level at the next reflected edge, `b = resolventEdge γ e₁`, and the
+denominator `resolventEdge γ e₁ - resolventEdge γ e₀`, nothing is left to choose:
+`resolventEdge_gap_pos` gets positivity from `resolventEdge_strictMonoOn` (edges are ordered once
+`0 ≤ e₀ < e₁`), and `templeBandWidth_le_edgeGap` feeds it to `templeBandWidth_le`, so the width
+is at most `ε²/(b - λ')` where `λ' = resolventEdge γ e₀` is the bottom edge.
+
+**The price, stated rather than hidden.**  The hypothesis of that theorem is
+`θ m ≤ resolventEdge γ e₀`, and Rayleigh–Ritz only ever gives `θ` at or above the bottom.  So the
+derived-`δ` form holds exactly when the Rayleigh quotient is *pinned* at the edge — the degenerate
+case, as with §13's degenerate bands.  A trial vector strictly inside `(λ', b)` still needs §17's
+per-order hypothesis; what is removed is the freedom to pick `δ` out of the air when the quotient
+does sit at the edge.  Both docstrings say this.
+
+**The numbers.**  On the running `diag (5, 2)` instance (`γ = 1`, edges `2` and `5`) the derived gap
+is `diag52_edgeGap : resolventEdge 1 5 - resolventEdge 1 2 = 1/6`.  With residuals `2^{-m}` that
+gives `diag52_bandWidth_le : width ≤ 6 · 4^{-m}` — the constant `6 = 1/(1/6)` is the reciprocal of
+the edge gap — and `diag52_bandWidth_closes` sends it to `0`.  `diag52_band_ends_converge` closes
+the band `[2/3 - 6·4^{-m}, 2/3]` at both ends via `band_closes_of_width_tendsto_zero`.
+
+**The limit is the edge.**  `sInf_range_eq_of_tendsto` and `sSup_range_eq_of_tendsto` are the
+order-theoretic counterparts of the two convergences — the infimum of the upper ends,
+respectively the supremum of the lower ends, of a band shrinking onto `λ` is `λ` — and
+`band_limit_is_edge` packs them: a nested band whose width vanishes has `sSup (range lo) = λ` and
+`sInf (range hi) = λ`, so the intersection `⋂ m, [lo m, hi m]` is the point `{λ'}`.  This is a
+statement about the two number families, not about `Set.iInter` of intervals; the docstring says
+so.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer` and `lake build BookProof`
+succeed with no warning from this file and no line above 100 code points; `#print axioms` on
+`resolventEdge_gap_pos`, `templeBandWidth_le_edgeGap`, `diag52_edgeGap`, `diag52_bandWidth_le`,
+`diag52_bandWidth_closes`, `diag52_band_ends_converge`, `sInf_range_eq_of_tendsto`,
+`sSup_range_eq_of_tendsto`, `band_limit_is_edge` gives `[propext, Classical.choice, Quot.sound]`;
+no `sorry`.

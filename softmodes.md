@@ -2384,8 +2384,41 @@ nothing at all — the same requirement as `b = resolventEdge γ e > 0` in §10.
 visible in the statements rather than folded into the limit.
 
 **Verification.** `ChapterResolventTransfer` builds with no warning and no line above 100 code
-points; `lake build BookProof` is green at 9004 jobs; `#print axioms` on the five new declarations
+points; `lake build BookProof` is green at 9004 jobs; `#print axioms` on the five new
+declarations gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The gap is an edge difference, and the limit is the edge (2026-11-13ab)
+
+Track A. Section 17 left the `δ` in `θ m ≤ b − δ` free and stated the closure as a limit of
+sequences. This entry derives that `δ` where it can be derived, and states the limit as the edge.
+
+**The derived `δ`.** Taking the level at the next reflected edge, `b = resolventEdge γ e₁`, the
+denominator becomes `resolventEdge γ e₁ - resolventEdge γ e₀` — nothing left to choose.
+`resolventEdge_gap_pos` gets its positivity from `resolventEdge_strictMonoOn` (the edges order once
+`0 ≤ e₀ < e₁`), and `templeBandWidth_le_edgeGap` feeds that to `templeBandWidth_le`.
+
+**The price.** The hypothesis is `θ m ≤ resolventEdge γ e₀`, while Rayleigh–Ritz only gives `θ` at
+or above the bottom edge — so the derived-`δ` form holds exactly when the Rayleigh quotient is
+pinned at the edge, the degenerate case again. A trial vector strictly inside `(λ', b)` still needs
+§17's per-order hypothesis. The docstrings say so instead of letting the theorem look unconditional.
+
+**The `diag (5, 2)` numbers.** `diag52_edgeGap` evaluates the gap:
+`resolventEdge 1 5 - resolventEdge 1 2 = 1/6`. With residuals `2^{-m}`, `diag52_bandWidth_le` gives
+`width ≤ 6 · 4^{-m}` — the `6` is the reciprocal of the edge gap — and `diag52_bandWidth_closes`
+sends it to `0`; `diag52_band_ends_converge` closes `[2/3 - 6·4^{-m}, 2/3]` at both ends. As with
+§13's degenerate bands this is arithmetic on the bound: `θ = λ'` with a nonzero residual is not
+attained by a non-eigenvector, and what the instance checks is the constant.
+
+**The limit is the edge.** `sInf_range_eq_of_tendsto` and `sSup_range_eq_of_tendsto` are the
+order-theoretic counterparts of the convergences (infimum of the upper ends, supremum of the lower
+ends, both `λ`), and `band_limit_is_edge` packs them: `sSup (range lo) = λ` and
+`sInf (range hi) = λ`, so `⋂ m, [lo m, hi m]` is the point `{λ'}` — read at the level of the two
+number families, not of `Set.iInter`.
+
+**Verification.** `ChapterResolventTransfer` builds with no warning and no line above 100 code
+points; `lake build BookProof` is green at 9004 jobs; `#print axioms` on the nine new declarations
 gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
