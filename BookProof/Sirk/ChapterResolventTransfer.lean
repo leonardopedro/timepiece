@@ -610,9 +610,19 @@ theorem sirk_reflected_temple_band_of_shiftInvertNorm [Nontrivial E]
   · exact sirk_resid_reflection_le V psiB R hRsym γ C Dmin h m mu yy hVV heigB hyy hbound
 
 /-- **The two-sided Temple band with the level set by the bottom edge.**  The specialization of
-`sirk_reflected_temple_band_of_shiftInvertNorm` to `b = resolventEdge γ e`: the complete
-two-sided enclosure of the reflected edge, with its strictness, follows from the lower bound
-`e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A` alone. -/
+`sirk_reflected_temple_band_of_shiftInvertNorm` to `b = resolventEdge γ e`: the two-sided enclosure
+of the reflected edge, with its strictness, follows from the lower bound
+`e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A` alone.
+
+**The hypothesis `hlt` here is unsatisfiable, so the band it produces is empty.**  The theorem also
+proves `sInf (spectrum ℝ A') = resolventEdge γ e`, so `hlt : rayleigh A' (V yy) < resolventEdge γ e`
+reads `θ < sInf`, which `not_rayleigh_lt_sInf` (and its edge form
+`not_rayleigh_lt_resolventEdge`) rules out for a unit vector.  Nothing is wrong with the bound
+itself — `temple_lower_bound` is valid at the edge — but no vector supplies its side condition.
+The non-vacuous version lives in §19: at the *next* reflected edge `b = resolventEdge γ e₁ > λ'`
+the same band encloses the edge from some order on
+(`reflected_band_closes_at_secondEdge`), because there `θ m < b` eventually holds by convergence
+rather than by assumption. -/
 theorem sirk_reflected_temple_band_of_bottomEdge [Nontrivial E]
     {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
     (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
@@ -1265,6 +1275,180 @@ theorem diag52_band_closes_nonDegenerate :
   have hb5 : (5 : ℝ) / 6 = resolventEdge (1 : ℝ) 5 := hb.symm
   rw [hb5]
   exact h
+
+/-- **A level equal to the reflected edge admits no Rayleigh quotient below it.**  If the edge of
+the reflected operator *is* `resolventEdge γ e`, then `θ < resolventEdge γ e` is `θ < sInf` —
+impossible for a unit vector (`not_rayleigh_lt_sInf`).  This is the audit lemma behind §10's
+bottom-edge instantiation; a usable Temple level has to be strictly above the edge. -/
+theorem not_rayleigh_lt_resolventEdge [Nontrivial E] {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
+    {γ e : ℝ} (hsInf : sInf (spectrum ℝ A) = resolventEdge γ e) {x : E} (hx : ‖x‖ = 1) :
+    ¬ (BookProof.RitzCertificate.rayleigh A x < resolventEdge γ e) := by
+  rw [← hsInf]
+  exact not_rayleigh_lt_sInf hA hx
+
+/-- **The next reflected edge is a legitimate Temple level.**  For `0 ≤ e₀ < e₁` the two reflected
+edges are strictly ordered (`resolventEdge_gap_pos`), so the bottom edge `λ' = resolventEdge γ e₀`
+sits strictly below the level `resolventEdge γ e₁` — the second eigenvalue's reflected value.
+That strictness is what §10's bottom-edge instantiation lacks. -/
+theorem secondEdge_lt_level {γ e₀ e₁ : ℝ} (hγ : 0 < γ) (h0 : 0 ≤ e₀) (hlt : e₀ < e₁) :
+    resolventEdge γ e₀ < resolventEdge γ e₁ := by
+  have := resolventEdge_gap_pos hγ h0 hlt
+  linarith
+
+/-- **The SIRK residual is a residual for the reflected operator, and it vanishes.**  The
+pointwise bound is `sirk_resid_reflection_le`, and `sirk_error_decay_exponential` makes the SIRK
+operator-norm error tend to `0` like `e^{-h m}`. -/
+theorem reflected_resid_tendsto_zero {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m) :
+    Tendsto (fun m => BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) atTop (𝓝 0) := by
+  have hres : ∀ m, BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))
+        ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m :=
+    fun m => sirk_resid_reflection_le V psiB R hRsym γ C Dmin hstep m (mu m) (yy m) hVV
+      (heigB m) (hyy m) (hbound m)
+  exact squeeze_zero (fun m => by
+    simp only [BookProof.RitzCertificate.resid]
+    exact norm_nonneg _) hres
+    (BookProof.ChapterH6.sirk_error_decay_exponential C Dmin hstep 1 hh)
+
+/-- **The Rayleigh quotients of the SIRK vectors converge to the reflected edge.**  §19's hypothesis
+`hθ` is not data the caller has to supply: the reflected residual vanishes at the SIRK rate
+(`reflected_resid_tendsto_zero`), the separation puts the rest of the spectrum above the level `b`,
+and Rayleigh–Ritz plus Temple's inequality squeeze `θ m` onto `sInf (spectrum ℝ A')`, which §10
+identifies with `resolventEdge γ e`.  The only quantitative input is that the quotients stay a fixed
+`δ` below `b`. -/
+theorem reflected_rayleigh_tendsto_edge [Nontrivial E]
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {e b delta : ℝ} (hdelta : 0 < delta)
+    (hsInf : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e)
+    (hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e) b)
+    (hgap : ∀ m, BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ≤ b - delta) :
+    Tendsto (fun m => BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) atTop (𝓝 (resolventEdge γ e)) := by
+  have hsym : IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) :=
+    isSelfAdjoint_reflection R hRsym γ
+  have hsep' : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)
+      (sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R))) b := by
+    rw [hsInf]
+    exact hsep
+  have h := BookProof.RitzCertificate.rayleigh_tendsto_sInf hsym hsep' hdelta hyy hgap
+    (reflected_resid_tendsto_zero hRsym hh V psiB hVV heigB hyy hbound)
+  rwa [hsInf] at h
+
+/-- **The reflected band closes with no Rayleigh-quotient hypothesis.**  The next-edge form
+`reflected_band_closes_at_nextEdge` takes `hθ` (convergence of the quotients to the bottom edge) as
+data.  Here it is derived: the SIRK residuals vanish, the separation puts the level above the edge,
+and `reflected_rayleigh_tendsto_edge` supplies the convergence.  Nothing about `θ` is assumed. -/
+theorem reflected_band_closes_of_sirk_of_resid [Nontrivial E]
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {e b delta : ℝ} (hdelta : 0 < delta)
+    (hsInf : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e)
+    (hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e) b)
+    (hgap : ∀ m, BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ≤ b - delta) :
+    Tendsto (templeBandWidth
+        (fun m => BookProof.RitzCertificate.rayleigh
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)))
+        (fun m => BookProof.RitzCertificate.resid
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) b) atTop (𝓝 0) := by
+  have hsym : IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) :=
+    isSelfAdjoint_reflection R hRsym γ
+  have hlvl : resolventEdge γ e < b := by
+    have h0 := BookProof.RitzCertificate.sInf_spectrum_le_rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) hsym (hyy 0)
+    rw [hsInf] at h0
+    linarith [hgap 0]
+  exact templeBandWidth_tendsto_zero_of_tendsto hlvl
+    (reflected_rayleigh_tendsto_edge hRsym hh V psiB hVV heigB hyy hbound hdelta hsInf hsep hgap)
+    (reflected_resid_tendsto_zero hRsym hh V psiB hVV heigB hyy hbound)
+
+/-- **The Temple band at the second reflected edge is not vacuous.**  With `0 ≤ e₀ < e₁` the
+level is `b = resolventEdge γ e₁` — the reflected value of an isolated second eigenvalue — and it
+lies strictly above the bottom edge `λ' = resolventEdge γ e₀` (`secondEdge_lt_level`).  Then the
+hypothesis `θ m < b` of `temple_band_mem` is not a certificate condition at all: it holds from
+some order on, and from that order on every emitted band `[θ − ε²/(b−θ), θ]` encloses
+`sInf (spectrum ℝ A')`, while its widths vanish.  Contrast
+`sirk_reflected_temple_band_of_bottomEdge`, where the level *is* the edge and `hlt` can never be
+met. -/
+theorem reflected_band_closes_at_secondEdge [Nontrivial E]
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {e₀ e₁ : ℝ} (hγ : 0 < γ) (h0 : 0 ≤ e₀) (hlt : e₀ < e₁)
+    (hsInf : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e₀)
+    (hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e₀) (resolventEdge γ e₁))
+    {delta : ℝ} (hdelta : 0 < delta)
+    (hgap : ∀ m, BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ≤ resolventEdge γ e₁ - delta) :
+    Tendsto (templeBandWidth
+        (fun m => BookProof.RitzCertificate.rayleigh
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)))
+        (fun m => BookProof.RitzCertificate.resid
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)))
+        (resolventEdge γ e₁)) atTop (𝓝 0) ∧
+      ∀ᶠ m in atTop,
+        sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) ∈
+          Set.Icc (BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) -
+            BookProof.RitzCertificate.resid
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ^ 2 /
+              (resolventEdge γ e₁ - BookProof.RitzCertificate.rayleigh
+                ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))))
+            (BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) := by
+  have hsym : IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) :=
+    isSelfAdjoint_reflection R hRsym γ
+  have hlvl : resolventEdge γ e₀ < resolventEdge γ e₁ := secondEdge_lt_level hγ h0 hlt
+  have hθ := reflected_rayleigh_tendsto_edge (b := resolventEdge γ e₁) hRsym hh V psiB hVV
+    heigB hyy hbound hdelta hsInf hsep hgap
+  refine ⟨templeBandWidth_tendsto_zero_of_tendsto hlvl hθ
+    (reflected_resid_tendsto_zero hRsym hh V psiB hVV heigB hyy hbound), ?_⟩
+  have hsep' : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)
+      (sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R))) (resolventEdge γ e₁) := by
+    rw [hsInf]
+    exact hsep
+  have hθ' : Tendsto (fun m => BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) atTop
+      (𝓝 (sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)))) := by
+    rw [hsInf]
+    exact hθ
+  have hlvl' : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) < resolventEdge γ e₁ := by
+    rw [hsInf]
+    exact hlvl
+  exact BookProof.RitzCertificate.temple_band_eventually_mem hsym hsep' hyy hθ' hlvl'
+
 
 end BandNondegenerate
 

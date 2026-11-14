@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13ac`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13ad`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -53,6 +53,14 @@
 > (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
+>
+> **Track A — newest (2026-11-13ad):** “State of the project — 2026-11-13ad: the quotient reaches
+> the edge” (end of file): `rayleigh_tendsto_sInf` derives
+> `θ m → sInf` from vanishing residuals and a level held above the edge;
+> `reflected_rayleigh_tendsto_edge` and `reflected_band_closes_of_sirk_of_resid` apply it to the
+> SIRK vectors, so §19's `hθ` is a conclusion, not an input; `reflected_band_closes_at_secondEdge`
+> runs the Temple band at `resolventEdge γ e₁` and gets `θ m < b` eventually, the non-vacuous
+> replacement for §10's bottom-edge band (`not_rayleigh_lt_resolventEdge`).
 >
 > **Track A — newest (2026-11-13ac):** “State of the project — 2026-11-13ac: the per-order gap”
 > (end of file): `eventually_half_gap_le` derives the per-order gap `b − θ m ≥ (b − λ')/2` from
@@ -25136,3 +25144,53 @@ from this file and no line above 100 code points; `#print axioms` on `eventually
 `templeBandWidth_le_half_gap`, `templeBandWidth_tendsto_zero_of_tendsto`, `not_rayleigh_lt_sInf`,
 `reflected_band_closes_of_sirk_of_tendsto`, `reflected_band_closes_at_nextEdge` and
 `diag52_band_closes_nonDegenerate` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+
+## State of the project — 2026-11-13ad: the quotient reaches the edge
+
+Track A.  §19 closed the reflected band from two inputs: convergence of the Rayleigh quotients to
+the bottom edge, and a level strictly above it.  Both are now consequences of data the SIRK
+pipeline already has, and the vacuous instantiation of §10 gets a non-vacuous replacement.
+
+**The quotients converge to the edge.**  `rayleigh_tendsto_sInf` (in `ChapterRitzCertificate`) is
+the squeeze the emitted band always implied: Rayleigh–Ritz gives `sInf ≤ θ m`, Temple's inequality
+gives `θ m − ε m²/(b − θ m) ≤ sInf`, and with `θ m ≤ b − δ` the subtracted term is at most
+`ε m²/δ → 0`.  So `θ m → sInf (spectrum ℝ A)` follows from vanishing residuals and one fixed
+distance `δ` to the level — no eigenvector, no rate.
+`temple_band_eventually_mem` is the companion non-vacuity statement: once the level is strictly
+above the edge, `θ m < b` holds from some order on, and from that order on the band
+`[θ − ε²/(b−θ), θ]` encloses the edge.
+
+**Deriving §19's `hθ`.**  `reflected_resid_tendsto_zero` packages the residual side
+(`sirk_resid_reflection_le` pointwise, `sirk_error_decay_exponential` in the limit).
+`reflected_rayleigh_tendsto_edge` then squeezes `θ m → sInf (spectrum ℝ A')` and rewrites the
+infimum to `resolventEdge γ e` with §10's identification, so the convergence §19 assumed is a
+theorem about the SIRK vectors.  `reflected_band_closes_of_sirk_of_resid` composes it with
+`templeBandWidth_tendsto_zero_of_tendsto`: the widths vanish with no hypothesis on `θ` at all — the
+strictness `λ' < b` it needs is read off Rayleigh–Ritz and `θ m ≤ b − δ`.
+
+**The second edge makes the Temple band real.**  `secondEdge_lt_level` is the strict inequality
+`resolventEdge γ e₀ < resolventEdge γ e₁` from `resolventEdge_gap_pos`.
+`reflected_band_closes_at_secondEdge` runs the band at the level `b = resolventEdge γ e₁` — the
+reflected value of an isolated second eigenvalue — and concludes both halves: the widths vanish,
+and `∀ᶠ m`, `sInf (spectrum ℝ A')` lies in `[θ m − ε m²/(b − θ m), θ m]`.  The side condition
+`θ m < b` is not a certificate input there; it follows from the convergence.  That is the honest
+version of §10's `sirk_reflected_temple_band_of_bottomEdge`, whose level *is* the edge.
+
+**The sweep.**  Looking for the same defect elsewhere: no other chapter instantiates a Temple level
+at an edge value.  `hlt : rayleigh … < resolventEdge γ e`, and `hlt : rayleigh … < b` with `b` an
+edge, occur only in `ChapterResolventTransfer` — the two bottom-edge certificates — and both are now
+documented as vacuous, with `not_rayleigh_lt_resolventEdge` as the formal witness and §19 as the
+replacement.  Every other `SpectralSeparation` consumer keeps the level free and states its
+positivity: `ChapterTempleContinuumGap` asks for `0 < (b − l)/2`, `ChapterTempleSeparationBound` for
+`0 < c` with `c ≤ b − rayleigh A x`, and `ChapterRitzCertificate`'s `temple_nested_certificate` for
+`0 < δ` with `θ ≤ b − δ`.  Those are inhabited as soon as the spectrum above the edge is separated,
+so they carry information.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterRitzCertificate`,
+`lake build BookProof.Sirk.ChapterResolventTransfer` and `lake build BookProof` succeed; no warning
+from either file and no line above 100 code points; `#print axioms` on `rayleigh_tendsto_sInf`,
+`temple_band_eventually_mem`, `not_rayleigh_lt_resolventEdge`, `secondEdge_lt_level`,
+`reflected_resid_tendsto_zero`, `reflected_rayleigh_tendsto_edge`,
+`reflected_band_closes_of_sirk_of_resid`, `reflected_band_closes_at_secondEdge` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

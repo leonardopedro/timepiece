@@ -2449,6 +2449,45 @@ only its bottom-edge instantiation is.
 points; `#print axioms` on the seven new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
+### The quotient reaches the edge (2026-11-13ad)
+
+Track A. §19 left two inputs on the table: convergence of the Rayleigh quotients to the bottom
+edge, and a level strictly above it. Both are now derived, and §10's bottom-edge band gets a
+non-vacuous replacement at the second reflected edge.
+
+**The squeeze.** `rayleigh_tendsto_sInf` (`ChapterRitzCertificate`): Rayleigh–Ritz bounds the edge
+from above by `θ m`, Temple bounds it from below by `θ m − ε m²/(b − θ m)`, and `θ m ≤ b − δ`
+turns the subtracted term into `ε m²/δ → 0`. Hence `θ m → sInf (spectrum ℝ A)` from vanishing
+residuals plus one fixed distance to the level. `temple_band_eventually_mem` is the companion: at a
+level strictly above the edge, `θ m < b` holds eventually, so the band `[θ − ε²/(b−θ), θ]`
+encloses the edge from some order on.
+
+**Derived for SIRK.** `reflected_resid_tendsto_zero` is the residual limit for
+`A' = γ⁻¹ • 1 − R` (`sirk_resid_reflection_le` pointwise, `sirk_error_decay_exponential` in the
+limit). `reflected_rayleigh_tendsto_edge` applies the squeeze on `A'` and rewrites `sInf` to
+`resolventEdge γ e`, so `hθ` in §19 is not data. `reflected_band_closes_of_sirk_of_resid` composes
+it with the convergence-form width theorem: the widths vanish with no hypothesis on `θ`, the
+strictness `λ' < b` coming from Rayleigh–Ritz and `θ m ≤ b − δ`.
+
+**Second edge.** `secondEdge_lt_level` gives `resolventEdge γ e₀ < resolventEdge γ e₁` for
+`0 ≤ e₀ < e₁`. `reflected_band_closes_at_secondEdge` runs the band at `b = resolventEdge γ e₁`
+and proves both halves — widths → 0 and `∀ᶠ m`, `sInf (spectrum ℝ A') ∈ [θ − ε²/(b−θ), θ]` — with
+`θ m < b` supplied by convergence. That is the honest counterpart of
+`sirk_reflected_temple_band_of_bottomEdge`, where the level is the edge and `hlt` is unsatisfiable.
+In `ChapterRitzCertificate`, `temple_nested_certificate` and `fock_mass_gap_of_temple_certificates`
+still take `0 < δ` with `θ ≤ b − δ`; that is inhabited data and is left alone.
+
+**The sweep.** No chapter outside `ChapterResolventTransfer` instantiates a Temple level at an edge
+value: `hlt : rayleigh … < resolventEdge γ e` and `hlt : … < b` with `b` an edge occur only in the
+two bottom-edge certificates there. `ChapterTempleContinuumGap` (`0 < (b − l)/2`),
+`ChapterTempleSeparationBound` (`0 < c`, `c ≤ b − rayleigh A x`) and `ChapterRitzCertificate`'s
+nested certificate (`0 < δ`) all keep the level free. Both vacuous instantiations now carry the
+audit note and point at `not_rayleigh_lt_resolventEdge`.
+
+**Verification.** `ChapterRitzCertificate` and `ChapterResolventTransfer` build with no warning and
+no line above 100 code points; `#print axioms` on the eight new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
