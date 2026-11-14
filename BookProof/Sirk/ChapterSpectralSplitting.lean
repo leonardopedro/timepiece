@@ -30,9 +30,9 @@ That reduction needs three pieces of linear algebra, which this chapter builds:
   `t • 1 − A` as a product of units for every `t` in the resolvent of the deflation with
   `t ≠ l`, and the second factor `1 − (l/t) • P` is inverted by `1 + (l/(t−l)) • P`.
   Accordingly `spectralSeparation_of_complementBound` derives
-  `SpectralSeparation A l b` from a lower bound on the spectrum of `A ∘ Q`, and
-  `ChapterResolventTransfer.sirk_reflected_gap_certificate_of_deflated` is the certificate
-  with `hsep` replaced by that hypothesis.
+  `SpectralSeparation A l b` from a lower bound on the spectrum of `A ∘ Q`.  That input is
+  degenerate (`13q`), so no certificate uses it: the deflated statement is kept only as the
+  spectrum-level half of the reduction.
 
 The step from a *form* bound on `yᗮ` (section 5) to a *spectrum* bound is Rayleigh–Ritz,
 `ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum`, and it is already in the corpus — but
@@ -41,8 +41,12 @@ it does **not** compose with the deflation, for a structural reason: `A ∘ Q` k
 the whole deflated spectrum therefore forces `b ≤ 0` (`le_zero_of_spectrum_ge_deflated`).
 With `l ≤ b` that leaves only `l = b = 0`.  A positive gap has to be read off the
 *compression* of `A` to `yᗮ`; the deflation is that compression extended by zero, and the
-zero is the obstruction.  So `hsep` is reduced to a statement about the complement, but not
-yet to one a finite computation can discharge.
+zero is the obstruction.  Section 8 therefore builds the compression `compressed A hA hy` on
+the subspace and proves `spectrum A ⊆ spectrum (compressed) ∪ {l}`, and section 10 turns it
+into the reduction this chapter was after: `spectralSeparation_of_compressionBound` derives
+`SpectralSeparation A l b` from the *form* bound `b ‖z‖² ≤ re ⟪z, compressed z⟫` on `yᗮ`.
+`ChapterResolventTransfer.sirk_reflected_gap_certificate_of_compression` is the certificate
+with `hsep` replaced by that hypothesis, and it is non-degenerate: `b > 0` is admissible.
 -/
 
 noncomputable section
@@ -723,5 +727,46 @@ theorem spectrum_subset_union_compressed (A : F →L[ℂ] F) (hA : IsSelfAdjoint
       abel] at h
     exact h
   exact (spectrum.mem_iff.mp ht) hneg
+
+
+/-! ## 10. The separation input from a form bound on the compression
+
+`spectralSeparation_of_complementBound` states the separation at the level of a *spectrum*
+bound on the deflation, and section 7 showed that form is degenerate for a positive gap.  The
+right input is a *form* bound on the compression: `b ‖z‖² ≤ re ⟪z, compressed z⟫` for every
+`z ∈ yᗮ`.  `le_rayleigh_iff_le_spectrum` turns it into a spectrum bound on the compression —
+that is where it is a bottom-level statement — and `spectrum_subset_union_compressed` carries
+the bound back to `A`, with `l` covering the line. -/
+
+/-- The compression is self-adjoint: it is `A` restricted to the invariant subspace `yᗮ`. -/
+theorem isSelfAdjoint_compressed (A : F →L[ℂ] F) (hA : IsSelfAdjoint A) {y : F} {lam : ℂ}
+    (hy : A y = lam • y) : IsSelfAdjoint (compressed A hA hy) := by
+  haveI : CompleteSpace ↥(eigenLine y)ᗮ :=
+    (Submodule.isClosed_orthogonal (eigenLine y)).completeSpace_coe
+  refine ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mpr fun z w => ?_
+  have hs : (inner ℂ ((compressed A hA hy z : ↥(eigenLine y)ᗮ) : F) (w : F))
+      = inner ℂ (z : F) ((compressed A hA hy w : ↥(eigenLine y)ᗮ) : F) := by
+    rw [compressed_apply_coe, compressed_apply_coe]
+    exact (ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp hA) (z : F) (w : F)
+  simpa only [Submodule.coe_inner] using hs
+
+/-- **The separation from a form bound on the compression.**  If the compression to `yᗮ` is
+bounded below by `b` in form and `l ≤ b`, then `A` is spectrally separated at `l` with lower
+bound `b` — the `hsep` input of the reflected-gap certificate, with no spurious `0` and no
+restriction to the degenerate case. -/
+theorem spectralSeparation_of_compressionBound (A : F →L[ℂ] F) (hA : IsSelfAdjoint A)
+    {y : F} (hy0 : y ≠ 0) {l b : ℝ} (hAy : A y = (l : ℂ) • y) (hlb : l ≤ b)
+    (hC : ∀ z : ↥(eigenLine y)ᗮ,
+      b * ‖z‖ ^ 2 ≤ (inner ℂ z (compressed A hA hAy z) : ℂ).re) :
+    BookProof.RitzCertificate.SpectralSeparation A l b := by
+  haveI : CompleteSpace ↥(eigenLine y)ᗮ :=
+    (Submodule.isClosed_orthogonal (eigenLine y)).completeSpace_coe
+  have hspec : ∀ t ∈ spectrum ℝ (compressed A hA hAy), b ≤ t :=
+    (BookProof.ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum
+      (compressed A hA hAy) (isSelfAdjoint_compressed A hA hAy) b).mp hC
+  refine ⟨hlb, fun t ht => ?_⟩
+  rcases spectrum_subset_union_compressed A hA hy0 hAy ht with h | h
+  · exact Or.inr (hspec t h)
+  · exact Or.inl (Set.mem_singleton_iff.mp h)
 
 end BookProof.SpectralSplitting

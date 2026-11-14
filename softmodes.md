@@ -333,8 +333,10 @@ reduction, and the 2026-11-13q section says why: `A ∘ Q` kills the eigenvector
 in the deflated spectrum and a deflated-spectrum bound forces `b ≤ 0`. The form bound therefore
 has to be read on the *compression* of `A'` to `yᗮ`, not on the deflation — and the
 2026-11-13r section builds that operator (`SpectralSplitting.compressed`) and proves
-`spectrum A ⊆ spectrum (compressed) ∪ {lam}`, so the form bound now has the object it
-belongs on and only the wrapper into `SpectralSeparation` remains.
+`spectrum A ⊆ spectrum (compressed) ∪ {lam}`; the 2026-11-13s section then derives `hsep`
+itself from the complement form bound
+(`SpectralSplitting.spectralSeparation_of_compressionBound`), so the only remaining input is
+`b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ`.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -2063,6 +2065,47 @@ since the inclusion is not multiplicative and `A` itself does not kill the line.
 **Verification.** The module builds with no warning and no line above 100 code points;
 `#print axioms` on the thirteen new declarations gives `[propext, Classical.choice,
 Quot.sound]` for each; `lake build BookProof` is green at 9004 jobs.
+
+
+### `hsep` is derived from a form bound on the compression (2026-11-13s)
+
+Track A, closing the loop `13o`–`13r`. `13o` moved the separation input of the reflected-gap
+certificate to the complement of the certified eigenvector, `13p` proved the spectrum union the
+reduction needs, `13q` showed the deflated form of the input is degenerate, `13r` built the
+compression. This section uses the compression to *derive* the separation.
+
+**The separation lemma.** `SpectralSplitting.spectralSeparation_of_compressionBound`: from
+`y ≠ 0`, `A y = (l : ℂ) • y`, `l ≤ b` and the form bound
+`b ‖z‖² ≤ re ⟪z, compressed A hA hy z⟫` for every `z ∈ yᗮ`, conclude
+`SpectralSeparation A l b`. The composition is the one `13q` identified: the compression is
+self-adjoint (`isSelfAdjoint_compressed`, proved by coercing to `F` where `A` is symmetric),
+`yᗮ` is closed hence complete so `le_rayleigh_iff_le_spectrum` applies on the subspace and
+turns the form bound into `b ≤ μ` on `spectrum ℝ (compressed)`; then
+`spectrum_subset_union_compressed` sends each `t ∈ spectrum ℝ A` to the compression or to the
+singleton `{l}`.
+
+**The certificate.** `sirk_reflected_gap_certificate_of_compression` **replaces**
+`sirk_reflected_gap_certificate_of_deflated`, which is removed: that one took a spectrum bound
+on `A' ∘ Q`, and `13q` showed such a bound forces `b ≤ 0`. The new input is
+
+  `b ‖z‖² ≤ re ⟪z, A' z⟫` for every `z ∈ yᗮ`, with `A' = γ⁻¹ • 1 − R`,
+
+plus `λ' ≤ b`; the `E`-level bound converts to the subspace-level one by
+`Submodule.coe_norm`, `Submodule.coe_inner` and `compressed_apply_coe`. The conclusion is
+unchanged, the input is now satisfiable with `b > 0`. `sirk_reflected_gap_certificate` keeps
+taking `hsep` as the general-purpose form; the compression certificate is its derived special
+case.
+
+**What remains.** The complement form bound itself — the statement that the complement of the
+certified eigenvector has nothing below `b` — is still an input a finite computation must
+supply (Temple/Lanczos on the compression, or a Sobolev-type estimate). The *reduction* is
+closed: no spurious `0`, no min–max at level `k ≥ 1`, no spectral theorem.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on `isSelfAdjoint_compressed`, `spectralSeparation_of_compressionBound` and
+`sirk_reflected_gap_certificate_of_compression` gives `[propext, Classical.choice,
+Quot.sound]`; no `sorry`; no remaining occurrence of `sirk_reflected_gap_certificate_of_deflated`
+in `BookProof/`; `lake build BookProof` is green at 9004 jobs.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 

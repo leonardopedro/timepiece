@@ -34,14 +34,17 @@ The mass-gap route runs its certificate on the Hashimoto shift-invert
 
 Nothing here needs a spectral theorem: both are arithmetic on eigenvalues plus
 the two algebraic identities the shift-invert satisfies.  What is *not* proved
-here is the spectral separation of `A` itself — that stays the S2 input.
-`sirk_reflected_gap_certificate_of_deflated` states it on the deflated operator `A' ∘ Q`
-instead, but that is **degenerate for a positive gap**: `A' ∘ Q` annihilates the eigenvector,
-so `0` is always in its spectrum (`SpectralSplitting.zero_mem_spectrum_deflated`) and the
-hypothesis forces `b ≤ 0` (`SpectralSplitting.le_zero_of_spectrum_ge_deflated`), leaving only
-`λ' = b = 0`.  A genuine gap needs the spectrum of the *compression* of `A'` to `yᗮ`.
--/
+here is the spectral separation of `A` itself — `sirk_reflected_gap_certificate` takes it as
+an input, and `sirk_reflected_gap_certificate_of_compression` *derives* it from a form bound
 
+  `b ‖z‖² ≤ re ⟪z, A' z⟫`  for every `z ∈ yᗮ`,
+
+through the compression of `A'` to `yᗮ` (`SpectralSplitting.compressed`): the compression is
+self-adjoint, so `le_rayleigh_iff_le_spectrum` bounds its spectrum, and
+`spectrum_subset_union_compressed` carries that back to `A'` with `λ'` covering the line.  The
+older deflated form of the input is retired: `A' ∘ Q` annihilates the eigenvector, so `0` is
+always in its spectrum (`zero_mem_spectrum_deflated`) and that hypothesis forces `b ≤ 0`.
+-/
 noncomputable section
 
 namespace BookProof.ChapterResolventTransfer
@@ -288,19 +291,22 @@ theorem sirk_reflected_gap_certificate
   · have h := gap_transfer (γ := γ) (e₀ := 0) (e₁ := e) hγ (le_refl 0) he
     simpa using h
 
-/-- **The certificate with the separation stated on the deflated operator.**  The same
-conclusion as `sirk_reflected_gap_certificate`, but `hsep` is taken as "every spectral point of
-`A' ∘ Q` is `≥ b`" together with `λ' ≤ b`, where `A' ∘ Q` is the deflated operator of
-`SpectralSplitting.deflated`.  The separation then follows from
-`spectrum A' ⊆ spectrum (A' ∘ Q) ∪ {λ'}` (`SpectralSplitting.spectrum_subset_union_deflated`),
-whose proof is the factorization `t • 1 − A' = (t • 1 − A' ∘ Q)(1 − (λ'/t) • P)`.
+/-- **The certificate with the separation stated as a form bound on the compression.**  The
+same conclusion as `sirk_reflected_gap_certificate`, but `hsep` is *derived* instead of assumed:
+the input is the form bound
 
-**This is degenerate for a positive gap.**  `A' ∘ Q` kills `y`, so `0 ∈ spectrum ℝ (A' ∘ Q)`
-whenever `y ≠ 0` (`SpectralSplitting.zero_mem_spectrum_deflated`); the hypothesis therefore
-forces `b ≤ 0`, and `λ' ≤ b` leaves `λ' = b = 0`.  The reduction is correct and reusable, but it
-does not weaken `hsep` for `b > 0`: that needs the spectrum of the *compression* of `A'` to
-`yᗮ`, not of the deflation. -/
-theorem sirk_reflected_gap_certificate_of_deflated
+  `b ‖z‖² ≤ re ⟪z, A' z⟫` for every `z ∈ yᗮ`
+
+on the complement of the certified eigenvector, where `A' = γ⁻¹ • 1 − R`.  The bridge is
+`SpectralSplitting.spectralSeparation_of_compressionBound`: the compression `A'|yᗮ` is
+self-adjoint (`isSelfAdjoint_compressed`), so `ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum`
+turns the form bound into a spectrum bound on it, and
+`SpectralSplitting.spectrum_subset_union_compressed` carries that bound back to `A'` with `λ'`
+covering the line.
+
+Unlike the deflated form retired in `13q`, this input is not degenerate: no spectral point is
+forced to be `0`, so a positive `b` is admissible whenever the complement form bound holds. -/
+theorem sirk_reflected_gap_certificate_of_compression
     {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
     (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
     {y : E} (hy : y ∈ Dom) (hy0 : y ≠ 0) {e : ℝ} (he : 0 ≤ e)
@@ -311,8 +317,9 @@ theorem sirk_reflected_gap_certificate_of_deflated
     (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
       ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
     {b : ℝ}
-    (hD : ∀ t ∈ spectrum ℝ
-      (BookProof.SpectralSplitting.deflated ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y), b ≤ t)
+    (hC : ∀ z : ↥(BookProof.SpectralSplitting.eigenLine y)ᗮ,
+      b * ‖(z : E)‖ ^ 2 ≤ (inner ℂ (z : E)
+        (((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (z : E)) : ℂ).re)
     (hlb : resolventEdge γ e ≤ b)
     (hlt : BookProof.RitzCertificate.rayleigh
       ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < b) :
@@ -324,11 +331,18 @@ theorem sirk_reflected_gap_certificate_of_deflated
             (b - BookProof.RitzCertificate.rayleigh
               ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy))
         ≤ resolventEdge γ e ∧
-      γ ^ 2 * resolventEdge γ e ≤ e :=
-  sirk_reflected_gap_certificate hR hγ hRsym hy he heig V psiB mu C Dmin h m hVV heigB hyy
-    hbound (BookProof.SpectralSplitting.spectralSeparation_of_complementBound _
-      hy0 (resolvent_reflection_eigenvector hR hγ hy he heig) hlb hD) hlt
-
+      γ ^ 2 * resolventEdge γ e ≤ e := by
+  have hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e) b := by
+    refine BookProof.SpectralSplitting.spectralSeparation_of_compressionBound _
+      (isSelfAdjoint_reflection R hRsym γ) hy0
+      (resolvent_reflection_eigenvector hR hγ hy he heig) hlb ?_
+    intro z
+    rw [Submodule.coe_norm, Submodule.coe_inner,
+      BookProof.SpectralSplitting.compressed_apply_coe]
+    exact hC z
+  exact sirk_reflected_gap_certificate hR hγ hRsym hy he heig V psiB mu C Dmin h m hVV
+    heigB hyy hbound hsep hlt
 end Reflected
 
 end BookProof.ChapterResolventTransfer
