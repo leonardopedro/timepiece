@@ -331,7 +331,10 @@ supplies the spectrum union that reduction needs — `spectrum A ⊆ spectrum (A
 as the factorization `t • 1 − A = (t • 1 − A ∘ Q)(1 − (l/t) • P)`. It does **not** close the
 reduction, and the 2026-11-13q section says why: `A ∘ Q` kills the eigenvector, so `0` is always
 in the deflated spectrum and a deflated-spectrum bound forces `b ≤ 0`. The form bound therefore
-has to be read on the *compression* of `A'` to `yᗮ`, not on the deflation.
+has to be read on the *compression* of `A'` to `yᗮ`, not on the deflation — and the
+2026-11-13r section builds that operator (`SpectralSplitting.compressed`) and proves
+`spectrum A ⊆ spectrum (compressed) ∪ {lam}`, so the form bound now has the object it
+belongs on and only the wrapper into `SpectralSeparation` remains.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -2007,6 +2010,47 @@ linear algebra are correct — but the certificate's input cannot come from the 
 **Verification.** Both modules build with no warning and no line above 100 code points;
 `#print axioms` on `zero_mem_spectrum_deflated` and `le_zero_of_spectrum_ge_deflated` gives
 `[propext, Classical.choice, Quot.sound]`; `lake build BookProof` is green at 9004 jobs.
+
+
+### The compression carries the gap the deflation could not (2026-11-13r)
+
+Track A, the step `13q` named as the remaining route. That section ended with the compression
+`A'|yᗮ : yᗮ →L[ℂ] yᗮ` as the object a positive gap has to be read off, since the deflation
+`A' ∘ Q` carries a spurious `0` that no hypothesis removes. This section supplies that object
+and its block spectrum.
+
+**The operator.** `SpectralSplitting.compressed A hA hy : yᗮ →L[ℂ] yᗮ` is `z ↦ A z`, i.e.
+`A ∘ subtypeL` codomain-restricted along `mapsTo_orthogonal` — a self-adjoint `A` with
+`A y = lam • y` maps `yᗮ` into itself. `compressed_apply_coe` records that the underlying vector
+is `A z`. Moving between `F` and the subspace uses `complementProjectionCod y : F →L[ℂ] yᗮ`
+(the complement projection with restricted codomain) and the inclusion `sub : yᗮ →L[ℂ] F`, with
+`Q̃ ∘ sub = 1` (`complementProjectionCod_comp_subtype`) and `sub ∘ Q̃ = Q`
+(`subtype_comp_complementProjectionCod`).
+
+**The block decomposition and the block spectrum.** `eq_smul_eigenProjection_add_compressed`
+gives `A = lam • P + sub ∘ compressed ∘ Q̃`, which is `13o`'s `A = lam • P + A ∘ Q` with the
+deflation replaced by the compression. `spectrum_subset_union_compressed` then gives
+
+  `spectrum ℝ A ⊆ spectrum ℝ (compressed A hA hy) ∪ {(lam : ℝ)}`,
+
+under `y ≠ 0`, self-adjointness and `A y = (lam : ℂ) • y` only. The proof is elementary: for
+`t ≠ lam` the operator `A − t` is the block diagonal `(lam − t) • P + sub ∘ (C − t) ∘ Q̃`, the
+cross terms vanish (`P ∘ sub = 0`, `Q̃ ∘ P = 0`) and `Q̃ ∘ sub = 1` makes the two blocks
+compose to the identity, so
+`(lam − t)⁻¹ • P + sub ∘ (C − t)⁻¹ ∘ Q̃` is a two-sided inverse of `A − t`. The block product
+under `g ∘ f = 1` is factored out as `comp_sub_comp_mul`.
+
+**What it does and does not do.** A form bound on `yᗮ` now moves to the spectrum of
+`compressed`, where `le_rayleigh_iff_le_spectrum` is a bottom-level statement — the input
+`13o`'s `spectralSeparation_of_complementBound` asks for, without the spurious `0` that made
+the deflated version degenerate in `13q`. The certificate itself is unchanged:
+`sirk_reflected_gap_certificate` still takes `hsep`, and the remaining step is the wrapper
+turning a compression-form bound plus this union into `SpectralSeparation`, then promoting that
+wrapper to primary.
+
+**Verification.** The module builds with no warning and no line above 100 code points;
+`#print axioms` on the thirteen new declarations gives `[propext, Classical.choice,
+Quot.sound]` for each; `lake build BookProof` is green at 9004 jobs.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 

@@ -465,4 +465,263 @@ theorem le_zero_of_spectrum_ge_deflated (A : F →L[ℂ] F) {y : F} (hy : y ≠ 
     (hD : ∀ t ∈ spectrum ℝ (deflated A y), b ≤ t) : b ≤ 0 :=
   hD 0 (zero_mem_spectrum_deflated A hy)
 
+/-! ## 8. The compression to the complement and the block spectrum
+
+`deflated A y = A ∘ Q` is the compression of `A` to `yᗮ` **extended by zero** on the line, and
+section 7 shows that added `0` ruins every spectral bound.  The compression itself is an
+operator *on* the subspace, `compressed A y : yᗮ →L[ℂ] yᗮ`, `z ↦ A z`, and this section proves
+the block statement
+
+  `spectrum A ⊆ spectrum (compressed A y) ∪ {l}`,
+
+the replacement for the deflation union that carries no spurious point.  With it, a form bound
+on `yᗮ` and `le_rayleigh_iff_le_spectrum` on the compression give the gap of `A` directly. -/
+
+/-- The **compression** of `A` to `yᗮ`: the operator `z ↦ A z` on the subspace, well defined
+because a self-adjoint `A` preserves the complement of each of its eigenvectors
+(`mapsTo_orthogonal`). -/
+noncomputable def compressed (A : F →L[ℂ] F) (hA : IsSelfAdjoint A) {y : F} {lam : ℂ}
+    (hy : A y = lam • y) : (eigenLine y)ᗮ →L[ℂ] (eigenLine y)ᗮ :=
+  (A.comp (Submodule.subtypeL (eigenLine y)ᗮ)).codRestrict (eigenLine y)ᗮ
+    fun z => mapsTo_orthogonal A hA hy z.2
+
+/-- The compression acts as `A` on the underlying vectors. -/
+theorem compressed_apply_coe (A : F →L[ℂ] F) (hA : IsSelfAdjoint A) {y : F} {lam : ℂ}
+    (hy : A y = lam • y) (z : (eigenLine y)ᗮ) :
+    (compressed A hA hy z : F) = A (z : F) := by
+  simp [compressed, ContinuousLinearMap.coe_codRestrict_apply]
+
+/-- The projection onto `yᗮ`, regarded as a map into the subtype. -/
+noncomputable def complementProjectionCod (y : F) : F →L[ℂ] (eigenLine y)ᗮ :=
+  (complementProjection y).codRestrict (eigenLine y)ᗮ
+    fun x => complementProjection_apply_mem y x
+
+omit [CompleteSpace F] in
+/-- Restricting the projection to the subspace gives the identity there. -/
+theorem complementProjectionCod_comp_subtype (y : F) :
+    (complementProjectionCod y).comp (Submodule.subtypeL (eigenLine y)ᗮ)
+      = (1 : (eigenLine y)ᗮ →L[ℂ] (eigenLine y)ᗮ) := by
+  refine ContinuousLinearMap.ext fun z => ?_
+  refine Subtype.ext ?_
+  simp [complementProjectionCod, ContinuousLinearMap.coe_codRestrict_apply,
+    complementProjection_apply_of_mem z.2]
+
+omit [CompleteSpace F] in
+/-- Extending the codomain-restricted projection back to `F` recovers the projection. -/
+theorem subtype_comp_complementProjectionCod (y : F) :
+    (Submodule.subtypeL (eigenLine y)ᗮ).comp (complementProjectionCod y)
+      = complementProjection y := by
+  refine ContinuousLinearMap.ext fun x => ?_
+  simp [complementProjectionCod, ContinuousLinearMap.coe_codRestrict_apply]
+
+/-- The eigen-projection kills the complement of the line. -/
+theorem eigenProjection_apply_eq_zero_of_mem_orthogonal {y x : F}
+    (hx : x ∈ (eigenLine y)ᗮ) (hy0 : y ≠ 0) : eigenProjection y x = 0 := by
+  have hsym : ∀ u v : F, inner ℂ (eigenProjection y u) v = inner ℂ u (eigenProjection y v) :=
+    ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric.mp (isSelfAdjoint_starProjection _)
+  have hxy : inner ℂ x y = 0 :=
+    (Submodule.mem_orthogonal' (K := eigenLine y) x).mp hx y
+      (Submodule.mem_span_singleton_self y)
+  have hPy : eigenProjection y y = y :=
+    eigenProjection_apply_of_mem (Submodule.mem_span_singleton_self y)
+  have h1 : inner ℂ (eigenProjection y x) y = 0 := by
+    rw [hsym, hPy, hxy]
+  obtain ⟨c, hc⟩ := Submodule.mem_span_singleton.mp (eigenProjection_apply_mem y x)
+  have hcy : (starRingEnd ℂ) c * (inner ℂ y y) = 0 := by
+    calc (starRingEnd ℂ) c * (inner ℂ y y) = inner ℂ (c • y) y := (inner_smul_left _ _ _).symm
+      _ = inner ℂ (eigenProjection y x) y := by rw [hc]
+      _ = 0 := h1
+  have hnorm : (inner ℂ y y : ℂ) ≠ 0 := by
+    rw [inner_self_eq_norm_sq_to_K]
+    have hyC : (‖y‖ : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr (norm_ne_zero_iff.mpr hy0)
+    exact pow_ne_zero 2 hyC
+  have hc0 : c = 0 := by
+    have hres := (mul_eq_zero.mp hcy).resolve_right hnorm
+    simpa using hres
+  calc eigenProjection y x = c • y := hc.symm
+    _ = 0 := by rw [hc0, zero_smul]
+
+/-- The eigen-projection annihilates the subspace `yᗮ`. -/
+theorem eigenProjection_comp_subtype_orthogonal (y : F) (hy0 : y ≠ 0) :
+    (eigenProjection y).comp (Submodule.subtypeL (eigenLine y)ᗮ) = 0 := by
+  refine ContinuousLinearMap.ext fun z => ?_
+  exact eigenProjection_apply_eq_zero_of_mem_orthogonal z.2 hy0
+
+omit [CompleteSpace F] in
+/-- The complement projection is idempotent. -/
+theorem complementProjection_comp_self (y : F) :
+    (complementProjection y).comp (complementProjection y) = complementProjection y := by
+  refine ContinuousLinearMap.ext fun x => ?_
+  exact complementProjection_apply_of_mem (complementProjection_apply_mem y x)
+
+omit [CompleteSpace F] in
+/-- The complement projection kills the line. -/
+theorem complementProjection_comp_eigenProjection (y : F) :
+    (complementProjection y).comp (eigenProjection y) = 0 := by
+  refine ContinuousLinearMap.ext fun x => ?_
+  exact complementProjection_apply_of_mem_eigenLine (eigenProjection_apply_mem y x)
+
+omit [CompleteSpace F] in
+/-- The codomain-restricted complement projection kills the line too. -/
+theorem complementProjectionCod_comp_eigenProjection (y : F) :
+    (complementProjectionCod y).comp (eigenProjection y) = 0 := by
+  refine ContinuousLinearMap.ext fun x => ?_
+  refine Subtype.ext ?_
+  simp [complementProjectionCod, ContinuousLinearMap.coe_codRestrict_apply,
+    complementProjection_apply_of_mem_eigenLine (eigenProjection_apply_mem y x)]
+
+/-- The block decomposition of `A` with respect to `1 = P + Q`: the eigenvalue on the line and
+the compression on `yᗮ`. -/
+theorem eq_smul_eigenProjection_add_compressed (A : F →L[ℂ] F) (hA : IsSelfAdjoint A)
+    {y : F} {lam : ℂ} (hy : A y = lam • y) :
+    A = lam • eigenProjection y +
+      (Submodule.subtypeL (eigenLine y)ᗮ).comp
+        ((compressed A hA hy).comp (complementProjectionCod y)) := by
+  refine ContinuousLinearMap.ext fun x => ?_
+  have hsplit := congrArg (fun S : F →L[ℂ] F => S x)
+    (eigenProjection_add_complementProjection y)
+  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.one_apply] at hsplit
+  have hx : x = eigenProjection y x + complementProjection y x := hsplit.symm
+  nth_rewrite 1 [hx]
+  rw [map_add]
+  have hP : A (eigenProjection y x) = lam • eigenProjection y x := by
+    obtain ⟨c, hc⟩ := Submodule.mem_span_singleton.mp (eigenProjection_apply_mem y x)
+    rw [← hc, map_smul, hy, smul_comm]
+  rw [hP]
+  have hR : ((lam • eigenProjection y + (Submodule.subtypeL (eigenLine y)ᗮ).comp
+        ((compressed A hA hy).comp (complementProjectionCod y))) x)
+      = lam • eigenProjection y x + (compressed A hA hy (complementProjectionCod y x) : F) :=
+    rfl
+  rw [hR, compressed_apply_coe]
+  rfl
+
+/-! ## 9. The spectrum of `A` is the eigenvalue plus the compression's spectrum
+
+The block decomposition of section 8 is turned into a spectrum statement.  For `t ≠ l` the
+operator `A − t` is block diagonal, with block `l − t` on the line and `C − t` on `yᗮ`, so it
+is invertible exactly when `C − t` is; the inverse is `(l − t)⁻¹ • P + Q̃ (C − t)⁻¹ Q̃`, where
+`Q̃` is the codomain-restricted complement projection.  Unlike the deflation of section 7, no
+spurious `0` enters. -/
+
+section BlockAlgebra
+
+/-- Multiplication of two "blocks" `f ∘ A ∘ g` and `f ∘ B ∘ g`, using `g ∘ f = 1`: the outer
+maps cancel and the inner operators multiply. -/
+theorem comp_sub_comp_mul {U V : Type*} [NormedAddCommGroup U] [NormedSpace ℂ U]
+    [NormedAddCommGroup V] [NormedSpace ℂ V]
+    (f : U →L[ℂ] V) (g : V →L[ℂ] U) (A B : U →L[ℂ] U) (hgf : g.comp f = 1) :
+    (f.comp (A.comp g)).comp (f.comp (B.comp g)) = f.comp ((A.comp B).comp g) := by
+  rw [ContinuousLinearMap.comp_assoc, ContinuousLinearMap.comp_assoc,
+    show g.comp (f.comp (B.comp g)) = (g.comp f).comp (B.comp g) from
+      (ContinuousLinearMap.comp_assoc g f (B.comp g)).symm,
+    hgf, ContinuousLinearMap.one_def, ContinuousLinearMap.id_comp,
+    ← ContinuousLinearMap.comp_assoc A B g]
+
+end BlockAlgebra
+
+/-- **The block spectrum.**  For a self-adjoint `A`, a nonzero eigenvector `y` and the real
+eigenvalue `l`, the spectrum of `A` is contained in the spectrum of the compression to `yᗮ`
+together with `{l}`. -/
+theorem spectrum_subset_union_compressed (A : F →L[ℂ] F) (hA : IsSelfAdjoint A)
+    {y : F} (hy0 : y ≠ 0) {lam : ℝ} (hAy : A y = (lam : ℂ) • y) :
+    spectrum ℝ A ⊆ spectrum ℝ (compressed A hA hAy) ∪ {(lam : ℝ)} := by
+  intro t ht
+  rcases eq_or_ne t lam with rfl | htlam
+  · exact Or.inr (by simp)
+  refine Or.inl ?_
+  rw [spectrum.mem_iff]
+  intro hunit
+  set K := (eigenLine y)ᗮ with hK
+  set C : K →L[ℂ] K := compressed A hA hAy with hCdef
+  set P : F →L[ℂ] F := eigenProjection y with hPdef
+  set Q : F →L[ℂ] F := complementProjection y with hQdef
+  set Qc : F →L[ℂ] K := complementProjectionCod y with hQcdef
+  set sub : K →L[ℂ] F := Submodule.subtypeL K with hsubdef
+  -- the unit for `algebraMap t - C` and the two blocks on `K`
+  obtain ⟨v, hv⟩ := hunit
+  have hvC : (v : K →L[ℂ] K) = algebraMap ℝ (K →L[ℂ] K) t - C := hv
+  set W : K →L[ℂ] K := C - (t : ℂ) • (1 : K →L[ℂ] K) with hWdef
+  have hWneg : W = -(v : K →L[ℂ] K) := by
+    rw [hWdef, hvC, Algebra.algebraMap_eq_smul_one]
+    abel
+  set w : K →L[ℂ] K := -(↑v.inv) with hwdef
+  have hWl : W.comp w = 1 := by
+    rw [hWneg, hwdef]
+    simpa only [ContinuousLinearMap.mul_def, ContinuousLinearMap.neg_comp,
+      ContinuousLinearMap.comp_neg, neg_neg] using Units.mul_inv v
+  have hWr : w.comp W = 1 := by
+    rw [hWneg, hwdef]
+    simpa only [ContinuousLinearMap.mul_def, ContinuousLinearMap.neg_comp,
+      ContinuousLinearMap.comp_neg, neg_neg] using Units.inv_mul v
+  -- block algebra on `F`
+  have hPP : P.comp P = P := eigenProjection_mul_self y
+  have hPQ : P + Q = 1 := eigenProjection_add_complementProjection y
+  have hPsub : P.comp sub = 0 := eigenProjection_comp_subtype_orthogonal y hy0
+  have hQcsub : Qc.comp sub = 1 := complementProjectionCod_comp_subtype y
+  have hsubQc : sub.comp Qc = Q := subtype_comp_complementProjectionCod y
+  have hQcP : Qc.comp P = 0 := complementProjectionCod_comp_eigenProjection y
+  set E : F →L[ℂ] F := sub.comp (W.comp Qc) with hEdef
+  set E' : F →L[ℂ] F := sub.comp (w.comp Qc) with hE'def
+  have hAblk : A = (lam : ℂ) • P + sub.comp (C.comp Qc) := by
+    have h := eq_smul_eigenProjection_add_compressed A hA hAy
+    rw [h, hPdef, hsubdef, hQcdef, hCdef]
+  -- `A - t` is the block diagonal and the blocks invert each other
+  have htQ : (t : ℂ) • Q = sub.comp (((t : ℂ) • (1 : K →L[ℂ] K)).comp Qc) := by
+    rw [show sub.comp (((t : ℂ) • (1 : K →L[ℂ] K)).comp Qc) = (t : ℂ) • sub.comp Qc from by
+      rw [ContinuousLinearMap.smul_comp, ContinuousLinearMap.one_def,
+        ContinuousLinearMap.id_comp, ContinuousLinearMap.comp_smul], hsubQc]
+  have hstep : sub.comp (C.comp Qc) - (t : ℂ) • Q = E := by
+    rw [htQ, ← ContinuousLinearMap.comp_sub, ← ContinuousLinearMap.sub_comp, hEdef, hWdef]
+  have hAt : A - (t : ℂ) • (1 : F →L[ℂ] F) = ((lam : ℂ) - t) • P + E := by
+    rw [hAblk, ← hPQ, smul_add, sub_smul,
+      show (lam : ℂ) • P + sub.comp (C.comp Qc) - ((t : ℂ) • P + (t : ℂ) • Q)
+          = (lam : ℂ) • P - (t : ℂ) • P +
+            (sub.comp (C.comp Qc) - (t : ℂ) • Q) from by abel,
+      hstep]
+  have hPE : P.comp E = 0 := by
+    rw [hEdef, ← ContinuousLinearMap.comp_assoc, hPsub, ContinuousLinearMap.zero_comp]
+  have hEP : E.comp P = 0 := by
+    rw [hEdef, ContinuousLinearMap.comp_assoc, ContinuousLinearMap.comp_assoc, hQcP,
+      ContinuousLinearMap.comp_zero, ContinuousLinearMap.comp_zero]
+  have hPE' : P.comp E' = 0 := by
+    rw [hE'def, ← ContinuousLinearMap.comp_assoc, hPsub, ContinuousLinearMap.zero_comp]
+  have hE'P : E'.comp P = 0 := by
+    rw [hE'def, ContinuousLinearMap.comp_assoc, ContinuousLinearMap.comp_assoc, hQcP,
+      ContinuousLinearMap.comp_zero, ContinuousLinearMap.comp_zero]
+  have hEE' : E.comp E' = Q := by
+    rw [hEdef, hE'def, comp_sub_comp_mul sub Qc W w hQcsub, hWl,
+      ContinuousLinearMap.one_def, ContinuousLinearMap.id_comp, hsubQc]
+  have hE'E : E'.comp E = Q := by
+    rw [hEdef, hE'def, comp_sub_comp_mul sub Qc w W hQcsub, hWr,
+      ContinuousLinearMap.one_def, ContinuousLinearMap.id_comp, hsubQc]
+  -- the two-sided inverse
+  have hcoe : ((lam : ℂ) - t) * (((lam : ℂ) - t)⁻¹) = 1 := by
+    exact mul_inv_cancel₀ (sub_ne_zero.mpr (by exact_mod_cast Ne.symm htlam))
+  have hcoe' : (((lam : ℂ) - t)⁻¹) * ((lam : ℂ) - t) = 1 := by
+    exact inv_mul_cancel₀ (sub_ne_zero.mpr (by exact_mod_cast Ne.symm htlam))
+  have hinv : (A - (t : ℂ) • (1 : F →L[ℂ] F)).comp
+      ((((lam : ℂ) - t)⁻¹) • P + E') = 1 := by
+    rw [hAt]
+    simp only [ContinuousLinearMap.add_comp, ContinuousLinearMap.comp_add,
+      ContinuousLinearMap.smul_comp, ContinuousLinearMap.comp_smul]
+    rw [hPP, hPE', hEP, hEE']
+    simp [smul_smul, hcoe', hPQ]
+  have hinv' : ((((lam : ℂ) - t)⁻¹) • P + E').comp
+      (A - (t : ℂ) • (1 : F →L[ℂ] F)) = 1 := by
+    rw [hAt]
+    simp only [ContinuousLinearMap.add_comp, ContinuousLinearMap.comp_add,
+      ContinuousLinearMap.smul_comp, ContinuousLinearMap.comp_smul]
+    rw [hPP, hPE, hE'P, hE'E]
+    simp [smul_smul, hcoe, hPQ]
+  have hunitA : IsUnit (A - (t : ℂ) • (1 : F →L[ℂ] F)) :=
+    isUnit_iff_exists.mpr ⟨_, hinv, hinv'⟩
+  have hneg : IsUnit (algebraMap ℝ (F →L[ℂ] F) t - A) := by
+    have h := hunitA.neg
+    rw [show -(A - (t : ℂ) • (1 : F →L[ℂ] F)) =
+        algebraMap ℝ (F →L[ℂ] F) t - A from by
+      simp only [Algebra.algebraMap_eq_smul_one]
+      abel] at h
+    exact h
+  exact (spectrum.mem_iff.mp ht) hneg
+
 end BookProof.SpectralSplitting

@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13q`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13r`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,18 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13q):** “State of the project — 2026-11-13q: the deflation cannot
+> **Track A — newest (2026-11-13r):** “State of the project — 2026-11-13r: the compression
+> carries the gap the deflation could not” (end of file): the compression
+> `A'|yᗮ : yᗮ →L[ℂ] yᗮ` is built as a codomain-restricted `A' ∘ subtypeL`, with the two
+> transports `Q̃` and the inclusion satisfied by `Q̃ ∘ sub = 1` and `sub ∘ Q̃ = Q`; the block
+> decomposition `A = lam • P + sub ∘ C ∘ Q̃` and the block spectrum
+> `spectrum A ⊆ spectrum C ∪ {lam}` are proved by exhibiting the two-sided inverse
+> `(lam − t)⁻¹ • P + sub ∘ (C − t)⁻¹ ∘ Q̃` of `A − t` for `t ≠ lam`, so unlike the deflation
+> of `13q` no spurious `0` enters.  The form bound of `13o` now has the object it belongs on;
+> the wrapper that turns it into `SpectralSeparation` and makes it the primary certificate
+> is still to do.
+>
+> **Track A (2026-11-13q):** “State of the project — 2026-11-13q: the deflation cannot
 > carry a positive gap” (end of file): `A ∘ Q` kills `y`, so `0` is in the deflated spectrum
 > (`zero_mem_spectrum_deflated`) and every deflated-spectrum bound forces `b ≤ 0`
 > (`le_zero_of_spectrum_ge_deflated`) — the 13o/13p "weaker input" is degenerate for a positive
@@ -24513,4 +24524,60 @@ form bound of `13o` then lands exactly where it belongs.
 `lake build BookProof.Sirk.ChapterResolventTransfer` succeed with no warning and no line above
 100 code points; `#print axioms` on `zero_mem_spectrum_deflated` and
 `le_zero_of_spectrum_ge_deflated` gives `[propext, Classical.choice, Quot.sound]`;
+`lake build BookProof` is green at 9004 jobs.
+
+## State of the project — 2026-11-13r: the compression carries the gap the deflation could not
+
+Track A, the step the 2026-11-13q entry named as the remaining route.  The deflated operator
+`A ∘ Q` is the compression of `A` to `yᗮ` extended by `0` on the line, and that extended `0` is
+the spectral point no hypothesis on the deflation can remove.  This entry builds the compression
+as an operator *on* the subspace and proves its block spectrum statement, so the `0` is gone and
+the form bound of `13o` has an object it can actually be read on.
+
+**The operator.**  `SpectralSplitting.compressed A hA hy : (eigenLine y)ᗮ →L[ℂ] (eigenLine y)ᗮ`
+is `z ↦ A z`, defined as `A ∘ subtypeL` codomain-restricted along `mapsTo_orthogonal` (a
+self-adjoint `A` with `A y = lam • y` preserves `yᗮ`), with `compressed_apply_coe` recording that
+its underlying vector is `A z`.  Two transports are needed to move between `F` and the subspace:
+`complementProjectionCod y : F →L[ℂ] yᗮ` (the complement projection with its codomain
+restricted) and `sub : yᗮ →L[ℂ] F` (the inclusion), which satisfy `Q̃ ∘ sub = 1`
+(`complementProjectionCod_comp_subtype`) and `sub ∘ Q̃ = Q`
+(`subtype_comp_complementProjectionCod`).
+
+**The block decomposition.**  `eq_smul_eigenProjection_add_compressed` states
+`A = lam • P + sub ∘ compressed ∘ Q̃`.  This is `13o`'s splitting `A = lam • P + A ∘ Q` with the
+deflation replaced by the compression, and that replacement is the whole point: the second
+summand now carries `spectrum (compressed)` exactly, not that set together with `{0}`.  The new
+elementary facts the decomposition needs are `eigenProjection_apply_eq_zero_of_mem_orthogonal`
+(`P` kills `yᗮ` — proved through the self-adjointness of `P` and the non-degeneracy of the inner
+product on `y`), `complementProjection_comp_self`, `complementProjection_comp_eigenProjection`
+and `complementProjectionCod_comp_eigenProjection`.
+
+**The block spectrum.**  `spectrum_subset_union_compressed` is
+
+  `spectrum ℝ A ⊆ spectrum ℝ (compressed A hA hy) ∪ {(lam : ℝ)}`,
+
+with no side condition beyond `y ≠ 0`, self-adjointness and `A y = (lam : ℂ) • y`.  For
+`t ≠ lam`, `A − t` is the block diagonal `(lam − t) • P + sub ∘ (C − t) ∘ Q̃`; the blocks
+annihilate each other across the two summands (`P ∘ sub = 0`, `Q̃ ∘ P = 0`) and square to the
+identity (`Q̃ ∘ sub = 1`), so with `W = C − t` a unit of the subspace algebra the element
+`(lam − t)⁻¹ • P + sub ∘ W⁻¹ ∘ Q̃` is a two-sided inverse and `A − t` is a unit; the case
+`t = lam` is the singleton on the right.  The block product
+`(f ∘ A ∘ g) ∘ (f ∘ B ∘ g) = f ∘ (A ∘ B) ∘ g` under `g ∘ f = 1` is isolated as
+`comp_sub_comp_mul` in its own section, since the two occurrences below and above the diagonal
+need it with different `A`, `B`.
+
+**What this buys and what it does not.**  A form bound on `yᗮ` now transfers to a bound on the
+spectrum of `compressed`, and `ChapterSirkRitzSpectrum.le_rayleigh_iff_le_spectrum` applied
+there gives the bottom edge of `A` off the singleton — which is precisely the input `13o`'s
+`spectralSeparation_of_complementBound` was stated for, minus the spurious `0`.  It is *not* yet
+a new certificate: `sirk_reflected_gap_certificate` still takes `hsep`, and the remaining step
+is the wrapper that turns a compression-form bound plus this union into `SpectralSeparation`,
+then making that the primary certificate.  Nothing here is vacuous, unlike the deflated form
+retired in `13q`.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSpectralSplitting` succeeds with no warning
+and no line above 100 code points; `#print axioms` on the thirteen new declarations (the two
+definitions `compressed` and `complementProjectionCod`, and the eleven lemmas and theorems from
+`compressed_apply_coe` through `spectrum_subset_union_compressed`) gives
+`[propext, Classical.choice, Quot.sound]` for each; no `sorry`, no new axiom;
 `lake build BookProof` is green at 9004 jobs.
