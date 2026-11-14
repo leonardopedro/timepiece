@@ -2419,6 +2419,36 @@ number families, not of `Set.iInter`.
 points; `lake build BookProof` is green at 9004 jobs; `#print axioms` on the nine new declarations
 gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
+### The per-order gap, and a level equal to the edge carries nothing (2026-11-13ac)
+
+Track A. Section 18 removed the freedom in `δ` but kept `θ m ≤ λ'`, which Rayleigh–Ritz forces to
+`θ m = λ'`. Section 19 drops that too: the quotients may sit strictly inside `(λ', b)` and converge
+to `λ'`, and the isolated eigenvalue `λ' < b` supplies the gap.
+
+**The per-order gap.** `eventually_half_gap_le`: `θ → l` and `l < b` give `b - θ m ≥ (b - l)/2`
+from some order on. `templeBandWidth_le_half_gap` turns that into
+`width ≤ ε m²/((b-l)/2) = 2 ε m²/(b-l)`, and `templeBandWidth_tendsto_zero_of_tendsto` concludes
+`width → 0` from `ε → 0` alone. The gap `δ m = b - θ m` is defined by the data; no `δ` is chosen and
+no per-order hypothesis on `θ` is asked for.
+
+**On the data.** `reflected_band_closes_of_sirk_of_tendsto` is §17's theorem with `hgap` replaced by
+`resolventEdge γ e < b` plus convergence of the Rayleigh quotients to the edge; the residual bound
+is still `sirk_resid_reflection_le`. `reflected_band_closes_at_nextEdge` takes the level at the next
+edge, where `resolventEdge_gap_pos` gives `λ' < b` — §18's setting without the pinning. On
+`diag (5, 2)`, `diag52_band_closes_nonDegenerate` runs `θ m = 2/3 + 2^{-m}`, strictly inside
+`(2/3, 5/6)` at every order.
+
+**The audit of §10.** `sirk_reflected_gap_certificate_of_bottomEdge` sets `b = resolventEdge γ e`,
+and §10 proves `sInf (spectrum ℝ A') = resolventEdge γ e`; the hypothesis `θ < b` then reads
+`θ < sInf`, which contradicts Rayleigh–Ritz, so the theorem is vacuous as an implication.
+`not_rayleigh_lt_sInf` is the general statement, and the §10 docstring now names what survives: the
+separation at the edge and `‖R‖ ≤ γ⁻¹ - λ'`. The general two-parameter theorem is not affected;
+only its bottom-edge instantiation is.
+
+**Verification.** `ChapterResolventTransfer` builds with no warning and no line above 100 code
+points; `#print axioms` on the seven new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

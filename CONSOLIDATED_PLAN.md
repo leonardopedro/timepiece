@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13ab`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13ac`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -53,6 +53,14 @@
 > (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
+>
+> **Track A — newest (2026-11-13ac):** “State of the project — 2026-11-13ac: the per-order gap”
+> (end of file): `eventually_half_gap_le` derives the per-order gap `b − θ m ≥ (b − λ')/2` from
+> convergence alone, so `templeBandWidth_tendsto_zero_of_tendsto` closes the band with no free `δ`
+> and with `θ m` strictly inside `(λ', b)`; `reflected_band_closes_of_sirk_of_tendsto` and
+> `reflected_band_closes_at_nextEdge` replace §17's `hgap`, and `not_rayleigh_lt_sInf` records the
+> audit finding that §10's bottom-edge instantiation (`b = λ' = sInf`) has an unsatisfiable Temple
+> hypothesis.
 >
 > **Track A — newest (2026-11-13ab):** “State of the project — 2026-11-13ab: the gap is an edge
 > difference, and the limit is the edge” (end of file): `templeBandWidth_le_edgeGap` makes
@@ -25085,3 +25093,46 @@ succeed with no warning from this file and no line above 100 code points; `#prin
 `diag52_bandWidth_closes`, `diag52_band_ends_converge`, `sInf_range_eq_of_tendsto`,
 `sSup_range_eq_of_tendsto`, `band_limit_is_edge` gives `[propext, Classical.choice, Quot.sound]`;
 no `sorry`.
+
+## State of the project — 2026-11-13ac: the per-order gap
+
+Track A.  Section 18 removed the freedom in `δ` but paid for it with `θ m ≤ λ'`, which
+Rayleigh–Ritz forces to `θ m = λ'`.  Section 19 removes the pinning too: the Rayleigh quotients may
+sit strictly inside `(λ', b)` and converge to `λ'`, and the isolated eigenvalue `λ' < b` is all the
+gap one needs.
+
+**The per-order gap.**  `eventually_half_gap_le` derives it: if `θ → λ'` and `λ' < b`, then from
+some order on `b - θ m ≥ (b - λ')/2`.  `templeBandWidth_le_half_gap` feeds that into §17's bound —
+`width ≤ ε m²/((b-λ')/2) = 2 ε m²/(b-λ')` — and `templeBandWidth_tendsto_zero_of_tendsto`
+concludes `width → 0` from `ε → 0` alone.  Neither a `δ` nor a hypothesis on the individual `θ m`
+is an input: `δ m = b - θ m` is defined by the data, and only its eventual lower bound is proved.
+
+**On the data.**  `reflected_band_closes_of_sirk_of_tendsto` is §17's
+`reflected_band_closes_of_sirk` with `hgap` replaced by two facts that are not choices: the
+reflected edge is isolated below the level (`resolventEdge γ e < b`) and the Rayleigh quotients of
+the SIRK vectors converge to it.  The residual input is unchanged — still
+`sirk_resid_reflection_le` and `sirk_error_decay_exponential`, not an assumption.
+`reflected_band_closes_at_nextEdge` instantiates the level at the next edge
+`resolventEdge γ e₁`, where `resolventEdge_gap_pos` supplies `λ' < b`: that is §18's setting with
+its pinning hypothesis replaced by convergence to the bottom edge.  On `diag (5, 2)` the explicit
+instance is `diag52_band_closes_nonDegenerate`, with `θ m = 2/3 + 2^{-m}` strictly inside
+`(2/3, 5/6)` at every order and residuals `2^{-m}`.
+
+**The audit of §10.**  §10's `sirk_reflected_gap_certificate_of_bottomEdge` sets the level to the
+reflected edge itself, `b = resolventEdge γ e`, and the same chapter proves
+`sInf (spectrum ℝ A') = resolventEdge γ e`.  Temple's side condition `θ < b` then reads
+`θ < sInf`, while Rayleigh–Ritz gives `sInf ≤ θ` — so the theorem's hypothesis `hlt` cannot be met
+by any unit vector, and its whole conclusion is vacuous as an implication.  `not_rayleigh_lt_sInf`
+records the general fact (`¬ θ < sInf` for a unit vector and a self-adjoint `A`), and the §10
+docstring now says which direction survives: the separation *at* the edge (every spectral point is
+`λ'` or above) and the identification `‖R‖ ≤ γ⁻¹ - λ'`.  The general
+`sirk_reflected_temple_band_of_shiftInvertNorm` is unaffected — `b` is a parameter there and `hlb`
+may be strict — but the bottom-edge instantiation of it is exactly the vacuous case.  The repair is
+not to weaken Temple: the level has to sit strictly above the edge, which §18 does (with the
+pinned quotient) and §19 does without it.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds with no warning
+from this file and no line above 100 code points; `#print axioms` on `eventually_half_gap_le`,
+`templeBandWidth_le_half_gap`, `templeBandWidth_tendsto_zero_of_tendsto`, `not_rayleigh_lt_sInf`,
+`reflected_band_closes_of_sirk_of_tendsto`, `reflected_band_closes_at_nextEdge` and
+`diag52_band_closes_nonDegenerate` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.

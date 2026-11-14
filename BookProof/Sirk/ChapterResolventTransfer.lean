@@ -498,7 +498,16 @@ hypothesis `‖R‖ ≤ γ⁻¹ - b` and the level `b` are *both* derived from o
 lower bound `e ‖x‖² ≤ re ⟪x, A x⟫` on the domain of `A`.  `opNorm_le_edge` turns it into
 `‖R‖ ≤ (e + γ)⁻¹`, `inv_sub_inv_eq_resolventEdge` identifies `γ⁻¹ - (e + γ)⁻¹` with the
 reflected edge, so the separation level is `b = resolventEdge γ e` — positive whenever the
-ground-state energy is (`resolventEdge_pos`), which the generic route cannot reach. -/
+ground-state energy is (`resolventEdge_pos`), which the generic route cannot reach.
+
+**The Temple half of this statement is vacuous.**  In this instantiation the level *is* the
+edge: §10 proves `sInf (spectrum ℝ A') = resolventEdge γ e`, so the hypothesis
+`hlt : rayleigh A' (V yy) < resolventEdge γ e` asks for `θ < sInf` — and Rayleigh–Ritz puts
+every Rayleigh quotient at or above the infimum (`not_rayleigh_lt_sInf`, §19), so no unit
+vector satisfies it.  What the theorem records is the remaining direction: the separation
+*at* the edge (every spectral point is `λ'` or above it), and the identification
+`‖R‖ ≤ γ⁻¹ - λ'`.  A Temple band needs the level strictly above the edge — the isolated
+eigenvalue `λ' < b` of §19 — not the edge itself. -/
 theorem sirk_reflected_gap_certificate_of_bottomEdge
     {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
     (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
@@ -1113,6 +1122,151 @@ theorem band_limit_is_edge {lam : ℝ} {lo hi : ℕ → ℝ}
   exact ⟨sSup_range_eq_of_tendsto hlo h1, sInf_range_eq_of_tendsto hhi h2⟩
 
 end BandEdge
+
+/-! ## 19. The non-degenerate route: a per-order gap, nothing pinned
+
+§17 leaves `δ` free; §18 derives it from two edge values, but only under `θ m ≤ λ'`, which
+Rayleigh–Ritz forces to `θ m = λ'`.  Neither restriction is necessary.  The Rayleigh quotients may
+sit anywhere strictly inside `(λ', b)` and converge to `λ'`; the isolated eigenvalue (`λ' < b`) is
+then all the gap one needs.  Write `δ m = b - θ m` for the *per-order* gap: past some order it is
+at least half the eigenvalue gap `b - λ'`, so the width is at most `2 ε m²/(b - λ')` and vanishes
+with the residuals.  Nothing is chosen, and `θ m = λ'` is never required.
+
+The section closes with the audit that motivated it: a Temple hypothesis at the bottom edge itself
+— the level `b = resolventEdge γ e` of §10, where `b = sInf (spectrum ℝ A')` — cannot be satisfied
+by any unit vector, so a band whose level *is* the edge carries no numerical information.  A useful
+level has to be strictly above the edge, and that strictness is exactly `λ' < b` below. -/
+
+section BandNondegenerate
+
+variable {E F : Type*}
+  [NormedAddCommGroup E] [InnerProductSpace ℂ E] [CompleteSpace E]
+  [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+
+open Filter
+open scoped Topology
+
+/-- **The per-order gap is eventually half the eigenvalue gap.**  If the Rayleigh quotients tend to
+`l` and `l < b`, then from some order on `b - θ m ≥ (b - l)/2`: the gap is not chosen, it is forced
+by convergence to the edge. -/
+theorem eventually_half_gap_le {θ : ℕ → ℝ} {l b : ℝ} (hlb : l < b)
+    (hθ : Tendsto θ atTop (𝓝 l)) : ∀ᶠ m in atTop, (b - l) / 2 ≤ b - θ m := by
+  have hnear : ∀ᶠ m in atTop, θ m < l + (b - l) / 2 :=
+    (tendsto_order.1 hθ).2 (l + (b - l) / 2) (by linarith)
+  filter_upwards [hnear] with m hm
+  linarith
+
+/-- **The width is bounded by the eigenvalue gap.**  Feeding the per-order gap `b - θ m` into
+`templeBandWidth_le` gives eventually `width ≤ ε m²/((b-l)/2) = 2 ε m²/(b-l)` — no `δ` in sight. -/
+theorem templeBandWidth_le_half_gap {θ ε : ℕ → ℝ} {l b : ℝ} (hlb : l < b)
+    (hθ : Tendsto θ atTop (𝓝 l)) :
+    ∀ᶠ m in atTop, templeBandWidth θ ε b m ≤ 2 * ε m ^ 2 / (b - l) := by
+  have hhalf := eventually_half_gap_le hlb hθ
+  have hpos : (0 : ℝ) < (b - l) / 2 := by linarith
+  filter_upwards [hhalf] with m hm
+  have hle := templeBandWidth_le (θ := θ) (ε := ε) (b := b) m hpos (by linarith)
+  calc templeBandWidth θ ε b m ≤ ε m ^ 2 / ((b - l) / 2) := hle
+    _ = 2 * ε m ^ 2 / (b - l) := by field_simp
+
+/-- **The band closes with no free `δ`.**  Rayleigh quotients converging to the bottom edge and
+residuals vanishing are enough: the widths tend to `0` at the rate `2 ε²/(b - λ')`.  Neither the
+value of a `δ` nor a per-order hypothesis on `θ` is an input. -/
+theorem templeBandWidth_tendsto_zero_of_tendsto {l b : ℝ} (hlb : l < b) {θ ε : ℕ → ℝ}
+    (hθ : Tendsto θ atTop (𝓝 l)) (hε : Tendsto ε atTop (𝓝 0)) :
+    Tendsto (templeBandWidth θ ε b) atTop (𝓝 0) := by
+  have hε2 : Tendsto (fun m => ε m ^ 2) atTop (𝓝 0) := by simpa using hε.pow 2
+  have hbound : Tendsto (fun m => 2 * ε m ^ 2 / (b - l)) atTop (𝓝 0) := by
+    have := (hε2.const_mul 2).div_const (b - l)
+    simpa using this
+  have hnonneg : ∀ᶠ m in atTop, 0 ≤ templeBandWidth θ ε b m := by
+    have hhalf := eventually_half_gap_le hlb hθ
+    filter_upwards [hhalf] with m hm
+    exact div_nonneg (sq_nonneg _) (by linarith)
+  exact squeeze_zero' hnonneg (templeBandWidth_le_half_gap hlb hθ) hbound
+
+/-- **A Temple hypothesis at the bottom edge is unsatisfiable.**  Rayleigh–Ritz puts every Rayleigh
+quotient at or above `sInf (spectrum ℝ A)`, so no unit vector has `θ < sInf`.  Setting the level of
+a Temple band to the edge itself — `b = resolventEdge γ e` in §10, where `sInf` *is* that value —
+therefore leaves a hypothesis that cannot hold, and such a band says nothing numerically.  A useful
+level must sit strictly above the edge, which is the `λ' < b` of the theorems above. -/
+theorem not_rayleigh_lt_sInf [Nontrivial E] {A : E →L[ℂ] E} (hA : IsSelfAdjoint A)
+    {x : E} (hx : ‖x‖ = 1) :
+    ¬ (BookProof.RitzCertificate.rayleigh A x < sInf (spectrum ℝ A)) :=
+  not_lt_of_ge (BookProof.RitzCertificate.sInf_spectrum_le_rayleigh A hA hx)
+
+/-- **The reflected band closes along a SIRK sequence, with no per-order hypothesis.**  This is
+`reflected_band_closes_of_sirk` with `hgap` replaced by two pieces of data that are not choices: the
+reflected edge is isolated below the level (`resolventEdge γ e < b`), and the Rayleigh quotients of
+the SIRK vectors converge to it.  `sirk_resid_reflection_le` bounds the residuals and
+`eventually_half_gap_le` supplies the per-order gap, so the widths vanish without `θ` ever being
+pinned at the edge. -/
+theorem reflected_band_closes_of_sirk_of_tendsto
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ e : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {b : ℝ} (hlb : resolventEdge γ e < b)
+    (hθ : Tendsto (fun m => BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) atTop (𝓝 (resolventEdge γ e))) :
+    Tendsto (templeBandWidth
+        (fun m => BookProof.RitzCertificate.rayleigh
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)))
+        (fun m => BookProof.RitzCertificate.resid
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) b) atTop (𝓝 0) := by
+  have hres : ∀ m, BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))
+        ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m :=
+    fun m => sirk_resid_reflection_le V psiB R hRsym γ C Dmin hstep m (mu m) (yy m) hVV
+      (heigB m) (hyy m) (hbound m)
+  have hreslim : Tendsto (fun m => BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) atTop (𝓝 0) :=
+    squeeze_zero (fun m => by
+      simp only [BookProof.RitzCertificate.resid]
+      exact norm_nonneg _) hres
+      (BookProof.ChapterH6.sirk_error_decay_exponential C Dmin hstep 1 hh)
+  exact templeBandWidth_tendsto_zero_of_tendsto hlb hθ hreslim
+
+/-- **At the next reflected edge the level is isolated automatically.**  For `0 ≤ e₀ < e₁` the level
+`b = resolventEdge γ e₁` lies strictly above the bottom edge `resolventEdge γ e₀`
+(`resolventEdge_gap_pos`), so Rayleigh quotients converging to the bottom edge close the band with
+no `δ` at all.  This is §18's setting with the pinning hypothesis `θ m ≤ resolventEdge γ e₀`
+replaced by convergence to it. -/
+theorem reflected_band_closes_at_nextEdge {γ e₀ e₁ : ℝ} (hγ : 0 < γ) (h0 : 0 ≤ e₀)
+    (hlt : e₀ < e₁) {θ ε : ℕ → ℝ}
+    (hθ : Tendsto θ atTop (𝓝 (resolventEdge γ e₀))) (hε : Tendsto ε atTop (𝓝 0)) :
+    Tendsto (fun m => templeBandWidth θ ε (resolventEdge γ e₁) m) atTop (𝓝 0) := by
+  refine templeBandWidth_tendsto_zero_of_tendsto (l := resolventEdge γ e₀)
+    (b := resolventEdge γ e₁) ?_ hθ hε
+  linarith [resolventEdge_gap_pos hγ h0 hlt]
+
+/-- **`diag (5, 2)`, non-degenerate.**  Rayleigh quotients `2/3 + 2^{-m}` sit strictly inside
+`(2/3, 5/6)` at every order and converge to the bottom edge, residuals are `2^{-m}`, level `5/6`:
+the widths still vanish.  Compare `diag52_bandWidth_closes`, where `θ` was pinned at `2/3`. -/
+theorem diag52_band_closes_nonDegenerate :
+    Tendsto (templeBandWidth (fun m : ℕ => (2 : ℝ) / 3 + (1 / 2 : ℝ) ^ m)
+      (fun k : ℕ => (1 / 2 : ℝ) ^ k) (5 / 6)) atTop (𝓝 0) := by
+  have hb : resolventEdge (1 : ℝ) 5 = 5 / 6 := by
+    rw [resolventEdge_def]; norm_num
+  have hε : Tendsto (fun k : ℕ => (1 / 2 : ℝ) ^ k) atTop (𝓝 0) :=
+    tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num) (by norm_num)
+  have hθ : Tendsto (fun m : ℕ => (2 : ℝ) / 3 + (1 / 2 : ℝ) ^ m) atTop (𝓝 (2 / 3)) := by
+    simpa using hε.const_add (2 / 3 : ℝ)
+  have h2 : resolventEdge (1 : ℝ) 2 = 2 / 3 := by
+    rw [resolventEdge_def]; norm_num
+  have hθ' : Tendsto (fun m : ℕ => (2 : ℝ) / 3 + (1 / 2 : ℝ) ^ m) atTop
+      (𝓝 (resolventEdge (1 : ℝ) 2)) := by
+    rw [h2]; exact hθ
+  have h := reflected_band_closes_at_nextEdge (γ := 1) (e₀ := 2) (e₁ := 5)
+    (by norm_num) (by norm_num) (by norm_num) hθ' hε
+  have hb5 : (5 : ℝ) / 6 = resolventEdge (1 : ℝ) 5 := hb.symm
+  rw [hb5]
+  exact h
+
+end BandNondegenerate
 
 
 end BookProof.ChapterResolventTransfer
