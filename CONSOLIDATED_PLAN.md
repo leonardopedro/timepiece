@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13x`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13y`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,12 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13x):** “State of the project — 2026-11-13x: the gap's upper end, and
+> **Track A — newest (2026-11-13y):** “State of the project — 2026-11-13y: the two-sided interval,
+> checked on the instance” (end of file): `diag52_gap_interval` instantiates
+> `gap_interval_of_reflected_bands` on `diag (5, 2)` with `γ = 1`, edges `2, 5` and exact bands, and
+> both ends check out — the lower `1/6 ≤ 3` (lossy `γ²` scaling) and the upper `3 ≤ 3` (tight).
+>
+> **Track A (2026-11-13x):** “State of the project — 2026-11-13x: the gap's upper end, and
 > a row with data” (end of file): `edge_sub_le_of_upperBounds` plus
 > `gap_interval_of_reflected_bands` close the gap's upper side from a reflected band and upper
 > bounds `e_i ≤ E_i`; `qcdG2M4BandRow` is the recorded `g = 2`, `m = 4` solve as a band row
@@ -24930,3 +24935,25 @@ succeed with no warning and no line above 100 code points; `#print axioms` on th
 declarations (`edge_sub_le_of_upperBounds`, `gap_interval_of_reflected_bands`,
 `compressionInput_holds_wholeSpaceInput_fails`, `qcdG2M4BandRow_band`,
 `qcdG2M4BandRow_positive`) gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-13y: the two-sided interval, checked on the instance
+
+Track A.  `13x` proved `gap_interval_of_reflected_bands`; `diag52_gap_interval` evaluates it on the
+running `diag (5, 2)` instance, so the bound is checked arithmetically instead of only stated.
+
+The instantiation is `γ = 1`, edges `e₀ = 2` (`A2_other`) and `e₁ = 5` (`A2_trial`), degenerate bands
+at the exact reflected edges (`resolventEdge 1 2 = 2/3`, `resolventEdge 1 5 = 5/6`) and the edges as
+their own upper bounds (`E₀ = 2`, `E₁ = 5`).  Both ends come out as expected:
+
+* lower, `1² · (5/6 − 2/3) = 1/6 ≤ 3`: the `γ²`-scaled half, deliberately lossy — it has to hold for
+  *every* band, since the transfer sees only the two endpoints;
+* upper, `3 ≤ (1/6)((2 + 1)(5 + 1)) = 3`: tight, because bands and `E`'s are exact here.
+
+The instance also fixes the reading of the degenerate bands: they are legitimate for this operator
+whose eigenvalues are exact, and would have to be the Temple bands of `13v` in a real solve.  That
+distinction is in the docstring, since it is exactly the kind of substitution that would otherwise
+turn a check on numbers into a claim about numerics.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds with no warning and
+no line above 100 code points; `#print axioms` on `diag52_gap_interval` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

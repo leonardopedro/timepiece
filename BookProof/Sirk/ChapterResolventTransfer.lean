@@ -868,6 +868,31 @@ theorem compressionInput_holds_wholeSpaceInput_fails :
           (BookProof.SpectralSplitting.A2 BookProof.SpectralSplitting.vOther) : ℂ).re) :=
   ⟨BookProof.SpectralSplitting.bound_on_complement,
     BookProof.SpectralSplitting.fails_off_complement⟩
+
+/-! ## 16. The interval on the `diag (5, 2)` numbers
+
+`gap_interval_of_reflected_bands` instantiated on the running instance: `γ = 1`, bottom edge
+`e₀ = 2` (`A2_other`) and top edge `e₁ = 5` (`A2_trial`), with the degenerate bands at the exact
+reflected edges `resolventEdge 1 2 = 2/3` and `resolventEdge 1 5 = 5/6`, and the edges themselves as
+their own upper bounds `E₀ = 2`, `E₁ = 5`.  The exact bands are legitimate here because the
+instance's eigenvalues are exact; in a real solve they would be the Temple bands of §10.
+
+The arithmetic is worth reading: the reflected gap is `1/6`, so the lower end gives `1/6 ≤ 3` — the
+`γ²`-scaled, deliberately lossy half — while the upper end gives `3 ≤ (1/6)(3 · 6) = 3`, *tight*,
+because both the bands and the `E`'s are exact. -/
+
+/-- **The two-sided interval on the `diag (5, 2)` numbers**, and what its ends evaluate to. -/
+theorem diag52_gap_interval :
+    (1 : ℝ) ^ 2 * (resolventEdge 1 5 - resolventEdge 1 2) ≤ 5 - 2 ∧
+      (5 - 2) ≤ (resolventEdge 1 5 - resolventEdge 1 2) * ((2 + 1) * (5 + 1)) ∧
+      resolventEdge 1 5 - resolventEdge 1 2 = 1 / 6 ∧
+      (resolventEdge 1 5 - resolventEdge 1 2) * ((2 + 1) * (5 + 1)) = 3 := by
+  have h := gap_interval_of_reflected_bands (γ := 1) (e₀ := 2) (e₁ := 5)
+    (lo₀ := resolventEdge 1 2) (hi₀ := resolventEdge 1 2)
+    (lo₁ := resolventEdge 1 5) (hi₁ := resolventEdge 1 5)
+    (E₀ := 2) (E₁ := 5) one_pos (by norm_num) (by norm_num)
+    ⟨le_refl _, le_refl _⟩ ⟨le_refl _, le_refl _⟩ (le_refl _) (le_refl _)
+  exact ⟨h.1, h.2, by norm_num [resolventEdge_def], by norm_num [resolventEdge_def]⟩
 end BookProof.ChapterResolventTransfer
 
 end

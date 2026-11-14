@@ -2304,6 +2304,26 @@ inequality.
 build with no warning and no line above 100 code points; `#print axioms` on the five new
 declarations gives `[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is
 green at 9004 jobs.
+
+### The two-sided interval, checked on the instance (2026-11-13y)
+
+Track A. `13x` stated `gap_interval_of_reflected_bands`; this entry evaluates it on the running
+`diag (5, 2)` instance so the arithmetic is checked rather than asserted.
+
+`diag52_gap_interval` applies the theorem with `γ = 1`, edges `e₀ = 2` (`A2_other`) and `e₁ = 5`
+(`A2_trial`), the degenerate bands at the exact reflected edges (`resolventEdge 1 2 = 2/3`,
+`resolventEdge 1 5 = 5/6`) and the edges as their own upper bounds (`E₀ = 2`, `E₁ = 5`), then reads
+off both ends:
+
+* lower: `1² · (5/6 − 2/3) = 1/6 ≤ 3 = e₁ − e₀` — the `γ²`-scaled half, deliberately lossy (it must
+  hold for every band, since the transfer only sees the endpoints);
+* upper: `3 ≤ (1/6)((2 + 1)(5 + 1)) = 3` — *tight*, because both the bands and the `E`'s are exact
+  here, which is also why the degenerate bands are legitimate for this instance and not for a real
+  solve (where they would be the Temple bands of `13v`).
+
+**Verification.** `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds with no warning and no
+line above 100 code points; `#print axioms diag52_gap_interval` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004 jobs.
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
