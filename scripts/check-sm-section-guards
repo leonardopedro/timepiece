@@ -571,6 +571,56 @@ require "$PLAN" 'Nothing in §70 proves positivity' \
 require "$PLAN" 'the trace-corrected Gauss generators' \
     "§70: the plan must keep what the condition says"
 
+# ---- 24. §71 the commensurate reduction: `horth` discharged at its grid
+# §68 removed `hspec` but assumed the grid unitarity.  §71 derives it.  The failure mode is stated: the
+# replacement is a modelling hypothesis about the truncation, *not* something read off `kv`, and the grid
+# is a line of N points rather than a 3D lattice.  Dropping either half would overstate the gain.
+require "$REC" "theorem phase_smul_eq_gridRoot" \
+    "§71: a commensurate mode is a power of the grid root"
+require "$REC" "theorem geom_sum_gridRoot" \
+    "§71: the geometric sum must be computed for integer mode numbers"
+require "$REC" "theorem horth_of_commensurate" \
+    "§71: unitarity must be derived from commensurability"
+require "$REC" "theorem volPot_of_shear_constant_of_commensurate" \
+    "§71: the payload theorem must carry no abstract horth"
+pair_require "$REC" 'theorem geom_sum_gridRoot' 'theorem horth_of_commensurate' "60" \
+    "§71: the sum and its assembly must stay together"
+require "$PLAN" 'no *abstract* unitarity input left' \
+    "§71: the plan must keep the verdict"
+require "$PLAN" 'a statement about which modes the truncation keeps' \
+    "§71: the plan must keep what replaces horth"
+require "$PLAN" 'one line of' \
+    "§71: the plan must keep the grid's dimension"
+
+# ---- 25. §72 positivity is not a consequence of the quartet schema
+# The reduction of §9 could be misread as "positivity is now bookkeeping".  §72 decides the opposite with
+# an explicit quartet, so the counterexample and the statement it refutes must both stay.
+QUARTET=BookProof/Sm/ChapterSmQuartet.lean
+require "$QUARTET" "theorem exNotPhysicalPositivity" \
+    "§72: the counterexample must stay asserted"
+require "$QUARTET" "def exQuartet3" \
+    "§72: the quartet must be exhibited, not assumed"
+require "$QUARTET" "theorem kform_exEtah_Q" \
+    "§72: the charge must be symmetric for the counterexample's metric"
+require "$QUARTET" "theorem kform_exEtah_symm" \
+    "§72: the metric must be self-adjoint in the counterexample"
+pair_require "$QUARTET" 'theorem kform_exEtah_Q' 'theorem exNotPhysicalPositivity' "120" \
+    "§72: the two hypotheses and the failure must stay together"
+require "$PLAN" 'not a consequence of the quartet schema' \
+    "§72: the plan must keep the verdict"
+require "$PLAN" 'the metric decides' \
+    "§72: the plan must say what actually decides positivity"
+
+# ---- 26. §73 the quartet condition is a ring identity
+# §70's equivalence is not specific to `FermiFock`; the abstract form makes that clear and states the
+# honest answer to "can it be decided": the equation is a matter-sector statement, not a ghost identity.
+require "$REM" "theorem quartet_iff_of_anticomm" \
+    "§73: the equivalence must be proved in the abstract ring"
+require "$PLAN" 'a matter-sector statement' \
+    "§73: the plan must keep what the equation says"
+require "$PLAN" 'cannot settle it for a different candidate' \
+    "§73: the plan must keep the decidability verdict"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

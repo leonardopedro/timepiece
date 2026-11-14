@@ -16,3 +16,10 @@ open BookProof.NsVolDomReconstruction
 #audit_axioms volCoef_zero_eq_of_constant
 #audit_axioms volPot_of_single_mode_of_constant
 #audit_axioms volPot_of_shear_constant_of_const
+#audit_axioms grid_card
+#audit_axioms grid_nonempty
+#audit_axioms geom_sum_gridRoot
+#audit_axioms phase_smul_eq_gridRoot
+#audit_axioms horth_of_commensurate
+#audit_axioms volPot_of_single_mode_of_commensurate
+#audit_axioms volPot_of_shear_constant_of_commensurate

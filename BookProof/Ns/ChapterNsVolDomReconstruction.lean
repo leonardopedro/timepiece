@@ -42,10 +42,21 @@ therefore has no nonzero frequency: `detCoef_eval_eq_zero_of_constant`, `volCoef
 inputs are now a modelling fact (`hconst`: `det F` is constant on the grid) and the unitarity of the
 transform on that grid (`horth`) — not "the spectrum happens to be supported at the zero mode".
 
-**What is still not proved.**  The instantiation of `horth` at a *concrete* grid.  Its commensurate
-case (modes `2πm/N`, grid `j ↦ j•e₀`) is where `dft_orthogonal` applies, and that level-1
-orthogonality is proved in §1, but the reduction of the general `horth` to it — a labelling of the
-modes by their grid frequencies — is not carried out here.  Nothing about ESA or about the penalty's
+**4. `horth` is reduced to commensurability.**  §4 below discharges the abstract unitarity hypothesis at
+the grid it is meant for: on the `N`-point grid `j ↦ j•e` along a direction `e ≠ 0`, the pairing of two
+modes is `ζ^{m·j}` for `ζ = e^{2πi/N}` as soon as `⟨q − q', e⟩ = 2πm/N` (`phase_smul_eq_gridRoot`), the
+geometric sum is `N` exactly when `N ∣ m` (`geom_sum_gridRoot`), and so **`horth_of_commensurate`**
+derives `horth` from a labelling of the wave numbers by integers mod `N`.  `grid_card` and
+`grid_nonempty` supply the cardinality and non-emptiness, and
+`volPot_of_single_mode_of_commensurate` / `volPot_of_shear_constant_of_commensurate` are the §3 theorems
+with `horth` replaced by that labelling.
+
+**What is still not proved.**  The labelling itself.  `horth` is gone from the statements, but its
+replacement is a modelling hypothesis: that each pairwise difference of wave numbers is a *lattice
+fraction* `2πm/N` along `e`, with the residue distinguishing the modes (`N ∤ m` iff `q ≠ q'`).  Neither
+conjunct is derived from `kv` — that would be a statement about which modes the model is truncated to,
+and it is false for a generic choice.  The grid is also one line of `N` points, not a three-dimensional
+lattice, so aliasing *across* directions is not analysed.  Nothing about ESA or about the penalty's
 value off the constant family is claimed.
 -/
 
@@ -362,6 +373,130 @@ theorem volPot_of_shear_constant_of_const (kappa c ε t : ℝ) (kv : K → Fin 3
     volPot kappa kv = MvPolynomial.C (((kappa / 2) * (c * ε * t) ^ 2 : ℝ) : ℂ) :=
   volPot_of_single_mode_of_constant kappa (c * ε * t) kv G hG horth h0 hconst
 
+/-! ## 4. `horth` at the commensurate grid: the unitarity hypothesis is discharged -/
+
+/-- **The grid along one direction**: `N` equally spaced points `j • e`, `j < N`. -/
+noncomputable def grid (N : ℕ) (e : Fin 3 → ℝ) : Finset (Fin 3 → ℝ) :=
+  (Finset.range N).image fun j : ℕ => (j : ℝ) • e
+
+/-- The grid points are distinct as soon as the direction is nonzero: the `j`-th point is recovered
+from any nonzero coordinate. -/
+theorem grid_injOn {N : ℕ} {e : Fin 3 → ℝ} (he : e ≠ 0) :
+    Set.InjOn (fun j : ℕ => (j : ℝ) • e) ↑(Finset.range N) := by
+  obtain ⟨x, hx⟩ : ∃ x, e x ≠ 0 := by
+    by_contra h
+    push_neg at h
+    exact he (funext h)
+  intro j _ k _ hjk
+  have h1 : (j : ℝ) * e x = (k : ℝ) * e x := by
+    have := congrFun hjk x
+    simpa only [Pi.smul_apply, smul_eq_mul] using this
+  exact Nat.cast_injective (mul_right_cancel₀ hx h1)
+
+theorem grid_card {N : ℕ} {e : Fin 3 → ℝ} (he : e ≠ 0) : (grid N e).card = N := by
+  rw [grid, Finset.card_image_of_injOn (grid_injOn he), Finset.card_range]
+
+theorem grid_nonempty {N : ℕ} (hN : 0 < N) (e : Fin 3 → ℝ) : (grid N e).Nonempty :=
+  ⟨_, Finset.mem_image.mpr ⟨0, Finset.mem_range.mpr hN, rfl⟩⟩
+
+/-- **The geometric sum on the grid**, for an integer mode number: `Σ_{j<N} ζ^{mj}` is `N` exactly
+when `N ∣ m` and zero otherwise.  This is §1's `dft_orthogonal` with the mode number allowed to be
+negative (via `exp_int_mul` and conjugation), which is what a difference of two real wave numbers
+produces. -/
+theorem geom_sum_gridRoot (N : ℕ) (hN : 0 < N) (m : ℤ) :
+    ∑ j ∈ Finset.range N, gridRoot N ^ (m * (j : ℤ))
+      = if (N : ℤ) ∣ m then (N : ℂ) else 0 := by
+  have hζ : IsPrimitiveRoot (gridRoot N) N := by
+    simpa [gridRoot] using Complex.isPrimitiveRoot_exp N hN.ne'
+  by_cases hdvd : (N : ℤ) ∣ m
+  · rw [if_pos hdvd]
+    have hone : gridRoot N ^ m = 1 := (hζ.zpow_eq_one_iff_dvd m).mpr hdvd
+    have hterm : ∀ j ∈ Finset.range N, gridRoot N ^ (m * (j : ℤ)) = 1 := by
+      intro j _
+      rw [zpow_mul, hone, one_zpow]
+    rw [Finset.sum_congr rfl hterm, Finset.sum_const, Finset.card_range, nsmul_eq_mul, mul_one]
+  · rw [if_neg hdvd]
+    have hx : gridRoot N ^ m ≠ 1 := fun h => hdvd ((hζ.zpow_eq_one_iff_dvd m).mp h)
+    have hterm : ∀ j ∈ Finset.range N, gridRoot N ^ (m * (j : ℤ)) = (gridRoot N ^ m) ^ j := by
+      intro j _
+      rw [zpow_mul, zpow_natCast]
+    rw [Finset.sum_congr rfl hterm, geom_sum_eq hx]
+    have hxN : (gridRoot N ^ m) ^ N = 1 := by
+      have h1 : (gridRoot N ^ m) ^ (N : ℤ) = 1 := by
+        rw [← zpow_mul, mul_comm, zpow_mul,
+          (hζ.zpow_eq_one_iff_dvd (N : ℤ)).mpr (dvd_refl _), one_zpow]
+      rwa [zpow_natCast] at h1
+    rw [hxN]
+    simp
+
+/-- **A commensurate mode is a power of the grid's root of unity.**  If the two wave numbers differ
+by `2πm/N` along the grid direction, the plane wave's value at the `j`-th grid point is `ζ^{mj}`. -/
+theorem phase_smul_eq_gridRoot (N : ℕ) (hN : 0 < N) (e w : Fin 3 → ℝ) (m : ℤ)
+    (h : (∑ x, w x * e x) = 2 * Real.pi * (m : ℝ) / N) (j : ℕ) :
+    phase w ((j : ℝ) • e) = gridRoot N ^ (m * (j : ℤ)) := by
+  have hsum : (∑ x, w x * (((j : ℝ) • e) x)) = (j : ℝ) * (∑ x, w x * e x) := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    simp only [Pi.smul_apply, smul_eq_mul]
+    ring
+  have hNc : ((N : ℂ)) ≠ 0 := by exact_mod_cast hN.ne'
+  unfold phase gridRoot
+  rw [hsum, h, ← Complex.exp_int_mul]
+  congr 1
+  push_cast
+  field_simp
+
+/-- **The unitarity hypothesis is derived, not assumed.**  On the `N`-point grid along `e ≠ 0`,
+orthogonality of the modes follows from a labelling of their pairwise differences by integers mod
+`N`: `⟨q − q', e⟩ = 2πm/N`, with the residue `m` vanishing mod `N` exactly on the diagonal.  So the
+Plancherel step needs no abstract `horth` — only that the model's wave numbers are commensurate with
+the grid. -/
+theorem horth_of_commensurate (N : ℕ) (hN : 0 < N) (e : Fin 3 → ℝ) (he : e ≠ 0)
+    (S : Finset (Fin 3 → ℝ)) (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → ℤ)
+    (hp : ∀ q ∈ S, ∀ q' ∈ S,
+      (∑ x, (q - q') x * e x) = 2 * Real.pi * ((m q q' : ℤ) : ℝ) / N)
+    (hdvd : ∀ q ∈ S, ∀ q' ∈ S, ((N : ℤ) ∣ m q q' ↔ q = q')) :
+    ∀ q ∈ S, ∀ q' ∈ S, ∑ a ∈ grid N e, phase (q - q') a
+      = if q = q' then ((grid N e).card : ℂ) else 0 := by
+  intro q hq q' hq'
+  rw [grid, Finset.sum_image (grid_injOn he)]
+  rw [Finset.sum_congr rfl fun j _ =>
+    phase_smul_eq_gridRoot N hN e (q - q') (m q q') (hp q hq q' hq') j]
+  rw [geom_sum_gridRoot N hN (m q q')]
+  by_cases h : q = q'
+  · rw [if_pos ((hdvd q hq q' hq').mpr h), if_pos h]
+    congr 1
+    exact (grid_card he).symm
+  · rw [if_neg (fun hd => h ((hdvd q hq q' hq').mp hd)), if_neg h]
+
+/-- **The penalty at a constant residual, with no abstract unitarity input**: the grid is the
+commensurate one, the residual is constant on it, and the penalty is the constant's square. -/
+theorem volPot_of_single_mode_of_commensurate (kappa Λ : ℝ) (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N) (e : Fin 3 → ℝ) (he : e ≠ 0)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → ℤ)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv,
+      (∑ x, (q - q') x * e x) = 2 * Real.pi * ((m q q' : ℤ) : ℝ) / N)
+    (hdvd : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ((N : ℤ) ∣ m q q' ↔ q = q'))
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ grid N e →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * Λ ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_constant kappa Λ kv (grid N e) (grid_nonempty hN e)
+    (horth_of_commensurate N hN e he (waveSet kv) m hp hdvd) h0 hconst
+
+/-- The same on §63's shear family: `Λ = c·ε·t`, so the penalty is `(κ/2)(c·ε·t)²` with no `hspec`
+and no abstract `horth`. -/
+theorem volPot_of_shear_constant_of_commensurate (kappa c ε t : ℝ) (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N) (e : Fin 3 → ℝ) (he : e ≠ 0)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → ℤ)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv,
+      (∑ x, (q - q') x * e x) = 2 * Real.pi * ((m q q' : ℤ) : ℝ) / N)
+    (hdvd : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ((N : ℤ) ∣ m q q' ↔ q = q'))
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ grid N e →
+      (1 + dispGrad kv y a).det = 1 + (((c * ε * t : ℝ)) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * (c * ε * t) ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_commensurate kappa (c * ε * t) kv N hN e he m hp hdvd h0 hconst
 
 end
 

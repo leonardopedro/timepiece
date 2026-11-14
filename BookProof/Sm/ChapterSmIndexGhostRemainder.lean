@@ -454,4 +454,27 @@ theorem bGhost_quartet_iff {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
     exact LinearMap.congr_fun hS x
 
 
+/-! ## 8. The quartet condition is a ring identity, not a ghost-algebra fact -/
+
+/-- **The quartet condition, abstractly.**  For any two elements of a ring with `Q * Q = 0` and
+`Q * b + b * Q = S`, the condition `Q * b * Q = Q` is *equivalent* to `S * Q = Q`.  So the trace
+correction is not an artefact of the Standard-Model computation: whenever a nilpotent charge
+anticommutes with a candidate antighost up to a remainder, being a contracting homotopy is the same
+statement as the remainder acting as the identity on the charge's range.  §7 is this lemma at
+`R = Module.End ℂ (FermiFock (m + 12))`, `Q = smBrstCharge`, `b = bGhost`,
+`S = gaussSum − traceEnd`. -/
+theorem quartet_iff_of_anticomm {R : Type*} [Ring R] {Q b S : R}
+    (hQ : Q * Q = 0) (hS : Q * b + b * Q = S) : Q * b * Q = Q ↔ S * Q = Q := by
+  have hQb : Q * b = S - b * Q := eq_sub_iff_add_eq.mpr hS
+  constructor
+  · intro h
+    calc S * Q = (Q * b + b * Q) * Q := by rw [hS]
+    _ = Q * b * Q + b * (Q * Q) := by noncomm_ring
+    _ = Q := by rw [h, hQ, mul_zero, add_zero]
+  · intro h
+    calc Q * b * Q = (S - b * Q) * Q := by rw [hQb]
+    _ = S * Q - b * (Q * Q) := by noncomm_ring
+    _ = Q := by rw [h, hQ, mul_zero, sub_zero]
+
+
 end BookProof.SmGhostRemainder

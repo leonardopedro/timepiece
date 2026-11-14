@@ -11,3 +11,4 @@ open BookProof.SmGhostRemainder
 #audit_axioms smBrstCharge_anticomm_bGhost
 #audit_axioms traceEnd
 #audit_axioms bGhost_quartet_iff
+#audit_axioms quartet_iff_of_anticomm

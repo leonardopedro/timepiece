@@ -4181,3 +4181,56 @@ obvious candidate for `P` fails for the reason the trace gives.
   elaboration at `Module.End ℂ (FermiFock (m + 12))`.
 * `lake env lean Work/SmIndexGhostRemainderAudit.lean` — **10** declarations, all on exactly
   `propext, Classical.choice, Quot.sound`; new: `traceEnd`, `bGhost_quartet_iff`.
+
+## 71. The commensurate reduction: `horth` is discharged at the grid it is meant for
+
+§68 removed `hspec` at the price of a hypothesis: unitarity of the discrete transform on the grid
+(`horth`). That hypothesis is now derived, in `BookProof/Ns/ChapterNsVolDomReconstruction.lean` §4, at
+the grid it describes — `N` equally spaced points `j • e` along a direction `e ≠ 0`:
+
+* `phase_smul_eq_gridRoot`: the plane-wave pairing of two modes at the `j`-th grid point is
+  `ζ^{m·j}` (`ζ = e^{2πi/N}`) as soon as `⟨q − q', e⟩ = 2πm/N`;
+* `geom_sum_gridRoot`: the geometric sum is `N` exactly when `N ∣ m` and `0` otherwise, for `m : ℤ`
+  (the integer mode number a *difference* of real wave numbers produces, via `exp_int_mul`);
+* `horth_of_commensurate`: combining the two gives `horth` from a labelling
+  `m : (q, q') ↦ ℤ` with `⟨q − q', e⟩ = 2πm/N` and `N ∣ m ↔ q = q'`;
+* `grid_card`, `grid_nonempty` supply the cardinality `N` and non-emptiness the statements need, and
+  `volPot_of_single_mode_of_commensurate` / `volPot_of_shear_constant_of_commensurate` are §68's two
+  theorems with `horth` replaced by that labelling.
+
+So the Plancherel step has no *abstract* unitarity input left. What replaces it is a modelling
+hypothesis, and it is not derivable from `kv`: the pairwise differences of wave numbers are lattice
+fractions `2πm/N` along `e`, and the residue mod `N` separates the modes (`N ∤ m` iff `q ≠ q'`). That
+is a statement about which modes the truncation keeps and it is false for a generic choice. The grid is
+also one line of `N` points, not a three-dimensional lattice, so aliasing across directions is not
+analysed.
+
+## 72. Positivity is not a consequence of the quartet schema: a decided counterexample
+
+§70 reduced the SM quartet condition to a Gauss-sector identity. This section settles the *other*
+standing question — whether `PhysicalPositivity` follows from the quartet construction — and the answer
+is **no**, decided by an explicit three-dimensional model
+(`BookProof/Sm/ChapterSmQuartet.lean` §10):
+
+* `exQh`, `exBh`, `exVh`: `Q e₀ = e₁`, `Q e₁ = Q e₂ = 0`; `b e₁ = e₀`; `V` the projection onto `e₂`;
+* `exQuartet3`: `Q b + b Q = 1 − V` (`quartet_pt` at every vector), `V` idempotent, `Q V = 0`, so the
+  quartet data exist with no `Classical.choice` and no hypothesis;
+* `kform_exEtah_Q`, `kform_exEtah_symm`: the metric `η x = x₁ e₀ + x₀ e₁ − x₂ e₂` satisfies §3's
+  `hKrein` and `hSymm` — the charge is symmetric for it and it is self-adjoint;
+* `exNotPhysicalPositivity`: yet `(kform η e₂ e₂).re = −1` at the physical state, which is closed, so
+  `PhysicalPositivity` fails.
+
+Hence positivity cannot be obtained by strengthening the *projection* side of §9: the metric decides,
+and a no-ghost estimate on it — not an identity on `η` — is what the SM still needs. The counterexample
+is about the schema, not about the Standard Model's own physical sector.
+
+## 73. The quartet condition is a ring identity
+
+§70's computation is not specific to `FermiFock`. `quartet_iff_of_anticomm`
+(`BookProof/Sm/ChapterSmIndexGhostRemainder.lean` §8) proves, in an arbitrary ring, that from
+`Q * Q = 0` and `Q * b + b * Q = S` one gets `Q * b * Q = Q ↔ S * Q = Q`. §70 is that lemma at
+`R = Module.End ℂ (FermiFock (m + 12))`, `S = gaussSum − traceEnd`. What this says about deciding
+`(Σ G^a − traceEnd) Q = Q`: the equation is *not* an identity of the ghost algebra — it says the
+remainder acts as the identity on `range Q`, and that is a matter-sector statement, which is why §5's
+`su2Trace 1 0 = −1` refutes it for `bGhost` but cannot settle it for a different candidate.
+

@@ -916,6 +916,155 @@ theorem smPhysicalPositivity_of_physForm {m : ℕ} {T : Fin 12 → Matrix (Fin m
   BrstQuartet.physicalPositivity_of_quartet_on_range (isBrst_smBrstCharge hT h3anti h3jac)
     (smQuartet hT h3anti h3jac) hKrein hSymm hPos hDef
 
+
+/-! ## 10. The quartet does not supply positivity: a decided counterexample
+
+§9 reduced Kugo–Ojima positivity to positivity of the charge form on the physical range.  This
+section shows that the reduction cannot be sharpened any further *by the quartet mechanism alone*:
+there is a three-dimensional quartet — nilpotent charge, b-ghost, quartet identity, and a metric
+that is self-adjoint and for which the charge is symmetric, i.e. all of §1's hypotheses except
+positivity itself — for which the physical direction is negative.
+
+The model: `Q` maps `e₀ ↦ e₁` and kills `e₁, e₂`; `b` maps `e₁ ↦ e₀`; `Q b + b Q = 1 − V` with `V`
+the projection onto `e₂`, so `e₂` is the physical state — closed, and fixed by `V`.  The metric
+`η x = x₁ e₀ + x₀ e₁ − x₂ e₂` is the ghost pairing on the `(e₀, e₁)` pair and `−1` on `e₂`; it is
+self-adjoint (`kform_exEtah_symm`) and the charge is symmetric for it (`kform_exEtah_Q`), which are
+exactly §3's `hSymm` and `hKrein`.  Positivity fails at the physical state itself:
+`(kform η e₂ e₂).re = −1` (`exNotPhysicalPositivity`), so no strengthening of the *projection*
+side can recover positivity — a no-ghost estimate on the metric must do it.
+
+**Scope.**  This is a statement about the quartet *schema*, not about the Standard Model: the
+model's charge is not this `Q`, and the section does not claim that the SM's physical sector is
+negative.
+What it decides is that `PhysicalPositivity` is an independent input rather than a consequence of
+§1–§9, which is why §8's `smQuartet` does not discharge it.
+
+-/
+
+/-- The three-dimensional model space of the counterexample. -/
+abbrev ExSpace := EuclideanSpace ℂ (Fin 3)
+
+/-- The `i`-th coordinate functional on `EuclideanSpace ℂ (Fin 3)`. -/
+def exProjL (i : Fin 3) : ExSpace →ₗ[ℂ] ℂ := (EuclideanSpace.proj i).toLinearMap
+
+/-- The `i`-th basis vector. -/
+def exE3 (i : Fin 3) : ExSpace := EuclideanSpace.single i 1
+
+/-- The charge: `e₀ ↦ e₁`, `e₁, e₂ ↦ 0`. -/
+def exQh : ExSpace →ₗ[ℂ] ExSpace := (LinearMap.toSpanSingleton ℂ ExSpace (exE3 1)).comp (exProjL 0)
+
+/-- The b-ghost: `e₁ ↦ e₀`. -/
+def exBh : ExSpace →ₗ[ℂ] ExSpace := (LinearMap.toSpanSingleton ℂ ExSpace (exE3 0)).comp (exProjL 1)
+
+/-- The physical projector: onto `e₂`. -/
+def exVh : ExSpace →ₗ[ℂ] ExSpace := (LinearMap.toSpanSingleton ℂ ExSpace (exE3 2)).comp (exProjL 2)
+
+/-- The Krein metric: the ghost pairing on `0, 1` and `−1` on the physical direction. -/
+def exEtah : ExSpace →ₗ[ℂ] ExSpace :=
+  (LinearMap.toSpanSingleton ℂ ExSpace (exE3 0)).comp (exProjL 1)
+    + (LinearMap.toSpanSingleton ℂ ExSpace (exE3 1)).comp (exProjL 0)
+    - (LinearMap.toSpanSingleton ℂ ExSpace (exE3 2)).comp (exProjL 2)
+
+theorem exQh_apply (x : ExSpace) : exQh x = x.ofLp 0 • exE3 1 := rfl
+
+theorem exBh_apply (x : ExSpace) : exBh x = x.ofLp 1 • exE3 0 := rfl
+
+theorem exVh_apply (x : ExSpace) : exVh x = x.ofLp 2 • exE3 2 := rfl
+
+theorem exEtah_apply (x : ExSpace) :
+    exEtah x = x.ofLp 1 • exE3 0 + x.ofLp 0 • exE3 1 - x.ofLp 2 • exE3 2 := by
+  simp [exEtah, LinearMap.sub_apply, LinearMap.add_apply, LinearMap.comp_apply, exProjL]
+
+theorem exOfLpSingle (i j : Fin 3) :
+    (EuclideanSpace.single i (1 : ℂ)).ofLp j = if i = j then 1 else 0 := by
+  simp [EuclideanSpace.single_apply, eq_comm]
+
+theorem exInnerE3 (i j : Fin 3) (a b : ℂ) :
+    inner ℂ (a • exE3 i) (b • exE3 j) = (starRingEnd ℂ) a * b * (if i = j then 1 else 0) := by
+  rw [exE3, exE3, inner_smul_left, inner_smul_right, EuclideanSpace.inner_single_left, exOfLpSingle]
+  simp only [map_one]
+  by_cases h : i = j
+  · subst h; simp
+  · simp [h, Ne.symm h]
+
+/-- The coordinate of a scaled basis vector. -/
+theorem exSmulE3 (i j : Fin 3) (a : ℂ) : (a • exE3 i).ofLp j = a * (if i = j then 1 else 0) := by
+  rw [PiLp.smul_apply, smul_eq_mul, exE3, exOfLpSingle]
+
+theorem exQh_comp : exQh ∘ₗ exQh = 0 := by
+  refine LinearMap.ext fun x => ?_
+  have h : exQh (exQh x) = 0 := by
+    rw [exQh_apply, exQh_apply, exSmulE3]
+    simp
+  simpa using h
+
+theorem quartet_pt (x : ExSpace) : exQh (exBh x) + exBh (exQh x) = x - exVh x := by
+  rw [exBh_apply, exQh_apply, exQh_apply, exBh_apply, exVh_apply]
+  refine PiLp.ext fun i => ?_
+  rw [PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  fin_cases i <;> simp [PiLp.smul_apply, smul_eq_mul, exE3]
+
+theorem isBrst_exQh : IsBrst exQh := exQh_comp
+
+theorem exInnerE3r (i j : Fin 3) (a : ℂ) :
+    inner ℂ (a • exE3 i) (exE3 j) = (starRingEnd ℂ) a * (if i = j then 1 else 0) := by
+  simpa using exInnerE3 i j a 1
+
+theorem exInnerE3l (i j : Fin 3) (b : ℂ) :
+    inner ℂ (exE3 i) (b • exE3 j) = b * (if i = j then 1 else 0) := by
+  simpa using exInnerE3 i j 1 b
+
+theorem exInnerE3b (i j : Fin 3) :
+    inner ℂ (exE3 i) (exE3 j) = (if i = j then 1 else 0) := by
+  simpa using exInnerE3 i j 1 1
+
+theorem kform_exEtah_Q (x y : ExSpace) : kform exEtah (exQh x) y = kform exEtah x (exQh y) := by
+  rw [exQh_apply, exQh_apply, kform, kform, exEtah_apply, exEtah_apply, exSmulE3, exSmulE3,
+    exSmulE3]
+  simp only [inner_add_right, inner_sub_right, exInnerE3b, inner_smul_right,
+    EuclideanSpace.inner_single_right, exE3, PiLp.smul_apply, smul_eq_mul, map_mul]
+  simp
+
+theorem kform_exEtah_symm (x y : ExSpace) : kform exEtah x y = star (kform exEtah y x) := by
+  rw [kform, kform, exEtah_apply, exEtah_apply]
+  simp only [inner_add_right, inner_sub_right, inner_smul_right, EuclideanSpace.inner_single_right,
+    exE3, map_one, map_mul, map_sub, map_add, star_add, star_sub, star_mul, star_one]
+  have h2 : ∀ z : ℂ, star ((starRingEnd ℂ) z) = z := fun z => star_star z
+  have h3 : ∀ z : ℂ, (starRingEnd ℂ) z = star z := fun z => rfl
+  simp only [h2, h3, star_star]
+  ring
+
+theorem exVh_idem (x : ExSpace) : exVh (exVh x) = exVh x := by
+  rw [exVh_apply, exVh_apply, exSmulE3]
+  simp
+
+theorem exQh_Vh (x : ExSpace) : exQh (exVh x) = 0 := by
+  rw [exVh_apply, exQh_apply, exSmulE3]
+  simp
+
+noncomputable def exQuartet3 : BrstQuartet exQh where
+  bGhost := exBh
+  physProj := exVh
+  physProj_idem := exVh_idem
+  Q_physProj := exQh_Vh
+  quartet_anticomm := quartet_pt
+
+theorem exNotPhysicalPositivity : ¬ PhysicalPositivity exQh exEtah := by
+  intro h
+  have hx : (exE3 2 : ExSpace) ∈ closed exQh := by
+    show exQh (exE3 2) = 0
+    rw [exQh_apply, exE3, exOfLpSingle]
+    simp
+  have hval := h.1 (exE3 2) hx
+  have hneg : (kform exEtah (exE3 2) (exE3 2)).re = -1 := by
+    rw [kform, exEtah_apply]
+    simp only [exE3, inner_add_right, inner_sub_right, inner_smul_right,
+      EuclideanSpace.inner_single_right, exOfLpSingle]
+    simp
+  rw [hneg] at hval
+  norm_num at hval
+
+
 end
 
 end BookProof.SmQuartet
