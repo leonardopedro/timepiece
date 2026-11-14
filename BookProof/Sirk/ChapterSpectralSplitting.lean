@@ -928,5 +928,14 @@ theorem fails_off_complement :
   rw [A2_other, inner_smul_right, inner_other_other, norm_other_sq]
   norm_num
 
+
+/-- **A finite trial vector refutes a level that is too large.**  `vTrial` is the Galerkin
+vector for `yᗮ` and its Rayleigh quotient is `5`, so claiming `b = 6` fails at one vector:
+`6 * ‖vTrial‖² = 6 > 5`.  This is the only thing a finite computation can do about the form
+bound — refute it, never establish it (`13t`). -/
+theorem galerkin_refutes_level_six :
+    (6 : ℝ) * ‖vTrial‖ ^ 2 > (inner ℂ vTrial (A2 vTrial) : ℂ).re := by
+  rw [A2_trial, inner_smul_right, inner_trial_trial, norm_trial_sq]
+  norm_num
 end NumericInstance
 end BookProof.SpectralSplitting

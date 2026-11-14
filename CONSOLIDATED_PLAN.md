@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13t`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13u`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,15 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13t):** “State of the project — 2026-11-13t: the form bound from a
+> **Track A — newest (2026-11-13u):** “State of the project — 2026-11-13u: the shift-invert bound
+> feeds the certificate” (end of file): `reflected_norm_sub_smul_one_le` turns `‖R‖ ≤ ρ` into
+> `‖A' - γ⁻¹ • 1‖ ≤ ρ` because `A' - γ⁻¹ • 1 = -R`, so
+> `sirk_reflected_gap_certificate_of_shiftInvertNorm` derives `hsep` from `‖R‖ ≤ γ⁻¹ - b` and
+> needs no form or spectral hypothesis; `IsShiftInvert.opNorm_le` reaches the `b = 0` endpoint
+> only, and a positive `b` is exactly a strict per-system bound.  `galerkin_refutes_level_six`
+> shows the finite side: one trial vector kills `b = 6`.
+>
+> **Track A (2026-11-13t):** “State of the project — 2026-11-13t: the form bound from a
 > measurement, and what cannot give it” (end of file): `formBound_of_norm_sub_le` derives the
 > `13s` form bound from `‖A - c • 1‖ ≤ c - b`, hence `spectralSeparation_of_norm_le` needs no
 > spectral hypothesis on `yᗮ`; residual and Galerkin data provably cannot do it
@@ -24717,4 +24725,46 @@ and `BookProof.ChapterResolventTransfer` succeed with no warning and no line abo
 points; `#print axioms` on `formBound_of_norm_sub_le`, `formBound_compressed_of_norm_le`,
 `spectralSeparation_of_norm_le`, `le_minmaxLevel_of_formBound`, `bound_on_complement` and
 `fails_off_complement` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`;
+`lake build BookProof` is green at 9004 jobs.
+
+## State of the project — 2026-11-13u: the shift-invert bound feeds the certificate
+
+Track A.  `13t` reduced the separation to the norm measurement `‖A' - c • 1‖ ≤ c - b` but left
+that measurement unconnected to the SIRK data.  This entry connects it: for the reflected
+operator the distance to the scalar is the norm of the shift-invert itself, and the shift-invert
+norm bound is already in the corpus.
+
+**The distance is `‖R‖`.**  With `A' = γ⁻¹ • 1 − R`,
+`reflected_sub_smul_one` proves `(A' − γ⁻¹ • 1) = −R`, so `reflected_norm_sub_smul_one_le`
+turns *any* bound `‖R‖ ≤ ρ` into `‖A' − γ⁻¹ • 1‖ ≤ ρ`.  No spectral information about `A'`, its
+compression, or the complement appears: the input is one number about the operator the algorithm
+actually applies.
+
+**What the existing per-system bound gives.**  `IsShiftInvert.opNorm_le` states `‖R‖ ≤ γ⁻¹` for
+any positive `A` and `γ > 0` — this is the SIRK per-system flow bound, and it is what makes the
+algorithm bounded at all.  Composed with the norm route (`reflected_norm_sub_smul_one_le_inv`)
+it yields `‖A' − γ⁻¹ • 1‖ ≤ γ⁻¹`, i.e. the bound with `b = 0`.  That endpoint is honest but
+vacuous: a positive `b` needs the *strict* per-system bound `‖R‖ ≤ γ⁻¹ - b`, which is a
+quantitative gap statement (the shift-invert's norm is attained near the bottom edge `e`, where
+`‖R‖ = (e + γ)⁻¹`, and `γ⁻¹ - (e + γ)⁻¹ = resolventEdge γ e`).  The generic bound cannot supply
+it, and this entry does not pretend otherwise.
+
+**The end-to-end certificate.**  `sirk_reflected_gap_certificate_of_shiftInvertNorm` is
+`sirk_reflected_gap_certificate` with `hsep` *derived*, from `‖R‖ ≤ γ⁻¹ - b` alone: the chain is
+`reflected_norm_sub_smul_one_le` → `spectralSeparation_of_norm_le` →
+`sirk_reflected_gap_certificate`.  Its conclusion is the full reflected certificate (eigenvector
+identity, residual bound, Temple band, `γ² λ' ≤ e`), and its hypothesis list contains no spectral
+statement about `yᗮ` — the form bound of `13s` and the norm measurement of `13t` are both gone.
+
+**The finite refutation, with numbers.**  `galerkin_refutes_level_six`: in the `13t` instance
+(`diag (5, 2)`), the Galerkin vector `vTrial` has Rayleigh quotient `5`, so the claimed level
+`b = 6` fails at that one vector (`6 * ‖vTrial‖² = 6 > 5`).  This is the concrete form of the
+asymmetry recorded in `13t`: a finite trial vector refutes a level, and nothing finite
+establishes one.
+
+**Verification.**  `lake build BookProof.ChapterResolventTransfer` and
+`BookProof.ChapterSpectralSplitting` succeed with no warning and no line above 100 code points;
+`#print axioms` on `reflected_sub_smul_one`, `reflected_norm_sub_smul_one_le`,
+`reflected_norm_sub_smul_one_le_inv`, `sirk_reflected_gap_certificate_of_shiftInvertNorm` and
+`galerkin_refutes_level_six` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`;
 `lake build BookProof` is green at 9004 jobs.

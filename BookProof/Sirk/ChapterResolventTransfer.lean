@@ -44,6 +44,14 @@ self-adjoint, so `le_rayleigh_iff_le_spectrum` bounds its spectrum, and
 `spectrum_subset_union_compressed` carries that back to `A'` with `λ'` covering the line.  The
 older deflated form of the input is retired: `A' ∘ Q` annihilates the eigenvector, so `0` is
 always in its spectrum (`zero_mem_spectrum_deflated`) and that hypothesis forces `b ≤ 0`.
+
+Finally, the whole input is fed from the shift-invert itself: `A' = γ⁻¹ 1 − R` differs from the
+scalar `γ⁻¹` by exactly `R`, so `reflected_norm_sub_smul_one_le` turns any bound `‖R‖ ≤ γ⁻¹ - b`
+into the norm hypothesis of the one-step route, and the certificate
+`sirk_reflected_gap_certificate_of_shiftInvertNorm` derives `hsep` from that bound and nothing
+else.  The generic
+per-system bound `IsShiftInvert.opNorm_le` (`‖R‖ ≤ γ⁻¹`) gives the `b = 0` endpoint
+(`reflected_norm_sub_smul_one_le_inv`); a positive `b` is exactly a strict improvement on it.
 -/
 noncomputable section
 
@@ -343,6 +351,79 @@ theorem sirk_reflected_gap_certificate_of_compression
     exact hC z
   exact sirk_reflected_gap_certificate hR hγ hRsym hy he heig V psiB mu C Dmin h m hVV
     heigB hyy hbound hsep hlt
+
+/-! ## 9. The norm route, fed by the shift-invert bound -/
+
+omit [CompleteSpace E] in
+/-- The reflected operator differs from the scalar `γ⁻¹` by `R`: `A' = γ⁻¹ 1 − R`, so the
+distance from `A'` to that scalar is the norm of the shift-invert itself. -/
+theorem reflected_sub_smul_one (R : E →L[ℂ] E) (γ : ℝ) :
+    (((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) - ((γ⁻¹ : ℝ) : ℂ) • 1) = -R := by
+  have h1 : ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E)) = (((γ⁻¹ : ℝ) : ℂ) • (1 : E →L[ℂ] E)) := by
+    rw [RCLike.real_smul_eq_coe_smul (K := ℂ) γ⁻¹ (1 : E →L[ℂ] E)]
+    congr 1
+  rw [h1]
+  abel
+
+omit [CompleteSpace E] in
+/-- **The norm the form-bound route asks for**, read off a bound on the shift-invert:
+`‖A' - γ⁻¹ 1‖ ≤ ρ` whenever `‖R‖ ≤ ρ`. -/
+theorem reflected_norm_sub_smul_one_le (R : E →L[ℂ] E) (γ : ℝ) {ρ : ℝ} (hR : ‖R‖ ≤ ρ) :
+    ‖(((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) - ((γ⁻¹ : ℝ) : ℂ) • 1)‖ ≤ ρ := by
+  rw [reflected_sub_smul_one, norm_neg]
+  exact hR
+
+omit [CompleteSpace E] in
+/-- **The per-system flow bound feeds the norm route.**  `IsShiftInvert.opNorm_le` gives
+`‖R‖ ≤ γ⁻¹` for any positive `A`, so `A'` lies within `γ⁻¹` of the scalar `γ⁻¹` — the endpoint
+`b = 0` of the separation.  A *positive* `b` asks for the strict version
+`‖R‖ ≤ γ⁻¹ - b`, which is what a gap-dominated flow estimate supplies. -/
+theorem reflected_norm_sub_smul_one_le_inv {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R)
+    (hpos : ∀ x : Dom, 0 ≤ BookProof.FarisLavine.quadForm A x) (hγ : 0 < γ) :
+    ‖(((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) - ((γ⁻¹ : ℝ) : ℂ) • 1)‖ ≤ γ⁻¹ :=
+  reflected_norm_sub_smul_one_le R γ (hR.opNorm_le hpos hγ)
+
+/-- **The end-to-end certificate, fed by the shift-invert norm bound.**
+
+The same conclusion as `sirk_reflected_gap_certificate`, with the separation `hsep` *derived*
+from `‖R‖ ≤ γ⁻¹ - b` — the per-system bound on the shift-invert — instead of assumed.  By
+`reflected_norm_sub_smul_one_le` the reflected operator `A' = γ⁻¹ 1 − R` is within `γ⁻¹ - b`
+of the scalar `γ⁻¹`, so `spectralSeparation_of_norm_le` supplies
+`SpectralSeparation A' (resolventEdge γ e) b`, and `sirk_reflected_gap_certificate` finishes.
+No spectral statement about `yᗮ` appears among the hypotheses. -/
+theorem sirk_reflected_gap_certificate_of_shiftInvertNorm
+    {A : Dom →ₗ[ℂ] E} {γ : ℝ} {R : E →L[ℂ] E}
+    (hR : IsShiftInvert A γ R) (hγ : 0 < γ) (hRsym : IsSelfAdjoint R)
+    {y : E} (hy : y ∈ Dom) (hy0 : y ≠ 0) {e : ℝ} (he : 0 ≤ e)
+    (heig : A ⟨y, hy⟩ = (e : ℂ) • y)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F) {yy : F} (mu C Dmin h : ℝ) (m : ℕ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (heigB : psiB yy = (mu : ℂ) • yy) (hyy : ‖V yy‖ = 1)
+    (hbound : ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m)
+    {b : ℝ} (hRnorm : ‖R‖ ≤ γ⁻¹ - b)
+    (hlb : resolventEdge γ e ≤ b)
+    (hlt : BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) < b) :
+    ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e : ℂ) • y ∧
+      BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy)
+        ≤ BookProof.ChapterH6.sirkBound C Dmin h 1 m ∧
+      BookProof.RitzCertificate.rayleigh ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) -
+          BookProof.RitzCertificate.resid ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy) ^ 2 /
+            (b - BookProof.RitzCertificate.rayleigh
+              ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V yy))
+        ≤ resolventEdge γ e ∧
+      γ ^ 2 * resolventEdge γ e ≤ e := by
+  have hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e) b :=
+    BookProof.SpectralSplitting.spectralSeparation_of_norm_le
+      (A := (γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (hA := isSelfAdjoint_reflection R hRsym γ)
+      (y := y) (l := resolventEdge γ e) (c := γ⁻¹) hy0
+      (resolvent_reflection_eigenvector hR hγ hy he heig) hlb
+      (reflected_norm_sub_smul_one_le R γ hRnorm)
+  exact sirk_reflected_gap_certificate (A := A) (γ := γ) (R := R) (e := e) (b := b)
+    hR hγ hRsym hy he heig V psiB mu C Dmin h m hVV heigB hyy hbound hsep hlt
 end Reflected
 
 end BookProof.ChapterResolventTransfer

@@ -337,7 +337,9 @@ has to be read on the *compression* of `A'` to `yᗮ`, not on the deflation — 
 itself from the complement form bound
 (`SpectralSplitting.spectralSeparation_of_compressionBound`), so the only remaining input is
 `b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ` — and the 2026-11-13t section supplies it from an
-operator-norm measurement, `‖A - c • 1‖ ≤ c - b`.
+operator-norm measurement `‖A - c • 1‖ ≤ c - b`, and the 2026-11-13u section feeds that from
+the shift-invert itself: `‖R‖ ≤ γ⁻¹ - b` gives `‖A' - γ⁻¹ • 1‖ ≤ γ⁻¹ - b` and the end-to-end
+certificate with no separation hypothesis left.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -2141,6 +2143,37 @@ measured quantity is the numerical-range/flow distance of `A'` from a scalar.
 
 **Verification.** Both modules build with no warning and no line above 100 code points;
 `#print axioms` on the five new theorems gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`; `lake build BookProof` is green at 9004 jobs.
+
+
+### The shift-invert bound feeds the certificate (2026-11-13u)
+
+Track A, following `13t`. That section reduced the separation to `‖A' - c • 1‖ ≤ c - b` but left
+the measurement unconnected to SIRK data; this one connects it.
+
+**The distance is `‖R‖`.** With `A' = γ⁻¹ • 1 − R`, `reflected_sub_smul_one` proves
+`(A' - γ⁻¹ • 1) = -R`, so `reflected_norm_sub_smul_one_le` turns any `‖R‖ ≤ ρ` into
+`‖A' - γ⁻¹ • 1‖ ≤ ρ` — a number about the operator the algorithm applies, with no spectral
+hypothesis anywhere.
+
+**What the existing bound gives.** `IsShiftInvert.opNorm_le` (`‖R‖ ≤ γ⁻¹` for positive `A`) is
+the per-system flow bound; via `reflected_norm_sub_smul_one_le_inv` it gives the `b = 0` endpoint.
+A positive `b` needs the strict bound `‖R‖ ≤ γ⁻¹ - b` — a quantitative gap statement, since
+`‖R‖ = (e + γ)⁻¹` at the bottom edge and `γ⁻¹ - (e + γ)⁻¹ = resolventEdge γ e`. The generic bound
+cannot supply it.
+
+**End to end.** `sirk_reflected_gap_certificate_of_shiftInvertNorm`: same conclusion as
+`sirk_reflected_gap_certificate` (eigenvector identity, residual bound, Temple band,
+`γ² λ' ≤ e`), with `hsep` derived from `‖R‖ ≤ γ⁻¹ - b` through
+`reflected_norm_sub_smul_one_le` → `spectralSeparation_of_norm_le` → the certificate. Neither the
+`13s` form bound nor the `13t` norm hypothesis remains as an input.
+
+**The finite side, with numbers.** `galerkin_refutes_level_six`: in the `diag (5, 2)` instance the
+Galerkin vector `vTrial` has Rayleigh quotient `5`, so `b = 6` fails there (`6 > 5`) — a finite
+trial vector refutes a level and cannot establish one.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on the five new declarations gives `[propext, Classical.choice, Quot.sound]`; no
 `sorry`; `lake build BookProof` is green at 9004 jobs.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
