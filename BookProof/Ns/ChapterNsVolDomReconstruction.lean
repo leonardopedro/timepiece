@@ -33,11 +33,20 @@ and with `Λ = c·ε·t` on §63's shear family,
 i.e. exactly the coefficient `c` of the normal form `normForm c` that §63 refutes domination for.  So
 the *transfer of the constant* is a theorem.
 
-**What is still not proved.**  The assembly that takes position-space data to that spectrum:
-`volPot`'s sum over `waveSet` is asserted at the coefficient level, and the identity
-`(1/N) Σ_j |R(a_j)|² = Σ_q |R̂_q|²` (unitarity of the discrete transform) is not formalized here.  The
-hypothesis `hspec` below *is* that reconstruction, assumed rather than derived; what the lemmas do is
-show that once it is available, the remaining algebra is exact and the constant transfers with no loss.
+**3. `hspec` is derived, not assumed.**  §3 below is the assembly.  The discrete transform is
+inverted on a grid — `coeff_eq_zero_of_grid_vanishing`, the step in which the identity
+`(1/N) Σ_j |R(a_j)|² = Σ_q |R̂_q|²` is used — and a residual that is *spatially constant* on the grid
+therefore has no nonzero frequency: `detCoef_eval_eq_zero_of_constant`, `volCoef_eq_zero_of_constant`,
+`volCoef_zero_eq_of_constant`, hence `volPot_of_single_mode_of_constant` and
+`volPot_of_shear_constant_of_const`, in which the former hypothesis `hspec` no longer appears.  The
+inputs are now a modelling fact (`hconst`: `det F` is constant on the grid) and the unitarity of the
+transform on that grid (`horth`) — not "the spectrum happens to be supported at the zero mode".
+
+**What is still not proved.**  The instantiation of `horth` at a *concrete* grid.  Its commensurate
+case (modes `2πm/N`, grid `j ↦ j•e₀`) is where `dft_orthogonal` applies, and that level-1
+orthogonality is proved in §1, but the reduction of the general `horth` to it — a labelling of the
+modes by their grid frequencies — is not carried out here.  Nothing about ESA or about the penalty's
+value off the constant family is claimed.
 -/
 
 import BookProof.Ns.ChapterNsLagrangianDetConvolution
@@ -133,6 +142,226 @@ theorem volPot_of_shear_constant_normForm {K : Type*} [Fintype K] (kappa c ε t 
   congr 1
   push_cast
   ring
+
+/-! ## 3. The Plancherel assembly: a spatially constant residual has one frequency -/
+
+/-- **Real points separate complex polynomials.**  General form of
+`HermiteProductCore.mvpoly_eq_zero_of_eval_real` for an arbitrary index type: it suffices to test
+against points whose coordinates are real. -/
+theorem mvpoly_eq_zero_of_eval_real_fintype {σ : Type*} {p : MvPolynomial σ ℂ}
+    (h : ∀ x : σ → ℝ, MvPolynomial.eval (fun i => ((x i : ℝ) : ℂ)) p = 0) : p = 0 := by
+  classical
+  refine MvPolynomial.funext_set (fun _ => Set.range ((↑) : ℝ → ℂ)) (fun _ => ?_) ?_
+  · exact Set.infinite_range_of_injective Complex.ofReal_injective
+  · intro x hx
+    choose y hy using fun i => hx i (Set.mem_univ i)
+    have hx' : x = fun i => ((y i : ℝ) : ℂ) := by funext i; exact (hy i).symm
+    rw [hx']
+    exact h y
+
+/-- Conjugation of a plane wave is the plane wave at the negated wave vector. -/
+theorem phase_conj (w a : Fin 3 → ℝ) : (starRingEnd ℂ) (phase w a) = phase (-w) a := by
+  have hlin : ((∑ x, (-w) x * a x : ℝ) : ℂ) = -((∑ x, w x * a x : ℝ) : ℂ) := by
+    push_cast
+    rw [← Finset.sum_neg_distrib]
+    exact Finset.sum_congr rfl fun x _ => by
+      simp only [Pi.neg_apply]; push_cast; ring
+  unfold phase
+  rw [← Complex.exp_conj, hlin]
+  congr 1
+  rw [map_mul, Complex.conj_I, Complex.conj_ofReal]
+  ring
+
+/-- The pairing of two plane waves is the plane wave at the difference of the wave vectors. -/
+theorem phase_mul_conj (q q' a : Fin 3 → ℝ) :
+    phase q a * (starRingEnd ℂ) (phase q' a) = phase (q - q') a := by
+  rw [phase_conj]
+  have hlin : ((∑ x, (q - q') x * a x : ℝ) : ℂ)
+      = ((∑ x, q x * a x : ℝ) : ℂ) + ((∑ x, (-q') x * a x : ℝ) : ℂ) := by
+    push_cast
+    rw [← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun x _ => by
+      simp only [Pi.sub_apply, Pi.neg_apply]; push_cast; ring
+  unfold phase
+  rw [hlin, ← Complex.exp_add]
+  congr 1
+  ring
+
+/-- **Discrete Fourier inversion on a grid.**  `horth` is the unitarity of the discrete transform on
+the grid — the assembly `(1/N) Σ_j |R(a_j)|² = Σ_q |R̂_q|²` in the form the argument needs.  Under
+it, a residual whose Fourier series vanishes at every grid point has vanishing coefficients. -/
+theorem coeff_eq_zero_of_grid_vanishing
+    (S : Finset (Fin 3 → ℝ)) (c : (Fin 3 → ℝ) → ℂ) (G : Finset (Fin 3 → ℝ))
+    (hG : G.Nonempty)
+    (horth : ∀ q ∈ S, ∀ q' ∈ S,
+      ∑ a ∈ G, phase (q - q') a = if q = q' then (G.card : ℂ) else 0)
+    (hzero : ∀ a ∈ G, ∑ q ∈ S, c q * phase q a = 0) :
+    ∀ q' ∈ S, c q' = 0 := by
+  classical
+  intro q' hq'
+  have key : ∑ a ∈ G, (∑ q ∈ S, c q * phase q a) * (starRingEnd ℂ) (phase q' a) = 0 := by
+    refine Finset.sum_eq_zero fun a ha => ?_
+    rw [hzero a ha, zero_mul]
+  have h1 : ∑ a ∈ G, (∑ q ∈ S, c q * phase q a) * (starRingEnd ℂ) (phase q' a)
+      = ∑ q ∈ S, c q * (∑ a ∈ G, phase (q - q') a) := by
+    simp only [Finset.sum_mul, Finset.mul_sum]
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun q _ => Finset.sum_congr rfl fun a _ => ?_
+    rw [mul_assoc, phase_mul_conj]
+  have hdiag : ∑ a ∈ G, phase ((q' - q') : Fin 3 → ℝ) a = (G.card : ℂ) := by
+    have hh := horth q' hq' q' hq'
+    rw [if_pos rfl, sub_self] at hh
+    simpa using hh
+  have h2 : ∑ q ∈ S, c q * (∑ a ∈ G, phase (q - q') a) = c q' * (G.card : ℂ) := by
+    rw [Finset.sum_eq_single (f := fun q => c q * ∑ a ∈ G, phase (q - q') a) q']
+    · rw [hdiag]
+    · intro q hq hne
+      rw [horth q hq q' hq', if_neg hne, mul_zero]
+    · intro hnot
+      exact absurd hq' hnot
+  have h3 : c q' * (G.card : ℂ) = 0 := by rw [← h2, ← h1]; exact key
+  have hcard : (G.card : ℂ) ≠ 0 := by
+    have hpos : 0 < G.card := Finset.card_pos.mpr hG
+    exact_mod_cast hpos.ne'
+  exact (mul_eq_zero.mp h3).resolve_right hcard
+
+/-- **The constant case.**  If the series equals the single mode `Λ` at every grid point — i.e. the
+residual is spatially constant — then every nonzero coefficient vanishes. -/
+theorem coeff_eq_zero_of_grid_const
+    (S : Finset (Fin 3 → ℝ)) (c : (Fin 3 → ℝ) → ℂ) (G : Finset (Fin 3 → ℝ))
+    (h0 : (0 : Fin 3 → ℝ) ∈ S) (hG : G.Nonempty)
+    (horth : ∀ q ∈ S, ∀ q' ∈ S,
+      ∑ a ∈ G, phase (q - q') a = if q = q' then (G.card : ℂ) else 0)
+    (Λ : ℂ) (hconst : ∀ a ∈ G, ∑ q ∈ S, c q * phase q a = Λ) :
+    ∀ q' ∈ S, q' ≠ 0 → c q' = 0 := by
+  classical
+  set c' : (Fin 3 → ℝ) → ℂ := fun q => c q - if q = 0 then Λ else 0 with hc'
+  have hzero : ∀ a ∈ G, ∑ q ∈ S, c' q * phase q a = 0 := by
+    intro a ha
+    have hsplit : ∑ q ∈ S, c' q * phase q a
+        = ∑ q ∈ S, c q * phase q a - Λ * phase (0 : Fin 3 → ℝ) a := by
+      have h1 : ∑ q ∈ S, c' q * phase q a
+          = ∑ q ∈ S, (c q * phase q a - (if q = 0 then Λ else 0) * phase q a) := by
+        refine Finset.sum_congr rfl fun q _ => ?_
+        simp only [hc']
+        ring
+      rw [h1, Finset.sum_sub_distrib]
+      congr 1
+      simp only [ite_mul, zero_mul]
+      rw [Finset.sum_ite_eq' S 0 (fun q => Λ * phase q a), if_pos h0]
+    rw [hsplit, hconst a ha, phase_zero, mul_one, sub_self]
+  have hres := coeff_eq_zero_of_grid_vanishing S c' G hG horth hzero
+  intro q' hq' hq0
+  have := hres q' hq'
+  simpa [hc', hq0] using this
+
+variable {K : Type*} [Fintype K]
+
+/-- **Constancy on the grid kills the nonzero frequencies.**  If the deformation gradient's
+determinant is the constant `1 + Λ` at every grid point, then the residual's Fourier coefficients
+vanish away from the zero mode — this is the Plancherel assembly, and it is what the hypothesis
+`hspec` used to assume. -/
+theorem detCoef_eval_eq_zero_of_constant (kv : K → Fin 3 → ℝ) (Λ : ℝ)
+    (G : Finset (Fin 3 → ℝ)) (hG : G.Nonempty)
+    (horth : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv,
+      ∑ a ∈ G, phase (q - q') a = if q = q' then (G.card : ℂ) else 0)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ G →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ))
+    (y : DIdx K → ℝ) (q : Fin 3 → ℝ) (hq : q ∈ waveSet kv) (hq0 : q ≠ 0) :
+    ev y (detCoef kv q) = 0 := by
+  refine coeff_eq_zero_of_grid_const (waveSet kv) (fun q => ev y (detCoef kv q)) G h0 hG horth
+    (1 + ((Λ : ℝ) : ℂ)) ?_ q hq hq0
+  intro a ha
+  rw [← det_deformation_eq kv y a]
+  exact hconst y a ha
+
+/-- The residual's coefficients are polynomials, and vanishing at every real point is vanishing. -/
+theorem volCoef_eq_zero_of_constant (kv : K → Fin 3 → ℝ) (Λ : ℝ)
+    (G : Finset (Fin 3 → ℝ)) (hG : G.Nonempty)
+    (horth : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv,
+      ∑ a ∈ G, phase (q - q') a = if q = q' then (G.card : ℂ) else 0)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ G →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ))
+    (q : Fin 3 → ℝ) (hq : q ∈ waveSet kv) (hq0 : q ≠ 0) :
+    volCoef kv q = 0 := by
+  classical
+  have h : volCoef kv q = detCoef kv q := by
+    unfold volCoef
+    rw [if_neg hq0, sub_zero]
+  rw [h]
+  exact mvpoly_eq_zero_of_eval_real_fintype fun y =>
+    detCoef_eval_eq_zero_of_constant kv Λ G hG horth h0 hconst y q hq hq0
+
+/-- The zero mode is the constant `Λ` itself. -/
+theorem volCoef_zero_eq_of_constant (kv : K → Fin 3 → ℝ) (Λ : ℝ)
+    (G : Finset (Fin 3 → ℝ)) (hG : G.Nonempty)
+    (horth : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv,
+      ∑ a ∈ G, phase (q - q') a = if q = q' then (G.card : ℂ) else 0)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ G →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ)) :
+    volCoef kv 0 = MvPolynomial.C ((Λ : ℝ) : ℂ) := by
+  classical
+  have hcoeval : ∀ y : DIdx K → ℝ, ev y (detCoef kv 0) = 1 + ((Λ : ℝ) : ℂ) := by
+    intro y
+    obtain ⟨a₀, ha₀⟩ := hG
+    have hne : G.Nonempty := ⟨a₀, ha₀⟩
+    have hh := hconst y a₀ ha₀
+    rw [det_deformation_eq kv y a₀] at hh
+    rw [Finset.sum_eq_single (0 : Fin 3 → ℝ)] at hh
+    · rw [phase_zero, mul_one] at hh
+      exact hh
+    · intro q hq hqe
+      have hz : ev y (detCoef kv q) = 0 :=
+        detCoef_eval_eq_zero_of_constant kv Λ G hne horth h0 hconst y q hq hqe
+      rw [hz, zero_mul]
+    · intro hnot
+      exact absurd h0 hnot
+  have hsub : volCoef kv 0 - MvPolynomial.C ((Λ : ℝ) : ℂ) = 0 := by
+    refine mvpoly_eq_zero_of_eval_real_fintype fun y => ?_
+    have hv0 : ev y (volCoef kv 0) = ((Λ : ℝ) : ℂ) := by
+      have hsplit : volCoef kv 0 = detCoef kv 0 - 1 := by
+        unfold volCoef
+        simp
+      rw [hsplit, map_sub, hcoeval y, map_one]
+      ring
+    have hgoal : ev y (volCoef kv 0 - MvPolynomial.C ((Λ : ℝ) : ℂ)) = 0 := by
+      rw [map_sub, hv0]
+      have hC : ev y (MvPolynomial.C ((Λ : ℝ) : ℂ)) = ((Λ : ℝ) : ℂ) := by
+        simp [ev]
+      rw [hC, sub_self]
+    exact hgoal
+  exact sub_eq_zero.mp hsub
+
+/-- **The penalty at a spatially constant residual**, with `hspec` derived rather than assumed: the
+grid is orthogonal (`horth`), the residual is constant (`hconst`), and the penalty's value is the
+constant's square. -/
+theorem volPot_of_single_mode_of_constant (kappa Λ : ℝ) (kv : K → Fin 3 → ℝ)
+    (G : Finset (Fin 3 → ℝ)) (hG : G.Nonempty)
+    (horth : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv,
+      ∑ a ∈ G, phase (q - q') a = if q = q' then (G.card : ℂ) else 0)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ G →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * Λ ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode kappa Λ kv h0
+    (fun q hq hq0 => volCoef_eq_zero_of_constant kv Λ G hG horth h0 hconst q hq hq0)
+    (volCoef_zero_eq_of_constant kv Λ G hG horth h0 hconst)
+
+/-- **The shear family**, reconstructed: a constant residual `Λ = c·ε·t` gives the penalty
+`(κ/2)(c·ε·t)²` — the value of §63's normal form, with no `hspec` assumed. -/
+theorem volPot_of_shear_constant_of_const (kappa c ε t : ℝ) (kv : K → Fin 3 → ℝ)
+    (G : Finset (Fin 3 → ℝ)) (hG : G.Nonempty)
+    (horth : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv,
+      ∑ a ∈ G, phase (q - q') a = if q = q' then (G.card : ℂ) else 0)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ G →
+      (1 + dispGrad kv y a).det = 1 + (((c * ε * t : ℝ)) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * (c * ε * t) ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_constant kappa (c * ε * t) kv G hG horth h0 hconst
+
 
 end
 

@@ -6,3 +6,6 @@ open BookProof.NsVolDomMuLagrangian
 #audit_axioms ev2_pderiv_lagMu_zero
 #audit_axioms ev2_pderiv_lagMu_one
 #audit_axioms lagGradDom_mu
+#audit_axioms lagGradDom_family
+#audit_axioms lagGradDom_mu_nine
+#audit_axioms d9_sum

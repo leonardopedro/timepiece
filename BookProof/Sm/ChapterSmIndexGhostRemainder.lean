@@ -39,6 +39,13 @@ what §62.3 could only name.  Two consequences:
   a contracting homotopy, for the same structural reason as §62's matter half: the contraction lands
   in the Gauss sector.
 
+§7 puts that last sentence in the form a quartet hypothesis uses.  The quartet's condition
+`Q P Q = Q` with `P = bGhost` is not merely *doubtful*: `bGhost_quartet_iff` shows it is *equivalent*
+to `(Σ_a G^a − trace) Q = Q`, so the explicit antighost is a contracting homotopy exactly when the
+trace-corrected Gauss generators act as the identity on the charge's range.  That is the algebraic
+reason `ChapterSmQuartet`'s `smQuartet` must be constructed by `exists_contractingHomotopy` (a choice
+of complement) rather than exhibited — and it is the reason the explicit `b` is not that choice.
+
 Everything is `sorry`-free and `axiom`-free.
 -/
 
@@ -395,5 +402,56 @@ theorem smBrstCharge_anticomm_bGhost (m : ℕ) (T : Fin 12 → Matrix (Fin m) (F
   unfold smBrstCharge brstCharge bGhost SmIndexGhostDerivation.gaussSum
   rw [sub_mul, mul_sub, smul_mul_assoc, mul_smul_comm]
   rw [hsplit, hM, hQ']
+
+/-! ## 7. What the quartet condition says about the explicit antighost -/
+
+/-- The structure-constant remainder of `{smBrstCharge, bGhost}` as a single operator. -/
+noncomputable def traceEnd (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    Module.End ℂ (FermiFock (m + 12)) :=
+  ∑ x : Fin 12, ∑ e : Fin 12,
+    (algebraMap ℝ (Module.End ℂ (FermiFock (m + 12)))
+      (structTrace (smStruct f3) x e)) * (ghostCre m x * ghostAnn m e)
+
+set_option maxHeartbeats 800000 in
+-- the same `End`-of-`EuclideanSpace` cost as §6: the anticommutator consumed here lives over
+-- `Module.End ℂ (FermiFock (m + 12))`, and instance synthesis dominates the elaboration budget
+set_option synthInstance.maxHeartbeats 800000 in
+/-- **The quartet condition for the explicit antighost is an algebraic equation on the charge.**
+`Q P Q = Q` with `P = bGhost` holds exactly when `(Σ_a G^a − trace) Q = Q`, i.e. when the Gauss
+generators — corrected by the first-slot trace — act as the identity on the charge's range.  This
+is why the quartet's `P` cannot be the antighost sum: the trace survives. -/
+theorem bGhost_quartet_iff {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    (∀ x : FermiFock (m + 12),
+        smBrstCharge m T f3 (bGhost m (smBrstCharge m T f3 x)) = smBrstCharge m T f3 x)
+      ↔ (gaussSum m T - traceEnd m f3) * smBrstCharge m T f3 = smBrstCharge m T f3 := by
+  have h := smBrstCharge_anticomm_bGhost m T f3 h3anti
+  have hnil := smBrstCharge_nilpotent hT h3anti h3jac
+  have hQb : smBrstCharge m T f3 * bGhost m
+      = (gaussSum m T - traceEnd m f3) - bGhost m * smBrstCharge m T f3 := by
+    rw [eq_sub_iff_add_eq]
+    exact h
+  have hkey : smBrstCharge m T f3 * bGhost m * smBrstCharge m T f3
+      = (gaussSum m T - traceEnd m f3) * smBrstCharge m T f3 := by
+    rw [hQb, sub_mul, mul_assoc, hnil, mul_zero, sub_zero]
+  have hkey_point : ∀ x : FermiFock (m + 12),
+      smBrstCharge m T f3 (bGhost m (smBrstCharge m T f3 x))
+        = ((gaussSum m T - traceEnd m f3) * smBrstCharge m T f3) x := by
+    intro x
+    have := LinearMap.congr_fun hkey x
+    simpa using this
+  constructor
+  · intro hx
+    refine LinearMap.ext fun x => ?_
+    rw [← hkey_point x]
+    exact hx x
+  · intro hS x
+    rw [hkey_point x]
+    exact LinearMap.congr_fun hS x
+
 
 end BookProof.SmGhostRemainder

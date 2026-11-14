@@ -3979,14 +3979,15 @@ and with `Λ = c·ε·t` on §63's shear family,
 So the constant `c` that §63 refutes domination for, for every `c ≠ 0`, is the *measured* constant:
 the penalty's value is `(κ/2)` times the normal form's, with no re-scaling smuggled in.
 
-### 66.2. What is still not proved
+### 66.2. What was still not proved, and is now (see §68)
 
-The assembly from position space to that spectrum. `volPot`'s sum over `waveSet` is asserted at the
-coefficient level; the identity `(1/N) Σ_j |R(a_j)|² = Σ_q |R̂_q|²` (unitarity of the discrete
-transform) is **not** formalized, and the hypothesis `hspec` in both theorems *is* that reconstruction,
-assumed rather than derived. What the lemmas establish is that once the spectrum is available the
-remaining algebra is exact and the constant transfers with no loss — which is precisely the half §63
-had left as measurement.
+The assembly from position space to that spectrum. `volPot`'s sum over `waveSet` was asserted at the
+coefficient level, and the identity `(1/N) Σ_j |R(a_j)|² = Σ_q |R̂_q|²` (unitarity of the discrete
+transform) was not formalized — so `hspec` was a hypothesis. **§68 does that assembly**: the transform
+is inverted on a grid (`coeff_eq_zero_of_grid_vanishing`) and the spectrum of a *spatially constant*
+residual is derived (`volCoef_eq_zero_of_constant`, `volPot_of_single_mode_of_constant`), so `hspec`
+no longer appears as a hypothesis. What stays open there is the instantiation of the grid
+orthogonality at a concrete commensurate grid.
 
 ### 66.3. Verification (2026-11-13c)
 
@@ -4042,3 +4043,141 @@ assumed. It is not a claim about the three-dimensional model, and it does not ce
   exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
 * `muPot_dom_nonneg` added to `ChapterNsVolDomMuRepair` (rebuild clean) rather than duplicating the
   estimate's proof.
+
+## §68. The Plancherel assembly: `hspec` derived, not assumed (2026-11-14)
+
+### 68.1. The inversion
+
+§63/§66 assumed that the residual `det F − 1` has no nonzero Fourier coefficient (`hspec`). The reason
+it could not be derived was that the *position-space* statement had never been formalized: constancy of
+`det(I + ∇ξ)` in `a`. §68 supplies the missing step, in the form the argument actually needs — the
+inversion of the discrete transform.
+
+`coeff_eq_zero_of_grid_vanishing` (with `phase q a = e^{i q·a}` and `phase_mul_conj`, `phase_conj`):
+if the grid pairs the modes unitarily,
+
+    horth :  Σ_{a ∈ G} e^{i (q − q')·a}  =  if q = q' then |G| else 0,
+
+then a residual with `Σ_q c_q e^{iq·a} = 0` at every `a ∈ G` has `c_q = 0` for all `q`. The proof is
+one line of algebra — multiply by `e^{−i q'·a}`, sum, use `horth`:
+
+    0 = Σ_a (Σ_q c_q e^{iq·a}) e^{−i q'·a} = Σ_q c_q · (Σ_a e^{i(q−q')·a}) = c_{q'} · |G|.
+
+`coeff_eq_zero_of_grid_const` handles the constant right-hand side by subtracting the zero mode — which
+is what a *spatially constant* residual is.
+
+### 68.2. From constancy to the spectrum
+
+`detCoef_eval_eq_zero_of_constant`: if `det(I + ∇ξ(a)) = 1 + Λ` at every grid point (the modelling
+fact — this is exactly what the shear family has, `det F = 1 − εt` everywhere), then
+`ev y (detCoef kv q) = 0` for every `q ≠ 0`. The bridge is `det_deformation_eq`, which already expresses
+`det(I + ∇ξ(a))` as the Fourier series `Σ_q ev y (detCoef q) e^{iq·a}` — so the inversion applies
+verbatim.
+
+Then `volCoef_eq_zero_of_constant` lifts that from evaluations to the *polynomial*: `ev`-vanishing at
+every real point forces `volCoef kv q = 0`, via `mvpoly_eq_zero_of_eval_real_fintype` (a general form of
+the `Fin n` lemma in `ChapterHermiteProductCore`, proved here with `MvPolynomial.funext_set` on the
+real line). `volCoef_zero_eq_of_constant` gives the zero coefficient as the constant `Λ`.
+
+The payoff is that the two §66 theorems now have hypothesis-free-spectrum versions:
+
+    volPot_of_single_mode_of_constant :  volPot kappa kv = C((κ/2) Λ²),
+    volPot_of_shear_constant_of_const :  volPot kappa kv = C((κ/2)(c ε t)²),
+
+with **no** `hspec`: the inputs are `h0 : 0 ∈ waveSet kv` (as before), `hconst` (constancy on the grid)
+and `horth` (grid unitarity). `hspec` is a *consequence* of the first two, not an assumption.
+
+### 68.3. What is still open
+
+The instantiation of `horth` at a concrete grid. `dft_orthogonal` (§1 of the module) is the level-1
+statement — `Σ_{j<N} ω^{mj} = 0` unless `N ∣ m` — and it is exactly what the commensurate case (modes
+`2πm/N`, grid `j ↦ j•e₀`) needs, but the reduction of the general `horth` to it (a labelling of the
+modes by their grid frequencies, plus injectivity modulo `N`) is **not** carried out here. So the honest
+statement of the gain: `hspec` is no longer assumed *given* the grid unitarity; the grid unitarity
+itself is assumed, and it is a statement about the numerical grid rather than about the physics.
+
+### 68.4. Verification (2026-11-14)
+
+* `lake build BookProof.Ns.ChapterNsVolDomReconstruction` — `Build completed successfully`, **8141
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomReconstructionAudit.lean` — **15** declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`. New: `mvpoly_eq_zero_of_eval_real_fintype`,
+  `phase_conj`, `phase_mul_conj`, `coeff_eq_zero_of_grid_vanishing`, `coeff_eq_zero_of_grid_const`,
+  `detCoef_eval_eq_zero_of_constant`, `volCoef_eq_zero_of_constant`, `volCoef_zero_eq_of_constant`,
+  `volPot_of_single_mode_of_constant`, `volPot_of_shear_constant_of_const`.
+
+## §69. The constants do not depend on the dimension (2026-11-14)
+
+### 69.1. The estimate in `n` coordinates
+
+§67 closed the NS chain in the *two* shear coordinates, which invited the reading that the estimate is a
+two-dimensional accident. It is not. `lagGradDom_family` proves, for every `n` and every non-negative
+potential `V` whose own gradient is dominated (`Σ_i (∂_i V)² ≤ A V² + B`),
+
+    Σ_i (x_i + ∂_i V)²  ≤  (2A + 2)·W² + (2B + 2),      W = 1 + ½ Σ_i x_i² + V,
+
+with the **same** constants as `n = 2`: no step multiplies by `n`. The absorption happens once, through
+`Σ_i x_i² = 2(W − 1 − V) ≤ W² + 1`, and `(x + d)² ≤ 2x² + 2d²` contributes a fixed `2`.
+
+### 69.2. The nine-component instance
+
+`LagNsData`'s `volPot` does not live in two coordinates: it is a function of the nine components of the
+3D deformation gradient `∇ξ`. `lagGradDom_mu_nine` therefore assembles the augmented Lagrangian in
+**those nine coordinates** — the two shear entries carrying `V_μ`, the other seven flat
+(`V9`, `d9`, `d9_sum`) — and closes the chain there, with `a = 2A + 2`, `b = 2B + 2` for the `A, B` of
+`muPot_dom_nonneg`. The dimension is not what the estimate was ever restricted by.
+
+### 69.3. What this does not say
+
+It is a statement about the **augmented** model in three dimensions. The model's own `volPot` still has
+no gradient domination at all (§61: `not_volDom_shear`), and `lagGradDom_mu_nine` does not change that —
+what it removes is the suggestion that the repair worked only because the shear family is
+two-dimensional. Nothing here claims ESA of the 3D Lagrangian generator.
+
+### 69.4. Verification (2026-11-14)
+
+* `lake build BookProof.Ns.ChapterNsVolDomMuLagrangian` — `Build completed successfully`, **8142
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomMuLagrangianAudit.lean` — **8** declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`. New: `lagGradDom_family`, `lagGradDom_mu_nine`, `d9_sum`.
+
+## §70. The quartet condition and the explicit antighost (2026-11-14)
+
+### 70.1. The observation
+
+`PhysicalPositivity` for `smBrstCharge` has been carried as a named input. Part of that story is stale:
+the quartet **data** for the SM charge already exists — `ChapterSmQuartet` §8 builds `smQuartet`,
+`smBghost`, `smPhysProj` by `exists_contractingHomotopy` (a choice of complement of the exact states in
+the closed space), so `physicalPositivity_of_quartet` *does* apply, and §9 reduces the remaining input to
+positivity of the charge form on `range smPhysProj`. What was never explained is *why* the b-ghost has
+to be chosen rather than exhibited, given that the model has an explicit antighost sum `bGhost`.
+
+§70 answers that. `bGhost_quartet_iff`: with `Q = smBrstCharge m T f3` and `P = bGhost m`, the quartet
+condition `Q P Q = Q` is **equivalent** to
+
+    (Σ_a G^a − traceEnd) · Q  =  Q,        traceEnd = Σ_{x,e} (Σ_y f_{yxe}) · c^x b_e,
+
+i.e. the trace-corrected Gauss generators must act as the identity on the charge's range. The proof is
+`{Q, b} = S` (that is `smBrstCharge_anticomm_bGhost`), `Q² = 0` (that is `smBrstCharge_nilpotent`), and
+`Q b Q = (S − bQ) Q = S Q`.
+
+So the explicit antighost is a contracting homotopy exactly when the Gauss sector supplies the identity
+— the condition `bGhost_no_contraction` named — and the first-slot trace of `smStruct` is what stands in
+the way. This is why `smQuartet` is choice-based: the choice is of a complement, not of a formula.
+
+### 70.2. What is still open
+
+`PhysicalPositivity (smBrstCharge m T f3) η` itself. It remains a consequence of a no-ghost estimate on
+`range smPhysProj` (`smPhysicalPositivity_of_physForm`), and the choice-based construction does not
+identify that range with the transverse, ghost-parity-even subspace — that needs a concrete mode
+pairing, which no formula in the corpus supplies. Nothing in §70 proves positivity; it shows that the
+obvious candidate for `P` fails for the reason the trace gives.
+
+### 70.3. Verification (2026-11-14)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostRemainder` — `Build completed successfully`, **8031
+  jobs**; the only message attributed to the module is a pre-existing "Try this" at line 266.
+  Measured build time ≈ 3 min, dominated by the kernel checking `smBrstCharge_anticomm_bGhost`'s
+  elaboration at `Module.End ℂ (FermiFock (m + 12))`.
+* `lake env lean Work/SmIndexGhostRemainderAudit.lean` — **10** declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`; new: `traceEnd`, `bGhost_quartet_iff`.

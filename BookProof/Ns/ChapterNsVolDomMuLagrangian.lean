@@ -31,6 +31,14 @@ No `VolDom` hypothesis appears: it is *proved* for this model.  The steps are th
 Lagrangian of §64, not `LagNsData`'s `volPot` (whose `VolDom` is false, §61).  What it removes is the
 hypothesis: on this model the §49 chain (`GradBound → pointwise_dom_of_sq_sum → PotSelfBound`) runs
 end to end with nothing assumed.
+
+**The constants do not depend on the dimension (§3, §4).**  `lagGradDom_family` proves the same
+estimate in `n` coordinates with the *same* `a = 2A + 2`, `b = 2B + 2`: the shear quadratic is
+absorbed once, by `Σ_i x_i² = 2(W − 1 − V) ≤ W² + 1`, and no step multiplies by `n`.  §4 therefore
+assembles the Lagrangian in the nine components of the 3D deformation gradient `∇ξ` — the coordinates
+`volPot` actually lives in — with the two shear entries carrying the penalty and the other seven flat:
+`lagGradDom_mu_nine`.  That is a statement about the *augmented* model in three dimensions, not about
+the model's own `volPot`, whose `VolDom` stays false (§61).
 -/
 
 import BookProof.Ns.ChapterNsVolDomMuRepair
@@ -165,6 +173,106 @@ theorem lagGradDom_mu {mu : ℝ} (hmu : 0 < mu) :
       sq_nonneg (x 1 - (ev2 x (pderiv 1 (muPot mu))).re)]
   have hVW : V ^ 2 ≤ W ^ 2 := by nlinarith
   nlinarith [hV, hgrad, hVW, hVle, hquadle]
+
+/-! ## 3. The chain in `n` coordinates, with dimension-free constants -/
+
+variable {n : ℕ}
+
+/-- **Gradient domination is dimension-independent.**  In `n` coordinates, with a non-negative
+potential `V` whose own gradient is dominated (`hdom`, the `VolDom` of the potential) the augmented
+Lagrangian `W = 1 + ½ Σ_i x_i² + V` obeys `Σ_i (∂_i W)² ≤ (2A + 2) W² + (2B + 2)` for **every** `n`:
+the constants do not grow with the dimension, because the shear quadratic is absorbed by
+`Σ_i x_i² = 2(W − 1 − V) ≤ W² + 1` exactly once. -/
+theorem lagGradDom_family (A B : ℝ) (hA : 0 ≤ A)
+    (V : (Fin n → ℝ) → ℝ) (d : (Fin n → ℝ) → Fin n → ℝ)
+    (hV0 : ∀ x, 0 ≤ V x)
+    (hdom : ∀ x, ∑ i, d x i ^ 2 ≤ A * V x ^ 2 + B) :
+    ∀ x, ∑ i, (x i + d x i) ^ 2
+      ≤ (2 * A + 2) * (1 + (1 / 2) * ∑ i, x i ^ 2 + V x) ^ 2 + (2 * B + 2) := by
+  intro x
+  set S := ∑ i, x i ^ 2 with hS
+  set Vx := V x with hVx
+  set G := ∑ i, d x i ^ 2 with hG
+  set W := 1 + (1 / 2) * S + Vx with hW
+  have hS0 : 0 ≤ S := Finset.sum_nonneg fun i _ => sq_nonneg (x i)
+  have hhalf : (0 : ℝ) ≤ 1 / 2 * S := mul_nonneg (by norm_num) hS0
+  have hW1 : 1 ≤ W := by rw [hW]; linarith [hV0 x]
+  have hVle : Vx ≤ W := by rw [hW]; linarith [hV0 x]
+  have hVW : Vx ^ 2 ≤ W ^ 2 := by nlinarith [hVle, hV0 x]
+  have hkey : S ≤ W ^ 2 + 1 := by
+    rw [hW]
+    nlinarith [sq_nonneg (1 + 1 / 2 * S + Vx - 1), hS0, hV0 x]
+  have hstep : ∑ i, (x i + d x i) ^ 2 ≤ 2 * S + 2 * G := by
+    rw [hS, hG, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib]
+    refine Finset.sum_le_sum fun i _ => ?_
+    nlinarith [sq_nonneg (x i - d x i)]
+  have hdomx := hdom x
+  nlinarith [hstep, hdomx, hVW, hkey, hA, hW1]
+
+/-! ## The nine-component instance: the shape of the 3D volume penalty -/
+
+/-- The two shear coordinates inside the nine components of `∇ξ` (three rows, three columns). -/
+def emb9 : Fin 2 → Fin 9 := fun i => if i = 0 then 0 else 1
+
+/-- The augmented penalty, read in the nine-component coordinates of the 3D deformation gradient. -/
+def V9 (mu : ℝ) (x : Fin 9 → ℝ) : ℝ := (ev2 (fun j => x (emb9 j)) (muPot mu)).re
+
+/-- Its gradient, in the same nine coordinates: only the two shear components carry a derivative. -/
+def d9 (mu : ℝ) (x : Fin 9 → ℝ) (i : Fin 9) : ℝ :=
+  if i = 0 then (ev2 (fun j => x (emb9 j)) (pderiv 0 (muPot mu))).re
+  else if i = 1 then (ev2 (fun j => x (emb9 j)) (pderiv 1 (muPot mu))).re
+  else 0
+
+theorem d9_eq_zero (mu : ℝ) (x : Fin 9 → ℝ) {i : Fin 9} (h0 : i ≠ 0) (h1 : i ≠ 1) :
+    d9 mu x i = 0 := by
+  simp [d9, h0, h1]
+
+/-- The nine-component gradient sum is the two-component one: the other seven directions are
+flat. -/
+theorem d9_sum (mu : ℝ) (x : Fin 9 → ℝ) :
+    ∑ i, d9 mu x i ^ 2
+      = (ev2 (fun j => x (emb9 j)) (pderiv 0 (muPot mu))).re ^ 2
+        + (ev2 (fun j => x (emb9 j)) (pderiv 1 (muPot mu))).re ^ 2 := by
+  rw [Fin.sum_univ_succ, Fin.sum_univ_succ]
+  have hz : ∑ i : Fin 7, d9 mu x i.succ.succ ^ 2 = 0 := by
+    refine Finset.sum_eq_zero fun i _ => ?_
+    rw [d9_eq_zero mu x ?_ ?_]
+    · simp
+    · intro h
+      have hv := congrArg Fin.val h
+      rw [Fin.val_succ, Fin.val_succ] at hv
+      simp at hv
+    · intro h
+      have hv := congrArg Fin.val h
+      rw [Fin.val_succ, Fin.val_succ] at hv
+      have h1 : ((1 : Fin 9) : ℕ) = 1 := rfl
+      rw [h1] at hv
+      omega
+  rw [hz, add_zero]
+  simp [d9, emb9]
+
+/-- **The estimate in nine coordinates.**  The 3D volume penalty lives in the nine components of
+`∇ξ`; here the augmented Lagrangian is assembled in exactly those nine coordinates and the chain
+closes with the *same* `a = 2A + 2`, `b = 2B + 2` as in two: the dimension is not what the constants
+depend on. -/
+theorem lagGradDom_mu_nine {mu : ℝ} (hmu : 0 < mu) :
+    ∃ a b : ℝ, ∀ x : Fin 9 → ℝ,
+      ∑ i, (x i + d9 mu x i) ^ 2
+        ≤ a * (1 + (1 / 2) * ∑ i, x i ^ 2 + V9 mu x) ^ 2 + b := by
+  obtain ⟨A, B, hA0, _hB0, hAB⟩ := muPot_dom_nonneg hmu
+  refine ⟨2 * A + 2, 2 * B + 2, fun x => ?_⟩
+  refine lagGradDom_family A B hA0 (V9 mu) (d9 mu) ?_ ?_ x
+  · intro y
+    rw [V9, ev2_muPot mu (fun j => y (emb9 j)), Complex.ofReal_re]
+    have h1 : 0 ≤ (1 / 2 : ℝ) * (y (emb9 0) * y (emb9 1)) ^ 2 := by positivity
+    have h2 : 0 ≤ (mu / 2) * (y (emb9 0) ^ 2 + y (emb9 1) ^ 2) := by
+      have h2' : 0 ≤ y (emb9 0) ^ 2 + y (emb9 1) ^ 2 := by positivity
+      exact mul_nonneg (by linarith) h2'
+    linarith
+  · intro y
+    rw [d9_sum]
+    exact hAB (fun j => y (emb9 j))
+
 
 end
 

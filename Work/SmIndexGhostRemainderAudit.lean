@@ -9,3 +9,5 @@ open BookProof.SmGhostRemainder
 #audit_axioms brstCharge_anticomm_bGhost_abelian
 #audit_axioms su2Trace_nonzero
 #audit_axioms smBrstCharge_anticomm_bGhost
+#audit_axioms traceEnd
+#audit_axioms bGhost_quartet_iff

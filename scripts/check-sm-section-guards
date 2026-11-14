@@ -526,6 +526,51 @@ require "$PLAN" 'not a claim about the three-dimensional model' \
 require "$BOOKPLAN" 'ChapterNsVolDomMuLagrangian' \
     "§67: the root must import the Lagrangian module"
 
+# ---- 21. §68 the Plancherel assembly: hspec derived, not assumed
+# §66 assumed that the residual has no nonzero frequency.  §68 inverts the discrete transform on a grid
+# and derives it from spatial constancy, so the hypothesis is gone from the new theorems.  The boundary
+# must travel with the result: the grid unitarity itself is assumed, and the concrete commensurate
+# instantiation is not done.
+require "$REC" "theorem coeff_eq_zero_of_grid_vanishing" \
+    "§68: the discrete transform must be inverted, not assumed"
+require "$REC" "theorem volPot_of_single_mode_of_constant" \
+    "§68: the penalty value must be derived from constancy"
+require "$REC" "theorem volCoef_eq_zero_of_constant" \
+    "§68: the spectrum must be derived, not hypothesised"
+pair_require "$REC" 'theorem coeff_eq_zero_of_grid_vanishing' \
+    'theorem coeff_eq_zero_of_grid_const' "90" \
+    "§68: the inversion and its constant case must stay together"
+require "$PLAN" 'derived, not assumed' \
+    "§68: the plan must keep the verdict"
+require "$PLAN" 'is a statement about the numerical grid' \
+    "§68: the plan must keep the residual hypothesis (horth)"
+
+# ---- 22. §69 the constants do not depend on the dimension
+# §67 proved the chain in two shear coordinates; a reader may take the estimate for a two-dimensional
+# accident.  §69 gives the n-coordinate theorem and the nine-component instance, with the same
+# constants — and must keep saying that the model's own volPot is still un-dominated (§61).
+require "$LAG" "theorem lagGradDom_family" \
+    "§69: the estimate must be stated for every n"
+require "$LAG" "theorem lagGradDom_mu_nine" \
+    "§69: the nine-component instance must exist"
+require "$PLAN" 'constants do not depend on the dimension' \
+    "§69: the plan must keep the verdict"
+require "$PLAN" 'no gradient domination at all' \
+    "§69: the plan must keep §61's obstruction in view"
+
+# ---- 23. §70 the quartet condition and the explicit antighost
+# The SM quartet data exists (choice-based); what §70 adds is why the explicit antighost cannot be it:
+# Q P Q = Q with P = bGhost is equivalent to a Gauss-sector identity.  The section must not be read as
+# proving positivity — that boundary is guarded too.
+require "$REM" "theorem bGhost_quartet_iff" \
+    "§70: the quartet condition must be reduced to the Gauss-sector identity"
+require "$REM" "def traceEnd" \
+    "§70: the trace remainder must stay named"
+require "$PLAN" 'Nothing in §70 proves positivity' \
+    "§70: the plan must keep the honest boundary"
+require "$PLAN" 'the trace-corrected Gauss generators' \
+    "§70: the plan must keep what the condition says"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

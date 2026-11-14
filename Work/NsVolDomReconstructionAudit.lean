@@ -6,3 +6,13 @@ open BookProof.NsVolDomReconstruction
 #audit_axioms volPot_of_single_mode
 #audit_axioms volPot_of_shear_constant
 #audit_axioms volPot_of_shear_constant_normForm
+#audit_axioms mvpoly_eq_zero_of_eval_real_fintype
+#audit_axioms phase_conj
+#audit_axioms phase_mul_conj
+#audit_axioms coeff_eq_zero_of_grid_vanishing
+#audit_axioms coeff_eq_zero_of_grid_const
+#audit_axioms detCoef_eval_eq_zero_of_constant
+#audit_axioms volCoef_eq_zero_of_constant
+#audit_axioms volCoef_zero_eq_of_constant
+#audit_axioms volPot_of_single_mode_of_constant
+#audit_axioms volPot_of_shear_constant_of_const
