@@ -49,6 +49,11 @@ Two things are still wanted around it:
   transfers to `γ² lo ≤ e` (`gap_transfer`), which is a strictly positive gap whenever `lo > 0`;
   `qcdG2M4BandRow` is the recorded `g = 2`, `m = 4` solve as such a row, and
   `qcdG2M4BandRow_positive` reads a strictly positive gap off it.
+* `CertificateRow`, `CertificateRow.Certifies`, `certified_gap_table_unified` — **one table theorem
+  for both row kinds**: a solve row (`ofSolve`, scale `1`, `certifies_of_solve`) and a band row
+  (`ofBand`, scale `γ²`, `certifies_of_band`) are consumed by one statement, and
+  `certified_gap_table_of_unified` recovers the T11 lower bound as its solve-only case.  There is no
+  unified upper end, for the reason recorded in the theorem's docstring.
 * **T12** `richardson`, `richardson_exact` (the extrapolation is exact for a pure
   `C·l^{-p}` correction), `richardson_error` (its error propagation), and
   `richardson_qym_g4` — the evaluation on the recorded finite-size data.
@@ -227,6 +232,113 @@ theorem reflected_band_row_positive (row : ReflectedBandRow) {lam e : ℝ}
     have := row.gamma_pos
     positivity
   linarith [mul_le_mul_of_nonneg_left hle (sq_nonneg row.gamma)]
+
+/-! ## 2c. One table theorem for both row kinds -/
+
+/-- A row of the gap table, either kind.  A **solve** row certifies the parity gap of its truncated
+Hamiltonian from the sector enclosures (T11); a **band** row certifies an edge from the reflected
+Temple band (`reflected_band_table`).  Putting both under one type lets a single theorem consume
+either, without pretending they certify the same quantity. -/
+inductive CertificateRow where
+  /-- A row from a solve: the T11 window `[gap - width, gap + width]`. -/
+  | ofSolve (c : CouplingCertificate)
+  /-- A row from a reflected band: the Temple window `[lo, hi]` at shift `γ`. -/
+  | ofBand (r : ReflectedBandRow)
+
+namespace CertificateRow
+
+/-- The coupling of a row. -/
+def g : CertificateRow → ℝ
+  | ofSolve c => c.g
+  | ofBand r => r.g
+
+/-- The lower end of the row's window. -/
+def lo : CertificateRow → ℝ
+  | ofSolve c => c.lo
+  | ofBand r => r.lo
+
+/-- The upper end of the row's window. -/
+def hi : CertificateRow → ℝ
+  | ofSolve c => c.hi
+  | ofBand r => r.hi
+
+/-- The scale at which the lower end applies to the certified quantity: `1` for a solve row (its
+window is already in gap units) and `γ²` for a band row (`gap_transfer`). -/
+def scale : CertificateRow → ℝ
+  | ofSolve _ => 1
+  | ofBand r => r.gamma ^ 2
+
+theorem scale_pos (x : CertificateRow) : 0 < x.scale := by
+  cases x with
+  | ofSolve _ => simp [scale]
+  | ofBand r => exact pow_pos r.gamma_pos 2
+
+theorem lo_le_hi (x : CertificateRow) : x.lo ≤ x.hi := by
+  cases x with
+  | ofSolve c => exact c.lo_le_hi
+  | ofBand r => exact r.lo_le_hi
+
+/-- **What a row certifies**: `v` dominates the row's scaled lower end.  The kinds state it in their
+own units — the parity gap for a solve row, the edge for a band row. -/
+def Certifies (x : CertificateRow) (v : ℝ) : Prop :=
+  match x with
+  | ofSolve c => c.lo ≤ v
+  | ofBand r => r.gamma ^ 2 * r.lo ≤ v
+
+/-- A certified value dominates the row's scaled lower end. -/
+theorem scale_mul_lo_le {x : CertificateRow} {v : ℝ} (h : x.Certifies v) : x.scale * x.lo ≤ v := by
+  cases x with
+  | ofSolve c => simpa [Certifies, scale, lo] using h
+  | ofBand r => simpa [Certifies, scale, lo] using h
+
+/-- A solve row certifies its parity gap from the two sector enclosures. -/
+theorem certifies_of_solve {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℂ E]
+    {c : CouplingCertificate} {T P : E →ₗ[ℂ] E} {thetaE thetaO deltaE deltaO : ℝ}
+    (hgap : c.gap = thetaO - thetaE) (hwidth : c.width = deltaO + deltaE)
+    (hEven : sectorGround T P 1 ≤ thetaE + deltaE)
+    (hOdd : thetaO - deltaO ≤ sectorGround T P (-1)) :
+    (ofSolve c).Certifies (sectorGround T P (-1) - sectorGround T P 1) := by
+  change c.lo ≤ _
+  have h := certified_parity_gap hEven hOdd
+  simp only [CouplingCertificate.lo, hgap, hwidth]
+  linarith
+
+/-- A band row certifies an edge from the band and the one-sided transfer. -/
+theorem certifies_of_band (r : ReflectedBandRow) {lam e : ℝ}
+    (hband : lam ∈ r.band) (htransfer : r.gamma ^ 2 * lam ≤ e) :
+    (ofBand r).Certifies e := by
+  change r.gamma ^ 2 * r.lo ≤ e
+  exact le_trans (mul_le_mul_of_nonneg_left hband.1 (sq_nonneg r.gamma)) htransfer
+
+end CertificateRow
+
+/-- **The gap table, once, for both row kinds.**  Given, per coupling, a row of either kind together
+with the fact that it certifies that coupling's value, every row's scaled lower end bounds its
+value.  A solve row contributes `lo` at scale `1` (`certifies_of_solve`), a band row `lo` at scale
+`γ²` (`certifies_of_band`); the two are supplied by the appropriate route and this theorem
+consumes them together.
+
+There is deliberately no unified *upper* end: for a solve row `hi` bounds the gap, while for a band
+row `hi` bounds the reflected edge, not the edge itself (the upper transfer needs the `E`'s of
+`ChapterResolventTransfer.gap_interval_of_reflected_bands`). -/
+theorem certified_gap_table_unified {n : ℕ} (row : Fin n → CertificateRow) (val : Fin n → ℝ)
+    (h : ∀ i, (row i).Certifies (val i)) :
+    ∀ i, (row i).scale * (row i).lo ≤ val i :=
+  fun i => CertificateRow.scale_mul_lo_le (h i)
+
+/-- **The solve-only table is the unified theorem on solve rows.**  With `scale = 1` the conclusion
+is the T11 lower bound, so the two statements agree on the rows `certified_gap_table` covers. -/
+theorem certified_gap_table_of_unified {n : ℕ} (row : Fin n → CouplingCertificate)
+    (T P : Fin n → E →ₗ[ℂ] E) (thetaE thetaO deltaE deltaO : Fin n → ℝ)
+    (hgap : ∀ i, (row i).gap = thetaO i - thetaE i)
+    (hwidth : ∀ i, (row i).width = deltaO i + deltaE i)
+    (hEven : ∀ i, sectorGround (T i) (P i) 1 ≤ thetaE i + deltaE i)
+    (hOdd : ∀ i, thetaO i - deltaO i ≤ sectorGround (T i) (P i) (-1)) :
+    ∀ i, (CertificateRow.ofSolve (row i)).scale * (CertificateRow.ofSolve (row i)).lo ≤
+      sectorGround (T i) (P i) (-1) - sectorGround (T i) (P i) 1 := by
+  refine certified_gap_table_unified (fun i => CertificateRow.ofSolve (row i)) _ ?_
+  intro i
+  exact CertificateRow.certifies_of_solve (hgap i) (hwidth i) (hEven i) (hOdd i)
 end Table
 
 /-! ## 3. The analytic strong-coupling value and the per-row check -/

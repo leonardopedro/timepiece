@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13y`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13z`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,13 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13y):** “State of the project — 2026-11-13y: the two-sided interval,
+> **Track A — newest (2026-11-13z):** “State of the project — 2026-11-13z: one table theorem for
+> both row kinds” (end of file): `CertificateRow` (solve or band, with `scale` `1` or `γ²`) and
+> `CertificateRow.Certifies` let `certified_gap_table_unified` consume either kind in one
+> statement; `certified_gap_table_of_unified` recovers T11 as the solve-only case, and no unified
+> upper end is claimed because a band's `hi` bounds the reflected edge.
+>
+> **Track A (2026-11-13y):** “State of the project — 2026-11-13y: the two-sided interval,
 > checked on the instance” (end of file): `diag52_gap_interval` instantiates
 > `gap_interval_of_reflected_bands` on `diag (5, 2)` with `γ = 1`, edges `2, 5` and exact bands, and
 > both ends check out — the lower `1/6 ≤ 3` (lossy `γ²` scaling) and the upper `3 ≤ 3` (tight).
@@ -24957,3 +24963,36 @@ turn a check on numbers into a claim about numerics.
 **Verification.**  `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds with no warning and
 no line above 100 code points; `#print axioms` on `diag52_gap_interval` gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-13z: one table theorem for both row kinds
+
+Track A.  The gap table carried two unrelated row types — `CouplingCertificate` (T11 solve window) and
+`ReflectedBandRow` (reflected Temple band).  `CertificateRow` gives them one interface and
+`certified_gap_table_unified` consumes either.
+
+**The interface.**  `CertificateRow` is `ofSolve c` or `ofBand r`, with `g`, `lo`, `hi` projections and
+a `scale`: `1` for a solve row (its window is in gap units) and `γ²` for a band row (`gap_transfer`).
+`Certifies x v` records what each kind can claim — `c.lo ≤ v` versus `γ² lo ≤ v` — and
+`CertificateRow.scale_mul_lo_le` converts either into `scale * lo ≤ v`.  The scale is what lets one
+statement cover both without either kind overstating its lower end.
+
+**The supplies.**  `certifies_of_solve` builds the solve case from the two sector enclosures, exactly
+as `certified_gap_table` does; `certifies_of_band` builds the band case from band membership plus the
+one-sided transfer.  Each route feeds the same `Certifies` from its own data, so the unification does
+not require either route to produce the other's inputs.
+
+**The theorem.**  `certified_gap_table_unified`: a `Fin n`-family of rows of either kind, each with its
+certification, gives `scale * lo ≤ val` per row.  `certified_gap_table_of_unified` recovers the T11
+lower bound as the solve-only case, which is the check that nothing was lost on the old theorem's
+rows.
+
+**What is not unified.**  There is no unified upper end, and the docstring says why: a solve row's `hi`
+bounds the gap, a band row's `hi` bounds the reflected edge, and turning the latter into a bound on
+the edge needs the `E`'s of `gap_interval_of_reflected_bands`.  Combining both `hi`'s into one claim
+would be a different theorem, not a unification, so it is not stated.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterSirkGapTable` and `lake build BookProof` succeed
+with no warning and no line above 100 code points; `#print axioms` on
+`CertificateRow.scale_mul_lo_le`, `CertificateRow.certifies_of_solve`,
+`CertificateRow.certifies_of_band`, `certified_gap_table_unified`, `certified_gap_table_of_unified`
+gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.

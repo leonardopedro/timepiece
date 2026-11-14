@@ -2324,6 +2324,36 @@ off both ends:
 **Verification.** `lake build BookProof.Sirk.ChapterResolventTransfer` succeeds with no warning and no
 line above 100 code points; `#print axioms diag52_gap_interval` gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`; `lake build BookProof` is green at 9004 jobs.
+
+### One table theorem, two row kinds (2026-11-13z)
+
+Track A. The gap table held two unrelated row types: `CouplingCertificate` (a T11 solve window) and
+`ReflectedBandRow` (a reflected Temple band). This entry gives them one interface, so a single
+theorem consumes either.
+
+**The row type.** `CertificateRow` is `ofSolve c` or `ofBand r`, with projections `g`, `lo`, `hi`, and
+— the piece that makes one statement possible — `scale`: `1` for a solve row, whose window is already
+in gap units, and `γ²` for a band row, whose lower end transfers through `gap_transfer`. Its
+`Certifies x v` is what each kind can honestly claim: `c.lo ≤ v` for a solve row, `γ² lo ≤ v` for a
+band row. `CertificateRow.scale_mul_lo_le` turns either into `scale * lo ≤ v`.
+
+**The two supplies.** `certifies_of_solve` builds the solve case from the two sector enclosures (as
+`certified_gap_table` does), `certifies_of_band` builds the band case from band membership plus the
+one-sided transfer. So each route feeds the same `Certifies`, from its own data.
+
+**The one theorem.** `certified_gap_table_unified` consumes a `Fin n`-family of either kind and
+concludes `scale * lo ≤ val` per row. `certified_gap_table_of_unified` recovers the T11 lower bound as
+its solve-only case, which is the consistency check that the unification lost nothing on the rows the
+old theorem covered.
+
+**The missing half is deliberate.** There is no unified upper end, and the docstring says why: for a
+solve row `hi` bounds the gap, but for a band row `hi` bounds the *reflected* edge; turning that into
+an upper bound on the edge needs the `E`'s of `gap_interval_of_reflected_bands`. A single `hi`
+combining both would be a distinct claim, not a unification — so it is not made.
+
+**Verification.** `ChapterSirkGapTable` builds with no warning and no line above 100 code points;
+`#print axioms` on the five new declarations gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`; `lake build BookProof` is green at 9004 jobs.
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
