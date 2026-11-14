@@ -46,6 +46,13 @@ trace-corrected Gauss generators act as the identity on the charge's range.  Tha
 reason `ChapterSmQuartet`'s `smQuartet` must be constructed by `exists_contractingHomotopy` (a choice
 of complement) rather than exhibited — and it is the reason the explicit `b` is not that choice.
 
+§9 asks what a *candidate* would have to be.  Two answers: the equation is one identity rather than
+two (`QbQ_eq_SQ`, and at the SM charge `smBrstCharge_mul_traceCorrected`), and a b-ghost that
+contracts `Q` on its range makes it hold while a trace correction that kills the range is invisible
+to it (`quartet_condition_of_contracting`, `trace_correction_iff`).  A two-dimensional model
+(`CandModel`) exhibits the positive case with a nonzero correction, so the equation is satisfiable —
+just not by the antighost sum.
+
 Everything is `sorry`-free and `axiom`-free.
 -/
 
@@ -476,5 +483,118 @@ theorem quartet_iff_of_anticomm {R : Type*} [Ring R] {Q b S : R}
     _ = S * Q - b * (Q * Q) := by noncomm_ring
     _ = Q := by rw [h, hQ, mul_zero, sub_zero]
 
+/-! ## 9. A candidate whose remainder vanishes on the charge's range
+
+§7–§8 reduced the quartet condition `Q P Q = Q` to the trace-corrected Gauss equation.  Two things
+are decided here about that equation.
+
+**It is one identity, not two.**  From `Q² = 0` and `{Q, b} = S` one gets `Q b Q = S Q`
+(`QbQ_eq_SQ`): the quartet condition and "the trace-corrected Gauss generators act as the identity
+on the charge's range" are literally the same equation.  At the SM charge this reads
+`(Σ − trace) Ω = Ω b Ω` (`smBrstCharge_mul_traceCorrected`).
+
+**The trace correction is the only obstruction, and it is invisible to a candidate that contracts.**
+If `T Q = 0` — the correction kills the charge's range — then `(S − T) Q = Q` and `S Q = Q` are the
+same equation (`trace_correction_iff`).  And a `b` that contracts `Q` on its range (`Q b Q = Q`)
+gives `S Q = Q` for its own anticommutator `S = Qb + bQ` (`quartet_condition_of_contracting`).  So
+the equation is *satisfiable* — by the splitting map of `exists_contractingHomotopy`, which always
+exists in finite dimension — but only with the correction dropped on `range Q`: the explicit
+antighost fails at `su2` because the correction does **not** kill the range (`su2Trace 1 0 = −1`,
+§7), while a contracting candidate has no remainder of that kind.  §9's two-dimensional model
+(`cand`) exhibits the positive case explicitly: `q b q = q`, `tr q = 0`, and
+`((qb + bq) − tr) q = q`.
+
+**Boundary.**  This does not construct a b-ghost for `smBrstCharge`: it shows what the equation
+requires of one, and that the requirement is met by the choice-based homotopy of
+`ChapterSmQuartet`'s §8 rather than by the antighost sum.  Nothing here says the Gauss sector of the
+Standard Model is trace-free.
+-/
+
+/-- **One identity, two sides.**  From `Q² = 0` and `{Q, b} = S`, the antighost contraction equals
+the left action of `S`: `Q b Q = S Q`.  So the quartet condition `Q b Q = Q` and "`S` acts as the
+identity on `range Q`" are literally the same equation. -/
+theorem QbQ_eq_SQ {R : Type*} [Ring R] {Q b S : R} (hQ : Q * Q = 0) (hS : Q * b + b * Q = S) :
+    Q * b * Q = S * Q := by
+  have hQb : Q * b = S - b * Q := eq_sub_iff_add_eq.mpr hS
+  rw [hQb, sub_mul, mul_assoc, hQ, mul_zero, sub_zero]
+
+/-- **A trace correction cannot change the verdict when it kills the charge's range**: if `T Q = 0`
+then `(S − T) Q = Q` and `S Q = Q` are the same equation. -/
+theorem trace_correction_iff {R : Type*} [Ring R] {Q S T : R} (hT : T * Q = 0) :
+    (S - T) * Q = Q ↔ S * Q = Q := by
+  rw [sub_mul, hT, sub_zero]
+
+/-- **The candidate.**  A `b` that contracts `Q` on its range — `Q b Q = Q`, which is what a
+splitting map of `range Q` supplies — makes the trace-corrected Gauss equation hold for its own
+anticommutator `S = Qb + bQ`. -/
+theorem quartet_condition_of_contracting {R : Type*} [Ring R] {Q b S : R} (hQ : Q * Q = 0)
+    (hS : Q * b + b * Q = S) (hb : Q * b * Q = Q) : S * Q = Q :=
+  (quartet_iff_of_anticomm hQ hS).mp hb
+
+/-- **The SM form of `QbQ_eq_SQ`**: the left action of the trace-corrected Gauss sum on the charge
+is exactly the antighost contraction.  This is why the equation is not made easier by changing the
+b-ghost — what it constrains is the *charge algebra*. -/
+theorem smBrstCharge_mul_traceCorrected {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    (gaussSum m T - traceEnd m f3) * smBrstCharge m T f3
+      = smBrstCharge m T f3 * bGhost m * smBrstCharge m T f3 := by
+  have h := smBrstCharge_anticomm_bGhost m T f3 h3anti
+  have hnil := smBrstCharge_nilpotent hT h3anti h3jac
+  have hz : bGhost m * smBrstCharge m T f3 * smBrstCharge m T f3 = 0 := by
+    rw [mul_assoc, hnil, mul_zero]
+  unfold traceEnd
+  rw [← h, add_mul, hz, add_zero]
+
+/-! ### The positive case: a two-dimensional candidate
+
+`q` raises `e₀ ↦ e₁` and kills `e₁`; `b` lowers `e₁ ↦ e₀`; `tr` sends `x ↦ x₀ e₀`, so it is
+nonzero but kills the range of `q`.  Then `q b q = q`, and the trace-corrected equation holds with
+the correction present. -/
+
+namespace CandModel
+
+/-- The two-dimensional model space. -/
+abbrev V2 := Fin 2 → ℂ
+
+/-- `q`: `e₀ ↦ e₁`, `e₁ ↦ 0`. -/
+noncomputable def cq : V2 →ₗ[ℂ] V2 :=
+  (LinearMap.toSpanSingleton ℂ V2 (Pi.single 1 1)).comp (LinearMap.proj 0)
+
+/-- `b`: `e₁ ↦ e₀`, `e₀ ↦ 0`. -/
+noncomputable def cb : V2 →ₗ[ℂ] V2 :=
+  (LinearMap.toSpanSingleton ℂ V2 (Pi.single 0 1)).comp (LinearMap.proj 1)
+
+/-- A nonzero "trace correction" that kills the range of `q`. -/
+noncomputable def ctr : V2 →ₗ[ℂ] V2 :=
+  (LinearMap.toSpanSingleton ℂ V2 (Pi.single 0 1)).comp (LinearMap.proj 0)
+
+theorem cand_nilpotent : cq * cq = 0 := by
+  refine LinearMap.ext fun x => ?_
+  simp [Module.End.mul_apply, cq]
+
+theorem cand_contract : cq * cb * cq = cq := by
+  refine LinearMap.ext fun x => ?_
+  simp [Module.End.mul_apply, cq, cb, Pi.single_eq_same]
+
+theorem cand_trace : ctr * cq = 0 := by
+  refine LinearMap.ext fun x => ?_
+  simp [Module.End.mul_apply, cq, ctr, Pi.single_eq_of_ne]
+
+theorem cand_trace_ne_zero : ctr ≠ 0 := by
+  intro h
+  have h1 := LinearMap.congr_fun h (Pi.single 0 1 : V2)
+  simp [ctr, Pi.single_eq_same] at h1
+
+/-- **The trace-corrected equation holds for the candidate**, even though the correction `ctr` is
+nonzero: `((q b + b q) − tr) q = q`. -/
+theorem cand_equation : ((cq * cb + cb * cq) - ctr) * cq = cq := by
+  rw [trace_correction_iff cand_trace]
+  exact quartet_condition_of_contracting cand_nilpotent rfl cand_contract
+
+end CandModel
 
 end BookProof.SmGhostRemainder

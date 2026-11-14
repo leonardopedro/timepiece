@@ -10,7 +10,8 @@ statements about the *normal form* `c(εt)²`, and the passage from the model's 
 `volPot kappa kv = (κ/2) Σ_q |(det F − 1)^(q)|²` to that normal form was measurement — the Fourier
 reconstruction of `det F − 1` — not proof.
 
-This file moves part of that boundary.  Two things are proved here and nothing more.
+This file moves part of that boundary.  The five numbered statements below are what is proved here,
+and nothing more.
 
 **1. The discrete grid is orthogonal.**  On an `N`-point grid with `ω = exp(2πi/N)`,
 
@@ -51,13 +52,24 @@ derives `horth` from a labelling of the wave numbers by integers mod `N`.  `grid
 `volPot_of_single_mode_of_commensurate` / `volPot_of_shear_constant_of_commensurate` are the §3 theorems
 with `horth` replaced by that labelling.
 
+**5. Aliasing across directions.**  §5 replaces the line by a three-dimensional box
+`j ↦ Σ_x j x • e x` with `j x < N`, the coordinates of `e` being independent (`latPoint_injective`,
+`gridBox_card`).  The phase factorises (`phase_latPoint`), so does the geometric sum
+(`geom_sum_latBox`): it is `N³` exactly when *every* component of the residue vector vanishes, and one
+non-commensurate direction sends the whole sum to zero.  Hence orthogonality on the box
+(`horth_of_lattice_commensurate`) requires commensurability in all three directions at once, and
+`latBox_character_one_iff` identifies the alias classes: two wave numbers are indistinguishable on the
+box exactly when each dual component differs by a multiple of `2π`, i.e. `q − q' ∈ N·Λ*` — the total
+wave number plays no role.  `volPot_of_single_mode_of_lattice_commensurate` is the assembly.
+
 **What is still not proved.**  The labelling itself.  `horth` is gone from the statements, but its
 replacement is a modelling hypothesis: that each pairwise difference of wave numbers is a *lattice
-fraction* `2πm/N` along `e`, with the residue distinguishing the modes (`N ∤ m` iff `q ≠ q'`).  Neither
-conjunct is derived from `kv` — that would be a statement about which modes the model is truncated to,
-and it is false for a generic choice.  The grid is also one line of `N` points, not a three-dimensional
-lattice, so aliasing *across* directions is not analysed.  Nothing about ESA or about the penalty's
-value off the constant family is claimed.
+fraction* `2πm/N` along `e`, with the residue distinguishing the modes (`N ∤ m` iff `q ≠ q'`), and in
+§5 that this holds in each of the three directions.  None of it is derived from `kv` — that would be a
+statement about which modes the model is truncated to, and it is false for a generic choice.  The box
+is one truncation and its coordinates are assumed independent; `latBox_character_one_iff` says which
+modes collide *on that truncation*, not which modes the model has.  Nothing about ESA or about the
+penalty's value off the constant family is claimed.
 -/
 
 import BookProof.Ns.ChapterNsLagrangianDetConvolution
@@ -497,6 +509,213 @@ theorem volPot_of_shear_constant_of_commensurate (kappa c ε t : ℝ) (kv : K �
       (1 + dispGrad kv y a).det = 1 + (((c * ε * t : ℝ)) : ℂ)) :
     volPot kappa kv = MvPolynomial.C (((kappa / 2) * (c * ε * t) ^ 2 : ℝ) : ℂ) :=
   volPot_of_single_mode_of_commensurate kappa (c * ε * t) kv N hN e he m hp hdvd h0 hconst
+
+/-! ## 5. A three-dimensional lattice: aliasing is a residue condition in every direction
+
+§4 used a line of `N` points, so a mode `q − q'` had a single wave number to be commensurate with.
+On the box `j ↦ Σ_x j x • e x` (`j x < N`) the exponent is a *sum* of three pairings, so the geometric
+sum factorises into one factor per direction.  Two things follow and one does not:
+
+* orthogonality needs commensurability in **every** direction — one non-commensurate direction makes
+the whole sum vanish (`geom_sum_latBox`), so a mode cannot be repaired direction by direction;
+* the alias classes are the residues mod `N` of the coefficient vector (`latBox_character_one_iff`):
+`q` and `q'` are indistinguishable on the box exactly when each dual component differs by a multiple
+of `N`, i.e. `q − q' ∈ N·Λ*`, and the *total* wave number plays no role.
+
+What is still **not** proved: that the model's wave numbers land on this lattice at all.  The box is
+one truncation; `latBox_character_one_iff` is a statement about it, and the independence hypothesis on
+`e` is a property of the coordinates, not of `kv`. -/
+
+/-- **A lattice-box point**: `Σ_x j x • e x`, with `j x < N` in each direction.  The first index of
+`e` labels the basis vector, the second its spatial component. -/
+noncomputable def latPoint (N : ℕ) (e : Fin 3 → Fin 3 → ℝ) (j : Fin 3 → Fin N) : Fin 3 → ℝ :=
+  fun y => ∑ x, (j x : ℝ) * e x y
+
+/-- **The lattice box**: the image of `j < N` in each direction. -/
+noncomputable def gridBox (N : ℕ) (e : Fin 3 → Fin 3 → ℝ) : Finset (Fin 3 → ℝ) :=
+  Finset.univ.image (latPoint N e)
+
+/-- The box points are distinct as soon as the three directions are independent: the coefficient
+vector of a vanishing combination is zero, and its entries are differences of natural numbers. -/
+theorem latPoint_injective (N : ℕ) (e : Fin 3 → Fin 3 → ℝ)
+    (hindep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * e x y = 0) → c = 0) :
+    Function.Injective (latPoint N e) := by
+  intro j j' h
+  have hcoef : (fun x => (j x : ℝ) - (j' x : ℝ)) = 0 := by
+    refine hindep _ fun y => ?_
+    have h1 : (∑ x, ((j x : ℝ) - (j' x : ℝ)) * e x y)
+        = (∑ x, (j x : ℝ) * e x y) - ∑ x, (j' x : ℝ) * e x y := by
+      rw [← Finset.sum_sub_distrib]
+      exact Finset.sum_congr rfl fun x _ => by ring
+    rw [h1]
+    have h2 := congrFun h y
+    simp only [latPoint] at h2
+    rw [h2, sub_self]
+  funext x
+  have hx : (j x : ℝ) = (j' x : ℝ) := by
+    have h := congrFun hcoef x
+    simp only [Pi.zero_apply] at h
+    exact sub_eq_zero.mp h
+  have hv : (j x).val = (j' x).val := by exact_mod_cast hx
+  exact Fin.ext hv
+
+theorem gridBox_card (N : ℕ) (e : Fin 3 → Fin 3 → ℝ)
+    (hindep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * e x y = 0) → c = 0) :
+    (gridBox N e).card = N ^ 3 := by
+  simp [gridBox, Finset.card_image_of_injective _ (latPoint_injective N e hindep)]
+
+theorem gridBox_nonempty (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ) :
+    (gridBox N e).Nonempty :=
+  ⟨_, Finset.mem_image.mpr
+    ⟨fun _ => ⟨0, hN⟩, Finset.mem_univ _, rfl⟩⟩
+
+/-- **The phase on the box is a power of the root of unity**: with a per-direction pairing
+`⟨w, e x⟩ = 2πm x/N`, the plane wave at `Σ_x j x • e x` is `ζ^{Σ_x m x · j x}`. -/
+theorem phase_latPoint (N : ℕ) (_hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ) (w : Fin 3 → ℝ)
+    (m : Fin 3 → ℤ) (hin : ∀ x, ∑ y, w y * e x y = 2 * Real.pi * (m x : ℝ) / N)
+    (j : Fin 3 → Fin N) :
+    phase w (latPoint N e j) = gridRoot N ^ (∑ x, m x * (j x : ℤ)) := by
+  have h1 : ∀ y : Fin 3, w y * (latPoint N e j) y = ∑ x, (j x : ℝ) * (w y * e x y) := by
+    intro y
+    rw [latPoint, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun x _ => by ring
+  have hsum : (∑ y, w y * (latPoint N e j) y) = ∑ x, (j x : ℝ) * (∑ y, w y * e x y) :=
+    calc (∑ y, w y * (latPoint N e j) y)
+        = ∑ y, ∑ x, (j x : ℝ) * (w y * e x y) := Finset.sum_congr rfl fun y _ => h1 y
+      _ = ∑ x, ∑ y, (j x : ℝ) * (w y * e x y) := Finset.sum_comm
+      _ = ∑ x, (j x : ℝ) * ∑ y, w y * e x y := by
+            refine Finset.sum_congr rfl fun x _ => ?_
+            rw [Finset.mul_sum]
+  have hsum' : (∑ y, w y * (latPoint N e j) y)
+      = (2 * Real.pi / N) * ∑ x, (m x : ℝ) * (j x : ℝ) := by
+    rw [hsum, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [hin x]
+    ring
+  have hexp : Complex.I * (((2 * Real.pi / N) * ∑ x, (m x : ℝ) * (j x : ℝ) : ℝ) : ℂ)
+      = (((∑ x, m x * (j x : ℤ) : ℤ)) : ℂ)
+        * (Complex.I * ((2 * Real.pi / N : ℝ) : ℂ)) := by
+    push_cast
+    ring
+  unfold phase gridRoot
+  rw [hsum', hexp, Complex.exp_int_mul]
+  congr 2
+  push_cast
+  ring
+
+/-- Summing a power over `Fin N` is summing it over `range N`. -/
+theorem sum_fin_zpow' (N : ℕ) (c : ℂ) (a : ℤ) :
+    (∑ j : Fin N, c ^ (a * (j : ℤ))) = ∑ j ∈ Finset.range N, c ^ (a * (j : ℤ)) := by
+  rw [Finset.sum_fin_eq_sum_range]
+  refine Finset.sum_congr rfl fun j hj => ?_
+  rw [dif_pos (Finset.mem_range.mp hj)]
+
+/-- **The geometric sum factorises over the three directions**, and is `N³` exactly when the residue
+vector vanishes: commensurability is needed in *every* direction, and one failure sends the whole sum
+to zero. -/
+theorem geom_sum_latBox (N : ℕ) (hN : 0 < N) (m : Fin 3 → ℤ) :
+    ∑ j : Fin 3 → Fin N, gridRoot N ^ (∑ x, m x * (j x : ℤ))
+      = if (∀ x, (N : ℤ) ∣ m x) then (N : ℂ) ^ 3 else 0 := by
+  have hζ : gridRoot N ≠ 0 := by
+    unfold gridRoot
+    exact Complex.exp_ne_zero _
+  have hfac : ∀ (j : Fin 3 → Fin N), gridRoot N ^ (∑ x, m x * (j x : ℤ))
+      = ∏ x, gridRoot N ^ (m x * (j x : ℤ)) := by
+    intro j
+    rw [Fin.prod_univ_three, Fin.sum_univ_three, zpow_add₀ hζ, zpow_add₀ hζ]
+  simp only [hfac]
+  have hsingle : ∀ x : Fin 3, (∑ j : Fin N, gridRoot N ^ (m x * ((j : ℕ) : ℤ)))
+      = if (N : ℤ) ∣ m x then (N : ℂ) else 0 := by
+    intro x
+    rw [sum_fin_zpow' N (gridRoot N) (m x)]
+    exact geom_sum_gridRoot N hN (m x)
+  have hbox := Finset.sum_prod_piFinset (Finset.univ : Finset (Fin N))
+    (fun x j => gridRoot N ^ (m x * (j : ℤ)))
+  rw [Fintype.piFinset_univ] at hbox
+  rw [show (∑ j : Fin 3 → Fin N, ∏ x, gridRoot N ^ (m x * (j x : ℤ)))
+      = ∏ x, ∑ j ∈ (Finset.univ : Finset (Fin N)), gridRoot N ^ (m x * (j : ℤ))
+      from hbox]
+  simp only [hsingle]
+  by_cases hall : ∀ x, (N : ℤ) ∣ m x
+  · rw [if_pos hall, Finset.prod_congr rfl fun x _ => if_pos (hall x), Finset.prod_const,
+      Finset.card_univ, Fintype.card_fin]
+  · rw [if_neg hall]
+    obtain ⟨x0, hx0⟩ : ∃ x, ¬ (N : ℤ) ∣ m x := by
+      by_contra h
+      push_neg at h
+      exact hall h
+    exact Finset.prod_eq_zero (Finset.mem_univ x0) (if_neg hx0)
+
+/-- **Aliasing is a residue condition in each direction.**  On the box, two wave numbers are
+indistinguishable exactly when each of their three dual pairings differs by a multiple of `2π`:
+the alias classes are the residue vectors mod `N`, so `q − q' ∈ N·Λ*`, and the *total* wave number is
+irrelevant. -/
+theorem latBox_character_one_iff (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ) (w : Fin 3 → ℝ)
+    (m : Fin 3 → ℤ) (hin : ∀ x, ∑ y, w y * e x y = 2 * Real.pi * (m x : ℝ) / N) :
+    (∀ j : Fin 3 → Fin N, phase w (latPoint N e j) = 1) ↔ ∀ x, (N : ℤ) ∣ m x := by
+  have hζ : IsPrimitiveRoot (gridRoot N) N := by
+    simpa [gridRoot] using Complex.isPrimitiveRoot_exp N hN.ne'
+  constructor
+  · intro h
+    have hconst : ∀ j : Fin 3 → Fin N,
+        gridRoot N ^ (∑ x, m x * (j x : ℤ)) = 1 := fun j => by
+      rw [← phase_latPoint N hN e w m hin j, h j]
+    have hval : (∑ j : Fin 3 → Fin N, gridRoot N ^ (∑ x, m x * (j x : ℤ)))
+        = ((Fintype.card (Fin 3 → Fin N) : ℕ) : ℂ) := by
+      rw [Finset.sum_congr rfl fun j _ => hconst j, Finset.sum_const, Finset.card_univ,
+        nsmul_eq_mul, mul_one]
+    rw [geom_sum_latBox N hN m] at hval
+    by_cases hall : ∀ x, (N : ℤ) ∣ m x
+    · exact hall
+    · rw [if_neg hall] at hval
+      have hne : ((Fintype.card (Fin 3 → Fin N) : ℕ) : ℂ) ≠ 0 := by
+        simp [Fintype.card_fin, hN.ne']
+      exact absurd hval.symm hne
+  · intro hdiv j
+    rw [phase_latPoint N hN e w m hin j]
+    have hdvd : (N : ℤ) ∣ ∑ x, m x * (j x : ℤ) := by
+      refine Finset.dvd_sum fun x _ => ?_
+      exact Dvd.dvd.mul_right (hdiv x) ((j x : ℕ) : ℤ)
+    rw [(hζ.zpow_eq_one_iff_dvd _).mpr hdvd]
+
+/-- **The unitarity hypothesis on a three-dimensional lattice.**  As on the line, orthogonality of
+the modes on the box follows from a per-direction labelling of their differences by integers mod
+`N`; what is new is that the labelling must hold in all three directions at once. -/
+theorem horth_of_lattice_commensurate (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ)
+    (hindep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * e x y = 0) → c = 0)
+    (S : Finset (Fin 3 → ℝ)) (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hp : ∀ q ∈ S, ∀ q' ∈ S, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (hdvd : ∀ q ∈ S, ∀ q' ∈ S, (∀ x, (N : ℤ) ∣ m q q' x) ↔ q = q') :
+    ∀ q ∈ S, ∀ q' ∈ S, ∑ a ∈ gridBox N e, phase (q - q') a
+      = if q = q' then ((gridBox N e).card : ℂ) else 0 := by
+  intro q hq q' hq'
+  rw [gridBox, Finset.sum_image (latPoint_injective N e hindep).injOn]
+  rw [Finset.sum_congr rfl fun j _ =>
+    phase_latPoint N hN e (q - q') (m q q') (hp q hq q' hq') j]
+  rw [geom_sum_latBox N hN (m q q')]
+  have hcard : ((gridBox N e).card : ℂ) = (N : ℂ) ^ 3 := by
+    rw [gridBox_card N e hindep, Nat.cast_pow]
+  by_cases h : q = q'
+  · rw [if_pos ((hdvd q hq q' hq').mpr h), if_pos h]
+    exact hcard.symm
+  · rw [if_neg (fun hd => h ((hdvd q hq q' hq').mp hd)), if_neg h]
+
+/-- **The penalty at a constant residual on a three-dimensional lattice**, with no abstract unitarity
+input: the box is commensurate in every direction and the residual is constant on it. -/
+theorem volPot_of_single_mode_of_lattice_commensurate (kappa Λ : ℝ) (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ)
+    (hindep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * e x y = 0) → c = 0)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (hdvd : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, (∀ x, (N : ℤ) ∣ m q q' x) ↔ q = q')
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ gridBox N e →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * Λ ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_constant kappa Λ kv (gridBox N e) (gridBox_nonempty N hN e)
+    (horth_of_lattice_commensurate N hN e hindep (waveSet kv) m hp hdvd) h0 hconst
 
 end
 

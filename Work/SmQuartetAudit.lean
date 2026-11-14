@@ -36,3 +36,7 @@ open BookProof.SmQuartet
 #audit_axioms kform_exEtah_Q
 #audit_axioms kform_exEtah_symm
 #audit_axioms exNotPhysicalPositivity
+#audit_axioms BrstQuartet.range_physProj_eq_inf
+#audit_axioms BrstQuartet.physicalPositivity_iff_physForm
+#audit_axioms BrstQuartet.physicalPositivity_congr
+#audit_axioms smPhysicalPositivity_iff_physForm

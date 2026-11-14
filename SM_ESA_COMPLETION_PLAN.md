@@ -4202,8 +4202,8 @@ So the Plancherel step has no *abstract* unitarity input left. What replaces it 
 hypothesis, and it is not derivable from `kv`: the pairwise differences of wave numbers are lattice
 fractions `2πm/N` along `e`, and the residue mod `N` separates the modes (`N ∤ m` iff `q ≠ q'`). That
 is a statement about which modes the truncation keeps and it is false for a generic choice. The grid is
-also one line of `N` points, not a three-dimensional lattice, so aliasing across directions is not
-analysed.
+one line of `N` points; §74 replaces it by a three-dimensional box and analyses the aliasing that
+appears across directions.
 
 ## 72. Positivity is not a consequence of the quartet schema: a decided counterexample
 
@@ -4233,4 +4233,75 @@ is about the schema, not about the Standard Model's own physical sector.
 `(Σ G^a − traceEnd) Q = Q`: the equation is *not* an identity of the ghost algebra — it says the
 remainder acts as the identity on `range Q`, and that is a matter-sector statement, which is why §5's
 `su2Trace 1 0 = −1` refutes it for `bGhost` but cannot settle it for a different candidate.
+
+## 74. The three-dimensional box: aliasing is a residue condition in every direction
+
+`BookProof/Ns/ChapterNsVolDomReconstruction.lean` §5 replaces §71's line by the box
+`j ↦ Σ_x j x • e x` with `j x < N` in each coordinate, the three coordinate vectors of `e` assumed
+independent:
+
+* `latPoint`, `gridBox`, `latPoint_injective`, `gridBox_card`: the box is a set of `N³` distinct
+  points, the injectivity coming from independence and the entries being distinct natural numbers;
+* `phase_latPoint`: with a per-direction pairing `Σ_y w y e x y = 2π m x/N`, the phase at the `j`-th
+  box point is `ζ^{Σ_x m x · j x}` — so the exponent is a *sum* of three pairings;
+* `geom_sum_latBox`: the sum over the box is `N³` exactly when `(N : ℤ) ∣ m x` for **every** `x`, and
+  `0` otherwise. One non-commensurate direction kills the whole sum: a mode cannot be repaired
+  direction by direction;
+* `horth_of_lattice_commensurate`: the unitarity hypothesis of §68 on the box, from a per-direction
+  labelling with `N ∣ m q q' x ↔ q ≠ q'` holding for all `x` at once;
+* `latBox_character_one_iff`: the alias classes. The character is trivial on the box exactly when each
+  dual component differs by a multiple of `2π`, i.e. `q − q' ∈ N·Λ*`. The *total* wave number is
+  irrelevant: two modes collide whenever their residue vector does, and only then;
+* `volPot_of_single_mode_of_lattice_commensurate`: the assembly, as in §71.
+
+Boundary: the box is one truncation and its coordinates are assumed independent; the residue statement
+describes which modes collide *on that truncation*, not which modes the model keeps. Nothing is claimed
+about the penalty off the constant family.
+
+## 75. Which metrics are no-ghost: `PhysicalPositivity` is an equivalence
+
+§72 showed the quartet schema does not decide positivity. The natural question is then which metrics do,
+and `BookProof/Sm/ChapterSmQuartet.lean` §11 answers it with equivalences rather than implications:
+
+* `physicalPositivity_iff_physForm`: `PhysicalPositivity Q η` holds **iff** `η` is positive definite on
+  `range V` — non-negative there, and vanishing only at `0`. The forward direction uses the idempotence
+  of `V`, the radical condition and `V Q = 0` (a fixed point of `V` in the gauge orbit is `0`); the
+  reverse is §9's `physicalPositivity_of_quartet_on_range`. So the reduction of §9 is exact;
+* `physicalPositivity_congr`: two metrics agreeing on `range V` are no-ghost together. The ghost
+  directions are irrelevant, so no change of the metric away from the physical subspace can create or
+  remove the sign;
+* `range_physProj_eq_inf`: given that the b-ghost kills the physical subspace, the physical range is
+  `ker Q ⊓ ker b` — the harmonic representatives, matching §5's `range_physProjOf`;
+* `smPhysicalPositivity_iff_physForm`: the same equivalence at `smBrstCharge`, so the check on a
+  concrete SM metric is a sign computation on `range smPhysProj = ker Ω ⊓ (range Ω)ᗮ`
+  (`smPhysProjFormula_range`).
+
+Boundary: the equivalence does not *produce* the sign — §72's model has the same hypotheses with the
+opposite sign on `range V` — and no metric for `smBrstCharge` is constructed in this corpus. The SM
+statement is therefore an equivalence in `η`, not a verification for a particular `η`; a ghost-parity
+operator for the SM charge remains unbuilt.
+
+## 76. A candidate whose remainder vanishes on the charge's range
+
+§73 left the trace-corrected Gauss equation undecided for a candidate. `BookProof/Sm/ChapterSmIndexGhostRemainder.lean`
+§9 decides what the equation asks of one:
+
+* `QbQ_eq_SQ`: from `Q² = 0` and `{Q, b} = S` one has `Q b Q = S Q` identically, so the quartet
+  condition and "`Σ − trace` acts as the identity on `range Q`" are the *same* equation, not two;
+* `smBrstCharge_mul_traceCorrected`: the same identity at the SM charge,
+  `(Σ − trace) Ω = Ω b Ω`. The equation constrains the charge algebra, which is why changing the
+  b-ghost alone cannot make it true or false;
+* `trace_correction_iff`: if `T Q = 0` the correction is invisible — `(S − T) Q = Q` and `S Q = Q` are
+  the same equation. The explicit antighost's failure at `su₂` is exactly a correction that does *not*
+  kill the range (`su2Trace 1 0 = −1`, §7);
+* `quartet_condition_of_contracting`: a `b` that contracts `Q` on its range (`Q b Q = Q`, which
+  `exists_contractingHomotopy` supplies in finite dimension) makes the equation hold for its own
+  anticommutator;
+* `CandModel.cand_equation`: a two-dimensional model — `q`: `e₀ ↦ e₁`, `b`: `e₁ ↦ e₀`, `tr`: `x ↦ x₀ e₀`
+  with `tr` nonzero but `tr q = 0` — where `q b q = q` and `((q b + b q) − tr) q = q`. The positive case
+  exists, with a nonzero correction.
+
+Boundary: this does not construct a b-ghost for `smBrstCharge`. It shows what the equation requires of
+one and that the choice-based homotopy meets the requirement, not that the SM's Gauss sector is
+trace-free.
 

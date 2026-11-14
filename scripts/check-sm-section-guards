@@ -621,6 +621,54 @@ require "$PLAN" 'a matter-sector statement' \
 require "$PLAN" 'cannot settle it for a different candidate' \
     "§73: the plan must keep the decidability verdict"
 
+# ---- 27. §74 the three-dimensional box and its aliasing
+# §71 analysed one line of the grid.  The box adds a direction the line cannot see: the sum factorises,
+# so commensurability is needed in every direction at once, and the alias classes are the residue
+# vectors — the total wave number is irrelevant.  Dropping either half of that pair is the failure mode.
+require "$REC" "theorem geom_sum_latBox" \
+    "§74: the box's geometric sum must stay factorised"
+require "$REC" "theorem latBox_character_one_iff" \
+    "§74: the alias classes must stay identified"
+require "$REC" "theorem horth_of_lattice_commensurate" \
+    "§74: unitarity on the box must stay derived, not assumed"
+pair_require "$REC" 'theorem geom_sum_latBox' 'theorem latBox_character_one_iff' "80" \
+    "§74: the vanishing in one direction and the residue classes must stay together"
+require "$PLAN" 'One non-commensurate direction kills the whole sum' \
+    "§74: the plan must keep what the factorisation decides"
+require "$PLAN" 'The *total* wave number is' \
+    "§74: the plan must keep the alias description"
+
+# ---- 28. §75 the no-ghost condition is an equivalence, not a reduction with a gap
+# §72 decided that the quartet schema does not supply the sign.  §75 says exactly what does, and its
+# boundary is that an equivalence in `η` is not a verification for a particular `η`.
+require "$QUARTET" "theorem physicalPositivity_iff_physForm" \
+    "§75: the equivalence must stay an equivalence"
+require "$QUARTET" "theorem physicalPositivity_congr" \
+    "§75: ghost-direction irrelevance must stay stated"
+require "$QUARTET" "theorem smPhysicalPositivity_iff_physForm" \
+    "§75: the SM-level equivalence must stay"
+pair_require "$QUARTET" 'theorem exNotPhysicalPositivity' 'theorem physicalPositivity_iff_physForm' "160" \
+    "§75: the equivalence and §72's counterexample must stay in the same file"
+require "$PLAN" 'the equivalence does not *produce* the sign' \
+    "§75: the plan must keep the boundary"
+require "$PLAN" 'no metric for `smBrstCharge` is constructed in this corpus' \
+    "§75: the plan must keep the missing input"
+
+# ---- 29. §76 the candidate: what the trace-corrected equation asks of a b-ghost
+# §73 left the equation undecided for a candidate.  §76 decides its form — one identity, invisible to
+# a correction that kills the range, satisfied by a contracting map — and its positive model.  The
+# boundary is that no b-ghost for `smBrstCharge` is constructed.
+require "$REM" "theorem QbQ_eq_SQ" \
+    "§76: the one-identity form must stay"
+require "$REM" "theorem trace_correction_iff" \
+    "§76: the correction's invisibility must stay stated"
+require "$REM" "theorem quartet_condition_of_contracting" \
+    "§76: the contracting candidate must stay"
+require "$REM" "theorem cand_equation" \
+    "§76: the positive model must stay exhibited"
+require "$PLAN" 'this does not construct a b-ghost for `smBrstCharge`' \
+    "§76: the plan must keep the boundary"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

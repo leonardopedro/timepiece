@@ -23,3 +23,12 @@ open BookProof.NsVolDomReconstruction
 #audit_axioms horth_of_commensurate
 #audit_axioms volPot_of_single_mode_of_commensurate
 #audit_axioms volPot_of_shear_constant_of_commensurate
+#audit_axioms latPoint
+#audit_axioms gridBox
+#audit_axioms latPoint_injective
+#audit_axioms gridBox_card
+#audit_axioms phase_latPoint
+#audit_axioms geom_sum_latBox
+#audit_axioms latBox_character_one_iff
+#audit_axioms horth_of_lattice_commensurate
+#audit_axioms volPot_of_single_mode_of_lattice_commensurate

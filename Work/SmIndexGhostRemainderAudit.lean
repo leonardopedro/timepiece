@@ -12,3 +12,11 @@ open BookProof.SmGhostRemainder
 #audit_axioms traceEnd
 #audit_axioms bGhost_quartet_iff
 #audit_axioms quartet_iff_of_anticomm
+#audit_axioms QbQ_eq_SQ
+#audit_axioms trace_correction_iff
+#audit_axioms quartet_condition_of_contracting
+#audit_axioms smBrstCharge_mul_traceCorrected
+#audit_axioms CandModel.cand_nilpotent
+#audit_axioms CandModel.cand_contract
+#audit_axioms CandModel.cand_trace
+#audit_axioms CandModel.cand_equation
