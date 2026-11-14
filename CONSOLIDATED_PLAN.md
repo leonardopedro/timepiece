@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13s`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13t`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -54,7 +54,15 @@
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
 >
-> **Track A — newest (2026-11-13s):** “State of the project — 2026-11-13s: `hsep` is derived
+> **Track A — newest (2026-11-13t):** “State of the project — 2026-11-13t: the form bound from a
+> measurement, and what cannot give it” (end of file): `formBound_of_norm_sub_le` derives the
+> `13s` form bound from `‖A - c • 1‖ ≤ c - b`, hence `spectralSeparation_of_norm_le` needs no
+> spectral hypothesis on `yᗮ`; residual and Galerkin data provably cannot do it
+> (`TempleSeparationNecessary.separation_necessary`, and the Ritz levels are upper bounds), but
+> `le_minmaxLevel_of_formBound` puts `b` below every Courant–Fischer level of the compression.
+> Section 12 adds a numeric `diag (5, 2)` instance.
+>
+> **Track A (2026-11-13s):** “State of the project — 2026-11-13s: `hsep` is derived
 > from a form bound on the compression” (end of file):
 > `SpectralSplitting.spectralSeparation_of_compressionBound` turns
 > `b ‖z‖² ≤ re ⟪z, compressed z⟫` on `yᗮ` into `SpectralSeparation A l b`, through
@@ -24657,4 +24665,56 @@ code points; `#print axioms` on `isSelfAdjoint_compressed`,
 `spectralSeparation_of_compressionBound` and `sirk_reflected_gap_certificate_of_compression`
 gives `[propext, Classical.choice, Quot.sound]`; no `sorry`, no new axiom, and no remaining
 occurrence of `sirk_reflected_gap_certificate_of_deflated` in `BookProof/`;
+`lake build BookProof` is green at 9004 jobs.
+
+## State of the project — 2026-11-13t: the form bound from a measurement, and what cannot give it
+
+Track A.  `13s` reduced `hsep` to a form bound on `yᗮ` and left that bound as an input.  This
+entry asks where the bound can come from, answers two of the three obvious candidates with a
+*negative* result that was already in the corpus, and supplies the one route that works.
+
+**Residual data cannot supply it.**  `ChapterTempleSeparationNecessary.separation_necessary`
+exhibits, for every `M`, a bounded self-adjoint operator on a two-dimensional space and a unit
+trial vector whose Rayleigh quotient and residual are both `0` — the best possible finite data —
+while the bottom of the spectrum is at most `-M`.  So no derivation of the form bound from SIRK
+residuals can exist; the input is genuinely a priori information, as `13p`–`13r` said.  Any
+statement of the form "the residual bounds the complement spectrum" is false, not unproved.
+
+**A Galerkin Rayleigh quotient cannot supply it either, but the tie is real in the other
+direction.**  `ChapterSirkRitzMinMax.le_minmaxLevel_of_formBound`: if `c ‖x‖² ≤ rayleighVal T x`
+for every `x`, then `c ≤ minmaxLevel T k` for every `k` whose value set is nonempty.  Applied to
+`T = compressed A hA hy`, the certified separation is the statement that `b` sits below *every*
+Courant–Fischer level of the compression, not only its bottom.  The implication does not reverse,
+and that is structural rather than a gap in the proof: the Ritz levels are upper bounds
+(`minmaxLevel_le_minmaxLevelIn`), so a finite Galerkin computation can only *refute* the bound by
+exhibiting a trial vector below `b`.  What `galerkin_minmaxLevel_tendsto` buys is convergence of
+the levels to the min–max level, from above.
+
+**What does work: an operator-norm measurement.**  `13s`'s form bound is implied by any
+certificate that `A` is close to a scalar in operator norm:
+
+  `‖A - c • 1‖ ≤ c - b`  ⟹  `b ‖z‖² ≤ re ⟪z, A z⟫` for every `z`,
+
+since `re ⟪z, (A - c•1) z⟫ ≥ -‖A - c•1‖ ‖z‖²` (`abs_re_le_norm`, `norm_inner_le_norm`,
+`le_opNorm`).  This is `SpectralSplitting.formBound_of_norm_sub_le`; restricting to `yᗮ` is
+`formBound_compressed_of_norm_le`, and composing with section 10 is
+`spectralSeparation_of_norm_le`, which has **no** spectral hypothesis about the complement.  The
+measured quantity `‖A' - c • 1‖` is exactly what a numerical-range or per-system flow bound
+estimates, so this is the SIRK-shaped input rather than a black-box spectral assertion; it is
+also strictly stronger than the form bound, which is what a sufficient condition must be.
+
+**A worked instance.**  `ChapterSpectralSplitting` section 12: on `EuclideanSpace ℂ (Fin 2)`,
+`A = 2 • 1 + 3 • P` with `P` the rank-one projection onto `vTrial` is `diag (5, 2)` in the
+`(vTrial, vOther)` basis.  `vOther` is an eigenvector with eigenvalue `2`, the compression to its
+complement is the eigenvalue `5`, and the numbers are checked by `norm_num`:
+`3 * ‖vTrial‖² = 3 ≤ 5 = re ⟪vTrial, A vTrial⟫` (`bound_on_complement`), while the same level
+fails on the whole space, `3 ≰ 2` (`fails_off_complement`).  The instance checks the hypothesis
+and its sharpness numerically; the spectral conclusion is the general theorem, and no concrete
+matrix spectrum is computed in Lean.
+
+**Verification.**  `lake build BookProof.SpectralSplitting`, `BookProof.ChapterSirkRitzMinMax`
+and `BookProof.ChapterResolventTransfer` succeed with no warning and no line above 100 code
+points; `#print axioms` on `formBound_of_norm_sub_le`, `formBound_compressed_of_norm_le`,
+`spectralSeparation_of_norm_le`, `le_minmaxLevel_of_formBound`, `bound_on_complement` and
+`fails_off_complement` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`;
 `lake build BookProof` is green at 9004 jobs.

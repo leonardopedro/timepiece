@@ -47,6 +47,23 @@ into the reduction this chapter was after: `spectralSeparation_of_compressionBou
 `SpectralSeparation A l b` from the *form* bound `b ‖z‖² ≤ re ⟪z, compressed z⟫` on `yᗮ`.
 `ChapterResolventTransfer.sirk_reflected_gap_certificate_of_compression` is the certificate
 with `hsep` replaced by that hypothesis, and it is non-degenerate: `b > 0` is admissible.
+
+* **the form bound from a measurement** (section 11).  The remaining input is the form bound
+  itself, and residual or Rayleigh data provably cannot supply it
+  (`ChapterTempleSeparationNecessary.separation_necessary`: an exact eigenvector with
+  complement spectrum at `-M`).  What can is an operator-norm measurement:
+  `‖A - c • 1‖ ≤ c - b` gives the bound everywhere (`formBound_of_norm_sub_le`), hence on
+  `yᗮ` (`formBound_compressed_of_norm_le`), hence the separation without any spectral
+  hypothesis about the complement (`spectralSeparation_of_norm_le`).
+* **the min–max reading** (`ChapterSirkRitzMinMax.le_minmaxLevel_of_formBound`, applied to the
+  compression): the form bound places `b` below *every* Courant–Fischer level of the
+  compression, so the certified separation is a statement about the whole Ritz ladder, not just
+  its bottom.  The implication does not reverse: the Ritz levels are upper bounds
+  (`minmaxLevel_le_minmaxLevelIn`), so a Galerkin computation can refute the bound but never
+  establish it.
+* **a worked instance** (section 12): `diag (5, 2)` on `EuclideanSpace ℂ (Fin 2)`, where the
+  level `b = 3` is admissible on the complement of the eigenvector with eigenvalue `2` and
+  inadmissible on the whole space.
 -/
 
 noncomputable section
@@ -769,4 +786,147 @@ theorem spectralSeparation_of_compressionBound (A : F →L[ℂ] F) (hA : IsSelfA
   · exact Or.inr (hspec t h)
   · exact Or.inl (Set.mem_singleton_iff.mp h)
 
+
+/-! ## 11. Deriving the form bound from a norm perturbation
+
+Section 10 leaves one input: the form bound `b ‖z‖² ≤ re ⟪z, compressed z⟫` on `yᗮ`.  It
+cannot be read off residual data — `ChapterTempleSeparationNecessary.separation_necessary`
+exhibits an *exact* eigenvector (zero residual, Rayleigh quotient `0`) whose complement
+spectrum sits at `-M` for every `M`.  What *can* be supplied by a finite measurement is the
+operator-norm distance of `A` from a scalar: `T = c • 1 + N` with `‖N‖ ≤ c - b` gives the form
+bound everywhere, hence on `yᗮ`.  This is the numerical-range route, and the quantity
+`‖A - c • 1‖` is what the SIRK flow and numerical-range bounds estimate. -/
+
+/-- The real part of a squared real, read in `ℂ`. -/
+theorem re_sq_ofReal (r : ℝ) : (((r : ℂ)) ^ 2).re = r ^ 2 := by
+  have h : ((r : ℂ) ^ 2) = ((r ^ 2 : ℝ) : ℂ) := by
+    push_cast
+    ring
+  rw [h, Complex.ofReal_re]
+
+omit [CompleteSpace F] in
+/-- **The form bound from a norm perturbation.**  If `T` is within `c - b` in operator norm of
+the scalar `c`, then `b ‖z‖² ≤ re ⟪z, T z⟫` for every `z`. -/
+theorem formBound_of_norm_sub_le (T : F →L[ℂ] F) {c b : ℝ}
+    (hN : ‖T - (c : ℂ) • 1‖ ≤ c - b) (z : F) :
+    b * ‖z‖ ^ 2 ≤ (inner ℂ z (T z) : ℂ).re := by
+  set N : F →L[ℂ] F := T - (c : ℂ) • 1 with hNdef
+  have hsplit : T z = (c : ℂ) • z + N z := by
+    simp [hNdef, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.one_apply]
+  have hinner : (inner ℂ z (T z) : ℂ)
+      = (c : ℂ) * inner ℂ z z + inner ℂ z (N z) := by
+    rw [hsplit, inner_add_right, inner_smul_right]
+  have hzz : (inner ℂ z z : ℂ).re = ‖z‖ ^ 2 := by
+    rw [inner_self_eq_norm_sq_to_K]
+    exact re_sq_ofReal ‖z‖
+  have hre : (inner ℂ z (T z) : ℂ).re
+      = c * ‖z‖ ^ 2 + (inner ℂ z (N z) : ℂ).re := by
+    rw [hinner, Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, hzz]
+    ring
+  have hlow : -(‖N‖ * ‖z‖ ^ 2) ≤ (inner ℂ z (N z) : ℂ).re := by
+    have h1 : |(inner ℂ z (N z) : ℂ).re| ≤ ‖inner ℂ z (N z)‖ := Complex.abs_re_le_norm _
+    have h2 : ‖inner ℂ z (N z)‖ ≤ ‖z‖ * ‖N z‖ := norm_inner_le_norm _ _
+    have h3 : ‖N z‖ ≤ ‖N‖ * ‖z‖ := N.le_opNorm z
+    have h4 : |(inner ℂ z (N z) : ℂ).re| ≤ ‖N‖ * ‖z‖ ^ 2 := by
+      refine h1.trans (h2.trans ?_)
+      calc ‖z‖ * ‖N z‖ ≤ ‖z‖ * (‖N‖ * ‖z‖) := by
+            have := norm_nonneg z
+            nlinarith
+        _ = ‖N‖ * ‖z‖ ^ 2 := by ring
+    have := neg_abs_le ((inner ℂ z (N z) : ℂ).re)
+    linarith
+  nlinarith [hN, hlow, sq_nonneg ‖z‖, hre]
+
+/-- **The complement form bound from a norm perturbation.**  Restricting
+`formBound_of_norm_sub_le` to `yᗮ` discharges the hypothesis of section 10. -/
+theorem formBound_compressed_of_norm_le (A : F →L[ℂ] F) (hA : IsSelfAdjoint A) {y : F}
+    {lam : ℂ} (hy : A y = lam • y) {c b : ℝ}
+    (hN : ‖A - (c : ℂ) • 1‖ ≤ c - b) (z : ↥(eigenLine y)ᗮ) :
+    b * ‖z‖ ^ 2 ≤ (inner ℂ z (compressed A hA hy z) : ℂ).re := by
+  have h := formBound_of_norm_sub_le A hN (z : F)
+  simpa only [Submodule.coe_inner, Submodule.coe_norm, compressed_apply_coe] using h
+
+/-- **The separation from a norm perturbation.**  Section 10's `hC` replaced by the norm
+measurement `‖A - c • 1‖ ≤ c - b`: no spectral assertion about the complement is left. -/
+theorem spectralSeparation_of_norm_le (A : F →L[ℂ] F) (hA : IsSelfAdjoint A) {y : F}
+    (hy0 : y ≠ 0) {l b c : ℝ} (hAy : A y = (l : ℂ) • y) (hlb : l ≤ b)
+    (hN : ‖A - (c : ℂ) • 1‖ ≤ c - b) :
+    BookProof.RitzCertificate.SpectralSeparation A l b :=
+  spectralSeparation_of_compressionBound A hA hy0 hAy hlb
+    (formBound_compressed_of_norm_le A hA hAy hN)
+
+/-! ## 12. A worked numerical instance
+
+The smallest instance that exhibits the chapter's content.  On `E2 = EuclideanSpace ℂ (Fin 2)`
+take `A = 2 • 1 + 3 • P`, with `P` the rank-one projection onto `vTrial`: in the orthonormal
+basis `(vTrial, vOther)` this is `diag (5, 2)`, so `vOther` is an eigenvector for `l = 2` and
+the compression to its complement is the single eigenvalue `5`.  The separation level `b = 3`
+is therefore admissible on `yᗮ` — and inadmissible on the whole space, which is exactly why the
+hypothesis is stated on the complement.  The numbers are checked by `norm_num`; the spectral
+content is the general theorem, not a computed spectrum. -/
+
+section NumericInstance
+
+/-- The two-dimensional space of the instance. -/
+abbrev E2 := EuclideanSpace ℂ (Fin 2)
+
+/-- The trial (certified) eigenvector. -/
+noncomputable def vTrial : E2 := EuclideanSpace.single 0 1
+
+/-- The complement direction: the eigenvector `y` whose line is deflated. -/
+noncomputable def vOther : E2 := EuclideanSpace.single 1 1
+
+/-- The rank-one projection onto `vTrial`. -/
+noncomputable def projT : E2 →L[ℂ] E2 := (innerSL ℂ vTrial).smulRight vTrial
+
+/-- The operator `2 • 1 + 3 • P`, i.e. `diag (5, 2)` in the `(vTrial, vOther)` basis. -/
+noncomputable def A2 : E2 →L[ℂ] E2 := (2 : ℂ) • 1 + (3 : ℂ) • projT
+
+@[simp] theorem projT_apply (x : E2) : projT x = (inner ℂ vTrial x : ℂ) • vTrial := rfl
+
+theorem inner_trial_trial : (inner ℂ vTrial vTrial : ℂ) = 1 := by
+  rw [inner_self_eq_norm_sq_to_K]
+  have h : ‖vTrial‖ = 1 := by simp [vTrial]
+  rw [h]
+  norm_num
+
+theorem inner_other_other : (inner ℂ vOther vOther : ℂ) = 1 := by
+  rw [inner_self_eq_norm_sq_to_K]
+  have h : ‖vOther‖ = 1 := by simp [vOther]
+  rw [h]
+  norm_num
+
+theorem inner_trial_other : (inner ℂ vTrial vOther : ℂ) = 0 := by
+  simp [vTrial, vOther, EuclideanSpace.inner_single_left, EuclideanSpace.single_apply]
+
+theorem norm_trial_sq : ‖vTrial‖ ^ 2 = 1 := by simp [vTrial]
+
+theorem norm_other_sq : ‖vOther‖ ^ 2 = 1 := by simp [vOther]
+
+/-- `vOther` is an eigenvector with eigenvalue `2`. -/
+theorem A2_other : A2 vOther = (2 : ℂ) • vOther := by
+  simp [A2, inner_trial_other]
+
+/-- The compression eigenvalue: `vTrial` is an eigenvector with eigenvalue `5`. -/
+theorem A2_trial : A2 vTrial = (5 : ℂ) • vTrial := by
+  rw [A2, ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, projT_apply,
+    inner_trial_trial]
+  module
+
+/-- The form bound holds on `yᗮ` with `b = 3`: `3 ≤ 5`. -/
+theorem bound_on_complement :
+    (3 : ℝ) * ‖vTrial‖ ^ 2 ≤ (inner ℂ vTrial (A2 vTrial) : ℂ).re := by
+  rw [A2_trial, inner_smul_right, inner_trial_trial, norm_trial_sq]
+  norm_num
+
+/-- The same level `b = 3` fails off `yᗮ`: `3 ≰ 2`.  The bound is a statement about the
+complement, not about `A`. -/
+theorem fails_off_complement :
+    ¬ ((3 : ℝ) * ‖vOther‖ ^ 2 ≤ (inner ℂ vOther (A2 vOther) : ℂ).re) := by
+  rw [A2_other, inner_smul_right, inner_other_other, norm_other_sq]
+  norm_num
+
+end NumericInstance
 end BookProof.SpectralSplitting

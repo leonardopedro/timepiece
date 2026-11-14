@@ -336,7 +336,8 @@ has to be read on the *compression* of `A'` to `yᗮ`, not on the deflation — 
 `spectrum A ⊆ spectrum (compressed) ∪ {lam}`; the 2026-11-13s section then derives `hsep`
 itself from the complement form bound
 (`SpectralSplitting.spectralSeparation_of_compressionBound`), so the only remaining input is
-`b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ`.
+`b ‖z‖² ≤ re ⟪z, A' z⟫` on `yᗮ` — and the 2026-11-13t section supplies it from an
+operator-norm measurement, `‖A - c • 1‖ ≤ c - b`.
 
 For an approximate resolvent solve $(h_F+\gamma)y\approx v$ with defect $r$, use
 $\|y-X_\gamma v\|\le\|r\|/\gamma$. Carry these solve errors, orthogonality loss,
@@ -2106,6 +2107,41 @@ closed: no spurious `0`, no min–max at level `k ≥ 1`, no spectral theorem.
 `sirk_reflected_gap_certificate_of_compression` gives `[propext, Classical.choice,
 Quot.sound]`; no `sorry`; no remaining occurrence of `sirk_reflected_gap_certificate_of_deflated`
 in `BookProof/`; `lake build BookProof` is green at 9004 jobs.
+
+
+### The form bound from a measurement, and what cannot give it (2026-11-13t)
+
+Track A, following `13s`. The form bound `b ‖z‖² ≤ re ⟪z, compressed z⟫` on `yᗮ` was left as
+an input; this section settles where it can come from.
+
+**Residual data cannot supply it.** `ChapterTempleSeparationNecessary.separation_necessary`
+exhibits, for every `M`, a self-adjoint operator on a two-dimensional space and a unit trial
+vector with Rayleigh quotient and residual both `0` while the spectrum reaches `-M`. So "the
+residual bounds the complement spectrum" is false, not merely unproved.
+
+**Galerkin quotients cannot supply it, but they obey it.** `le_minmaxLevel_of_formBound`
+(`ChapterSirkRitzMinMax`): `c ‖x‖² ≤ rayleighVal T x` for all `x` implies `c ≤ minmaxLevel T k`
+for every `k` with a nonempty value set. At `T = compressed A hA hy` the separation says `b`
+lies below *every* Courant–Fischer level of the compression. The converse fails structurally:
+the Ritz levels are upper bounds (`minmaxLevel_le_minmaxLevelIn`), so a finite Galerkin
+computation can refute the bound by exhibiting a trial vector below `b`, never establish it;
+`galerkin_minmaxLevel_tendsto` gives convergence from above.
+
+**What works: an operator-norm measurement.** `formBound_of_norm_sub_le`: if
+`‖T - c • 1‖ ≤ c - b` then `b ‖z‖² ≤ re ⟪z, T z⟫` for every `z`, since
+`re ⟪z, (T - c•1) z⟫ ≥ -‖T - c•1‖ ‖z‖²`. Restricting to `yᗮ` is
+`formBound_compressed_of_norm_le`, and `spectralSeparation_of_norm_le` composes it with `13s`,
+leaving no spectral hypothesis about the complement. This is the SIRK-shaped input: the
+measured quantity is the numerical-range/flow distance of `A'` from a scalar.
+
+**Worked instance** (section 12 of the chapter): on `EuclideanSpace ℂ (Fin 2)`,
+`A = 2 • 1 + 3 • P` is `diag (5, 2)` in the `(vTrial, vOther)` basis. `vOther` has eigenvalue
+`2`, the compression has eigenvalue `5`, and `norm_num` checks `3 ≤ 5` on the complement
+(`bound_on_complement`) and `3 ≰ 2` off it (`fails_off_complement`).
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`#print axioms` on the five new theorems gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`; `lake build BookProof` is green at 9004 jobs.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
