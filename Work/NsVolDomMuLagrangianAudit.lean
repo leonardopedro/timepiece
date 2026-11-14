@@ -1,0 +1,8 @@
+import BookProof.Ns.ChapterNsVolDomMuLagrangian
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.NsVolDomMuLagrangian
+#audit_axioms ev2_lagMu
+#audit_axioms one_le_ev2_lagMu
+#audit_axioms ev2_pderiv_lagMu_zero
+#audit_axioms ev2_pderiv_lagMu_one
+#audit_axioms lagGradDom_mu

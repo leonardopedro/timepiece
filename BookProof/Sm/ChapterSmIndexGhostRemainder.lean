@@ -43,10 +43,12 @@ Everything is `sorry`-free and `axiom`-free.
 -/
 
 import BookProof.Sm.ChapterSmBrstGhost
+import BookProof.Sm.ChapterSmIndexGhostDerivation
 
 namespace BookProof.SmGhostRemainder
 
 open BookProof.BRSTNilpotent BookProof.SmBrstGhost BookProof.SmCar
+open BookProof.SmIndexGhostDerivation
 
 variable {R : Type*} [Ring R] [Algebra ℝ R] {n : ℕ}
 
@@ -295,12 +297,12 @@ theorem brstCharge_anticomm_bGhost_abelian (χ β G : Fin n → R)
 `brstCharge_anticomm_bGhost` to `f := smStruct f3`, `χ := ghostCre m`, `β := ghostAnn m`,
 `G := matterGen m T` is therefore `{smBrstCharge m T f3, b} = Σ G − Σ (trace of smStruct)`.
 
-That specialization is *not* asserted as a separate Lean theorem here: stating it forces Lean to
-unify `Module.End ℂ (FermiFock (m + 12))`-typed `brstCharge` arguments at `n = 12`, and that
-unification does not terminate in the heartbeat budget (reproduced in isolation with abstract
-operators, so it is the `OfNat (Module.End …) 1` / `DecidableEq (Fin 12)` interplay rather than the
-mathematics).  The general theorem above is the mathematical content; the identification of the SM
-charge with its instance is `smBrstCharge`'s definition. -/
+It *is* asserted, in §6 below (`smBrstCharge_anticomm_bGhost`) — but not by instantiating the
+general theorem.  Applying `brstCharge_anticomm_bGhost` at this data forces Lean to unify the two
+construction paths for the ring operations of `Module.End ℂ (FermiFock (m + 12))` (the goal's
+`LinearMap.instAdd` against the theorem's `Ring.toAdd`), which unfolds `PiLp` and does not terminate
+in the heartbeat budget; §6 proves the specialization by re-running the computation in the concrete
+ring instead. -/
 theorem smBrstCharge_def (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
     (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
     smBrstCharge m T f3
@@ -326,5 +328,72 @@ theorem su2Trace_ne_zero : su2Trace ≠ 0 := by
   have h10 := congrFun (congrFun h 1) 0
   rw [su2Trace_nonzero] at h10
   norm_num at h10
+
+/-! ## 6. The remainder at the Standard-Model data -/
+
+set_option maxHeartbeats 800000 in
+-- the `Σ`/`+` over `Module.End ℂ (EuclideanSpace …)` cost far more than the default budget
+set_option synthInstance.maxHeartbeats 800000 in
+/-- **The SM-specialized remainder**: the b-ghost of the index model does not anticommute with the
+full charge `smBrstCharge`, and what survives is exactly the first-slot trace of `smStruct`,
+
+  `{ smBrstCharge, b } = Σ_a G^a − Σ_{x,e} (Σ_y smStruct_{yxe}) · c^x b_e`.
+
+**Why this is proved by re-running the argument rather than by instantiating
+`brstCharge_anticomm_bGhost`.**  The general theorem is stated over a variable `R` with a variable
+`Algebra ℝ R`.  Instantiating it at `R = Module.End ℂ (FermiFock (m + 12))` (where
+`FermiFock _ = EuclideanSpace ℂ (Finset _)`) makes elaboration unify the *two different*
+construction paths for the ring operations of `Module.End`: the goal's `+`/`Σ` are
+`LinearMap.instAdd`, while the theorem's come from `Ring.toAdd` of the `End`-ring.  Checking that
+those agree means unfolding `PiLp` and its `ESeminormedAddCommMonoid`/`ENNReal` instance stack, and
+the unifier does not terminate in the heartbeat budget (measured: `whnf` timeout at 8M heartbeats,
+~3 min).  Even the *instance*
+`Algebra ℝ (Module.End ℂ (FermiFock (m + 12)))` exceeds the default typeclass budget of 20000
+heartbeats here.  So the specialization is obtained the way the SM-data results of
+`ChapterSmIndexGhostDerivation` are: by performing the computation in the concrete ring, where every
+operation and instance is the goal's own.  `Q_anticomm_bGhost` and `bGhost_anticomm` are still the
+substantive inputs; only the final assembly over `−½ f_{abc} c^a c^b b_c` is repeated.
+
+Cost: `type checking` of this declaration dominates its build time (~3 min, measured), because the
+kernel must check rewrite motives over the `End`-of-`EuclideanSpace` type.  The mathematics is the
+one-line computation below. -/
+theorem smBrstCharge_anticomm_bGhost (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) (hanti : ∀ a b c, f3 a b c = -f3 b a c) :
+    smBrstCharge m T f3 * bGhost m + bGhost m * smBrstCharge m T f3
+      = gaussSum m T - ∑ x : Fin 12, ∑ e : Fin 12,
+          (algebraMap ℝ (Module.End ℂ (FermiFock (m + 12)))
+            (structTrace (smStruct f3) x e)) * (ghostCre m x * ghostAnn m e) := by
+  classical
+  -- the ghost half, already proved at this data by `Q_anticomm_bGhost`
+  have hQ := Q_anticomm_bGhost (f := smStruct f3) (χ := ghostCre m) (β := ghostAnn m)
+    (smGhostCAR m) (smStruct_antisymm hanti)
+  -- the matter half
+  have hM : (∑ a : Fin 12, ghostCre m a * matterGen m T a) * (∑ b : Fin 12, ghostAnn m b)
+      + (∑ b : Fin 12, ghostAnn m b) * (∑ a : Fin 12, ghostCre m a * matterGen m T a)
+      = ∑ a : Fin 12, matterGen m T a := bGhost_anticomm m T
+  -- absorb the factor `1/2` of the charge into the trace
+  have hQ' : (1 / 2 : ℝ) •
+        (Q (smStruct f3) (ghostCre m) (ghostAnn m) * (∑ b : Fin 12, ghostAnn m b)
+          + (∑ b : Fin 12, ghostAnn m b) * Q (smStruct f3) (ghostCre m) (ghostAnn m))
+      = ∑ x : Fin 12, ∑ e : Fin 12,
+          (algebraMap ℝ (Module.End ℂ (FermiFock (m + 12)))
+            (structTrace (smStruct f3) x e)) * (ghostCre m x * ghostAnn m e) := by
+    rw [hQ, Finset.smul_sum]
+    refine Finset.sum_congr rfl fun x _ => ?_
+    rw [Finset.smul_sum]
+    refine Finset.sum_congr rfl fun e _ => ?_
+    rw [smul_smul]
+    rw [show (1 / 2 : ℝ) * (2 * structTrace (smStruct f3) x e)
+        = structTrace (smStruct f3) x e from by ring, Algebra.smul_def]
+  -- split `{M − ½Q, b}` into `{M, b} − ½{Q, b}`
+  have hsplit : ∀ (c : ℝ) (A B C D : Module.End ℂ (FermiFock (m + 12))),
+      A * B - c • (C * B) + (D * A - c • (D * C))
+        = A * B + D * A - c • (C * B + D * C) := by
+    intro c A B C D
+    rw [smul_add]
+    abel
+  unfold smBrstCharge brstCharge bGhost SmIndexGhostDerivation.gaussSum
+  rw [sub_mul, mul_sub, smul_mul_assoc, mul_smul_comm]
+  rw [hsplit, hM, hQ']
 
 end BookProof.SmGhostRemainder

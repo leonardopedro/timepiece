@@ -474,8 +474,57 @@ require "$PLAN" 'first-slot trace' \
     "§65: the plan must keep the remainder's exact coefficient"
 require "$PLAN" 'does not terminate' \
     "§65: the plan must keep the SM-instantiation limitation"
+# §65.2 was corrected: the SM-specialized corollary *is* asserted (module §6).  Keeping only the
+# "does not terminate" half would leave the plan saying the corollary is missing when it is proved.
+require "$REM" "theorem smBrstCharge_anticomm_bGhost" \
+    "§65: the SM-specialized corollary must stay asserted"
+require "$PLAN" 'is asserted anyway' \
+    "§65: the plan must keep the correction (the corollary is proved, not dropped)"
 require "$BOOKPLAN" 'ChapterSmIndexGhostRemainder' \
     "§65: the root must import the remainder module"
+
+# ---- 19. §66 the Fourier reconstruction, as far as it is algebraic
+# §63 named the gap: the normal-form refutation is a theorem, the passage from `volPot` to `c(εt)²` was
+# measurement.  §66 proves the grid half (discrete orthogonality) and the single-mode transfer, and says
+# exactly what is still assumed (`hspec`, the Plancherel assembly).  Keeping the transfer without the
+# boundary is the failure mode: it would read as if `volPot` had been reconstructed.
+REC=BookProof/Ns/ChapterNsVolDomReconstruction.lean
+require "$REC" "theorem dft_orthogonal" \
+    "§66: a mode the grid cannot resolve averages to nothing"
+require "$REC" "theorem volPot_of_single_mode" \
+    "§66: a single-mode residual is exactly its coefficient"
+require "$REC" "theorem volPot_of_shear_constant" \
+    "§66: the constant transfers as c*eps*t"
+require "$REC" "theorem volPot_of_shear_constant_normForm" \
+    "§66: the penalty is (kappa/2) times the normal form's value"
+pair_require "$REC" 'theorem volPot_of_single_mode' 'theorem volPot_of_shear_constant' "80" \
+    "§66: the transfer and its shear instance must stay together"
+require "$PLAN" 'as far as it is algebraic' \
+    "§66: the plan must keep the boundary in the title"
+require "$PLAN" 'unitarity of the discrete' \
+    "§66: the plan must keep the un-formalized Plancherel step"
+require "$BOOKPLAN" 'ChapterNsVolDomReconstruction' \
+    "§66: the root must import the reconstruction module"
+
+# ---- 20. §67 the augmented Lagrangian: VolDom discharged, not assumed
+# §61 refuted `VolDom` for the model's penalty, leaving `lagGradDom_of_volDom` with an unsatisfiable
+# hypothesis.  §67 feeds §64's estimate back in and closes the chain on the augmented Lagrangian with no
+# hypothesis.  The scope caveat must stay: this is the two shear coordinates, not `LagNsData`'s `volPot`.
+LAG=BookProof/Ns/ChapterNsVolDomMuLagrangian.lean
+require "$LAG" "theorem lagGradDom_mu" \
+    "§67: gradient domination holds with no hypothesis"
+require "$MUREP" "theorem muPot_dom_nonneg" \
+    "§67: the comparison needs non-negative constants"
+require "$LAG" "theorem one_le_ev2_lagMu" \
+    "§67: the Lagrangian is at least 1"
+pair_require "$LAG" 'theorem one_le_ev2_lagMu' 'theorem lagGradDom_mu' "90" \
+    "§67: the estimate and its coercivity input must stay together"
+require "$PLAN" 'discharged rather than assumed' \
+    "§67: the plan must keep the verdict"
+require "$PLAN" 'not a claim about the three-dimensional model' \
+    "§67: the plan must keep the two-coordinate scope"
+require "$BOOKPLAN" 'ChapterNsVolDomMuLagrangian' \
+    "§67: the root must import the Lagrangian module"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

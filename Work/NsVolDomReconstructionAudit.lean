@@ -1,0 +1,8 @@
+import BookProof.Ns.ChapterNsVolDomReconstruction
+import BookProof.RoadmapAudit.AxiomAudit
+open BookProof.NsVolDomReconstruction
+#audit_axioms dft_orthogonal
+#audit_axioms dft_zero
+#audit_axioms volPot_of_single_mode
+#audit_axioms volPot_of_shear_constant
+#audit_axioms volPot_of_shear_constant_normForm

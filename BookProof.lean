@@ -4073,6 +4073,22 @@ import BookProof.Ns.ChapterNsVolDomExpansion
 -- `μ = 0` member is exactly §61's potential — so this is a family-level closure of a **changed**
 -- Lagrangian, not of the model's own penalty.
 import BookProof.Ns.ChapterNsVolDomMuRepair
+-- `ChapterNsVolDomReconstruction` (2026-11-13c, `SM_ESA_COMPLETION_PLAN` §66): the Fourier half of
+-- that bridge, as far as it is algebraic.  `dft_orthogonal` is discrete orthogonality on an
+-- `N`-point grid (`∑_{j<N} ω^{mj} = 0` unless `N ∣ m`, `dft_zero` for the zero mode) — no measure
+-- theory, the grid is finite.  `volPot_of_single_mode` then carries a single-mode residual to the
+-- constant: if `det F − 1` has no nonzero coefficient and zero coefficient `Λ`, the penalty is
+-- `(κ/2)Λ²`; `volPot_of_shear_constant` specialises `Λ = c·ε·t`, so the `c` that
+-- `not_volDom_normForm` refutes is the *measured* constant.  What is still not proved is the
+-- assembly `(1/N)Σ_j |R(a_j)|² = Σ_q |R̂_q|²` — the spectrum is a hypothesis (`hspec`), not derived.
+import BookProof.Ns.ChapterNsVolDomReconstruction
+-- `ChapterNsVolDomMuLagrangian` (2026-11-13c, plan §67): §64's estimate fed back
+-- into the Lagrangian, so `VolDom` is discharged rather than assumed.  In the shear coordinates
+-- `W = 1 + ½(t² + ε²) + V_μ` (`lagMu`), and `lagGradDom_mu` proves `∑(∂_i W)² ≤ (2A+2)W² + (2B+2)`
+-- with no hypothesis: the shear quadratic enters with coefficient `2` (`(x+d)² ≤ 2x² + 2d²`),
+-- `Σ(∂V_μ)² ≤ A V_μ² + B` is §64's estimate, and `V_μ ≤ W`, `t²+ε² ≤ W²+1` come from `W ≥ 1`.
+-- `muPot_dom_nonneg` supplies the non-negative constants that comparison needs.
+import BookProof.Ns.ChapterNsVolDomMuLagrangian
 -- 2026-10-30 (`softmodes.md` Phase 3, milestone 3): the solvable gapped reference operator.
 -- `refEnergy` ports physlib's `eigenEnergy` (`∑ i, ωᵢ (nᵢ + ½)`, `ℏ = 1`, general `ω`) with
 -- its strict monotonicity; `refGap = min_k ω_k`; `href_spectral_gap` is the form inequality
@@ -4299,9 +4315,12 @@ import BookProof.Sm.ChapterSmIndexGhostDerivation
 -- (`brstCharge_anticomm_bGhost`).  The trace is *not* killed by antisymmetry
 -- (`su2Trace_nonzero`: `su2Trace 1 0 = −1`), so `b` is not a homotopy for the full charge; when
 -- the trace does vanish `b` anticommutes with the whole charge (`…_of_trace_zero`, `…_abelian`).
--- `smBrstCharge_def` is the definitional identification with `brstCharge`; a standalone
--- SM-specialized corollary is *not* asserted (the `Module.End ℂ (FermiFock …)`-at-`n = 12`
--- unification does not terminate in the heartbeat budget, documented in the module).
+-- `smBrstCharge_def` is the definitional identification with `brstCharge`, and §6 of the module
+-- *does* assert the SM-specialized corollary `smBrstCharge_anticomm_bGhost`: instantiating the
+-- general theorem at `Module.End ℂ (FermiFock (m+12))`, `n = 12` does not terminate (an instance
+-- diamond between `LinearMap.instAdd` and the `End`-ring, `whnf` timeout past 8M heartbeats), so
+-- the computation is re-run in the concrete ring with `Q_anticomm_bGhost` and `bGhost_anticomm`
+-- as inputs — same statement, no `sorry` and no `rfl`-through-unification.
 import BookProof.Sm.ChapterSmIndexGhostRemainder
 -- `ChapterSmReverseEllipticQuartic` (2026-11-12, `SM_ESA_COMPLETION_PLAN` §48): the reverse
 -- estimate P4 asks for, proved **from one algebraic hypothesis** rather than from elliptic

@@ -214,4 +214,22 @@ theorem muPot_no_hom_dom (mu : ℝ) (hmu : 0 < mu) :
   have hpos : 0 < δ ^ 2 * mu ^ 2 := by positivity
   nlinarith [h8, hstep1, hm1, hm2, hpos]
 
+/-- **The repair's estimate with non-negative constants.**  The chain that consumes `muPot_dom` in
+the Lagrangian multiplies `V_μ²` by `A` and compares with `W² ≥ V_μ²`, which needs `A ≥ 0`; taking
+`max A 0`, `max B 0` makes that available without changing the estimate. -/
+theorem muPot_dom_nonneg {mu : ℝ} (hmu : 0 < mu) :
+    ∃ A B : ℝ, 0 ≤ A ∧ 0 ≤ B ∧ ∀ x : Fin 2 → ℝ,
+      (NsVolDomExpansion.ev2 x (pderiv 0 (muPot mu))).re ^ 2
+          + (NsVolDomExpansion.ev2 x (pderiv 1 (muPot mu))).re ^ 2
+        ≤ A * (NsVolDomExpansion.ev2 x (muPot mu)).re ^ 2 + B := by
+  obtain ⟨A, B, hAB⟩ := muPot_dom mu hmu
+  refine ⟨max A 0, max B 0, le_max_right _ _, le_max_right _ _, fun x => ?_⟩
+  have hx := hAB x
+  have hV2 : 0 ≤ (NsVolDomExpansion.ev2 x (muPot mu)).re ^ 2 := sq_nonneg _
+  have hA : A * (NsVolDomExpansion.ev2 x (muPot mu)).re ^ 2
+      ≤ max A 0 * (NsVolDomExpansion.ev2 x (muPot mu)).re ^ 2 :=
+    mul_le_mul_of_nonneg_right (le_max_left A 0) hV2
+  have hB : B ≤ max B 0 := le_max_left B 0
+  linarith
+
 end BookProof.NsVolDomMuRepair

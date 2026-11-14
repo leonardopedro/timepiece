@@ -3910,14 +3910,30 @@ the same structural reason as §62's matter half: the contraction lands in the G
 `smBrstCharge_def : smBrstCharge m T f3 = brstCharge (smStruct f3) (ghostCre m) (ghostAnn m) (matterGen
 m T)` is `rfl`, so the general theorem *is* the SM statement once that identification is used.
 
-Instantiating the general theorem at `R := Module.End ℂ (FermiFock (m + 12))` with `n = 12` as a separate
-declaration was **attempted and dropped**: the unification of `brstCharge`'s arguments does not terminate
-in the heartbeat budget (reproduced in isolation with abstract operators at 400k, 1M, 2M and 8M
-heartbeats; 2m38s at 8M before timeout). The cause is the `OfNat (Module.End …) 1` /
-`DecidableEq (Fin 12)` interplay, not the mathematics; at `n = 3` or `R = ℂ` the instantiation is
-immediate. The module documents this in the docstring of `smBrstCharge_def` rather than hiding it behind a
-`sorry`. What is proven is the general theorem plus the definitional identification; what is not is a
-standalone SM-specialized corollary term.
+Instantiating the general theorem at `R := Module.End ℂ (FermiFock (m + 12))` with `n = 12` as a
+separate declaration **does not terminate**: `whnf` runs out past 8M heartbeats, and even
+`Algebra ℝ (Module.End ℂ (FermiFock (m + 12)))` exceeds the default 20000 typeclass heartbeats. The cause
+is an **instance diamond**, not the mathematics: the goal's `+`/`∑` elaborate through `LinearMap.instAdd`
+while the theorem's argue through `Ring.toAdd` of the `End`-ring, so deciding the definitional equality
+unfolds `PiLp`/`ESeminormedAddCommMonoid`/`ENNReal`. At `n = 3` or `R = ℂ` the instantiation is
+immediate.
+
+**Corrected 2026-11-13c: the corollary is asserted anyway.** §6 of
+`BookProof/Sm/ChapterSmIndexGhostRemainder.lean` proves
+
+    smBrstCharge m T f3 * bGhost m + bGhost m * smBrstCharge m T f3
+      = gaussSum m T − ∑ x, ∑ e, (algebraMap ℝ _ (structTrace (smStruct f3) x e))
+          * (ghostCre m x * ghostAnn m e),
+
+with **no** hypothesis on `b` (the ghost CAR supplies the `1/2` cancellation). The workaround is to
+re-run the computation in the concrete ring instead of transporting the abstract theorem: the two
+inputs `Q_anticomm_bGhost` and `bGhost_anticomm` are combined locally
+(`hQ := Q_anticomm_bGhost`, `hM := bGhost_anticomm m T`, then `unfold smBrstCharge brstCharge bGhost
+SmIndexGhostDerivation.gaussSum` and `rw [sub_mul, mul_sub, smul_mul_assoc, mul_smul_comm, hsplit, hM,
+hQ']`). Same statement, no `sorry`, no `rfl`-through-unification; the module carries
+`set_option maxHeartbeats 800000 in` with the reason in a comment. What remains unproved by *this*
+route is only that the abstract theorem transports definitionally at `n = 12` — which is why the
+statement is re-derived rather than `exact`ed.
 
 ### 65.3. Verification (2026-11-13b)
 
@@ -3931,3 +3947,98 @@ standalone SM-specialized corollary term.
 * `lake build BookProof` — `Build completed successfully`, **9001 jobs**, exit 0, with all three new
   modules imported and registered in the root (§63's and §64's too).
 * `scripts/check-sm-section-guards` — green, including the new §63/§64/§65 sections.
+
+## §66. The Fourier reconstruction, as far as it is algebraic (2026-11-13c)
+
+### 66.1. What is proved
+
+§63 stopped at a boundary it named: `not_volDom_normForm` is a theorem about the normal form
+`c(εt)²`, and the passage from the model's own penalty `volPot kappa kv = (κ/2) Σ_q |(det F − 1)^(q)|²`
+to that normal form was measurement. New module `BookProof/Ns/ChapterNsVolDomReconstruction.lean`
+(namespace `BookProof.NsVolDomReconstruction`) moves part of the line.
+
+**The dual grid is orthogonal.** With `ω = exp(2πi/N)` on an `N`-point grid,
+
+    ∑_{j < N} ω^{m·j} = 0   unless `N ∣ m`        (`dft_orthogonal`),
+    ∑_{j < N} ω^{0·j} = N                          (`dft_zero`),
+
+which is the algebraic content of "a mode the grid cannot resolve averages to nothing". No measure
+theory: the grid is finite, the proof is the geometric series (`geom_sum_eq`) plus `ω^N = 1` from
+`Complex.isPrimitiveRoot_exp`.
+
+**A single-mode residual is exactly its coefficient.** If the residual's spectrum is supported at the
+zero mode — which is what *spatially constant* means on a finite grid — then
+
+    volPot kappa kv = (κ/2) Λ²        (`volPot_of_single_mode`),
+
+and with `Λ = c·ε·t` on §63's shear family,
+
+    volPot kappa kv = (κ/2)(c·ε·t)²   (`volPot_of_shear_constant`),
+    volPot kappa kv = (κ/2) · value of `normForm c` at `(t, ε)`   (`volPot_of_shear_constant_normForm`).
+
+So the constant `c` that §63 refutes domination for, for every `c ≠ 0`, is the *measured* constant:
+the penalty's value is `(κ/2)` times the normal form's, with no re-scaling smuggled in.
+
+### 66.2. What is still not proved
+
+The assembly from position space to that spectrum. `volPot`'s sum over `waveSet` is asserted at the
+coefficient level; the identity `(1/N) Σ_j |R(a_j)|² = Σ_q |R̂_q|²` (unitarity of the discrete
+transform) is **not** formalized, and the hypothesis `hspec` in both theorems *is* that reconstruction,
+assumed rather than derived. What the lemmas establish is that once the spectrum is available the
+remaining algebra is exact and the constant transfers with no loss — which is precisely the half §63
+had left as measurement.
+
+### 66.3. Verification (2026-11-13c)
+
+* `lake build BookProof.Ns.ChapterNsVolDomReconstruction` — `Build completed successfully`, **8143
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomReconstructionAudit.lean` — 5 declarations (`dft_orthogonal`,
+  `dft_zero`, `volPot_of_single_mode`, `volPot_of_shear_constant`,
+  `volPot_of_shear_constant_normForm`), all on exactly `propext, Classical.choice, Quot.sound`; no
+  `sorryAx`.
+
+## §67. The augmented Lagrangian: `VolDom` discharged rather than assumed (2026-11-13c)
+
+### 67.1. The chain
+
+§61 refuted `VolDom` for the model's own penalty, which left `lagGradDom_of_volDom` (§56) with an
+unsatisfiable hypothesis and the NS chain stopping there. §64 proved the estimate for the repair
+`V_μ = ½(εt)² + (μ/2)(t² + ε²)` but never fed it back. New module
+`BookProof/Ns/ChapterNsVolDomMuLagrangian.lean` (namespace `BookProof.NsVolDomMuLagrangian`) feeds it
+back: in the two shear coordinates `x₀ = t`, `x₁ = ε` the augmented Lagrangian is
+
+    W = 1 + ½(t² + ε²) + V_μ        (`lagMu`),
+
+and
+
+    ∑_i (∂_i W)² ≤ (2A + 2)·W² + (2B + 2),   A = 5/μ + 1,  B = μ²     (`lagGradDom_mu`)
+
+holds at **every** real point with **no** hypothesis: `VolDom` is proved for this model, not assumed.
+
+### 67.2. Why the constants add rather than multiply
+
+The three steps are the ones `lagGradDom_of_volDom` spells out, and each is now a lemma:
+
+* `(x_i + ∂_i V_μ)² ≤ 2x_i² + 2(∂_i V_μ)²`, so the shear quadratic enters with coefficient `2`
+  (`ev2_pderiv_lagMu_zero`/`_one` carry the derivative, `one_le_ev2_lagMu` the coercivity);
+* `Σ_i (∂_i V_μ)² ≤ A V_μ² + B` is §64's `muPot_dom`, consumed through `muPot_dom_nonneg` — the
+  comparison `A V_μ² ≤ A W²` needs `A ≥ 0`, and taking `max A 0`, `max B 0` supplies it without
+  changing the estimate;
+* `V_μ ≥ 0` gives `V_μ ≤ W`, and `t² + ε² = 2(W − 1) ≤ W² + 1` because `W ≥ 1`.
+
+### 67.3. Scope
+
+The model has exactly the two coordinates of the shear family: it is §64's augmented Lagrangian, **not**
+`LagNsData`'s `volPot` (whose `VolDom` is false, §61). What it removes is the hypothesis — on this model
+the §49 chain (`GradBound → pointwise_dom_of_sq_sum → PotSelfBound`) runs end to end with nothing
+assumed. It is not a claim about the three-dimensional model, and it does not certify ESA of `N_L`.
+
+### 67.4. Verification (2026-11-13c)
+
+* `lake build BookProof.Ns.ChapterNsVolDomMuLagrangian` — `Build completed successfully`, **8143
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomMuLagrangianAudit.lean` — 5 declarations (`ev2_lagMu`,
+  `one_le_ev2_lagMu`, `ev2_pderiv_lagMu_zero`, `ev2_pderiv_lagMu_one`, `lagGradDom_mu`), all on
+  exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `muPot_dom_nonneg` added to `ChapterNsVolDomMuRepair` (rebuild clean) rather than duplicating the
+  estimate's proof.
