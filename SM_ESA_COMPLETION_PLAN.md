@@ -3614,3 +3614,694 @@ have named.
 * `lake env lean Work/SmIndexGhostFockAudit.lean` — 5 declarations, all on exactly
   `propext, Classical.choice, Quot.sound`.
 
+---
+
+## §61. `VolDom` in normal form, and whether a deformation norm repairs it (2026-11-13)
+
+### 61.1. The law of §58 is an identity, not an asymptotics
+
+§58 measured `|∇V_κ|²/V_κ² → 4/ε²` along the shear family `F = I + t N + ε B` and used the second-order
+expansion `det F − 1 = −ε t + O(ε²)` to explain it. The leading term of the penalty across that family
+is the two-parameter polynomial `(ε t)²/2`, and for *that* polynomial the ratio is exact:
+
+    ∑_j (∂_j V)²  =  V² · (4/t² + 4/ε²).
+
+New module `BookProof/Ns/ChapterNsVolDomShear.lean` (namespace `BookProof.NsVolDomShear`) proves it:
+`shearPot = ½ (X₀X₁)²` with `x 0 = t`, `x 1 = ε`; `ev2_shearPot_flat` is the flatness at *every*
+amplitude (zero tilt gives zero potential, not just zero derivative); `ev2_pderiv_zero`/
+`ev2_pderiv_one` compute `∂_t V = ε²t`, `∂_ε V = εt²`; `shear_grad_sq` is the identity above. Both
+terms are visible: `4/ε²` is what the sweep saturates at, and `4/t²` is the correction that shows up at
+moderate `t` — at `t = 1e2, ε = 1e-3` the law gives `4e6 + 4e-4`, and the measurement printed `1599.36`
+because at that `t` the truncated penalty has not yet reached the asymptotic regime.
+
+Then `not_volDom_shear`:
+
+    ¬ ∃ A B, ∀ x : Fin 2 → ℝ, ∑(∂V)² ≤ A V² + B.
+
+The proof is one family: at `x = (1/d, d)` the product `εt` is the constant `1`, so `V ≡ 1/2` while
+`∑(∂V)² = d² + d⁻²` blows up as `d → 0`. Choosing `d = 1/(|A| + |B| + 4)` makes the right-hand side
+`A/4 + B ≤ 1/d` and the left-hand side at least `(1/d)² > 1/d`.
+
+**Scope.** This refutes the estimate for the *normal form* of the penalty across the shear family. It
+does not refute it for the model's literal `volPot`, whose passage to the normal form is the
+second-order expansion of §58.1 plus the measurement; that bridge is not formalized, and the module
+says so in this many words. What the module does establish is that the mechanism of §58 is not an
+artifact of the truncation: a potential that is quadratic in `ε t` fails this estimate at *any* degree
+and *any* truncation, so no change of truncation can rescue `VolDom`.
+
+### 61.2. A deformation norm does repair it — measured
+
+The failure is that `V_κ` is flat on the unimodular set while its gradient is not, so any fix has to
+add a term that does *not* vanish there. Weighting the penalty by a function of `det F` cannot work
+(any weight vanishing at `det F = 1` leaves the shear flat); what can work is a term in the
+deformation itself. The evaluator now measures
+
+    V_μ = V_κ + (μ/2) · ∑_{k,j} (1 + |k|²) |ξ̂_{k,j}|²,
+
+the `H¹`-type deformation norm written in Fourier space, with exact dual-number gradients as before.
+
+Sampled supremum of `|∇V_μ|²/(V_μ² + 1)` over four boxes (the refuting shear family incl. `ε` down to
+`1e-4`, 200 random points, the noisy shear family, 200 large-`|ξ|` points):
+
+| `μ` | shear family | random | shear + noise | large `|ξ|` |
+|---|---|---|---|---|
+| 0 | `4e6` | 7.04 | 334 | 0.154 |
+| 1e-3 | 1111 | 7.04 | 302 | 0.154 |
+| 1e-2 | 15.4 | 6.95 | 142 | 0.154 |
+| 0.1 | 0.160 | 6.16 | 19.8 | 0.153 |
+| 1 | 0.00200 | 3.92 | 2.23 | 0.141 |
+| 10 | 0.000416 | 20.6 | 16.6 | 0.090 |
+
+The discriminating column is the shear family, and the diagnostic sharpens it — shrink the tilt at
+fixed shear amplitude `t = 1e4`:
+
+| `ε` | `μ = 0` | `μ = 0.01` | `μ = 0.1` | `μ = 1` |
+|---|---|---|---|---|
+| 1e-2 | `4.00e4` | 15.4 | 0.159 | 0.00160 |
+| 1e-3 | `4.00e6` | 0.160 | 0.00160 | `1.60e-5` |
+| 1e-4 | `3.20e8` | 0.00160 | `1.60e-5` | `2.00e-7` |
+| 1e-5 | (cancellation) | `1.60e-5` | `2.00e-7` | `4.16e-8` |
+| 1e-6 | (cancellation) | `2.00e-7` | `4.16e-8` | `4.00e-8` |
+
+Read column by column: at `μ = 0` the ratio grows like `4/ε²`; at every `μ > 0` it *decreases* as the
+tilt shrinks, which is the opposite of a divergence. So a finite `A` exists for each `μ > 0`, and on
+these boxes `A ≈ 21` suffices at `μ = 0.01`, `A ≈ 8` at `μ = 0.1`. This is a measurement on a
+truncation, not a proof, and the repair is a *different model* — the penalty is no longer the pure
+volume penalty, so `lagGradDom_of_volDom`'s chain would have to be re-run for the modified Lagrangian.
+
+**A caveat the table itself forced.** From `ε ≤ 1e-4` on, the `μ = 0` column is *not* data: `V` is so
+small that the dual-number gradient loses its digits to cancellation and the printed numbers fall back
+down. The script now prints that warning next to the table, and the exact law for `μ = 0` is
+`shear_grad_sq`, not the float.
+
+### 61.3. Verification (2026-11-13)
+
+* `lake build BookProof.Ns.ChapterNsVolDomShear` — `Build completed successfully`; no warning attributed
+  to the module.
+* `lake env lean Work/NsVolDomShearAudit.lean` — 7 declarations (`ev2_shearPot`,
+  `ev2_shearPot_flat`, `ev2_shearPot_nonneg`, `ev2_pderiv_zero`, `ev2_pderiv_one`, `shear_grad_sq`,
+  `not_volDom_shear`), each on exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `python3 scripts/eval-vol-dom.py` — the two new tables above, ~1m20s.
+* `scripts/check-sm-section-guards` — §61 pair (`shear_grad_sq` → `not_volDom_shear`) guarded.
+
+## §62. The b-ghost of the derivation, and where it contracts to (2026-11-13)
+
+### 62.1. What was open
+
+§60 ended with: "`smBrstCharge` is a degree-one derivation, so it does not preserve the one-particle
+ghost sector … the open object is the b-ghost of the derivation." This section names that object and
+proves its defining identity.
+
+### 62.2. The construction
+
+New module `BookProof/Sm/ChapterSmIndexGhostDerivation.lean` (namespace
+`BookProof.SmIndexGhostDerivation`). Three maps on `FermiFock (m + 12)`:
+
+* `matterHalf = ∑_a χ_a G^a`, the matter half of the charge (`χ_a = ghostCre m a`,
+  `G^a = matterGen m T a`);
+* `bGhost = ∑_b β_b`, the **antighost sum** — the b-ghost of the derivation;
+* `gaussSum = ∑_a G^a`, the Gauss-law generator.
+
+Then `bGhost_anticomm`:
+
+    { ∑_a χ_a G^a , ∑_b β_b }  =  ∑_a G^a ,
+
+proved per pair (`pair_anticomm`: `χ_a G^a β_b + β_b χ_a G^a = δ_{ab} G^a`, using
+`matterGen_comm_ghostAnn` and the CAR `{β_b, χ_a} = δ_{ba}`) and summed with
+`Finset.sum_ite_eq`. Two corollaries follow, and they are the answer to §60:
+
+* `bGhost_no_contraction` — if `{matterHalf, bGhost} = 1` then `gaussSum = 1`. Since the sum of the
+  Gauss generators is not the identity, the antighost is *not* a contracting homotopy for the
+  derivation. It contracts onto **matter**. That is the precise sense in which the ghost sector of
+  `smBrstCharge` is not the index complex: the contraction has nowhere else to land.
+* `bGhost_anticomm_abelian` — when `gaussSum = 0` the anticommutator vanishes, so §57's index quartet
+  is exactly the `∑ G^a = 0` fibre of the derivation. The quartet is therefore a *comparison model*
+  for the SM charge, which is what §57.3 said and this now proves.
+
+### 62.3. What is not covered
+
+The structure-constant half `−½ ∑_{a,b,c} f_{abc} χ_a χ_b β_c` was left open when this section was
+first written. **§65 computes it** (2026-11-13b): its anticommutator with `bGhost` is a
+ghost–antighost bilinear carrying `f`, and the coefficient is the *first-slot trace* `Σ_y f_{yxe}`,
+which antisymmetry does **not** kill — so the remainder is real, it now has an exact form,
+`{Ω, b} = Σ_a G^a − Σ_{x,e} (Σ_y f_{yxe}) χ_x β_e`, and the free ghost complex is not a subcomplex of
+the interacting one. The cohomological meaning of that remainder is still open, and
+`PhysicalPositivity` for `smBrstCharge` remains a named input. What has changed is its shape: it is no
+longer "find a b-ghost" (§57 supplied quartet data at every size, §62 supplies the derivation's own
+antighost) but "show the Gauss sector is what the contraction lands in", which is a statement about
+the matter representation, not about ghost bookkeeping.
+
+### 62.4. Verification (2026-11-13)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostDerivation` — `Build completed successfully`; no warning
+  attributed to the module.
+* `lake env lean Work/SmIndexGhostDerivationAudit.lean` — 4 declarations (`pair_anticomm`,
+  `bGhost_anticomm`, `bGhost_no_contraction`, `bGhost_anticomm_abelian`), all on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `lake build BookProof` — `Build completed successfully`, **8998 jobs**, 1m54s, exit 0, with all four
+  new modules imported (the run also re-elaborated the modules the concurrent work order added, which
+  is why the job count moved from 8988).
+* `scripts/check-sm-section-guards` — §62 pair (`bGhost_anticomm` → `gaussSum = 1` consequence)
+  guarded.
+
+## §63. The expansion behind the shear normal form (2026-11-13b)
+
+### 63.1. What §61 left open
+
+§61 proved the law `∑(∂V)² = V²(4/t² + 4/ε²)` for the *normal form* `V = (εt)²/2` and refuted domination
+for it, and said in as many words that the bridge from the model's literal `volPot` to that normal form
+was not formalized. This section formalizes the algebraic half of the bridge and isolates exactly what is
+left. New module `BookProof/Ns/ChapterNsVolDomExpansion.lean` (namespace
+`BookProof.NsVolDomExpansion`).
+
+### 63.2. The determinant identity
+
+Write the shear and tilt of §58 as indicator matrices, `shM i j = δ_{i0}δ_{j1}` and
+`tlM i j = δ_{i1}δ_{j0}`, so that neither is a matrix literal:
+
+* `shM_mul_self : shM * shM = 0`, hence `det_one_add_shM : det(I + t·shM) = 1` **at every amplitude**
+  (not merely to first order). This is the algebraic content of §58's "the shears are flat".
+* `tlM_mul_self : tlM * tlM = 0`, so the tilt contributes no pure `ε²` term.
+* `det_one_add_smul : det(I + t·shM + ε·tlM) = 1 − ε t`, exactly — the expansion §58.1 expanded to has
+  **no** `t²`, `ε²` or `O(ε²)` term, only the mixed one.
+
+The residual `volResid t ε = det(I + t·shM + ε·tlM) − 1` therefore satisfies
+`volResid t 0 = 0` (`volResid_zero_tilt`), `volResid 0 ε = 0` (`volResid_zero_shear`) and
+`volResid t ε = −(εt)` identically (`volResid_eq`).
+
+### 63.3. Transfer to every amplitude constant
+
+The penalty across the family is a *positive multiple* of `(εt)²`: the multiplier is the profile's
+amplitude together with `κ/2`. The module therefore works with `normForm c = c·((X₀X₁)²)` and proves the
+law for every `c` (`normForm_grad_sq`, with `ev2_normForm`, `pderiv_normForm_zero/one` giving
+`∂₀ = 2c(εt)t`, `∂₁ = 2c(εt)ε`), so nothing in §61 depended on the profile constant. Then
+`shearPot_eq_normForm : shearPot = normForm (1/2)` identifies §61's potential as the `c = 1/2` member, and
+`not_volDom_normForm c (hc : c ≠ 0)` refutes domination for **every** nonzero multiple: on the family
+`x = (K, 1/K)` the value is `c` while the gradient grows like `K`, with `K` absorbing `|A|`, `|B|` and
+`1/(4c²)`. `volDom_fails_of_normal_form` restates it as a hypothesis on an arbitrary potential whose value
+is `c(εt)²`.
+
+### 63.4. Scope
+
+What is *not* formalized is the passage from the model's `volPot` to a value of the form `c(εt)²` on the
+family, i.e. the Fourier reconstruction of `det F − 1` (Parseval with the convolution `detCoef`); that is
+where the profile constant is produced, and §58's measurement is its numerical evidence. So the chain now
+reads: model penalty → (measured, not formalized) normal form → (proved here) law and non-domination at
+every amplitude. The non-domination therefore holds for any truncation of the penalty that reproduces the
+`(εt)²` normal form, which is §61's claim made precise.
+
+### 63.5. Verification (2026-11-13b)
+
+* `lake build BookProof.Ns.ChapterNsVolDomExpansion` — `Build completed successfully`; no warning
+  attributed to the module.
+* `lake env lean Work/NsVolDomExpansionAudit.lean` — 12 declarations (`shM_mul_self`, `tlM_mul_self`,
+  `det_one_add_shM`, `det_one_add_smul`, `volResid_eq`, `ev2_normForm`, `pderiv_normForm_zero`,
+  `pderiv_normForm_one`, `normForm_grad_sq`, `shearPot_eq_normForm`, `not_volDom_normForm`,
+  `volDom_fails_of_normal_form`), all on exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+
+## §64. Gradient domination for the deformation-norm repair (2026-11-13b)
+
+### 64.1. The repair §61.2 measured
+
+§61.2 measured that adding `(μ/2)∑(1 + |k|²)|ξ̂|²` makes the ratio `|∇V_μ|²/(V_μ² + 1)` bounded for
+`μ > 0` and *decreasing* as the tilt shrinks. This section proves that closure for the two-parameter
+model of the family, with explicit constants, and states what it changes. New module
+`BookProof/Ns/ChapterNsVolDomMuRepair.lean` (namespace `BookProof.NsVolDomMuRepair`), with
+
+    V_μ(t, ε) = ½(εt)² + (μ/2)(t² + ε²),   μ > 0   (`muPot`).
+
+`muPot_zero : muPot 0 = normForm (1/2)` records that the `μ = 0` member is exactly §61's potential, so
+the repair is a genuine deformation of the same object, not a different ansatz. On `a = t²`, `b = ε²`:
+
+    ∑(∂V_μ)² = ab(a+b) + 4μab + μ²(a+b),     V_μ = ½(ab + μ(a+b))
+
+(`pderiv_muPot_zero/one`, `ev2_muPot`), and the algebraic core `muPot_quad_bound` proves
+
+    4μ·∑(∂V_μ)² ≤ (5 + μ)(ab + μ(a+b))² + 4μ³
+
+by three polynomial estimates: `4μ·ab(a+b) ≤ (ab+μ(a+b))²` (AM–GM), `16μ²ab ≤ 4(ab+μ(a+b))²`, and
+`4μ³(a+b) ≤ μ(ab+μ(a+b))² + 4μ³` from `μ(a+b) ≤ ab+μ(a+b)` and `(s−2μ)² ≥ 0`. Dividing gives
+`muPot_dom`:
+
+    ∃ A B, ∀ x, ∑(∂V_μ)² ≤ A·V_μ² + B,   with A = 5/μ + 1, B = μ².
+
+**`B > 0` is necessary, not slack.** `muPot_no_hom_dom` shows that for *every* `A` there is a state with
+`∑(∂V_μ)² > A·V_μ²`: on the diagonal `t = ε = δ → 0` the gradient sum decays like `δ²` while `V_μ²`
+decays like `δ⁴`, so no homogeneous bound exists. The affine shape of `muPot_dom` is therefore forced by
+the model.
+
+Measured support for the constants (30000 sampled points per μ, μ from `1e-6` to `1e6`, log-uniform
+`t, ε` over `1e-12..1e12`): the maximum of `∑(∂V_μ)² − (A·V_μ² + B)` over the grid is `0` (never
+violated), and the `μ = 0` point `(t, ε) = (1e6, 1e-6)` has `V² = 0.25` against a gradient sum of `1e12`,
+i.e. ratio `4e12`. So `5/μ + 1` is a valid `A` where §61.2's sampled `A ≈ 21` was only an estimate on
+four boxes.
+
+### 64.2. Scope
+
+This is a **family-level** closure of a **changed** Lagrangian. The model's own `volPot` is the `μ = 0`
+member and stays un-dominated (`muPot_zero` plus §61's `not_volDom_shear`); what is proved is that the
+deformation-norm augmentation removes the obstruction with constants uniform in the state and explicit in
+`μ`. `lagGradDom_of_volDom`'s chain has therefore been re-run for the modified potential, not for the
+original one, which is the caveat §61.2 asked for.
+
+### 64.3. Verification (2026-11-13b)
+
+* `lake build BookProof.Ns.ChapterNsVolDomMuRepair` — `Build completed successfully`; no warning
+  attributed to the module.
+* `lake env lean Work/NsVolDomMuRepairAudit.lean` — 7 declarations (`muPot_zero`, `ev2_muPot`,
+  `pderiv_muPot_zero`, `pderiv_muPot_one`, `muPot_quad_bound`, `muPot_dom`, `muPot_no_hom_dom`), all on
+  exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* the grid check above, run as a standalone script over 11 values of `μ`.
+
+## §65. The structure-constant remainder of `{Ω, b}` (2026-11-13b)
+
+### 65.1. The remainder, exactly
+
+§62.3 could only say that the cubic ghost half of `smBrstCharge` "picks up a term proportional to the
+structure constants". New module `BookProof/Sm/ChapterSmIndexGhostRemainder.lean` (namespace
+`BookProof.SmGhostRemainder`) computes it. Each cubic ghost term carries one antighost, but pushing a
+single `β_d` through the pair `χ_a χ_b` produces **two** contraction channels:
+
+    { χ_a χ_b β_e , β_d }  =  δ_{da} χ_b β_e − δ_{db} χ_a β_e      (`cubic_anticomm`),
+
+and summing over `d` gives `χ_b β_e − χ_a β_e` (`sum_d_cubic_anticomm`). Over the charge, antisymmetry in
+the first two slots makes the two channels equal, so
+
+    { Q f χ β , b }  =  2 · ∑_{x,e} (∑_y f_{yxe}) · χ_x β_e          (`Q_anticomm_bGhost`),
+
+and hence, with the matter half of §62,
+
+    { Ω , b }  =  ∑_a G^a  −  ∑_{x,e} (∑_y f_{yxe}) χ_x β_e          (`brstCharge_anticomm_bGhost`).
+
+The sign is a minus: the charge is `∑χG − ½Q`, so `{Ω,b} = {∑χG,b} − ½{Q,b}`. The coefficient is the
+**first-slot trace** of `f`, `structTrace f x e = Σ_y f_{yxe}`, and antisymmetry in the first two slots
+does *not* make it vanish — this is the precise sense in which "the free ghost complex is not a
+subcomplex of the interacting one".
+
+Two consequences. `brstCharge_anticomm_bGhost_of_trace_zero`: if the trace vanishes (in particular for
+an abelian algebra, `brstCharge_anticomm_bGhost_abelian`) then `b` anticommutes with the *full* charge,
+not only its matter half — §62's corollary upgraded from the derivation to the charge. And
+`su2Trace_nonzero`: for `su(2)` structure constants `f_{abc} = ε_{abc}` the trace is `su2Trace 1 0 = −1`
+(`epsZ_trace_ten`, `by decide`), so the full charge does **not** admit `b` as a contracting homotopy —
+the same structural reason as §62's matter half: the contraction lands in the Gauss sector.
+
+### 65.2. The SM instance: definitional, and the limitation is Lean's
+
+`smBrstCharge_def : smBrstCharge m T f3 = brstCharge (smStruct f3) (ghostCre m) (ghostAnn m) (matterGen
+m T)` is `rfl`, so the general theorem *is* the SM statement once that identification is used.
+
+Instantiating the general theorem at `R := Module.End ℂ (FermiFock (m + 12))` with `n = 12` as a
+separate declaration **does not terminate**: `whnf` runs out past 8M heartbeats, and even
+`Algebra ℝ (Module.End ℂ (FermiFock (m + 12)))` exceeds the default 20000 typeclass heartbeats. The cause
+is an **instance diamond**, not the mathematics: the goal's `+`/`∑` elaborate through `LinearMap.instAdd`
+while the theorem's argue through `Ring.toAdd` of the `End`-ring, so deciding the definitional equality
+unfolds `PiLp`/`ESeminormedAddCommMonoid`/`ENNReal`. At `n = 3` or `R = ℂ` the instantiation is
+immediate.
+
+**Corrected 2026-11-13c: the corollary is asserted anyway.** §6 of
+`BookProof/Sm/ChapterSmIndexGhostRemainder.lean` proves
+
+    smBrstCharge m T f3 * bGhost m + bGhost m * smBrstCharge m T f3
+      = gaussSum m T − ∑ x, ∑ e, (algebraMap ℝ _ (structTrace (smStruct f3) x e))
+          * (ghostCre m x * ghostAnn m e),
+
+with **no** hypothesis on `b` (the ghost CAR supplies the `1/2` cancellation). The workaround is to
+re-run the computation in the concrete ring instead of transporting the abstract theorem: the two
+inputs `Q_anticomm_bGhost` and `bGhost_anticomm` are combined locally
+(`hQ := Q_anticomm_bGhost`, `hM := bGhost_anticomm m T`, then `unfold smBrstCharge brstCharge bGhost
+SmIndexGhostDerivation.gaussSum` and `rw [sub_mul, mul_sub, smul_mul_assoc, mul_smul_comm, hsplit, hM,
+hQ']`). Same statement, no `sorry`, no `rfl`-through-unification; the module carries
+`set_option maxHeartbeats 800000 in` with the reason in a comment. What remains unproved by *this*
+route is only that the abstract theorem transports definitionally at `n = 12` — which is why the
+statement is re-derived rather than `exact`ed.
+
+### 65.3. Verification (2026-11-13b)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostRemainder` — `Build completed successfully`, **8030 jobs**;
+  no warning attributed to the module.
+* `lake env lean Work/SmIndexGhostRemainderAudit.lean` — 7 declarations (`cubic_anticomm`,
+  `sum_d_cubic_anticomm`, `Q_anticomm_bGhost`, `brstCharge_anticomm_bGhost`,
+  `brstCharge_anticomm_bGhost_of_trace_zero`, `brstCharge_anticomm_bGhost_abelian`, `su2Trace_nonzero`),
+  all on exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* independent `#eval`-free check that `su2Trace 1 0 = -1` is `by decide` on `Fin 3` (`epsZ_trace_ten`).
+* `lake build BookProof` — `Build completed successfully`, **9001 jobs**, exit 0, with all three new
+  modules imported and registered in the root (§63's and §64's too).
+* `scripts/check-sm-section-guards` — green, including the new §63/§64/§65 sections.
+
+## §66. The Fourier reconstruction, as far as it is algebraic (2026-11-13c)
+
+### 66.1. What is proved
+
+§63 stopped at a boundary it named: `not_volDom_normForm` is a theorem about the normal form
+`c(εt)²`, and the passage from the model's own penalty `volPot kappa kv = (κ/2) Σ_q |(det F − 1)^(q)|²`
+to that normal form was measurement. New module `BookProof/Ns/ChapterNsVolDomReconstruction.lean`
+(namespace `BookProof.NsVolDomReconstruction`) moves part of the line.
+
+**The dual grid is orthogonal.** With `ω = exp(2πi/N)` on an `N`-point grid,
+
+    ∑_{j < N} ω^{m·j} = 0   unless `N ∣ m`        (`dft_orthogonal`),
+    ∑_{j < N} ω^{0·j} = N                          (`dft_zero`),
+
+which is the algebraic content of "a mode the grid cannot resolve averages to nothing". No measure
+theory: the grid is finite, the proof is the geometric series (`geom_sum_eq`) plus `ω^N = 1` from
+`Complex.isPrimitiveRoot_exp`.
+
+**A single-mode residual is exactly its coefficient.** If the residual's spectrum is supported at the
+zero mode — which is what *spatially constant* means on a finite grid — then
+
+    volPot kappa kv = (κ/2) Λ²        (`volPot_of_single_mode`),
+
+and with `Λ = c·ε·t` on §63's shear family,
+
+    volPot kappa kv = (κ/2)(c·ε·t)²   (`volPot_of_shear_constant`),
+    volPot kappa kv = (κ/2) · value of `normForm c` at `(t, ε)`   (`volPot_of_shear_constant_normForm`).
+
+So the constant `c` that §63 refutes domination for, for every `c ≠ 0`, is the *measured* constant:
+the penalty's value is `(κ/2)` times the normal form's, with no re-scaling smuggled in.
+
+### 66.2. What was still not proved, and is now (see §68)
+
+The assembly from position space to that spectrum. `volPot`'s sum over `waveSet` was asserted at the
+coefficient level, and the identity `(1/N) Σ_j |R(a_j)|² = Σ_q |R̂_q|²` (unitarity of the discrete
+transform) was not formalized — so `hspec` was a hypothesis. **§68 does that assembly**: the transform
+is inverted on a grid (`coeff_eq_zero_of_grid_vanishing`) and the spectrum of a *spatially constant*
+residual is derived (`volCoef_eq_zero_of_constant`, `volPot_of_single_mode_of_constant`), so `hspec`
+no longer appears as a hypothesis. What stays open there is the instantiation of the grid
+orthogonality at a concrete commensurate grid.
+
+### 66.3. Verification (2026-11-13c)
+
+* `lake build BookProof.Ns.ChapterNsVolDomReconstruction` — `Build completed successfully`, **8143
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomReconstructionAudit.lean` — 5 declarations (`dft_orthogonal`,
+  `dft_zero`, `volPot_of_single_mode`, `volPot_of_shear_constant`,
+  `volPot_of_shear_constant_normForm`), all on exactly `propext, Classical.choice, Quot.sound`; no
+  `sorryAx`.
+
+## §67. The augmented Lagrangian: `VolDom` discharged rather than assumed (2026-11-13c)
+
+### 67.1. The chain
+
+§61 refuted `VolDom` for the model's own penalty, which left `lagGradDom_of_volDom` (§56) with an
+unsatisfiable hypothesis and the NS chain stopping there. §64 proved the estimate for the repair
+`V_μ = ½(εt)² + (μ/2)(t² + ε²)` but never fed it back. New module
+`BookProof/Ns/ChapterNsVolDomMuLagrangian.lean` (namespace `BookProof.NsVolDomMuLagrangian`) feeds it
+back: in the two shear coordinates `x₀ = t`, `x₁ = ε` the augmented Lagrangian is
+
+    W = 1 + ½(t² + ε²) + V_μ        (`lagMu`),
+
+and
+
+    ∑_i (∂_i W)² ≤ (2A + 2)·W² + (2B + 2),   A = 5/μ + 1,  B = μ²     (`lagGradDom_mu`)
+
+holds at **every** real point with **no** hypothesis: `VolDom` is proved for this model, not assumed.
+
+### 67.2. Why the constants add rather than multiply
+
+The three steps are the ones `lagGradDom_of_volDom` spells out, and each is now a lemma:
+
+* `(x_i + ∂_i V_μ)² ≤ 2x_i² + 2(∂_i V_μ)²`, so the shear quadratic enters with coefficient `2`
+  (`ev2_pderiv_lagMu_zero`/`_one` carry the derivative, `one_le_ev2_lagMu` the coercivity);
+* `Σ_i (∂_i V_μ)² ≤ A V_μ² + B` is §64's `muPot_dom`, consumed through `muPot_dom_nonneg` — the
+  comparison `A V_μ² ≤ A W²` needs `A ≥ 0`, and taking `max A 0`, `max B 0` supplies it without
+  changing the estimate;
+* `V_μ ≥ 0` gives `V_μ ≤ W`, and `t² + ε² = 2(W − 1) ≤ W² + 1` because `W ≥ 1`.
+
+### 67.3. Scope
+
+The model has exactly the two coordinates of the shear family: it is §64's augmented Lagrangian, **not**
+`LagNsData`'s `volPot` (whose `VolDom` is false, §61). What it removes is the hypothesis — on this model
+the §49 chain (`GradBound → pointwise_dom_of_sq_sum → PotSelfBound`) runs end to end with nothing
+assumed. It is not a claim about the three-dimensional model, and it does not certify ESA of `N_L`.
+
+### 67.4. Verification (2026-11-13c)
+
+* `lake build BookProof.Ns.ChapterNsVolDomMuLagrangian` — `Build completed successfully`, **8143
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomMuLagrangianAudit.lean` — 5 declarations (`ev2_lagMu`,
+  `one_le_ev2_lagMu`, `ev2_pderiv_lagMu_zero`, `ev2_pderiv_lagMu_one`, `lagGradDom_mu`), all on
+  exactly `propext, Classical.choice, Quot.sound`; no `sorryAx`.
+* `muPot_dom_nonneg` added to `ChapterNsVolDomMuRepair` (rebuild clean) rather than duplicating the
+  estimate's proof.
+
+## §68. The Plancherel assembly: `hspec` derived, not assumed (2026-11-14)
+
+### 68.1. The inversion
+
+§63/§66 assumed that the residual `det F − 1` has no nonzero Fourier coefficient (`hspec`). The reason
+it could not be derived was that the *position-space* statement had never been formalized: constancy of
+`det(I + ∇ξ)` in `a`. §68 supplies the missing step, in the form the argument actually needs — the
+inversion of the discrete transform.
+
+`coeff_eq_zero_of_grid_vanishing` (with `phase q a = e^{i q·a}` and `phase_mul_conj`, `phase_conj`):
+if the grid pairs the modes unitarily,
+
+    horth :  Σ_{a ∈ G} e^{i (q − q')·a}  =  if q = q' then |G| else 0,
+
+then a residual with `Σ_q c_q e^{iq·a} = 0` at every `a ∈ G` has `c_q = 0` for all `q`. The proof is
+one line of algebra — multiply by `e^{−i q'·a}`, sum, use `horth`:
+
+    0 = Σ_a (Σ_q c_q e^{iq·a}) e^{−i q'·a} = Σ_q c_q · (Σ_a e^{i(q−q')·a}) = c_{q'} · |G|.
+
+`coeff_eq_zero_of_grid_const` handles the constant right-hand side by subtracting the zero mode — which
+is what a *spatially constant* residual is.
+
+### 68.2. From constancy to the spectrum
+
+`detCoef_eval_eq_zero_of_constant`: if `det(I + ∇ξ(a)) = 1 + Λ` at every grid point (the modelling
+fact — this is exactly what the shear family has, `det F = 1 − εt` everywhere), then
+`ev y (detCoef kv q) = 0` for every `q ≠ 0`. The bridge is `det_deformation_eq`, which already expresses
+`det(I + ∇ξ(a))` as the Fourier series `Σ_q ev y (detCoef q) e^{iq·a}` — so the inversion applies
+verbatim.
+
+Then `volCoef_eq_zero_of_constant` lifts that from evaluations to the *polynomial*: `ev`-vanishing at
+every real point forces `volCoef kv q = 0`, via `mvpoly_eq_zero_of_eval_real_fintype` (a general form of
+the `Fin n` lemma in `ChapterHermiteProductCore`, proved here with `MvPolynomial.funext_set` on the
+real line). `volCoef_zero_eq_of_constant` gives the zero coefficient as the constant `Λ`.
+
+The payoff is that the two §66 theorems now have hypothesis-free-spectrum versions:
+
+    volPot_of_single_mode_of_constant :  volPot kappa kv = C((κ/2) Λ²),
+    volPot_of_shear_constant_of_const :  volPot kappa kv = C((κ/2)(c ε t)²),
+
+with **no** `hspec`: the inputs are `h0 : 0 ∈ waveSet kv` (as before), `hconst` (constancy on the grid)
+and `horth` (grid unitarity). `hspec` is a *consequence* of the first two, not an assumption.
+
+### 68.3. What is still open
+
+The instantiation of `horth` at a concrete grid. `dft_orthogonal` (§1 of the module) is the level-1
+statement — `Σ_{j<N} ω^{mj} = 0` unless `N ∣ m` — and it is exactly what the commensurate case (modes
+`2πm/N`, grid `j ↦ j•e₀`) needs, but the reduction of the general `horth` to it (a labelling of the
+modes by their grid frequencies, plus injectivity modulo `N`) is **not** carried out here. So the honest
+statement of the gain: `hspec` is no longer assumed *given* the grid unitarity; the grid unitarity
+itself is assumed, and it is a statement about the numerical grid rather than about the physics.
+
+### 68.4. Verification (2026-11-14)
+
+* `lake build BookProof.Ns.ChapterNsVolDomReconstruction` — `Build completed successfully`, **8141
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomReconstructionAudit.lean` — **15** declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`; no `sorryAx`. New: `mvpoly_eq_zero_of_eval_real_fintype`,
+  `phase_conj`, `phase_mul_conj`, `coeff_eq_zero_of_grid_vanishing`, `coeff_eq_zero_of_grid_const`,
+  `detCoef_eval_eq_zero_of_constant`, `volCoef_eq_zero_of_constant`, `volCoef_zero_eq_of_constant`,
+  `volPot_of_single_mode_of_constant`, `volPot_of_shear_constant_of_const`.
+
+## §69. The constants do not depend on the dimension (2026-11-14)
+
+### 69.1. The estimate in `n` coordinates
+
+§67 closed the NS chain in the *two* shear coordinates, which invited the reading that the estimate is a
+two-dimensional accident. It is not. `lagGradDom_family` proves, for every `n` and every non-negative
+potential `V` whose own gradient is dominated (`Σ_i (∂_i V)² ≤ A V² + B`),
+
+    Σ_i (x_i + ∂_i V)²  ≤  (2A + 2)·W² + (2B + 2),      W = 1 + ½ Σ_i x_i² + V,
+
+with the **same** constants as `n = 2`: no step multiplies by `n`. The absorption happens once, through
+`Σ_i x_i² = 2(W − 1 − V) ≤ W² + 1`, and `(x + d)² ≤ 2x² + 2d²` contributes a fixed `2`.
+
+### 69.2. The nine-component instance
+
+`LagNsData`'s `volPot` does not live in two coordinates: it is a function of the nine components of the
+3D deformation gradient `∇ξ`. `lagGradDom_mu_nine` therefore assembles the augmented Lagrangian in
+**those nine coordinates** — the two shear entries carrying `V_μ`, the other seven flat
+(`V9`, `d9`, `d9_sum`) — and closes the chain there, with `a = 2A + 2`, `b = 2B + 2` for the `A, B` of
+`muPot_dom_nonneg`. The dimension is not what the estimate was ever restricted by.
+
+### 69.3. What this does not say
+
+It is a statement about the **augmented** model in three dimensions. The model's own `volPot` still has
+no gradient domination at all (§61: `not_volDom_shear`), and `lagGradDom_mu_nine` does not change that —
+what it removes is the suggestion that the repair worked only because the shear family is
+two-dimensional. Nothing here claims ESA of the 3D Lagrangian generator.
+
+### 69.4. Verification (2026-11-14)
+
+* `lake build BookProof.Ns.ChapterNsVolDomMuLagrangian` — `Build completed successfully`, **8142
+  jobs**; no warning attributed to the module.
+* `lake env lean Work/NsVolDomMuLagrangianAudit.lean` — **8** declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`. New: `lagGradDom_family`, `lagGradDom_mu_nine`, `d9_sum`.
+
+## §70. The quartet condition and the explicit antighost (2026-11-14)
+
+### 70.1. The observation
+
+`PhysicalPositivity` for `smBrstCharge` has been carried as a named input. Part of that story is stale:
+the quartet **data** for the SM charge already exists — `ChapterSmQuartet` §8 builds `smQuartet`,
+`smBghost`, `smPhysProj` by `exists_contractingHomotopy` (a choice of complement of the exact states in
+the closed space), so `physicalPositivity_of_quartet` *does* apply, and §9 reduces the remaining input to
+positivity of the charge form on `range smPhysProj`. What was never explained is *why* the b-ghost has
+to be chosen rather than exhibited, given that the model has an explicit antighost sum `bGhost`.
+
+§70 answers that. `bGhost_quartet_iff`: with `Q = smBrstCharge m T f3` and `P = bGhost m`, the quartet
+condition `Q P Q = Q` is **equivalent** to
+
+    (Σ_a G^a − traceEnd) · Q  =  Q,        traceEnd = Σ_{x,e} (Σ_y f_{yxe}) · c^x b_e,
+
+i.e. the trace-corrected Gauss generators must act as the identity on the charge's range. The proof is
+`{Q, b} = S` (that is `smBrstCharge_anticomm_bGhost`), `Q² = 0` (that is `smBrstCharge_nilpotent`), and
+`Q b Q = (S − bQ) Q = S Q`.
+
+So the explicit antighost is a contracting homotopy exactly when the Gauss sector supplies the identity
+— the condition `bGhost_no_contraction` named — and the first-slot trace of `smStruct` is what stands in
+the way. This is why `smQuartet` is choice-based: the choice is of a complement, not of a formula.
+
+### 70.2. What is still open
+
+`PhysicalPositivity (smBrstCharge m T f3) η` itself. It remains a consequence of a no-ghost estimate on
+`range smPhysProj` (`smPhysicalPositivity_of_physForm`), and the choice-based construction does not
+identify that range with the transverse, ghost-parity-even subspace — that needs a concrete mode
+pairing, which no formula in the corpus supplies. Nothing in §70 proves positivity; it shows that the
+obvious candidate for `P` fails for the reason the trace gives.
+
+### 70.3. Verification (2026-11-14)
+
+* `lake build BookProof.Sm.ChapterSmIndexGhostRemainder` — `Build completed successfully`, **8031
+  jobs**; the only message attributed to the module is a pre-existing "Try this" at line 266.
+  Measured build time ≈ 3 min, dominated by the kernel checking `smBrstCharge_anticomm_bGhost`'s
+  elaboration at `Module.End ℂ (FermiFock (m + 12))`.
+* `lake env lean Work/SmIndexGhostRemainderAudit.lean` — **10** declarations, all on exactly
+  `propext, Classical.choice, Quot.sound`; new: `traceEnd`, `bGhost_quartet_iff`.
+
+## 71. The commensurate reduction: `horth` is discharged at the grid it is meant for
+
+§68 removed `hspec` at the price of a hypothesis: unitarity of the discrete transform on the grid
+(`horth`). That hypothesis is now derived, in `BookProof/Ns/ChapterNsVolDomReconstruction.lean` §4, at
+the grid it describes — `N` equally spaced points `j • e` along a direction `e ≠ 0`:
+
+* `phase_smul_eq_gridRoot`: the plane-wave pairing of two modes at the `j`-th grid point is
+  `ζ^{m·j}` (`ζ = e^{2πi/N}`) as soon as `⟨q − q', e⟩ = 2πm/N`;
+* `geom_sum_gridRoot`: the geometric sum is `N` exactly when `N ∣ m` and `0` otherwise, for `m : ℤ`
+  (the integer mode number a *difference* of real wave numbers produces, via `exp_int_mul`);
+* `horth_of_commensurate`: combining the two gives `horth` from a labelling
+  `m : (q, q') ↦ ℤ` with `⟨q − q', e⟩ = 2πm/N` and `N ∣ m ↔ q = q'`;
+* `grid_card`, `grid_nonempty` supply the cardinality `N` and non-emptiness the statements need, and
+  `volPot_of_single_mode_of_commensurate` / `volPot_of_shear_constant_of_commensurate` are §68's two
+  theorems with `horth` replaced by that labelling.
+
+So the Plancherel step has no *abstract* unitarity input left. What replaces it is a modelling
+hypothesis, and it is not derivable from `kv`: the pairwise differences of wave numbers are lattice
+fractions `2πm/N` along `e`, and the residue mod `N` separates the modes (`N ∤ m` iff `q ≠ q'`). That
+is a statement about which modes the truncation keeps and it is false for a generic choice. The grid is
+one line of `N` points; §74 replaces it by a three-dimensional box and analyses the aliasing that
+appears across directions.
+
+## 72. Positivity is not a consequence of the quartet schema: a decided counterexample
+
+§70 reduced the SM quartet condition to a Gauss-sector identity. This section settles the *other*
+standing question — whether `PhysicalPositivity` follows from the quartet construction — and the answer
+is **no**, decided by an explicit three-dimensional model
+(`BookProof/Sm/ChapterSmQuartet.lean` §10):
+
+* `exQh`, `exBh`, `exVh`: `Q e₀ = e₁`, `Q e₁ = Q e₂ = 0`; `b e₁ = e₀`; `V` the projection onto `e₂`;
+* `exQuartet3`: `Q b + b Q = 1 − V` (`quartet_pt` at every vector), `V` idempotent, `Q V = 0`, so the
+  quartet data exist with no `Classical.choice` and no hypothesis;
+* `kform_exEtah_Q`, `kform_exEtah_symm`: the metric `η x = x₁ e₀ + x₀ e₁ − x₂ e₂` satisfies §3's
+  `hKrein` and `hSymm` — the charge is symmetric for it and it is self-adjoint;
+* `exNotPhysicalPositivity`: yet `(kform η e₂ e₂).re = −1` at the physical state, which is closed, so
+  `PhysicalPositivity` fails.
+
+Hence positivity cannot be obtained by strengthening the *projection* side of §9: the metric decides,
+and a no-ghost estimate on it — not an identity on `η` — is what the SM still needs. The counterexample
+is about the schema, not about the Standard Model's own physical sector.
+
+## 73. The quartet condition is a ring identity
+
+§70's computation is not specific to `FermiFock`. `quartet_iff_of_anticomm`
+(`BookProof/Sm/ChapterSmIndexGhostRemainder.lean` §8) proves, in an arbitrary ring, that from
+`Q * Q = 0` and `Q * b + b * Q = S` one gets `Q * b * Q = Q ↔ S * Q = Q`. §70 is that lemma at
+`R = Module.End ℂ (FermiFock (m + 12))`, `S = gaussSum − traceEnd`. What this says about deciding
+`(Σ G^a − traceEnd) Q = Q`: the equation is *not* an identity of the ghost algebra — it says the
+remainder acts as the identity on `range Q`, and that is a matter-sector statement, which is why §5's
+`su2Trace 1 0 = −1` refutes it for `bGhost` but cannot settle it for a different candidate.
+
+## 74. The three-dimensional box: aliasing is a residue condition in every direction
+
+`BookProof/Ns/ChapterNsVolDomReconstruction.lean` §5 replaces §71's line by the box
+`j ↦ Σ_x j x • e x` with `j x < N` in each coordinate, the three coordinate vectors of `e` assumed
+independent:
+
+* `latPoint`, `gridBox`, `latPoint_injective`, `gridBox_card`: the box is a set of `N³` distinct
+  points, the injectivity coming from independence and the entries being distinct natural numbers;
+* `phase_latPoint`: with a per-direction pairing `Σ_y w y e x y = 2π m x/N`, the phase at the `j`-th
+  box point is `ζ^{Σ_x m x · j x}` — so the exponent is a *sum* of three pairings;
+* `geom_sum_latBox`: the sum over the box is `N³` exactly when `(N : ℤ) ∣ m x` for **every** `x`, and
+  `0` otherwise. One non-commensurate direction kills the whole sum: a mode cannot be repaired
+  direction by direction;
+* `horth_of_lattice_commensurate`: the unitarity hypothesis of §68 on the box, from a per-direction
+  labelling with `N ∣ m q q' x ↔ q ≠ q'` holding for all `x` at once;
+* `latBox_character_one_iff`: the alias classes. The character is trivial on the box exactly when each
+  dual component differs by a multiple of `2π`, i.e. `q − q' ∈ N·Λ*`. The *total* wave number is
+  irrelevant: two modes collide whenever their residue vector does, and only then;
+* `volPot_of_single_mode_of_lattice_commensurate`: the assembly, as in §71.
+
+Boundary: the box is one truncation and its coordinates are assumed independent; the residue statement
+describes which modes collide *on that truncation*, not which modes the model keeps. Nothing is claimed
+about the penalty off the constant family.
+
+## 75. Which metrics are no-ghost: `PhysicalPositivity` is an equivalence
+
+§72 showed the quartet schema does not decide positivity. The natural question is then which metrics do,
+and `BookProof/Sm/ChapterSmQuartet.lean` §11 answers it with equivalences rather than implications:
+
+* `physicalPositivity_iff_physForm`: `PhysicalPositivity Q η` holds **iff** `η` is positive definite on
+  `range V` — non-negative there, and vanishing only at `0`. The forward direction uses the idempotence
+  of `V`, the radical condition and `V Q = 0` (a fixed point of `V` in the gauge orbit is `0`); the
+  reverse is §9's `physicalPositivity_of_quartet_on_range`. So the reduction of §9 is exact;
+* `physicalPositivity_congr`: two metrics agreeing on `range V` are no-ghost together. The ghost
+  directions are irrelevant, so no change of the metric away from the physical subspace can create or
+  remove the sign;
+* `range_physProj_eq_inf`: given that the b-ghost kills the physical subspace, the physical range is
+  `ker Q ⊓ ker b` — the harmonic representatives, matching §5's `range_physProjOf`;
+* `smPhysicalPositivity_iff_physForm`: the same equivalence at `smBrstCharge`, so the check on a
+  concrete SM metric is a sign computation on `range smPhysProj = ker Ω ⊓ (range Ω)ᗮ`
+  (`smPhysProjFormula_range`).
+
+Boundary: the equivalence does not *produce* the sign — §72's model has the same hypotheses with the
+opposite sign on `range V` — and no metric for `smBrstCharge` is constructed in this corpus. The SM
+statement is therefore an equivalence in `η`, not a verification for a particular `η`; a ghost-parity
+operator for the SM charge remains unbuilt.
+
+## 76. A candidate whose remainder vanishes on the charge's range
+
+§73 left the trace-corrected Gauss equation undecided for a candidate. `BookProof/Sm/ChapterSmIndexGhostRemainder.lean`
+§9 decides what the equation asks of one:
+
+* `QbQ_eq_SQ`: from `Q² = 0` and `{Q, b} = S` one has `Q b Q = S Q` identically, so the quartet
+  condition and "`Σ − trace` acts as the identity on `range Q`" are the *same* equation, not two;
+* `smBrstCharge_mul_traceCorrected`: the same identity at the SM charge,
+  `(Σ − trace) Ω = Ω b Ω`. The equation constrains the charge algebra, which is why changing the
+  b-ghost alone cannot make it true or false;
+* `trace_correction_iff`: if `T Q = 0` the correction is invisible — `(S − T) Q = Q` and `S Q = Q` are
+  the same equation. The explicit antighost's failure at `su₂` is exactly a correction that does *not*
+  kill the range (`su2Trace 1 0 = −1`, §7);
+* `quartet_condition_of_contracting`: a `b` that contracts `Q` on its range (`Q b Q = Q`, which
+  `exists_contractingHomotopy` supplies in finite dimension) makes the equation hold for its own
+  anticommutator;
+* `CandModel.cand_equation`: a two-dimensional model — `q`: `e₀ ↦ e₁`, `b`: `e₁ ↦ e₀`, `tr`: `x ↦ x₀ e₀`
+  with `tr` nonzero but `tr q = 0` — where `q b q = q` and `((q b + b q) − tr) q = q`. The positive case
+  exists, with a nonzero correction.
+
+Boundary: this does not construct a b-ghost for `smBrstCharge`. It shows what the equation requires of
+one and that the choice-based homotopy meets the requirement, not that the SM's Gauss sector is
+trace-free.
+

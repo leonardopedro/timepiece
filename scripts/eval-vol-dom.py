@@ -201,16 +201,27 @@ def lift(x):
     return out
 
 
-def vol_pot(x):
-    """V_kappa = (kappa/2) sum_q |(det F - 1)^(q)|^2 as a dual number."""
-    x = lift(x)
+def vol_pot(x, mu=0.0):
+    """V_kappa = (kappa/2) sum_q |(det F - 1)^(q)|^2, optionally plus the deformation norm.
+
+    With `mu > 0` the potential is regularized by `(mu/2) * sum_{k,j} (1 + |k|^2) |xi-hat_{k,j}|^2`,
+    a quadratic that does not vanish on the unimodular set.  The factor `(1 + |k|^2)` is the
+    Sobolev-type weight `int (|xi|^2 + |grad xi|^2)` written in Fourier space, so the extra term is
+    the deformation norm rather than an arbitrary quadratic.
+    """
+    y = lift(x)
     acc = const(0.0, NCOORD)
     for q in WAVES:
-        p = det_coef(q, x)
+        p = det_coef(q, y)
         if q == (0.0, 0.0, 0.0):
             p = p - C(const(1.0, NCOORD), const(0.0, NCOORD))
         acc = acc + (p.re * p.re + p.im * p.im)
-    return (KAPPA / 2.0) * acc
+    V = (KAPPA / 2.0) * acc
+    if mu > 0.0:
+        for (k, axis, part), xk in y.items():
+            weight = 1.0 + sum(c * c for c in K[k])
+            V = V + (mu / 2.0) * weight * (xk * xk)
+    return V
 
 
 def make_point(seed):
@@ -238,8 +249,8 @@ def shear_point(t, rng):
     return x
 
 
-def ratio(x):
-    V = vol_pot(x)
+def ratio(x, mu=0.0):
+    V = vol_pot(x, mu)
     g2 = sum(g * g for g in V.g)
     return g2 / (V.v * V.v + 1.0), V.v, g2
 
@@ -287,6 +298,53 @@ def main():
     M = max(best[0], bests[0], bestl[0])
     print()
     print(f"sampled supremum over bounded boxes: M = {M:.6g}")
+    print()
+    print("does a deformation-norm regularization repair it?")
+    print("  V_mu = V_kappa + (mu/2) * sum_{k,j} (1 + |k|^2) |xi-hat_{k,j}|^2")
+    print(f"{'mu':>8} {'shear-ratio':>14} {'random':>12} {'shear+noise':>12} {'large |xi|':>12}")
+    for mu in (0.0, 1e-3, 1e-2, 0.1, 1.0, 10.0):
+        b1 = 0.0
+        for eps in (1e-2, 1e-3, 1e-4):
+            for t in (1e2, 1e4, 1e5):
+                x = {(k, a, p): 0.0 for k in range(len(K)) for a in range(3) for p in range(2)}
+                x[(1, 0, 1)] = -t
+                x[(0, 1, 0)] = eps
+                b1 = max(b1, ratio(x, mu)[0])
+        b2 = 0.0
+        for seed in range(200):
+            b2 = max(b2, ratio(make_point(seed), mu)[0])
+        b3 = 0.0
+        for i, t in enumerate([0.5, 1.0, 2.0, 5.0, 10.0, 50.0, 200.0]):
+            rng = random.Random(i)
+            for j in range(20):
+                b3 = max(b3, ratio(shear_point(t, rng), mu)[0])
+        b4 = 0.0
+        for seed in range(200):
+            rng = random.Random(10000 + seed)
+            scale = 10.0 ** rng.uniform(1.0, 2.5)
+            x = {(k, a, p): scale * rng.gauss(0.0, 1.0)
+                 for k in range(len(K)) for a in range(3) for p in range(2)}
+            b4 = max(b4, ratio(x, mu)[0])
+        print(f"{mu:>8} {b1:>14.6g} {b2:>12.6g} {b3:>12.6g} {b4:>12.6g}")
+    print()
+    print("the diagnostic: shrink the tilt at fixed shear amplitude t = 1e4")
+    print("   mu = 0      -> ratio ~ 4/eps^2 grows without bound")
+    print("   mu > 0      -> ratio stays flat (a finite constant exists)")
+    print(f"{'eps':>10} {'mu=0':>14} {'mu=0.01':>14} {'mu=0.1':>14} {'mu=1':>14}")
+    for eps in (1e-2, 1e-3, 1e-4, 1e-5, 1e-6):
+        row = []
+        for mu in (0.0, 0.01, 0.1, 1.0):
+            x = {(k, a, p): 0.0 for k in range(len(K)) for a in range(3) for p in range(2)}
+            x[(1, 0, 1)] = -1e4
+            x[(0, 1, 0)] = eps
+            row.append(ratio(x, mu)[0])
+        print(f"{eps:>10.0e} {row[0]:>14.6g} {row[1]:>14.6g} {row[2]:>14.6g} {row[3]:>14.6g}")
+    print()
+    print("   NOTE on the mu = 0 column: from eps <= 1e-4 on, V ~ (k/2) eps^2 t^2 is so small that the")
+    print("   dual-number gradient loses all its digits to cancellation, and the printed numbers fall")
+    print("   back down -- they are artifacts, not data.  The exact law for mu = 0 is the identity")
+    print("   ratio = 4/t^2 + 4/eps^2, proved as `shear_grad_sq` in")
+    print("   BookProof/Ns/ChapterNsVolDomShear.lean; e.g. t = 1e4, eps = 1e-2 gives 40000.00000004.")
     print("That finite number is NOT the answer: the shear family diverges.  Along")
     print("F = I + t N + eps B (N = e_x (x) e_y, B = e_y (x) e_x) the ratio saturates at 4/eps^2 and")
     print("is unbounded as eps -> 0, so no finite A, B make VolDom hold for this penalty.")
