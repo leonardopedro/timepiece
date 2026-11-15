@@ -12,20 +12,20 @@ tag := "solovay-tensor"
 
 :::paragraph
 The second chapter of the foundation, and the construction the physics parts
-run on: a single sample space that is infinite-dimensional yet separable, built
-as a tensor product of two factors. It answers the open problem the Introduction
-posed — a separable probability space with an arbitrary measure over real
-functions — and it needs only
-{ref "pa-free-chapter"}[the completed-space discipline of the previous chapter]:
-never name an infinite element.
+run on: finite observable data coupled to a separable infinite-dimensional
+Hilbert space. We distinguish the product of probability spaces from the tensor
+product of their wave-function spaces. The Mehler sphere limit supplies the
+Gaussian coordinate prior; the Kopperman perspective asks which statements our
+chosen language can decide. The construction allows an arbitrary finite-head
+law, rather than every probability law on every function space.
 :::
 
 :::paragraph
 The route: the three-instant ABL reconstruction and its joint and marginal laws
 (the finite-dimensional model), post-selection and the reconstruction formula,
-the tensor product itself and why decidable languages close under it, the two
-factors and their laws (arbitrary on the finite part, the Mehler measure forced
-on the infinite part), the cross-dimensional inner product, and a closing
+the tensor product and its finite-query language, the two factors and their
+laws (arbitrary on the finite head, Gaussian on the tail with specified finite
+marginals), the cross-dimensional inner product, and a closing
 account of what is proved versus planned.
 :::
 
@@ -43,24 +43,12 @@ measure as its Gaussian.
 # The Question
 
 :::paragraph
-The Introduction posed a concrete open problem. Engineering needs a probability
-space over real functions of real variables, but:
-:::
-
-:::paragraph
-"no one has found yet a systematic way to define a separable probability space with
-an arbitrary probability measure over real functions of real variables (and
-infinite-dimensional spaces in general)."
-:::
-
-:::paragraph
-The difficulty is the infinite-dimensional part. A separable space is one whose
-elements can be approximated by a countable set; a non-separable space has elements
-that "cannot be approximated by a finite set of elements, up to an arbitrarily small
-error" — and then they cannot be distinguished, named, or computed. So we want a
-space that is infinite-dimensional (to carry a field, or a trajectory, or a
-wave-function) yet still separable (so its elements remain approximable), and on
-which we may still choose a probability measure.
+The Introduction asks for a usable probability model of functions or fields:
+a carrier with countable dense approximants, a reference prior, and a language
+of queries that can be evaluated from finite data. These are separate
+requirements. Separable function spaces and probability measures on them are
+standard objects; the specific task here is to combine their analytic structure
+with an explicitly controlled query language.
 :::
 
 :::paragraph
@@ -71,7 +59,8 @@ tensor product of sample spaces, some of which have finite degrees of freedom," 
 instance $`\mathbb{Z}_2^n \times \mathbb{R}^m`. The construction below answers the
 Introduction's problem precisely by building such a tensor product: a
 *finite-dimensional* factor that carries an *arbitrary* probability law, tensored
-with a *separable infinite-dimensional* factor that carries a *forced* law.
+with a *separable infinite-dimensional* wave-function factor built from a specified
+Gaussian law. Uniqueness means uniqueness with those Gaussian finite marginals.
 :::
 
 :::paragraph
@@ -202,8 +191,67 @@ individual runs without distorting the ensemble.
 The ABL reconstruction is a finite-phase-space instance of the general problem. The
 general construction — the Solovay–Kopperman tensor product — answers the
 Introduction's question directly: it is a systematic separable probability space
-carrying an arbitrary law on a finite part and a controlled (forced) law on an
-infinite part.
+carrying an arbitrary finite-head law and a specified Gaussian coordinate law.
+Its Hilbert-space interpretation requires keeping the following spaces distinct.
+:::
+
+# A Finite Vector Space Tensored with an Infinite Hilbert Space
+
+:::paragraph
+The tensor product in the question motivating this chapter is
+$`V \widehat\otimes K`, where $`V` has finite dimension $`d` and $`K` is a
+separable infinite-dimensional Hilbert space. Fix an orthonormal basis
+$`e_1,\ldots,e_d` of $`V`. Every vector then has a unique description
+:::
+
+$$`\Psi=\sum_{a=1}^{d}e_a\otimes\psi_a,\qquad
+\langle\Psi,\Phi\rangle=\sum_{a=1}^{d}\langle\psi_a,\phi_a\rangle_K.`
+
+:::paragraph
+Thus $`V\widehat\otimes K\cong K^d`: a finite list of Hilbert-space vectors.
+The completion is already accounted for by completeness of $`K`. This is the
+useful computational picture: finitely many channels, each admitting arbitrarily
+accurate finite approximations. It does not require truncating the Hilbert space
+once and for all.
+:::
+
+:::paragraph
+For the Gaussian realization, take $`\Omega=\mathbb R^{\mathbb N}` with
+$`\gamma=\bigotimes_{j\ge0}\mathcal N(0,1)` and
+$`K=L^2(\Omega,\gamma;\mathbb C)`. Hermite polynomials in finitely many
+coordinates give the finite expressions; their completed span gives the
+wave-function Hilbert space. A finite discrete head with $`d` positive weights
+$`\mu_a` realizes the same tensor product as
+$`L^2(\{1,\ldots,d\}\times\Omega,\mu\otimes\gamma)`:
+its channel coordinates are $`\psi_a(z)=\sqrt{\mu_a}\Psi(a,z)`.
+The product-measure tensor and density theorems cited below supply the general
+analytic ingredients. This displayed finite-channel specialization is an
+explanation of them, not a new Lean declaration.
+:::
+
+:::paragraph
+A finite-dimensional *coordinate carrier* is a different notion. With a
+continuous head $`x\in\mathbb R^N`, the book uses
+$`L^2(\mathbb R^N,\mu)\widehat\otimes K`.
+Its first factor can itself be infinite-dimensional: one real coordinate has
+infinitely many independent square-integrable functions. Also,
+$`\mathbb R^N\times H` is a product (a finite Hilbert direct sum when $`H` is
+Hilbert), whereas $`\mathbb R^N\widehat\otimes H\cong H^N` is a tensor
+product. The two constructions serve different purposes.
+:::
+
+# A Two-Channel Calculation
+
+:::paragraph
+Let $`h_0(z)=1` and $`h_1(z)=z_0` under the standard Gaussian product law.
+They are orthonormal because $`\mathbb E z_0=0` and $`\mathbb E z_0^2=1`.
+For $`V=\mathbb C^2`, the state
+$`\Psi=\alpha e_1\otimes h_0+\beta e_2\otimes h_1` has squared norm
+$`|\alpha|^2+|\beta|^2`. Its normalization is an exact finite calculation,
+even though its ambient space is infinite-dimensional. More general finite
+Hermite expansions use finitely many Gaussian moments, computable exactly for
+algebraic coefficients. A general completed vector is handled by approximants
+and a supplied error modulus; density alone gives no algorithm for that modulus.
 :::
 
 # The Two Factors
@@ -245,64 +293,88 @@ finite-dimensional artefact:
 ```
 
 :::paragraph
-Thus the tail is infinite-dimensional but *separable*: it possesses a countable
-dense skeleton of computable approximants. This is exactly the property the
-Introduction asked for. The finite head is the part we _know_; the separable infinite
-tail is the part we are _uncertain_ about.
+The theorem `substrate_decidable_skeleton` proves existence of a countable dense
+subset. Its type does not provide an enumeration, computable membership, or an
+approximation algorithm. Such effective data must be supplied separately, for
+example by rational finite expansions in a specified basis. Separability gives
+the analytic possibility of approximation; effective presentation makes that
+possibility usable by an algorithm.
 :::
 
-# Decidable Languages Close Under Tensor Product
+# What the Decidability Claim Means
 
 :::paragraph
-A *language* here is an explicit Boolean decision procedure: a classifier
-$`\mathrm{decide} : \alpha \to \mathrm{Bool}`. The tensor product of two languages is
-conjunction on pairs — a point of the product carrier is accepted exactly when both
-components accept it:
+Decidability is a property of a specified language and its effective semantics.
+For the pure real inner-product language, a finite tuple of vectors is described
+by a finite Gram matrix. Positivity of that matrix is a finite collection of
+polynomial conditions; a new vector is represented by its projections and an
+orthogonal remainder. This leads to reductions to real closed fields.
+Solovay, Arthan and Harrison prove decidability for their two-sorted first-order
+Hilbert-space languages in §6 of
+[their paper](https://arxiv.org/abs/0904.3482).
+Kopperman's [1967 paper](https://doi.org/10.2307/2270770) concerns the distinct
+infinitary $`L_{\omega_1,\omega_1}` setting. Its role here is to motivate the
+careful separation of the completed carrier from the language used to describe it.
+:::
+
+:::paragraph
+For example, two unit vectors with real overlap $`r` have Gram matrix
+$`\left(\begin{smallmatrix}1&r\\r&1\end{smallmatrix}\right)`.
+Such vectors exist in an infinite-dimensional real Hilbert space exactly when
+$`1-r^2\ge0`. For algebraic $`r` this is an effective finite test of a statement
+quantifying over infinite-dimensional vectors. Gaussian moment evaluation in
+the two-channel example is a separate finite calculation.
+:::
+
+:::paragraph
+The finite tensor factor preserves the finite-tuple description through
+$`V\widehat\otimes K\cong K^d`. A decision claim for an expanded language
+must also specify its allowed coefficients, predicates and operators and prove
+the corresponding reduction. Arbitrary measures, Hamiltonians and expectation
+operators do not automatically belong to the decidable pure geometric language.
+:::
+
+:::paragraph
+The repository currently proves two more concrete facts. First,
+`DecidableLanguage` packages a Boolean classifier. Its tensor classifier runs
+the two supplied classifiers and takes their conjunction:
 :::
 
 ```
 #check @tensor_decide_apply
-```
-
-:::paragraph
-Because a conjunction of two decidable propositions is decidable, membership in the
-tensor language is decidable for every point of the product carrier:
-:::
-
-```
 #check @tensor_language_membership_decidable
 ```
 
 :::paragraph
-This is the first half of the author's goal: *the tensor product of two decidable
-languages is a decidable language.* The same closure holds for the
-Hilbert-space languages used in this book. The "cylindrical" observables — those that
-depend only on the finite head — form a decidable language, because the head is
-finite-dimensional and hence Tarski-decidable. A tensor product of two such
-finite-head observables is again a finite-head observable on the combined head:
+Second, tensoring finite-head observables preserves dependence on a finite
+head, and their inner products reduce to a finite-dimensional integral:
 :::
 
 ```
 #check @tensorHeadObservable_dependsOnlyOnHead
 #check @tensor_language_decidable
+#check @headSumEquiv
 ```
 
 :::paragraph
-The combined head is split into its two finite blocks by an explicit equivalence, so
-"tensor product of languages" and "concatenation of finite heads" are the same
-operation:
+Despite its name, `tensor_language_decidable` states an integral identity. It
+has no encoded formulas, terminating decision algorithm or correctness theorem
+for all sentences of a Hilbert-space theory. Likewise, a Lean Boolean function
+on an arbitrary carrier is not by itself a Turing computation on finite codes.
+A finite-head integral for an arbitrary probability measure need not be
+computable. Effective polynomial geometry and explicit Gaussian moment queries
+are useful controlled fragments; broader decision procedures remain separate
+formalization tasks.
 :::
-
-```
-#check @headSumEquiv
-```
 
 # The Tensor-Product Hilbert Space
 
 :::paragraph
-The tensor product of the two factors is the total space
-$`\mathrm{InnerSpace}\,N = \mathrm{InnerHead}\,N \times \mathrm{InnerTail}`, and its
-Hilbert completion is the *Solovay–Hilbert space*:
+The abstract sample carrier is the product
+$`\mathrm{InnerSpace}\,N = \mathrm{InnerHead}\,N \times \mathrm{InnerTail}`.
+Wave-functions on it belong to an $`L^2` space. `SolovayHilbertSpace` is the
+metric completion of that wave-function space; it is not the product carrier
+itself:
 :::
 
 ```
@@ -322,9 +394,9 @@ $`\Gamma \otimes \Gamma \cong \Gamma` for the infinite factor:
 ```
 
 :::paragraph
-The embedding of a wave-function into the completed space preserves the inner
-product, so the completion is a genuine Hilbert-space tensor product rather than a
-mere product of sets:
+The embedding of a wave-function into the completion preserves its inner
+product. This proves the completion respects the existing geometry; the
+product-measure and density results below establish the tensor interpretation:
 :::
 
 ```
@@ -420,8 +492,8 @@ bookkeeping a composite quantum system actually uses:
 ```
 
 :::paragraph
-The decisive simplification is the *decoupling theorem*: because the cylindrical
-wave-functions depend only on the finite head, and the tail measure is an independent
+The *decoupling theorem* applies to head-only wave-functions: because they
+depend only on the finite head, and the tail measure is an independent
 probability measure, the $`L^2` inner product over the infinite-dimensional total
 space collapses exactly to a finite-dimensional integral over the head
 $`\mathbb{R}^N`:
@@ -432,10 +504,13 @@ $`\mathbb{R}^N`:
 ```
 
 :::paragraph
-This is the dimensional reduction that makes the whole construction _decidable_: an
-a-priori infinite-dimensional computation reduces to a finite Tarski-decidable
-integral. It is the formal version of the manuscript's claim that probabilities let
-us relate arbitrarily complex random events to standard, intuitive ones.
+For head-only functions $`f(x,z)=f_0(x)` and $`g(x,z)=g_0(x)`, independence
+and $`\gamma(\Omega)=1` remove the tail integral exactly. For a cylindrical
+function involving $`k` tail coordinates, first enlarge the head and integrate
+those $`k` Gaussian variables as well. This supplies finite input to a chosen
+moment or integration procedure. Its computability and error bounds require
+assumptions on that input; Tarski's theorem decides polynomial formulas, not
+arbitrary integrals.
 :::
 
 # An Arbitrary Law on the Finite Part
@@ -496,73 +571,128 @@ finite-dimensional part is an arbitrary probability distribution.* Nothing
 constrains it; it is the part we are free to choose.
 :::
 
-# Only the Mehler Measure on the Infinite Part
+# From Uniform Hyperspheres to the Mehler Prior
 
 :::paragraph
-The infinite tail is different. The Kopperman language is *cylindrical*: it can
-query only finitely many coordinates at a time. Consequently it cannot distinguish
-two tail points that agree on every finite set of coordinates — no individual element
-of the infinite-dimensional Hilbert space can be named or singled out. (This is the
-same mechanism as {ref "pa-free-chapter"}[Completeness without Peano Arithmetic]:
-adding a named infinite element to the language would destroy decidability.)
+Start with independent $`G_j\sim\mathcal N(0,1)`. Radial normalization gives
+$`U_n=(G_1,\ldots,G_n)/(\sum_{j=1}^nG_j^2)^{1/2}`, uniform on the unit
+sphere in $`\mathbb R^n`. The strong law makes the denominator divided by
+$`\sqrt n` tend to $`1`. Consequently, for each fixed $`k`,
+:::
+
+$$`\sqrt n\,(U_{n,1},\ldots,U_{n,k})
+\ \Longrightarrow\ \mathcal N(0,I_k).`
+
+:::paragraph
+Equivalently, use spheres of radius $`\sqrt n` and leave their coordinates
+unscaled. The unscaled coordinates of a unit sphere instead tend to zero.
+The convergence is of fixed finite-coordinate distributions. This classical
+Poincaré–Borel limit is the probabilistic reading of the manuscript's Mehler
+sphere formalism; see the research account
+[Limiting Probability Measures](https://arxiv.org/abs/1901.10507).
+It motivates the compatible Gaussian marginals from which the coordinate tail
+law is constructed. The existing `poincare_borel_ae` theorem already proves
+the key coupling:
+normalized Gaussian coordinates converge almost surely, coordinate by
+coordinate, to the original Gaussian sequence. Packaging this as weak
+convergence of fixed-dimensional sphere marginals requires identifying the
+finite-block pushforward laws and applying bounded continuous test functions.
+The polynomial and weight limits below provide complementary results.
 :::
 
 :::paragraph
-A probability law on the tail that respects this blindness must be *atomless* (no
-single state carries mass) and *invariant* under the symmetries the language can
-express. The selected Mehler/Kopperman prior has precisely these admissibility
-properties:
+For the resulting product law, the existing theorem states
+$`n^{-1}\sum_{j<n}z_j^2\to1` almost surely:
+:::
+
+```
+#check @mehler_concentrates_on_unit_sphere
+#check @PhysHSGaussian.poincare_borel_ae
+```
+
+:::paragraph
+The name uses the manuscript's sphere terminology. Its statement concerns an
+*empirical mean squared radius*. In particular, $`\sum_j z_j^2=\infty`
+almost surely. A Gaussian sequence sampled from this law is not an
+$`\ell^2` vector or a point on the norm-unit sphere of a separable Hilbert space.
+The countably additive prior lives on the sequence space $`\mathbb R^{\mathbb N}`;
+its square-integrable wave-functions form the Hilbert space $`K` used above.
+:::
+
+# The Hilbert Space Associated with the Gaussian Prior
+
+:::paragraph
+There is also a Hilbert space of Gaussian *directions*. For
+$`a\in\ell^2`, the sums $`\sum_{j<m}a_jz_j` converge in $`L^2(\gamma)` to
+$`W(a)`, with $`\mathbb E[W(a)W(b)]=\langle a,b\rangle`.
+Thus $`\ell^2` embeds isometrically as the first Gaussian chaos. This is a
+Gaussian process indexed by a Hilbert space, although a sampled coordinate
+sequence is not a vector in that Hilbert space.
+:::
+
+:::paragraph
+To obtain an actual Hilbert-valued Gaussian random vector instead, choose a
+positive trace-class covariance $`C`: in an eigenbasis, take
+$`X=\sum_j\sqrt{\lambda_j}G_je_j` with $`\sum_j\lambda_j<\infty`.
+Then $`\mathbb E\|X\|^2=\sum_j\lambda_j`. Identity covariance in infinite
+dimension fails this condition. This distinction is explained in
+[Hairer's Gaussian measure notes](https://hairer.org/notes/SPDEs.pdf).
+A chosen covariance changes the prior and its symmetry group; it must be
+recorded when identifying a field model with the Gaussian construction.
+:::
+
+:::paragraph
+The earlier abstract substrate is $`L^2([0,1])` and its selected prior
+`rcpPriorOnSubstrate` is obtained from existence of an atomless probability
+measure. The current construction uses an orthonormal pair and an atomless
+sphere measure. It does not identify that selected measure with the Gaussian
+coordinate product, or prove that it is invariant under every orthogonal
+operator of the substrate. An isometry between separable Hilbert spaces alone
+would not establish equality of these probability laws. The coordinate model
+is where the explicit Gaussian splitting and characterization theorems live.
 :::
 
 ```
 #check @TailPriorAdmissible
 #check @only_mehler_on_tail
-```
-
-:::paragraph
-Concretely, the tail prior is atomless, and it is invariant under every admitted
-finite orthogonal symmetry:
-:::
-
-```
 #check @tailMeasure_singleton
 #check @mehler_invariant_under_finite_orthogonal
 ```
 
 :::paragraph
-And it really lives on the infinite-dimensional sphere: the normalized empirical
-squared norm of the first $`k` coordinates converges to $`1` almost surely
-(Poincaré–Borel / the strong law), which is Mehler's 1866 limit of the uniform
-measure on the high-dimensional sphere:
+Here `only_mehler_on_tail` establishes admissibility of the selected abstract
+prior. Its invariance field assumes measure preservation and then concludes
+equality of the pushed-forward measure. The uniqueness result for specified
+Gaussian marginals below is stronger and uses a different, coordinate carrier.
 :::
 
-```
-#check @mehler_concentrates_on_unit_sphere
-```
+# The Polynomial Form of the Mehler Limit
 
 :::paragraph
-Mehler's 1866 statement is not a slogan; it is a genuine limit, and it is the
-single most important structural fact of this part. On the surface of a $`k`-sphere
-the rotation-invariant (uniform) area element factorizes into single-coordinate
-weights $`(1-x^2)^{(\alpha-1)/2}` — exactly the *Gegenbauer* weight of order
-$`\alpha`. The uniform hyperspherical measure is therefore the natural *prior*: it
-assigns equal weight to every direction, expressing that we have no information.
-Rescale the coordinate $`x \mapsto \sqrt{2/\alpha}\,x` and let
-$`\alpha \to \infty`. The single-coordinate hyperspherical weight tends to the
-Gaussian weight $`e^{-x^2}`:
+A single coordinate of uniform spherical area has a Gegenbauer weight; the
+joint coordinates are constrained by the sphere and are not independent at
+finite dimension. Write the weight as $`(1-u^2)^{\lambda-1/2}` and substitute
+$`u=x/\sqrt\lambda`. Then
 :::
 
-$$`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
+$$`\lim_{\lambda\to\infty}(1-x^2/\lambda)^{\lambda-1/2}=e^{-x^2}.`
 
 :::paragraph
-At the same time the Gegenbauer polynomials $`C_n^{(\alpha/2)}` (orthogonal with
+After normalization this is a Gaussian of variance $`1/2`. The coordinate
+convention above uses variance $`1`, obtained by multiplying $`x` by
+$`\sqrt2`. Stating the variance prevents a hidden factor of two when moving
+between the sphere, Hermite polynomials and field operators.
+:::
+
+:::paragraph
+At the same time the Gegenbauer polynomials $`C_n^{(\lambda)}` (orthogonal with
 respect to the uniform measure, and defining the hyperspherical harmonics) become
 the Hermite polynomials $`H_n/n!` (with the physicists' $`H_n` from the recurrence
 $`H_0 = 1, H_1 = 2x, H_{n+2} = 2x H_{n+1} - 2(n+1)H_n`), in the scaled limit
 :::
 
-$$`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
-  C_n^{(\alpha/2)}\Bigl(\sqrt{\tfrac{2}{\alpha}}\,x\Bigr)
+$$`\lim_{\lambda\to\infty}\lambda^{-n/2}
+  C_n^{(\lambda)}(x/\sqrt\lambda)
    = \frac{H_n(x)}{n!}.`
 
 :::paragraph
@@ -585,24 +715,23 @@ e^{-x^2}dx = \sqrt{\pi}\,2^n/n!`. The verified statements live in
 ```
 
 :::paragraph
-This is the precise sense in which the uniform (hyperspherical) prior and the
-Gaussian (Fock) vacuum coincide, and in which the orthogonal excitations of the Fock
-space are the images of the hyperspherical harmonics. The dictionary is complete:
+For each fixed polynomial degree, the scaled Gegenbauer functions converge to
+Hermite functions with the displayed normalization. Tensor products of Hermite
+polynomials give the Gaussian Fock description. The limiting dictionary is:
 :::
 
-| Finite hypersphere ($`\alpha < \infty`) | Infinite-dimensional limit (Fock) |
+| Finite hypersphere | Fixed-coordinate Gaussian limit |
 | :--- | :--- |
-| uniform surface measure $`d\sigma` | Gaussian measure $`e^{-x^2}dx` |
-| Gegenbauer weight $`(1-x^2)^{(\alpha-1)/2}` | Gaussian weight $`e^{-x^2}` |
-| Gegenbauer polynomials $`C_n^{(\alpha/2)}` | Hermite polynomials $`H_n/n!` |
+| scaled, normalized coordinate marginals | normalized Gaussian coordinate law |
+| weight $`(1-u^2)^{\lambda-1/2}` | weight $`e^{-x^2}` |
+| scaled Gegenbauer polynomials | Hermite polynomials $`H_n/n!` |
 | hyperspherical harmonics | number states $`\ket{n}` |
 | uniform "no-information" prior | Gaussian source qsample $`\Psi_0 = \ket{0}` |
 
 :::paragraph
-So the tail prior that the blind language is forced to adopt is not merely *a*
-rotation-invariant measure: it is the infinite-dimensional *limit* of the family of
-uniform hyperspherical priors, with the Fock number states as the limits of the
-hyperspherical harmonics. This is why the free-field prior of
+The fixed-coordinate sphere limit and the Hermite limits explain the Gaussian
+choice and the Fock basis. Uniqueness of that choice uses the specified Gaussian
+marginals, rather than unnameability of individual states alone. The prior of
 {ref "free-field"}[the free-field chapter] is the same object, and why the Gaussian
 source qsample $`\sqrt{p_0}` of a flow model coincides with the Fock vacuum. The
 finite-hypersphere-to-Fock dictionary is the structural backbone of this part and of
@@ -610,7 +739,7 @@ the whole book.
 :::
 
 :::paragraph
-In the coordinate model the forcing is explicit. The language sees only finite
+In the coordinate model the prescribed marginals are explicit. Queries use finite
 coordinate sets, and restriction to any finite set has the corresponding finite
 product Gaussian law:
 :::
@@ -623,8 +752,8 @@ product Gaussian law:
 So the only data the language can observe is the family of finite-dimensional
 marginals, and a probability measure on $`\mathbb{N} \to \mathbb{R}` is determined by
 its finite marginals. The intended conclusion — that the Mehler measure is the
-_unique_ probability law whose every finite marginal is the standard Gaussian product,
-and hence the _only_ law the blind language can use — is now proved: cylinder sets
+_unique_ law with the prescribed standard Gaussian finite marginals — is proved:
+cylinder sets
 form a generating π-system, so a projective limit of finite measures is unique.
 :::
 
@@ -636,8 +765,12 @@ form a generating π-system, so a projective limit of finite measures is unique.
 ```
 
 :::paragraph
-The other half is admissibility: the Mehler law is a probability measure, atomless,
-and invariant. The two halves together give the author's classification:
+The condition on *every* finite marginal is essential. Two distinct sequences
+always differ at some finite coordinate, and cylindrical tests can distinguish
+many different priors. The theorem `language_blind_implies_mehler` assumes
+agreement of expectations for all finite-coordinate real functions; it does not
+derive that agreement from a Boolean classifier or from atomlessness.
+`head_vs_tail_admissibility` records the separate abstract admissibility package:
 :::
 
 ```
@@ -714,54 +847,52 @@ product is well defined across head dimensions," made precise:
 
 # What Is Proved and What Is Planned
 
-:::paragraph
-This edition separates the verified layer from the open one.
-:::
+| Layer | Source results and scope |
+| :--- | :--- |
+| Hilbert substrate | separable, infinite-dimensional; existence of a countable dense set |
+| Completion | complete wave-function space; inner-product-preserving embedding |
+| Finite queries | Boolean conjunction; head-only inner-product reduction |
+| Gaussian tail | finite marginals; splitting, interleaving, finite orthogonal invariance |
+| Uniqueness | a law with those same Gaussian finite marginals equals the product law |
+| Hilbert tensor structure | product-law unitary, pure-tensor density, bases and Parseval |
+| Sphere ingredients | radial measures, concentration, coordinatewise coupling, polynomial limits |
 
 :::paragraph
-*Verified.* The ABL three-instant reconstruction (midProb, transProb, jointProb,
-condProb, consistency); the two factors and their separability; closure of decidable
-languages under tensor product; the tensor-product Hilbert space and the decoupling
-theorem; the arbitrary finite-head law and its marginal; the admissibility of the
-Mehler tail (probability, atomlessness, invariance, concentration on the sphere);
-and the self-interleaving of the infinite tail. Every theorem cited above is
-`sorry`-free.
-:::
-
-:::paragraph
-*Newly verified.* The two statements previously quarantined as planned are now
-theorems: the *uniqueness* of the Mehler tail law from its finite marginals
-(`mehler_unique_by_finite_marginals`, the forcing half of "only the Mehler
-measure") and the *measure-preservation* of the coordinate tail-split
-(`tailSplitEquiv_map`), from which the cross-dimensional inner product follows —
-together with the coordinate-level orthogonal invariance of the Mehler law cited
-above.
+The cited declarations are existing source proofs; this documentation edit has
+not compiled them. Remaining tasks are an effective syntax and decision
+procedure for the intended expanded language, packaging of the existing almost-sure coupling as weak
+sphere-marginal convergence, and any claimed measure-preserving bridge
+between the abstract substrate prior and the coordinate model. See
+{ref "proof-plans"}[the specialist plan]. None of these tasks requires replacing
+the available tensor-density or Gaussian-marginal uniqueness proofs.
 :::
 
 # Why This Matters Here
 
 :::paragraph
-The ABL reconstruction shows that even when only the final outcome is known, the
-intermediate trajectory can be recovered as a probability law — a finite-phase-space
-instance of the general principle. The Solovay–Kopperman tensor product extends
-this to the infinite-dimensional case: it is a systematic separable probability
-space carrying an arbitrary law on a finite part and a controlled (forced) law on an
-infinite part. Together they explain the recurring tensor products of the manuscript
-— a joint density on $`X \times Y`, a prior as a tensor product of two
-Fock-spaces, a sample space $`\mathbb{Z}_2^n \times \mathbb{R}^m` — as instances of a
-single principle: tensor a finite, freely-chosen factor with a separable infinite
-factor whose law is forced by the very fact that the language cannot distinguish its
-elements. Probability on the infinite part is not a choice; it is the Mehler measure.
+The construction gives a usable hierarchy: finite channels tensored with a
+completed Gaussian wave-function space, finite Hermite expressions for exact
+calculations, and norm limits with explicit error estimates for more general
+states. A Gaussian vacuum provides a reference prior. Interactions specify an
+operator and a state relative to that reference; the reference prior alone does
+not establish existence, a mass gap or decidability of the interacting theory.
 :::
 
 :::paragraph
-This also identifies the construction as the *single exception* to the slogan
-"there are no non-informative priors." On a general continuous space a uniform prior
-stops being uniform under a change of coordinates
-({ref "sequential-bayes"}[non-informativeness is coordinate-dependent]); here the
-cylindrical language admits no such change — arbitrary unitary transforms are not
-defined on the non-metrically-complete restricted space — so the Mehler prior on the
-infinite-dimensional hypersphere stays uniform under every symmetry the language can
-express. It is uniform not by a parametrization-dependent trick (the finite case) but
-intrinsically, because the offending reparametrizations are absent from the language.
+In the nested-Fock physics chapters this is a representation of the inner
+one-particle space. The final Hamiltonian remains
+$`H=\sum_{i,j}C^\dagger(e_i)h_{ij}A(e_j)`:
+creation on the left, annihilation on the right, with the complete interacting
+inner $`h` and its constants retained. Choosing a Gaussian reference or finite
+channel coordinates supplies no justification for discarding terms of $`h`.
+The outer vacuum is annihilated by the rightmost operator; this statement is
+distinct from choosing the Gaussian inner reference state.
+:::
+
+:::paragraph
+Uniformity means invariance under a stated symmetry group and a stated scaling
+limit. The Mehler prior is canonical once its Gaussian cylindrical marginals
+are specified. This supplies a precise interpretation of the manuscript's
+“uniform infinite sphere” while leaving the choice of coordinates, covariance
+and observable language visible to the reader.
 :::

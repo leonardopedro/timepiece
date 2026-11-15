@@ -240,8 +240,10 @@ theorem ker_smBghostFormula :
 
 /-- **The range of the formula projector is the transverse physical subspace**:
 `ker Ω ⊓ (range Ω)ᗮ`.  This is the no-ghost theorem's subspace, *described and proved* — the
-statement §9 could only characterise through the chosen homotopy.  Ghost parity is still not
-available: no ghost-parity operator is constructed for `smBrstCharge` in this corpus. -/
+statement §9 could only characterise through the chosen homotopy.  This is the transverse subspace
+of the no-ghost theorem, and the ghost parity `smGhostParity` of `ChapterSmBrstGhost` §6 acts on it;
+what is *not* available is a proof that this subspace is ghost-parity even — see
+`ChapterSmQuartet` §13 and `docs/HONEST_BOUNDARIES_SM.md`. -/
 theorem smPhysProjFormula_range (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T
     (smStruct f3)) (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
     (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h

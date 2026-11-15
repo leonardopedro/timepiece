@@ -26,6 +26,47 @@ proof wave.
 :::
 
 
+# Mehler–Kopperman: Complete the Effective-Language Bridge
+
+The source audit of 2026-11-15 distinguishes the finite-channel tensor
+$`V\widehat\otimes K\cong K^d`, the product probability carrier, and the
+Gaussian coordinate prior. The tensor-density and Gaussian-marginal uniqueness
+proofs are available. The following tasks concern the additional effective and
+measure-theoretic claims; no compilation was performed for this book edit.
+
+1. Specify a recursively coded language with effective coefficients and a
+   semantics on the finite-channel Hilbert model. Start with the pure
+   inner-product fragment and algebraic coefficients. Encode the Gram-matrix
+   reduction and its soundness, completeness and termination. Distinguish a
+   decision algorithm on codes from a Boolean function on an arbitrary carrier.
+2. Add finite Gaussian/Hermite moment queries with exact evaluation and proofs.
+   Keep an arbitrary head probability law as an analytic parameter; require a
+   computable presentation or certified integration interface before making an
+   algorithmic claim about its expectations. Prove any expanded quantifier
+   elimination or conservativity claim for the explicitly stated signature.
+3. Assemble the normalized sphere-marginal weak limit at radius $`\sqrt n`
+   for fixed coordinate count. Reuse radial Gaussian sphere measures, the
+   existing almost-sure coupling `PhysHSGaussian.poincare_borel_ae`, empirical
+   concentration and weight/polynomial limits. Identify the finite-block laws
+   and prove the resulting bounded-test convergence. A pointwise weight limit
+   alone is insufficient.
+4. State the Gaussian carrier precisely. Use the sequence-space product law
+   for standard independent coordinates, an isonormal process for Hilbert
+   directions, or an explicit trace-class covariance for a Hilbert-valued
+   Gaussian. If identifying this with `rcpPriorOnSubstrate`, construct the
+   actual map and prove the pushed-forward law identity. Neither separability
+   nor an abstract Hilbert isometry supplies that identity.
+5. Instantiate the existing pure-tensor density/product-basis package for a
+   finite discrete head and the Gaussian tail, with the explicit channel map
+   and weights. For completed vectors, supply effective approximation moduli.
+   Extend to a physical Hamiltonian only after stating its domain, admissible
+   coefficients and verified approximation bounds. A decidable geometric
+   fragment does not automatically decide an interacting field theory.
+
+The detailed explanation and worked two-channel example are in
+{ref "solovay-tensor"}[the tensor-product chapter]. The specialist should check
+these new citations and render the book through the documented wrapper.
+
 # Current Specialist Work Order: Identify the Operator Before Its Gap
 
 This source/prose audit adds no compiled proof. Read the consolidated entry

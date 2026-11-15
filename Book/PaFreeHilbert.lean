@@ -17,8 +17,8 @@ assumed beyond the Introduction.
 :::
 
 :::paragraph
-The chapter runs: Kopperman's warning (why one named infinite constant destroys
-decidability), the construction of the completed space, the verified core — the
+The chapter runs: Kopperman's choice of language, the construction of the
+completed space, the verified core — the
 Riesz–Fischer characterization of completeness by absolutely convergent series —
 the *verifiable* unselectability facts, the metamathematical interpretation that
 is deliberately **not** claimed as a theorem, why this chapter replaces the
@@ -36,38 +36,47 @@ precisely the tensor-product section at the end here.
 
 This chapter replaces the manuscript's chapters on _P versus NP_ and on the _Riemann
 Hypothesis_. Those chapters both turned on a single metamathematical point, isolated
-here in self-contained form: a completed Hilbert space can be *topologically
-complete* and yet *decidable*, provided its infinite elements are kept
-_internally unselectable_. The chapter is careful to separate what is a verified
-theorem of analysis from what is a metamathematical interpretation.
+here in self-contained form: topological completeness and the decidability of
+a specified logical theory are different properties. A completed Hilbert space
+can support a restricted decidable language. The chapter distinguishes the
+verified analytic construction from the still-needed formal account of that
+language and its decision procedure.
 
-# Kopperman's Warning
+# Kopperman and the Choice of Language
 
-In Section V of his 1967 paper, Kopperman proved a striking negative result about
-the logic of Hilbert spaces:
+Kopperman's [1967 paper](https://doi.org/10.2307/2270770) studies Hilbert
+systems using infinitary $`L_{\omega_1,\omega_1}` logic. The manuscript draws
+from this a useful discipline: specify what the language can name and quantify
+over, rather than treating every operation available in the ambient mathematics
+as part of an effective query language.
 
-"If even one constant $`c_0` is added to the language of Hilbert systems, the new theory is no longer compact. This results from the fact that it is possible to introduce a predicate into the language which is satisfied by only a single complex number."
+Three distinctions matter. A Hilbert space is *complete* when its Cauchy
+sequences converge. A logical theory is *complete* when it settles every
+sentence of its language. It is *decidable* when a terminating algorithm decides
+those sentences from finite codes. None of these definitions implies the other
+two without further hypotheses.
 
-The mechanism is important. A *named constant vector* $`c_0` lets you write a
-first-order formula that isolates a specific complex number. From one named complex
-number you can reconstruct the integers; from the integers you get *Peano
-Arithmetic (PA)*; and PA is undecidable and non-compact (by Gödel's theorem). So the
-moment you add a single infinite constant to the language, the clean decidable
-geometry is contaminated by undecidable arithmetic.
+Adding a named vector is not a general proof of undecidability. Any proposed
+arithmetic encoding must specify the expanded language and exhibit its
+interpretation of arithmetic. Likewise, first-order PA is subject to the
+compactness theorem; Gödel incompleteness is not noncompactness. Claims about
+compactness in an infinitary logic must be stated in that logic. We therefore
+use “unselectability” as a restriction on permitted descriptions, rather than as
+a theorem that every completed Hilbert-space theory is decidable.
 
-The goal is therefore to have a *complete* Hilbert space — one that contains its
-limits — *without* adding any infinite element to the language as a primitive
-constant. The space should be complete _ontologically_ (its limits exist) but
-_epistemologically unselectable_ (no infinite element can be named).
-
-The verified formalization of Kopperman's setting confirms that the substrate
-Hilbert space is *separable* (has a countable dense subset), which is the
-topological precondition for his model-theoretic analysis:
+The existing Kopperman chapter proves separability of the concrete substrate
+and of the packaged models. Its header explicitly leaves full infinitary
+syntax, semantics, completeness and compactness outside the formalized scope:
 
 ```
 #check @kopperman_substrate_separable
 #check @all_formalism_models_separable
 ```
+
+Separability supplies countable dense approximants. An effective presentation
+also needs a computable enumeration, coefficient operations and approximation
+bounds. Existence of a countable dense subset alone supplies none of those
+algorithms.
 
 # The Construction
 
@@ -150,9 +159,11 @@ the same limit. Hence $`E` is complete. $`\blacksquare`
 
 Two pieces of the safety argument are themselves ordinary, verifiable mathematics.
 
-*Every writable vector has finite support.* This is immediate from the definition
-of `Finsupp`: a term of type $`P \to_0 \mathbb{R}` carries an explicit finite
-support, so anything you can actually write down is finitely supported and decidable.
+*Every vector in the chosen finite-support core has finite support.* This
+follows from `Finsupp`. Effective computation also requires effective coefficients
+and indices. The restriction is on this chosen representation: an infinite
+vector can have a finite description, such as the square-summable sequence
+$`(2^{-n})_{n\ge0}`. Finite description and finite support are different notions.
 
 ```
 #check @Finsupp.finite_support
@@ -189,11 +200,10 @@ $`n \mapsto 2^{-n}` is square-summable but has infinite support:
 #check @BookProof.ChapterRieszFischer.core_proper_and_dense
 ```
 
-*Infinite elements are null events under a diffuse prior.* Since the infinite
-elements cannot be named as constants, the manuscript represents them as measurable
-sets under a diffuse probability prior. Under any *diffuse* measure (every
-singleton has measure zero), any particular infinite vector — being a single point of
-the completed space — has probability zero:
+*Singletons are null under a diffuse prior.* Under a diffuse probability
+measure, every particular vector has singleton probability zero, including a
+vector with an explicit finite description. This is a property of the measure,
+independent of logical definability:
 
 ```
 #check @MeasureTheory.Measure.noAtoms
@@ -211,8 +221,8 @@ completed space — are not definable in the base language:
 #check @exists_nondefinable_real
 ```
 
-This is the definability-theoretic form of unselectability: the elements that
-Kopperman's trap would need to isolate simply cannot be named.
+This counts definitions in the fixed language. It establishes the existence
+of undefinable elements; it does not prohibit all named infinite vectors.
 
 Moreover the completed space $`\ell^2(\mathbb{N})` is *separable* — a countable
 language suffices to name a *dense* fragment of it. The finitely-supported
@@ -233,9 +243,9 @@ We must now be precise about what has and has not been proved.
 : Proved (verified mathematics)
 
   The completion $`\mathcal{H}` is a complete space; its elements are absolutely
-  convergent series of finite vectors (Riesz–Fischer). Every _writable_ vector is
-  finitely supported and decidable. Under a diffuse prior, individual infinite
-  elements are null events.
+  convergent series of core approximants (Riesz–Fischer). Core vectors have
+  finite support. Under a diffuse prior, every singleton is a null event.
+  Effective approximation of a specified completed vector needs further data.
 
   Additionally, a *bounded-arithmetic prior* on any finite type is a genuine
   probability measure, and its "certain extension" to known propositions is
@@ -248,99 +258,82 @@ We must now be precise about what has and has not been proved.
 
 : Interpretation (metamathematics, not a Lean theorem)
 
-  The claim that "the completed space *does not leak Peano Arithmetic*" / "is a
-  *conservative, decidable extension* of the base theories" is a statement about
-  *formal languages and definability*, not an internal statement of analysis. It
-  says: because we never add an infinite element as a primitive constant, no
-  first-order formula of the base language can isolate one, so Kopperman's
-  reconstruction of the integers never gets started.
+  The proposed “conservative, decidable extension” is a claim about a specified
+  formal language, its models and an effective interpretation. Restricting
+  primitive constants is a design choice; further definability and conservativity
+  arguments are needed to establish the claim.
 
-This interpretation is mathematically reasonable and is exactly the point the
-manuscript's _P vs NP_ and _Riemann Hypothesis_ chapters were making, but it is
-*not* a single theorem that Lean can state and prove inside the theory. Making it
-fully rigorous would require formalizing a notion of "definable constant in the base
-language" and proving a conservativity / non-definability result about the
-completion — a model-theoretic task well beyond the verified analysis above. We
-record what _is_ formalizable in the proof-plan appendix and flag the rest as
-interpretation.
+This model-theoretic claim can itself be formulated and proved in Lean once its
+syntax and semantics have been encoded. It has not been supplied by the analytic
+completion proofs. Countability of definable elements shows that some elements
+are undefinable relative to a fixed language; it does not make every infinite
+vector undefinable or establish a decision procedure. The
+{ref "proof-plans"}[appendix] separates these formalization tasks.
 
 # Why This Replaces the Two Chapters
 
-Both replaced chapters relied on the same maneuver: an apparently undecidable or
-intractable object (the complexity of a decision problem; the zeros of the zeta
-function) is represented not as a *named infinite constant* but as a *limit /
-expectation over a measure space* — an element of a completion that exists
-ontologically but is kept unselectable, so that Kopperman's trap never springs. The
-verified content is always the same analytic fact, the Riesz–Fischer characterization
-of completeness by absolutely convergent series; the rest is the disciplined refusal
-to add the infinite object to the language as a constant.
+The manuscript's complexity and zeta discussions motivate a common question:
+which finite descriptions and effective operations survive completion? The
+analytic completion results provide a setting for that question. They do not
+by themselves settle a complexity separation, a zeta claim, or the decidability
+of an expanded language. The present foundation develops the reusable geometry
+and specifies the additional logical work separately.
 
-# Tensor Products of Decidable Languages
+# Tensor Products and Finite Queries
 
-The construction above gives a single decidable language. The manuscript's quantum
-chapters require *composing* two such languages — the tensor product of two
-Hilbert spaces — and the question is whether decidability survives composition.
+The next chapter gives the full explanation of
+$`V\widehat\otimes K\cong K^d` for a finite-dimensional vector space $`V`
+and a separable infinite-dimensional Hilbert space $`K`, including a two-channel
+Gaussian calculation. This is the tensor product relevant to finite channels
+carrying infinite-dimensional states.
 
-## Head ⊗ Tail Decomposition
+## Products of Carriers and Tensors of Wave-Functions
 
-Every state in the Solovay–Kopperman space decomposes as a *finite head* (the
-first $`N` coordinates, carrying the observable content) tensored with an
-*infinite tail* (the remaining coordinates, carrying the measure-theoretic
-substrate). The verified equivalence:
+The formal head–tail carrier is a product
+$`\mathbb R^N\times\mathrm{Tail}`. `headSumEquiv` splits a finite coordinate
+block; it is not itself a Hilbert tensor product:
 
 ```
 #check @headSumEquiv
-```
-
-splits $`\mathbb{R}^{N_1 + N_2} \times \text{Tail}` into
-$`\mathbb{R}^{N_1} \times (\mathbb{R}^{N_2} \times \text{Tail})`, showing that
-tensoring two finite heads simply concatenates their coordinates while the tail
-is shared. The state measure respects this:
-
-```
 #check @coordinateStateMeasure
 ```
 
-takes an *arbitrary* probability distribution on the finite head and pairs it
-with the fixed Mehler (Gaussian) measure on the tail.
+On the coordinate carrier the law is
+$`\mu\otimes\gamma`, with arbitrary head law $`\mu` and product Gaussian
+tail $`\gamma`. The associated wave-function space is
+$`L^2(\mu)\widehat\otimes L^2(\gamma)` by the pure-tensor density results
+in {ref "solovay-tensor"}[the next chapter]. A finite discrete head gives a
+finite-dimensional first Hilbert factor; a finite number of continuous head
+coordinates need not do so.
 
-## Decidability is Preserved
-
-The central theorem: if two observables each depend only on their respective
-finite heads, then their tensor product depends only on the concatenated head,
-and the expectation over the product state is decidable.
+## The Formal Finite-Head Reduction
 
 ```
 #check @tensor_language_decidable
 ```
 
-This is the formal content of "the tensor product of two decidable languages is
-decidable": the infinite tail never needs to be inspected to compute any
-observable expectation.
+This theorem states that inner products of head-only wave-functions reduce to
+a head integral. Tensor products of such observables remain head-only. The
+statement is an exact analytic reduction, not an algorithm deciding arbitrary
+sentences or computing integrals against every head law. Boolean classifiers
+also close under conjunction on pairs; that separate elementary fact does not
+establish closure of arbitrary decidable theories under tensor constructions.
 
-## The Tail Admits the Mehler Measure
-
-While the head carries an arbitrary probability law, the tail is rigid. The
-verified theorem:
+## Two Prior Constructions
 
 ```
 #check @only_mehler_on_tail
-```
-
-states that the Mehler (standard Gaussian product) measure is an admissible prior
-on the tail: it is a probability measure, atomless (no singleton is distinguishable),
-and invariant under every measure-preserving transformation of the tail. These three
-properties are the admissibility criteria; the theorem confirms the Mehler prior
-satisfies all of them. (Full uniqueness — that no other measure can satisfy them — is
-not asserted; the formal docstring explicitly disclaims it.) The contrast with the
-head is made explicit:
-
-```
 #check @head_vs_tail_admissibility
 ```
 
-Any probability distribution whatsoever is admissible on the finite head; the
-Mehler measure is the canonical admissible prior on the infinite tail.
+These abstract-substrate theorems package probability, atomlessness and invariance
+under transformations already assumed measure preserving. They assert no
+uniqueness of the abstract prior. The explicit sequence-space model separately
+has a product Gaussian law; `ChapterMehlerUniqueness` proves uniqueness among
+laws with the same Gaussian finite marginals. A cylindrical language alone does
+not force those marginals. The sphere scaling and the Gaussian model provide
+them, and a measure-preserving bridge to a differently constructed substrate
+prior would require its own proof.
 
 ## Cross-Dimensional Inner Products
 
@@ -361,8 +354,11 @@ from the tail, and:
 ```
 
 identifies the product of two tails with a single tail (via a bijection
-$`\text{Fin}\,2 \times \mathbb{N} \simeq \mathbb{N}`). Together they show that
-padding a state with extra zero coordinates does not change its measure class:
+$`\text{Fin}\,2 \times \mathbb{N} \simeq \mathbb{N}`). Together they
+describe enlargement by independent Gaussian coordinates.
+A head-only wave-function is extended constantly in the added variables, whose
+probability integrates to one. Setting a new Gaussian variable to zero would
+instead impose a null event:
 
 ```
 #check @enlargeEquiv
@@ -377,28 +373,17 @@ the tail coordinates:
 #check @mehler_invariant_under_finite_orthogonal
 ```
 
-At the current certificate layer, "finite-orthogonal symmetry" is defined as
-measure-preservation of the tail prior, so this theorem confirms the interface is
-consistent (the conclusion is exactly the hypothesis). A coordinate-level
-finite-rank orthogonal group on the substrate is future work; the physical content
-— no finite rotation of the unselectable tail can be detected by any observable,
-because observables depend only on the finite head — is captured by the
-head-only decidability predicate.
+At the abstract certificate layer, “finite-orthogonal symmetry” is defined
+through measure preservation. The coordinate Gaussian model separately proves
+invariance under actual finite orthogonal rotations. Identifying this action
+with a substrate action requires a bridge. Head-only queries ignore tail
+coordinates; cylindrical queries may inspect a finite tail block, whose law
+is unchanged by the stated rotations.
 
-## Summary of the Tensor-Product Layer
+## Scope of the Tensor-Product Layer
 
-: Verified (Lean theorems)
-
-  Head–tail decomposition (`headSumEquiv`); tensor closure and decidability
-  (`tensor_language_decidable`); admissibility of the Mehler tail prior
-  (`only_mehler_on_tail`); head/tail asymmetry (`head_vs_tail_admissibility`);
-  coordinate splitting (`tailSplitEquiv`, `tailTensorEquiv`); enlargement
-  invariance (`enlargeEquiv`); measure-preserving invariance
-  (`mehler_invariant_under_finite_orthogonal`).
-
-: Structural consequence (metamathematical)
-
-  Because every observable in the tensor-product language still depends only on
-  a finite head, Kopperman's trap never springs: no infinite constant is ever
-  named, and the completed tensor-product space remains a conservative,
-  decidable extension of the base theories.
+The verified layer supplies analytic completion, finite-head reduction,
+Gaussian splitting and the product-measure tensor structure. The intended
+logical layer needs an encoded effective language and a sound, complete,
+terminating decision procedure. These tasks complement the analytic proofs;
+they are not consequences of refusing to name infinite constants.

@@ -1,5 +1,524 @@
 # Euclidean fields, Mehler coordinates and nested-Fock reconstruction
 
+## Current continuum-limit programme (2026-11-15)
+
+This is the execution guide for the **LLM-Lean4-specialist**. It supersedes the forward
+ordering of E0–E5/B0–B3 and the historical task lists below; their proofs, corrections and
+dated verification reports remain evidence. No compilation, proof replay or numerical
+experiment is performed by this planning update. The QYM-first project priority remains.
+
+The goal is a continuum **four-dimensional Euclidean field theory associated with the
+specified nested Hamiltonian**, with one identified observable/state dictionary throughout.
+Four-dimensional means three physical spatial coordinates and Euclidean time, not four
+independent Gaussian coordinates. Mehler coordinates organize the regulated analysis;
+Bałaban-style multiscale bounds control removal of physical cutoffs; SIRK controls solver
+and compression errors; half-space OS reconstruction identifies the resulting dynamics.
+Each has a different proof obligation.
+
+### Existing existence theorem and the remaining identification problem
+
+Use the existence result already supplied by
+[the October archive](../OpenAI-YM-20261028/README.md), inspected at revision
+`3456e5e75cf8d4cd558955a5c7638fba2d68f464`. In
+[Solution.lean](../OpenAI-YM-20261028/Solution.lean), `YangMills.jointExistence` proves
+`YangMills.JointExistence`. Its
+[exact contract](../OpenAI-YM-20261028/ChallengeSpec.lean) chooses a Wilson family before
+the volume order, then a refinement and **one hierarchy** satisfying Wilson convergence,
+reconstruction, separated OPE and the trace test. The detailed
+[construction](../OpenAI-YM-20261028/Construction.lean), `YangMills.constructed`, retains
+phase, OPE-reader and contact data for the same witness. This is the existing
+Wilson/Bałaban-side continuum-existence input, not a construction to start over from zero.
+
+**Existence is available there; uniqueness of the continuum theory is not.** A selected
+phase's unique invariant vacuum is not uniqueness of the phase, regulator limit, contact
+prescription or theory. Keep inequivalent or nonstandard realizations compatible with
+the stated contract in scope until a stronger theorem excludes them. Do not silently
+replace mathematical uniqueness by a preference for the usual physical interpretation.
+The archive explicitly leaves positive mass gap and general exclusion of continuous-mass
+generalized free fields outside its public result. Its finite-Wick trace exclusions have
+their stated, narrower comparison class.
+
+The missing theorem here is identification: an existentially chosen Wilson hierarchy
+need not be the continuum limit of our particular nested-Fock Hamiltonians. Work on two
+compatible paths:
+
+1. **Reuse and realize a selected existing witness.** Retain its family, extraction order,
+   hierarchy, phase, field labels and contact prescription. Construct a Mehler/nested
+   realization of its cyclic physical representation and prove the observable/flow bridge.
+2. **Construct the nested regulator limit and compare.** Prove the uniform estimates for
+   our actual family, then establish that its separated hierarchy equals an admissible
+   selected archive hierarchy. A generic existence theorem cannot choose our prescribed
+   family without such a compatibility theorem; absence of uniqueness makes this explicit.
+
+A common Hilbert-space dimension, a fitted two-point function or a Hamiltonian gap is not
+that bridge. Full agreement on a generating observable algebra with the relevant domains
+can determine a cyclic representation without proving uniqueness among all continuum
+limits. An abstract reformulation of the archive's OS Hamiltonian as `dGamma(h)` must
+also identify the **specified** inner `h`; it cannot merely rename an unrelated generator.
+
+### Source-present machinery and its actual scope
+
+These are static source readings; their theorem assumptions must be checked again by the
+specialist rather than inferred from a module's title.
+
+- [ObservablePrior](BookProof/OSReconstruction/ObservablePrior.lean),
+  [PriorRefinement](BookProof/OSReconstruction/PriorRefinement.lean) and
+  [ContinuumPrior](BookProof/OSReconstruction/ContinuumPrior.lean) give normalized
+  information propositions, joint correlations, marginal/refinement invariance and monotone
+  support-exhaustion limits. `ContPrior` **takes a probability measure as input**. It does
+  not construct an interacting Euclidean measure or a limit of field theories.
+- [MehlerMeasure](BookProof/EuclideanFock4D/MehlerMeasure.lean) proves invariance of
+  `gaussianE 4`. It is a finite-coordinate control. Product-Hermite and Mehler transfer
+  results provide bases, cores and Gaussian conjugations, not spacetime covariance of
+  an interacting field on `R^4`.
+- [FeynmanKac](BookProof/ReflectionPositivity/FeynmanKac.lean) and
+  [LatticeFreeField](BookProof/ReflectionPositivity/LatticeFreeField.lean) provide the
+  boundary-conditioned mean-of-squares RP mechanism and a Gaussian lattice action split.
+  Normalization, continuum covariance and the physical interacting-state identification
+  still need their own proofs. Local non-Gaussian potentials can also split at the
+  reflection plane; degree four is not a universal obstruction to this method.
+- [HalfSpaceComplex](BookProof/OSReconstruction/HalfSpaceComplex.lean) already supplies
+  the complex Hilbert-space carrier and completeness. Older prose calling complexification
+  wholly absent is superseded. Concrete state/field/semigroup compatibility remains open.
+  [MultiplierSelfAdjoint](BookProof/OSReconstruction/MultiplierSelfAdjoint.lean) and the
+  half-space exponential modules construct or identify flows under their multiplier/flow
+  hypotheses; they do not instantiate the physical interacting model.
+- [BalabanRG/Convergence](BookProof/BalabanRG/Convergence.lean) converts a summable
+  increment bound to a limit. Its `FTotal` is an `ell²` sum of fixed 64-coordinate sectors.
+  [BlockOperator](BookProof/BalabanRG/BlockOperator.lean) averages component slots at a
+  cell. Replace these prototypes by the actual spatial/gauge coarse maps before using
+  their names as an RG construction. The physical summable bound is not proved there.
+- [SirkTrotterKato](BookProof/Sirk/ChapterSirkTrotterKato.lean) transfers assumed strong
+  resolvent convergence to locally uniform **real-time** flow convergence.
+  [SirkTrotterKatoGalerkin](BookProof/Sirk/ChapterSirkTrotterKatoGalerkin.lean) and
+  [YangMillsFriedrichsLimit](BookProof/Qym/ChapterYangMillsFriedrichsLimit.lean) have
+  bounded-operator regimes; they are not unbounded interacting continuum-limit proofs.
+  Heat-semigroup transfer under a common lower bound is an additional stated task.
+- [SirkEndToEnd](BookProof/Sirk/ChapterSirkEndToEnd.lean), truncation, finite-precision
+  and resolvent-transfer modules supply conditional approximation receivers. Seed/range
+  invariance and rational-approximation inputs must be read literally. An ordinary Krylov
+  subspace is not generally invariant under the full resolvent. Reuse
+  [softmodes.md](softmodes.md) **U0–U6** for leakage, tails, spectral coverage and constants.
+
+### Intermediate archive results to reuse, in order
+
+Read the following source interfaces before porting large dependency cones. The declaration
+names below exist **in the archive**; they are not local `BookProof` declarations.
+
+1. [WilsonBridge](../OpenAI-YM-20261028/WilsonBridge.lean): `energy_eq`, `law_eq`,
+   `moment_eq`, `smear_eq`, `fromWilson`. These explicitly tie action, normalized law,
+   insertions and separated smearings to the public Wilson family. Use their commuting
+   diagram as the template for our Hamiltonian-to-Euclidean dictionary. `fromWilson`
+   consumes an `Ordered` extraction; it does not itself prove the multiscale estimates.
+2. [Extraction/Limits](../OpenAI-YM-20261028/YM/Extraction/Limits.lean):
+   `Order.upon` retains an `Ordered` witness under refinement, and `Order.determined`
+   identifies two smooth separated kernels obtained from the **same family and order**.
+   This conditional uniqueness is useful for our bridge despite the absence of global
+   theory uniqueness. `Order.evaluated` needs the additional `Meshes` compact-uniform
+   hypothesis to pass moving lattice points to point values; a smeared limit or smoothness
+   of the limiting kernel alone does not supply it.
+3. [HierarchyBridge](../OpenAI-YM-20261028/HierarchyBridge.lean): `regular`, `hierarchy`,
+   `wilsonLimit`, `publicReconstruction`, `publicOPE`. The regularity interface includes
+   insertion locality and the bare-coefficient/log-inverse-mesh asymptotics. The hierarchy
+   records selected and unselected correlations separately. Reconstruction and OPE consume
+   the corresponding completed data for the **same** `Final` witness and reader.
+4. [YM/Nonperturbative/Continuum](../OpenAI-YM-20261028/YM/Nonperturbative/Continuum.lean):
+   `contacts_on`, `continuum`, `continuum_with_position_tests`. Their important reusable
+   structure is simultaneous extraction, reconstruction, OPE and contact resolution, with
+   `M.basis = Q.port`. Preserve that equality and witness dependency through every adapter;
+   do not combine independently selected continuum and OPE witnesses.
+5. [ContactBridge](../OpenAI-YM-20261028/ContactBridge.lean): `contactDistribution` produces
+   a continuous functional on compact smooth tests whose separated restriction is the
+   stated hierarchy, assuming its contact data. Use it to avoid rebuilding that extension
+   for the selected archive witness. It does not prove uniqueness of contact terms, raw
+   lattice convergence at collisions, or unrestricted-test reflection positivity.
+6. [TraceBridge](../OpenAI-YM-20261028/TraceBridge.lean): `publicTrace` transfers the centered
+   stress-trace short-distance law and its specified finite-Wick exclusions. First identify
+   our physical observable with that trace, including electric and magnetic contributions;
+   a magnetic component or ordinary polynomial degree is not sufficient. The local
+   [free-mode exclusion](BookProof/Sm/ChapterSmFreeModeExclusion.lean) is also a conditional
+   diagnostic with a finite comparison class, not an all-model classification.
+7. [CompactCheck](../OpenAI-YM-20261028/verification/CompactCheck.lean): `compactCoefficient`
+   and `compactRemainder` turn the public OPE contract into compact separated-set bounds.
+   They are useful for a uniform-observable error norm; they do not by themselves give
+   tightness of fields or an infrared estimate.
+8. [VerifyJoint](../OpenAI-YM-20261028/VerifyJoint.lean),
+   [Usage](../OpenAI-YM-20261028/verification/Usage.lean) and the archive's negative controls
+   show how to check exact endpoint types, reachable definitions and transitive axiom
+   footprints. Port that evidence discipline as well as mathematics. A standard-axiom
+   footprint alone does not establish that two endpoint definitions agree.
+
+The archive pins Lean **4.32.0** and this project **4.28.0**. Prefer a small standalone
+adapter/specification and the minimum useful lemmas; pin all source/dependency revisions
+and inspect licenses. A cross-version correspondence is a theorem/proof artifact to build,
+not a working import assumed by prose. External verification logs remain dated evidence;
+no replay is claimed here. Do not add the archive's conclusion as an untracked axiom.
+
+### C0 — bind the physical object, reference state and cutoffs once
+
+Start with **pure nonabelian QYM**, using the concrete gauge group/representation of the
+chosen local Hamiltonian and a matching archive specialization. A smaller SU(2) control
+requires its own explicit coefficient/representation adapter; it does not silently replace
+the existing SU(3)-indexed model. Fix a renormalized observable scale and normalization,
+bare-coupling/counterterm trajectory, boundary condition, physical sector and gauge quotient.
+The final regulated Hamiltonian remains
+
+```text
+H_sigma = dGamma(h_sigma)
+        = sum_ij <e_i,h_sigma e_j> Cdag(e_i) A(e_j).
+```
+
+The complete specified interacting **inner** operator, with scalar terms, is enclosed
+between outer creation on the left and annihilation on the right. The existing fixed
+99-coordinate QYM realization is not yet a growing spatial regulator family. Construct
+that family and prove spatial/jet compatibility, constraints and the finite-model adapter
+before treating its coordinate count as an ultraviolet cutoff. Keep physical UV
+spacing/mode cutoff `a`, spatial volume `L`, Hermite/occupation cutoff `R`, Krylov rank `m`,
+rational order `q` and arithmetic precision separate. Taking `m -> infinity` at fixed
+`a,L,R` is not a spacetime continuum limit.
+
+Select the spatial information prior and its joint law. A nonempty reference state is
+necessary for the manuscript's number-preserving observables: `H Omega_out=0` and such
+observables annihilate the empty outer vacuum. A general informational prior need not be
+stationary or a ground state. For vacuum OS reconstruction establish ground-state/positive
+energy conditions in the chosen physical cyclic sector; for mixed or infinite-information
+limits use a GNS state, not a normalized infinite-occupation vector in ordinary outer Fock.
+On a ground sector use `K_sigma=(H_sigma-E_ref,sigma I)|cyclic >= 0` as **relative**
+dynamics. This does not erase inner constants: `h+cI` changes `H` by `c N_out`.
+
+**Acceptance:** one witness/manifest binds all these choices, the positive-time algebra,
+field labels, renormalized smearings and the comparison archive hierarchy. Do not accept
+an arbitrary reference vacuum or field law in place of the specified physical object.
+
+### C1 — complete a genuine 4D Gaussian control in Mehler coordinates
+
+Construct the massive scalar reference on distributions with covariance
+`C0=(-Delta_4+m0²)^(-1)`, `m0>0`, as a control for the analytic infrastructure. For a real
+Schwartz test `f`, its characteristic functional is `exp(-C0(f,f)/2)`. Check all cylinder
+laws and moment normalizations against the variance convention of the chosen Mehler basis.
+
+The field takes values in `S'(R^4)`, or another explicitly controlled distribution space.
+Do not require `C0^(1/2)` to be globally Hilbert–Schmidt on `L²(R^4)` or the field to be
+an `L²` function: those requirements exclude the intended continuum free field. A countable
+Gaussian/Hermite representation needs weighted negative-Sobolev estimates and distributional
+convergence. This corrects the suggested global-Hilbert–Schmidt step in some source headers.
+Use a nuclear-space extension theorem or construct consistent coordinates and prove their
+almost-sure continuity as distributions. Both routes need an actual proof, not `ContPrior`.
+
+Prove reflected-covariance positivity on half-space tests and lift it to all polynomial
+cylinders via Wick/chaos or the boundary-conditioned kernel. A positive covariance matrix
+alone is insufficient. The banded Toeplitz counterexample in
+[HalfSpaceInfiniteBandedCovariance](BookProof/OSReconstruction/HalfSpaceInfiniteBandedCovariance.lean)
+illustrates this. Doubling two halves to force positivity is not a proof that one coherent
+translation-covariant field law exists on all of spacetime.
+
+A possible source for the Gaussian-only task is
+[OSforGFF](https://github.com/mrdouglasny/OSforGFF), whose README and master declarations
+provide a distribution-valued free-field/OS interface. Its inspected toolchain is
+[4.33.0-rc1](https://github.com/mrdouglasny/OSforGFF/blob/main/lean-toolchain).
+Treat this as a candidate for a pinned source/axiom/type audit and selective port, not an
+already imported or locally verified theorem. It supplies no interacting QYM bridge.
+
+**Acceptance:** a non-ultralocal 4D free covariance, normalized law, smeared moments, RP
+and Euclidean covariance, with cutoff convergence. This is a completed control case,
+not proof that the nonabelian interaction survives removal of cutoffs.
+
+### C2 — construct the regulated interacting state and its Euclidean dictionary
+
+At fixed `a,L`, close/select `h_sigma` and its outer lift on the specified common core.
+Use the actual selection theorems; finite Hermite matrices are computational approximations
+until unbounded tails and domains are controlled. Construct physical smeared observables,
+adjoints, constraints and locality relations. Prove the reference-state conditions in C0.
+
+For ordered Euclidean times, define the candidate moments by the corresponding products
+of observables and `exp(-(t_(i+1)-t_i) K_sigma)` between reference vectors. Prove domain
+and integrability for every word. Then establish their extension/permutation conventions,
+stochastic positivity where a classical field law is asserted, and half-space OS positivity.
+A positive self-adjoint Hamiltonian gives a contraction semigroup; it does **not** alone
+supply a positive classical path measure or full Euclidean rotation covariance.
+
+Where applicable, identify a configuration representation with a positivity-preserving
+semigroup and a positive ground function. A ground-state transform can then supply a
+Markov kernel and Feynman–Kac law, provided normalization and consistency are proved.
+For gauge-invariant observables compare with positive group-valued Wilson measures and
+retain the full gauge/constraint dictionary. A signed ghost or gauge-fixed density must
+not be presented as a probability law. Otherwise work with the physical observable
+hierarchy and its explicitly proved positivity axioms.
+
+**Acceptance:** nonzero separated correlations with nontrivial time dependence, RP on the
+physical positive-time algebra and the regulator-level moment/observable bridge. Independent
+half-space replicas with identically zero connected cross correlations do not pass this gate.
+
+### C3 — use Bałaban's multiscale method for the physical uniform estimates
+
+Bałaban's approach is a principal source of the analytic estimates, alongside reuse of the
+already constructed archive witness. It must be applied to the **same family** in C0/C2.
+If using Wilson-side estimates, first prove the action/law/observable comparison; a coordinate
+change or a Fock representation alone does not identify the renormalization transformation.
+
+Build scale-indexed gauge-covariant spatial/spacetime block maps, local gauge charts and
+conditional fluctuation measures. Relate their Gaussian fluctuation coordinates to the
+Mehler/Hermite representation. Represent the RG action as pushforward/integration of
+measures or expectation functionals, with the effective action defined afterwards.
+For a reference Gaussian `gamma` and coarse sigma-field `G`, the coarse density is
+`E_gamma[|Psi|² | G]`, not `|E_gamma[Psi | G]|²`. Preserve conditional means and their
+covariances when integrating over exterior fields; a chosen Hessian alone is not the
+interacting covariance.
+
+Split the difficult estimate into reviewable packets:
+
+- **C3a — exact step and fluctuations.** Specify the gauge transports, constrained
+  covariance, boundary conditions, Haar/coarea/Faddeev–Popov factors, domains and the
+  conditional Gaussian comparison. Prove identities before estimates; no gauge determinant
+  or normalization factor is absorbed into an unspecified constant.
+- **C3b — small fields.** Prove scale-uniform local elliptic/covariance/derivative bounds,
+  stability of the chosen background and a polymer-activity estimate in an explicitly
+  defined norm. Keep relevant/marginal couplings, observable renormalization and field
+  redefinitions in the induction; do not assume a global strictly convex magnetic potential.
+- **C3c — large fields.** Control the complement, its gauge charts and bad-block entropy
+  with a summable tail after normalization and observable insertions. Small-field control
+  alone is not a theorem about the full interacting expectation.
+- **C3d — running parameters and induction.** Prove the chosen coupling/counterterm
+  trajectory stays in the induction domain through arbitrarily many UV scales. Track
+  dependence on insertion number, physical separation, volume and phase. In four dimensions
+  marginal running can be logarithmic; do not impose a geometric error `r^k` unless proved.
+- **C3e — observable limit estimate.** Derive the moment/tightness bounds of C4 and either
+  compactness or an actual summable Cauchy estimate for renormalized observables. A stable
+  partition function by itself does not establish these correlation limits.
+
+An exact coarse map preserves RP when its pullback preserves the positive-time algebra,
+products, conjugation and reflection and the coarse state is its pushforward. Reflection
+commutation of a vector contraction alone is insufficient. If an intermediate RG action
+or approximate solver does not preserve RP, carry exact regulator RP to the final limit
+through convergent reflected moments instead.
+
+Use [Bałaban's large-field step](https://doi.org/10.1007/BF01257412) as a source to inspect
+for the gauge construction. Dimock's exposition
+[small fields](https://arxiv.org/abs/1108.1335),
+[large fields](https://arxiv.org/abs/1212.5562) and
+[convergence](https://arxiv.org/abs/1304.0705) is a useful staged proof model, explicitly
+for scalar `phi^4` in **three** dimensions. Its conclusions are not a 4D gauge theorem.
+The local [YM4 working manuscripts](../Yang--Mills-LLM-experiment/README.md) offer further
+analytic candidates; their own unclosed NB/RS/LF/RC/B/CP interfaces and tentative status
+must remain visible. Reuse the October archive's completed source lemmas wherever their
+hypotheses actually match, rather than reopening its entire construction.
+
+**Acceptance:** a named estimate for each packet with quantifiers and constants adequate
+for C4/C5, or a precise conditional result identifying what remains. `balaban_rg_convergence`
+may assemble a proved bound; assuming its bound is not completion of C3.
+
+### C4 — prove uniform moments, continuity and the renormalization conditions
+
+Choose one common space of renormalized smeared physical observables. For a classical
+field-law route, aim first for a uniform second-moment seminorm bound
+`E_sigma |Phi_sigma(f)|² <= C p(f)²`, and weighted distribution-space norm bounds with
+compact embeddings for tightness. Control every field/component being claimed. Add higher
+moment/uniform-integrability bounds for the polynomial words to be passed to the limit.
+The constants must be uniform in the cutoff being removed, with explicit volume scope.
+
+For the all-field reconstruction route, state an arity-dependent growth envelope and test
+seminorm orders meeting the **precise corrected OS reconstruction theorem** being used;
+existence of each isolated moment is weaker. Keep separated tests, product tests and tests
+meeting collision diagonals distinct. Use the existing contact theorem for a selected
+archive witness; constructing the same contact prescription for nested observables still
+requires its identification and the required positivity/regularity checks.
+
+Fix physical renormalization conditions so rescaling fields to zero cannot manufacture a
+limit: exhibit a prescribed nonzero centered two-point pairing at separated physical supports,
+or another genuinely nonconstant surviving observable.
+Normalized information indicators also need care when their informing masses shrink with
+cell volume: keep fixed resolved supports of positive mass or prove the smeared/renormalized
+limit, rather than taking unsmeared density ratios at a point.
+
+**Acceptance:** a uniform bound ledger indexed by cutoff, volume, arity, test seminorm and
+observable identity, plus nonvanishing physical normalization. No finite-coordinate degree
+bound or low matrix residual replaces these estimates.
+
+### C5 — extract a continuum hierarchy, then a law where the positivity permits it
+
+For the nested Hamiltonian path, use spatial boxes with continuous Euclidean time and take
+`a -> 0` at fixed physical box, then a volume subsequence `L -> infinity`. A discrete time
+step, if introduced, is an additional regulator with its own transfer-kernel consistency.
+The archive's Wilson path instead has its stated four-dimensional finite-volume mesh limit
+and subsequent volume refinement. Match the paths by a theorem, not by silently exchanging
+their limit order. An infinite-volume-first Bałaban variant requires its own uniformity.
+
+First extract on a countable dense set of smearings/words; C4's continuity estimates extend
+it to the claimed test topology. Preserve normalization, ordinary positivity and OS RP by
+limits of the **same** finite Gram forms. Uniform integrability, not weak convergence alone,
+passes unbounded moments. If compactness yields only a subsequence, report subsequential
+existence. A proved summable increment estimate can upgrade the chosen trajectory to a
+full limit; it does not establish regulator or phase universality.
+
+For commuting real fields, construct the limiting positive-definite characteristic
+functional, prove continuity at zero in the nuclear test topology, and apply a proved
+Minlos/coordinate-extension theorem to obtain a law on distributions. Alternatively
+prove tightness and weak convergence there directly. OS positivity is distinct from the
+ordinary positivity needed for that probability law. An abstract noncommutative or graded
+hierarchy must retain its own construction; it cannot simply be declared a scalar measure.
+
+**Acceptance:** one actual normalized continuum hierarchy with its field/state identities,
+RP, test continuity and nonzero normalization, and a distribution-valued probability law
+when claimed. Existence does not wait for uniqueness, a positive mass gap, or an exclusion
+of every possible nonstandard model. Those are later, precisely stated properties.
+
+### C6 — make SIRK a certified part of the convergence argument
+
+Use SIRK for `R_sigma=(K_sigma+zeta)^(-1)`, `zeta>0`, or the corresponding bounded
+heat-function calculus, after C2 fixes the operator. Separate physical cutoff error,
+Hermite/occupation tails, Krylov/rational/leakage error and arithmetic error. A bound
+uniform in Krylov rank alone is not uniform in spacing or volume.
+
+For bounded insertions with norms `M_i`, telescoping an ordered correlation product gives
+bounds of the form `product_i M_i * sum_j epsilon_j` for the propagator errors, together
+with the separately bounded state and insertion errors. For unbounded fields first prove
+energy-weighted insertion bounds and heat smoothing for separated times; control the
+short-time/contact limit in C4. A seed-only propagation estimate does not control all
+vectors created by successive insertions. Use a growing certified word family or a
+proved energy-window/tail estimate rather than an unjustified supremum over the whole space.
+
+A useful Cauchy certificate on a declared test/word norm is
+
+```text
+|S_(n+1)(F) - S_n(F)|
+  <= |S_hat_(n+1)(F) - S_hat_n(F)| + eps_(n+1)(F) + eps_n(F).
+```
+
+To infer existence from this route, prove the right-hand bound is summable for **all**
+scales with uniform test seminorm control. Finitely many good numerical comparisons are
+not that theorem. The Bałaban estimates can control unresolved scales; SIRK can certify
+finite heads and provide rigorously enclosed insertion/resolvent comparisons.
+
+Do not demand finite-rank convergence in full operator norm to a unitary on an infinite
+space. Norm convergence of finite-rank resolvents also requires compactness that cannot
+be presumed in infinite volume. Strong or observable/energy-local convergence is the
+appropriate general goal. Positive-time heat convergence is not obtained by substituting
+imaginary time into a theorem about real-time strong convergence.
+
+**Acceptance:** a solver-to-observable estimate with leakage and tails instantiated and
+its constants uniform in exactly the limits used. SIRK supplies quantitative control; the
+multiscale/tightness/state compatibility estimates carry the continuum existence claim.
+
+### C7 — construct and identify the limiting generator
+
+Where representations differ, compare them through the common observable algebra and its
+GNS spaces, or explicit identification maps with proven norm/inner-product consistency.
+A single global `L²(gamma)` amplitude limit is optional: interacting/infinite-volume laws
+may be singular relative to a chosen Gaussian reference and admit inequivalent cyclic
+representations. Do not assume a unitary identification between regulators to prove one.
+
+Two viable analytic routes are a densely defined closable limiting energy form with both
+Mosco inequalities (liminf and recovery sequence), or compatible resolvents with a proved
+resolvent identity, injectivity and dense range. The latter conditions prevent the
+spurious limit `R_sigma -> 0` from being called a densely defined Hamiltonian. Use a common
+lower bound for the relative generators. If a form-domain core is used, prove it is a
+core for the interacting form, not merely dense in the free Hilbert norm.
+
+The varying-Hilbert-space framework in
+[Kuwae–Shioya](https://archive.intlpress.com/site/pub/files/_fulltext/journals/cag/2003/0011/0004/CAG-2003-0011-0004-a001.pdf),
+§2, supplies a reference for form/resolvent/semigroup compatibility. It is a theorem to
+port and instantiate, not an assumed local API. On a common Hilbert space, use the
+existing `StrongResolventConvergence`/Trotter–Kato results for their actual real-time
+conclusion, and prove the nonnegative heat-semigroup version needed here. Strong
+resolvent convergence by itself does not control unbounded fields or reference states;
+C4 and the word-domain estimates remain necessary.
+
+**Acceptance:** a constructed positive self-adjoint relative generator and convergence
+of the actual positive-time correlation words, or a precise missing form/representation
+estimate. Renormalization shifts must still respect `h+cI -> H+c N_out` before taking
+sector-relative or GNS dynamics.
+
+### C8 — reconstruct and bridge one selected hierarchy
+
+Use the positive-time algebra, quotient by its OS null **subspace**, and complete. Reuse
+`HalfSpaceState`, `HalfSpaceHilbert` and `HalfSpaceComplex`; prove the concrete state's
+translation, reflection, continuity and null-space hypotheses. Euclidean evolution is a
+symmetric contraction **semigroup for t>=0**, not a two-sided contractive self-adjoint group.
+
+For the selected archive hierarchy, reuse its reconstruction and analytic-continuation
+results through the audited adapter rather than reproving them without need. For the
+nested path, establish the corrected OS regularity, Euclidean covariance, permutation
+and locality/continuation requirements. A scalar subsector does not certify all gauge
+fields; finite Mehler-coordinate rotations do not supply spacetime rotations or boosts.
+The [corrected OS reconstruction paper](https://doi.org/10.1007/BF01608978) is the reference
+for the exact reconstruction contract, beyond an informal list of axioms.
+
+Prove clustering/ergodicity of the selected phase if the reconstruction target requires
+one invariant vacuum; a mixture can remain a valid continuum hierarchy without that
+property. A symmetry-compatible phase selection is an additional task, not a consequence
+of tightness alone. Exponential clustering or a positive mass gap is stronger than the
+asymptotic clustering used for vacuum uniqueness.
+
+Construct the map from a positive-time observable word class to that word on the chosen
+reference state. Prove equality of inner products/null spaces and dense cyclic range,
+then complex-linearity, field intertwinement and semigroup identity. For a mixed reference
+use its GNS cyclic vector. The target is the **physical cyclic space**, not automatically
+all outer Fock sectors. `OsFockBridge` packages consequences of this map; it does not
+construct it. Generator equality follows only with the relevant closed/domain identification.
+
+**Acceptance:** one diagram ties the retained archive/nested witness, physical observable
+algebra, state, fields, forward flow and relative generator together. This identifies a
+realization; it leaves open whether other regulator families or phases give equivalent ones.
+
+### C9 — separate nontriviality, uniqueness and mass gap from existence
+
+Pass the fixed nonzero normalization from C4 first. For the stronger physical comparison,
+identify the centered stress-trace observable and test its short-distance law and stated
+finite-Wick exclusions against the selected archive witness. A nonzero connected fourth
+cumulant excludes a Gaussian law for that field; it does not exclude a composite observable
+of an underlying free field. A positive Hamiltonian or nonlinear coordinate expression
+also does not establish interacting continuum physics.
+
+Keep uniqueness questions separate: limit along the selected trajectory, independence
+of subsequence, regulator/counterterm universality, phase uniqueness and contact-prescription
+uniqueness. Equality of a complete Schwinger hierarchy can give cyclic reconstruction
+uniqueness while these broader questions remain open. Specify the extra properties needed
+to distinguish a proposed nonstandard realization instead of assuming they are excluded.
+
+A mass gap requires the full ground projection and cutoff-uniform spectral/decay estimates
+for the chosen generator. The archive's positive-energy theorem is not that gap. Use
+softmodes U0–U6 for a strong-coupling witness and spectral coverage. For an asymptotically
+free UV trajectory, a fixed strong **bare** lattice coupling need not approach the required
+continuum regime: identify a physical/coarse scale and prove transport of the claimed
+bound under the renormalization flow. Do not interchange infrared gap and ultraviolet
+stability, or an inner excitation spacing and the absolute outer-vacuum gap.
+
+### C10 — sector scope, specialist execution and negative controls
+
+QYM is the first interacting target. QED needs its own charge/gauge and infrared contracts;
+no positive photon gap is assumed. An extension to QG retains the **vielbein R²** record,
+the full potential `M^4/(16 alpha) (1-exp(-sqrt(2/3) phi/M))²` and every interaction.
+A Taylor polynomial, densitized comparison or scalaron-only model is not that record.
+QG also needs its own physical positivity and covariance analysis. For QG and NS,
+coordinate-space products involving spatial derivatives are represented by the specified
+momentum convolutions, with cross-mode terms retained. A diagonal parcel approximation
+cannot establish the full operator bridge. NS's positive eliminated Hamiltonian and signed
+Koopman generator are distinct; NS does not acquire relativistic OS axioms by analogy.
+
+Across sectors keep `dGamma(B²)` separate from `dGamma(B)²`. Full interacting inner
+Hamiltonians can have outer-quadratic enclosures without giving Gaussian field laws.
+
+Execution order: **C0 and the archive adapter inventory first; C1/C2 as concrete controls;
+C3a–e and C4 for the new family's analytic estimates; C5/C6 and C7; then C8**. The
+already-proved external existence/reconstruction path can proceed to identification while
+new nested-family estimates are developed. Do not make a mass gap or global uniqueness
+a prerequisite for the first existence/bridge deliverable. C9 records additional claims.
+
+Proposed Lean modules/identifiers are implementation tasks, not declarations claimed to
+exist. Each specialist packet records the exact theorem type and physical definitions,
+remaining assumptions, source/dependency hashes and which limit constants are uniform.
+The specialist later runs targeted elaboration, the axiom audit and relevant bridge checks;
+this documentation task runs none of those compilation commands.
+
+Negative controls must reject: a measure merely supplied to `ContPrior`; a fixed-dimensional
+Gaussian called a 4D field; an unrelated archive witness; mismatched OPE/contact bases;
+vanishing or ultralocal-only correlations; a changed inner constant or discarded interaction;
+a signed density called a probability; covariance positivity substituted for RP; a
+summability hypothesis reported as an instantiated Bałaban estimate; a zero limit
+resolvent; and a seed/rank residual presented as a spacetime cutoff bound. Preserve valid
+conditional theorems with their missing inputs named rather than marking the whole
+continuum problem complete.
+
 ## Source audit and bridge work order (2026-11-11)
 
 This revision replaces the earlier external-source commentary as the reading guide for that

@@ -44,8 +44,8 @@ chapters] it takes the push from the sphere to the simplex.
 :::paragraph
 The route: the problem (there is no infinite-dimensional Lebesgue measure),
 what masslessness costs in QED, the rotation-invariant Gaussian as substitute,
-pushing the Gaussian to the sphere, the Mehler limit (why the Gaussian *is* the
-uniform measure on the infinite sphere), Born pushing the sphere to the
+pushing the Gaussian to the sphere, the Mehler limit (how scaled spherical
+marginals become Gaussian), Born pushing the sphere to the
 simplex, differentiability in the Fourier-transformed space, the countability
 sanity check, and the dimensional-reduction/Krylov material that lands on the
 Navier–Stokes Hamiltonian as a complete flow on the truncation.
@@ -275,47 +275,45 @@ in infinite dimension.
 
 # Pushing the Gaussian to the Sphere
 
-Because the Gaussian has no atom at the origin (in dimension $`n \ge 1`), radial
-normalization $`x \mapsto x/\|x\|` is defined almost everywhere and pushes
-$`\gamma_n` to a probability measure *on the unit sphere*. By rotation-invariance
-of the Gaussian, this induced sphere measure is itself rotation-invariant — it is
-the *uniform measure on the sphere*, constructed without ever invoking a
-Lebesgue measure on the infinite-dimensional ambient space. This is the
-manuscript's free-field prior: "a uniform measure of an infinite-dimensional sphere
-defined using the Gaussian measure and the Fock space."
+Because the Gaussian has no atom at the origin in dimension $`n\ge1`,
+radial normalization $`x\mapsto x/\|x\|` pushes $`\gamma_n` to the uniform
+law on the finite-dimensional unit sphere. Orthogonal invariance survives this
+pushforward. The support theorem here is explicitly finite-dimensional:
 
-This uniform sphere measure is the *Mehler measure*, and it is the exception to the
-slogan this chapter opened with. There is no _Lebesgue_ uniform probability measure
-on an infinite-dimensional space, but the Gaussian-built sphere measure is a genuine
-uniform prior on the infinite-dimensional hypersphere. It is genuinely
-non-informative — invariant under every symmetry the language can express — in the
-{ref "solovay-tensor"}[Solovay–Kopperman space], where the restricted decidable
-language forbids the reparametrizations that would otherwise turn a uniform prior
-into an informative one ({ref "sequential-bayes"}[non-informativeness is
-coordinate-dependent]). The free-field construction is the finite-dimensional shadow
-of that infinite-dimensional exception.
+```
+#check @BookProof.ChapterFreeFieldSphereSupport.sphereGaussian_sphere_eq_one
+```
 
-# Why the Gaussian Is the Uniform Measure on the Infinite Sphere: the Mehler Limit
+The infinite-dimensional interpretation requires a scaling limit. Uniform points
+on spheres of radius $`\sqrt n` have standard Gaussian limits on any fixed
+finite coordinate block. These compatible limits define a prior on
+$`\mathbb R^{\mathbb N}`. The Hilbert space associated with it is the space
+of square-integrable wave-functions; the sampled standard Gaussian sequence
+itself has infinite squared norm almost surely. An actual Hilbert-valued
+Gaussian instead needs a specified trace-class covariance.
+{ref "solovay-tensor"}[The foundation chapter] develops these distinctions and
+shows how a finite-dimensional channel space tensors with this Gaussian
+wave-function Hilbert space. “Uniform infinite sphere” refers to the scaled
+finite-query limit and its stated symmetries.
+
+# From Scaled Spherical Marginals to the Gaussian: the Mehler Limit
 
 :::paragraph
 This probabilistic construction is also the domain in which the later Fock proofs operate. The unbounded-perturbation ladder is now complete at degrees one and two. `ChapterFockFieldPerturbation.lean` is `sorry`-free and controls the *linear* field coupling $`\Phi(f) = a^\dagger(f) + a(f)` — genuinely unbounded and number-changing — leaving the gap `(μ − 2‖f‖)‖u‖²` on vacuum-orthogonal states. `ChapterFockPairPerturbation.lean` carries the same package to the *quadratic*, pair-creating coupling $`P(f,g) = a^\dagger(f)a^\dagger(g) + a(g)a(f)` (particle number changes by two), leaving the gap `(μ − 2√2‖f‖‖g‖)‖u‖²` under the smallness condition `2√2‖f‖‖g‖ < μ`. And `ChapterFockCubicUnbounded.lean` proves that the route *stops* there: a bare cubic term has no relative form bound at all, so `dΓ(N) + λC` is unbounded below at every coupling strength — the divergence is cured only by the (bounded-below) quartic term. `ChapterFockInteractionStability.lean` records the quantitative loss of a gap under a bounded or relatively form-bounded interaction, and `ChapterYangMillsFockGapChain.lean` instantiates the whole chain for the concrete gauge-fixed QYM one-particle operator, conditionally on its one-particle form gap.
 :::
 
-The claim that the Gaussian is the uniform measure "on an infinite-dimensional
-sphere" is not a slogan; it is a genuine limit, due in spirit to Mehler (1866) and
-made quantitative by López and Temme. On the surface of a $`k`-sphere the
-rotation-invariant (uniform) area element factorizes into single-coordinate weights
-$`(1-x^2)^{(\alpha-1)/2}` — exactly the *Gegenbauer* weight of order $`\alpha`.
-The uniform hyperspherical measure is therefore the natural *prior*: it assigns equal
-weight to every direction, expressing that we have no information. Its orthogonal
-polynomials are the Gegenbauer polynomials $`C_n^{(\alpha/2)}`.
+The sphere-to-Gaussian limit has a polynomial counterpart. A single coordinate
+of uniform spherical area has a Gegenbauer weight
+$`(1-u^2)^{\lambda-1/2}`. The joint coordinates are dependent at finite
+dimension. Set $`u=x/\sqrt\lambda` and let $`\lambda\to\infty`; the weight
+has the pointwise limit
 
-The infinite-dimensional limit is where the identification becomes the Gaussian.
-Rescale the coordinate $`x \mapsto \sqrt{2/\alpha}\,x` and let $`\alpha \to \infty`.
-The single-coordinate hyperspherical weight tends to the Gaussian weight
-$`e^{-x^2}`:
+$$`\lim_{\lambda\to\infty}(1-x^2/\lambda)^{\lambda-1/2}=e^{-x^2}.`
 
-$$`\lim_{\alpha\to\infty}\Bigl(1 - \tfrac{x^2}{\alpha}\Bigr)^{\alpha-1/2} = e^{-x^2}.`
+After normalization this Gaussian has variance $`1/2`; multiplying the
+coordinate by $`\sqrt2` gives the variance-$`1` convention of the coordinate
+tail. The weight limit alone is not a proof of weak convergence of all sphere
+marginals: the density normalization and integral convergence also need control.
 
 The verified statement (module `BookProof.PhysHSGaussian`):
 
@@ -327,8 +325,7 @@ At the same time the Gegenbauer polynomials become the Hermite polynomials
 $`H_n/n!` (with the physicists' $`H_n` defined by the recurrence
 $`H_0 = 1, H_1 = 2x, H_{n+2} = 2x H_{n+1} - 2(n+1)H_n`), in the scaled limit
 
-$$`\lim_{\alpha\to\infty}\Bigl(\tfrac{\alpha}{2}\Bigr)^{-n/2}
-  C_n^{(\alpha/2)}\Bigl(\sqrt{\tfrac{2}{\alpha}}\,x\Bigr)
+$$`\lim_{\lambda\to\infty}\lambda^{-n/2}C_n^{(\lambda)}(x/\sqrt\lambda)
    = \frac{H_n(x)}{n!}.`
 
 The verified statement (module `BookProof.PhysHSGaussian`):
@@ -358,21 +355,23 @@ This is the precise sense in which the uniform (hyperspherical) prior and the
 Gaussian (Fock) vacuum coincide, and in which the orthogonal excitations of the Fock
 space are the images of the hyperspherical harmonics. The dictionary is complete:
 
-| Finite hypersphere ($`\alpha < \infty`) | Infinite-dimensional limit (Fock) |
+| Finite hypersphere | Fixed-coordinate Gaussian limit |
 | :--- | :--- |
-| uniform surface measure $`d\sigma` | Gaussian measure $`e^{-x^2}dx` |
-| Gegenbauer weight $`(1-x^2)^{(\alpha-1)/2}` | Gaussian weight $`e^{-x^2}` |
-| Gegenbauer polynomials $`C_n^{(\alpha/2)}` | Hermite polynomials $`H_n/n!` |
+| normalized spherical coordinate marginals after scaling | normalized Gaussian coordinate law |
+| Gegenbauer weight $`(1-u^2)^{\lambda-1/2}` | Gaussian weight $`e^{-x^2}` |
+| scaled Gegenbauer polynomials | Hermite polynomials $`H_n/n!` |
 | hyperspherical harmonics | number states $`\ket{n}` |
 | uniform "no-information" prior | Gaussian source qsample $`\Psi_0 = \ket{0}` |
 
-That the Gaussian pushes forward to the *uniform* sphere measure, and is itself
-rotation-invariant, is proved in the same module (and is the mechanism used above to
-build the sphere measure in the first place):
+The same module proves radial sphere invariance and almost-sure coordinatewise
+convergence of the radius-$`\sqrt n` normalization. These are the existing
+probabilistic ingredients for the finite-marginal limit, alongside the
+polynomial limits above:
 
 ```
 #check @PhysHSGaussian.gaussianE_rotation_invariant
 #check @PhysHSGaussian.sphereUniform_rotation_invariant
+#check @PhysHSGaussian.poincare_borel_ae
 ```
 
 And the concentration is quantitative: for an almost-every sequence of standard
@@ -572,9 +571,10 @@ as $`n` grows ($`\mathrm{sirk\_error\_decay\_exponential}`).
 
 :::paragraph
 The honest boundary: the *nesting* above is finite-dimensional linear algebra over
-the decidable skeleton (Solovay–Mehler–Kopperman: every inner product over the
-infinite substrate collapses to a finite head integral), so it is provable
-without any analytic hypothesis. What the nesting does *not* supply is the
+finite Krylov matrices. For cylindrical wave-functions, a substrate inner
+product reduces to a finite-coordinate integral. This algebraic reduction does
+not decide arbitrary integrals or supply analytic tail bounds. What the nesting
+does *not* supply is the
 numerical *width* of the bands: that the true error lies inside
 $`\mathrm{sirkBound}(n)` is conditional on Crouzeix's inequality
 ($`\mathrm{sirk\_error\_bound\_decay}`, `ChapterH4`), which is recorded in

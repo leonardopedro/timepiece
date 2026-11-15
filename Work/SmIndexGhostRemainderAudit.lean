@@ -27,3 +27,7 @@ open BookProof.SmGhostRemainder
 #audit_axioms smStruct_trace_su3
 #audit_axioms smStruct_trace_weak_label
 #audit_axioms smStruct_trace_hyper
+#audit_axioms smGluon
+#audit_axioms smIdxEquiv_smGluon
+#audit_axioms smStruct_trace_gluon
+#audit_axioms smStruct_trace_gluon_ne_zero

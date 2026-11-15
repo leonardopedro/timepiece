@@ -20,22 +20,22 @@ of the part assumes both.
 :::
 
 :::paragraph
-The route: gauge as parametrization redundancy (and its Born-parametrization
-instance), first-class constraints as gauge generators and their conservation,
-the BRST charge and the ghost field, reduced dynamics on BRST cohomology, the
-abelian case (no Gribov ambiguity — the non-abelian one is
-{ref "gribov-ambiguity"}[its own chapter]), dissipative dynamics as
-irreversibility without a classical Hamiltonian, complete and comprehensive
-gauge fixing, parametrizations as gauge symmetries, and Casimir constraints,
-gauge averaging, and the absence of anomalies.
+The route: Born redundancy, orbit coverage and uniqueness, a worked translation
+example, invariant observables and the Mehler measure map, then constraints,
+BRST cohomology and dynamics. We distinguish the physical reduction from SIRK
+compression and read the numerical constraint probes with those definitions.
+The abelian field-strength identities, dissipative examples, parametrizations,
+Casimir constraints and averaging complete the chapter. The
+{ref "gribov-ambiguity"}[Gribov chapter] keeps global and mass-gap claims separate.
 :::
 
 :::paragraph
 The proofs are spread over `BookProof/BRSTNilpotent`, `BookProof/GhostField`,
 `BookProof/BrstReducedTransfer`, `BookProof/FreeFieldConstraint`,
 `BookProof/IrreversibleDynamics`, and the gauge-fixing and Casimir-averaging
-chapters; the same BRST pattern is re-used, system by system, in the
-Navier–Stokes and quantum-gravity chapters below.
+chapters. The derivative-variable constructions in NS/QG are historical
+presentations alongside the current Fourier elimination route; neither is a
+substitute for proving the physical gauge reduction of the interacting model.
 :::
 
 # The Idea: Gauge Is a Redundancy of the Parametrization
@@ -45,11 +45,11 @@ The wave-function parametrization of a probability measure is *many-to-one*. The
 same distribution $`p(x) = |\Psi(x)|^2` is reproduced by many different
 wave-functions, and the freedom between them is a *gauge symmetry*: a group of
 transformations of the wave-function that leave the probabilities unchanged. This
-chapter studies that redundancy and its consequences. The manuscript's thesis is
-that the wave-function parametrization lets us implement gauge symmetries as
-*exact constraints* in a standard probability space *without* giving the
-constrained space null measure, and that the same parametrization extends to
-classical dissipative dynamics. The verified content here is the finite,
+chapter studies that redundancy and its consequences. A measurable
+representative map can impose an exact constraint by pushing a prior forward;
+a null constraint surface under the original prior is then no contradiction.
+Constructing that map for the actual field model is an additional obligation.
+The wave-function parametrization also extends to classical dissipative dynamics. The verified content here is the finite,
 algebraic core of that story: the gauge redundancy of the Born map, the identity
 showing constraints that commute with the Hamiltonian are conserved, the
 nilpotency of the BRST charge (which makes the gauge-invariant algebra
@@ -92,6 +92,193 @@ parametrization is genuinely redundant — a surjection with fibers, never a
 bijection.
 :::
 
+# Comprehensive Fixing: Keep Every Physical Orbit
+
+:::paragraph
+Let a gauge group $`G` act on a configuration carrier $`X`. Two configurations
+represent the same physical configuration when they lie in the same orbit.
+A fixing is a subset $`S\subseteq X`. The manuscript uses two independent
+conditions:
+:::
+
+| Condition | Meaning | What it controls |
+| :--- | :--- | :--- |
+| comprehensive | every orbit meets $`S` | no orbit is omitted |
+| complete | each orbit meets $`S` at most once | no duplicate representatives |
+
+:::paragraph
+Comprehensiveness is the essential condition for retaining all physical
+configurations. Completeness is an additional choice of representation. A
+comprehensive but incomplete fixing is useful: it retains redundant points and
+requires observables to agree on points of the same orbit. The full carrier
+$`S=X` is the simplest comprehensive fixing. Under a nontrivial free action it
+is incomplete, while its gauge-invariant observable algebra is perfectly defined.
+Completeness concerns representative points; it does not itself exclude
+stabilizers. The separate `MovesEveryPointOfSpectrum` predicate expresses
+freeness in this part of the formalization.
+:::
+
+```
+#check @BookProof.ChapterGaugeIncompleteFixing.univ_isComprehensiveGaugeFixing
+#check @BookProof.ChapterGaugeIncompleteFixing.unconstrained_gauge_fixing_incomplete
+#check @BookProof.ChapterGaugeIncompleteFixing.physicalSubalgebra
+#check @BookProof.ChapterGaugeIncompleteFixing.isPhysicalObservable_iff_factors
+```
+
+# A Worked Example: Integer Translations
+
+:::paragraph
+Take $`G=\mathbb Z` acting on $`\mathbb R` by $`n\cdot x=x+n`.
+A physical observable satisfies $`f(x+n)=f(x)`. The four possible combinations
+of coverage and uniqueness are concrete:
+:::
+
+| Fixing $`S` | Comprehensive? | Complete? |
+| :--- | :--- | :--- |
+| $`\mathbb R` | yes | no |
+| $`[0,1)` | yes | yes |
+| $`\{0\}` | no | yes |
+| $`\{0,1\}` | no | no |
+
+:::paragraph
+On the whole line, keep the periodicity condition. On $`[0,1)`, each orbit
+has one representative, so any real-valued function extends uniquely to a
+periodic function on the line. On $`\{0\}`, entire orbits such as
+$`1/2+\mathbb Z` disappear: removing redundancy has also removed physical
+information. Thus “fewer coordinates” is not an adequate acceptance test for
+a fixing. The unit-cell and four-way classification theorems formalize this
+example at the level of sets and functions.
+:::
+
+```
+#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_isComprehensiveGaugeFixing
+#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_isCompleteGaugeFixing'
+#check @BookProof.ChapterGaugeComprehensiveFixing.shift_gaugeFixing_classification
+```
+
+# Restricting Observables, Rather Than Deleting States
+
+:::paragraph
+For an invariant function $`f:X\to\mathbb R`, restriction to a comprehensive
+$`S` loses no information: equality on $`S` implies equality everywhere.
+On an incomplete $`S`, an arbitrary function extends to an invariant function
+exactly when its values respect the remaining orbit identifications. If $`S`
+is also complete, this compatibility requirement is automatic. The restriction
+map is then a bijection between invariant functions on $`X` and functions on
+$`S`. These are statements about all real functions; measurability, boundedness
+and operator domains require further hypotheses.
+:::
+
+```
+#check @BookProof.ChapterGaugeIncompleteFixing.physical_ext_of_comprehensive
+#check @BookProof.ChapterGaugeIncompleteFixing.exists_physical_extension
+#check @BookProof.ChapterGaugeComprehensiveFixing.physical_ext_iff_comprehensive
+#check @BookProof.ChapterGaugeComprehensiveFixing.physical_extension_iff_complete
+#check @BookProof.ChapterGaugeComprehensiveFixing.existsUnique_physical_extension_of_complete
+#check @BookProof.ChapterGaugeComprehensiveFixing.exists_physical_ne_agreeing_of_not_comprehensive
+#check @BookProof.ChapterGaugeComprehensiveFixing.exists_not_extendable_of_not_complete
+```
+
+:::paragraph
+The Hilbert-space version concerns operators commuting with a specified unitary
+gauge action. Such an operator has the same expectation in gauge-related
+vectors. This does not require every representing vector to be gauge invariant,
+and it does not construct a positive BRST physical Hilbert space. The observable
+commutant and the state cohomology are related constructions with distinct inputs.
+:::
+
+```
+#check @BookProof.ChapterGaugeIncompleteFixing.isPhysicalOperator_iff_mem_centralizer
+#check @BookProof.ChapterGaugeIncompleteFixing.expectation_physical_gauge_invariant
+```
+
+# Mehler Probability: Exact Constraints Need a Measure Map
+
+:::paragraph
+In {ref "solovay-tensor"}[the Mehler–Kopperman framework], the Gaussian prior
+lives on a coordinate probability space and its square-integrable
+wave-functions form a Hilbert space. A finite channel factor tensors with that
+space. Neither a tensor factor nor Gaussian concentration supplies a gauge
+section, a constraint projector or a physical inner product. The physical
+observable algebra must first be specified on the actual model.
+:::
+
+:::paragraph
+Suppose a measurable map $`q:X\to X` takes each configuration to a
+representative in $`S` on the same orbit. The induced law is
+$`\nu=q_*\mu`. It gives $`S` full measure when the support condition is
+measurable, and preserves expectations of invariant observables because
+$`f\circ q=f`. For example, translations of the second coordinate of
+$`\mathbb R^2` admit $`q(x,y)=(x,0)`. A two-coordinate standard Gaussian
+pushes forward to a Gaussian in $`x` and a point mass at $`y=0`, even though
+the original Gaussian gives that line measure zero. This is a pushforward law,
+not conditioning by dividing by the probability of that null line.
+:::
+
+```
+#check @BookProof.ChapterGaugeCasimirAverage.map_measure_constrainedSet
+#check @BookProof.ChapterGaugeCasimirAverage.physical_invariant_along_gaugeProjection
+```
+
+:::paragraph
+Pullback by $`q` preserves $`L^2` norms relative to the pushed-forward law.
+Identifying its image with the intended physical wave-functions, and
+transporting the Hamiltonian, still require proofs. A Gaussian reference need
+not be invariant under a translation gauge action; equality of physical
+expectations under the representative map is the relevant condition in this
+example. With finite orthogonal coordinate rotations, Mehler invariance is
+available from the foundation chapter. A different transformation needs its
+own measure or density calculation. Finite-query reduction alone does not
+supply a measurable or computable orbit selector.
+:::
+
+# Set Representatives, Topology and Auxiliary Variables
+
+:::paragraph
+A set of representatives always exists by classical choice. The formal
+construction `orbitRepresentatives` uses `Quotient.out`; it proves coverage
+and uniqueness as sets. It supplies no measurable, continuous or effective
+selector and no formula for the physical measure.
+:::
+
+```
+#check @BookProof.ChapterGaugeComprehensiveFixing.orbitRepresentatives_isComprehensiveGaugeFixing
+#check @BookProof.ChapterGaugeComprehensiveFixing.orbitRepresentatives_isCompleteGaugeFixing'
+#check @BookProof.ChapterGaugeComprehensiveFixing.exists_comprehensive_complete_gaugeFixing
+```
+
+:::paragraph
+The topology theorem has a precise, narrower conclusion. On a nonempty
+preconnected carrier with a nontrivial free action, a complete comprehensive
+subset cannot be *clopen*. This excludes a continuous Boolean indicator for
+that subset. It does not rule out every continuous representative map or
+smooth slice. For instance, $`y=0` in the translation example above is closed
+but not open, and $`q(x,y)=(x,0)` is continuous. The theorem is an elementary
+topological obstruction, not a global field-theoretic Gribov theorem.
+:::
+
+```
+#check @BookProof.ChapterGaugeComprehensiveFixing.not_isClopen_of_complete_comprehensive
+#check @BookProof.ChapterGaugeComprehensiveFixing.not_isPhysicalObservable_indicator
+#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_not_isClopen
+```
+
+:::paragraph
+Adjoining a group-valued auxiliary variable gives another proved construction.
+For the diagonal action on $`X\times G`, every orbit meets $`X\times\{1\}`
+exactly once: $`(x,g)` is represented by $`(g^{-1}\cdot x,1)`.
+This is a complete comprehensive fixing of the *extended* action. Its quotient
+is parametrized by $`X`, rather than automatically by the original $`X/G`.
+Equivalence to the original physical model needs the additional constraints
+or a contractible-pair argument, together with compatible measure and dynamics.
+Introducing an auxiliary coordinate alone does not establish that equivalence.
+:::
+
+```
+#check @BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isComprehensiveGaugeFixing
+#check @BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isCompleteGaugeFixing'
+```
+
 # First-Class Constraints as Gauge Generators
 
 :::paragraph
@@ -126,31 +313,26 @@ verified finite-dimensional content is the conditional-probability core above.
 :::
 
 :::paragraph
-A device used twice in this book puts that picture to work on a constraint that
-is a *spatial derivative* rather than an algebraic relation. The relations that
-define the derivative modes of a field — $`u_{i,j} = \partial_j u_i` for
-Navier–Stokes, the derivatives of the vielbein for gravity — have no explicit
-solution, so they are the ones a gauge generator has to impose. The manoeuvre is
-to adjoin each derivative as an *independent canonical variable* and let the
-gauge condition set it back equal to the derivative of the field. What is bought
-is that the constraint becomes algebraic and abelian, hence first class, so the
-BRST machinery of the following sections applies, whereas the differential
-relation it replaces generates no finitely generated gauge algebra. The
-Navier–Stokes instantiation is the generator
-$`G_j = \partial/\partial y_j - u_{i,j}\,\partial/\partial u_i`
-(`BookProof.NavierStokesGaugeY.genY`), which translates a second coordinate
-$`y` while shifting each velocity mode by its own first derivative; the
-gravitational one adjoins one derivative mode per spatial derivative of every
-vielbein component, and in those variables the torsion becomes linear in the
-auxiliaries with no derivative left
-(`BookProof.QgBrstDerivativeGauge.extTorsionCoef`). The BRST completion of each
-is `BookProof.NsBrstDerivativeGauge` in the free-field chapter and
-`BookProof.QgBrstDerivativeGauge`, with its substitution operator `gaugeReduce`,
-in the diffeomorphism chapter. Both chapters keep this gauge fixing separate from
-the algebraic constraints above precisely because the derivative variable, not
-the field, is what the gauge condition acts on: the field $`u_i(y)` is invariant
-under $`G_j` (`BookProof.NavierStokesGaugeY.genY_uField`), and it is the
-derivative mode that moves.
+Spatial derivative coordinates require a separate decision. Earlier NS/QG
+presentations adjoin independent jets and study abelian auxiliary charges.
+Adjoining a variable does not by itself turn its defining relation into a
+first-class gauge symmetry; the charge algebra and equivalence of the extended
+system must be proved. The current route in
+{ref "fourier-elimination"}[NS Fourier elimination] and
+{ref "qg-elimination"}[QG elimination] substitutes the derivative relations
+when defining the operator. Coordinate-space products with spatial derivatives
+become momentum-space convolutions. This is an NS/QG construction; it does not
+replace the QYM/QED field-strength operator dictionary.
+:::
+
+:::paragraph
+Eliminating an auxiliary derivative coordinate, solving a second-class pressure
+constraint, and reducing a genuine Gauss-law gauge action are different tasks.
+A modewise substitution theorem proves the identity stated for its defined
+realization. Matching the full spatial product, domains and physical observables
+requires the convolution and operator-core bridge. For QG this must retain the
+vielbein, the full $`R^2` exponential and its interactions, without a Taylor
+replacement. A scalaron fiber alone is a comparison, not that full model.
 :::
 
 # Constraints That Commute with the Hamiltonian Are Conserved
@@ -168,8 +350,8 @@ $$`\bigl\{\{D,A\},H\bigr\} = -\{D,\{H,A\}\}.`
 This is a direct consequence of the Jacobi identity together with $`\{D,H\}=0`.
 Its meaning is that the set of $`D`-invariant observables is closed under
 evolution by $`H` — a constraint that commutes with the Hamiltonian is preserved,
-which is exactly what makes it a *gauge* constraint rather than a merely
-initial-condition-imposed one. The verified statement is the general algebraic
+A conserved quantity is not automatically a gauge generator: the gauge
+interpretation additionally needs the action and its redundant observables. The verified statement is the general algebraic
 fact, with the book's two literal instances (for the field $`\varphi^{(0)}` and the
 momentum $`p_{(1)}`):
 :::
@@ -306,25 +488,157 @@ the induced group on cohomology is norm-preserving:
 ```
 
 :::paragraph
-What is *not* claimed here is a construction of the concrete gauge-fixed field-space
-Hamiltonian and its ghost-sector BRST charge; the reduction statement above is what
-such a construction has to feed. Nor does the exactness of the reduced dynamics say
-anything about the *truncated* dynamics, which does leak out of the physical subspace
-— that leakage is bounded separately in the reliability chapter.
+The first transfer package assumes a bounded nilpotent charge. The unbounded
+charge case is also available: `ChapterBrstReducedTransferUnbounded` treats a
+closed densely defined charge, with domain preservation and strong commutation
+by the evolution group. A formal commutator on a core alone does not supply
+those hypotheses.
+:::
+
+```
+#check @BookProof.BrstReducedTransferUnbounded.DomPreserve
+#check @BookProof.BrstReducedTransferUnbounded.StrongCommute
+#check @BookProof.BrstReducedTransferUnbounded.transfer_comp
+#check @BookProof.BrstReducedTransferUnbounded.stoneTransfer
+```
+
+# A BRST Quotient Still Needs Its Physical Metric
+
+:::paragraph
+Nilpotency supplies $`\operatorname{im}Q\subseteq\ker Q`. The completed
+Hilbert quotient uses the closure of the exact space, subject to the charge's
+domain conditions. A positive ambient Hilbert quotient norm can then be
+studied. An indefinite ghost construction instead needs a charge form
+$`[x,y]_\eta=\langle x,\eta y\rangle` which descends to the quotient and
+is positive there with the required null space. These are distinct metric
+claims. The intended physical ghost-number degree and a nonzero physical
+state must also be identified.
+:::
+
+:::paragraph
+The finite SM quartet package decomposes closed vectors through
+$`Qb+bQ=I-P_{\rm harm}`. Its canonical homotopy identifies harmonic
+representatives with $`\ker Q\cap(\operatorname{im}Q)^\perp` in the ambient
+Hilbert metric. This algebra does not identify them with the physical transverse
+field modes or prove positivity of an indefinite charge form. Existing
+positivity equivalences leave the metric and sign assumptions explicit.
+:::
+
+```
+#check @BookProof.SmQuartet.smPhysProjFormula_range
+#check @BookProof.SmQuartet.smPhysicalPositivity_iff_physForm
+#check @BookProof.SmQuartet.smPhysicalPositivity_iff_parityNorms
+```
+
+:::paragraph
+Ghost grading, metric and physical projection must be named separately. The
+current specialist plan records a consistency check: if $`U^2=I`,
+$`UQ=-QU`, $`Q^2=0`, and $`Q` is symmetric for the form with $`\eta=U`,
+substituting $`y=UQx` gives $`\|Qx\|^2=0`. Thus these global premises force
+$`Q=0`. Likewise an even $`b` with $`QbQ=Q` would make an odd $`Q` both
+even and odd, again forcing zero. These are algebraic checks to formalize,
+not newly compiled Lean results. A physical nonzero-charge construction needs
+compatible metric and homotopy choices; success under vacuous premises is not
+a no-ghost theorem. `SM_ESA_COMPLETION_PLAN.md` SM1/SM4 and the appendix specify
+the remaining tasks.
+:::
+
+# From Physical Inner Dynamics to the Outer Hamiltonian
+
+:::paragraph
+Once the physical inner space and its self-adjoint generator $`h_{\rm phys}`
+are identified, the final nested-Fock Hamiltonian is
+:::
+
+$$`H_{\rm final}=d\Gamma_{\rm out}(h_{\rm phys})
+=\sum_{i,j}C^\dagger(e_i)(h_{\rm phys})_{ij}A(e_j).`
+
+:::paragraph
+Creation is on the left and annihilation on the right. Every inner interaction
+and constant is retained. A restriction or quotient must intertwine the closed
+inner dynamics before it is used in this enclosure. A parity decomposition is
+not a BRST quotient; a graded outer statistics construction is another step.
+The right annihilator kills the outer vacuum, while an outer-vacuum ground
+requires $`h_{\rm phys}\ge0` and a strict vacuum gap requires an absolute
+positive lower bound. Neither orbit coverage nor gauge fixing alone supplies
+those bounds. For an unreduced operator, label its enclosure accordingly until
+the physical identification is proved.
+:::
+
+# SIRK Compression Is a Separate Approximation
+
+:::paragraph
+Write $`P_{\rm num}=VV^*` for a retained numerical subspace. It is not the
+physical projector or a representative map. Even for a nilpotent full charge,
+$`Q_m=V^*QV` need not be nilpotent: on compatible domains,
+:::
+
+$$`Q_m^2=-V^*Q(I-P_{\rm num})QV.`
+
+:::paragraph
+A nonzero compressed square can therefore reflect discarded directions.
+Conversely a tiny retained charge can reflect a window that misses charged
+states. Check full images outside the window and specify the complete charge
+before interpreting either result. Physical reduction and compression commute
+only when the required invariant subspaces and intertwiners are proved.
+:::
+
+:::paragraph
+For a bounded charge commuting with the exact unitary flow, an evolution error
+$`\|\psi_m(t)-\psi(t)\|\le\varepsilon(t)` gives
+$`\|Q\psi_m(t)\|\le\|Q\psi(0)\|+\|Q\|\varepsilon(t)`.
+For an unbounded charge, state-norm error alone cannot supply this estimate;
+control in its graph norm or a suitable bounded observable is needed. The
+{ref "sirk-reliability"}[reliability chapter] distinguishes proved Galerkin
+leakage bounds from the new full-action bound proposed for the actual rational
+joint solver. Increasing Krylov rank alone is not a proof of physicality.
+:::
+
+# What the Current Numerical Tests Establish
+
+:::paragraph
+The `unfer` complete-SM path assembles the full independent-coordinate E1
+inner operator and uses joint rational SIRK, including actual shifted solves.
+It retains inner constants and supports graded outer states. The present
+numerical windows are not a constructed physical BRST quotient. Historical
+measurements in `../unfer/docs/SM_FULL_IMPLEMENTATION.md`, interpreted by its
+2026-11-15 scope note, illustrate the difference:
+:::
+
+| Recorded diagnostic | Interpretation |
+| :--- | :--- |
+| electric penalty floor $`9` | zero-point floor of that probe, not a physical gap |
+| density-probe $`\|Q^2\psi\|\simeq0.1392044` | incomplete charge probe is not nilpotent |
+| 44-state-band $`\|(I-P)HP\|\simeq0.6234982` | the selected band does not reduce that $`H` |
+
+:::paragraph
+The density probe omits the full nonabelian ghost completion; the source test
+expects its nonzero square. The failure is not evidence that an actual complete
+SM charge cannot exist. Similarly, a longitudinal kinetic subtraction is a
+comparison until its constraint solution, induced interactions and measure are
+derived. Generic compression defects and this incomplete-charge defect must
+not be conflated. No test was rerun for this documentation edit.
+:::
+
+:::paragraph
+The next evidence comes from `../unfer/docs/SM_RESEARCH_PLAN.md` N7–N10:
+match the actual Mehler/operator dictionary; bound full-action evolution error;
+construct and test the joint gauge/Higgs/matter/ghost charge; then check its
+metric, ghost number and dynamics on nonzero physical representatives. The
+specialist must report truncation, solve, rounding and charge-model errors
+separately. Finite toy identities and historical passes remain useful oracles;
+they do not certify the complete physical theory.
 :::
 
 # The Abelian Case: No Gribov Ambiguity
 
 :::paragraph
-The manuscript contrasts gauge symmetry with anomalies and discusses the Gribov
-ambiguity — the fact that the Dirac bracket requires a gauge-fixing that is both
-*complete* and *unconstrained*, which is not always possible. For the abelian
-(electromagnetic) case the situation is clean: reducing the non-abelian
-structure constants to zero, the field strength becomes the linear abelian curl,
-which is *gauge invariant* — invariant under the shift $`A_j \mapsto A_j +
-\partial_j\theta`, the curl of a gradient vanishing by commutativity of the
-partial derivatives. This is the manuscript's "no Gribov ambiguity" for the
-abelian theory:
+The abelian identity proved here is local gauge invariance of the curl:
+$`F_{jk}=\delta_jA_k-\delta_kA_j` is unchanged by
+$`A\mapsto A+\partial\theta` when the derivations commute. It is not by
+itself a construction of a globally complete gauge slice. Boundary conditions,
+zero modes and the intended gauge group still have to be specified. The
+{ref "gribov-ambiguity"}[next gauge chapter] keeps this distinction explicit.
 :::
 
 ```
@@ -436,64 +750,6 @@ energy loss and probability conservation are not in tension.
 #check @BookProof.DampedOscillatorEnergy.total_probability_conserved
 ```
 
-# Complete and Comprehensive Gauge Fixing
-
-:::paragraph
-The manuscript distinguishes two properties a gauge fixing may have. It is
-*comprehensive* if it meets every gauge orbit at least once (nothing physical is
-dropped), and *complete* if it meets every orbit **at most** once (no remnant
-symmetry is left constraining the surface). `IsComprehensiveGaugeFixing` and
-`IsCompleteGaugeFixing'` are those two predicates, and the chapter proves that the
-pair is not a wish but a construction: the set of orbit representatives is at once
-comprehensive and complete, so a faithful gauge fixing always exists.
-:::
-
-```
-#check @BookProof.ChapterGaugeComprehensiveFixing.orbitRepresentatives_isComprehensiveGaugeFixing
-#check @BookProof.ChapterGaugeComprehensiveFixing.orbitRepresentatives_isCompleteGaugeFixing'
-#check @BookProof.ChapterGaugeComprehensiveFixing.exists_comprehensive_complete_gaugeFixing
-```
-
-:::paragraph
-The pay-off is that on such a gauge fixing every function *extends* to a
-gauge-invariant observable, and extends *uniquely* — the gauge fixing is a faithful
-parametrization of the physical algebra, not merely a choice of coordinates. The
-two axes are then characterized exactly, as the two directions of the restriction
-map on the physical observables: comprehensiveness is its injectivity, completeness
-its surjectivity. Both converses are proved with explicit counter-observables, not
-asserted.
-:::
-
-```
-#check @BookProof.ChapterGaugeComprehensiveFixing.existsUnique_physical_extension_of_complete
-#check @BookProof.ChapterGaugeComprehensiveFixing.physical_ext_iff_comprehensive
-#check @BookProof.ChapterGaugeComprehensiveFixing.physical_extension_iff_complete
-#check @BookProof.ChapterGaugeComprehensiveFixing.exists_physical_ne_agreeing_of_not_comprehensive
-#check @BookProof.ChapterGaugeComprehensiveFixing.exists_not_extendable_of_not_complete
-```
-
-:::paragraph
-The manuscript's *unconstrained* condition is what makes this non-trivial, and its
-consequence is formalized as a Gribov-type obstruction: on a connected spectrum,
-with the gauge group acting freely and non-trivially, a fixing that is at once
-complete and comprehensive is **never** clopen — a complete choice of
-representatives cannot be a continuous one. The manuscript's spurious-field device
-is shown to produce a complete *and* comprehensive fixing for an arbitrary gauge
-group, and for the concrete translation gauge symmetry of the line all four
-combinations of the two axes are realized by explicit witnesses.
-:::
-
-```
-#check @BookProof.ChapterGaugeComprehensiveFixing.not_isClopen_of_complete_comprehensive
-#check @BookProof.ChapterGaugeComprehensiveFixing.not_isPhysicalObservable_indicator
-#check @BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isComprehensiveGaugeFixing
-#check @BookProof.ChapterGaugeComprehensiveFixing.spuriousSection_isCompleteGaugeFixing'
-#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_isComprehensiveGaugeFixing
-#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_isCompleteGaugeFixing'
-#check @BookProof.ChapterGaugeComprehensiveFixing.unitCell_not_isClopen
-#check @BookProof.ChapterGaugeComprehensiveFixing.shift_gaugeFixing_classification
-```
-
 # Parametrizations Are Gauge Symmetries
 
 :::paragraph
@@ -517,7 +773,7 @@ fibers (comprehensiveness).
 #check @BookProof.ChapterGaugeParametrization.isComprehensiveGaugeFixing_iff_surjOn
 ```
 
-# Casimir Constraints, Gauge Averaging and the Absence of Anomalies
+# Casimir Constraints and Gauge Averaging
 
 :::paragraph
 The manuscript's device for imposing *all* constraints at once is the quadratic
@@ -539,12 +795,14 @@ impose every constraint.
 Averaging is the other half: the Haar average (for a right-invariant measure) and
 the finite normalized average of any observable are gauge-invariant, normalized on
 the constants, and fix the observables that were already invariant — averaging is a
-projection onto the physical algebra, not merely a smoothing. Gauge invariance is
-preserved by limits, which is the manuscript's statement that a gauge symmetry can
-never exhibit an anomaly; and pushing a probability measure forward along a
-measurable projection into the constrained set gives that set probability one,
-with the expectations of observables that do not see the projection left unchanged
-— the constraint imposed exactly, without a null set.
+projection onto invariant functions under the stated measure assumptions.
+The probability normalization used to fix constants is a separate hypothesis;
+a normalized invariant Haar law is not supplied for every gauge group.
+Pointwise limits preserve invariance under a fixed action. This does not prove
+absence of quantum gauge anomalies: a regularized interacting model must also
+supply a compatible action, charge algebra and measure. The pushforward theorem
+separately preserves invariant expectations when a measurable representative
+map is already available.
 :::
 
 ```
@@ -557,27 +815,17 @@ with the expectations of observables that do not see the projection left unchang
 #check @BookProof.ChapterGaugeCasimirAverage.physical_invariant_along_gaugeProjection
 ```
 
-# Summary
+# Reading the Results Together
 
-The gauge symmetry of the wave-function parametrization is a redundancy of the
-coordinates, not a new physical phenomenon. Concretely:
+Comprehensive fixing retains every orbit. An incomplete comprehensive fixing
+retains redundancy while identifying physical observables through their orbit
+values. The set-level coverage and extension theorems establish this part of
+the programme. Mehler probability adds a reference law and wave-function
+Hilbert space; physical reduction needs the actual measurable map or BRST
+construction, positive physical metric and compatible closed dynamics.
 
- * the Born map is a surjection of the sphere onto the simplex that is never a
-   bijection, with at least the diagonal sign group $`\{-1,+1\}^n` in its fiber;
- * constraints that commute with the Hamiltonian are conserved, by the
-   constraint-commutation identity (Jacobi);
- * the BRST charge is nilpotent, $`\Omega^2 = 0`, so the gauge-invariant algebra
-   is well-defined — one never needs the wave-function itself to be gauge
-   invariant;
- * in the abelian limit the field strength is gauge invariant and the Gribov
-   ambiguity does not arise;
- * a fixing that is at once comprehensive and complete always exists (the orbit
-   representatives) and makes every observable extend *uniquely* to a physical
-   one, but on a connected spectrum with a free non-trivial action it can never be
-   clopen — completeness forces a discontinuous choice;
- * the quadratic-Casimir constraint imposes every Hermitian constraint at once, and
-   gauge averaging is a projection onto the physical algebra that survives limits
-   (no anomaly);
- * the dissipative coupled oscillators lose energy at the rate
-   $`\dot E = -\lambda_1\dot x_1^2 - \lambda_2\dot x_2^2` while conserving total
-   probability — irreversibility without a classical Hamiltonian.
+SIRK then approximates the identified generator. Its retained subspace,
+constraint diagnostics and numerical error bounds have to be related to that
+physical construction. The existing transfer and leakage theorems supply
+interfaces; the full field-model instances and algorithm-specific certificates
+remain separate specialist tasks in {ref "proof-plans"}[the appendix].

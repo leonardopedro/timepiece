@@ -354,14 +354,15 @@ note; the list below is the map, in reading order.
 
 : A Decidable, Complete Foundation
 
-  Where the sample spaces live before anything is measured on them: the completed
-  Hilbert space is a complete, decidable, conservative extension that does not leak
-  undecidable arithmetic, because its infinite elements are kept internally
-  unselectable. The Solovay–Kopperman tensor product then builds the two-factor
-  spaces used everywhere later — an arbitrary law on a finite factor, tensored with
-  an infinite factor whose law is forced to be the Mehler measure precisely because
-  the language cannot distinguish its elements — and the statistical-model-theory
-  chapter reads statements as operators on these spaces.
+  Where the sample spaces live before anything is measured on them: analytic
+  completeness is separated from decidability of a specified language. A finite
+  channel space tensors with a separable infinite-dimensional Hilbert space.
+  Scaled hypersphere marginals motivate its Gaussian coordinate prior; the
+  associated wave-functions form a Hilbert space. The verified tensor structure,
+  finite-query reductions and Gaussian-marginal uniqueness are distinguished
+  from the remaining formal decision-procedure work. The statistical-model-theory
+  chapter then reads statements as operators on these spaces.
+
 
 : Probability as Coherent Belief
 

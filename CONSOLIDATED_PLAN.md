@@ -7,6 +7,26 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest book refinement (2026-11-15h):** “State of the project — 2026-11-15h:
+> Mehler–Kopperman finite-channel tensor and effective-language scope” (end of file).
+> The book now separates Hilbert tensors, Gaussian coordinate laws and logical
+> decision procedures. This is a source/prose audit; compilation remains deferred.
+>
+> **Newest SM numerical extension (2026-11-15g):** “State of the project — 2026-11-15g:
+> full-SM numerical evidence and research packets in unfer” (end of file).
+> `../unfer/docs/SM_RESEARCH_PLAN.md` N6–N14 supplies the coordinated numerical/research
+> execution plan for SM0–SM9 below. No compiler, symbolic engine or numerical suite was run.
+>
+> **Newest SM refinement (2026-11-15f):** “State of the project — 2026-11-15f:
+> full SM operator, physical reduction and joint-solver certification” (end of file).
+> `SM_ESA_COMPLETION_PLAN.md` SM0–SM9 replaces stale elliptic-blocker ordering with
+> the source-present self-bound, complete operator/constraint tasks and numerical evidence.
+>
+> **Newest continuum refinement (2026-11-15e):** “State of the project — 2026-11-15e:
+> continuum existence, Bałaban estimates and the nested-Fock identification” (end of file).
+> `cftproof.md` C0–C10 reuses the October existence witness and intermediate lemmas,
+> separates uniqueness, and orders the remaining physical continuum/observable bridge.
+>
 > **Newest application refinement (2026-11-15d):** “State of the project — 2026-11-15d:
 > required small Edge0/RLCD decision-model research” (end of file); R9/E0–E7 in
 > `../unfer/pcnl/` specify the required reinforcement arm and finite proof handoff.
@@ -25740,3 +25760,191 @@ Any posterior certificate then reuses Q0/Q1 with the actual neural target and it
 assumptions. MoE routing/compression is not a Bayesian uncertainty certificate; changing
 predicted routes, encoder weights or caches can change returned probabilities. Keep these
 approximations explicit and preserve all prior theorem and numerical evidence scopes.
+
+## State of the project — 2026-11-15e: continuum existence, Bałaban estimates and the nested-Fock identification
+
+The active OS/continuum execution guide is now [cftproof.md](cftproof.md), **C0–C10**.
+It supersedes that file's older forward ordering, preserving all dated results. This is
+a static source/planning update with no compilation, replay or numerical experiment.
+The QYM-first priority and other tracks' work orders remain in force.
+
+Reuse the existence theorem already present in `../OpenAI-YM-20261028` at revision
+`3456e5e75cf8d4cd558955a5c7638fba2d68f464`: `YangMills.jointExistence` proves a single
+Wilson-family/hierarchy existence contract with reconstruction, OPE and its stated trace
+exclusions. Its selected invariant vacuum is unique within the constructed phase;
+uniqueness of the continuum theory, phase, contact prescription or all regulator limits
+is not claimed. Inequivalent/nonstandard realizations are not excluded by assuming that
+existential result. The remaining local objective is a continuum limit of the **specified**
+nested Hamiltonian family and its identification with a compatible selected hierarchy.
+
+The new source inventory identifies useful archive intermediate interfaces: action/law/
+moment/smearing equality in `WilsonBridge`; extraction refinement and same-family,
+same-order smooth-kernel identification in `Order.upon`/`Order.determined`; hierarchy,
+phase and reconstruction adapters; common OPE/contact field basis; contact-distribution
+restriction; stress-trace exclusions; and compact separated-set OPE estimates. They are
+source-present external results, not imported local declarations. Lean 4.32 versus 4.28,
+exact endpoint definitions, dependency cones and axiom/type checks need an explicit adapter.
+
+Bałaban-style gauge-covariant coarse graining supplies the hard analytic packets for a
+new nested family: exact conditional fluctuation laws, small-field covariance/polymer
+bounds, large-field tails, marginal running/counterterms and uniform observable bounds.
+The existing `BalabanRG` abstract summability receiver does not instantiate those estimates.
+Use completed archive lemmas where their hypotheses match rather than rebuild its existence
+proof. Keep physical spacetime cutoffs, volume, Hermite/occupation tails and Krylov/rational
+orders distinct; increasing Krylov rank alone is not a continuum limit.
+
+C1 constructs a distribution-valued non-ultralocal 4D Gaussian control. C2–C5 construct or
+identify interacting regulated states, uniform moments, tightness/Cauchy estimates and a
+selected continuum hierarchy/law. Finite-coordinate Gaussian rotations, supplied `ContPrior`
+measures and positive covariance alone do not establish that result. A global Hilbert–Schmidt
+covariance square root on `L²(R^4)` is not required for the intended distribution-valued field.
+C6 prices SIRK errors on correlation words; C7 constructs/identifies the limiting form,
+resolvent and heat generator with domain and representation control. Real-time Trotter–Kato
+transfer cannot be reused as heat convergence by substituting imaginary time.
+
+C8 constructs the physical cyclic observable/state/semigroup bridge, reusing the already
+source-present complex half-space Hilbert space and the selected archive reconstruction.
+All Hamiltonians remain `H=dGamma(h)`, with full inner interactions and scalar terms.
+Empty-outer-vacuum correlations do not replace the nonempty information prior; stationary
+positive-energy reference/GNS hypotheses must be proved for vacuum reconstruction. Sector
+relative-energy subtraction is distinct from changing `h` by an outer number term. QG
+extensions retain the vielbein R² record, exact exponential and interactions; QG/NS spatial
+products involving derivatives retain their momentum convolutions.
+
+Existence need not await global uniqueness, an infrared gap or exclusion of every comparison
+model. C9 separates these targets. Any strong-coupling gap witness used along an asymptotically
+free continuum trajectory needs an RG/physical-scale transport theorem, not a fixed strong
+bare coupling carried unchanged to zero spacing. C10 gives specialist execution order and
+negative controls for changed operators, unrelated witnesses, absent positivity, vacuous
+limits and uninstantiated analytic assumptions.
+
+## State of the project — 2026-11-15f: full SM operator, physical reduction and joint-solver certification
+
+The current SM work order is [SM_ESA_COMPLETION_PLAN.md](SM_ESA_COMPLETION_PLAN.md),
+**SM0–SM9**. It supersedes historical forward-order/status prose while preserving all
+source theorems, measurements and dated build records. QYM remains the first project
+priority. This update performs static source/documentation checks only, without Lean/Rust
+compilation, symbolic execution or numerical replay.
+
+The plan separates complete unreduced E1 (the specified inner operator and graded outer
+unitary dynamics), physical E1 (positive nonzero constraint reduction and dynamics descent),
+and E2 (infinite inner modes/spatially compatible fields and renormalized limits). A
+self-adjoint operator can be unbounded below, so energy/vacuum stability is a separate
+claim. A relative comparison oscillator cannot be added to the physical Hamiltonian to
+make that claim true. The record remains `H_SM=dGamma_out(h_SM)` with every inner
+interaction and constant retained and creation/annihilation placed left/right.
+
+`exists_potSelfBound_sm` and its kinetic/normal-form consequences are now source-present;
+do not repeat the old elliptic estimate as an open task. But the complete operator must
+still be assembled as `h_B tensor I + matter normal form`, with actual named Higgs/Dirac/
+gauge coefficients. An active-40 momentum support theorem does not cover the three
+spatial Dirac derivatives; use the 43-direction full comparison and discharge the coupled
+graph core. Finish the quadratic-form-level matrix commutator and closure identification,
+rather than equating a graph-norm-squared bound or a bosonic tensor ESA with full SM ESA.
+
+The physical reduction needs an early consistency audit. For global finite-dimensional
+premises `Q²=0`, `U²=I`, `UQ=-QU`, charge-form symmetry for `eta=U` forces `Q=0`:
+substitution of `y=UQx` gives `||Qx||²=0`. Similarly an even contracting homotopy for an
+odd nonzero charge is inconsistent. These are new algebraic proof tasks, not implemented
+Lean declarations from this update. Keep ghost grading distinct from an admissible Krein
+metric, reuse the canonical finite homotopy where applicable, and construct the actual
+joint bosonic/Higgs/matter/ghost constraint and ghost-number physical representation.
+Quartet identities alone do not establish no-ghost positivity or Hamiltonian descent.
+
+The `unfer` complete E1 operator and genuine rational joint solver are implemented.
+The historical ledger has 37/41-test sweeps; current source contains 13 exact-action,
+7 full-dictionary and 13 primary joint-SM declared tests, plus supporting suites. Source
+counts are not fresh passes. The approximately `4.18e-7` rational error compares with one
+finite reference matrix; first-image action tails of about `9.78`, `4.04`, `1.22`, then
+zero refer to declared windows and do not certify invariance or later evolution. The
+measured 44-state band leaks under H, the matter-density BRST probe omits the full charge,
+and fermion-number superselection is not electromagnetic/gauge consistency. Preserve these
+useful diagnostics with their actual scope.
+
+SM6 targets the implemented bounded-resolvent generator `G=gamma I-B^-1`, not an exponential
+of the Hamiltonian Ritz matrix. Prove exact compression dissipativity and a full-action
+Duhamel defect bound using `D=iVG-HV`, then price solve, Gram/leakage, projection, Padé,
+restart and rounding errors. Existing exact-arithmetic theory or Aeneas pure-core work
+does not by itself verify the Rust joint algorithm. SM7 turns the existing manifests,
+full images and mutation/constraint probes into appropriately enclosed evidence.
+
+SM8 retains the actual continuum CAR representation while requiring interaction domains,
+cutoff-uniform constants, compatible physical reduction and renormalized convergence.
+Chiral anomaly/global-group checks must use the actual field dictionary; finite Lie
+algebra nilpotency is not the quantum continuum theorem. The October pure-gauge existence
+result and Bałaban methods are useful via cftproof C0–C10, but do not automatically extend
+to full chiral SM matter/Higgs/Yukawa. An all-scale SM continuum claim, physical positivity
+and a universal gap are not inferred from finite E1 numerical success.
+
+## State of the project — 2026-11-15g: full-SM numerical evidence and research packets in unfer
+
+The new [SM_RESEARCH_PLAN.md](../unfer/docs/SM_RESEARCH_PLAN.md), **N6–N14**, is the
+numerical/research counterpart of SM0–SM9. The unfer project/implementation plans,
+SM operator audit, implementation ledger and validation guide now route to it. Implemented
+N0–N5 foundations and historical measured cells are preserved; this update runs no compiler,
+symbolic engine, proof replay or numerical suite.
+
+The packets prioritize evidence/operator identities, actual coefficient/graded-action
+fixtures, full-action Duhamel defect certificates for `G=gamma I-B^-1`, and a bounded
+fixed-operator Mehler/cutoff pilot. Basis changes require the same physical state, operator
+and observable under the representation map. Distinguish full, finite-window and computed
+resolvents, first-image and later tails, measured finite-reference accuracy and rigorous
+full-flow error. Numerical rank growth is not spacetime cutoff removal.
+
+The physical-constraint packet replaces neither the operator nor the historical probes:
+it requires the actual joint gauge/Higgs/matter/ghost dictionary and compatible metric,
+ghost number, physical representation and dynamics. Electric/density penalties and the
+leaking longitudinal band remain comparison evidence. Full-interaction observable research
+and a separately defined infinite-mode family follow their own acceptance gates. Proof
+translation, certificate input provenance and floating execution enclosures remain separate;
+no source-only test count or assumed error premise is promoted to a newly verified result.
+
+
+## State of the project — 2026-11-15h: Mehler–Kopperman finite-channel tensor and effective-language scope
+
+This entry refines the **book** reading order for the Mehler/Kopperman foundation
+in the 2026-11-15 source audit. It preserves the physical operator work orders,
+prior build reports and existing proofs. No Lean source proof was changed for
+this refinement and no compilation or numerical execution was performed.
+
+The revised [tensor chapter](Book/SolovayTensor.lean) explains
+`V ⊗̂ K ≅ K^d`, a worked two-channel Gaussian state and a Gram-matrix decision
+example. Finite discrete heads realize a finite-dimensional first wave-function
+factor; `R^N` with a continuous head law generally gives an infinite-dimensional
+`L²` factor. Product carriers and Hilbert tensors are distinguished. Companion
+foundation, Gaussian, Bayesian and introductory chapters use the same scope.
+
+**Source-present results to reuse.** `ChapterSolovayHilbertTensor` supplies the
+product-law unitary and pure-tensor inner products; the toolbox
+`ChapterTensorCompleteness` supplies density and product bases. Gaussian
+finite-coordinate splitting, interleaving, actual finite orthogonal invariance
+and `mehler_unique_by_finite_marginals` are available. Uniqueness assumes the
+specified Gaussian finite marginals. `PhysHSGaussian.poincare_borel_ae` already
+proves almost-sure coordinatewise convergence under the radius-`sqrt(n)` sphere
+coupling; empirical concentration and Gegenbauer/Hermite limits are also available.
+
+**Interpretation corrections.** `tensor_language_decidable` is an inner-product
+reduction, not an encoded theory decision algorithm. `substrate_decidable_skeleton`
+asserts existence of a countable dense set without effective presentation data.
+`only_mehler_on_tail` asserts abstract-prior admissibility; its invariance field
+assumes measure preservation. The chosen `rcpPriorOnSubstrate` is an atomless prior
+on `L²([0,1])`, not a proved realization of the standard coordinate Gaussian product.
+The latter lives on `ℝ^ℕ` with countably infinitely many coordinates: its samples
+are almost surely outside `ell²`. Empirical mean squared radius tending to one
+is not norm-unit-sphere support. Use sequence space, an isonormal process indexed
+by a Hilbert space, or an explicitly trace-class Hilbert Gaussian as appropriate.
+
+**Next specialist tasks**, detailed in [the book appendix](Book/ProofPlans.lean):
+
+1. Encode the effective inner-product language, coefficients, Gram reduction,
+   soundness/completeness and termination; separately certify finite Gaussian
+   moments and any expanded-language decision or conservativity claim.
+2. Package the existing sphere coupling as weak convergence of fixed finite
+   marginals by identifying pushforward laws and bounded-test convergence.
+3. Prove any claimed measure-preserving substrate/coordinate-prior bridge rather
+   than infer it from separability. Instantiate the finite discrete-head tensor
+   map with its weights and effective approximation moduli.
+4. Check citations and axioms, then use the documented book wrapper and KaTeX
+   checks. Builds are left to the LLM-Lean4-specialist. For physical applications,
+   retain the full inner interacting operator and the outer `C† h A` convention;
+   geometric decidability alone is not an interacting field-theory decision theorem.

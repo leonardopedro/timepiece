@@ -25,8 +25,8 @@ The route: one-piece-at-a-time updating and its associativity, the sketch proof,
 the verified statement, the fact that every prior is a posterior from the
 uniform prior, the precise sense in which non-informativeness is
 coordinate-dependent, why the uniform prior is special only within a
-parametrization — and the exception that the later physics leans on:
-infinite-dimensional spaces need the Mehler formalism of
+parametrization — and the Gaussian sphere-limit construction that the later
+physics uses in
 {ref "solovay-tensor"}[the Solovay–Kopperman chapter].
 :::
 
@@ -240,7 +240,7 @@ Bayesian inference with a flat prior" — always understood as "flat _in the cho
 coordinates_."
 :::
 
-# The Exception: Infinite-Dimensional Spaces Need the Mehler Formalism
+# Gaussian Priors and the Mehler Sphere Limit
 
 :::paragraph
 On a *finite* set of events, then, uniform priors are cheap: any non-null prior
@@ -250,8 +250,9 @@ _countably_ infinite set of events but an *infinite-dimensional space* of events
 infinitely many degrees of freedom. There is no Lebesgue probability measure on such
 a space ({ref "free-field"}[no translation-invariant finite measure]), and the
 reparametrization trick that worked in finite dimension is exactly what destroys
-uniformity there. To have a uniform prior on an infinite-dimensional space at all,
-one needs the *Mehler formalism*.
+uniformity there. The *Mehler formalism* instead specifies compatible Gaussian
+finite-coordinate laws through a scaled hypersphere limit. Uniformity is then
+relative to a stated symmetry group, not to every reparametrization.
 :::
 
 :::paragraph
@@ -273,24 +274,12 @@ countable set of events.
 :::
 
 :::paragraph
-This is the one setting in the manuscript where the slogan "there are no
-non-informative priors" does not bite, and it is the setting this book is built
-around. In the {ref "solovay-tensor"}[Solovay–Kopperman inner-product space] the
-infinite tail is not a completed Hilbert space on which arbitrary unitary transforms
-act. The admissible language is *cylindrical*: it may query only finitely many
-coordinates, so it cannot name or distinguish individual elements of the
-infinite-dimensional space. Because of that restriction the space is
-*not necessarily metrically complete*, and arbitrary unitary transforms are simply
-*not defined* within the language. The reparametrizations that would turn a uniform
-prior into an informative one are not available.
-:::
-
-:::paragraph
-The symmetries that survive are precisely the *admissible finite-orthogonal
-symmetries* of the tail — the measure-preserving maps the language can express —
-and the Mehler prior is invariant under every one of them. It is a probability
-measure, it is atomless, and it concentrates on the infinite-dimensional unit
-sphere:
+In the {ref "solovay-tensor"}[Solovay–Kopperman construction], a finite channel
+space tensors with a completed Gaussian wave-function Hilbert space. The
+coordinate prior comes from fixed-coordinate limits of uniform spheres with
+radius $`\sqrt n`. It is invariant under finite orthogonal coordinate rotations;
+a different covariance or nonlinear change of coordinates can change the law.
+A restriction on syntax does not remove metric completeness from the carrier.
 :::
 
 ```
@@ -300,13 +289,13 @@ sphere:
 ```
 
 :::paragraph
-So within the restricted decidable language the Mehler uniform prior on the
-infinite-dimensional hypersphere *is* genuinely uniform: every symmetry the
-language can express leaves it unchanged, and there is no admissible change of
-coordinates that could make it informative. Finite sets admit uniform priors only by
-a parametrization-dependent trick; a countable infinity of events admits none at
-all; the infinite-dimensional space admits one only through the Mehler formalism,
-and there it is intrinsic. Probability on the infinite-dimensional part is not a
-choice; it is the forced Mehler measure
-({ref "solovay-tensor"}[The Solovay–Kopperman Tensor Product]).
+These names require their exact scopes: abstract-prior admissibility,
+invariance conditional on measure preservation, and almost-sure convergence
+of the empirical mean squared Gaussian coordinate to one. The last is not
+concentration on the norm-unit sphere of an ordinary Hilbert space. The
+coordinate model additionally proves actual finite orthogonal invariance and
+uniqueness among laws with the specified Gaussian finite marginals. Neither
+atomlessness nor the restriction to finite queries alone forces a Gaussian law.
+The foundation chapter explains both the useful symmetry principle and the
+remaining logical decision-procedure obligations.
 :::

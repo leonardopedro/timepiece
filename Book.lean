@@ -128,9 +128,9 @@ deliberately replaced here:
  * the chapters on _P versus NP_ and on the _Riemann Hypothesis_ are replaced by a
    single, self-contained metamathematical chapter
    ({ref "pa-free-chapter"}[Completeness without Peano Arithmetic]) that captures
-   the precise point those chapters were making: a completed Hilbert space can be a
-   complete, decidable extension that does not leak undecidable arithmetic, provided
-   its infinite elements are kept _internally unselectable_.
+   the distinction between analytic completeness and decidability of a specified
+   logical language. The completion is constructed; the intended effective
+   language and its full decision procedure remain separate obligations.
 
 *A note on what remains open.* Where a statement is mathematically relevant to the
 narrative but is not yet proved in `BookProof`, we say so explicitly and give a
@@ -144,20 +144,22 @@ verified layer is asserted without a proof; the open items are quarantined there
 tag := "part-pa-free"
 %%%
 
-A metamathematical chapter replacing the manuscript's chapters on _P versus NP_ and
-the _Riemann Hypothesis_: the completed Hilbert space is complete and decidable
-because its infinite elements are kept internally unselectable. The second chapter
-builds the Solovay–Kopperman tensor product on this foundation: a finite-dimensional
-factor carrying an arbitrary probability law, tensored with a separable
-infinite-dimensional factor whose law is forced to be the Mehler measure precisely
-because the language cannot distinguish its elements.
+The first chapter separates analytic completeness from logical decidability.
+The second constructs the Solovay–Kopperman probability and tensor framework:
+a finite channel space tensored with an infinite-dimensional Hilbert space,
+realized through Gaussian wave-functions. The Gaussian prior comes from scaled
+hypersphere marginals; uniqueness is proved for those specified finite marginals.
+A continuous head with finitely many coordinates is also supported, although
+its wave-function factor need not be finite-dimensional.
+
 
 *How to read this part.* Read {ref "pa-free-chapter"}[Completeness without Peano
 Arithmetic] first: its one verified engine is the Riesz–Fischer characterization of
 completeness by absolutely convergent series, and its one discipline is the refusal
 to name infinite elements as constants. Everything else in the part — the
-head–tail decomposition, the Mehler measure on the tail, the decidability of tensor
-products — is the same discipline applied to two factors instead of one. When the
+head–tail decomposition, the Gaussian coordinate prior and the tensor-product
+wave-function space — adds analytic constructions and finite-query reductions.
+The book states separately which effective logical claims still need proof. When the
 later physics chapters speak of a "free field" or of the "infinite tail" of a
 state space, this is the precise object they mean; the {ref "free-field"}[free-field
 chapter] in Part Relativity is the direct descendant of these two chapters and

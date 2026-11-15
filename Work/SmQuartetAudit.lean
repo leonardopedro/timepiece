@@ -45,3 +45,7 @@ open BookProof.SmQuartet
 #audit_axioms smGhostParity_kform_symm
 #audit_axioms smPhysicalPositivity_iff_parityNorms
 #audit_axioms smPhysicalPositivity_of_evenRange
+#audit_axioms kform_self_eq_norm_sq_of_even
+#audit_axioms kform_self_eq_neg_norm_sq_of_odd
+#audit_axioms range_physProjOf_parity_mem
+#audit_axioms physicalPositivity_imp_evenRange

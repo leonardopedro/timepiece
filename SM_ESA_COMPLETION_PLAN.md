@@ -1,5 +1,500 @@
 # Full Standard-Model ESA: completion plan and implementation audit
 
+## Current programme: well-defined full SM and certified joint dynamics (2026-11-15)
+
+This is the current work order for the **LLM-Lean4-specialist**, coordinated with the
+`unfer` implementation specialist. It supersedes the forward ordering and stale blockers
+in the historical P0–P8/N0–N5 sections below, preserving their actual results and dated
+build reports. Read [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) for cross-track priority;
+QYM remains first. This revision reads sources and evidence only: **no Lean/Rust build,
+Cadabra execution, proof replay or numerical test is run**.
+
+“Well defined” must have a specified endpoint:
+
+1. **E1 operator:** the complete independent-collective-coordinate inner SM operator on
+   `L²(R^163) tensor CAR(96)` has an identified self-adjoint closure, common core and unitary
+   dynamics; its actual graded outer enclosure is constructed.
+2. **Physical E1:** the correct constraints, nonzero positive physical state space and
+   observable/dynamics descent are proved for that same operator. Unreduced ESA alone
+   does not establish this, and self-adjointness does not imply energy bounded below.
+3. **E2 field theory:** the intended infinite inner-mode/spatial realization and its
+   renormalized limit exist with compatible constraints and observables. Infinite **outer**
+   particle sectors, a continuum CAR representation or a finite reference computation
+   are not this limit. A relativistic Euclidean/Wightman comparison uses the additional
+   work in [cftproof.md](cftproof.md), C0–C10, rather than being an E1 ESA prerequisite.
+
+Keep these conclusions separately labeled. This plan does not assert that the conventional
+four-dimensional continuum SM is already constructed or that the manuscript's E1 operator
+has automatically been identified with it.
+
+### Present formalization: reuse these results and respect their binders
+
+Static source snapshot: `timepiece` revision `fd8b190`; later specialist results must carry
+their own revision and proof checks.
+
+- **Bosonic operator and comparison:** the bosonic gauge/Higgs Hamiltonian, its ESA and
+  outer-flow results are available. The
+  [full comparison](BookProof/Sm/ChapterSmFullComparisonEsa.lean) has kinetic set
+  `smFullS = smS union smXSet`, **43** directions: 40 field momenta and 3 spatial momenta.
+  The other 120 jet coordinates remain derivative-free parameters. Its added oscillator
+  terms are comparison terms, not new physical interactions.
+- **Matter and Yukawa algebra:**
+  [MatterRepresentation](BookProof/Sm/ChapterSmMatterRepresentation.lean),
+  [FullYukawaData](BookProof/Sm/ChapterSmFullYukawaData.lean) and
+  [FullYukawaCoeffs](BookProof/Sm/ChapterSmFullYukawaCoeffs.lean) supply the 96 complex
+  coordinates/192 real components, finite CAR bilinears, four-component Higgs data,
+  coefficient adjoints and parity. The data-to-normal-form maps do not by themselves
+  identify every physical Dirac/gauge matrix or every named coordinate with Rust's model.
+- **Coupled core:**
+  [FullMatterHamiltonian](BookProof/Sm/ChapterSmFullMatterHamiltonian.lean) constructs the
+  joint space, dense common core, symmetric/parity-preserving tensor normal forms.
+  `smNormalForm` contains momentum, momentum-square, coordinate and constant families;
+  it does **not** contain the quartic bosonic magnetic/Higgs potential. Assemble
+  `h_B tensor I + matter normal form` explicitly. A docstring calling `p_x` a
+  momentum-squared term does not change its actual first-order definition.
+- **The former elliptic input is proved:**
+  [GradTable](BookProof/Sm/ChapterSmGradTable.lean) proves `exists_potSelfBound_sm`,
+  `exists_kineticSum_bound_sm` and `exists_smNormalForm_norm_le` through the 49-form
+  support/derivative table. Do not repeat §§22/32/38–43 as an open proof of that estimate.
+  However these bounds use their stated support and comparison hypotheses; in particular
+  an active-40 momentum support condition does not cover the physical three `p_x` terms.
+  Section 53's “P4 closed” records the potential self-bound, not a complete physical-SM ESA.
+- **Commutator and closure tools:** the Schur/operator-matrix bounds now include general
+  Hermitian internal interiors and the P1 Higgs case without the old block-support
+  restriction. A shifted-graph-norm-squared commutator estimate is still weaker than the
+  quadratic-form bound consumed by Faris–Lavine. `smCoupledHamiltonian_esa` in
+  [FullCoupledCore](BookProof/Sm/ChapterSmFullCoupledCore.lean) concerns `h_B tensor I`
+  and carries `hgc : IsGraphCore ...`; it is not the complete coupled-SM theorem.
+- **Reduction:** parity/core/deficiency reduction, BRST quotient algebra, quartet
+  decompositions, a canonical finite-dimensional homotopy and physical-range descriptions
+  exist. Reuse [PhysicalReductionEsa](BookProof/Sm/ChapterSmPhysicalReductionEsa.lean),
+  [BrstQuotient](BookProof/Sm/ChapterSmBrstQuotient.lean),
+  [Quartet](BookProof/Sm/ChapterSmQuartet.lean) and
+  [BghostFormula](BookProof/Sm/ChapterSmBghostFormula.lean).
+  `exNotPhysicalPositivity` disproves positivity from quartet data alone. The explicit
+  antighost sum has a nonzero weak-block remainder (`smStruct_trace_weak = -1` at the
+  specified pair); block-diagonal remainder identities do not make it a contraction.
+  This first-slot sum is not the unimodular adjoint trace, so semisimplicity cannot be
+  used to set it to zero.
+- **Existing outer/continuum APIs:**
+  [FullEnclosure](BookProof/Sm/ChapterSmFullEnclosure.lean) proves an ESA tensor sum with
+  a fixed Higgs background, and the bosonic `SmOuterFock` treats the bosonic theory.
+  Neither proves the full dynamical gauge–matter/Higgs coupling. The continuum smeared
+  [CAR representation](BookProof/Sm/ChapterSmCarContinuum.lean) is present and bounded;
+  an interacting Hamiltonian on it, its domains and ultraviolet limit remain separate.
+  Ordinary symmetric/antisymmetric Fock ESA and graded creation algebra are reusable;
+  their identification with the implemented mixed graded state space is still a task.
+
+The algorithm formalization is also substantial: nonreal/multishift resolvent identities
+and selection in [HashimotoComplexShifts](BookProof/Sirk/ChapterHashimotoComplexShifts.lean),
+whitening/truncation invariance and leakage bounds, the conditional
+[SIRK end-to-end assembly](BookProof/Sirk/ChapterSirkEndToEnd.lean), and
+[finite-precision receivers](BookProof/Sirk/ChapterSirkFinitePrecision.lean) are reusable.
+The latter consume certified error bounds; they do not compute them for `joint_sirk`.
+Real-time Trotter–Kato transfer consumes strong resolvent convergence rather than proving
+that the complete physical SM approximations satisfy it.
+
+### Present implementation and numerical evidence
+
+Source snapshot: `unfer` revision `d5123ae`. Read
+[SM_FULL_IMPLEMENTATION.md](../unfer/docs/SM_FULL_IMPLEMENTATION.md),
+[SM_HAMILTONIAN_AUDIT.md](../unfer/docs/SM_HAMILTONIAN_AUDIT.md) and the SM sections of
+[NUMERICAL_VALIDATION_GUIDE.md](../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md).
+The documented runs are historical evidence, not fresh passes from this update.
+
+The complete `sm_full` path is already implemented. It has 163 named bosonic coordinates,
+40 field momenta, 49 bosonic forms and all 1152 symbolic nonzero entries of the 96-by-96
+matter matrix. Its Cadabra/mathhook bridge checks **1241 exported component expressions**
+and builds the numerical operator from them. Ordered `exact_inner` action retains CCR/CAR
+contractions and constants and performs a single joint graded outer lift; “exact” describes
+operator ordering/action semantics, not exact arithmetic of its `Complex64` coefficients.
+
+`joint_sirk` already uses sequential shifted GMRES solves, physical-vector whitening/
+reorthogonalization, explicit windows, full images/tails and the compressed-resolvent
+function generator. Forward products are comparison diagnostics. Do not plan these as
+unimplemented features. The mathematical SIRK theorems, floating-point certificate receivers
+and any Aeneas pure-core work are not an end-to-end verification of this Rust implementation.
+
+The ledger records 37-test and later 41-test sweeps. Static inspection now finds **13**
+declared tests in `exact_inner_contract.rs`, **7** in `sm_full_contract.rs`, and **13** in
+`sm_full_hashimoto.rs`; source counts are not a claim that the old sweeps ran the present
+set. The suite runner also includes the supporting gauge-fixed validation. Record the
+actual executed test list, feature gates, engine skips and wide-tier flag in the next run.
+
+| Historical observation | Scope and consequence |
+|---|---|
+| `t=.01`, `m=2`: error `9.15134e-5`; `m=4`: `4.17940e-7` | Same finite reference matrix |
+| `m=5`: `5.90702e-7` with a changed shift budget | Rank alone did not improve this cell |
+| First-image tails `9.78477, 4.03868, 1.21796, 0` | Windows of 70, 230, 638, 1176 states |
+| Ehrenfest defect `.20395, .028678, .0043185` | Different 72, 325, 936-state windows |
+
+Zero at the last first-image tail says `H psi_initial` fits in that window, not that the
+window is invariant or later-action tails vanish. The small rational error does not
+certify full unbounded evolution. Energy drift, interaction mutations, mixed graded signs
+and canonical velocity checks are useful independent diagnostics, not substitutes for
+operator identification and a rigorous error enclosure. The canonical numeric convention
+is `q=a+a†`, `p=i(a†-a)/2`, so `[q,p]=i`.
+
+The gauge tests are particularly informative about what remains:
+
+- The electric-only penalty's finite-window floor `9` is a zero-point/compression diagnostic,
+  not a physical constraint gap. Subtracting a longitudinal expectation or minimizing a
+  penalty is not a gauge quotient.
+- Adding matter density makes the probe content-sensitive but its simple charge has
+  `||Q² psi|| about .1392044`, because that probe omits the full nonabelian BRST structure.
+  It is not the already-nilpotent formal `smBrstCharge` on the same identified representation.
+- The 44-state longitudinal-vacuum band has measured leakage `||(I-P)HP|| about .6234982`.
+  It is not a reducing physical subspace. The Coulomb comparison needs an operator-level
+  constraint elimination and representation theorem before physical interpretation.
+- `sm_full_fermion_number_superselected` tests total **matter fermion number**, including
+  off-window sectors. It does not establish conservation of the full electromagnetic
+  gauge charge or anomaly-free continuum chiral dynamics.
+
+### SM0 — bind one complete operator and its representation dictionary
+
+Define a single physical data bundle with the manuscript spin frame, chiral/color/weak
+representations, all generations and all four complex Yukawa matrices, the four **named**
+real Higgs coordinates, couplings, derivative convention and constants. There are three
+right-handed neutrinos and no Majorana mass term in this record. Do not append an extra
+independent antiparticle copy when translating real/Majorana coordinates to complex CAR.
+
+Construct on `SmCoupledCore` the actual
+
+```text
+h_SM = h_B tensor I + sum_j p_xj tensor A_j
+       + sum_r q_gauge,r tensor J_r + sum_a phi_a tensor Y_a + I tensor M0,
+H_SM = dGamma_out(h_SM) = sum_ij <e_i,h_SM e_j> Cdag(e_i) A(e_j).
+```
+
+Derive coefficient Hermiticity and fermion parity from this data, then prove its action
+agrees termwise with the native Rust/Cadabra dictionary under the named coordinate map.
+An abstract `SmInternalData.canonical` placement among the first four harmonic coordinates
+must not stand in for proof that these are the actual four Higgs coordinates. Fixed
+background Yukawa, data-only tables and symmetry of arbitrary matrices are controls.
+
+Retain the Higgs constant and the trace constant in
+`c† K c = Tr(K)/2 + (i/4) gamma^T R gamma`. Inner products act before enclosure;
+`dGamma(BC)` is generally not `dGamma(B)dGamma(C)`, and inner identity lifts to `N_out`.
+The SM E1 spatial derivative is at fixed independent collective/jet coordinates. The
+NS/QG momentum-convolution elimination must not silently replace it. A total-jet or
+spatial field interpretation requires a further intertwiner and compatibility relations.
+
+**Acceptance:** one full-operator definition, common core and term-by-term representation
+identity, including negative controls deleting a coupling, changing a sign or scalar,
+moving a Higgs coordinate, or using a second outer lift.
+
+### SM1 — check the hypotheses before extending the no-ghost or stability routes
+
+The ghost grading `U=smGhostParity` is constructed and `UQ=-QU` is proved. It must be
+distinguished from a physical Krein metric `eta`. Before spending effort on the norm
+inequality of §§75–77 or the newer even-range conditional, formalize this elementary
+**consistency check** for the existing global finite-dimensional hypotheses:
+
+```text
+Q²=0, U²=I, UQ=-QU,
+<Qx,U y> = <x,U Qy> for all x,y       ==>       Q=0.
+```
+
+Indeed substitute `y=UQx` in the charge-form symmetry: the left side is `||Qx||²` and
+the right side is zero. Thus for a nonzero charge, identifying the metric with this
+anticommuting grading cannot satisfy that `hKrein`. This is a new plan-level algebraic
+finding to formalize, not a theorem claimed to be already in `BookProof`. Existing
+conditional statements remain valid implications; their premises cannot count as an
+achieved no-ghost model without a nonzero witness. Similarly `UQ=-QU`, an **even**
+contracting homotopy `UP=PU` and `QPQ=Q` force `Q=0`. The compatible canonical homotopy
+should have the charge's odd degree; prove its grading rather than assuming evenness.
+
+Keep the computed norm-difference identities as identities. Use a separate admissible
+`eta`, or a directly constructed positive reduced representation with a proved dictionary.
+The index-restricted quartet's swapping metric and charge are not automatically the
+fermionic-Fock `smBrstCharge`. Show precisely which conditions survive an actual intertwiner.
+
+Also test **lower boundedness** separately from ESA. In independent-coordinate E1 the
+spatial Dirac term is first order and has signed matrix branches. Use normalized
+high-spatial-frequency core approximations in a negative branch to check whether energy
+can decrease without bound while field expectations stay fixed. If so, retain ESA/unitary
+dynamics as that operator's result and name the additional physical-sector/particle-hole
+representation needed for stability. The oscillator added to the comparison cannot be
+added to `h_SM` as a repair. Outer vacuum annihilation alone does not make it a ground
+state, and `h+cI` changes the final theory by `c N_out`, not a scalar.
+
+**Acceptance:** explicit nonzero-charge consistency results and a scoped stability theorem
+or counterexample. Do not replace either with a finite-window positive lowest Ritz value.
+
+### SM2 — finish the comparison/core transfer using the proved self-bound
+
+Use `N_full = smFullComparison`, with its 43 kinetic coordinates and no added jet kinetic
+terms. Distinguish it from `smFlN` on the 40 active field coordinates. Reuse the proved
+`PotSelfBound`/kinetic-sum consequences and derive the spatial `p_x,x` controls from the
+added spatial oscillator. A precise route is to prove the field comparison and spatial
+oscillator strongly commute on their separate factors and control each by their sum;
+positivity of arbitrary operator cross terms may not simply be assumed.
+
+Transfer the actual comparison closure to the coupled space and discharge its graph-core
+hypothesis with finite internal component approximation and the scalar comparison core.
+Norm density of the Gaussian-polynomial core is not the graph-core statement. Preserve
+all 120 derivative-free jet parameters in the proof and state parameter dependence.
+
+Only the physically supported terms need bounds: the matter perturbation has three
+first-order spatial derivatives and linear gauge/Higgs coordinates, with no new matter
+`p²` family. A theorem whose `D.mom` is supported in the active 40 directions cannot be
+instantiated with `p_x` by renaming its support. Extend the correct comparison/control
+lemma instead. State the finite matrix constants explicitly; sharp constants are not
+necessary for existence, but dependence on fermion mode number matters later in SM8.
+
+**Acceptance:** fully instantiated graph/core and family estimates for the SM0 operator;
+no new `PotSelfBound` assumption or hidden support/placement premise.
+
+### SM3 — assemble full inner ESA at the required quadratic-form level
+
+Prove on the common core
+
+```text
+||h_SM u|| <= K ||(N_full+I)u||,
+|commForm(h_SM,N_full)(u)| <= C <u,(N_full+I)u>,   K,C finite.
+```
+
+Use the instantiated bosonic estimate plus the physical matter terms. For the commutator,
+`[T tensor M,N tensor I]=[T,N] tensor M`; the constant internal matrices commute with
+`N`. Reuse the existing arbitrary-interior Schur machinery and extend its finite-family
+index from Higgs positions to the necessary coordinate/momentum terms. A useful generic
+lemma polarizes a Hermitian scalar commutator form bounded by `N` into a bounded form on
+the `N^(1/2)` space, then tensors it with bounded Hermitian `M`. Verify the domains and
+constant; do not assume all component functions are identical or matrix blocks diagonal.
+
+A shifted-graph-norm-squared estimate does not supply this form estimate. If the chosen
+comparison fails, construct another analytic comparison without changing the physical
+Hamiltonian, and prove its core/commutator requirements. Apply the actual Faris–Lavine
+API only after these inputs and symmetry are discharged.
+
+**Acceptance:** a complete-inner ESA theorem whose binders contain physical parameters
+and necessary parameter ranges, with no assumed graph core, desired commutator estimate
+or equivalent “full ESA” hypothesis. Construct its closure and Stone flow and prove
+agreement with the specified core action. Positivity/stability remains the separate SM1
+claim; no Friedrichs argument for an indefinite matter operator is assumed.
+
+### SM4 — construct the actual physical constraints and positive representation
+
+First write the charge on the **joint bosonic, matter and ghost space**. The existing
+finite matter/ghost `smBrstCharge` proves nilpotency from representation/Jacobi inputs;
+it does not supply the field/Higgs Gauss action of the complete joint theory. Derive the
+full constraint generators and their algebra, including the bosonic/Higgs charges,
+spatial/jet action and nonabelian terms required by SM0. Prove the correct cubic ghost
+contribution and `Q_joint²=0` on a common invariant dense domain.
+
+Fix the ghost-number selection: physical states are normally the specified ghost-number
+cohomology, not an unexplained direct sum of all cohomology degrees. In a finite matter
+model the ghost-number-zero closed space can be tested against actual gauge singlets.
+A complete gauge theory requires nonzero physical states and its actual representation;
+a zero kernel of a translation-like constraint in ambient `L²` may require solving the
+constraint or a distributional/GNS construction instead of penalizing Fock vectors.
+
+Reuse `canonicalHomotopy`/`smBghostCanonical` and their harmonic representative projector
+where their finite-dimensional assumptions apply. A finite Hodge description gives a
+positive Hilbert representative space, but it must be proved to match the physical
+charge form/observable dictionary. For an indefinite formulation, construct `eta`, prove
+charge-form symmetry, positivity on the chosen closed space and that the radical is
+exactly the gauge orbit. Quartet identities alone do not decide that sign.
+
+For an unbounded charge prove closedness, the common domain and the behavior of the
+exact-state range under completion. A positive Hilbert quotient by `range Q` needs that
+range closed, or an explicitly reduced cohomology using its closure. Algebraic exactness,
+zero physical norm and membership in the completed null space cannot be identified by
+finite-dimensional intuition alone.
+
+An alternative is direct gauge reduction with a proven unitary gauge action, invariant
+subspace and positive inner product. Establish equivalence to BRST where claimed; no
+Haar averaging over a noncompact jet-gauge action is presumed. Neither alternative may
+silently substitute a Wilson model or delete longitudinal/Higgs interactions.
+
+**Acceptance:** a nonzero physical Hilbert space, representative/quotient map and physical
+observable algebra for SM0. Record all domain, metric and ghost-number conditions; the
+finite internal homotopy is not an unbounded joint-charge theorem.
+
+### SM5 — descend dynamics and construct the full graded outer enclosure
+
+Prove the SM0 Hamiltonian and its closure preserve the selected constraints, gauge
+orbits, physical metric/form and observable domains. A core commutator `[h,Q]=0` needs
+an extension/domain theorem to give invariant closed spaces or commuting resolvents.
+In a quotient prove representative independence, closability and self-adjointness in the
+physical norm; for a subspace prove it reduces the resolvent/unitary group and identify
+its graph core. Auxiliary-Hilbert ESA does not automatically transfer to a different norm.
+
+Distinguish matter fermion parity, ghost grading and any induced physical parity.
+Prove the even physical inner operator preserves the chosen grading. Build the unitary
+identification between the numerical graded joint occupations and
+`Gamma_s(H_even) tensor Gamma_a(H_odd)`, including Koszul signs, core density and the
+mixed-sector derivation. Reuse ordinary statistics ESA and the existing graded algebra;
+complete the mixed graded closure theorem and apply it to the **full** physical inner
+operator, not the fixed-background tensor sum.
+
+The final action is creation–`h_SM`–annihilation once. Prove the outer vacuum is annihilated,
+number/parity sector behavior and unitary dynamics. A ground/vacuum claim additionally
+needs the appropriate absolute inner lower bound; QED-like massless sectors do not require
+a universal positive SM gap. Do not call every outer particle an elementary SM particle.
+
+**Acceptance:** a single physical-operator/closure/graded-lift diagram and the actual
+inner/outer action theorem used by Rust's joint labels.
+
+### SM6 — formalize the implemented rational algorithm, with usable error estimates
+
+Map `exact_inner.rs`, `sm_full.rs` and `joint_sirk.rs` to exact mathematical semantics:
+ordered words, finite sparse sums, signed graded action, named coordinates, parameter
+binding, explicit projections, registry bijection, whitening and restart state. Scope an
+Aeneas/translation certificate to the actual functions it covers; the existing pure SIRK
+model and `f64` placeholders do not prove this joint GMRES/complex/Padé implementation.
+
+For `A=-iH`, positive shifts give `z_j=i gamma_j` in shifted solves. The implemented
+function is based on
+
+```text
+B = V* (gamma_m I + iH)^(-1) V,
+G = gamma_m I - B^(-1),              u_m(t)=V exp(tG) V* psi.
+```
+
+It is not `V exp(-it V*HV) V* psi`; that matrix is only a Ritz diagnostic. With numerical
+windows the solves use `P H P` and their full residuals must include the omitted image.
+Distinguish the full-resolvent compression `B_full`, the ideal finite-window resolvent
+compression `B_P`, and the actually returned inexact matrix. Use the nonreal self-adjoint
+resolvent bound `||error|| <= ||residual||/|Im z|` only after SM3/SM5 identifies which
+self-adjoint `H` is being approximated. Certify Gram conditioning,
+rank loss/seed leakage, full shifted defects and invertibility/conditioning of **B**;
+an apparently invertible floating matrix is not a proof of invertibility of the exact one.
+
+A useful first exact-arithmetic result is that for isometric `V` the true compressed
+resolvent satisfies `Re B >= gamma B*B`; hence its finite-dimensional inverse gives
+`Re <x,Gx> <= 0`. Prove this and the resulting contraction bound. Exact unitarity of
+`exp(tG)` is not generally true for a nonreducing compression. Perturbed solves need their
+own dissipativity/growth allowance, rather than renormalization hiding a norm defect.
+
+Then prove the direct full-action defect bound, with columns `HV` in the domain:
+
+```text
+D = i V G - H V,
+||exp(-itH)psi - u_m(t)||
+  <= ||psi - V V*psi|| + integral_0^t ||D exp(sG) V*psi|| ds,   t>=0.
+```
+
+For a contractive reduced flow, bound the integral by `t ||D|| ||V*psi||`. Bound `||D||`
+by the square root of the sum of squared full-column norms, or certify the defect Gram
+matrix for a sharper bound. This prices the actual finite-dimensional map, including
+full off-window action, without assuming Krylov invariance. Generalize to inexact/rounded/
+restarted steps with explicit propagation
+and local exponential errors. Use the stronger rational best-approximation theorem when
+its hypotheses and constants improve the result; rank alone is not a uniform error proof.
+
+**Acceptance:** an exact algorithm/action refinement and a numerical certificate interface
+with verified interval/backward-error inputs. Floating point, GMRES stopping, Padé error,
+projection tails and rational approximation have distinct evidence fields. A small Ritz
+residual does not certify eigenvalue ordering, excluded low spectrum or a mass gap.
+
+### SM7 — next numerical work must resolve the present limitations
+
+The numerical execution guide is
+[unfer/SM_RESEARCH_PLAN.md](../unfer/docs/SM_RESEARCH_PLAN.md), **N6–N14**. It reuses the
+implemented foundation and specifies manifests, full-action defect certificates,
+Mehler/cutoff studies, physical constraints and field-limit research with acceptance gates.
+
+Reuse the implemented full-SM suite and historical cells. The next implementer should:
+
+1. Emit a manifest binding operator/parameter/fixture hashes, precision, window, seed,
+   shifts, actual numerical rank, solver tolerances, resource caps and full residual data.
+   Keep first-image tails separate from later basis/evolution tails and from finite-matrix
+   reference errors. Resolve the historical 37/41 counts against the present test list.
+2. Instantiate SM6's defect bound on the 70/230-state references, then on a declared wider
+   window if resources permit. Enclose coefficient arithmetic and residual norms before
+   calling an interval rigorous. A zero first-image tail must fail a purported invariance
+   certificate when `H` of another retained vector leaks out.
+3. Keep operator mutations, Majorana/spin-frame checks and mixed graded probes. Extend
+   physical-probe coverage to off-diagonal gauge actions, all four Higgs components and
+   cross-generation/color coherences; a single fixed matter-content window misses some.
+4. Implement the full constraint dictionary from SM4 before evaluating nilpotency or
+   physical reduction. Probe `[H,Q]`, `Q²` and physical-projector leakage with **full**
+   images and boundary leakage separated. Compression can break an exact gauge identity;
+   a failed truncated commutator alone must not be called a physical anomaly.
+5. Reinterpret the electric-only, density-only and Coulomb-band rows through those exact
+   dictionaries. Changing generators, metric, projection or constraint elimination creates
+   a new model/result label; preserve the earlier diagnostic values.
+
+The existing runner is [run-sm-full-validation](../unfer/scripts/run-sm-full-validation).
+It and the wide tier are **future execution instructions**, not run here. Add targeted
+regressions for changed algorithms/constraints before a full sweep; use the recorded
+Cadabra engine/feature conditions. Neither elapsed time nor a historical passing total
+is a correctness argument. Publish negative and inconclusive cells alongside improvements.
+
+**Acceptance:** a reproducible full-operator error/constraint report whose conclusions
+match its precision and cutoff scope. No supplied mass or scalar Higgs benchmark is a
+prediction derived from the complete physical SM.
+
+### SM8 — extend to infinite inner modes and a field-theory endpoint explicitly
+
+Start from the existing smeared continuum CAR and compatible finite-mode embeddings.
+Define spatially smeared gauge/Higgs/matter fields, physical jets/derivatives, their
+constraints and the renormalized interactions on a common domain. Boundedness of `a(f)`
+for `f in L²` does not bound products at the same point or an unsmeared Yukawa density.
+Keep inner matter-mode cutoff, spatial cutoff/volume, Hermite occupation and Krylov rank
+separate. Infinite outer Fock sectors alone remove none of these inner cutoffs.
+
+Prove closed-form or strong-resolvent convergence, common lower bounds where used,
+nontrivial state/observable convergence and compatible physical reduction, with constants
+uniform in the actual cutoff. Finite-mode matrix bounds may grow with mode count; track
+that dependence instead of claiming a dimension-free theorem from finite CAR. A fixed
+Gaussian/Fock representation may not contain the limiting physical vacuum, so use the
+appropriate cyclic/GNS representation and prove the comparison map.
+
+For quantum gauge consistency, bind the global gauge group/quotient and hypercharge
+period/normalization to the actual chiral representations. As a first algebraic check,
+convert right-handed fields to left-handed conjugates and prove the per-generation
+`U(1)^3`, mixed gravitational/hypercharge, `SU(3)^2 U(1)`, `SU(2)^2 U(1)` and color cubic
+cancellations, without counting the two spin components as independent Weyl species.
+The four weak doublets per generation pass the usual mod-two doublet count; the
+[SU(2) anomaly theorem](https://doi.org/10.1016/0370-2693(82)90728-6) and any additional
+global-group hypotheses must be stated precisely. These representation identities are
+not themselves a regulator-independent measure, Ward-identity or all-orders anomaly proof.
+Establish the quantum/domain bridge for the claimed physical endpoint.
+
+Use Bałaban and the October archive through **cftproof C0–C10** for methods and compatible
+pure-gauge results. Their simple-Lie-algebra pure-gauge existence theorem is not an
+existence theorem for chiral `SU(3) x SU(2) x U(1)` matter, Higgs and Yukawa interactions.
+Graded locality, physical positivity and the common field/phase dictionary must be supplied
+for an OS/Wightman claim. Keep a cutoff-effective-theory endpoint explicit if uniform
+continuum estimates are not obtained; do not label it an all-scale continuum construction.
+
+### SM9 — specialist handoff, order and completion criteria
+
+Execute **SM0 and SM1 first**, then **SM2/SM3** for unreduced complete E1, **SM4/SM5** for
+physical E1 and its outer enclosure. SM6 can establish generic finite-map/residual lemmas
+alongside the inner proof; apply them to the physical operator only after its identification.
+SM7 closes numerical evidence gaps. SM8 is the separately labeled infinite-mode/field
+endpoint, not a reason to postpone the finite E1 theorem. No global mass gap is an SM
+completion criterion, and no physical-sector assumption may be the claimed conclusion.
+
+The first concrete proof deliverables are: the named physical coefficient/coordinate
+adapter; the ghost-grading/metric consistency lemmas; the 43-direction comparison graph
+core and actual first-order support transfer; the full finite-matrix form commutator;
+and the defect-to-evolution error theorem for the **implemented** generator. Each is
+reviewable independently and avoids reopening the already-proved potential self-bound.
+
+After implementation, the Lean specialist checks targeted elaboration, exact endpoint
+types and reachable operator definitions, then `scripts/axiom-audit` and affected aggregates.
+The numerical specialist executes the applicable targeted suites and records commands,
+features, source/dirty hashes, interval inputs, complete tails and engine skips. These are
+future checks. New declaration/module names used in packets are proposed deliverables
+until they exist in source; no compilation is authorized by this planning task.
+
+The acceptance record must bind **one** data dictionary, inner operator, comparison/core,
+closure, physical quotient/representation, parity, outer statistics, resolvent and solver
+interpretation. Negative controls reject fixed-background replacements, moved Higgs slots,
+dropped constants or interactions, unrelated BRST charges, inconsistent metric premises,
+ambient positivity on all ghost states, an unreduced band called physical, a singular
+compressed resolvent, and finite-window/rank evidence presented as cutoff removal.
+
+## Historical programme and executed record
+
+The dated sections below remain the derivation and verification history. Their old forward
+instructions are superseded by SM0–SM9 above, particularly the opening “P4 resumption” and
+any equation of `PotSelfBound` closure with complete SM physical well-definedness.
+
 Date: 2026-11-09; numerical implementation updated 2026-11-09c (§9).
 Executor: LLM-Lean4-specialist for proof packets P0–P8;
 `unfer` implementer for numerical/symbolic packets N0–N5. This is a source-audited
@@ -145,7 +640,7 @@ which operator is the final Hamiltonian.
 
 Read this alongside [the pedagogical SM chapter](Book/StandardModel.lean),
 [softmodes.md](softmodes.md) for the nested-sector and spectral boundaries, and
-[Hashimoto–Nodera](../papers/Hashimoto.md), Definition 2.4 and Theorem 4.1,
+[Hashimoto–Nodera](https://doi.org/10.1007/s13160-019-00347-5), Definition 2.4 and Theorem 4.1,
 for the operator-function approximation conditions used in P6/N4.
 
 The endpoint in this formalism is
@@ -4385,3 +4880,82 @@ Boundary: It does not evaluate the gluon sum `Σ_y f₃ y a b`.  The file's `f�
 antisymmetric Jacobi family, not the trace-orthonormal colour generators, so whether the gluon part
 vanishes remains open — and it is *not* implied by the incident `su(2)` block's `−1`.  The antighost's
 failure is therefore still located block by block, not decided for the whole trace.
+
+## 81. The gluon first-slot trace, evaluated: it does not vanish
+
+§80 left `Σ_{y : Fin 8} f₃ y a b` open because its `f₃` is an arbitrary antisymmetric Jacobi
+family.  At the generators the Standard Model actually uses — the trace-orthonormal Gell-Mann
+`T_a = ½λ^a` — the sum can be computed, and the answer is **no**.
+
+`BookProof/Qym/ChapterYangMillsSU3.lean` isolates the mechanism: for any family `f` and any matrices
+`T`, the first-slot sum is a commutator trace,
+
+  `Σ_y f_{ybc} = −2i · tr((S T_b − T_b S) T_c)`,  `S = Σ_y T_y`
+
+(`sum_f_eq_trace_commutator`), so it vanishes for every `b, c` exactly when `S` is central relative to
+the generators that occur (`sum_f_eq_zero_of_sum_gen_eq_zero`).  For `su(3)` with `S = Σ_y ½λ^y` the
+generator sum is **not** central, and `BookProof/ChapterGellMann.lean` §2 evaluates the exact table
+over `ℚ(√3, i)`:
+
+  `t₀₁ = 1`, `t₀₂ = −1`, `t₀₃ = ½`, `t₀₇ = 0`, `t₄₇ = √3/2`  (`su3gen_firstSlot_*`)
+
+with `su3gen_firstSlot_ne_zero` recording that the table is not identically zero.  At the SM data
+this is `smGluon`/`smIdxEquiv_smGluon` plus `smStruct_trace_gluon` and `smStruct_trace_gluon_ne_zero`
+(`BookProof/Sm/ChapterSmIndexGhostRemainder.lean` §12): the gluon block of §80's trace is the `su(3)`
+table, and it is nonzero.
+
+**The gluon first-slot trace does not vanish** for the trace-orthonormal generators.  Hence §78's
+obstruction is not a weak-sector accident: no choice of gauge generators of this standard form makes
+the antighost sum a contracting homotopy, and §76's correction `T` with `T Ω = 0` remains the only
+route.
+
+Boundary: the evaluation is at one standard normalisation of the generators.  A different basis of the
+same Lie algebra rescales each `t_{bc}` by the basis-change factors, so vanishing is basis-independent
+while the individual entries are not; and nothing here says a *different* b-ghost (not the antighost
+sum) fails — §76's splitting map still exists.
+
+## 82. The commensurability hypothesis is periodicity, not an extra assumption
+
+§74 stated the aliasing criterion under a labelling hypothesis on the model's wave numbers, and §79
+extended the criterion to a skew basis while keeping that hypothesis open.  The hypothesis itself is
+not independent data: it is exactly the statement that the field is periodic under the box shifts.
+
+`BookProof/Ns/ChapterNsVolDomReconstruction.lean` §7 proves `commensurate_of_periodic`: for the phase
+`phase w v = exp(i Σ c, w c * v c)` and a shift vector `N • e_x`,
+
+  `(∀ x, phase w (fun y => (N : ℝ) * e x y) = 1) → commensurate w`
+
+i.e. triviality of the phase on the integer box translations forces the wave numbers into the
+commensurate lattice.  So §74's labelling hypothesis **is** periodicity of the mode under `x ↦ x + N·e_x`
+— the physical statement — and the only genuinely open half is *distinctness*: that the resulting
+labels are pairwise distinct modulo the box (`hdvd` in §74), not the commensurability itself.
+
+Boundary: `commensurate_of_periodic` needs `0 < N` and takes periodicity as a hypothesis; it shows the
+two statements are the same hypothesis, not that either holds for a model.  Distinctness stays open.
+
+## 83. The parity identification *is* the no-ghost inequality
+
+§77 turned no-ghost positivity at the SM charge into the norm inequality
+`‖odd V y‖² ≤ ‖even V y‖²` on `range V`, and left open whether that range can instead be
+*identified* with the transverse, ghost-parity-even sector.  It cannot be used that way: the
+identification is a consequence of the inequality, not a route to it.
+
+`BookProof/Sm/ChapterSmQuartet.lean` §13 proves, for any quartet data,
+
+* `kform_self_eq_norm_sq_of_even` / `kform_self_eq_neg_norm_sq_of_odd`: the charge form is `±‖·‖²`
+  on the two parity sectors;
+* `range_physProjOf_parity_mem`: with a parity-even b-ghost of a charge that is odd for `U`
+  (`U Q = −Q U`), `U` preserves `ker Q ⊓ ker P = range V`;
+* `physicalPositivity_imp_evenRange`: `PhysicalPositivity Q U` therefore forces `U (V y) = V y`.
+
+So positivity *forces* the physical range into the even sector, and §12's
+`smPhysicalPositivity_of_evenRange` gives the converse at the SM charge from the same evenness.  The
+transverse identification is the no-ghost input in another form.
+
+Boundary: the forward direction is stated for a quartet whose b-ghost has the contraction identities,
+and §12's converse (`smPhysicalPositivity_of_evenRange`) is the half discharged at the concrete charge.
+Closing the loop at `smPhysProj` itself would need `Q P Q = Q` and `P Q P = P` for the
+`Classical.choice`-made b-ghost of `smQuartet`, and those are not exposed, so the concrete-charge
+forward implication is not claimed.  Also not produced: a parity-even b-ghost.  `U P = P U` for the
+canonical homotopy says the orthogonal projection onto `range Ω` commutes with `U`, i.e. that the exact
+states are parity-invariant, which does not follow from `U Q = −Q U`.

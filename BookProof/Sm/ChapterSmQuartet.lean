@@ -1307,56 +1307,61 @@ theorem smPhysicalPositivity_of_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin 
       nlinarith [norm_nonneg (smPhysProj hT h3anti h3jac y)]
     exact norm_eq_zero.mp hzero
 
-end
-
 /-! ## 13. The parity grading on the physical range, and what it does *not* settle
 
-§12 reduced the no-ghost condition to a norm inequality on `range V`.  This section asks whether that
-range can be *identified* with the ghost-parity-even sector — the transverse description — instead of
-being bounded.  The answer has two halves.
+§12 reduced the no-ghost condition to a norm inequality on `range V`.  This section asks
+whether that range can be *identified* with the ghost-parity-even sector — the transverse
+description — instead of being bounded.  The answer has two halves.
 
-**The grading is well defined on the range.**  If the chosen b-ghost is parity-even (`U P = P U`),
-then `ker P` is `U`-invariant; together with the charge's oddness (`U Q = -Q U`, which makes `ker Q`
-invariant too) this makes `ker Q ⊓ ker P = range V` invariant (`range_physProjOf` gives the
-description).  So every physical state splits into even and odd parts *inside* the range.
+**The grading is well defined on the range.**  If the chosen b-ghost is parity-even
+(`U P = P U`), then `ker P` is `U`-invariant; together with the charge's oddness
+(`U Q = -Q U`, which makes `ker Q` invariant too) this makes `ker Q ⊓ ker P = range V`
+invariant (`range_physProjOf` gives the description).  So every physical state splits into
+even and odd parts *inside* the range.
 
-**Evenness and positivity are the same statement.**  On an even vector the ghost-parity form is
-`‖·‖²` and on an odd one it is `-‖·‖²`; the odd part of a physical state is again physical, and
-positivity fails at every nonzero odd state.  Hence
-
-  `PhysicalPositivity Q U ↔ every physical state is ghost-parity even`
-
-(`physicalPositivity_iff_evenRange`).  The identification is therefore *not* a route to §77's
-inequality: it is the inequality, restated.  What the section does settle is the status of the
-transverse description — the grading exists on the range exactly when the gauge-fixing is
-parity-even — while the estimate itself stays the no-ghost input. -/
+**Positivity forces the range into the even sector** (the converse fails).  On an even vector
+the ghost-parity form is `‖·‖²` and on an odd one it is `-‖·‖²`, so a closed odd vector can only
+satisfy non-negativity if it vanishes; then the odd part of each physical state is zero and the
+range is even.  Hence `PhysicalPositivity Q U → range V ⊆ evenSpace U`
+(`physicalPositivity_imp_evenRange`).  The converse would need the radical half of positivity as
+well: an odd closed vector that is *not* in the range (nothing above puts it there) is invisible
+to evenness, but still violates `PhysicalPositivity` through its second conjunct.  So the
+transverse identification is a *consequence* of the no-ghost input, never a way around it — §77's
+inequality stays the input, and §74's `hdvd` (that the harmonic complement is the transverse one)
+is the same question in another form. -/
+namespace BrstQuartet
 
 /-- On a ghost-parity-even vector the charge form is the ambient norm squared. -/
 theorem kform_self_eq_norm_sq_of_even {U : H →ₗ[ℂ] H} {x : H} (hx : U x = x) :
     (kform U x x).re = ‖x‖ ^ 2 := by
-  rw [kform, hx, inner_self_eq_norm_sq_to_K]
-  simp [pow_two, Complex.mul_re]
+  rw [kform, hx]
+  change RCLike.re (inner ℂ x x) = ‖x‖ ^ 2
+  rw [← InnerProductSpace.norm_sq_eq_re_inner (𝕜 := ℂ) x]
 
 /-- On a ghost-parity-odd vector the charge form is minus the ambient norm squared. -/
 theorem kform_self_eq_neg_norm_sq_of_odd {U : H →ₗ[ℂ] H} {x : H} (hx : U x = -x) :
     (kform U x x).re = -(‖x‖ ^ 2) := by
-  rw [kform, hx, inner_neg_right, Complex.neg_re, inner_self_eq_norm_sq_to_K]
-  simp [pow_two, Complex.mul_re]
+  rw [kform, hx, inner_neg_right]
+  change -RCLike.re (inner ℂ x x) = -(‖x‖ ^ 2)
+  rw [← InnerProductSpace.norm_sq_eq_re_inner (𝕜 := ℂ) x]
 
-/-- **The parity grading on the physical range.**  For a parity-even b-ghost of a charge that is odd
-for `U`, the range of the constructed projector is `U`-invariant: `U` preserves both `ker Q` and
-`ker P`, hence their intersection `ker Q ⊓ ker P = range V`. -/
+/-- **The parity grading on the physical range.**  For a parity-even b-ghost of a charge that
+is odd for `U`, the range of the constructed projector is `U`-invariant: `U` preserves both
+`ker Q` and `ker P`, hence their intersection `ker Q ⊓ ker P = range V`. -/
 theorem range_physProjOf_parity_mem {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
     (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
     (hU : U ∘ₗ U = LinearMap.id) (hUodd : ∀ x : H, U (Q x) = -(Q (U x)))
     (hUP : ∀ x : H, U (P x) = P (U x)) :
     ∀ x ∈ LinearMap.range (physProjOf Q P), U x ∈ LinearMap.range (physProjOf Q P) := by
-  have hUinv : ∀ x : H, U (U x) = x := fun x => U_apply_U hU x
   have hQUodd : ∀ x : H, Q (U x) = -(U (Q x)) := by
     intro x
-    have h := congrArg U (hUodd x)
-    rw [hUinv, hUinv] at h
-    exact h.symm
+    have h1 : U (Q (U x)) = -(Q x) := by
+      have h := hUodd (U x)
+      rw [U_apply_U hU x] at h
+      exact h
+    have h2 := congrArg U h1
+    rw [map_neg, U_apply_U hU] at h2
+    exact h2
   intro x hx
   rw [range_physProjOf hQ hQSQ hSQS] at hx ⊢
   obtain ⟨hcl, hP⟩ := Submodule.mem_inf.mp hx
@@ -1364,58 +1369,45 @@ theorem range_physProjOf_parity_mem {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
   · rw [closed, LinearMap.mem_ker] at hcl ⊢
     rw [hQUodd, hcl, map_zero, neg_zero]
   · rw [LinearMap.mem_ker] at hP ⊢
-    rw [hUP, hP, map_zero]
+    rw [← hUP, hP, map_zero]
 
-/-- **Evenness of the physical range *is* the no-ghost condition.**  With a parity-even b-ghost, the
-charge form on the range is the norm difference of §77; positivity holds exactly when every physical
-state is ghost-parity even.  So identifying the range with the even sector is not a way around the
-inequality — it is the inequality. -/
-theorem physicalPositivity_iff_evenRange {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+/-- **Positivity puts the physical range in the ghost-parity-even sector.**  The odd part of a
+physical state is again physical, and on an odd vector the charge form is `-‖·‖²`, so
+`PhysicalPositivity` kills it.  This is one direction only: the reverse would need the radical
+half of positivity, which evenness of the range does not supply (odd closed vectors outside the
+range are unconstrained by it). -/
+theorem physicalPositivity_imp_evenRange {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
     (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
-    (hU : U ∘ₗ U = LinearMap.id) (hUnorm : ∀ x : H, ‖U x‖ = ‖x‖)
-    (hUadj : ∀ x y : H, inner ℂ (U x) y = inner ℂ x (U y))
-    (hUodd : ∀ x : H, U (Q x) = -(Q (U x))) (hUP : ∀ x : H, U (P x) = P (U x))
-    (hKrein : ∀ x y : H, kform U (Q x) y = kform U x (Q y)) :
-    PhysicalPositivity Q U ↔ ∀ y : H, U (physProjOf Q P y) = physProjOf Q P y := by
-  have hSymm : ∀ x y : H, kform U x y = star (kform U y x) := by
-    intro x y
-    show inner ℂ x (U y) = star (inner ℂ y (U x))
-    rw [← inner_conj_symm (U x) y]
-    exact hUadj x y
-  constructor
-  · intro hpos y
-    set x : H := physProjOf Q P y with hx
-    have hxV : x ∈ LinearMap.range (physProjOf Q P) := ⟨y, rfl⟩
-    have hinv := range_physProjOf_parity_mem hQ hQSQ hSQS hU hUodd hUP
-    have hoddV : oddPart U x ∈ LinearMap.range (physProjOf Q P) :=
-      oddPart_mem_of_mem _ (fun z hz => hinv z hz) hxV
-    have hoddClosed : oddPart U x ∈ closed Q := by
-      have := hoddV
-      rw [range_physProjOf hQ hQSQ hSQS] at this
-      exact (Submodule.mem_inf.mp this).1
-    have hnonneg : 0 ≤ (kform U (oddPart U x) (oddPart U x)).re := hpos.1 _ hoddClosed
-    have hoddSelf : U (oddPart U x) = -(oddPart U x) := (mem_oddSpace_iff _).mp (oddPart_mem hU x)
-    rw [kform_self_eq_neg_norm_sq_of_odd hoddSelf] at hnonneg
-    have hzero : oddPart U x = 0 := by
-      have : ‖oddPart U x‖ ^ 2 = 0 := by linarith
-      have := pow_eq_zero_iff (n := 2) (by norm_num) |>.mp this
-      exact norm_eq_zero.mp this
-    have hxeq : x = evenPart U x := by
-      have hsum := evenPart_add_oddPart (U := U) x
-      rw [hzero, add_zero] at hsum
-      exact hsum.symm
-    rw [hxeq]
-    exact (mem_evenSpace_iff _).mp (evenPart_mem hU x)
-  · intro heven
-    refine physicalPositivity_of_homotopy_on_range hQ hQSQ hSQS hKrein hSymm ?_ ?_
-    · intro y
-      rw [kform_self_eq_norm_sq_of_even (heven y)]
-      exact sq_nonneg _
-    · intro y hy
-      rw [kform_self_eq_norm_sq_of_even (heven y)] at hy
-      have hnorm : ‖physProjOf Q P y‖ = 0 := by
-        have : ‖physProjOf Q P y‖ ^ 2 = 0 := hy
-        exact pow_eq_zero_iff (n := 2) (by norm_num) |>.mp this
-      exact norm_eq_zero.mp hnorm
+    (hU : U ∘ₗ U = LinearMap.id) (hUodd : ∀ x : H, U (Q x) = -(Q (U x)))
+    (hUP : ∀ x : H, U (P x) = P (U x)) (hpos : PhysicalPositivity Q U) :
+    ∀ y : H, U (physProjOf Q P y) = physProjOf Q P y := by
+  have hinv := range_physProjOf_parity_mem hQ hQSQ hSQS hU hUodd hUP
+  intro y
+  set x : H := physProjOf Q P y with hx
+  have hxV : x ∈ LinearMap.range (physProjOf Q P) := ⟨y, rfl⟩
+  have hoddV : oddPart U x ∈ LinearMap.range (physProjOf Q P) :=
+    oddPart_mem_of_mem _ (fun z hz => hinv z hz) hxV
+  have hoddClosed : oddPart U x ∈ closed Q := by
+    have h := hoddV
+    rw [range_physProjOf hQ hQSQ hSQS] at h
+    exact (Submodule.mem_inf.mp h).1
+  have hnonneg : 0 ≤ (kform U (oddPart U x) (oddPart U x)).re := hpos.1 _ hoddClosed
+  have hoddSelf : U (oddPart U x) = -(oddPart U x) :=
+    (mem_oddSpace_iff _).mp (oddPart_mem hU x)
+  rw [kform_self_eq_neg_norm_sq_of_odd hoddSelf] at hnonneg
+  have hzero : oddPart U x = 0 := by
+    have hsq : ‖oddPart U x‖ ^ 2 = 0 := by
+      nlinarith [sq_nonneg ‖oddPart U x‖]
+    exact norm_eq_zero.mp (pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hsq)
+  have hxeq : x = evenPart U x := by
+    have hsum := evenPart_add_oddPart (U := U) x
+    rw [hzero, add_zero] at hsum
+    exact hsum.symm
+  have heven : U (evenPart U x) = evenPart U x := (mem_evenSpace_iff _).mp (evenPart_mem hU x)
+  rw [hxeq, heven]
+
+end BrstQuartet
+
+end
 
 end BookProof.SmQuartet
