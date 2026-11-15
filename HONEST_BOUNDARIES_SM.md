@@ -528,3 +528,40 @@ parity form on `ker Ω` and an explicit odd closed witness; `max ‖Ω x‖` ove
 §92's equivalence, 19 of them in the positivity-holding regime.  **Scope:** the truncation is the
 su(2) block, so these numbers illustrate the theorems and do not decide the Standard Model's closed
 space.  No metric in the Krein sense is constructed anywhere.  See plan §93.
+
+## Correction 2026-11-15g — the ghost-free sector decides the parity metric
+
+§93 closed with "whether `smBrstCharge` itself annihilates its even sector is not decided here".  Half of
+that is now settled, and the direction matters for how the earlier claims should be read.
+
+**What is now decided.**  On the states with no ghost occupied the charge is computable by hand: the cubic
+term vanishes, and one ghost annihilation of `Ω (occ S)` returns one Gauss generator, so `Ω` kills a
+ghost-free state iff every `G_a` does (`ChapterSmQuartet` §20, `matterGen_eq_zero_of_kills`).  Positivity
+of the ghost-parity form therefore **requires** all twelve Gauss generators to annihilate every ghost-free
+state (`smPhysicalPositivity_imp_matterGen_kills_ghostFree`), and one nonzero matrix entry of one `T a`
+refutes it (`not_physicalPositivity_of_ghostFree_gauss`).  The numerical companion
+`scripts/sm-ghost-free-witness.py` evaluates the six-mode coloured weak doublet: the even state with
+matter mode 0 occupied and the ghost vacuum has `‖Ω ψ‖ = 1.7559 ≠ 0`, with cubic part `0` and
+`‖Ω ψ − Σ_a c^a G_a ψ‖ = 0`, and in the full twelve-ghost sector (4096 states at `m = 0`, 8192 at `m = 1`)
+the even sector is not contained in `ker Ω` (1028 of 2048 even states in the kernel at `m = 0`, 2052 of
+4096 at `m = 1`).  So **the ghost parity is not a no-ghost metric for the Standard Model's charge**, and
+the obstruction is a Gauss term rather than a truncation artefact.
+
+**What is still open.**  The condition is necessary, not sufficient — §18's converse is still missing, and
+§20 does not classify even states that the cubic term maps to zero or away from zero.  The blockwise rank
+computation reaches the full ghost sector only with trivial or hypercharge-only matter; the eighteen-mode
+doublet (`2^18` states) is out of reach, so for it only the one-state witness is measured.  In Lean the
+refutation takes `G_a (occ S) ≠ 0` as a hypothesis; that the model's hyperplane generator satisfies it is
+checked numerically.
+
+**On the earlier wording.**  Nothing in §92/§93 was wrong, but "the charge must kill the even sector" is
+not a condition one can hope to meet by choosing a clever representation: at any charge with a Gauss term
+it fails on the ghost-free states, and the honest statement of the no-ghost requirement is the metric
+statement of §93 (the projector onto the canonical physical range), whose radical is the gauge orbit.  §21
+of `ChapterSmQuartet` now makes that radical statement exact —
+`kform_starProjection_radical` (the form vanishes on the closed space iff the state is exact),
+`kform_starProjection_descends` (invariance under exact shifts in both slots),
+`kform_starProjection_definite` (positive definite on the canonical range, where it is the ambient norm),
+together with `exists_gauge_add_mem` and `representative_unique` for the identification
+`ker Ω / range Ω ≃ D`.  The identification is a decomposition with uniqueness, not an `Equiv` or an
+`InnerProductSpace` instance, and it depends on the canonical choice of complement.  See plan §94.

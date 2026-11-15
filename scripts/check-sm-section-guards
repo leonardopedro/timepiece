@@ -1011,6 +1011,30 @@ require "$PLAN" 'the charge must kill the even sector, and the metric that works
 require "$PLAN" 'parity metric is not no-ghost at this truncation' \
     "§93: the plan must keep the truncation's verdict"
 
+# §94: the ghost-free sector decides the parity metric, and the radical is the cohomology
+require "$QUARTET" "theorem matterGen_eq_zero_of_kills" \
+    "§94: the ghost-free sector's criterion must stay"
+require "$QUARTET" "theorem ghostAnn_smBrstCharge_occ_of_ghostFree" \
+    "§94: recovering one Gauss generator from the charge must stay"
+require "$QUARTET" "theorem not_physicalPositivity_of_ghostFree_gauss" \
+    "§94: the one-entry refutation must stay"
+require "$QUARTET" "theorem kform_starProjection_radical" \
+    "§94: the radical/gauge identification must stay"
+require "$QUARTET" "theorem kform_starProjection_descends" \
+    "§94: the descent to the cohomology must stay"
+require "$FORMULA" "theorem smPhysMetric_radical_eq_gauge" \
+    "§94: the model's radical statement must stay"
+require "$FORMULA" "theorem smPhysMetric_descends" \
+    "§94: the model's descent statement must stay"
+require "scripts/sm-ghost-free-witness.py" "even sector inside ker Omega" \
+    "§94: the witness script must keep the kernel containment check"
+require "$PLAN" 'The ghost-free sector decides the parity metric' \
+    "§94: the plan must keep the decision"
+require "$PLAN" 'no-ghost at the Standard Model' \
+    "§94: the plan must keep the verdict"
+require "$PLAN" 'out of reach for sparse' \
+    "§94: the plan must keep the truncation boundary"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

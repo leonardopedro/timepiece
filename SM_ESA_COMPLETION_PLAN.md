@@ -5289,3 +5289,78 @@ do not decide the model's closed space.
 Boundary: whether `smBrstCharge` itself annihilates its even sector is not decided here; §18 turns it
 into a one-vector question, and the smoke test shows what the answer looks like on a truncation where
 the Gauss term is present.
+
+## §94. The ghost-free sector decides the parity metric; the projector's radical is the cohomology
+
+§93 left one question explicitly open: *does `smBrstCharge` itself annihilate its even sector?*  It is now
+decided for a sector that can be written down by hand, and the answer is **no** — not for this charge,
+not for any charge whose Gauss term acts nontrivially on ghost-free states.
+
+**The computation (`ChapterSmQuartet` §20).**  Take a state with matter occupied and *no ghost*: an
+occupation state `occ S` with `GhostFree m S`.  The cubic term dies at once, since its rightmost factor
+is a ghost annihilation (`smGhostCharge_occ_of_ghostFree`), so
+
+  `Ω (occ S) = Σ_a c^a G_a (occ S)`   (`smBrstCharge_occ_of_ghostFree`),
+
+and applying one ghost annihilation recovers exactly one Gauss generator,
+
+  `b_a (Ω (occ S)) = G_a (occ S)`   (`ghostAnn_smBrstCharge_occ_of_ghostFree`),
+
+because the CAR pairs `b_a` with `c^a` and the remaining terms meet a ghost-free state.  Therefore `Ω`
+kills a ghost-free state **iff** every Gauss generator does (`matterGen_eq_zero_of_kills`).  Since
+ghost-free states are fixed by the ghost parity (`smGhostParity_occ_of_ghostFree`), §18 turns this into
+
+  `PhysicalPositivity Ω U  ⟹  ∀ S a, GhostFree m S → G_a (occ S) = 0`
+  (`smPhysicalPositivity_imp_matterGen_kills_ghostFree`),
+
+and its contrapositive is a refutation from a single matrix entry: one `a` and one ghost-free `S` with
+`G_a (occ S) ≠ 0` gives one even state with `Ω x ≠ 0`, hence `¬ PhysicalPositivity Ω U`
+(`not_physicalPositivity_of_ghostFree_gauss`).  No truncation appears in any of these statements.
+
+**The numbers (`scripts/sm-ghost-free-witness.py`).**  The script rebuilds the charge from the Gell-Mann
+and Pauli matrices (structure constants checked: 60 nonzero triples, antisymmetry residual `0`, Jacobi
+residual `3.3e-16`) and uses the ghost-number/matter-number block structure — `Ω` raises the ghost number
+by one and preserves the matter number — so the ranks are computed block by block with sparse
+elimination.  Full `su(3) ⊕ su(2) ⊕ u(1)` ghost sector, measured 2026-11-15:
+
+| model | states | `‖Ω²‖` | `dim ker Ω` | `dim range Ω` | even ∩ ker | odd ∩ ker | even ⊆ ker |
+|---|---|---|---|---|---|---|---|
+| `m = 0` (ghost sector only) | 4096 | `3.3e-16` | 2056 | 2040 | 1028 | 1028 | **no** |
+| `m = 1` (hypercharge `y = 1`) | 8192 | `3.3e-16` | 4104 | 4088 | 2052 | 2052 | **no** |
+
+`ker + range = dim` holds in both rows, and the even and odd halves of the kernel have equal dimension —
+as they must, since `U Ω = −Ω U` leaves `ker Ω` invariant.  At the six-mode coloured weak doublet
+(`m = 6`, `ChapterSmGaugeRepresentation`'s representation) the even state with matter mode 0 occupied and
+the ghost vacuum has `‖Ω ψ‖ = 1.7559`, `Σ_a ‖G_a ψ‖² = 37/12 = 3.0833`, cubic part `0`, and
+`‖Ω ψ − Σ_a c^a G_a ψ‖ = 0` — the identity above, checked independently of the proof.  The Gauss
+generators that act nontrivially there are `{0,1,2,3,4,7,8,9,10,11}`.  So the parity metric is **not**
+no-ghost at the Standard Model's charge, and the reason is a Gauss term, not a truncation artefact.
+
+**The projector's radical is the cohomology (`ChapterSmQuartet` §21, `ChapterSmBghostFormula` §6).**  The
+metric that *does* work was built in §93; §21 states what "an inner product on the cohomology" unpacks
+into, without leaving the quotient implicit:
+
+* `kform_starProjection_radical`: on the closed space the form vanishes **iff** the state is exact, so it
+  is definite on `ker Ω / range Ω` and not merely semidefinite there;
+* `kform_starProjection_descends`: shifting either argument by an exact state changes nothing — the
+  well-definedness that `kform_well_defined` states abstractly, now proved for this `η`;
+* `kform_starProjection_definite` and `kform_starProjection_eq_norm_sq_of_mem`: on the canonical range the
+  form **is** the ambient norm squared, hence positive definite;
+* `exists_gauge_add_mem` and `representative_unique`: every closed state is exact plus **one** member of
+  that range, so `ker Ω / range Ω ≃ D` and the descended form is the ambient inner product transported
+  along the identification.
+
+At the model these are `smPhysMetric_radical_eq_gauge`, `smPhysMetric_descends`, `smPhysMetric_definite`
+and `smPhysMetric_representative`, with the two hypotheses of §93 extracted as
+`smPhysProjFormula_le_orthogonal` and `closed_eq_sup_range_smPhysProjFormula`.
+
+**Boundaries.**  (i) §20's condition is necessary, not sufficient: the converse of §18 is still missing,
+and a closed even state can also be produced by the cubic term, which §20 does not classify (the `m = 0`
+row shows the cubic term alone already fails to kill the even sector).  (ii) The blockwise ranks reach the
+full twelve-ghost sector only with trivial or hypercharge-only matter (`m ≤ 1`, 8192 states); the
+eighteen-mode doublet has `2^18 = 262144` states and blocks of `20 · C(12,6)`, out of reach for sparse
+elimination in pure Python, so for it only the one-state witness is computed.  (iii) The quotient
+identification is recorded as a decomposition with uniqueness, not as an `Equiv` or an
+`InnerProductSpace` instance, and `D` is the canonical range, so it is a property of that choice of
+complement.  (iv) The Lean refutation takes `G_a (occ S) ≠ 0` as a hypothesis; that the model's
+hypercharge generator satisfies it at the six-mode doublet is checked numerically, not in Lean.

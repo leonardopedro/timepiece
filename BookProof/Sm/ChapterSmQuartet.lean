@@ -2419,6 +2419,267 @@ theorem physicalPositivity_starProjection {Q : H →ₗ[ℂ] H} (D : Submodule �
     rw [← hqd, hd0, add_zero]
     exact hq
 
+/-! ## 21. The projector's radical is the gauge orbit: the quotient form
+
+§19 proved that `η = P_D` is no-ghost.  The four statements below are what "`η` is an inner product
+on the cohomology" unpacks into, with no quotient construction left implicit:
+
+* the form is non-negative on the closed space and its radical there is exactly `range Q`
+  (`kform_starProjection_radical`) — so it is *definite* on `ker Q / range Q`, not merely
+  semidefinite there;
+* adding an exact state changes nothing, in either slot (`kform_starProjection_descends`) — so the
+  form is a function of the cohomology class, which is the well-definedness `kform_well_defined`
+  states abstractly;
+* on the representing subspace `D` the form *is* the ambient norm squared
+  (`kform_starProjection_eq_norm_sq_of_mem`), hence positive definite
+  (`kform_starProjection_definite`);
+* every closed state is exact plus **one** representative in `D` (`exists_gauge_add_mem`,
+  `representative_unique`), so `D` is a model of the quotient and the descended form is the ambient
+  inner product transported along the identification `ker Q / range Q ≃ D`.
+
+**Boundary.**  The identification `ker Q / range Q ≃ D` is recorded as a decomposition with a
+uniqueness statement, not as an `Equiv` or an `InnerProductSpace` instance; and `D` here is the
+canonical range, so the identification is a property of that choice, not of the quartet alone. -/
+
+/-- Every closed state is an exact state plus a member of the complement `D`. -/
+theorem exists_gauge_add_mem {Q : H →ₗ[ℂ] H} (D : Submodule ℂ H)
+    (hsplit : closed Q = LinearMap.range Q ⊔ D) {x : H} (hx : x ∈ closed Q) :
+    ∃ e ∈ LinearMap.range Q, ∃ d ∈ D, x = e + d := by
+  have hmem : x ∈ LinearMap.range Q ⊔ D := by rw [← hsplit]; exact hx
+  obtain ⟨e, he, d, hd, hed⟩ := Submodule.mem_sup.mp hmem
+  exact ⟨e, he, d, hd, hed.symm⟩
+
+/-- Two decompositions of the same closed state have the same `D`-part. -/
+theorem representative_unique {Q : H →ₗ[ℂ] H} (D : Submodule ℂ H)
+    (hDQ : LinearMap.range Q ≤ Dᗮ) {e₁ e₂ d₁ d₂ : H} (he₁ : e₁ ∈ LinearMap.range Q)
+    (he₂ : e₂ ∈ LinearMap.range Q) (hd₁ : d₁ ∈ D) (hd₂ : d₂ ∈ D) (h : e₁ + d₁ = e₂ + d₂) :
+    d₁ = d₂ := by
+  have hdiff : d₁ - d₂ = e₂ - e₁ := by
+    rw [sub_eq_sub_iff_add_eq_add, add_comm d₁]
+    exact h
+  have hex : d₁ - d₂ ∈ LinearMap.range Q := by
+    rw [hdiff]
+    exact (LinearMap.range Q).sub_mem he₂ he₁
+  have hD : d₁ - d₂ ∈ D := D.sub_mem hd₁ hd₂
+  have hbot : d₁ - d₂ ∈ (⊥ : Submodule ℂ H) := by
+    rw [← Submodule.inf_orthogonal_eq_bot]
+    exact ⟨hD, hDQ hex⟩
+  exact sub_eq_zero.mp (by simpa using hbot)
+
+/-- **The radical of the projector's charge form on the closed space is the gauge orbit.** -/
+theorem kform_starProjection_radical {Q : H →ₗ[ℂ] H} (D : Submodule ℂ H)
+    [D.HasOrthogonalProjection] (hDQ : LinearMap.range Q ≤ Dᗮ)
+    (hsplit : closed Q = LinearMap.range Q ⊔ D) {x : H} (hx : x ∈ closed Q) :
+    (kform D.starProjection.toLinearMap x x).re = 0 ↔ x ∈ LinearMap.range Q := by
+  refine ⟨(physicalPositivity_starProjection D hDQ hsplit).2 x hx, fun hg => ?_⟩
+  have horth : x ∈ Dᗮ := hDQ hg
+  have hq : D.starProjection x = 0 :=
+    (Submodule.starProjection_apply_eq_zero_iff (K := D)).mpr horth
+  rw [kform_starProjection_self, hq, norm_zero]
+  norm_num
+
+/-- Adding an exact state changes the projector form in the first slot not at all. -/
+theorem kform_starProjection_add_gauge_left {Q : H →ₗ[ℂ] H} (D : Submodule ℂ H)
+    [D.HasOrthogonalProjection] (hDQ : LinearMap.range Q ≤ Dᗮ) (x y : H) (z : H) :
+    kform D.starProjection.toLinearMap (x + Q z) y
+      = kform D.starProjection.toLinearMap x y := by
+  have hzero : kform D.starProjection.toLinearMap (Q z) y = 0 := by
+    have hq : D.starProjection (Q z) = 0 :=
+      (Submodule.starProjection_apply_eq_zero_iff (K := D)).mpr (hDQ ⟨z, rfl⟩)
+    rw [kform]
+    change inner ℂ (Q z) (D.starProjection y) = 0
+    rw [← Submodule.inner_starProjection_left_eq_right D (Q z) y, hq, inner_zero_left]
+  rw [kform_add_left, hzero, add_zero]
+
+/-- Adding an exact state changes the projector form in the second slot not at all. -/
+theorem kform_starProjection_add_gauge_right {Q : H →ₗ[ℂ] H} (D : Submodule ℂ H)
+    [D.HasOrthogonalProjection] (hDQ : LinearMap.range Q ≤ Dᗮ) (x y : H) (w : H) :
+    kform D.starProjection.toLinearMap x (y + Q w)
+      = kform D.starProjection.toLinearMap x y := by
+  have hq : (D.starProjection (Q w) : H) = 0 :=
+    (Submodule.starProjection_apply_eq_zero_iff (K := D)).mpr (hDQ ⟨w, rfl⟩)
+  simp [kform, hq]
+
+/-- **The projector form is a function of the cohomology class**: both arguments may be shifted by
+exact states.  This is the descent that makes it a form on `ker Q / range Q`. -/
+theorem kform_starProjection_descends {Q : H →ₗ[ℂ] H} (D : Submodule ℂ H)
+    [D.HasOrthogonalProjection] (hDQ : LinearMap.range Q ≤ Dᗮ) (x y : H) (z w : H) :
+    kform D.starProjection.toLinearMap (x + Q z) (y + Q w)
+      = kform D.starProjection.toLinearMap x y := by
+  rw [kform_starProjection_add_gauge_left D hDQ x (y + Q w) z,
+    kform_starProjection_add_gauge_right D hDQ x y w]
+
+/-- On the representing subspace the projector form is positive definite, so the descended form is
+positive definite on the cohomology. -/
+theorem kform_starProjection_definite (D : Submodule ℂ H) [D.HasOrthogonalProjection] {d : H}
+    (hd : d ∈ D) (h0 : (kform D.starProjection.toLinearMap d d).re = 0) : d = 0 := by
+  have hsq : ‖d‖ ^ 2 = 0 := by
+    rw [← kform_starProjection_eq_norm_sq_of_mem D hd]
+    exact h0
+  exact norm_eq_zero.mp (pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hsq)
+
+/-! ## 20. Which even states the charge kills: the ghost-free sector
+
+§18 says positivity forces `Ω` to kill the even sector.  One part of that sector can be computed by
+hand: the states with **no ghost occupied** and arbitrary matter.  For such a state the cubic term
+dies immediately, because its last factor is a ghost annihilation acting on a state that has no
+ghost at all; the Gauss term survives term by term.  Applying a single ghost annihilation to the
+result recovers exactly one Gauss generator
+(`ghostAnn_smBrstCharge_occ_of_ghostFree`), so `Ω` kills a ghost-free state **iff** every Gauss
+generator does (`matterGen_eq_zero_of_kills`).
+
+**The consequence is a refutation, not a hypothesis.**  Combining that with §18, positivity of the
+ghost-parity form requires all twelve Gauss generators to annihilate every ghost-free state
+(`smPhysicalPositivity_imp_matterGen_kills_ghostFree`).  Conversely one nonzero matrix entry of one
+`T a` gives one even state with `Ω x ≠ 0` and hence `¬ PhysicalPositivity` for the ghost parity
+(`not_physicalPositivity_of_ghostFree_gauss`).  Nothing here mentions a truncation: this is a
+statement about the model's own charge, and it is why the ghost parity is not a no-ghost metric for
+a charge with a Gauss term.
+
+**Boundary.**  The requirement is necessary, not sufficient — §18's converse is not available.  The
+sector where Gauss is nontrivial is *not* the whole even sector of `Ω`, and a closed even state with
+no ghost can also be produced by the cubic term acting on matter, which this section does not
+classify. -/
+
+open BookProof.SmBrstGhost BookProof.SmCar BookProof.BRSTNilpotent
+
+variable {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ} {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+
+/-- A subset of modes meeting no ghost mode: the occupation state of a matter configuration with the
+ghost vacuum. -/
+def GhostFree (m : ℕ) (S : Finset (Fin (m + 12))) : Prop := ∀ a : Fin 12, ghostMode m a ∉ S
+
+/-- A ghost annihilation kills every ghost-free occupation state. -/
+theorem ghostAnn_occ_of_ghostFree {S : Finset (Fin (m + 12))} (hS : GhostFree m S) (a : Fin 12) :
+    ghostAnn m a (occ S) = 0 := by
+  ext T
+  rw [ghostAnn, annih_apply]
+  have hne : insert (ghostMode m a) T ≠ S := by
+    intro hh
+    exact hS a (hh ▸ Finset.mem_insert_self (ghostMode m a) T)
+  by_cases h : ghostMode m a ∈ T
+  · simp [h]
+  · simp [h, occ, hne]
+
+/-- The cubic ghost term kills every ghost-free occupation state. -/
+theorem smGhostCharge_occ_of_ghostFree {S : Finset (Fin (m + 12))} (hS : GhostFree m S) :
+    smGhostCharge m f3 (occ S) = 0 := by
+  rw [smGhostCharge, Q]
+  simp only [LinearMap.sum_apply, LinearMap.smul_apply]
+  refine Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun b _ =>
+    Finset.sum_eq_zero fun e _ => ?_
+  have hcomp : ((ghostCre m a * ghostCre m b * ghostAnn m e) (occ S)
+      : FermiFock (m + 12)) = 0 := by
+    rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn_occ_of_ghostFree hS e]
+    simp
+  rw [hcomp, smul_zero]
+
+/-- **The charge on a ghost-free state is the Gauss term alone.** -/
+theorem smBrstCharge_occ_of_ghostFree {S : Finset (Fin (m + 12))} (hS : GhostFree m S) :
+    smBrstCharge m T f3 (occ S) = ∑ a, ghostCre m a (matterGen m T a (occ S)) := by
+  have hz : ((1 / 2 : ℝ) • (Q (smStruct f3) (ghostCre m) (ghostAnn m)
+      : Module.End ℂ (FermiFock (m + 12)))) (occ S) = 0 := by
+    rw [LinearMap.smul_apply]
+    have h := smGhostCharge_occ_of_ghostFree (m := m) (f3 := f3) (S := S) hS
+    simp only [smGhostCharge] at h
+    rw [h, smul_zero]
+  rw [smBrstCharge, brstCharge, LinearMap.sub_apply, hz, sub_zero]
+  simp only [LinearMap.sum_apply, Module.End.mul_apply]
+
+/-- One ghost annihilation recovers one Gauss generator from the charge of a ghost-free state: the
+creation operators in the Gauss sum are paired with their own annihilation by the CAR, and the
+others are killed by the ghost-free hypothesis. -/
+theorem ghostAnn_smBrstCharge_occ_of_ghostFree {S : Finset (Fin (m + 12))} (hS : GhostFree m S)
+    (a : Fin 12) :
+    ghostAnn m a (smBrstCharge m T f3 (occ S)) = matterGen m T a (occ S) := by
+  rw [smBrstCharge_occ_of_ghostFree hS, map_sum]
+  have hmatter : ∀ b : Fin 12, ghostAnn m a (matterGen m T b (occ S)) = 0 := by
+    intro b
+    have hc := LinearMap.congr_fun (matterGen_comm_ghostAnn m T b a) (occ S)
+    rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn_occ_of_ghostFree hS a, map_zero]
+      at hc
+    exact hc.symm
+  have hCAR : ∀ b : Fin 12,
+      ((ghostAnn m a : Module.End ℂ (FermiFock (m + 12))) * ghostCre m b)
+        = (if a = b then 1 else 0) - ghostCre m b * ghostAnn m a := by
+    intro b
+    rw [ghostAnn, ghostCre, annih_mul_creat]
+    by_cases h : a = b
+    · subst h
+      simp
+    · have hne : ghostMode m a ≠ ghostMode m b := fun hh => h (ghostMode_injective m hh)
+      simp [h, hne]
+  have hterm : ∀ b : Fin 12,
+      ghostAnn m a (ghostCre m b (matterGen m T b (occ S)))
+        = if a = b then matterGen m T b (occ S) else 0 := by
+    intro b
+    rw [← Module.End.mul_apply, hCAR b, LinearMap.sub_apply,
+      Module.End.mul_apply, hmatter b, map_zero, sub_zero]
+    by_cases h : a = b
+    · subst h
+      simp
+    · simp [h]
+  refine (Finset.sum_eq_single a ?_ ?_).trans ?_
+  · intro b _ hba
+    rw [hterm b, if_neg (Ne.symm hba)]
+  · intro ha
+    exact absurd (Finset.mem_univ a) ha
+  · rw [hterm a, if_pos rfl]
+
+/-- **The charge kills a ghost-free state iff every Gauss generator kills it.** -/
+theorem matterGen_eq_zero_of_kills {S : Finset (Fin (m + 12))} (hS : GhostFree m S)
+    (h : smBrstCharge m T f3 (occ S) = 0) (a : Fin 12) : matterGen m T a (occ S) = 0 := by
+  rw [← ghostAnn_smBrstCharge_occ_of_ghostFree hS a, h, map_zero]
+
+/-- A ghost-free occupation state is fixed by the ghost parity. -/
+theorem ghostParitySign_of_ghostFree {S : Finset (Fin (m + 12))} (hS : GhostFree m S) :
+    ghostParitySign m S = 1 := by
+  have hempty : S.filter (fun i => ∃ a : Fin 12, ghostMode m a = i) = ∅ := by
+    refine Finset.filter_eq_empty_iff.mpr ?_
+    intro i hi hx
+    obtain ⟨a, ha⟩ := hx
+    exact hS a (ha ▸ hi)
+  rw [ghostParitySign, hempty, Finset.card_empty, pow_zero]
+
+/-- A ghost-free occupation state is even for the ghost parity. -/
+theorem smGhostParity_occ_of_ghostFree {S : Finset (Fin (m + 12))} (hS : GhostFree m S) :
+    smGhostParity m (occ S) = occ S := by
+  ext T
+  rw [smGhostParity_apply]
+  by_cases h : T = S
+  · subst h
+    rw [ghostParitySign_of_ghostFree hS, one_mul]
+  · have hTS : (occ S : FermiFock (m + 12)) T = 0 := by simp [occ, h]
+    rw [hTS, mul_zero]
+
+/-- **Positivity of the ghost-parity form requires the Gauss generators to annihilate the ghost-free
+sector.**  §18 forces the charge to kill every ghost-free state; `matterGen_eq_zero_of_kills` turns
+that into a statement about the twelve one-particle generators. -/
+theorem smPhysicalPositivity_imp_matterGen_kills_ghostFree
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (hpos : PhysicalPositivity (smBrstCharge m T f3) (smGhostParity m))
+    {S : Finset (Fin (m + 12))} (hS : GhostFree m S) (a : Fin 12) :
+    matterGen m T a (occ S) = 0 :=
+  matterGen_eq_zero_of_kills hS
+    (smPhysicalPositivity_imp_even_killed hT h3anti h3jac hpos
+      (smGhostParity_occ_of_ghostFree hS)) a
+
+/-- **One nonzero Gauss matrix entry refutes the ghost-parity no-ghost input.**  The ghost-free
+occupation state is even, and the charge does not kill it because one of its Gauss generators does
+not; §18 then says positivity fails. -/
+theorem not_physicalPositivity_of_ghostFree_gauss
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    {S : Finset (Fin (m + 12))} (hS : GhostFree m S) {a : Fin 12}
+    (h : matterGen m T a (occ S) ≠ 0) :
+    ¬ PhysicalPositivity (smBrstCharge m T f3) (smGhostParity m) := fun hpos =>
+  h (smPhysicalPositivity_imp_matterGen_kills_ghostFree hT h3anti h3jac hpos hS a)
+
 end BrstQuartet
 
 end

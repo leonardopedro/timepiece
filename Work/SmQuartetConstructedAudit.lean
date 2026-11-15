@@ -80,3 +80,9 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmQuartet.smPhysMetric
 #audit_axioms BookProof.SmQuartet.smPhysicalPositivity_physMetric
 #audit_axioms BookProof.SmQuartet.smPhysMetric_kform_eq_norm_sq_of_mem
+#audit_axioms BookProof.SmQuartet.smPhysProjFormula_le_orthogonal
+#audit_axioms BookProof.SmQuartet.closed_eq_sup_range_smPhysProjFormula
+#audit_axioms BookProof.SmQuartet.smPhysMetric_radical_eq_gauge
+#audit_axioms BookProof.SmQuartet.smPhysMetric_descends
+#audit_axioms BookProof.SmQuartet.smPhysMetric_definite
+#audit_axioms BookProof.SmQuartet.smPhysMetric_representative
