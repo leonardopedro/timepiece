@@ -1023,7 +1023,11 @@ vanishes only on the zero test function (`bandedCovZ_posDef`), so positivity of 
 is no longer the missing ingredient — only the extension theorem is.  The kernel is Toeplitz
 (`bandedCovZ_translate`) but **not** reflection positive on a half-line for `θ i = -i`
 (`bandedCovZ_not_reflectionPositive`): RP is a property of the doubled `covState`, where the
-white-noise block cancels the cross block.  A banded Toeplitz matrix is still not
+white-noise block cancels the cross block — and that doubled form is nonnegative for this kernel
+too, for any finitely supported test-function pair (`doubledOSForm_eq_folded`,
+`bandedCovZ_doubled_reflectionPositive`).  The finite-volume cycle has the same statement
+(`HalfSpaceChainBandReflectionPositivity`: `bandCov_posSemidef` via the variance of `bandLaw`, and
+`bandCov_doubled_reflectionPositive` for any reflection preserving `bandCov`).  A banded Toeplitz matrix is still not
 Hilbert–Schmidt on `ℓ²(ℤ)`.  What remains unbuilt is the Gaussian *measure* on `ℤ → ℝ` with that
 kernel and any Hilbert–Schmidt square root of it.
 
