@@ -2886,7 +2886,44 @@ warning and no line above 100 code points; `#print axioms` on the new
 theorems gives `[propext, Classical.choice, Quot.sound]`; no `sorry`. What is
 still open is U2's allocation itself: `T`, `S`, `O`, `F` are not yet attached to
 these norms, and the compression-versus-resolvent correction still has to be
-composed before the first term may carry the finite shift-invert inverse.
+composed before the first term may carry the finite shift-invert inverse — both are
+supplied in the 2026-11-15k section below.
+
+### The finite inverse is priced, and `T`, `S`, `O` are numbers (2026-11-15k)
+
+U2's remaining two demands are now met in `ChapterSirkEndToEnd` §9–§10.
+
+**The compression correction (§9).** The substitution `V∗R_g V ↦ (V∗K_g V + κ)⁻¹` is paid
+for by an identity rather than an estimate: for `R = (H − z)⁻¹` and `B` a left inverse of
+`V∗(H − z)V`,
+
+  `V∗ R V − B = − B · V∗((H − z) Q R V)`
+  (`sirk_block_error_eq_correction`).
+
+The gap *is* the leakage, transported by `B` — no Schur-complement hypothesis beyond the two
+sided inverses is needed, and `compression_ne_resolvent`'s `1/6` witness is the special case.
+`sirk_block_error_le_of_inverse` reads it as `‖B‖ ‖(H − z)Q‖ ‖R P‖`, and
+`sirk_fullSpace_error_le_shiftInvert` substitutes that into the §8 bound, which then contains
+no `V∗ R V` at all.
+
+**The four allocations (§10).** `sirk_error_le_budget` states U2's envelope for this scheme:
+
+  `‖R − V Bhat V∗‖ ≤ O + T + (S + F)`,
+
+with `T = sirkTailBudget = 2‖Q R P‖ + ‖Q R Q‖` (the §8 leakage and tail), `O =
+sirkTransferBudget = ‖B‖‖(H − z)Q‖‖R P‖` (the §9 correction), `S = sirkSolveBudget m ε = ε`
+and `F` the certified rounding-and-assembly budget. The `m`-independence of `S` is a proof,
+not a convention: `solve_columns_budget` shows `m` columns of norm `ε/√m` carry squared
+Frobenius mass exactly `ε²`, so a fixed `ε` does not grow with `m` while a fixed per-column
+tolerance would.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` and
+`lake build BookProof.MCMC.KernelContract` succeed with no warning and no line above 100 code
+points; `lake build BookProof` succeeds (`9015 jobs`). `#print axioms` on the eight new
+declarations gives `[propext, Classical.choice, Quot.sound]`; no `sorry`. **Still open:** the
+`2C̄D̄e^{−a q_m}` rational term for `R_g` itself, the analytic bounds turning `T` and `O`
+into functions of `(g, L)` (`ChapterSchurGershgorinGap` / `ChapterTruncationGapLift` under
+their hypotheses), and the unbounded-generator form, which needs graph-norm control.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 

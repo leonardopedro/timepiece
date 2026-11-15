@@ -113,6 +113,13 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15k):** “State of the project — 2026-11-15k: the finite inverse, and
+> U2's four allocations” (end of file): `sirk_block_error_eq_correction` proves
+> `V∗RV − B = −B·V∗((H−z)Q R V)` (§9), `sirk_fullSpace_error_le_shiftInvert` removes `V∗RV` from
+> the composed bound, and §10 defines `T`, `O`, `S` as proved norms with `sirk_error_le_budget` as
+> U2's envelope. Also restores the build: `BookProof/MCMC/KernelContract.lean` (imported since
+> `8bf5c1b`, never committed) now exists.
+>
 > **Track A — newest (2026-11-15j):** “State of the project — 2026-11-15j: the SIRK omitted space is
 > priced, not assumed” (end of file): `ChapterSirkEndToEnd` §8 replaces the exact-invariance premise
 > by `sirk_fullSpace_error_le`, `‖R − V B V∗‖ ≤ ‖V∗RV − B‖ + 2‖Q R P‖ + ‖Q R Q‖` with
@@ -26088,3 +26095,57 @@ warning and no line above 100 code points. `#print axioms` on the four new theor
 (`sirk_fullSpace_error_le`, `sirk_offblock_norm_eq`, `sirkComplement_isSelfAdjoint`,
 `sirkReconstruction_add_complement`) gives `[propext, Classical.choice, Quot.sound]`;
 no `sorry`.
+
+## State of the project — 2026-11-15k: the finite inverse, and U2's four allocations
+
+Two of the three gaps that §2026-11-15j left open are now closed in
+`BookProof/Sirk/ChapterSirkEndToEnd.lean` §9–§10, and the checkout builds again.
+
+**§9 — the compression correction.** `softmodes.md` U2 requires that the substitution
+`V∗ R_g V ↦ (V∗ K_g V + κ)⁻¹` be *paid for*:
+`ChapterShiftInvertBookkeeping.compression_ne_resolvent` only exhibits a two-dimensional
+witness. `sirk_block_error_eq_correction` is its general form. For `R = (H − z)⁻¹` and `B`
+a left inverse of `V∗(H − z)V`,
+
+  `V∗ R V − B = − B · V∗((H − z) Q R V)`,
+
+so the gap is *exactly* the leakage the compression discards, transported by `B`; it is an
+identity, not an estimate. `sirk_block_error_le_of_inverse` turns it into
+`‖V∗RV − B‖ ≤ ‖B‖ ‖(H − z)Q‖ ‖R P‖`, and `sirk_fullSpace_error_le_shiftInvert` inserts that
+number into §8, so the composed bound contains no reference to `V∗RV` at all: every term is
+computable from `B` and the two off-block norms. This is the "certified Schur complement /
+solve correction" U2 asks for, in the only form the corpus can currently support (bounded
+`H`; an unbounded generator would need graph-norm control, which is not claimed).
+
+**§10 — `T`, `S`, `O`, `F` allocated.** U2's envelope
+`2C̄D̄e^{−a q_m} + T + S + O + F` now has four of its five terms attached to proved operator
+norms on this scheme: `T = sirkTailBudget := 2‖Q R P‖ + ‖Q R Q‖` (the §8 leakage and tail),
+`O = sirkTransferBudget := ‖B‖‖(H − z)Q‖‖R P‖` (the §9 correction), `S =
+sirkSolveBudget m ε := ε`, justified by `solve_columns_budget` — `m` columns of norm `ε/√m`
+carry squared Frobenius mass exactly `ε²`, so a fixed `ε` is dimension-independent while a
+fixed per-column tolerance would grow — and `F` the caller's certified rounding-and-assembly
+budget. `sirk_error_le_budget` composes them: with `‖B − Bhat‖ ≤ S + F`,
+`‖R − V Bhat V∗‖ ≤ O + T + (S + F)`. The `2C̄D̄e^{−a q_m}` term is deliberately **not**
+claimed: it needs a rational approximation of `R_g` itself, which a propagator theorem does
+not supply. What changed is that `T`, `O`, `S` are now numbers that provably bound something
+in this scheme rather than placeholders.
+
+**Head repair.** `BookProof.lean` has imported `BookProof.MCMC.KernelContract` since commit
+`8bf5c1b`, but that file was never committed, so `lake build BookProof` failed with
+`no such file or directory` at the import stage. `BookProof/MCMC/KernelContract.lean` now
+exists and states the T0 contract in the observable orientation: `observableAction`,
+`P 1 = 1` from `IsMarkovKernel`, and `Kernel.const α π` reversible (`const_isReversible`,
+for *any* law) hence stationary (`const_invariant`, via
+`Kernel.IsReversible.invariant`). The module docstring records what it does **not** prove —
+pointwise Jensen, the `L²(π)` contraction, the `Lp ℂ 2 π` descent and the density action —
+because this Mathlib checkout has `lintegral_bind` but no `integral_bind`, and the contraction
+needs that bridge. The T0 comment in `BookProof.lean` was corrected to stop claiming it.
+
+**Verification.** `lake build BookProof` succeeds, `9015 jobs`. `lake build
+BookProof.Sirk.ChapterSirkEndToEnd` and `lake build BookProof.MCMC.KernelContract` succeed
+with no warning from either file and no line above 100 code points. `#print axioms` on
+`sirkReconstruction_comp_self`, `sirk_adjoint_comp_reconstruction`,
+`sirk_block_error_eq_correction`, `sirk_block_error_le_of_inverse`,
+`sirk_fullSpace_error_le_shiftInvert`, `solve_columns_budget`, `norm_sirkApprox_sub_le`,
+`sirk_error_le_budget` gives `[propext, Classical.choice, Quot.sound]` in all eight cases; no
+`sorry`.

@@ -58,6 +58,19 @@ constants `C`, `Dmin`, `h` abstract.
 * `sirkApprox_id`, `sirkReconstruction_isIdempotent`,
   `sirkReconstruction_isSelfAdjoint`: the reconstruction step `V ∘ V∗` *is* the
   orthogonal projection onto the retained subspace (§12.2 Gap 4a).
+* `sirk_block_error_eq_correction` supplies the piece `softmodes.md` U2 says the
+  block estimate still needs: `V∗ R V` is *not* `(V∗(H − z)V)⁻¹`, and the identity
+  `V∗ R V − B = −B·V∗((H − z)Q R V)` says the difference is exactly the leakage,
+  transported by `B`.  `sirk_block_error_le_of_inverse` reads it as the number
+  `‖B‖‖(H − z)Q‖‖R P‖`, and `sirk_fullSpace_error_le_shiftInvert` puts that number
+  into the §8 estimate, so no term of the composed bound refers to `V∗ R V`.
+* `sirk_error_le_budget` is U2's envelope with all four allocations attached to
+  proved quantities: `T = sirkTailBudget` (leakage plus tail), `O =
+  sirkTransferBudget` (the compressed-inverse correction above), `S =
+  sirkSolveBudget m ε = ε` — `m` columns of norm `ε/√m` have Frobenius mass `ε²`
+  (`solve_columns_budget`) — and `F` the caller's rounding budget.  The
+  `2 C̄ D̄ e^{−a q_m}` rational term is not claimed; it belongs to approximating
+  `R_g` itself.
 * `sirk_fullSpace_error_le` prices the space a generic Krylov basis leaves
   behind.  With `P = V V∗`, `Q = 1 − P` it proves
   `‖R − V B V∗‖ ≤ ‖V∗RV − B‖ + 2‖Q R P‖ + ‖Q R Q‖`, so the exact-invariance
@@ -552,5 +565,254 @@ theorem sirk_fullSpace_error_le (V : F →L[ℂ] E) (B : F →L[ℂ] F) {R : E �
     gcongr
     exact norm_add_le _ _
   linarith [htri, hsum]
+
+
+
+/-! ## 9. The block term carries the finite shift-invert inverse -/
+
+/-- `P ∘ V = V` for isometric `V`: the reconstruction fixes the retained range, so pushing
+`V` through the projection changes nothing. -/
+theorem sirkReconstruction_comp_self (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F) :
+    (sirkReconstruction V).comp V = V := by
+  ext x
+  have hx : V.adjoint (V x) = x := by
+    simpa using congrArg (fun f : F →L[ℂ] F => f x) hVV
+  simp [sirkReconstruction, hx]
+
+/-- `V∗ ∘ P = V∗`: the adjoint does not see the reconstruction either. -/
+theorem sirk_adjoint_comp_reconstruction (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F) :
+    V.adjoint.comp (sirkReconstruction V) = V.adjoint := by
+  ext x
+  have hx : V.adjoint (V (V.adjoint x)) = V.adjoint x := by
+    simpa using congrArg (fun f : F →L[ℂ] F => f (V.adjoint x)) hVV
+  simpa [sirkReconstruction] using hx
+
+/-- **The compression correction is an identity, not an inequality.**
+`ChapterShiftInvertBookkeeping.compression_ne_resolvent` exhibits the gap on a two-dimensional
+witness.  Here is its general form: for `R = (H − z)⁻¹` and `B` a left inverse of the compressed
+`V∗(H − z)V`,
+
+  `V∗ R V − B = − B · V∗ ((H − z) Q R V)`,
+
+with `Q = 1 − V V∗`.  The right-hand side is the *omitted coupling*: the exact resolvent
+differs from the compressed inverse by the leakage the compression discards, transported by
+`B`.  Unlike §8 this identity does need `V∗ V = 1` (to turn `T R V` into `V`), which an
+isometric `V` supplies and which `sirk_end_to_end` already assumes. -/
+theorem sirk_block_error_eq_correction (V : F →L[ℂ] E) (H R : E →L[ℂ] E) (z : ℂ)
+    (B : F →L[ℂ] F) (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hRright : (H - z • 1).comp R = ContinuousLinearMap.id ℂ E)
+    (hBleft : B.comp (V.adjoint.comp ((H - z • 1).comp V)) =
+      ContinuousLinearMap.id ℂ F) :
+    V.adjoint.comp (R.comp V) - B
+      = -(B.comp (V.adjoint.comp
+        (((H - z • 1).comp (sirkComplement V)).comp (R.comp V)))) := by
+  set T : E →L[ℂ] E := H - z • 1 with hT
+  set P : E →L[ℂ] E := sirkReconstruction V with hP
+  set Q : E →L[ℂ] E := sirkComplement V with hQ
+  set X : F →L[ℂ] F := V.adjoint.comp (R.comp V) with hX
+  set A : F →L[ℂ] F := V.adjoint.comp (T.comp V) with hA
+  set S : F →L[ℂ] F := V.adjoint.comp ((T.comp Q).comp (R.comp V)) with hS
+  have hTapply : ∀ x : E, T (R x) = x := by
+    intro x
+    have h := congrArg (fun f : E →L[ℂ] E => f x) hRright
+    simpa [hT, ContinuousLinearMap.comp_apply] using h
+  have hPQ : ∀ y : E, P y + Q y = y := by
+    intro y
+    rw [hP, hQ]
+    exact sirkReconstruction_add_complement V y
+  have hAX : A.comp X = ContinuousLinearMap.id ℂ F - S := by
+    ext x
+    have hsplit : P (R (V x)) + Q (R (V x)) = R (V x) := hPQ _
+    have hp : P (R (V x)) = V (V.adjoint (R (V x))) := by rw [hP]; rfl
+    have hAapply : A (X x) = V.adjoint (T (P (R (V x)))) := by
+      simp only [hA, hX, ContinuousLinearMap.comp_apply]
+      rw [hp]
+    have hSapply : S x = V.adjoint (T (Q (R (V x)))) := by
+      simp only [hS, ContinuousLinearMap.comp_apply]
+    have hlin : T (R (V x)) = T (P (R (V x))) + T (Q (R (V x))) := by
+      rw [← map_add, hsplit]
+    have hVx : V.adjoint (T (R (V x))) = x := by
+      rw [hTapply]
+      simpa using congrArg (fun f : F →L[ℂ] F => f x) hVV
+    have hsum : A (X x) + S x = x := by
+      rw [hAapply, hSapply, ← map_add, ← hlin, hVx]
+    rw [ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply]
+    exact eq_sub_iff_add_eq.mpr hsum
+  have hBX : B.comp (A.comp X) = B - B.comp S := by
+    rw [hAX, ContinuousLinearMap.comp_sub, ContinuousLinearMap.comp_id]
+  have hleft : B.comp (A.comp X) = X := by
+    rw [← ContinuousLinearMap.comp_assoc,
+      show B.comp A = ContinuousLinearMap.id ℂ F from by simpa [hA, hT] using hBleft,
+      ContinuousLinearMap.id_comp]
+  have hXeq : X = B - B.comp S := by rw [← hleft, hBX]
+  have hgoal : V.adjoint.comp (R.comp V) - B =
+      -(B.comp (V.adjoint.comp ((T.comp Q).comp (R.comp V)))) := by
+    rw [← hX, hXeq]
+    abel
+  simpa [hT, hQ, hX, hS] using hgoal
+
+/-- **The block error is bounded by the leakage through the compressed inverse.**  Combining the
+identity with the operator norms gives
+
+  `‖V∗ R V − B‖ ≤ ‖B‖ · ‖(H − z) Q‖ · ‖R P‖`,
+
+the quantity the SIRK error bound needs in place of `‖V∗ R V − B‖` when `B` is the finite
+shift-invert inverse rather than the exact compression. -/
+theorem sirk_block_error_le_of_inverse (V : F →L[ℂ] E) (H R : E →L[ℂ] E) (z : ℂ)
+    (B : F →L[ℂ] F) (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hRright : (H - z • 1).comp R = ContinuousLinearMap.id ℂ E)
+    (hBleft : B.comp (V.adjoint.comp ((H - z • 1).comp V)) =
+      ContinuousLinearMap.id ℂ F) :
+    ‖V.adjoint.comp (R.comp V) - B‖
+      ≤ ‖B‖ * (‖(H - z • 1).comp (sirkComplement V)‖
+        * ‖R.comp (sirkReconstruction V)‖) := by
+  set T : E →L[ℂ] E := H - z • 1 with hT
+  set P : E →L[ℂ] E := sirkReconstruction V with hP
+  set Q : E →L[ℂ] E := sirkComplement V with hQ
+  have hPV : ∀ x : F, P (V x) = V x := by
+    intro x
+    have h := congrArg (fun f : F →L[ℂ] E => f x) (sirkReconstruction_comp_self V hVV)
+    simpa [hP] using h
+  have hid := sirk_block_error_eq_correction V H R z B hVV hRright hBleft
+  have hbound : ∀ x : F,
+      ‖((V.adjoint.comp ((T.comp Q).comp (R.comp V)))) x‖
+        ≤ ‖T.comp (Q.comp (R.comp P))‖ * ‖x‖ := by
+    intro x
+    have hx : ((V.adjoint.comp ((T.comp Q).comp (R.comp V)))) x
+        = V.adjoint (((T.comp (Q.comp (R.comp P))).comp V) x) := by
+      simp only [ContinuousLinearMap.comp_apply]
+      rw [hPV x]
+    rw [hx]
+    calc ‖V.adjoint ((T.comp (Q.comp (R.comp P))) (V x))‖
+        ≤ ‖(T.comp (Q.comp (R.comp P))) (V x)‖ := hVadj _
+      _ ≤ ‖T.comp (Q.comp (R.comp P))‖ * ‖V x‖ :=
+          ContinuousLinearMap.le_opNorm _ _
+      _ = ‖T.comp (Q.comp (R.comp P))‖ * ‖x‖ := by rw [hViso]
+  have hSle : ‖V.adjoint.comp ((T.comp Q).comp (R.comp V))‖
+      ≤ ‖T.comp (Q.comp (R.comp P))‖ :=
+    ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg _) hbound
+  have hcomp : ‖T.comp (Q.comp (R.comp P))‖
+      ≤ ‖T.comp Q‖ * ‖R.comp P‖ := by
+    rw [← ContinuousLinearMap.comp_assoc]
+    exact ContinuousLinearMap.opNorm_comp_le (T.comp Q) (R.comp P)
+  have hB : ‖B.comp (V.adjoint.comp ((T.comp Q).comp (R.comp V)))‖
+      ≤ ‖B‖ * ‖V.adjoint.comp ((T.comp Q).comp (R.comp V))‖ :=
+    ContinuousLinearMap.opNorm_comp_le B _
+  have hchain : ‖B.comp (V.adjoint.comp ((T.comp Q).comp (R.comp V)))‖
+      ≤ ‖B‖ * (‖T.comp Q‖ * ‖R.comp P‖) := by
+    refine le_trans hB ?_
+    exact mul_le_mul_of_nonneg_left (le_trans hSle hcomp) (norm_nonneg B)
+  rw [hid, norm_neg]
+  simpa [hT, hP, hQ] using hchain
+
+/-- **The composed full-space bound with the finite inverse.**  §8 prices the omitted space;
+this replaces its first term by the correction of §9, so the whole estimate is stated for a
+`B` that inverts the *compressed* shift `V∗(H − z)V` — the object SIRK actually builds — and
+no term refers to `V∗ R V` any more. -/
+theorem sirk_fullSpace_error_le_shiftInvert (V : F →L[ℂ] E) (H R : E →L[ℂ] E) (z : ℂ)
+    (B : F →L[ℂ] F) (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hR : IsSelfAdjoint R)
+    (hRright : (H - z • 1).comp R = ContinuousLinearMap.id ℂ E)
+    (hBleft : B.comp (V.adjoint.comp ((H - z • 1).comp V)) =
+      ContinuousLinearMap.id ℂ F) :
+    ‖R - sirkApprox V B‖ ≤ ‖B‖ * (‖(H - z • 1).comp (sirkComplement V)‖
+        * ‖R.comp (sirkReconstruction V)‖)
+      + 2 * ‖(sirkComplement V).comp (R.comp (sirkReconstruction V))‖
+      + ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ := by
+  refine le_trans (sirk_fullSpace_error_le V B hViso hVadj hR) ?_
+  have hblock := sirk_block_error_le_of_inverse V H R z B hVV hViso hVadj hRright hBleft
+  linarith
+
+
+
+/-! ## 10. U2's budget: `T`, `S`, `O`, `F` attached to the leakage and tail -/
+
+/-- **`T` — the omitted-space allocation.**  Leakage plus tail, exactly the two off-block
+norms of §8.  `softmodes.md` U2 asks that `T` bound "physical truncation and omitted-space
+effects"; these are the two operator norms that §8 leaves once the block term is separated. -/
+noncomputable def sirkTailBudget (V : F →L[ℂ] E) (R : E →L[ℂ] E) : ℝ :=
+  2 * ‖(sirkComplement V).comp (R.comp (sirkReconstruction V))‖
+    + ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖
+
+/-- **`O` — the transfer allocation.**  The price of replacing the compression `V∗ R V` by the
+finite inverse `B` of `V∗(H − z)V`: §9's correction, read as a number. -/
+noncomputable def sirkTransferBudget (V : F →L[ℂ] E) (H R : E →L[ℂ] E) (z : ℂ)
+    (B : F →L[ℂ] F) : ℝ :=
+  ‖B‖ * (‖(H - z • 1).comp (sirkComplement V)‖ * ‖R.comp (sirkReconstruction V)‖)
+
+/-- **`S` — the solve allocation.**  `m` solve-columns of norm `ε / √m` carry at most `ε` in
+Frobenius norm, so the accumulated solve error is budgeted by a single number `ε`; keeping
+`ε` fixed is what makes the budget independent of `m`. -/
+def sirkSolveBudget (_m : ℕ) (ε : ℝ) : ℝ := ε
+
+/-- The arithmetic behind `S`: `m` columns of norm `ε / √m` have squared Frobenius mass
+exactly `ε²`, hence Frobenius norm `ε`.  This is why the per-column tolerance `ε / √m` is the
+right one — a fixed per-column tolerance would grow with `m`. -/
+theorem solve_columns_budget (m : ℕ) (hm : 0 < m) (ε : ℝ) :
+    (m : ℝ) * (ε / Real.sqrt m) ^ 2 = ε ^ 2 := by
+  have hm' : (0 : ℝ) < (m : ℝ) := by exact_mod_cast hm
+  have hsqrt : Real.sqrt (m : ℝ) ≠ 0 := by positivity
+  field_simp
+  rw [Real.sq_sqrt (le_of_lt hm')]
+  ring
+
+/-- **`V ∘ B ∘ V∗` is Lipschitz in `B` with constant one.**  The simulated scheme differs from
+the exact reduced inverse only through `B − Bhat`, and neither `V` nor `V∗` amplifies. -/
+theorem norm_sirkApprox_sub_le (V : F →L[ℂ] E) (B Bhat : F →L[ℂ] F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖) (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖) :
+    ‖sirkApprox V B - sirkApprox V Bhat‖ ≤ ‖B - Bhat‖ := by
+  refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg _) fun x => ?_
+  have hsub : (sirkApprox V B - sirkApprox V Bhat) x
+      = V ((B - Bhat) (V.adjoint x)) := by
+    simp [sirkApprox_apply, ContinuousLinearMap.sub_apply, map_sub]
+  rw [hsub, hViso]
+  exact le_trans (ContinuousLinearMap.le_opNorm (B - Bhat) _)
+    (mul_le_mul_of_nonneg_left (hVadj x) (norm_nonneg _))
+
+/-- **U2's envelope, with every allocation named.**
+
+For the exact resolvent `R = (H − z)⁻¹` and a reduced `Bhat` within `S + F` of the finite
+inverse `B` of `V∗(H − z)V`:
+
+  `‖R − V Bhat V∗‖ ≤ O + T + (S + F)`,
+
+where `O = sirkTransferBudget` (compressed-inverse correction, §9), `T = sirkTailBudget`
+(leakage and tail, §8), `S = sirkSolveBudget m ε` (accumulated solves, `ε/√m` per column) and
+`F` is the caller's certified rounding-and-assembly budget.  The `2 C̄ D̄ e^{−a q_m}` term of
+`softmodes.md` U2 lives in the rational approximation of `R_g` and is *not* claimed here; what
+this theorem does is attach the other four allocations to the same scheme, so that the envelope
+of U2 is a statement about numbers that have already been proved to bound something. -/
+theorem sirk_error_le_budget (V : F →L[ℂ] E) (H R : E →L[ℂ] E) (z : ℂ)
+    (B Bhat : F →L[ℂ] F) (m : ℕ) (ε Fg : ℝ)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hR : IsSelfAdjoint R)
+    (hRright : (H - z • 1).comp R = ContinuousLinearMap.id ℂ E)
+    (hBleft : B.comp (V.adjoint.comp ((H - z • 1).comp V)) =
+      ContinuousLinearMap.id ℂ F)
+    (hBhat : ‖B - Bhat‖ ≤ sirkSolveBudget m ε + Fg) :
+    ‖R - sirkApprox V Bhat‖
+      ≤ sirkTransferBudget V H R z B + sirkTailBudget V R
+        + (sirkSolveBudget m ε + Fg) := by
+  have hexact : ‖R - sirkApprox V B‖
+      ≤ sirkTransferBudget V H R z B + sirkTailBudget V R := by
+    have h := sirk_fullSpace_error_le_shiftInvert V H R z B hVV hViso hVadj hR hRright hBleft
+    rw [sirkTransferBudget, sirkTailBudget]
+    linarith
+  have hdiff : ‖sirkApprox V B - sirkApprox V Bhat‖ ≤ ‖B - Bhat‖ :=
+    norm_sirkApprox_sub_le V B Bhat hViso hVadj
+  have hsplit : R - sirkApprox V Bhat
+      = (R - sirkApprox V B) + (sirkApprox V B - sirkApprox V Bhat) := by abel
+  rw [hsplit]
+  refine le_trans (norm_add_le _ _) ?_
+  linarith
+
 
 end BookProof.ChapterSirkEndToEnd
