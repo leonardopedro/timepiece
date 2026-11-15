@@ -34,7 +34,12 @@ only a truncation at any width `k`; the infinite-volume object below is that tru
 * `bandedCovZ_translate`, `bandedCovZ_row_tsum_translate`, `bandedCovZ_quadForm_translate` —
   translation invariance (Toeplitz property);
 * `bandedCovZ_reflectionForm_neg`, `bandedCovZ_not_reflectionPositive` — the kernel is *not*
-  reflection positive for `θ i = -i` on a half-line.
+  reflection positive for `θ i = -i` on a half-line;
+* `reflImage`, `halfTest`, `doubledTest`, `doubledOSForm` — the reflected index set `θ s`, the
+  one-sided and folded test functions, and the OS form of the doubled state;
+* `doubledOSForm_eq_folded`, `bandedCovZ_doubled_reflectionPositive` — the *doubled* state is
+  reflection positive: its OS form is the kernel's quadratic form at the folded test function plus
+  the two white-noise sums, for **any** finitely supported pair `f, g`.
 
 ## Row norm
 
@@ -79,15 +84,35 @@ statement is false (`bandedCovZ_not_reflectionPositive`).  Reflection positivity
 `HalfSpaceCovariantReflectionPositivity`, and it is why the banded kernel is a coupling term, not
 an OS state by itself.
 
+That doubled state is reflection positive here as well.  Fold the two test functions into one
+function on `ℤ`, `H p = f p + g (-p)` (`doubledTest`, a pointwise *sum* of the one-sided halves
+`halfTest`, not a case split).  The kernel part of `doubledOSForm` is then exactly the quadratic
+form of `C` at `H`,
+`∑_{p,q ∈ s ∪ θ s} c(p,q) H p H q` (`doubledOSForm_eq_folded`), while the white-noise part
+`∑_{i ∈ s} f i ^ 2 + ∑_{i ∈ s} g i ^ 2` is a sum of squares.  Both are nonnegative — the first by
+positive semidefiniteness (`bandedCovZ_posSemidef`) — so `0 ≤ doubledOSForm ρ k s f g`
+(`bandedCovZ_doubled_reflectionPositive`).
+
+Because the fold is a sum, `s` and `θ s` may overlap: **no half-line hypothesis is needed**, and
+the statement holds for every finitely supported pair `f, g` on any finite `s : Finset ℤ`.  The
+reflected cross block `c(i,-j)` — the one that produced the `-2` above — is the `-ρ²` eigenvalue
+that the white-noise `+1` on each half cancels.  The finite-volume counterpart, for the cycle
+covariance `bandCov`, is `bandCov_doubled_reflectionPositive` in
+`HalfSpaceChainBandReflectionPositivity`.
+
 ## Boundary
 
 * **No Gaussian measure is built.**  The covariance *is* positive definite
   (`bandedCovZ_posDef`), which settles the finite-minor consistency condition, but a Gaussian
   law on `ℤ → ℝ` also needs an extension theorem, and Kolmogorov consistency is not available in
   this Mathlib version here.  What is recorded is the covariance *kernel*.
-* **No reflection positivity of the kernel.**  As in the section above, the half-line reflected
-  form is negative for `k = ρ = 1`; the OS positivity is carried by the doubled state, not by the
-  coupling kernel.
+* **Reflection positivity is proved for the doubled bilinear form, not for a measure.**  The
+  half-line reflected form of the kernel alone is negative for `k = ρ = 1`
+  (`bandedCovZ_not_reflectionPositive`); the OS positivity is carried by the doubled state, whose
+  bilinear form is nonnegative (`bandedCovZ_doubled_reflectionPositive`).  Turning that bilinear
+  statement into reflection positivity of a *measure* — `0 ≤ ∫ F · θF dμ` for every bounded
+  observable `F` of one half — still needs the Gaussian measure itself, i.e. the same Kolmogorov
+  step recorded next.
 * **No Hilbert–Schmidt square root in infinite volume.**  The finite-volume squared HS norm is
   `card ι · ((1 + ρ² k)^2 + 2 ρ² (…))`, which grows linearly with the volume.  The operator
   itself is not compact on `ℓ²(ℤ)`: a banded Toeplitz matrix is not Hilbert–Schmidt.  The natural
@@ -713,6 +738,196 @@ theorem bandedCovZ_not_reflectionPositive :
 theorem bandedCovZ_row_tsum_translate (ρ : ℝ) (k : ℕ) (a i : ℤ) :
     (∑' j : ℤ, bandedCovZ ρ k (i + a) j ^ 2) = ∑' j : ℤ, bandedCovZ ρ k i j ^ 2 := by
   rw [bandedCovZ_row_tsum, bandedCovZ_row_tsum]
+
+/-! ### Reflection positivity of the doubled state
+
+The reflected form of the kernel alone is indefinite (the previous section), but the *doubled*
+state — two halves with the same banded covariance `C` plus independent white noise, i.e. blocks
+`[[C + 1, C ∘ θ], [θ ∘ C, C + 1]]` — is reflection positive.  Folding the two halves into one
+function on `ℤ`, `H p = f p + g (-p)`, the kernel part of the doubled form is the quadratic form
+of `C` at `H`, hence nonnegative, and the white-noise part is a sum of squares.  Because the fold
+is a pointwise *sum* rather than a case split, the two halves may overlap: no half-line
+hypothesis on `s` is needed.  This is the infinite-volume counterpart of
+`covState_reflectionPositive`. -/
+
+/-- **The reflection of an index set**: `θ s = {-i : i ∈ s}` for `θ i = -i`. -/
+def reflImage (s : Finset ℤ) : Finset ℤ := s.image (fun i : ℤ => -i)
+
+/-- **Membership in the reflected index set**. -/
+lemma mem_reflImage {s : Finset ℤ} {p : ℤ} : p ∈ reflImage s ↔ -p ∈ s := by
+  unfold reflImage
+  constructor
+  · intro h
+    obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp h
+    simpa using hi
+  · intro h
+    exact Finset.mem_image.mpr ⟨-p, h, neg_neg p⟩
+
+/-- Non-membership in the reflected index set. -/
+lemma notMem_reflImage {s : Finset ℤ} {p : ℤ} : p ∉ reflImage s ↔ -p ∉ s :=
+  not_congr mem_reflImage
+
+/-- Sums over a reflected index set reindex by negation. -/
+lemma reflImage_sum (s : Finset ℤ) (φ : ℤ → ℝ) :
+    (∑ p ∈ reflImage s, φ p) = ∑ i ∈ s, φ (-i) := by
+  unfold reflImage
+  exact Finset.sum_image (fun _ _ _ _ h => neg_injective h)
+
+/-- **A one-sided half of a test function**: `f` on `s` and `0` elsewhere. -/
+def halfTest (f : ℤ → ℝ) (s : Finset ℤ) (p : ℤ) : ℝ := if p ∈ s then f p else 0
+
+/-- `halfTest` on its support. -/
+lemma halfTest_of_mem {f : ℤ → ℝ} {s : Finset ℤ} {p : ℤ} (h : p ∈ s) :
+    halfTest f s p = f p := if_pos h
+
+/-- `halfTest` vanishes off its support. -/
+lemma halfTest_of_not_mem {f : ℤ → ℝ} {s : Finset ℤ} {p : ℤ} (h : p ∉ s) :
+    halfTest f s p = 0 := if_neg h
+
+/-- **The folded test function** of the doubled state: the first half plus the second half read
+through the reflection.  The pointwise sum (rather than a case split) is what allows the two
+halves to overlap, so `s` and `θ s` need not be disjoint. -/
+def doubledTest (f g : ℤ → ℝ) (s : Finset ℤ) (p : ℤ) : ℝ :=
+  halfTest f s p + halfTest g s (-p)
+
+/-- **The OS form of the doubled banded state** on a half-line: the two diagonal blocks (each
+`C + 1`) and the reflected cross block `2 · ∑_{i,j} c(i,-j) f i g j`. -/
+def doubledOSForm (ρ : ℝ) (k : ℕ) (s : Finset ℤ) (f g : ℤ → ℝ) : ℝ :=
+  (∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * f i * f j)
+    + (∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * g i * g j)
+    + 2 * (∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i (-j) * f i * g j)
+    + (∑ i ∈ s, f i * f i) + ∑ i ∈ s, g i * g i
+
+/-- **The kernel is invariant under reflecting both arguments**: `c(-i,-j) = c(i,j)`. -/
+lemma bandedCovZ_neg_neg (ρ : ℝ) (k : ℕ) (i j : ℤ) :
+    bandedCovZ ρ k (-i) (-j) = bandedCovZ ρ k i j := by
+  unfold bandedCovZ
+  dsimp only
+  rw [show -j - -i = -(j - i) by ring, Int.natAbs_neg]
+
+/-- **Reflecting one argument**: `c(-i,j) = c(i,-j)`. -/
+lemma bandedCovZ_neg_left (ρ : ℝ) (k : ℕ) (i j : ℤ) :
+    bandedCovZ ρ k (-i) j = bandedCovZ ρ k i (-j) := by
+  unfold bandedCovZ
+  dsimp only
+  rw [show j - -i = -(-j - i) by ring, Int.natAbs_neg]
+
+/-- **The reflected cross block is symmetric**: `c(i,-j) = c(j,-i)`. -/
+lemma bandedCovZ_reflected_comm (ρ : ℝ) (k : ℕ) (i j : ℤ) :
+    bandedCovZ ρ k i (-j) = bandedCovZ ρ k j (-i) := by
+  rw [bandedCovZ_comm ρ k i (-j), bandedCovZ_neg_left ρ k j i]
+
+/-- **A sum over a set containing the support of the summand** collapses to the support. -/
+lemma sum_of_support {W U : Finset ℤ} (hUW : U ⊆ W) {φ : ℤ → ℝ} (hφ : ∀ p ∉ U, φ p = 0) :
+    (∑ p ∈ W, φ p) = ∑ p ∈ U, φ p :=
+  (Finset.sum_subset hUW (fun p _ hpU => hφ p hpU)).symm
+
+/-- **A double sum over a set containing both supports** collapses to the product of the supports,
+which may be different sets. -/
+lemma sum_of_support₂ {W U V : Finset ℤ} (hUW : U ⊆ W) (hVW : V ⊆ W) {Φ : ℤ → ℤ → ℝ}
+    (hU : ∀ p ∉ U, ∀ q, Φ p q = 0) (hV : ∀ p, ∀ q ∉ V, Φ p q = 0) :
+    (∑ p ∈ W, ∑ q ∈ W, Φ p q) = ∑ p ∈ U, ∑ q ∈ V, Φ p q := by
+  have h1 : (∑ p ∈ W, ∑ q ∈ W, Φ p q) = ∑ p ∈ U, ∑ q ∈ W, Φ p q :=
+    sum_of_support hUW (φ := fun p => ∑ q ∈ W, Φ p q)
+      (fun p hp => Finset.sum_eq_zero (fun q _ => hU p hp q))
+  rw [h1]
+  exact Finset.sum_congr rfl (fun p _ => sum_of_support hVW (φ := fun q => Φ p q) (hV p))
+
+/-- **The doubled form is the quadratic form of the kernel at the folded test function**: the two
+`C + 1` blocks and the reflected cross block reassemble into `∑_{p,q} c(p,q) H p H q` at
+`H = doubledTest f g s`, plus the two white-noise sums.  Nothing is assumed about `s ∩ θ s`. -/
+theorem doubledOSForm_eq_folded (ρ : ℝ) (k : ℕ) (s : Finset ℤ) (f g : ℤ → ℝ) :
+    doubledOSForm ρ k s f g
+      = (∑ p ∈ s ∪ reflImage s, ∑ q ∈ s ∪ reflImage s,
+            bandedCovZ ρ k p q * doubledTest f g s p * doubledTest f g s q)
+        + (∑ i ∈ s, f i * f i) + ∑ i ∈ s, g i * g i := by
+  classical
+  have hsub : s ⊆ s ∪ reflImage s := Finset.subset_union_left
+  have hsubR : reflImage s ⊆ s ∪ reflImage s := Finset.subset_union_right
+  have hAA : (∑ p ∈ s ∪ reflImage s, ∑ q ∈ s ∪ reflImage s,
+        bandedCovZ ρ k p q * halfTest f s p * halfTest f s q)
+      = ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * f i * f j := by
+    refine (sum_of_support₂ hsub hsub (fun p hp q => ?_) (fun p q hq => ?_)).trans ?_
+    · rw [halfTest_of_not_mem hp, mul_zero, zero_mul]
+    · rw [halfTest_of_not_mem hq, mul_zero]
+    · apply Finset.sum_congr rfl
+      intro i hi
+      apply Finset.sum_congr rfl
+      intro j hj
+      rw [halfTest_of_mem hi, halfTest_of_mem hj]
+  have hBB : (∑ p ∈ s ∪ reflImage s, ∑ q ∈ s ∪ reflImage s,
+        bandedCovZ ρ k p q * halfTest g s (-p) * halfTest g s (-q))
+      = ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * g i * g j := by
+    refine (sum_of_support₂ hsubR hsubR (fun p hp q => ?_) (fun p q hq => ?_)).trans ?_
+    · rw [halfTest_of_not_mem (notMem_reflImage.mp hp), mul_zero, zero_mul]
+    · rw [halfTest_of_not_mem (notMem_reflImage.mp hq), mul_zero]
+    · rw [reflImage_sum]
+      apply Finset.sum_congr rfl
+      intro i hi
+      rw [reflImage_sum]
+      apply Finset.sum_congr rfl
+      intro j hj
+      rw [neg_neg, neg_neg, halfTest_of_mem hi, halfTest_of_mem hj, bandedCovZ_neg_neg]
+  have hAB : (∑ p ∈ s ∪ reflImage s, ∑ q ∈ s ∪ reflImage s,
+        bandedCovZ ρ k p q * halfTest f s p * halfTest g s (-q))
+      = ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i (-j) * f i * g j := by
+    refine (sum_of_support₂ hsub hsubR (fun p hp q => ?_) (fun p q hq => ?_)).trans ?_
+    · rw [halfTest_of_not_mem hp, mul_zero, zero_mul]
+    · rw [halfTest_of_not_mem (notMem_reflImage.mp hq), mul_zero]
+    · apply Finset.sum_congr rfl
+      intro i hi
+      rw [reflImage_sum]
+      apply Finset.sum_congr rfl
+      intro j hj
+      rw [halfTest_of_mem hi, neg_neg, halfTest_of_mem hj]
+  have hBA : (∑ p ∈ s ∪ reflImage s, ∑ q ∈ s ∪ reflImage s,
+        bandedCovZ ρ k p q * halfTest g s (-p) * halfTest f s q)
+      = ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i (-j) * f i * g j := by
+    refine (sum_of_support₂ hsubR hsub (fun p hp q => ?_) (fun p q hq => ?_)).trans ?_
+    · rw [halfTest_of_not_mem (notMem_reflImage.mp hp), mul_zero, zero_mul]
+    · rw [halfTest_of_not_mem hq, mul_zero]
+    · rw [reflImage_sum]
+      simp only [neg_neg]
+      have hstep : (∑ i ∈ s, ∑ j ∈ s,
+          bandedCovZ ρ k (-i) j * halfTest g s i * halfTest f s j)
+          = ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i (-j) * g i * f j := by
+        apply Finset.sum_congr rfl
+        intro i hi
+        apply Finset.sum_congr rfl
+        intro j hj
+        rw [halfTest_of_mem hi, halfTest_of_mem hj, bandedCovZ_neg_left ρ k i j]
+      rw [hstep, Finset.sum_comm]
+      apply Finset.sum_congr rfl
+      intro j hj
+      apply Finset.sum_congr rfl
+      intro i hi
+      rw [bandedCovZ_reflected_comm ρ k i j]
+      ring
+  have hpt : ∀ p q : ℤ, bandedCovZ ρ k p q * doubledTest f g s p * doubledTest f g s q
+      = bandedCovZ ρ k p q * halfTest f s p * halfTest f s q
+        + bandedCovZ ρ k p q * halfTest f s p * halfTest g s (-q)
+        + bandedCovZ ρ k p q * halfTest g s (-p) * halfTest f s q
+        + bandedCovZ ρ k p q * halfTest g s (-p) * halfTest g s (-q) := by
+    intro p q
+    simp only [doubledTest]
+    ring
+  rw [Finset.sum_congr rfl (fun p _ => Finset.sum_congr rfl (fun q _ => hpt p q))]
+  simp only [Finset.sum_add_distrib]
+  rw [hAA, hAB, hBA, hBB]
+  unfold doubledOSForm
+  ring
+
+/-- **Reflection positivity of the doubled banded state**: for any finitely supported pair of test
+functions and `θ i = -i`, the OS form of the state with blocks `[[C + 1, C ∘ θ], [θ ∘ C, C + 1]]`
+is nonnegative.  No half-line hypothesis is needed: the folded test function `doubledTest` is a
+pointwise sum, so the two halves may overlap.  The banded kernel alone is not reflection positive
+(`bandedCovZ_not_reflectionPositive`); the white-noise `+1` on each half is what closes the form. -/
+theorem bandedCovZ_doubled_reflectionPositive (ρ : ℝ) (k : ℕ) (s : Finset ℤ) (f g : ℤ → ℝ) :
+    0 ≤ doubledOSForm ρ k s f g := by
+  rw [doubledOSForm_eq_folded]
+  refine add_nonneg (add_nonneg (bandedCovZ_posSemidef ρ k _ _) ?_) ?_
+  · exact Finset.sum_nonneg (fun i _ => mul_self_nonneg (f i))
+  · exact Finset.sum_nonneg (fun i _ => mul_self_nonneg (g i))
 
 end
 

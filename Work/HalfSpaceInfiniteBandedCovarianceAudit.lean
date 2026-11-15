@@ -17,7 +17,11 @@ nonnegativity (`bandedCovZ_posSemidef`).  Positivity is strict off zero
 (`bandedCovZ_quadForm_eq_zero_iff`, `bandedCovZ_posDef`), the kernel is Toeplitz
 (`bandedCovZ_translate`, `bandedCovZ_row_tsum_translate`, `bandedCovZ_quadForm_translate`), and
 it is **not** reflection positive on a half-line for `θ i = -i`
-(`bandedCovZ_reflectionForm_neg`, `bandedCovZ_not_reflectionPositive`).
+(`bandedCovZ_reflectionForm_neg`, `bandedCovZ_not_reflectionPositive`).  What is reflection
+positive is the doubled state: with blocks `[[C + 1, C ∘ θ], [θ ∘ C, C + 1]]` the OS form
+`doubledOSForm` is nonnegative for *any* finitely supported pair of test functions
+(`doubledOSForm_eq_folded`, `bandedCovZ_doubled_reflectionPositive`) — the two halves are folded
+into one pointwise sum, so they may overlap and no half-line hypothesis is needed.
 The module docstring states the boundary honestly: no Gaussian measure on `ℤ → ℝ` is built
 (no Kolmogorov consistency in this Mathlib), and a banded Toeplitz matrix is not
 Hilbert–Schmidt on `ℓ²(ℤ)`, so the finite-volume HS square root does not survive the limit.
@@ -50,3 +54,14 @@ open BookProof.OSReconstruction
 #audit_axioms bandedCovZ_quadForm_translate
 #audit_axioms bandedCovZ_reflectionForm_neg
 #audit_axioms bandedCovZ_not_reflectionPositive
+#audit_axioms bandedCovZ_neg_neg
+#audit_axioms bandedCovZ_neg_left
+#audit_axioms bandedCovZ_reflected_comm
+#audit_axioms notMem_reflImage
+#audit_axioms reflImage_sum
+#audit_axioms halfTest_of_mem
+#audit_axioms halfTest_of_not_mem
+#audit_axioms sum_of_support
+#audit_axioms sum_of_support₂
+#audit_axioms doubledOSForm_eq_folded
+#audit_axioms bandedCovZ_doubled_reflectionPositive

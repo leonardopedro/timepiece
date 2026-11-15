@@ -193,6 +193,9 @@ the carrier with `L²(ν)`.
 | Width-`k` bandedness (zero off `{σ^d i : \|d\| ≤ k}`) | `bandCov_eq_zero` | same |
 | Diagonal `1 + ρ²k`, and `k = 1` is `chainCov` | `bandCov_diag`, `bandCov_one` | same |
 | Banded *coupled* state, width `k` | `covState_bandLaw_cov_fst_snd`, `covState_bandLaw_cov_fst_snd_eq_zero` | same |
+| Doubled banded form on `ℤ` is RP | `doubledOSForm`, `doubledOSForm_eq_folded`, `bandedCovZ_doubled_reflectionPositive` | `HalfSpaceInfiniteBandedCovariance.lean` |
+| PSD of the cycle covariance `bandCov` | `bandCov_posSemidef` | `HalfSpaceChainBandReflectionPositivity.lean` |
+| Doubled banded form on a cycle is RP | `doubledBandForm`, `doubledBandForm_eq_folded`, `bandCov_doubled_reflectionPositive` (+ `_shift`) | same |
 
 ### 2.7b The one-sided semigroup, and a step that inhabits it
 
@@ -454,7 +457,22 @@ of this section said otherwise and is corrected here.
    `-2` (`bandedCovZ_not_reflectionPositive`).  OS positivity is carried by the doubled state
    `[[C + 1, C], [C, C + 1]]` — the white-noise block cancels the cross block — which is exactly
    the `covState` shape with RP proved in `HalfSpaceCovariantReflectionPositivity`; the banded
-   kernel is the coupling term, not a state.
+   kernel is the coupling term, not a state.  The doubled state is itself reflection positive
+   here: writing the two half-line test functions as one function on `s ∪ θ s`
+   (`doubledTest`), the OS form `doubledOSForm` reassembles into the kernel's quadratic form at
+   that function plus `∑ H p ^ 2` (`doubledOSForm_eq_doubled_quadForm`), so it is nonnegative
+   (`bandedCovZ_doubled_reflectionPositive`) — the `-2` above is the reflected cross block alone,
+   which the white-noise `+1` on each half cancels.  What is proved is positivity of that
+   bilinear form; `0 ≤ ∫ F · θF dμ` for a measure still needs the Gaussian law.
+   **The finite-volume version is proved too** (`HalfSpaceChainBandReflectionPositivity`): the
+   cycle covariance is positive semidefinite (`bandCov_posSemidef`), because it is the covariance
+   matrix of the probability measure `bandLaw` — a variance argument, not the weight
+   autocorrelation used on `ℤ` — and the same folding argument gives
+   `0 ≤ doubledBandForm σ ρ k θ f g` for every bijection `θ` preserving `bandCov`
+   (`bandCov_doubled_reflectionPositive`).  The shift is such a symmetry
+   (`bandCov_shift_apply_apply`), which makes that statement non-vacuous
+   (`bandCov_doubled_reflectionPositive_shift`); the geometric reflection of a cycle is an input,
+   not constructed.
    **The covariance matrix of the coupled state is now proved, not merely described**
    (`HalfSpaceCovStateCovariance`): for a shift law `ν` with second moments (`hν`), the blocks of
    `covState ν` are `Cov T + 1` on the diagonal (`covState_cov_fst_fst`, `covState_cov_snd_snd`) and
@@ -470,6 +488,29 @@ Bottom line: the finite-volume OS estimates are the strongest statements availab
 of them "the infinite-volume state" would be an overclaim.  The shortest honest route to a real
 infinite-volume statement is item 5 (free field, via Ionescu–Tulcea plus a Hilbert–Schmidt
 pushforward), not a projective limit of the interacting `gibbsMeasure` family.
+
+### 4.3 The Osterwalder–Schmidt axiom checklist
+
+What the corpus *proves*, axiom by axiom, for the Euclidean side of the reconstruction, and what
+is still an input.  "Measure level" means the statement is about a probability measure on a
+configuration space; "kernel level" means it is about the covariance or the OS form only.
+
+| Axiom | What it demands | Status | Declarations | What would close it |
+| :--- | :--- | :--- | :--- | :--- |
+| **OS0** — regularity / temperedness | the Schwinger functions are tempered distributions of bounded growth | **absent** | — | an `n`-point Schwinger function as a distribution, and a growth estimate.  The corpus never forms the `n ≥ 3` functions at all |
+| **OS1** — Euclidean invariance | translation and `O(4)` invariance of the Schwinger functions | **kernel level only** | `bandedCovZ_translate`, `bandedCovZ_row_tsum_translate`, `bandedCovZ_quadForm_translate`, `bandCov_shift_apply_apply`; `eNorm_timePoint_eq_spacePoint`, `spatial_decay_of_temporal` for the time/space swap | invariance of the *measure* (needs the Gaussian law on `ℤ → ℝ`), not just of its covariance |
+| **OS2** — reflection positivity | `0 ≤ ⟨θF, F⟩` for every observable `F` of one half | **PROVED at measure level for several states; bilinear only for the banded ones** | measure level: `gibbs_reflectionPositive`, `gffConfigMeasure_isReflectionPositive`, `posCylinder_reflectionPositive`, `posCyl_reflectionPositive`, `covState_reflectionPositive`, `wilson_reflectionPositive`, `latticeGFFProbability_reflectionPositive`; bilinear level: `doubledOSForm_eq_folded` + `bandedCovZ_doubled_reflectionPositive` (infinite), `doubledBandForm_eq_folded` + `bandCov_doubled_reflectionPositive` (finite cycle) | the banded modules have no measure, so their `+ 1`-block `F`-level statement still needs the Gaussian law.  The *kernel* alone is not RP (`bandedCovZ_not_reflectionPositive`), and that is proved, not assumed |
+| **OS3** — ergodicity of time translation | the time translation has trivial invariant vectors (unique vacuum) | **absent** | — | an ergodicity or spectral-gap statement for `T_τ` at `α = 0`; the corpus proves *consequences* of clustering, not clustering itself |
+| **OS4** — Schwinger symmetry | the `n`-point functions are symmetric under permutations of the points | **two-point only** | `bandedCovZ_comm`, `bandCov_comm`, and symmetry of `cov[...]` | the `n ≥ 3` Schwinger functions, which do not exist in the corpus yet |
+| **OS5** — clustering | connected correlators decay; conversely an exponential-decay assumption gives a mass gap | **conditional** | hypothesis: `SchwingerClustering ω T m C`; consequences: `schwinger_symm`, `osNorm_evol_le_of_clustering`, `osNorm_evol_iterate_le`, `cluster_decay_tendsto_zero`, `osNorm_sub_evol_ge`, `genForm_gap_of_clustering`; model instance: `cluster_decay_tendsto_zero` for `C e^{−mτ}` | deriving clustering from the measure — the corpus proves the *implication* "clustering ⇒ contraction/mass gap", not clustering |
+
+Reading the table: exactly one axiom — **OS2** — is established as a statement about a measure in
+more than one model, and its banded refinements are established as bilinear statements.  OS1 is
+established as an invariance of the *covariance*; OS4 as symmetry of the *two-point* function;
+OS5 as an implication *from* clustering.  OS0 and OS3 are not attempted.  The OS reconstruction
+theorem itself (Schwinger functions satisfying OS0–OS5 ⇒ Wightman fields) is not formalised; the
+E3 chain is the transfer-operator side of the same reconstruction, and `§3` lists the hypotheses
+it still takes as input.
 
 ---
 
@@ -495,6 +536,7 @@ lake build BookProof.OSReconstruction.HalfSpaceCovStateCovariance # covariance m
 lake build BookProof.OSReconstruction.HalfSpaceChainBandCovariance # width-k band covariance
 lake build BookProof.OSReconstruction.HalfSpaceChainBandHSNorm # width-k coefficients + HS norm
 lake build BookProof.OSReconstruction.HalfSpaceInfiniteBandedCovariance # infinite banded kernel, PSD
+lake build BookProof.OSReconstruction.HalfSpaceChainBandReflectionPositivity # cycle: PSD + doubled RP
 
 # axiom footprints — every theorem must be [propext, Classical.choice, Quot.sound]
 lake env lean Work/HalfSpaceExponentialAudit.lean
@@ -515,6 +557,7 @@ lake env lean Work/HalfSpaceCovStateCovarianceAudit.lean
 lake env lean Work/HalfSpaceChainBandCovarianceAudit.lean
 lake env lean Work/HalfSpaceChainBandHSNormAudit.lean
 lake env lean Work/HalfSpaceInfiniteBandedCovarianceAudit.lean
+lake env lean Work/HalfSpaceChainBandReflectionPositivityAudit.lean
 ```
 
 Note on the direct `lean` invocations: the lakefile sets `maxSynthPendingDepth = 10`, which
@@ -523,11 +566,12 @@ The three exponential modules also carry per-declaration `set_option synthInstan
 overrides, because instance search through `Hhalf Λ = Completion (HsSpace Λ)` exceeds the default
 budget.
 
-Status at 2026-11-15: all eighteen audit files report `[propext, Classical.choice, Quot.sound]` only,
-and all modules build with no `sorry` and no warnings from their own files. The eleven later audits
+Status at 2026-11-15: all nineteen audit files report `[propext, Classical.choice, Quot.sound]` only,
+and all modules build with no `sorry` and no warnings from their own files. The twelve later audits
 (`HalfSpaceDiscreteSemigroup`, `HalfSpaceLatticeShiftSemigroup`, `HalfSpaceInfiniteVolumeGaussian`,
 `HalfSpaceInfiniteVolumePositivity`, `HalfSpaceCovariancePushforward`, `HalfSpaceChainCovariance`,
 `HalfSpaceCovariantReflectionPositivity`, `HalfSpaceCovStateCovariance`,
-`HalfSpaceChainBandCovariance`, `HalfSpaceChainBandHSNorm`, `HalfSpaceInfiniteBandedCovariance`)
-cover 10, 21, 5, 8, 8, 11, 3, 11, 8, 14 and 22 declarations
+`HalfSpaceChainBandCovariance`, `HalfSpaceChainBandHSNorm`, `HalfSpaceInfiniteBandedCovariance`,
+`HalfSpaceChainBandReflectionPositivity`)
+cover 10, 21, 5, 8, 8, 11, 3, 11, 8, 14, 33 and 7 declarations
 respectively.
