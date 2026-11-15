@@ -289,6 +289,125 @@ theorem sm_brst_nilpotent_rep (hS3 : TraceOrthonormal S3)
     smBrstCharge 6 (smGen S3 y) f3 * smBrstCharge 6 (smGen S3 y) f3 = 0 :=
   sm_brst_nilpotent_of_su3_relations hS3 hf3 (smGen_closes hf3 y)
 
+open BookProof.SmCar
+
+/-! ## 5. What one generator does to a ghost-free state
+
+`ChapterSmQuartet` §20 reduces the ghost-parity no-ghost condition to a single matrix entry: the
+charge kills a ghost-free state iff every Gauss generator does.  This section supplies that entry at
+the doublet, so the refutation is a theorem about `smGen` rather than a hypothesis about it.
+
+The work is in evaluating `G_a` on an occupation state.  `fermiBilin (embedMatter m M)` only sees the
+matter block (`fermiBilin_embedMatter`), so on a state occupying one matter mode it is that column of
+`M` (`fermiBilin_embedMatter_diagonal`); for the hypercharge generator, which is a multiple of the
+identity, the column is the state itself.  Hence `G_11 (occ {0}) = −i y · occ {0}`, nonzero exactly
+when the hypercharge is.  That is `matterGen_smGen_hyper_occ_ne_zero` — the matrix entry §20 asks
+for, at the model's own representation. -/
+
+/-- The matter block of `embedMatter` reads off the entries of `M` on the matter modes, which are
+`Fin.castAdd 12 i`. -/
+theorem embedMatter_apply_matter {m : ℕ} (M : Matrix (Fin m) (Fin m) ℂ) (i j : Fin m) :
+    embedMatter m M (Fin.castAdd 12 i) (Fin.castAdd 12 j) = M i j := by
+  simp [embedMatter, Matrix.reindex_apply, Matrix.submatrix_apply, Matrix.fromBlocks,
+    finSumFinEquiv]
+
+/-- The matter block is zero in a ghost column. -/
+theorem embedMatter_apply_ghost_col {m : ℕ} (M : Matrix (Fin m) (Fin m) ℂ) (i : Fin (m + 12))
+    (b : Fin 12) : embedMatter m M i (Fin.natAdd m b) = 0 :=
+  embedMatter_col_ghost m M b i
+
+/-- The matter block is zero in a ghost row. -/
+theorem embedMatter_apply_ghost_row {m : ℕ} (M : Matrix (Fin m) (Fin m) ℂ) (j : Fin (m + 12))
+    (b : Fin 12) : embedMatter m M (Fin.natAdd m b) j = 0 :=
+  embedMatter_row_ghost m M b j
+
+/-- **`dΓ` of an embedded matter matrix only touches the matter modes.**  Reindexing the two mode
+sums by `Fin m ⊕ Fin 12` leaves the matter block, and the ghost rows and columns of that block are
+zero. -/
+theorem fermiBilin_embedMatter {m : ℕ} (M : Matrix (Fin m) (Fin m) ℂ)
+    (ψ : FermiFock (m + 12)) :
+    fermiBilin (embedMatter m M) ψ
+      = ∑ i : Fin m, ∑ j : Fin m,
+          M i j • creat (Fin.castAdd 12 i) (annih (Fin.castAdd 12 j) ψ) := by
+  rw [fermiBilin_apply]
+  have hsplit : ∀ F : Fin (m + 12) → FermiFock (m + 12),
+      (∑ i : Fin (m + 12), F i) = ∑ u : Fin m ⊕ Fin 12, F (finSumFinEquiv u) := by
+    intro F
+    exact (Fintype.sum_equiv finSumFinEquiv _ _ (fun _ => rfl)).symm
+  simp only [hsplit, Fintype.sum_sum_type, finSumFinEquiv_apply_left,
+    finSumFinEquiv_apply_right, embedMatter_apply_ghost_col,
+    embedMatter_apply_ghost_row, zero_smul, Finset.sum_const_zero, add_zero,
+    embedMatter_apply_matter]
+
+/-- For a diagonal one-particle matrix the embedded second quantization is the sum of the matter
+occupation numbers, weighted by the diagonal entries. -/
+theorem fermiBilin_embedMatter_diagonal {m : ℕ} (e : Fin m → ℂ) (ψ : FermiFock (m + 12)) :
+    fermiBilin (embedMatter m (Matrix.diagonal e)) ψ
+      = ∑ i : Fin m, e i • creat (Fin.castAdd 12 i) (annih (Fin.castAdd 12 i) ψ) := by
+  rw [fermiBilin_embedMatter]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [Finset.sum_eq_single i]
+  · rw [Matrix.diagonal_apply_eq]
+  · intro b _ hb
+    rw [Matrix.diagonal_apply_ne _ (Ne.symm hb), zero_smul]
+  · intro hi
+    exact absurd (Finset.mem_univ i) hi
+
+/-- **On a single occupied matter mode the embedded second quantization is the column of `M`.**  For
+`M` a multiple of the identity the column is the state itself. -/
+theorem fermiBilin_embedMatter_scalar_occ {m : ℕ} (y : ℂ) (i₀ : Fin m) :
+    fermiBilin (embedMatter m (y • (1 : Matrix (Fin m) (Fin m) ℂ)))
+        (occ ({Fin.castAdd 12 i₀} : Finset (Fin (m + 12))))
+      = y • occ ({Fin.castAdd 12 i₀} : Finset (Fin (m + 12))) := by
+  rw [Matrix.smul_one_eq_diagonal, fermiBilin_embedMatter_diagonal]
+  rw [Finset.sum_eq_single i₀]
+  · rw [occupation_occ, if_pos (Finset.mem_singleton_self _)]
+  · intro b _ hb
+    have hne : Fin.castAdd 12 b ≠ Fin.castAdd 12 i₀ := by
+      intro hh
+      exact hb (Fin.ext (by simpa using congrArg Fin.val hh))
+    rw [occupation_occ, if_neg (by simpa using hne), smul_zero]
+  · intro h0
+    exact absurd (Finset.mem_univ _) h0
+
+/-- The hypercharge generator of the doublet is `y` times the identity on the six matter modes. -/
+theorem smGen_hyper (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ) (y : ℝ) :
+    smGen S3 y 11 = ((y : ℂ)) • (1 : Matrix (Fin 6) (Fin 6) ℂ) := by
+  unfold smGen
+  have hidx : smIdxEquiv 11 = Sum.inr (Sum.inr 0) := by decide
+  rw [hidx]
+  show toModes (smGenP S3 y (Sum.inr (Sum.inr 0))) = ((y : ℂ)) • 1
+  rw [show smGenP S3 y (Sum.inr (Sum.inr 0))
+      = ((y : ℂ)) • (1 : Matrix (Fin 3 × Fin 2) (Fin 3 × Fin 2) ℂ) from rfl]
+  rw [map_smul, map_one]
+
+/-- **The hypercharge Gauss generator does not kill the ghost-free state `occ {0}`** at the
+doublet, whenever the hypercharge is nonzero.  This is the single matrix entry that §20's refutation
+needs, at the model's own representation. -/
+theorem matterGen_smGen_hyper_occ_ne_zero (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ) {y : ℝ}
+    (hy : (y : ℂ) ≠ 0) :
+    matterGen 6 (smGen S3 y) 11
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  have hval : matterGen 6 (smGen S3 y) 11
+      (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12))))
+      = ((-Complex.I) * (y : ℂ)) •
+        occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12))) := by
+    rw [matterGen, smGen_hyper, LinearMap.smul_apply,
+      fermiBilin_embedMatter_scalar_occ (y := (y : ℂ)) (i₀ := (0 : Fin 6)), smul_smul]
+  rw [hval]
+  intro hzero
+  have hnorm : ‖((-Complex.I) * (y : ℂ)) •
+      occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))‖ = ‖(y : ℂ)‖ := by
+    rw [norm_smul]
+    have hI : ‖(-Complex.I * (y : ℂ))‖ = ‖(y : ℂ)‖ := by
+      rw [norm_mul]
+      simp
+    have hocc : ‖occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))‖ = 1 := by
+      simp [occ, EuclideanSpace.norm_single]
+    rw [hI, hocc, mul_one]
+  rw [hzero, norm_zero] at hnorm
+  exact hy (norm_eq_zero.mp hnorm.symm)
+
 end
 
 end BookProof.SmGaugeRep

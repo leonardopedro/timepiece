@@ -565,3 +565,27 @@ of `ChapterSmQuartet` now makes that radical statement exact —
 together with `exists_gauge_add_mem` and `representative_unique` for the identification
 `ker Ω / range Ω ≃ D`.  The identification is a decomposition with uniqueness, not an `Equiv` or an
 `InnerProductSpace` instance, and it depends on the canonical choice of complement.  See plan §94.
+
+## Correction 2026-11-15h — the doublet's own generator, and what the numbers do not say
+
+**What changed.**  §94's Lean refutation took `G_a (occ S) ≠ 0` as a hypothesis and verified it only
+numerically.  It is now a theorem at the model: `ChapterSmGaugeRepresentation` §5 evaluates the embedded
+second quantization on the matter modes (`fermiBilin_embedMatter`, `…_diagonal`, `…_scalar_occ`), identifies
+the hypercharge generator as `y` times the identity (`smGen_hyper`), and proves
+`matterGen_smGen_hyper_occ_ne_zero`: `G₁₁ (occ {0}) = −i y · occ {0} ≠ 0`.  Hence
+`smGhostParity_not_noGhost_doublet` — the ghost parity is not a no-ghost metric for
+`smBrstCharge 6 (smGen S3 y) f3`, with only `TraceOrthonormal S3`, `ClosesWithStructureConstants S3 f3`
+and `y ≠ 0` as inputs.  The projection metric of §93 is unaffected and still satisfies
+`PhysicalPositivity` at the same charge; the two statements are about different `η`.
+
+**What the per-degree numbers are.**  The tables in plan §95 are computed by sparse elimination and are
+not Lean theorems.  Two consistency checks passed (the `m = 1` cubic-term dimensions are exactly twice the
+`m = 0` ones, as they must be when the operator ignores the matter mode; and `ker + range = dim` degree by
+degree), and two errors were caught by exactly these checks — structure constants read off the six- and
+three-dimensional representations instead of the algebra, and a `λ₈` without its `1/√3`.  The observed
+symmetry of the ranks under `g ↦ 11 − g` is recorded as an observation only.
+
+**What is still open.**  The cubic term's kernel is classified dimensionally, not by an exhibited basis; the
+blockwise ranks remain out of reach above one matter mode (the eighteen-mode doublet has `2^18` states); and
+for the doublet only the hypercharge direction is evaluated in Lean, the other eleven generators entering
+§94's general criterion as the hypothesis `G_a (occ S) ≠ 0`.

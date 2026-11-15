@@ -86,3 +86,12 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmQuartet.smPhysMetric_descends
 #audit_axioms BookProof.SmQuartet.smPhysMetric_definite
 #audit_axioms BookProof.SmQuartet.smPhysMetric_representative
+#audit_axioms BookProof.SmGaugeRep.embedMatter_apply_matter
+#audit_axioms BookProof.SmGaugeRep.embedMatter_apply_ghost_col
+#audit_axioms BookProof.SmGaugeRep.embedMatter_apply_ghost_row
+#audit_axioms BookProof.SmGaugeRep.fermiBilin_embedMatter
+#audit_axioms BookProof.SmGaugeRep.fermiBilin_embedMatter_diagonal
+#audit_axioms BookProof.SmGaugeRep.fermiBilin_embedMatter_scalar_occ
+#audit_axioms BookProof.SmGaugeRep.smGen_hyper
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_hyper_occ_ne_zero
+#audit_axioms BookProof.SmQuartet.smGhostParity_not_noGhost_doublet

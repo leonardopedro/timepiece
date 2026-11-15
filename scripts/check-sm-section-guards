@@ -597,6 +597,7 @@ require "$PLAN" 'one line of' \
 # an explicit quartet, so the counterexample and the statement it refutes must both stay.
 QUARTET=BookProof/Sm/ChapterSmQuartet.lean
 FORMULA=BookProof/Sm/ChapterSmBghostFormula.lean
+GAUGEREP=BookProof/Sm/ChapterSmGaugeRepresentation.lean
 require "$QUARTET" "theorem exNotPhysicalPositivity" \
     "§72: the counterexample must stay asserted"
 require "$QUARTET" "def exQuartet3" \
@@ -1034,6 +1035,24 @@ require "$PLAN" 'no-ghost at the Standard Model' \
     "§94: the plan must keep the verdict"
 require "$PLAN" 'out of reach for sparse' \
     "§94: the plan must keep the truncation boundary"
+
+# §95: the doublet's own generator, the per-degree numbers, and what the cubic term kills
+require "$GAUGEREP" "theorem fermiBilin_embedMatter" \
+    "§95: the matter-block restriction of dGamma must stay"
+require "$GAUGEREP" "theorem smGen_hyper" \
+    "§95: the hypercharge generator must stay y times the identity"
+require "$GAUGEREP" "theorem matterGen_smGen_hyper_occ_ne_zero" \
+    "§95: the one matrix entry at the doublet must stay"
+require "$FORMULA" "theorem smGhostParity_not_noGhost_doublet" \
+    "§95: the doublet's refutation must stay"
+require "scripts/sm-ghost-free-witness.py" "per ghost number" \
+    "§95: the witness script must keep the per-degree tables"
+require "$PLAN" 'What the cubic term kills' \
+    "§95: the plan must keep the cubic-term classification"
+require "$PLAN" 'it does **not**' \
+    "§95: the plan must keep the cubic term's failure verdict"
+require "$PLAN" 'symmetry of the ranks is an' \
+    "§95: the plan must keep the observed-symmetry caveat"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

@@ -5364,3 +5364,72 @@ identification is recorded as a decomposition with uniqueness, not as an `Equiv`
 `InnerProductSpace` instance, and `D` is the canonical range, so it is a property of that choice of
 complement.  (iv) The Lean refutation takes `G_a (occ S) ≠ 0` as a hypothesis; that the model's
 hypercharge generator satisfies it at the six-mode doublet is checked numerically, not in Lean.
+
+## §95. The doublet's own generator, the cohomology by ghost number, and what the cubic term kills
+
+§94 ended with a boundary of its own: the Lean refutation took `G_a (occ S) ≠ 0` as a hypothesis, and the
+matrix entry at the doublet was checked only numerically.  That gap is now closed, and the blockwise
+numbers of §94 are broken down by ghost degree.
+
+**The generator at the doublet (`ChapterSmGaugeRepresentation` §5).**  Evaluating a Gauss generator on an
+occupation state needs the second quantization of the *matter block* only, and the embedded matter block
+is supported on the matter modes `Fin.castAdd 12 i`:
+
+* `fermiBilin_embedMatter` — `dΓ(embedMatter m M) ψ = Σ_{i,j < m} M i j · c†_i a_j ψ`: reindexing the
+  mode sums by `Fin m ⊕ Fin 12` leaves the matter block, and its ghost rows and columns are zero
+  (`embedMatter_apply_ghost_col`, `embedMatter_apply_ghost_row`);
+* `fermiBilin_embedMatter_diagonal` — for a diagonal one-particle matrix this is the weighted matter
+  occupation number;
+* `fermiBilin_embedMatter_scalar_occ` — on a single occupied matter mode it is that column, so for a
+  multiple of the identity it is the state itself;
+* `smGen_hyper` — the hypercharge generator of `smGen` is `y` times the identity on the six matter modes
+  (`smIdxEquiv 11 = Sum.inr (Sum.inr 0)`), hence
+  `matterGen_smGen_hyper_occ_ne_zero` — `G₁₁ (occ {0}) = −i y · occ {0} ≠ 0` for `y ≠ 0`: exactly the
+  matrix entry §94's refutation was taking as a hypothesis.
+
+**The refutation is now a theorem about `smGen` (`ChapterSmBghostFormula` §7).**
+`smGhostParity_not_noGhost_doublet` : for `TraceOrthonormal S3`, `ClosesWithStructureConstants S3 f3` and
+`y ≠ 0`,
+
+  `¬ PhysicalPositivity (smBrstCharge 6 (smGen S3 y) f3) (smGhostParity 6)`.
+
+No hypothesis about the generator survives: the ghost parity is **not** a no-ghost metric at the Standard
+Model's six-mode coloured weak doublet.  §93's projection metric `smPhysMetric` is of course untouched —
+it satisfies `PhysicalPositivity` at the same charge.
+
+**The cohomology by ghost degree.**  `scripts/sm-ghost-free-witness.py` now also reports, per ghost number,
+the dimension, the rank of the charge and the kernel split by parity.  Measured 2026-11-15, full
+`su(3) ⊕ su(2) ⊕ u(1)` ghosts:
+
+| `m` | `g` | `dim Λ^g` | `dim ker Ω` | `dim range Ω` |
+|---|---|---|---|---|
+| 0 | 0,1,2,3,4,5,6 | 1, 12, 66, 220, 495, 792, 924 | 1, 1, 11, 57, 165, 331, 463 | 0, 11, 55, 163, 330, 461, 461 |
+| 0 | 7,8,9,10,11,12 | 792, 495, 220, 66, 12, 1 | 462, 332, 165, 55, 12, 1 | 330, 163, 55, 11, 0, 0 |
+| 1 | 0,1,2,3,4,5,6 | 2, 24, 132, 440, 990, 1584, 1848 | 1, 2, 22, 112, 330, 661, 925 | 1, 22, 110, 328, 660, 923, 923 |
+| 1 | 7,8,9,10,11,12 | 1584, 990, 440, 132, 24, 2 | 924, 662, 330, 110, 23, 2 | 660, 328, 110, 22, 1, 0 |
+
+The kernel of `Ω` is invariant under the ghost parity (it is `dim ker = ker(even) + ker(odd)` degree by
+degree, with one half always zero), as it must be since `U Ω = −Ω U`.
+
+**What the cubic term kills.**  The cubic term `B = −Σ_{a<b,e} f_{abe} c†_a c†_b b_e` raises the ghost
+number by one, so its kernel can be read degree by degree.  At `m = 0`:
+
+| `g` | 0 | 2 | 4 | 6 | 8 | 10 | 12 |
+|---|---|---|---|---|---|---|---|
+| `dim Λ^g` | 1 | 66 | 495 | 924 | 495 | 66 | 1 |
+| `dim ker B` | 1 | 11 | 165 | 463 | 332 | 55 | 1 |
+
+so the ghost-free criterion of §94 is the **degree-0** case, where `B` kills everything (Lean:
+`smGhostCharge_occ_of_ghostFree`, valid for every representation and every `f`), and it does **not**
+extend: at every even degree `2 ≤ g ≤ 10` the kernel is a proper subspace of codimension given by the rank
+of `B` on that degree (`55, 330, 461, 163, 11` at `g = 2,4,6,8,10`).  Two structure checks: at `m = 1` every
+rank and kernel dimension is exactly twice the `m = 0` value, as they must be because `B` never touches the
+matter mode; and the ranks are symmetric under `g ↦ 11 − g` (`11, 55, 163, 330, 461` in both directions) —
+a Hodge-star-like symmetry of the truncated charge, observed here and not proved.
+
+**Boundaries.**  (i) The per-degree dimensions are *computed*, not proved: no Lean statement asserts them,
+and §94's blockwise rank argument is limited to trivial or hypercharge-only matter (`m ≤ 1`).  (ii) The
+doublet theorem is at `m = 6` but for the hypercharge direction alone; the other eleven generators enter
+§94's general criterion only through their hypothesis.  (iii) The `g ↦ 11 − g` symmetry of the ranks is an
+observation.  (iv) The classification says which even states `B` kills *dimensionally*; it does not
+exhibit a basis of `ker B` on any degree.

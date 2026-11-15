@@ -245,6 +245,40 @@ def rank_sparse(rows, tol=1e-10):
     return len(piv)
 
 
+def degree_table(m, T, f, cubic_only=False):
+    """Per ghost number: total dimension, rank, kernel dimension, split by parity."""
+    n = m + 12
+    terms = charge_terms(m, T, f)
+    if cubic_only:
+        terms = [(ops, c) for ops, c in terms if all(i >= m for _, i in ops)]
+    by_key = {}
+    for s in range(1 << n):
+        by_key.setdefault((matter_number(s, m), ghost_number(s, m)), []).append(s)
+    rows = []
+    for g in range(13):
+        src = [s for k in range(m + 1) for s in by_key.get((k, g), [])]
+        if not src:
+            continue
+        dst = {s: i for i, s in
+               enumerate([t for k in range(m + 1) for t in by_key.get((k, g + 1), [])])}
+        rows.append((g, src, dst, terms))
+    out = []
+    for g, src, dst, tms in rows:
+        if not dst:
+            out.append((g, len(src), 0, len(src), len(src) if g % 2 == 0 else 0,
+                len(src) if g % 2 == 1 else 0))
+            continue
+        mat = []
+        for s in src:
+            r = act(tms, s)
+            mat.append({dst[t]: v for t, v in r.items() if t in dst})
+        rk = rank_sparse([r for r in mat if r])
+        ker = len(src) - rk
+        out.append((g, len(src), rk, ker, ker if g % 2 == 0 else 0,
+            ker if g % 2 == 1 else 0))
+    return out
+
+
 def sector_report(m, T, f):
     n = m + 12
     terms = charge_terms(m, T, f)
@@ -413,6 +447,15 @@ def main():
               % ("YES" if rep["even_ker"] == rep["even_total"] else "NO"))
         print("  => ghost-parity positivity           : %s"
               % ("holds" if rep["even_ker"] == rep["even_total"] else "fails"))
+
+        for cubic_only, label in ((False, "Omega"), (True, "the cubic term alone")):
+            print()
+            print("  per ghost number, %s (m = %d):" % (label, m))
+            print("    g   dim      rank    ker   ker(even)  ker(odd)")
+            for g, dim, rk, ker, kev, kod in degree_table(m, T, f, cubic_only):
+                print("    %2d  %5d   %5d   %5d     %5d      %5d"
+                      % (g, dim, rk, ker, kev, kod))
+
 
     print()
     print("=" * 78)

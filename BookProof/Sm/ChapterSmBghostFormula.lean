@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import BookProof.Sm.ChapterSmQuartet
+import BookProof.Sm.ChapterSmGaugeRepresentation
 
 /-!
 # A b-ghost with a formula
@@ -433,6 +434,39 @@ theorem smPhysMetric_representative
       ∃ d ∈ LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)), x = e + d :=
   BrstQuartet.exists_gauge_add_mem _
     (closed_eq_sup_range_smPhysProjFormula (m := m) (T := T) (f3 := f3) hT h3anti h3jac) hx
+
+/-! ## 7. The doublet's own charge refutes the ghost-parity input
+
+§20 of `ChapterSmQuartet` says one nonzero Gauss matrix entry at a ghost-free state refutes
+`PhysicalPositivity` for the ghost parity.  `ChapterSmGaugeRepresentation` §5 supplies that entry at
+the model's own representation: the hypercharge generator is `y` times the identity on the six matter
+modes, so `G₁₁` sends the ghost-free state `occ {0}` to `−i y · occ {0}`.  Hence the refutation is
+now a theorem about `smGen` itself, with no hypothesis left over except the two defining relations of
+the `su(3)` generators and `y ≠ 0`.
+
+**Boundary.**  The state is one ghost-free occupation state, not the whole even sector; and the
+conclusion is that the ghost *parity* is not a no-ghost metric — §5's projection metric is untouched
+by it, and still satisfies `PhysicalPositivity`. -/
+
+/-- **The ghost parity is not a no-ghost metric at the doublet.**  One even state with `Ω x ≠ 0` is
+enough, and `ChapterSmGaugeRepresentation`'s hypercharge generator supplies it. -/
+theorem smGhostParity_not_noGhost_doublet
+    (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ) {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hS3 : BookProof.YangMillsSU3.TraceOrthonormal S3)
+    (hf3 : BookProof.YangMillsSU3.ClosesWithStructureConstants S3 f3) {y : ℝ} (hy : y ≠ 0) :
+    ¬ PhysicalPositivity (smBrstCharge 6 (BookProof.SmGaugeRep.smGen S3 y) f3)
+        (smGhostParity 6) := by
+  refine BrstQuartet.not_physicalPositivity_of_ghostFree_gauss
+    (S := ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) (a := 11)
+    (BookProof.SmGaugeRep.smGen_closes hf3 y)
+    (BookProof.YangMillsSU3.structureConstant_antisymm_swap hS3 hf3)
+    (BookProof.YangMillsSU3.structureConstant_jacobi hS3 hf3) ?_ ?_
+  · intro a hmem
+    have hEq : ghostMode 6 a = Fin.castAdd 12 (0 : Fin 6) := Finset.mem_singleton.mp hmem
+    have hval : (ghostMode 6 a).val = (Fin.castAdd 12 (0 : Fin 6)).val := by rw [hEq]
+    simp [ghostMode] at hval
+  · exact BookProof.SmGaugeRep.matterGen_smGen_hyper_occ_ne_zero S3
+      (Complex.ofReal_ne_zero.mpr hy)
 
 end
 
