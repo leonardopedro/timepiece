@@ -26245,3 +26245,36 @@ succeed with no warning from either file and no line above 100 code points. `#pr
 `norm_projection_le`, `fock_tail_le`, `sirkReconstruction_idem`, `sirkComplement_idem`,
 `sirkComplement_adjoint_eq` and `sirkTailBudget_le_fock` gives
 `[propext, Classical.choice, Quot.sound]` in all nine cases; no `sorry`.
+
+## State of the project — 2026-11-15n: §13's commutation hypothesis is vacuous, and `O` without it
+
+A correction to §2026-11-15m, and one allocation that survives it.
+
+**The defect.** §13's `sirkTailBudget_le_fock` assumed `H Q = Q H` to bound the compressed
+resolvent.  That hypothesis is not merely unproved for a SIRK split: together with
+`P = 1 − Q`, `Q² = Q` it forces `Q (H − z) P = 0`, so the coupling term is identically zero and
+the bound degenerates to `sirkTailBudget ≤ ‖Q R Q‖`.  `comp_shift_eq_zero_of_comm` is the formal
+statement, and `sirkTailBudget_le_of_invariant_split` is what invariance honestly delivers.  An
+exactly invariant split is the case SIRK exists to avoid, so §13's combined bound must not be
+read as covering the Krylov split.
+
+**The repair that needs no invariance.** `sirkTransferBudget_le_fock` bounds the transfer
+allocation for `H = A + g·W` by the triangle inequality alone:
+`‖(H − z) Q‖ ≤ ‖(A − z) Q‖ + ‖g‖‖W‖` because `‖Q‖ ≤ 1`, hence
+`O ≤ ‖B‖ (alpha + ‖g‖‖W‖) ‖R P‖` with `alpha` the free part's norm on the discarded sector.  The
+estimate is affine in `‖g‖`, valid for every split, and its only model input is `H = A + g·W`.
+
+**Why the Fock instantiation is not delivered.** The concrete Yang–Mills Hamiltonian in
+`BookProof/Qym/ChapterYangMillsHermite.lean` is `ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99` — a
+symmetric operator on a core, not the `E →L[ℂ] E` of §13–§14, so it cannot be substituted at
+all.  Beyond the type mismatch, the two hypotheses have different statuses: block diagonality of
+the free part (`Q A P = 0`) is a statement about the oscillator, while coercivity with `mu > 0`
+on the discarded block of the *interacting* Hamiltonian is a spectral-gap claim, which the
+project explicitly does not assert (`softmodes.md`, "no strictly positive mass gap of the
+physical continuum Hamiltonian is claimed").  The graph-norm route needed to even state §11–§14
+for an unbounded generator is likewise not started.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points.  `#print axioms` on `comp_shift_eq_zero_of_comm`,
+`sirkTailBudget_le_of_invariant_split` and `sirkTransferBudget_le_fock` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

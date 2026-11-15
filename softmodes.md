@@ -2998,6 +2998,33 @@ does not supply them — and the docstring's `Boundary` section now says exactly
 `sirkComplement_adjoint_eq`, `sirkTailBudget_le_fock`) gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
+### Correction: the commutation hypothesis, and `O` without it (2026-11-15n)
+
+The 2026-11-15m section instantiated `T` under `H Q = Q H`.  That hypothesis is vacuous: with
+`P = 1 − Q` and `Q² = Q`, `H Q = Q H` gives `Q (H − z) P = Q H P = Q H (1 − Q) = Q H − H Q = 0`,
+so the coupling term of `sirkTailBudget_le_fock` is identically zero and the bound collapses to
+`sirkTailBudget ≤ ‖Q R Q‖`.  `comp_shift_eq_zero_of_comm` states this in Lean and
+`sirkTailBudget_le_of_invariant_split` records what exact invariance actually buys.  A SIRK split
+is not invariant — that is why the method exists — so the combined §13 bound does not cover the
+case of interest.
+
+The transfer allocation does not need invariance.  For `H = A + g·W`,
+`(H − z) Q = (A − z) Q + g · W Q`, so `‖(H − z) Q‖ ≤ ‖(A − z) Q‖ + ‖g‖‖W‖` (using
+`‖Q‖ ≤ 1`) and `sirkTransferBudget_le_fock` gives
+`O ≤ ‖B‖ (alpha + ‖g‖‖W‖) ‖R P‖`, with `alpha` the free part's norm on the discarded sector.
+That is affine in the coupling and true for every split.
+
+**What is not delivered.**  The concrete `ymHamiltonian Φ fabc` is a `LinearMap` on a core
+`D ⊂ L2d 99`, not a continuous operator on a Hilbert space, so §13–§14 cannot be instantiated
+with it; and coercivity with `mu > 0` on the interacting complement is exactly the mass-gap
+statement this project declines to claim for the continuum theory.  Both the Fock instantiation
+and the graph-norm generalisation remain open; only the free-part and coupling-side data are
+available.
+
+**Verification.** The module builds with no warning and no line above 100 code points;
+`#print axioms` on the three new declarations gives `[propext, Classical.choice, Quot.sound]`;
+no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

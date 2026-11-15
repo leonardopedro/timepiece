@@ -1309,4 +1309,116 @@ theorem sirkTailBudget_le_fock (V : F →L[ℂ] E) (A W H R : E →L[ℂ] E) (g 
         linarith
 
 
+/-! ## 14. What the commutation hypothesis really buys, and `O` without it
+
+§13's `sirkTailBudget_le_fock` assumed `H Q = Q H`.  That hypothesis is not merely
+unproved for a SIRK split — it is *inconsistent* with a nonzero coupling term, and
+`comp_shift_eq_zero_of_comm` makes this formal: `H Q = Q H` forces
+`Q (H − z) P = 0`, so the §13 bound always reads
+`sirkTailBudget ≤ (1)·‖Q R Q‖` and never uses `‖g‖‖W‖`.  Exactly invariant splits are
+the case SIRK exists to avoid, so §13 covers only the degenerate regime; the honest
+statement of what invariance gives is `sirkTailBudget_le_of_invariant_split`.
+
+The transfer allocation needs no invariance at all.  For `H = A + g·W` the triangle
+inequality gives `‖(H − z) Q‖ ≤ ‖(A − z) Q‖ + ‖g‖‖W‖` (because `‖Q‖ ≤ 1`), so with
+`alpha` the free part's norm on the discarded sector,
+`sirkTransferBudget_le_fock` reads `O ≤ ‖B‖ (alpha + ‖g‖‖W‖) ‖R P‖` — affine in the
+coupling and valid for every split.
+
+-/
+
+
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+  [CompleteSpace F] in
+/-- **Exact invariance kills the coupling block.**  If `H` commutes with the discarded
+projection `Q`, the off-diagonal block of the shifted generator vanishes identically:
+`Q (H − z) P = 0`.  So §13's commutation hypothesis forces the coupling term of
+`sirkTailBudget_le_fock` to vanish: that lemma therefore describes the *exactly* invariant
+split, not the Krylov split SIRK actually uses. -/
+theorem comp_shift_eq_zero_of_comm (H Q : E →L[ℂ] E) (z : ℂ)
+    (hQidem : Q.comp Q = Q) (hcomm : H.comp Q = Q.comp H) :
+    Q.comp ((H - z • 1).comp (ContinuousLinearMap.id ℂ E - Q)) = 0 := by
+  have hQP : Q.comp (ContinuousLinearMap.id ℂ E - Q) = 0 := by
+    rw [ContinuousLinearMap.comp_sub, ContinuousLinearMap.comp_id, hQidem, sub_self]
+  have hA : Q.comp (H.comp (ContinuousLinearMap.id ℂ E - Q)) = 0 := by
+    rw [← ContinuousLinearMap.comp_assoc, ← hcomm, ContinuousLinearMap.comp_assoc, hQP]
+    simp
+  have hz : Q.comp ((z : ℂ) • (ContinuousLinearMap.id ℂ E - Q)) = 0 := by
+    rw [ContinuousLinearMap.comp_smul, hQP, smul_zero]
+  have hstep : (H - z • 1).comp (ContinuousLinearMap.id ℂ E - Q)
+      = H.comp (ContinuousLinearMap.id ℂ E - Q)
+        - (z : ℂ) • (ContinuousLinearMap.id ℂ E - Q) := by
+    ext x
+    simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.sub_apply,
+      ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, smul_sub]
+  rw [hstep, ContinuousLinearMap.comp_sub, hA, hz, sub_self]
+
+/-- **What exact invariance actually delivers.**  Under `H Q = Q H` the tail budget loses its
+coupling factor: `sirkTailBudget V R ≤ ‖Q R Q‖`.  This is the only regime where §13's
+commutation hypothesis is consistent with a nonzero coupling, and there the coupling is zero. -/
+theorem sirkTailBudget_le_of_invariant_split (V : F →L[ℂ] E) (H R : E →L[ℂ] E) (z : ℂ)
+    (B : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hQidem : (sirkComplement V).comp (sirkComplement V) = sirkComplement V)
+    (hcomm : H.comp (sirkComplement V) = (sirkComplement V).comp H)
+    (hRleft : R.comp (H - z • 1) = ContinuousLinearMap.id ℂ E)
+    (hBright : (V.adjoint.comp ((H - z • 1).comp V)).comp B
+      = ContinuousLinearMap.id ℂ F) :
+    sirkTailBudget V R ≤ ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ := by
+  have hzero := comp_shift_eq_zero_of_comm H (sirkComplement V) z hQidem hcomm
+  have hP : sirkReconstruction V = ContinuousLinearMap.id ℂ E - sirkComplement V := by
+    ext x
+    simp [sirkComplement]
+  have hleak := sirkTailBudget_le_of_tail_coupling V (H - z • 1) R B hVV hViso hVadj
+    hRleft hBright
+  rw [hP, hzero, norm_zero] at hleak
+  simpa using hleak
+
+/-- **`O` as a function of the coupling — no invariance assumed.**  For `H = A + g·W` the
+transfer allocation splits by the triangle inequality alone:
+`‖(H − z) Q‖ ≤ ‖(A − z) Q‖ + ‖g‖ ‖W‖`, since `‖Q‖ ≤ 1`.  Writing `alpha` for the free part's
+norm on the discarded sector, `O ≤ ‖B‖ (alpha + ‖g‖‖W‖) ‖R P‖` — affine in the coupling, and
+independent of whether the split is `H`-invariant.  This is the non-vacuous counterpart of
+`sirkTailBudget_le_fock`'s commutation hypothesis. -/
+theorem sirkTransferBudget_le_fock (V : F →L[ℂ] E) (A W H R : E →L[ℂ] E) (g z : ℂ)
+    (B : F →L[ℂ] F) (alpha : ℝ)
+    (hQidem : (sirkComplement V).comp (sirkComplement V) = sirkComplement V)
+    (hQadj : (sirkComplement V).adjoint = sirkComplement V)
+    (hH : H = A + g • W)
+    (hfree : ‖(A - z • 1).comp (sirkComplement V)‖ ≤ alpha) :
+    sirkTransferBudget V H R z B
+      ≤ ‖B‖ * (alpha + ‖g‖ * ‖W‖) * ‖R.comp (sirkReconstruction V)‖ := by
+  have hQ1 : ‖sirkComplement V‖ ≤ 1 :=
+    opNorm_le_one_of_orthogonalProjection (sirkComplement V) hQidem hQadj
+  have hsplit : H - z • 1 = (A - z • 1) + g • W := by
+    rw [hH]
+    abel
+  have hcomp : (H - z • 1).comp (sirkComplement V)
+      = (A - z • 1).comp (sirkComplement V)
+        + g • (W.comp (sirkComplement V)) := by
+    rw [hsplit, ContinuousLinearMap.add_comp, ContinuousLinearMap.smul_comp]
+  have hW : ‖g • (W.comp (sirkComplement V))‖ ≤ ‖g‖ * ‖W‖ := by
+    rw [norm_smul]
+    have h1 : ‖W.comp (sirkComplement V)‖ ≤ ‖W‖ * 1 := by
+      calc ‖W.comp (sirkComplement V)‖ ≤ ‖W‖ * ‖sirkComplement V‖ :=
+            ContinuousLinearMap.opNorm_comp_le W _
+        _ ≤ ‖W‖ * 1 := by gcongr
+    nlinarith [norm_nonneg g, norm_nonneg W]
+  have hbound : ‖(H - z • 1).comp (sirkComplement V)‖ ≤ alpha + ‖g‖ * ‖W‖ := by
+    rw [hcomp]
+    refine (norm_add_le _ _).trans ?_
+    linarith
+  rw [sirkTransferBudget]
+  have hRP : (0 : ℝ) ≤ ‖R.comp (sirkReconstruction V)‖ := norm_nonneg _
+  have h1 : ‖(H - z • 1).comp (sirkComplement V)‖ * ‖R.comp (sirkReconstruction V)‖
+      ≤ (alpha + ‖g‖ * ‖W‖) * ‖R.comp (sirkReconstruction V)‖ :=
+    mul_le_mul_of_nonneg_right hbound hRP
+  calc ‖B‖ * (‖(H - z • 1).comp (sirkComplement V)‖ * ‖R.comp (sirkReconstruction V)‖)
+      ≤ ‖B‖ * ((alpha + ‖g‖ * ‖W‖) * ‖R.comp (sirkReconstruction V)‖) := by
+        gcongr
+    _ = ‖B‖ * (alpha + ‖g‖ * ‖W‖) * ‖R.comp (sirkReconstruction V)‖ := by ring
+
 end BookProof.ChapterSirkEndToEnd
