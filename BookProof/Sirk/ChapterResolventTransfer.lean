@@ -1514,6 +1514,73 @@ theorem reflected_band_closes_at_secondEdge_of_formBound [Nontrivial E]
     (spectralSeparation_at_secondEdge_of_compressionBound hRsym hγ h0 hlt hy0 hAy hC)
     hdelta hgap
 
+/-- **The SIRK error bound is geometric in the Krylov order.**  `sirkBound` is
+`2 C Dmin nv e^{-h m}`, i.e. `(2 C Dmin nv) rᵐ` with `r = e^{-h}`, which is the shape the Temple
+order bound consumes. -/
+theorem sirkBound_eq_geom (C Dmin h nv : ℝ) (m : ℕ) :
+    BookProof.ChapterH6.sirkBound C Dmin h nv m
+      = (2 * C * Dmin * nv) * Real.exp (-h) ^ m := by
+  rw [BookProof.ChapterH6.sirkBound]
+  have h1 : -(h * (m : ℝ)) = (m : ℝ) * (-h) := by ring
+  rw [h1, Real.exp_nat_mul]
+  ring
+
+set_option maxHeartbeats 1600000 in
+-- The reflected operator `γ⁻¹ • 1 - R` is elaborated at concrete orders in the conclusion.
+/-- **The reflected edge enters its Temple band at an order read off the SIRK step.**  This is
+`reflected_band_closes_at_secondEdge_of_formBound` with the limit replaced by the order
+`N = ⌈log(√(δη)/(2 C Dmin)) / (−h)⌉`: the residual of the SIRK vector is at most
+`sirkBound C Dmin h 1 m`, `sirkBound` is geometric with rate `e^{-h}` (`sirkBound_eq_geom`), and
+`temple_membership_order` turns that rate into the threshold `ε² ≤ δ η`.  The separation itself
+never appears: it is derived from the compression form bound. -/
+theorem reflected_membership_order_of_sirkBound [Nontrivial E]
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep) (hC : 0 < C) (hD : 0 < Dmin)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {e₀ e₁ : ℝ} (hγ : 0 < γ) (h0 : 0 ≤ e₀) (hlt : e₀ < e₁)
+    (hsInf : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e₀)
+    {y : E} (hy0 : y ≠ 0)
+    (hAy : ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e₀ : ℂ) • y)
+    (hCform : ∀ z : ↥(BookProof.SpectralSplitting.eigenLine y)ᗮ,
+      resolventEdge γ e₁ * ‖z‖ ^ 2 ≤
+        (inner ℂ z (BookProof.SpectralSplitting.compressed
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (isSelfAdjoint_reflection R hRsym γ) hAy z)
+          : ℂ).re)
+    {delta eta : ℝ} (hdelta : 0 < delta) (heta : 0 < eta)
+    (hgap : ∀ m, BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ≤ resolventEdge γ e₁ - delta) :
+    ∀ m, Nat.ceil (Real.log (Real.sqrt (delta * eta) / (2 * C * Dmin * 1))
+        / Real.log (Real.exp (-hstep))) ≤ m →
+      sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) ∈
+        Set.Icc (BookProof.RitzCertificate.rayleigh
+            ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) - eta)
+          (BookProof.RitzCertificate.rayleigh
+            ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) := by
+  have hsym : IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) :=
+    isSelfAdjoint_reflection R hRsym γ
+  have hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e₀) (resolventEdge γ e₁) :=
+    spectralSeparation_at_secondEdge_of_compressionBound hRsym hγ h0 hlt hy0 hAy hCform
+  have hsep' : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)
+      (sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R))) (resolventEdge γ e₁) := by
+    rw [hsInf]
+    exact hsep
+  have hdecay : ∀ m, BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))
+      ≤ (2 * C * Dmin * 1) * Real.exp (-hstep) ^ m := by
+    intro m
+    have h1 := sirk_resid_reflection_le V psiB R hRsym γ C Dmin hstep m (mu m) (yy m)
+      hVV (heigB m) (hyy m) (hbound m)
+    rwa [sirkBound_eq_geom] at h1
+  exact BookProof.RitzCertificate.temple_membership_order hsym hdelta heta (by positivity)
+    (Real.exp_pos _) (Real.exp_lt_one_iff.mpr (by linarith)) hsep' hyy hgap hdecay
+
 end BandNondegenerate
 
 
@@ -1643,6 +1710,76 @@ theorem Aedge_sInf : sInf (spectrum ℝ Aedge) = 2 / 3 := by
   · exact le_csInf (BookProof.ChapterSirkRitzSpectrum.spectrum_real_nonempty Aedge Aedge_sa)
       Aedge_spectrum_lower
 
+set_option synthInstance.maxHeartbeats 1000000 in
+-- Elaborating the ℝ-smul and star instances on `E2 →L[ℂ] E2` needs more than the default budget.
+set_option maxHeartbeats 2000000 in
+/-- **The instance is the general lemma, applied.**  `Aedge` is the reflection
+`1⁻¹ • 1 − (1 − Aedge)` of the operator `1 − Aedge = diag (1/6, 1/3)` at `γ = 1`, and its edge
+eigenvector is `vOther` with reflected edge `resolventEdge 1 2 = 2/3`.  On the complement of
+`vOther` the operator is `5/6` (`Aedge_orth`), which is the form bound the compression needs.  So
+the concrete separation is not a separate computation: it is
+`spectralSeparation_at_secondEdge_of_compressionBound` at `e₀ = 2`, `e₁ = 5`, followed by the
+arithmetic `resolventEdge 1 2 = 2/3`, `resolventEdge 1 5 = 5/6`. -/
+theorem Aedge_sep : SpectralSeparation Aedge (2 / 3) (5 / 6) := by
+  have hEq : ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2) - ((1 : E2 →L[ℂ] E2) - Aedge)) = Aedge := by
+    rw [inv_one, one_smul]
+    abel
+  have hRsym : IsSelfAdjoint ((1 : E2 →L[ℂ] E2) - Aedge) := by
+    simpa [neg_sub] using
+      (BookProof.RitzCertificate.isSelfAdjoint_sub_const Aedge_sa (1 : ℝ)).neg
+  have hAy : ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2) - ((1 : E2 →L[ℂ] E2) - Aedge)) vOther
+      = (resolventEdge 1 2 : ℂ) • vOther := by
+    have h23c : ((resolventEdge 1 2 : ℝ) : ℂ) = (2 / 3 : ℂ) := by
+      norm_num [resolventEdge]
+    rw [hEq, Aedge_other, h23c]
+  have hC : ∀ z : ↥(eigenLine vOther)ᗮ,
+      resolventEdge 1 5 * ‖z‖ ^ 2 ≤
+        (inner ℂ z (compressed
+          ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2) - ((1 : E2 →L[ℂ] E2) - Aedge))
+          (isSelfAdjoint_reflection _ hRsym 1) hAy z) : ℂ).re := by
+    intro z
+    have hcomp : (compressed ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+        - ((1 : E2 →L[ℂ] E2) - Aedge))
+        (isSelfAdjoint_reflection _ hRsym 1) hAy z : E2) = (5 / 6 : ℂ) • (z : E2) := by
+      rw [compressed_apply_coe, hEq]
+      exact Aedge_orth z
+    have hinner : (inner ℂ z (compressed ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+        - ((1 : E2 →L[ℂ] E2) - Aedge)) (isSelfAdjoint_reflection _ hRsym 1) hAy z))
+        = ((5 / 6 : ℝ) * ‖z‖ ^ 2 : ℝ) := by
+      rw [Submodule.coe_inner ((eigenLine vOther)ᗮ), hcomp, inner_smul_right,
+        inner_self_eq_norm_sq_to_K, Submodule.coe_norm]
+      push_cast
+      ring
+      rfl
+    rw [show resolventEdge 1 5 = 5 / 6 from by norm_num [resolventEdge]]
+    have hre : (inner ℂ z (compressed ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+        - ((1 : E2 →L[ℂ] E2) - Aedge)) (isSelfAdjoint_reflection _ hRsym 1) hAy z)).re
+        = 5 / 6 * ‖z‖ ^ 2 := by
+      rw [hinner, Complex.ofReal_re]
+    rw [hre]
+  have hgen := spectralSeparation_at_secondEdge_of_compressionBound
+    (R := (1 : E2 →L[ℂ] E2) - Aedge) (γ := 1) (e₀ := 2) (e₁ := 5) hRsym
+    (by norm_num) (by norm_num) (by norm_num) (y := vOther) (by simp [vOther]) hAy hC
+  obtain ⟨-, hspec⟩ := hgen
+  refine ⟨by norm_num, fun t ht => ?_⟩
+  have ht' : t ∈ spectrum ℝ ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+      - ((1 : E2 →L[ℂ] E2) - Aedge)) := by rw [hEq]; exact ht
+  rcases hspec t ht' with h | h
+  · left
+    rwa [show resolventEdge 1 2 = 2 / 3 from by norm_num [resolventEdge]] at h
+  · right
+    rwa [show resolventEdge 1 5 = 5 / 6 from by norm_num [resolventEdge]] at h
+
+/-- **The quantitative second-edge separation of `diag (5/6, 2/3)`.**  Written at the bottom edge
+plus its own gap, the separation is a separation at `2/3 + 1/6`, and the gap is the difference of
+the two reflected edges of `diag (2, 5)` at `γ = 1`. -/
+theorem Aedge_sep_gap :
+    SpectralSeparation Aedge (2 / 3) (2 / 3 + 1 / 6) ∧
+      resolventEdge 1 5 - resolventEdge 1 2 = 1 / 6 := by
+  refine ⟨?_, by norm_num [resolventEdge]⟩
+  rw [show (2 : ℝ) / 3 + 1 / 6 = 5 / 6 from by norm_num]
+  exact Aedge_sep
+
 
 /-- The mixed test vector: three fifths `vTrial` and four fifths `vOther`. -/
 noncomputable def wMix : E2 := (3 / 5 : ℂ) • vTrial + (4 / 5 : ℂ) • vOther
@@ -1655,6 +1792,36 @@ theorem Aedge_trial : Aedge vTrial = (5 / 6 : ℂ) • vTrial := by
   rw [Aedge, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
     ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, projO_trial]
   module
+/-- **The upper end of the gap is attained.**  `5/6` is a spectral point of `Aedge`, at `vTrial`,
+so the separation `Aedge_sep` — everything off the bottom edge lies at `≥ 5/6` — is bounded by
+two actual eigenvalues. -/
+theorem Aedge_five_sixths_mem : (5 / 6 : ℝ) ∈ spectrum ℝ Aedge := by
+  rw [spectrum.mem_iff]
+  intro hunit
+  have hkill : ((algebraMap ℝ (E2 →L[ℂ] E2)) (5 / 6) - Aedge) vTrial = 0 := by
+    rw [Algebra.algebraMap_eq_smul_one,
+      RCLike.real_smul_eq_coe_smul (K := ℂ) (5 / 6) (1 : E2 →L[ℂ] E2)]
+    simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.one_apply, Aedge_trial]
+    module
+  obtain ⟨u, hu⟩ := hunit
+  have h0 : (u : E2 →L[ℂ] E2) vTrial = 0 := by rw [hu]; exact hkill
+  have hv0 : vTrial = 0 := by
+    have h1 : u.inv ((u : E2 →L[ℂ] E2) vTrial) = u.inv 0 := by rw [h0]
+    rw [← ContinuousLinearMap.mul_apply, u.inv_val, ContinuousLinearMap.one_apply,
+      map_zero] at h1
+    exact h1
+  have : (vTrial : E2) ≠ 0 := by simp [vTrial]
+  exact this hv0
+
+/-- **The gap `1/6` is sharp.**  `5/6` is in the spectrum, so no level above `5/6` separates
+`Aedge`: the quantitative gap of `Aedge_sep_gap` is exactly the distance from the bottom edge to
+the rest of the spectrum, and cannot be widened. -/
+theorem Aedge_gap_sharp (b : ℝ) (hsep : SpectralSeparation Aedge (2 / 3) b) : b ≤ 5 / 6 := by
+  rcases hsep.2 (5 / 6) Aedge_five_sixths_mem with h | h
+  · norm_num at h
+  · exact h
+
 
 theorem Aedge_wMix : Aedge wMix = (1 / 2 : ℂ) • vTrial + (8 / 15 : ℂ) • vOther := by
   rw [wMix, map_add, map_smul, map_smul, Aedge_trial, Aedge_other]
@@ -1719,6 +1886,235 @@ theorem Aedge_band_membership_num :
       (109 / 150) := by
   rw [← rayleigh_wMix, ← resid_wMix_sq]
   exact Aedge_band_membership
+
+/-! The band at a concrete order.  `temple_membership_rate` is instantiated at `δ = 1/10` and
+`η = 1/50` on the test sequence `xOrd` — `wMix` at order `0`, the edge eigenvector `vOther`
+afterwards.  The quotients stay under `5/6 − 1/10 = 11/15` (`109/150` at order `0`, `2/3` after),
+the residual is already `0` from order `1` on, so the threshold `δ η = 1/500` is met exactly from
+order `1`; `Aedge_band_order_not_zero` shows it genuinely fails at order `0`
+(`resid² = 4/625 > 1/500`) and `Aedge_band_order_least` that no smaller order works — the numeral is
+sharp, not a convenience. -/
+
+/-- The test sequence: the mixed vector first, the edge eigenvector afterwards. -/
+noncomputable def xOrd : ℕ → E2 := fun m => if m = 0 then wMix else vOther
+
+theorem xOrd_zero : xOrd 0 = wMix := by simp [xOrd]
+
+theorem xOrd_succ (m : ℕ) : xOrd (m + 1) = vOther := by simp [xOrd]
+
+theorem xOrd_norm (m : ℕ) : ‖xOrd m‖ = 1 := by
+  rcases Nat.eq_zero_or_pos m with h | h
+  · subst h
+    rw [xOrd_zero]
+    exact wMix_norm
+  · obtain ⟨k, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (Nat.pos_iff_ne_zero.mp h)
+    rw [xOrd_succ]
+    simp [vOther]
+
+theorem rayleigh_other : rayleigh Aedge vOther = 2 / 3 := by
+  rw [rayleigh, Aedge_other, inner_smul_right, inner_other_other]
+  simp
+
+theorem resid_other : resid Aedge vOther = 0 := by
+  rw [resid, rayleigh_other, Aedge_other]
+  simp
+
+/-- The quotients of `xOrd` stay a fixed `1/10` below `5/6`. -/
+theorem rayleigh_le_ord (m : ℕ) : rayleigh Aedge (xOrd m) ≤ 5 / 6 - 1 / 10 := by
+  rcases Nat.eq_zero_or_pos m with h | h
+  · subst h
+    rw [xOrd_zero, rayleigh_wMix]
+    norm_num
+  · obtain ⟨k, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (Nat.pos_iff_ne_zero.mp h)
+    rw [xOrd_succ, rayleigh_other]
+    norm_num
+
+/-- **The band is certified from order `1`.**  With `δ = 1/10` and `η = 1/50` the threshold
+`δ η = 1/500` holds as soon as the sequence has left `wMix` — from order `1` on the residual is `0`
+— and each `xOrd m` is a unit vector, so `temple_membership_rate` places
+`sInf (spectrum ℝ Aedge) = 2/3` in `[θ m − 1/50, θ m]`. -/
+theorem Aedge_membership_from_order_one :
+    ∀ m, 1 ≤ m →
+      sInf (spectrum ℝ Aedge) ∈
+        Set.Icc (rayleigh Aedge (xOrd m) - 1 / 50) (rayleigh Aedge (xOrd m)) := by
+  intro m hm
+  have hsep : SpectralSeparation Aedge (sInf (spectrum ℝ Aedge)) (5 / 6) := by
+    rw [Aedge_sInf]
+    exact Aedge_sep
+  refine temple_membership_rate Aedge_sa (by norm_num) (by norm_num) hsep
+    (xOrd_norm m) (rayleigh_le_ord m) ?_
+  have hm0 : m ≠ 0 := by omega
+  simp only [xOrd, if_neg hm0]
+  rw [resid_other]
+  norm_num
+
+/-- **The same band at the coarser order `4`.**  A special case of
+`Aedge_membership_from_order_one`, kept because the `13ag` statement is quoted at this order. -/
+theorem Aedge_membership_from_order_four :
+    ∀ m, 4 ≤ m →
+      sInf (spectrum ℝ Aedge) ∈
+        Set.Icc (rayleigh Aedge (xOrd m) - 1 / 50) (rayleigh Aedge (xOrd m)) :=
+  fun m hm => Aedge_membership_from_order_one m (by omega)
+
+/-- **The threshold is not met at order `0`.**  `resid (wMix)² = 4/625` exceeds `δ η = 1/500`, so
+order `1` in `Aedge_membership_from_order_one` is a real restriction: the threshold, and with it the
+band, fails at the first term of the sequence. -/
+theorem Aedge_band_order_not_zero :
+    ¬ resid Aedge (xOrd 0) ^ 2 ≤ (1 / 10 : ℝ) * (1 / 50) := by
+  rw [xOrd_zero, resid_wMix_sq]
+  norm_num
+
+/-- **The least order meeting the threshold is `1`.**  Order `0` fails and every `m ≥ 1` passes, so
+the order in `Aedge_membership_from_order_one` is the smallest the sequence admits: the band is not
+merely certified from some order on. -/
+theorem Aedge_band_order_least :
+    ∀ m, resid Aedge (xOrd m) ^ 2 ≤ (1 / 10 : ℝ) * (1 / 50) → 1 ≤ m := by
+  intro m hm
+  rcases Nat.eq_zero_or_pos m with h | h
+  · subst h
+    exact absurd hm Aedge_band_order_not_zero
+  · exact h
+
+/-- **The rate's own order is `1`, the same numeral as the sharp check.**  `temple_membership_order`
+turns a geometric decay `ε ≤ C rᵐ` into the order `⌈log(√(δη)/C) / log r⌉` at
+`δ = 1/10`, `η = 1/50` the threshold is `√(1/500)`.  The residual of `xOrd` is `0` from `m ≥ 1`
+on and `2/25` at `m = 0` (`resid_wMix_sq`), so `C = 2/25` with `r = 1/2` is the exact geometric
+majorant, and the ceiling is `1`.  With `a = log 2`, `b = log 5` the quotient is `2 − b/(2a)`, and
+`4 < 5 < 16` puts it in `(0, 1)`.  The general rate theorem therefore certifies order `1` on its
+own: `Aedge_membership_from_order_one` is not dodging a coarse ceiling. -/
+theorem Aedge_ceiling_eq_one :
+    Nat.ceil (Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25))
+      / Real.log (1 / 2)) = 1 := by
+  set a : ℝ := Real.log 2 with ha
+  set b : ℝ := Real.log 5 with hb
+  have ha0 : 0 < a := by rw [ha]; exact Real.log_pos (by norm_num)
+  have hnum : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25)) = (b - 4 * a) / 2 := by
+    have hmul : Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25)
+        = Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) * (25 / 2) := by
+      rw [div_eq_mul_inv]
+      norm_num
+    have hs : Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) * (25 / 2) = Real.sqrt (5 / 16) := by
+      have h25 : Real.sqrt ((25 / 2 : ℝ) ^ 2) = 25 / 2 := Real.sqrt_sq (by norm_num)
+      rw [← h25, ← Real.sqrt_mul (by norm_num)]
+      congr 1
+      norm_num
+    have hlog : Real.log (Real.sqrt (5 / 16)) = (b - 4 * a) / 2 := by
+      have h16 : Real.log (16 : ℝ) = 4 * a := by
+        rw [show (16 : ℝ) = 2 ^ 4 by norm_num, Real.log_pow, ← ha]
+        push_cast
+        ring
+      rw [Real.log_sqrt (by norm_num), Real.log_div (by norm_num) (by norm_num),
+        ← hb, h16]
+    rw [hmul, hs, hlog]
+  have hq : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25)) / Real.log (1 / 2)
+      = 2 - b / (2 * a) := by
+    have hden : Real.log ((1 : ℝ) / 2) = -a := by
+      rw [Real.log_div (by norm_num) (by norm_num), Real.log_one, ← ha]
+      ring
+    rw [hnum, hden]
+    have ha0' : a ≠ 0 := ne_of_gt ha0
+    field_simp
+    ring
+  have h2a : 2 * a < b := by
+    have h4 : Real.log (4 : ℝ) = 2 * a := by
+      rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h54 : Real.log (4 : ℝ) < Real.log 5 := Real.log_lt_log (by norm_num) (by norm_num)
+    rw [← hb] at h54
+    linarith
+  have h4a : b < 4 * a := by
+    have h16 : Real.log (16 : ℝ) = 4 * a := by
+      rw [show (16 : ℝ) = 2 ^ 4 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h516 : Real.log 5 < Real.log (16 : ℝ) := Real.log_lt_log (by norm_num) (by norm_num)
+    rw [← hb] at h516
+    linarith
+  rw [hq]
+  have hpos : (0 : ℝ) < 2 * a := by linarith
+  have hgt : 1 < b / (2 * a) := by
+    rw [lt_div_iff₀ hpos]
+    linarith
+  have hlt2 : b / (2 * a) < 2 := by
+    rw [div_lt_iff₀ hpos]
+    linarith
+  have h1 : Nat.ceil (2 - b / (2 * a)) ≤ 1 := Nat.ceil_le.mpr (by linarith)
+  have h0 : (0 : ℕ) < Nat.ceil (2 - b / (2 * a)) := Nat.lt_ceil.mpr (by linarith)
+  omega
+
+/-- **Where the earlier `4` came from.**  The same ceiling with the constant inflated to `C = 2/5` —
+five times the residual at order `0` — returns `4` rather than `1`, so the numeral `4` that this
+chapter first quoted for `temple_membership_order` was an artefact of the constant, not of the
+theorem.  The exact constant `2/25` gives order `1` (`Aedge_ceiling_eq_one`).  No decimal bound on
+`log 2` is needed either way: with `a = log 2`, `b = log 5` the quotient is `2 + b/(2a)`, and
+`4 < 5 ≤ 16` gives `2a < b ≤ 4a`. -/
+theorem Aedge_ceiling_eq_four :
+    Nat.ceil (Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)) / Real.log (1 / 2)) = 4 := by
+  set a : ℝ := Real.log 2 with ha
+  set b : ℝ := Real.log 5 with hb
+  have ha0 : 0 < a := by rw [ha]; exact Real.log_pos (by norm_num)
+  have hnum : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)) = -(4 * a + b) / 2 := by
+    have h500 : Real.log (500 : ℝ) = 2 * a + 3 * b := by
+      rw [show (500 : ℝ) = 2 ^ 2 * 5 ^ 3 by norm_num, Real.log_mul (by norm_num) (by norm_num),
+        Real.log_pow, Real.log_pow, ← ha, ← hb]
+      push_cast
+      ring
+    have hlog : Real.log ((1 : ℝ) / 500) = -(2 * a + 3 * b) := by
+      rw [Real.log_div (by norm_num) (by norm_num), Real.log_one, h500]
+      ring
+    have hsqrt : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50))) = -(2 * a + 3 * b) / 2 := by
+      have h : (1 / 10 : ℝ) * (1 / 50) = 1 / 500 := by norm_num
+      rw [h, Real.log_sqrt (by norm_num), hlog]
+    have hlog52 : Real.log ((5 : ℝ) / 2) = b - a := by
+      rw [Real.log_div (by norm_num) (by norm_num), ← ha, ← hb]
+    have hmul : Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)
+        = Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) * (5 / 2) := by
+      rw [div_eq_mul_inv]
+      norm_num
+    rw [hmul, Real.log_mul (by positivity) (by norm_num), hsqrt, hlog52]
+    ring
+  have hq : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)) / Real.log (1 / 2)
+      = 2 + b / (2 * a) := by
+    have hden : Real.log ((1 : ℝ) / 2) = -a := by
+      rw [Real.log_div (by norm_num) (by norm_num), Real.log_one, ← ha]
+      ring
+    rw [hnum, hden]
+    have ha0' : a ≠ 0 := ne_of_gt ha0
+    field_simp
+    ring
+  have hb2a : 2 * a < b := by
+    have h4 : Real.log (4 : ℝ) = 2 * a := by
+      rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h54 : Real.log (4 : ℝ) < Real.log 5 := Real.log_lt_log (by norm_num) (by norm_num)
+    rw [← hb] at h54
+    linarith
+  have hb4a : b ≤ 4 * a := by
+    have h16 : Real.log (16 : ℝ) = 4 * a := by
+      rw [show (16 : ℝ) = 2 ^ 4 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h516 : Real.log 5 ≤ Real.log (16 : ℝ) :=
+      (Real.log_le_log_iff (by norm_num) (by norm_num)).mpr (by norm_num)
+    rw [← hb] at h516
+    linarith
+  rw [hq]
+  have hpos : (0 : ℝ) < 2 * a := by linarith
+  have h3 : (3 : ℝ) < 2 + b / (2 * a) := by
+    have : 1 < b / (2 * a) := by
+      rw [lt_div_iff₀ hpos]
+      linarith
+    linarith
+  have h4 : 2 + b / (2 * a) ≤ 4 := by
+    have : b / (2 * a) ≤ 2 := by
+      rw [div_le_iff₀ hpos]
+      linarith
+    linarith
+  have hle : Nat.ceil (2 + b / (2 * a)) ≤ 4 := Nat.ceil_le.mpr h4
+  have hlt : (3 : ℕ) < Nat.ceil (2 + b / (2 * a)) := Nat.lt_ceil.mpr h3
+  omega
 
 
 end SecondEdgeInstance

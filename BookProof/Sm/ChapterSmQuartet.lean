@@ -1202,6 +1202,10 @@ the ghost-parity form — the indefinite-metric Krein condition of §46, which d
 grading `U Ω = -Ω U` alone.  The *symmetry* of the ghost-parity form, by contrast, is derived below
 (`smGhostParity_kform_symm`), as are the involution and isometry. -/
 
+/-- The `RCLike` coercion `ℝ → ℂ` is `Complex.ofReal` only definitionally, so the rewrites below need
+the bridge spelled out. -/
+theorem ofRealC_coe_complex (r : ℝ) : ((r : ℂ)) = Complex.ofReal r := rfl
+
 /-- **The charge form of a unitary involution is the difference of the sector norms.** -/
 theorem kform_self_eq_parityNorms {U : H →ₗ[ℂ] H} (hU : U ∘ₗ U = LinearMap.id)
     (hUnorm : ∀ x : H, ‖U x‖ = ‖x‖) (x : H) :
@@ -1211,10 +1215,10 @@ theorem kform_self_eq_parityNorms {U : H →ₗ[ℂ] H} (hU : U ∘ₗ U = Linea
   have ho : U (oddPart U x) = -oddPart U x := (mem_oddSpace_iff _).mp (oddPart_mem hU x)
   have h1 : (kform U (evenPart U x) (evenPart U x)).re = ‖evenPart U x‖ ^ 2 := by
     rw [kform, he, inner_self_eq_norm_sq_to_K]
-    simp
+    simp [pow_two, Complex.mul_re]
   have h2 : (kform U (oddPart U x) (oddPart U x)).re = -‖oddPart U x‖ ^ 2 := by
     rw [kform, ho, inner_neg_right, Complex.neg_re, inner_self_eq_norm_sq_to_K]
-    simp
+    simp [pow_two, Complex.mul_re]
   rw [h1, h2]
   ring
 
@@ -1222,12 +1226,17 @@ open BookProof.SmBrstGhost BookProof.SmCar in
 /-- The ghost-parity form is symmetric: `U` is self-adjoint. -/
 theorem smGhostParity_kform_symm (m : ℕ) (x y : FermiFock (m + 12)) :
     kform (smGhostParity m) x y = star (kform (smGhostParity m) y x) := by
-  rw [kform, kform, smGhostParity_selfAdjoint m x y, inner_conj_symm]
+  calc kform (smGhostParity m) x y
+      = inner ℂ x ((smGhostParity m) y) := rfl
+    _ = star (inner ℂ ((smGhostParity m) y) x) :=
+        (inner_conj_symm x ((smGhostParity m) y)).symm
+    _ = star (inner ℂ y ((smGhostParity m) x)) := by rw [smGhostParity_selfAdjoint m y x]
+    _ = star (kform (smGhostParity m) y x) := rfl
 
 open BookProof.SmBrstGhost BookProof.SmCar in
 /-- **The no-ghost sign at the SM charge is the ghost-parity norm difference.**  With the metric
-`η = smGhostParity`, positivity of the charge form on the physical range is equivalent to the odd part
-of every physical state being dominated by its even part, and definiteness to the equality case. -/
+`η = smGhostParity`, positivity of the charge form on the physical range is equivalent to the odd
+part of every physical state being dominated by its even part, and definiteness to its equality case. -/
 theorem smPhysicalPositivity_iff_parityNorms {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
     {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
     (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
@@ -1264,8 +1273,8 @@ theorem smPhysicalPositivity_iff_parityNorms {m : ℕ} {T : Fin 12 → Matrix (F
       exact h2 y (by linarith)
 
 open BookProof.SmBrstGhost BookProof.SmCar in
-/-- **The ghost-parity-even physical subspace is no-ghost**: if every physical state is even for the
-ghost parity, the odd part vanishes and the charge form on `range smPhysProj` is the ambient norm
+/-- **The ghost-parity-even physical subspace is no-ghost**: if every physical state is even for
+the ghost parity, the odd part vanishes and the charge form on `range smPhysProj` is the ambient norm
 squared, so `PhysicalPositivity` follows from the quartet reduction of §11. -/
 theorem smPhysicalPositivity_of_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
     {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
@@ -1279,7 +1288,8 @@ theorem smPhysicalPositivity_of_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin 
     (hEven : ∀ y : BookProof.SmCar.FermiFock (m + 12),
       smGhostParity m (smPhysProj hT h3anti h3jac y) = smPhysProj hT h3anti h3jac y) :
     PhysicalPositivity (smBrstCharge m T f3) (smGhostParity m) := by
-  refine (smPhysicalPositivity_iff_parityNorms hT h3anti h3jac hKrein).mpr ⟨fun y => ?_, fun y hy => ?_⟩
+  refine (smPhysicalPositivity_iff_parityNorms hT h3anti h3jac hKrein).mpr
+    ⟨fun y => ?_, fun y hy => ?_⟩
   · have hodd : oddPart (smGhostParity m) (smPhysProj hT h3anti h3jac y) = 0 := by
       rw [oddPart, hEven y, sub_self, smul_zero]
     rw [hodd, norm_zero]
@@ -1289,7 +1299,10 @@ theorem smPhysicalPositivity_of_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin 
     rw [hodd, norm_zero] at hy
     have hsum := evenPart_add_oddPart (U := smGhostParity m) (smPhysProj hT h3anti h3jac y)
     rw [hodd, add_zero] at hsum
-    have hnorm : ‖smPhysProj hT h3anti h3jac y‖ ^ 2 = 0 := by rw [← hsum]; simpa using hy
+    have hnorm : ‖smPhysProj hT h3anti h3jac y‖ ^ 2 = 0 := by
+      rw [← hsum]
+      calc ‖evenPart (smGhostParity m) ((smPhysProj hT h3anti h3jac) y)‖ ^ 2 = 0 ^ 2 := hy.symm
+        _ = 0 := by norm_num
     have hzero : ‖smPhysProj hT h3anti h3jac y‖ = 0 := by
       nlinarith [norm_nonneg (smPhysProj hT h3anti h3jac y)]
     exact norm_eq_zero.mp hzero

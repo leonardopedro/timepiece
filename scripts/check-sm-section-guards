@@ -651,8 +651,8 @@ pair_require "$QUARTET" 'theorem exNotPhysicalPositivity' 'theorem physicalPosit
     "§75: the equivalence and §72's counterexample must stay in the same file"
 require "$PLAN" 'the equivalence does not *produce* the sign' \
     "§75: the plan must keep the boundary"
-require "$PLAN" 'no metric for `smBrstCharge` is constructed in this corpus' \
-    "§75: the plan must keep the missing input"
+require "$PLAN" 'The ghost-parity metric of §77 is now built and graded' \
+    "§75: the plan must keep the corrected status of the metric"
 
 # ---- 29. §76 the candidate: what the trace-corrected equation asks of a b-ghost
 # §73 left the equation undecided for a candidate.  §76 decides its form — one identity, invisible to
@@ -668,6 +668,70 @@ require "$REM" "theorem cand_equation" \
     "§76: the positive model must stay exhibited"
 require "$PLAN" 'this does not construct a b-ghost for `smBrstCharge`' \
     "§76: the plan must keep the boundary"
+
+# ---- 30. §77 the ghost parity: the sign is a norm difference, not a choice
+# §75 said the no-ghost condition is positivity on the physical range but named no metric.  §77 builds
+# the ghost parity, proves the charge is odd for it, and computes the charge form as a norm difference.
+# The boundary is that the norm inequality on the physical range is still open and `hKrein` is an input.
+GHOST=BookProof/Sm/ChapterSmBrstGhost.lean
+NSVOL=BookProof/Ns/ChapterNsVolDomReconstruction.lean
+require "$GHOST" "theorem smGhostParity_mul_smBrstCharge" \
+    "§77: the charge must stay odd for the ghost parity"
+require "$QUARTET" "theorem kform_self_eq_parityNorms" \
+    "§77: the sign must stay a norm difference"
+require "$QUARTET" "theorem smGhostParity_kform_symm" \
+    "§77: the symmetry of the ghost-parity form must stay derived"
+require "$QUARTET" "theorem smPhysicalPositivity_iff_parityNorms" \
+    "§77: the SM form of the equivalence must stay"
+require "$QUARTET" "theorem smPhysicalPositivity_of_evenRange" \
+    "§77: the sufficient condition must stay stated"
+require "$PLAN" 'the norm inequality itself is **not** proved' \
+    "§77: the plan must keep the open inequality"
+require "$PLAN" 'Krein condition `hKrein`' \
+    "§77: the plan must keep the Krein input"
+
+# ---- 31. §78 the SM trace does not vanish
+# §76 left the antighost one computation from contracting.  §78 computes it at the weak pair and the
+# answer is negative; the boundary is that one pair of labels is not the whole trace functional.
+require "$REM" "theorem smStruct_trace_weak" \
+    "§78: the trace computation must stay"
+require "$REM" "theorem smStruct_trace_ne_zero" \
+    "§78: the non-vanishing must stay"
+require "$PLAN" 'the trace over the `su(3)` block, which does depend on `f₃`' \
+    "§78: the plan must keep the scope limitation"
+
+# ---- 32. §79 a skew lattice basis: aliases are the dual lattice
+# §74 read the alias class as `N·Λ*` in orthogonal coordinates.  §79 replaces the labelling by the dual
+# lattice; the boundary is that the model's own commensurability is still open.
+require "$NSVOL" "theorem dual_pairing" \
+    "§79: the dual contraction must stay"
+require "$NSVOL" "theorem phase_dualComb" \
+    "§79: a dual-lattice vector must stay an alias of zero"
+require "$NSVOL" "theorem alias_class_dual" \
+    "§79: the dual-lattice characterisation of the alias class must stay"
+require "$PLAN" 'is replaced by the `2π`-multiple of the dual lattice' \
+    "§79: the plan must keep the relabelling"
+require "$PLAN" "remains §74's open labelling hypothesis" \
+    "§79: the plan must keep the open commensurability hypothesis"
+
+# ---- 33. §80 the trace functional is block diagonal
+# §78 computed one weak pair and left the gluon block unnamed.  §80 splits the trace by summand: cross
+# pairs vanish for every `f₃`, and the gluon block is `f₃`'s own first-slot trace.  The boundary is that
+# the gluon sum itself is not evaluated here.
+require "$REM" "theorem smStruct_trace_mixed" \
+    "§80: cross-summand vanishing must stay"
+require "$REM" "theorem smStruct_trace_su3" \
+    "§80: the gluon block must stay identified with f₃ trace"
+require "$REM" "theorem smStruct_trace_weak_label" \
+    "§80: the weak block must stay independent of f₃"
+require "$REM" "theorem smStruct_trace_hyper" \
+    "§80: the abelian block must stay trace-free"
+require "$PLAN" '**The trace functional is block diagonal**' \
+    "§80: the plan must keep the block-diagonal statement"
+require "$PLAN" 'no cross term can be tuned by the `su(3)` constants' \
+    "§80: the plan must keep the cross-summand vanishing"
+require "$PLAN" 'It does not evaluate the gluon sum `Σ_y f₃ y a b`' \
+    "§80: the plan must keep the open gluon sum"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

@@ -68,3 +68,10 @@ ghost/BRST sector with its concrete gauge representation.  Each line must report
 #audit_axioms BookProof.SmGaugeRep.smGen_closes
 #audit_axioms BookProof.SmGaugeRep.sm_brst_nilpotent_of_su3_relations
 #audit_axioms BookProof.SmGaugeRep.sm_brst_nilpotent_rep
+
+-- 5. The ghost parity (plan §77).
+#audit_axioms BookProof.SmBrstGhost.smGhostParity_involutive
+#audit_axioms BookProof.SmBrstGhost.smGhostParity_comp
+#audit_axioms BookProof.SmBrstGhost.smGhostParity_isometry
+#audit_axioms BookProof.SmBrstGhost.smGhostParity_selfAdjoint
+#audit_axioms BookProof.SmBrstGhost.smGhostParity_mul_smBrstCharge

@@ -717,6 +717,154 @@ theorem volPot_of_single_mode_of_lattice_commensurate (kappa Λ : ℝ) (kv : K �
   volPot_of_single_mode_of_constant kappa Λ kv (gridBox N e) (gridBox_nonempty N hN e)
     (horth_of_lattice_commensurate N hN e hindep (waveSet kv) m hp hdvd) h0 hconst
 
+/-! ## 6. A non-orthogonal basis: aliases are the dual lattice, not `N·Λ*`
+
+§5 never used orthogonality.  The geometric sum needs only bilinearity, and the residue criterion is a
+statement about the three pairings `⟨w, e_x⟩`; what *is* basis-dependent is the **labelling** of the
+alias class.  In an orthogonal basis it is read as `q − q' ∈ N·Λ*`, with `Λ* = 2π·ℤ³`; in a general
+basis the coordinates are the dual pairings, so the class is the `2π`-multiple of the **dual lattice**,
+the ℤ-span of the dual basis `f` fixed by `⟨f_x, e_{x'}⟩ = δ_{x x'}`.
+
+* `dual_pairing`: the dual basis contracts as it should,
+  `Σ_y (Σ_x k_x · f_{x,y}) · e_{x',y} = k_{x'}` — this is all the "reciprocal lattice" is here;
+* `phase_dualComb`: a dual-lattice vector `2π Σ_x k_x f_x` has trivial phase on every box point, so it
+  is an alias of `0`;
+* `alias_class_dual`: conversely, a residue has trivial phase only if it is such a vector.  Hence the
+  alias class is exactly `2π·(dual lattice)`: divisibility by `N` in dual coordinates is the whole
+  criterion, and the total wave number plays no role in a skew basis either.
+
+The duality relation already fixes the dual coordinates, so none of this needs `e` to be independent —
+that hypothesis belonged to counting the box points (`latPoint_injective`), not to aliasing. -/
+
+/-- **The dual basis** of a lattice basis: `Σ_y f_{x,y} · e_{x',y} = δ_{x x'}`. -/
+def IsDualBasis (e f : Fin 3 → Fin 3 → ℝ) : Prop :=
+  ∀ x x' : Fin 3, ∑ y, f x y * e x' y = if x = x' then 1 else 0
+
+/-- A **dual-lattice vector**, `2π Σ_x k_x · f_x`: the alias displacements of the box written in the
+dual basis. -/
+noncomputable def dualComb (f : Fin 3 → Fin 3 → ℝ) (k : Fin 3 → ℤ) : Fin 3 → ℝ :=
+  fun y => 2 * Real.pi * ∑ x, (k x : ℝ) * f x y
+
+/-- A **residue in dual coordinates**, `(2π/N) Σ_x m_x · f_x`: the form in which a wave number is
+commensurate with the box. -/
+noncomputable def dualResidue (N : ℕ) (f : Fin 3 → Fin 3 → ℝ) (m : Fin 3 → ℤ) : Fin 3 → ℝ :=
+  fun y => (2 * Real.pi / N) * ∑ x, (m x : ℝ) * f x y
+
+/-- **The dual basis contracts.**  A dual-lattice vector has dual coordinates `k` itself, which is
+what makes `dualComb` the natural generator of the alias lattice in a non-orthogonal basis. -/
+theorem dual_pairing (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f) (k : Fin 3 → ℤ)
+    (x' : Fin 3) :
+    ∑ y, (∑ x, (k x : ℝ) * f x y) * e x' y = (k x' : ℝ) := by
+  have hterm : ∀ y : Fin 3,
+      (∑ x, (k x : ℝ) * f x y) * e x' y = ∑ x, (k x : ℝ) * (f x y * e x' y) := by
+    intro y
+    rw [Finset.sum_mul]
+    exact Finset.sum_congr rfl fun x _ => by ring
+  rw [Finset.sum_congr rfl fun y _ => hterm y, Finset.sum_comm]
+  have hinner : ∀ x : Fin 3,
+      (∑ y, (k x : ℝ) * (f x y * e x' y)) = (k x : ℝ) * (if x = x' then 1 else 0) := by
+    intro x
+    rw [← Finset.mul_sum, hdual x x']
+  rw [Finset.sum_congr rfl fun x _ => hinner x]
+  rw [Finset.sum_eq_single (f := fun x : Fin 3 => (k x : ℝ) * (if x = x' then 1 else 0)) x']
+  · simp
+  · intro x _ hx
+    rw [if_neg hx, mul_zero]
+  · intro hx
+    exact absurd (Finset.mem_univ x') hx
+
+/-- **The pairing of a dual-lattice vector is its integer coordinate**: the dual coordinates are
+what a plane wave `2π Σ_x k_x f_x` reads off against the lattice directions. -/
+theorem dualComb_pairing (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f) (k : Fin 3 → ℤ)
+    (x : Fin 3) : ∑ y, (dualComb f k) y * e x y = 2 * Real.pi * (k x : ℝ) := by
+  have hw : ∀ y : Fin 3, (dualComb f k) y * e x y
+      = 2 * Real.pi * ((∑ x', (k x' : ℝ) * f x' y) * e x y) := by
+    intro y
+    rw [dualComb]
+    ring
+  calc ∑ y, (dualComb f k) y * e x y
+      = ∑ y, 2 * Real.pi * ((∑ x', (k x' : ℝ) * f x' y) * e x y) :=
+          Finset.sum_congr rfl fun y _ => hw y
+    _ = 2 * Real.pi * ∑ y, (∑ x', (k x' : ℝ) * f x' y) * e x y := by
+          rw [← Finset.mul_sum]
+    _ = 2 * Real.pi * (k x : ℝ) := by rw [dual_pairing e f hdual k x]
+
+/-- **A dual-lattice vector has trivial phase on the box**: `2π Σ_x k_x f_x` is an alias of zero in
+any basis. -/
+theorem phase_dualComb (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f)
+    (k : Fin 3 → ℤ) (j : Fin 3 → Fin N) :
+    phase (dualComb f k) (latPoint N e j) = 1 := by
+  have hin : ∀ x : Fin 3, ∑ y, (dualComb f k) y * e x y
+      = 2 * Real.pi * (((fun x => N * k x) x : ℤ) : ℝ) / N := by
+    intro x
+    rw [dualComb_pairing e f hdual k x]
+    have hNk : (((fun x => N * k x) x : ℤ) : ℝ) = (N : ℝ) * (k x : ℝ) := by
+      push_cast
+      ring
+    rw [hNk]
+    field_simp
+  rw [phase_latPoint N hN e _ (fun x => N * k x) hin j]
+  have hdvd : (N : ℤ) ∣ ∑ x, (N * k x) * (j x : ℤ) :=
+    ⟨∑ x, k x * (j x : ℤ), by
+      rw [Finset.mul_sum]
+      exact Finset.sum_congr rfl fun x _ => by ring⟩
+  have hζ : IsPrimitiveRoot (gridRoot N) N := by
+    simpa [gridRoot] using Complex.isPrimitiveRoot_exp N hN.ne'
+  rw [(hζ.zpow_eq_one_iff_dvd _).mpr hdvd]
+
+/-- **An alias is a dual-lattice vector, and conversely.**  A residue in dual coordinates has
+trivial phase on the box exactly when its integer labelling is divisible by `N`, i.e. exactly when it
+`2π` times an integer combination of the dual basis.  This is the non-orthogonal form of
+`q − q' ∈ N·Λ*`. -/
+theorem alias_class_dual (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ)
+    (hdual : IsDualBasis e f) (m : Fin 3 → ℤ) :
+    (∀ j : Fin 3 → Fin N, phase (dualResidue N f m) (latPoint N e j) = 1) ↔
+      ∃ k : Fin 3 → ℤ, dualResidue N f m = dualComb f k := by
+  have hin : ∀ x : Fin 3, ∑ y, (dualResidue N f m) y * e x y
+      = 2 * Real.pi * ((m x : ℤ) : ℝ) / N := by
+    intro x
+    have hw : ∀ y : Fin 3, (dualResidue N f m) y * e x y
+        = (2 * Real.pi / N) * ((∑ x', (m x' : ℝ) * f x' y) * e x y) := by
+      intro y
+      rw [dualResidue]
+      ring
+    calc ∑ y, (dualResidue N f m) y * e x y
+        = ∑ y, (2 * Real.pi / N) * ((∑ x', (m x' : ℝ) * f x' y) * e x y) :=
+            Finset.sum_congr rfl fun y _ => hw y
+      _ = (2 * Real.pi / N) * ∑ y, (∑ x', (m x' : ℝ) * f x' y) * e x y := by
+            rw [← Finset.mul_sum]
+      _ = (2 * Real.pi / N) * (m x : ℝ) := by rw [dual_pairing e f hdual m x]
+      _ = 2 * Real.pi * ((m x : ℤ) : ℝ) / N := by ring
+  rw [latBox_character_one_iff N hN e _ m hin]
+  constructor
+  · intro hdiv
+    choose k hk using hdiv
+    refine ⟨k, ?_⟩
+    funext y
+    have hsum : ∑ x, (m x : ℝ) * f x y = (N : ℝ) * ∑ x, (k x : ℝ) * f x y := by
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl fun x _ => ?_
+      rw [hk x]
+      push_cast
+      ring
+    rw [dualResidue, dualComb, hsum]
+    field_simp
+  · rintro ⟨k, hk⟩ x
+    have hp : ∑ y, (dualResidue N f m) y * e x y = 2 * Real.pi * (k x : ℝ) := by
+      rw [hk]
+      exact dualComb_pairing e f hdual k x
+    rw [hin x] at hp
+    have hNz : (N : ℝ) ≠ 0 := by exact_mod_cast hN.ne'
+    have h2 : ((m x : ℤ) : ℝ) = (N : ℝ) * (k x : ℝ) := by
+      field_simp at hp
+      nlinarith [hp, Real.pi_pos]
+    refine ⟨k x, ?_⟩
+    have h3 : ((m x : ℤ) : ℝ) = ((N * k x : ℤ) : ℝ) := by
+      rw [h2]
+      push_cast
+      ring
+    exact_mod_cast h3
+
 end
 
 end BookProof.NsVolDomReconstruction

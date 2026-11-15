@@ -40,3 +40,8 @@ open BookProof.SmQuartet
 #audit_axioms BrstQuartet.physicalPositivity_iff_physForm
 #audit_axioms BrstQuartet.physicalPositivity_congr
 #audit_axioms smPhysicalPositivity_iff_physForm
+#audit_axioms ofRealC_coe_complex
+#audit_axioms kform_self_eq_parityNorms
+#audit_axioms smGhostParity_kform_symm
+#audit_axioms smPhysicalPositivity_iff_parityNorms
+#audit_axioms smPhysicalPositivity_of_evenRange

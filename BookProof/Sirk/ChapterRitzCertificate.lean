@@ -215,6 +215,57 @@ theorem temple_membership_rate [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAd
   have hlow := temple_lower_bound hA hsep hx hlt
   linarith
 
+/-- **The order at which `ε² ≤ δ η` is met.**  If the residuals decay geometrically from a constant
+`C` at rate `r ∈ (0, 1)`, then `C rᴺ ≤ √(δη)` at `N = ⌈log(√(δη)/C) / log r⌉`.  This is the only
+arithmetic standing between the Temple threshold and an order. -/
+theorem geom_le_sqrt_at_ceil {C r delta eta : ℝ} (hC : 0 < C) (hr0 : 0 < r) (hr1 : r < 1)
+    (hde : 0 < delta * eta) :
+    C * r ^ Nat.ceil (Real.log (Real.sqrt (delta * eta) / C) / Real.log r)
+      ≤ Real.sqrt (delta * eta) := by
+  set t := Real.sqrt (delta * eta) with ht
+  have ht0 : 0 < t := Real.sqrt_pos.mpr hde
+  have hlogr : Real.log r < 0 := Real.log_neg hr0 hr1
+  set N := Nat.ceil (Real.log (t / C) / Real.log r) with hN
+  have hq : Real.log (t / C) / Real.log r ≤ (N : ℝ) := Nat.le_ceil _
+  have hkey : (N : ℝ) * Real.log r ≤ Real.log (t / C) := by
+    have h1 : (N : ℝ) * Real.log r ≤ (Real.log (t / C) / Real.log r) * Real.log r :=
+      mul_le_mul_of_nonpos_right hq hlogr.le
+    rwa [div_mul_cancel₀ _ (ne_of_lt hlogr)] at h1
+  have hlogpow : Real.log (r ^ N) ≤ Real.log (t / C) := by
+    rw [Real.log_pow]
+    exact hkey
+  have hpow : r ^ N ≤ t / C :=
+    (Real.log_le_log_iff (pow_pos hr0 N) (div_pos ht0 hC)).mp hlogpow
+  calc C * r ^ N ≤ C * (t / C) := mul_le_mul_of_nonneg_left hpow hC.le
+    _ = t := by field_simp
+
+set_option maxHeartbeats 800000 in
+-- Unfolding `Nat.ceil` through the scaling in the statement needs more than the default budget.
+/-- **Temple's enclosure at a prescribed order.**  With a geometric residual decay
+`resid (x m) ≤ C rᵐ` (`0 < r < 1`) the threshold `ε² ≤ δ η` is met at every order past
+`N = ⌈log(√(δη)/C) / log r⌉`, so the edge sits in `[θ m − η, θ m]` from `N` on.  The order is what
+the decay rate buys: nothing here waits for `m → ∞`. -/
+theorem temple_membership_order [Nontrivial F] {A : F →L[ℂ] F} (hA : IsSelfAdjoint A)
+    {b delta eta C r : ℝ} (hdelta : 0 < delta) (heta : 0 < eta) (hC : 0 < C)
+    (hr0 : 0 < r) (hr1 : r < 1) {x : ℕ → F}
+    (hsep : SpectralSeparation A (sInf (spectrum ℝ A)) b) (hx : ∀ m, ‖x m‖ = 1)
+    (hle : ∀ m, rayleigh A (x m) ≤ b - delta)
+    (hdecay : ∀ m, resid A (x m) ≤ C * r ^ m) :
+    ∀ m, Nat.ceil (Real.log (Real.sqrt (delta * eta) / C) / Real.log r) ≤ m →
+      sInf (spectrum ℝ A) ∈ Set.Icc (rayleigh A (x m) - eta) (rayleigh A (x m)) := by
+  intro m hm
+  refine temple_membership_rate hA hdelta heta hsep (hx m) (hle m) ?_
+  have hN := geom_le_sqrt_at_ceil (delta := delta) (eta := eta) hC hr0 hr1
+    (mul_pos hdelta heta)
+  have hmono : r ^ m ≤ r ^ Nat.ceil (Real.log (Real.sqrt (delta * eta) / C) / Real.log r) :=
+    pow_le_pow_of_le_one hr0.le hr1.le hm
+  have hb1 : resid A (x m) ≤ C * r ^ Nat.ceil (Real.log (Real.sqrt (delta * eta) / C)
+    / Real.log r) := le_trans (hdecay m) (mul_le_mul_of_nonneg_left hmono hC.le)
+  have hb2 : resid A (x m) ≤ Real.sqrt (delta * eta) := le_trans hb1 hN
+  have hsq : resid A (x m) ^ 2 ≤ (Real.sqrt (delta * eta)) ^ 2 :=
+    pow_le_pow_left₀ (norm_nonneg _) hb2 2
+  rwa [Real.sq_sqrt (mul_pos hdelta heta).le] at hsq
+
 omit [CompleteSpace F] in
 /-- The width of the emitted Temple band is `ε²/(β−θ)`, so it vanishes as soon as the
 residuals do, provided the Rayleigh quotients stay a fixed distance below `β`. -/

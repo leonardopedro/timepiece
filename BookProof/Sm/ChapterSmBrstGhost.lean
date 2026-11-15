@@ -1040,11 +1040,13 @@ theorem smGhostParity_add_ghostCre (m : ℕ) (a : Fin 12) :
   ext S
   by_cases h : ghostMode m a ∈ S
   · simp only [Module.End.mul_apply, smGhostParity_apply, ghostCre, creat_apply,
-      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_pos h]
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply,
+      LinearMap.zero_apply, if_pos h]
     rw [ghostParitySign_erase_ghost m a h]
     ring
   · simp only [Module.End.mul_apply, smGhostParity_apply, ghostCre, creat_apply,
-      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_neg h, mul_zero, add_zero]
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply,
+      LinearMap.zero_apply, if_neg h, mul_zero, add_zero]
 
 theorem smGhostParity_mul_ghostCre (m : ℕ) (a : Fin 12) :
     smGhostParity m * ghostCre m a = -(ghostCre m a * smGhostParity m) :=
@@ -1057,9 +1059,11 @@ theorem smGhostParity_add_ghostAnn (m : ℕ) (a : Fin 12) :
   ext S
   by_cases h : ghostMode m a ∈ S
   · simp only [Module.End.mul_apply, smGhostParity_apply, ghostAnn, annih_apply,
-      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_pos h, mul_zero, add_zero]
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply,
+      LinearMap.zero_apply, if_pos h, mul_zero, add_zero]
   · simp only [Module.End.mul_apply, smGhostParity_apply, ghostAnn, annih_apply,
-      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply, LinearMap.zero_apply, if_neg h]
+      Module.End.mul_apply, LinearMap.add_apply, PiLp.add_apply, PiLp.zero_apply,
+      LinearMap.zero_apply, if_neg h]
     rw [ghostParitySign_insert_ghost m a h]
     ring
 
@@ -1215,7 +1219,8 @@ theorem smGhostParity_mul_smBrstCharge (m : ℕ) (T : Fin 12 → Matrix (Fin m) 
       * (∑ a : Fin 12, ∑ b : Fin 12, ∑ e : Fin 12,
           smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e))
       = -((∑ a : Fin 12, ∑ b : Fin 12, ∑ e : Fin 12,
-          smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e)) * smGhostParity m) := by
+          smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e)) * smGhostParity m) :=
+    by
     refine smGhostParity_mul_sum (m := m) Finset.univ
       (fun a : Fin 12 => ∑ b : Fin 12, ∑ e : Fin 12,
         smStruct f3 a b e • (ghostCre m a * ghostCre m b * ghostAnn m e)) fun a _ => ?_
