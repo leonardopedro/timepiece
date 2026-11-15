@@ -1155,7 +1155,11 @@ theorem norm_projection_le (Q : E →L[ℂ] E) (hQidem : Q.comp Q = Q) (hQadj : 
 /-- **The tail of the resolvent on the discarded block.**  If `H` preserves the splitting
 (`H Q = Q H`), is coercive on it with gap `mu`, and the shift is real and negative (`z = −lam`),
 then the compressed resolvent `Q R Q` is bounded by `(mu + lam)⁻¹` — the resolvent estimate on
-the complement, with no symmetry assumption on `H` beyond commuting with `Q`. -/
+the complement, with no symmetry assumption on `H` beyond commuting with `Q`.
+
+**Superseded by §15.**  The commutation hypothesis here is vacuous for a SIRK split (§14);
+`resolvent_tail_le_of_schur` proves the same conclusion from the coercivity of the Schur
+complement of the compressed shift, with no invariance. -/
 theorem fock_tail_le (Q H R : E →L[ℂ] E) (mu lam : ℝ)
     (hQidem : Q.comp Q = Q) (hQadj : Q.adjoint = Q) (hcomm : H.comp Q = Q.comp H)
     (hcoer : ∀ v : E, mu * ‖Q v‖ ^ 2 ≤ (inner ℂ (Q v) (H (Q v))).re)
@@ -1253,7 +1257,10 @@ theorem sirkComplement_adjoint_eq (V : F →L[ℂ] E) :
   resolvent obeys `‖Q R Q‖ ≤ (mu + lam)⁻¹` (§13 tail lemma).
 Feeding both into §11's `sirkTailBudget_le_of_tail_coupling` turns the abstract `T` of U2 into
 `(2‖g‖‖W‖‖P‖‖B‖ + 1)(mu + lam)⁻¹`: linear in the coupling, and with no factor of the Krylov
-dimension `m`. -/
+dimension `m`.
+
+**Superseded by §15**: `sirkTailBudget_le_fock_schur` reaches the same shape with no `hcomm`,
+replacing it by the Schur complement of the compressed shift. -/
 theorem sirkTailBudget_le_fock (V : F →L[ℂ] E) (A W H R : E →L[ℂ] E) (g z : ℂ)
     (mu lam : ℝ) (B : F →L[ℂ] F)
     (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
@@ -1323,7 +1330,8 @@ The transfer allocation needs no invariance at all.  For `H = A + g·W` the tria
 inequality gives `‖(H − z) Q‖ ≤ ‖(A − z) Q‖ + ‖g‖‖W‖` (because `‖Q‖ ≤ 1`), so with
 `alpha` the free part's norm on the discarded sector,
 `sirkTransferBudget_le_fock` reads `O ≤ ‖B‖ (alpha + ‖g‖‖W‖) ‖R P‖` — affine in the
-coupling and valid for every split.
+coupling and valid for every split.  §15 then replaces the *tail* hypothesis as well: the
+Schur complement of the compressed shift controls `‖Q R Q‖` with no commutation at all.
 
 -/
 
@@ -1420,5 +1428,234 @@ theorem sirkTransferBudget_le_fock (V : F →L[ℂ] E) (A W H R : E →L[ℂ] E)
       ≤ ‖B‖ * ((alpha + ‖g‖ * ‖W‖) * ‖R.comp (sirkReconstruction V)‖) := by
         gcongr
     _ = ‖B‖ * (alpha + ‖g‖ * ‖W‖) * ‖R.comp (sirkReconstruction V)‖ := by ring
+
+/-! ## 15. The tail bound without invariance: Schur complement of the compressed shift
+
+§13's `fock_tail_le` assumed `H Q = Q H`, and §14 shows that hypothesis is not merely unproved:
+it forces `Q (H − z) P = 0`, i.e. it is inconsistent with the nonzero coupling of a SIRK split.
+The invariant-free replacement is the Schur complement of the compressed shift.  With
+`P = 1 − Q`, `A = H − z` and `U` a one-sided inverse of the `P`-block `P A P` on `range P`
+(`U (P A P) = P`), the block equations of `A R = 1` give
+
+`S (Q R Q) = Q`,  `S = Q A Q − (Q A P) U (P A Q)`,
+
+so the tail is controlled by the coercivity gap of `S` alone:
+
+* `schur_comp_eq`: the identity above, from `A R = 1` and `U (P A P) = P` — no commutation;
+* `resolvent_tail_le_of_schur`: coercivity of `S` with gap `mu` gives `‖Q R Q‖ ≤ mu⁻¹`;
+* `sirkTailBudget_le_fock_schur`: for `H = A + g•W`,
+  `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1) mu⁻¹`, with `mu` the gap of `S`.
+
+The coupling is *nonzero* in this statement: it enters `S` through `(Q A P) U (P A Q)`, the
+second-order term the perturbative expansion predicts, instead of being multiplied by zero. -/
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- **The Schur complement of the compressed shift inverts the compressed resolvent.**  Write
+`P = 1 − Q`, `A = H − z`, and let `U` invert the `P`-block `P A P` on `range P`.  Then the Schur
+complement `S = Q A Q − (Q A P) U (P A Q)` satisfies `S (Q R Q) = Q`: no commutation of `H` with
+`Q` is used, and the coupling `Q A P` is allowed to be nonzero. -/
+theorem schur_comp_eq (A R Q U : E →L[ℂ] E)
+    (hQidem : Q.comp Q = Q) (hAR : A.comp R = ContinuousLinearMap.id ℂ E)
+    (hU : U.comp ((ContinuousLinearMap.id ℂ E - Q).comp
+      (A.comp (ContinuousLinearMap.id ℂ E - Q))) = ContinuousLinearMap.id ℂ E - Q) :
+    ((Q.comp (A.comp Q))
+      - (Q.comp (A.comp (ContinuousLinearMap.id ℂ E - Q))).comp
+          (U.comp ((ContinuousLinearMap.id ℂ E - Q).comp (A.comp Q)))).comp
+      (Q.comp (R.comp Q)) = Q := by
+  set P : E →L[ℂ] E := ContinuousLinearMap.id ℂ E - Q with hP
+  have hQP : Q.comp P = 0 := by
+    rw [hP, ContinuousLinearMap.comp_sub, ContinuousLinearMap.comp_id, hQidem, sub_self]
+  have hPQ : P.comp Q = 0 := by
+    rw [hP, ContinuousLinearMap.sub_comp, ContinuousLinearMap.id_comp, hQidem, sub_self]
+  have hPP : P.comp P = P := by
+    rw [hP, ContinuousLinearMap.sub_comp, ContinuousLinearMap.comp_sub,
+      ContinuousLinearMap.comp_sub, ContinuousLinearMap.comp_id,
+      ContinuousLinearMap.id_comp, hQidem]
+    abel
+  have hsum : P + Q = ContinuousLinearMap.id ℂ E := by
+    rw [hP]
+    abel
+  set R12 : E →L[ℂ] E := P.comp (R.comp Q) with hR12
+  set R22 : E →L[ℂ] E := Q.comp (R.comp Q) with hR22
+  have hR12P : P.comp R12 = R12 := by
+    rw [hR12, ← ContinuousLinearMap.comp_assoc, hPP]
+  have hR22Q : Q.comp R22 = R22 := by
+    rw [hR22, ← ContinuousLinearMap.comp_assoc, hQidem]
+  have hsplit : R.comp Q = R12 + R22 := by
+    rw [hR12, hR22, ← ContinuousLinearMap.add_comp, hsum,
+      ContinuousLinearMap.id_comp]
+  have hA12 : (A.comp P).comp R12 = A.comp R12 := by
+    rw [ContinuousLinearMap.comp_assoc, hR12P]
+  have hA22 : (A.comp Q).comp R22 = A.comp R22 := by
+    rw [ContinuousLinearMap.comp_assoc, hR22Q]
+  have h4 : (Q.comp (A.comp P)).comp R12 + (Q.comp (A.comp Q)).comp R22 = Q := by
+    have h0 : Q.comp (A.comp (R.comp Q)) = Q := by
+      rw [← ContinuousLinearMap.comp_assoc A R Q, hAR, ContinuousLinearMap.id_comp]
+      exact hQidem
+    have step : Q.comp (A.comp R12) = (Q.comp (A.comp P)).comp R12 := by
+      rw [← hA12, ← ContinuousLinearMap.comp_assoc]
+    have step2 : Q.comp (A.comp R22) = (Q.comp (A.comp Q)).comp R22 := by
+      rw [← hA22, ← ContinuousLinearMap.comp_assoc]
+    rw [hsplit, ContinuousLinearMap.comp_add, ContinuousLinearMap.comp_add, step, step2] at h0
+    exact h0
+  have h2 : (P.comp (A.comp P)).comp R12 + (P.comp (A.comp Q)).comp R22 = 0 := by
+    have h0 : P.comp (A.comp (R.comp Q)) = 0 := by
+      rw [← ContinuousLinearMap.comp_assoc A R Q, hAR, ContinuousLinearMap.id_comp, hPQ]
+    have step : P.comp (A.comp R12) = (P.comp (A.comp P)).comp R12 := by
+      rw [← hA12, ← ContinuousLinearMap.comp_assoc]
+    have step2 : P.comp (A.comp R22) = (P.comp (A.comp Q)).comp R22 := by
+      rw [← hA22, ← ContinuousLinearMap.comp_assoc]
+    rw [hsplit, ContinuousLinearMap.comp_add, ContinuousLinearMap.comp_add, step, step2] at h0
+    exact h0
+  have hR12eq : R12 = -((U.comp (P.comp (A.comp Q))).comp R22) := by
+    have h2' : U.comp (((P.comp (A.comp P)).comp R12
+        + (P.comp (A.comp Q)).comp R22)) = 0 := by
+      rw [h2]
+      exact ContinuousLinearMap.comp_zero U
+    rw [ContinuousLinearMap.comp_add] at h2'
+    have hU' : U.comp ((P.comp (A.comp P)).comp R12) = R12 := by
+      rw [← ContinuousLinearMap.comp_assoc, hU, hR12P]
+    rw [hU'] at h2'
+    rw [← ContinuousLinearMap.comp_assoc]
+    exact eq_neg_of_add_eq_zero_left h2'
+  have hmain : ((Q.comp (A.comp Q))
+      - (Q.comp (A.comp P)).comp (U.comp (P.comp (A.comp Q)))).comp R22 = Q := by
+    rw [ContinuousLinearMap.sub_comp]
+    have hinner : (U.comp (P.comp (A.comp Q))).comp R22 + R12 = 0 := by
+      rw [hR12eq]
+      abel
+    have hz : ((Q.comp (A.comp P)).comp (U.comp (P.comp (A.comp Q)))).comp R22
+        + (Q.comp (A.comp P)).comp R12 = 0 := by
+      calc ((Q.comp (A.comp P)).comp (U.comp (P.comp (A.comp Q)))).comp R22
+            + (Q.comp (A.comp P)).comp R12
+          = (Q.comp (A.comp P)).comp ((U.comp (P.comp (A.comp Q))).comp R22)
+            + (Q.comp (A.comp P)).comp R12 := by
+              rw [ContinuousLinearMap.comp_assoc]
+        _ = (Q.comp (A.comp P)).comp
+              ((U.comp (P.comp (A.comp Q))).comp R22 + R12) := by
+              rw [ContinuousLinearMap.comp_add]
+        _ = 0 := by rw [hinner]; exact ContinuousLinearMap.comp_zero _
+    have hs2 : ((Q.comp (A.comp P)).comp (U.comp (P.comp (A.comp Q)))).comp R22
+        = -((Q.comp (A.comp P)).comp R12) := eq_neg_of_add_eq_zero_left hz
+    rw [hs2, sub_neg_eq_add, add_comm]
+    exact h4
+  exact hmain
+omit [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- **The tail bound from the Schur complement.**  If the Schur complement `S` of the compressed
+shift is a right inverse of `Q R Q` — `S (Q R Q) = Q` — and is coercive on `range Q` with gap
+`mu > 0`, then `‖Q R Q‖ ≤ mu⁻¹`.  No invariance of the splitting and no symmetry of `H` is
+used: this replaces the commutation hypothesis of `fock_tail_le`. -/
+theorem resolvent_tail_le_of_schur (Q R S : E →L[ℂ] E) (mu : ℝ)
+    (hQidem : Q.comp Q = Q) (hQadj : Q.adjoint = Q)
+    (hS : S.comp (Q.comp (R.comp Q)) = Q)
+    (hcoer : ∀ v : E, mu * ‖Q v‖ ^ 2 ≤ (inner ℂ (Q v) (S (Q v))).re)
+    (hpos : 0 < mu) : ‖Q.comp (R.comp Q)‖ ≤ mu⁻¹ := by
+  refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun x => ?_
+  set w : E := Q x with hw
+  set v : E := Q (R w) with hv
+  have hQw : Q w = w := by
+    rw [hw, ← ContinuousLinearMap.comp_apply, hQidem]
+  have hQv : Q v = v := by
+    rw [hv, ← ContinuousLinearMap.comp_apply, hQidem]
+  have hfix : S v = w := by
+    have h := congrArg (fun f : E →L[ℂ] E => f x) hS
+    simpa [hv, hw, ContinuousLinearMap.comp_apply] using h
+  have hinner : mu * ‖v‖ ^ 2 ≤ (inner ℂ v (S v)).re := by
+    have := hcoer (R w)
+    simpa [hv] using this
+  have hquad : mu * ‖v‖ ^ 2 ≤ ‖v‖ * ‖x‖ := by
+    have hre : (inner ℂ v (S v)).re = (inner ℂ v w).re := by rw [hfix]
+    have h1 : mu * ‖v‖ ^ 2 ≤ (inner ℂ v w).re := by
+      rw [← hre]
+      exact hinner
+    have h2 : (inner ℂ v w).re ≤ ‖v‖ * ‖w‖ :=
+      (le_abs_self _).trans ((Complex.abs_re_le_norm _).trans (norm_inner_le_norm _ _))
+    have h3 : ‖w‖ ≤ ‖x‖ := by
+      rw [hw]
+      exact norm_projection_le Q hQidem hQadj x
+    nlinarith [h1, h2, h3, norm_nonneg v, norm_nonneg x, norm_nonneg w]
+  have hfinal : ‖v‖ ≤ mu⁻¹ * ‖x‖ := by
+    rcases eq_or_lt_of_le (norm_nonneg v) with h0 | h0
+    · rw [← h0]
+      positivity
+    · have hstep : mu * ‖v‖ ≤ ‖x‖ := by
+        have h1 : mu * ‖v‖ * ‖v‖ ≤ ‖v‖ * ‖x‖ := by
+          calc mu * ‖v‖ * ‖v‖ = mu * ‖v‖ ^ 2 := by ring
+            _ ≤ ‖v‖ * ‖x‖ := hquad
+        exact le_of_mul_le_mul_right (by simpa [mul_comm] using h1) h0
+      calc ‖v‖ ≤ ‖x‖ / mu := by
+            rw [le_div_iff₀ hpos]
+            calc ‖v‖ * mu = mu * ‖v‖ := by ring
+              _ ≤ ‖x‖ := hstep
+        _ = mu⁻¹ * ‖x‖ := by rw [div_eq_inv_mul]
+  have happ : (Q.comp (R.comp Q)) x = v := by
+    rw [ContinuousLinearMap.comp_apply, ContinuousLinearMap.comp_apply, ← hw]
+  rw [happ]
+  exact hfinal
+/-- **§15: the Fock tail budget with no invariance hypothesis.**  The shift `z` now enters only
+through the Schur complement `S = Q (H − z) Q − (Q (H − z) P) U (P (H − z) Q)`, whose coercivity
+gap is `mu`: the coupling `Q (H − z) P = g · Q W P` is *allowed* to be nonzero, and is carried by
+`‖g‖‖W‖‖P‖` exactly as in §13.  This is the non-degenerate replacement for
+`sirkTailBudget_le_fock`. -/
+theorem sirkTailBudget_le_fock_schur (V : F →L[ℂ] E) (A W H R S U : E →L[ℂ] E) (g z : ℂ)
+    (mu : ℝ) (B : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hRleft : R.comp (H - z • 1) = ContinuousLinearMap.id ℂ E)
+    (hRright : (H - z • 1).comp R = ContinuousLinearMap.id ℂ E)
+    (hBright : (V.adjoint.comp ((H - z • 1).comp V)).comp B
+      = ContinuousLinearMap.id ℂ F)
+    (hblock : (sirkComplement V).comp (A.comp (sirkReconstruction V)) = 0)
+    (hH : H = A + g • W)
+    (hU : U.comp ((sirkReconstruction V).comp ((H - z • 1).comp (sirkReconstruction V)))
+      = sirkReconstruction V)
+    (hSdef : S = (sirkComplement V).comp ((H - z • 1).comp (sirkComplement V))
+      - ((sirkComplement V).comp ((H - z • 1).comp (sirkReconstruction V))).comp
+          (U.comp ((sirkReconstruction V).comp ((H - z • 1).comp (sirkComplement V)))))
+    (hScoer : ∀ v : E, mu * ‖(sirkComplement V) v‖ ^ 2
+      ≤ (inner ℂ ((sirkComplement V) v) (S ((sirkComplement V) v))).re)
+    (hpos : 0 < mu) :
+    sirkTailBudget V R
+      ≤ (2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ + 1) * mu⁻¹ := by
+  have hQidem := sirkComplement_idem V hVV
+  have hQadj := sirkComplement_adjoint_eq V
+  have hP : sirkReconstruction V = ContinuousLinearMap.id ℂ E - sirkComplement V := by
+    ext x
+    simp [sirkComplement]
+  have hcoupling := fock_coupling_le A W (sirkReconstruction V) (sirkComplement V) H g z
+    hP hQidem hQadj hblock hH
+  have hU' : U.comp ((ContinuousLinearMap.id ℂ E - sirkComplement V).comp
+      ((H - z • 1).comp (ContinuousLinearMap.id ℂ E - sirkComplement V)))
+      = ContinuousLinearMap.id ℂ E - sirkComplement V := by
+    rw [← hP]
+    exact hU
+  have hSchur : S.comp ((sirkComplement V).comp (R.comp (sirkComplement V)))
+      = sirkComplement V := by
+    rw [hSdef, hP]
+    exact schur_comp_eq (H - z • 1) R (sirkComplement V) U hQidem hRright hU'
+  have htail : ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ ≤ mu⁻¹ :=
+    resolvent_tail_le_of_schur (sirkComplement V) R S mu hQidem hQadj hSchur hScoer hpos
+  have hleak := sirkTailBudget_le_of_tail_coupling V (H - z • 1) R B hVV hViso hVadj
+    hRleft hBright
+  have hBnn : (0 : ℝ) ≤ ‖B‖ := norm_nonneg B
+  have hmono : 2 * ‖(sirkComplement V).comp ((H - z • 1).comp (sirkReconstruction V))‖
+        * ‖B‖ + 1
+      ≤ 2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ + 1 := by
+    have h := mul_le_mul_of_nonneg_right
+      (mul_le_mul_of_nonneg_left hcoupling (by norm_num : (0 : ℝ) ≤ 2)) hBnn
+    linarith
+  calc sirkTailBudget V R
+      ≤ (2 * ‖(sirkComplement V).comp ((H - z • 1).comp (sirkReconstruction V))‖ * ‖B‖ + 1)
+          * ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ := hleak
+    _ ≤ (2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ + 1) * mu⁻¹ := by
+        refine mul_le_mul hmono htail (norm_nonneg _) ?_
+        have h1 : 0 ≤ ‖g‖ * ‖W‖ * ‖sirkReconstruction V‖ :=
+          mul_nonneg (mul_nonneg (norm_nonneg g) (norm_nonneg W))
+            (norm_nonneg (sirkReconstruction V))
+        have h2 : 0 ≤ 2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ :=
+          mul_nonneg (mul_nonneg (by norm_num) h1) hBnn
+        linarith
+
 
 end BookProof.ChapterSirkEndToEnd

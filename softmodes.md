@@ -4619,3 +4619,34 @@ criteria. In particular Phase 4's shifted comparison is not by itself a spectral
 The open task is to derive a coercive estimate for the concrete inner Hamiltonian, with
 the sector and margin required by the selected target. The model barrier calculations
 and numerical approximations support that task but do not yet provide its constant.
+
+### Retiring the invariant tail: the Schur complement of the compressed shift (2026-11-15o)
+
+The 2026-11-15n correction left §13's tail hypothesis with no replacement: invariance is
+vacuous, and the transfer allocation `O` was repaired while `T` was not.  The invariant-free
+tail is the Schur complement of the compressed shift.  With `P = 1 − Q`, `A = H − z` and `U` a
+one-sided inverse of the `P`-block on `range P` (`U (P A P) = P`), the block equations of
+`A R = 1` give `S (Q R Q) = Q` for `S = Q A Q − (Q A P) U (P A Q)`: the `Q`-row of the resolvent
+equation is `A21 R12 + A22 R22 = Q`, and the `P`-row, inverted by `U`, is
+`R12 = −(U A12) R22`, so the coupling `Q A P` lands *inside* `S` instead of being multiplied by
+zero.
+
+* `schur_comp_eq` proves that identity from `A R = 1`, `U (P A P) = P` and `Q² = Q` — no
+  commutation of `H` with `Q`, and no symmetry of `H`.
+* `resolvent_tail_le_of_schur` turns coercivity of `S` on `range Q`
+  (`mu ‖Q v‖² ≤ Re⟪Q v, S (Q v)⟫`) into `‖Q R Q‖ ≤ mu⁻¹`, by the same real-part argument as
+  `fock_tail_le` but with `S v = w` replacing `H v + lam·v = w`.
+* `sirkTailBudget_le_fock_schur` feeds the §13 coupling bound and the Schur tail into §11:
+  `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1) mu⁻¹` with no `hcomm`, where `mu` is the gap of `S` and already
+  contains the shift `z`.
+
+The shift therefore no longer needs to be written as `z = −lam`: it is inside `S`.  `fock_tail_le`
+and `sirkTailBudget_le_fock` are kept — they are true, and §14 needs them to exhibit the
+degenerate regime — but both docstrings now mark them superseded.  What is still not delivered is
+the same as before: `mu > 0` for the interacting complement is a spectral-gap claim the project
+does not make, and `ymHamiltonian` is a `LinearMap` on a core rather than `E →L[ℂ] E`.
+
+**Verification.** `lake build BookProof` succeeds (`9022 jobs`); the module produces no warning
+from the edited file and no line above 100 code points; `#print axioms` on `schur_comp_eq`,
+`resolvent_tail_le_of_schur` and `sirkTailBudget_le_fock_schur` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

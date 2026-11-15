@@ -113,6 +113,15 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15o):** “State of the project — 2026-11-15o: the invariant tail is
+> retired” (end of file): `ChapterSirkEndToEnd` §15 removes the vacuous `H Q = Q H` from the tail
+> bound.  With `P = 1 − Q`, `A = H − z` and `U` inverting `P A P` on `range P`, the block
+> equations of `A R = 1` give `S (Q R Q) = Q` for the Schur complement
+> `S = Q A Q − (Q A P) U (P A Q)` (`schur_comp_eq`), so coercivity of `S` alone bounds
+> `‖Q R Q‖ ≤ mu⁻¹` (`resolvent_tail_le_of_schur`) and
+> `sirkTailBudget_le_fock_schur` reads `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1) mu⁻¹` with the coupling
+> genuinely nonzero — `fock_tail_le` and `sirkTailBudget_le_fock` are marked superseded.
+>
 > **Track A — newest (2026-11-15m):** “State of the project — 2026-11-15m: the Fock coupling and
 > tail, and the unbounded `L²` case” (end of file): `ChapterSirkEndToEnd` §13 computes the two
 > numbers §11 left abstract for `H = A + g·W` — the coupling `‖Q (H − z) P‖ ≤ ‖g‖ ‖W‖ ‖P‖`
@@ -26277,4 +26286,36 @@ for an unbounded generator is likewise not started.
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
 the file and no line above 100 code points.  `#print axioms` on `comp_shift_eq_zero_of_comm`,
 `sirkTailBudget_le_of_invariant_split` and `sirkTransferBudget_le_fock` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15o: the invariant tail is retired
+
+A correction to §2026-11-15n: the tail of the SIRK budget no longer needs `H Q = Q H`.
+
+**The replacement.**  §13's `fock_tail_le` controlled `‖Q R Q‖` by coercivity *plus* invariance.
+The invariant-free statement is the Schur complement of the compressed shift.  With `P = 1 − Q`,
+`A = H − z` and `U` a one-sided inverse of `P A P` on `range P`, the block equations of `A R = 1`
+give `S (Q R Q) = Q` for `S = Q A Q − (Q A P) U (P A Q)`, so the tail is `mu⁻¹` where `mu` is the
+coercivity gap of `S` alone.
+
+* `schur_comp_eq` — the block identity, from `A R = 1`, `U (P A P) = P`, `Q² = Q`.  No
+  commutation with `Q` and no symmetry of `H` is used, and `Q A P ≠ 0` is allowed.
+* `resolvent_tail_le_of_schur` — coercivity of `S` on `range Q` gives `‖Q R Q‖ ≤ mu⁻¹`.
+* `sirkTailBudget_le_fock_schur` — for `H = A + g•W`,
+  `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1) mu⁻¹`; the coupling is genuinely present, entering `S` as the
+  second-order term `(Q A P) U (P A Q)`.
+
+`fock_tail_le` and `sirkTailBudget_le_fock` remain — they are true and §14 uses them to exhibit
+the degenerate regime — but both docstrings now mark them superseded by §15.  The shift is no
+longer required to be negative real: `z` sits inside `S`.
+
+**What is still not delivered.**  Exactly what the previous entry recorded: `mu > 0` on the
+interacting complement is a spectral-gap claim this project does not make, and
+`ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99` is a symmetric operator on a core rather than the
+`E →L[ℂ] E` of §11–§15, so no concrete Yang–Mills instantiation exists yet.
+
+**Verification.** `lake build BookProof` succeeds (`9022 jobs`); no warning from the edited file
+and no line above 100 code points; `#print axioms` on the three new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
