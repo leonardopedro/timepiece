@@ -3,10 +3,16 @@
 > **Per-track routing table: [`CURRENT_WORK_ORDER.md`](CURRENT_WORK_ORDER.md).** That file
 > holds one row per track — the current entry point, what it supersedes, and — where the
 > corpus contradicts itself — an explicit flag naming the disagreement instead of resolving
-> it. It exists because this file is ~16,400 lines of append-only dated entries and the
+> it. It exists because this file contains many append-only dated entries and the
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest cross-track reading guide (2026-11-15):** “State of the project — 2026-11-15: source audit of the new proofs and the four-sector Hamiltonians”
+> at the end of this file. It updates the book, the recent QYM/SIRK/NS/SM/OS source inventory,
+> the full inner-operator/outer-enclosure contract and ordered specialist packets P0–P6.
+> This documentation wave performs no compilation; earlier build reports retain their dates.
+>
+
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
@@ -25301,3 +25307,290 @@ long-line warnings, which predate both commits).  `#print axioms` on `Aedge_sep`
 `reflected_membership_order_of_sirkBound`, `geom_le_sqrt_at_ceil`, `temple_membership_order`,
 `Aedge_membership_from_order_one`, `Aedge_band_order_least` and the `xOrd` family gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-15: source audit of the new proofs and the four-sector Hamiltonians
+
+This entry supersedes **the interpretive and pedagogical reading order** of §2026-11-08f
+and updates both Track A (§2026-11-13ag) and Track B (§2026-11-13k–n), plus the newer
+NS/SM/OS source additions. Earlier dated entries, theorem statements and reported build
+results remain historical records. This is a source audit of the current checkout, including
+changes through merge `2702502`; it performs **no compilation, Lean elaboration, axiom audit,
+Cadabra execution or numerical run**. U/C/N/B below describe theorem scope as read in source,
+not a new verification result. The intended executor of the work packets is an
+**LLM-Lean4-specialist**. RH stays parked; the recorded QYM-before-SM analytic priority stands.
+
+### 1. Operator contract for every interpretation and new proof
+
+The final Hamiltonian for **QYM, QED, QG and NS** is
+
+$$H=d\Gamma(h)=\sum_{ij}\langle e_i,h e_j\rangle C^\dagger(e_i)A(e_j),$$
+
+with **creation on the left and annihilation on the right**. `h` is the complete specified
+inner one-particle operator, possibly on an inner field Fock space; `H` acts on its outer
+Fock space. Define `h`, its Hilbert space, statistics, dense core and ordering first. The
+matrix sum is core notation, not an unrestricted definition of an infinite operator sum.
+On outer number `n`, prove the identification with the sum over `n` copies of `h`, then
+use the established closure/core lift. Do not add new outer cubic/quartic vertices merely
+because `h` has nonlinear inner interactions.
+
+- QYM. Required content inside `h`: Complete kinetic and magnetic square, including cubic cross and
+  quartic nonabelian terms. Interpretation boundary: The occupation-diagonal magnetic diagnostic and
+  lattice benchmark need their own labels; neither identifies the full physical field strength.
+
+- QED. Required content inside `h`: The specified abelian operator with every retained matter/gauge
+  interaction. Interpretation boundary: Abelian and free-photon results cover their defined
+  operators; they do not construct all interacting matter QED. Keep the proved infrared photon
+  no-gap boundary.
+
+- QG. Required content inside `h`: R² vielbein/TEGR realization,
+  `V(φ)=M⁴/(16α)(1-exp(-sqrt(2/3)φ/M))²` **without Taylor expansion**, and all scalaron–vielbein
+  interactions. Interpretation boundary: An exact-wall fiber, quadratic mass model, base-gravity
+  cross-term builder, frozen-density or densitized model is a separate realization until a
+  core/domain intertwiner establishes identity.
+
+- NS. Required content inside `h`: Positive eliminated sum-of-squares inner operator
+  `H_sp=H_visc+H_advect`, with the full nonlinear residuals of the chosen realization.
+  Interpretation boundary: The signed Koopman generator and positive Lyapunov comparison are
+  distinct operators; neither their ESA nor the six-coordinate parcel alone identifies all spatial
+  convolution couplings.
+
+
+**Consequences that must appear in acceptance statements.** `HΩ=0` is unconditional;
+calling `Ω` a ground state needs `h≥0`. An absolute `h≥mI`, `m>0`, on the entire
+inner space gives the gap above the unique outer vacuum. An inner excitation difference
+`E₁-E₀`, a gap off an inner zero mode or a positive shifted floor is not that bound. Inner
+zero modes also have nonvacuum outer zero-energy occupations. On bosonic outer Fock space,
+a negative inner direction can be occupied repeatedly and makes `dΓ(h)` unbounded below.
+
+The identities `dΓ(h+cI)=dΓ(h)+c N_out` and, in general, `dΓ(B²)≠dΓ(B)²` are load-bearing:
+retain every specified inner constant and form every interaction/square inside first.
+`B=I` on outer number two already distinguishes `N_out` from `N_out²`. Inner pair creation
+can coexist with outer number conservation. A comparison operator is not an added physical
+interaction. ESA proves a unique closure and unitary evolution for the identified operator;
+it proves neither an energy sign nor a gap. Existing outer number-changing perturbation
+lemmas are toolbox models unless their Fock level and physical identification are supplied.
+
+### 2. Spatial derivatives: convolution inside `h`, for NS and QG only
+
+With Mathlib's Fourier convention,
+
+$$\mathcal F(f\partial_m g)(Q)=\int \hat f(Q-q)\,2\pi i q_m\,\hat g(q)\,dq.$$
+
+`ChapterNsAdvectionConvolution.fourier_advection_convolution` / `fourier_advection_sum`
+prove the Schwartz identities. The derivative symbol belongs to its own convolution leg;
+a total-momentum multiplier is generally different. Multiple local factors require iterated
+convolutions, including cross-mode determinant minors in NS and the derivative-dependent
+vielbein products in QG. Eliminating a derivative coordinate does not diagonalize that
+nonlinearity, delete it, or turn it into a derivative with respect to a field coordinate.
+The canonical field momentum and spatial wave number must remain distinct.
+
+**B:** the reduced same-parcel polynomial `(k·u)u_i` and the momentum-block-diagonal
+`qgElimFullModes` retain exactly the terms of their defined models. Their identities alone
+do not prove equality with every full spatial product. Prove the mode-sum/integral
+assembly, transform normalization, reality constraints, ordering and common core before
+promoting them to a complete continuum record. The exact QG wall and its interactions
+must survive that map. Do not replace a vielbein inverse or exponential by a finite Taylor
+series to fit the polynomial toolbox. This elimination prescription is an NS/QG work item;
+it is not a change to the QYM/QED physical definitions.
+
+### 3. New source inventory: results and what they leave open
+
+- **U** `Qym/ChapterYangMillsMehlerLp`, `ChapterYangMillsMehlerProduct`. What is available now: Real
+  one-coordinate `mehlerLpEquiv`; coordinatewise differentiable product conjugation
+  `conj_dirichletVec99`, including `−99/2`. What remains: Match the actual normalized complex
+  representation, operator core and graph/form closure; these representation facts supply no
+  nonabelian coercivity.
+
+- **U** `Toolbox/ChapterDegreeEnumeration`, `ChapterHermiteBridgePhases`. What is available now:
+  `exists_degreeCompatible` for `0<d`; recurrence triangularity; `coreBasis_eq_hermBasisN` with
+  phase `1`. What remains: Do not request the enumeration or this bridge again; no
+  arbitrary-enumeration phase theorem is asserted.
+
+- **U/C** `Qym/ChapterYangMillsCoreBasisGates`. What is available now: Constructed `ymEnum`,
+  `bridgePhases_one`, row and column gates; `ymCoreCol_essentiallySelfAdjointOn_core` with no basis
+  hypothesis. What remains: Its **commutator gate** is still a hypothesis. Separately reuse
+  `YangMillsNonAbelianEsa.ym_h_esa` / `ym_dGamma_esa` for the defined operator; failure of one
+  comparison method would not refute them.
+
+- **U/N/B** `Toolbox/ChapterHermiteQuarticEntry`, `ChapterFockWeightedGateSharpness`. What is
+  available now: `quartic_hermite_entry`, `quadratic_hermite_entry`; `not_wCommBound_quartic` for
+  the entry model. What remains: The actual QYM coefficient and non-cancellation are unproved. An
+  upper band bound alone cannot show the full gate false.
+
+- **U/C/N** `Sirk/ChapterResolventTransfer`, `ChapterRitzCertificate`. What is available now:
+  Compression form bound implies second-edge separation; shrinking bands and explicit sufficient
+  order; `not_rayleigh_lt_resolventEdge` rules out the bottom-as-Temple-level instantiation. What
+  remains: Physical bottom/second edge, complementary form bound, justified resolvent and full-space
+  approximation estimates remain instance inputs.
+
+- **U** same SIRK source, latest worked example. What is available now: `Aedge_gap_sharp`:
+  separation `1/6`; `Aedge_membership_from_order_one`, `Aedge_band_order_least`,
+  `Aedge_ceiling_eq_one`: order `1` for `xOrd` with `C=2/25`, `r=1/2`, `δ=1/10`, `η=1/50`. What
+  remains: Order `4` is the coarser `C=2/5` example. `xOrd` becomes an exact eigenvector after order
+  zero; it is not physical QYM convergence data.
+
+- **U/C** `Sirk/ChapterSirkGapTable`. What is available now: Solve rows and reflected band rows
+  share `certified_gap_table_unified`; scale is `1` versus `γ²`. What remains: No universal upper
+  end: a two-sided physical difference also needs energy upper bounds, as in
+  `gap_interval_of_reflected_bands`. An energy-difference certificate is not an absolute inner edge.
+
+- **U/C/B** `Ns/ChapterNsVolDomReconstruction`. What is available now: Box character sum factorizes
+  in all three directions; `latBox_character_one_iff` characterizes aliases; commensurate-grid
+  constant residual gives exact single-mode penalty. What remains: Model wave-number labels,
+  distinguishable residues and residual constancy remain hypotheses; no arbitrary-grid, continuum or
+  new ESA conclusion.
+
+- **U/C/N** `Sm/ChapterSmIndexGhostRemainder`, `ChapterSmQuartet`, `ChapterSmBrstGhost`. What is
+  available now: Ghost parity; first-slot sum decomposed into gluon/weak/hypercharge blocks, mixed
+  entries vanish; weak `(9,8)` equals `−1` independently of `f₃`; quartet positivity iff positivity
+  on representatives, plus parity-norm criterion. What remains: Actual metric/Krein compatibility
+  and sign on `range smPhysProj` remain. A nonzero first-slot coefficient is not a proof that all
+  contracting homotopies fail; check the full range equation.
+
+- **U/B** `OSReconstruction/HalfSpaceChainBandHSNorm`, `HalfSpaceInfiniteBandedCovariance`. What is
+  available now: Finite-volume HS norm, infinite row norm, autocorrelation identity and
+  `bandedCovZ_posSemidef` via sum of squares. What remains: No infinite configuration-space Gaussian
+  law, reflection positivity, physical generator identification or infinite-volume HS bound follows.
+  A fixed-width band kernel is not the dense massive covariance.
+
+- **U** audit tooling (`ChapterRoadmapAuditPart1`–`Part8`, `#audit_axioms`). What is available now:
+  The source audit ledger is partitioned and memoized; reuse it. What remains: Historical
+  timing/build reports are not evidence of a build of this editorial wave.
+
+
+For the reflected bounded operator `A'=γ⁻¹I−(h+γ)⁻¹`, the edge map is
+`λ(e)=e/[γ(e+γ)]`, increasing for `γ>0`, `e≥0`. Temple's width is
+`ε_m²/(b−θ_m)`. With proved separation, unit trial vectors, `θ_m≤b−δ`, `δ>0`,
+and `ε_m≤Cr^m`, `C>0`, `0<r<1`, the natural ceiling
+`⌈log(√(δη)/C)/log r⌉` gives a sufficient order for width at most `η>0`.
+`reflected_membership_order_of_sirkBound` obtains the geometric rate from a supplied
+operator-norm SIRK bound. It does not manufacture that bound from an in-window residual.
+Do not omit the margin or physical edge-identification hypotheses when citing the theorem.
+
+A concurrent working-tree addition in `Qym/ChapterYangMillsSU3` and
+`ChapterGellMann` further expresses the first-slot sum as
+`−2i tr([S,T_b]T_c)`, `S=Σ_y T_y` (`sum_f_eq_trace_commutator`), and evaluates
+it to `1` at the Gell-Mann pair `(0,1)` under the stated structure-constant closure
+hypothesis (`su3gen_firstSlot_zero_one`). These source edits were observed during
+this audit and left untouched; they require the specialist's own verification.
+Do not turn their in-progress presence into a new build claim.
+
+The SM first-slot sum `Σ_y f_{yxe}` is not the repeated-index trace of an adjoint
+representation. Its nonzero weak component must not be described as a Lie-algebra anomaly.
+`bGhost_quartet_iff` supplies the actual test on the charge's range; a choice-based algebraic
+quartet and a positive physical Hilbert realization are distinct achievements.
+
+### 4. Ordered work packets for the LLM-Lean4-specialist
+
+**P0 — validate this wave and its citations.** First inspect the diff and preserve theorem
+statements and proof terms: this wave changes prose/docstrings only. Verify every new `#check`
+against its actual import cone; elaborate affected book chapters and proof modules; run the
+existing axiom audits, including the split roadmap ledger. Then run the memory-bounded
+`bash scripts/build-bookproof.sh`, and build the book only via `./patches/build-book.sh`
+followed by `./patches/check-katex.sh`. These commands are for the specialist, not executed
+here. Report the exact commands and residual hypotheses; a source lookup is not elaboration.
+
+**P1 — fix each physical target before estimating it.** Publish a small per-track ledger
+with the inner space/core, all terms and constants, statistics, closure, numerical builder,
+and the needed intertwiner. Compare actions on the common core term by term. For QYM reuse
+the complete magnetic square and existing nonabelian ESA; for QED keep photon/abelian and
+matter scopes explicit. For QG retain the exact R² exponential, vielbein factors and every
+interaction in the transfer; neither `qg3d_full_hamiltonian` nor its scalaron-only `_full`
+sibling supplies the full coupled identification by its name. For NS label positive `H_sp`,
+signed Koopman and comparison generators separately. Acceptance: no claimed identity is
+just equality of counts, spectral plots, outer shapes or BRST closure.
+
+**P2 — settle the QYM analytic fork without repeating closed basis work.** Reuse `ymEnum`
+and `coreBasis_eq_hermBasisN`. Extract an actual highest-degree magnetic-square matrix entry
+for the intended structure constants, including all summands, signs and possible cancellations.
+A mixed quartic monomial may need a multivariate analogue of `quartic_hermite_entry`; do not
+assume a pure `x_i⁴` coefficient exists just because the potential is quartic. Derive a lower
+bound, then decide the proposed `WCommBound` with `not_wCommBound_of_entry` if applicable.
+If it fails, close that comparison route explicitly and use the existing ESA realization;
+do not weaken the Hamiltonian, assume the gate, or re-prove ESA as a substitute for a gap.
+The principal positive target remains a **whole-inner-space absolute form lower bound** for
+the identified unshifted QYM operator. Keep an excitation gap on an inner complement as a
+separately named target. Acceptance: a proved estimate or a precisely scoped obstruction,
+with no asserted full-QYM gate refutation from the quartic model alone.
+
+**P3 — instantiate a physical spectral certificate.** At the P1 operator, choose an
+admissible shift and prove its shift-invert identities. Supply edge membership/infimum,
+a ground projection or appropriate eigenvector, a complementary form bound at a higher
+level, and full-space tails/off-block control. Reuse the compression and second-edge lemmas;
+never set the Temple level to the bottom edge. Derive the SIRK norm/residual constants and
+margin for the emitted vectors and compute a sufficient order with the new ceiling theorem.
+Attach each row's operator, units, cutoff, shift, hypotheses and scale. Use the two-sided
+edge-difference theorem only with its extra energy upper bounds. Acceptance: a certified
+absolute inner lower bound that transfers to the core/closure, then the existing `dΓ` gap
+lift; until that point report finite/conditional bands with their actual scope.
+
+**P4 — complete NS/QG spatial-product transfers inside `h`.** Start from the proved Schwartz
+convolution identity and the NS determinant coefficients. Construct the actual joint-mode
+operator on a common dense domain, with each derivative weight on its own leg. Prove the
+sumset, adjoint/reality and ordering identities; distinguish finite periodic circular DFT
+from projected Galerkin convolution and give an explicit aliasing rule. Instantiate
+`horth_of_lattice_commensurate` using model wave-number labels, and prove those labels
+separate the **full product sumset**, not just the input modes. Supply `hconst` only on the
+actual determinant family where it holds. For QG prove the full vielbein/interaction map
+with the exact exponential under functional calculus or a suitable nonpolynomial core
+estimate. A norm-controlled approximation may support a limit theorem, but a finite Taylor
+model cannot become the record by substitution. Acceptance: an intertwining of complete
+inner operators and graph/form cores; then lift it. Keep the existing Eulerian comparison
+input and the refuted energy-surjectivity shortcut visible; the Lagrangian comparison ESA
+already closed in its stated model. No classical NS regularity claim follows from these
+operator identities alone.
+
+**P5 — resume SM only at the documented analytic/sign inputs.** The P2 coefficient analysis
+may inform the parked SM `PotSelfBound` / `FormDomainComparison` estimate, but it does not
+supply it. Reuse the landed matter dictionary and coupled-core machinery. For the gauge
+realization, compute/check the charge-range equation from `bGhost_quartet_iff`; the weak
+coefficient cannot be tuned away with `f₃`. Construct the intended metric and verify Krein
+compatibility and positivity on the actual representative range. Prove that the resulting
+physical subspace reduces the inner Hamiltonian and its closure on a dense core before
+its outer enclosure. Acceptance: distinguish algebraic quartet, positive quotient and ESA
+of the full coupled matter operator. Nilpotency or ghost parity alone proves none of the
+last two.
+
+**P6 — use the new covariance positivity to build, then test, an OS model.** For the banded
+kernel, construct a consistent Gaussian process, for example from a countable independent
+Gaussian family and the finite filter `u`; prove its covariance is `bandedCovZ`. A finite
+filter avoids requiring a global HS square root in infinite volume. Prove reflection
+positivity separately or produce a counterexample/parameter restriction; ordinary positive
+semidefiniteness is not reflection positivity. If this model passes, build its positive-time
+quotient and strongly continuous transfer semigroup, identify its generator, and only then
+seek an intertwiner with the specified physical `dΓ(h)`. A fixed band kernel is a comparison
+until a massive/full interacting covariance is actually identified. The existing multiplier
+self-adjointness and norm-gap equivalence are instruments to reuse, not constructions of
+those physical inputs. Acceptance: full zero-space projection, with a rank-one vacuum claim
+only if the kernel is proved one-dimensional.
+
+### 5. Pedagogical and cross-repository synchronization
+
+`Book/YangMillsQuantization.lean` now teaches the Mehler and basis bridges, the quartic entry
+and the open commutator gate; `Book/SirkReliability.lean` teaches second-edge separation,
+rate/order and certificate scales; `Book/FreeField.lean` teaches covariance positivity versus
+OS reconstruction and scopes the historical signed NS passage. `Book/FourierElimination.lean`,
+`Book/NsOneParticleHamiltonian.lean`, `Book/QgElimination.lean` and
+`Book/SecondQuantizationEsa.lean` distinguish the reduced models and the full convolution
+transfer. `Book/StandardModel.lean` explains the new ghost remainder and positivity boundary.
+`Book/ProofPlans.lean` points here for the specialist order.
+
+[The BookProof scope guide](BookProof/HAMILTONIAN_SCOPE.md) indexes the exact source modules;
+selected module docstrings have been corrected without changing definitions or proof terms.
+The GitBook pages in `../test` and `../unfer/docs/NUMERICAL_VALIDATION_GUIDE.md` carry the same
+operator/gap conventions and new source scopes. The numerical guide's old identifications of
+a base-gravity builder with coupled R², or an inter-reflection inner difference with a full
+outer-vacuum gap, are superseded by their corrected local text. Recorded test numbers remain
+historical finite-model data. No new empirical agreement, completed physical identification
+or compilation is claimed by this synchronization.
+
+**Static validation of this documentation wave.** Relative-link checks passed for the
+edited Markdown files in all three repositories; the GitBook source-citation drift gate
+reported no unreviewed misses. All 37 new book `#check` names have source declarations
+(this is not elaboration), and a comment-stripped comparison confirms that the eight
+proof modules edited here retain their definitions, theorem statements and proof terms.
+The full GitBook site checker still fails on the existing `unfer/ngpt.md` link to the
+missing sibling `../../papers/Hashimoto.md`; the citation is present in its committed
+baseline. Its README now records the current 87-page/614-link census and that failure.
+No Lean, book render, KaTeX, Cadabra or numerical build/check was run; P0 remains for
+the specialist. Concurrent Gell-Mann/SU(3) source edits were not modified by this wave.

@@ -112,17 +112,37 @@ and $`H_{\rm final}` are unchanged by the choice of variables.
 :::
 
 :::paragraph
-The verified content here is the full chain: the classical scalar–tensor
-equivalence, the Einstein-frame scalaron potential and its shape, the
-regularization of the conformal mode, essential self-adjointness of the
-gauge-fixed Hamiltonian on a continuum core (exponential wall included), and the
-quantization to the nested Fock space. The modules are `BookProof/Qg/ChapterStarobinskyPotential.lean`,
+The verified content consists of several steps with their own operator scopes:
+the classical scalar–tensor equivalence, the Einstein-frame scalaron potential
+and its shape, conformal-mode calculations, scalaron-wall essential
+self-adjointness on a continuum core, and enclosure theorems for the defined
+mode families. The exact coupled-record identification is a further obligation
+where the representations differ, as explained below. The modules are `BookProof/Qg/ChapterStarobinskyPotential.lean`,
 `BookProof/Qg/ChapterScalaronCoreEsa.lean`, `BookProof/Qg/ChapterScalaronFockEsa.lean` and —
 for the exponential wall of the *sum* $`-d^2/d\varphi^2 + V` —
 `BookProof/Toolbox/ChapterWeakSecondDerivative.lean` with `BookProof/Qg/ChapterScalaronWallEsa.lean`
 (plan item *A5* of `CONSOLIDATED_PLAN.md`), all registered in `BookProof.lean`
 and certified axiom-free in `BookProof/RoadmapAudit/ChapterRoadmapAudit.lean`.
 :::
+
+# Reading the Enclosure Claims at Their Proved Scope
+
+The final operator is $`H=d\Gamma(h)`, creation left and annihilation right,
+where $`h` retains the R² vielbein terms, the exact wall and every interaction.
+The scalaron core/wall theorems below concern their defined scalar fibers;
+`QgFullEliminated` and the sector chapters supply further defined coupled
+realizations. The list is a collection of proved steps. It is not by itself a
+unitary identification of the full coupled model with every metric, densitized
+or numerical presentation. Each such identification needs its own common core
+and term-by-term intertwining, including all convolution terms.
+
+In particular, a harmonic scalaron mass is a local quadratic comparison and an
+exact-wall scalaron edge is a fiber result. Neither can be substituted for the
+absolute lower bound of the coupled vielbein operator. Outer quadraticity
+requires no Taylor truncation: a nonpolynomial inner $`h` still gives one
+creation and one annihilation outside. The
+{ref "qg-elimination"}[elimination chapter] explains the remaining spatial
+product and operator-domain transfers.
 
 # The Ghost-Free Scalar–Tensor Form
 

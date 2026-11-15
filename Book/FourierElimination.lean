@@ -15,10 +15,11 @@ The strategy-of-record chapter of the *derivative variables* thread of this
 part: when a first-order system is written with the derivatives of the fields
 as fields, *eliminate* them by a spatial Fourier transform inside the squares
 of the Hamiltonian rather than constrain them by a gauge symmetry — no ghost
-sector, no cubic derivative symbol. It also settles the Lagrangian face of the
-same question: the eliminated kinematics is rank-one, the cofactor of the
-deformation gradient vanishes, and the volume constraint collapses to a
-constant. This chapter states the strategy;
+sector in that reduced presentation. In the Lagrangian single-parcel
+substitution the kinematics is rank-one, the cofactor vanishes and the volume
+constraint collapses to a constant. The full determinant convolution retains
+cross-mode minors and needs the distinct reconstruction discussed below.
+This chapter states the strategy;
 {ref "ns-one-particle-hamiltonian"}[the Navier–Stokes one-particle
 Hamiltonian], {ref "ns-comparison-operator"}[its comparison operator] and
 {ref "qg-elimination"}[the quantum-gravity elimination] carry it out.
@@ -37,6 +38,20 @@ The proofs are `BookProof/NsFullEuler`, `BookProof/NsLagFourier`,
 `BookProof/NsLagrangianDet` (with `BookProof/NsLagrangianDetFL`), and
 `BookProof/KoopmanLyapunov`.
 :::
+
+# A Modewise Identity and a Spatial Product Are Different Steps
+
+The spatial Fourier rule replaces each derivative on its own leg. A product
+$`f\,\partial_m g` transforms to
+$`\int \hat f(Q-q)\,2\pi i q_m\,\hat g(q)\,dq` with the Mathlib convention.
+The sum or integral still couples different momenta. A same-momentum parcel
+polynomial, or a Gram matrix diagonal in momentum, is a specified reduced
+realization; that formula alone does not identify every product of the full
+spatial field with the reduced realization. The equality requires the full
+convolution coefficients, transform normalization, reality constraints and a
+common operator core. This is an NS/QG obligation inside $`h`, before outer
+enclosure. It neither applies a new elimination prescription to QYM/QED nor
+turns spatial derivatives into derivatives with respect to field coordinates.
 
 # The Idea: Eliminate the Jets, Do Not Gauge-Fix Them
 
@@ -338,6 +353,30 @@ by the penalty with bulk modulus `κ`, and the limit `κ → ∞` is not taken.
 #check @BookProof.NsLagrangianComparisonEsa.lagComparison_esa
 #check @BookProof.NsLagrangianComparisonEsa.lagKoopman_esa
 ```
+
+# The Dual Grid Determines Which Determinants Can Be Reconstructed
+
+`Ns/ChapterNsVolDomReconstruction` now proves the finite Fourier reconstruction
+used for the Lagrangian volume penalty. On an $`N^3` box, a character sum
+factorizes into three geometric sums. Two wave vectors alias exactly when their
+dual components agree modulo the grid in every direction. Agreement of a total
+wave number alone does not suffice. On a commensurate grid with distinct residue
+labels, a constant determinant residual has only a zero-mode coefficient, and
+the penalty is exactly $`(\kappa/2)\Lambda^2`.
+
+```
+#check @BookProof.NsVolDomReconstruction.horth_of_lattice_commensurate
+#check @BookProof.NsVolDomReconstruction.latBox_character_one_iff
+#check @BookProof.NsVolDomReconstruction.volPot_of_single_mode_of_lattice_commensurate
+```
+
+The wave-number labels and the constancy of the residual are still hypotheses;
+the theorem does not derive them for arbitrary model data. Use the complete
+sumset produced by determinant convolution, and prove that the selected grid
+distinguishes it, before applying the single-mode reconstruction. The earlier
+rank-one substitution is a reduced model; its collapsed determinant is not a
+proof that a general deformation has no volume interaction. These identities
+also supply no new ESA or continuum limit.
 
 # Where the Two New Operator Chapters Sit
 

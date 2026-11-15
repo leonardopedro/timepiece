@@ -57,13 +57,21 @@ has energy zero for $`-\partial^2+x^2/4-1/2`.
 #check @BookProof.YangMillsMehlerBridge.no_absolute_gap_of_kernel_vector
 ```
 
-The scalar identity $`g^2=\gamma` is an input to an $`L^2` isometry, not
-its construction. A normalized Gaussian also requires its normalization
-factor. Dense domains, the second-order conjugation on a core, and the
-99-coordinate product have to be assembled. The displayed zero-eigenfunction
-calculation by itself proves neither a reference spectral gap nor a QYM gap;
-oscillator frequency and normalization must be matched before borrowing a
-constant from `href_spectral_gap`.
+The later modules now supply more than that scalar identity.
+`YangMillsMehlerLp.mehlerLpEquiv` constructs the real one-coordinate
+$`L^2` isometric equivalence for the stated Gaussian measure, and
+`YangMillsMehlerProduct.conj_dirichletVec99` proves the product conjugation
+$`-\Delta+|x|^2/4-99/2` on functions with the stated coordinate derivatives.
+These are different levels of transfer: an isometry of spaces and an identity
+on differentiable functions. A common complex operator core, its graph closure
+and the normalized measure conventions still have to be matched when applying
+them to a particular Hamiltonian. The Gaussian reference calculation by itself
+proves no QYM coercivity; it cannot supply the physical magnetic interaction.
+
+```
+#check @BookProof.YangMillsMehlerLp.mehlerLpEquiv
+#check @BookProof.YangMillsMehlerProduct.conj_dirichletVec99
+```
 
 `HasOneParticleFormGap` now names the precise whole-inner-space target.
 The abelian instance cannot satisfy it with a positive constant, and the
@@ -109,6 +117,53 @@ the physical nonabelian magnetic operator or supplies its uniform bound.
 #check @BookProof.YangMillsFormClosureND.formDom_of_relativeBound_add
 #check @BookProof.YangMillsFormClosureND.klmn
 ```
+
+# From Monomials to Hermite Coordinates: What Has Closed
+
+Gram–Schmidt starts with weighted monomials; the band estimates use product
+Hermite functions. To compare their matrices one must compare the normalized
+vectors, not just their spans. The recurrence shows that $`x^\alpha-He_\alpha`
+has smaller total degree. List all lower degrees first: Gram–Schmidt then
+removes exactly that smaller-degree part, and normalization leaves the Hermite
+function itself. The phase is $`1`. `DegreeEnumeration` constructs such an
+enumeration for every positive dimension, including the QYM dimension $`99`.
+
+```
+#check @BookProof.DegreeEnumeration.exists_degreeCompatible
+#check @BookProof.HermiteBridgePhases.coreBasis_eq_hermBasisN
+#check @BookProof.YangMillsCoreBasisGates.ymEnum_degreeCompatible
+#check @BookProof.YangMillsCoreBasisGates.bridgePhases_one
+#check @BookProof.YangMillsCoreBasisGates.ymCoreCol_essentiallySelfAdjointOn_core
+```
+
+The last theorem still assumes the weighted commutator gate. The row and column
+gates are proved at weight $`w_k=(\deg k+1)^2`; the basis construction does not
+prove the third gate. This is a boundary of that comparison method, separate
+from the existing `YangMillsNonAbelianEsa.ym_h_esa` and `ym_dGamma_esa` for the
+defined gauge-fixed operator and its enclosure. ESA and a strict form gap are
+also different conclusions.
+
+Why might the gate fail? Multiplication by $`x^4` has the exact entry
+$`\langle\psi_{n+4},x^4\psi_n\rangle
+=\sqrt{(n+1)(n+2)(n+3)(n+4)}`. It grows quadratically with $`n`, whereas the
+commutator weight across this band decays only as $`1/n`. The single-entry
+model therefore violates every constant commutator bound. Applying this
+obstruction to QYM requires an actual nonzero coefficient and control of
+cancellation in the full magnetic square. An upper band estimate cannot
+establish that lower bound.
+
+```
+#check @BookProof.HermiteQuartic.quartic_hermite_entry
+#check @BookProof.FockWeightedGateSharpness.not_wCommBound_quartic
+#check @BookProof.YangMillsNonAbelianEsa.ym_h_esa
+#check @BookProof.YangMillsNonAbelianEsa.ym_dGamma_esa
+```
+
+All of these matrices describe the inner $`h`. Its kinetic and complete
+nonabelian magnetic square, including the cubic cross and quartic terms,
+are formed before $`H=d\Gamma(h)` is constructed. A failed weighted gate
+would rule out that estimate; it would establish neither failure of ESA nor
+absence of a gap for the physical operator.
 
 # The Problem
 

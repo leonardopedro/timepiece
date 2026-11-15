@@ -15,10 +15,11 @@ The Yang–Mills gate theorems of `BookProof.YangMillsWeightedGates` are stated 
 `ymHermCol e fabc = hermCol e (ymPoly fabc)` — the Hamiltonian in the *product Hermite* basis.
 The finite-mode theorems and the certificate seam, on the other hand, work with the enumerated
 Gram–Schmidt basis `coreBasis e`.  The two bases span the same core subspace of `L²(ℝ⁹⁹)`, but
-they differ by one unimodular phase per level.
+a phase relation requires proof. For degree-compatible enumerations the bases are now proved
+equal, with phase `1`; no such conclusion is asserted here for an arbitrary enumeration.
 
-This module makes that difference an explicit hypothesis and carries the whole gate argument
-across it:
+This module first transports the gate argument under an explicit phase hypothesis, then discharges
+that hypothesis using the constructed degree-compatible enumeration:
 
 * `BridgePhases e u` — the bridge hypothesis: every `u k` has unit modulus and
   `coreBasis e k = u k • hermBasisN e k`;

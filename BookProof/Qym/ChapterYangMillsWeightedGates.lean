@@ -41,8 +41,10 @@ conditional on the gate.
 
 **Correction (2026-11-13b).**  An earlier revision of this header asserted that the gate is
 *false* for this symbol, on the grounds that the entries are `Θ(deg²)`.  That was wrong: only an
-*upper* bound `C(deg+1)²` is available, and no lower bound on any entry is proved anywhere in the
-corpus, so no failure of the gate is established — nor could one be, on upper bounds alone.
+*upper* bound `C(deg+1)²` is available from that calculus, so no failure of the QYM gate is
+established from it. The later `ChapterHermiteQuarticEntry` computes a quartic model entry and
+`ChapterFockWeightedGateSharpness` refutes the gate for that entry model. Transferring the
+obstruction to the full QYM matrix still needs a coefficient and non-cancellation proof.
 What is established is the weaker, still useful statement: the three gates are not all
 derivable from the band bounds, and the missing one is the commutator gate.
 

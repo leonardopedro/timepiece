@@ -46,8 +46,9 @@ the two bases are in fact *equal*.
 
 `DegreeCompatible` is a hypothesis on the enumeration: it says the enumeration is sorted by
 nondecreasing total degree and lists every multi-index of smaller degree.  Nothing here
-constructs such an enumeration (this is a counting argument on `Fin d →₀ ℕ`, independent of
-the analysis); what is proved is that *given* one, the bridge closes with no phase at all.
+constructs such an enumeration in this module (this is a separate counting argument on
+`Fin d →₀ ℕ`); `ChapterDegreeEnumeration.exists_degreeCompatible` now supplies it for `0 < d`.
+What is proved here is that *given* one, the bridge closes with no phase at all.
 Note also that the bridge only compares the two bases level by level — it does not identify
 the operators on the two finite-mode domains beyond what `BookProof.YangMillsCoreBasisGates`
 already transports.

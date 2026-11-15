@@ -48,15 +48,17 @@ chapters, the `Fock*` gap chains and `BrstLeakage`.
 For QYM, QED, QG, and NS, the Hamiltonian presented to the full nested-Fock
 numerics is always the outer enclosure of the sector's inner one-particle
 Hamiltonian: `H = Σᵢⱼ hᵢⱼ C†(eᵢ) A(eⱼ)`. Creation is on the left and outer
-annihilation on the right. Inner pair terms remain in `h`; only an allowed
-scalar shift of `h` may be made for positivity. Therefore the full Hamiltonian
-annihilates the outer vacuum exactly.
+annihilation on the right. Every inner interaction and constant remains in
+`h`. The right annihilator gives zero outer-vacuum energy for any `h`;
+ground status also needs positivity. A specified shift changes the model by
+`dΓ(h+cI)=dΓ(h)+c N_out`, so choosing a positive truncated floor cannot
+establish a gap of the unshifted record.
 :::
 
 :::paragraph
 This chapter keeps the three operator levels distinct: the one-particle Hamiltonian, its
 finite Krylov/Galerkin truncations, and the nested Fock lift. The current certificate
-formalizes the finite/truncated level. The new proof layer now supplies a conditional version of that target. `ChapterRitzCertificate.lean` derives finite Temple bands; `ChapterBandEnclosure.lean` and `ChapterSpectralGapStability.lean` describe enclosure and limit stability; `ChapterFockOneParticleGap.lean` identifies the one-particle edge; and `ChapterFockNumberPreservingGap.lean` lifts it through the free, number-preserving `dGamma` Hamiltonian. The concrete QYM instantiation and its analytic convergence hypotheses remain specialist work. The same distinction applies to QED, QG, and NS: the final full-theory operator is always the outer creation-left/annihilation-right enclosure of the sector's inner one-particle Hamiltonian.
+formalizes the finite/truncated level. The new proof layer now supplies a conditional version of that target. `ChapterRitzCertificate.lean` derives finite Temple bands; `ChapterBandEnclosure.lean` and `ChapterSpectralGapStability.lean` describe enclosure and limit stability; `ChapterFockOneParticleGap.lean` identifies the one-particle edge; and `ChapterFockNumberPreservingGap.lean` lifts it through the outer number-preserving `dGamma` Hamiltonian. The concrete QYM instantiation and its analytic convergence hypotheses remain specialist work. The same distinction applies to QED, QG, and NS: the final full-theory operator is always the outer creation-left/annihilation-right enclosure of the sector's inner one-particle Hamiltonian.
 :::
 
 :::paragraph
@@ -102,6 +104,67 @@ For the physical lift, `ChapterFockNumberPreservingGap.lean` proves that a posit
 #check @BookProof.FockDiagonalGapChain.diagOnePart_quadForm_ge
 #check @BookProof.FockDiagonalGapChain.freeField_fock_mass_gap
 ```
+
+# A Certificate at a Usable Level, and at a Specified Order
+
+The newer `Sirk/ChapterResolventTransfer` explains how the bounded certificate
+can be used for an unbounded inner operator. Given its justified shift-invert
+$`R=(h+\gamma)^{-1}`, reflect it to $`A'=\gamma^{-1}I-R`. An energy $`e\ge0`
+becomes $`\lambda(e)=e/[\gamma(e+\gamma)]`. This map is increasing, so the
+lowest energy becomes the bottom reflected edge; an upper estimate on $`R`
+alone does not identify that edge or its next spectral region.
+
+Temple requires $`\theta<b` and a proof that no spectrum intervenes between
+the bottom edge and $`b`. Choosing $`b` equal to the bottom is unusable:
+Rayleigh–Ritz gives $`\lambda_0\le\theta`. The source now records that
+obstruction and derives a usable separation at the second edge from a form
+bound on the compression to the complement of a normalized eigenvector.
+The eigenvector and compression bound remain hypotheses at a physical instance.
+
+```
+#check @BookProof.ChapterResolventTransfer.not_rayleigh_lt_resolventEdge
+#check @BookProof.ChapterResolventTransfer.spectralSeparation_at_secondEdge_of_compressionBound
+#check @BookProof.ChapterResolventTransfer.reflected_band_closes_at_secondEdge_of_formBound
+```
+
+For unit trial vectors the band is
+$`[\theta_m-\varepsilon_m^2/(b-\theta_m),\theta_m]`.
+If $`b-\theta_m\ge\delta>0` and $`\varepsilon_m\le Cr^m`, $`0<r<1`, then
+$`\varepsilon_m^2\le\delta\eta` certifies an interval of width at most $`\eta`.
+The general theorem supplies the sufficient natural-number order
+$`\lceil\log(\sqrt{\delta\eta}/C)/\log r\rceil`. The SIRK specialization
+reads $`C` and $`r=e^{-h_{\rm step}}` from its operator-norm approximation
+bound. Establishing that bound for the chosen physical resolvent remains work;
+a residual computed only inside a truncated matrix is insufficient.
+
+```
+#check @BookProof.RitzCertificate.temple_membership_order
+#check @BookProof.ChapterResolventTransfer.reflected_membership_order_of_sirkBound
+```
+
+The worked two-dimensional operator has eigenvalues $`2/3` and $`5/6`, hence
+separation $`1/6`. Its mixed unit vector gives $`\theta=109/150` and
+$`\varepsilon^2=4/625`: the Temple lower endpoint is exactly $`2/3`.
+For the explicitly defined sequence `xOrd`, $`\delta=1/10`, $`\eta=1/50`,
+$`C=2/25`, $`r=1/2`, the ceiling equals $`1`. Order zero fails the threshold;
+from order one the sequence is already the exact bottom eigenvector. This is
+a checked certificate example, not a convergence experiment for QYM.
+
+```
+#check @BookProof.ChapterResolventTransfer.Aedge_band_membership_num
+#check @BookProof.ChapterResolventTransfer.Aedge_gap_sharp
+#check @BookProof.ChapterResolventTransfer.Aedge_membership_from_order_one
+#check @BookProof.ChapterResolventTransfer.Aedge_band_order_least
+#check @BookProof.ChapterResolventTransfer.Aedge_ceiling_eq_one
+#check @BookProof.SirkGapTable.certified_gap_table_unified
+```
+
+The unified table distinguishes a solve row in energy-difference units from
+a reflected band row with scale $`\gamma^2`. A two-sided physical difference
+also needs the energy upper bounds in `gap_interval_of_reflected_bands`.
+Even a certified $`E_1-E_0>0` concerns inner excitations; the outer-vacuum gap
+of $`d\Gamma(h)` requires the absolute bound $`h\ge mI` on the whole inner
+space. No new outer interaction is introduced to perform that lift.
 
 # Why the Transfer Identity Has To Be Pointwise
 
@@ -837,7 +900,7 @@ The stopping rule is the certificate itself. `ChapterH8` proves that the next SI
 prediction refines the current approximation and that the generic error bands nest and
 shrink. The remaining specialist composition is to show that the corresponding bands
 enclose the lowest positive edge of one fixed QYM one-particle Friedrichs operator.
-Then a positive limiting edge lifts to the real free nested-Fock Hamiltonian through
+Then a positive limiting edge lifts to the final nested-Fock Hamiltonian through
 `dGamma`; a positive value at only one finite order still certifies only the truncated
 operator.
 :::
@@ -936,7 +999,7 @@ a numerical estimate, and the passage to the thermodynamic limit is not claimed.
 Everything certified above is about the truncated operator. For QYM, the
 Friedrichs/Hashimoto results already identify the selected operator with the real
 one-particle Hamiltonian. The remaining step is the one-particle positive spectral-edge
-convergence and its lift through the free number-preserving `dGamma` construction.
+convergence and its lift through the outer number-preserving `dGamma` construction.
 The strict shift `h₊ ≥ μ I` contributes `μ N`, leaves the vacuum unchanged, and makes
 all non-vacuum finite-particle energies positive.
 :::
@@ -1042,14 +1105,14 @@ computed gap is not by itself a gap of the exact operator.
 For QYM, the selected Hashimoto operator is already identified in the formal development
 with the real Friedrichs Hamiltonian. The remaining mass-gap target is narrower: prove
 that the certified nested bands converge to the lowest positive one-particle edge, then
-use the free number-preserving `dGamma` lift. The finite certificate and generic SIRK
+use the outer number-preserving `dGamma` lift. The finite certificate and generic SIRK
 error bands must not be described as a completed continuum mass-gap proof.
 :::
 
 :::paragraph
 The QYM operator-identification step is already proved: the Hashimoto limit selects the
 real Friedrichs Hamiltonian. The remaining gap is the explicit one-particle positive-edge
-certificate/limit and its free `dGamma` lift. Crouzeix's inequality and the deferred
+certificate/limit and its outer `dGamma` lift. Crouzeix's inequality and the deferred
 hypotheses with citations, not theorems of this development. What is fixed per
 system is the region on which the deformation is measured, not a numerical value
 for it. Strong resolvent convergence is the hypothesis of the Trotter–Kato

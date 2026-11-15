@@ -37,8 +37,9 @@ a column of `ymHermCol`, which needs the coefficient of a quartic monomial in `(
 `not_wCommBound_quadratic` is a statement about the *hypotheses*: it exhibits a matrix satisfying
 the band and support hypotheses with quadratic entry growth that fails the gate.  It is **not** a
 statement about `ymHermCol`, and the distinction matters — the Yang–Mills entry bound is an
-*upper* bound, so nothing here shows the actual Yang–Mills matrix fails the gate, and no lower
-bound on any of its entries is proved anywhere in the corpus.  Deciding the gate for `ymHermCol`
+*upper* bound, so nothing here shows the actual Yang–Mills matrix fails the gate. The exact
+quartic model entry below is not yet identified with an entry of the full QYM matrix. Deciding
+the gate for `ymHermCol`
 requires the actual Hermite-basis coefficients of the quartic magnetic square
 `mulOp (magPoly)²`, which the band calculus discards by design.  `not_wCommBound_quartic` settles
 the *magnitude* question — a unit quartic coefficient is already enough to defeat the gate — and

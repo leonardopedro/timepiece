@@ -34,6 +34,20 @@ rescaled generators `T_a = ½ λ^a` satisfy the book's normalization `tr(T_a T_b
   `YangMillsSU3.TraceOrthonormal`, i.e. `tr(T_a T_b) = ½ δ_{ab}`, so the concrete Gell-Mann
   system meets the abstract hypothesis used throughout `ChapterYangMillsSU3`.
 
+## 2. The first-slot trace of the Gell-Mann generators
+
+The trace-orthonormal structure constants are only *antisymmetric*: summing one index over the whole
+basis is not forced to vanish, and §80 of the SM plan still had to decide whether it does for the
+`su(3)` generators.  `YangMillsSU3.sum_f_eq_trace_commutator` reduces that
+sum to a single trace, `Σ_y f_{ybc} = -2i·tr((S T_b − T_b S) T_c)` with `S = Σ_y T_y`, i.e. to the
+structure-constant table of `ad(S)`; here `S` is computed (`su3genSum_eq`) and the sum is evaluated
+at representative pairs.
+
+The answer is **not** zero: `Σ_y f_{y01} = 1`, `Σ_y f_{y03} = ½`, `Σ_y f_{y47} = √3/2`, while
+`Σ_y f_{y07} = 0`.  So `su(3)` does not rescue the antighost either — see
+`smStruct_trace_gluon` in the SM chapter.  Note that `S ≠ 0` (`su3genSum_ne_zero`), which is exactly
+`sum_f_eq_zero_of_sum_gen_eq_zero`'s hypothesis failing.
+
 Everything is `sorry`-free and `axiom`-free (only `propext`, `Classical.choice`,
 `Quot.sound`).
 -/
@@ -91,5 +105,137 @@ theorem su3gen_traceOrthonormal : YangMillsSU3.TraceOrthonormal su3gen := by
     simp only [su3gen, smul_mul_smul_comm]; norm_num
   rw [h, Matrix.trace_smul, gellMann_trace_orthonormal]
   by_cases hab : a = b <;> simp only [hab, if_true, if_false, smul_eq_mul] <;> norm_num
+
+/-! ## 2. The first-slot trace of the Gell-Mann generators -/
+
+/-- The **sum of the generators**, `S = Σ_a T_a`: the only datum the first-slot trace can see
+(`YangMillsSU3.sum_f_eq_trace_commutator`). -/
+noncomputable def su3genSum : Matrix (Fin 3) (Fin 3) ℂ := ∑ y : Fin 8, su3gen y
+
+/-- `S = ½ Σ_a λ^a` in closed form: the off-diagonal entries are `(1 ∓ i)/2` and the diagonal is
+`(½ + 1/(2√3), -½ + 1/(2√3), -1/√3)`. -/
+theorem su3genSum_eq : su3genSum = !![1 / 2 + (Real.sqrt 3 : ℂ)⁻¹ / 2, (1 - Complex.I) / 2,
+      (1 - Complex.I) / 2;
+    (1 + Complex.I) / 2, -1 / 2 + (Real.sqrt 3 : ℂ)⁻¹ / 2, (1 - Complex.I) / 2;
+    (1 + Complex.I) / 2, (1 + Complex.I) / 2, -(Real.sqrt 3 : ℂ)⁻¹] := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [su3genSum, su3gen, gellMann, Fin.sum_univ_succ] <;> ring
+
+/-- The generators do **not** sum to zero, so `sum_f_eq_zero_of_sum_gen_eq_zero` does not apply. -/
+theorem su3genSum_ne_zero : su3genSum ≠ 0 := by
+  intro h
+  have h01 : su3genSum 0 1 = 0 := by rw [h]; rfl
+  rw [su3genSum_eq] at h01
+  simp only [Matrix.of_apply] at h01
+  have him := congrArg Complex.im h01
+  simp at him
+
+/-- The first-slot trace at the pair `(λ¹, λ²)`: `Σ_y f_{y01} = 1`. -/
+theorem su3gen_firstSlot_zero_one {f : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hf : YangMillsSU3.ClosesWithStructureConstants su3gen f) :
+    ∑ y, f y 0 1 = 1 := by
+  have h := YangMillsSU3.sum_f_eq_trace_commutator su3gen_traceOrthonormal hf (0 : Fin 8) 1
+  have htr : (((∑ y, su3gen y) * su3gen 0 - su3gen 0 * (∑ y, su3gen y)) * su3gen 1).trace
+      = Complex.I / 2 := by
+    rw [← su3genSum]
+    rw [su3genSum_eq]
+    simp [su3gen, gellMann, Matrix.trace, Fin.sum_univ_three]
+    ring
+  rw [htr] at h
+  have h' : ((∑ y, f y 0 1 : ℝ) : ℂ) = 1 := by
+    rw [h]
+    calc -2 * Complex.I * (Complex.I / 2) = -(Complex.I * Complex.I) := by ring
+      _ = 1 := by rw [Complex.I_mul_I]; norm_num
+  exact_mod_cast h'
+
+/-- The first-slot trace at the pair `(λ¹, λ³)`: `Σ_y f_{y02} = -1`. -/
+theorem su3gen_firstSlot_zero_two {f : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hf : YangMillsSU3.ClosesWithStructureConstants su3gen f) :
+    ∑ y, f y 0 2 = -1 := by
+  have h := YangMillsSU3.sum_f_eq_trace_commutator su3gen_traceOrthonormal hf (0 : Fin 8) 2
+  have htr : (((∑ y, su3gen y) * su3gen 0 - su3gen 0 * (∑ y, su3gen y)) * su3gen 2).trace
+      = -(Complex.I / 2) := by
+    rw [← su3genSum]
+    rw [su3genSum_eq]
+    simp [su3gen, gellMann, Matrix.trace, Fin.sum_univ_three]
+    ring
+  rw [htr] at h
+  have h' : ((∑ y, f y 0 2 : ℝ) : ℂ) = -1 := by
+    rw [h]
+    calc -2 * Complex.I * (-(Complex.I / 2)) = Complex.I * Complex.I := by ring
+      _ = -1 := Complex.I_mul_I
+  exact_mod_cast h'
+
+/-- The first-slot trace at `(λ¹, λ⁴)`: `Σ_y f_{y03} = ½`. -/
+theorem su3gen_firstSlot_zero_three {f : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hf : YangMillsSU3.ClosesWithStructureConstants su3gen f) :
+    ∑ y, f y 0 3 = 1 / 2 := by
+  have h := YangMillsSU3.sum_f_eq_trace_commutator su3gen_traceOrthonormal hf (0 : Fin 8) 3
+  have htr : (((∑ y, su3gen y) * su3gen 0 - su3gen 0 * (∑ y, su3gen y)) * su3gen 3).trace
+      = Complex.I / 4 := by
+    rw [← su3genSum]
+    rw [su3genSum_eq]
+    simp [su3gen, gellMann, Matrix.trace, Fin.sum_univ_three]
+    ring
+  rw [htr] at h
+  have h' : ((∑ y, f y 0 3 : ℝ) : ℂ) = ((1 / 2 : ℝ) : ℂ) := by
+    rw [h]
+    push_cast
+    calc -2 * Complex.I * (Complex.I / 4) = -(Complex.I * Complex.I) / 2 := by ring
+      _ = 1 / 2 := by rw [Complex.I_mul_I]; norm_num
+  exact_mod_cast h'
+
+/-- The first-slot trace at `(λ¹, λ⁸)`: `Σ_y f_{y07} = 0` — so the trace does not simply vanish or
+simply not vanish, it is an actual `ad(S)` table. -/
+theorem su3gen_firstSlot_zero_seven {f : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hf : YangMillsSU3.ClosesWithStructureConstants su3gen f) :
+    ∑ y, f y 0 7 = 0 := by
+  have h := YangMillsSU3.sum_f_eq_trace_commutator su3gen_traceOrthonormal hf (0 : Fin 8) 7
+  have htr : (((∑ y, su3gen y) * su3gen 0 - su3gen 0 * (∑ y, su3gen y)) * su3gen 7).trace
+      = 0 := by
+    rw [← su3genSum]
+    rw [su3genSum_eq]
+    simp [su3gen, gellMann, Matrix.trace, Fin.sum_univ_three]
+    ring
+  rw [htr] at h
+  have h' : ((∑ y, f y 0 7 : ℝ) : ℂ) = 0 := by rw [h]; ring
+  exact_mod_cast h'
+
+/-- The first-slot trace at `(λ⁵, λ⁸)`: `Σ_y f_{y47} = √3/2` — where the `1/√3` normalization of
+`λ⁸` shows up. -/
+theorem su3gen_firstSlot_four_seven {f : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hf : YangMillsSU3.ClosesWithStructureConstants su3gen f) :
+    ∑ y, f y 4 7 = Real.sqrt 3 / 2 := by
+  have h := YangMillsSU3.sum_f_eq_trace_commutator su3gen_traceOrthonormal hf (4 : Fin 8) 7
+  have htr : (((∑ y, su3gen y) * su3gen 4 - su3gen 4 * (∑ y, su3gen y)) * su3gen 7).trace
+      = Complex.I * (Real.sqrt 3 : ℂ) / 4 := by
+    rw [← su3genSum]
+    rw [su3genSum_eq]
+    simp [su3gen, gellMann, Matrix.trace, Fin.sum_univ_three]
+    ring_nf
+    have h3 : (Real.sqrt 3 : ℂ) * (Real.sqrt 3 : ℂ) = 3 := by
+      rw [← Complex.ofReal_mul, Real.mul_self_sqrt (by norm_num : (0 : ℝ) ≤ 3)]
+      norm_num
+    rw [← h3]
+    have hne : (Real.sqrt 3 : ℂ) ≠ 0 :=
+      Complex.ofReal_ne_zero.mpr (Real.sqrt_pos.mpr (by norm_num : (0 : ℝ) < 3)).ne'
+    field_simp
+  rw [htr] at h
+  have h' : ((∑ y, f y 4 7 : ℝ) : ℂ) = ((Real.sqrt 3 / 2 : ℝ) : ℂ) := by
+    rw [h]
+    push_cast
+    calc -2 * Complex.I * (Complex.I * (Real.sqrt 3 : ℂ) / 4)
+        = -(Complex.I * Complex.I) * (Real.sqrt 3 : ℂ) / 2 := by ring
+      _ = (Real.sqrt 3 : ℂ) / 2 := by rw [Complex.I_mul_I]; ring
+  exact_mod_cast h'
+
+/-- **The first-slot trace does not vanish on the Gell-Mann generators.**  Since `f` is determined
+by the generators (`structureConstant_formula`), this is a statement about the `su(3)` structure
+constants themselves, not about a choice. -/
+theorem su3gen_firstSlot_ne_zero (f : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (hf : YangMillsSU3.ClosesWithStructureConstants su3gen f) : ∑ y, f y 0 1 ≠ 0 := by
+  rw [su3gen_firstSlot_zero_one hf]
+  norm_num
 
 end BookProof.ChapterGellMann

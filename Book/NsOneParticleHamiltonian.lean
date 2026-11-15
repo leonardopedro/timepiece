@@ -81,6 +81,20 @@ realizations. Recent polynomial coefficient bands and OS multiplier gap criteria
 are reusable tools only after identifying the relevant spaces and operators;
 they do not by themselves discharge this chapter's physical comparisons.
 
+# A Modewise Identity and a Spatial Product Are Different Steps
+
+The spatial Fourier rule replaces each derivative on its own leg. A product
+$`f\,\partial_m g` transforms to
+$`\int \hat f(Q-q)\,2\pi i q_m\,\hat g(q)\,dq` with the Mathlib convention.
+The sum or integral still couples different momenta. A same-momentum parcel
+polynomial, or a Gram matrix diagonal in momentum, is a specified reduced
+realization; that formula alone does not identify every product of the full
+spatial field with the reduced realization. The equality requires the full
+convolution coefficients, transform normalization, reality constraints and a
+common operator core. This is an NS/QG obligation inside $`h`, before outer
+enclosure. It neither applies a new elimination prescription to QYM/QED nor
+turns spatial derivatives into derivatives with respect to field coordinates.
+
 # The Momentum Variables: a Diagonal Derivative and a Partial Transform
 
 :::paragraph

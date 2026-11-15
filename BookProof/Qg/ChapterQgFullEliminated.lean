@@ -18,6 +18,18 @@ Einstein-frame wall, and the coupling to the trace of the vielbein — is **rebu
 eliminated components alone**, and its essential self-adjointness is proved again, by the same
 Faris–Lavine route, on the smaller outer Fock space `Sec EGMode`.
 
+## Operator scope (2026-11-15)
+
+The record is the R² vielbein inner operator, exact exponential wall and all scalaron–vielbein
+interactions included, followed by the outer enclosure `H = dΓ(h)` (creation left, annihilation
+right). The theorems below concern the defined mode family `qgElimFullModes` and its trace
+coupling. Its momentum blocks are not by themselves an identification with every spatial product
+of the nonlinear vielbein field. Such products involving spatial derivatives require full
+momentum convolutions, with their own domain/core transfer. This is an NS/QG step inside `h`.
+The base-gravity, densitized, frozen-density and scalaron-only operators have separate scopes;
+neither an ESA theorem nor a fiber gap identifies them with the complete coupled record.
+See `BookProof/HAMILTONIAN_SCOPE.md`.
+
 What is proved, in order:
 
 * `elimCoef` — the coefficient vector, *in the nine vielbein components only*, of each of the `57`

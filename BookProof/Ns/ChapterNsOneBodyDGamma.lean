@@ -13,7 +13,7 @@ real-coefficient constraint forms,
 
 ```
 Re σ(R_i) = q_i + ν|k|² u_i      (three viscous/pressure forms),
-Im σ(R_i) = (k·u) u_i            (three advection forms — the momentum convolution),
+Im σ(R_i) = (k·u) u_i            (three reduced same-parcel advection forms),
 Im σ(Σ_j u_{j,j}) = k·u          (the eliminated incompressibility),
 ```
 
@@ -22,6 +22,15 @@ and the one-body generator is the Weyl-ordered sum of squares
 ```
 H_sp = ½ Σ_{m<6} π_m² + ½ Σ_{r<7} (mulOp Φ_r)² .
 ```
+
+## Operator scope (2026-11-15)
+
+The final operator of this realization is `H = dΓ(spHam)`, creation left and annihilation right.
+Its positivity follows from the specified inner squares; a strict absolute inner form gap is a
+separate claim. `spHam` is not the signed Koopman generator. Spatial Fourier transformation
+replaces `f ∂_m g` by `∫ f̂(Q-q) (2π i q_m) ĝ(q) dq`, not by a single-momentum product.
+Spatial derivatives and the field-coordinate derivatives in `π_m` must be distinguished.
+See `BookProof/HAMILTONIAN_SCOPE.md` and the 2026-11-15 consolidated work order.
 
 ## What is proved here
 
@@ -33,8 +42,10 @@ Gauss–polynomial core of `L²(ℝ⁶)`, and
 
 * `spHam_eq_visc_add_advect` — **the splitting `H_sp = H_visc + H_advect`**: `H_visc` carries the
   six momenta and the four non-advective squares, `H_advect` the three advection squares
-  `½ ((k·u) u_i)²`, whose form `(k·u) u_i = Σ_j k_j u_j u_i` is the momentum convolution of
-  `BookProof.NsAdvectionConvolution`.  Nothing is dropped and nothing is demoted to a perturbation;
+  `½ ((k·u) u_i)²`, with the reduced form `(k·u) u_i = Σ_j k_j u_j u_i`.
+  This is the defined same-parcel model. The full spatial product has the cross-momentum
+  convolution proved in `BookProof.NsAdvectionConvolution`; identifying the two needs a separate
+  modelling and operator-core bridge. No term of the defined parcel model is dropped;
 * `spHam_symmetricOn`, `spVisc_symmetricOn`, `spAdvect_symmetricOn` and
   `spHam_quadForm_nonneg`, `spVisc_quadForm_nonneg`, `spAdvect_quadForm_nonneg` — **the two
   Faris–Lavine inequalities of the item**: each half of the generator is symmetric and positive on

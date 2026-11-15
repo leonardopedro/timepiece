@@ -89,6 +89,54 @@ pedagogical face of that chain. Every chapter named here is `sorry`-free and
 `Work/SmFarisLavineAudit.lean` and `Work/SmComparisonEsaAudit.lean`; the ledger
 of what moved and what did not is `HONEST_BOUNDARIES_SM.md`.
 
+# The New Ghost Proofs: An Algebraic Quartet Still Needs a Positive Metric
+
+The finite SM charge has a choice-based contracting homotopy and a quartet
+projector. This algebra splits a closed vector into an exact part and a
+representative in the projector's range. It does not decide the sign of an
+indefinite metric on those representatives. `SmQuartet` proves positivity is
+equivalent to a positive definite charge form on that range; for the ghost
+parity metric the relevant number is the even norm squared minus the odd norm
+squared. The SM specialization retains its Krein-symmetry hypothesis.
+
+```
+#check @BookProof.SmQuartet.smPhysicalPositivity_iff_physForm
+#check @BookProof.SmQuartet.smPhysicalPositivity_iff_parityNorms
+```
+
+There is also a concrete obstruction to a tempting explicit choice. Contracting
+$`b=\sum_a\beta_a` against the full charge leaves
+$`\{\Omega,b\}=\sum_aG_a-\sum_{x,e}(\sum_y f_{yxe})\chi_x\beta_e`.
+The first-slot sum here is not the usual repeated-index trace of an adjoint
+matrix. Its SM decomposition has a gluon part depending on $`f_3`, a fixed weak
+part and a zero hypercharge part; mixed summands vanish. On weak labels
+$`(9,8)` it equals $`-1` for every $`f_3`, so changing the gluon data cannot
+cancel that coefficient. This computes the remainder; a nonzero coefficient
+alone is not a proof that every contracting homotopy is impossible.
+
+```
+#check @BookProof.SmGhostRemainder.smStruct_trace_weak
+#check @BookProof.SmGhostRemainder.smStruct_trace_su3
+#check @BookProof.SmGhostRemainder.smStruct_trace_mixed
+#check @BookProof.SmGhostRemainder.smStruct_trace_hyper
+#check @BookProof.SmGhostRemainder.bGhost_quartet_iff
+```
+
+The current working tree also contains a concrete Gell-Mann calculation.
+`YangMillsSU3.sum_f_eq_trace_commutator` expresses the first-slot sum as
+$`-2i\,\mathrm{tr}([S,T_b]T_c)`, where $`S=\sum_yT_y`.
+`ChapterGellMann.su3gen_firstSlot_zero_one` evaluates it to $`1` on labels
+$`(0,1)`, under the stated closure-with-structure-constants hypothesis. Thus
+antisymmetry does not make a sum over one free basis index vanish. These
+concurrent source additions have not been compiled by this documentation wave.
+
+The next step must check the quartet equation on the charge's range and the
+metric's sign on physical representatives. Nilpotency, parity grading and a
+choice of complement do not discharge those checks. Any physical inner
+restriction must subsequently be shown to reduce the Hamiltonian and its
+closure before taking the outer enclosure. These algebraic additions do not
+remove the full matter operator's analytic estimates.
+
 # Completing the Full Matter Operator: Current Work Order
 
 The bosonic ESA proof is complete for the defined 163-coordinate operator.

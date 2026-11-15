@@ -158,4 +158,43 @@ lemma structureConstant_jacobi
     Complex.ofReal_mul, smul_zero, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte];
   rw [ ← @Complex.ofReal_inj ] ; simp_all [ ← Finset.sum_mul _ _ _ ]
 
+/-
+**The first-slot trace is the structure-constant table of `ad(S)`.**  Summing the formula
+`f_{ybc} = -2i·tr([T_y,T_b]T_c)` over `y` and pulling the sum into the trace gives
+`Σ_y f_{ybc} = -2i·tr((S T_b − T_b S) T_c)` with `S = Σ_y T_y`.  So the first-slot trace sees only
+the *sum* of the generators: it is the commutator with `S` read off in the basis.
+-/
+lemma sum_f_eq_trace_commutator
+    (hT : TraceOrthonormal T) (hf : ClosesWithStructureConstants T f) (b c : Fin d) :
+    ((∑ y, f y b c : ℝ) : ℂ)
+      = -2 * Complex.I * (((∑ y, T y) * T b - T b * (∑ y, T y)) * T c).trace := by
+  have hterm : ∀ y, ((f y b c : ℝ) : ℂ)
+      = -2 * Complex.I * (((T y * T b - T b * T y) * T c).trace) :=
+    fun y => structureConstant_formula hT hf y b c
+  calc ((∑ y, f y b c : ℝ) : ℂ)
+      = ∑ y, ((f y b c : ℝ) : ℂ) := by push_cast; ring
+    _ = ∑ y, -2 * Complex.I * (((T y * T b - T b * T y) * T c).trace) :=
+        Finset.sum_congr rfl fun y _ => hterm y
+    _ = -2 * Complex.I * ∑ y, (((T y * T b - T b * T y) * T c).trace) := by
+        rw [Finset.mul_sum]
+    _ = -2 * Complex.I * (((∑ y, T y) * T b - T b * (∑ y, T y)) * T c).trace := by
+        congr 1
+        have h1 : (∑ y, ((T y * T b - T b * T y) * T c))
+            = ((∑ y, T y) * T b - T b * (∑ y, T y)) * T c := by
+          simp only [sub_mul, Matrix.sum_mul, Matrix.mul_sum, Finset.sum_sub_distrib]
+        rw [← Matrix.trace_sum, h1]
+
+/-
+**When the generators sum to zero the whole first-slot trace vanishes.**  `S = 0` makes the
+commutator in `sum_f_eq_trace_commutator` vanish, so the antighost's trace remainder of the SM
+chapter dies at every pair.  Conversely a nonzero `S` is what §80 of the SM plan still had to check.
+-/
+lemma sum_f_eq_zero_of_sum_gen_eq_zero
+    (hT : TraceOrthonormal T) (hf : ClosesWithStructureConstants T f)
+    (hS : (∑ y, T y) = 0) (b c : Fin d) : ∑ y, f y b c = 0 := by
+  have h := sum_f_eq_trace_commutator hT hf b c
+  rw [hS, Matrix.zero_mul, Matrix.mul_zero, sub_zero, Matrix.zero_mul, Matrix.trace_zero,
+    mul_zero] at h
+  exact_mod_cast h
+
 end BookProof.YangMillsSU3

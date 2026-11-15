@@ -17,7 +17,7 @@ infinite-dimensional parametrization; the later Hamiltonian/SIRK material descri
 finite truncations and their limits. A theorem citation below certifies only the exact
 statement of its `BookProof` declaration. In particular, the QYM certificate currently
 certifies a truncated value; the remaining specialist target is the lowest positive
-one-particle edge and its lift through the free nested-Fock `dGamma` Hamiltonian.
+one-particle edge and its lift through the number-preserving outer `dGamma` Hamiltonian.
 :::
 
 | Object | Formal status |
@@ -109,6 +109,38 @@ squares. QYM inner interactions stay inside $`h`, and unregulated QED retains
 its no-gap boundary. SIRK approximation errors and finite bands do not discharge
 the absolute one-particle gap hypothesis. Perturbation ladders below are
 toolbox models until their Fock level and operator identification are supplied.
+
+# The New Covariance Proofs: Positivity Before Reconstruction
+
+The E3 chain now has an explicit width-$`k` covariance on $`\mathbb Z`.
+Set $`u_0=1`, $`u_a=\rho` for $`1\le a\le k`, and zero otherwise. Its
+kernel is an autocorrelation of $`u`. On any finite set of sites the quadratic
+form can therefore be rearranged into a sum of squares. This proves positive
+semidefiniteness, the finite-minor condition needed for Gaussian covariance data.
+
+```
+#check @BookProof.OSReconstruction.bandedCovZ_eq_weight_sum
+#check @BookProof.OSReconstruction.bandedCovZ_quadForm_eq_sum_sq
+#check @BookProof.OSReconstruction.bandedCovZ_posSemidef
+#check @BookProof.OSReconstruction.bandedCovZ_row_tsum_closed
+#check @BookProof.OSReconstruction.bandCov_hsNormSq
+```
+
+The diagonal is $`1+\rho^2 k`; at distance $`1\le r\le k` each off-diagonal
+entry is $`\rho+\rho^2(k-r)`. Squaring these entries gives the same row norm
+as in the finite cycle when there are no cycles of length at most $`2k`.
+The finite Hilbert–Schmidt norm squared is the number of sites times that
+positive row factor. Its volume growth prevents treating it as a global
+infinite-volume Hilbert–Schmidt estimate.
+
+A positive covariance kernel is still earlier than an OS field theory.
+The source does not construct a Gaussian law on the whole configuration space,
+prove reflection positivity for this kernel, or identify a transfer generator
+with the physical $`d\Gamma(h)`. Fixed band width is also a model choice:
+it is not the dense massive Green function. The next specialist task is to
+construct a consistent law and test reflection positivity before using any
+Hamiltonian or gap interpretation. The exact QG exponential and interactions
+cannot be replaced by this Gaussian comparison.
 
 # The Problem: There Is No Infinite-Dimensional Lebesgue Measure
 
@@ -687,18 +719,17 @@ $`u_{k,jj}`, and the conjugate momenta $`\pi^i` are all treated as independent
 canonical degrees of freedom, and the Hamiltonian is the Weyl-symmetrized
 $`H = \sum_i (\pi_i A_i + A_i \pi_i)` with
 $`A_i = \sum_j u_j u_{i,j} - \nu\, u_{i,jj}`. One scoping sentence, because the
-word "Hamiltonian" is doing two jobs in this chapter: this Weyl-symmetrized
-operator is the **one-particle** operator — the manuscript's $`H(\vec x)` that
-sits *inside* the enclosure — and the final Hamiltonian of record is its
-creation-left/annihilation-right second quantization $`d\Gamma(h) =
-\sum_{ij} h_{ij} C^\dagger(e_i) A(e_j)`, as {ref "ns-one-particle-hamiltonian"}[the
-Navier–Stokes one-particle Hamiltonian chapter] states and as
-{ref "second-quantization-esa"}[Second Quantization and Essential Self-Adjointness]
-makes rigorous. Everything in this section — the truncation's completeness, the
-deficiency computation, the Faris–Lavine lift below — is about that operator and
-its lift, not about a different final Hamiltonian. That the derivatives may be
-treated
-as fields is an operator statement: an operator-valued field
+word "Hamiltonian" is doing two jobs in this chapter: this signed
+Weyl-symmetrized Koopman generator has its own truncation and ESA results.
+It is a dynamics/comparison model, distinct from the positive eliminated
+sum-of-squares $`H_{\rm sp}` enclosed in the NS record
+$`H=d\Gamma(H_{\rm sp})`. The
+{ref "ns-one-particle-hamiltonian"}[one-particle chapter] fixes that choice;
+{ref "second-quantization-esa"}[second quantization] explains how a justified
+inner operator is lifted. A lift theorem alone cannot identify these two inner
+operators. The subsequent historical derivative-coordinate constructions
+must be read with that scope. Treating derivatives as fields is an operator
+statement: an operator-valued field
 $`\varphi(X) = \varphi + \varphi_i (X_i - x_i)` collapses to its point value on
 the position eigenstates, so the first-order Taylor coefficients are free modes
 with commutation relations of their own.

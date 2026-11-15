@@ -48,6 +48,20 @@ Likewise, the new conditional OS multiplier norm-gap theorem cannot supply
 that identification or positivity. This chapter's elimination is the NS/QG
 Fourier device only; it does not replace QYM/QED field-strength constructions.
 
+# A Modewise Identity and a Spatial Product Are Different Steps
+
+The spatial Fourier rule replaces each derivative on its own leg. A product
+$`f\,\partial_m g` transforms to
+$`\int \hat f(Q-q)\,2\pi i q_m\,\hat g(q)\,dq` with the Mathlib convention.
+The sum or integral still couples different momenta. A same-momentum parcel
+polynomial, or a Gram matrix diagonal in momentum, is a specified reduced
+realization; that formula alone does not identify every product of the full
+spatial field with the reduced realization. The equality requires the full
+convolution coefficients, transform normalization, reality constraints and a
+common operator core. This is an NS/QG obligation inside $`h`, before outer
+enclosure. It neither applies a new elimination prescription to QYM/QED nor
+turns spatial derivatives into derivatives with respect to field coordinates.
+
 # The Problem: Twenty-Seven Derivative Components Per Momentum
 
 :::paragraph

@@ -56,6 +56,7 @@ just not by the antighost sum.
 Everything is `sorry`-free and `axiom`-free.
 -/
 
+import BookProof.ChapterGellMann
 import BookProof.Sm.ChapterSmBrstGhost
 import BookProof.Sm.ChapterSmIndexGhostDerivation
 
@@ -721,5 +722,31 @@ theorem smStruct_trace_hyper {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} :
       = ∑ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1), smStruct f3 (smIdxEquiv.symm z) 11 11 := by
     rw [structTrace, ← Equiv.sum_comp smIdxEquiv.symm (fun y => smStruct f3 y 11 11)]
   rw [h, Finset.sum_congr rfl fun z _ => key z, Finset.sum_const_zero]
+
+/-! ## 12. The gluon block for the trace-orthonormal `su(3)` generators
+
+§11 said `f₃` is arbitrary and left `Σ_y f₃ y a b` unevaluated.  For the generators the book actually
+uses — the trace-orthonormal `T_a = ½ λ^a` of `ChapterGellMann` — the sum is *determined* and it does
+**not** vanish: `ChapterGellMann.su3gen_firstSlot_zero_one` gives `Σ_y f₃ y 0 1 = 1`.  So the antighost
+fails on the gluon block as well, by the same mechanism as §10's weak pair. -/
+
+/-- The label of the `a`-th gluon generator among the twelve. -/
+def smGluon (a : Fin 8) : Fin 12 := smIdxEquiv.symm (Sum.inl a)
+
+theorem smIdxEquiv_smGluon (a : Fin 8) : smIdxEquiv (smGluon a) = Sum.inl a :=
+  Equiv.apply_symm_apply smIdxEquiv (Sum.inl a)
+
+/-- The gluon block of the Standard-Model trace is `f₃`'s own first-slot trace (§11). -/
+theorem smStruct_trace_gluon {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {a b : Fin 8} :
+    structTrace (smStruct f3) (smGluon a) (smGluon b) = ∑ y, f3 y a b :=
+  smStruct_trace_su3 (smIdxEquiv_smGluon a) (smIdxEquiv_smGluon b)
+
+/-- **The gluon block of the trace is `1` at the pair `(λ¹, λ²)`** for the trace-orthonormal
+generators, hence nonzero: `su(3)` does not make the antighost a contracting homotopy. -/
+theorem smStruct_trace_gluon_ne_zero {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hf : YangMillsSU3.ClosesWithStructureConstants ChapterGellMann.su3gen f3) :
+    structTrace (smStruct f3) (smGluon 0) (smGluon 1) ≠ 0 := by
+  rw [smStruct_trace_gluon, ChapterGellMann.su3gen_firstSlot_zero_one hf]
+  norm_num
 
 end BookProof.SmGhostRemainder

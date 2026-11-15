@@ -7,8 +7,12 @@ import BookProof.Qym.ChapterYangMillsGhostSector
 /-!
 # The abelian / QED thread, in one place
 
-The abelian (`f_abc = 0`) gauge-fixed Yang–Mills Hamiltonian — the QED Hamiltonian of this
-development — is treated in five different chapters.  This chapter is the index: every
+The abelian (`f_abc = 0`) gauge-fixed Yang–Mills Hamiltonian — the abelian QED realization
+indexed here — is treated in five different chapters. The free-photon dispersion theorems have
+their own infrared hypotheses; neither spelling constructs a complete interacting charged-matter
+QED Hamiltonian. Any intended matter coupling must be retained inside its specified inner `h`
+and identified on a common core before lifting to `H = dΓ(h)`, creation left, annihilation right.
+See `BookProof/HAMILTONIAN_SCOPE.md`.  This chapter is the index: every
 statement below is a re-export, with its source named, so that a reader (or a downstream
 chapter) can import one module and see the whole abelian thread at once.  It proves no new
 mathematics.

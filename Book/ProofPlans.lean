@@ -28,9 +28,11 @@ proof wave.
 
 # Current Specialist Work Order: Identify the Operator Before Its Gap
 
-This source/prose audit adds no compiled proof. `CONSOLIDATED_PLAN.md`'s
-2026-11-08f entry supersedes older interpretations of the sampler, multiplier
-and book tracks; the established NS/QG/QYM analytic obligations remain open.
+This source/prose audit adds no compiled proof. Read the consolidated entry
+“State of the project — 2026-11-15: source audit of the new proofs and the
+four-sector Hamiltonians” first. It supersedes the older interpretive order
+while preserving earlier theorem scopes and build reports. Its packets P0–P6
+are the current handoff; the sampler's T0–T5 order below remains separate.
 
 1. Verify the new chapter citations and axioms, then render through
    `patches/build-book.sh` and check KaTeX. These checks are deferred to the
@@ -58,6 +60,33 @@ convergence to the full zero-space projection does not imply operator norm
 convergence. Nor can `YangMillsFormDomination.certified_separation`, an identity
 between two lower thresholds, be used as a target spectral gap: supply a ground
 upper bound and projection control, or prove the required absolute inner bound.
+
+# What the Latest Wave Removes from the Queue
+
+The degree-compatible enumeration and exact Gram–Schmidt/Hermite basis bridge
+are available. Reuse them. The QYM weighted commutator gate still needs an
+actual coefficient analysis, while ESA for the defined nonabelian operator
+already has its separate proof. The quartic entry model alone does not decide
+the physical gate or the strict absolute inner gap.
+
+The SIRK layer now has second-edge separation from a compression form bound,
+shrinking bands and an explicit sufficient order. Its two-dimensional example
+has exact order $`1`; it does not instantiate physical QYM. Keep the full-space
+resolvent, edge and tail hypotheses in the physical task.
+
+The NS dual-grid reconstruction, the SM ghost remainder and the positive
+infinite banded covariance kernel are also present. Their remaining inputs are,
+respectively, actual distinguishable mode labels and residual constancy; a
+compatible metric positive on physical representatives and reducing domains;
+and a consistent Gaussian law, reflection positivity and generator identification.
+
+Execute the consolidated packets in their dependency order: P0 citation/build
+validation; P1 operator identity; P2 QYM coefficient/coercivity; P3 physical
+certificate; P4 NS/QG convolution/core transfer; P5 the parked SM estimate and
+physical metric; P6 OS construction. Prove every spatial convolution inside
+$`h` before the outer $`d\Gamma(h)` lift. Retain the exact R² vielbein wall
+and interactions, the QED infrared boundary and the NS operator distinctions.
+The detailed packets specify acceptance conditions and useful negative results.
 
 # The Spectral-Gap Toolbox and Its Physical Boundaries
 

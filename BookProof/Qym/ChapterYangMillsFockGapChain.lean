@@ -17,7 +17,7 @@ The concrete one-particle datum already exists in the project:
 * `BookProof.FockSecondQuantization.ymOnePart e fabc` — the same operator as an
   endomorphism of the finite-mode core `finiteModeDomain (coreBasis e)`;
 * `BookProof.FockSecondQuantization.ymFockCol e fabc = opCol (coreBasis e) (ymOnePart e fabc)`
-  — its matrix in the product Hermite basis, whose second quantization
+  — its matrix in the enumerated `coreBasis` (Gram–Schmidt) basis, whose second quantization
   `dΓ(ymFockCol e fabc) = Σ_{j,k} ⟪e_j, H₁ e_k⟫ a†_j a_k` is the final nested-Fock
   Hamiltonian in the project's uniform creation-left/annihilation-right convention.
 
@@ -55,8 +55,12 @@ supply and is *not* proved here: the SIRK/Hashimoto certificate remains a statem
 finite truncation, and `1.932` remains a certified truncated number.  What *is* proved is
 that once such a form gap is available for the concrete gauge-fixed one-particle operator,
 the whole nested-Fock conclusion follows for the concrete final Hamiltonian, including
-under a linear unbounded field perturbation.  The cubic and quartic Yang–Mills interaction
-terms are not covered.  No mass gap of the physical Yang–Mills Hamiltonian is claimed.
+under the separately specified linear field perturbation. The full cubic cross and quartic
+magnetic terms already belong to `H₁`; the unproved task is their absolute coercivity, not an
+additional outer vertex. Inner products and squares must be formed before applying `dΓ`:
+`dΓ(B²)` generally differs from `dΓ(B)²`. An inner scalar shift adds `c N_out`, so it changes the
+occupied outer sectors. The vacuum lemma itself needs no gap or positivity. No mass gap of the
+physical Yang–Mills Hamiltonian is claimed. See `BookProof/HAMILTONIAN_SCOPE.md`.
 
 Everything is `sorry`-free and introduces no axioms.
 -/
