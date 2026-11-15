@@ -4277,9 +4277,9 @@ and `BookProof/Sm/ChapterSmQuartet.lean` §11 answers it with equivalences rathe
   (`smPhysProjFormula_range`).
 
 Boundary: the equivalence does not *produce* the sign — §72's model has the same hypotheses with the
-opposite sign on `range V` — and no metric for `smBrstCharge` is constructed in this corpus. The SM
-statement is therefore an equivalence in `η`, not a verification for a particular `η`; a ghost-parity
-operator for the SM charge remains unbuilt.
+opposite sign on `range V`. The ghost-parity metric of §77 is now built and graded, but it is a
+candidate rather than a verification: its sign on `range smPhysProj` is exactly the norm inequality
+that §77 leaves open. The SM statement therefore stays an equivalence in `η`.
 
 ## 76. A candidate whose remainder vanishes on the charge's range
 
@@ -4305,3 +4305,58 @@ Boundary: this does not construct a b-ghost for `smBrstCharge`. It shows what th
 one and that the choice-based homotopy meets the requirement, not that the SM's Gauss sector is
 trace-free.
 
+## 77. The ghost parity: the no-ghost sign is a norm difference
+
+§75's equivalence is in `η`; this section supplies the `η` that the charge itself gives, and computes
+the sign.  `BookProof/Sm/ChapterSmBrstGhost.lean` §6 builds `smGhostParity`, the diagonal
+`(−1)^{N_ghost}` on the ghost occupations and `+1` on matter, and proves it is an involution
+(`smGhostParity_involutive`, `smGhostParity_comp`), an isometry (`smGhostParity_isometry`) and
+self-adjoint (`smGhostParity_selfAdjoint`), and that the SM charge is **odd** for it
+(`smGhostParity_mul_smBrstCharge`, `U Ω = −Ω U`).
+
+`BookProof/Sm/ChapterSmQuartet.lean` §12 turns that grading into the sign:
+
+* `kform_self_eq_parityNorms`: for an involution that is an isometry,
+  `⟨x, x⟩_U = ‖even x‖² − ‖odd x‖²` — the even sector contributes `+‖·‖²`, the odd sector `−‖·‖²`;
+* `smGhostParity_kform_symm`: the ghost-parity form is symmetric, now *derived* rather than assumed;
+* `smPhysicalPositivity_iff_parityNorms`: at the SM charge the no-ghost condition on
+  `range smPhysProj` is exactly `‖odd (Vy)‖ ≤ ‖even (Vy)‖`, with definiteness in the equality case;
+* `smPhysicalPositivity_of_evenRange`: if the physical subspace is ghost-parity even, the charge form
+  on it is the ambient norm squared, so `PhysicalPositivity` follows.
+
+Boundary: the norm inequality itself is **not** proved — it is a statement about `range smPhysProj`,
+i.e. about which modes survive the Gauss constraint, and nothing here identifies that range with the
+transverse even sector.  The Krein condition `hKrein` (the charge is symmetric for the ghost-parity
+form) is carried as a hypothesis; only the grading `U Ω = −Ω U` is derived.
+
+## 78. The SM first-slot trace does not vanish
+
+§76 left the antighost sum one computation away from a contracting homotopy.
+`BookProof/Sm/ChapterSmIndexGhostRemainder.lean` §10 computes it at the weak pair: the labels `9` and
+`8` are `T¹` and `T⁰` (`smIdxEquiv 9 = inr (inl 1)`, `smIdxEquiv 8 = inr (inl 0)`), so
+
+  `structTrace (smStruct f₃) 9 8 = ∑_{y : Fin 3} su2Struct y 1 0 = −1`
+
+for **every** `f₃` (`smStruct_trace_weak`).  The `su(3)` data is invisible on this pair, so no choice of
+`su(3)` structure constants makes the antighost sum contract (`smStruct_trace_ne_zero`), while §76's
+`trace_correction_iff` says what would be needed instead: a correction `T` with `T Ω = 0`.
+
+Boundary: this is one pair of labels, not the whole trace functional — it shows that *this* antighost
+fails, not that every b-ghost does (§76's splitting map still exists), and nothing is claimed about
+the trace over the `su(3)` block, which does depend on `f₃`.
+
+## 79. A skew lattice basis: aliases are the dual lattice
+
+`BookProof/Ns/ChapterNsVolDomReconstruction.lean` §6 extends §5's alias analysis to a non-orthogonal
+basis.  Orthogonality was never used — only bilinearity and the duality relation — so what changes is
+the labelling: `N·Λ*` is replaced by the `2π`-multiple of the dual lattice.
+
+* `dual_pairing`: a dual basis contracts, `Σ_y (Σ_x k_x f_{x,y}) e_{x',y} = k_{x'}`;
+* `dualComb_pairing`, `phase_dualComb`: a dual-lattice vector `2π Σ_x k_x f_x` has trivial phase on
+  every box point, so it is an alias of zero in any basis;
+* `alias_class_dual`: conversely, a residue in dual coordinates is an alias exactly when it is such a
+  vector, so the alias class is `2π·(dual lattice)` — divisibility by `N` in dual coordinates is the
+  whole criterion, and independence of the basis is not needed for the labelling.
+
+Boundary: this is the alias *class* on the box; that the model's wave numbers land on a commensurate
+lattice at all remains §74's open labelling hypothesis.

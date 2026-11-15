@@ -32,3 +32,10 @@ open BookProof.NsVolDomReconstruction
 #audit_axioms latBox_character_one_iff
 #audit_axioms horth_of_lattice_commensurate
 #audit_axioms volPot_of_single_mode_of_lattice_commensurate
+#audit_axioms IsDualBasis
+#audit_axioms dualComb
+#audit_axioms dualResidue
+#audit_axioms dual_pairing
+#audit_axioms dualComb_pairing
+#audit_axioms phase_dualComb
+#audit_axioms alias_class_dual

@@ -597,4 +597,54 @@ theorem cand_equation : ((cq * cb + cb * cq) - ctr) * cq = cq := by
 
 end CandModel
 
+/-! ## 10. The first-slot trace does not vanish in the Standard Model
+
+§7 left the antighost sum one computation away from being a contracting homotopy: by
+`brstCharge_anticomm_bGhost` the anticommutator is `Σ G^a − Σ_{x,e} (Σ_y f_{yxe}) · c^x b_e`, so the
+antighost contracts exactly when the first-slot trace of the structure constants vanishes.
+
+**It does not.**  The labels `9` and `8` are the weak generators `T¹` and `T⁰`
+(`smIdxEquiv 9 = inr (inl 1)`, `smIdxEquiv 8 = inr (inl 0)`), so `smStruct f3 y 9 8` is nonzero only
+when the first slot `y` is one of the three weak labels, and there it is `su2Struct y' 1 0`.  The
+trace at that pair is therefore the `su(2)` trace of §5,
+
+  `structTrace (smStruct f₃) 9 8 = ∑_{y : Fin 3} su2Struct y 1 0 = −1`
+
+**for every `f₃`** (`smStruct_trace_weak`): the `su(3)` data is invisible on this pair, so no choice of
+`su(3)` structure constants makes the antighost sum a contracting homotopy
+(`smStruct_trace_ne_zero`), and §9's reduction `trace_correction_iff` says what is needed instead — a
+correction `T` with `T Ω = 0` rather than the trace term.
+
+**Boundary.**  This is a statement about one pair of labels, not about the whole trace functional: it
+shows that *this* antighost fails, not that every b-ghost does — §9's splitting map still exists.  No
+claim is made about the trace over the `su(3)` block, which does depend on `f₃`. -/
+
+/-- The labels `9` and `8` are the weak generators `T¹` and `T⁰`. -/
+theorem smIdxEquiv_nine_eight :
+    smIdxEquiv (9 : Fin 12) = Sum.inr (Sum.inl (1 : Fin 3)) ∧
+      smIdxEquiv (8 : Fin 12) = Sum.inr (Sum.inl (0 : Fin 3)) := by
+  refine ⟨by decide, by decide⟩
+
+/-- **The Standard-Model antighost sum fails on the weak pair**: the first-slot trace of the structure
+constants at the labels `9`, `8` is `−1`, for every choice of `su(3)` structure constants. -/
+theorem smStruct_trace_weak {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} :
+    structTrace (smStruct f3) 9 8 = -1 := by
+  obtain ⟨h9, h8⟩ := smIdxEquiv_nine_eight
+  have h : structTrace (smStruct f3) 9 8
+      = ∑ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1),
+          sumStruct f3 (sumStruct su2Struct u1Struct) z (Sum.inr (Sum.inl 1))
+            (Sum.inr (Sum.inl 0)) := by
+    rw [structTrace, ← Equiv.sum_comp smIdxEquiv]
+    simp only [smStruct, h9, h8]
+  rw [h, Fintype.sum_sum_type, Fintype.sum_sum_type]
+  simp only [sumStruct, Finset.sum_const_zero, zero_add, add_zero]
+  simpa [su2Trace] using su2Trace_nonzero
+
+/-- The trace obstruction is nonzero, so the explicit antighost is not a contracting homotopy at
+the Standard-Model charge. -/
+theorem smStruct_trace_ne_zero (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    structTrace (smStruct f3) 9 8 ≠ 0 := by
+  rw [smStruct_trace_weak]
+  norm_num
+
 end BookProof.SmGhostRemainder
