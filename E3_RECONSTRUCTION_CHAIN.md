@@ -429,7 +429,32 @@ of this section said otherwise and is corrected here.
    a site with no short cycle (`bandCov_diag`; the cyclic double sum counts `k` paths) and with the
    width-`1` case returning `chainCov` (`bandCov_one`).  Off-diagonal coefficients are
    `ρ + ρ²(k - d)` at distance `d`, not the single `ρ` of the width-`1` case, because `k - d` paths
-   of length `d` overlap; the module records the vanishing pattern and the diagonal only.
+   of length `d` overlap.  `HalfSpaceChainBandHSNorm` proves the coefficients in both directions
+   (`bandCov_forward`, `bandCov_backward`), the row sum over the band (`bandCov_row_sum`), its
+   closed form (`band_sum_closed`) and the squared Hilbert–Schmidt norm (`bandCov_hsNormSq`), with
+   `bandCov_hsNormSq_one` recovering `chainCov_hsNormSq` at `k = 1`.
+   **The bi-infinite kernel is recorded too** (`HalfSpaceInfiniteBandedCovariance`): `bandedCovZ`
+   on `ℤ` has the same diagonal and forward/backward coefficients (`bandedCovZ_self`,
+   `bandedCovZ_forward`, `bandedCovZ_back`), is symmetric and vanishes off the band
+   (`bandedCovZ_comm`, `bandedCovZ_banded`), and its squared `ℓ²` row norm over all of `ℤ`
+   (`bandedCovZ_row_tsum`) is the same per-site factor as `bandCov_hsNormSq`
+   (`bandedCovZ_row_tsum_closed`, with `bandedCovZ_row_tsum_one` and `bandedCovZ_row_tsum_zero`
+   at widths `1` and `0`), equal to the finite row sum `bandCov_row_sum`
+   (`bandedCovZ_row_tsum_eq_bandCov_row_sum`).  The finite HS norm itself has no limit: it grows
+   with the volume, and a banded Toeplitz matrix is not Hilbert–Schmidt on `ℓ²(ℤ)`.  The
+   kernel is also positive semidefinite: it is the autocorrelation of the one-sided weight
+   `1, ρ, …, ρ` (`bandedCovZ_eq_weight_sum`), its quadratic form is an explicit sum of squares
+   (`bandedCovZ_quadForm_eq_sum_sq`), hence nonnegative (`bandedCovZ_posSemidef`) — the
+   finite-minor consistency a Gaussian law with this covariance needs.  The form is in fact
+   strictly positive off zero (`bandedCovZ_quadForm_eq_zero_iff`, `bandedCovZ_posDef`), and the
+   kernel is Toeplitz (`bandedCovZ_translate`, `bandedCovZ_quadForm_translate`).  What that law
+   still lacks is the extension theorem (Kolmogorov consistency), not positivity.
+   **The kernel is not reflection positive**, and that is a feature, not a gap: with `θ i = -i`
+   and `k = ρ = 1`, the finitely supported `f` with `f 0 = 1`, `f 1 = -2` gives a reflected form
+   `-2` (`bandedCovZ_not_reflectionPositive`).  OS positivity is carried by the doubled state
+   `[[C + 1, C], [C, C + 1]]` — the white-noise block cancels the cross block — which is exactly
+   the `covState` shape with RP proved in `HalfSpaceCovariantReflectionPositivity`; the banded
+   kernel is the coupling term, not a state.
    **The covariance matrix of the coupled state is now proved, not merely described**
    (`HalfSpaceCovStateCovariance`): for a shift law `ν` with second moments (`hν`), the blocks of
    `covState ν` are `Cov T + 1` on the diagonal (`covState_cov_fst_fst`, `covState_cov_snd_snd`) and
@@ -468,8 +493,8 @@ lake build BookProof.OSReconstruction.HalfSpaceChainCovariance # banded n-site c
 lake build BookProof.OSReconstruction.HalfSpaceCovariantReflectionPositivity # RP for a coupled state
 lake build BookProof.OSReconstruction.HalfSpaceCovStateCovariance # covariance matrix of that state
 lake build BookProof.OSReconstruction.HalfSpaceChainBandCovariance # width-k band covariance
-lake build BookProof.OSReconstruction.HalfSpaceChainBandHSNorm # width-k off-diagonal coefficients
-lake build BookProof.OSReconstruction.HalfSpaceInfiniteBandedCovariance # infinite-volume banded kernel
+lake build BookProof.OSReconstruction.HalfSpaceChainBandHSNorm # width-k coefficients + HS norm
+lake build BookProof.OSReconstruction.HalfSpaceInfiniteBandedCovariance # infinite banded kernel, PSD
 
 # axiom footprints — every theorem must be [propext, Classical.choice, Quot.sound]
 lake env lean Work/HalfSpaceExponentialAudit.lean
@@ -488,6 +513,8 @@ lake env lean Work/HalfSpaceChainCovarianceAudit.lean
 lake env lean Work/HalfSpaceCovariantReflectionPositivityAudit.lean
 lake env lean Work/HalfSpaceCovStateCovarianceAudit.lean
 lake env lean Work/HalfSpaceChainBandCovarianceAudit.lean
+lake env lean Work/HalfSpaceChainBandHSNormAudit.lean
+lake env lean Work/HalfSpaceInfiniteBandedCovarianceAudit.lean
 ```
 
 Note on the direct `lean` invocations: the lakefile sets `maxSynthPendingDepth = 10`, which
@@ -496,10 +523,11 @@ The three exponential modules also carry per-declaration `set_option synthInstan
 overrides, because instance search through `Hhalf Λ = Completion (HsSpace Λ)` exceeds the default
 budget.
 
-Status at 2026-11-14: all sixteen audit files report `[propext, Classical.choice, Quot.sound]` only,
-and all modules build with no `sorry` and no warnings from their own files. The nine later audits
+Status at 2026-11-15: all eighteen audit files report `[propext, Classical.choice, Quot.sound]` only,
+and all modules build with no `sorry` and no warnings from their own files. The eleven later audits
 (`HalfSpaceDiscreteSemigroup`, `HalfSpaceLatticeShiftSemigroup`, `HalfSpaceInfiniteVolumeGaussian`,
 `HalfSpaceInfiniteVolumePositivity`, `HalfSpaceCovariancePushforward`, `HalfSpaceChainCovariance`,
 `HalfSpaceCovariantReflectionPositivity`, `HalfSpaceCovStateCovariance`,
-`HalfSpaceChainBandCovariance`) cover 10, 21, 5, 8, 8, 11, 3, 11, 8, 1 and 1 declarations
+`HalfSpaceChainBandCovariance`, `HalfSpaceChainBandHSNorm`, `HalfSpaceInfiniteBandedCovariance`)
+cover 10, 21, 5, 8, 8, 11, 3, 11, 8, 14 and 22 declarations
 respectively.
