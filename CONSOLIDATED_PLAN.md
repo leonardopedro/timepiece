@@ -25279,9 +25279,20 @@ the step itself: `sirkBound_eq_geom` rewrites `sirkBound C Dmin h nv m` as
 `sirk_resid_reflection_le` with it, so the whole band — separation from the compression bound, order
 from `e^{−hstep}` — is one theorem with no limit and no `hsep`.
 
+**A number, not a formula.**  §20 also carries the concrete instance: on the sequence `xOrd` —
+`wMix` at order `0`, `vOther` afterwards — with `δ = 1/10` and `η = 1/50`,
+`Aedge_membership_from_order_four` certifies `sInf (spectrum ℝ Aedge) ∈ [θ m − 1/50, θ m]` for every
+`m ≥ 4`, and `Aedge_band_order_not_zero` shows the threshold `δ η = 1/500` genuinely fails at order
+`0` (`resid (wMix)² = 4/625`).  The order is a numeral because the threshold is checked, not
+evaluated: `⌈log(√(δη)/(2/5)) / log(1/2)⌉` is avoided, and the claim made is the one proved.
+
 **Verification.**  `lake build BookProof.Sirk.ChapterRitzCertificate` and
 `lake build BookProof.Sirk.ChapterResolventTransfer` succeed with no warning from either file and no
-line above 100 code points; `lake build BookProof` succeeds; `#print axioms` on `Aedge_sep`,
-`Aedge_sep_gap`, `Aedge_five_sixths_mem`, `Aedge_gap_sharp`, `sirkBound_eq_geom`,
-`reflected_membership_order_of_sirkBound`, `geom_le_sqrt_at_ceil` and `temple_membership_order`
-gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+line above 100 code points.  `lake build BookProof` initially failed at
+`BookProof/Sm/ChapterSmQuartet.lean` — a regression from merge `c843571`, unrelated to these files,
+where `inner_self_eq_norm_sq_to_K`'s cast shape and `inner_conj_symm`'s orientation changed; the
+repair is the preceding commit, after which the full build succeeds (that file keeps its pre-existing
+long-line warnings, which predate both commits).  `#print axioms` on `Aedge_sep`, `Aedge_sep_gap`,
+`Aedge_five_sixths_mem`, `Aedge_gap_sharp`, `sirkBound_eq_geom`,
+`reflected_membership_order_of_sirkBound`, `geom_le_sqrt_at_ceil`, `temple_membership_order` and the
+`xOrd` family gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.

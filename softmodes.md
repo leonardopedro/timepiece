@@ -2545,9 +2545,18 @@ with `r = e^{−h}`, so `reflected_membership_order_of_sirkBound` composes
 `sirk_resid_reflection_le` and states the whole band — separation from the compression bound, order
 from `e^{−hstep}` — in one theorem: no limit, no `hsep`.
 
+**A number, not a formula.** §20's sequence `xOrd` — `wMix` at order `0`, `vOther` afterwards — is
+run at `δ = 1/10`, `η = 1/50`: `Aedge_membership_from_order_four` places
+`sInf = 2/3` in `[θ m − 1/50, θ m]` for every `m ≥ 4`, while `Aedge_band_order_not_zero` shows the
+threshold `δ η = 1/500` fails at order `0` (`resid (wMix)² = 4/625`). The order is a numeral because
+the threshold is checked directly; the ceiling with its logarithms is not evaluated.
+
 **Verification.** `ChapterRitzCertificate` and `ChapterResolventTransfer` build with no warning and
-no line above 100 code points; `#print axioms` on all eight new declarations gives
-`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+no line above 100 code points. `lake build BookProof` failed at
+`BookProof/Sm/ChapterSmQuartet.lean` after merge `c843571` (changed shapes of
+`inner_self_eq_norm_sq_to_K` and `inner_conj_symm`); a separate commit repairs it, after which the
+full build succeeds. That file keeps pre-existing long-line warnings. `#print axioms` on the eight
+new declarations and the `xOrd` family gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 

@@ -1886,6 +1886,74 @@ theorem Aedge_band_membership_num :
   rw [← rayleigh_wMix, ← resid_wMix_sq]
   exact Aedge_band_membership
 
+/-! The band at a concrete order.  `temple_membership_rate` is instantiated at `δ = 1/10` and
+`η = 1/50` on the test sequence `xOrd` — `wMix` at order `0`, the edge eigenvector `vOther`
+afterwards.  The quotients stay under `5/6 − 1/10 = 11/15` (`109/150` at order `0`, `2/3` after),
+the residual is `0` from order `1` on, and the threshold `δ η = 1/500` is met from order `4` on;
+`Aedge_band_order_not_zero` shows the threshold genuinely fails at order `0`
+(`resid² = 4/625 > 1/500`), so the certified order is not a vacuous number. -/
+
+/-- The test sequence: the mixed vector first, the edge eigenvector afterwards. -/
+noncomputable def xOrd : ℕ → E2 := fun m => if m = 0 then wMix else vOther
+
+theorem xOrd_zero : xOrd 0 = wMix := by simp [xOrd]
+
+theorem xOrd_succ (m : ℕ) : xOrd (m + 1) = vOther := by simp [xOrd]
+
+theorem xOrd_norm (m : ℕ) : ‖xOrd m‖ = 1 := by
+  rcases Nat.eq_zero_or_pos m with h | h
+  · subst h
+    rw [xOrd_zero]
+    exact wMix_norm
+  · obtain ⟨k, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (Nat.pos_iff_ne_zero.mp h)
+    rw [xOrd_succ]
+    simp [vOther]
+
+theorem rayleigh_other : rayleigh Aedge vOther = 2 / 3 := by
+  rw [rayleigh, Aedge_other, inner_smul_right, inner_other_other]
+  simp
+
+theorem resid_other : resid Aedge vOther = 0 := by
+  rw [resid, rayleigh_other, Aedge_other]
+  simp
+
+/-- The quotients of `xOrd` stay a fixed `1/10` below `5/6`. -/
+theorem rayleigh_le_ord (m : ℕ) : rayleigh Aedge (xOrd m) ≤ 5 / 6 - 1 / 10 := by
+  rcases Nat.eq_zero_or_pos m with h | h
+  · subst h
+    rw [xOrd_zero, rayleigh_wMix]
+    norm_num
+  · obtain ⟨k, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (Nat.pos_iff_ne_zero.mp h)
+    rw [xOrd_succ, rayleigh_other]
+    norm_num
+
+/-- **The band is certified from order `4`.**  With `δ = 1/10` and `η = 1/50` the threshold
+`δ η = 1/500` is met from order `4` on, and each `xOrd m` is a unit vector, so
+`temple_membership_rate` places `sInf (spectrum ℝ Aedge) = 2/3` in `[θ m − 1/50, θ m]`. -/
+theorem Aedge_membership_from_order_four :
+    ∀ m, 4 ≤ m →
+      sInf (spectrum ℝ Aedge) ∈
+        Set.Icc (rayleigh Aedge (xOrd m) - 1 / 50) (rayleigh Aedge (xOrd m)) := by
+  intro m hm
+  have hsep : SpectralSeparation Aedge (sInf (spectrum ℝ Aedge)) (5 / 6) := by
+    rw [Aedge_sInf]
+    exact Aedge_sep
+  refine temple_membership_rate Aedge_sa (by norm_num) (by norm_num) hsep
+    (xOrd_norm m) (rayleigh_le_ord m) ?_
+  have hm0 : m ≠ 0 := by omega
+  simp only [xOrd, if_neg hm0]
+  rw [resid_other]
+  norm_num
+
+/-- **The threshold is not met at order `0`.**  `resid (wMix)² = 4/625` exceeds `δ η = 1/500`, so
+the order `4` of `Aedge_membership_from_order_four` is a real restriction and not an artefact of
+where the sequence starts. -/
+theorem Aedge_band_order_not_zero :
+    ¬ resid Aedge (xOrd 0) ^ 2 ≤ (1 / 10 : ℝ) * (1 / 50) := by
+  rw [xOrd_zero, resid_wMix_sq]
+  norm_num
+
+
 
 end SecondEdgeInstance
 
