@@ -113,6 +113,12 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15l):** “State of the project — 2026-11-15l: the coupling, the scalar
+> marker, and the Fubini bridge” (end of file): `sirkTailBudget_le_of_tail_coupling` bounds `T` by
+> `‖Q R Q‖ ‖Q (H − z) P‖ ‖B‖`, §12 gives an explicit geometric marker with error `≤ ρ^q = e^{−a q}`
+> (the scalar half of `2 C̄ D̄ e^{−a q_m}`), and `KernelContract` gains `integral_bind_of_kernel`
+> plus the general `L²(π)` contraction.
+>
 > **Track A — newest (2026-11-15k):** “State of the project — 2026-11-15k: the finite inverse, and
 > U2's four allocations” (end of file): `sirk_block_error_eq_correction` proves
 > `V∗RV − B = −B·V∗((H−z)Q R V)` (§9), `sirk_fullSpace_error_le_shiftInvert` removes `V∗RV` from
@@ -26148,4 +26154,45 @@ with no warning from either file and no line above 100 code points. `#print axio
 `sirk_block_error_eq_correction`, `sirk_block_error_le_of_inverse`,
 `sirk_fullSpace_error_le_shiftInvert`, `solve_columns_budget`, `norm_sirkApprox_sub_le`,
 `sirk_error_le_budget` gives `[propext, Classical.choice, Quot.sound]` in all eight cases; no
+`sorry`.
+
+## State of the project — 2026-11-15l: the coupling, the scalar marker, and the Fubini bridge
+
+Three follow-ups on §2026-11-15k, all in `BookProof/Sirk/ChapterSirkEndToEnd.lean` (§11–§12)
+and `BookProof/MCMC/KernelContract.lean` (§4).
+
+**§11 — `T` from the tail and the coupling.** `sirkTailBudget` used to be a definition; now it is
+bounded by data the Schur and truncation-lift chapters actually certify. Compressing
+`Q R (H − z) P = Q P = 0` gives `(Q R P)(P (H − z) P) + (Q R Q)(Q (H − z) P) = 0`, and `V B V∗` is
+a right inverse of `P (H − z) P` exactly when `B` inverts the compressed shift `V∗(H − z)V`
+(`(V∗(H − z)V) B = 1`). Hence `sirk_leakage_le_of_tail_coupling`:
+`‖Q R P‖ ≤ ‖Q R Q‖ · ‖Q (H − z) P‖ · ‖B‖`, and `sirkTailBudget_le_of_tail_coupling`:
+`T ≤ (2‖Q (H − z) P‖ ‖B‖ + 1) · ‖Q R Q‖`. The coupling `‖Q (H − z) P‖` is precisely the
+off-diagonal block `ChapterSchurGershgorinGap.abs_inner_block_le` bounds, and `‖Q R Q‖` is the
+tail `ChapterTruncationGapLift` lifts; no entry is summed, so no factor `m` appears. What §11 does
+*not* do is instantiate those two numbers for the Fock model — that is still the modelling step.
+
+**§12 — an explicit marker for the resolvent on the segment.** `geomMarker q t = Σ_{j<q} (−t)^j`
+is the degree-`q` approximant of `1/(1 + t)`, and `geomMarker_remainder` is the *exact*
+remainder `(−t)^q/(1 + t)` — the finite geometric collapse, not an estimate. On the common
+segment `0 ≤ t ≤ ρ ≤ 1` this gives `geomMarker_error_le`: error `≤ ρ^q`, hence the `2 C D` term of
+`sirk_error_bound_at` with `C = 1`, `D = ρ^q` (`geomMarker_twoCD`), and `geomMarker_rate`:
+`ρ^q = e^{−a q}` with `a = −log ρ`. With `t = x/γ` on Hashimoto's segment `[0, 1/κ]` this is the
+scalar half of the `2 C̄ D̄ e^{−a q_m}` envelope. The propagation of that scalar bound through the
+deformation estimate, and the operator form of `R_g` itself, are **not** claimed.
+
+**§4 of `KernelContract` — the Fubini bridge.** This Mathlib version exports `lintegral_bind` but
+no `integral_bind`, so the real-valued identity was missing. `integral_bind_of_kernel` supplies it
+from `Kernel.integral_comp` with the constant kernel `Kernel.const Unit μ`, and
+`kernelOp_l2_contraction` uses it for the general `L²(π)` contraction under an arbitrary
+`Kernel.Invariant κ π` for bounded measurable observables — stationarity alone, no reversibility or
+self-adjointness. Unbounded observables still need the integrability obligations that boundedness
+supplies here.
+
+**Verification.** `lake build BookProof` succeeds, `9016 jobs`.
+`lake build BookProof.Sirk.ChapterSirkEndToEnd` and `lake build BookProof.MCMC.KernelContract`
+succeed with no warning from either file and no line above 100 code points. `#print axioms` on
+`sirk_leakage_le_of_tail_coupling`, `sirkTailBudget_le_of_tail_coupling`, `geomMarker_remainder`,
+`geomMarker_error_le`, `geomMarker_twoCD`, `geomMarker_rate`, `integral_bind_of_kernel` and
+`kernelOp_l2_contraction` gives `[propext, Classical.choice, Quot.sound]` in all eight cases; no
 `sorry`.

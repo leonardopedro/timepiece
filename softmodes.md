@@ -2925,6 +2925,40 @@ declarations gives `[propext, Classical.choice, Quot.sound]`; no `sorry`. **Stil
 into functions of `(g, L)` (`ChapterSchurGershgorinGap` / `ChapterTruncationGapLift` under
 their hypotheses), and the unbounded-generator form, which needs graph-norm control.
 
+### The coupling, the marker and the Fubini bridge (2026-11-15l)
+
+Three follow-ups on the 2026-11-15k section.
+
+**`T` from the tail and the coupling (§11).** Compressing `Q R (H − z) P = Q P = 0` and using
+that `V B V∗` is a right inverse of `P (H − z) P` gives
+
+  `‖Q R P‖ ≤ ‖Q R Q‖ · ‖Q (H − z) P‖ · ‖B‖`,
+  `T ≤ (2‖Q (H − z) P‖ ‖B‖ + 1) · ‖Q R Q‖`
+
+(`sirk_leakage_le_of_tail_coupling`, `sirkTailBudget_le_of_tail_coupling`). The coupling is the
+off-diagonal block a Schur row/column test bounds (`ChapterSchurGershgorinGap.abs_inner_block_le`),
+the tail is what `ChapterTruncationGapLift` lifts, and neither is an entrywise sum — so `T` carries
+no factor `m`. Instantiating the two for the Fock model remains the modelling step; this section
+only makes the dependence explicit.
+
+**The scalar marker on the common segment (§12).** `geomMarker q t = Σ_{j<q}(−t)^j` approximates
+`1/(1 + t)` with the *exact* remainder `(−t)^q/(1 + t)` (`geomMarker_remainder`), so on
+`0 ≤ t ≤ ρ` the error is `≤ ρ^q` (`geomMarker_error_le`). With `C = 1`, `D = ρ^q` that is the
+`2 C D` term of `sirk_error_bound_at` (`geomMarker_twoCD`), and `ρ^q = e^{−a q}` with `a = −log ρ`
+(`geomMarker_rate`). Taking `t = x/γ` on Hashimoto's `[0, 1/κ]` turns this into the scalar half of
+`2 C̄ D̄ e^{−a q_m}`. The deformation estimate that carries it to the operator `R_g`, and `R_g`'s
+operator form, are not claimed.
+
+**The Fubini bridge (`KernelContract` §4).** This Mathlib version has `lintegral_bind` but no
+`integral_bind`; `integral_bind_of_kernel` builds the real-valued identity from
+`Kernel.integral_comp` with `Kernel.const Unit μ`, and `kernelOp_l2_contraction` then proves the
+general `L²(π)` contraction for bounded measurable observables under an arbitrary
+`Kernel.Invariant κ π` — stationarity only, no reversibility or self-adjointness.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`lake build BookProof` succeeds (`9016 jobs`); `#print axioms` on the eight new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

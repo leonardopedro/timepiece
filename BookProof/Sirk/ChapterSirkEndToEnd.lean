@@ -815,4 +815,235 @@ theorem sirk_error_le_budget (V : F →L[ℂ] E) (H R : E →L[ℂ] E) (z : ℂ)
   linarith
 
 
+/-! ## 11. `T` from the tail and the coupling: the Schur/Gershgorin data -/
+
+/-- **The leakage is the tail times the coupling times the finite inverse.**  Compressing the
+resolvent identity `Q R (H − z) P = Q P = 0` gives
+
+  `(Q R P) (P (H − z) P) + (Q R Q) (Q (H − z) P) = 0`,
+
+and `V B V∗` is a right inverse of `P (H − z) P` — exactly what `B` being an inverse of the
+compressed shift `V∗(H − z)V` says.  Hence `Q R P = − (Q R Q) (Q (H − z) P) (V B V∗)`, so the
+leakage costs the **tail** `‖Q R Q‖`, the off-diagonal **coupling** `‖Q (H − z) P‖` and `‖B‖`.
+The coupling is what a Schur row/column test bounds, the tail is what a truncation lift bounds;
+neither estimate sums entries, so no factor `m` is manufactured. -/
+theorem sirk_leakage_le_of_tail_coupling (V : F →L[ℂ] E) (T R : E →L[ℂ] E) (B : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hRleft : R.comp T = ContinuousLinearMap.id ℂ E)
+    (hBright : (V.adjoint.comp (T.comp V)).comp B = ContinuousLinearMap.id ℂ F) :
+    ‖(sirkComplement V).comp (R.comp (sirkReconstruction V))‖
+      ≤ ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖
+        * (‖(sirkComplement V).comp (T.comp (sirkReconstruction V))‖ * ‖B‖) := by
+  set P : E →L[ℂ] E := sirkReconstruction V with hP
+  set Q : E →L[ℂ] E := sirkComplement V with hQ
+  set M : E →L[ℂ] E := V.comp (B.comp V.adjoint) with hM
+  have hPQ : ∀ y : E, P y + Q y = y := fun y => by
+    rw [hP, hQ]; exact sirkReconstruction_add_complement V y
+  have hPV : ∀ z : F, P (V z) = V z := fun z => by
+    rw [hP, sirkReconstruction, ContinuousLinearMap.comp_apply]
+    have h := congrArg (fun f : F →L[ℂ] F => f z) hVV
+    simpa [ContinuousLinearMap.comp_apply] using congrArg V h
+  have hAB : ∀ w : F, (V.adjoint.comp (T.comp V)) (B w) = w := fun w => by
+    have := congrArg (fun f : F →L[ℂ] F => f w) hBright
+    simpa [ContinuousLinearMap.comp_apply] using this
+  have hPT : ∀ z : F, P (T (V z)) = V ((V.adjoint.comp (T.comp V)) z) := fun z => by
+    rw [hP, sirkReconstruction, ContinuousLinearMap.comp_apply]
+    rfl
+  have hPTPM : (P.comp (T.comp P)).comp M = P := by
+    ext x
+    have h1 : P (V (B (V.adjoint x))) = V (B (V.adjoint x)) := hPV _
+    have h2 : P (T (V (B (V.adjoint x))))
+        = V ((V.adjoint.comp (T.comp V)) (B (V.adjoint x))) := hPT _
+    have h3 : (V.adjoint.comp (T.comp V)) (B (V.adjoint x)) = V.adjoint x := hAB _
+    have h4 : P x = V (V.adjoint x) := by
+      rw [hP, sirkReconstruction, ContinuousLinearMap.comp_apply]
+    simp only [ContinuousLinearMap.comp_apply, hM]
+    rw [h1, h2, h3, h4]
+  have hQP : ∀ y : E, Q (P y) = 0 := fun y => by
+    have h1 := hPQ (P y)
+    have h2 : P (P y) = P y := by
+      rw [hP]
+      have hidem := sirkReconstruction_isIdempotent V hVV
+      simpa [ContinuousLinearMap.comp_apply] using
+        congrArg (fun f : E →L[ℂ] E => f y) hidem
+    rw [h2] at h1
+    exact add_eq_left.mp h1
+  have hPPapp : ∀ y : E, P (P y) = P y := fun y => by
+    have hidem := sirkReconstruction_isIdempotent V hVV
+    simpa [hP, ContinuousLinearMap.comp_apply] using
+      congrArg (fun f : E →L[ℂ] E => f y) hidem
+  have hQdef : ∀ y : E, Q y = y - P y := fun y => by
+    rw [eq_sub_iff_add_eq, add_comm]
+    exact hPQ y
+  have hQP0 : ∀ y : E, P (Q y) = 0 := fun y => by
+    rw [hQdef y, map_sub, hPPapp y, sub_self]
+  have hQQ : ∀ y : E, Q (Q y) = Q y := fun y => by
+    rw [hQdef (Q y), hQP0 y, sub_zero]
+  have hkey : ∀ x : E,
+      Q (R (P (P (T (P x))))) + Q (R (Q (T (P x)))) = 0 := by
+    intro x
+    have hzero : Q (R (T (P x))) = 0 := by
+      have h1 : R (T (P x)) = P x := by
+        have := congrArg (fun f : E →L[ℂ] E => f (P x)) hRleft
+        simpa [ContinuousLinearMap.comp_apply] using this
+      rw [h1, hQP x]
+    have hsplit : T (P x) = P (T (P x)) + Q (T (P x)) := by
+      exact (hPQ (T (P x))).symm
+    rw [hsplit] at hzero
+    simp only [map_add] at hzero
+    simpa [hPPapp] using hzero
+  have hPfix : ∀ x : E, Q (R (P (P x))) = Q (R (P x)) := by
+    intro x
+    have : P (P x) = P x := by
+      rw [hP]
+      have hidem := sirkReconstruction_isIdempotent V hVV
+      simpa [ContinuousLinearMap.comp_apply] using
+        congrArg (fun f : E →L[ℂ] E => f x) hidem
+    rw [this]
+  have hleak : ∀ x : E, Q (R (P x))
+      = -(Q (R (Q ((T.comp P) (M x))))) :=
+    fun x => by
+      have hk := hkey (M x)
+      have hMx : (P.comp (T.comp P)) (M x) = P x := by
+        have := congrArg (fun f : E →L[ℂ] E => f x) hPTPM
+        simpa [ContinuousLinearMap.comp_apply] using this
+      have hMx' : P (T (P (M x))) = P x := by
+        simpa [ContinuousLinearMap.comp_apply] using hMx
+      have hMx' : P (T (P (M x))) = P x := by
+        simpa [ContinuousLinearMap.comp_apply] using hMx
+      have hk' : Q (R (P x)) + Q (R (Q (T (P (M x))))) = 0 := by
+        simpa [hPPapp, hMx'] using hk
+      simpa [ContinuousLinearMap.comp_apply] using eq_neg_of_add_eq_zero_left hk'
+  -- norm bound
+  have hMn : ‖M‖ ≤ ‖B‖ := by
+    have h1 : ‖M‖ ≤ ‖V‖ * (‖B‖ * ‖V.adjoint‖) := by
+      rw [hM]
+      calc ‖V.comp (B.comp V.adjoint)‖ ≤ ‖V‖ * ‖B.comp V.adjoint‖ :=
+            ContinuousLinearMap.opNorm_comp_le V _
+        _ ≤ ‖V‖ * (‖B‖ * ‖V.adjoint‖) := by
+            gcongr
+            exact ContinuousLinearMap.opNorm_comp_le B V.adjoint
+    have hV1 : ‖V‖ ≤ 1 := by
+      refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => by
+        rw [hViso]; simp
+    have hVa1 : ‖V.adjoint‖ ≤ 1 :=
+      ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun v => by
+        simpa using hVadj v
+    calc ‖M‖ ≤ ‖V‖ * (‖B‖ * ‖V.adjoint‖) := h1
+      _ ≤ 1 * (‖B‖ * 1) := by gcongr
+      _ = ‖B‖ := by ring
+  refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun x => ?_
+  change ‖Q (R (P x))‖ ≤ ‖Q.comp (R.comp Q)‖ * (‖Q.comp (T.comp P)‖ * ‖B‖) * ‖x‖
+  rw [hleak x, norm_neg]
+  have h1 : ‖Q (R (Q ((T.comp P) (M x))))‖
+      ≤ ‖Q.comp (R.comp Q)‖ * ‖Q ((T.comp P) (M x))‖ := by
+    have heq : Q (R (Q ((T.comp P) (M x))))
+        = (Q.comp (R.comp Q)) (Q ((T.comp P) (M x))) := by
+      simp only [ContinuousLinearMap.comp_apply, hQQ]
+    rw [heq]
+    exact ContinuousLinearMap.le_opNorm _ _
+  have h2 : ‖Q ((T.comp P) (M x))‖ ≤ ‖Q.comp (T.comp P)‖ * ‖M x‖ := by
+    simpa [ContinuousLinearMap.comp_apply] using
+      ContinuousLinearMap.le_opNorm (Q.comp (T.comp P)) (M x)
+  have h3 : ‖M x‖ ≤ ‖M‖ * ‖x‖ := ContinuousLinearMap.le_opNorm _ _
+  have h4 : ‖M‖ * ‖x‖ ≤ ‖B‖ * ‖x‖ :=
+    mul_le_mul_of_nonneg_right hMn (norm_nonneg x)
+  have h5 : ‖Q ((T.comp P) (M x))‖ ≤ ‖Q.comp (T.comp P)‖ * (‖B‖ * ‖x‖) := by
+    refine le_trans h2 ?_
+    exact mul_le_mul_of_nonneg_left (le_trans h3 h4) (norm_nonneg _)
+  have h6 : ‖Q.comp (R.comp Q)‖ * ‖Q ((T.comp P) (M x))‖
+      ≤ ‖Q.comp (R.comp Q)‖ * (‖Q.comp (T.comp P)‖ * (‖B‖ * ‖x‖)) :=
+    mul_le_mul_of_nonneg_left h5 (norm_nonneg _)
+  refine le_trans (le_trans h1 h6) ?_
+  have hrr : ‖Q.comp (R.comp Q)‖ * (‖Q.comp (T.comp P)‖ * (‖B‖ * ‖x‖))
+      = ‖Q.comp (R.comp Q)‖ * (‖Q.comp (T.comp P)‖ * ‖B‖) * ‖x‖ := by ring
+  rw [hrr]
+
+/-- **`T` is a single multiple of the tail.**  Substituting the leakage bound into
+`sirkTailBudget` gives
+
+  `T ≤ (2 ‖Q (H − z) P‖ ‖B‖ + 1) · ‖Q R Q‖`,
+
+so the omitted-space allocation is the tail times an explicit factor built from the coupling and
+the reduced inverse — no sum over basis directions, hence `m`-independent whenever those three
+numbers are. -/
+theorem sirkTailBudget_le_of_tail_coupling (V : F →L[ℂ] E) (T R : E →L[ℂ] E) (B : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hRleft : R.comp T = ContinuousLinearMap.id ℂ E)
+    (hBright : (V.adjoint.comp (T.comp V)).comp B = ContinuousLinearMap.id ℂ F) :
+    sirkTailBudget V R
+      ≤ (2 * ‖(sirkComplement V).comp (T.comp (sirkReconstruction V))‖ * ‖B‖ + 1)
+        * ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ := by
+  have hleak := sirk_leakage_le_of_tail_coupling V T R B hVV hViso hVadj hRleft hBright
+  rw [sirkTailBudget]
+  nlinarith [hleak, norm_nonneg ((sirkComplement V).comp (R.comp (sirkComplement V))),
+    norm_nonneg ((sirkComplement V).comp (T.comp (sirkReconstruction V))), norm_nonneg B]
+
+/-! ## 12. The scalar marker for the resolvent on the common segment -/
+
+/-- The degree-`q` geometric marker `Σ_{j<q} (−t)^j` for `1/(1 + t)`: the explicit rational
+approximant (`denominator 1`) that `softmodes.md` U2 asks for on the common segment.  It is the
+polynomial SIRK would build for the scalar model `1/(1 + t)`, and its error is *exact*, not
+estimated: `geomMarker_remainder` below. -/
+def geomMarker (q : ℕ) (t : ℝ) : ℝ :=
+  ∑ j ∈ Finset.range q, (-t) ^ j
+
+/-- `geomMarker (q+1) t = geomMarker q t + (-t)^q`. -/
+theorem geomMarker_succ (q : ℕ) (t : ℝ) :
+    geomMarker (q + 1) t = geomMarker q t + (-t) ^ q := by
+  simp [geomMarker, Finset.sum_range_succ]
+
+/-- **The remainder is exact.**  `1/(1 + t) − Σ_{j<q} (−t)^j = (−t)^q/(1 + t)`, so the marker's
+error is the next geometric term over `1 + t` — there is no approximation in this step, only the
+collapse of the finite geometric series. -/
+theorem geomMarker_remainder (q : ℕ) (t : ℝ) (ht : t ≠ -1) :
+    1 / (1 + t) - geomMarker q t = (-t) ^ q / (1 + t) := by
+  induction q with
+  | zero => simp [geomMarker]
+  | succ q ih =>
+    rw [geomMarker_succ, sub_add_eq_sub_sub, ih, pow_succ']
+    have h1 : (1 : ℝ) + t ≠ 0 := by
+      intro h; apply ht; linarith
+    field_simp
+    ring
+
+/-- **The scalar error on the common segment.**  For `0 ≤ t ≤ ρ`, the degree-`q` marker
+approximates `1/(1 + t)` to within `ρ^q`.  With `t = x/γ` and `x ∈ [0, 1/κ]` this is the `D` of
+`sirk_error_bound_at` with `C = 1`, and the `2 C D` term it feeds is `2 ρ^q`
+(`geomMarker_twoCD`). -/
+theorem geomMarker_error_le (q : ℕ) (t ρ : ℝ) (ht : 0 ≤ t) (htρ : t ≤ ρ) :
+    |1 / (1 + t) - geomMarker q t| ≤ ρ ^ q := by
+  have ht1 : t ≠ -1 := by linarith
+  rw [geomMarker_remainder q t ht1, abs_div]
+  have hpos : (0 : ℝ) < 1 + t := by linarith
+  have habs1 : |1 + t| = 1 + t := abs_of_pos hpos
+  rw [habs1]
+  have hnum : |(-t) ^ q| = t ^ q := by
+    rw [abs_pow, abs_neg, abs_of_nonneg ht]
+  rw [hnum]
+  have hq : t ^ q ≤ ρ ^ q := pow_le_pow_left₀ ht htρ q
+  rw [div_le_iff₀ hpos]
+  calc t ^ q ≤ ρ ^ q := hq
+    _ ≤ ρ ^ q * (1 + t) := by
+        have h0 : (0 : ℝ) ≤ ρ ^ q := pow_nonneg (by linarith) q
+        nlinarith
+
+/-- The `2 C D` term of `sirk_error_bound_at` with `C = 1` and `D = ρ^q`. -/
+theorem geomMarker_twoCD (q : ℕ) (t ρ : ℝ) (ht : 0 ≤ t) (htρ : t ≤ ρ) :
+    2 * |1 / (1 + t) - geomMarker q t| ≤ 2 * ρ ^ q := by
+  have := geomMarker_error_le q t ρ ht htρ
+  linarith
+
+/-- **The rate is exponential.**  For `0 < ρ < 1` the geometric error `ρ^q` is `e^{−a q}` with
+`a = −log ρ > 0`, so `geomMarker_error_le` supplies the `D e^{−a q}` half of the envelope with
+`a` explicit and `D` the tail of the geometric series. -/
+theorem geomMarker_rate (ρ : ℝ) (hρ : 0 < ρ) (q : ℕ) :
+    ρ ^ q = Real.exp (-((-Real.log ρ) * q)) := by
+  rw [show -((-Real.log ρ) * q) = (q : ℝ) * Real.log ρ by ring]
+  rw [Real.exp_nat_mul, Real.exp_log hρ]
+
 end BookProof.ChapterSirkEndToEnd

@@ -26,16 +26,22 @@ import Mathlib
 * `const_l2_contraction`, `const_mean_preserved` and `const_selfAdjoint_pairing`
   give the `L²(π)` contraction, the preservation of the mean and the
   adjoint/density action for that benchmark.
+* `integral_bind_of_kernel` supplies the Fubini identity `∫ f ∂(κ ∘ₘ μ) 
+  = ∫ x, ∫ y, f y ∂(κ x) ∂μ` that this Mathlib version does not export (`integral_bind`
+  is missing; only `lintegral_bind` exists), and `kernelOp_l2_contraction` uses it for
+  the **general** `L²(π)` contraction under an arbitrary `Kernel.Invariant κ π` for
+  bounded measurable observables — stationarity alone, no reversibility and no
+  self-adjointness.
 
 ## Boundary
 
-The general `L²` contraction `∫ ‖P f‖² dπ ≤ ∫ ‖f‖² dπ` under an arbitrary
-`Kernel.Invariant κ π` needs the Fubini identity for a kernel against an invariant
-measure together with the integrability of the parameterized integral; those are
-stated and proved here only for the concrete benchmark, where the integral action
-is constant in `x`.  No posterior, no `pCN` proposal and no outer-Fock lift is
-claimed: a `Kernel` is a transition law, not yet a self-adjoint operator on a
-specified dense domain.
+The general `L²` contraction `∫ ‖P f‖² dπ ≤ ∫ ‖f‖² dπ` is proved for **bounded
+measurable** observables, where boundedness supplies the integrability of `P f`,
+`P (‖f‖²)` and the parameterized integrals.  An unbounded observable needs those
+obligations separately: the Fubini identity alone does not prove them.  Still not
+claimed: the descent to `Lp ℂ 2 π` classes, the density/adjoint action for a general
+kernel, any posterior, any `pCN` proposal and any outer-Fock lift — a `Kernel` is a
+transition law, not yet a self-adjoint operator on a specified dense domain.
 -/
 
 noncomputable section
@@ -167,5 +173,95 @@ theorem const_selfAdjoint_pairing (π : Measure α) [IsProbabilityMeasure π]
       = ∫ x, g x * kernelOp (Kernel.const α π) f x ∂π := by
   simp only [const_kernelOp]
   rw [integral_mul_const, integral_mul_const, mul_comm]
+
+
+/-! ## 4. The Fubini bridge and the general `L²` contraction -/
+
+/-- **The bridge this Mathlib checkout lacks.**  `integral_bind` is absent from this version of
+Mathlib (only `lintegral_bind` is provided), so the real-valued Fubini identity for a kernel
+against a measure has to be assembled.  It follows from `Kernel.integral_comp` with the constant
+kernel `Kernel.const Unit μ` as the outer kernel: the inner integral is over `κ`, the outer one
+over `μ`, and the outer collapses because `Unit` is a singleton.
+
+This is the identity the `Boundary` note used to say was missing; it is what lets the pointwise
+Jensen estimate be integrated against an *invariant* law rather than only against the constant
+benchmark kernel. -/
+theorem integral_bind_of_kernel {μ : Measure α} {κ : Kernel α α} [IsSFiniteKernel κ]
+    {f : α → ℝ} (hf : Integrable f (κ ∘ₘ μ)) :
+    ∫ y, f y ∂(κ ∘ₘ μ) = ∫ a, ∫ y, f y ∂(κ a) ∂μ := by
+  rw [Measure.comp_eq_comp_const_apply]
+  rw [Kernel.integral_comp (κ := Kernel.const Unit μ) (η := κ) (a := ()) hf]
+  simp
+
+/-- A bounded observable has its integral bounded by the bound, on a probability space.  Used
+twice below: once for `P f` and once for `P (‖f‖²)`, which are the two integrability obligations
+of `integral_mono_ae`. -/
+theorem norm_integral_le_of_bound {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {ν : Measure α} [IsProbabilityMeasure ν] {f : α → E} {C : ℝ}
+    (hf : Integrable f ν) (hC : ∀ x, ‖f x‖ ≤ C) : ‖∫ x, f x ∂ν‖ ≤ C := by
+  have h1 : ‖∫ x, f x ∂ν‖ ≤ ∫ x, ‖f x‖ ∂ν := norm_integral_le_integral_norm f
+  have h2 : ∫ x, ‖f x‖ ∂ν ≤ C := by
+    have hmono : ∫ x, ‖f x‖ ∂ν ≤ ∫ _ : α, C ∂ν :=
+      integral_mono hf.norm (integrable_const C) fun x => hC x
+    simpa [integral_const, Measure.real, measure_univ] using hmono
+  linarith
+
+/-- **The general `L²(π)` contraction.**  For a Markov kernel with invariant law `π` and a
+bounded measurable observable, `∫ ‖P f‖² dπ ≤ ∫ ‖f‖² dπ`.  This is the clause the earlier
+version of this file proved only for `Kernel.const α π`: the proof is Jensen pointwise
+(`kernelOp_jensen`), monotonicity of the integral, and then `integral_bind_of_kernel` with
+`π.bind κ = π`.  No reversibility, self-adjointness or spectral theorem is used — stationarity
+alone suffices, which is exactly the distinction `pcnl.md` P0 insists on.
+
+Boundedness is a real hypothesis, not bookkeeping: it supplies the integrability of `P f`,
+`P (‖f‖²)` and the two parameterized integrals.  Unbounded observables need those obligations
+proved separately. -/
+theorem kernelOp_l2_contraction {κ : Kernel α α} [IsMarkovKernel κ] {π : Measure α}
+    [IsProbabilityMeasure π] (hκ : Kernel.Invariant κ π) {f : α → ℂ}
+    (hf : Measurable f) {C : ℝ} (hC : ∀ x, ‖f x‖ ≤ C) :
+    ∫ a, ‖kernelOp κ f a‖ ^ 2 ∂π ≤ ∫ a, ‖f a‖ ^ 2 ∂π := by
+  have hfint : ∀ a, Integrable f (κ a) := fun a =>
+    Integrable.of_bound hf.aestronglyMeasurable C (Filter.Eventually.of_forall hC)
+  have hnorm2meas : StronglyMeasurable fun y => ‖f y‖ ^ 2 :=
+    (continuous_norm.pow 2).comp_stronglyMeasurable hf.stronglyMeasurable
+  have hnorm2le : ∀ y, ‖f y‖ ^ 2 ≤ C ^ 2 := fun y =>
+    pow_le_pow_left₀ (norm_nonneg _) (hC y) 2
+  have hf2int : ∀ a, Integrable (fun y => ‖f y‖ ^ 2) (κ a) := fun a =>
+    Integrable.of_bound hnorm2meas.aestronglyMeasurable (C ^ 2)
+      (Filter.Eventually.of_forall fun y => by
+        rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]; exact hnorm2le y)
+  have hpt : ∀ a, ‖kernelOp κ f a‖ ^ 2 ≤ kernelOp κ (fun y => ‖f y‖ ^ 2) a :=
+    fun a => kernelOp_jensen (hfint a) (hf2int a)
+  have hfm : StronglyMeasurable fun a => kernelOp κ f a :=
+    hf.stronglyMeasurable.integral_kernel
+  have hint1 : Integrable (fun a => ‖kernelOp κ f a‖ ^ 2) π :=
+    Integrable.of_bound (hfm.norm.pow 2).aestronglyMeasurable (C ^ 2)
+      (Filter.Eventually.of_forall fun a => by
+        have h1 : ‖kernelOp κ f a‖ ≤ C := norm_integral_le_of_bound (hfint a) hC
+        rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]
+        exact pow_le_pow_left₀ (norm_nonneg _) h1 2)
+  have hint2 : Integrable (fun a => kernelOp κ (fun y => ‖f y‖ ^ 2) a) π :=
+    Integrable.of_bound (hnorm2meas.integral_kernel).aestronglyMeasurable (C ^ 2)
+      (Filter.Eventually.of_forall fun a => by
+        have hmono : kernelOp κ (fun y => ‖f y‖ ^ 2) a ≤ ∫ _ : α, C ^ 2 ∂(κ a) :=
+          integral_mono (hf2int a) (integrable_const _) fun y => hnorm2le y
+        have hbound : kernelOp κ (fun y => ‖f y‖ ^ 2) a ≤ C ^ 2 := by
+          simpa [kernelOp, integral_const, Measure.real, measure_univ] using hmono
+        have hnn : (0 : ℝ) ≤ kernelOp κ (fun y => ‖f y‖ ^ 2) a :=
+          integral_nonneg fun y => sq_nonneg _
+        rw [Real.norm_eq_abs, abs_of_nonneg hnn]
+        exact hbound)
+  have hmono : ∫ a, ‖kernelOp κ f a‖ ^ 2 ∂π
+      ≤ ∫ a, kernelOp κ (fun y => ‖f y‖ ^ 2) a ∂π :=
+    integral_mono_ae hint1 hint2 (Filter.Eventually.of_forall hpt)
+  have hf2bind : Integrable (fun y => ‖f y‖ ^ 2) (κ ∘ₘ π) :=
+    Integrable.of_bound hnorm2meas.aestronglyMeasurable (C ^ 2)
+      (Filter.Eventually.of_forall fun y => by
+        rw [Real.norm_eq_abs, abs_of_nonneg (sq_nonneg _)]; exact hnorm2le y)
+  have hbridge : ∫ a, kernelOp κ (fun y => ‖f y‖ ^ 2) a ∂π
+      = ∫ y, ‖f y‖ ^ 2 ∂(κ ∘ₘ π) :=
+    (integral_bind_of_kernel (μ := π) (κ := κ) hf2bind).symm
+  rw [hbridge, hκ.def] at hmono
+  exact hmono
 
 end BookProof.MCMC
