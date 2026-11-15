@@ -5238,3 +5238,54 @@ even sector — but for the reason above, which is now a theorem.
 
 Boundary: no metric for `smBrstCharge` is constructed, and nothing here proves the model's closed
 space is even; that is exactly the remaining no-ghost input, now stated in one line.
+
+## 93. What the input costs: the charge must kill the even sector, and the metric that works
+
+§92 made the no-ghost input exact.  This section draws its two consequences: one that can be
+refuted on a single vector, and one that shows the definition is satisfiable.
+
+**A necessary condition on one vector.**  For an even state `x`, `Ω x` is closed (nilpotency) and odd
+(`U (Ω x) = −Ω (U x) = −Ω x`), so it is an odd closed state unless it vanishes
+(`image_even_mem_odd_closed`).  With §92's equivalence this gives
+`physicalPositivity_imp_charge_kills_even`: positivity forces `Ω x = 0` for every even `x`, and a
+single even state with `Ω x ≠ 0` refutes the input (`not_physicalPositivity_of_even_image`, and at the
+model `smPhysicalPositivity_imp_even_killed`).  The Gauss term `Σ_a c_a† G_a` is exactly the piece of
+`Ω` that can map an even state to a nonzero one, so for a charge with a Gauss term this is a real
+condition, not a formality.
+
+**A metric that does work.**  The quartet supplies one: the orthogonal projection `η = P_D` onto the
+physical range `D`.  Its charge form is `‖P_D x‖²` (`kform_starProjection_self`), non-negative on the
+*whole* space; the radical condition needs the quartet: `ker Q = range Q ⊔ D` (§91) plus `range Q ⟂ D`
+gives it (`physicalPositivity_starProjection`).  At the model this is `smPhysMetric` (the projection
+onto `ker Ω ⊓ (range Ω)ᗮ`), `smPhysicalPositivity_physMetric` proves `PhysicalPositivity` for it, and
+`smPhysMetric_kform_eq_norm_sq_of_mem` says the form is the ambient norm squared on that range.
+
+The price is stated in the same theorems: `η` is *semidefinite*, with radical the gauge orbit.  This is
+not a Krein metric, and it does not identify the physical range with the transverse even sector — what
+it does establish is that the no-ghost definition holds at the SM charge for an explicit operator, so
+what remains open is an identification, not positivity as a hypothesis.
+
+**Numerical smoke test.**  `scripts/sm-physical-positivity-smoke.py` re-implements the truncation's
+fermionic algebra with the chapter's own conventions (`jwSign`, `annih`, `creat`,
+`Ω = Σ_a c_a† G_a − ½ f_{abc} c_a† c_b† b_c`, `G_a = −i dΓ(T_a)`) on the su(2) block of the gauge
+algebra: 3 matter + 3 ghost modes, 64 states, pure-Python Gaussian elimination.  Measured on
+2026-11-15:
+
+* the hypotheses hold exactly: `‖Ω²‖ = 0`, `‖UΩ + ΩU‖ = 0`, `‖U² − 1‖ = 0`;
+* `dim ker Ω = 36`, `dim range Ω = 28`, `dim (odd ∩ ker Ω) = 24` — so the closed space is not even and
+  §92 predicts positivity fails; the ghost-parity form on `ker Ω` has minimum eigenvalue `−1`, with an
+  explicit odd closed basis state as witness;
+* `max ‖Ω x‖` over even basis states is `1.2247 ≠ 0`, i.e. §18's necessary condition fails — the
+  parity metric is not no-ghost at this truncation;
+* the projector metric onto `ker Ω ⊓ (range Ω)ᗮ` (dimension 8 = `dim ker Ω − dim range Ω`) satisfies
+  `PhysicalPositivity`: the form on `ker Ω` is exactly `B†B` (residual `0`), and its radical has
+  dimension 28 = `dim range Ω`;
+* on 40 random dimension-six instances satisfying the hypotheses, both directions of §92's
+  equivalence agree in **40/40**, with 19 of them in the positivity-holding regime.
+
+The truncation is the su(2) block, not the Standard Model: the numbers illustrate the statements, they
+do not decide the model's closed space.
+
+Boundary: whether `smBrstCharge` itself annihilates its even sector is not decided here; §18 turns it
+into a one-vector question, and the smoke test shows what the answer looks like on a truncation where
+the Gauss term is present.

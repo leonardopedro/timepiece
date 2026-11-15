@@ -86,3 +86,11 @@ open BookProof.SmQuartet
 #audit_axioms exVh_range_even
 #audit_axioms exE3_one_closed
 #audit_axioms exEvenRange_not_positivity
+#audit_axioms BrstQuartet.eq_zero_of_eq_neg_self
+#audit_axioms BrstQuartet.image_even_mem_odd_closed
+#audit_axioms BrstQuartet.physicalPositivity_imp_charge_kills_even
+#audit_axioms BrstQuartet.not_physicalPositivity_of_even_image
+#audit_axioms smPhysicalPositivity_imp_even_killed
+#audit_axioms BrstQuartet.kform_starProjection_self
+#audit_axioms BrstQuartet.kform_starProjection_eq_norm_sq_of_mem
+#audit_axioms BrstQuartet.physicalPositivity_starProjection

@@ -976,6 +976,41 @@ require "$PLAN" 'The no-ghost input is exactly' \
 require "$PLAN" 'The range version is strictly weaker' \
     "§92: the plan must keep the strictness verdict"
 
+# ---- 46. §93 what the input costs, and the metric that works ------------------
+# §92 made the input exact; §93 draws both consequences.  On one side positivity *forces* the charge
+# to kill the even sector (`physicalPositivity_imp_charge_kills_even`) — a condition refutable on a
+# single vector — so the ghost-parity metric is not no-ghost in general.  On the other the quartet
+# supplies a metric that *does* satisfy the definition (`physicalPositivity_starProjection`,
+# `smPhysicalPositivity_physMetric`), semidefinite, with radical the gauge orbit.  Dropping the
+# necessary condition would let the parity metric pass silently; dropping the metric construction
+# would make the whole input look unattainable.
+require "$QUARTET" "theorem image_even_mem_odd_closed" \
+    "§93: the obstruction's mechanism must stay"
+require "$QUARTET" "theorem physicalPositivity_imp_charge_kills_even" \
+    "§93: the necessary condition on the charge must stay"
+require "$QUARTET" "theorem not_physicalPositivity_of_even_image" \
+    "§93: the one-vector refutation must stay"
+require "$QUARTET" "theorem smPhysicalPositivity_imp_even_killed" \
+    "§93: the necessary condition at the model must stay"
+require "$QUARTET" "theorem kform_starProjection_self" \
+    "§93: the projector form must stay a squared norm"
+require "$QUARTET" "theorem physicalPositivity_starProjection" \
+    "§93: the quartet metric's no-ghost theorem must stay"
+require "$FORMULA" "def smPhysMetric" \
+    "§93: the model's metric construction must stay"
+require "$FORMULA" "theorem smPhysicalPositivity_physMetric" \
+    "§93: the model's no-ghost theorem must stay"
+require "$FORMULA" "theorem smPhysMetric_kform_eq_norm_sq_of_mem" \
+    "§93: the form's definiteness on the physical range must stay"
+require "scripts/sm-physical-positivity-smoke.py" "max ||Omega x|| over even basis states" \
+    "§93: the numerical smoke test must keep section 18's check"
+require "scripts/sm-physical-positivity-smoke.py" "PhysicalPositivity Omega (projector)" \
+    "§93: the numerical smoke test must keep section 19's check"
+require "$PLAN" 'the charge must kill the even sector, and the metric that works' \
+    "§93: the plan must keep both halves"
+require "$PLAN" 'parity metric is not no-ghost at this truncation' \
+    "§93: the plan must keep the truncation's verdict"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

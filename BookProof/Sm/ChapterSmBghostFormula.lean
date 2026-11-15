@@ -298,6 +298,53 @@ theorem smPhysProj_finrank_eq_formula (hT : BookProof.YangMillsSU3.ClosesWithStr
   have h2 := finrank_smPhysProjFormula_range (m := m) (T := T) (f3 := f3) hT h3anti h3jac
   omega
 
+/-! ## 5. A metric for the SM charge: the projection onto the canonical physical range
+
+§4 compares the two projectors and records that "nothing here supplies the metric".  §19 of
+`ChapterSmQuartet` shows the quartet does supply one, once it is allowed to be *semidefinite*: the
+orthogonal projection onto the physical range.  Here that metric is written at the model.
+
+Both hypotheses of `physicalPositivity_starProjection` are properties of the canonical range itself:
+the split `ker Ω = range Ω ⊔ range V` (§91) and orthogonality to the exact states, which is
+`smPhysProjFormula_range` read as a statement about the subspace.  So the no-ghost condition is a
+*theorem* for this `η`, and the price is visible: `η` is semidefinite with radical the gauge orbit,
+and on the physical range its form is the ambient norm squared
+(`smPhysMetric_kform_eq_norm_sq_of_mem`).
+
+**Boundary.**  This is not a Krein metric, it does not identify the physical range with the
+transverse even sector, and it does not prove the norm inequality of `ChapterSmQuartet` §12.  What
+it establishes is that the no-ghost *definition* is satisfiable at the model's charge and which
+operator satisfies it, so what survives as an input is an identification, not positivity as such. -/
+
+/-- **A metric for the SM charge**: the orthogonal projection onto the canonical physical range
+`ker Ω ⊓ (range Ω)ᗮ`. -/
+noncomputable def smPhysMetric : FermiFock (m + 12) →ₗ[ℂ] FermiFock (m + 12) :=
+  ((LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3))).starProjection).toLinearMap
+
+/-- **The projection metric is no-ghost at the SM charge.**  The closed space splits off the exact
+states along the canonical range (§91) and every exact state is orthogonal to that range
+(`smPhysProjFormula_range`), so `PhysicalPositivity` holds for `smPhysMetric`. -/
+theorem smPhysicalPositivity_physMetric (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T
+    (smStruct f3)) (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    PhysicalPositivity (smBrstCharge m T f3) (smPhysMetric (m := m) (T := T) (f3 := f3)) := by
+  refine BrstQuartet.physicalPositivity_starProjection _ ?_ ?_
+  · have hD : LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)) ≤
+        (LinearMap.range (smBrstCharge m T f3))ᗮ := by
+      rw [smPhysProjFormula_range hT h3anti h3jac]
+      exact inf_le_right
+    exact le_trans (Submodule.le_orthogonal_orthogonal _) (Submodule.orthogonal_le hD)
+  · exact BrstQuartet.closed_eq_sup_range_physProjOf (isBrst_smBrstCharge hT h3anti h3jac)
+      (canonicalHomotopy_QSQ (smBrstCharge m T f3))
+
+/-- **The metric is the ambient norm on the physical range**: on `ker Ω ⊓ (range Ω)ᗮ` the form is
+positive definite, so the descended form is an inner product on the cohomology. -/
+theorem smPhysMetric_kform_eq_norm_sq_of_mem {d : BookProof.SmCar.FermiFock (m + 12)}
+    (hd : d ∈ LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3))) :
+    (kform (smPhysMetric (m := m) (T := T) (f3 := f3)) d d).re = ‖d‖ ^ 2 :=
+  BrstQuartet.kform_starProjection_eq_norm_sq_of_mem _ hd
+
 end
 
 end BookProof.SmQuartet

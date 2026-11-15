@@ -77,3 +77,6 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmQuartet.smPhysProj_finrank
 #audit_axioms BookProof.SmQuartet.finrank_smPhysProjFormula_range
 #audit_axioms BookProof.SmQuartet.smPhysProj_finrank_eq_formula
+#audit_axioms BookProof.SmQuartet.smPhysMetric
+#audit_axioms BookProof.SmQuartet.smPhysicalPositivity_physMetric
+#audit_axioms BookProof.SmQuartet.smPhysMetric_kform_eq_norm_sq_of_mem

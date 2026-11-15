@@ -495,3 +495,36 @@ even (`exVh_range_even`) — and positivity still fails (`exEvenRange_not_positi
 *exact* state `e₁` is closed and odd (`exE3_one_closed`, `exPar_e1`) and carries the value `−1`.  So
 `smPhysicalPositivity_of_evenRange` cannot be reversed, and the obstruction lives on the closed space,
 never on the range.  See plan §92.
+
+## Correction (2026-11-15f): the input costs a condition on one vector, and the quartet does supply a metric
+
+**The price of the closed-space form.**  §92's equivalence says positivity holds iff the closed space
+is ghost-parity even.  §18 (`ChapterSmQuartet`) draws the consequence: for an even `x`, `Ω x` is
+closed and odd (`image_even_mem_odd_closed`), so positivity *forces* `Ω x = 0` for every even `x`
+(`physicalPositivity_imp_charge_kills_even`, at the model `smPhysicalPositivity_imp_even_killed`), and
+one even state with `Ω x ≠ 0` refutes the input (`not_physicalPositivity_of_even_image`).  A charge
+with a Gauss term `Σ_a c_a† G_a` will not satisfy this for general data, so the ghost-parity metric is
+*not* a no-ghost metric in general.  Nothing in the corpus decides the case of `smBrstCharge` itself —
+it is now a question about a single vector, not about a subspace.
+
+**The quartet's own metric.**  §19 constructs `η = P_D`, the orthogonal projection onto the physical
+range, and proves `PhysicalPositivity Q η` from §91's split `ker Q = range Q ⊔ D` plus orthogonality
+(`physicalPositivity_starProjection`); at the model, `smPhysMetric` and
+`smPhysicalPositivity_physMetric` do it for the canonical range `ker Ω ⊓ (range Ω)ᗮ`, and
+`smPhysMetric_kform_eq_norm_sq_of_mem` shows the form is the ambient norm squared on that range.  The
+honest reading: the no-ghost *definition* is satisfiable at the SM charge for an explicit operator, and
+the operator is **semidefinite** — its radical is the gauge orbit — so it is not a Krein metric.  What
+stays open is the identification of the physical range with the transverse even sector, and the
+construction needs the canonical choice's orthogonality, which is a property of
+`smPhysProjFormula` and not of the quartet alone.
+
+**Numerical smoke test.**  `scripts/sm-physical-positivity-smoke.py` rebuilds the truncation's
+Jordan–Wigner algebra from the chapter's conventions on the su(2) block (3 matter + 3 ghost modes, 64
+states) and checks the three statements.  Measured 2026-11-15: `‖Ω²‖ = ‖UΩ+ΩU‖ = ‖U²−1‖ = 0`;
+`dim ker Ω = 36`, `dim range Ω = 28`, `dim(odd ∩ ker Ω) = 24` with minimum eigenvalue `−1` of the
+parity form on `ker Ω` and an explicit odd closed witness; `max ‖Ω x‖` over even states `= 1.2247 ≠ 0`
+(§18's condition fails); the projector metric has form `B†B` exactly and radical of dimension
+28 = `dim range Ω`, so `PhysicalPositivity` holds; and 40/40 random dimension-six instances agree with
+§92's equivalence, 19 of them in the positivity-holding regime.  **Scope:** the truncation is the
+su(2) block, so these numbers illustrate the theorems and do not decide the Standard Model's closed
+space.  No metric in the Krein sense is constructed anywhere.  See plan §93.

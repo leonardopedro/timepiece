@@ -2264,6 +2264,163 @@ theorem exEvenRange_not_positivity :
   rw [hneg] at hval
   norm_num at hval
 
+/-! ## 18. What positivity forces: the charge annihilates the even sector
+
+§17 turned the no-ghost input into "the closed space is even".  That form has a *consequence* that
+is much easier to test, and it is the sharpest statement this corpus makes about the input's price.
+
+**The mechanism.**  For an even state `x` the image `Ω x` is closed (nilpotency) and its parity is
+`U (Ω x) = −Ω (U x) = −Ω x`, so `Ω x` is an odd closed state whenever it is nonzero
+(`image_even_mem_odd_closed`).  By §17 that is exactly the obstruction: an odd closed state makes
+the ghost-parity form negative there.
+
+**The consequence.**  So positivity forces `Ω` to kill the even sector
+(`physicalPositivity_imp_charge_kills_even`): if `U x = x`, then `Ω x = 0`.  Equivalently, a single
+even state with `Ω x ≠ 0` refutes the input (`not_physicalPositivity_of_even_image`) — a check on
+one vector, not a statement about a subspace.
+
+**Why this matters for the ghost-parity metric.**  §13 asked for `range smPhysProj ⊆ evenSpace U`.
+The weaker demand "`ker Ω` is even" is already strong: it says every even state satisfies every
+Gauss constraint, because the Gauss term of `Ω` is the only part that can detect them.  Whether the
+model's charge satisfies it is *not* decided here — it is a concrete question about `smBrstCharge`,
+now stated as such.  What is decided is the direction of the implication: positivity can fail for
+reasons visible on a single even state, so no argument about the projector can repair it. -/
+
+namespace BrstQuartet
+
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+variable {Q : H →ₗ[ℂ] H}
+
+/-- A vector equal to its own negation is zero. -/
+theorem eq_zero_of_eq_neg_self {v : H} (h : v = -v) : v = 0 := by
+  have h2 : v + v = 0 := by
+    nth_rewrite 2 [h]
+    exact add_neg_cancel v
+  have h3 : (2 : ℂ) • v = 0 := by
+    rw [two_smul]
+    exact h2
+  exact (smul_eq_zero.mp h3).resolve_left (by norm_num)
+
+/-- **The image of an even state is an odd closed state.**  Nilpotency closes it and the charge's
+oddness makes it odd; no involution and no metric is used. -/
+theorem image_even_mem_odd_closed {U : H →ₗ[ℂ] H}
+    (hQ : IsBrst Q) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) {x : H} (hx : U x = x) :
+    Q x ∈ closed Q ∧ Q x ∈ oddSpace U :=
+  ⟨Q_apply_apply hQ x, (mem_oddSpace_iff _).mpr (by rw [hQU, hx])⟩
+
+/-- **Positivity forces the charge to annihilate the even sector.**  An even state's image is an odd
+closed state (§17's obstruction), so it must vanish. -/
+theorem physicalPositivity_imp_charge_kills_even {U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x)))
+    (hpos : PhysicalPositivity Q U) {x : H} (hx : U x = x) : Q x = 0 := by
+  have hcle := (physicalPositivity_iff_closed_le_even hU hQU).mp hpos
+  have hclosed : Q x ∈ closed Q := Q_apply_apply hQ x
+  have hev : U (Q x) = Q x := (mem_evenSpace_iff _).mp (hcle hclosed)
+  have hodd : U (Q x) = -(Q x) := by rw [hQU, hx]
+  exact eq_zero_of_eq_neg_self (hev.symm.trans hodd)
+
+/-- **A single even state the charge does not kill refutes the input.** -/
+theorem not_physicalPositivity_of_even_image {U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x)))
+    (hw : ∃ x : H, U x = x ∧ Q x ≠ 0) : ¬ PhysicalPositivity Q U := by
+  obtain ⟨x, hx, hne⟩ := hw
+  exact fun hpos => hne (physicalPositivity_imp_charge_kills_even hQ hU hQU hpos hx)
+
+end BrstQuartet
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **At the SM charge, positivity forces `Ω` to kill every ghost-parity-even state.**  This is
+§18's consequence at the model's own operators: a single even state outside `ker Ω` refutes
+`PhysicalPositivity (smBrstCharge m T f3) (smGhostParity m)`. -/
+theorem smPhysicalPositivity_imp_even_killed {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (hpos : PhysicalPositivity (smBrstCharge m T f3) (smGhostParity m))
+    {x : BookProof.SmCar.FermiFock (m + 12)} (hx : smGhostParity m x = x) :
+    smBrstCharge m T f3 x = 0 :=
+  BrstQuartet.physicalPositivity_imp_charge_kills_even (isBrst_smBrstCharge hT h3anti h3jac)
+    (smGhostParity_comp m) (fun y => smGhostParity_odd_smBrstCharge m T f3 y) hpos hx
+
+/-! ## 19. A metric the quartet *does* supply
+
+§17 and §18 are about the ghost-parity metric, and §18 shows that metric is not free: positivity for
+it forces the charge to kill the even sector.  The quartet supplies a different metric, and for it
+the input is a theorem rather than a hypothesis.
+
+**The construction.**  Take the orthogonal projection onto the physical range: `η = P_D` with
+`D = range V`.  Its charge form is the squared norm of the projection
+(`kform_starProjection_self`), hence non-negative on the *whole* space, not just on the closed one.
+What the quartet has to supply is the radical condition: a closed state whose projection vanishes
+lies in `Dᗮ`, and since `ker Q = range Q ⊔ D` (§16) it is therefore exact — provided `D` is
+orthogonal to the exact states (`physicalPositivity_starProjection`).
+
+**So the no-ghost input is not a hypothesis here, it is the quartet split read correctly.**  The
+price is explicit: `η` is *semidefinite*, not a Krein metric — its radical is the gauge orbit, and
+the form is the ambient norm squared on that range (`kform_starProjection_eq_norm_sq_of_mem`).
+That is the honest content of "the quotient carries an inner product": the parameter that was
+missing was not a strictly positive metric but the identification of the correct degenerate one.
+
+**Boundary.**  This does not identify the physical range with the transverse even sector, does not
+produce a Krein metric for `smBrstCharge`, and does not prove §12's norm inequality.  It says the
+no-ghost *definition* is satisfiable and pins down which metric satisfies it: the projection onto
+the physical range, whose orthogonality to the exact states is a property of the canonical choice
+(`smPhysProjFormula_range`), not of the quartet alone. -/
+
+namespace BrstQuartet
+
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+
+/-- **The form of an orthogonal projection is the squared norm of the projection.** -/
+theorem kform_starProjection_self (D : Submodule ℂ H) [D.HasOrthogonalProjection] (x : H) :
+    (kform D.starProjection.toLinearMap x x).re = ‖D.starProjection x‖ ^ 2 := by
+  rw [kform]
+  change (inner ℂ x (D.starProjection x)).re = ‖D.starProjection x‖ ^ 2
+  rw [← Submodule.inner_starProjection_left_eq_right D x x]
+  change RCLike.re (inner ℂ (D.starProjection x) x) = ‖D.starProjection x‖ ^ 2
+  rw [Submodule.re_inner_starProjection_eq_normSq]
+  rfl
+
+/-- On the physical range, the projection form *is* the ambient norm squared: the metric is positive
+definite there, not merely semidefinite. -/
+theorem kform_starProjection_eq_norm_sq_of_mem (D : Submodule ℂ H) [D.HasOrthogonalProjection]
+    {d : H} (hd : d ∈ D) : (kform D.starProjection.toLinearMap d d).re = ‖d‖ ^ 2 := by
+  rw [kform_starProjection_self, Submodule.starProjection_eq_self_iff.mpr hd]
+
+/-- **The quartet's own metric is no-ghost.**  If the physical range `D` is a complement of the
+exact states in the closed space and is orthogonal to them, the charge form of its orthogonal
+projection is non-negative on the closed space and its radical there is exactly the gauge orbit. -/
+theorem physicalPositivity_starProjection {Q : H →ₗ[ℂ] H} (D : Submodule ℂ H)
+    [D.HasOrthogonalProjection] (hDQ : LinearMap.range Q ≤ Dᗮ)
+    (hsplit : closed Q = LinearMap.range Q ⊔ D) :
+    PhysicalPositivity Q D.starProjection.toLinearMap := by
+  refine ⟨fun x _ => ?_, fun x hx hrad => ?_⟩
+  · rw [kform_starProjection_self]
+    exact sq_nonneg _
+  · have hproj : D.starProjection x = 0 := by
+      have hsq : ‖D.starProjection x‖ ^ 2 = 0 := by
+        rw [← kform_starProjection_self]
+        exact hrad
+      exact norm_eq_zero.mp (pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hsq)
+    obtain ⟨q, hq, d, hd, hqd⟩ : ∃ q ∈ LinearMap.range Q, ∃ d ∈ D, q + d = x := by
+      have hmem : x ∈ LinearMap.range Q ⊔ D := by rw [← hsplit]; exact hx
+      exact Submodule.mem_sup.mp hmem
+    have horth : q ∈ Dᗮ := hDQ hq
+    have hd0 : d = 0 := by
+      have hqx : D.starProjection q = 0 :=
+        (Submodule.starProjection_apply_eq_zero_iff (K := D)).mpr horth
+      have hdx : D.starProjection d = d := Submodule.starProjection_eq_self_iff.mpr hd
+      have hx' : D.starProjection x = d := by
+        rw [← hqd, map_add, hqx, hdx, zero_add]
+      rw [← hx']
+      exact hproj
+    rw [← hqd, hd0, add_zero]
+    exact hq
+
+end BrstQuartet
+
 end
 
 end BookProof.SmQuartet
