@@ -4821,8 +4821,10 @@ self-adjoint (`smGhostParity_selfAdjoint`), and that the SM charge is **odd** fo
 
 Boundary: the norm inequality itself is **not** proved — it is a statement about `range smPhysProj`,
 i.e. about which modes survive the Gauss constraint, and nothing here identifies that range with the
-transverse even sector.  The Krein condition `hKrein` (the charge is symmetric for the ghost-parity
-form) is carried as a hypothesis; only the grading `U Ω = −Ω U` is derived.
+transverse even sector.  (§83 shows that identification *follows* from the inequality given a
+parity-even b-ghost, so it cannot be used to prove it.)  The Krein condition `hKrein` (the charge is
+symmetric for the ghost-parity form) is carried as a hypothesis; only the grading `U Ω = −Ω U` is
+derived.
 
 ## 78. The SM first-slot trace does not vanish
 
@@ -4854,7 +4856,8 @@ the labelling: `N·Λ*` is replaced by the `2π`-multiple of the dual lattice.
   whole criterion, and independence of the basis is not needed for the labelling.
 
 Boundary: this is the alias *class* on the box; that the model's wave numbers land on a commensurate
-lattice at all remains §74's open labelling hypothesis.
+lattice at all remains §74's open labelling hypothesis.  (§82 shows that hypothesis is periodicity of
+the mode under the box shifts; only distinctness stays open.)
 
 ## 80. The trace functional is block diagonal
 
@@ -4879,7 +4882,8 @@ coefficient, not about the charge.
 Boundary: It does not evaluate the gluon sum `Σ_y f₃ y a b`.  The file's `f₃` is an arbitrary
 antisymmetric Jacobi family, not the trace-orthonormal colour generators, so whether the gluon part
 vanishes remains open — and it is *not* implied by the incident `su(2)` block's `−1`.  The antighost's
-failure is therefore still located block by block, not decided for the whole trace.
+failure is therefore still located block by block, not decided for the whole trace.  (§81 evaluates
+it at the trace-orthonormal generators: it does not vanish.)
 
 ## 81. The gluon first-slot trace, evaluated: it does not vanish
 
