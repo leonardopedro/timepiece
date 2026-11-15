@@ -7,6 +7,21 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest application refinement (2026-11-15d):** “State of the project — 2026-11-15d:
+> required small Edge0/RLCD decision-model research” (end of file); R9/E0–E7 in
+> `../unfer/pcnl/` specify the required reinforcement arm and finite proof handoff.
+> The pCNL sampler certificates below remain the mathematical work order.
+>
+> **Newest pCNL refinement (2026-11-15c):** “State of the project — 2026-11-15c:
+> pCNL property certificates and development gates” (end of file); `pcnl.md` Q0–Q7
+> synchronizes with `../unfer/pcnl/RESEARCH_PLAN.md` R8 and its new development plan.
+> Other tracks retain the current entries below.
+>
+> **Newest mass-gap refinement (2026-11-15b):** “State of the project — 2026-11-15b:
+> uniform SIRK error and a strong-coupling gap witness” (end of file), with the detailed
+> U0–U6 specialist packets at the top of `softmodes.md`. This refines P2/P3 below;
+> the earlier cross-track entry continues to govern other subjects.
+>
 > **Newest cross-track reading guide (2026-11-15):** “State of the project — 2026-11-15: source audit of the new proofs and the four-sector Hamiltonians”
 > at the end of this file. It updates the book, the recent QYM/SIRK/NS/SM/OS source inventory,
 > the full inner-operator/outer-enclosure contract and ordered specialist packets P0–P6.
@@ -25602,3 +25617,126 @@ missing sibling `../../papers/Hashimoto.md`; the citation is present in its comm
 baseline. Its README now records the current 87-page/614-link census and that failure.
 No Lean, book render, KaTeX, Cadabra or numerical build/check was run; P0 remains for
 the specialist. Concurrent Gell-Mann/SU(3) source edits were not modified by this wave.
+
+## State of the project — 2026-11-15b: uniform SIRK error and a strong-coupling gap witness
+
+This refines the previous 2026-11-15 **P2/P3 mass-gap work order**, and supersedes the
+older S3 ordering and uniformity claims in `softmodes.md` as an execution guide. Other
+tracks, the unchanged Hamiltonian contract and the QYM-before-SM analytic priority stand.
+The detailed specialist plan is now [softmodes.md](softmodes.md), **“Current mass-gap plan:
+uniform SIRK error and a strong-coupling witness (2026-11-15)”**, packets **U0–U6**.
+This documentation update performs no compilation, numerical run or new proof.
+
+The requested strategy is to prove a maximum SIRK error bounded independently of Krylov
+dimension, then exhibit one strong coupling where the certified mass exceeds its entire
+energy-error budget. A non-increasing formula with fixed abstract constants is already
+proved in `ChapterH6`; its instantiation for the full physical approximation remains work.
+`ChapterSirkEndToEnd.sirk_error_opNorm_le` needs an all-vector hypothesis, while the
+seed theorem and `IsSirkScheme` retain range/invariance premises. A generic Krylov subspace
+has leakage. Price that leakage and the omitted space instead of assuming invariance.
+
+**Execution.** U0 fixes the complete `h_g`, its core/closure and target: inner excitation
+separation or the absolute inner floor required for the outer-vacuum gap of `dΓ(h_g)`.
+U1 chooses a dimensionless positive resolvent rather than a finite-rank approximation to
+an infinite unitary in vanishing whole-space operator norm. U2 proves a common envelope
+including rational error, off-block/tail control, solves, orthogonality/Gram truncation
+and rounding. Keep coupling, physical cutoff, Krylov dimension, rational order and shift
+budget distinct. The multiplicative prefactor needs **upper** bounds, including on the
+implemented `Dmin`; a lower bound on that factor does not control maximum error.
+
+U3 proves spectral coverage/counting and inverse-resolvent interval transfer, including a
+uniform positive denominator margin. Resolvent error and mass error have different units.
+For an inner excitation difference, certify `|M-Mhat|≤E_gap=δ0+δ1` and seek
+`Mhat>E_gap`; if both level errors are at most `E`, use `Mhat>2E`. A residual locating
+some eigenvalue does not exclude unseen lower states. Reuse second-edge Temple only with
+its genuine separation/margin inputs, or derive the necessary ordered spectral bounds.
+U4 supplies the separate absolute test for the outer gap, by a whole-resolvent norm bound
+or a finite-block/tail form bound whose cross coupling is explicitly included.
+
+U5 records actual parameters `g_star,L,m,q,N`, scale, shift and interval data with a
+strict rational margin, at `g_star≥g_sc` for a declared strong-coupling threshold. Prove the full-space/tail inputs for this witness; a fixed-cutoff
+result stays a finite-model result. Strong coupling helps only after comparing its signal
+and error scaling: both can grow with the same energy scale. U6 orders the conditional
+arithmetic, leakage/rational estimates, spectral coverage, concrete witness and specialist
+verification. Compact-resolvent input must be proved if a finite-rank norm-convergence
+route uses it; a finite certificate need not claim that convergence. No mass-gap conclusion
+may depend on an uninstantiated `UniformError` or `StrongCouplingWitness` assumption.
+
+## State of the project — 2026-11-15c: pCNL property certificates and development gates
+
+This refines the **pCNL/BayesianTransformer work order**, preserving the existing T0–T5
+mathematical corrections and measured R0–R7 outcomes. The active formal packets are now
+[pcnl.md](pcnl.md), **Q0–Q7**; the research and implementation counterparts are
+`../unfer/pcnl/RESEARCH_PLAN.md` **R8** and the new
+`../unfer/pcnl/DEVELOPMENT_PLAN.md` **D0–D7**. Other track priorities are unchanged.
+This is a source/documentation update: no compilation, test or experiment was run.
+
+The first proposed certificate is target well-posedness plus an exact **prior-refresh MH**
+reference. If `π=L μ0/Z`, `0≤L≤M` and `Z>0`, derive
+`K_ind(x,·)≥(Z/M)π(·)` on target support. A fixed mixture with a same-target invariant
+local MH kernel has coefficient `ω Z/M`. Establish TV and centred-`L²` contraction and
+instantiate a lower evidence bound on a tiny nonconstant target. This is a proposed
+proof/optional kernel mode, not a theorem about unadjusted SG-pCNL. The rate may be
+impractically small; evidence lower bounds and cost must accompany any efficiency claim.
+
+Next complete the real Gaussian kernel-to-`L²` bridge and a fixed-informed-rank,
+independent-complement product benchmark. Coupled-target conditional gap/factorization
+estimates are separate. Deterministic composition of reversible block updates need not
+be reversible. Slice-restricted charts define different models; a full-support ridge
+likelihood `E_w L(z,w)` and a frozen slice `L(z,0)` are distinct objects. Bound neglected
+information and sampling error before promoting empirical informed ranks to theory.
+
+Keep four budgets separate: target/reduction approximation; unadjusted/gradient/rounding
+kernel bias; burn-in and correlated Monte Carlo error; predictive/readout and rollout
+error. The `f32` proposal casts need an ideal-to-machine metric bridge; real-arithmetic
+MH algebra is not literal detailed balance of rounded cells. A stochastic log-likelihood
+estimate is not automatically an exact MH likelihood estimator. Positive-floor,
+unfloored-decay, cyclical and adaptive processes need their actual schedule contracts.
+
+The DT code and cells are already present despite stale “proposed/unmeasured” prose.
+The R7 ledger records failure to establish the prespecified next-action-NLL improvement
+and later proper-score-only observations. Preserve those results and stop decisions;
+D5 repairs trajectory-dependent uncertainty and posterior-draw decoder error before
+application promotion. A mixing theorem does not imply posterior superiority, calibration
+or policy optimality. Q5 proposes a finite-horizon value-stability theorem under a uniform
+policy-distance premise, not a guarantee inferred from held-out action scores.
+
+Use existing box/ball minorants, normalized prior-target stationarity, Mehler identities
+and T0–T5 receivers within their hypotheses. Q6's SIRK/Fock spectral route is optional
+unless it adds a sharper full-space certificate; it must use the actual equilibrium
+projection and priced tails/couplings. The execution order is Q0/Q1, Gaussian-product Q2,
+Q3/Q4, then coupled/policy extensions. No uninstantiated rate or model-reduction hypothesis
+may be reported as a proof of good theoretical properties of the transformer project.
+
+## State of the project — 2026-11-15d: required small Edge0/RLCD decision-model research
+
+This adds the user's required **RLCD application track**, without replacing Q0–Q7/R8
+sampler certificates or reopening the stopped R7 DT comparison. The local architecture
+checkout is `../Edge0/` (inspected commit `7b60076`), not `../Edge-0/`. The new
+[Edge0/RLCD specification](../unfer/pcnl/EDGE0_RLCD_PLAN.md), research **R9** and development
+**E0–E7** define a proposed sub-million-parameter grouped latent-MoE encoder with typed
+Bernoulli, Choice and ordinal Score probability outputs. No code, experiment, proof or
+compilation is claimed by this entry.
+
+**RLCD is required even though Mammoth-1's published recipe is supervised.** A separate
+four-path categorical policy receives explicit proper-score reinforcement updates;
+typed readouts receive direct gradients. The returned distribution is the exactly summed
+latent-path marginal, not a sampled label or a single route. An iid pairwise Brier
+estimator and the full score-function/direct derivative identity must agree with finite
+enumeration before training. Supervised CE+Brier and exact-marginal Brier backpropagation
+are controls, not substitutes for the reinforcement arm. Per-path and marginal objectives
+remain distinct; source versions and reference-model claims must identify which is scored.
+
+The bounded first campaign uses known finite-world outcome laws, independent world-level
+splits, five paired seeds, explicit training/compute caps and proper-score/utility
+endpoints with clustered uncertainty. Latent path mixtures are separate from an optional
+pCNL posterior over parameters; exact latent marginal likelihoods go into the initial
+head-only MH target. Fresh stochastic log-likelihoods do not justify exact acceptance.
+Questions' calibrated marginals alone do not specify a correlated joint distribution.
+
+The Lean4-specialist first handles finite simplex/mixture closure, proper-score and
+U-statistic expectations, policy-gradient/baseline identities and bounded-utility regret.
+Any posterior certificate then reuses Q0/Q1 with the actual neural target and its remaining
+assumptions. MoE routing/compression is not a Bayesian uncertainty certificate; changing
+predicted routes, encoder weights or caches can change returned probabilities. Keep these
+approximations explicit and preserve all prior theorem and numerical evidence scopes.

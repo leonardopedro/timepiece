@@ -725,10 +725,10 @@ theorem smStruct_trace_hyper {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} :
 
 /-! ## 12. The gluon block for the trace-orthonormal `su(3)` generators
 
-§11 said `f₃` is arbitrary and left `Σ_y f₃ y a b` unevaluated.  For the generators the book actually
-uses — the trace-orthonormal `T_a = ½ λ^a` of `ChapterGellMann` — the sum is *determined* and it does
-**not** vanish: `ChapterGellMann.su3gen_firstSlot_zero_one` gives `Σ_y f₃ y 0 1 = 1`.  So the antighost
-fails on the gluon block as well, by the same mechanism as §10's weak pair. -/
+§11 said `f₃` is arbitrary and left `Σ_y f₃ y a b` unevaluated.  For the generators the book
+actually uses — the trace-orthonormal `T_a = ½ λ^a` of `ChapterGellMann` — the sum is *determined*
+and it does **not** vanish: `ChapterGellMann.su3gen_firstSlot_zero_one` gives `Σ_y f₃ y 0 1 = 1`.
+So the antighost fails on the gluon block as well, as it does on §10's weak pair. -/
 
 /-- The label of the `a`-th gluon generator among the twelve. -/
 def smGluon (a : Fin 8) : Fin 12 := smIdxEquiv.symm (Sum.inl a)

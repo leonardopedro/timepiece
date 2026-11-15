@@ -867,4 +867,50 @@ theorem alias_class_dual (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ)
 
 end
 
+/-! ## 7. The labelling hypothesis is periodicity of the field
+
+§74 (and §5) carried, as a hypothesis, that the model's wave numbers have pairings
+`⟨w, e_x⟩ = 2π m_x/N` with integer `m_x`.  That is not a separate assumption about the dispersion: it
+*is* periodicity of the field under the box translations `x ↦ x + N·e_x`, which is what "a model on
+the `N³` box" means.  The translation acts on a plane wave as multiplication by
+`phase w (N·e_x) = exp(i·N·⟨w, e_x⟩)`, so invariance pins `N·⟨w, e_x⟩` to `2πℤ` and the labelling
+`m` follows.
+
+So the labelling half of §74 is **settled**: it is the same statement as living on the box.  What
+stays open is only the *distinctness* half (`hdvd` in §5) — that no two distinct wave numbers of the
+model differ by an element of `2π·(dual lattice)` — which is a non-degeneracy property of the wave
+set, not a commensurability condition. -/
+
+/-- **Periodicity under the box translations is exactly the commensurability labelling.**  If every
+plane wave of the model is invariant under the shifts `x ↦ x + N·e_x`, then its pairings are
+multiples of `2π/N`, which is §5's hypothesis. -/
+theorem commensurate_of_periodic (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ) (w : Fin 3 → ℝ)
+    (h : ∀ x : Fin 3, phase w (fun y => (N : ℝ) * e x y) = 1) :
+    ∃ m : Fin 3 → ℤ, ∀ x, ∑ y, w y * e x y = 2 * Real.pi * (m x : ℝ) / N := by
+  have hpair : ∀ x, ∃ n : ℤ, (N : ℝ) * (∑ y, w y * e x y) = 2 * Real.pi * (n : ℝ) := by
+    intro x
+    have hpx := h x
+    have harg : (∑ y, w y * ((fun y => (N : ℝ) * e x y) y) : ℝ)
+        = (N : ℝ) * ∑ y, w y * e x y := by
+      rw [Finset.mul_sum]
+      exact Finset.sum_congr rfl fun y _ => by ring
+    unfold phase at hpx
+    rw [harg] at hpx
+    obtain ⟨n, hn⟩ := Complex.exp_eq_one_iff.mp hpx
+    refine ⟨n, ?_⟩
+    have hIn : Complex.I * (((N : ℝ) * ∑ y, w y * e x y : ℝ) : ℂ)
+        = Complex.I * (((n : ℝ) * (2 * Real.pi) : ℝ) : ℂ) := by
+      rw [hn]
+      push_cast
+      ring
+    have hs : (((N : ℝ) * ∑ y, w y * e x y : ℝ) : ℂ)
+        = (((n : ℝ) * (2 * Real.pi) : ℝ) : ℂ) :=
+      mul_left_cancel₀ Complex.I_ne_zero hIn
+    exact (Complex.ofReal_injective hs).trans (by ring)
+  choose n hn using hpair
+  refine ⟨n, fun x => ?_⟩
+  have hNz : (N : ℝ) ≠ 0 := by exact_mod_cast hN.ne'
+  rw [← hn x]
+  field_simp
+
 end BookProof.NsVolDomReconstruction

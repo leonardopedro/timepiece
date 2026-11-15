@@ -1,5 +1,304 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
+## Current mass-gap plan: uniform SIRK error and a strong-coupling witness (2026-11-15)
+
+This is the current S2–S4 execution guide for the **LLM-Lean4-specialist**. It refines the
+2026-11-15 consolidated P2/P3 packets and supersedes the older S3 recommendations below on
+uniform error, shift schedules and the final positivity test. Keep the S0/S1 operator and
+physical-sector obligations. Existing dated results remain proof history; their hypotheses
+must be read from source. This update performs no compilation or numerical experiment.
+
+The intended proof has two quantitative outputs: a certified maximum error whose upper
+bound does not grow with Krylov dimension, and **one specified strong coupling** where a
+certified first-excitation mass exceeds its entire error budget. These are tasks to prove,
+not consequences already supplied by the generic exponential factor. One successful finite
+certificate can suffice, provided its error and spectral coverage concern the full operator.
+
+### U0. Fix the mass, the operator and the quantifiers
+
+Retain the complete gauge-fixed inner QYM operator `h_g`, including the kinetic and full
+magnetic square, cubic cross terms, quartic terms, ordering constants and intended physical
+restriction. Prove that restriction reduces the closure on its stated core when it is used.
+The final nested Hamiltonian remains
+
+$$H_g=d\Gamma(h_g)=\sum_{ij}\langle e_i,h_g e_j\rangle C^\dagger(e_i)A(e_j).$$
+
+For the **outer-vacuum gap**, the first nonvacuum energy is the absolute bottom of the
+inner `h_g`; a positive lower bound on that entire inner space is the target. For an **inner
+excitation mass**, identify the complete ground projection `P_g`, its multiplicity and
+energy `E_0(g)`, and set `M(g)=inf σ(h_g|P_g^⊥)-E_0(g)`. Call it a first excited eigenstate
+only after proving that this edge is an eigenvalue. Degenerate grounds use the whole
+projection. The two masses need separate theorem names and certificates.
+
+`H_g Ω_out=0` is structural, but an inner zero mode produces a nonvacuum outer zero mode.
+An inner excitation certificate alone therefore does not prove the outer-vacuum gap.
+Adding `cI` inside `h_g` adds `c N_out` outside and changes the model; it cannot be used
+to manufacture the required absolute gap. Preserve the populated-prior interpretation below.
+
+Use four separate parameters: coupling `g`, physical basis/mode cutoff `L`, retained
+Krylov dimension `m`, and rational/shift order `q`. Record the shift budget `N` separately
+from all four and from outer particle number. Start with a fixed physical operator and
+admissible schedules. Uniformity in `m` is not uniformity in `L`, `g`, time or rounding
+precision. A claim about the continuum requires full-space estimates or an explicitly
+proved uniform-in-`L` transfer; a fixed-cutoff certificate stays labeled as such.
+
+### U1. Define the maximum error on a space where it can be controlled
+
+Use a positive scale `s(g)` only as a **multiplicative** change of units: `K_g=h_g/s(g)`.
+Choose a fixed dimensionless shift `κ>0` and use the self-adjoint positive resolvent
+`R_g=(K_g+κI)⁻¹`, with `‖R_g‖≤1/κ` following from nonnegativity, without assuming a gap.
+The desired spectral error is the supremum over all unit vectors,
+
+$$e_R(g,L,m)=\|R_g-\widehat R_{g,L,m}\|,$$
+
+where `Rhat` is the explicitly defined, certified self-adjoint SIRK reconstruction, possibly
+with an analytically controlled tail completion. A supremum need not be attained; "maximum"
+means this norm. Retained-block error and the residual on `ran V_m` are useful intermediate
+quantities, but neither is automatically this whole-space error.
+
+Two checks prevent an impossible or circular target:
+
+- A finite-rank reconstruction of an infinite-dimensional **unitary propagator** has
+  whole-space norm error at least `1`: test a unit vector in the reconstruction's kernel.
+  Its seed-wise convergence cannot prove a vanishing worst-case unitary-flow error.
+- Whole-space norm convergence of finite-rank reconstructions of `R_g` to zero error would
+  imply compactness of `R_g`. Do not assume compact resolvent for the unreduced 99-coordinate
+  model. Either prove it, use a controlled noncompact tail completion, certify a finite
+  low-energy window with complementary spectral exclusion, or settle for a finite positive
+  error sufficient for the final witness. No `e_R→0` assertion is required merely to prove
+  `Mhat > E_gap` at one coupling.
+
+**Source audit.** `ChapterH6.sirk_error_bound_antitone` and
+`sirk_error_decay_exponential` concern the expression `2 C Dmin exp(-hstep q)` with fixed
+constants. `ChapterSirkEndToEnd.sirk_error_opNorm_le` assumes a bound for **every** ambient
+vector. In contrast, `sirk_end_to_end` also needs `hv : V(V* v)=v` and invariance of the
+retained range; `ChapterSirkPerSystemFlowBound.IsSirkScheme` retains that invariance.
+A generic finite Krylov space has boundary leakage. Prove its error or replace the exact
+invariance premise; do not infer the all-vector premise from the seed theorem. The
+per-system numerical-range segment is already available and should be reused, but its
+existence alone does not construct a rational scheme or bound the omitted block.
+
+### U2. Prove a dimension-independent envelope, including the omitted space
+
+The deliverable is a concrete bound, for all admitted `m≥m0`,
+
+$$e_R(g,L,m)\le B(g,L,q_m)
+ =2\bar C\bar D e^{-a q_m}
+  +T(g,L)+S(g,L)+O(g,L)+F(g,L),\qquad a>0.$$
+
+Here `T` bounds physical truncation and omitted-space effects, `S` the accumulated solves,
+`O` orthogonality/Gram truncation and rational-transfer defects, and `F` certified rounding
+and assembly. These are nonnegative **operator-norm** bounds for this same resolvent
+scheme, rather than empirical residual averages. Their allocation must be valid for every
+admitted dimension. Require `q_m` to be nondecreasing. Then
+`B(g,L,q_m)≤B(g,L,q_m0)=Ebar_R(g,L)` for every admitted `m≥m0`; this is the
+explicit non-growth guarantee. Define the actual scalar rational approximation error
+separately and prove the deformation estimate that feeds the `2 C Dmin` term for this
+particular target function; a propagator theorem does not automatically approximate `R_g` itself.
+
+Reuse `ChapterSirkPerSystem.ym_sirk_crouzeix_domain`: positivity puts the numerical ranges
+of `R_g` and every isometric compression in the common segment `[0,1/κ]`. For this
+self-adjoint case, a proved functional-calculus sup-norm estimate can replace a generic
+Crouzeix input where available. Supply an explicit admissible rational approximant with
+scalar error bounded on that common segment. Nested admissible rational classes give a
+non-increasing **best-error envelope**; they do not make every computed Ritz residual or
+raw floating-point error monotone.
+
+The constants must satisfy **upper bounds** `C_{L,m}≤Cbar`, `D_{L,m}≤Dbar`, and a positive
+lower bound on `hstep`. In the implemented `sirkBound`, `Dmin` multiplies the bound.
+The older S3.3 requirement `inf Dmin_m>0` has the wrong direction for bounding this product;
+its asserted interpretation as a minimum of sampled function values is not established by
+`ChapterH6`. Any denominator nonvanishing condition is a separate proof obligation.
+Bound actual rational errors and pole distances, not the variable name.
+
+For the older real schedule `γ_j=N-sj>0`, prove its admissibility at every step and retain
+`q<N/s`. A fixed budget admits finitely many orders. If the budget grows, redo the bounds
+for the resulting functions, domain, shifts and denominator inverses uniformly along that
+schedule. Decreasing `exp(-s q)` alone says nothing if its prefactor grows faster. Also,
+`q<N/s` bounds that exponential factor; it is **not a lower bound on the actual error**.
+
+A concrete way to expose the missing full-space estimate is to prove `V*V=I`, then set
+`P=VV*`, `Q=I-P` and prove the block estimate, for `Bhat` approximating `V*R_g V`,
+
+$$\|R_g-V\widehat B V^*\|
+ \le \|V^*R_gV-\widehat B\|+2\|QR_gP\|+\|QR_gQ\|.$$
+
+Price the off-block leakage and tail analytically, or replace the zero tail by a certified
+completion and bound its difference. Schur row/column bounds or form/Schur-complement
+estimates can avoid spurious factors `m` from summing entrywise bounds. Reuse
+`ChapterSchurGershgorinGap` and `ChapterTruncationGapLift` where their hypotheses hold;
+polynomial band width alone does not prove the needed row sums or tail coercivity.
+`V*R_g V` also differs in general from `(V*K_g V+κI)⁻¹`: use
+`ChapterShiftInvertBookkeeping.compression_ne_resolvent` and include a certified Schur
+complement/solve correction before substituting the finite inverse.
+
+For finitely many solves or rounded matrix entries, allocate tolerances by operator norm.
+For example, `m` solve-column errors of norm at most `ε/√m` give a Frobenius bound at most
+`ε`; `m²` entry errors at most `ε/m` do likewise. These are sufficient budgets, not fixed
+precision promises. Increase precision or reorthogonalize as needed, certify discarded
+Gram directions, and include their cost. Fixed per-entry tolerance can make the total
+error grow with `m`. A common non-increasing **guarantee** is the acceptance criterion;
+monotonicity of the actual latest approximation is a stronger, unnecessary claim.
+
+### U3. Convert the bound to mass error and exclude unseen levels
+
+Carry error units explicitly. A resolvent norm error is not an energy or mass error.
+For a simple inner ground and an identified first excited level, let `μhat_0≥μhat_1>0`
+be the two largest eigenvalues of the certified resolvent approximant. Prove a min–max
+or spectral-projector counting theorem giving ordered true resolvent values `μ_i` with
+`|μ_i-μhat_i|≤e`, `i=0,1`, from the **full-space** error `e_R≤e`. Its spectral assumptions
+must establish existence, multiplicity and ordering, including any essential spectrum.
+A nearest-eigenvalue residual theorem alone is not that counting theorem. For a ground
+of multiplicity `r`, use the whole ground cluster and the next ordered edge, not index `1`.
+
+One sufficient finite-rank setting is a positive compact `R_g`, a positive self-adjoint
+`Rhat`, `μhat_1>e`, and `μhat_0-μhat_1>2e`; derive the ordered bounds and simple-ground
+identification using min–max. Compactness is an input to prove for that realization, not a
+property supplied by QYM positivity. If compactness fails, replace this setting by a
+proved low-window count and complementary spectral exclusion or the form route in U4.
+
+With `e<μhat_1` the inverse-resolvent arithmetic yields
+
+$$E_i(g)\in s(g)\left[
+ \frac1{\widehat\mu_i+e}-\kappa,
+ \frac1{\widehat\mu_i-e}-\kappa\right],$$
+
+$$M(g)\ge s(g)\left[
+ \frac1{\widehat\mu_1+e}-\frac1{\widehat\mu_0-e}\right].$$
+
+The second expression is positive when `μhat_0-μhat_1>2e`. Alternatively define
+
+$$\widehat M=s(g)(\widehat\mu_1^{-1}-\widehat\mu_0^{-1}),\qquad
+ \delta_i=\frac{s(g)e}{\widehat\mu_i(\widehat\mu_i-e)},\qquad
+ E_{\rm gap}=\delta_0+\delta_1.$$
+
+Then prove `|M-Mhat|≤E_gap`. The requested stopping rule is precisely
+**`Mhat > E_gap`**, with a recorded positive rational margin. If each level has error
+at most `E_level`, the sufficient test is `Mhat>2 E_level`. Use a single level error
+only when the correct ground energy and full ground projection are known exactly.
+Changing `g` can move the inner ground as well as the first excited level.
+
+To make the **energy-error** bound uniform in Krylov dimension too, prove a denominator
+margin, for example `μhat_1(g,L,m)≥u0>Ebar_R(g,L)` for every admitted `m≥m0`.
+Then both level errors are bounded by
+`s(g) Ebar_R/[u0(u0-Ebar_R)]`, so the single dimension-independent gap-error bound is
+`Ebar_gap=2 s(g) Ebar_R/[u0(u0-Ebar_R)]`. A uniform resolvent error without this
+inverse-map margin can still give an unbounded energy uncertainty. The direct interval
+formula can give a sharper individual certificate than this common envelope.
+
+These formulas are targets for short Lean arithmetic lemmas after the ordered spectral
+bounds, not claims that existing finite certificates already establish those bounds.
+The reflected-Temple alternative remains useful: reuse
+`ChapterResolventTransfer.reflected_membership_order_of_sirkBound` and its second-edge
+compression input. Keep `θ<b`, a positive denominator margin and the physical edge
+identification. Do not choose the bottom as the Temple level or insert the desired gap
+as the unproved separation assumption. `gap_interval_of_reflected_bands` prices both
+edges; comparison thresholds alone cannot be subtracted to obtain an excitation gap.
+
+### U4. Supply the absolute bound when the final claim is the outer-vacuum gap
+
+A certificate for the top resolvent value gives the direct absolute test
+
+$$\inf\sigma(h_g)\ge s(g)\left[
+ \frac1{\widehat\mu_0+e}-\kappa\right]>0
+ \quad\hbox{if}\quad \widehat\mu_0+e<\kappa^{-1},$$
+
+provided U3's top-edge/whole-space identification is proved. This concerns the **inner
+ground**, hence the first nonvacuum outer energy. No subtraction of an inner ground energy
+is permitted here. A cheap norm upper bound on the complete resolvent can also suffice;
+it must improve strictly on `1/κ` for the specified operator, rather than assume a gap.
+
+There is an alternative that avoids compact-resolvent and ordered-eigenvalue machinery.
+Split the **inner form** into a finite block and its full orthogonal tail. Certify lower
+bounds `a>0`, `d>0` on the two diagonal forms and a cross bound
+`|q(x,y)|≤b‖x‖‖y‖`, `b≥0`. If the SIRK finite-block lower-edge error is `δ`, use
+`a=Ehat_head,0-δ`, after identifying the bottom of that entire block. The complete form
+is then bounded below by
+
+$$\frac{a+d-\sqrt{(a-d)^2+4b^2}}2\,(\|x\|^2+\|y\|^2).$$
+
+The margin is positive if `b²<ad`. This is a small-matrix Schur comparison, not an
+assumption of the final mass gap; U2 must supply the actual tail and coupling estimates.
+A proposed failure of Gershgorin in one basis calls for a different weighted/block form
+bound, not deletion of cross or quartic terms. Reuse the existing core-to-closed-form
+transfer and `ym_fock_mass_gap_of_one_particle_form_gap` after this strict absolute bound
+lands. For inner target 2, an analogous comparison needs an independently identified
+ground-complement decomposition and its projection error. Do not deflate an unknown ground
+without pricing that error.
+
+### U5. Find and certify one strong coupling with a positive margin
+
+First normalize the complete operator by a proved unitary dilation, if useful. Derive its
+coupling dependence on the actual kinetic and passive coordinates; do not assume that all
+99 coordinates scale as a scalar quartic oscillator. Even in the schematic family
+`-Δ+g²x⁴`, the dilation gives energy scale `g^(2/3)`, not `g²`. Mixed magnetic terms,
+flat channels, ghost factors and ordering constants require their own exact identities.
+
+Specify a dimensionless strong-coupling threshold `g_sc>0` for this normalization before
+the search. The numerical candidate search should return a rational `g_star≥g_sc`, scale
+`s(g_star)`, shift `κ`, cutoff `L`, admitted `(m,q,N)`, interval-valued spectral data and
+all U2 error terms. Search on the complete gauge-fixed operator with informed starts covering
+the low physical sectors. An outer vacuum start has rank one and cannot find the relevant inner
+levels. Reflection sectors are useful only with a proof of low-spectrum coverage and
+ordering. Lattice `g²/2` scaling and scalar-stripped negative floors are not candidates
+for this unchanged operator. A search failure is data, not a no-gap theorem.
+
+Prove, using interval/rational bounds with outward rounding, one of these **witnesses**:
+
+- Inner target 2: `Mhat(g_star,L,m)-E_gap(g_star,L,m)≥η>0`, with the full spectral count
+  and continuum/tail hypotheses discharged for that same row.
+- Outer target 1: U4's absolute lower bound is at least `η>0`, with every finite-block,
+  tail and coupling error included, hence `H_gstar≥η(I-P_Ω)` after the justified lift.
+
+To justify searching at strong coupling rather than merely trying larger numbers, derive
+bounds on signal **and error**. For example, an independently certified approximation
+mass bound `Mhat(g)≥A g^p-B` and error envelope `E_gap(g)≤C g^q+D`, with
+`A>0`, `B,C,D≥0`, `p>q≥0`, give an eventual positive margin. This is an analytic
+work item, not a known QYM scaling law. If `p=q`, compare the leading constants; if the
+error grows faster, stronger coupling does not justify the strategy. Under normalization
+by `s(g)`, both the physical mass and energy error may grow proportionally to `s(g)`.
+Then their ratio does not improve with `g`; improve the normalized approximation or tail
+estimate instead. Never compare a growing energy with a fixed dimensionless residual.
+
+For the requested non-growth guarantee, prove U2 with constants uniform over all admitted
+`m` at this `g_star` (and over `L` only if a continuum passage is claimed). Choose one
+finite `m_star` with positive margin; no infinite Krylov limit is required. Retain that
+certificate if a later raw solve is worse. On nested spaces the accepted smaller-rank
+approximant can be embedded in a larger space; changing shifts can destroy nesting and
+must be treated as a new scheme. This gives a reproducible successful witness, rather
+than an unsupported claim that every larger raw run improves the mass. A witness at
+one coupling is an existence theorem for that specified model; it does not establish all
+couplings or removal of spatial/ultraviolet/infrared regulators without the stated transfers.
+
+### U6. Ordered Lean work and acceptance
+
+1. **Definitions and arithmetic:** bind the physical closure, target, scale and schedules;
+   define a maximum-error contract and prove the inverse-interval, two-level error and
+   positive-margin lemmas. These conditional interfaces are not completed physics proofs.
+2. **Projection and leakage:** replace exact Krylov invariance by a proved quantitative
+   estimate; prove the full block bound, the compression-versus-inverse correction and
+   applicable row/column/tail estimates. Include the two counterchecks in U1 as small
+   formal examples so no later theorem silently asks for an impossible norm limit.
+3. **Uniform rational and arithmetic budgets:** instantiate the shared QYM segment,
+   constructive rational error, shift admissibility and `Cbar,Dbar,a`; certify solves,
+   orthogonality, Gram cutoff and precision with bounds uniform in admitted `m`.
+4. **Spectral coverage:** prove the required min–max/counting/projector result, or execute
+   U4's direct form route. Reuse the existing second-edge Temple and form-lift modules
+   where applicable. No residual-to-nearest-eigenvalue lemma substitutes for this packet.
+5. **Strong-coupling witness:** certify actual parameters and a strict positive margin;
+   distinguish a fixed finite model, the full inner realization and its outer lift.
+   Prove a uniform-in-`L` transfer only where required, with common cores and projections.
+6. **Specialist verification:** compile the affected/new modules, audit their axioms and
+   export the successful concrete certificate for the existing nanoda/regeneration lane.
+   Run numerical suites only for the solver/certificate changes actually implemented.
+   Report any remaining hypothesis explicitly; do not claim the mass gap from an
+   uninstantiated `UniformError` or a named `StrongCouplingWitness` assumption.
+
+The next useful deliverable is **U2's full-space error budget and U3/U4's non-circular
+spectral test**, followed by the concrete U5 witness. The existing basis bridge,
+enumeration, ESA, residual seam and second-edge example need reuse, not reimplementation.
+No new source theorem, coupling witness or mass-gap proof is asserted by this plan.
+
 ## External-source audit for the nested Hamiltonian (2026-11-11)
 
 This section replaces the earlier external-source commentary. The mathematical work order

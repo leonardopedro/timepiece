@@ -1,5 +1,276 @@
 # pCNL: Mehler operators, nested Fock representations and convergence certificates
 
+## Current programme: certify the target, the kernel and useful predictions (2026-11-15)
+
+This is the current mathematical execution guide for the **LLM-Lean4-specialist**. It
+refines T0–T5 and supersedes older priorities that make a Fock drift bound the only missing
+step. Coordinate it with the active programme in
+[the crate research plan](../unfer/pcnl/RESEARCH_PLAN.md) and
+[the new development plan](../unfer/pcnl/DEVELOPMENT_PLAN.md).
+The required new application track is **R9**, specified in
+[the Edge0/RLCD plan](../unfer/pcnl/EDGE0_RLCD_PLAN.md) and executed through development
+packets **E0–E7**. It adapts the local `../Edge0/` latent MoE architecture to a small typed
+probability model. RLCD includes an explicit proper-score policy-gradient update;
+supervised CE+Brier is a comparator/warm start, not a substitute. First prove finite
+simplex, proper-score, mixture-estimator and policy-gradient identities. The optional
+parameter posterior then uses Q0–Q7 below; latent decision paths are not posterior draws.
+
+Earlier results and experiments retain their stated scopes. This update runs no compiler
+or numerical experiment and asserts no new theorem about the transformer implementation.
+
+“Good theoretical properties” means a sequence of specific claims: a proper target;
+a correctly invariant reference kernel; a nonzero, quantified convergence rate on an
+identified space; controlled errors from approximation, dimension reduction and finite
+sampling; and a separately tested predictive/decision benefit. A theorem proving only the
+first few is useful. It does not imply the last one or a practical runtime bound.
+
+### Q0. Bind every claim to one implemented target and transition
+
+The source already contains `SubspaceTarget<P: Potential>`, `mh_pcn_z`, scaled/rotated
+pCN proposals, classifier `FullTarget` block moves, the unadjusted `SgPcnlState`, and DT
+model/readout cells. The DT likelihood uses the generic restricted target; do not assume
+the classifier-typed full-target interface already supports every DT experiment.
+The measured record is [PCNL_STATUS.md](../unfer/docs/PCNL_STATUS.md), including its R7
+negative and calibration/score-only branches. Existing source or a historical passing test
+is not a fresh verification of this documentation wave.
+
+Use `Ψ(z)=λ n_terms mean_loss(θ_ref+C_half Bz)` for the **likelihood potential**, and
+`J(z)=Ψ(z)+‖z‖²/2` for the **total Lebesgue potential**. The code's `ZPotential::phi`
+returns the latter. The intended target is
+
+$$\pi(dz)=Z^{-1}e^{-\Psi(z)}\mu_0(dz),\qquad \mu_0=N(0,I_r).$$
+
+For `mh_pcn_z`, the implemented real-arithmetic MH log ratio is
+`J(z)-J(z')+(‖z'‖²-‖z‖²)/2=Ψ(z)-Ψ(z')`. Preserve the proposal-density term when
+passing `J`; omitting it counts the Gaussian prior twice. This also corrects the old
+shorthand that applies the likelihood-only ratio to a total potential. Keep prior
+covariance, temperature, chart, gradient convention, adaptation freeze and data hashes
+in the same contract. A frozen chart changes the statistical model; a new proposal scale
+at the same chart and target changes the kernel.
+
+Prove `0<Z<∞`. For the categorical nonnegative NLL at `λ≥0`, `e^-Ψ≤1` gives finiteness;
+positivity needs a set of positive prior measure with finite loss. Other likelihoods,
+including variable-variance continuous-action densities, require their own integrable
+upper bound. Rejecting nonfinite proposals does not prove every initial state is valid.
+A data-selected anchor or basis is an empirical-Bayes model choice unless a conditional
+or cross-fitting analysis justifies a different interpretation.
+
+**Deliverable:** a target/kernel manifest and a source-to-math dictionary, including
+sum/mean scaling and `NormGrad::Exact` versus `Stopped`. Use the existing kernel API
+and T0's almost-everywhere `L²` construction, not a new unrelated stochastic matrix.
+
+### Q1. Get the first global certificate from an exact prior refresh
+
+There is a short theorem available before a difficult transformer-specific spectral
+analysis. Suppose `L=e^-Ψ`, `0<Z=∫L dμ0`, and `0≤L≤M<∞`. Propose `y~μ0` and accept
+with `min(1,L(y)/L(x))` for current states with `L(x)>0`. Then
+
+$$\alpha(x,y)\ge L(y)/M,\qquad
+ K_{\rm ind}(x,\cdot)\ge (Z/M)\pi(\cdot).$$
+
+Prove the inequality including the rejection atom and support conditions. Thus the
+independence MH chain has a whole-state-space Doeblin coefficient `c=Z/M`, stationarity,
+uniqueness and TV contraction `1-c`. Its invariant `L²` action contracts centred functions
+by at most `1-c`, via the decomposition `K_ind=cΠ+(1-c)Q` for `c<1`; handle `c=1`
+as exact refresh. No spherical limit, posterior Hessian or inner/outer Fock identification
+is needed for this certificate.
+
+For a fixed stationary MH local kernel preserving the same `π`, introduce the **proposed**
+mixture `K_ω=(1-ω)K_local+ωK_ind`, `0<ω≤1`. Its certificate is `c_ω=ω Z/M`.
+This is a new optional sampler mode to implement, not a theorem about the current
+unadjusted engine. `mh_pcn_z(beta=1)` already supplies the real-arithmetic prior-refresh
+primitive in a restricted chart. A full-target refresh must refresh all prior blocks
+jointly and use the full likelihood. Adapt/freeze the local proposal before using the
+homogeneous-kernel theorem.
+
+Make the rate explicit: on a verified set `A`, `μ0(A)≥a>0` and `Ψ≤b` imply
+`Z≥a exp(-b)`. Certify these quantities by low-rank quadrature with tail enclosures,
+or by an analytic ball/likelihood bound; sampled minima or an importance estimate with
+unproved overlap are not lower-bound certificates. For categorical losses use `M=1`.
+The rate may be exponentially small in data size or rank. Report that rather than call
+it an efficiency theorem. Uniformity in ambient dimension additionally needs a uniform
+lower bound on `Z/M`. This first certificate provides a correct reference and a useful
+fallback even when its bound is too pessimistic for production.
+
+### Q2. Prove sharper dimension statements on controlled families
+
+First finish the Gaussian Mehler kernel bridge, then formalize the exact informed-product
+benchmark. If `Ψ(z,w)=Ψ_r(z)` and the prior is `μ_r⊗μ_n`, the posterior factors as
+`π_r⊗μ_n`. For a simultaneous product of reversible kernels with absolute gaps `γ_r`
+and `1-ρ`, the full absolute gap is `min(γ_r,1-ρ)`, independent of complement dimension
+`n`. Reuse Hermite tensorization and the actual invariant density, not the coefficient
+form `pcn_gap_uniform` alone. The prior-refresh coefficient also stays independent of
+`n` in this exact factorized case because its evidence is an `r`-dimensional integral.
+
+For a coupled target, each full-target block MH move can preserve `π`; their deterministic
+composition is invariant but need not be reversible. Do not apply a self-adjoint gap
+theorem to that composition without proving it. A proposed random-scan mixture of the
+two reversible block kernels gives a simpler reversible reference. If their conditional
+gaps are uniformly at least `γ_z,γ_w` and
+
+$$\operatorname{Var}_\pi f\le C_{AT}\left[
+ E_\pi\operatorname{Var}(f\mid w)+E_\pi\operatorname{Var}(f\mid z)\right],$$
+
+then derive its Poincaré gap at least
+`min(ω γ_z,(1-ω)γ_w)/C_AT`. Use an explicit lazy version for an absolute gap if needed,
+and price the factor `1/2`. The conditional uniformity and variance factorization are
+new analytic inputs to prove; local curvature probes do not establish them. Parameters
+approaching a frozen move, such as `beta→0`, can make the rate vanish even at fixed rank.
+
+For bounded likelihood-potential oscillation, complete T3's density/Dirichlet comparison
+as another short route. For unbounded potentials, use a drift/small-set or weak-Harris
+programme with all constants named; a positive Hessian near one mode does not prove it.
+[Hairer–Stuart–Vollmer](https://arxiv.org/abs/1112.1392) provides a primary reference for
+pCN gap results under specified hypotheses. Audit those hypotheses for this target before
+claiming discretization robustness. [DILI](https://arxiv.org/abs/1411.3688) motivates the
+informed/complement design; it is not a gap theorem for the crate's arbitrary learned charts.
+
+### Q3. Price model reduction, kernel approximation and schedules separately
+
+Freezing `w=0` defines a lower-dimensional **slice model**, singular relative to a
+continuous full posterior. Its full-space TV/KL error is not small merely because the
+rank is large or the local Hessian spectrum decays. Compare predictive pushforwards or
+introduce a full-support approximation. One principled ridge likelihood is
+
+$$\bar L(z)=\int L(z,w)\mu_n(dw),\qquad
+ \widetilde\pi(dz,dw)=Z^{-1}\bar L(z)\mu_r(dz)\mu_n(dw).$$
+
+It preserves the true `z` marginal and replaces the conditional complement by its prior;
+it is neither the frozen slice `L(z,0)` nor `exp(-E_w Ψ(z,w))`. Bound its approximation
+error under a stated conditional inequality and a certified neglected-gradient tail.
+[Certified dimension reduction](https://arxiv.org/abs/1807.03712) gives a candidate
+KL-bound route using log-likelihood gradient information. Its measure, regularity and
+sampling-error assumptions must be instantiated, not inferred from one empirical Fisher
+matrix. As an elementary benchmark, a proved global `|Ψ-Ψtilde|≤δ` gives a normalized
+density-ratio bound and `KL(π||πtilde)≤2δ`; add tail probabilities if the bound is local.
+
+For approximate dynamics, use a metric on a common state space. Q1's exact kernel with
+TV contraction `1-c` and a proved one-step perturbation at most `ε_t` yields
+
+$$\|\nu_t-\pi\|_{TV}\le(1-c)^t\|\nu_0-\pi\|_{TV}
+ +\sum_{j<t}(1-c)^{t-1-j}\varepsilon_j.$$
+
+For constant error this leaves a floor at most `ε/c`. Uniformly bounded potential-value
+errors `η` at both endpoints give an acceptance error at most `2η` with an identical
+proposal, using the Lipschitz map `a↦min(1,exp a)`. Prove the hypothesis for the actual
+oracle. Unbiased mini-batch loss or log loss does not give an exact MH decision. A
+pseudo-marginal alternative would require a nonnegative unbiased **likelihood** estimator
+and an extended-state proof; it is a separate design, not a relabeling of SG-pCNL.
+
+The source casts proposals and states to `f32`. Exact Gaussian/MH algebra is an ideal
+real-arithmetic statement; it is not literal detailed balance on rounded cells. A discrete
+law and an absolutely continuous law can have TV distance `1`, so a small rounding norm
+alone cannot supply the TV perturbation premise above. Choose a common reconstruction,
+a Wasserstein/observable coupling bound with regularity, or the actual discrete proposal
+probabilities. Define the precision-to-statistical-error interface before claiming a
+machine-exact posterior. A tested MH ratio is still valuable evidence for the ideal kernel.
+
+The unadjusted `SgPcnlState` needs T1's separate stability and invariant-bias analysis,
+including state-dependent gradient noise, the exact drift, clipping and the prior term.
+Start with the analytic Gaussian AR canaries already specified in T1: they exhibit a
+positive mixing gap for the wrong invariant law and a proper target with an unstable
+update. Fixed steps/floors, unfloored decays, cycles and continuing adaptation are distinct
+processes. For changing targets add target-change terms to the perturbation recurrence;
+Robbins–Monro exponent arithmetic alone is not a posterior convergence theorem.
+
+### Q4. Turn a certified rate into a prediction-error and cost statement
+
+For a stationary chain with absolute `L²` gap `γ` and square-integrable observable `F`,
+reuse T5 to prove
+
+$$E|\widehat F_N-\pi F|^2\le
+ \frac{2-\gamma}{N\gamma}\operatorname{Var}_\pi F.$$
+
+Add a proved burn-in/warm-start correction when stationarity is unavailable. Distinguish
+MC uncertainty from model-reduction bias, approximate-kernel bias, and target/readout
+error. Price work in full-data potential evaluations, gradient evaluations, wall time
+and memory, including basis construction and warm-up. A dimension-independent rate does
+not make a transformer forward pass dimension-independent in cost.
+
+For BMA probabilities, bounded prediction coordinates give a tractable observable class.
+A finite empirical distribution of parameter draws is singular relative to a continuous
+posterior, so its TV error is not the posterior TV mixing error. Bound the empirical
+predictive itself with covariance/concentration estimates; finite test histories permit
+a union bound, whereas a uniform continuum/history claim needs additional regularity
+and coverage. Loss-only ESS or a plug-in MCSE is not a certified operator lower gap.
+
+For Brier risk, separate the posterior-predictive risk from the correlated MC variance.
+A lower proper score is not by itself a calibration theorem or a guarantee of superiority
+to a point optimizer. For log score, a probability floor supplies Lipschitz control, but
+clipping the predictive changes the readout; price the floor's bias and label it.
+For held-out DT data, steps share trajectories: implement trajectory-clustered uncertainty
+and independent-seed comparisons rather than treating tokens as independent replicates.
+Parameter-chain correlation, test-data correlation and rollout noise are three different
+variance sources. The current `policy_readout::paired_delta` calls its step-independent
+SE optimistic; it is an implementation task to replace that acceptance statistic.
+
+### Q5. Connect policy approximation to return without promising policy optimality
+
+The DT target is return-conditioned behavior modeling. A posterior over it does not
+supply a likelihood that actions are optimal. Keep resampling from the BMA each step,
+a single posterior draw for an episode, and argmax decoding as distinct policies.
+
+A useful proposed theorem is a finite-horizon coupling bound. If rewards lie in an
+interval of width `R_span`, and two stochastic policies have action-TV distance at most
+`δ` **uniformly over the relevant histories**, then derive
+
+$$|V^{\pi_1}-V^{\pi_2}|\le
+ R_{span}\,H(H+1)\delta/2.$$
+
+Use the actual shared environment and initial law. An averaged action-score difference
+on a finite off-policy dataset is not this uniform premise. Bound errors from finite
+posterior-draw policy averaging separately; the current rollout decoder's draw subsample
+cannot inherit the full BMA's per-step score. Argmax is discontinuous and needs an action
+margin to transfer a probability approximation. These statements bound approximation
+relative to the declared posterior policy; they do not make that policy optimal or safer
+than its baseline. Report paired return uncertainty and proper action scores separately.
+
+The measured R7 record already includes a stopped rank-4 arm, a failure to establish the
+prespecified next-action-NLL improvement, and later proper-score-only observations.
+Preserve those stopping decisions. Better theory or corrected uncertainty may explain
+that outcome without reopening an unlimited search for a favorable seed or decoder.
+
+### Q6. Use spectral computation only where it adds a certificate
+
+For the invariant observable operator `P`, use its true equilibrium projection `Π` in
+`L²(π)` and the centred operator, or a justified conjugate whose ground is `sqrt(dπ/dμ0)`.
+A coefficient-space vacuum is not automatically this ground. Reuse T4's retained/tail
+block form certificate for a lazy reversible kernel, with `A=I-P` and every coupling
+and numerical error included. For a nonreversible scan, use a proved norm or multi-step
+contraction instead of an assumed self-adjoint spectrum.
+
+If SIRK approximates a bounded transfer/resolvent, use the **uniform-error and coverage**
+checks in [softmodes.md](softmodes.md), current U1–U3, with statistical target/kernel
+units. Price rational errors, leakage, basis tails and floating-point effects. A positive
+finite matrix gap does not certify the entire chain. Neither finite-rank operator-norm
+convergence nor compactness of an arbitrary Markov operator may be assumed. The exact
+minorization and comparison paths above can provide a rate without spectral numerics;
+keep Fock/diffusion realization and spherical limits off that first certificate's path.
+
+### Q7. Execution order and concrete completion artifacts
+
+Execute **Q0 → Q1 → Gaussian/product Q2 → Q3 → Q4**, with coupled-target Q2 and Q5 as
+extensions. Q6 is optional unless it yields a sharper verified bound. T0–T5 remain useful
+subproof packets under this order. Proposed Lean deliverables are target well-posedness,
+prior-refresh minorization and mixture contraction, the actual Gaussian `L²` action,
+product/conditional comparison, kernel perturbation, predictive MC error and policy-value
+stability. Search and reuse local declarations before introducing any new API. The
+`PCNGaussianFloor` box/ball, stationarity and normalized-target results are available;
+they are not global dimension-free constants for the unrestricted transformer kernel.
+
+The first successful **reference certificate** must carry target and source identities,
+`Z_lo/M`, mixture weight, a positive rate and an explicit cost/tolerance bound on a tiny
+nonconstant-likelihood model. The next certificate should hold with fixed informed rank
+while an independent Gaussian complement grows. A transformer acceptance packet must
+then either instantiate its assumptions or report the missing estimates and retain only
+the reference-model claim. Empirical ESS/Rhat cannot fill those estimates.
+
+The crate development plan owns implementation and experiment acceptance; this file owns
+the mathematical statements and Lean proof obligations. The specialist should compile
+new modules, audit axioms and connect exported statements to the measured kernels only
+when those changes are executed. This planning wave does none of that. Negative results,
+loose rates and corrected target definitions remain valuable completed research outcomes.
+
 ## Revised research and formalization work order (2026-11-08)
 
 This section supersedes the architecture, milestone ordering and completion claims below
