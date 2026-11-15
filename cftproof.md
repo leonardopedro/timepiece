@@ -1006,10 +1006,21 @@ coupling a banded equality rather than a posit: the cross-covariance of the two 
 supported exactly on `{σ^d i : |d| ≤ k}` (`bandCov_eq_zero`), has diagonal `1 + ρ²k` on a site with
 no short cycle (`bandCov_diag`), and returns `chainCov` at `k = 1` (`bandCov_one`); at width `k` the
 coupled state's off-diagonal block vanishes off that band
-(`covState_bandLaw_cov_fst_snd_eq_zero`).  The bi-infinite width-`k` kernel is now recorded in
-`BookProof/OSReconstruction/HalfSpaceInfiniteBandedCovariance.lean` (`bandedCovZ`, `bandedCovZ_banded`),
-with the row norm `(1+ρ²k)² + 2ρ²(…)` and the observation that a banded Toeplitz matrix is not
-Hilbert–Schmidt on `ℓ²(ℤ)`.  What remains unbuilt is the Gaussian *measure* on `ℤ → ℝ` with that
+(`covState_bandLaw_cov_fst_snd_eq_zero`).  The width-`k` coefficients and the Hilbert–Schmidt
+norm are proved in `HalfSpaceChainBandHSNorm` (`bandCov_comm`, `bandCov_forward`,
+`bandCov_backward`, `bandCov_row_sum`, `band_sum_closed`, `bandCov_hsNormSq`, and
+`bandCov_hsNormSq_one` matching `chainCov_hsNormSq`).  The bi-infinite width-`k` kernel is
+recorded in `BookProof/OSReconstruction/HalfSpaceInfiniteBandedCovariance.lean` (`bandedCovZ` with
+`bandedCovZ_self`, `bandedCovZ_forward`, `bandedCovZ_back`, `bandedCovZ_comm`,
+`bandedCovZ_banded`), whose squared `ℓ²` row norm summed over all of `ℤ`
+(`bandedCovZ_row_tsum`) is the same per-site factor as `bandCov_hsNormSq`
+(`bandedCovZ_row_tsum_closed`; `bandedCovZ_row_tsum_one` and `bandedCovZ_row_tsum_zero` at widths
+`1` and `0`) and agrees with the finite row sum `bandCov_row_sum`
+(`bandedCovZ_row_tsum_eq_bandCov_row_sum`); it is also positive semidefinite, being the
+autocorrelation of the one-sided weight `1, ρ, …, ρ` (`bandedCovZ_eq_weight_sum`) with quadratic
+form an explicit sum of squares (`bandedCovZ_quadForm_eq_sum_sq`, `bandedCovZ_posSemidef`), so
+positivity of the Toeplitz symbol is no longer the missing ingredient — only the extension theorem
+is.  A banded Toeplitz matrix is still not Hilbert–Schmidt on `ℓ²(ℤ)`.  What remains unbuilt is the Gaussian *measure* on `ℤ → ℝ` with that
 kernel and any Hilbert–Schmidt square root of it.
 
 The chain is collected, link by link with its remaining hypotheses, in

@@ -39,8 +39,18 @@ cycle and all rows are equivalent),
                   + 2 ρ² ( k + ρ k(k-1) + ρ² (k-1) k (2k-1) / 6 ) )`.
 
 For `k = 1` this reduces to `card ι * ((1 + ρ²)^2 + 2 ρ²)`, which is
-`chainCov_hsNormSq`.  For `k = 0` it gives `card ι`.  (Only the forward
-coefficient is formalised below; the norm is this closed form.)
+`chainCov_hsNormSq`.  For `k = 0` it gives `card ι`.
+
+## Formalised results
+
+* `bandCov_comm` — the covariance matrix is symmetric;
+* `bandCov_forward` — the forward coefficient `ρ + ρ² (k - d)`;
+* `bandCov_backward` — the backward coefficient `ρ + ρ² (k - d)`;
+* `bandCov_row_sum` — one row of squared entries, bandedness reducing it to the
+  `2k + 1` band sites;
+* `band_sum_closed` — evaluation of the row sum as the polynomial above;
+* `bandCov_hsNormSq` — the squared Hilbert–Schmidt norm `card ι * (row sum)`;
+* `bandCov_hsNormSq_one` — at `k = 1` this is `chainCov_hsNormSq`.
 -/
 
 namespace BookProof.OSReconstruction
@@ -129,7 +139,8 @@ theorem bandCov_forward {ι : Type*} (σ : Equiv.Perm ι) (ρ : ℝ) (k : ℕ) {
         rw [if_pos (by rw [h1, hj])]
         rw [if_pos hbd]
       · have hterm :
-          ∀ a ∈ Finset.range k, (if (σ^[a + 1]) i = (σ^[b + 1]) j then (1 : ℝ) else 0) = 0 := by
+          ∀ a ∈ Finset.range k,
+            (if (σ^[a + 1]) i = (σ^[b + 1]) j then (1 : ℝ) else 0) = 0 := by
           intro a ha
           rw [if_neg]
           intro h
@@ -164,6 +175,305 @@ theorem bandCov_forward {ι : Type*} (σ : Equiv.Perm ι) (ρ : ℝ) (k : ℕ) {
   rw [hfirst, hsecond]
   rw [hthird]
   ring
+
+lemma bandCov_comm {ι : Type*} (σ : Equiv.Perm ι) (ρ : ℝ) (k : ℕ) (i j : ι) :
+    bandCov σ ρ k i j = bandCov σ ρ k j i := by
+  classical
+  unfold bandCov
+  simp only [eq_comm]
+  have hL : ∀ x ∈ Finset.range k,
+      ((if j = (⇑σ)^[x + 1] i then (1 : ℝ) else 0) + (if i = (⇑σ)^[x + 1] j then 1 else 0))
+      = ((if i = (⇑σ)^[x + 1] j then (1 : ℝ) else 0)
+          + (if j = (⇑σ)^[x + 1] i then 1 else 0)) := by
+    intro x _
+    rw [add_comm]
+  rw [Finset.sum_congr rfl hL]
+  have hQ : (∑ a ∈ Finset.range k, ∑ b ∈ Finset.range k,
+        (if (⇑σ)^[a + 1] i = (⇑σ)^[b + 1] j then (1 : ℝ) else 0))
+      = (∑ a ∈ Finset.range k, ∑ b ∈ Finset.range k,
+        (if (⇑σ)^[a + 1] j = (⇑σ)^[b + 1] i then (1 : ℝ) else 0)) := by
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro a _
+    apply Finset.sum_congr rfl
+    intro b _
+    by_cases h : (⇑σ)^[a + 1] j = (⇑σ)^[b + 1] i
+    · rw [if_pos h, if_pos h.symm]
+    · rw [if_neg h, if_neg (fun hh => h hh.symm)]
+  rw [hQ]
+
+lemma perm_iterate_symm_iterate {ι : Type*} (σ : Equiv.Perm ι) (n : ℕ) (x : ι) :
+    (σ^[n]) ((σ.symm^[n]) x) = x := by
+  have hcoe : ((σ.symm ^ n : Equiv.Perm ι)) = (σ ^ n)⁻¹ := by
+    rw [show σ.symm = σ⁻¹ from rfl, inv_pow]
+  calc (σ^[n]) ((σ.symm^[n]) x)
+      = (σ ^ n) ((σ.symm ^ n) x) := by
+          rw [← Equiv.Perm.coe_pow, ← Equiv.Perm.coe_pow]
+    _ = ((σ ^ n) * (σ.symm ^ n)) x := by rw [Equiv.Perm.mul_apply]
+    _ = (1 : Equiv.Perm ι) x := by rw [hcoe, mul_inv_cancel]
+    _ = x := by simp
+
+lemma perm_symm_iterate_iterate {ι : Type*} (σ : Equiv.Perm ι) (n : ℕ) (x : ι) :
+    (σ.symm^[n]) ((σ^[n]) x) = x := by
+  have hcoe : ((σ.symm ^ n : Equiv.Perm ι)) = (σ ^ n)⁻¹ := by
+    rw [show σ.symm = σ⁻¹ from rfl, inv_pow]
+  calc (σ.symm^[n]) ((σ^[n]) x)
+      = (σ.symm ^ n) ((σ ^ n) x) := by
+          rw [← Equiv.Perm.coe_pow, ← Equiv.Perm.coe_pow]
+    _ = ((σ.symm ^ n) * (σ ^ n)) x := by rw [Equiv.Perm.mul_apply]
+    _ = (1 : Equiv.Perm ι) x := by rw [hcoe, inv_mul_cancel]
+    _ = x := by simp
+
+/-- Iterates of a permutation commute. -/
+lemma iterate_comm_apply {ι : Type*} (σ : Equiv.Perm ι) (m n : ℕ) (x : ι) :
+    (σ^[m]) ((σ^[n]) x) = (σ^[n]) ((σ^[m]) x) := by
+  rw [← Function.iterate_add_apply, ← Function.iterate_add_apply]
+  congr 1
+  omega
+
+theorem bandCov_row_sum {ι : Type*} [Fintype ι] (σ : Equiv.Perm ι) (ρ : ℝ) (k : ℕ) {i : ι}
+    (hno : ∀ a, 1 ≤ a → a ≤ 2 * k → (σ^[a]) i ≠ i) :
+    (∑ j, bandCov σ ρ k i j ^ 2)
+      = (1 + ρ ^ 2 * k) ^ 2
+        + 2 * ∑ a ∈ Finset.range k, (ρ + ρ ^ 2 * (k - (a + 1))) ^ 2 := by
+  classical
+  set F : Finset ι := (Finset.range k).image (fun a => (σ^[a + 1]) i) with hF
+  set G : Finset ι := (Finset.range k).image (fun a => (σ.symm^[a + 1]) i) with hG
+  set B : Finset ι := insert i (F ∪ G) with hB
+  have hno_symm : ∀ a, 1 ≤ a → a ≤ 2 * k → (σ.symm^[a]) i ≠ i := by
+    intro a ha1 ha2 hcontra
+    apply hno a ha1 ha2
+    have h := congrArg (σ^[a]) hcontra
+    rw [perm_iterate_symm_iterate] at h
+    exact h.symm
+  have hzero : ∀ j ∈ (Finset.univ : Finset ι), j ∉ B → bandCov σ ρ k i j ^ 2 = 0 := by
+    intro j _ hj
+    have hpos : ∀ a, a ≤ k → j ≠ (σ^[a]) i := by
+      intro a ha heq
+      apply hj
+      rcases Nat.eq_zero_or_pos a with ha0 | ha1
+      · subst ha0
+        have hji : j = i := by simpa using heq
+        rw [hB, hji]
+        exact Finset.mem_insert_self i (F ∪ G)
+      · have hmem : j ∈ F := by
+          rw [hF]
+          exact Finset.mem_image.mpr ⟨a - 1, Finset.mem_range.mpr (by omega),
+            by rw [Nat.sub_add_cancel ha1]; exact heq.symm⟩
+        rw [hB]
+        exact Finset.mem_insert_of_mem (Finset.mem_union_left _ hmem)
+    have hneg : ∀ a, a ≤ k → i ≠ (σ^[a]) j := by
+      intro a ha heq
+      apply hj
+      have h1 : j = (σ.symm^[a]) i := by
+        have h2 := congrArg (σ.symm^[a]) heq
+        simp only [perm_symm_iterate_iterate] at h2
+        exact h2.symm
+      rcases Nat.eq_zero_or_pos a with ha0 | ha1
+      · subst ha0
+        rw [hB, h1]
+        exact Finset.mem_insert_self i (F ∪ G)
+      · have hmem : j ∈ G := by
+          rw [hG]
+          exact Finset.mem_image.mpr ⟨a - 1, Finset.mem_range.mpr (by omega),
+            by rw [Nat.sub_add_cancel ha1]; exact h1.symm⟩
+        rw [hB]
+        exact Finset.mem_insert_of_mem (Finset.mem_union_right _ hmem)
+    rw [bandCov_eq_zero σ ρ k hpos hneg]
+    ring
+  rw [← Finset.sum_subset (Finset.subset_univ B) hzero]
+  have hi_notin : i ∉ F ∪ G := by
+    intro hi
+    rcases Finset.mem_union.mp hi with h | h
+    · rw [hF, Finset.mem_image] at h
+      obtain ⟨a, ha, hja⟩ := h
+      exact hno (a + 1) (by omega)
+        (by have := Finset.mem_range.mp ha; omega) hja
+    · rw [hG, Finset.mem_image] at h
+      obtain ⟨a, ha, hja⟩ := h
+      have hcontra : (σ^[a + 1]) i = i := by
+        have h := congrArg (σ^[a + 1]) hja
+        rw [perm_iterate_symm_iterate] at h
+        exact h.symm
+      exact hno (a + 1) (by omega)
+        (by have := Finset.mem_range.mp ha; omega) hcontra
+  have hdisj : Disjoint F G := by
+    rw [Finset.disjoint_left]
+    intro j hjF hjG
+    rw [hF, Finset.mem_image] at hjF
+    rw [hG, Finset.mem_image] at hjG
+    obtain ⟨a, ha, hja⟩ := hjF
+    obtain ⟨b, hb, hjb⟩ := hjG
+    have hab : (σ^[b + 1]) ((σ^[a + 1]) i) = i := by
+      rw [hja, ← hjb]
+      exact perm_iterate_symm_iterate σ (b + 1) i
+    have hab' : (σ^[(b + 1) + (a + 1)]) i = i := by
+      rw [Function.iterate_add_apply]
+      exact hab
+    exact hno ((b + 1) + (a + 1)) (by omega)
+      (by have := Finset.mem_range.mp ha; have := Finset.mem_range.mp hb; omega) hab'
+  rw [hB, Finset.sum_insert hi_notin, Finset.sum_union hdisj]
+  have hFsum : ∑ j ∈ F, bandCov σ ρ k i j ^ 2
+      = ∑ a ∈ Finset.range k, (ρ + ρ ^ 2 * (k - (a + 1))) ^ 2 := by
+    rw [hF, Finset.sum_image]
+    · apply Finset.sum_congr rfl
+      intro a ha
+      rw [bandCov_forward σ ρ k (i := i) (j := (σ^[a + 1]) i) (d := a + 1)
+        (show 1 ≤ a + 1 by omega) (Nat.succ_le_of_lt (Finset.mem_range.mp ha)) rfl hno]
+      push_cast
+      ring
+    · intro a ha b hb hab
+      have ha2 : a + 1 ≤ 2 * k := by
+        have := Finset.mem_range.mp ha; omega
+      have hb2 : b + 1 ≤ 2 * k := by
+        have := Finset.mem_range.mp hb; omega
+      have := iterate_inj_of_no_short_cycle σ k hno ha2 hb2 hab
+      omega
+  have hGsum : ∑ j ∈ G, bandCov σ ρ k i j ^ 2
+      = ∑ a ∈ Finset.range k, (ρ + ρ ^ 2 * (k - (a + 1))) ^ 2 := by
+    rw [hG, Finset.sum_image]
+    · apply Finset.sum_congr rfl
+      intro a ha
+      have hd1 : 1 ≤ a + 1 := by omega
+      have hdk : a + 1 ≤ k := Nat.succ_le_of_lt (Finset.mem_range.mp ha)
+      set x : ι := (σ.symm^[a + 1]) i with hxdef
+      have hx : (σ^[a + 1]) x = i := perm_iterate_symm_iterate σ (a + 1) i
+      have hno' : ∀ e, 1 ≤ e → e ≤ 2 * k → (σ^[e]) x ≠ x := by
+        intro e he1 he2 hcontra
+        apply hno e he1 he2
+        have h2 := congrArg (σ^[a + 1]) hcontra
+        rw [hx] at h2
+        rw [← hx, iterate_comm_apply σ e (a + 1) x, hx]
+        exact h2
+      have hval : bandCov σ ρ k i x = ρ + ρ ^ 2 * (k - (a + 1)) := by
+        rw [bandCov_comm]
+        rw [bandCov_forward σ ρ k (i := x) (j := i) (d := a + 1) hd1 hdk hx.symm hno']
+        push_cast
+        ring
+      rw [hval]
+    · intro a ha b hb hab
+      have ha2 : a + 1 ≤ 2 * k := by
+        have := Finset.mem_range.mp ha; omega
+      have hb2 : b + 1 ≤ 2 * k := by
+        have := Finset.mem_range.mp hb; omega
+      have := iterate_inj_of_no_short_cycle σ.symm k hno_symm ha2 hb2 hab
+      omega
+  rw [hFsum, hGsum, bandCov_diag σ ρ k hno]
+  ring
+
+
+lemma sum_range_cast_id (n : ℕ) :
+    ∑ t ∈ Finset.range n, (t : ℝ) = (n : ℝ) * ((n : ℝ) - 1) / 2 := by
+  induction n with
+  | zero => simp
+  | succ m ih => rw [Finset.sum_range_succ, ih]; push_cast; ring
+
+lemma sum_range_sq (n : ℕ) :
+    ∑ t ∈ Finset.range n, (t : ℝ) ^ 2
+      = (n : ℝ) * ((n : ℝ) - 1) * (2 * (n : ℝ) - 1) / 6 := by
+  induction n with
+  | zero => simp
+  | succ m ih => rw [Finset.sum_range_succ, ih]; push_cast; ring
+
+lemma sum_range_sub_one (k : ℕ) :
+    ∑ a ∈ Finset.range k, ((k : ℝ) - ((a : ℝ) + 1)) = (k : ℝ) * ((k : ℝ) - 1) / 2 := by
+  rcases Nat.eq_zero_or_pos k with hk | hk
+  · subst hk; simp
+  · have href := Finset.sum_range_reflect (fun a : ℕ => (a : ℝ)) k
+    rw [← sum_range_cast_id]
+    rw [← href]
+    apply Finset.sum_congr rfl
+    intro a ha
+    have ha' : a ≤ k - 1 := by have := Finset.mem_range.mp ha; omega
+    rw [Nat.cast_sub ha']
+    rw [Nat.cast_sub (by omega : 1 ≤ k)]
+    push_cast
+    ring
+
+lemma sum_range_sub_one_sq (k : ℕ) :
+    ∑ a ∈ Finset.range k, ((k : ℝ) - ((a : ℝ) + 1)) ^ 2
+      = ((k : ℝ) - 1) * (k : ℝ) * (2 * (k : ℝ) - 1) / 6 := by
+  rcases Nat.eq_zero_or_pos k with hk | hk
+  · subst hk; simp
+  · have href := Finset.sum_range_reflect (fun a : ℕ => (a : ℝ) ^ 2) k
+    have hsq : ∑ t ∈ Finset.range k, (t : ℝ) ^ 2
+        = ((k : ℝ) - 1) * (k : ℝ) * (2 * (k : ℝ) - 1) / 6 := by
+      rw [sum_range_sq k]
+      ring
+    rw [← hsq]
+    rw [← href]
+    apply Finset.sum_congr rfl
+    intro a ha
+    have ha' : a ≤ k - 1 := by have := Finset.mem_range.mp ha; omega
+    rw [Nat.cast_sub ha']
+    rw [Nat.cast_sub (by omega : 1 ≤ k)]
+    ring
+
+lemma band_sum_closed (ρ : ℝ) (k : ℕ) :
+    (∑ a ∈ Finset.range k, (ρ + ρ ^ 2 * ((k : ℝ) - ((a : ℝ) + 1))) ^ 2)
+      = ρ ^ 2 * ((k : ℝ) + ρ * ((k : ℝ) * ((k : ℝ) - 1))
+          + ρ ^ 2 * (((k : ℝ) - 1) * (k : ℝ) * (2 * (k : ℝ) - 1) / 6)) := by
+  have hterm : ∀ a : ℕ, (ρ + ρ ^ 2 * ((k : ℝ) - ((a : ℝ) + 1))) ^ 2
+      = ρ ^ 2 * (1 + 2 * ρ * ((k : ℝ) - ((a : ℝ) + 1))
+          + ρ ^ 2 * ((k : ℝ) - ((a : ℝ) + 1)) ^ 2) := by
+    intro a
+    ring
+  simp only [hterm]
+  rw [← Finset.mul_sum]
+  congr 1
+  rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
+  rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul, mul_one]
+  rw [← Finset.mul_sum, ← Finset.mul_sum]
+  rw [sum_range_sub_one, sum_range_sub_one_sq]
+  ring
+
+/-- **The width-`k` band covariance is Hilbert–Schmidt**, with squared norm
+`card ι * ((1 + ρ²k)² + 2ρ²(k + ρk(k-1) + ρ²(k-1)k(2k-1)/6))` when every site has no short
+cycle up to `2k`. -/
+theorem bandCov_hsNormSq {ι : Type*} [Fintype ι] (σ : Equiv.Perm ι) (ρ : ℝ) (k : ℕ)
+    (hno : ∀ i a, 1 ≤ a → a ≤ 2 * k → (σ^[a]) i ≠ i) :
+    (∑ i, ∑ j, bandCov σ ρ k i j ^ 2)
+      = (Fintype.card ι : ℝ) *
+          ((1 + ρ ^ 2 * (k : ℝ)) ^ 2
+            + 2 * (ρ ^ 2 * ((k : ℝ) + ρ * ((k : ℝ) * ((k : ℝ) - 1))
+              + ρ ^ 2 * (((k : ℝ) - 1) * (k : ℝ) * (2 * (k : ℝ) - 1) / 6)))) := by
+  classical
+  have hrow : ∀ i : ι, ∑ j, bandCov σ ρ k i j ^ 2
+      = (1 + ρ ^ 2 * (k : ℝ)) ^ 2
+        + 2 * (ρ ^ 2 * ((k : ℝ) + ρ * ((k : ℝ) * ((k : ℝ) - 1))
+          + ρ ^ 2 * (((k : ℝ) - 1) * (k : ℝ) * (2 * (k : ℝ) - 1) / 6))) := by
+    intro i
+    rw [bandCov_row_sum σ ρ k (hno i), band_sum_closed]
+  simp only [hrow]
+  rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+
+/-- **Backward off-diagonal coefficient**: if `j = σ⁻ᵈ i` with `1 ≤ d ≤ k` and `i` has
+no short cycle up to `2k`, then `bandCov σ ρ k i j = ρ + ρ² (k - d)`. -/
+theorem bandCov_backward {ι : Type*} (σ : Equiv.Perm ι) (ρ : ℝ) (k : ℕ) {i j : ι} {d : ℕ}
+    (hd : 1 ≤ d) (hdk : d ≤ k) (hj : j = (σ.symm^[d]) i)
+    (hno : ∀ a, 1 ≤ a → a ≤ 2 * k → (σ^[a]) i ≠ i) :
+    bandCov σ ρ k i j = ρ + ρ ^ 2 * (k - d) := by
+  classical
+  have hji : i = (σ^[d]) j := by
+    rw [hj]
+    exact (perm_iterate_symm_iterate σ d i).symm
+  have hno_j : ∀ a, 1 ≤ a → a ≤ 2 * k → (σ^[a]) j ≠ j := by
+    intro a ha1 ha2 hcontra
+    apply hno a ha1 ha2
+    have h1 : (σ^[d]) ((σ^[a]) j) = (σ^[d]) j := by rw [hcontra]
+    rw [iterate_comm_apply] at h1
+    rw [hj, perm_iterate_symm_iterate] at h1
+    exact h1
+  rw [bandCov_comm]
+  exact bandCov_forward σ ρ k (i := j) (j := i) (d := d) hd hdk hji hno_j
+
+/-- **Consistency at `k = 1`**: the width-`1` HS norm is `chainCov_hsNormSq`. -/
+theorem bandCov_hsNormSq_one {ι : Type*} [Fintype ι] (σ : Equiv.Perm ι) (ρ : ℝ)
+    (hno : ∀ i a, 1 ≤ a → a ≤ 2 → (σ^[a]) i ≠ i) :
+    (∑ i, ∑ j, bandCov σ ρ 1 i j ^ 2)
+      = (Fintype.card ι : ℝ) * ((1 + ρ ^ 2) ^ 2 + 2 * ρ ^ 2) := by
+  rw [bandCov_hsNormSq σ ρ 1 hno]
+  norm_num
 
 end
 
