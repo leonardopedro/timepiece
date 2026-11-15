@@ -39,6 +39,17 @@ The proofs are `BookProof/NsFullEuler`, `BookProof/NsLagFourier`,
 `BookProof/KoopmanLyapunov`.
 :::
 
+# How Elimination Relates to Comprehensive Fixing
+
+The orbit-coverage theorems in {ref "gauge-symmetry"}[the gauge chapter] do not
+justify arbitrary deletion of coordinates. Here the defining derivative
+relations are substituted into the model's operator. This requires its own
+algebraic and core identities; no orbit selector is inferred from a Fourier
+transform. A genuine gauge constraint, a second-class pressure constraint and
+an auxiliary jet relation must be identified separately. If claiming
+physical equivalence to an extended model, supply its measure/state map and
+intertwining of the complete inner dynamics before the outer enclosure.
+
 # A Modewise Identity and a Spatial Product Are Different Steps
 
 The spatial Fourier rule replaces each derivative on its own leg. A product

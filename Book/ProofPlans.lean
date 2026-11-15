@@ -67,6 +67,64 @@ The detailed explanation and worked two-channel example are in
 {ref "solovay-tensor"}[the tensor-product chapter]. The specialist should check
 these new citations and render the book through the documented wrapper.
 
+# Comprehensive Gauge Fixing: Physical Realization Before Compression
+
+This source/prose audit of 2026-11-15 adds no compiled proof or numerical run.
+The {ref "gauge-symmetry"}[gauge chapter] now reads orbit coverage, invariant
+observables, Mehler probability, BRST state reduction, closed dynamics and
+SIRK approximation in that dependency order. Execute these packets with the
+operator and numerical work orders already in force:
+
+1. **G0 — name the action and target.** Specify the actual configuration
+   carrier, gauge group, stabilizers, physical observables and model level.
+   Reuse the comprehensive/incomplete-fixing and extension theorems. A
+   complete fixing is optional; if redundant representatives remain, preserve
+   their compatibility conditions. Set-level classical representatives do not
+   supply measurable or effective selectors. The clopen obstruction is not
+   a proof excluding all smooth slices.
+2. **G1 — construct the measure/state map.** For a representative construction,
+   prove measurability, same-orbit coverage and preservation of physical
+   expectations under the pushed-forward law. Identify the induced $`L^2`
+   embedding and its image. For an observable-algebra route, construct the
+   positive state and its representation. Distinguish this from invariance of
+   the Gaussian reference and from conditioning on a zero-probability slice.
+   An auxiliary $`X\times G` section needs a separate equivalence argument.
+3. **G2 — build the complete charge and metric.** In the BRST route, provide
+   the actual gauge/Higgs/matter/ghost action, full nilpotency, ghost-number
+   degree and nonzero cohomology. Keep grading $`U`, Krein metric $`\eta`
+   and physical projection separate. Reuse the source-present canonical
+   homotopy and `even_homotopy_imp_charge_eq_zero`; do not try to instantiate
+   a nonzero odd charge with an even homotopy. Verify the analogous
+   $`\eta=U` consistency obstruction, then construct compatible data and
+   prove positivity/radical conditions for the intended physical form.
+4. **G3 — descend the actual closed dynamics.** Reuse bounded-charge transfer
+   or `BrstReducedTransferUnbounded` with its domain-preservation and strong
+   commutation hypotheses. A core commutator is an input to a further domain
+   argument. Identify the physical self-adjoint generator and its statistics
+   grading, then construct its actual outer $`C^\dagger h A` lift, retaining
+   every inner term. Unreduced ESA and parity reduction are separate results.
+5. **G4 — certify the algorithm being run.** Distinguish the physical projector
+   from $`P_{\rm num}=VV^*`. Prove the compression-defect identity for $`Q_m^2`
+   under stated domains; bound full discarded images and missing constraint
+   directions. Connect the SM6/N8 full-action error to the actual compressed
+   resolvent generator $`G=\gamma I-B^{-1}`. Reuse the existing Galerkin and
+   restart leakage bounds only under their hypotheses. For unbounded $`Q`,
+   supply graph-norm control instead of a finite $`\|Q\|` factor.
+6. **G5 — numerical fixtures and negative controls.** Coordinate with
+   `../unfer/docs/SM_RESEARCH_PLAN.md` N7–N10. Keep the historical penalty
+   floor, incomplete density-charge square and longitudinal-band leakage
+   labelled as diagnostics. Test nonzero charges and physical states, full
+   nilpotency/commutation images and metric signs, and report truncation,
+   shifted-solve and arithmetic errors separately. A physical gap also needs
+   its own absolute lower bound and spectral-exclusion proof.
+
+For NS/QG, keep Fourier substitution and spatial-product convolution inside the
+complete inner operator. Do not infer a gauge quotient from a modewise identity
+or transfer that device to QYM/QED. A physical QG claim retains the vielbein,
+full exponential and interactions. Quantum anomaly cancellation and a field
+continuum limit are separate targets; invariance under pointwise limits of a
+fixed action does not establish either.
+
 # Current Specialist Work Order: Identify the Operator Before Its Gap
 
 This source/prose audit adds no compiled proof. Read the consolidated entry
@@ -123,8 +181,10 @@ and a consistent Gaussian law, reflection positivity and generator identificatio
 
 Execute the consolidated packets in their dependency order: P0 citation/build
 validation; P1 operator identity; P2 QYM coefficient/coercivity; P3 physical
-certificate; P4 NS/QG convolution/core transfer; P5 the parked SM estimate and
-physical metric; P6 OS construction. Prove every spatial convolution inside
+certificate; P4 NS/QG convolution/core transfer; P5 full SM assembly and
+physical metric under SM0–SM9/G0–G5; P6 OS construction. The former SM P4
+potential self-bound is now source-present and must not be reopened. Prove every
+spatial convolution inside
 $`h` before the outer $`d\Gamma(h)` lift. Retain the exact R² vielbein wall
 and interactions, the QED infrared boundary and the NS operator distinctions.
 The detailed packets specify acceptance conditions and useful negative results.

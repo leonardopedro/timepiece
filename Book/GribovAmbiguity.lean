@@ -12,15 +12,17 @@ tag := "gribov-ambiguity"
 
 The manuscript ranges from the abelian free-field example to a proposed non-abelian
 field theory. This chapter keeps those levels separate: the abelian gauge-invariance
-and number-shift identities are verified, whereas a global non-abelian gauge-fixing
-and a continuum Yang--Mills mass-gap theorem are not yet formalized.
+and conditional number-shift identities are available. Set-level comprehensive
+fixing and observable-extension theorems are also proved. Their measurable
+field-model realization, physical dynamics and a continuum Yang–Mills mass-gap
+conclusion are separate obligations.
 
 :::paragraph
 In the tour this chapter closes the Standard-Model thread of the part, after
 {ref "quantization-time-evolution"}[quantization by time-evolution]. It is the
-place where the *mass gap* of the programme is stated at the abelian level and
-checked against the companion numerical validation, and the algebraic-ideals
-view of gauge at the end is the vocabulary the gravity chapter later reuses.
+place to distinguish orbit coverage from regular gauge sections, local abelian
+identities from global gauge-fixing claims, and a number-shift model from the
+absolute inner lower bound needed by the final nested-Fock Hamiltonian.
 :::
 
 :::paragraph
@@ -30,7 +32,9 @@ and the algebraic-ideals view of gauge.
 :::
 
 :::paragraph
-The proofs are `BookProof/FreeEMField` and `BookProof/MassGap`.
+The proofs include `BookProof/FreeEMField`, `BookProof/MassGap`, and the
+comprehensive/incomplete-fixing chapters explained in
+{ref "gauge-symmetry"}[the gauge chapter].
 :::
 
 # The Question
@@ -50,14 +54,12 @@ invariance argument.
 # The Abelian Field Strength and Gauge Invariance
 
 :::paragraph
-The Gribov ambiguity is a problem of *non-abelian* gauge fixing: the Dirac
-bracket requires a gauge-fixing that is both complete and unconstrained, which is
-not always possible. In the *abelian* (electromagnetic) case the situation is
-clean. The field strength is the linear curl
-$`F_{jk} = \delta_j A_k - \delta_k A_j`, which is *gauge invariant* — invariant
-under $`A_j \mapsto A_j + \partial_j\theta`, the curl of a gradient vanishing by
-commutativity of the partial derivatives. This is the manuscript's "no Gribov
-ambiguity" for the abelian theory:
+The identity here concerns the abelian field strength
+$`F_{jk}=\delta_jA_k-\delta_kA_j`. Commuting partial derivations imply that
+$`A\mapsto A+\partial\theta` leaves it unchanged. This proves a local
+observable identity; it does not construct a global representative map or
+settle its zero modes, boundary conditions and regularity. Calling this alone
+“no Gribov ambiguity” would conflate those questions.
 :::
 
 ```
@@ -90,12 +92,13 @@ Finally, the curl of self-adjoint operator fields is self-adjoint — the book's
 # The Mass Gap and Observable Invariance
 
 :::paragraph
-The manuscript's mass-gap discussion rests on a subtle point: the number operator
-$`N` commutes with the observable algebra, so one can add $`\lambda N` to the
-Hamiltonian $`H` without changing any observable consequence. The verified content
-is that Heisenberg evolution under $`H + \lambda N` equals that under $`H` — the
-mass-gap shift has no observable consequence — and that for a gapless free field
-the shifted mass gap equals $`\lambda` (arbitrary):
+The number-shift identity has explicit commutation assumptions:
+$`[H,N]=0` and $`[O,N]=0` imply that Heisenberg evolution of this observable
+$`O` is unchanged by replacing $`H` with $`H+\lambda N` in the stated
+operator-algebra model. This is equality on a specified observable commutant.
+It is not equality of the Hamiltonians, their spectra or all matrix elements,
+and it is not permission to change a prescribed physical operator. The
+shifted-gapless-spectrum theorem concerns the separately defined shifted model.
 :::
 
 ```
@@ -107,75 +110,76 @@ the shifted mass gap equals $`\lambda` (arbitrary):
 ```
 
 :::paragraph
-The manuscript connects this to the positive-definiteness of the Weyl-gauge
-Hamiltonian (verified in
-{ref "quantization-time-evolution"}[the quantization chapter]): the mass gap is
-read off a positive operator, and the number-operator shift is unobservable.
+The positivity proofs in
+{ref "quantization-time-evolution"}[the quantization chapter] apply to their
+specified operators. Positivity alone need not be strict. For the nested-Fock
+record, $`d\Gamma(h+cI)=d\Gamma(h)+cN_{\rm out}`: an inner constant changes
+occupied outer sectors, even though the outer vacuum still has zero energy.
+A gauge choice cannot silently absorb that change.
 :::
 
-# The Mass Gap in the Numerical Validation
+# Reading the Numerical Comparisons
 
 :::paragraph
-The mass-gap discussion above is not only a formal statement about Heisenberg
-evolution: it is exactly the quantity the companion numerical validation measures.
-The free gluon one-particle operator is *gapless* — its lowest one-gluon
-energy tends to $`0` as $`k \to 0`. The final free-field Hamiltonian used for
-full nested-Fock interpretation is its outer enclosure
-$`H = \sum_{i,j} h_{ij} C_i^\dagger A_j`, and the numerical suite confirms
-the one-particle soft-mode energy is below $`0.02` in the solver's units. By
-contrast, the comparison-model lattice Hamiltonian, whose electric term
-$`(g^2/2)\sum n_\ell` is a genuine number operator, has a *positive* even-to-odd
-gap of $`\approx g^2/2` in the strong-coupling limit — a comparison-model lattice benchmark, not the final gauge-fixed nested-Fock
-Hamiltonian and not a Millennium-Prize confinement proof. The two regimes
-are separate validation models, while the final-theory statement is the outer
-creation/annihilation enclosure described above: the free field is gapless
-because its spectrum is the continuous line $`|k| \ge 0`, while the number-operator
-shift $`\lambda N` — unobservable, as `heisenberg_number_shift_invariant` shows —
-is precisely what creates a gap when it is the *electric* term of a confined
-theory. The same contrast, between a gapless free field and a gapped confined
-one, is what the SIRK cross-sector solve reproduces numerically. For the
-physical theory discussed in the current validation, however, the final
-Hamiltonian is the gauge-fixed one-particle operator enclosed at the outer level
-with creation on the left and annihilation on the right. Its outer vacuum is
-therefore the exact ground after the permitted one-particle shift; a parity or
-squeezed inner-sector result is not a replacement for that conclusion.
+The final operator is the outer enclosure of the complete inner operator,
+$`H=\sum_{i,j}C^\dagger(e_i)h_{ij}A(e_j)`, with every inner constant and
+interaction retained. Its outer vacuum is annihilated by the rightmost operator.
+To call it a ground requires $`h\ge0`; to establish a strict vacuum gap
+requires an absolute positive inner lower bound. An inner excitation gap or a
+shifted finite Ritz minimum is a different statement.
 :::
 
 :::paragraph
-**Manuscript provenance.**  The outer-enclosure shape is the manuscript's, and the reason it may
-assume the Hamiltonian quadratic in the ladders is its recursive construction of the Fock space:
-*“Since the second-quantization procedure can be applied recursively … in case the Hamiltonian acting
-in the Fock-space is not quadratic in the creation/annihilation operators, then we can consider
-instead a new Fock-space where the base Hilbert space is the original Fock-space. The new Hamiltonian
-is quadratic in the creation/annihilation operators.”*  Its Navier–Stokes section displays the
-template, $`H = \int d^3\vec x\, a^\dagger(\vec x)\, H(\vec x)\, a(\vec x)` with the inner
-$`H(\vec x) = \pi^i(u_j u_{i,j} - \nu u_{i,jj}) + (h.c.)`; the Yang–Mills free-gluon enclosure
-$`H = \sum_{i,j} h_{ij} C_i^\dagger A_j` below is the same envelope. The convolution device
-belongs to the two sectors whose inner space carries *spatial derivatives of the fields* —
-Navier–Stokes and the vielbein sector of gravity — where a product of fields with a derivative
-is handled in momentum space as a **convolution** rather than by a gauge constraint on the
-derivative variables (QYM's free-gluon symbol needs neither device).
+The companion `unfer` corpus contains gauge-fixed QYM computations, abelian
+soft-mode controls, lattice comparison benchmarks and finite SM constraint
+probes. Their model labels matter. A lattice electric occupation gap, a
+reflection-parity gap and a full gauge-fixed one-particle lower bound do not
+measure the same object. Historical numerical values are documented evidence,
+not new runs in this book revision. The
+{ref "sirk-reliability"}[reliability chapter] explains the applicable residual,
+full-action and spectral-exclusion requirements.
+:::
+
+:::paragraph
+Comprehensive fixing prevents orbit loss at the set level; it does not certify
+a numerical window. A window must retain the relevant action or bound its
+missing images. The SM density probe deliberately lacks a full nilpotent
+charge, while its 44-state longitudinal band leaks under the full operator.
+Those observations motivate a better physical-reduction construction rather
+than supplying a physical spectrum. See
+{ref "gauge-symmetry"}[the current gauge-fixing evidence] and
+`../unfer/docs/SM_RESEARCH_PLAN.md` N7–N10.
+:::
+
+# What the Topology Theorem Actually Excludes
+
+:::paragraph
+Classical choice supplies an orbit representative set. The available topology
+theorem excludes a *clopen* complete comprehensive subset for a nontrivial free
+action on a nonempty preconnected carrier. It does not exclude every smooth
+slice or continuous representative map, and does not construct a global
+nonabelian field-space gauge fixing. The comprehensive but incomplete approach
+keeps all orbits and the compatibility conditions on their observables. The
+next analytic tasks are a measurable physical realization, compatible domains
+and a dynamics intertwiner.
 :::
 
 # The Algebraic-Ideals View of Gauge
 
 :::paragraph
-The manuscript's distinctive proposal is that gauge symmetries are defined through
-*algebraic ideals* — the gauge generators are excluded from the physical
-(gauge-invariant) algebra rather than being imposed as constraints on a larger
-phase-space. The verified seed of this idea is the constraint-conservation
-identity: a constraint $`D` that commutes with the Hamiltonian is conserved by the
-flow (see {ref "gauge-symmetry"}[the gauge chapter]). The Gribov ambiguity is
-precisely the statement that no gauge-fixing can be simultaneously complete and
-unconstrained in general; the abelian case above is the exceptional case where it
-can be.
+The manuscript describes gauge through a physical observable algebra, excluding
+redundant generators from the observables. The available orbit theorem states
+that invariant functions factor through the orbit quotient. A comprehensive
+fixing retains these functions faithfully even when it retains multiple points
+per orbit. This is the useful algebraic content. A literal ideal quotient,
+a commutant and a BRST state cohomology are distinct constructions; an
+identification among them requires a map and a proof.
 :::
 
-# Summary
+# Scope of the Results
 
-The algebraic core of the manuscript's Gribov-ambiguity chapter:
-
- * the abelian field strength is gauge invariant (the "no Gribov ambiguity" case);
- * the non-abelian field strength reduces to the abelian one when the connection commutes;
- * the curl of self-adjoint operator fields is self-adjoint;
- * the mass-gap shift by the number operator is unobservable (Heisenberg-invariant), and the Weyl-gauge Hamiltonian is positive.
+The abelian curl identities, set-level orbit theorems and conditional
+number-shift equality are reusable. For the full field theory, one still needs
+the concrete measure and physical-state construction, a positive physical
+metric, compatible closed dynamics and a certificate for the specified operator.
+These obligations remain visible in {ref "proof-plans"}[the specialist plan].

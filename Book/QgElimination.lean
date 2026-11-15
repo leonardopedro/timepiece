@@ -48,6 +48,17 @@ Likewise, the new conditional OS multiplier norm-gap theorem cannot supply
 that identification or positivity. This chapter's elimination is the NS/QG
 Fourier device only; it does not replace QYM/QED field-strength constructions.
 
+# The Gauge-Reduction Scope of This Elimination
+
+The {ref "gauge-symmetry"}[comprehensive-fixing chapter] asks whether every
+physical orbit is retained and how observables and measures descend. The
+substitution here establishes the stated eliminated realization; it does not
+by itself identify a full diffeomorphism/BRST quotient. That identification
+needs the actual gauge action, measure, domains and closed-dynamics map. Keep
+the complete vielbein $`R^2` operator, exact exponential and interactions in
+that map. The subsequent SIRK subspace is a numerical approximation space,
+not a replacement for the physical quotient.
+
 # A Modewise Identity and a Spatial Product Are Different Steps
 
 The spatial Fourier rule replaces each derivative on its own leg. A product

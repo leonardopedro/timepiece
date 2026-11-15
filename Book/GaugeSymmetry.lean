@@ -87,9 +87,11 @@ an isometry of the sphere, and the born image is invariant under the whole group
 :::paragraph
 So the gauge group of the real Born parametrization contains at least the finite
 abelian group $`\{-1,+1\}^n`; the antipodal map is the special case $`s \equiv -1`.
-This is the concrete, verified seed of the manuscript's claim that the
-parametrization is genuinely redundant — a surjection with fibers, never a
-bijection.
+This is a verified redundancy relative to the specified Born probability map.
+A generic sphere rotation can change the labelled Born probabilities; it is
+not thereby a gauge transformation. Likewise, invariance of a Gaussian prior
+under a rotation does not make that rotation a gauge symmetry of every chosen
+observable. The map or observable algebra being held fixed must be named.
 :::
 
 # Comprehensive Fixing: Keep Every Physical Orbit
@@ -282,13 +284,14 @@ Introducing an auxiliary coordinate alone does not establish that equivalence.
 # First-Class Constraints as Gauge Generators
 
 :::paragraph
-The manuscript's "gauge transformations, constrained systems and conditioned
-probability" section develops the general picture: a *first-class constraint* is
-the generator of a unitary gauge group, all of whose operators are constrained to
-be the identity. The dynamical content is that an observable must commute with the
-gauge generator, and therefore the *gauge-invariant algebra* is what is
-constrained — not the Hilbert space, and not the individual wave-function (the
-manuscript quotes Dirac on the "standard ket" that cannot be gauge invariant).
+A first-class constraint family closes under the relevant bracket. To realize
+it as a quantum gauge action, one must also construct the operators, their
+common domains and the unitary action where appropriate. Physical observables
+are invariant under the declared action; the state construction must be
+specified separately. The manuscript emphasizes that an invariant observable
+algebra can exist even when its representing Hilbert space has no normalizable
+invariant vector. That is compatible with the commutant formulation above;
+it does not itself produce a physical state or a BRST quotient metric.
 :::
 
 :::paragraph
@@ -349,10 +352,10 @@ $$`\bigl\{\{D,A\},H\bigr\} = -\{D,\{H,A\}\}.`
 :::paragraph
 This is a direct consequence of the Jacobi identity together with $`\{D,H\}=0`.
 Its meaning is that the set of $`D`-invariant observables is closed under
-evolution by $`H` — a constraint that commutes with the Hamiltonian is preserved,
-A conserved quantity is not automatically a gauge generator: the gauge
-interpretation additionally needs the action and its redundant observables. The verified statement is the general algebraic
-fact, with the book's two literal instances (for the field $`\varphi^{(0)}` and the
+evolution by $`H`: the constraint is preserved. A conserved quantity is not
+automatically a gauge generator; that interpretation also needs the declared
+action and its redundant observables. The verified statement is the general
+algebraic fact, with the book's two literal instances (for the field $`\varphi^{(0)}` and the
 momentum $`p_{(1)}`):
 :::
 
@@ -423,12 +426,13 @@ antisymmetric in their first two indices and satisfy the Jacobi identity:
 ```
 
 :::paragraph
-This nilpotency is what makes the BRST cohomology — and hence the physical,
-gauge-invariant algebra that the manuscript proposes as the definition of the
-constrained theory — well defined. It is the concrete counterpart of the
-manuscript's claim that the gauge generators of the group "cannot be interpreted
-literally": the physical content lives in the gauge-invariant (cohomological)
-algebra, not in the individual wave-function.
+Nilpotency of the declared charge makes its algebraic cohomology well defined.
+The ghost identities above are reusable pieces. For a full coupled charge,
+the Gauss representation and cross terms must also be checked, as in the
+book-charge construction discussed in {ref "standard-model"}[the SM chapter].
+Identifying this state cohomology with the intended physical observable theory,
+its metric and dynamics is the next step, rather than a consequence of a ghost
+matrix identity alone.
 :::
 
 # The Reduced Dynamics on BRST Cohomology
@@ -536,11 +540,25 @@ current specialist plan records a consistency check: if $`U^2=I`,
 $`UQ=-QU`, $`Q^2=0`, and $`Q` is symmetric for the form with $`\eta=U`,
 substituting $`y=UQx` gives $`\|Qx\|^2=0`. Thus these global premises force
 $`Q=0`. Likewise an even $`b` with $`QbQ=Q` would make an odd $`Q` both
-even and odd, again forcing zero. These are algebraic checks to formalize,
-not newly compiled Lean results. A physical nonzero-charge construction needs
-compatible metric and homotopy choices; success under vacuous premises is not
-a no-ghost theorem. `SM_ESA_COMPLETION_PLAN.md` SM1/SM4 and the appendix specify
-the remaining tasks.
+even and odd, again forcing zero. The source now contains the latter
+obstruction as `even_homotopy_imp_charge_eq_zero`, and an averaged invariant
+projection construction. These additions have not been compiled by this
+book-editing wave. The metric consistency calculation remains a specialist
+verification task. A physical nonzero-charge construction needs compatible
+metric and homotopy choices; success under vacuous premises is not a no-ghost
+theorem. `SM_ESA_COMPLETION_PLAN.md` SM1/SM4 and the appendix specify the tasks.
+:::
+
+```
+#check @BookProof.SmQuartet.BrstQuartet.even_homotopy_imp_charge_eq_zero
+#check @BookProof.SmQuartet.BrstQuartet.exists_invariant_projection
+```
+
+:::paragraph
+The averaged projection commutes with the grading and projects onto a specified
+invariant subspace. Its existence is an algebraic complement construction; it
+does not supply positivity, a bounded operator in infinite dimension, or a
+projection reducing the physical Hamiltonian.
 :::
 
 # From Physical Inner Dynamics to the Outer Hamiltonian

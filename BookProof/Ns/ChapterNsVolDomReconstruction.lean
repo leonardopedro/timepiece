@@ -1029,4 +1029,159 @@ theorem hdvd_iff_characters_separate (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3
         (x := x) (by simp)]
       exact dvd_zero (N : ℤ)
 
+/-! ## 9. A concrete wave set: the `N`-torus grid, where distinctness holds on the nose
+
+§8 reduced distinctness to a first-Brillouin bound that a *model* must satisfy.  This section
+exhibits a wave set that does: the modes of the `N³` torus on the coordinate axes,
+
+  `torusWave N j = fun y => 2π · j_y / N`,   `j : Fin 3 → Fin N`.
+
+Two components of a difference lie in `[-(N-1), N-1]`, so every pairing is `< 2π` in absolute value
+and §8's bound applies; the labels are the integer differences `j_x - j'_x`, and divisibility by `N`
+then forces each component to agree.  Hence the penalty theorem needs **no distinctness hypothesis**
+at this grid — only that the model's wave numbers lie on it.
+
+The independence and pairing lemmas are for the standard axis basis `axis x`; nothing here needs a
+skew basis, and `gridBox N axis` is the ordinary `N³` box. -/
+
+/-- The standard basis vector `e_x` of `Fin 3 → ℝ`. -/
+noncomputable def axis (x : Fin 3) : Fin 3 → ℝ := fun y => if y = x then 1 else 0
+
+/-- **The axis basis contracts**: `Σ_y q_y · (e_x)_y = q_x`. -/
+theorem axis_pairing (q : Fin 3 → ℝ) (x : Fin 3) : ∑ y, q y * axis x y = q x := by
+  rw [Finset.sum_eq_single x (fun b _ hb => ?_) (fun hx => absurd (Finset.mem_univ x) hx)]
+  · simp [axis]
+  · have hz : axis x b = 0 := by simp [axis, hb]
+    rw [hz, mul_zero]
+
+/-- **The axis basis is independent** in the form §5 uses. -/
+theorem axis_indep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * axis x y = 0) → c = 0 := by
+  intro c h
+  funext y
+  have hy := h y
+  rw [Finset.sum_eq_single y] at hy
+  · simpa [axis] using hy
+  · intro b _ hb
+    have hz : axis b y = 0 := by simp [axis, Ne.symm hb]
+    rw [hz, mul_zero]
+  · intro hy'
+    exact absurd (Finset.mem_univ y) hy'
+
+/-- **The `N`-torus grid**: modes `2π·j/N` with `j < N` in each direction. -/
+noncomputable def torusWave (N : ℕ) (j : Fin 3 → Fin N) : Fin 3 → ℝ :=
+  fun y => 2 * Real.pi * (j y : ℝ) / N
+
+/-- **The pairing of a difference of two torus modes is the integer label**, divided by `N`: the
+label of `q - q'` in direction `x` is `j_x - j'_x`. -/
+theorem torusWave_pairing {N : ℕ} (j j' : Fin 3 → Fin N) (x : Fin 3) :
+    ∑ y, (torusWave N j - torusWave N j') y * axis x y
+      = 2 * Real.pi * ((j x : ℝ) - (j' x : ℝ)) / N := by
+  rw [axis_pairing]
+  simp only [Pi.sub_apply, torusWave]
+  rw [← sub_div, ← mul_sub]
+
+/-- A nonzero multiple of `N` is at least `N` in absolute value, so a nonzero integer divisible by
+`N` cannot be smaller than `N`. -/
+private theorem abs_eq_zero_of_dvd_of_abs_lt {N m : ℤ} (hN : 0 < N) (hd : N ∣ m)
+    (h : |m| < N) : m = 0 := by
+  obtain ⟨c, rfl⟩ := hd
+  have habs : |N * c| = N * |c| := by rw [abs_mul, abs_of_pos hN]
+  rw [habs] at h
+  have h' : N * |c| < N * 1 := by rw [mul_one]; exact h
+  have hc1 : |c| < 1 := lt_of_mul_lt_mul_left h' hN.le
+  rw [Int.abs_lt_one_iff] at hc1
+  rw [hc1, mul_zero]
+
+/-- **Distinctness holds for the torus grid with no extra hypothesis.**  If every wave number of `S`
+is a torus mode, then the labels `m` determined by the pairings separate `S`: divisibility of all
+three labels by `N` forces each component difference to vanish, and the modes to coincide. -/
+theorem hdvd_torus (N : ℕ) (hN : 0 < N) (S : Finset (Fin 3 → ℝ))
+    (hS : ∀ q ∈ S, ∃ j : Fin 3 → Fin N, q = torusWave N j)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hp : ∀ q ∈ S, ∀ q' ∈ S, ∀ x,
+      ∑ y, (q - q') y * axis x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N) :
+    ∀ q ∈ S, ∀ q' ∈ S, (∀ x, (N : ℤ) ∣ m q q' x) ↔ q = q' := by
+  intro q hq q' hq'
+  obtain ⟨j, hj⟩ := hS q hq
+  obtain ⟨j', hj'⟩ := hS q' hq'
+  subst hj
+  subst hj'
+  -- the labels are exactly the component differences
+  have hlabel : ∀ x, m (torusWave N j) (torusWave N j') x = (j x : ℤ) - (j' x : ℤ) := by
+    intro x
+    have hp' := hp (torusWave N j) hq (torusWave N j') hq' x
+    rw [torusWave_pairing j j' x] at hp'
+    have hN' : (N : ℝ) ≠ 0 := by exact_mod_cast hN.ne'
+    have hpi : (2 * Real.pi : ℝ) ≠ 0 := by positivity
+    have h2 : (((m (torusWave N j) (torusWave N j') x : ℤ)) : ℝ)
+        = ((j x : ℝ) - (j' x : ℝ)) := by
+      have h3 := hp'
+      field_simp at h3
+      linarith [h3]
+    exact_mod_cast h2
+  constructor
+  · intro hd
+    funext x
+    have hcomp : (j x : ℤ) = (j' x : ℤ) := by
+      have hzero : m (torusWave N j) (torusWave N j') x = 0 := by
+        refine abs_eq_zero_of_dvd_of_abs_lt (by exact_mod_cast hN) (hd x) ?_
+        rw [hlabel x, abs_lt]
+        constructor <;> [skip; skip] <;>
+          · have h1 := (j x).isLt
+            have h2 := (j' x).isLt
+            omega
+      rw [hlabel x] at hzero
+      omega
+    have h3 : (j x : ℝ) = (j' x : ℝ) := by exact_mod_cast hcomp
+    simp only [torusWave]
+    rw [h3]
+  · intro hqq x
+    have hzero : ((m (torusWave N j) (torusWave N j') x : ℤ) : ℝ) = 0 := by
+      have hpz := hp (torusWave N j) hq (torusWave N j') hq' x
+      rw [sub_eq_zero.mpr hqq] at hpz
+      simp only [Pi.zero_apply, zero_mul, Finset.sum_const_zero] at hpz
+      have hN' : (N : ℝ) ≠ 0 := by exact_mod_cast hN.ne'
+      have hpi : (2 * Real.pi : ℝ) ≠ 0 := by positivity
+      rcases div_eq_zero_iff.mp hpz.symm with h | h
+      · rcases mul_eq_zero.mp h with h' | h'
+        · exact absurd h' hpi
+        · exact h'
+      · exact absurd h hN'
+    have hm : m (torusWave N j) (torusWave N j') x = 0 := by exact_mod_cast hzero
+    rw [hm]
+    exact dvd_zero (N : ℤ)
+
+/-- **The penalty on the torus grid needs no distinctness hypothesis.**  This is
+`volPot_of_single_mode_of_lattice_commensurate` on the axis box with `hdvd` discharged by
+`hdvd_torus`: the only content left is (i) the model's wave numbers are torus modes and (ii) their
+labels are the pairings — both properties of the model's spectrum, not of the truncation. -/
+theorem volPot_of_single_mode_of_torus {K : Type*} [Fintype K] (kappa Λ : ℝ)
+    (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hS : ∀ q ∈ waveSet kv, ∃ j : Fin 3 → Fin N, q = torusWave N j)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ∀ x,
+      ∑ y, (q - q') y * axis x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ gridBox N axis →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * Λ ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_lattice_commensurate kappa Λ kv N hN axis axis_indep m hp
+    (hdvd_torus N hN (waveSet kv) hS m hp) h0 hconst
+
+/-- The same on §63's shear family at the torus grid: the penalty is `(κ/2)(c·ε·t)²` with neither
+`hspec`, `horth` nor a distinctness hypothesis. -/
+theorem volPot_of_shear_constant_of_torus {K : Type*} [Fintype K] (kappa c ε t : ℝ)
+    (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hS : ∀ q ∈ waveSet kv, ∃ j : Fin 3 → Fin N, q = torusWave N j)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ∀ x,
+      ∑ y, (q - q') y * axis x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ gridBox N axis →
+      (1 + dispGrad kv y a).det = 1 + (((c * ε * t : ℝ)) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * (c * ε * t) ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_torus kappa (c * ε * t) kv N hN m hS hp h0 hconst
+
 end BookProof.NsVolDomReconstruction

@@ -7,6 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest gauge pedagogy refinement (2026-11-15i):** “State of the project — 2026-11-15i:
+> comprehensive fixing, physical reduction and numerical compression” (end of file).
+> The book separates orbit coverage, Mehler probability, BRST metric/dynamics and SIRK
+> approximation. `Book/ProofPlans.lean` G0–G5 supplies the specialist handoff; no builds run.
+>
 > **Newest book refinement (2026-11-15h):** “State of the project — 2026-11-15h:
 > Mehler–Kopperman finite-channel tensor and effective-language scope” (end of file).
 > The book now separates Hilbert tensors, Gaussian coordinate laws and logical
@@ -25948,3 +25953,87 @@ by a Hilbert space, or an explicitly trace-class Hilbert Gaussian as appropriate
    checks. Builds are left to the LLM-Lean4-specialist. For physical applications,
    retain the full inner interacting operator and the outer `C† h A` convention;
    geometric decidability alone is not an interacting field-theory decision theorem.
+
+
+## State of the project — 2026-11-15i: comprehensive fixing, physical reduction and numerical compression
+
+This entry refines the **book** gauge-fixing interpretation and G0–G5 handoff. It
+supersedes broader readings of the older gauge/Gribov prose, while preserving the
+existing theorem statements, operator work orders and historical evidence. It
+complements the Mehler foundation entry 2026-11-15h and SM0–SM9/N6–N14.
+No compilation, Cadabra run or numerical test was performed for this revision.
+Concurrent Lean source edits were read, not modified.
+
+### Current interpretation
+
+[The gauge chapter](Book/GaugeSymmetry.lean) now puts orbit coverage before BRST.
+A **comprehensive** fixing meets every orbit; a **complete** fixing meets each orbit
+at most once. A comprehensive incomplete carrier loses no invariant-observable
+information when the remaining orbit identifications are retained. Integer
+translations give all four coverage/uniqueness cases. A complete representative
+set from `Quotient.out` supplies no measurable or effective selector. The current
+non-clopen theorem excludes a continuous Boolean indicator, not every smooth slice
+or continuous representative map. Adjoining a group-valued auxiliary produces a
+section for the extended diagonal action; equivalence to the original physical
+quotient still needs a separate argument.
+
+The Mehler prior and finite-channel tensor construction supply reference probability
+and wave-functions, not an automatic gauge quotient. A measurable same-orbit map
+preserves invariant expectations under the pushed-forward law; the original slice
+may have zero prior probability. A Born-map fiber symmetry, Gaussian-prior rotation,
+observable commutant, algebraic ideal and BRST state quotient are distinct objects.
+State which map/action/algebra is fixed before identifying them.
+
+### Source results and remaining physical inputs
+
+Reuse `ChapterGaugeIncompleteFixing`, `ChapterGaugeComprehensiveFixing`, and
+`ChapterGaugeCasimirAverage`. Both bounded-charge and closed unbounded-charge reduced
+transfer packages are available; the latter requires domain preservation and strong
+commutation. Their quotient norm is not automatically an indefinite physical charge
+form. The canonical finite SM homotopy and harmonic-range formula are source-present.
+The current source additionally has
+`SmQuartet.BrstQuartet.even_homotopy_imp_charge_eq_zero` and an averaged invariant
+projection. Reuse this obstruction rather than asking the specialist to prove it again;
+this documentation wave has not compiled those additions. The metric `eta=U`
+consistency check, compatible physical metric, correct ghost-number degree, nonzero
+physical states, complete joint charge and physical closed-dynamics realization
+remain separate obligations. Source comments claiming an even homotopy is a promising
+nonzero-charge input must be read against the newer obstruction.
+
+Keep the outer Hamiltonian `H = sum C† h A`, creation left and annihilation right,
+with the complete inner operator and all constants. A physical restriction/quotient
+must intertwine closed inner dynamics before the lift. Outer vacuum annihilation
+does not imply ground status or a strict gap without the corresponding inner bounds.
+NS/QG Fourier substitution and spatial-product convolution remain an inner-operator
+bridge; preserve the full QG vielbein/R² exponential and interactions. Do not extend
+that elimination prescription to QYM/QED.
+
+### Numerical and algorithm boundaries
+
+[The reliability chapter](Book/SirkReliability.lean) separates a physical projector
+from `P_num=VV*`. Compression can break nilpotency through discarded images even for
+a truly nilpotent full charge. Separately, the SM density probe omits the complete
+nonabelian ghost charge and deliberately has a nonzero square. Historical diagnostics
+in `../unfer/docs/SM_FULL_IMPLEMENTATION.md` include the penalty floor `9`, density-probe
+`||Q²psi|| about .1392044`, and `||(I-P)HP|| about .6234982` for the 44-state band.
+These are not a physical quotient or physical spectral gap. No values were regenerated.
+
+The implemented joint rational solver uses shifted solves and the compressed
+resolvent generator `G=gamma I-B^-1`, not the exponential of `V*HV`. The SM6/N8
+full-action bound is a proposed certificate for that actual generator. Existing
+Galerkin/restart leakage theorems retain their stated hypotheses; bounded-charge
+estimates do not extend to an unbounded charge without graph-norm control.
+
+### Next specialist order
+
+The detailed [book appendix](Book/ProofPlans.lean) G0–G5 is the handoff:
+actual action and physical target → measure/state map → complete charge and
+positive physical metric → closed dynamics and outer lift → actual algorithm error
+and compression defects → scoped numerical fixtures under N7–N10. The full-SM
+self-bound is already source-present; do not reopen it as the old P4 blocker.
+Anomaly cancellation, continuum existence and absolute mass-gap estimates remain
+separate targets. Fixed-action invariance under pointwise limits proves none of them.
+
+The companion chapters on Gribov, SM, Yang–Mills and NS/QG elimination were aligned
+with this scope. Check citations and axioms, then render through the book wrapper
+and KaTeX checks as the specialist's final validation. No build was run here.

@@ -648,6 +648,12 @@ import BookProof.OSReconstruction.PriorRefinement
 import BookProof.OSReconstruction.ContinuumPrior
 import BookProof.MCMC.GeometricErgodicity
 
+-- Wave (`pcnl.md` packet T0, the first review gate): the contract on Mathlib's actual `Kernel`
+-- API — the integral action `P f x = ∫ f d(κ x)`, `P 1 = 1`, the pointwise Jensen estimate
+-- `‖P f x‖² ≤ P (‖f‖²) x`, the `L²(π)` contraction under `Kernel.Invariant`, and the
+-- reversible prior-refresh proposal `Kernel.const α π`.
+import BookProof.MCMC.KernelContract
+
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
 -- its boundary — `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` — plus the resulting geometric convergence
 -- in total variation (`pcnl_mcmc_geometric_convergence`).

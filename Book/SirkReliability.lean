@@ -329,14 +329,71 @@ rather than to an abstract substitute.
 #check @BookProof.ChapterSirkGramCutoff.defect_le_sqrt_cutoff_retained
 ```
 
+# Gauge Reduction and Numerical Compression Have Different Projectors
+
+:::paragraph
+The {ref "gauge-symmetry"}[gauge chapter] first specifies the physical
+observable algebra, measure and state reduction. A comprehensive fixing
+retains all orbits; a physical projector, when available, represents the
+chosen Hilbert reduction. The solver's $`P_{\rm num}=VV^*` instead selects a
+finite approximation space. It need not be gauge invariant or commute with
+the charge. Neither a low penalty nor a small compressed charge proves that
+the space contains the required physical states.
+:::
+
+:::paragraph
+For a full nilpotent $`Q` and compatible domains, compression can give
+$`(V^*QV)^2=-V^*Q(I-P_{\rm num})QV\ne0`. The defect records missing
+images, not necessarily a failure of the full charge. A charge model that
+omits the nonabelian ghost term is a separate issue: the current SM
+electric-plus-density probe intentionally has a nonzero square. Keep these
+two failure mechanisms separate when designing numerical tests.
+:::
+
+# The Actual Joint Rational Generator
+
+:::paragraph
+The complete SM implementation in `unfer/fock_sirk/src/joint_sirk.rs` builds
+rational basis vectors by shifted solves. At the final positive shift
+$`\gamma`, its exact target compression is
+$`B=V^*(\gamma I+iH)^{-1}V`, with function generator
+$`G=\gamma I-B^{-1}` and reconstructed flow $`Ve^{tG}V^*\psi_0`.
+Its diagnostic $`V^*HV` is a different matrix. Exponentiating that Ritz matrix
+would be a different algorithm. Finite-window solves, inexact GMRES, inverse
+conditioning, Gram truncation, Padé arithmetic and restart each need their own
+error terms. Formal results about exact compression or a pure solver core do
+not verify this entire implementation merely by sharing the name SIRK.
+:::
+
+:::paragraph
+For an identified self-adjoint $`H`, an isometry $`V` whose finite-dimensional
+range lies in its domain, and the actual reduced $`G`, define
+$`D=iVG-HV`. The planned full-action certificate is
+:::
+
+$$`\|e^{-itH}\psi_0-Ve^{tG}V^*\psi_0\|
+\le\|(I-VV^*)\psi_0\|
++\int_0^t\|De^{sG}V^*\psi_0\|\,ds\qquad(t\ge0).`
+
+:::paragraph
+This is the proposed algorithm-specific handoff in SM6/N8, not a newly proved
+Lean theorem. Full-column action and discarded tails can bound $`D`; a small
+retained resolvent residual alone does not. Only after such an error bound
+is matched to the actual physical evolution can it feed a constraint estimate.
+For bounded $`Q`, the extra factor $`\|Q\|` converts state error to charge
+leakage. An unbounded charge requires graph-norm control instead.
+:::
+
 # Leakage Out of the Physical Subspace
 
 :::paragraph
-The truncated dynamics do not preserve the physical subspace picked out by the
-BRST charge, which is why the solver carries a projector along. The telescoping
-estimate bounds the damage: the exact flow keeps a physical state physical, so
-all of the leakage comes from the truncation, and after $`n` cycles it is at most
-$`\lVert \Omega \rVert \, n \varepsilon \lVert v \rVert`.
+Truncated dynamics need not preserve a specified BRST-closed space. Assuming
+that the exact flow does preserve it, a bounded charge and a per-cycle operator
+error bound give leakage at most
+$`\lVert\Omega\rVert n\varepsilon\lVert v\rVert` after $`n` cycles from a
+closed state. The projector used to retain Krylov vectors is not automatically
+a physical projector. The estimate quantifies a known approximation error; it
+does not supply the full charge, its metric or the per-cycle bound.
 :::
 
 ```
@@ -379,8 +436,9 @@ linearly in the number of cycles.
 ```
 
 :::paragraph
-The field-theoretic Hamiltonian is not bounded, and the estimate does not need it to
-be. Let $`T` be an unbounded self-adjoint operator with the unitary group $`e^{-itT}`
+An unbounded Hamiltonian is covered by the next theorem, while its charge
+observable remains bounded. This does not yet give an estimate with an
+unbounded charge. Let $`T` be an unbounded self-adjoint operator with the unitary group $`e^{-itT}`
 that Stone's theorem produces, and let the retained subspace be finite-dimensional and
 inside the domain of $`T` — the finite-$`m` situation of the algorithm. Then the
 compression $`PTP` is a bounded self-adjoint operator, its flow keeps a retained state
@@ -409,6 +467,28 @@ subspace each cycle again accumulates the bound linearly in the number of cycles
 #check @BookProof.BrstUnboundedLeakage.truncation_leakage_le_of_physical
 #check @BookProof.BrstUnboundedLeakage.restart_leakage_le
 ```
+
+# Reading the Current Constraint Evidence
+
+:::paragraph
+The historical SM records are diagnostics of named finite windows:
+$`\|Q_{\rm probe}^2\psi\|\simeq0.1392044` for the incomplete
+matter-density charge, an electric penalty floor $`9`, and
+$`\|(I-P)HP\|\simeq0.6234982` for a selected 44-state band. The source test
+expects the first defect; the second is a zero-point floor of the probe; the
+third shows the band is not reducing. No value is a physical mass gap or a
+physical-quotient certificate. These values are taken from
+`../unfer/docs/SM_FULL_IMPLEMENTATION.md`; no numerical test was run here.
+:::
+
+:::paragraph
+The research acceptance order N7–N10 is the actual operator dictionary,
+full-action error, bounded cutoff study, and full physical charge/metric
+construction. It complements the formal transfer and leakage theorems.
+Gauge/Higgs/matter charge terms, ghost cubic terms, ghost number, full images,
+nonzero physical representatives and closure/domain compatibility must be
+checked before a physical interpretation of the joint solver output.
+:::
 
 # Which Region the Constants Are Measured On
 

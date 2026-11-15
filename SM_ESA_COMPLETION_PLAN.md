@@ -4991,13 +4991,18 @@ homotopy `quartetOfHomotopy` started from, which the record does not store — w
 bundles one.  The parity of the chosen b-ghost is likewise not recoverable: it is `P − Ω P²` for an
 unexposed `P`.
 
-Boundary: instantiating §5.1 at `FermiFock (m + 12)` does not elaborate in this toolchain.  Every
-phrasing tried — `exists_odd_contractingHomotopy`, its `Nonempty` bundle, and even a statement
-instantiating `bGhost_QSQ` at `smBghost` — times out in `whnf`/`isDefEq` while unifying the concrete
-`EuclideanSpace` instances (tried at 200k, 800k and 1.6M heartbeats, the last costing ~80 s of
-elaboration before failing).  So the consequences are proved for the *abstract* charge and for data
-supplied at the model's charge, and the model's chosen quartet is not claimed to be odd.  The
-obstruction half needs no instantiation, so the sign question is settled regardless.
+Boundary: instantiating §5.1 at `FermiFock (m + 12)` does not elaborate in this toolchain, and the
+cause is now localised.  `set_option diagnostics true` on the failing application reports **81 372**
+unfoldings of `DFunLike.coe`, 69 133 of `Nat.rec`, 62 286 of `HAdd.hAdd`/`Add.add`, 46 080 of `Nat.add`,
+11 910 of `smGhostParity`, plus `ghostCre`/`ghostAnn`/`Fin.foldr`/`WithLp.equiv`: the unifier is
+*evaluating* the operator's body (a finite sum over `Finset (Fin (m+12))`, so `Nat.add m 12` is
+unfolded too) instead of assigning the metavariable.  Consequences: the type *as an antecedent*
+elaborates in ~4 s, the instances synthesise cheaply, and the two hypothesis statements elaborate
+cheaply; what fails is either the application (metavariable `?U` unified against `smGhostParity` by
+reduction) or a *conclusion* mentioning the operator twice, at 200k, 300k, 800k and 1.6M heartbeats.
+So the model's chosen quartet is not claimed to be odd, and the instantiation stays recorded as a
+toolchain limitation rather than a mathematical gap — the obstruction half needs no instantiation, so
+the sign question is settled regardless.
 
 ## 85. Distinctness of the alias labels is separation, not a new hypothesis
 
@@ -5020,3 +5025,34 @@ coordinates — and both are conditional on `hp`.  `int_label_eq_zero_of_pairing
 that makes divisibility insensitive to a vanishing pairing.  What is still not produced is a proof that
 a *particular* model's wave set lies in the first Brillouin zone; that is a statement about the model's
 spectrum, not about the truncation.
+
+## 86. The first-Brillouin bound is discharged on the `N`-torus grid
+
+§85 left one side condition open: that a *particular* model's wave set lies in the first Brillouin zone.
+`BookProof/Ns/ChapterNsVolDomReconstruction.lean` §9 discharges it for the modes of the `N³` torus, so at
+that grid the penalty theorem carries no spectral hypothesis and no distinctness hypothesis.
+
+**The wave set.**  `torusWave N j = fun y => 2π · j_y / N` for `j : Fin 3 → Fin N` — `N` plane waves per
+direction, exactly what a periodic `N³` truncation can carry.  `torusWave_pairing` evaluates the pairing
+against the coordinate basis `axis x` (`axis_pairing`, `axis_indep`): it is
+`2π ((j_x : ℝ) − (j'_x : ℝ))/N`, so the label of a pair is the integer component difference, and nothing
+about the deformation enters the labelling.
+
+**Distinctness with no hypothesis.**  `hdvd_torus`: if every wave number of `S` is a torus mode and its
+labels are the pairings, then divisibility of all three labels by `N` forces `q = q'`.  Each component of
+a difference is at most `N − 1` in absolute value, so §85's bound holds on the nose; the step that closes
+it is `abs_eq_zero_of_dvd_of_abs_lt` — a nonzero multiple of `N` is at least `N` in absolute value, so an
+integer divisible by `N` with modulus below `N` is zero.  No `hspec`, no `horth`, no separate spectral
+hypothesis: the bound is a property of the grid, and the grid is what the truncation *is*.
+
+**The penalty, unconditional at the grid.**  `volPot_of_single_mode_of_torus` and
+`volPot_of_shear_constant_of_torus`: on `gridBox N axis`, if the model's wave numbers are torus modes and
+their labels are the pairings, then `volPot = C((κ/2)Λ²)`, respectively `C((κ/2)(c·ε·t)²)`.  What remains
+is (i) a membership statement about the model's spectrum and (ii) constancy of the deformation gradient's
+determinant on the grid — neither is a truncation artefact.
+
+Boundary: `axis` is the coordinate basis, so `gridBox N axis` is the ordinary cube and §5's skew-basis
+generality is not exercised here; a model whose wave numbers are not integer multiples of `2π/N` (a
+non-commensurate box) has no modes on this grid and is out of scope of §9, though it is not excluded by
+§85 provided its own first-Brillouin bound can be checked.  The grid itself presumes periodicity, which is
+the physical content of the truncation, not an additional assumption.

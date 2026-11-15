@@ -91,9 +91,11 @@ of what moved and what did not is `HONEST_BOUNDARIES_SM.md`.
 
 # The New Ghost Proofs: An Algebraic Quartet Still Needs a Positive Metric
 
-The finite SM charge has a choice-based contracting homotopy and a quartet
-projector. This algebra splits a closed vector into an exact part and a
-representative in the projector's range. It does not decide the sign of an
+The finite SM charge has a choice-based contracting homotopy and a canonical
+finite-dimensional formula. The latter identifies the harmonic range with
+$`\ker Q\cap(\operatorname{im}Q)^\perp` in the ambient Hilbert metric.
+This algebra splits a closed vector into an exact part and a harmonic
+representative. It does not decide the sign of an
 indefinite metric on those representatives. `SmQuartet` proves positivity is
 equivalent to a positive definite charge form on that range; for the ghost
 parity metric the relevant number is the even norm squared minus the odd norm
@@ -130,12 +132,21 @@ $`(0,1)`, under the stated closure-with-structure-constants hypothesis. Thus
 antisymmetry does not make a sum over one free basis index vanish. These
 concurrent source additions have not been compiled by this documentation wave.
 
-The next step must check the quartet equation on the charge's range and the
-metric's sign on physical representatives. Nilpotency, parity grading and a
-choice of complement do not discharge those checks. Any physical inner
-restriction must subsequently be shown to reduce the Hamiltonian and its
-closure before taking the outer enclosure. These algebraic additions do not
-remove the full matter operator's analytic estimates.
+The current source additionally rules out a parity-even contracting homotopy
+for a nonzero odd charge (`even_homotopy_imp_charge_eq_zero`) and constructs
+an invariant projection by averaging. It does not yet supply the positive
+physical metric, physical ghost-number selection or actual joint field/matter
+charge. In particular, ghost parity cannot simply be reused as an indefinite
+metric together with all the global symmetry premises: the consistency
+calculation in {ref "gauge-symmetry"}[the gauge chapter] would force the charge
+to vanish. The even-homotopy premises in older conditional statements likewise
+must not be treated as a realizable nonzero-charge instance.
+
+These are source-present results; this documentation wave has not compiled
+them. A positive ambient harmonic quotient is not automatically the physical
+Krein quotient. Identify nonzero physical representatives and prove their
+closed dynamics before taking the outer enclosure. The current work order is
+`SM_ESA_COMPLETION_PLAN.md` SM0–SM9 and the book's gauge-reduction plan.
 
 # Completing the Full Matter Operator: Current Work Order
 
@@ -151,7 +162,18 @@ operator-valued gauge couplings and the spatial Dirac derivative.
 physical-sector reduction and outer ESA lift. The proposed comparison extends
 the proved $`2h_B+\sum_{active}q^2+c` by a spatial oscillator; it is an
 analytic tool, not a new term in the physical Hamiltonian. The old uncoupled
-quartic comparison is not the live Faris–Lavine comparison.
+quartic comparison is not the live Faris–Lavine comparison. The potential
+self-bound and the resulting kinetic/normal-form bounds are now source-present
+(`exists_potSelfBound_sm`, `exists_kineticSum_bound_sm`,
+`exists_smNormalForm_norm_le`); the former P4 self-bound is not the current
+blocker. Assembly of the actual joint operator, full comparison graph core,
+physical reduction and continuum interpretation still need their own bridges.
+
+The `unfer` complete E1 numerical dictionary and joint rational solver are
+implemented. Their finite windows and historical constraint probes do not yet
+construct the full physical quotient. The gauge chapter explains the penalty
+floor, incomplete-charge square and off-band leakage; the numerical research
+order is `../unfer/docs/SM_RESEARCH_PLAN.md` N6–N14.
 
 The numerical objective is Hashimoto approximation of the same complete
 $`H_{SM}=d\Gamma(h_{SM})`, with all inner interactions retained. A controlled
@@ -1026,7 +1048,9 @@ What is *not* claimed here: the local gauge algebra is modelled by a
 finite-dimensional Lie algebra with derivations $`\partial_\mu` (the
 manuscript's totally antisymmetric $`SU(N)` structure constants are used), so
 the Gauss law is local in that algebra rather than at every point of a
-continuum space; the manuscript's operator formalism uses no Faddeev–Popov
+continuum space; temporal $`A_0=0` fixes the multiplier and leaves the spatial
+Gauss-law physical reduction to be established; the manuscript's operator
+formalism uses no Faddeev–Popov
 determinant and none is constructed; and, while the cohomology is defined and
 shown well defined, nothing is claimed about its *size*.
 :::

@@ -771,7 +771,7 @@ theorem even_homotopy_imp_charge_eq_zero {U Q P : H →ₗ[ℂ] H} (hU : U ∘�
 
 /-- **An averaged projection onto `ker Q`.**  Averaging a projection with its `U`-conjugate keeps
 the range and the fixed-point set, and makes it commute with `U`. -/
-theorem exists_invariant_projection (U : H →ₗ[ℂ] H) (hU : U ∘ₗ U = LinearMap.id)
+theorem exists_invariant_projection (U : H →ₗ[ℂ] H) (hU : ∀ x : H, U (U x) = x)
     (K : Submodule ℂ H) (hUK : ∀ x : H, x ∈ K → U x ∈ K) :
     ∃ π : H →ₗ[ℂ] H, (∀ x : H, π x ∈ K) ∧ (∀ x : H, x ∈ K → π x = x) ∧
       (∀ x : H, U (π x) = π (U x)) := by
@@ -792,15 +792,13 @@ theorem exists_invariant_projection (U : H →ₗ[ℂ] H) (hU : U ∘ₗ U = Lin
     have hUx : U x ∈ K := hUK x hx
     have h2 : U (π₀ (U x)) = x := by
       rw [hπ₀_fix (U x) hUx]
-      exact congrFun (congrArg DFunLike.coe hU) x
+      exact hU x
     rw [LinearMap.smul_apply, LinearMap.add_apply, LinearMap.comp_apply, LinearMap.comp_apply,
       hπ₀_fix x hx, h2, smul_add, ← two_smul ℂ (2⁻¹ • x), smul_smul,
       show (2 : ℂ) * 2⁻¹ = 1 by norm_num, one_smul]
   · intro x
-    have hUU : U (U x) = x := by
-      rw [← LinearMap.comp_apply, hU, LinearMap.id_apply]
-    have hUU2 : U (U (π₀ (U x))) = π₀ (U x) := by
-      rw [← LinearMap.comp_apply, hU, LinearMap.id_apply]
+    have hUU : U (U x) = x := hU x
+    have hUU2 : U (U (π₀ (U x))) = π₀ (U x) := hU (π₀ (U x))
     simp only [LinearMap.smul_apply, LinearMap.add_apply, LinearMap.comp_apply, map_smul,
       map_add, hUU, hUU2]
     abel
@@ -814,12 +812,11 @@ theorem kernel_invariant_of_proj (U π : H →ₗ[ℂ] H)
 `U`-invariant complements `C` of `ker Q` and `D` of `range Q`; inverting `Q` on `C` and projecting
 onto `range Q` along `D` gives `P`, and `U`-invariance of both complements makes it odd. -/
 theorem exists_odd_contractingHomotopy [FiniteDimensional ℂ H] {U Q : H →ₗ[ℂ] H}
-    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
+    (hU : ∀ x : H, U (U x) = x) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
     ∃ P : H →ₗ[ℂ] H, (∀ x : H, Q (P (Q x)) = Q x) ∧ (∀ x : H, P (Q (P x)) = P x) ∧
       ∀ x : H, U (P x) = -(P (U x)) := by
   classical
-  have hUU : ∀ x : H, U (U x) = x := fun x => by
-    rw [← LinearMap.comp_apply, hU, LinearMap.id_apply]
+  have hUU : ∀ x : H, U (U x) = x := hU
   have hQUinv : ∀ x : H, Q (U x) = -(U (Q x)) := by
     intro x
     have h := hQU (U x)
@@ -960,7 +957,7 @@ structure OddHomotopy (U Q : H →ₗ[ℂ] H) where
 /-- **A parity-odd contracting homotopy exists**, in bundled form: the construction of
 `exists_odd_contractingHomotopy`, with its three identities as fields. -/
 theorem exists_odd_homotopy [FiniteDimensional ℂ H] {U Q : H →ₗ[ℂ] H}
-    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
+    (hU : ∀ x : H, U (U x) = x) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
     Nonempty (OddHomotopy U Q) := by
   obtain ⟨P, h1, h2, h3⟩ := exists_odd_contractingHomotopy hU hQU
   exact ⟨⟨P, h1, h2, h3⟩⟩

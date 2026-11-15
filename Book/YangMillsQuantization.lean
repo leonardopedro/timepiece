@@ -37,6 +37,18 @@ the graded Fock/Friedrichs/Hashimoto chapters that the field-space realization
 rests on.
 :::
 
+# Gauge Fixing Before the Operator Estimates
+
+The {ref "gauge-symmetry"}[gauge chapter] distinguishes comprehensive orbit
+coverage, invariant observables, a physical state quotient and numerical
+compression. Temporal gauge $`A_0=0` removes a multiplier; its bookkeeping
+identity for the BRST-exact gauge-fixing term does not solve the residual
+spatial Gauss law. The positivity and ESA results below apply to their
+specified realizations. Their physical interpretation needs the actual charge,
+measure, domains and a dynamics intertwiner. A Mehler isometry transfers a
+representation only after the operator identity on a suitable core is proved.
+The later SIRK window is an approximation to that identified operator.
+
 # Reading the New Core Proofs
 
 The new `Qym/ChapterYangMillsMehlerBridge` makes the representation issue

@@ -43,3 +43,11 @@ open BookProof.NsVolDomReconstruction
 #audit_axioms int_label_eq_zero_of_pairing_eq_zero
 #audit_axioms hdvd_of_pairing_lt
 #audit_axioms hdvd_iff_characters_separate
+#audit_axioms axis
+#audit_axioms axis_pairing
+#audit_axioms axis_indep
+#audit_axioms torusWave
+#audit_axioms torusWave_pairing
+#audit_axioms hdvd_torus
+#audit_axioms volPot_of_single_mode_of_torus
+#audit_axioms volPot_of_shear_constant_of_torus

@@ -824,6 +824,26 @@ require "$PLAN" 'Distinctness of the alias labels is separation, not a new hypot
 require "$PLAN" 'lies in the first Brillouin zone' \
     "§85: the plan must keep the spectral boundary"
 
+# ---- 39. §86 the first-Brillouin bound holds on the N-torus grid
+# §85's side condition is discharged for a concrete wave set: the modes of the `N³` torus satisfy the
+# bound identically, so the penalty theorem needs neither `hspec`, `horth` nor a distinctness hypothesis.
+# Dropping the grid computation and keeping only the conditional §85 lemmas would make §86 look free when
+# it is not.
+require "$REC" "theorem hdvd_torus" \
+    "§86: the torus distinctness theorem must stay"
+require "$REC" "theorem torusWave_pairing" \
+    "§86: the torus pairing must stay evaluated"
+require "$REC" "theorem axis_indep" \
+    "§86: the axis basis independence must stay"
+require "$REC" "theorem volPot_of_single_mode_of_torus" \
+    "§86: the unconditional penalty at the grid must stay"
+require "$REC" "theorem volPot_of_shear_constant_of_torus" \
+    "§86: the shear penalty at the grid must stay"
+require "$PLAN" 'The first-Brillouin bound is discharged on the `N`-torus grid' \
+    "§86: the plan must keep the grid section"
+require "$PLAN" 'no distinctness hypothesis' \
+    "§86: the plan must keep the unconditional claim"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"
