@@ -1749,6 +1749,7 @@ theorem Aedge_sep : SpectralSeparation Aedge (2 / 3) (5 / 6) := by
       rw [Submodule.coe_inner ((eigenLine vOther)ᗮ), hcomp, inner_smul_right,
         inner_self_eq_norm_sq_to_K, Submodule.coe_norm]
       push_cast
+      ring
       rfl
     rw [show resolventEdge 1 5 = 5 / 6 from by norm_num [resolventEdge]]
     have hre : (inner ℂ z (compressed ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
@@ -1973,6 +1974,147 @@ theorem Aedge_band_order_least :
   · subst h
     exact absurd hm Aedge_band_order_not_zero
   · exact h
+/-- **The rate's own order is `1` — the same numeral as the sharp check.**  `temple_membership_order`
+turns a geometric residual decay `ε ≤ C rᵐ` into the order `⌈log(√(δη)/C) / log r⌉`; at
+`δ = 1/10`, `η = 1/50` the threshold is `√(1/500)`.  The residual of `xOrd` is `0` from `m ≥ 1` on
+and `2/25` at `m = 0` (`resid_wMix_sq`), so `C = 2/25` with `r = 1/2` is the exact geometric
+majorant, and the ceiling is `1`.  With `a = log 2`, `b = log 5` the quotient is `2 − b/(2a)`, and
+`4 < 5 < 16` puts it in `(0, 1)`.  The general rate theorem therefore certifies order `1` on its
+own: `Aedge_membership_from_order_one` is not dodging a coarse ceiling. -/
+theorem Aedge_ceiling_eq_one :
+    Nat.ceil (Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25))
+      / Real.log (1 / 2)) = 1 := by
+  set a : ℝ := Real.log 2 with ha
+  set b : ℝ := Real.log 5 with hb
+  have ha0 : 0 < a := by rw [ha]; exact Real.log_pos (by norm_num)
+  have hnum : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25)) = (b - 4 * a) / 2 := by
+    have hmul : Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25)
+        = Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) * (25 / 2) := by
+      rw [div_eq_mul_inv]
+      norm_num
+    have hs : Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) * (25 / 2) = Real.sqrt (5 / 16) := by
+      have h25 : Real.sqrt ((25 / 2 : ℝ) ^ 2) = 25 / 2 := Real.sqrt_sq (by norm_num)
+      rw [← h25, ← Real.sqrt_mul (by norm_num)]
+      congr 1
+      norm_num
+    have hlog : Real.log (Real.sqrt (5 / 16)) = (b - 4 * a) / 2 := by
+      have h16 : Real.log (16 : ℝ) = 4 * a := by
+        rw [show (16 : ℝ) = 2 ^ 4 by norm_num, Real.log_pow, ← ha]
+        push_cast
+        ring
+      rw [Real.log_sqrt (by norm_num), Real.log_div (by norm_num) (by norm_num),
+        ← hb, h16]
+    rw [hmul, hs, hlog]
+  have hq : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 25)) / Real.log (1 / 2)
+      = 2 - b / (2 * a) := by
+    have hden : Real.log ((1 : ℝ) / 2) = -a := by
+      rw [Real.log_div (by norm_num) (by norm_num), Real.log_one, ← ha]
+      ring
+    rw [hnum, hden]
+    have ha0' : a ≠ 0 := ne_of_gt ha0
+    field_simp
+    ring
+  have h2a : 2 * a < b := by
+    have h4 : Real.log (4 : ℝ) = 2 * a := by
+      rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h54 : Real.log (4 : ℝ) < Real.log 5 := Real.log_lt_log (by norm_num) (by norm_num)
+    rw [← hb] at h54
+    linarith
+  have h4a : b < 4 * a := by
+    have h16 : Real.log (16 : ℝ) = 4 * a := by
+      rw [show (16 : ℝ) = 2 ^ 4 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h516 : Real.log 5 < Real.log (16 : ℝ) := Real.log_lt_log (by norm_num) (by norm_num)
+    rw [← hb] at h516
+    linarith
+  rw [hq]
+  have hpos : (0 : ℝ) < 2 * a := by linarith
+  have hgt : 1 < b / (2 * a) := by
+    rw [lt_div_iff₀ hpos]
+    linarith
+  have hlt2 : b / (2 * a) < 2 := by
+    rw [div_lt_iff₀ hpos]
+    linarith
+  have h1 : Nat.ceil (2 - b / (2 * a)) ≤ 1 := Nat.ceil_le.mpr (by linarith)
+  have h0 : (0 : ℕ) < Nat.ceil (2 - b / (2 * a)) := Nat.lt_ceil.mpr (by linarith)
+  omega
+
+/-- **Where the earlier `4` came from.**  The same ceiling with the constant inflated to `C = 2/5` —
+five times the residual at order `0` — returns `4` rather than `1`, so the numeral `4` that this
+chapter first quoted for `temple_membership_order` was an artefact of the constant, not of the
+theorem.  The exact constant `2/25` gives order `1` (`Aedge_ceiling_eq_one`).  No decimal bound on
+`log 2` is needed either way: with `a = log 2`, `b = log 5` the quotient is `2 + b/(2a)`, and
+`4 < 5 ≤ 16` gives `2a < b ≤ 4a`. -/
+theorem Aedge_ceiling_eq_four :
+    Nat.ceil (Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)) / Real.log (1 / 2)) = 4 := by
+  set a : ℝ := Real.log 2 with ha
+  set b : ℝ := Real.log 5 with hb
+  have ha0 : 0 < a := by rw [ha]; exact Real.log_pos (by norm_num)
+  have hnum : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)) = -(4 * a + b) / 2 := by
+    have h500 : Real.log (500 : ℝ) = 2 * a + 3 * b := by
+      rw [show (500 : ℝ) = 2 ^ 2 * 5 ^ 3 by norm_num, Real.log_mul (by norm_num) (by norm_num),
+        Real.log_pow, Real.log_pow, ← ha, ← hb]
+      push_cast
+      ring
+    have hlog : Real.log ((1 : ℝ) / 500) = -(2 * a + 3 * b) := by
+      rw [Real.log_div (by norm_num) (by norm_num), Real.log_one, h500]
+      ring
+    have hsqrt : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50))) = -(2 * a + 3 * b) / 2 := by
+      have h : (1 / 10 : ℝ) * (1 / 50) = 1 / 500 := by norm_num
+      rw [h, Real.log_sqrt (by norm_num), hlog]
+    have hlog52 : Real.log ((5 : ℝ) / 2) = b - a := by
+      rw [Real.log_div (by norm_num) (by norm_num), ← ha, ← hb]
+    have hmul : Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)
+        = Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) * (5 / 2) := by
+      rw [div_eq_mul_inv]
+      norm_num
+    rw [hmul, Real.log_mul (by positivity) (by norm_num), hsqrt, hlog52]
+    ring
+  have hq : Real.log (Real.sqrt ((1 / 10 : ℝ) * (1 / 50)) / (2 / 5)) / Real.log (1 / 2)
+      = 2 + b / (2 * a) := by
+    have hden : Real.log ((1 : ℝ) / 2) = -a := by
+      rw [Real.log_div (by norm_num) (by norm_num), Real.log_one, ← ha]
+      ring
+    rw [hnum, hden]
+    have ha0' : a ≠ 0 := ne_of_gt ha0
+    field_simp
+    ring
+  have hb2a : 2 * a < b := by
+    have h4 : Real.log (4 : ℝ) = 2 * a := by
+      rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h54 : Real.log (4 : ℝ) < Real.log 5 := Real.log_lt_log (by norm_num) (by norm_num)
+    rw [← hb] at h54
+    linarith
+  have hb4a : b ≤ 4 * a := by
+    have h16 : Real.log (16 : ℝ) = 4 * a := by
+      rw [show (16 : ℝ) = 2 ^ 4 by norm_num, Real.log_pow, ← ha]
+      push_cast
+      ring
+    have h516 : Real.log 5 ≤ Real.log (16 : ℝ) :=
+      (Real.log_le_log_iff (by norm_num) (by norm_num)).mpr (by norm_num)
+    rw [← hb] at h516
+    linarith
+  rw [hq]
+  have hpos : (0 : ℝ) < 2 * a := by linarith
+  have h3 : (3 : ℝ) < 2 + b / (2 * a) := by
+    have : 1 < b / (2 * a) := by
+      rw [lt_div_iff₀ hpos]
+      linarith
+    linarith
+  have h4 : 2 + b / (2 * a) ≤ 4 := by
+    have : b / (2 * a) ≤ 2 := by
+      rw [div_le_iff₀ hpos]
+      linarith
+    linarith
+  have hle : Nat.ceil (2 + b / (2 * a)) ≤ 4 := Nat.ceil_le.mpr h4
+  have hlt : (3 : ℕ) < Nat.ceil (2 + b / (2 * a)) := Nat.lt_ceil.mpr h3
+  omega
+
 
 end SecondEdgeInstance
 
