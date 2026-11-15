@@ -4960,6 +4960,63 @@ Boundary: the forward direction is stated for a quartet whose b-ghost has the co
 and §12's converse (`smPhysicalPositivity_of_evenRange`) is the half discharged at the concrete charge.
 Closing the loop at `smPhysProj` itself would need `Q P Q = Q` and `P Q P = P` for the
 `Classical.choice`-made b-ghost of `smQuartet`, and those are not exposed, so the concrete-charge
-forward implication is not claimed.  Also not produced: a parity-even b-ghost.  `U P = P U` for the
-canonical homotopy says the orthogonal projection onto `range Ω` commutes with `U`, i.e. that the exact
-states are parity-invariant, which does not follow from `U Q = −Q U`.
+forward implication is not claimed.  **Corrected (2026-11-15b):** the hypothesis written here — a
+*parity-even* b-ghost `U P = P U` — is satisfiable by nothing, so the identification was not merely
+unproved but stated with the wrong sign.  See §84: an even `P` exists only when `Ω = 0`, and the
+b-ghost of an odd charge is odd (`U P = −P U`), which is what `ChapterSmQuartet` §13 now assumes.
+
+## 84. The parity of the b-ghost is *forced*: even is impossible, odd is constructed
+
+§83's hypothesis was `U P = P U`.  It is empty.  `BookProof/Sm/ChapterSmQuartet.lean` §5.1 settles the
+sign question in both directions.
+
+**Even is impossible.**  `even_homotopy_eq_zero`: if `U² = 1`, `U Q = −Q U`, `Q P Q = Q`, `P Q P = P`
+and `U P = P U`, then `P = 0`; by `Q P Q = Q` therefore `Ω = 0` (`even_homotopy_imp_charge_eq_zero`).
+The mechanism is the grading itself: an even `P` preserves each parity sector while `Q` swaps them, and
+`P Q P = P` then puts every value of `P` simultaneously in both sectors.
+
+**Odd exists and is explicit.**  The construction does not use an inner product or a mode pairing.  Any
+projection `π` onto a `U`-invariant subspace `K` is *averaged* with its conjugate,
+`π' = ½ (π + U π U)`; it still projects onto `K` and now satisfies `U π' = π' U`
+(`exists_invariant_projection`).  Applying this to `K = ker Q` and to `K = range Q` gives `U`-invariant
+complements `C` of `ker Q` and `D` of `range Q`; inverting `Q` on `C` and projecting onto `range Q`
+along `D` yields `P` with `Q P Q = Q`, `P Q P = P` and `U P = −P U`
+(`exists_odd_contractingHomotopy`), bundled as `OddHomotopy` with `exists_odd_homotopy`.  So a
+contracting homotopy of an odd charge can always be taken odd — the sign in §13 is a theorem, not a
+choice of convention — and `ChapterSmQuartet` §13, `§77`'s dependency, now uses it.
+
+**What the chosen `smQuartet` exposes.**  `BrstQuartet.bGhost_QSQ` derives `Ω P Ω = Ω` from the
+quartet record alone.  The second identity `P Ω P = P` is *not* in the record: it is a property of the
+homotopy `quartetOfHomotopy` started from, which the record does not store — which is exactly why §5.1
+bundles one.  The parity of the chosen b-ghost is likewise not recoverable: it is `P − Ω P²` for an
+unexposed `P`.
+
+Boundary: instantiating §5.1 at `FermiFock (m + 12)` does not elaborate in this toolchain.  Every
+phrasing tried — `exists_odd_contractingHomotopy`, its `Nonempty` bundle, and even a statement
+instantiating `bGhost_QSQ` at `smBghost` — times out in `whnf`/`isDefEq` while unifying the concrete
+`EuclideanSpace` instances (tried at 200k, 800k and 1.6M heartbeats, the last costing ~80 s of
+elaboration before failing).  So the consequences are proved for the *abstract* charge and for data
+supplied at the model's charge, and the model's chosen quartet is not claimed to be odd.  The
+obstruction half needs no instantiation, so the sign question is settled regardless.
+
+## 85. Distinctness of the alias labels is separation, not a new hypothesis
+
+§82 reduced the labelling half of §74 to periodicity and left *distinctness* (`hdvd`) open.
+`BookProof/Ns/ChapterNsVolDomReconstruction.lean` §8 settles what it is and when it holds.
+
+**It is separation by the box's characters.**  `hdvd_iff_characters_separate`: under the labelling
+`⟨q − q', e_x⟩ = 2π m_x/N`, distinctness holds exactly when no two distinct wave numbers take the value
+`1` together on every point of the box.  So `hdvd` is not a condition on the labelling at all; it is the
+statement that the `N³` truncation does not identify two modes of the model.
+
+**It follows from a first-Brillouin bound.**  `hdvd_of_pairing_lt`: if every pairing of a difference of
+two wave numbers is smaller than `2π` in absolute value, divisibility of all three labels by `N` forces
+each to vanish (`|m_x| < N`), hence all three pairings to vanish, hence `q = q'`.  The bound is a
+checkable property of the wave set, and it is sharp for this route: a set containing a mode and its alias
+violates it, and then `hdvd` is simply false.
+
+Boundary: neither statement needs the basis `e` to be independent — the labelling hypothesis fixes the
+coordinates — and both are conditional on `hp`.  `int_label_eq_zero_of_pairing_eq_zero` records the step
+that makes divisibility insensitive to a vanishing pairing.  What is still not produced is a proof that
+a *particular* model's wave set lies in the first Brillouin zone; that is a statement about the model's
+spectrum, not about the truncation.

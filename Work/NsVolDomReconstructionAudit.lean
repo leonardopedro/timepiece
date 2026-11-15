@@ -40,3 +40,6 @@ open BookProof.NsVolDomReconstruction
 #audit_axioms phase_dualComb
 #audit_axioms alias_class_dual
 #audit_axioms commensurate_of_periodic
+#audit_axioms int_label_eq_zero_of_pairing_eq_zero
+#audit_axioms hdvd_of_pairing_lt
+#audit_axioms hdvd_iff_characters_separate

@@ -137,6 +137,16 @@ theorem quartet_physProj_comp_Q (hQ : IsBrst Q) (q : BrstQuartet Q) (x : H) :
 theorem mem_closed_physProj (q : BrstQuartet Q) (y : H) : q.physProj y ∈ closed Q :=
   q.Q_physProj y
 
+/-- **The b-ghost of a quartet contracts on one side**: `Q P Q = Q`.  The quartet identity at `x`
+gives `Q P (Q x) = Q x` once `Q V = 0` and `Q² = 0` are used; the other identity `P Q P = P` is
+*not* implied by the record — see §5.1, where it is carried as data. -/
+theorem bGhost_QSQ (hQ : IsBrst Q) (q : BrstQuartet Q) (x : H) :
+    Q (q.bGhost (Q x)) = Q x := by
+  have h := congrArg Q (q.quartet_anticomm x)
+  simp only [map_add, map_sub, Q_apply_apply hQ (q.bGhost x), q.Q_physProj x, sub_zero,
+    zero_add] at h
+  exact h
+
 /-- **The range of the physical projector, as a set of fixed points.**  For an idempotent `V`,
 being in the range and being fixed are the same condition, which is the form in which a
 concrete `V` (an orthogonal projection, say) is usually recognised. -/
@@ -319,9 +329,11 @@ in `V` fixes them simultaneously.
 
 So the physics input for the Standard Model is a single object — the contracting homotopy of the
 ghost complex, i.e. the gauge-fixed b-ghost — and `quartetOfHomotopy` produces the quartet from
-it.  If that `P` is ghost-parity even (`U P = P U` for the parity `U`), `V` is even too, hence
-`V` preserves each parity sector, which is what `physicalPositivity_of_quartet_sectors` consumes:
-positivity on the ghost-parity-even sector and on the odd one. -/
+it.  If a grading `U` commutes with `Q` *and* with `P`, `V` is even too
+(`physProjOf_commute_parity`), hence preserves each sector, which is what
+`physicalPositivity_of_quartet_sectors` consumes.  That is a *bosonic* grading; for the ghost
+parity of the model the charge anticommutes with `U`, a homotopy is necessarily odd
+(§5.1: `even_homotopy_eq_zero`), and the relevant statements are §13's. -/
 
 /-- **The physical projector determined by a contracting homotopy**:
 `V = 1 − (Q P + P Q) + Q P² Q`. -/
@@ -686,6 +698,275 @@ theorem isBrst_smBrstCharge {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ
   rw [IsBrst, ← Module.End.mul_eq_comp]
   exact smBrstCharge_nilpotent hT h3anti h3jac
 
+/-! ## 5.1 The parity of a contracting homotopy: odd is forced, even is impossible
+
+§13 assumed a b-ghost with `U P = P U` to grade the physical range.  That hypothesis is
+*satisfiable by nothing*, which matters because §5 and §9 stated it as the natural input.
+
+**Even is impossible.**  `Q` is odd and `U` splits the space into `H₊ ⊕ H₋` with trivial
+intersection.  If `P` is even then `P` preserves each summand, while `Q` swaps them; applying
+`P Q P = P` to `x ∈ H₊` gives `P x ∈ H₊` on the left and an element of `H₋` on the right, hence
+`P x = 0`.  The same computation on `H₋` kills `P` there, so `P = 0` — and then `Q = 0` by
+`Q P Q = Q` (`even_homotopy_eq_zero`).
+
+**Odd exists, and is built without choice of a mode pairing.**  The orthogonal complement of a
+kernel is *not* what is used here (the space is only an inner-product space by assumption, and the
+construction should not depend on the metric): instead a projection onto `ker Q` is *averaged* with
+its `U`-conjugate, `π' = ½ (π + U π U)`.  The average is again a projection, onto the same kernel,
+and now `U π' = π' U`.  Doing the same for `range Q` gives `U`-invariant complements `C` of
+`ker Q` and `D` of `range Q`; inverting `Q` on `C` and projecting onto `range Q` along `D` then
+gives `P` with `Q P Q = Q`, `P Q P = P` and `U P = -P U` (`exists_odd_contractingHomotopy`).
+
+So the sign in §13 is not a choice: a b-ghost of an odd charge is necessarily odd, and §13's
+hypothesis is corrected accordingly. -/
+namespace BrstQuartet
+
+/-- **No nonzero parity-even contracting homotopy of an odd charge exists.**  An even `P`
+preserves both parity sectors while `Q` swaps them, so `P Q P = P` forces `P` to vanish on each
+sector. -/
+theorem even_homotopy_eq_zero {U Q P : H →ₗ[ℂ] H} (hU : U ∘ₗ U = LinearMap.id)
+    (_hQ : IsBrst Q) (hQU : ∀ x : H, U (Q x) = -(Q (U x)))
+    (_hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
+    (hUP : ∀ x : H, U (P x) = P (U x)) : P = 0 := by
+  have zeroOfEqNeg : ∀ v : H, v = -v → v = 0 := by
+    intro v h
+    have h2 : v + v = 0 := by
+      nth_rewrite 2 [h]
+      exact add_neg_cancel v
+    have h3 : (2 : ℂ) • v = 0 := by
+      rw [two_smul]
+      exact h2
+    exact (smul_eq_zero.mp h3).resolve_left (by norm_num)
+  have killEven : ∀ z : H, U z = z → P z = 0 := by
+    intro z hz
+    have hz1 : U (P z) = P z := by rw [hUP, hz]
+    have hz2 : U (Q (P z)) = -(Q (P z)) := by rw [hQU, hz1]
+    have hz3 : U (P (Q (P z))) = -(P (Q (P z))) := by rw [hUP, hz2, map_neg]
+    have hz4 : U (P z) = -(P z) := by rw [← hSQS z]; exact hz3
+    exact zeroOfEqNeg _ (hz1.symm.trans hz4)
+  have killOdd : ∀ z : H, U z = -z → P z = 0 := by
+    intro z hz
+    have hz1 : U (P z) = -(P z) := by rw [hUP, hz, map_neg]
+    have hz2 : U (Q (P z)) = Q (P z) := by rw [hQU, hz1, map_neg, neg_neg]
+    have hz3 : U (P (Q (P z))) = P (Q (P z)) := by rw [hUP, hz2]
+    have hz4 : U (P z) = P z := by rw [← hSQS z]; exact hz3
+    exact zeroOfEqNeg _ (hz4.symm.trans hz1)
+  ext x
+  have hx : x = evenPart U x + oddPart U x := (evenPart_add_oddPart (U := U) x).symm
+  have heU : U (evenPart U x) = evenPart U x := (mem_evenSpace_iff _).mp (evenPart_mem hU x)
+  have hoU : U (oddPart U x) = -oddPart U x := (mem_oddSpace_iff _).mp (oddPart_mem hU x)
+  rw [hx, map_add, killEven _ heU, killOdd _ hoU, add_zero, LinearMap.zero_apply]
+
+/-- **A parity-even b-ghost forces the charge to vanish.**  With `P = 0` the contracting identity
+`Q P Q = Q` reads `Q = 0`, so for a nonzero charge no parity-even homotopy exists — §13's
+hypothesis can be met only in the trivial case. -/
+theorem even_homotopy_imp_charge_eq_zero {U Q P : H →ₗ[ℂ] H} (hU : U ∘ₗ U = LinearMap.id)
+    (hQ : IsBrst Q) (hQU : ∀ x : H, U (Q x) = -(Q (U x)))
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
+    (hUP : ∀ x : H, U (P x) = P (U x)) : Q = 0 := by
+  have hP := even_homotopy_eq_zero hU hQ hQU hQSQ hSQS hUP
+  ext x
+  rw [← hQSQ x, hP]
+  simp
+
+/-- **An averaged projection onto `ker Q`.**  Averaging a projection with its `U`-conjugate keeps
+the range and the fixed-point set, and makes it commute with `U`. -/
+theorem exists_invariant_projection (U : H →ₗ[ℂ] H) (hU : U ∘ₗ U = LinearMap.id)
+    (K : Submodule ℂ H) (hUK : ∀ x : H, x ∈ K → U x ∈ K) :
+    ∃ π : H →ₗ[ℂ] H, (∀ x : H, π x ∈ K) ∧ (∀ x : H, x ∈ K → π x = x) ∧
+      (∀ x : H, U (π x) = π (U x)) := by
+  classical
+  obtain ⟨K', hK'⟩ := Submodule.exists_isCompl K
+  let π₀ : H →ₗ[ℂ] H := Submodule.IsCompl.projection hK'
+  have hπ₀_range : π₀.range = K := Submodule.IsCompl.projection_range hK'
+  have hπ₀_mem : ∀ x : H, π₀ x ∈ K := fun x => by
+    rw [← hπ₀_range]; exact LinearMap.mem_range_self π₀ x
+  have hπ₀_fix : ∀ x : H, x ∈ K → π₀ x = x := fun x hx =>
+    Submodule.IsCompl.projection_apply_left hK' ⟨x, hx⟩
+  refine ⟨(2⁻¹ : ℂ) • (π₀ + U ∘ₗ π₀ ∘ₗ U), ?_, ?_, ?_⟩
+  · intro x
+    have h1 : π₀ x ∈ K := hπ₀_mem x
+    have h2 : U (π₀ (U x)) ∈ K := hUK _ (hπ₀_mem (U x))
+    exact K.smul_mem _ (K.add_mem h1 h2)
+  · intro x hx
+    have hUx : U x ∈ K := hUK x hx
+    have h2 : U (π₀ (U x)) = x := by
+      rw [hπ₀_fix (U x) hUx]
+      exact congrFun (congrArg DFunLike.coe hU) x
+    rw [LinearMap.smul_apply, LinearMap.add_apply, LinearMap.comp_apply, LinearMap.comp_apply,
+      hπ₀_fix x hx, h2, smul_add, ← two_smul ℂ (2⁻¹ • x), smul_smul,
+      show (2 : ℂ) * 2⁻¹ = 1 by norm_num, one_smul]
+  · intro x
+    have hUU : U (U x) = x := by
+      rw [← LinearMap.comp_apply, hU, LinearMap.id_apply]
+    have hUU2 : U (U (π₀ (U x))) = π₀ (U x) := by
+      rw [← LinearMap.comp_apply, hU, LinearMap.id_apply]
+    simp only [LinearMap.smul_apply, LinearMap.add_apply, LinearMap.comp_apply, map_smul,
+      map_add, hUU, hUU2]
+    abel
+
+/-- A projection onto `K` whose kernel is `U`-invariant gives an invariant complement. -/
+theorem kernel_invariant_of_proj (U π : H →ₗ[ℂ] H)
+    (hUπ : ∀ x : H, U (π x) = π (U x)) {x : H} (hx : π x = 0) : π (U x) = 0 := by
+  rw [← hUπ, hx, map_zero]
+
+/-- **A parity-odd contracting homotopy of an odd charge exists.**  Averaged projections give
+`U`-invariant complements `C` of `ker Q` and `D` of `range Q`; inverting `Q` on `C` and projecting
+onto `range Q` along `D` gives `P`, and `U`-invariance of both complements makes it odd. -/
+theorem exists_odd_contractingHomotopy [FiniteDimensional ℂ H] {U Q : H →ₗ[ℂ] H}
+    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
+    ∃ P : H →ₗ[ℂ] H, (∀ x : H, Q (P (Q x)) = Q x) ∧ (∀ x : H, P (Q (P x)) = P x) ∧
+      ∀ x : H, U (P x) = -(P (U x)) := by
+  classical
+  have hUU : ∀ x : H, U (U x) = x := fun x => by
+    rw [← LinearMap.comp_apply, hU, LinearMap.id_apply]
+  have hQUinv : ∀ x : H, Q (U x) = -(U (Q x)) := by
+    intro x
+    have h := hQU (U x)
+    rw [hUU x] at h
+    have h2 := congrArg U h
+    rw [hUU (Q (U x)), map_neg] at h2
+    exact h2
+  -- `U`-invariant complements of `ker Q` and `range Q`
+  obtain ⟨κ, hκmem, hκfix, hκU⟩ := exists_invariant_projection U hU (LinearMap.ker Q)
+    (fun x hx => by rw [LinearMap.mem_ker] at hx ⊢; rw [hQUinv, hx, map_zero, neg_zero])
+  obtain ⟨ρ, hρmem, hρfix, hρU⟩ := exists_invariant_projection U hU (LinearMap.range Q)
+    (fun x hx => by
+      obtain ⟨y, rfl⟩ := hx
+      exact ⟨-(U y), by rw [hQU, map_neg]⟩)
+  have hidem : ∀ x : H, κ (κ x) = κ x := fun x => hκfix (κ x) (hκmem x)
+  set C : Submodule ℂ H := LinearMap.ker κ
+  have hCcompl : IsCompl (LinearMap.ker Q) C := by
+    refine ⟨?_, ?_⟩
+    · rw [disjoint_iff_inf_le]
+      intro x hx
+      obtain ⟨hx1, hx2⟩ := Submodule.mem_inf.mp hx
+      have hfix := hκfix x hx1
+      rw [LinearMap.mem_ker] at hx2
+      rw [Submodule.mem_bot, ← hfix, hx2]
+    · rw [codisjoint_iff_le_sup]
+      intro x _
+      have h1 : x - κ x ∈ C := by
+        rw [LinearMap.mem_ker, map_sub, hidem, sub_self]
+      have h2 : κ x ∈ LinearMap.ker Q := hκmem x
+      have hsum : x - κ x + κ x = x := sub_add_cancel x (κ x)
+      have hcoe : κ x + (x - κ x) = x := by abel
+      rw [← hcoe]
+      exact Submodule.add_mem_sup h2 h1
+  have hCinv : ∀ c : C, U (c : H) ∈ C := fun c =>
+    kernel_invariant_of_proj U κ hκU c.property
+  have hρidem : ∀ x : H, ρ (ρ x) = ρ x := fun x => hρfix (ρ x) (hρmem x)
+  -- invert `Q` on the complement and project onto the range
+  let φ : C →ₗ[ℂ] (LinearMap.range Q) :=
+    (Q.domRestrict C).codRestrict (LinearMap.range Q)
+      (fun c => LinearMap.mem_range_self Q (c : H))
+  have hφ_inj : Function.Injective φ := by
+    rw [← LinearMap.ker_eq_bot, Submodule.eq_bot_iff]
+    intro c hc
+    rw [LinearMap.mem_ker] at hc
+    have hQc : Q (c : H) = 0 := by
+      have h := congrArg Subtype.val hc
+      simpa [φ] using h
+    have hboth : (c : H) ∈ (LinearMap.ker Q) ⊓ C := ⟨hQc, c.property⟩
+    rw [hCcompl.inf_eq_bot] at hboth
+    exact Subtype.ext (by simpa using hboth)
+  have hφ_surj : Function.Surjective φ := by
+    intro r
+    obtain ⟨x, hx⟩ := r.property
+    have hCx : x - κ x ∈ C := by
+      rw [LinearMap.mem_ker, map_sub, hidem, sub_self]
+    refine ⟨⟨x - κ x, hCx⟩, ?_⟩
+    apply Subtype.ext
+    have hQz : Q ((⟨x - κ x, hCx⟩ : C) : H) = Q x := by
+      change Q (x - κ x) = Q x
+      rw [map_sub, hκmem x, sub_zero]
+    change Q ((⟨x - κ x, hCx⟩ : C) : H) = (r : H)
+    rw [hQz, hx]
+  have hbij : Function.Bijective φ := ⟨hφ_inj, hφ_surj⟩
+  let e : C ≃ₗ[ℂ] (LinearMap.range Q) := LinearEquiv.ofBijective φ hbij
+  let ρ' : H →ₗ[ℂ] (LinearMap.range Q) := ρ.codRestrict (LinearMap.range Q) hρmem
+  have hρ'coe : ∀ z : H, ((ρ' z : LinearMap.range Q) : H) = ρ z := fun z => rfl
+  let P : H →ₗ[ℂ] H := C.subtype.comp (e.symm.toLinearMap.comp ρ')
+  have hψ : ∀ r : LinearMap.range Q, Q ((e.symm r : C) : H) = (r : H) := by
+    intro r
+    have he : (e (e.symm r) : LinearMap.range Q) = φ (e.symm r) :=
+      LinearEquiv.ofBijective_apply (f := φ) (hf := hbij) (e.symm r)
+    have h := congrArg Subtype.val (LinearEquiv.apply_symm_apply e r)
+    rw [he] at h
+    simp only [φ, LinearMap.codRestrict_apply, LinearMap.domRestrict_apply] at h
+    exact h
+  have hQP : ∀ z : H, Q (P z) = ρ z := by
+    intro z
+    have hz : Q (P z) = (φ (e.symm (ρ' z)) : H) := rfl
+    rw [hz]
+    simp only [φ, LinearMap.codRestrict_apply, LinearMap.domRestrict_apply]
+    rw [hψ (ρ' z)]
+    rfl
+  have hQSQ : ∀ y : H, Q (P (Q y)) = Q y := by
+    intro y
+    rw [hQP (Q y), hρfix (Q y) (LinearMap.mem_range_self Q y)]
+  have hSQS : ∀ y : H, P (Q (P y)) = P y := by
+    intro y
+    have h1 : ρ' (Q (P y)) = ρ' y := by
+      apply Subtype.ext
+      rw [hρ'coe, hρ'coe, hQP y, hρidem y]
+    change ((e.symm (ρ' (Q (P y))) : C) : H) = ((e.symm (ρ' y) : C) : H)
+    rw [h1]
+  refine ⟨P, hQSQ, hSQS, ?_⟩
+  intro x
+  set r : LinearMap.range Q := ρ' x with hr
+  have hUx' : ((ρ' (U x) : LinearMap.range Q) : H) = U ((r : LinearMap.range Q) : H) := by
+    rw [hr]
+    exact (hρU x).symm
+  have hmemU : U ((r : LinearMap.range Q) : H) ∈ LinearMap.range Q := by
+    have h1 : ρ (U x) ∈ LinearMap.range Q := hρmem (U x)
+    have h2 : U ((r : LinearMap.range Q) : H) = ρ (U x) := by
+      rw [← hUx']
+      rfl
+    rwa [h2]
+  set s : LinearMap.range Q := ⟨U ((r : LinearMap.range Q) : H), hmemU⟩ with hs
+  have hPs : P (U x) = ((e.symm s : C) : H) := by
+    change ((e.symm (ρ' (U x)) : C) : H) = ((e.symm s : C) : H)
+    congr 2
+    exact Subtype.ext hUx'
+  have hmemC : U ((e.symm r : C) : H) ∈ C := hCinv (e.symm r)
+  have hQeq : Q (U ((e.symm r : C) : H)) = -((s : LinearMap.range Q) : H) := by
+    rw [hQUinv, hψ r, hs]
+  have hinjC : (⟨U ((e.symm r : C) : H), hmemC⟩ : C) = e.symm (-s) := by
+    apply hφ_inj
+    apply Subtype.ext
+    simp only [φ, LinearMap.codRestrict_apply, LinearMap.domRestrict_apply]
+    rw [hQeq, hψ (-s)]
+    rfl
+  have hUs : U ((e.symm r : C) : H) = -((e.symm s : C) : H) := by
+    have h1 : U ((e.symm r : C) : H) = ((e.symm (-s) : C) : H) := congrArg Subtype.val hinjC
+    rw [h1, show (e.symm (-s) : C) = -(e.symm s) from map_neg _ s]
+    rfl
+  have hPx : P x = ((e.symm r : C) : H) := rfl
+  rw [hPs, hPx, hUs]
+
+/-- **A parity-odd contracting homotopy**, bundled so that the specification is carried by fields
+rather than re-derived from a proof term. -/
+structure OddHomotopy (U Q : H →ₗ[ℂ] H) where
+  /-- The homotopy `P`. -/
+  P : H →ₗ[ℂ] H
+  /-- `Q P Q = Q`. -/
+  QSQ : ∀ x : H, Q (P (Q x)) = Q x
+  /-- `P Q P = P`. -/
+  SQS : ∀ x : H, P (Q (P x)) = P x
+  /-- `P` is odd for the grading: `U P = -P U`. -/
+  odd : ∀ x : H, U (P x) = -(P (U x))
+
+/-- **A parity-odd contracting homotopy exists**, in bundled form: the construction of
+`exists_odd_contractingHomotopy`, with its three identities as fields. -/
+theorem exists_odd_homotopy [FiniteDimensional ℂ H] {U Q : H →ₗ[ℂ] H}
+    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
+    Nonempty (OddHomotopy U Q) := by
+  obtain ⟨P, h1, h2, h3⟩ := exists_odd_contractingHomotopy hU hQU
+  exact ⟨⟨P, h1, h2, h3⟩⟩
+
+end BrstQuartet
+
 /-! ## 8. The b-ghost of the Standard-Model charge
 
 §47.5 reduced the quartet data to a single object, a contracting homotopy of the charge.  On a
@@ -782,6 +1063,16 @@ theorem exists_contractingHomotopy [FiniteDimensional ℂ H] (Q : H →ₗ[ℂ] 
     simp [P, hfix]
 
 open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The Standard-Model charge is odd for the ghost parity**, pointwise form of
+`smGhostParity_mul_smBrstCharge`: `U Ω = -Ω U`. -/
+theorem smGhostParity_odd_smBrstCharge (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) (x : FermiFock (m + 12)) :
+    smGhostParity m (smBrstCharge m T f3 x)
+      = -(smBrstCharge m T f3 (smGhostParity m x)) := by
+  have h := congrFun (congrArg DFunLike.coe (smGhostParity_mul_smBrstCharge m T f3)) x
+  simpa using h
+
+open BookProof.SmBrstGhost BookProof.SmCar in
 /-- **The quartet data of the Standard-Model charge exists.**  The contracting homotopy of
 `smBrstCharge` is turned into a quartet by §47.5's construction; `FermiFock (m + 12)` is
 finite-dimensional, so no property of the mode content is needed. -/
@@ -871,11 +1162,13 @@ intersection cut out by the chosen contracting homotopy.
 
 That is as far as a *choice-based* construction reaches, and the limit is intrinsic: a
 contracting homotopy is a choice of complement of the exact states inside the closed space, and
-`range V = ker Q ⊓ ker P` depends on that choice.  Nothing in §8 fixes a mode pairing, so
-nothing there singles out the transverse, ghost-parity-even subspace: that would need (i) a
-concrete `P` (the pairing of each longitudinal/ghost mode with its partner), and (ii) a ghost
-parity `U` with `U P = P U`, after which `physProjOf_mem_even` would place `range V` in the even
-sector.  Neither is available for `smBrstCharge` in the corpus.
+`range V = ker Q ⊓ ker P` depends on that choice.  Nothing in §8 fixes a mode pairing, so nothing
+there singles out the transverse, ghost-parity-even subspace: that would need (i) a concrete `P`
+(the pairing of each longitudinal/ghost mode with its partner), and (ii) the grading statement for
+that `P`.  For a grading commuting with the charge that is `physProjOf_mem_even`; for the ghost
+parity, which *anticommutes* with the charge, no even `P` exists at all
+(§5.1, `even_homotopy_eq_zero`) — the useful sign is `U P = -P U`, and §13 shows what it buys.
+Neither the concrete `P` nor its parity is available for `smBrstCharge` in the corpus.
 
 The compensating point is that the fixing hypothesis `hEtaPhys` was never the right form of the
 input.  `physicalPositivity_of_quartet_on_range` derives `PhysicalPositivity` from `η` being
@@ -1313,8 +1606,9 @@ theorem smPhysicalPositivity_of_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin 
 whether that range can be *identified* with the ghost-parity-even sector — the transverse
 description — instead of being bounded.  The answer has two halves.
 
-**The grading is well defined on the range.**  If the chosen b-ghost is parity-even
-(`U P = P U`), then `ker P` is `U`-invariant; together with the charge's oddness
+**The grading is well defined on the range.**  A b-ghost of an odd charge is itself odd
+(`U P = -P U`, forced: §14 proves an even one exists only when `Q = 0`), so `ker P` is
+`U`-invariant; together with the charge's oddness
 (`U Q = -Q U`, which makes `ker Q` invariant too) this makes `ker Q ⊓ ker P = range V`
 invariant (`range_physProjOf` gives the description).  So every physical state splits into
 even and odd parts *inside* the range.
@@ -1351,7 +1645,7 @@ is odd for `U`, the range of the constructed projector is `U`-invariant: `U` pre
 theorem range_physProjOf_parity_mem {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
     (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
     (hU : U ∘ₗ U = LinearMap.id) (hUodd : ∀ x : H, U (Q x) = -(Q (U x)))
-    (hUP : ∀ x : H, U (P x) = P (U x)) :
+    (hUP : ∀ x : H, U (P x) = -(P (U x))) :
     ∀ x ∈ LinearMap.range (physProjOf Q P), U x ∈ LinearMap.range (physProjOf Q P) := by
   have hQUodd : ∀ x : H, Q (U x) = -(U (Q x)) := by
     intro x
@@ -1369,7 +1663,9 @@ theorem range_physProjOf_parity_mem {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
   · rw [closed, LinearMap.mem_ker] at hcl ⊢
     rw [hQUodd, hcl, map_zero, neg_zero]
   · rw [LinearMap.mem_ker] at hP ⊢
-    rw [← hUP, hP, map_zero]
+    have h := hUP x
+    rw [show P x = 0 from hP, map_zero] at h
+    exact neg_eq_zero.mp h.symm
 
 /-- **Positivity puts the physical range in the ghost-parity-even sector.**  The odd part of a
 physical state is again physical, and on an odd vector the charge form is `-‖·‖²`, so
@@ -1379,7 +1675,7 @@ range are unconstrained by it). -/
 theorem physicalPositivity_imp_evenRange {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst Q)
     (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x)
     (hU : U ∘ₗ U = LinearMap.id) (hUodd : ∀ x : H, U (Q x) = -(Q (U x)))
-    (hUP : ∀ x : H, U (P x) = P (U x)) (hpos : PhysicalPositivity Q U) :
+    (hUP : ∀ x : H, U (P x) = -(P (U x))) (hpos : PhysicalPositivity Q U) :
     ∀ y : H, U (physProjOf Q P y) = physProjOf Q P y := by
   have hinv := range_physProjOf_parity_mem hQ hQSQ hSQS hU hUodd hUP
   intro y
@@ -1407,6 +1703,39 @@ theorem physicalPositivity_imp_evenRange {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst 
   rw [hxeq, heven]
 
 end BrstQuartet
+
+
+/-! ## 14. §83 at the SM charge, for a homotopy that is exposed
+
+§13's forward implication is stated for an abstract odd homotopy; §5.1 shows such a homotopy
+always exists.  This section records the statement at `smBrstCharge`, with the homotopy supplied
+as data — the contracting identities and the oddness are the hypotheses, the conclusion is
+exactly §83's `range smPhysProj` alternative: positivity forces the physical range into the
+ghost-parity-even sector.
+
+**Boundary.**  The homotopy here is a parameter, not `smBghost`: the chosen `smQuartet` is a
+`Classical.choice` whose underlying `P` is not exposed, and instantiating §5.1's construction at
+`FermiFock (m + 12)` does not elaborate (the `whnf` of the concrete `EuclideanSpace` instance
+exhausts the heartbeat budget, as recorded in the plan).  So the section states what the odd
+homotopy buys at the model's charge, and does not claim the model's chosen b-ghost is that
+homotopy. -/
+
+/-! ## 14. What the chosen `smQuartet` b-ghost does, and does not, expose
+
+The quartet *record* carries `Q P + P Q = 1 − V`, from which the contracting identity
+`Q P Q = Q` follows (`BrstQuartet.bGhost_QSQ`).  The other identity, `P Q P = P`, does not: it is
+a property of the homotopy `P` that `quartetOfHomotopy` started from, and a record built by
+`quartetOfHomotopy` does not store it.  That is the precise sense in which the chosen
+`smQuartet` does not expose its homotopy — and why §5.1 bundles one (`OddHomotopy`), where both
+identities *and* the parity are fields.
+
+The parity is not recoverable here at all: the chosen quartet's `bGhost` is
+`bGhostOf Ω P = P − Ω P²` for an unexposed `P`, and §5.1's construction cannot be instantiated at
+`FermiFock (m + 12)` in this toolchain — the `whnf` needed to unify the concrete
+`EuclideanSpace` instances exceeds the heartbeat budget even at `800000` — and the same wall
+stops a theorem whose *statement* instantiates `bGhost_QSQ` at `smBghost`.  The obstruction
+result (§5.1's `even_homotopy_eq_zero`) is unconditional, so the sign question is settled even
+though the model's chosen homotopy is not exhibited. -/
 
 end
 

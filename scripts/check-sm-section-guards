@@ -770,7 +770,8 @@ require "$PLAN" 'the only genuinely open half is *distinctness*' \
 
 # ---- 36. §83 the parity identification is the inequality, not a route to it
 # §77 left the inequality open.  Forcing the physical range into the even sector is a *consequence* of
-# positivity; the parity-even b-ghost is not produced.
+# positivity.  (The earlier caveat "no parity-even b-ghost is produced" became obsolete in §84: none
+# exists.  The sign in §13 is now the odd one, and these guards follow it.)
 require "$QUARTET" "theorem kform_self_eq_norm_sq_of_even" \
     "§83: the even-sector sign must stay"
 require "$QUARTET" "theorem kform_self_eq_neg_norm_sq_of_odd" \
@@ -781,9 +782,47 @@ require "$QUARTET" "theorem physicalPositivity_imp_evenRange" \
     "§83: positivity must still force the even sector"
 require "$PLAN" 'The parity identification *is* the no-ghost inequality' \
     "§83: the plan must keep the equivalence in other words"
-require "$PLAN" 'Also not produced: a parity-even b-ghost' \
-    "§83: the plan must keep the missing b-ghost boundary"
+require "$PLAN" 'is satisfiable by nothing, so the identification was not merely' \
+    "§83: the plan must keep the corrected-sign caveat"
+require "$QUARTET" "U (P x) = -(P (U x))" \
+    "§83: §13 must assume the odd b-ghost"
 
+
+# ---- 37. §84 the parity is forced: even impossible, odd constructed
+# §83 assumed `U P = P U`.  It is empty for a nonzero charge, and a `U`-invariant (averaged)
+# projection constructs an odd homotopy instead.  The boundary is that the construction is not
+# instantiated at the concrete Fock space (a whnf wall), so the chosen quartet is not claimed odd.
+require "$QUARTET" "theorem even_homotopy_eq_zero" \
+    "§84: the even-parity obstruction must stay"
+require "$QUARTET" "theorem even_homotopy_imp_charge_eq_zero" \
+    "§84: evenness must still force the charge to vanish"
+require "$QUARTET" "theorem exists_invariant_projection" \
+    "§84: the averaged projection must stay"
+require "$QUARTET" "theorem exists_odd_contractingHomotopy" \
+    "§84: the odd homotopy must stay constructed"
+require "$QUARTET" "structure OddHomotopy" \
+    "§84: the bundled odd homotopy must stay"
+require "$QUARTET" "theorem bGhost_QSQ" \
+    "§84: the derivable half of the contraction must stay"
+require "$PLAN" 'The parity of the b-ghost is *forced*' \
+    "§84: the plan must keep the forced-sign section"
+require "$PLAN" 'does not elaborate in this toolchain' \
+    "§84: the plan must keep the instantiation boundary"
+
+# ---- 38. §85 distinctness is separation, not a new hypothesis
+# §82 left `hdvd` open.  It is the statement that the box resolves the model's modes, and it follows
+# from a first-Brillouin bound on the pairings; what stays open is that a model's wave set satisfies
+# that bound.
+require "$REC" "theorem hdvd_iff_characters_separate" \
+    "§85: the separation characterisation must stay"
+require "$REC" "theorem hdvd_of_pairing_lt" \
+    "§85: the first-Brillouin implication must stay"
+require "$REC" "theorem int_label_eq_zero_of_pairing_eq_zero" \
+    "§85: the vanishing-label step must stay"
+require "$PLAN" 'Distinctness of the alias labels is separation, not a new hypothesis' \
+    "§85: the plan must keep the distinctness section"
+require "$PLAN" 'lies in the first Brillouin zone' \
+    "§85: the plan must keep the spectral boundary"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

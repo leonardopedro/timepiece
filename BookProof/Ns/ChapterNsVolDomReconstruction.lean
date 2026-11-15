@@ -913,4 +913,120 @@ theorem commensurate_of_periodic (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 →
   rw [← hn x]
   field_simp
 
+/-! ## 8. Distinctness: what `hdvd` says, and when it is implied
+
+§7 reduced the labelling half of §74 to periodicity.  This section settles the remaining half — the
+`hdvd` of §4–§5 — by saying exactly what it is and when it follows from the other data.
+
+Two facts.
+
+* **Distinctness is separation by the box's characters.**  Under the labelling `hp`,
+  `hdvd` is *equivalent* to: no two distinct wave numbers of the model have the same value on every
+  box point (`hdvd_iff_characters_separate`).  So `hdvd` is not a hypothesis about the labelling at all
+  — it is the statement that the truncation does not identify two modes of the model, which is what
+  "the `N³` box resolves the wave set" means.
+* **It follows from a first-Brillouin bound.**  If every pairing of a difference of two wave numbers is
+  smaller than `2π` in absolute value, then two such pairs differ by a nonzero multiple of `2π` only
+  when the difference vanishes, so distinctness holds (`hdvd_of_pairing_lt`).  The bound is checkable on
+  the model's wave set, and it is the only case in which distinctness can be *derived*: a wave set
+  containing a mode and its alias fails it, and then `hdvd` is simply false for that set.
+
+Neither statement needs `e` independent; the pairing hypothesis `hp` already fixes the coordinates. -/
+
+/-- **A zero pairing forces a zero label**, so no divisibility is lost when a pairing vanishes: with
+`⟨w, e_x⟩ = 2π m_x/N` and `N ≠ 0`, `⟨w, e_x⟩ = 0` implies `m_x = 0`, hence `N ∣ m_x`. -/
+theorem int_label_eq_zero_of_pairing_eq_zero (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ)
+    (w : Fin 3 → ℝ) (m : Fin 3 → ℤ)
+    (hin : ∀ x, ∑ y, w y * e x y = 2 * Real.pi * (m x : ℝ) / N) {x : Fin 3}
+    (h : ∑ y, w y * e x y = 0) : m x = 0 := by
+  have hN' : ((N : ℝ)) ≠ 0 := by exact_mod_cast hN.ne'
+  have h0 : 2 * Real.pi * ((m x : ℤ) : ℝ) / N = 0 := by rw [← hin x, h]
+  rw [div_eq_zero_iff] at h0
+  rcases h0 with h0 | h0
+  · have hm : ((m x : ℤ) : ℝ) = 0 := by
+      rcases mul_eq_zero.mp h0 with h2 | h2
+      · rcases mul_eq_zero.mp h2 with h3 | h3
+        · exact absurd h3 (by norm_num)
+        · exact absurd h3 Real.pi_ne_zero
+      · exact h2
+    exact_mod_cast hm
+  · exact absurd h0 hN'
+
+/-- **Distinctness from a first-Brillouin bound.**  If every pairing of a difference of two wave
+numbers is smaller than `2π` in absolute value, then no two distinct wave numbers of the set are
+labels of each other: divisibility of all three labels by `N` forces each label to vanish, hence all
+three pairings to vanish, and the wave numbers to agree. -/
+theorem hdvd_of_pairing_lt (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ)
+    (S : Finset (Fin 3 → ℝ)) (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hp : ∀ q ∈ S, ∀ q' ∈ S, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (hsep : ∀ q ∈ S, ∀ q' ∈ S, (∀ x, ∑ y, (q - q') y * e x y = 0) → q = q')
+    (hsmall : ∀ q ∈ S, ∀ q' ∈ S, ∀ x, |∑ y, (q - q') y * e x y| < 2 * Real.pi) :
+    ∀ q ∈ S, ∀ q' ∈ S, (∀ x, (N : ℤ) ∣ m q q' x) ↔ q = q' := by
+  intro q hq q' hq'
+  constructor
+  · intro hd
+    refine hsep q hq q' hq' fun x => ?_
+    have hNz : (0 : ℝ) < N := by exact_mod_cast hN
+    have hpi : (0 : ℝ) < 2 * Real.pi := by linarith [Real.pi_pos]
+    -- the label is smaller than `N` in absolute value
+    have hsplit : |2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N|
+        = 2 * Real.pi * |((m q q' x : ℤ) : ℝ)| / N := by
+      rw [abs_div, abs_mul, abs_of_pos hNz,
+        abs_of_pos (by positivity : (0 : ℝ) < 2 * Real.pi)]
+    have hlt : |m q q' x| < (N : ℤ) := by
+      have hs := hsmall q hq q' hq' x
+      rw [hp q hq q' hq' x, hsplit] at hs
+      have h2 : 2 * Real.pi * |((m q q' x : ℤ) : ℝ)| < 2 * Real.pi * (N : ℝ) :=
+        (div_lt_iff₀ hNz).mp hs
+      have h3 : |((m q q' x : ℤ) : ℝ)| < (N : ℝ) := lt_of_mul_lt_mul_left h2 hpi.le
+      rw [← Int.cast_abs] at h3
+      exact_mod_cast h3
+    have hz : m q q' x = 0 := by
+      obtain ⟨c, hc⟩ := hd x
+      rw [hc] at hlt
+      rw [abs_mul, Nat.abs_cast] at hlt
+      have hNpos : (0 : ℤ) < (N : ℤ) := by exact_mod_cast hN
+      have hcabs : |c| < 1 := by
+        have h4 : (N : ℤ) * |c| < (N : ℤ) * 1 := by rw [mul_one]; exact hlt
+        exact lt_of_mul_lt_mul_left h4 hNpos.le
+      rw [Int.abs_lt_one_iff] at hcabs
+      rw [hc, hcabs, mul_zero]
+    rw [hp q hq q' hq' x, hz]
+    push_cast
+    simp
+  · intro hqq
+    subst hqq
+    intro x
+    rw [int_label_eq_zero_of_pairing_eq_zero N hN e (q - q) (m q q) (hp q hq q hq')
+      (x := x) (by simp)]
+    exact dvd_zero (N : ℤ)
+
+/-- **Distinctness is separation by the box's characters.**  Under the labelling `hp`, `hdvd` holds
+exactly when no two distinct wave numbers of the model take the value `1` together on every point of
+the box.  So `hdvd` is a statement about the truncation resolving the model's modes, not about the
+labelling. -/
+theorem hdvd_iff_characters_separate (N : ℕ) (hN : 0 < N) (e : Fin 3 → Fin 3 → ℝ)
+    (S : Finset (Fin 3 → ℝ)) (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hp : ∀ q ∈ S, ∀ q' ∈ S, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N) :
+    (∀ q ∈ S, ∀ q' ∈ S, (∀ x, (N : ℤ) ∣ m q q' x) ↔ q = q') ↔
+      (∀ q ∈ S, ∀ q' ∈ S,
+        (∀ j : Fin 3 → Fin N, phase (q - q') (latPoint N e j) = 1) → q = q') := by
+  have key := fun q hq q' hq' =>
+    latBox_character_one_iff N hN e (q - q') (m q q') (hp q hq q' hq')
+  constructor
+  · intro h q hq q' hq' hj
+    exact (h q hq q' hq').mp ((key q hq q' hq').mp hj)
+  · intro h q hq q' hq'
+    constructor
+    · intro hd
+      exact h q hq q' hq' ((key q hq q' hq').mpr hd)
+    · intro hqq
+      subst hqq
+      intro x
+      rw [int_label_eq_zero_of_pairing_eq_zero N hN e (q - q) (m q q) (hp q hq q hq')
+        (x := x) (by simp)]
+      exact dvd_zero (N : ℤ)
+
 end BookProof.NsVolDomReconstruction

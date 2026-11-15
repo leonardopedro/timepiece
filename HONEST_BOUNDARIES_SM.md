@@ -368,3 +368,23 @@ structurally complete without an extra summand.
 | Bosonic FL / L2 **closed (2026-09-23g)** | **`ChapterSmFarisLavine`** (`sm_commForm_le`, `sm_norm_le_shift`, `sm_h_esa_of_comparison_esa`) + **`ChapterSmComparisonEsa`** (`smFlN_eq_hamCoreS`, `smFlN_esa`, `sm_h_esa`), on the instrument chapters `ChapterDegSchrodingerCore`, `ChapterMollifierL2`, `ChapterConvolutionCalc`, `ChapterDegEnergyEstimate`, `ChapterDegKatoEsa`, `ChapterHermiteLadderOrder`, `ChapterHermiteGraphApprox`; audits `Work/SmFarisLavineAudit.lean`, `Work/SmComparisonEsaAudit.lean` |
 | Bosonic enclosure ESA **(2026-09-24b)** | **`ChapterSmFockEsa`** (`smSectorHam_esa`, `smFockHam_esa`, `sm_dGamma_esa`) on **`ChapterYangMillsNonAbelianEsa`** (`weylPoly_esa`); audit `Work/EnclosureEsaAudit.lean` |
 | Full (bosonic ⊗ fermionic) enclosure ESA **(2026-09-24c)** | **`ChapterSmFullEnclosure`** (`smFullHam`, `smFull_h_esa`, `smFull_dGamma_esa`) on `ChapterTensorSumEsa` (`essentiallySelfAdjointOn_cpairDom_esa`); audit `Work/FullEnclosureAudit.lean` |
+
+## Correction (2026-11-15b): a b-ghost of the ghost parity is **odd**, not even
+
+The cell for L12 (vi) above says "a parity-even b-ghost gives a parity-even `V`
+(`physProjOf_commute_parity`, `physProjOf_mem_even`) ... `physicalPositivity_of_homotopy_sectors` is
+the ghost-parity-even statement".  Those lemmas are correct, but they are about a grading that
+*commutes* with the charge; the ghost parity **anticommutes** with it (`smGhostParity_mul_smBrstCharge`),
+and in that case no nonzero even b-ghost exists:
+
+* `BrstQuartet.even_homotopy_eq_zero` — `U² = 1`, `U Q = −Q U`, `Q P Q = Q`, `P Q P = P` and
+  `U P = P U` force `P = 0`; then `even_homotopy_imp_charge_eq_zero` forces `Q = 0`;
+* `BrstQuartet.exists_odd_contractingHomotopy` (bundled as `OddHomotopy`) — a `U`-invariant
+  (averaged) projection constructs a homotopy with `U P = −P U` instead, so the sign is a theorem
+  about odd charges rather than a convention.
+
+`ChapterSmQuartet` §13, plan §83 and plan §84 carry the corrected statement.  The consequence for
+this file: the phrase "ghost-parity-even" in (vi) should read "odd", and the parity remark in
+`ChapterSmQuartet` §5/§9's docstrings has been rewritten accordingly.  Nothing else in (vi) changes:
+`quartetOfHomotopy` and `physicalPositivity_of_homotopy` are unaffected, and `PhysicalPositivity`
+for `smBrstCharge` remains a named input.

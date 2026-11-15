@@ -49,3 +49,11 @@ open BookProof.SmQuartet
 #audit_axioms BrstQuartet.kform_self_eq_neg_norm_sq_of_odd
 #audit_axioms BrstQuartet.range_physProjOf_parity_mem
 #audit_axioms BrstQuartet.physicalPositivity_imp_evenRange
+#audit_axioms BrstQuartet.bGhost_QSQ
+#audit_axioms BrstQuartet.even_homotopy_eq_zero
+#audit_axioms BrstQuartet.even_homotopy_imp_charge_eq_zero
+#audit_axioms BrstQuartet.exists_invariant_projection
+#audit_axioms BrstQuartet.kernel_invariant_of_proj
+#audit_axioms BrstQuartet.exists_odd_contractingHomotopy
+#audit_axioms BrstQuartet.exists_odd_homotopy
+#audit_axioms smGhostParity_odd_smBrstCharge
