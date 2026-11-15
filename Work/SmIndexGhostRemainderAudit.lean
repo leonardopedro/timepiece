@@ -20,3 +20,10 @@ open BookProof.SmGhostRemainder
 #audit_axioms CandModel.cand_contract
 #audit_axioms CandModel.cand_trace
 #audit_axioms CandModel.cand_equation
+#audit_axioms smIdxEquiv_nine_eight
+#audit_axioms smStruct_trace_weak
+#audit_axioms smStruct_trace_ne_zero
+#audit_axioms smStruct_trace_mixed
+#audit_axioms smStruct_trace_su3
+#audit_axioms smStruct_trace_weak_label
+#audit_axioms smStruct_trace_hyper

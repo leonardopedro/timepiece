@@ -597,4 +597,129 @@ theorem cand_equation : ((cq * cb + cb * cq) - ctr) * cq = cq := by
 
 end CandModel
 
+/-! ## 10. The first-slot trace does not vanish in the Standard Model
+
+§7 left the antighost sum one computation away from being a contracting homotopy: by
+`brstCharge_anticomm_bGhost` the anticommutator is `Σ G^a − Σ_{x,e} (Σ_y f_{yxe}) · c^x b_e`, so the
+antighost contracts exactly when the first-slot trace of the structure constants vanishes.
+
+**It does not.**  The labels `9` and `8` are the weak generators `T¹` and `T⁰`
+(`smIdxEquiv 9 = inr (inl 1)`, `smIdxEquiv 8 = inr (inl 0)`), so `smStruct f3 y 9 8` is nonzero only
+when the first slot `y` is one of the three weak labels, and there it is `su2Struct y' 1 0`.  The
+trace at that pair is therefore the `su(2)` trace of §5,
+
+  `structTrace (smStruct f₃) 9 8 = ∑_{y : Fin 3} su2Struct y 1 0 = −1`
+
+**for every `f₃`** (`smStruct_trace_weak`): the `su(3)` data is invisible on this pair, so no choice of
+`su(3)` structure constants makes the antighost sum a contracting homotopy
+(`smStruct_trace_ne_zero`), and §9's reduction `trace_correction_iff` says what is needed instead — a
+correction `T` with `T Ω = 0` rather than the trace term.
+
+**Boundary.**  This is a statement about one pair of labels, not about the whole trace functional: it
+shows that *this* antighost fails, not that every b-ghost does — §9's splitting map still exists.  No
+claim is made about the trace over the `su(3)` block, which does depend on `f₃`. -/
+
+/-- The labels `9` and `8` are the weak generators `T¹` and `T⁰`. -/
+theorem smIdxEquiv_nine_eight :
+    smIdxEquiv (9 : Fin 12) = Sum.inr (Sum.inl (1 : Fin 3)) ∧
+      smIdxEquiv (8 : Fin 12) = Sum.inr (Sum.inl (0 : Fin 3)) := by
+  refine ⟨by decide, by decide⟩
+
+/-- **The Standard-Model antighost sum fails on the weak pair**: the first-slot trace of the structure
+constants at the labels `9`, `8` is `−1`, for every choice of `su(3)` structure constants. -/
+theorem smStruct_trace_weak {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} :
+    structTrace (smStruct f3) 9 8 = -1 := by
+  obtain ⟨h9, h8⟩ := smIdxEquiv_nine_eight
+  have h : structTrace (smStruct f3) 9 8
+      = ∑ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1),
+          sumStruct f3 (sumStruct su2Struct u1Struct) z (Sum.inr (Sum.inl 1))
+            (Sum.inr (Sum.inl 0)) := by
+    rw [structTrace, ← Equiv.sum_comp smIdxEquiv]
+    simp only [smStruct, h9, h8]
+  rw [h, Fintype.sum_sum_type, Fintype.sum_sum_type]
+  simp only [sumStruct, Finset.sum_const_zero, zero_add, add_zero]
+  simpa [su2Trace] using su2Trace_nonzero
+
+/-- The trace obstruction is nonzero, so the explicit antighost is not a contracting homotopy at
+the Standard-Model charge. -/
+theorem smStruct_trace_ne_zero (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    structTrace (smStruct f3) 9 8 ≠ 0 := by
+  rw [smStruct_trace_weak]
+  norm_num
+
+/-! ## 11. The trace functional is block diagonal
+
+§10 showed that no `su(3)` choice repairs the *weak* pair.  That leaves the scope question it named
+open: which part of the trace *does* depend on `f₃`?  The answer is the block structure of
+`smStruct`, whose bracket never leaves a summand (`sumStruct` is `0` off the diagonal):
+
+* `smStruct_trace_mixed`: the trace vanishes at every pair straddling a summand, so no cross term
+  can be tuned by `f₃`;
+* `smStruct_trace_su3`: on the gluon block the trace is `f₃`'s own first-slot trace,
+  `Σ_{y : Fin 8} f₃ y a b` — the only `f₃`-dependent piece;
+* `smStruct_trace_weak_label`, `smStruct_trace_hyper`: on the weak block it is the `su(2)` trace,
+  independent of `f₃`, and on the hypercharge direction it vanishes.
+
+So the ghost–antighost bilinear of §6 splits into a gluon part carrying `f₃` and a `f₃`-free weak
+part; the `su(3)` constants can move only the first, and §10's `−1` at the pair `(9, 8)` already
+sits in the second. -/
+
+/-- **A mixed pair has no trace.**  If the two labels lie in different summands of
+`su(3) ⊕ su(2) ⊕ u(1)`, every term of `Σ_y smStruct f₃ y x e` vanishes: the bracket of
+`sumStruct` is `0` unless all three slots are in one summand, and the first slot cannot rescue a
+mismatched pair. -/
+theorem smStruct_trace_mixed {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {x e : Fin 12}
+    {a : Fin 8} {b : Fin 3 ⊕ Fin 1} (hx : smIdxEquiv x = Sum.inl a)
+    (he : smIdxEquiv e = Sum.inr b) : structTrace (smStruct f3) x e = 0 := by
+  refine Finset.sum_eq_zero fun y _ => ?_
+  rcases hy : smIdxEquiv y with c | c <;> simp [smStruct, hx, he, hy, sumStruct]
+
+/-- **The gluon block of the trace is `f₃`'s own first-slot trace.**  This is the only place the
+`su(3)` structure constants enter the remainder of §6. -/
+theorem smStruct_trace_su3 {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {x e : Fin 12}
+    {a b : Fin 8} (hx : smIdxEquiv x = Sum.inl a) (he : smIdxEquiv e = Sum.inl b) :
+    structTrace (smStruct f3) x e = ∑ y : Fin 8, f3 y a b := by
+  have key : ∀ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1),
+      smStruct f3 (smIdxEquiv.symm z) x e =
+        match z with
+        | Sum.inl c => f3 c a b
+        | Sum.inr _ => 0 := by
+    rintro (c | c) <;> simp [smStruct, hx, he, sumStruct]
+  have h : structTrace (smStruct f3) x e
+      = ∑ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1), smStruct f3 (smIdxEquiv.symm z) x e := by
+    rw [structTrace, ← Equiv.sum_comp smIdxEquiv.symm (fun y => smStruct f3 y x e)]
+  rw [h, Finset.sum_congr rfl fun z _ => key z, Fintype.sum_sum_type,
+    Finset.sum_const_zero, add_zero]
+
+/-- **The weak block of the trace is the `su(2)` trace**, independent of `f₃`; the pair `(9, 8)` of
+§10 is the case `a = 1`, `b = 0`. -/
+theorem smStruct_trace_weak_label {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {x e : Fin 12}
+    {a b : Fin 3} (hx : smIdxEquiv x = Sum.inr (Sum.inl a))
+    (he : smIdxEquiv e = Sum.inr (Sum.inl b)) :
+    structTrace (smStruct f3) x e = ∑ y : Fin 3, su2Struct y a b := by
+  have key : ∀ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1),
+      smStruct f3 (smIdxEquiv.symm z) x e =
+        match z with
+        | Sum.inr (Sum.inl c) => su2Struct c a b
+        | _ => 0 := by
+    rintro (c | (c | c)) <;> simp [smStruct, hx, he, sumStruct]
+  have h : structTrace (smStruct f3) x e
+      = ∑ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1), smStruct f3 (smIdxEquiv.symm z) x e := by
+    rw [structTrace, ← Equiv.sum_comp smIdxEquiv.symm (fun y => smStruct f3 y x e)]
+  rw [h, Finset.sum_congr rfl fun z _ => key z, Fintype.sum_sum_type,
+    Fintype.sum_sum_type, Finset.sum_const_zero, Finset.sum_const_zero, add_zero, zero_add]
+
+/-- The hypercharge direction carries no trace at all: `u(1)` is abelian. -/
+theorem smStruct_trace_hyper {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} :
+    structTrace (smStruct f3) 11 11 = 0 := by
+  have key : ∀ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1),
+      smStruct f3 (smIdxEquiv.symm z) 11 11 = 0 := by
+    rintro (c | (c | c)) <;>
+      simp [smStruct, show smIdxEquiv (11 : Fin 12) = Sum.inr (Sum.inr 0) from by decide,
+        sumStruct, u1Struct]
+  have h : structTrace (smStruct f3) 11 11
+      = ∑ z : Fin 8 ⊕ (Fin 3 ⊕ Fin 1), smStruct f3 (smIdxEquiv.symm z) 11 11 := by
+    rw [structTrace, ← Equiv.sum_comp smIdxEquiv.symm (fun y => smStruct f3 y 11 11)]
+  rw [h, Finset.sum_congr rfl fun z _ => key z, Finset.sum_const_zero]
+
 end BookProof.SmGhostRemainder

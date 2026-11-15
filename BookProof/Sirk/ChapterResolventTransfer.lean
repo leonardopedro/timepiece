@@ -1974,10 +1974,11 @@ theorem Aedge_band_order_least :
   · subst h
     exact absurd hm Aedge_band_order_not_zero
   · exact h
-/-- **The rate's own order is `1` — the same numeral as the sharp check.**  `temple_membership_order`
-turns a geometric residual decay `ε ≤ C rᵐ` into the order `⌈log(√(δη)/C) / log r⌉`; at
-`δ = 1/10`, `η = 1/50` the threshold is `√(1/500)`.  The residual of `xOrd` is `0` from `m ≥ 1` on
-and `2/25` at `m = 0` (`resid_wMix_sq`), so `C = 2/25` with `r = 1/2` is the exact geometric
+
+/-- **The rate's own order is `1`, the same numeral as the sharp check.**  `temple_membership_order`
+turns a geometric decay `ε ≤ C rᵐ` into the order `⌈log(√(δη)/C) / log r⌉` at
+`δ = 1/10`, `η = 1/50` the threshold is `√(1/500)`.  The residual of `xOrd` is `0` from `m ≥ 1`
+on and `2/25` at `m = 0` (`resid_wMix_sq`), so `C = 2/25` with `r = 1/2` is the exact geometric
 majorant, and the ceiling is `1`.  With `a = log 2`, `b = log 5` the quotient is `2 − b/(2a)`, and
 `4 < 5 < 16` puts it in `(0, 1)`.  The general rate theorem therefore certifies order `1` on its
 own: `Aedge_membership_from_order_one` is not dodging a coarse ceiling. -/
