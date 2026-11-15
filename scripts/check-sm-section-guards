@@ -714,6 +714,25 @@ require "$PLAN" 'is replaced by the `2π`-multiple of the dual lattice' \
 require "$PLAN" "remains §74's open labelling hypothesis" \
     "§79: the plan must keep the open commensurability hypothesis"
 
+# ---- 33. §80 the trace functional is block diagonal
+# §78 computed one weak pair and left the gluon block unnamed.  §80 splits the trace by summand: cross
+# pairs vanish for every `f₃`, and the gluon block is `f₃`'s own first-slot trace.  The boundary is that
+# the gluon sum itself is not evaluated here.
+require "$REM" "theorem smStruct_trace_mixed" \
+    "§80: cross-summand vanishing must stay"
+require "$REM" "theorem smStruct_trace_su3" \
+    "§80: the gluon block must stay identified with f₃ trace"
+require "$REM" "theorem smStruct_trace_weak_label" \
+    "§80: the weak block must stay independent of f₃"
+require "$REM" "theorem smStruct_trace_hyper" \
+    "§80: the abelian block must stay trace-free"
+require "$PLAN" '**The trace functional is block diagonal**' \
+    "§80: the plan must keep the block-diagonal statement"
+require "$PLAN" 'no cross term can be tuned by the `su(3)` constants' \
+    "§80: the plan must keep the cross-summand vanishing"
+require "$PLAN" 'It does not evaluate the gluon sum `Σ_y f₃ y a b`' \
+    "§80: the plan must keep the open gluon sum"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

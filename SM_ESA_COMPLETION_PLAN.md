@@ -4360,3 +4360,28 @@ the labelling: `N·Λ*` is replaced by the `2π`-multiple of the dual lattice.
 
 Boundary: this is the alias *class* on the box; that the model's wave numbers land on a commensurate
 lattice at all remains §74's open labelling hypothesis.
+
+## 80. The trace functional is block diagonal
+
+§78 computed the trace at one weak pair and left the gluon block open.  The block structure decides
+which part is `f₃`-dependent: `smStruct` is a `sumStruct`, whose bracket is `0` unless all three slots
+lie in one summand, so the first-slot trace never mixes the factors.
+`BookProof/Sm/ChapterSmIndexGhostRemainder.lean` §11:
+
+* `smStruct_trace_mixed`: the trace vanishes at every cross-summand pair, for **every** `f₃`:
+  no cross term can be tuned by the `su(3)` constants;
+* `smStruct_trace_su3`: on the gluon block it is `f₃`'s own first-slot trace, `Σ_{y : Fin 8} f₃ y a b`;
+* `smStruct_trace_weak_label`: on the weak block it is the `su(2)` trace `Σ_{y : Fin 3} su2Struct y a b`,
+  independent of `f₃` — §78's `−1` at `(9, 8)` is the case `a = 1`, `b = 0`;
+* `smStruct_trace_hyper`: on the hypercharge direction it vanishes, because `u(1)` is abelian.
+
+So the ghost–antighost bilinear of §6 is a gluon part carrying `f₃` plus a `f₃`-free weak part, and the
+`su(3)` constants can move only the first.
+
+**The trace functional is block diagonal** is the whole content here: the four statements are about a
+coefficient, not about the charge.
+
+Boundary: It does not evaluate the gluon sum `Σ_y f₃ y a b`.  The file's `f₃` is an arbitrary
+antisymmetric Jacobi family, not the trace-orthonormal colour generators, so whether the gluon part
+vanishes remains open — and it is *not* implied by the incident `su(2)` block's `−1`.  The antighost's
+failure is therefore still located block by block, not decided for the whole trace.
