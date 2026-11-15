@@ -1690,16 +1690,22 @@ description — instead of being bounded.  The answer has two halves.
 invariant (`range_physProjOf` gives the description).  So every physical state splits into
 even and odd parts *inside* the range.
 
-**Positivity forces the range into the even sector** (the converse fails).  On an even vector
+**Positivity forces the range into the even sector, and the converse fails.**  On an even vector
 the ghost-parity form is `‖·‖²` and on an odd one it is `-‖·‖²`, so a closed odd vector can only
 satisfy non-negativity if it vanishes; then the odd part of each physical state is zero and the
 range is even.  Hence `PhysicalPositivity Q U → range V ⊆ evenSpace U`
-(`physicalPositivity_imp_evenRange`).  The converse would need the radical half of positivity as
-well: an odd closed vector that is *not* in the range (nothing above puts it there) is invisible
-to evenness, but still violates `PhysicalPositivity` through its second conjunct.  So the
-transverse identification is a *consequence* of the no-ghost input, never a way around it — §77's
-inequality stays the input, and §74's `hdvd` (that the harmonic complement is the transverse one)
-is the same question in another form. -/
+(`physicalPositivity_imp_evenRange`).  The converse fails because an odd closed state need not lie
+in the range — it may be *exact* — and such a state violates non-negativity (the first conjunct)
+while being invisible to the range.
+
+§17 therefore states the input on the closed space instead, where it is an equivalence
+(`physicalPositivity_iff_closed_le_even`) and where the radical half needs no separate hypothesis;
+and it proves the gap at range level with a witness (`exEvenRange_not_positivity`), namely §10's
+model under the diagonal metric `exPar`: there the range is even, every parity hypothesis of this
+section holds, and positivity still fails at the exact odd state `e₁`.  So the transverse
+identification is a *consequence* of the no-ghost input, never a way around it — §77's inequality
+stays the input, and §74's `hdvd` (that the harmonic complement is the transverse one) is the same
+question in another form. -/
 namespace BrstQuartet
 
 /-- On a ghost-parity-even vector the charge form is the ambient norm squared. -/
@@ -1827,7 +1833,9 @@ remaining parameter: `smPhysicalPositivity_imp_evenRange` — positivity of the 
 the closed space forces every physical state to be ghost-parity even.  So the transverse, even
 description of `range smPhysProj` is a *consequence* of the no-ghost input and never a substitute
 for it; this is where §12's `smPhysicalPositivity_of_evenRange` and §13's implication meet at the
-model's own b-ghost.
+model's own b-ghost.  §17 supplies the input's exact form (`smPhysicalPositivity_iff_closed_even`,
+on the closed space) and a witness that evenness of *this* range is strictly weaker
+(`exEvenRange_not_positivity`), so the implication cannot be reversed.
 
 **Boundary.**  Nothing here compares `range smPhysProj` with `range smPhysProjFormula`: the two
 homotopies are different choices of complement of the exact states, so the two ranges are
@@ -1923,8 +1931,10 @@ open BookProof.SmBrstGhost BookProof.SmCar in
 /-- **Positivity puts the SM physical range in the ghost-parity-even sector.**  The bundle's
 homotopy is odd (§5.1), so §13's forward implication applies at `smBrstCharge` with no remaining
 parameter: `PhysicalPositivity` for the ghost-parity form forces every physical state to be even.
-The converse is not available (evenness of the range does not supply the radical half, §13), so the
-transverse description is a consequence of the no-ghost input, never a route around it. -/
+The converse is false, and not for want of the radical half: §17 states the input exactly on the
+closed space, where that half is derived, and witnesses the gap at range level
+(`exEvenRange_not_positivity`).  So the transverse description is a consequence of the no-ghost
+input, never a route around it. -/
 theorem smPhysicalPositivity_imp_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
     {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
     (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
@@ -2035,6 +2045,224 @@ theorem smPhysProj_finrank {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
   rw [smPhysProj_eq_physProjOf]
   exact BrstQuartet.finrank_range_physProjOf (isBrst_smBrstCharge hT h3anti h3jac)
     (smOddHomotopy m T f3).QSQ (smOddHomotopy m T f3).SQS
+
+/-! ## 17. The no-ghost input is the closed space being ghost-parity even
+
+§13 proved the implication and left its converse in prose; §12's sufficient condition was
+evenness of the physical *range*.  This section states the condition exactly, on the closed space,
+and separates the two.
+
+**The non-negativity half is an absence statement.**  For a unitary involution the charge form of an
+odd vector is `−‖·‖²` (`kform_self_eq_neg_norm_sq_of_odd`), so non-negativity on `ker Q` is
+*equivalent* to there being no nonzero odd closed state (`nonneg_iff_noOddClosed`).  Nilpotency
+alone keeps `ker Q` stable under a charge-odd involution (`closed_mem_of_closed_of_odd`: for closed
+`x`, `Q (U x) = −U (Q x) = 0`), so the odd part of a closed state is closed and the equivalence is
+exact, not one-sided.
+
+**And that is the whole input, not just half of it.**  Once no odd closed state exists, every closed
+state is even (`x = evenPart x`), the charge form on `ker Q` is the ambient norm squared, and its
+radical is `{0}` — so the radical half of `PhysicalPositivity`, which §11 and §12 carried as a
+separate hypothesis, is *derived*:
+
+  `PhysicalPositivity Q U ↔ ker Q ≤ evenSpace U`      (`physicalPositivity_iff_closed_le_even`).
+
+At the model this reads `smPhysicalPositivity_iff_closed_even`: the no-ghost condition is exactly
+"every state killed by `Ω` is fixed by the ghost parity", with no second hypothesis.
+
+**The range version is strictly weaker, and §10's model decides it.**  Changing §10's metric from
+the ghost pairing to the diagonal sign operator `exPar = diag(1, −1, 1)` keeps every hypothesis §13
+assumes at the model — `exPar` is a unitary involution, the charge and the b-ghost are odd for it,
+and the physical range `span e₂` is fixed by it (so evenness of the range *holds*) — while the exact
+state `e₁` is closed and odd, so positivity fails (`exEvenRange_not_positivity`).  The obstruction
+is structural: an odd *exact* state is invisible to the range but not to the closed space.  So
+§12's sufficient condition cannot be made necessary, and the exact form of the input is the
+closed-space one above. -/
+
+namespace BrstQuartet
+
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+variable {Q : H →ₗ[ℂ] H}
+
+/-- **A charge-odd operator preserves the closed space.**  Nilpotency alone suffices: for a closed
+`x`, `Q (U x) = −U (Q x) = 0`.  No involution and no orthogonality is used. -/
+theorem closed_mem_of_closed_of_odd {U : H →ₗ[ℂ] H}
+    (hQU : ∀ x : H, U (Q x) = -(Q (U x))) {x : H} (hx : x ∈ closed Q) : U x ∈ closed Q := by
+  rw [closed, LinearMap.mem_ker] at hx ⊢
+  have h := hQU x
+  rw [hx, map_zero] at h
+  exact neg_eq_zero.mp h.symm
+
+/-- **Non-negativity on the closed space is exactly the absence of odd closed states.**  An odd
+closed vector contributes `−‖x‖²`, so it can only be admissible if it vanishes; conversely the odd
+part of a closed vector is closed (`closed_mem_of_closed_of_odd`), and once it vanishes the form is
+the squared norm of the even part. -/
+theorem nonneg_iff_noOddClosed {U : H →ₗ[ℂ] H}
+    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
+    (∀ x : H, x ∈ closed Q → 0 ≤ (kform U x x).re) ↔
+      (∀ x : H, x ∈ closed Q → x ∈ oddSpace U → x = 0) := by
+  refine ⟨?_, ?_⟩
+  · intro hnn x hx hod
+    have hodd : U x = -x := (mem_oddSpace_iff _).mp hod
+    have h := hnn x hx
+    rw [kform_self_eq_neg_norm_sq_of_odd hodd] at h
+    have hsq : ‖x‖ ^ 2 = 0 := by nlinarith [sq_nonneg ‖x‖]
+    exact norm_eq_zero.mp (pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hsq)
+  · intro hno x hx
+    have hzero : oddPart U x = 0 :=
+      hno _ (oddPart_mem_of_mem (closed Q) (fun y hy => closed_mem_of_closed_of_odd hQU hy) hx)
+        (oddPart_mem hU x)
+    have hxeq : x = evenPart U x := by
+      have hsum := evenPart_add_oddPart (U := U) x
+      rw [hzero, add_zero] at hsum
+      exact hsum.symm
+    have hev : U (evenPart U x) = evenPart U x := (mem_evenSpace_iff _).mp (evenPart_mem hU x)
+    rw [hxeq, kform_self_eq_norm_sq_of_even hev]
+    exact sq_nonneg _
+
+/-- **The no-ghost input, in closed form: the closed space is ghost-parity even.**  The forward
+direction is §13's non-negativity argument at the closed space; the backward direction is the
+observation that evenness makes the charge form the ambient norm, so the radical half of
+`PhysicalPositivity` needs no separate hypothesis.  Nilpotency of `Q` is used nowhere: the statement
+is about the grading and the kernel alone. -/
+theorem physicalPositivity_iff_closed_le_even {U : H →ₗ[ℂ] H}
+    (hU : U ∘ₗ U = LinearMap.id) (hQU : ∀ x : H, U (Q x) = -(Q (U x))) :
+    PhysicalPositivity Q U ↔ closed Q ≤ evenSpace U := by
+  constructor
+  · intro hpos x hx
+    have hno := (nonneg_iff_noOddClosed hU hQU).mp hpos.1
+    have hzero : oddPart U x = 0 :=
+      hno _ (oddPart_mem_of_mem (closed Q) (fun y hy => closed_mem_of_closed_of_odd hQU hy) hx)
+        (oddPart_mem hU x)
+    have hsum := evenPart_add_oddPart (U := U) x
+    rw [hzero, add_zero] at hsum
+    rw [mem_evenSpace_iff, ← hsum]
+    exact (mem_evenSpace_iff _).mp (evenPart_mem hU x)
+  · intro hle
+    refine ⟨fun x hx => ?_, fun x hx hzero => ?_⟩
+    · have hev : U x = x := (mem_evenSpace_iff _).mp (hle hx)
+      rw [kform_self_eq_norm_sq_of_even hev]
+      exact sq_nonneg _
+    · have hev : U x = x := (mem_evenSpace_iff _).mp (hle hx)
+      have hsq : ‖x‖ ^ 2 = 0 := by
+        rw [← kform_self_eq_norm_sq_of_even hev]
+        exact hzero
+      have hx0 : x = 0 :=
+        norm_eq_zero.mp (pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hsq)
+      rw [hx0]
+      exact (gauge Q).zero_mem
+
+end BrstQuartet
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The SM no-ghost condition, in one line**: `PhysicalPositivity` for the ghost-parity form holds
+iff every state killed by `Ω` is *fixed* by the ghost parity — pointwise, with no metric hypothesis
+beyond the involution, and no separate statement about the radical.  This is §17's equivalence at
+`smBrstCharge`, and it is what a numerical smoke test has to check. -/
+theorem smPhysicalPositivity_iff_closed_even (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    PhysicalPositivity (smBrstCharge m T f3) (smGhostParity m) ↔
+      ∀ x : BookProof.SmCar.FermiFock (m + 12),
+        smBrstCharge m T f3 x = 0 → smGhostParity m x = x := by
+  rw [BrstQuartet.physicalPositivity_iff_closed_le_even (smGhostParity_comp m)
+    (fun x => smGhostParity_odd_smBrstCharge m T f3 x)]
+  constructor
+  · intro h x hx
+    exact (mem_evenSpace_iff _).mp (h hx)
+  · intro h x hx
+    exact (mem_evenSpace_iff _).mpr (h x hx)
+
+/-! ### The range is not enough: a decided witness
+
+§10's three-dimensional block, with its metric replaced by the diagonal sign operator
+`exPar = diag(1, −1, 1)`.  Every hypothesis §13 and §12 assume is satisfied — `exPar` is a unitary
+involution (`exPar_comp`, `exPar_isometry`), the charge and the b-ghost are odd for it
+(`exPar_Q_odd`, `exPar_B_odd`), the quartet identity is §10's (`quartet_pt`), and the physical range
+`span e₂` is even (`exVh_range_even`) — and positivity still fails, because the *exact* state `e₁`
+is closed and odd (`exE3_one_closed`, `exPar_e1`).  So §12's sufficient condition is not necessary
+and §13's caveat is strict. -/
+
+/-- The diagonal sign operator `e₀ ↦ e₀`, `e₁ ↦ −e₁`, `e₂ ↦ e₂` on the §10 model. -/
+def exPar : ExSpace →ₗ[ℂ] ExSpace :=
+  (LinearMap.toSpanSingleton ℂ ExSpace (exE3 0)).comp (exProjL 0)
+    - (LinearMap.toSpanSingleton ℂ ExSpace (exE3 1)).comp (exProjL 1)
+    + (LinearMap.toSpanSingleton ℂ ExSpace (exE3 2)).comp (exProjL 2)
+
+theorem exPar_apply (x : ExSpace) :
+    exPar x = x.ofLp 0 • exE3 0 - x.ofLp 1 • exE3 1 + x.ofLp 2 • exE3 2 := by
+  simp [exPar, LinearMap.sub_apply, LinearMap.add_apply, LinearMap.comp_apply, exProjL]
+
+theorem exPar_coord_zero (x : ExSpace) : (exPar x).ofLp 0 = x.ofLp 0 := by
+  rw [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  simp
+
+theorem exPar_coord_one (x : ExSpace) : (exPar x).ofLp 1 = -x.ofLp 1 := by
+  rw [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  simp
+
+theorem exPar_coord_two (x : ExSpace) : (exPar x).ofLp 2 = x.ofLp 2 := by
+  rw [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  simp
+
+theorem exPar_e0 : exPar (exE3 0) = exE3 0 := by
+  refine PiLp.ext fun i => ?_
+  rw [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  fin_cases i <;> simp [exE3]
+
+theorem exPar_e1 : exPar (exE3 1) = -exE3 1 := by
+  refine PiLp.ext fun i => ?_
+  rw [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  fin_cases i <;> simp [PiLp.neg_apply, exE3]
+
+theorem exPar_e2 : exPar (exE3 2) = exE3 2 := by
+  refine PiLp.ext fun i => ?_
+  rw [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exSmulE3, exSmulE3, exSmulE3]
+  fin_cases i <;> simp [exE3]
+
+theorem exPar_comp : exPar ∘ₗ exPar = LinearMap.id := by
+  refine LinearMap.ext fun x => ?_
+  rw [LinearMap.comp_apply, LinearMap.id_apply]
+  refine PiLp.ext fun i => ?_
+  fin_cases i <;> simp [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exE3]
+
+theorem exPar_isometry (x : ExSpace) : ‖exPar x‖ = ‖x‖ := by
+  have hsq : ‖exPar x‖ ^ 2 = ‖x‖ ^ 2 := by
+    rw [EuclideanSpace.norm_sq_eq, EuclideanSpace.norm_sq_eq]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    fin_cases i <;>
+      simp [exPar_apply, PiLp.add_apply, PiLp.sub_apply, exE3, norm_neg]
+  have h1 : (0 : ℝ) ≤ ‖exPar x‖ := norm_nonneg _
+  have h2 : (0 : ℝ) ≤ ‖x‖ := norm_nonneg _
+  nlinarith
+
+theorem exPar_Q_odd (x : ExSpace) : exPar (exQh x) = -(exQh (exPar x)) := by
+  rw [exQh_apply, exQh_apply, map_smul, exPar_e1, exPar_coord_zero, smul_neg]
+
+theorem exPar_B_odd (x : ExSpace) : exPar (exBh x) = -(exBh (exPar x)) := by
+  rw [exBh_apply, exBh_apply, map_smul, exPar_e0, exPar_coord_one]
+  simp
+
+theorem exVh_range_even (y : ExSpace) : exPar (exVh y) = exVh y := by
+  rw [exVh_apply, map_smul, exPar_e2]
+
+theorem exE3_one_closed : (exE3 1 : ExSpace) ∈ closed exQh := by
+  change exQh (exE3 1) = 0
+  rw [exQh_apply]
+  simp [exE3]
+
+/-- **Evenness of the physical range does not give positivity.**  At the §10 model with the diagonal
+metric `exPar` the physical range is even and the quartet is intact, yet the exact state `e₁` is
+closed and odd, so the charge form takes the value `−1` on it. -/
+theorem exEvenRange_not_positivity :
+    (∀ y : ExSpace, exPar (exVh y) = exVh y) ∧ ¬ PhysicalPositivity exQh exPar := by
+  refine ⟨exVh_range_even, ?_⟩
+  intro h
+  have hval := h.1 (exE3 1) exE3_one_closed
+  have hodd : exPar (exE3 1) = -exE3 1 := exPar_e1
+  have hneg : (kform exPar (exE3 1) (exE3 1)).re = -1 := by
+    rw [kform, hodd, inner_neg_right, exInnerE3b, if_pos rfl]
+    simp
+  rw [hneg] at hval
+  norm_num at hval
 
 end
 

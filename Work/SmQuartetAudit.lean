@@ -74,3 +74,15 @@ open BookProof.SmQuartet
 #audit_axioms BrstQuartet.closed_eq_sup_range_physProjOf
 #audit_axioms BrstQuartet.finrank_range_physProjOf
 #audit_axioms smPhysProj_finrank
+#audit_axioms BrstQuartet.closed_mem_of_closed_of_odd
+#audit_axioms BrstQuartet.nonneg_iff_noOddClosed
+#audit_axioms BrstQuartet.physicalPositivity_iff_closed_le_even
+#audit_axioms smPhysicalPositivity_iff_closed_even
+#audit_axioms exPar
+#audit_axioms exPar_comp
+#audit_axioms exPar_isometry
+#audit_axioms exPar_Q_odd
+#audit_axioms exPar_B_odd
+#audit_axioms exVh_range_even
+#audit_axioms exE3_one_closed
+#audit_axioms exEvenRange_not_positivity

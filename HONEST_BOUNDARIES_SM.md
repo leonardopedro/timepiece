@@ -464,3 +464,34 @@ Finally, the shear family's constant residual is now a determinant: `(1 + shearG
 `hconst_of_dispGrad_shear` (`Λ = −εt`) and gives `(κ/2)(εt)²` on the grid
 (`volPot_of_shearGrad_of_torus`).  What stays an input is that the model's `dispGrad` equals the shear
 matrix — a statement about a configuration and a truncation, not about the grid.  See plan §90.
+
+## Correction (2026-11-15e): the no-ghost input has an exact closed form, and the range version is strictly weaker
+
+**What was wrong.** §83's caveat about the converse of the range implication — repeated in
+`ChapterSmQuartet` §13 and in `smPhysicalPositivity_imp_evenRange`'s docstring — said that the converse
+"would need the radical half of positivity as well", and that an odd closed vector outside the range
+"still violates `PhysicalPositivity` through its second conjunct".  Both halves of that sentence are
+false.  An odd closed vector violates **non-negativity** — its charge form is `−‖x‖²` — and the radical
+half is *derived*, not assumed, once the closed space is even.  The caveat's conclusion (the range
+cannot be identified with the even sector) stands; its stated reason did not.
+
+**The exact form.** `ChapterSmQuartet` §17 proves, for an involution `U` that is odd for the charge:
+
+* `nonneg_iff_noOddClosed`: non-negativity of the charge form on `ker Q` ⟺ there is **no** nonzero
+  odd closed state.  The point is that nilpotency alone keeps `ker Q` stable under a charge-odd map
+  (`closed_mem_of_closed_of_odd`), so the odd part of a closed state is closed;
+* `physicalPositivity_iff_closed_le_even`: `PhysicalPositivity Q U ↔ ker Q ≤ evenSpace U`.  Given
+  evenness, every closed state is even, the form there is the ambient norm squared, and its radical is
+  `{0}` — so the *whole* no-ghost input is one statement, and only the first conjunct of the definition
+  is ever used.  Nilpotency of `Q` enters nowhere;
+* at the model, `smPhysicalPositivity_iff_closed_even`: every state killed by `Ω` is fixed by the
+  ghost parity.  That is the one line a numerical smoke test has to check.
+
+**The range version is strictly weaker, witnessed.** §10's three-dimensional block under the diagonal
+metric `exPar = diag(1, −1, 1)` satisfies every hypothesis of §83's implication and of §12's
+sufficient condition at the model — `exPar` is a unitary involution (`exPar_comp`, `exPar_isometry`),
+charge and b-ghost are odd for it (`exPar_Q_odd`, `exPar_B_odd`), and the physical range `span e₂` is
+even (`exVh_range_even`) — and positivity still fails (`exEvenRange_not_positivity`), because the
+*exact* state `e₁` is closed and odd (`exE3_one_closed`, `exPar_e1`) and carries the value `−1`.  So
+`smPhysicalPositivity_of_evenRange` cannot be reversed, and the obstruction lives on the closed space,
+never on the range.  See plan §92.

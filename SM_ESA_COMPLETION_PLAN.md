@@ -5199,3 +5199,42 @@ Boundary: the identification of `dim range V` with the dimension of the cohomolo
 is not stated as a quotient: what is proved is the finrank identity above, and the quotient form is the
 standard finrank additivity one step further.  Positivity on either range is still the separate
 no-ghost input, and no metric for `smBrstCharge` is constructed.
+
+## 92. The no-ghost input is exactly "the closed space is ghost-parity even"
+
+§39 and §77 carried the Kugo–Ojima input in two pieces — non-negativity and radical-equals-gauge —
+and left the converse of the range implication in prose.  This section gives the input a single exact
+form and proves the strictness of the range version.
+
+**Non-negativity is an absence statement.**  For a unitary involution `U` an odd vector has charge
+form `−‖·‖²` (`kform_self_eq_neg_norm_sq_of_odd`), so non-negativity on `ker Q` is *equivalent* to
+the vanishing of odd closed states (`nonneg_iff_noOddClosed`).  Nilpotency alone keeps `ker Q` stable
+under a charge-odd map (`closed_mem_of_closed_of_odd`: `Q (U x) = −U (Q x) = 0`), so the odd part of
+a closed state is closed and the equivalence is exact in both directions.
+
+**The radical half comes free.**  With no odd closed state, every closed state is even
+(`x = evenPart x`), the charge form on `ker Q` is the ambient norm squared, and its radical is `{0}`.
+So the second conjunct of `PhysicalPositivity`, which §39's `physicalPositivity_nonneg_of_sectors` and §77's
+`smPhysicalPositivity_iff_parityNorms` carried separately, is derived:
+`PhysicalPositivity Q U ↔ ker Q ≤ evenSpace U`, and at the model
+`smPhysicalPositivity_iff_closed_even` reads "every `Ω`-closed state is fixed by the ghost parity".
+Nilpotency of `Q` is used nowhere in the equivalence — the input is about the grading and the kernel.
+
+**The range version is strictly weaker, and §10 decides it.**  §10's three-dimensional block under the
+diagonal metric `exPar = diag(1, −1, 1)` keeps every hypothesis §83 assumes at the model: `exPar` is a
+unitary involution (`exPar_comp`, `exPar_isometry`), the charge and the b-ghost are odd for it
+(`exPar_Q_odd`, `exPar_B_odd`), the quartet identity is §10's, and the physical range `span e₂` is
+even (`exVh_range_even`).  Positivity still fails, because the *exact* state `e₁` is closed and odd
+(`exE3_one_closed`, `exPar_e1`), giving the charge form the value `−1` there
+(`exEvenRange_not_positivity`).  Hence §12's sufficient condition (§77's
+`smPhysicalPositivity_of_evenRange`) cannot be made necessary: the obstruction is invisible to the
+range and visible only on the closed space.
+
+**Correction carried with it.**  §83's caveat said the converse would need "the radical half of
+positivity … through its second conjunct".  Both halves of that sentence were wrong: an odd closed
+vector violates *non-negativity* (its form is `−‖x‖²`), and given evenness of the closed space the
+radical half is derived.  The caveat's conclusion stands — the range cannot be identified with the
+even sector — but for the reason above, which is now a theorem.
+
+Boundary: no metric for `smBrstCharge` is constructed, and nothing here proves the model's closed
+space is even; that is exactly the remaining no-ghost input, now stated in one line.

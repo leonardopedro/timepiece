@@ -951,6 +951,31 @@ require "$PLAN" 'The physical range is a complement of the exact states' \
 require "$PLAN" 'different subspaces of equal size' \
     "§91: the plan must keep the characterised-not-canonical reading"
 
+# ---- 45. §92 the no-ghost input is exactly "the closed space is even", and the range is weaker
+# §83/§88 carry the input in two pieces and say the range implication has no converse "for want of the
+# radical half".  §92 proves the non-negativity half is an absence statement, shows the radical half is
+# then derived (so the input is one statement), and witnesses that range evenness is strictly weaker.
+# Dropping the equivalence would put the input back to two hypotheses; dropping the witness would let
+# §12's sufficient condition read as necessary.
+require "$QUARTET" "theorem closed_mem_of_closed_of_odd" \
+    "§92: closed-space stability under a charge-odd map must stay"
+require "$QUARTET" "theorem nonneg_iff_noOddClosed" \
+    "§92: non-negativity as absence of odd closed states must stay"
+require "$QUARTET" "theorem physicalPositivity_iff_closed_le_even" \
+    "§92: the closed-space form of the input must stay"
+require "$QUARTET" "theorem smPhysicalPositivity_iff_closed_even" \
+    "§92: the model's one-line form of the input must stay"
+require "$QUARTET" "theorem exPar_isometry" \
+    "§92: the witness metric must stay an isometry"
+require "$QUARTET" "theorem exVh_range_even" \
+    "§92: the witness's range evenness must stay"
+require "$QUARTET" "theorem exEvenRange_not_positivity" \
+    "§92: the strictness witness must stay"
+require "$PLAN" 'The no-ghost input is exactly' \
+    "§92: the plan must keep the closed-space form of the input"
+require "$PLAN" 'The range version is strictly weaker' \
+    "§92: the plan must keep the strictness verdict"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"
