@@ -28,7 +28,13 @@ only a truncation at any width `k`; the infinite-volume object below is that tru
 * `toeplitzWeight` — the one-sided weight `1, ρ, …, ρ` the kernel is built from;
 * `bandedCovZ_eq_weight_sum` — the kernel is the autocorrelation of that weight;
 * `bandedCovZ_quadForm_eq_sum_sq` — the kernel's quadratic form as an explicit sum of squares;
-* `bandedCovZ_posSemidef` — positive semidefiniteness of the kernel.
+* `bandedCovZ_posSemidef` — positive semidefiniteness of the kernel;
+* `bandedCovZ_quadForm_eq_zero_iff`, `bandedCovZ_posDef` — the form vanishes only on the zero
+  test function, i.e. the kernel is positive definite;
+* `bandedCovZ_translate`, `bandedCovZ_row_tsum_translate`, `bandedCovZ_quadForm_translate` —
+  translation invariance (Toeplitz property);
+* `bandedCovZ_reflectionForm_neg`, `bandedCovZ_not_reflectionPositive` — the kernel is *not*
+  reflection positive for `θ i = -i` on a half-line.
 
 ## Row norm
 
@@ -50,12 +56,38 @@ form is a sum of squares,
 finite-minor (Toeplitz-symbol) positivity a Gaussian law with this covariance requires; what is
 still absent is the measure itself.
 
+Positivity is strict off zero: if `W_b = 0` for all `b`, take the largest `m ∈ s` with
+`f m ≠ 0`; then `W_{-m} = f m`, because `b = -m` makes `u(-m + i)` vanish for `i < m` and
+`f i = 0` for `i > m`.  Hence the quadratic form vanishes only for the zero test function
+(`bandedCovZ_quadForm_eq_zero_iff`) and is strictly positive otherwise (`bandedCovZ_posDef`).
+
+## Translation invariance
+
+The kernel is Toeplitz, `bandedCovZ ρ k (i + a) (j + a) = bandedCovZ ρ k i j`
+(`bandedCovZ_translate`), so a translate of a row has the same `ℓ²` norm
+(`bandedCovZ_row_tsum_translate`) and the quadratic form is invariant under translating the test
+function (`bandedCovZ_quadForm_translate`).
+
+## Reflection positivity
+
+**The kernel itself is not reflection positive.**  With `θ i = -i` and `k = ρ = 1`, the finitely
+supported `f` with `f 0 = 1`, `f 1 = -2` (supported on `{0, 1} ⊂ [0, ∞)`) gives
+`∑_{i,j} f i f j bandedCovZ 1 1 (-i) j = -2` (`bandedCovZ_reflectionForm_neg`), so the half-line
+statement is false (`bandedCovZ_not_reflectionPositive`).  Reflection positivity belongs to the
+*doubled* state, where the `+1` white-noise block on each half cancels the cross block
+`[[C + 1, C], [C, C + 1]]`; that is the shape proved for `covState` in
+`HalfSpaceCovariantReflectionPositivity`, and it is why the banded kernel is a coupling term, not
+an OS state by itself.
+
 ## Boundary
 
-* **No Gaussian measure is built.**  The covariance *is* positive semidefinite
-  (`bandedCovZ_posSemidef`), which settles the finite-minor consistency condition, but a Gaussian
+* **No Gaussian measure is built.**  The covariance *is* positive definite
+  (`bandedCovZ_posDef`), which settles the finite-minor consistency condition, but a Gaussian
   law on `ℤ → ℝ` also needs an extension theorem, and Kolmogorov consistency is not available in
   this Mathlib version here.  What is recorded is the covariance *kernel*.
+* **No reflection positivity of the kernel.**  As in the section above, the half-line reflected
+  form is negative for `k = ρ = 1`; the OS positivity is carried by the doubled state, not by the
+  coupling kernel.
 * **No Hilbert–Schmidt square root in infinite volume.**  The finite-volume squared HS norm is
   `card ι · ((1 + ρ² k)^2 + 2 ρ² (…))`, which grows linearly with the volume.  The operator
   itself is not compact on `ℓ²(ℤ)`: a banded Toeplitz matrix is not Hilbert–Schmidt.  The natural
@@ -556,6 +588,131 @@ theorem bandedCovZ_posSemidef (ρ : ℝ) (k : ℕ) (s : Finset ℤ) (f : ℤ →
     0 ≤ ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * f i * f j := by
   rw [bandedCovZ_quadForm_eq_sum_sq]
   exact Finset.sum_nonneg (fun b _ => sq_nonneg _)
+
+/-- **Vanishing of the quadratic form characterises the zero test function.** -/
+theorem bandedCovZ_quadForm_eq_zero_iff (ρ : ℝ) (k : ℕ) (s : Finset ℤ) (f : ℤ → ℝ) :
+    (∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * f i * f j) = 0 ↔ ∀ i ∈ s, f i = 0 := by
+  constructor
+  · intro h
+    rw [bandedCovZ_quadForm_eq_sum_sq] at h
+    have hW : ∀ b ∈ s.biUnion
+        (fun i => (Finset.range (k + 1)).image (fun n : ℕ => (n : ℤ) - i)),
+        (∑ i ∈ s, f i * toeplitzWeight ρ k (b + i)) = 0 := by
+      intro b hb
+      have hb' := (Finset.sum_eq_zero_iff_of_nonneg
+        (f := fun b => (∑ i ∈ s, f i * toeplitzWeight ρ k (b + i)) ^ 2)
+        (fun b _ => sq_nonneg _)).1 h b hb
+      exact sq_eq_zero_iff.1 hb'
+    by_contra hcon
+    push_neg at hcon
+    obtain ⟨i₀, hi₀, hf₀⟩ := hcon
+    let s' : Finset ℤ := s.filter (fun i => f i ≠ 0)
+    have hne : s'.Nonempty := ⟨i₀, Finset.mem_filter.mpr ⟨hi₀, hf₀⟩⟩
+    let m : ℤ := s'.max' hne
+    have hmb : m ∈ s' := Finset.max'_mem s' hne
+    have hm_s : m ∈ s := (Finset.mem_filter.mp hmb).1
+    have hm_f : f m ≠ 0 := (Finset.mem_filter.mp hmb).2
+    have hb : -m ∈ s.biUnion
+        (fun i => (Finset.range (k + 1)).image (fun n : ℕ => (n : ℤ) - i)) := by
+      refine Finset.mem_biUnion.mpr ⟨m, hm_s, ?_⟩
+      exact Finset.mem_image.mpr ⟨0, Finset.mem_range.mpr (Nat.succ_pos k), by simp⟩
+    have hzero := hW (-m) hb
+    have hval : (∑ i ∈ s, f i * toeplitzWeight ρ k (-m + i)) = f m := by
+      rw [Finset.sum_eq_single m]
+      · rw [show -m + m = (0 : ℤ) by ring, toeplitzWeight_zero, mul_one]
+      · intro i hi hne'
+        by_cases hlt : i < m
+        · have hneg : -m + i < 0 := by omega
+          rw [toeplitzWeight_of_neg hneg, mul_zero]
+        · have hgt : m < i := by omega
+          have hfi : f i = 0 := by
+            by_contra hf'
+            have hle : i ≤ m := Finset.le_max' s' i (Finset.mem_filter.mpr ⟨hi, hf'⟩)
+            omega
+          rw [hfi, zero_mul]
+      · intro h
+        exact absurd hm_s h
+    rw [hval] at hzero
+    exact hm_f hzero
+  · intro hf
+    apply Finset.sum_eq_zero
+    intro i hi
+    have hfi : f i = 0 := hf i hi
+    rw [hfi]
+    simp
+
+/-- **Positive definiteness**: the quadratic form is strictly positive on every nonzero finitely
+supported test function. -/
+theorem bandedCovZ_posDef (ρ : ℝ) (k : ℕ) (s : Finset ℤ) {f : ℤ → ℝ}
+    (hf : ∃ i ∈ s, f i ≠ 0) :
+    0 < ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * f i * f j := by
+  rcases lt_or_eq_of_le (bandedCovZ_posSemidef ρ k s f) with h | h
+  · exact h
+  · obtain ⟨i, hi, hfi⟩ := hf
+    exact absurd ((bandedCovZ_quadForm_eq_zero_iff ρ k s f).1 h.symm i hi) hfi
+/-- **Translation invariance (Toeplitz property)** of the banded kernel. -/
+theorem bandedCovZ_translate (ρ : ℝ) (k : ℕ) (a i j : ℤ) :
+    bandedCovZ ρ k (i + a) (j + a) = bandedCovZ ρ k i j := by
+  simp only [bandedCovZ, show j + a - (i + a) = j - i by ring]
+
+/-- **The quadratic form is translation invariant**. -/
+theorem bandedCovZ_quadForm_translate (ρ : ℝ) (k : ℕ) (s : Finset ℤ) (f : ℤ → ℝ)
+    (a : ℤ) :
+    (∑ i ∈ s.image (fun i : ℤ => i + a), ∑ j ∈ s.image (fun j : ℤ => j + a),
+        bandedCovZ ρ k i j * f (i - a) * f (j - a))
+      = ∑ i ∈ s, ∑ j ∈ s, bandedCovZ ρ k i j * f i * f j := by
+  have hinj : Set.InjOn (fun i : ℤ => i + a) (↑s : Set ℤ) := by
+    intro x _ y _ hxy
+    simp only at hxy
+    omega
+  rw [Finset.sum_image hinj]
+  apply Finset.sum_congr rfl
+  intro i _
+  rw [Finset.sum_image hinj]
+  apply Finset.sum_congr rfl
+  intro j _
+  rw [show i + a - a = i by ring, show j + a - a = j by ring,
+    bandedCovZ_translate ρ k a i j]
+
+/-- The reflected form on `{0, 1}` with weights `f 0 = 1`, `f 1 = -2` is `-2`. -/
+theorem bandedCovZ_reflectionForm_neg :
+    (∑ i ∈ ({0, 1} : Finset ℤ), ∑ j ∈ ({0, 1} : Finset ℤ),
+        (if i = 0 then (1 : ℝ) else if i = 1 then -2 else 0)
+          * (if j = 0 then (1 : ℝ) else if j = 1 then -2 else 0)
+          * bandedCovZ 1 1 (-i) j) = -2 := by
+  norm_num [Finset.sum_insert, bandedCovZ]
+
+/-- **The banded kernel is not reflection positive** for `θ i = -i` on the half-line: the
+finitely supported `f` with `f 0 = 1`, `f 1 = -2` (supported on `{0, 1} ⊂ [0, ∞)`) gives
+`∑_{i,j} f i f j bandedCovZ 1 1 (-i) j = -2 < 0`.  Reflection positivity is a property of the
+doubled state — the white-noise `+1` cancels the cross block there, as in
+`covState` — not of the banded coupling kernel itself. -/
+theorem bandedCovZ_not_reflectionPositive :
+    ¬ ∀ (s : Finset ℤ) (f : ℤ → ℝ), (∀ i ∈ s, (0 : ℤ) ≤ i) →
+        (∀ i ∉ s, f i = 0) →
+      0 ≤ ∑ i ∈ s, ∑ j ∈ s, f i * f j * bandedCovZ 1 1 (-i) j := by
+  intro h
+  have hpos : ∀ i ∈ ({0, 1} : Finset ℤ), (0 : ℤ) ≤ i := by
+    intro i hi
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hi
+    rcases hi with rfl | rfl <;> norm_num
+  have hsupp : ∀ i ∉ ({0, 1} : Finset ℤ),
+      (if i = 0 then (1 : ℝ) else if i = 1 then -2 else 0) = 0 := by
+    intro i hi
+    have h0 : i ≠ 0 := by
+      intro h; exact hi (by rw [h]; exact Finset.mem_insert_self _ _)
+    have h1 : i ≠ 1 := by
+      intro h; exact hi (by rw [h]; exact Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
+    simp [h0, h1]
+  have hneg := h {0, 1} (fun i => if i = 0 then (1 : ℝ) else if i = 1 then -2 else 0) hpos hsupp
+  rw [bandedCovZ_reflectionForm_neg] at hneg
+  norm_num at hneg
+
+/-- **The row norm is translation invariant**: a row and its translate have the same squared
+`ℓ²` norm — already implicit in `bandedCovZ_row_tsum`, whose value is site-independent. -/
+theorem bandedCovZ_row_tsum_translate (ρ : ℝ) (k : ℕ) (a i : ℤ) :
+    (∑' j : ℤ, bandedCovZ ρ k (i + a) j ^ 2) = ∑' j : ℤ, bandedCovZ ρ k i j ^ 2 := by
+  rw [bandedCovZ_row_tsum, bandedCovZ_row_tsum]
 
 end
 
