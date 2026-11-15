@@ -1046,4 +1046,267 @@ theorem geomMarker_rate (ρ : ℝ) (hρ : 0 < ρ) (q : ℕ) :
   rw [show -((-Real.log ρ) * q) = (q : ℝ) * Real.log ρ by ring]
   rw [Real.exp_nat_mul, Real.exp_log hρ]
 
+
+/-! ## 13. The Fock instantiation: `T` as a function of the coupling and the gap
+
+`softmodes.md` U2 asks for the tail number `T(g, L)` of the full-space SIRK budget to be
+*computed*, not assumed.  §11 reduced `T` to two operator norms: the coupling `Q (H − z) P` and
+the compressed resolvent `Q R Q`.  This section evaluates both for a Fock model whose free part
+is block diagonal across the split — the situation of `H = A + g·W` with `A` preserving the
+retained and discarded sectors.
+
+* `opNorm_le_one_of_orthogonalProjection` / `norm_projection_le`: an orthogonal projection does
+  not amplify.  This is what keeps a factor `‖Q‖` out of the coupling estimate.
+* `fock_coupling_le`: `Q (H − z) P = g · Q W P`, because the free block `Q A P` vanishes and
+  `Q P = 0`.  Hence `‖Q (H − z) P‖ ≤ ‖g‖‖W‖‖P‖` — linear in the coupling.
+* `fock_tail_le`: if `H` commutes with `Q`, is coercive on the discarded block with gap `mu`, and
+  the shift is `z = −lam < 0`, then `‖Q R Q‖ ≤ (mu + lam)⁻¹`.  No symmetry of `H` is used.
+* `sirkTailBudget_le_fock`: the two combined, `sirkTailBudget V R ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1)/(mu +
+  lam)`, with no factor of the Krylov dimension `m`.
+
+-/
+
+
+theorem opNorm_le_one_of_orthogonalProjection (Q : E →L[ℂ] E)
+    (hQidem : Q.comp Q = Q) (hQadj : Q.adjoint = Q) : ‖Q‖ ≤ 1 := by
+  refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => ?_
+  have h1 : Q (Q x) = Q x := by
+    have := congrArg (fun f : E →L[ℂ] E => f x) hQidem
+    simpa [ContinuousLinearMap.comp_apply] using this
+  have hsq : ‖Q x‖ ^ 2 = (inner ℂ x (Q x)).re := by
+    rw [← inner_self_eq_norm_sq (𝕜 := ℂ) (Q x)]
+    have hAI := ContinuousLinearMap.adjoint_inner_left Q x (Q x)
+    rw [hQadj, h1] at hAI
+    have hc : (inner ℂ x (Q x)) = (starRingEnd ℂ) (inner ℂ (Q x) x) :=
+      (inner_conj_symm (𝕜 := ℂ) x (Q x)).symm
+    rw [hc, Complex.conj_re, ← hAI]
+    rfl
+  have hle : ‖Q x‖ ^ 2 ≤ ‖x‖ * ‖Q x‖ := by
+    rw [hsq]
+    exact (le_abs_self _).trans ((Complex.abs_re_le_norm _).trans (norm_inner_le_norm _ _))
+  nlinarith [norm_nonneg (Q x), norm_nonneg x]
+
+/-- **The coupling of a Fock model `H = A + g·W` across a split.**  If the free part `A` does not
+couple the kept space `range P` to the discarded one `range Q` (`Q A P = 0`), then the whole
+off-diagonal block of the shifted generator `H − z` is the interaction alone:
+`Q (H − z) P = g · Q W P`.  So the coupling number of §11 is `|g| ‖W‖ ‖P‖`: linear in the
+coupling and independent of the truncation order. -/
+theorem fock_coupling_le (A W P Q H : E →L[ℂ] E) (g : ℂ) (z : ℂ)
+    (hP : P = ContinuousLinearMap.id ℂ E - Q) (hQidem : Q.comp Q = Q)
+    (hQadj : Q.adjoint = Q)
+    (hblock : Q.comp (A.comp P) = 0) (hH : H = A + g • W) :
+    ‖Q.comp ((H - z • 1).comp P)‖ ≤ ‖g‖ * ‖W‖ * ‖P‖ := by
+  have hQP : Q.comp P = 0 := by
+    rw [hP, ContinuousLinearMap.comp_sub, ContinuousLinearMap.comp_id, hQidem, sub_self]
+  have hkey : Q.comp ((H - z • 1).comp P) = g • (Q.comp (W.comp P)) := by
+    ext x
+    have h1 : Q (((H - z • 1) (P x))) = Q (H (P x)) - z • Q (P x) := by
+      rw [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+        ContinuousLinearMap.one_apply, map_sub, map_smul]
+    have h2 : Q (H (P x)) = Q (A (P x)) + g • Q (W (P x)) := by
+      rw [hH]
+      simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply, map_add,
+        map_smul]
+    have h3 : Q (A (P x)) = 0 := by
+      have := congrArg (fun f : E →L[ℂ] E => f x) hblock
+      simpa [ContinuousLinearMap.comp_apply] using this
+    have h4 : Q (P x) = 0 := by
+      have := congrArg (fun f : E →L[ℂ] E => f x) hQP
+      simpa [ContinuousLinearMap.comp_apply] using this
+    simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.smul_apply]
+    rw [h1, h2, h3, h4]
+    simp
+  have hQ1 : ‖Q‖ ≤ 1 := opNorm_le_one_of_orthogonalProjection Q hQidem hQadj
+  rw [hkey, norm_smul]
+  have h1 : ‖Q.comp (W.comp P)‖ ≤ ‖W‖ * ‖P‖ := by
+    calc ‖Q.comp (W.comp P)‖ ≤ ‖Q‖ * ‖W.comp P‖ :=
+          ContinuousLinearMap.opNorm_comp_le Q _
+      _ ≤ 1 * (‖W‖ * ‖P‖) := by
+          refine mul_le_mul hQ1 ?_ (norm_nonneg _) zero_le_one
+          exact ContinuousLinearMap.opNorm_comp_le W P
+      _ = ‖W‖ * ‖P‖ := one_mul _
+  calc ‖g‖ * ‖Q.comp (W.comp P)‖ ≤ ‖g‖ * (‖W‖ * ‖P‖) := by gcongr
+    _ = ‖g‖ * ‖W‖ * ‖P‖ := by ring
+
+/-- The real part of `⟪Q x, Q x⟫` is `⟪x, Q x⟫`'s, for an orthogonal projection `Q`. -/
+theorem re_inner_projection (Q : E →L[ℂ] E) (hQidem : Q.comp Q = Q) (hQadj : Q.adjoint = Q)
+    (x : E) : (inner ℂ (Q x) (Q x)).re = (inner ℂ x (Q x)).re := by
+  have h1 : Q (Q x) = Q x := by
+    have := congrArg (fun f : E →L[ℂ] E => f x) hQidem
+    simpa [ContinuousLinearMap.comp_apply] using this
+  have hAI := ContinuousLinearMap.adjoint_inner_left Q x (Q x)
+  rw [hQadj, h1] at hAI
+  have hc : (inner ℂ x (Q x)) = (starRingEnd ℂ) (inner ℂ (Q x) x) :=
+    (inner_conj_symm (𝕜 := ℂ) x (Q x)).symm
+  rw [hc, Complex.conj_re, ← hAI]
+
+/-- **An orthogonal projection does not amplify.**  `‖Q x‖ ≤ ‖x‖`, from
+`‖Q x‖² = ⟪x, Q x⟫.re ≤ ‖x‖‖Q x‖`. -/
+theorem norm_projection_le (Q : E →L[ℂ] E) (hQidem : Q.comp Q = Q) (hQadj : Q.adjoint = Q)
+    (x : E) : ‖Q x‖ ≤ ‖x‖ := by
+  have hsq : ‖Q x‖ ^ 2 = (inner ℂ x (Q x)).re := by
+    rw [← inner_self_eq_norm_sq (𝕜 := ℂ) (Q x)]
+    exact re_inner_projection Q hQidem hQadj x
+  have hle : ‖Q x‖ ^ 2 ≤ ‖x‖ * ‖Q x‖ := by
+    rw [hsq]
+    exact (le_abs_self _).trans ((Complex.abs_re_le_norm _).trans (norm_inner_le_norm _ _))
+  nlinarith [norm_nonneg (Q x), norm_nonneg x]
+
+/-- **The tail of the resolvent on the discarded block.**  If `H` preserves the splitting
+(`H Q = Q H`), is coercive on it with gap `mu`, and the shift is real and negative (`z = −lam`),
+then the compressed resolvent `Q R Q` is bounded by `(mu + lam)⁻¹` — the resolvent estimate on
+the complement, with no symmetry assumption on `H` beyond commuting with `Q`. -/
+theorem fock_tail_le (Q H R : E →L[ℂ] E) (mu lam : ℝ)
+    (hQidem : Q.comp Q = Q) (hQadj : Q.adjoint = Q) (hcomm : H.comp Q = Q.comp H)
+    (hcoer : ∀ v : E, mu * ‖Q v‖ ^ 2 ≤ (inner ℂ (Q v) (H (Q v))).re)
+    (hpos : 0 < mu + lam)
+    (hinv : (H + (lam : ℂ) • 1).comp R = ContinuousLinearMap.id ℂ E) :
+    ‖Q.comp (R.comp Q)‖ ≤ (mu + lam)⁻¹ := by
+  refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun x => ?_
+  set w : E := Q x with hw
+  set v : E := Q (R w) with hv
+  have hQw : Q w = w := by
+    rw [hw, ← ContinuousLinearMap.comp_apply, hQidem]
+  have hQv : Q v = v := by
+    rw [hv, ← ContinuousLinearMap.comp_apply, hQidem]
+  have hHv : H v = Q (H (R w)) := by
+    have := congrArg (fun f : E →L[ℂ] E => f (R w)) hcomm
+    simpa [hv, ContinuousLinearMap.comp_apply] using this
+  have hfix : H v + (lam : ℂ) • v = w := by
+    have h1 : (H + (lam : ℂ) • 1) (R w) = w := by
+      have := congrArg (fun f : E →L[ℂ] E => f w) hinv
+      simpa [ContinuousLinearMap.comp_apply] using this
+    have h2 : (H + (lam : ℂ) • 1) (R w) = H (R w) + (lam : ℂ) • R w := rfl
+    rw [h2] at h1
+    have h3 : Q (H (R w) + (lam : ℂ) • R w) = Q w := by rw [h1]
+    rw [map_add, map_smul, hQw] at h3
+    simpa only [← hv, hHv] using h3
+  have hinner : mu * ‖v‖ ^ 2 ≤ (inner ℂ v (H v)).re := by
+    have := hcoer (R w)
+    simpa [hv] using this
+  have hquad : (mu + lam) * ‖v‖ ^ 2 ≤ ‖v‖ * ‖x‖ := by
+    have hre : (inner ℂ v (H v)).re + lam * ‖v‖ ^ 2 = (inner ℂ v w).re := by
+      have h0 : (inner ℂ v (H v + (lam : ℂ) • v)).re = (inner ℂ v w).re := by rw [hfix]
+      have hsq : (inner ℂ v v).re = ‖v‖ ^ 2 := inner_self_eq_norm_sq (𝕜 := ℂ) v
+      have him : (inner ℂ v v).im = 0 := inner_self_im (𝕜 := ℂ) v
+      rw [inner_add_right, inner_smul_right, Complex.add_re, Complex.mul_re,
+        Complex.ofReal_re, Complex.ofReal_im, hsq, him, zero_mul, sub_zero] at h0
+      simpa using h0
+    have h1 : (mu + lam) * ‖v‖ ^ 2 ≤ (inner ℂ v w).re := by
+      rw [← hre]
+      nlinarith [hinner]
+    have h2 : (inner ℂ v w).re ≤ ‖v‖ * ‖w‖ :=
+      (le_abs_self _).trans ((Complex.abs_re_le_norm _).trans (norm_inner_le_norm _ _))
+    have h3 : ‖w‖ ≤ ‖x‖ := by
+      rw [hw]
+      exact norm_projection_le Q hQidem hQadj x
+    nlinarith [h1, h2, h3, norm_nonneg v, norm_nonneg x, norm_nonneg w]
+  have hfinal : ‖v‖ ≤ (mu + lam)⁻¹ * ‖x‖ := by
+    rcases eq_or_lt_of_le (norm_nonneg v) with h0 | h0
+    · rw [← h0]
+      positivity
+    · have hstep : (mu + lam) * ‖v‖ ≤ ‖x‖ := by
+        have h1 : (mu + lam) * ‖v‖ * ‖v‖ ≤ ‖v‖ * ‖x‖ := by
+          calc (mu + lam) * ‖v‖ * ‖v‖ = (mu + lam) * ‖v‖ ^ 2 := by ring
+            _ ≤ ‖v‖ * ‖x‖ := hquad
+        exact le_of_mul_le_mul_right (by simpa [mul_comm] using h1) h0
+      calc ‖v‖ ≤ ‖x‖ / (mu + lam) := by
+            rw [le_div_iff₀ hpos]
+            calc ‖v‖ * (mu + lam) = (mu + lam) * ‖v‖ := by ring
+              _ ≤ ‖x‖ := hstep
+        _ = (mu + lam)⁻¹ * ‖x‖ := by rw [div_eq_inv_mul]
+  calc ‖(Q.comp (R.comp Q)) x‖ = ‖v‖ := by
+        rw [ContinuousLinearMap.comp_apply, ContinuousLinearMap.comp_apply, hv, ← hw]
+    _ ≤ (mu + lam)⁻¹ * ‖x‖ := hfinal
+
+/-- `P = V V∗` is idempotent when `V` has orthonormal columns. -/
+theorem sirkReconstruction_idem (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F) :
+    (sirkReconstruction V).comp (sirkReconstruction V) = sirkReconstruction V := by
+  rw [sirkReconstruction, ContinuousLinearMap.comp_assoc,
+    ← ContinuousLinearMap.comp_assoc V.adjoint V V.adjoint, hVV,
+    ContinuousLinearMap.id_comp]
+
+/-- The complement `Q = 1 − P` of an idempotent self-adjoint `P` is again one. -/
+theorem sirkComplement_idem (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F) :
+    (sirkComplement V).comp (sirkComplement V) = sirkComplement V := by
+  have hP := sirkReconstruction_idem V hVV
+  ext x
+  have hPx : sirkReconstruction V (sirkReconstruction V x) = sirkReconstruction V x := by
+    have := congrArg (fun f : E →L[ℂ] E => f x) hP
+    simpa [ContinuousLinearMap.comp_apply] using this
+  simp only [ContinuousLinearMap.comp_apply, sirkComplement_apply, map_sub,
+    hPx]
+  abel
+
+/-- The complement is self-adjoint, in the `adjoint`-form used by the norm estimates. -/
+theorem sirkComplement_adjoint_eq (V : F →L[ℂ] E) :
+    (sirkComplement V).adjoint = sirkComplement V :=
+  sirkComplement_isSelfAdjoint V
+
+/-- **§13: the Fock tail budget is a concrete function of `(g, lam, mu)`.**  For a Fock model
+`H = A + g·W` split by the SIRK reconstruction:
+* the free part is block diagonal, so the coupling of `H − z` is the interaction alone,
+  `‖Q (H − z) P‖ ≤ ‖g‖‖W‖‖P‖` (§13 coupling lemma);
+* on the discarded block `H` has gap `mu` and the shift is `z = −lam`, so the compressed
+  resolvent obeys `‖Q R Q‖ ≤ (mu + lam)⁻¹` (§13 tail lemma).
+Feeding both into §11's `sirkTailBudget_le_of_tail_coupling` turns the abstract `T` of U2 into
+`(2‖g‖‖W‖‖P‖‖B‖ + 1)(mu + lam)⁻¹`: linear in the coupling, and with no factor of the Krylov
+dimension `m`. -/
+theorem sirkTailBudget_le_fock (V : F →L[ℂ] E) (A W H R : E →L[ℂ] E) (g z : ℂ)
+    (mu lam : ℝ) (B : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hRleft : R.comp (H - z • 1) = ContinuousLinearMap.id ℂ E)
+    (hRright : (H - z • 1).comp R = ContinuousLinearMap.id ℂ E)
+    (hBright : (V.adjoint.comp ((H - z • 1).comp V)).comp B
+      = ContinuousLinearMap.id ℂ F)
+    (hblock : (sirkComplement V).comp (A.comp (sirkReconstruction V)) = 0)
+    (hH : H = A + g • W) (hz : z = -(lam : ℂ))
+    (hcomm : H.comp (sirkComplement V) = (sirkComplement V).comp H)
+    (hcoer : ∀ v : E, mu * ‖(sirkComplement V) v‖ ^ 2
+      ≤ (inner ℂ ((sirkComplement V) v) (H ((sirkComplement V) v))).re)
+    (hpos : 0 < mu + lam) :
+    sirkTailBudget V R
+      ≤ (2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ + 1) * (mu + lam)⁻¹ := by
+  have hQidem := sirkComplement_idem V hVV
+  have hQadj := sirkComplement_adjoint_eq V
+  have hP : sirkReconstruction V = ContinuousLinearMap.id ℂ E - sirkComplement V := by
+    ext x
+    simp [sirkComplement]
+  have hcoupling := fock_coupling_le A W (sirkReconstruction V) (sirkComplement V) H g z
+    hP hQidem hQadj hblock hH
+  have hshift : H - z • 1 = H + (lam : ℂ) • 1 := by
+    rw [hz]
+    simp
+  have hRinv : (H + (lam : ℂ) • 1).comp R = ContinuousLinearMap.id ℂ E := by
+    rw [← hshift]
+    exact hRright
+  have htail : ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ ≤ (mu + lam)⁻¹ :=
+    fock_tail_le (sirkComplement V) H R mu lam hQidem hQadj hcomm hcoer hpos hRinv
+  have hleak := sirkTailBudget_le_of_tail_coupling V (H - z • 1) R B hVV hViso hVadj
+    hRleft hBright
+  have hBnn : (0 : ℝ) ≤ ‖B‖ := norm_nonneg B
+  have htnn : (0 : ℝ) ≤ (mu + lam)⁻¹ := by positivity
+  have hmono : 2 * ‖(sirkComplement V).comp ((H - z • 1).comp (sirkReconstruction V))‖
+        * ‖B‖ + 1
+      ≤ 2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ + 1 := by
+    have h := mul_le_mul_of_nonneg_right
+      (mul_le_mul_of_nonneg_left hcoupling (by norm_num : (0 : ℝ) ≤ 2)) hBnn
+    linarith
+  calc sirkTailBudget V R
+      ≤ (2 * ‖(sirkComplement V).comp ((H - z • 1).comp (sirkReconstruction V))‖ * ‖B‖ + 1)
+          * ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ := hleak
+    _ ≤ (2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ + 1) * (mu + lam)⁻¹ := by
+        refine mul_le_mul hmono htail (norm_nonneg _) ?_
+        have h1 : 0 ≤ ‖g‖ * ‖W‖ * ‖sirkReconstruction V‖ :=
+          mul_nonneg (mul_nonneg (norm_nonneg g) (norm_nonneg W))
+            (norm_nonneg (sirkReconstruction V))
+        have h2 : 0 ≤ 2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ :=
+          mul_nonneg (mul_nonneg (by norm_num) h1) hBnn
+        linarith
+
+
 end BookProof.ChapterSirkEndToEnd

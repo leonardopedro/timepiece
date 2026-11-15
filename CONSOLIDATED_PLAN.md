@@ -113,6 +113,15 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15m):** “State of the project — 2026-11-15m: the Fock coupling and
+> tail, and the unbounded `L²` case” (end of file): `ChapterSirkEndToEnd` §13 computes the two
+> numbers §11 left abstract for `H = A + g·W` — the coupling `‖Q (H − z) P‖ ≤ ‖g‖ ‖W‖ ‖P‖`
+> (`fock_coupling_le`, free part block diagonal) and the complement tail
+> `‖Q R Q‖ ≤ (mu + lam)⁻¹` (`fock_tail_le`, `H Q = Q H` plus coercivity at `z = −lam`) — so
+> `sirkTailBudget_le_fock` reads `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1)(mu + lam)⁻¹`; `KernelContract` §5
+> proves the `L²(π)` contraction for unbounded observables given the fiber and `π`
+> integrability obligations.
+>
 > **Track A — newest (2026-11-15l):** “State of the project — 2026-11-15l: the coupling, the scalar
 > marker, and the Fubini bridge” (end of file): `sirkTailBudget_le_of_tail_coupling` bounds `T` by
 > `‖Q R Q‖ ‖Q (H − z) P‖ ‖B‖`, §12 gives an explicit geometric marker with error `≤ ρ^q = e^{−a q}`
@@ -26196,3 +26205,43 @@ succeed with no warning from either file and no line above 100 code points. `#pr
 `geomMarker_error_le`, `geomMarker_twoCD`, `geomMarker_rate`, `integral_bind_of_kernel` and
 `kernelOp_l2_contraction` gives `[propext, Classical.choice, Quot.sound]` in all eight cases; no
 `sorry`.
+
+## State of the project — 2026-11-15m: the Fock coupling and tail, and the unbounded `L²` case
+
+Three follow-ups on §2026-11-15l: `ChapterSirkEndToEnd` §13 instantiates `T` for the Fock model,
+and `KernelContract` §5 drops the boundedness hypothesis.
+
+**§13 — `T` for the Fock model.** The two numbers §11 leaves abstract are now computed for
+`H = A + g·W` split by the reconstruction `P = V V∗`, `Q = 1 − P`:
+
+* `opNorm_le_one_of_orthogonalProjection` (and `norm_projection_le`, `re_inner_projection`) show an
+  orthogonal projection does not amplify, so no factor `‖Q‖` enters the coupling estimate;
+* `fock_coupling_le`: if `Q A P = 0` then `Q (H − z) P = g · Q W P` for every `z`, hence
+  `‖Q (H − z) P‖ ≤ ‖g‖ ‖W‖ ‖P‖` — the off-diagonal block of the shifted generator is the
+  interaction alone, with `|g|` (as `‖g‖` for complex `g`) and no dependence on `m`;
+* `fock_tail_le`: if `H Q = Q H`, `H` is coercive on the discarded block with gap `mu`, the shift is
+  real-negative (`z = −lam`), and `R` is the corresponding inverse, then `‖Q R Q‖ ≤ (mu + lam)⁻¹`
+  — the resolvent estimate on the complement, with no symmetry of `H` assumed;
+* `sirkTailBudget_le_fock` combines them through §11:
+  `sirkTailBudget V R ≤ (2 ‖g‖ ‖W‖ ‖P‖ ‖B‖ + 1) (mu + lam)⁻¹`.
+
+The Fock numbers are therefore a function of the coupling `g`, the interaction norm `‖W‖` and the
+complement gap `mu + lam`; only `‖B‖` remains the reduced-system datum of the scheme. The model's
+other structural inputs stay hypotheses: `Q A P = 0` (free part block diagonal), `H Q = Q H`
+(the split is `H`-invariant) and the coercivity `mu‖Q v‖² ≤ ⟪Q v, H Q v⟫`.
+
+**§5 of `KernelContract` — the contraction without boundedness.** `integrable_kernelOp_norm_sq`
+proves `a ↦ P(‖f‖²)(a)` is `π`-integrable for a measurable `f` that is square-integrable against
+`π` and in every fiber, by transferring the `ℝ≥0∞` mass with `lintegral_bind`, and
+`kernelOp_l2_contraction_of_integrable` proves
+`∫ ‖P f‖² dπ ≤ ∫ ‖f‖² dπ` for such an `f` — same conclusion as the bounded version, with the
+integrability obligations as hypotheses rather than consequences of a bound. The docstring's
+`Boundary` section now records both tiers.
+
+**Verification.** `lake build BookProof` succeeds (`9021 jobs`);
+`lake build BookProof.Sirk.ChapterSirkEndToEnd` and `lake build BookProof.MCMC.KernelContract`
+succeed with no warning from either file and no line above 100 code points. `#print axioms` on
+`opNorm_le_one_of_orthogonalProjection`, `fock_coupling_le`, `re_inner_projection`,
+`norm_projection_le`, `fock_tail_le`, `sirkReconstruction_idem`, `sirkComplement_idem`,
+`sirkComplement_adjoint_eq` and `sirkTailBudget_le_fock` gives
+`[propext, Classical.choice, Quot.sound]` in all nine cases; no `sorry`.

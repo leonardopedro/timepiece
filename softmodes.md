@@ -2959,6 +2959,45 @@ general `L²(π)` contraction for bounded measurable observables under an arbitr
 `lake build BookProof` succeeds (`9016 jobs`); `#print axioms` on the eight new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
+### The Fock coupling and tail, and the unbounded `L²` case (2026-11-15m)
+
+Two follow-ups on the 2026-11-15l section: `ChapterSirkEndToEnd` §13 instantiates the tail number
+for the Fock model, and `KernelContract` §5 drops boundedness from the contraction.
+
+**`T` as a function of `(g, mu, lam)` (§13).** For `H = A + g·W` split by `P = V V∗`,
+`Q = 1 − P`, the two norms §11 leaves abstract are computed rather than assumed.
+
+* An orthogonal projection is a contraction: `‖Q x‖ ≤ ‖x‖` (`norm_projection_le`, from
+  `‖Q x‖² = ⟪x, Q x⟫.re`), so no factor `‖Q‖` enters the estimates.
+* If the free part is block diagonal, `Q A P = 0`, then for every shift
+  `Q (H − z) P = g · Q W P` (`fock_coupling_le`), hence
+  `‖Q (H − z) P‖ ≤ ‖g‖ ‖W‖ ‖P‖` — the off-diagonal block is the interaction alone, linear in the
+  coupling and independent of `m`.
+* If `H Q = Q H`, `H` is coercive on the discarded block with gap `mu`, and the shift is
+  `z = −lam < 0`, then `‖Q R Q‖ ≤ (mu + lam)⁻¹` (`fock_tail_le`). The proof is the coercivity
+  estimate on `v = Q R w` alone: `(mu + lam)‖v‖² ≤ ⟪v, w⟫ ≤ ‖v‖‖x‖`. No symmetry of `H` is used,
+  only the commutation with `Q`.
+* `sirkTailBudget_le_fock` feeds both into §11:
+  `sirkTailBudget V R ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1)(mu + lam)⁻¹`.
+
+So `T` is a concrete function of the coupling, the interaction norm and the complement gap; only
+`‖B‖` remains the reduced-system datum. The structural inputs stay visible hypotheses: block
+diagonality of the free part, invariance of the split, and coercivity on the complement.
+
+**The contraction without boundedness (`KernelContract` §5).** `integrable_kernelOp_norm_sq`
+proves `a ↦ P(‖f‖²)(a)` is `π`-integrable for measurable `f` that is square-integrable against
+`π` and in each fiber, transferring the `ℝ≥0∞` mass by `lintegral_bind`;
+`kernelOp_l2_contraction_of_integrable` then gives `∫ ‖P f‖² dπ ≤ ∫ ‖f‖² dπ` for such `f`. The
+integrability obligations are hypotheses, not consequences of a bound — the Fubini identity alone
+does not supply them — and the docstring's `Boundary` section now says exactly that.
+
+**Verification.** Both modules build with no warning and no line above 100 code points;
+`lake build BookProof` succeeds (`9021 jobs`); `#print axioms` on the nine new declarations
+(`opNorm_le_one_of_orthogonalProjection`, `fock_coupling_le`, `re_inner_projection`,
+`norm_projection_le`, `fock_tail_le`, `sirkReconstruction_idem`, `sirkComplement_idem`,
+`sirkComplement_adjoint_eq`, `sirkTailBudget_le_fock`) gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
