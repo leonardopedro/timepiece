@@ -10,7 +10,7 @@
 > **Two tracks share this file, and their numbers collide.**  Track A is the SIRK / spectral
 > certificate line (`softmodes.md` S3); Track B is the QYM `coreBasis` gates, the degree
 > enumeration and the axiom-audit tooling.  Both ran through `13i` and `13j`, Track B continued at
-> `13k`–`13l`, Track A at `13m`–`13af`.  A number therefore identifies an entry *within its
+> `13k`–`13l`, Track A at `13m`–`13ag`.  A number therefore identifies an entry *within its
 > track*, never across the two: `§2026-11-13j` alone is ambiguous, and every colliding heading
 > below carries a track note pointing at its same-numbered twin.
 >
@@ -53,6 +53,15 @@
 > (`gramSchmidt_eq_smul_of_decomp`), and with the bridge `coreBasis e k = u_k • ψ_{e k}`
 > (`‖u_k‖ = 1`) stated as an explicit hypothesis, all three weighted Schur gates and the essential
 > self-adjointness conclusion hold for the `coreBasis` matrix of `ymPoly fabc`.
+>
+> **Track A — newest (2026-11-13ag):** “State of the project — 2026-11-13ag: the band at one order”
+> (end of file): the instance is now the general lemma applied — `Aedge_sep` reads
+> `diag (5/6, 2/3)` as the reflection `1⁻¹ • 1 − (1 − Aedge)` and calls
+> `spectralSeparation_at_secondEdge_of_compressionBound`; the gap is quantified (`Aedge_sep_gap`,
+> `Aedge_five_sixths_mem`, `Aedge_gap_sharp`: `1/6` and no level above `5/6` separates);
+> `temple_membership_order` replaces the limit by the order `⌈log(√(δη)/C) / log r⌉`, and
+> `reflected_membership_order_of_sirkBound` reads that order off the SIRK step
+> (`sirkBound_eq_geom`: `2 C Dmin e^{−hm}` is geometric with rate `e^{−h}`).
 >
 > **Track A — newest (2026-11-13af):** “State of the project — 2026-11-13af: the second-edge band,
 > discharged and instantiated” (end of file): `spectralSeparation_at_secondEdge_of_compressionBound`
@@ -25241,3 +25250,38 @@ from either file and no line above 100 code points; `#print axioms` on
 `temple_membership_rate`, `spectralSeparation_at_secondEdge_of_compressionBound`,
 `reflected_band_closes_at_secondEdge_of_formBound`, `Aedge_sInf` and
 `Aedge_band_membership_num` gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+## State of the project — 2026-11-13ag: the band at one order
+
+Track A.  Three loose ends of `13af` are tied: the instance is the general lemma *applied* rather
+than a parallel computation, its gap is a sharp number rather than an inequality, and the Temple
+enclosure is certified at an order read off the SIRK step rather than in the limit.
+
+**The instance is the lemma.**  `Aedge_sep` proves `SpectralSeparation Aedge (2/3) (5/6)` by reading
+`Aedge` as the reflection `1⁻¹ • 1 − (1 − Aedge)` of `1 − Aedge = diag (1/6, 1/3)` at `γ = 1`,
+taking `y = vOther` and supplying the compression form bound from `Aedge_orth` (the operator is
+`5/6` on the complement).  The separation is then the §19 lemma
+at `e₀ = 2`, `e₁ = 5`, followed by `resolventEdge 1 2 = 2/3` and `resolventEdge 1 5 = 5/6`.  No part
+of the concrete case is proved separately any more.
+
+**The gap is `1/6`, and sharp.**  `Aedge_sep_gap` states the separation at `2/3 + 1/6` and
+`resolventEdge 1 5 − resolventEdge 1 2 = 1/6`.  `Aedge_five_sixths_mem` shows `5/6` is a spectral
+point (at `vTrial`, by the same unit argument as `Aedge_two_thirds_mem`), so
+`Aedge_gap_sharp : SpectralSeparation Aedge (2/3) b → b ≤ 5/6`: no level above `5/6` separates, and
+`1/6` is the exact distance from the bottom edge to the rest of the spectrum.
+
+**The order, not the limit.**  `RitzCertificate.geom_le_sqrt_at_ceil` proves
+`C rᴺ ≤ √(δη)` at `N = ⌈log(√(δη)/C) / log r⌉` for `0 < r < 1`, and `temple_membership_order` feeds
+that into `temple_membership_rate`: geometric residual decay `resid (x m) ≤ C rᵐ` certifies
+`sInf (spectrum ℝ A) ∈ [θ m − η, θ m]` for every `m ≥ N`.  At the reflected edge the decay rate is
+the step itself: `sirkBound_eq_geom` rewrites `sirkBound C Dmin h nv m` as
+`(2 C Dmin nv) (e^{−h})ᵐ`, and `reflected_membership_order_of_sirkBound` composes
+`sirk_resid_reflection_le` with it, so the whole band — separation from the compression bound, order
+from `e^{−hstep}` — is one theorem with no limit and no `hsep`.
+
+**Verification.**  `lake build BookProof.Sirk.ChapterRitzCertificate` and
+`lake build BookProof.Sirk.ChapterResolventTransfer` succeed with no warning from either file and no
+line above 100 code points; `lake build BookProof` succeeds; `#print axioms` on `Aedge_sep`,
+`Aedge_sep_gap`, `Aedge_five_sixths_mem`, `Aedge_gap_sharp`, `sirkBound_eq_geom`,
+`reflected_membership_order_of_sirkBound`, `geom_le_sqrt_at_ceil` and `temple_membership_order`
+gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.

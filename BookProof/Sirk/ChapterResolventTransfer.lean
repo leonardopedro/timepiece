@@ -1514,6 +1514,73 @@ theorem reflected_band_closes_at_secondEdge_of_formBound [Nontrivial E]
     (spectralSeparation_at_secondEdge_of_compressionBound hRsym hγ h0 hlt hy0 hAy hC)
     hdelta hgap
 
+/-- **The SIRK error bound is geometric in the Krylov order.**  `sirkBound` is
+`2 C Dmin nv e^{-h m}`, i.e. `(2 C Dmin nv) rᵐ` with `r = e^{-h}`, which is the shape the Temple
+order bound consumes. -/
+theorem sirkBound_eq_geom (C Dmin h nv : ℝ) (m : ℕ) :
+    BookProof.ChapterH6.sirkBound C Dmin h nv m
+      = (2 * C * Dmin * nv) * Real.exp (-h) ^ m := by
+  rw [BookProof.ChapterH6.sirkBound]
+  have h1 : -(h * (m : ℝ)) = (m : ℝ) * (-h) := by ring
+  rw [h1, Real.exp_nat_mul]
+  ring
+
+set_option maxHeartbeats 1600000 in
+-- The reflected operator `γ⁻¹ • 1 - R` is elaborated at concrete orders in the conclusion.
+/-- **The reflected edge enters its Temple band at an order read off the SIRK step.**  This is
+`reflected_band_closes_at_secondEdge_of_formBound` with the limit replaced by the order
+`N = ⌈log(√(δη)/(2 C Dmin)) / (−h)⌉`: the residual of the SIRK vector is at most
+`sirkBound C Dmin h 1 m`, `sirkBound` is geometric with rate `e^{-h}` (`sirkBound_eq_geom`), and
+`temple_membership_order` turns that rate into the threshold `ε² ≤ δ η`.  The separation itself
+never appears: it is derived from the compression form bound. -/
+theorem reflected_membership_order_of_sirkBound [Nontrivial E]
+    {R : E →L[ℂ] E} (hRsym : IsSelfAdjoint R) {γ : ℝ}
+    {C Dmin hstep : ℝ} (hh : 0 < hstep) (hC : 0 < C) (hD : 0 < Dmin)
+    (V : F →L[ℂ] E) (psiB : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {yy : ℕ → F} {mu : ℕ → ℝ} (heigB : ∀ m, psiB (yy m) = (mu m : ℂ) • yy m)
+    (hyy : ∀ m, ‖V (yy m)‖ = 1)
+    (hbound : ∀ m, ‖R - BookProof.ChapterSirkEndToEnd.sirkApprox V psiB‖
+      ≤ BookProof.ChapterH6.sirkBound C Dmin hstep 1 m)
+    {e₀ e₁ : ℝ} (hγ : 0 < γ) (h0 : 0 ≤ e₀) (hlt : e₀ < e₁)
+    (hsInf : sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) = resolventEdge γ e₀)
+    {y : E} (hy0 : y ≠ 0)
+    (hAy : ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) y = (resolventEdge γ e₀ : ℂ) • y)
+    (hCform : ∀ z : ↥(BookProof.SpectralSplitting.eigenLine y)ᗮ,
+      resolventEdge γ e₁ * ‖z‖ ^ 2 ≤
+        (inner ℂ z (BookProof.SpectralSplitting.compressed
+          ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (isSelfAdjoint_reflection R hRsym γ) hAy z)
+          : ℂ).re)
+    {delta eta : ℝ} (hdelta : 0 < delta) (heta : 0 < eta)
+    (hgap : ∀ m, BookProof.RitzCertificate.rayleigh
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) ≤ resolventEdge γ e₁ - delta) :
+    ∀ m, Nat.ceil (Real.log (Real.sqrt (delta * eta) / (2 * C * Dmin * 1))
+        / Real.log (Real.exp (-hstep))) ≤ m →
+      sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)) ∈
+        Set.Icc (BookProof.RitzCertificate.rayleigh
+            ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m)) - eta)
+          (BookProof.RitzCertificate.rayleigh
+            ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))) := by
+  have hsym : IsSelfAdjoint ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) :=
+    isSelfAdjoint_reflection R hRsym γ
+  have hsep : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (resolventEdge γ e₀) (resolventEdge γ e₁) :=
+    spectralSeparation_at_secondEdge_of_compressionBound hRsym hγ h0 hlt hy0 hAy hCform
+  have hsep' : BookProof.RitzCertificate.SpectralSeparation
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R)
+      (sInf (spectrum ℝ ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R))) (resolventEdge γ e₁) := by
+    rw [hsInf]
+    exact hsep
+  have hdecay : ∀ m, BookProof.RitzCertificate.resid
+      ((γ⁻¹ : ℝ) • (1 : E →L[ℂ] E) - R) (V (yy m))
+      ≤ (2 * C * Dmin * 1) * Real.exp (-hstep) ^ m := by
+    intro m
+    have h1 := sirk_resid_reflection_le V psiB R hRsym γ C Dmin hstep m (mu m) (yy m)
+      hVV (heigB m) (hyy m) (hbound m)
+    rwa [sirkBound_eq_geom] at h1
+  exact BookProof.RitzCertificate.temple_membership_order hsym hdelta heta (by positivity)
+    (Real.exp_pos _) (Real.exp_lt_one_iff.mpr (by linarith)) hsep' hyy hgap hdecay
+
 end BandNondegenerate
 
 
@@ -1643,6 +1710,75 @@ theorem Aedge_sInf : sInf (spectrum ℝ Aedge) = 2 / 3 := by
   · exact le_csInf (BookProof.ChapterSirkRitzSpectrum.spectrum_real_nonempty Aedge Aedge_sa)
       Aedge_spectrum_lower
 
+set_option synthInstance.maxHeartbeats 1000000 in
+-- Elaborating the ℝ-smul and star instances on `E2 →L[ℂ] E2` needs more than the default budget.
+set_option maxHeartbeats 2000000 in
+/-- **The instance is the general lemma, applied.**  `Aedge` is the reflection
+`1⁻¹ • 1 − (1 − Aedge)` of the operator `1 − Aedge = diag (1/6, 1/3)` at `γ = 1`, and its edge
+eigenvector is `vOther` with reflected edge `resolventEdge 1 2 = 2/3`.  On the complement of
+`vOther` the operator is `5/6` (`Aedge_orth`), which is the form bound the compression needs.  So
+the concrete separation is not a separate computation: it is
+`spectralSeparation_at_secondEdge_of_compressionBound` at `e₀ = 2`, `e₁ = 5`, followed by the
+arithmetic `resolventEdge 1 2 = 2/3`, `resolventEdge 1 5 = 5/6`. -/
+theorem Aedge_sep : SpectralSeparation Aedge (2 / 3) (5 / 6) := by
+  have hEq : ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2) - ((1 : E2 →L[ℂ] E2) - Aedge)) = Aedge := by
+    rw [inv_one, one_smul]
+    abel
+  have hRsym : IsSelfAdjoint ((1 : E2 →L[ℂ] E2) - Aedge) := by
+    simpa [neg_sub] using
+      (BookProof.RitzCertificate.isSelfAdjoint_sub_const Aedge_sa (1 : ℝ)).neg
+  have hAy : ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2) - ((1 : E2 →L[ℂ] E2) - Aedge)) vOther
+      = (resolventEdge 1 2 : ℂ) • vOther := by
+    have h23c : ((resolventEdge 1 2 : ℝ) : ℂ) = (2 / 3 : ℂ) := by
+      norm_num [resolventEdge]
+    rw [hEq, Aedge_other, h23c]
+  have hC : ∀ z : ↥(eigenLine vOther)ᗮ,
+      resolventEdge 1 5 * ‖z‖ ^ 2 ≤
+        (inner ℂ z (compressed
+          ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2) - ((1 : E2 →L[ℂ] E2) - Aedge))
+          (isSelfAdjoint_reflection _ hRsym 1) hAy z) : ℂ).re := by
+    intro z
+    have hcomp : (compressed ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+        - ((1 : E2 →L[ℂ] E2) - Aedge))
+        (isSelfAdjoint_reflection _ hRsym 1) hAy z : E2) = (5 / 6 : ℂ) • (z : E2) := by
+      rw [compressed_apply_coe, hEq]
+      exact Aedge_orth z
+    have hinner : (inner ℂ z (compressed ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+        - ((1 : E2 →L[ℂ] E2) - Aedge)) (isSelfAdjoint_reflection _ hRsym 1) hAy z))
+        = ((5 / 6 : ℝ) * ‖z‖ ^ 2 : ℝ) := by
+      rw [Submodule.coe_inner ((eigenLine vOther)ᗮ), hcomp, inner_smul_right,
+        inner_self_eq_norm_sq_to_K, Submodule.coe_norm]
+      push_cast
+      rfl
+    rw [show resolventEdge 1 5 = 5 / 6 from by norm_num [resolventEdge]]
+    have hre : (inner ℂ z (compressed ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+        - ((1 : E2 →L[ℂ] E2) - Aedge)) (isSelfAdjoint_reflection _ hRsym 1) hAy z)).re
+        = 5 / 6 * ‖z‖ ^ 2 := by
+      rw [hinner, Complex.ofReal_re]
+    rw [hre]
+  have hgen := spectralSeparation_at_secondEdge_of_compressionBound
+    (R := (1 : E2 →L[ℂ] E2) - Aedge) (γ := 1) (e₀ := 2) (e₁ := 5) hRsym
+    (by norm_num) (by norm_num) (by norm_num) (y := vOther) (by simp [vOther]) hAy hC
+  obtain ⟨-, hspec⟩ := hgen
+  refine ⟨by norm_num, fun t ht => ?_⟩
+  have ht' : t ∈ spectrum ℝ ((1 : ℝ)⁻¹ • (1 : E2 →L[ℂ] E2)
+      - ((1 : E2 →L[ℂ] E2) - Aedge)) := by rw [hEq]; exact ht
+  rcases hspec t ht' with h | h
+  · left
+    rwa [show resolventEdge 1 2 = 2 / 3 from by norm_num [resolventEdge]] at h
+  · right
+    rwa [show resolventEdge 1 5 = 5 / 6 from by norm_num [resolventEdge]] at h
+
+/-- **The quantitative second-edge separation of `diag (5/6, 2/3)`.**  Written at the bottom edge
+plus its own gap, the separation is a separation at `2/3 + 1/6`, and the gap is the difference of
+the two reflected edges of `diag (2, 5)` at `γ = 1`. -/
+theorem Aedge_sep_gap :
+    SpectralSeparation Aedge (2 / 3) (2 / 3 + 1 / 6) ∧
+      resolventEdge 1 5 - resolventEdge 1 2 = 1 / 6 := by
+  refine ⟨?_, by norm_num [resolventEdge]⟩
+  rw [show (2 : ℝ) / 3 + 1 / 6 = 5 / 6 from by norm_num]
+  exact Aedge_sep
+
 
 /-- The mixed test vector: three fifths `vTrial` and four fifths `vOther`. -/
 noncomputable def wMix : E2 := (3 / 5 : ℂ) • vTrial + (4 / 5 : ℂ) • vOther
@@ -1655,6 +1791,36 @@ theorem Aedge_trial : Aedge vTrial = (5 / 6 : ℂ) • vTrial := by
   rw [Aedge, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
     ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, projO_trial]
   module
+/-- **The upper end of the gap is attained.**  `5/6` is a spectral point of `Aedge`, at `vTrial`,
+so the separation `Aedge_sep` — everything off the bottom edge lies at `≥ 5/6` — is bounded by
+two actual eigenvalues. -/
+theorem Aedge_five_sixths_mem : (5 / 6 : ℝ) ∈ spectrum ℝ Aedge := by
+  rw [spectrum.mem_iff]
+  intro hunit
+  have hkill : ((algebraMap ℝ (E2 →L[ℂ] E2)) (5 / 6) - Aedge) vTrial = 0 := by
+    rw [Algebra.algebraMap_eq_smul_one,
+      RCLike.real_smul_eq_coe_smul (K := ℂ) (5 / 6) (1 : E2 →L[ℂ] E2)]
+    simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.one_apply, Aedge_trial]
+    module
+  obtain ⟨u, hu⟩ := hunit
+  have h0 : (u : E2 →L[ℂ] E2) vTrial = 0 := by rw [hu]; exact hkill
+  have hv0 : vTrial = 0 := by
+    have h1 : u.inv ((u : E2 →L[ℂ] E2) vTrial) = u.inv 0 := by rw [h0]
+    rw [← ContinuousLinearMap.mul_apply, u.inv_val, ContinuousLinearMap.one_apply,
+      map_zero] at h1
+    exact h1
+  have : (vTrial : E2) ≠ 0 := by simp [vTrial]
+  exact this hv0
+
+/-- **The gap `1/6` is sharp.**  `5/6` is in the spectrum, so no level above `5/6` separates
+`Aedge`: the quantitative gap of `Aedge_sep_gap` is exactly the distance from the bottom edge to
+the rest of the spectrum, and cannot be widened. -/
+theorem Aedge_gap_sharp (b : ℝ) (hsep : SpectralSeparation Aedge (2 / 3) b) : b ≤ 5 / 6 := by
+  rcases hsep.2 (5 / 6) Aedge_five_sixths_mem with h | h
+  · norm_num at h
+  · exact h
+
 
 theorem Aedge_wMix : Aedge wMix = (1 / 2 : ℂ) • vTrial + (8 / 15 : ℂ) • vOther := by
   rw [wMix, map_add, map_smul, map_smul, Aedge_trial, Aedge_other]

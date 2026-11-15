@@ -2520,6 +2520,35 @@ proved by `norm_num`.
 no line above 100 code points; `#print axioms` on the three new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
+### The second-edge band at one order (2026-11-13ag)
+
+Track A. The `13af` instance was a parallel computation; here it becomes the general lemma applied,
+its gap becomes sharp, and the Temple enclosure is certified at an order read off the SIRK step.
+
+**The instance is the lemma.** `Aedge_sep : SpectralSeparation Aedge (2/3) (5/6)` reads `Aedge` as
+the reflection `1⁻¹ • 1 − (1 − Aedge)` of `1 − Aedge = diag (1/6, 1/3)` at `γ = 1`, takes
+`y = vOther`, and discharges the compression form bound with `Aedge_orth` (the operator is `5/6` on
+the complement). The result is `spectralSeparation_at_secondEdge_of_compressionBound` at
+`e₀ = 2`, `e₁ = 5`, then the arithmetic `resolventEdge 1 2 = 2/3`, `resolventEdge 1 5 = 5/6`.
+Nothing about the concrete case is proved on its own any more.
+
+**The gap is `1/6`, and it is sharp.** `Aedge_sep_gap` states the separation at `2/3 + 1/6` together
+with `resolventEdge 1 5 − resolventEdge 1 2 = 1/6`. `Aedge_five_sixths_mem` puts `5/6` in the
+spectrum (at `vTrial`), so `Aedge_gap_sharp : SpectralSeparation Aedge (2/3) b → b ≤ 5/6`:
+no level above `5/6` separates, and `1/6` is the exact distance to the rest of the spectrum.
+
+**The order instead of the limit.** `RitzCertificate.geom_le_sqrt_at_ceil` gives `C rᴺ ≤ √(δη)` at
+`N = ⌈log(√(δη)/C) / log r⌉` (`0 < r < 1`), and `temple_membership_order` feeds it into
+`temple_membership_rate`: `resid (x m) ≤ C rᵐ` certifies `sInf ∈ [θ m − η, θ m]` for all `m ≥ N`.
+The SIRK bound is geometric — `sirkBound_eq_geom : sirkBound C Dmin h nv m = 2 C Dmin nv rᵐ`
+with `r = e^{−h}`, so `reflected_membership_order_of_sirkBound` composes
+`sirk_resid_reflection_le` and states the whole band — separation from the compression bound, order
+from `e^{−hstep}` — in one theorem: no limit, no `hsep`.
+
+**Verification.** `ChapterRitzCertificate` and `ChapterResolventTransfer` build with no warning and
+no line above 100 code points; `#print axioms` on all eight new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,
