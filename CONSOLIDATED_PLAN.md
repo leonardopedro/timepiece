@@ -61,7 +61,9 @@
 > `Aedge_five_sixths_mem`, `Aedge_gap_sharp`: `1/6` and no level above `5/6` separates);
 > `temple_membership_order` replaces the limit by the order `⌈log(√(δη)/C) / log r⌉`, and
 > `reflected_membership_order_of_sirkBound` reads that order off the SIRK step
-> (`sirkBound_eq_geom`: `2 C Dmin e^{−hm}` is geometric with rate `e^{−h}`).
+> (`sirkBound_eq_geom`: `2 C Dmin e^{−hm}` is geometric with rate `e^{−h}`). On the concrete sequence
+> `xOrd` at `δ = 1/10`, `η = 1/50`, `Aedge_membership_from_order_one` certifies the band from order
+> `1`, with `Aedge_band_order_least` showing no smaller order meets the threshold.
 >
 > **Track A — newest (2026-11-13af):** “State of the project — 2026-11-13af: the second-edge band,
 > discharged and instantiated” (end of file): `spectralSeparation_at_secondEdge_of_compressionBound`
@@ -25281,10 +25283,12 @@ from `e^{−hstep}` — is one theorem with no limit and no `hsep`.
 
 **A number, not a formula.**  §20 also carries the concrete instance: on the sequence `xOrd` —
 `wMix` at order `0`, `vOther` afterwards — with `δ = 1/10` and `η = 1/50`,
-`Aedge_membership_from_order_four` certifies `sInf (spectrum ℝ Aedge) ∈ [θ m − 1/50, θ m]` for every
-`m ≥ 4`, and `Aedge_band_order_not_zero` shows the threshold `δ η = 1/500` genuinely fails at order
-`0` (`resid (wMix)² = 4/625`).  The order is a numeral because the threshold is checked, not
-evaluated: `⌈log(√(δη)/(2/5)) / log(1/2)⌉` is avoided, and the claim made is the one proved.
+`Aedge_membership_from_order_one` certifies `sInf (spectrum ℝ Aedge) ∈ [θ m − 1/50, θ m]` for every
+`m ≥ 1`; `Aedge_band_order_not_zero` shows the threshold `δ η = 1/500` fails at order `0`
+(`resid (wMix)² = 4/625`), and `Aedge_band_order_least` concludes that no smaller order meets it —
+so the numeral is the bound, not a convenience.  The order is checked, not evaluated:
+`⌈log(√(δη)/(2/5)) / log(1/2)⌉` is avoided, and the claim made is the one proved.
+`Aedge_membership_from_order_four` keeps the coarser order the `13ag` prose quotes.
 
 **Verification.**  `lake build BookProof.Sirk.ChapterRitzCertificate` and
 `lake build BookProof.Sirk.ChapterResolventTransfer` succeed with no warning from either file and no
@@ -25294,5 +25298,6 @@ where `inner_self_eq_norm_sq_to_K`'s cast shape and `inner_conj_symm`'s orientat
 repair is the preceding commit, after which the full build succeeds (that file keeps its pre-existing
 long-line warnings, which predate both commits).  `#print axioms` on `Aedge_sep`, `Aedge_sep_gap`,
 `Aedge_five_sixths_mem`, `Aedge_gap_sharp`, `sirkBound_eq_geom`,
-`reflected_membership_order_of_sirkBound`, `geom_le_sqrt_at_ceil`, `temple_membership_order` and the
-`xOrd` family gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+`reflected_membership_order_of_sirkBound`, `geom_le_sqrt_at_ceil`, `temple_membership_order`,
+`Aedge_membership_from_order_one`, `Aedge_band_order_least` and the `xOrd` family gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
