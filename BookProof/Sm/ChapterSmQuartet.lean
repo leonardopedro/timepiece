@@ -444,7 +444,6 @@ def quartetOfHomotopy {Q : H →ₗ[ℂ] H} (hQ : IsBrst Q) {P : H →ₗ[ℂ] H
   physProj_idem := physProjOf_idem hQ hQSQ hSQS
   Q_physProj := physProjOf_Q hQ hQSQ
   quartet_anticomm := bGhostOf_anticomm hQ P
-
 /-- **Kugo–Ojima positivity from a b-ghost alone.**  The only physical input is the contracting
 homotopy `P` of the ghost complex and the metric hypothesis on its constructed range. -/
 theorem physicalPositivity_of_homotopy {Q P η : H →ₗ[ℂ] H} (hQ : IsBrst Q)
@@ -504,6 +503,7 @@ theorem physicalPositivity_of_homotopy_sectors {Q P η U : H →ₗ[ℂ] H} (hQ 
     PhysicalPositivity Q η :=
   physicalPositivity_of_quartet_sectors hQ (quartetOfHomotopy hQ hQSQ hSQS) hU hUnorm hηU
     hKrein hSymm hev hod hevDef hodDef
+
 
 end BrstQuartet
 
@@ -961,6 +961,41 @@ theorem exists_odd_homotopy [FiniteDimensional ℂ H] {U Q : H →ₗ[ℂ] H}
     Nonempty (OddHomotopy U Q) := by
   obtain ⟨P, h1, h2, h3⟩ := exists_odd_contractingHomotopy hU hQU
   exact ⟨⟨P, h1, h2, h3⟩⟩
+/-- **Two odd maps compose evenly**: the parity of a product of two odd operators is `+1`. -/
+theorem odd_comp_odd {U Q P : H →ₗ[ℂ] H}
+    (hUQ : ∀ x : H, U (Q x) = -(Q (U x))) (hUP : ∀ x : H, U (P x) = -(P (U x)))
+    (x : H) : U (Q (P x)) = Q (P (U x)) := by
+  rw [hUQ, hUP, map_neg, neg_neg]
+
+/-- **The b-ghost of an odd homotopy is odd.**  The correction `P ↦ P − Q P²` is the difference of
+two odd maps (`P²` is even because a product of two odd operators is even), so the parity survives
+the correction that the quartet identity forces — this is what §14 could not say about a quartet
+whose underlying homotopy is not exposed. -/
+theorem bGhostOf_odd {U Q P : H →ₗ[ℂ] H}
+    (hUQ : ∀ x : H, U (Q x) = -(Q (U x))) (hUP : ∀ x : H, U (P x) = -(P (U x)))
+    (x : H) : U (bGhostOf Q P x) = -(bGhostOf Q P (U x)) := by
+  have h2 : U (Q (P (P x))) = -(Q (P (P (U x)))) := by
+    have h := odd_comp_odd hUQ hUP (P x)
+    rw [hUP x] at h
+    simpa using h
+  simp only [bGhostOf_apply, map_sub, hUP x, h2]
+  abel
+
+
+/-- **A quartet from a bundled odd homotopy.**  The two contracting identities are the bundle's
+fields, so the resulting quartet keeps a record of the homotopy it came from — and its `bGhost` is
+odd for the parity, by `oddHomotopy_bGhost_odd`. -/
+def quartetOfOddHomotopy {U Q : H →ₗ[ℂ] H} (hQ : IsBrst Q) (h : OddHomotopy U Q) :
+    BrstQuartet Q :=
+  quartetOfHomotopy hQ h.QSQ h.SQS
+
+/-- **The b-ghost of the quartet built from an odd homotopy is odd**: the statement is about the
+`bGhost` field itself, not only about the underlying homotopy `P`. -/
+theorem oddHomotopy_bGhost_odd {U Q : H →ₗ[ℂ] H} (hQ : IsBrst Q) (h : OddHomotopy U Q)
+    (hUQ : ∀ x : H, U (Q x) = -(Q (U x))) (x : H) :
+    U ((quartetOfOddHomotopy hQ h).bGhost x)
+      = -((quartetOfOddHomotopy hQ h).bGhost (U x)) :=
+  bGhostOf_odd hUQ h.odd x
 
 end BrstQuartet
 
@@ -1069,6 +1104,32 @@ theorem smGhostParity_odd_smBrstCharge (m : ℕ) (T : Fin 12 → Matrix (Fin m) 
   have h := congrFun (congrArg DFunLike.coe (smGhostParity_mul_smBrstCharge m T f3)) x
   simpa using h
 
+-- The two constants are made opaque for the rest of the file, so that unifying against
+-- `smBrstCharge` never evaluates its body; see the note on `smOddHomotopy`.
+attribute [local irreducible] BookProof.SmBrstGhost.smBrstCharge
+  BookProof.SmBrstGhost.smGhostParity
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The bundled odd homotopy exists at `smBrstCharge`.**  The two inputs are §5.1's hypotheses at the
+model's pair: the ghost parity is an involution (`smGhostParity_involutive`) and the charge is odd for
+it (`smGhostParity_odd_smBrstCharge`).  Nothing about the mode content, the gauge algebra or nilpotence
+enters — oddness plus involution produce the bundle, which is exactly why the quartet below can be
+built from it rather than chosen.
+
+Elaboration note.  `smBrstCharge` and `smGhostParity` are marked `irreducible` *locally* for this
+section.  Without that, unifying the construction's conclusion with the concrete
+`FermiFock (m + 12)` operator makes the unifier evaluate the operator body — the `WithLp` instances
+behind `FermiFock`, the `Fin.foldr` of the mode embeddings and the `Nat.rec` arithmetic of `m + 12` —
+which exhausts the heartbeat budget even at `800000`; with the two constants opaque the same statement
+elaborates well under `400000`.  Opacity costs nothing here because every hypothesis is supplied by a
+separately proved lemma about those same constants, so no goal ever needs to unfold them. -/
+noncomputable def smOddHomotopy (m : ℕ) (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    BrstQuartet.OddHomotopy (smGhostParity m) (smBrstCharge m T f3) :=
+  Classical.choice
+    (BrstQuartet.exists_odd_homotopy (fun x => smGhostParity_involutive m x)
+      (fun x => smGhostParity_odd_smBrstCharge m T f3 x))
+
 open BookProof.SmBrstGhost BookProof.SmCar in
 /-- **The quartet data of the Standard-Model charge exists.**  The contracting homotopy of
 `smBrstCharge` is turned into a quartet by §47.5's construction; `FermiFock (m + 12)` is
@@ -1094,7 +1155,8 @@ noncomputable def smQuartet {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ
     (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
       + f3 c a e * f3 e b h) = 0) :
     BrstQuartet (smBrstCharge m T f3) :=
-  Classical.choice (smBrstCharge_quartet_nonempty hT h3anti h3jac)
+  BrstQuartet.quartetOfOddHomotopy (isBrst_smBrstCharge hT h3anti h3jac)
+    (smOddHomotopy m T f3)
 
 open BookProof.SmBrstGhost BookProof.SmCar in
 /-- **The b-ghost of the Standard-Model charge**: the `bGhost` field of `smQuartet`, a b-ghost for
@@ -1107,6 +1169,22 @@ noncomputable def smBghost {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
       + f3 c a e * f3 e b h) = 0) :
     BookProof.SmCar.FermiFock (m + 12) →ₗ[ℂ] BookProof.SmCar.FermiFock (m + 12) :=
   (smQuartet hT h3anti h3jac).bGhost
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The b-ghost of the Standard-Model charge is odd for the ghost parity**: `U P = −P U` holds for
+`smBghost` itself, not only for the homotopy inside the bundle it was built from.  This is what §14
+recorded as unavailable while the bundle could not be instantiated. -/
+theorem smBghost_odd {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) (x : BookProof.SmCar.FermiFock (m + 12)) :
+    smGhostParity m (smBghost hT h3anti h3jac x)
+      = -(smBghost hT h3anti h3jac (smGhostParity m x)) :=
+  BrstQuartet.oddHomotopy_bGhost_odd (isBrst_smBrstCharge hT h3anti h3jac)
+    (smOddHomotopy m T f3)
+    (fun y => smGhostParity_odd_smBrstCharge m T f3 y) x
 
 open BookProof.SmBrstGhost BookProof.SmCar in
 /-- **The physical projector of the Standard-Model charge**: the `physProj` field of `smQuartet`.
@@ -1717,22 +1795,30 @@ exhausts the heartbeat budget, as recorded in the plan).  So the section states 
 homotopy buys at the model's charge, and does not claim the model's chosen b-ghost is that
 homotopy. -/
 
-/-! ## 14. What the chosen `smQuartet` b-ghost does, and does not, expose
+/-! ## 14. What the chosen `smQuartet` b-ghost exposes
 
 The quartet *record* carries `Q P + P Q = 1 − V`, from which the contracting identity
-`Q P Q = Q` follows (`BrstQuartet.bGhost_QSQ`).  The other identity, `P Q P = P`, does not: it is
-a property of the homotopy `P` that `quartetOfHomotopy` started from, and a record built by
-`quartetOfHomotopy` does not store it.  That is the precise sense in which the chosen
-`smQuartet` does not expose its homotopy — and why §5.1 bundles one (`OddHomotopy`), where both
-identities *and* the parity are fields.
+`Q P Q = Q` follows (`BrstQuartet.bGhost_QSQ`).  The other identity, `P Q P = P`, does not: it is a
+property of the homotopy `P` that the record was built from, and a record built by
+`quartetOfHomotopy` does not store it.  That is why §5.1 bundles one (`OddHomotopy`), where both
+identities *and* the parity are fields — and why `smQuartet` is now built by
+`quartetOfOddHomotopy` from `smOddHomotopy`, a bundle at the model's own charge rather than an
+unexposed homotopy.
 
-The parity is not recoverable here at all: the chosen quartet's `bGhost` is
-`bGhostOf Ω P = P − Ω P²` for an unexposed `P`, and §5.1's construction cannot be instantiated at
-`FermiFock (m + 12)` in this toolchain — the `whnf` needed to unify the concrete
-`EuclideanSpace` instances exceeds the heartbeat budget even at `800000` — and the same wall
-stops a theorem whose *statement* instantiates `bGhost_QSQ` at `smBghost`.  The obstruction
-result (§5.1's `even_homotopy_eq_zero`) is unconditional, so the sign question is settled even
-though the model's chosen homotopy is not exhibited. -/
+**The parity is carried through.**  `smBghost_odd` states `U P = −P U` for `smBghost` itself,
+`U = smGhostParity`.  The correction is harmless: `bGhostOf Ω P = P − Ω P²` subtracts two odd maps
+(`bGhostOf_odd`), because `P²` is even — a product of two odd operators is even (`odd_comp_odd`).
+So the previous boundary here ("the parity is not recoverable") was an artefact of the quartet being
+built from a bare homotopy, not of the physics.
+
+**The elaboration wall, and how it is passed.**  Instantiating §5.1's construction at
+`FermiFock (m + 12)` first failed: unifying its conclusion with the concrete operator made the
+unifier evaluate the operator body (the `WithLp` instances behind `FermiFock`, the `Fin.foldr` of
+the mode embeddings, the `Nat.rec` arithmetic of `m + 12`), exhausting the budget at `800000`
+heartbeats.  Marking `smBrstCharge` and `smGhostParity` `irreducible` *locally* removes the
+evaluation, since every hypothesis is supplied by a separately proved lemma about those same
+constants.  The obstruction result (`even_homotopy_eq_zero`) still stands on its own: the odd sign is
+forced, and the model realises it. -/
 
 end
 

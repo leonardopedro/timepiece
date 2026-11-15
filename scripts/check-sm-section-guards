@@ -806,8 +806,8 @@ require "$QUARTET" "theorem bGhost_QSQ" \
     "§84: the derivable half of the contraction must stay"
 require "$PLAN" 'The parity of the b-ghost is *forced*' \
     "§84: the plan must keep the forced-sign section"
-require "$PLAN" 'does not elaborate in this toolchain' \
-    "§84: the plan must keep the instantiation boundary"
+require "$PLAN" 'Boundary that has since been passed' \
+    "§84: the plan must keep the instantiation boundary, now marked as passed"
 
 # ---- 38. §85 distinctness is separation, not a new hypothesis
 # §82 left `hdvd` open.  It is the statement that the box resolves the model's modes, and it follows
@@ -843,6 +843,30 @@ require "$PLAN" 'The first-Brillouin bound is discharged on the `N`-torus grid' 
     "§86: the plan must keep the grid section"
 require "$PLAN" 'no distinctness hypothesis' \
     "§86: the plan must keep the unconditional claim"
+
+# ---- 40. §87 the odd homotopy is instantiated: smQuartet is built from it, b-ghost is odd
+# §84's instantiation boundary is passed by making the two model constants locally `irreducible`, which
+# stops the unifier evaluating the operator body.  The quartet now comes from the bundle, and the parity
+# is a theorem about the b-ghost field.  Dropping either the instantiation or the parity would let §84's
+# withdrawn caveat stand unchallenged.
+require "$QUARTET" "def quartetOfOddHomotopy" \
+    "§87: the quartet-from-bundle construction must stay"
+require "$QUARTET" "theorem odd_comp_odd" \
+    "§87: two odd maps must still compose evenly"
+require "$QUARTET" "theorem bGhostOf_odd" \
+    "§87: the correction term must not disturb the parity"
+require "$QUARTET" "def smOddHomotopy" \
+    "§87: the model's bundled odd homotopy must stay"
+require "$QUARTET" "attribute [local irreducible] BookProof.SmBrstGhost.smBrstCharge" \
+    "§87: the elaboration workaround must stay with the instantiation"
+require "$QUARTET" "theorem smBghost_odd" \
+    "§87: the b-ghost parity at the model must stay"
+require "$PLAN" 'The odd homotopy is instantiated: `smQuartet` is built from it' \
+    "§87: the plan must keep the instantiation section"
+require "$PLAN" 'Marking the two' \
+    "§87: the plan must keep the workaround explanation"
+require "$PLAN" 'is a parity statement, not a no-ghost statement' \
+    "§87: the plan must keep the parity/no-ghost boundary"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

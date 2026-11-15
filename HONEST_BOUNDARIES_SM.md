@@ -388,3 +388,27 @@ this file: the phrase "ghost-parity-even" in (vi) should read "odd", and the par
 `ChapterSmQuartet` §5/§9's docstrings has been rewritten accordingly.  Nothing else in (vi) changes:
 `quartetOfHomotopy` and `physicalPositivity_of_homotopy` are unaffected, and `PhysicalPositivity`
 for `smBrstCharge` remains a named input.
+
+## Correction (2026-11-15c): the instantiation wall is passed, and the b-ghost's parity is proved
+
+The correction above (and plan §84) recorded a toolchain boundary: §5.1's odd homotopy could not be
+*applied* to `smBrstCharge`, so `smQuartet` was chosen from a bare contracting homotopy and the
+parity of its b-ghost was not claimed.  Both halves of that have changed.
+
+* **The wall was unification, not mathematics.**  All inputs already existed as lemmas about the
+  model's constants; what failed was elaboration, because the same constants occur in the statement
+  and the unifier reduced their bodies while unifying against the concrete `FermiFock (m + 12)`
+  instance (`set_option diagnostics true` showed 81 372 `DFunLike.coe` and 69 133 `Nat.rec`
+  unfoldings).  Marking `smBrstCharge` and `smGhostParity` `irreducible` *locally* stops the
+  reduction: the statement now elaborates under 400 000 heartbeats where it previously failed at
+  800 000.
+* **`smOddHomotopy`** is the bundle at the model's charge — `OddHomotopy (smGhostParity m)
+  (smBrstCharge m T f3)` — and it needs neither nilpotence nor the gauge algebra.
+* **`smQuartet` is now built from it** (`quartetOfOddHomotopy`), so the record keeps its homotopy.
+* **`smBghost_odd`** proves `smGhostParity m (smBghost … x) = −(smBghost … (smGhostParity m x))`:
+  the correction `P ↦ P − Ω P²` subtracts two odd maps (`bGhostOf_odd`, via `odd_comp_odd`), so the
+  quartet identity does not disturb the parity.
+
+Boundary that remains: this is a parity statement, not a no-ghost statement.  Positivity of the charge
+form on `range smPhysProj` is still the named input, and neither `range smPhysProj = physical subspace`
+nor a metric for `smBrstCharge` is derived.  See plan §87.

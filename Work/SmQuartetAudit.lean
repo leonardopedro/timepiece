@@ -57,3 +57,9 @@ open BookProof.SmQuartet
 #audit_axioms BrstQuartet.exists_odd_contractingHomotopy
 #audit_axioms BrstQuartet.exists_odd_homotopy
 #audit_axioms smGhostParity_odd_smBrstCharge
+#audit_axioms BrstQuartet.odd_comp_odd
+#audit_axioms BrstQuartet.bGhostOf_odd
+#audit_axioms BrstQuartet.quartetOfOddHomotopy
+#audit_axioms BrstQuartet.oddHomotopy_bGhost_odd
+#audit_axioms smOddHomotopy
+#audit_axioms smBghost_odd

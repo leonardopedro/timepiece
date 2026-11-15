@@ -4986,23 +4986,17 @@ contracting homotopy of an odd charge can always be taken odd — the sign in §
 choice of convention — and `ChapterSmQuartet` §13, `§77`'s dependency, now uses it.
 
 **What the chosen `smQuartet` exposes.**  `BrstQuartet.bGhost_QSQ` derives `Ω P Ω = Ω` from the
-quartet record alone.  The second identity `P Ω P = P` is *not* in the record: it is a property of the
-homotopy `quartetOfHomotopy` started from, which the record does not store — which is exactly why §5.1
-bundles one.  The parity of the chosen b-ghost is likewise not recoverable: it is `P − Ω P²` for an
-unexposed `P`.
+quartet record alone.  The second identity `P Ω P = P` is *not* in a record built by `quartetOfHomotopy`:
+it is a property of the homotopy that record started from — which is exactly why §5.1 bundles one.  Since
+§87 the model's quartet is built **from** that bundle, so both identities and the parity come with it.
 
-Boundary: instantiating §5.1 at `FermiFock (m + 12)` does not elaborate in this toolchain, and the
-cause is now localised.  `set_option diagnostics true` on the failing application reports **81 372**
-unfoldings of `DFunLike.coe`, 69 133 of `Nat.rec`, 62 286 of `HAdd.hAdd`/`Add.add`, 46 080 of `Nat.add`,
-11 910 of `smGhostParity`, plus `ghostCre`/`ghostAnn`/`Fin.foldr`/`WithLp.equiv`: the unifier is
-*evaluating* the operator's body (a finite sum over `Finset (Fin (m+12))`, so `Nat.add m 12` is
-unfolded too) instead of assigning the metavariable.  Consequences: the type *as an antecedent*
-elaborates in ~4 s, the instances synthesise cheaply, and the two hypothesis statements elaborate
-cheaply; what fails is either the application (metavariable `?U` unified against `smGhostParity` by
-reduction) or a *conclusion* mentioning the operator twice, at 200k, 300k, 800k and 1.6M heartbeats.
-So the model's chosen quartet is not claimed to be odd, and the instantiation stays recorded as a
-toolchain limitation rather than a mathematical gap — the obstruction half needs no instantiation, so
-the sign question is settled regardless.
+Boundary that has since been passed.  Instantiating §5.1 at `FermiFock (m + 12)` initially did not
+elaborate; `set_option diagnostics true` on the failing application reported **81 372** unfoldings of
+`DFunLike.coe`, 69 133 of `Nat.rec`, 62 286 of `HAdd.hAdd`/`Add.add`, 46 080 of `Nat.add`, 11 910 of
+`smGhostParity`, plus `ghostCre`/`ghostAnn`/`Fin.foldr`/`WithLp.equiv` — the unifier was *evaluating* the
+operator's body instead of assigning the metavariable, and it failed at 200k, 300k, 800k and 1.6M
+heartbeats.  §87 records the fix, so the "chosen quartet is not claimed odd" caveat is withdrawn: it is
+now `smBghost_odd`, a proved statement about the model's b-ghost.
 
 ## 85. Distinctness of the alias labels is separation, not a new hypothesis
 
@@ -5056,3 +5050,40 @@ generality is not exercised here; a model whose wave numbers are not integer mul
 non-commensurate box) has no modes on this grid and is out of scope of §9, though it is not excluded by
 §85 provided its own first-Brillouin bound can be checked.  The grid itself presumes periodicity, which is
 the physical content of the truncation, not an additional assumption.
+
+## 87. The odd homotopy is instantiated: `smQuartet` is built from it, and the b-ghost is odd
+
+§84 left one boundary: §5.1's construction could not be *applied* to `FermiFock (m + 12)`, so the
+model's quartet was chosen from a contracting homotopy and its parity was not claimed.  That boundary is
+now passed, and the fix is one attribute.
+
+**The wall was unification, not mathematics.**  Every input already existed as a lemma about the model's
+constants — `smGhostParity_involutive` for `U² = 1` and `smGhostParity_odd_smBrstCharge` for `U Ω = −Ω U`
+— so no goal ever needed to *unfold* `smBrstCharge` or `smGhostParity`.  What forced the unfolding was
+elaboration: the same constants also occur in the statement, and the unifier reduced their bodies while
+unifying the construction's conclusion with the concrete `EuclideanSpace` instance.  Marking the two
+constants `irreducible` *locally* (from the instantiation to the end of the chapter) removes the
+reduction; the same statement then elaborates under `400000` heartbeats, where it previously failed at
+`800000`.
+
+**The instantiation.**  `smOddHomotopy m T f3 : OddHomotopy (smGhostParity m) (smBrstCharge m T f3)`,
+obtained by `Classical.choice` from `exists_odd_homotopy`.  Note what is *not* assumed: nilpotence, the
+gauge algebra `su(3) ⊕ su(2) ⊕ u(1)`, the structure constants and any property of the mode content.  The
+bundle needs only involution and oddness, which is why it is available before the quartet is.
+
+**The quartet is built from the bundle.**  `smQuartet` is now
+`quartetOfOddHomotopy (isBrst_smBrstCharge …) (smOddHomotopy …)`, so the record keeps the homotopy it
+came from rather than an anonymous `Classical.choice` of a bare contracting homotopy.  The old derivation
+`smBrstCharge_quartet_nonempty` (from `exists_contractingHomotopy`) remains, as the comparison that shows
+the bundle is extra structure and not a restatement.
+
+**The b-ghost is odd.**  `smBghost_odd`: `U P = −P U` for `U = smGhostParity` and `P = smBghost`.  Two
+generic steps carry it: `odd_comp_odd` (a product of two odd maps is even) and `bGhostOf_odd` (the
+correction `P ↦ P − Ω P²` subtracts two odd maps, since `P²` is even, so the quartet identity's
+correction term does not disturb the parity).  `oddHomotopy_bGhost_odd` is the bundled form.  With §84's
+`even_homotopy_eq_zero`, the sign question is now answered in both directions *at the model*: the even
+choice is impossible, and the chosen b-ghost realises the odd one.
+
+Boundary: `smBghost_odd` is a parity statement, not a no-ghost statement.  Positivity of the charge form
+on the range of `smPhysProj` (`smPhysicalPositivity_of_physForm`) is still the open input, and the odd
+homotopy identifies neither `range smPhysProj` with the physical subspace nor a metric for `smBrstCharge`.
