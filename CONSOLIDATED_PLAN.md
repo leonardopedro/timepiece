@@ -69,7 +69,9 @@
 > `reflected_membership_order_of_sirkBound` reads that order off the SIRK step
 > (`sirkBound_eq_geom`: `2 C Dmin e^{−hm}` is geometric with rate `e^{−h}`). On the concrete sequence
 > `xOrd` at `δ = 1/10`, `η = 1/50`, `Aedge_membership_from_order_one` certifies the band from order
-> `1`, with `Aedge_band_order_least` showing no smaller order meets the threshold.
+> `1`, with `Aedge_band_order_least` showing no smaller order meets the threshold, and
+> `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
+> true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
 > **Track A — newest (2026-11-13af):** “State of the project — 2026-11-13af: the second-edge band,
 > discharged and instantiated” (end of file): `spectralSeparation_at_secondEdge_of_compressionBound`
@@ -25292,12 +25294,17 @@ from `e^{−hstep}` — is one theorem with no limit and no `hsep`.
 `Aedge_membership_from_order_one` certifies `sInf (spectrum ℝ Aedge) ∈ [θ m − 1/50, θ m]` for every
 `m ≥ 1`; `Aedge_band_order_not_zero` shows the threshold `δ η = 1/500` fails at order `0`
 (`resid (wMix)² = 4/625`), and `Aedge_band_order_least` concludes that no smaller order meets it —
-so the numeral is the bound, not a convenience.  The order is checked, not evaluated:
-`⌈log(√(δη)/(2/5)) / log(1/2)⌉` is avoided, and the claim made is the one proved.
-`Aedge_membership_from_order_four` keeps the coarser order the `13ag` prose quotes.
+so the numeral is the bound, not a convenience.  The formula agrees: with the exact geometric
+constant `C = 2/25` (`resid (xOrd 0)` by `resid_wMix_sq`) and `r = 1/2`, `Aedge_ceiling_eq_one`
+shows `⌈log(√(δη)/C) / log r⌉ = 1` — the order the direct threshold check already gives — while
+`Aedge_ceiling_eq_four` records that inflating `C` to `2/5` returns `4`, which is exactly where the
+earlier `4` came from.  Neither ceiling needs a decimal bound on `log 2`: with `a = log 2`,
+`b = log 5` the quotient is `2 ∓ b/(2a)` (minus for `C = 2/25`, plus for `2/5`) and `4 < 5 ≤ 16`
+decides both.  `Aedge_membership_from_order_four` keeps the coarser order the `13ag` prose quotes.
 
 **Verification.**  `lake build BookProof.Sirk.ChapterRitzCertificate` and
 `lake build BookProof.Sirk.ChapterResolventTransfer` succeed with no warning from either file and no
+<<<<<<< HEAD
 line above 100 code points.  `lake build BookProof` initially failed at
 `BookProof/Sm/ChapterSmQuartet.lean` — a regression from merge `c843571`, unrelated to these files,
 where `inner_self_eq_norm_sq_to_K`'s cast shape and `inner_conj_symm`'s orientation changed; the
@@ -25594,3 +25601,16 @@ missing sibling `../../papers/Hashimoto.md`; the citation is present in its comm
 baseline. Its README now records the current 87-page/614-link census and that failure.
 No Lean, book render, KaTeX, Cadabra or numerical build/check was run; P0 remains for
 the specialist. Concurrent Gell-Mann/SU(3) source edits were not modified by this wave.
+=======
+line above 100 code points.  `lake build BookProof` fails at `BookProof/Sm/ChapterSmQuartet.lean`
+after merge `c843571` — unrelated to these files: `inner_self_eq_norm_sq_to_K`'s cast shape and
+`inner_conj_symm`'s orientation changed.  `1a8dae6` repairs it; the later merge of `a976803` into
+`main` conflicted there on the same three proofs, was resolved to the local scripts, and the whole
+project then builds (`9013 jobs`).  That file keeps its long-line and `show` warnings, which predate
+all of this.  `#print axioms` on `Aedge_sep`, `Aedge_sep_gap`, `Aedge_five_sixths_mem`,
+`Aedge_gap_sharp`, `sirkBound_eq_geom`, `reflected_membership_order_of_sirkBound`,
+`geom_le_sqrt_at_ceil`, `temple_membership_order`, `Aedge_membership_from_order_one`,
+`Aedge_membership_from_order_four`, `Aedge_band_order_least`, `Aedge_ceiling_eq_one`,
+`Aedge_ceiling_eq_four` and the `xOrd` family gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`.
+>>>>>>> 75e8fa3e338ae7bfa8c281e45b4c6666fe4ad3c6
