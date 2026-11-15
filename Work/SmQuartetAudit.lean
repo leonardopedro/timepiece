@@ -63,3 +63,10 @@ open BookProof.SmQuartet
 #audit_axioms BrstQuartet.oddHomotopy_bGhost_odd
 #audit_axioms smOddHomotopy
 #audit_axioms smBghost_odd
+#audit_axioms smBghost_eq_bGhostOf
+#audit_axioms smPhysProj_eq_physProjOf
+#audit_axioms smPhysProj_range
+#audit_axioms smPhysProj_mem_range_iff
+#audit_axioms smPhysProj_comp_smBrstCharge
+#audit_axioms smClosed_decompose
+#audit_axioms smPhysicalPositivity_imp_evenRange

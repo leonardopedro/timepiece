@@ -51,3 +51,14 @@ open BookProof.NsVolDomReconstruction
 #audit_axioms hdvd_torus
 #audit_axioms volPot_of_single_mode_of_torus
 #audit_axioms volPot_of_shear_constant_of_torus
+#audit_axioms dualResidue_pairing
+#audit_axioms skewWave
+#audit_axioms skewWave_axis
+#audit_axioms skewWave_pairing
+#audit_axioms hdvd_skew
+#audit_axioms volPot_of_single_mode_of_skew_torus
+#audit_axioms volPot_of_shear_constant_of_skew_torus
+#audit_axioms shearGrad
+#audit_axioms det_one_add_shearGrad
+#audit_axioms hconst_of_dispGrad_shear
+#audit_axioms volPot_of_shearGrad_of_torus

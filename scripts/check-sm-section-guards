@@ -868,6 +868,64 @@ require "$PLAN" 'Marking the two' \
 require "$PLAN" 'is a parity statement, not a no-ghost statement' \
     "§87: the plan must keep the parity/no-ghost boundary"
 
+# ---- 41. §88 the model's physical subspace is `ker Ω ⊓ ker P`, exactly
+# The bundled homotopy is what §9 could not use: it exposes `P`, so the range of the model's projector is
+# characterised rather than merely contained in the closed space.  Dropping `smPhysProj_range` while keeping
+# the parity corollary would let the characterisation read as a definition, and dropping the canonical-range
+# boundary would silently identify two different complements of the exact states.
+require "$QUARTET" "theorem smPhysProj_range" \
+    "§88: the range characterisation at the model must stay"
+require "$QUARTET" "theorem smPhysProj_mem_range_iff" \
+    "§88: the membership form must stay"
+require "$QUARTET" "theorem smPhysProj_eq_physProjOf" \
+    "§88: the projector must stay exposed at the bundled homotopy"
+require "$QUARTET" "theorem smClosed_decompose" \
+    "§88: the quartet split at the model must stay"
+require "$QUARTET" "theorem smPhysicalPositivity_imp_evenRange" \
+    "§88: positivity must still force the range even"
+require "$PLAN" 'The physical subspace of `smBrstCharge`, exactly' \
+    "§88: the plan must keep the characterisation section"
+require "$PLAN" 'range smPhysProj = ker Ω ⊓ ker P' \
+    "§88: the plan must keep the exact range"
+require "$PLAN" 'different choices of complement of the exact states' \
+    "§88: the plan must keep the chosen/canonical distinction"
+
+# ---- 42. §89 the grid discharge works in a skew basis
+# §86's axis basis was a choice, not a limitation: the argument only needs the dual coordinates of a
+# difference of wave numbers to be the integer component differences.  Dropping the skew extension would
+# restore the withdrawn boundary, and dropping `skewWave_axis` would make the two grids look unrelated.
+require "$REC" "theorem hdvd_skew" \
+    "§89: skew-box distinctness must stay"
+require "$REC" "theorem skewWave_pairing" \
+    "§89: the skew pairing must stay evaluated"
+require "$REC" "theorem skewWave_axis" \
+    "§89: the axis grid must stay the f = axis member"
+require "$REC" "theorem volPot_of_single_mode_of_skew_torus" \
+    "§89: the skew penalty theorem must stay"
+require "$REC" "theorem dualResidue_pairing" \
+    "§89: the shared dual-residue pairing step must stay"
+require "$PLAN" 'A skew box: the grid argument does not need the axes' \
+    "§89: the plan must keep the skew-box section"
+require "$PLAN" 'was the orthogonal member of this' \
+    "§89: the plan must keep the axis-as-corollary reading"
+
+# ---- 43. §90 the shear's constant residual is a determinant
+# `hconst` is carried by every penalty theorem; for §63's shear family its determinant half is proved, with
+# the gradient identification left as the single input.  Dropping the det computation would make `hconst`
+# look like a measurement, and dropping the gradient boundary would read the family as a concrete model.
+require "$REC" "noncomputable def shearGrad" \
+    "§90: the shear matrix must stay"
+require "$REC" "theorem det_one_add_shearGrad" \
+    "§90: the shear determinant must stay computed"
+require "$REC" "theorem hconst_of_dispGrad_shear" \
+    "§90: hconst at the shear must stay derived from the determinant"
+require "$REC" "theorem volPot_of_shearGrad_of_torus" \
+    "§90: the shear penalty at the grid must stay"
+require "$PLAN" "The shear's constant residual is a determinant" \
+    "§90: the plan must keep the shear section"
+require "$PLAN" 'does not follow' \
+    "§90: the plan must keep the gradient-identification boundary"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

@@ -5045,11 +5045,13 @@ their labels are the pairings, then `volPot = C((κ/2)Λ²)`, respectively `C((�
 is (i) a membership statement about the model's spectrum and (ii) constancy of the deformation gradient's
 determinant on the grid — neither is a truncation artefact.
 
-Boundary: `axis` is the coordinate basis, so `gridBox N axis` is the ordinary cube and §5's skew-basis
-generality is not exercised here; a model whose wave numbers are not integer multiples of `2π/N` (a
-non-commensurate box) has no modes on this grid and is out of scope of §9, though it is not excluded by
-§85 provided its own first-Brillouin bound can be checked.  The grid itself presumes periodicity, which is
-the physical content of the truncation, not an additional assumption.
+Boundary at the time: `axis` is the coordinate basis, so `gridBox N axis` is the ordinary cube and §5's
+skew-basis generality was not exercised there.  §89 removes that restriction — the same first-Brillouin
+argument runs in any basis once the wave numbers are written in its dual basis — while a model whose wave
+numbers are not integer multiples of `2π/N` (a non-commensurate box) has no modes on the grid and stays
+out of scope, though it is not excluded by §85 provided its own first-Brillouin bound can be checked.  The
+grid itself presumes periodicity, which is the physical content of the truncation, not an additional
+assumption.
 
 ## 87. The odd homotopy is instantiated: `smQuartet` is built from it, and the b-ghost is odd
 
@@ -5085,5 +5087,82 @@ correction term does not disturb the parity).  `oddHomotopy_bGhost_odd` is the b
 choice is impossible, and the chosen b-ghost realises the odd one.
 
 Boundary: `smBghost_odd` is a parity statement, not a no-ghost statement.  Positivity of the charge form
-on the range of `smPhysProj` (`smPhysicalPositivity_of_physForm`) is still the open input, and the odd
-homotopy identifies neither `range smPhysProj` with the physical subspace nor a metric for `smBrstCharge`.
+on the range of `smPhysProj` (`smPhysicalPositivity_of_physForm`) is still the open input, and no metric
+for `smBrstCharge` is constructed.  What §88 adds is the range itself: the bundle does put `range
+smPhysProj` into an exact description, `ker Ω ⊓ ker P`.
+
+## 88. The physical subspace of `smBrstCharge`, exactly
+
+§87 built the model's quartet from a bundle, so the choice it makes has a *name*: the homotopy is the
+`P` field of `smOddHomotopy`.  That is exactly what §55/§56 and §9 of the quartet chapter could not
+use — they could only record containment in the closed space, because the homotopy behind the
+`Classical.choice` was not exposed.  With the bundle in hand the characterisation is available at the
+model:
+
+  `range smPhysProj = ker Ω ⊓ ker P`      (`smPhysProj_range`),
+
+so the physical subspace of the Standard-Model charge is *exactly* the closed states killed by the
+chosen b-ghost — the harmonic representatives of the cohomology — and a state is physical iff it is
+closed and `P` kills it (`smPhysProj_mem_range_iff`).  The two halves of the quartet split are
+`smClosed_decompose` (`x = Ω (b x) + V x` for closed `x`, with `b = smBghost` the corrected b-ghost)
+and `smPhysProj_comp_smBrstCharge` (the gauge orbit is annihilated).  The exposure itself is
+`smBghost_eq_bGhostOf` and `smPhysProj_eq_physProjOf`: the model's b-ghost and projector are §5's
+`bGhostOf`/`physProjOf` at `P`.
+
+**The range is graded.**  The bundle's `P` is odd, so §83's forward implication applies at
+`smBrstCharge` with no remaining parameter: `smPhysicalPositivity_imp_evenRange` — positivity of the
+ghost-parity form on the closed space forces every physical state to be ghost-parity even.  The
+transverse, even description of `range smPhysProj` is therefore a *consequence* of the no-ghost input
+and never a route around it; this is where §77's `smPhysicalPositivity_of_evenRange` and §83's
+implication meet at the model's own b-ghost.
+
+Boundary: nothing here compares `range smPhysProj` with `range smPhysProjFormula`.  The two homotopies
+are different choices of complement of the exact states, so the two ranges are different subspaces of
+the same closed space; only the canonical one is proved to be `ker Ω ⊓ (range Ω)ᗮ`
+(`smPhysProjFormula_range`, `ChapterSmBghostFormula` §3), and the sign on the chosen range stays the
+input (`smPhysicalPositivity_of_physForm`).
+
+## 89. A skew box: the grid argument does not need the axes
+
+§86 discharged distinctness on the coordinate box, where the wave numbers are `2π j_x/N` along the
+axes, and recorded the loss of §5's skew-basis generality as a boundary.  That boundary is not real:
+nothing in the argument used orthogonality — what it used is that the *dual* coordinates of a
+difference of two wave numbers are the integer differences `j_x − j'_x`, so `|j_x − j'_x| < N` makes
+every pairing smaller than `2π` and §85's bound applies.
+
+So `skewWave N f j = (2π/N) Σ_x j_x · f_x` writes the torus modes in the basis `f` dual to the box's
+directions `e` (`IsDualBasis`), `skewWave_pairing` evaluates the pairing as `2π(j_x − j'_x)/N`, and
+`hdvd_skew` repeats §86's divisibility argument verbatim on `gridBox N e`: three integer labels
+divisible by `N`, each smaller than `N` in modulus (`abs_eq_zero_of_dvd_of_abs_lt`), hence all zero,
+hence `j = j'`, hence `q = q'`.  `volPot_of_single_mode_of_skew_torus` and
+`volPot_of_shear_constant_of_skew_torus` are the penalty theorems at that grid, with `hdvd`
+discharged.  The axis case is a corollary in the literal sense: `axis` is its own dual basis, so
+`skewWave_axis` shows `torusWave` *is* `skewWave` there — §86 was the orthogonal member of this
+family, not a separate construction.
+
+`dualResidue_pairing` is the shared step: the pairing of `(2π/N) Σ_x m_x f_x` against `e_{x'}` is
+`2π m_{x'}/N`, which is `dual_pairing` with the scalar pulled out, and it is used both here and in
+§81's alias-class computation.
+
+Boundary: `hdvd_skew` still takes the labelling as an input.  The dual basis supplies the *pairing
+formula*, not the assertion that the model's spectrum lies on the grid — that remains §85's
+periodicity condition (`commensurate_of_periodic`), read with the skew lattice generated by `e`.
+
+## 90. The shear's constant residual is a determinant
+
+§74 and §86–§89 carry the *constancy* of the residual as a hypothesis: `hconst` says that on the grid
+the determinant of `1 + ∇ξ` is the constant `1 + Λ`, independently of the configuration and of the
+grid point.  For §63's shear family the constant is `c·ε·t`; the determinant half of that is now
+proved.
+
+The deformation gradient is `1 + t·e_x⊗e_y + ε·e_y⊗e_x` (`shearGrad`), whose determinant is `1 − εt`
+(`det_one_add_shearGrad`) — the `(εt)²` of the penalty's normal form is the square of exactly this
+number, so the *sign* of the residual is pinned down and not merely its square.  Then
+`hconst_of_dispGrad_shear` gives `hconst` at `Λ = −εt` for any model whose gradient is that matrix,
+and `volPot_of_shearGrad_of_torus` gives the penalty `(κ/2)(εt)²` on the skew torus grid.
+
+Boundary: the identification `dispGrad kv y a = shearGrad t ε` is *not* proved, and does not follow
+from the grid.  `dispGrad` is a sum of `i w_c ξ̂_{m,r} e^{i w·a}` over the model's modes, so its value
+at a configuration is fixed by that configuration's coefficients; matching it to the shear matrix is a
+statement about which configuration and which truncation.  The theorems above make that the single
+remaining input and discharge everything downstream of it.

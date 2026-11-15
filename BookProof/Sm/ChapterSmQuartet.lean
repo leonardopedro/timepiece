@@ -74,7 +74,9 @@ direction is *negative*, so positivity is not a consequence of the schema.  §11
 turns the remaining input into an equivalence: `PhysicalPositivity` holds exactly
 when `η` is positive definite on `range V`, so the metric's action in the ghost
 directions is irrelevant and the check is a sign computation on the physical
-subspace — for the SM charge, on `ker Ω ⊓ (range Ω)ᗮ`.  No metric for
+subspace — for the SM charge, on `range smPhysProj`, which §15 identifies exactly as
+`ker Ω ⊓ ker P` for the chosen homotopy `P` (the *canonical* projector
+`smPhysProjFormula` is the one whose range is `ker Ω ⊓ (range Ω)ᗮ`).  No metric for
 `smBrstCharge` is constructed here, so that sign computation is not performed.
 
 Everything here is `sorry`-free and `axiom`-free.
@@ -1451,7 +1453,7 @@ positive definite on `range V`.  Hence
 * the metric's action in the ghost directions is completely irrelevant (`physicalPositivity_congr`):
   any two metrics agreeing on `range V` are no-ghost together;
 * the check on a concrete metric is a sign computation on a concretely described subspace — for the
-  SM charge, on `range smPhysProj = ker Ω ⊓ (range Ω)ᗮ` — which is why
+  SM charge, on `range smPhysProj = ker Ω ⊓ ker P` (§15, `smPhysProj_range`) — which is why
   `smPhysicalPositivity_iff_physForm` is the form in which that computation must be stated.
 
 **Boundary.**  The converse needs the radical half of `PhysicalPositivity`, whose proof uses the
@@ -1522,9 +1524,9 @@ end BrstQuartet
 open BookProof.SmBrstGhost BookProof.SmCar in
 /-- **The no-ghost condition at the SM charge is positivity on the physical range** — an
 *equivalence*, so a verification for a particular metric is carried out on `range smPhysProj` and
-nowhere else.  Combined with `smPhysProjFormula_range` that range is
-`ker Ω ⊓ (range Ω)ᗮ`, so the check is a sign computation on the transverse physical subspace; §11
-shows it also cannot be avoided by changing the metric in the ghost directions. -/
+nowhere else.  That range is `ker Ω ⊓ ker P` for the chosen homotopy `P`
+(`smPhysProj_range`), so the check is a sign computation on the closed states the model's homotopy
+kills; §11 shows it also cannot be avoided by changing the metric in the ghost directions. -/
 theorem smPhysicalPositivity_iff_physForm {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
     {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
     (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
@@ -1780,21 +1782,6 @@ theorem physicalPositivity_imp_evenRange {Q P U : H →ₗ[ℂ] H} (hQ : IsBrst 
 end BrstQuartet
 
 
-/-! ## 14. §83 at the SM charge, for a homotopy that is exposed
-
-§13's forward implication is stated for an abstract odd homotopy; §5.1 shows such a homotopy
-always exists.  This section records the statement at `smBrstCharge`, with the homotopy supplied
-as data — the contracting identities and the oddness are the hypotheses, the conclusion is
-exactly §83's `range smPhysProj` alternative: positivity forces the physical range into the
-ghost-parity-even sector.
-
-**Boundary.**  The homotopy here is a parameter, not `smBghost`: the chosen `smQuartet` is a
-`Classical.choice` whose underlying `P` is not exposed, and instantiating §5.1's construction at
-`FermiFock (m + 12)` does not elaborate (the `whnf` of the concrete `EuclideanSpace` instance
-exhausts the heartbeat budget, as recorded in the plan).  So the section states what the odd
-homotopy buys at the model's charge, and does not claim the model's chosen b-ghost is that
-homotopy. -/
-
 /-! ## 14. What the chosen `smQuartet` b-ghost exposes
 
 The quartet *record* carries `Q P + P Q = 1 − V`, from which the contracting identity
@@ -1819,6 +1806,138 @@ heartbeats.  Marking `smBrstCharge` and `smGhostParity` `irreducible` *locally* 
 evaluation, since every hypothesis is supplied by a separately proved lemma about those same
 constants.  The obstruction result (`even_homotopy_eq_zero`) still stands on its own: the odd sign is
 forced, and the model realises it. -/
+
+/-! ## 15. The physical subspace of `smBrstCharge`, exactly
+
+§8 built `smQuartet` from a bundle, so the choice it makes now has a *name*: the homotopy is the
+`P` field of `smOddHomotopy`.  That is what §9 could not use — it could only record containment in
+the closed space, because the homotopy behind the `Classical.choice` was not exposed.  With the
+bundle in hand the characterisation is available at the model:
+
+  `range smPhysProj = ker Ω ⊓ ker P`      (`smPhysProj_range`),
+
+so the physical subspace of the Standard-Model charge is *exactly* the closed states killed by the
+chosen b-ghost — the harmonic representatives of the cohomology — and a state is physical iff it is
+closed and `P` kills it (`smPhysProj_mem_range_iff`).  The two halves of the quartet split are
+`smClosed_decompose` (`x = Ω (b x) + V x` for a closed `x`, with `b = smBghost` the corrected
+b-ghost) and `smPhysProj_comp_smBrstCharge` (the gauge orbit is annihilated).
+
+**The range is graded.**  The bundle's `P` is odd, so §13's forward implication applies with no
+remaining parameter: `smPhysicalPositivity_imp_evenRange` — positivity of the ghost-parity form on
+the closed space forces every physical state to be ghost-parity even.  So the transverse, even
+description of `range smPhysProj` is a *consequence* of the no-ghost input and never a substitute
+for it; this is where §12's `smPhysicalPositivity_of_evenRange` and §13's implication meet at the
+model's own b-ghost.
+
+**Boundary.**  Nothing here compares `range smPhysProj` with `range smPhysProjFormula`: the two
+homotopies are different choices of complement of the exact states, so the two ranges are
+different subspaces of the same closed space, and only the canonical one is proved to be
+`ker Ω ⊓ (range Ω)ᗮ` (`smPhysProjFormula_range`, `ChapterSmBghostFormula` §3).  Positivity of the
+charge form on the chosen range stays the input (`smPhysicalPositivity_of_physForm`). -/
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The model's b-ghost is §5's formula at the bundled homotopy**: `smBghost = bGhostOf Ω P`.
+The `Classical.choice` behind `smOddHomotopy` is a homotopy of `Ω`, not an opaque map, so the
+identity that defines the quartet correction is available pointwise. -/
+theorem smBghost_eq_bGhostOf {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    smBghost hT h3anti h3jac
+      = BrstQuartet.bGhostOf (smBrstCharge m T f3) (smOddHomotopy m T f3).P := rfl
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The model's physical projector is §5's formula at the bundled homotopy**:
+`smPhysProj = physProjOf Ω P`. -/
+theorem smPhysProj_eq_physProjOf {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    smPhysProj hT h3anti h3jac
+      = BrstQuartet.physProjOf (smBrstCharge m T f3) (smOddHomotopy m T f3).P := rfl
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The range of the SM physical projector is `ker Ω ⊓ ker P`.**  The physical subspace of the
+Standard-Model charge is the closed space cut out by the model's own homotopy: the harmonic
+representatives, characterised rather than merely contained. -/
+theorem smPhysProj_range {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    LinearMap.range (smPhysProj hT h3anti h3jac)
+      = closed (smBrstCharge m T f3) ⊓ LinearMap.ker (smOddHomotopy m T f3).P := by
+  rw [smPhysProj_eq_physProjOf]
+  exact BrstQuartet.range_physProjOf (isBrst_smBrstCharge hT h3anti h3jac)
+    (smOddHomotopy m T f3).QSQ (smOddHomotopy m T f3).SQS
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **A state is physical iff it is closed and the model's homotopy kills it.**  Membership form of
+`smPhysProj_range`: the SM physical subspace is `ker Ω ⊓ ker P`, exactly. -/
+theorem smPhysProj_mem_range_iff {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) (x : BookProof.SmCar.FermiFock (m + 12)) :
+    x ∈ LinearMap.range (smPhysProj hT h3anti h3jac) ↔
+      smBrstCharge m T f3 x = 0 ∧ (smOddHomotopy m T f3).P x = 0 := by
+  rw [smPhysProj_range, Submodule.mem_inf]
+  exact ⟨fun h => ⟨h.1, LinearMap.mem_ker.mp h.2⟩,
+    fun h => ⟨h.1, LinearMap.mem_ker.mpr h.2⟩⟩
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The gauge orbit is annihilated by the SM physical projector**: `V Ω = 0` at the model's
+charge, so a physical state is never an exact state. -/
+theorem smPhysProj_comp_smBrstCharge {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) (x : BookProof.SmCar.FermiFock (m + 12)) :
+    smPhysProj hT h3anti h3jac (smBrstCharge m T f3 x) = 0 := by
+  rw [smPhysProj_eq_physProjOf]
+  exact BrstQuartet.physProjOf_comp_Q (isBrst_smBrstCharge hT h3anti h3jac)
+    (smOddHomotopy m T f3).QSQ x
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **Every closed state is exact plus physical**: `x = Ω (b x) + V x` at the model's charge.
+Together with `smPhysProj_range` this is the quartet decomposition of the physical subspace. -/
+theorem smClosed_decompose {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) {x : BookProof.SmCar.FermiFock (m + 12)}
+    (hx : x ∈ closed (smBrstCharge m T f3)) :
+    x = smBrstCharge m T f3 (smBghost hT h3anti h3jac x)
+      + smPhysProj hT h3anti h3jac x :=
+  BrstQuartet.quartet_decompose (smQuartet hT h3anti h3jac) hx
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **Positivity puts the SM physical range in the ghost-parity-even sector.**  The bundle's
+homotopy is odd (§5.1), so §13's forward implication applies at `smBrstCharge` with no remaining
+parameter: `PhysicalPositivity` for the ghost-parity form forces every physical state to be even.
+The converse is not available (evenness of the range does not supply the radical half, §13), so the
+transverse description is a consequence of the no-ghost input, never a route around it. -/
+theorem smPhysicalPositivity_imp_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (hpos : PhysicalPositivity (smBrstCharge m T f3) (smGhostParity m))
+    (y : BookProof.SmCar.FermiFock (m + 12)) :
+    smGhostParity m (smPhysProj hT h3anti h3jac y) = smPhysProj hT h3anti h3jac y := by
+  rw [smPhysProj_eq_physProjOf]
+  exact BrstQuartet.physicalPositivity_imp_evenRange (isBrst_smBrstCharge hT h3anti h3jac)
+    (smOddHomotopy m T f3).QSQ (smOddHomotopy m T f3).SQS (smGhostParity_comp m)
+    (fun x => smGhostParity_odd_smBrstCharge m T f3 x) (smOddHomotopy m T f3).odd hpos y
 
 end
 
