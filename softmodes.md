@@ -2549,16 +2549,23 @@ from `e^{−hstep}` — in one theorem: no limit, no `hsep`.
 run at `δ = 1/10`, `η = 1/50`: `Aedge_membership_from_order_one` places `sInf = 2/3` in
 `[θ m − 1/50, θ m]` for every `m ≥ 1`, `Aedge_band_order_not_zero` shows the threshold
 `δ η = 1/500` fails at order `0` (`resid (wMix)² = 4/625`), and `Aedge_band_order_least` makes `1`
-the least order that meets it. The order is a numeral because the threshold is checked directly;
-the ceiling with its logarithms is not evaluated. `Aedge_membership_from_order_four` keeps the
-coarser statement.
+the least order that meets it. The ceiling is evaluated too, and agrees: with `C = 2/25`, the true
+`resid (xOrd 0)`, and `r = 1/2`, `Aedge_ceiling_eq_one` proves
+`⌈log(√(δη)/C) / log r⌉ = 1`; `Aedge_ceiling_eq_four` proves the same ceiling reads `4` when `C` is
+inflated to `2/5`, which is where the draft's `4` came from. Neither proof uses a decimal bound on
+`log 2` — both reduce to `4 < 5 ≤ 16`. `Aedge_membership_from_order_four` keeps the coarser
+statement.
 
 **Verification.** `ChapterRitzCertificate` and `ChapterResolventTransfer` build with no warning and
 no line above 100 code points. `lake build BookProof` failed at
 `BookProof/Sm/ChapterSmQuartet.lean` after merge `c843571` (changed shapes of
-`inner_self_eq_norm_sq_to_K` and `inner_conj_symm`); a separate commit repairs it, after which the
-full build succeeds. That file keeps pre-existing long-line warnings. `#print axioms` on the ten
-new declarations and the `xOrd` family gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+`inner_self_eq_norm_sq_to_K` and `inner_conj_symm`); a commit repairs it. The later merge of
+`a976803` conflicted there on those same three proofs, was resolved to the local scripts, and the
+whole project then builds (`9013 jobs`). That file keeps pre-existing long-line warnings.
+`#print axioms` on the twelve new declarations (`Aedge_membership_from_order_one`,
+`Aedge_membership_from_order_four`, `Aedge_band_order_not_zero`, `Aedge_band_order_least`,
+`Aedge_ceiling_eq_one`, `Aedge_ceiling_eq_four` included) and the `xOrd` family gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
