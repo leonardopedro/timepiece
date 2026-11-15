@@ -71,3 +71,9 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmQuartet.smPhysProjFormula
 #audit_axioms BookProof.SmQuartet.ker_smBghostFormula
 #audit_axioms BookProof.SmQuartet.smPhysProjFormula_range
+#audit_axioms BookProof.SmQuartet.BrstQuartet.range_physProjOf_disjoint
+#audit_axioms BookProof.SmQuartet.BrstQuartet.closed_eq_sup_range_physProjOf
+#audit_axioms BookProof.SmQuartet.BrstQuartet.finrank_range_physProjOf
+#audit_axioms BookProof.SmQuartet.smPhysProj_finrank
+#audit_axioms BookProof.SmQuartet.finrank_smPhysProjFormula_range
+#audit_axioms BookProof.SmQuartet.smPhysProj_finrank_eq_formula

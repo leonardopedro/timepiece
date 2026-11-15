@@ -5166,3 +5166,36 @@ from the grid.  `dispGrad` is a sum of `i w_c ξ̂_{m,r} e^{i w·a}` over the mo
 at a configuration is fixed by that configuration's coefficients; matching it to the shear matrix is a
 statement about which configuration and which truncation.  The theorems above make that the single
 remaining input and discharge everything downstream of it.
+
+## 91. The physical range is a complement of the exact states, so both projectors are equally large
+
+§88 characterised `range smPhysProj` as `ker Ω ⊓ ker P`.  That description also fixes its *size*: a
+contracting homotopy pairs the closed space with the exact states, so the physical subspace is a
+complement of `range Ω` inside `ker Ω`.
+
+* **Disjointness** — `range_physProjOf_disjoint`: `range Q ⊓ range V = ⊥`.  An exact state in `range V`
+  is killed by the homotopy (`P_physProjOf`), while `Q P Q = Q` says `Q z = Q (P (Q z))`, so it
+  vanishes.
+* **Sum** — `closed_eq_sup_range_physProjOf`: `closed Q = range Q ⊔ range V`, from the split
+  `x = Q (P x) + V x` for closed `x` (the quartet decomposition one correction term earlier).
+* **Dimension** — `finrank_range_physProjOf`: `dim range V + dim range Q = dim ker Q`, and at the model
+  `smPhysProj_finrank` reads `dim range smPhysProj + dim range Ω = dim ker Ω`.
+
+**Both projectors are equally large.**  The canonical projector of `ChapterSmBghostFormula` has the
+same dimension (`finrank_smPhysProjFormula_range`), so `smPhysProj_finrank_eq_formula` makes the
+chosen/canonical distinction quantitative: the choice of complement moves the physical subspace
+around inside the closed space without changing its dimension.  This is the exact sense in which §88's
+range is characterised rather than canonical — the two ranges are different subspaces of equal size,
+and nothing identifies them.
+
+**A second copy of the elaboration wall.**  The statements of this section put `smBrstCharge` inside a
+typeclass-carrying expression (`Module.finrank` of a submodule of `FermiFock (m + 12)`), which is
+exactly the shape §87 hit: elaborating the *statement* exhausted the budget at `200000` heartbeats.
+The same `attribute [local irreducible]` for `smBrstCharge` and `smGhostParity`, declared at the start
+of the new section in `ChapterSmBghostFormula`, removes it — so the workaround is not specific to the
+odd-homotopy instantiation, it is what any statement quantifying over the concrete operator needs.
+
+Boundary: the identification of `dim range V` with the dimension of the cohomology `ker Ω ⧸ range Ω`
+is not stated as a quotient: what is proved is the finrank identity above, and the quotient form is the
+standard finrank additivity one step further.  Positivity on either range is still the separate
+no-ghost input, and no metric for `smBrstCharge` is constructed.

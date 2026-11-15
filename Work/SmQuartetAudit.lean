@@ -70,3 +70,7 @@ open BookProof.SmQuartet
 #audit_axioms smPhysProj_comp_smBrstCharge
 #audit_axioms smClosed_decompose
 #audit_axioms smPhysicalPositivity_imp_evenRange
+#audit_axioms BrstQuartet.range_physProjOf_disjoint
+#audit_axioms BrstQuartet.closed_eq_sup_range_physProjOf
+#audit_axioms BrstQuartet.finrank_range_physProjOf
+#audit_axioms smPhysProj_finrank

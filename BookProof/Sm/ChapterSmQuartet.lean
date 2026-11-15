@@ -1939,6 +1939,103 @@ theorem smPhysicalPositivity_imp_evenRange {m : ℕ} {T : Fin 12 → Matrix (Fin
     (smOddHomotopy m T f3).QSQ (smOddHomotopy m T f3).SQS (smGhostParity_comp m)
     (fun x => smGhostParity_odd_smBrstCharge m T f3 x) (smOddHomotopy m T f3).odd hpos y
 
+/-! ## 16. The physical range is a complement of the exact states
+
+§15 identified `range V` as `ker Q ⊓ ker P`.  That description also says *how big* it is: a
+contracting homotopy pairs the closed space with the exact states, so the physical subspace is a
+complement of `range Q` inside `ker Q`, and its dimension is `dim ker Q − dim range Q` — the number
+of degrees of freedom the cohomology leaves.  This is what makes the quartet picture quantitative
+rather than merely structural.
+
+Two halves, both from identities already in hand:
+
+* **Disjointness** (`range_physProjOf_disjoint`): an exact state in `range V` is killed by `P`,
+while `Q P Q = Q` says `Q z = Q (P (Q z))` — so it vanishes.
+* **Sum** (`closed_eq_sup_range_physProjOf`): a closed state splits as `Q (P x) + V x`, which is the
+quartet decomposition with `P` instead of the corrected b-ghost.
+
+So `range Q` and `range V` are complementary in `ker Q` (`finrank_range_physProjOf`), and at the
+model (`smPhysProj_finrank`) the physical subspace has dimension `dim ker Ω − dim range Ω`.
+
+**Boundary.**  Disjointness and the sum are statements about *this* `P`.  Another contracting
+homotopy gives another complement — same dimension, different subspace — which is exactly the sense
+in which §15's range is characterised but not canonical: the canonical projector
+`smPhysProjFormula` has the same dimension (proved in `ChapterSmBghostFormula`), and the two ranges
+still need not agree.  Nothing here identifies them, and nothing here names the metric. -/
+
+namespace BrstQuartet
+
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+variable {Q : H →ₗ[ℂ] H}
+
+/-- **The exact states meet the physical range only at `0`.**  An exact vector in `range V` is
+killed by the homotopy, while `Q P Q = Q` says `Q z = Q (P (Q z))`. -/
+theorem range_physProjOf_disjoint {Q P : H →ₗ[ℂ] H}
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x) :
+    LinearMap.range Q ⊓ LinearMap.range (physProjOf Q P) = ⊥ := by
+  refine le_antisymm ?_ bot_le
+  rintro x ⟨⟨z, rfl⟩, hxV⟩
+  obtain ⟨y, hy⟩ := hxV
+  have hPx : P (Q z) = 0 := by
+    rw [← hy]
+    exact P_physProjOf hSQS y
+  rw [← hQSQ z, hPx, map_zero]
+  exact Submodule.zero_mem _
+
+/-- **Every closed state is exact plus physical**, with the homotopy `P` itself: `x = Q (P x) + V x`
+for `x ∈ ker Q`.  (The b-ghost form is `quartet_decompose`; this is the same split one correction
+term earlier.) -/
+theorem closed_eq_sup_range_physProjOf (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) :
+    closed Q = LinearMap.range Q ⊔ LinearMap.range (physProjOf Q P) := by
+  refine le_antisymm ?_ ?_
+  · intro x hx
+    have hQx : Q x = 0 := hx
+    have hdecomp : x = Q (P x) + physProjOf Q P x := by
+      simp only [physProjOf_apply, hQx, map_zero]
+      abel
+    rw [hdecomp]
+    exact Submodule.add_mem_sup (LinearMap.mem_range_self Q (P x))
+      (LinearMap.mem_range_self (physProjOf Q P) x)
+  · refine sup_le ?_ ?_
+    · rintro _ ⟨z, rfl⟩
+      exact Q_apply_apply hQ z
+    · rintro _ ⟨y, rfl⟩
+      exact physProjOf_Q hQ hQSQ y
+
+/-- **The physical range and the exact states are complementary in the closed space**: their
+dimensions add up to `dim ker Q`. -/
+theorem finrank_range_physProjOf [FiniteDimensional ℂ H] {Q P : H →ₗ[ℂ] H} (hQ : IsBrst Q)
+    (hQSQ : ∀ x : H, Q (P (Q x)) = Q x) (hSQS : ∀ x : H, P (Q (P x)) = P x) :
+    Module.finrank ℂ (LinearMap.range (physProjOf Q P)) + Module.finrank ℂ (LinearMap.range Q)
+      = Module.finrank ℂ (closed Q) := by
+  have hsq := closed_eq_sup_range_physProjOf (Q := Q) (P := P) hQ hQSQ
+  have hdis := range_physProjOf_disjoint (Q := Q) (P := P) hQSQ hSQS
+  have h := Submodule.finrank_sup_add_finrank_inf_eq (LinearMap.range Q)
+    (LinearMap.range (physProjOf Q P))
+  rw [← hsq, hdis] at h
+  simp at h
+  omega
+
+end BrstQuartet
+
+open BookProof.SmBrstGhost BookProof.SmCar in
+/-- **The SM physical subspace has the dimension `dim ker Ω − dim range Ω`.**  The model's projector
+is §5's formula at the bundled homotopy (§15), so the abstract complement statement applies: the
+physical range and the gauge orbit together span the closed space, and their dimensions add up. -/
+theorem smPhysProj_finrank {m : ℕ} {T : Fin 12 → Matrix (Fin m) (Fin m) ℂ}
+    {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    Module.finrank ℂ (LinearMap.range (smPhysProj hT h3anti h3jac))
+        + Module.finrank ℂ (LinearMap.range (smBrstCharge m T f3))
+      = Module.finrank ℂ (closed (smBrstCharge m T f3)) := by
+  rw [smPhysProj_eq_physProjOf]
+  exact BrstQuartet.finrank_range_physProjOf (isBrst_smBrstCharge hT h3anti h3jac)
+    (smOddHomotopy m T f3).QSQ (smOddHomotopy m T f3).SQS
+
 end
 
 end BookProof.SmQuartet

@@ -596,6 +596,7 @@ require "$PLAN" 'one line of' \
 # The reduction of §9 could be misread as "positivity is now bookkeeping".  §72 decides the opposite with
 # an explicit quartet, so the counterexample and the statement it refutes must both stay.
 QUARTET=BookProof/Sm/ChapterSmQuartet.lean
+FORMULA=BookProof/Sm/ChapterSmBghostFormula.lean
 require "$QUARTET" "theorem exNotPhysicalPositivity" \
     "§72: the counterexample must stay asserted"
 require "$QUARTET" "def exQuartet3" \
@@ -925,6 +926,30 @@ require "$PLAN" "The shear's constant residual is a determinant" \
     "§90: the plan must keep the shear section"
 require "$PLAN" 'does not follow' \
     "§90: the plan must keep the gradient-identification boundary"
+
+# ---- 44. §91 the physical range is a complement, and both projectors are equally large
+# §88 identifies `range smPhysProj`; this says how big it is.  Both projectors are complements of the
+# exact states in the closed space, so they have equal dimension while remaining different subspaces.
+# Dropping the disjointness/sum pair would leave `range V` described but unsized, and dropping the
+# chosen/canonical dimension comparison would let the choice read as canonical.
+require "$QUARTET" "theorem range_physProjOf_disjoint" \
+    "§91: the disjointness of the exact and physical states must stay"
+require "$QUARTET" "theorem closed_eq_sup_range_physProjOf" \
+    "§91: the sum decomposition of the closed space must stay"
+require "$QUARTET" "theorem finrank_range_physProjOf" \
+    "§91: the dimension count must stay"
+require "$QUARTET" "theorem smPhysProj_finrank" \
+    "§91: the model's dimension count must stay"
+require "$FORMULA" "theorem finrank_smPhysProjFormula_range" \
+    "§91: the canonical projector's dimension count must stay"
+require "$FORMULA" "theorem smPhysProj_finrank_eq_formula" \
+    "§91: the equal-size statement must stay"
+require "$FORMULA" "attribute [local irreducible] BookProof.SmBrstGhost.smBrstCharge" \
+    "§91: the second copy of the elaboration workaround must stay"
+require "$PLAN" 'The physical range is a complement of the exact states' \
+    "§91: the plan must keep the sizing section"
+require "$PLAN" 'different subspaces of equal size' \
+    "§91: the plan must keep the characterised-not-canonical reading"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

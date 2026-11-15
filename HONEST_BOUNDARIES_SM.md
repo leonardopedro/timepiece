@@ -447,6 +447,18 @@ argument goes through unchanged (`hdvd_skew`), giving the penalty theorems at a 
 family with `f = axis`.  The labelling hypothesis is still an input: the dual basis gives the pairing
 formula, not the claim that the model's spectrum lies on the grid.  See plan §89.
 
+The range is also *sized*: `range_physProjOf_disjoint` (`range Q ⊓ range V = ⊥`) and
+`closed_eq_sup_range_physProjOf` (`closed Q = range Q ⊔ range V`) make `range V` a complement of the
+exact states inside the closed space, so `finrank_range_physProjOf` gives
+`dim range V + dim range Q = dim ker Q` and `smPhysProj_finrank` states it at the model.  Since the
+canonical projector has the same dimension (`finrank_smPhysProjFormula_range`), the chosen/canonical
+distinction is quantitative: `smPhysProj_finrank_eq_formula` says the two ranges are different
+subspaces of *equal* size, which is the exact sense in which the chosen one is characterised rather
+than canonical.  The statements that put `smBrstCharge` inside `Module.finrank` hit the same
+elaboration wall as the instantiation, and are handled by the same `attribute [local irreducible]` in
+`ChapterSmBghostFormula` — the workaround is a property of the statement shape, not of the
+odd-homotopy construction.  See plan §91.
+
 Finally, the shear family's constant residual is now a determinant: `(1 + shearGrad t ε).det = 1 − εt`
 (`det_one_add_shearGrad`), which turns the `hconst` of the penalty theorems into
 `hconst_of_dispGrad_shear` (`Λ = −εt`) and gives `(κ/2)(εt)²` on the grid
