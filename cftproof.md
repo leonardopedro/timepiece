@@ -1016,11 +1016,15 @@ recorded in `BookProof/OSReconstruction/HalfSpaceInfiniteBandedCovariance.lean` 
 (`bandedCovZ_row_tsum`) is the same per-site factor as `bandCov_hsNormSq`
 (`bandedCovZ_row_tsum_closed`; `bandedCovZ_row_tsum_one` and `bandedCovZ_row_tsum_zero` at widths
 `1` and `0`) and agrees with the finite row sum `bandCov_row_sum`
-(`bandedCovZ_row_tsum_eq_bandCov_row_sum`); it is also positive semidefinite, being the
+(`bandedCovZ_row_tsum_eq_bandCov_row_sum`); it is also positive definite, being the
 autocorrelation of the one-sided weight `1, ρ, …, ρ` (`bandedCovZ_eq_weight_sum`) with quadratic
-form an explicit sum of squares (`bandedCovZ_quadForm_eq_sum_sq`, `bandedCovZ_posSemidef`), so
-positivity of the Toeplitz symbol is no longer the missing ingredient — only the extension theorem
-is.  A banded Toeplitz matrix is still not Hilbert–Schmidt on `ℓ²(ℤ)`.  What remains unbuilt is the Gaussian *measure* on `ℤ → ℝ` with that
+form an explicit sum of squares (`bandedCovZ_quadForm_eq_sum_sq`, `bandedCovZ_posSemidef`) that
+vanishes only on the zero test function (`bandedCovZ_posDef`), so positivity of the Toeplitz symbol
+is no longer the missing ingredient — only the extension theorem is.  The kernel is Toeplitz
+(`bandedCovZ_translate`) but **not** reflection positive on a half-line for `θ i = -i`
+(`bandedCovZ_not_reflectionPositive`): RP is a property of the doubled `covState`, where the
+white-noise block cancels the cross block.  A banded Toeplitz matrix is still not
+Hilbert–Schmidt on `ℓ²(ℤ)`.  What remains unbuilt is the Gaussian *measure* on `ℤ → ℝ` with that
 kernel and any Hilbert–Schmidt square root of it.
 
 The chain is collected, link by link with its remaining hypotheses, in

@@ -445,8 +445,16 @@ of this section said otherwise and is corrected here.
    kernel is also positive semidefinite: it is the autocorrelation of the one-sided weight
    `1, ρ, …, ρ` (`bandedCovZ_eq_weight_sum`), its quadratic form is an explicit sum of squares
    (`bandedCovZ_quadForm_eq_sum_sq`), hence nonnegative (`bandedCovZ_posSemidef`) — the
-   finite-minor consistency a Gaussian law with this covariance needs.  What that law still lacks
-   is the extension theorem (Kolmogorov consistency), not positivity.
+   finite-minor consistency a Gaussian law with this covariance needs.  The form is in fact
+   strictly positive off zero (`bandedCovZ_quadForm_eq_zero_iff`, `bandedCovZ_posDef`), and the
+   kernel is Toeplitz (`bandedCovZ_translate`, `bandedCovZ_quadForm_translate`).  What that law
+   still lacks is the extension theorem (Kolmogorov consistency), not positivity.
+   **The kernel is not reflection positive**, and that is a feature, not a gap: with `θ i = -i`
+   and `k = ρ = 1`, the finitely supported `f` with `f 0 = 1`, `f 1 = -2` gives a reflected form
+   `-2` (`bandedCovZ_not_reflectionPositive`).  OS positivity is carried by the doubled state
+   `[[C + 1, C], [C, C + 1]]` — the white-noise block cancels the cross block — which is exactly
+   the `covState` shape with RP proved in `HalfSpaceCovariantReflectionPositivity`; the banded
+   kernel is the coupling term, not a state.
    **The covariance matrix of the coupled state is now proved, not merely described**
    (`HalfSpaceCovStateCovariance`): for a shift law `ν` with second moments (`hν`), the blocks of
    `covState ν` are `Cov T + 1` on the diagonal (`covState_cov_fst_fst`, `covState_cov_snd_snd`) and
@@ -521,5 +529,5 @@ and all modules build with no `sorry` and no warnings from their own files. The 
 `HalfSpaceInfiniteVolumePositivity`, `HalfSpaceCovariancePushforward`, `HalfSpaceChainCovariance`,
 `HalfSpaceCovariantReflectionPositivity`, `HalfSpaceCovStateCovariance`,
 `HalfSpaceChainBandCovariance`, `HalfSpaceChainBandHSNorm`, `HalfSpaceInfiniteBandedCovariance`)
-cover 10, 21, 5, 8, 8, 11, 3, 11, 8, 14 and 15 declarations
+cover 10, 21, 5, 8, 8, 11, 3, 11, 8, 14 and 22 declarations
 respectively.
