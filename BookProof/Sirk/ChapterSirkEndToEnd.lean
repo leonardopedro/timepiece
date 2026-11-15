@@ -58,6 +58,13 @@ constants `C`, `Dmin`, `h` abstract.
 * `sirkApprox_id`, `sirkReconstruction_isIdempotent`,
   `sirkReconstruction_isSelfAdjoint`: the reconstruction step `V ∘ V∗` *is* the
   orthogonal projection onto the retained subspace (§12.2 Gap 4a).
+* `sirk_fullSpace_error_le` prices the space a generic Krylov basis leaves
+  behind.  With `P = V V∗`, `Q = 1 − P` it proves
+  `‖R − V B V∗‖ ≤ ‖V∗RV − B‖ + 2‖Q R P‖ + ‖Q R Q‖`, so the exact-invariance
+  premise of `sirk_end_to_end` is replaced by two numbers (leakage and tail)
+  rather than assumed.  `sirk_offblock_norm_eq` explains the single factor `2`:
+  for self-adjoint `R` the corners `P R Q` and `Q R P` are adjoints, hence have
+  equal norms — no `m`-dependent entrywise summation.
 
 ## Honest boundary
 
@@ -423,5 +430,127 @@ theorem sirk_end_to_end_satisfiable
         (ContinuousLinearMap.id ℂ F) = compress V X := by ext x; simp
     rw [this, sub_self, norm_zero]
     positivity
+
+
+/-! ## 8. The full-space error: leakage and tail, priced rather than assumed -/
+
+/-- The **complementary projection** `Q = 1 − V V∗`.
+
+`softmodes.md` U2 asks for the estimate that exact Krylov invariance supplies for
+free.  `Q` is the part of the ambient space the reconstruction discards, so the
+two off-block pieces below are literally what invariance would have set to zero. -/
+def sirkComplement (V : F →L[ℂ] E) : E →L[ℂ] E :=
+  1 - sirkReconstruction V
+
+@[simp] theorem sirkComplement_apply (V : F →L[ℂ] E) (v : E) :
+    sirkComplement V v = v - sirkReconstruction V v := rfl
+
+/-- `Q` is self-adjoint, being `1` minus the self-adjoint reconstruction. -/
+theorem sirkComplement_isSelfAdjoint (V : F →L[ℂ] E) :
+    IsSelfAdjoint (sirkComplement V) := by
+  rw [IsSelfAdjoint, sirkComplement, star_sub, star_one,
+    (sirkReconstruction_isSelfAdjoint V)]
+
+/-- **Splitting a vector costs nothing.**  `P y + Q y = y` for `P = V V∗` and
+`Q = 1 − P`: the two blocks are complementary projections. -/
+theorem sirkReconstruction_add_complement (V : F →L[ℂ] E) (y : E) :
+    sirkReconstruction V y + sirkComplement V y = y := by
+  simp [sirkComplement]
+
+/-- **The leakage is the tail.**  For self-adjoint `R` the two off-block corners
+`P R Q` and `Q R P` are adjoints of one another, hence have equal operator norms.
+This is what turns `‖P R Q‖ + ‖Q R P‖` into `2 ‖Q R P‖` — the factor `2` of the
+full-space bound, rather than a separate norm for each corner. -/
+theorem sirk_offblock_norm_eq (V : F →L[ℂ] E) {R : E →L[ℂ] E} (hR : IsSelfAdjoint R) :
+    ‖(sirkReconstruction V).comp (R.comp (sirkComplement V))‖
+      = ‖(sirkComplement V).comp (R.comp (sirkReconstruction V))‖ := by
+  have hP := sirkReconstruction_isSelfAdjoint V
+  have hQ := sirkComplement_isSelfAdjoint V
+  have hstar : star ((sirkComplement V).comp (R.comp (sirkReconstruction V)))
+      = (sirkReconstruction V).comp (R.comp (sirkComplement V)) := by
+    change ContinuousLinearMap.adjoint
+        ((sirkComplement V).comp (R.comp (sirkReconstruction V)))
+      = (sirkReconstruction V).comp (R.comp (sirkComplement V))
+    rw [ContinuousLinearMap.adjoint_comp, ContinuousLinearMap.adjoint_comp]
+    rw [← ContinuousLinearMap.star_eq_adjoint (sirkReconstruction V),
+      ← ContinuousLinearMap.star_eq_adjoint R,
+      ← ContinuousLinearMap.star_eq_adjoint (sirkComplement V), hP, hR, hQ]
+    rfl
+  rw [← hstar]
+  simp
+
+/-- **The full-space SIRK error, with the omitted space priced.**
+
+For an isometric `V`, a self-adjoint `R` and any reduced `B`,
+
+  `‖R − V B V∗‖ ≤ ‖V∗ R V − B‖ + 2 ‖Q R P‖ + ‖Q R Q‖`,
+
+with `P = V V∗` and `Q = 1 − P`.  The first term is the reduced block error, the
+middle the *leakage* (mass the retained block lets out of `ran V`) and the last
+the *tail* on the omitted space.  Exact invariance of `ran V` would kill both
+off-block terms; this inequality is what replaces that hypothesis — which
+`sirk_end_to_end` cannot justify for a generic Krylov space — by two numbers.
+No left inverse `V∗ V = 1` is assumed: the estimate is purely about the split
+`x = P x + Q x` and the isometry of `V`. -/
+theorem sirk_fullSpace_error_le (V : F →L[ℂ] E) (B : F →L[ℂ] F) {R : E →L[ℂ] E}
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hR : IsSelfAdjoint R) :
+    ‖R - sirkApprox V B‖ ≤ ‖V.adjoint.comp (R.comp V) - B‖
+      + 2 * ‖(sirkComplement V).comp (R.comp (sirkReconstruction V))‖
+      + ‖(sirkComplement V).comp (R.comp (sirkComplement V))‖ := by
+  set P : E →L[ℂ] E := sirkReconstruction V with hP
+  set Q : E →L[ℂ] E := sirkComplement V with hQ
+  have hsplit : ∀ y : E, P y + Q y = y := fun y => by
+    rw [hP, hQ]; exact sirkReconstruction_add_complement V y
+  have hkey : ∀ x : E, (R - sirkApprox V B) x
+      = V ((V.adjoint.comp (R.comp V) - B) (V.adjoint x))
+        + P (R (Q x)) + Q (R (P x)) + Q (R (Q x)) := by
+    intro x
+    have hfirst : V ((V.adjoint.comp (R.comp V) - B) (V.adjoint x))
+        = P (R (P x)) - V (B (V.adjoint x)) := by
+      rw [ContinuousLinearMap.sub_apply, map_sub]
+      simp [hP, sirkReconstruction]
+    have hRx : R x = (P (R (P x)) + P (R (Q x))) + (Q (R (P x)) + Q (R (Q x))) := by
+      have h1 : R x = R (P x) + R (Q x) := by rw [← map_add, hsplit]
+      have h2 : R (P x) = P (R (P x)) + Q (R (P x)) := (hsplit (R (P x))).symm
+      have h3 : R (Q x) = P (R (Q x)) + Q (R (Q x)) := (hsplit (R (Q x))).symm
+      calc R x = R (P x) + R (Q x) := h1
+        _ = (P (R (P x)) + Q (R (P x))) + (P (R (Q x)) + Q (R (Q x))) := by
+          conv_lhs => rw [h2, h3]
+        _ = (P (R (P x)) + P (R (Q x))) + (Q (R (P x)) + Q (R (Q x))) := by abel
+    rw [ContinuousLinearMap.sub_apply, sirkApprox_apply, hfirst, hRx]
+    abel
+  refine ContinuousLinearMap.opNorm_le_bound _ (by positivity) fun x => ?_
+  rw [hkey x]
+  have hblock : ‖V ((V.adjoint.comp (R.comp V) - B) (V.adjoint x))‖
+      ≤ ‖V.adjoint.comp (R.comp V) - B‖ * ‖x‖ := by
+    rw [hViso]
+    exact le_trans (ContinuousLinearMap.le_opNorm _ _)
+      (mul_le_mul_of_nonneg_left (hVadj x) (norm_nonneg _))
+  have hleakN : ‖P.comp (R.comp Q)‖ = ‖Q.comp (R.comp P)‖ := by
+    rw [hP, hQ]; exact sirk_offblock_norm_eq V hR
+  have hleak : ‖P (R (Q x))‖ ≤ ‖Q.comp (R.comp P)‖ * ‖x‖ := by
+    rw [← hleakN]
+    exact ContinuousLinearMap.le_opNorm (P.comp (R.comp Q)) x
+  have hcorner : ‖Q (R (P x))‖ ≤ ‖Q.comp (R.comp P)‖ * ‖x‖ :=
+    ContinuousLinearMap.le_opNorm (Q.comp (R.comp P)) x
+  have htail : ‖Q (R (Q x))‖ ≤ ‖Q.comp (R.comp Q)‖ * ‖x‖ :=
+    ContinuousLinearMap.le_opNorm (Q.comp (R.comp Q)) x
+  have hsum : ‖V ((V.adjoint.comp (R.comp V) - B) (V.adjoint x))‖
+        + ‖P (R (Q x))‖ + ‖Q (R (P x))‖ + ‖Q (R (Q x))‖
+      ≤ (‖V.adjoint.comp (R.comp V) - B‖ + 2 * ‖Q.comp (R.comp P)‖
+        + ‖Q.comp (R.comp Q)‖) * ‖x‖ := by
+    nlinarith [hblock, hleak, hcorner, htail]
+  have htri : ‖V ((V.adjoint.comp (R.comp V) - B) (V.adjoint x))
+        + P (R (Q x)) + Q (R (P x)) + Q (R (Q x))‖
+      ≤ ‖V ((V.adjoint.comp (R.comp V) - B) (V.adjoint x))‖
+        + ‖P (R (Q x))‖ + ‖Q (R (P x))‖ + ‖Q (R (Q x))‖ := by
+    refine le_trans (norm_add_le _ _) ?_
+    gcongr
+    refine le_trans (norm_add_le _ _) ?_
+    gcongr
+    exact norm_add_le _ _
+  linarith [htri, hsum]
 
 end BookProof.ChapterSirkEndToEnd

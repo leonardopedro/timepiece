@@ -2866,6 +2866,28 @@ whole project then builds (`9013 jobs`). That file keeps pre-existing long-line 
 `Aedge_ceiling_eq_one`, `Aedge_ceiling_eq_four` included) and the `xOrd` family gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
+### The omitted space is priced, not assumed (2026-11-15j)
+
+U2's "concrete way to expose the missing full-space estimate" is now a theorem.
+`ChapterSirkEndToEnd` §8 defines the complement `Q = 1 − V V∗` of the
+reconstruction `P = V V∗` and proves, for isometric `V` and self-adjoint `R`,
+
+  `‖R − V B V∗‖ ≤ ‖V∗ R V − B‖ + 2 ‖Q R P‖ + ‖Q R Q‖`
+  (`sirk_fullSpace_error_le`).
+
+Exact invariance of `ran V` — the premise `sirk_end_to_end` cannot justify for a
+generic Krylov space — would make the last two terms vanish; the estimate prices
+them instead. The corner norms are equal (`sirk_offblock_norm_eq`), because `P R Q`
+and `Q R P` are adjoints when `R` is self-adjoint, so the leakage is paid once
+with a factor `2` and no `m`-term row sum appears. Nothing assumes `V∗V = 1`.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no
+warning and no line above 100 code points; `#print axioms` on the new
+theorems gives `[propext, Classical.choice, Quot.sound]`; no `sorry`. What is
+still open is U2's allocation itself: `T`, `S`, `O`, `F` are not yet attached to
+these norms, and the compression-versus-resolvent correction still has to be
+composed before the first term may carry the finite shift-invert inverse.
+
  . "## Historical phases and implementation notes" (2026-10-30 to 2026-11-04)
 
 The revised work package above governs their interpretation. In particular, “DONE”,

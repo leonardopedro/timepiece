@@ -113,6 +113,12 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15j):** “State of the project — 2026-11-15j: the SIRK omitted space is
+> priced, not assumed” (end of file): `ChapterSirkEndToEnd` §8 replaces the exact-invariance premise
+> by `sirk_fullSpace_error_le`, `‖R − V B V∗‖ ≤ ‖V∗RV − B‖ + 2‖Q R P‖ + ‖Q R Q‖` with
+> `P = V V∗`, `Q = 1 − P`, and `sirk_offblock_norm_eq` shows the two off-block corners are adjoints
+> — so the leakage enters once, with a factor `2`, and no `V∗ V = 1` is assumed.
+>
 > **Track A — newest (2026-11-13af):** “State of the project — 2026-11-13af: the second-edge band,
 > discharged and instantiated” (end of file): `spectralSeparation_at_secondEdge_of_compressionBound`
 > derives the separation from a form bound on the compression to `yᗮ`, so
@@ -26037,3 +26043,48 @@ separate targets. Fixed-action invariance under pointwise limits proves none of 
 The companion chapters on Gribov, SM, Yang–Mills and NS/QG elimination were aligned
 with this scope. Check citations and axioms, then render through the book wrapper
 and KaTeX checks as the specialist's final validation. No build was run here.
+
+## State of the project — 2026-11-15j: the SIRK omitted space is priced, not assumed
+
+`softmodes.md` U2/U6 step 2 asked for one concrete replacement of the exact
+invariance premise that `sirk_end_to_end` carries. This entry supplies it in
+`BookProof/Sirk/ChapterSirkEndToEnd.lean` §8 and nothing else: no constant is
+instantiated and no convergence claim is added.
+
+**The gap it closes.** `sirk_end_to_end` and `sirk_flow_error_*` need
+`V (V∗ v) = v` — invariance of the retained range. A generic Krylov space does
+not have it, and `sirk_error_opNorm_le`'s all-vector premise cannot be inferred
+from the seed theorem (`softmodes.md` U1's source audit). §8 replaces the premise
+by numbers on the same `V`: with the reconstruction `P = V V∗` and its complement
+`Q = 1 − P` (`sirkComplement`, self-adjoint by `sirkComplement_isSelfAdjoint`),
+
+  `‖R − V B V∗‖ ≤ ‖V∗ R V − B‖ + 2 ‖Q R P‖ + ‖Q R Q‖`
+  (`sirk_fullSpace_error_le`).
+
+The three terms are the reduced block error, the **leakage** out of `ran V`, and
+the **tail** on the omitted space. Exact invariance would set the last two to
+zero; the estimate prices them instead.
+
+**Why the factor is `2` and not `m`.** `R` is self-adjoint, so the two off-block
+corners are adjoints of one another and have equal operator norms:
+`sirk_offblock_norm_eq : ‖P R Q‖ = ‖Q R P‖`. Hence `‖P R Q‖ + ‖Q R P‖ = 2 ‖Q R P‖`
+— one cost for both corners, with no entrywise summation over the basis. The
+proof is `x = P x + Q x` applied twice, then the triangle inequality; it assumes
+only that `V` is isometric (`‖V y‖ = ‖y‖`) and that `‖V∗ v‖ ≤ ‖v‖`. It does
+**not** assume `V∗ V = 1`, so the estimate does not presuppose the invariance it
+replaces.
+
+**What this does not do.** The two off-block norms are not identified with the
+`sirkBound` constants, so U2's `B(g,L,q_m)` is still open: `T`, `S`, `O`, `F`
+remain unallocated, and the compression-versus-resolvent correction
+(`ChapterShiftInvertBookkeeping.compression_ne_resolvent`) is still to be
+composed before the first term may read `‖V∗RV − B‖` with `B` the finite
+shift-invert inverse. Row/column Schur bounds and a certified tail completion are
+the natural next allocations; solve-tolerance budgets are U2's paragraph on
+`m` solve-column errors of norm `ε/√m`.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no
+warning and no line above 100 code points. `#print axioms` on the four new theorems
+(`sirk_fullSpace_error_le`, `sirk_offblock_norm_eq`, `sirkComplement_isSelfAdjoint`,
+`sirkReconstruction_add_complement`) gives `[propext, Classical.choice, Quot.sound]`;
+no `sorry`.
