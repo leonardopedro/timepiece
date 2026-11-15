@@ -25304,16 +25304,17 @@ decides both.  `Aedge_membership_from_order_four` keeps the coarser order the `1
 
 **Verification.**  `lake build BookProof.Sirk.ChapterRitzCertificate` and
 `lake build BookProof.Sirk.ChapterResolventTransfer` succeed with no warning from either file and no
-<<<<<<< HEAD
-line above 100 code points.  `lake build BookProof` initially failed at
-`BookProof/Sm/ChapterSmQuartet.lean` — a regression from merge `c843571`, unrelated to these files,
-where `inner_self_eq_norm_sq_to_K`'s cast shape and `inner_conj_symm`'s orientation changed; the
-repair is the preceding commit, after which the full build succeeds (that file keeps its pre-existing
-long-line warnings, which predate both commits).  `#print axioms` on `Aedge_sep`, `Aedge_sep_gap`,
-`Aedge_five_sixths_mem`, `Aedge_gap_sharp`, `sirkBound_eq_geom`,
-`reflected_membership_order_of_sirkBound`, `geom_le_sqrt_at_ceil`, `temple_membership_order`,
-`Aedge_membership_from_order_one`, `Aedge_band_order_least` and the `xOrd` family gives
-`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+line above 100 code points.  `lake build BookProof` fails at `BookProof/Sm/ChapterSmQuartet.lean`
+after merge `c843571` — unrelated to these files: `inner_self_eq_norm_sq_to_K`'s cast shape and
+`inner_conj_symm`'s orientation changed.  `1a8dae6` repairs it; the later merge of `a976803` into
+`main` conflicted there on the same three proofs, was resolved to the local scripts, and the whole
+project then builds (`9013 jobs`).  That file keeps its long-line and `show` warnings, which predate
+all of this.  `#print axioms` on `Aedge_sep`, `Aedge_sep_gap`, `Aedge_five_sixths_mem`,
+`Aedge_gap_sharp`, `sirkBound_eq_geom`, `reflected_membership_order_of_sirkBound`,
+`geom_le_sqrt_at_ceil`, `temple_membership_order`, `Aedge_membership_from_order_one`,
+`Aedge_membership_from_order_four`, `Aedge_band_order_least`, `Aedge_ceiling_eq_one`,
+`Aedge_ceiling_eq_four` and the `xOrd` family gives `[propext, Classical.choice, Quot.sound]`; no
+`sorry`.
 
 ## State of the project — 2026-11-15: source audit of the new proofs and the four-sector Hamiltonians
 
@@ -25601,16 +25602,3 @@ missing sibling `../../papers/Hashimoto.md`; the citation is present in its comm
 baseline. Its README now records the current 87-page/614-link census and that failure.
 No Lean, book render, KaTeX, Cadabra or numerical build/check was run; P0 remains for
 the specialist. Concurrent Gell-Mann/SU(3) source edits were not modified by this wave.
-=======
-line above 100 code points.  `lake build BookProof` fails at `BookProof/Sm/ChapterSmQuartet.lean`
-after merge `c843571` — unrelated to these files: `inner_self_eq_norm_sq_to_K`'s cast shape and
-`inner_conj_symm`'s orientation changed.  `1a8dae6` repairs it; the later merge of `a976803` into
-`main` conflicted there on the same three proofs, was resolved to the local scripts, and the whole
-project then builds (`9013 jobs`).  That file keeps its long-line and `show` warnings, which predate
-all of this.  `#print axioms` on `Aedge_sep`, `Aedge_sep_gap`, `Aedge_five_sixths_mem`,
-`Aedge_gap_sharp`, `sirkBound_eq_geom`, `reflected_membership_order_of_sirkBound`,
-`geom_le_sqrt_at_ceil`, `temple_membership_order`, `Aedge_membership_from_order_one`,
-`Aedge_membership_from_order_four`, `Aedge_band_order_least`, `Aedge_ceiling_eq_one`,
-`Aedge_ceiling_eq_four` and the `xOrd` family gives `[propext, Classical.choice, Quot.sound]`; no
-`sorry`.
->>>>>>> 75e8fa3e338ae7bfa8c281e45b4c6666fe4ad3c6
