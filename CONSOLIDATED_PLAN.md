@@ -113,6 +113,14 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15q):** “State of the project — 2026-11-15q: an explicit two-mode YM
+> model” (end of file): `ChapterSirkEndToEnd` §17 builds `YMMode := EuclideanSpace ℂ (Fin 2)` with
+> a diagonal free Hamiltonian and proves the free part is block diagonal
+> (`freeMode_keep_discard`, `freeMode_discard_keep` — the `Q A P = 0` of §13) and oscillator
+> coercivity with the explicit gap `w i` (`oscillator_coercive_discard`, `oscillator_coercive_keep`),
+> so `0 < w 1` supplies a witness for `mu > 0` (`oscillator_gap_discard`).  The interacting gap
+> remains a hypothesis.
+>
 > **Track A — newest (2026-11-15p):** “State of the project — 2026-11-15p: the SIRK budget on a
 > core” (end of file): `ChapterSirkEndToEnd` §16 states and proves the budget for
 > `H : D →ₗ[ℂ] E` on a core in the graph norm `‖u‖ + ‖H u‖` — `graphNorm_res_le` costs exactly
@@ -26355,4 +26363,28 @@ is a matter of supplying a section and a gap, not of a type mismatch.
 
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
 the file and no line above 100 code points; `#print axioms` on the five new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15q: an explicit two-mode YM model
+
+§17 turns §16's two hypotheses into theorems for a concrete truncation.
+
+**The model.**  `YMMode := EuclideanSpace ℂ (Fin 2)`, mode `0` kept and mode `1` discarded,
+`freeMode w x = Σ_i (w i) • x_i e_i` diagonal in the mode basis, with `keepMode`/`discardMode`
+the coordinate projections.
+
+**Proved.**  `freeMode_keep_discard` and `freeMode_discard_keep` — the free part is block
+diagonal, i.e. `Q A P = 0` of §13 and `A21 = 0` of §15.  `freeMode_inner_discard` reads the
+diagonal action as `⟪d, H_free d⟫ = w 1 ⟪d, d⟫` on the discarded mode, and
+`oscillator_coercive_discard` / `oscillator_coercive_keep` give `w i ‖x‖² ≤ Re⟪x, H_free x⟫` with
+the explicit gap `w i`; `oscillator_gap_discard` turns `0 < w 1` into a witness for `mu > 0`.
+
+**Not proved.**  The interacting gap: coercivity of `H_free + g·W` on the discarded block with
+`mu > 0` is still a physical input, and the truncation is a toy model, not the continuum
+operator.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points; `#print axioms` on the six new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.

@@ -4680,3 +4680,27 @@ instantiation is gone: every hypothesis of §16 has the shape of an assertion ab
 the file and no line above 100 code points; `#print axioms` on the five new declarations
 (`graphNorm_nonneg`, `graphNorm_res_le`, `resolvent_graphNorm_le`, `sirkGraphTail_le`,
 `sirkGraphBudget_le`) gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### An explicit two-mode YM model: block diagonality and oscillator coercivity (2026-11-15q)
+
+§13–§16 assume `Q A P = 0` and coercivity with `mu > 0`, and §16's closing remark left both as
+hypotheses.  §17 exhibits a finite model where they are theorems.  The mode space is
+`EuclideanSpace ℂ (Fin 2)`; mode `0` is kept and mode `1` discarded; the free Hamiltonian is
+diagonal, `freeMode w x = Σ_i (w i) • x_i e_i`, with `keepMode`, `discardMode` the coordinate
+projections.
+
+* `freeMode_keep_discard` and `freeMode_discard_keep`: both off-diagonal blocks of the free part
+  vanish.  This is exactly the `Q A P = 0` of `fock_coupling_le`, and the `A21 = 0` case of §15.
+* `freeMode_inner_discard`: `⟪d, H_free d⟫ = w 1 · ⟪d, d⟫` for `d` in the discarded mode — the
+  diagonal action reads off a single frequency.
+* `oscillator_coercive_discard`, `oscillator_coercive_keep`: `w i ‖x‖² ≤ Re⟪x, H_free x⟫` on each
+  block, with the explicit gap `w i` and no appeal to a spectral theorem.
+* `oscillator_gap_discard`: `0 < w 1` gives a witness for `mu > 0`.
+
+The model is two-dimensional on purpose: it verifies that the hypotheses of the abstract budget
+are consistent and computable, and it says nothing about the interacting gap `mu > 0` for
+`H_free + g·W`, which remains the physical input.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points; `#print axioms` on the six new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

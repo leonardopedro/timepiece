@@ -1795,4 +1795,106 @@ theorem sirkGraphBudget_le (V : F →L[ℂ] E)
         exact mul_le_mul_of_nonneg_right hfac ht
     _ ≤ (2 * c * ‖B‖ + 1) * (((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖) := hbig
 
+/-! ## 17. An explicit two-mode Yang–Mills model: block diagonality and coercivity
+
+The abstract hypotheses of §11–§16 are met by an explicit truncation, so they are not empty.
+The mode space is `EuclideanSpace ℂ (Fin 2)`; mode `0` is kept by the SIRK reconstruction and
+mode `1` is the discarded block.  The free Hamiltonian is diagonal in the mode basis,
+`freeMode w x = Σ_i (w i) • x_i e_i`, and `keepMode`, `discardMode` are the coordinate
+projections.
+
+* `freeMode_keep_discard`, `freeMode_discard_keep`: the free part is block diagonal — both
+  off-diagonal blocks vanish, which is the `Q A P = 0` hypothesis (§13) and the `A21 = 0`
+  special case of §15.
+* `oscillator_coercive_discard`, `oscillator_coercive_keep`: on each block,
+  `w i ‖x‖² ≤ Re⟪x, H_free x⟫` with the *explicit* gap `w i`.
+* `oscillator_gap_discard`: a positive discarded frequency therefore supplies `mu > 0`
+  (`mu = w 1`) as a witness, not a hypothesis.
+
+What the model does not supply is the interacting gap: `mu > 0` for `H = H_free + g·W` is not
+proved here, and the two-mode truncation is a toy model of the continuum operator. -/
+abbrev YMMode : Type := EuclideanSpace ℂ (Fin 2)
+
+/-- The free (mode-diagonal) Hamiltonian: frequency `w i` on mode `i`. -/
+def freeMode (w : Fin 2 → ℝ) (x : YMMode) : YMMode :=
+  WithLp.toLp 2 fun i => (w i : ℂ) * x.ofLp i
+
+/-- Projection onto the kept mode `0`. -/
+def keepMode (x : YMMode) : YMMode :=
+  WithLp.toLp 2 fun i => if i = 0 then x.ofLp i else 0
+
+/-- Projection onto the discarded mode `1`. -/
+def discardMode (x : YMMode) : YMMode :=
+  WithLp.toLp 2 fun i => if i = 0 then 0 else x.ofLp i
+
+theorem freeMode_ofLp (w : Fin 2 → ℝ) (x : YMMode) (i : Fin 2) :
+    (freeMode w x).ofLp i = (w i : ℂ) * x.ofLp i := by
+  simp [freeMode]
+
+theorem keepMode_ofLp (x : YMMode) (i : Fin 2) :
+    (keepMode x).ofLp i = if i = 0 then x.ofLp i else 0 := by
+  simp [keepMode]
+
+theorem discardMode_ofLp (x : YMMode) (i : Fin 2) :
+    (discardMode x).ofLp i = if i = 0 then 0 else x.ofLp i := by
+  simp [discardMode]
+
+/-- **The free part is block diagonal.**  A diagonal free Hamiltonian maps the discarded mode
+into itself, so the off-diagonal block `keep (H_free (discard ·))` vanishes. -/
+theorem freeMode_keep_discard (w : Fin 2 → ℝ) (x : YMMode) :
+    keepMode (freeMode w (discardMode x)) = 0 := by
+  ext i
+  simp [keepMode_ofLp, freeMode_ofLp, discardMode_ofLp]
+  by_cases h : i = 0 <;> simp [h]
+
+theorem freeMode_discard_keep (w : Fin 2 → ℝ) (x : YMMode) :
+    discardMode (freeMode w (keepMode x)) = 0 := by
+  ext i
+  simp [keepMode_ofLp, freeMode_ofLp, discardMode_ofLp]
+  by_cases h : i = 0 <;> simp [h]
+
+/-- The free action is `w 1` times the inner product on the discarded block. -/
+theorem freeMode_inner_discard (w : Fin 2 → ℝ) (v : YMMode) :
+    inner ℂ (discardMode v) (freeMode w (discardMode v))
+      = (w 1 : ℂ) * inner ℂ (discardMode v) (discardMode v) := by
+  rw [EuclideanSpace.inner_eq_star_dotProduct, EuclideanSpace.inner_eq_star_dotProduct]
+  simp only [dotProduct, Fin.sum_univ_two, freeMode_ofLp, discardMode_ofLp]
+  norm_num
+  ring
+
+/-- **Oscillator coercivity on the discarded block**, with the explicit gap `mu = w 1`. -/
+theorem oscillator_coercive_discard (w : Fin 2 → ℝ) (v : YMMode) :
+    w 1 * ‖discardMode v‖ ^ 2
+      ≤ (inner ℂ (discardMode v) (freeMode w (discardMode v))).re := by
+  rw [freeMode_inner_discard, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im,
+    zero_mul, sub_zero]
+  have hsq : (inner ℂ (discardMode v) (discardMode v)).re = ‖discardMode v‖ ^ 2 :=
+    by simpa using inner_self_eq_norm_sq (𝕜 := ℂ) (discardMode v)
+  rw [hsq]
+
+/-- **Oscillator coercivity on the kept block**, gap `w 0`. -/
+theorem oscillator_coercive_keep (w : Fin 2 → ℝ) (v : YMMode) :
+    w 0 * ‖keepMode v‖ ^ 2
+      ≤ (inner ℂ (keepMode v) (freeMode w (keepMode v))).re := by
+  have hkey : inner ℂ (keepMode v) (freeMode w (keepMode v))
+      = (w 0 : ℂ) * inner ℂ (keepMode v) (keepMode v) := by
+    rw [EuclideanSpace.inner_eq_star_dotProduct, EuclideanSpace.inner_eq_star_dotProduct]
+    simp only [dotProduct, Fin.sum_univ_two, freeMode_ofLp, keepMode_ofLp]
+    norm_num
+    ring
+  rw [hkey, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+  have hsq : (inner ℂ (keepMode v) (keepMode v)).re = ‖keepMode v‖ ^ 2 :=
+    by simpa using inner_self_eq_norm_sq (𝕜 := ℂ) (keepMode v)
+  rw [hsq]
+
+/-- **A positive discarded frequency is a genuine gap.**  The coercivity of the model holds with
+`mu = w 1 > 0`, which is exactly the `mu > 0` hypothesis of §13–§16, now witnessed by an explicit
+finite model rather than assumed for the continuum theory. -/
+theorem oscillator_gap_discard (w : Fin 2 → ℝ) (hw : 0 < w 1) :
+    ∃ mu : ℝ, 0 < mu ∧ ∀ v : YMMode,
+      mu * ‖discardMode v‖ ^ 2
+        ≤ (inner ℂ (discardMode v) (freeMode w (discardMode v))).re :=
+  ⟨w 1, hw, fun v => oscillator_coercive_discard w v⟩
+
 end BookProof.ChapterSirkEndToEnd
+
