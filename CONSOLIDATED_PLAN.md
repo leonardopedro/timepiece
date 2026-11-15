@@ -113,6 +113,14 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15p):** “State of the project — 2026-11-15p: the SIRK budget on a
+> core” (end of file): `ChapterSirkEndToEnd` §16 states and proves the budget for
+> `H : D →ₗ[ℂ] E` on a core in the graph norm `‖u‖ + ‖H u‖` — `graphNorm_res_le` costs exactly
+> one `‖z‖`, `resolvent_graphNorm_le` and `sirkGraphTail_le` give
+> `‖Q R Q‖_G ≤ (1 + ‖z‖)mu⁻¹ + 1`, and `sirkGraphBudget_le` composes this with the pointwise
+> coupling `‖Q ((H − z) (P x))‖ ≤ c` for a section `P : E → D`.  The type mismatch that blocked
+> the concrete Yang–Mills instantiation is gone; the gap `mu > 0` remains a hypothesis.
+>
 > **Track A — newest (2026-11-15o):** “State of the project — 2026-11-15o: the invariant tail is
 > retired” (end of file): `ChapterSirkEndToEnd` §15 removes the vacuous `H Q = Q H` from the tail
 > bound.  With `P = 1 − Q`, `A = H − z` and `U` inverting `P A P` on `range P`, the block
@@ -26318,4 +26326,33 @@ interacting complement is a spectral-gap claim this project does not make, and
 
 **Verification.** `lake build BookProof` succeeds (`9022 jobs`); no warning from the edited file
 and no line above 100 code points; `#print axioms` on the three new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15p: the SIRK budget on a core
+
+The analytic obstruction recorded in the previous two entries is removed: the budget no longer
+needs `H : E →L[ℂ] E`.
+
+**The model.**  Keep the core: `D : Submodule ℂ E`, `H : D →ₗ[ℂ] E`, and the graph norm
+`‖u‖_G = ‖u‖ + ‖H u‖` (`graphNorm`).  The resolvent is a section `res : E → D` with
+`(H − z) res y = y` and a vector-norm bound `‖res y‖ ≤ mu⁻¹‖y‖`; closedness is carried by that
+section rather than derived.
+
+**The budget.**  `H (res y) = y + z • res y` gives `‖res y‖_G ≤ (1 + ‖z‖)‖res y‖ + ‖y‖`
+(`graphNorm_res_le`), hence the resolvent estimate `‖res y‖_G ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖y‖`
+(`resolvent_graphNorm_le`) and the SIRK tail `‖Q R Q‖_G ≤ (1 + ‖z‖)mu⁻¹ + 1` (`sirkGraphTail_le`)
+— the analogue of `‖Q R Q‖ ≤ mu⁻¹`.  The coupling `Q (H − z) P` is only pointwise defined, so the
+budget takes it as a section `P : E → D` with `‖Q ((H − z) (P x))‖ ≤ c`, and
+`sirkGraphBudget_le` composes the two factors:
+`(2‖Q (H − z) P‖‖B‖ + 1)‖Q R Q‖_G ≤ (2c‖B‖ + 1)((1 + ‖z‖)mu⁻¹ + 1)‖x‖`.
+
+**What is still not delivered.**  `mu > 0` on the interacting complement is a spectral-gap claim
+the project does not make; and the hypotheses of §16 are still hypotheses — the payoff is that
+they now have the *shape* of assertions about `ymHamiltonian Φ fabc`, so a concrete instantiation
+is a matter of supplying a section and a gap, not of a type mismatch.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points; `#print axioms` on the five new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.

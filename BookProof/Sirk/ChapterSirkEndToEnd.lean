@@ -1658,4 +1658,141 @@ theorem sirkTailBudget_le_fock_schur (V : F →L[ℂ] E) (A W H R S U : E →L[�
         linarith
 
 
+
+/-! ## 16. The SIRK budget on a core: graph norms and the unbounded generator
+
+§11–§15 need `H : E →L[ℂ] E`, while the concrete Yang–Mills Hamiltonian
+`ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99` is only a linear map on a dense core `D`.  A closed
+operator is determined by its action there, so nothing is lost by carrying `D` explicitly and
+measuring everything in the graph norm `‖u‖_G = ‖u‖ + ‖H u‖`.
+
+The unbounded budget has the same two factors as the bounded one, with each factor read on the
+core:
+
+* **tail.**  The resolvent is a section `res : E → D` of `H − z`, solving `(H − z) res y = y`
+  exactly, with a *vector-norm* bound `‖res y‖ ≤ mu⁻¹‖y‖` on the kept sector.  Because
+  `H (res y) = y + z • res y`, the graph norm costs exactly one `‖z‖`:
+  `‖res y‖_G ≤ (1 + ‖z‖)‖res y‖ + ‖y‖` (`graphNorm_res_le`), hence
+  `‖Q R Q‖_G ≤ (1 + ‖z‖)mu⁻¹ + 1` (`sirkGraphTail_le`) — the analogue of `‖Q R Q‖ ≤ mu⁻¹`.
+* **coupling.**  `Q (H − z) P` is no longer a continuous operator, but for a section
+  `P : E → D` into the core it is pointwise defined, and only its norm on the discarded sector
+  is needed: `‖Q ((H − z) (P x))‖ ≤ c` (`sirkGraphBudget_le`).
+
+Composing the two gives `(2‖Q (H − z) P‖‖B‖ + 1)‖Q R Q‖_G ≤ (2c‖B‖ + 1)((1 + ‖z‖)mu⁻¹ + 1)`
+times `‖x‖`.  What remains unproved is not analytic but physical: `mu` is the spectral gap of the
+interacting complement, which this project does not claim, and the closedness needed to run the
+resolvent at all is carried by the section `res` rather than derived. -/
+
+/-- The graph norm on the core of an unbounded generator: `‖u‖ + ‖H u‖`. -/
+def graphNorm {D : Submodule ℂ E} (H : D →ₗ[ℂ] E) (u : D) : ℝ :=
+  ‖(u : E)‖ + ‖H u‖
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- The graph norm is nonnegative. -/
+theorem graphNorm_nonneg {D : Submodule ℂ E} (H : D →ₗ[ℂ] E) (u : D) :
+    0 ≤ graphNorm H u := by
+  unfold graphNorm
+  positivity
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- **The graph norm of a resolvent value is controlled by its vector norm.**  If `res y` solves
+`(H − z) res y = y` exactly, then `H (res y) = y + z • res y`, so
+`‖res y‖_G ≤ (1 + ‖z‖)‖res y‖ + ‖y‖`: on the core the graph norm costs one extra `‖z‖`, and
+nothing else. -/
+theorem graphNorm_res_le {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {res : E →ₗ[ℂ] D} {z : ℂ}
+    (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y) (y : E) :
+    graphNorm H (res y) ≤ (1 + ‖z‖) * ‖((res y : D) : E)‖ + ‖y‖ := by
+  have hH : H (res y) = y + z • ((res y : D) : E) := by
+    have h := hres y
+    rw [sub_eq_iff_eq_add] at h
+    exact h
+  have h1 : ‖H (res y)‖ ≤ ‖y‖ + ‖z‖ * ‖((res y : D) : E)‖ := by
+    rw [hH]
+    refine (norm_add_le _ _).trans ?_
+    gcongr
+    rw [norm_smul]
+  unfold graphNorm
+  nlinarith [norm_nonneg ((res y : D) : E), norm_nonneg y]
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+  [CompleteSpace F] in
+/-- **The resolvent estimate on the core, in graph norm.**  A vector-norm bound
+`‖res y‖ ≤ mu⁻¹‖y‖` upgrades to `‖res y‖_G ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖y‖`.  This is the step that
+lets an unbounded generator — given only as a linear map on a core — carry a resolvent estimate
+of the same shape as the bounded one. -/
+theorem resolvent_graphNorm_le {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {res : E →ₗ[ℂ] D} {z : ℂ}
+    {mu : ℝ} (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y)
+    (hvec : ∀ y : E, ‖((res y : D) : E)‖ ≤ mu⁻¹ * ‖y‖) (y : E) :
+    graphNorm H (res y) ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖y‖ := by
+  have h := graphNorm_res_le hres y
+  have hb := hvec y
+  have hz : (0 : ℝ) ≤ 1 + ‖z‖ := by positivity
+  calc graphNorm H (res y)
+      ≤ (1 + ‖z‖) * ‖((res y : D) : E)‖ + ‖y‖ := h
+    _ ≤ (1 + ‖z‖) * (mu⁻¹ * ‖y‖) + ‖y‖ := by
+        have h2 := mul_le_mul_of_nonneg_left hb hz
+        linarith
+    _ = ((1 + ‖z‖) * mu⁻¹ + 1) * ‖y‖ := by ring
+
+/-- **The SIRK tail on the core, in graph norm.**  The kept sector is `range Q` with
+`Q = sirkComplement V`; composing the resolvent section with `Q` costs nothing (`‖Q‖ ≤ 1`), so
+the graph-norm tail of the compressed resolvent is at most
+`((1 + ‖z‖)mu⁻¹ + 1)` — the unbounded analogue of `‖Q R Q‖ ≤ mu⁻¹`. -/
+theorem sirkGraphTail_le (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {res : E →ₗ[ℂ] D} {z : ℂ} {mu : ℝ}
+    (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y)
+    (hvec : ∀ y : E, ‖((res y : D) : E)‖ ≤ mu⁻¹ * ‖y‖) (hmu : 0 < mu) (x : E) :
+    graphNorm H (res ((sirkComplement V) x))
+      ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖ := by
+  have hQidem := sirkComplement_idem V hVV
+  have hQadj := sirkComplement_adjoint_eq V
+  have hQle := norm_projection_le (sirkComplement V) hQidem hQadj x
+  have h := resolvent_graphNorm_le hres hvec ((sirkComplement V) x)
+  have hc : (0 : ℝ) ≤ (1 + ‖z‖) * mu⁻¹ + 1 := by positivity
+  calc graphNorm H (res ((sirkComplement V) x))
+      ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖(sirkComplement V) x‖ := h
+    _ ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖ := by
+        exact mul_le_mul_of_nonneg_left hQle hc
+
+/-- **The SIRK budget on a core, with graph norms.**  The coupling is read off the domain: for
+`P` a section `E → D` into the core, the source term is `Q ((H − z) (P x))` and only its norm is
+needed, `≤ c‖x‖`.  The budget is then the product of the coupling factor
+`2‖Q (H − z) P‖‖B‖ + 1` and the graph-norm tail above.  This is the shape §11 gives for bounded
+`H`, now with `H` merely a linear map on a core — the type of `ymHamiltonian`. -/
+theorem sirkGraphBudget_le (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {Pmap : E →ₗ[ℂ] D} {res : E →ₗ[ℂ] D}
+    {z : ℂ} {mu c : ℝ} (B : F →L[ℂ] F)
+    (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y)
+    (hvec : ∀ y : E, ‖((res y : D) : E)‖ ≤ mu⁻¹ * ‖y‖) (hmu : 0 < mu)
+    (hB : (0 : ℝ) ≤ ‖B‖) (hc : 0 ≤ c)
+    (hcoup : ∀ x : E, ‖(sirkComplement V) (H (Pmap x) - z • ((Pmap x : D) : E))‖ ≤ c)
+    (x : E) :
+    (2 * ‖(sirkComplement V) (H (Pmap x) - z • ((Pmap x : D) : E))‖ * ‖B‖ + 1)
+        * graphNorm H (res ((sirkComplement V) x))
+      ≤ (2 * c * ‖B‖ + 1) * (((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖) := by
+  have htail := sirkGraphTail_le V hVV hres hvec hmu x
+  have ht : (0 : ℝ) ≤ graphNorm H (res ((sirkComplement V) x)) := graphNorm_nonneg H _
+  have hfac : 2 * ‖(sirkComplement V) (H (Pmap x) - z • ((Pmap x : D) : E))‖ * ‖B‖ + 1
+      ≤ 2 * c * ‖B‖ + 1 := by
+    have h1 := hcoup x
+    have h2 : 0 ≤ ‖(sirkComplement V) (H (Pmap x) - z • ((Pmap x : D) : E))‖ := norm_nonneg _
+    have h4 : 2 * ‖(sirkComplement V) (H (Pmap x) - z • ((Pmap x : D) : E))‖ * ‖B‖
+        ≤ 2 * c * ‖B‖ := by
+      have hm : ‖(sirkComplement V) (H (Pmap x) - z • ((Pmap x : D) : E))‖ * ‖B‖
+          ≤ c * ‖B‖ := mul_le_mul h1 (le_refl ‖B‖) hB hc
+      linarith [hm, h2]
+    linarith
+  have hbig : (2 * c * ‖B‖ + 1) * graphNorm H (res ((sirkComplement V) x))
+      ≤ (2 * c * ‖B‖ + 1) * (((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖) := by
+    have hk : (0 : ℝ) ≤ 2 * c * ‖B‖ + 1 := by nlinarith [hB, hc]
+    exact mul_le_mul_of_nonneg_left htail hk
+  have hk : (0 : ℝ) ≤ 2 * c * ‖B‖ + 1 := by nlinarith [hB, hc]
+  calc (2 * ‖(sirkComplement V) (H (Pmap x) - z • ((Pmap x : D) : E))‖ * ‖B‖ + 1)
+        * graphNorm H (res ((sirkComplement V) x))
+      ≤ (2 * c * ‖B‖ + 1) * graphNorm H (res ((sirkComplement V) x)) := by
+        exact mul_le_mul_of_nonneg_right hfac ht
+    _ ≤ (2 * c * ‖B‖ + 1) * (((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖) := hbig
+
 end BookProof.ChapterSirkEndToEnd

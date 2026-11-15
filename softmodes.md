@@ -4650,3 +4650,33 @@ does not make, and `ymHamiltonian` is a `LinearMap` on a core rather than `E →
 from the edited file and no line above 100 code points; `#print axioms` on `schur_comp_eq`,
 `resolvent_tail_le_of_schur` and `sirkTailBudget_le_fock_schur` gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The SIRK budget on a core: graph norms (2026-11-15p)
+
+The 2026-11-15n/o entries left the unbounded case open: §11–§15 want `H : E →L[ℂ] E`, but the
+concrete Yang–Mills Hamiltonian is `ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99`, a linear map on a
+core.  §16 keeps `D` explicit and measures everything in the graph norm
+`‖u‖_G = ‖u‖ + ‖H u‖`.
+
+* `graphNorm_res_le`: if `res : E → D` solves `(H − z) res y = y` exactly, then
+  `H (res y) = y + z • res y`, so `‖res y‖_G ≤ (1 + ‖z‖)‖res y‖ + ‖y‖`.  The graph norm costs
+  exactly one `‖z‖`.
+* `resolvent_graphNorm_le`: a *vector-norm* bound `‖res y‖ ≤ mu⁻¹‖y‖` therefore upgrades to
+  `‖res y‖_G ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖y‖`.
+* `sirkGraphTail_le`: composing with `Q = sirkComplement V` costs nothing (`‖Q‖ ≤ 1`), giving the
+  graph-norm tail `‖Q R Q‖_G ≤ (1 + ‖z‖)mu⁻¹ + 1` — the unbounded analogue of `‖Q R Q‖ ≤ mu⁻¹`.
+* `sirkGraphBudget_le`: `Q (H − z) P` is not a continuous operator, but for a section
+  `P : E → D` into the core it is pointwise defined and only its norm matters,
+  `‖Q ((H − z) (P x))‖ ≤ c`; then
+  `(2‖Q (H − z) P‖‖B‖ + 1)‖Q R Q‖_G ≤ (2c‖B‖ + 1)((1 + ‖z‖)mu⁻¹ + 1)‖x‖`.
+
+What is still not proved is physical rather than analytic: `mu` is the spectral gap of the
+interacting complement, which the project does not claim, and closedness is carried by the section
+`res` (a hypothesis) instead of being derived.  The *type* mismatch that blocked the concrete
+instantiation is gone: every hypothesis of §16 has the shape of an assertion about
+`ymHamiltonian Φ fabc`.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points; `#print axioms` on the five new declarations
+(`graphNorm_nonneg`, `graphNorm_res_le`, `resolvent_graphNorm_le`, `sirkGraphTail_le`,
+`sirkGraphBudget_le`) gives `[propext, Classical.choice, Quot.sound]`; no `sorry`.
