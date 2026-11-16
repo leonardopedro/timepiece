@@ -26741,8 +26741,9 @@ fixed point of `K ↦ 1 + c²K` (`streamCovariance_inv_sub`, `tendsto_streamCova
 identity at every scale (`shellDensity_eq_integral_snoc`, `integral_shellDensity_eq`, previously
 caveated as proved only for two steps), and the affine-threshold Chebyshev tail
 (`shellDensity_affine_field_le`, `shellTail_le`) as C3c at general `n`.  Those declarations live in
-`BookProof/OSReconstruction/GaussianChainScales.lean`, which is **still uncommitted**, so the prose
-describes a module that a clean clone does not yet build.
+`BookProof/OSReconstruction/GaussianChainScales.lean`.  **Superseded (2026-11-16g):** that module
+and `GaussianBlockCoarseDensity` are now committed (`30654ca`), so the prose describes a module a
+clean clone builds; the audit's C3 sections are wired to them and cover every theorem in both.
 
 ### 2026-11-16f — the marginal lift exists, so `MemLp` closes the shifted-state `L²` case
 

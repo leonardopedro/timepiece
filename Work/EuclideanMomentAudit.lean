@@ -134,6 +134,7 @@ open BookProof.OSReconstruction
 #audit_axioms integral_abs_partialIntegral_le
 #audit_axioms integral_abs_blockIntegral_le
 #audit_axioms integral_abs_blockChainDensity_le
+#audit_axioms blockChainDensity_eq_iterated
 
 /-! ## The interacting half-space inequality (C2 / E3) -/
 
@@ -159,9 +160,6 @@ open BookProof.OSReconstruction
 #audit_axioms generalWeight_osForm
 #audit_axioms not_reflectionPositive_of_generalWeight
 #audit_axioms productState_reflectionPositive
-
-/-! ## C3a/C3b: the two-step chain, its covariance bound and the activity norm -/
-
 
 /-! ## C3c at reference scale: the totals and the large-field complement -/
 
