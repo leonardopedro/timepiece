@@ -5563,10 +5563,16 @@ on `propext, Classical.choice, Quot.sound` only.
 
 **Boundaries.**  (i) The basis is *computed*, not proved: no Lean statement asserts
 `dim ker Ω₃|_g = 11`, and the script is a certificate one can re-run, not a theorem.  What Lean gives is
-the dimension-free half: `smGhostCharge_occ_weakPair` (every pure-weak pair is killed) and the block
-structure that underlies the table below.  A `3 ≤ finrank (ker Ω₃)` corollary needs the three states to
-be linearly independent in Lean, which is not formalised here.  (ii) It is at `g = 2` and `m ≤ 6`
-(the block identity is entry-by-entry checked, not eliminated); the other even degrees of §95 remain dimensional facts, and the eighteen-mode doublet
+the dimension-free half: `smGhostCharge_occ_weakPair` (every pure-weak pair is killed), the block
+structure that underlies the table, and the bound `3 ≤ finrank (ker Ω₃)` itself — those three states are
+orthonormal, hence independent, so their span sits inside the kernel (`finrank_ker_ge_three` and
+`finrank_ker_smGhostCharge_ge_three`, §2b).  The *exact* dimension 11 is the only part that stays
+computed.  (ii) It is at `g = 2` and `m ≤ 6` as far as the *exact* kernel dimension goes (the block identity is entry-by-entry checked
+at `m = 3, …, 6`, and the dimension is eliminated from scratch at `m = 0, 1, 2`); the same block
+identity is verified at ghost degrees 1, 3 and 4 for `m = 1, 2, 3`, and the odd-degree kernels are
+eliminated at `m = 0` — degree 1 gives `dim Λ¹ = 12`, rank 11, kernel 1 (the survivor is the hypercharge
+ghost `|11>`, which `B` kills because every mixed structure constant vanishes) and degree 3 gives rank 163
+with kernel 57, both following the `2^m` law; the other even degrees of §95 remain dimensional facts, and the eighteen-mode doublet
 is still out of reach.  (iii) The twelve directions are *instantiations*: the general result stays
 `matterGen_occ_entry` plus a nonzero matrix entry, and the twelve theorems record which entry, at which
 state, for the model's own `smGen`.

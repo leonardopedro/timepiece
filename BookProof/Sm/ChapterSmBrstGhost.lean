@@ -1560,7 +1560,8 @@ theorem smGhostCharge_occ_weakPair (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 →
                 (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
                   Finset (Fin (m + 12))))) = 0 := by
               rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
-                annih_occ_of_mem (by simp [Finset.mem_insert]), hSk, map_smul, map_smul, ghostCre, ghostCre,
+                annih_occ_of_mem (by simp [Finset.mem_insert]), hSk, map_smul, map_smul,
+                ghostCre, ghostCre,
                 creat_creat_occ_of_mem (by simp)]
               simp
             rw [hz, smul_zero]
@@ -1598,7 +1599,8 @@ theorem smGhostCharge_occ_weakPair (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 →
                   (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
                     Finset (Fin (m + 12))))) = 0 := by
                 rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
-                  annih_occ_of_mem (by simp [Finset.mem_insert]), hSl, map_smul, map_smul, ghostCre, ghostCre,
+                  annih_occ_of_mem (by simp [Finset.mem_insert]), hSl, map_smul, map_smul,
+                  ghostCre, ghostCre,
                   creat_creat_occ_of_mem (by simp)]
                 simp
               rw [hz, smul_zero]
@@ -1652,5 +1654,105 @@ theorem weakPair_occ_apply (m : ℕ) (k l : Fin 3) :
     weakPair m k l ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
       Finset (Fin (m + 12))) = 1 := by
   simp [weakPair, occ, EuclideanSpace.single_apply]
+
+/-- The occupation state of a pure-weak pair of ghosts. -/
+noncomputable abbrev weakOcc (m : ℕ) (k l : Fin 3) : FermiFock (m + 12) :=
+  occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))
+
+theorem weakOcc_inner (m : ℕ) (k l k' l' : Fin 3) :
+    inner ℂ (weakOcc m k l) (weakOcc m k' l')
+      = if ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))
+          = {ghostMode m (wGhost k'), ghostMode m (wGhost l')} then 1 else 0 := by
+  simp [weakOcc, occ, EuclideanSpace.inner_single_left, EuclideanSpace.single_apply]
+
+theorem weakOcc_norm (m : ℕ) (k l : Fin 3) : ‖weakOcc m k l‖ = 1 := by
+  simp [weakOcc, occ]
+
+theorem gm_ne {m : ℕ} {a b : Fin 3} (h : a ≠ b) :
+    ghostMode m (wGhost a) ≠ ghostMode m (wGhost b) :=
+  fun hh => h (wGhost_injective (ghostMode_injective m hh))
+
+set_option maxHeartbeats 800000 in
+-- The three-element matrix literal of occupation states, with the inner-product normalisation facts
+-- for each of them, exceeds the default heartbeat budget.
+/-- **The three pure-weak pair states are orthonormal.** -/
+theorem weakOcc_orthonormal (m : ℕ) :
+    Orthonormal ℂ ![weakOcc m 0 1, weakOcc m 0 2, weakOcc m 1 2] := by
+  rw [orthonormal_iff_ite]
+  have h01 : ({ghostMode m (wGhost 0), ghostMode m (wGhost 1)} : Finset (Fin (m + 12)))
+      ≠ {ghostMode m (wGhost 0), ghostMode m (wGhost 2)} := by
+    intro h
+    have hm : ghostMode m (wGhost 1) ∈ ({ghostMode m (wGhost 0),
+        ghostMode m (wGhost 2)} : Finset (Fin (m + 12))) := by rw [← h]; simp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+    rcases hm with hm | hm
+    · exact (gm_ne (by decide : (1 : Fin 3) ≠ 0)) hm
+    · exact (gm_ne (by decide : (1 : Fin 3) ≠ 2)) hm
+  have h02 : ({ghostMode m (wGhost 0), ghostMode m (wGhost 1)} : Finset (Fin (m + 12)))
+      ≠ {ghostMode m (wGhost 1), ghostMode m (wGhost 2)} := by
+    intro h
+    have hm : ghostMode m (wGhost 0) ∈ ({ghostMode m (wGhost 1),
+        ghostMode m (wGhost 2)} : Finset (Fin (m + 12))) := by rw [← h]; simp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+    rcases hm with hm | hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 1)) hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 2)) hm
+  have h12 : ({ghostMode m (wGhost 0), ghostMode m (wGhost 2)} : Finset (Fin (m + 12)))
+      ≠ {ghostMode m (wGhost 1), ghostMode m (wGhost 2)} := by
+    intro h
+    have hm : ghostMode m (wGhost 0) ∈ ({ghostMode m (wGhost 1),
+        ghostMode m (wGhost 2)} : Finset (Fin (m + 12))) := by rw [← h]; simp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+    rcases hm with hm | hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 1)) hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 2)) hm
+  intro i j
+  fin_cases i <;> fin_cases j <;>
+    simp [weakOcc_inner, weakOcc_norm, h01, h02, h12, Ne.symm h01, Ne.symm h02,
+      Ne.symm h12]
+
+/-- **Three independent kernel vectors force a three-dimensional kernel.** -/
+theorem finrank_ker_ge_three {m : ℕ} {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    {u v w : FermiFock (m + 12)}
+    (hu : u ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))))
+    (hv : v ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))))
+    (hw : w ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))))
+    (hli : LinearIndependent ℂ ![u, v, w]) :
+    3 ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  classical
+  have hmem : ∀ i : Fin 3, ![u, v, w] i ∈
+      LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))) := by
+    intro i
+    fin_cases i
+    · exact hu
+    · exact hv
+    · exact hw
+  have hspan : Submodule.span ℂ (Set.range ![u, v, w])
+      ≤ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))) := by
+    rw [Submodule.span_le]
+    rintro _ ⟨i, rfl⟩
+    exact hmem i
+  have hdim : Module.finrank ℂ (Submodule.span ℂ (Set.range ![u, v, w])) = 3 := by
+    rw [finrank_span_eq_card hli]
+    simp
+  calc (3 : ℕ) = Module.finrank ℂ (Submodule.span ℂ (Set.range ![u, v, w])) := hdim.symm
+    _ ≤ Module.finrank ℂ
+        (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) :=
+        Submodule.finrank_mono hspan
+
+set_option maxHeartbeats 800000 in
+-- The final instantiation unfolds the three occupation states into the matrix literal.
+/-- **The cubic term's kernel at ghost number two is at least three-dimensional.** -/
+theorem finrank_ker_smGhostCharge_ge_three (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    3 ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  have h01 := smGhostCharge_occ_weakPair m f3 (k := (0 : Fin 3)) (l := 1) (by decide)
+  have h02 := smGhostCharge_occ_weakPair m f3 (k := (0 : Fin 3)) (l := 2) (by decide)
+  have h12 := smGhostCharge_occ_weakPair m f3 (k := (1 : Fin 3)) (l := 2) (by decide)
+  have hli : LinearIndependent ℂ ![weakOcc m 0 1, weakOcc m 0 2, weakOcc m 1 2] :=
+    (weakOcc_orthonormal m).linearIndependent
+  exact finrank_ker_ge_three (f3 := f3) (LinearMap.mem_ker.mpr h01)
+    (LinearMap.mem_ker.mpr h02) (LinearMap.mem_ker.mpr h12) hli
 
 end BookProof.SmBrstGhost

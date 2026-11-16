@@ -666,9 +666,35 @@ pigeonhole count `su2Struct_zero_of_pair_left`/`_right` behind `epsZ_zero_of_pai
 (both by `decide`).  The audit `Work/SmQuartetConstructedAudit.lean` grew to 108 declarations, all on
 `propext, Classical.choice, Quot.sound` only.
 
-**What is still not a theorem.**  No Lean statement asserts `dim ker Ω₃ = 11`, and none asserts
-`3 ≤ finrank (ker Ω₃)`: the vanishing is per state, and the linear independence of the three states in
-Lean (the missing step for the dimension bound) is not formalised.  The `m ≥ 2` rows of the table rest on
+**What is still not a theorem.**  No Lean statement asserts `dim ker Ω₃ = 11`: the vanishing is per
+state, and only the lower bound `3 ≤ finrank (ker Ω₃)` is formalised (see 2026-11-16d).  The `m ≥ 2` rows of the table rest on
 the entry-by-entry block identity, not on elimination; the script's own exact-arithmetic kernel check is
 run at `m = 0, 1`.  The gluon-sector basis vectors (`v₀, …, v₇`) still have no Lean counterpart, since
 they depend on the numerical `f3`.
+
+## Correction 2026-11-16d — the dimension bound, `m = 2` elimination, and the odd degrees
+
+**What changed.**  Three of the liabilities of 2026-11-16c are gone.
+
+*`3 ≤ finrank (ker Ω₃)` is a theorem.*  `ChapterSmBrstGhost` §2b now proves
+`finrank_ker_smGhostCharge_ge_three`: the three pure-weak pairs are orthonormal (`weakOcc_inner` gives
+`⟪weakOcc k l, weakOcc k' l'⟫ = if the occupation sets agree then 1 else 0`, `weakOcc_norm` gives norm
+one), hence linearly independent, so their span is a three-dimensional subspace of the kernel
+(`finrank_ker_ge_three` packages the general statement "three independent kernel vectors force a
+three-dimensional kernel").  The exact dimension 11 remains computed, not proved.
+
+*`m = 2` is eliminated from scratch.*  The script no longer relies on the block identity at `m = 2`: the
+row is recomputed by sparse Gauss–Jordan (264 sources) and the result is 264 / 220 / 44, matching
+`4 × (66 / 55 / 11)`.  The block identity is still what the `m = 3, …, 6` rows rest on.
+
+*The `2^m` law holds at odd ghost degree too.*  The cubic term raises the ghost number by one at every
+degree, so the block identity is checked at degrees 1, 3 and 4 for `m = 1, 2, 3` as well.  Eliminating at
+`m = 0` from scratch: degree 1 gives `dim Λ¹ = 12`, rank 11, kernel 1 — the survivor is the hypercharge
+ghost `|11>`, killed because every structure constant with an abelian index vanishes — and degree 3 gives
+`dim Λ³ = 220`, rank 163, kernel 57.  Both therefore obey `dim ker(m) = 2^m · dim ker(0)`.
+
+**What is still not a theorem.**  The exact dimension (`dim ker Ω₃ = 11` at `g = 2`, `1` at `g = 1`, `57`
+at `g = 3`) is computed, not proved; Lean gives the vanishing per state and the lower bound `3 ≤ finrank`
+at `g = 2`.  Even degrees above two, and `m ≥ 3` by elimination, remain out of reach of sparse elimination
+in pure Python.  The gluon-sector basis vectors (`v₀, …, v₇`) still have no Lean counterpart, since they
+depend on the numerical `f3`.

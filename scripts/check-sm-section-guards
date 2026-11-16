@@ -1110,6 +1110,13 @@ require "$PLAN" 'dim ker B(m) = 2^m' \
 require "scripts/sm-cubic-kernel-basis.py" "how the rank was obtained" \
     "§96: the kernel-basis script must keep its provenance column"
 
+require "$PLAN" 'finrank_ker_smGhostCharge_ge_three' \
+    "§96: the plan must keep the formalised dimension bound"
+require "$PLAN" 'rank 163' \
+    "§96: the plan must keep the odd-degree elimination"
+require "scripts/sm-cubic-kernel-basis.py" "dim ker(m) = 2^m" \
+    "§96: the kernel-basis script must report the 2^m law"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

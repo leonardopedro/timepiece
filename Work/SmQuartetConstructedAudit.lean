@@ -132,3 +132,11 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmBrstGhost.smStruct_eq_zero_of_not_weak_left
 #audit_axioms BookProof.SmBrstGhost.smStruct_eq_zero_of_not_weak_right
 #audit_axioms BookProof.SmBrstGhost.smGhostCharge_occ_weakPair
+
+-- §11: the dimension bound at ghost number two.
+#audit_axioms BookProof.SmBrstGhost.gm_ne
+#audit_axioms BookProof.SmBrstGhost.weakOcc_inner
+#audit_axioms BookProof.SmBrstGhost.weakOcc_norm
+#audit_axioms BookProof.SmBrstGhost.weakOcc_orthonormal
+#audit_axioms BookProof.SmBrstGhost.finrank_ker_ge_three
+#audit_axioms BookProof.SmBrstGhost.finrank_ker_smGhostCharge_ge_three
