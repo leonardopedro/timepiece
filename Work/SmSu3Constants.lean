@@ -36,6 +36,9 @@ structure CQ where
 
 namespace CQ
 
+@[ext] theorem ext' {x y : CQ} (h1 : x.re = y.re) (h2 : x.im = y.im) : x = y := by
+  cases x; cases y; simp_all
+
 def add (x y : CQ) : CQ := ⟨x.re + y.re, x.im + y.im⟩
 def neg (x : CQ) : CQ := ⟨-x.re, -x.im⟩
 def mul (x y : CQ) : CQ := ⟨x.re * y.re - x.im * y.im, x.re * y.im + x.im * y.re⟩
@@ -64,6 +67,20 @@ instance : NatCast CQ := ⟨fun n => ⟨Qsqrt3.ofRat n, 0⟩⟩
 
 /-- The imaginary unit `i`. -/
 def I : CQ := ⟨0, 1⟩
+
+/-! ## The additive-group facts the antisymmetry proof needs -/
+
+theorem add_comm' (x y : CQ) : x + y = y + x := by
+  apply ext' <;> simp [add_comm]
+
+theorem neg_add' (x y : CQ) : -(x + y) = -x + -y := by ext <;> simp <;> ring
+
+theorem neg_neg' (x : CQ) : - -x = x := by ext <;> simp
+
+theorem neg_mul' (x y : CQ) : (-x) * y = -(x * y) := by ext <;> simp <;> ring
+
+/-- `x - y = -(y - x)` for the commutator: this is the whole content of antisymmetry. -/
+theorem add_neg_swap (x y : CQ) : x + (-y) = -(y + (-x)) := by ext <;> simp
 
 /-- A rational, as an exact complex number. -/
 def ofRat (q : ℚ) : CQ := ⟨Qsqrt3.ofRat q, 0⟩
@@ -190,5 +207,34 @@ theorem smF3_458 : smF3 3 4 7 = Real.sqrt 3 / 2 := by
 theorem smF3_678 : smF3 5 6 7 = Real.sqrt 3 / 2 := by
   rw [smF3, f3Q_678, Qsqrt3.toReal_form]
   ring
+
+/-! ## Antisymmetry, from the commutator -/
+
+/-- `[A, B] = -[B, A]`, pointwise. -/
+theorem mcomm_antisym (A B : M3) : mcomm A B = fun i j => -(mcomm B A i j) := by
+  funext i j
+  simpa [mcomm] using CQ.add_neg_swap (mmul A B i j) (mmul B A i j)
+
+/-- Negating the left factor negates the product. -/
+theorem mmul_neg_left (A B : M3) :
+    mmul (fun i j => -(A i j)) B = fun i j => -(mmul A B i j) := by
+  funext i j
+  simp only [mmul, CQ.neg_mul']
+  rw [← CQ.neg_add', ← CQ.neg_add']
+
+/-- The trace is additive, so it commutes with negation. -/
+theorem mtrace_neg (A : M3) : mtrace (fun i j => -(A i j)) = -(mtrace A) := by
+  simp only [mtrace]
+  rw [← CQ.neg_add', ← CQ.neg_add']
+
+/-- **The derived constants are totally antisymmetric in their first two indices.**  This is not a
+512-case check: `[λ_b, λ_a] = -[λ_a, λ_b]`, negation pulls out of the product and the trace, and the
+imaginary part and the factor `1/4` carry the sign with it. -/
+theorem f3Q_antisym (a b c : Fin 8) : f3Q a b c = - f3Q b a c := by
+  have h : f3Q b a c = - f3Q a b c := by
+    simp only [f3Q]
+    rw [mcomm_antisym, mmul_neg_left, mtrace_neg, CQ.neg_im, neg_mul]
+  rw [h]
+  simp
 
 end BookProof.SmSu3

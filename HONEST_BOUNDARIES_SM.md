@@ -860,3 +860,32 @@ learned while building the layers, both worth recording:
 (462 → 924 → 1848 → 3696).  Nothing in this entry upgrades a computation to a theorem about the model:
 the status of `11` is unchanged, and the Lean-side facts remain the refutation of an unconditional bound
 (2026-11-16e), the degree-free lower bound `3`, and now the derived constants with their computed table.
+
+## Update 2026-11-16j — antisymmetry proved, the minor emitted, degree eight added; Jacobi still open
+
+**Antisymmetry, structurally.**  `f3Q_antisym : f3Q a b c = - f3Q b a c` holds for all `a b c`.  It is
+not a 512-case enumeration: `[λ_b, λ_a] = -[λ_a, λ_b]` (`mcomm_antisym`, from one coordinate identity),
+negation pulls out of the matrix product (`mmul_neg_left`) and the trace (`mtrace_neg`), and the imaginary
+part with the factor `1/4` carries the sign (`neg_mul`).  The supporting `CQ` facts — `x - y = -(y - x)`,
+`(-x) * y = -(x * y)`, `-(x + y) = -x + -y` — are each one `ext`/`ring` line over `ℚ`.
+
+**The minor is now Lean data.**  `scripts/sm-cubic-kernel-basis.py --emit-minor` writes
+`Work/SmGhostMinorLit.lean` (1595 lines): the 3025 entries as exact `(a, b)` pairs meaning `a + b√3` in
+`ghostMinorData`, the matrix `ghostMinor : Matrix (Fin 55) (Fin 55) Qsqrt3`, and the shape checks
+`ghostMinorData_length : ghostMinorData.length = 55` and `ghostMinorData_rows : ∀ r ∈ ghostMinorData,
+r.length = 55`, both by `decide`.  `ghostMinorStatement := certificateStatement ghostMinor` is the open
+`Prop`.  The file compiles in 12 s.  What this removes is the transcription step; what it does not
+remove is the determinant proof, which is the same blocker as before (nothing here is checkable by
+`decide` at 55 × 55, and `native_decide` is excluded).
+
+**Degree eight.**  The script's table gained `dim Λ⁸ = 495` sources reaching 216 of the 220 nine-mode
+states, rank 163, kernel 332, with the `2^m` law intact (332 → 664 → 1328 → 2656).  Seven degrees now
+follow the law.
+
+**Jacobi is not proved, and this entry does not claim it.**  Two things separate it from antisymmetry:
+total antisymmetry (cyclicity of `tr([A,B]C)`) needs `mmul` associativity and `CQ` distributivity, which
+the layer does not have yet; and the Jacobi identity for the structure constants needs the closure
+`[λ_a, λ_b] ∈ span{λ_c}` — 64 commutation relations plus the argument that transfers them to the
+`f`'s.  The nine table entries and antisymmetry do not imply it.  A future session should either prove
+the closure (mechanical but 64 matrix identities) and then the transfer, or state Jacobi as a computed
+certificate with the same honesty as the determinant.
