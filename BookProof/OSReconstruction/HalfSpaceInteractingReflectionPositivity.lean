@@ -301,6 +301,108 @@ theorem intState_reflectionPositive_of_integrable {ι : Type*} [Fintype ι]
   rw [hEq]
   exact hfree
 
+/-! ## Why the hypothesis cannot be weakened to reflection invariance
+
+The theorems above need the weight to be a nonnegative sum of matched products.  Reflection
+invariance alone is not enough, and this section proves the failure instead of asserting it: for
+any bounded `h` with `|h| ≤ 1` and any `0 < ε < 1`, the weight
+
+  `W(z) = 1 - ε * h z₁ * h z₂`
+
+is strictly positive and reflection invariant, and whenever `∫ h = 0` and `∫ h * h = 1` its OS
+form on `h` is `-ε`.  The sign is the whole story — `1 + ε h₁ h₂` has OS form `+ε` — so it is the
+coefficient of the rank-one term, not the invariance, that carries positivity.  This is the
+precise sense in which a general reflection-invariant density is *false* rather than open.
+
+The statement needs no Gaussian computation: it holds for any probability `μ₀` and any such `h`,
+the product state of the corpus being the case `μ₀ = whiteNoise ι`.  A two-point space with the
+`±1` sign and the uniform measure satisfies the hypotheses (`∫h = 0`, `∫h * h = 1`, `|h| = 1`).
+-/
+
+section GeneralWeight
+
+variable {α : Type*} [MeasurableSpace α] (μ₀ : Measure α) [IsProbabilityMeasure μ₀]
+
+omit [MeasurableSpace α] in
+/-- The weight `1 - ε h z₁ h z₂` is strictly positive for `|h| ≤ 1` and `0 ≤ ε < 1`. -/
+theorem generalWeight_pos (h : α → ℝ) (hbound : ∀ x, |h x| ≤ 1) {ε : ℝ} (hε0 : 0 ≤ ε)
+    (hε1 : ε < 1) (z : α × α) : 0 < 1 - ε * h z.1 * h z.2 := by
+  have habs : |h z.1 * h z.2| ≤ 1 := by
+    rw [abs_mul]
+    nlinarith [abs_nonneg (h z.1), abs_nonneg (h z.2), hbound z.1, hbound z.2]
+  have hle : ε * (h z.1 * h z.2) ≤ ε := by
+    nlinarith [mul_le_mul_of_nonneg_left habs hε0, (abs_le.1 habs).2]
+  nlinarith [hle]
+
+omit [MeasurableSpace α] in
+/-- The weight is reflection invariant: it is a function of the unordered pair `{z₁, z₂}`. -/
+theorem generalWeight_swap (h : α → ℝ) (ε : ℝ) (z : α × α) :
+    (1 - ε * h z.2 * h z.1) = 1 - ε * h z.1 * h z.2 := by
+  ring
+
+/-- **The OS form of `1 - ε h₁ h₂` on the observable `h` is `-ε`.**  Each term is a product of one
+function of each half, so the double integral factorizes. -/
+theorem generalWeight_osForm (h : α → ℝ) (hh : Measurable h) (hbound : ∀ x, |h x| ≤ 1)
+    (hmean : ∫ x, h x ∂μ₀ = 0) (hvar : ∫ x, h x * h x ∂μ₀ = 1) (ε : ℝ) :
+    (∫ z : α × α, h z.2 * h z.1 * (1 - ε * h z.1 * h z.2) ∂(μ₀.prod μ₀)) = -ε := by
+  have hint1 : Integrable (fun z : α × α => h z.2 * h z.1) (μ₀.prod μ₀) :=
+    Integrable.of_bound (μ := μ₀.prod μ₀) (f := fun z : α × α => h z.2 * h z.1)
+      ((hh.comp measurable_snd).mul (hh.comp measurable_fst)).aestronglyMeasurable (1 : ℝ) (by
+        filter_upwards with z
+        rw [Real.norm_eq_abs, abs_mul]
+        nlinarith [abs_nonneg (h z.1), abs_nonneg (h z.2), hbound z.1, hbound z.2])
+  have hint2 : Integrable (fun z : α × α => (h z.1 * h z.1) * (h z.2 * h z.2))
+      (μ₀.prod μ₀) :=
+    Integrable.of_bound (μ := μ₀.prod μ₀)
+      (f := fun z : α × α => (h z.1 * h z.1) * (h z.2 * h z.2))
+      (((hh.mul hh).comp measurable_fst).mul ((hh.mul hh).comp measurable_snd)).aestronglyMeasurable
+      (1 : ℝ) (by
+        filter_upwards with z
+        rw [Real.norm_eq_abs, abs_mul]
+        have h1 : |h z.1 * h z.1| ≤ 1 := by
+          rw [abs_mul]
+          nlinarith [abs_nonneg (h z.1), hbound z.1]
+        have h2 : |h z.2 * h z.2| ≤ 1 := by
+          rw [abs_mul]
+          nlinarith [abs_nonneg (h z.2), hbound z.2]
+        nlinarith [abs_nonneg (h z.1 * h z.1), abs_nonneg (h z.2 * h z.2)])
+  have hsplit : (∫ z : α × α, h z.2 * h z.1 * (1 - ε * h z.1 * h z.2) ∂(μ₀.prod μ₀))
+      = (∫ z : α × α, h z.2 * h z.1 ∂(μ₀.prod μ₀))
+        - ε * (∫ z : α × α, (h z.1 * h z.1) * (h z.2 * h z.2) ∂(μ₀.prod μ₀)) := by
+    rw [← integral_const_mul, ← integral_sub hint1 (hint2.const_mul ε)]
+    refine integral_congr_ae (ae_of_all _ fun z => ?_)
+    ring
+  have hsq : (∫ z : α × α, (h z.1 * h z.1) * (h z.2 * h z.2) ∂(μ₀.prod μ₀)) = 1 := by
+    have hprod := integral_prod_mul (μ := μ₀) (ν := μ₀) (L := ℝ)
+      (f := fun x : α => h x * h x) (g := fun y : α => h y * h y)
+    rw [hprod, hvar, mul_one]
+  have hcross : (∫ z : α × α, h z.2 * h z.1 ∂(μ₀.prod μ₀)) = 0 := by
+    have hprod := integral_prod_mul (μ := μ₀) (ν := μ₀) (L := ℝ)
+      (f := fun x : α => h x) (g := fun y : α => h y)
+    have hswap : (∫ z : α × α, h z.2 * h z.1 ∂(μ₀.prod μ₀))
+        = ∫ z : α × α, h z.1 * h z.2 ∂(μ₀.prod μ₀) :=
+      integral_congr_ae (ae_of_all _ fun z => mul_comm _ _)
+    rw [hswap, hprod, hmean, mul_zero]
+  rw [hsplit, hcross, hsq]
+  ring
+
+/-- **Reflection positivity fails for a reflection-invariant positive weight.**  There is a strictly
+positive, reflection-invariant weight on `α × α` whose OS form is negative, so no argument from
+invariance alone can give reflection positivity for a general density. -/
+theorem not_reflectionPositive_of_generalWeight (h : α → ℝ) (hh : Measurable h)
+    (hbound : ∀ x, |h x| ≤ 1) (hmean : ∫ x, h x ∂μ₀ = 0) (hvar : ∫ x, h x * h x ∂μ₀ = 1)
+    {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1) :
+    ∃ W : α × α → ℝ, (∀ z, 0 < W z) ∧ (∀ z, W (z.2, z.1) = W z) ∧
+      (∫ z : α × α, h z.2 * h z.1 * W z ∂(μ₀.prod μ₀)) < 0 := by
+  refine ⟨fun z => 1 - ε * h z.1 * h z.2, ?_, ?_, ?_⟩
+  · exact fun z => generalWeight_pos (ε := ε) h hbound (le_of_lt hε0) hε1 z
+  · exact fun z => generalWeight_swap h ε z
+  · rw [show (∫ z : α × α, h z.2 * h z.1 * (1 - ε * h z.1 * h z.2) ∂(μ₀.prod μ₀)) = -ε from
+      generalWeight_osForm μ₀ h hh hbound hmean hvar ε]
+    linarith
+
+end GeneralWeight
+
 end
 
 end BookProof.OSReconstruction

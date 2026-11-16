@@ -150,3 +150,7 @@ open BookProof.OSReconstruction
 #audit_axioms intStateSum_reflectionPositive
 #audit_axioms covState_reflectionPositive_of_integrable
 #audit_axioms intState_reflectionPositive_of_integrable
+#audit_axioms generalWeight_pos
+#audit_axioms generalWeight_swap
+#audit_axioms generalWeight_osForm
+#audit_axioms not_reflectionPositive_of_generalWeight

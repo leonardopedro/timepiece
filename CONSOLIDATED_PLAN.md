@@ -26712,9 +26712,12 @@ symmetric.  In the state framework of these modules, `ρ(z) = 1 − ε h(z₁)h(
 So the chapter's "a general interaction still needs an argument" was too weak: it needs a
 *positivity structure*, and none exists that follows from invariance.  The densities that work are
 the nonnegative sums of matched rank-one products — exactly the cone the theorems of 2026-11-16a/c
-generate — because those make the OS form a sum of squares.  The counterexample is a three-line
-computation and is not yet formalized; the pieces for it (product-measure Fubini on `γ ⊗ γ`) are in
-the proof of `covState_reflectionPositive`.
+generate — because those make the OS form a sum of squares.  The counterexample is formalized in the same module:
+`generalWeight_pos` (the weight is strictly positive), `generalWeight_swap` (reflection invariance),
+`generalWeight_osForm` (the OS form is `-ε`, by `integral_prod_mul` on each half) and
+`notReflectionPositive_of_generalWeight` (the packaged negative statement).  **Update (2026-11-16e):
+what the 2026-11-16d entry called "not yet formalized" is now a theorem** — the plan entry is left
+in place and corrected here rather than rewritten.
 
 **Verification.**  `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`,
 `lake build Book.EuclideanMomentHierarchy` and `lake build Work.EuclideanMomentAudit` all succeed;

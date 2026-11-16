@@ -517,8 +517,27 @@ integral_shellDensity_streamField_sq : ∫ coarse = K_n + c^{2n} d^2
 Each integrated Gaussian contributes exactly one unit of variance, so the accumulated covariance
 is the geometric sum; it grows at most linearly in the number of scales, and if the per-scale
 weight contracts ($`c^2 < 1`) it stays below the fixed constant $`1/(1-c^2)` for _every_
-number of scales $`n`. That is the sense in which the small-field domain is preserved through arbitrarily many
-scales: the bound does not degrade with the number of steps.
+number of scales $`n`. That is the sense in which the small-field domain is preserved through
+arbitrarily many scales: the bound does not degrade with the number of steps.
+
+The tail bound is a statement about the *density* at fixed exterior value. Removing the damped
+background from the field turns it into a statement about the law. The renormalised observable
+subtracts the background read off the exterior coordinate, and its large set has a law-measure
+that is an honest probability, uniformly bounded in the number of scales:
+
+```
+renormField                  : Ψ - c^n d (last coordinate)
+shellTailLaw                 : (shellLaw (n+1)).real {p | M ≤ |renormField p|}
+integral_shellTail_eq        : ∫ y, shellTail n c d y M = ∫ p, indicator ∂shellLaw (n+1)
+shellTailLaw_le_inv          : c^2 < 1 -> shellTailLaw n c d M ≤ 1/((1 - c^2) M^2)
+exists_shellTailLaw_le       : ε > 0 -> ∃ M > 0, ∀ n, shellTailLaw n c d M ≤ ε
+```
+
+The last line is **tightness**: one threshold works at every scale, which is the analytic premise
+of Prokhorov's theorem for the sequence of laws of the renormalised observables. That is the
+first rung of the observable limit estimate (C3e) and no more: Prokhorov's theorem itself, a
+limiting law and any multi-point function are not proved here, and the renormalisation is the
+subtraction of the background rather than of an interacting divergence.
 
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of
@@ -551,9 +570,23 @@ An unbounded $`V_+`$ is covered only when it expands as a convergent series of
 factorized weights — a mixture class, not a general interaction. That is not a gap to be closed by
 more work on this mechanism: reflection positivity is a positivity condition on the reflected
 kernel, not a consequence of reflection invariance, and a general density demonstrably fails it
-($`\rho = 1 - \epsilon h_1h_2`$ with $`|h| \le 1`$, $`\int h = 0`$, $`0 < \epsilon \le 1`$ is
-invariant and nonnegative while $`\langle \theta h, h\rangle_\rho = -\epsilon(\int h^2)^2 < 0`$;
-the computation is in the 2026-11-16d entry of `CONSOLIDATED_PLAN.md`). The $`L^2`$ closure of the
+and that failure is itself a theorem of the module, not a remark. For any probability `μ₀` and any
+measurable `h` with $`|h| \le 1`$, $`\int h = 0`$ and $`\int h^2 = 1`$, and any
+$`0 < \epsilon < 1`$,
+
+```
+BookProof.OSReconstruction.generalWeight_pos      : 0 < 1 - ε h z₁ h z₂
+BookProof.OSReconstruction.generalWeight_swap     : reflection invariance
+BookProof.OSReconstruction.generalWeight_osForm   : ⟨θh, h⟩_ρ = -ε
+BookProof.OSReconstruction.not_reflectionPositive_of_generalWeight :
+  ∃ W, (∀ z, 0 < W z) ∧ (∀ z, W (z.2, z.1) = W z) ∧ ∫ h z.2 h z.1 W z d(μ₀ ⊗ μ₀) < 0
+```
+
+The sign is the whole story: `1 + ε h₁h₂` has OS form `+ε`, and that sign is the coefficient of the
+rank-one term. So the general case is false rather than open, and what a general `V` needs is a
+*positivity structure* — $`V = V_+ + \theta V_+`$, a decomposition into individually
+reflection-positive terms, or a convergent expansion in a stable regime — not more work on this
+mechanism. The $`L^2`$ closure of the
 positive-time algebra is likewise not covered: the form-finite statement above defines the form
 wherever it is finite, and what is missing is the truncation that discharges finiteness from
 `MemLp`.
@@ -592,4 +625,4 @@ estimate (C3e) remain open.
 
 Everything proved in this chapter is `sorry`-free, and every declaration listed above
 depends only on Lean's standard `propext`, `Classical.choice` and `Quot.sound`
-(`Work/EuclideanMomentAudit.lean`, 107 declarations).
+(`Work/EuclideanMomentAudit.lean`, 111 declarations).
