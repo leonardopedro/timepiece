@@ -1896,5 +1896,345 @@ theorem oscillator_gap_discard (w : Fin 2 → ℝ) (hw : 0 < w 1) :
         ≤ (inner ℂ (discardMode v) (freeMode w (discardMode v))).re :=
   ⟨w 1, hw, fun v => oscillator_coercive_discard w v⟩
 
-end BookProof.ChapterSirkEndToEnd
 
+/-! ## 18. §15 instantiated: a two-mode YM model with a nonzero coupling and an explicit gap
+
+§17 checked the geometric hypotheses of §13–§16 on the *free* two-mode model, where the coupling
+`Q A P` vanishes.  §15's point is that this is not needed, so here the coupling is switched on:
+`H = H_free + g·W` with `W` the exchange of the two modes (`hamOp`).
+
+* `discardOp_hamOp_keepOp_ne_zero`: `Q H P = g · (Q W) ≠ 0` for `g ≠ 0`, so §14's commutation
+  hypothesis is genuinely false here, not merely unproved;
+* `freeOp_discardOp_keepOp`, `freeOp_keepOp_discardOp`, `keepOp_freeOp_keepOp`,
+  `discardOp_freeOp_discardOp`: the free part is block diagonal, `Q H_free P = P H_free Q = 0`;
+* `keepOp_exchangeOp_keepOp`, `discardOp_exchangeOp_discardOp`: the interaction is purely
+  off-diagonal, so the whole coupling sits in the `Q H P` block;
+* `Uinv_comp`: `U = (w 0)⁻¹ P` is a one-sided inverse of `P H P = (w 0) P` on `range P`;
+* `schurOp_eq`: the Schur complement collapses to `(w 1 − g²/w 0) • Q`.  The second-order
+  downfolding term is exactly what the commuting bound of §13 could not see;
+* `schur_identity`: §15's `schur_comp_eq` with this data, so the Schur complement inverts the
+  compressed resolvent although the coupling does not vanish;
+* `tail_le_schur`: §15's `resolvent_tail_le_of_schur`, giving `‖Q R Q‖ ≤ mu⁻¹` with the explicit
+  gap `mu = schurGap w g = w 1 − g²/w 0`.
+
+`resolventOp` is the genuine two-mode resolvent `Δ⁻¹ (w1 P + w0 Q − g W)`, `Δ = w0 w1 − g²`, and
+`hamOp_comp_resolventOp` checks `H R = 1`: `R` is the actual inverse at the shift `z = 0`, not an
+assumed operator.  The model is two-dimensional, so the gap is a number one can read off; the
+continuum statement that this downfolded gap stays positive is not proved here. -/
+
+noncomputable section
+def diagOp (c : Fin 2 → ℂ) : YMMode →L[ℂ] YMMode :=
+  LinearMap.toContinuousLinearMap
+    { toFun := fun x => WithLp.toLp 2 fun i => c i * x.ofLp i
+      map_add' := by intro x y; ext i; simp [mul_add]
+      map_smul' := by intro a x; ext i; simp [mul_left_comm] }
+
+/-- Exchange of the two modes. -/
+def exchangeOp : YMMode →L[ℂ] YMMode :=
+  LinearMap.toContinuousLinearMap
+    { toFun := fun x => WithLp.toLp 2 fun i => x.ofLp (Equiv.swap 0 1 i)
+      map_add' := by intro x y; ext i; simp
+      map_smul' := by intro a x; ext i; simp }
+
+@[simp] theorem diagOp_ofLp (c : Fin 2 → ℂ) (x : YMMode) (i : Fin 2) :
+    (diagOp c x).ofLp i = c i * x.ofLp i := by simp [diagOp]
+
+@[simp] theorem exchangeOp_ofLp (x : YMMode) (i : Fin 2) :
+    (exchangeOp x).ofLp i = x.ofLp (Equiv.swap (0 : Fin 2) 1 i) := by simp [exchangeOp]
+
+theorem diagOp_congr {c d : Fin 2 → ℂ} (h : ∀ i, c i = d i) : diagOp c = diagOp d := by
+  ext x i
+  simp [h]
+
+theorem diagOp_comp (c d : Fin 2 → ℂ) :
+    (diagOp c).comp (diagOp d) = diagOp fun i => c i * d i := by
+  ext x; simp [mul_assoc]
+
+theorem diagOp_add (c d : Fin 2 → ℂ) : diagOp (c + d) = diagOp c + diagOp d := by
+  ext x i; simp [add_mul]
+
+@[simp] theorem diagOp_one : diagOp (fun _ => (1 : ℂ)) = ContinuousLinearMap.id ℂ YMMode := by
+  ext x i; simp
+
+theorem diagOp_zero : diagOp (fun _ => (0 : ℂ)) = 0 := by
+  ext x i; simp
+
+theorem diagOp_eq_zero {c : Fin 2 → ℂ} (h : ∀ i, c i = 0) : diagOp c = 0 :=
+  (diagOp_congr h).trans diagOp_zero
+
+theorem diagOp_smul (a : ℂ) (c : Fin 2 → ℂ) : diagOp (fun i => a * c i) = a • diagOp c := by
+  ext x i; simp [mul_assoc]
+
+theorem exchangeOp_comp_self :
+    exchangeOp.comp exchangeOp = ContinuousLinearMap.id ℂ YMMode := by
+  ext x i; simp [Equiv.swap_apply_self]
+
+theorem exchangeOp_comp_diagOp (c : Fin 2 → ℂ) :
+    exchangeOp.comp (diagOp c)
+      = (diagOp fun i => c (Equiv.swap (0 : Fin 2) 1 i)).comp exchangeOp := by
+  ext x i; simp
+
+theorem diagOp_adjoint (c : Fin 2 → ℂ) :
+    (diagOp c).adjoint = diagOp fun i => star (c i) := by
+  have h : diagOp c = (diagOp fun i => star (c i)).adjoint := by
+    rw [ContinuousLinearMap.eq_adjoint_iff]
+    intro x y
+    rw [EuclideanSpace.inner_eq_star_dotProduct, EuclideanSpace.inner_eq_star_dotProduct]
+    simp only [dotProduct, Fin.sum_univ_two, diagOp_ofLp, Pi.star_apply, star_mul]
+    ring_nf
+  calc (diagOp c).adjoint
+      = (ContinuousLinearMap.adjoint
+          (ContinuousLinearMap.adjoint (diagOp fun i => star (c i)))) := by rw [h]
+    _ = diagOp fun i => star (c i) := ContinuousLinearMap.adjoint_adjoint _
+
+/-- Indicator of mode `0`. -/
+def ind0 : Fin 2 → ℂ := fun i => if i = 0 then 1 else 0
+
+/-- Indicator of mode `1`. -/
+def ind1 : Fin 2 → ℂ := fun i => if i = 0 then 0 else 1
+
+noncomputable def keepOp : YMMode →L[ℂ] YMMode := diagOp ind0
+
+noncomputable def discardOp : YMMode →L[ℂ] YMMode := diagOp ind1
+
+noncomputable def freeOp (w : Fin 2 → ℝ) : YMMode →L[ℂ] YMMode := diagOp fun i => (w i : ℂ)
+
+noncomputable def hamOp (w : Fin 2 → ℝ) (g : ℝ) : YMMode →L[ℂ] YMMode :=
+  freeOp w + (g : ℂ) • exchangeOp
+
+theorem keepOp_add_discardOp : keepOp + discardOp = ContinuousLinearMap.id ℂ YMMode := by
+  rw [keepOp, discardOp, ← diagOp_add, ← diagOp_one]
+  exact diagOp_congr (by intro i; fin_cases i <;> simp [ind0, ind1])
+
+theorem keepOp_comp_discardOp : keepOp.comp discardOp = 0 := by
+  rw [keepOp, discardOp, diagOp_comp]
+  exact diagOp_eq_zero (by intro i; fin_cases i <;> simp [ind0, ind1])
+
+theorem discardOp_comp_keepOp : discardOp.comp keepOp = 0 := by
+  rw [keepOp, discardOp, diagOp_comp]
+  exact diagOp_eq_zero (by intro i; fin_cases i <;> simp [ind0, ind1])
+
+theorem keepOp_comp_self : keepOp.comp keepOp = keepOp := by
+  rw [keepOp, diagOp_comp]
+  exact diagOp_congr (by intro i; fin_cases i <;> simp [ind0])
+
+theorem discardOp_comp_self : discardOp.comp discardOp = discardOp := by
+  rw [discardOp, diagOp_comp]
+  exact diagOp_congr (by intro i; fin_cases i <;> simp [ind1])
+
+theorem keepOp_adjoint : keepOp.adjoint = keepOp := by
+  rw [keepOp, diagOp_adjoint]
+  exact diagOp_congr (by intro i; fin_cases i <;> simp [ind0])
+
+theorem discardOp_adjoint : discardOp.adjoint = discardOp := by
+  rw [discardOp, diagOp_adjoint]
+  exact diagOp_congr (by intro i; fin_cases i <;> simp [ind1])
+
+theorem freeOp_discardOp_keepOp : discardOp.comp ((freeOp w).comp keepOp) = 0 := by
+  rw [discardOp, freeOp, keepOp, diagOp_comp, diagOp_comp]
+  exact diagOp_eq_zero (by intro i; fin_cases i <;> simp [ind0, ind1])
+
+theorem freeOp_keepOp_discardOp : keepOp.comp ((freeOp w).comp discardOp) = 0 := by
+  rw [keepOp, freeOp, discardOp, diagOp_comp, diagOp_comp]
+  exact diagOp_eq_zero (by intro i; fin_cases i <;> simp [ind0, ind1])
+
+theorem keepOp_freeOp_keepOp :
+    keepOp.comp ((freeOp w).comp keepOp) = (w 0 : ℂ) • keepOp := by
+  rw [keepOp, freeOp, diagOp_comp, diagOp_comp, ← diagOp_smul]
+  exact diagOp_congr (by intro i; fin_cases i <;> simp [ind0])
+
+theorem discardOp_freeOp_discardOp :
+    discardOp.comp ((freeOp w).comp discardOp) = (w 1 : ℂ) • discardOp := by
+  rw [discardOp, freeOp, diagOp_comp, diagOp_comp, ← diagOp_smul]
+  exact diagOp_congr (by intro i; fin_cases i <;> simp [ind1])
+
+theorem keepOp_exchangeOp_keepOp : keepOp.comp (exchangeOp.comp keepOp) = 0 := by
+  rw [keepOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, diagOp_ofLp, exchangeOp_ofLp]
+  fin_cases i <;> simp [ind0]
+
+theorem discardOp_exchangeOp_discardOp :
+    discardOp.comp (exchangeOp.comp discardOp) = 0 := by
+  rw [discardOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, diagOp_ofLp, exchangeOp_ofLp]
+  fin_cases i <;> simp [ind1]
+
+theorem discardOp_exchangeOp_keepOp :
+    discardOp.comp (exchangeOp.comp keepOp) = discardOp.comp exchangeOp := by
+  rw [discardOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, diagOp_ofLp, exchangeOp_ofLp, keepOp]
+  fin_cases i <;> simp [ind0, ind1]
+
+theorem keepOp_exchangeOp_discardOp :
+    keepOp.comp (exchangeOp.comp discardOp) = exchangeOp.comp discardOp := by
+  rw [keepOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, diagOp_ofLp, exchangeOp_ofLp, discardOp]
+  fin_cases i <;> simp [ind0, ind1]
+
+@[simp] theorem hamOp_ofLp (w : Fin 2 → ℝ) (g : ℝ) (x : YMMode) (i : Fin 2) :
+    (hamOp w g x).ofLp i
+      = (w i : ℂ) * x.ofLp i + (g : ℂ) * x.ofLp (Equiv.swap (0 : Fin 2) 1 i) := by
+  simp [hamOp, freeOp]
+
+theorem keepOp_hamOp_keepOp :
+    keepOp.comp ((hamOp w g).comp keepOp) = (w 0 : ℂ) • keepOp := by
+  rw [keepOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.smul_apply, diagOp_ofLp,
+    hamOp_ofLp]
+  fin_cases i <;> simp [ind0]
+
+theorem discardOp_hamOp_discardOp :
+    discardOp.comp ((hamOp w g).comp discardOp) = (w 1 : ℂ) • discardOp := by
+  rw [discardOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.smul_apply, diagOp_ofLp,
+    hamOp_ofLp]
+  fin_cases i <;> simp [ind1]
+
+theorem discardOp_hamOp_keepOp :
+    discardOp.comp ((hamOp w g).comp keepOp) = (g : ℂ) • (discardOp.comp exchangeOp) := by
+  rw [discardOp, keepOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.smul_apply, diagOp_ofLp,
+    hamOp_ofLp]
+  fin_cases i <;> simp [ind0, ind1]
+
+theorem keepOp_hamOp_discardOp :
+    keepOp.comp ((hamOp w g).comp discardOp) = (g : ℂ) • (exchangeOp.comp discardOp) := by
+  rw [keepOp, discardOp]
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.smul_apply, diagOp_ofLp,
+    hamOp_ofLp]
+  fin_cases i <;> simp [ind0, ind1]
+
+/-- The unit vector of mode `i`. -/
+def modeVec (i : Fin 2) : YMMode := EuclideanSpace.single i 1
+
+
+theorem exchangeOp_modeVec (i : Fin 2) :
+    exchangeOp (modeVec i) = modeVec (Equiv.swap (0 : Fin 2) 1 i) := by
+  ext j
+  fin_cases i <;> fin_cases j <;> simp [modeVec]
+
+theorem keepOp_modeVec_zero : keepOp (modeVec 0) = modeVec 0 := by
+  ext j
+  fin_cases j <;> simp [modeVec, keepOp, ind0]
+
+theorem discardOp_modeVec_one : discardOp (modeVec 1) = modeVec 1 := by
+  ext j
+  fin_cases j <;> simp [modeVec, discardOp, ind1]
+
+/-- **The coupling block is nonzero**, so §14's invariance hypothesis fails in this model and
+§15's Schur-complement route is the relevant one. -/
+theorem discardOp_hamOp_keepOp_ne_zero {w : Fin 2 → ℝ} {g : ℝ} (hg : g ≠ 0) :
+    discardOp.comp ((hamOp w g).comp keepOp) ≠ 0 := by
+  intro h
+  rw [discardOp_hamOp_keepOp] at h
+  have hx := congrArg (fun T : YMMode →L[ℂ] YMMode => T (modeVec 0)) h
+  simp only [ContinuousLinearMap.zero_apply, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.comp_apply, exchangeOp_modeVec, discardOp_modeVec_one,
+    Equiv.swap_apply_left] at hx
+  have hnorm : ‖(((g : ℂ)) • modeVec 1 : YMMode)‖ = 0 := by rw [hx]; simp
+  have h1 : ‖modeVec (1 : Fin 2)‖ = 1 := by simp [modeVec]
+  rw [norm_smul, h1, mul_one] at hnorm
+  exact hg (Complex.ofReal_eq_zero.mp (norm_eq_zero.mp hnorm))
+
+/-- One-sided inverse of the kept block: `U = (w 0)⁻¹ P`, since `P (H) P = (w 0) • P`. -/
+noncomputable def Uinv (w : Fin 2 → ℝ) : YMMode →L[ℂ] YMMode := ((w 0 : ℂ))⁻¹ • keepOp
+
+theorem Uinv_comp (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0) :
+    (Uinv w).comp (keepOp.comp ((hamOp w g).comp keepOp)) = keepOp := by
+  have hc : (w 0 : ℂ) ≠ 0 := by simpa using hw0
+  rw [Uinv, keepOp_hamOp_keepOp]
+  apply ContinuousLinearMap.ext
+  intro x
+  rw [ContinuousLinearMap.comp_apply, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.smul_apply, map_smul, ← ContinuousLinearMap.comp_apply,
+    keepOp_comp_self, smul_smul, inv_mul_cancel₀ hc, one_smul]
+
+/-- The Schur complement of the compressed shifted Hamiltonian at `z = 0`. -/
+noncomputable def schurOp (w : Fin 2 → ℝ) (g : ℝ) : YMMode →L[ℂ] YMMode :=
+  discardOp.comp ((hamOp w g).comp discardOp)
+    - (discardOp.comp ((hamOp w g).comp keepOp)).comp
+        ((Uinv w).comp (keepOp.comp ((hamOp w g).comp discardOp)))
+
+/-- The downfolded gap: the free discarded frequency shifted by the second-order coupling term. -/
+noncomputable def schurGap (w : Fin 2 → ℝ) (g : ℝ) : ℝ := w 1 - g ^ 2 / w 0
+
+theorem schurOp_eq (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0) :
+    schurOp w g = ((schurGap w g : ℝ) : ℂ) • discardOp := by
+  have hc : (w 0 : ℂ) ≠ 0 := by simpa using hw0
+  rw [schurOp, discardOp_hamOp_discardOp, schurGap]
+  push_cast
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.sub_apply,
+    ContinuousLinearMap.smul_apply, WithLp.ofLp_smul, WithLp.ofLp_sub,
+    Pi.smul_apply, Pi.sub_apply, diagOp_ofLp, hamOp_ofLp,
+    keepOp, discardOp, Uinv]
+  fin_cases i <;> simp [ind0, ind1, smul_eq_mul]
+  field_simp
+
+theorem schurOp_coercive (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0) :
+    ∀ v : YMMode, schurGap w g * ‖discardOp v‖ ^ 2
+      ≤ (inner ℂ (discardOp v) (schurOp w g (discardOp v))).re := by
+  intro v
+  have hidem : discardOp (discardOp v) = discardOp v := by
+    rw [← ContinuousLinearMap.comp_apply, discardOp_comp_self]
+  rw [schurOp_eq w g hw0, ContinuousLinearMap.smul_apply, hidem, inner_smul_right, Complex.mul_re,
+    Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+  have hsq : (inner ℂ (discardOp v) (discardOp v)).re = ‖discardOp v‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℂ) (discardOp v)
+  rw [hsq]
+
+/-- The explicit resolvent of the two-mode Hamiltonian at the shift `z = 0`. -/
+noncomputable def resolventOp (w : Fin 2 → ℝ) (g : ℝ) : YMMode →L[ℂ] YMMode :=
+  ((w 0 : ℂ) * (w 1 : ℂ) - (g : ℂ) ^ 2)⁻¹ •
+    ((w 1 : ℂ) • keepOp + (w 0 : ℂ) • discardOp - (g : ℂ) • exchangeOp)
+
+theorem hamOp_comp_resolventOp (w : Fin 2 → ℝ) (g : ℝ)
+    (hΔ : (w 0 : ℂ) * (w 1 : ℂ) - (g : ℂ) ^ 2 ≠ 0) :
+    (hamOp w g).comp (resolventOp w g) = ContinuousLinearMap.id ℂ YMMode := by
+  have hΔ' : (w 1 : ℂ) * (w 0 : ℂ) - (g : ℂ) ^ 2 ≠ 0 := by
+    rw [mul_comm (w 1 : ℂ) (w 0 : ℂ)]
+    exact hΔ
+  ext x i
+  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.id_apply,
+    ContinuousLinearMap.smul_apply, ContinuousLinearMap.add_apply, ContinuousLinearMap.sub_apply,
+    WithLp.ofLp_smul, WithLp.ofLp_add, WithLp.ofLp_sub, Pi.smul_apply, Pi.add_apply,
+    Pi.sub_apply, diagOp_ofLp, hamOp_ofLp, exchangeOp_ofLp, keepOp, discardOp, resolventOp]
+  fin_cases i <;> simp [ind0, ind1, smul_eq_mul] <;> field_simp <;> ring
+
+theorem keepOp_eq_one_sub : keepOp = ContinuousLinearMap.id ℂ YMMode - discardOp := by
+  rw [eq_sub_iff_add_eq]
+  exact keepOp_add_discardOp
+
+/-- **§15's `schur_comp_eq` instantiated**: the explicit Schur complement of the two-mode model
+inverts the compressed resolvent, although the coupling is nonzero. -/
+theorem schur_identity (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0)
+    (hΔ : (w 0 : ℂ) * (w 1 : ℂ) - (g : ℂ) ^ 2 ≠ 0) :
+    (schurOp w g).comp (discardOp.comp ((resolventOp w g).comp discardOp)) = discardOp := by
+  rw [schurOp, keepOp_eq_one_sub]
+  refine schur_comp_eq (hamOp w g) (resolventOp w g) discardOp (Uinv w) discardOp_comp_self
+    (hamOp_comp_resolventOp w g hΔ) ?_
+  rw [← keepOp_eq_one_sub]
+  exact Uinv_comp w g hw0
+
+/-- **§15's `resolvent_tail_le_of_schur` instantiated**: the compressed resolvent of the toy model
+is bounded by the reciprocal of the *explicit* gap `mu = w 1 − g²/w 0`, with no invariance
+hypothesis. -/
+theorem tail_le_schur (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0)
+    (hΔ : (w 0 : ℂ) * (w 1 : ℂ) - (g : ℂ) ^ 2 ≠ 0) (hmu : 0 < schurGap w g) :
+    ‖discardOp.comp ((resolventOp w g).comp discardOp)‖ ≤ (schurGap w g)⁻¹ :=
+  resolvent_tail_le_of_schur discardOp (resolventOp w g) (schurOp w g) (schurGap w g)
+    discardOp_comp_self discardOp_adjoint (schur_identity w g hw0 hΔ)
+    (schurOp_coercive w g hw0) hmu
+
+
+end
+
+end BookProof.ChapterSirkEndToEnd

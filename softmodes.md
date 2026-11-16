@@ -4704,3 +4704,32 @@ are consistent and computable, and it says nothing about the interacting gap `mu
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
 the file and no line above 100 code points; `#print axioms` on the six new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### §15 instantiated: a two-mode YM model with nonzero coupling (2026-11-15r)
+
+§17 checked the hypotheses of §13–§16 on the *free* model, where `Q A P = 0`.  §18 turns the
+coupling on and shows §15's Schur route still applies: `H = H_free + g·W` on
+`EuclideanSpace ℂ (Fin 2)`, with `W` the exchange of the two modes and the free part diagonal.
+
+* Block structure, now as operators rather than vectors: `freeOp_discardOp_keepOp` and
+  `freeOp_keepOp_discardOp` (the free part is block diagonal), `keepOp_freeOp_keepOp = (w 0) • P`,
+  `discardOp_freeOp_discardOp = (w 1) • Q`, `keepOp_exchangeOp_keepOp = 0`,
+  `discardOp_exchangeOp_discardOp = 0`, `keepOp_add_discardOp = 1`, and the two projections are
+  self-adjoint (`keepOp_adjoint`, `discardOp_adjoint`).
+* `discardOp_hamOp_keepOp = g • (Q W)`, hence `discardOp_hamOp_keepOp_ne_zero` for `g ≠ 0`: the
+  coupling really is nonzero, so §14's `H Q = Q H` fails here and only §15's route is available.
+* `Uinv_comp`: `U = (w 0)⁻¹ P` inverts `P H P = (w 0) P` on `range P`.
+* `schurOp_eq`: the Schur complement collapses to `(w 1 − g²/w 0) • Q`.  The second-order
+  downfolding term is exactly what §13's commuting bound could not see.
+* `schur_identity`: §15's `schur_comp_eq` with this data; `schurOp_coercive`: coercivity of the
+  Schur complement with `mu = schurGap w g = w 1 − g²/w 0`; `tail_le_schur`: §15's
+  `resolvent_tail_le_of_schur`, giving `‖Q R Q‖ ≤ mu⁻¹`.
+* `resolventOp = Δ⁻¹ (w1 P + w0 Q − g W)` with `Δ = w0 w1 − g²`, and `hamOp_comp_resolventOp`
+  checks `H R = 1`: the resolvent is the genuine inverse at `z = 0`, not an assumed operator.
+
+Not proved: that the downfolded gap `w 1 − g²/w 0` stays positive for the continuum operator.  The
+two-mode model exhibits the identity and makes the gap computable; it does not bound it.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the nine new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

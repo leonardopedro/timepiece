@@ -113,6 +113,15 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15r):** “State of the project — 2026-11-15r: §15 instantiated on a
+> two-mode model” (end of file): `ChapterSirkEndToEnd` §18 puts a nonzero off-diagonal coupling
+> `W` on the two-mode model (`H = H_free + g·W`), proves the free part is block diagonal as an
+> operator, that the coupling block `Q H P = g · (Q W)` is nonzero (so §14's commutation fails),
+> and instantiates §15: `U = (w 0)⁻¹ P` inverts `P H P`, the explicit resolvent
+> `R = Δ⁻¹(w1 P + w0 Q − g W)` satisfies `H R = 1`, the Schur complement is
+> `(w 1 − g²/w 0) • Q` (`schurOp_eq`), and `tail_le_schur` gives `‖Q R Q‖ ≤ mu⁻¹` with the explicit
+> gap `mu = w 1 − g²/w 0`.  Continuum positivity of that gap remains open.
+>
 > **Track A — newest (2026-11-15q):** “State of the project — 2026-11-15q: an explicit two-mode YM
 > model” (end of file): `ChapterSirkEndToEnd` §17 builds `YMMode := EuclideanSpace ℂ (Fin 2)` with
 > a diagonal free Hamiltonian and proves the free part is block diagonal
@@ -26387,4 +26396,33 @@ operator.
 
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
 the file and no line above 100 code points; `#print axioms` on the six new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15r: §15 instantiated on a two-mode model
+
+§17 proved §16's geometric hypotheses in the degenerate (block-diagonal, `g = 0`) case.  §18 removes
+that degeneracy: on `EuclideanSpace ℂ (Fin 2)` with `H = H_free + g·W` and `W` the mode exchange,
+
+* the free part is block diagonal as an operator (`freeOp_discardOp_keepOp`,
+  `freeOp_keepOp_discardOp`, `keepOp_freeOp_keepOp = (w 0) • P`,
+  `discardOp_freeOp_discardOp = (w 1) • Q`) while the interaction is purely off-diagonal
+  (`keepOp_exchangeOp_keepOp = 0`, `discardOp_exchangeOp_discardOp = 0`);
+* the coupling block is nonzero (`discardOp_hamOp_keepOp = g • (Q W)`,
+  `discardOp_hamOp_keepOp_ne_zero`), so §14's invariance hypothesis is false and §15 is needed;
+* `U = (w 0)⁻¹ P` is the one-sided inverse of `P H P` (`Uinv_comp`), and the explicit resolvent
+  `R = Δ⁻¹(w1 P + w0 Q − g W)`, `Δ = w0 w1 − g²`, satisfies `H R = 1`
+  (`hamOp_comp_resolventOp`);
+* the Schur complement is `(w 1 − g²/w 0) • Q` (`schurOp_eq`), so the closed-loop gap is the free
+  discarded frequency shifted by the second-order term; `schur_identity` is §15's
+  `schur_comp_eq`, `schurOp_coercive` gives coercivity with that gap, and `tail_le_schur` is
+  §15's `resolvent_tail_le_of_schur`: `‖Q R Q‖ ≤ mu⁻¹` with `mu = schurGap w g`.
+
+**Not proved.**  Positivity of the downfolded gap for the continuum operator.  The toy model shows
+that the Schur identity, the coupling and the gap are all computable — it is not a bound on the
+field theory.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the nine new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
