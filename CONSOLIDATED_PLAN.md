@@ -113,6 +113,12 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15v):** “State of the project — 2026-11-15v: the graph-norm gap
+> reduced” (end of file): `ChapterSirkEndToEnd` §22 replaces the Schur coercivity hypothesis of the
+> graph-norm tail by the free-part gap and the coupling norm — `graphNorm_res_le_of_free` gives
+> `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)(muF − c)⁻¹ + 1)‖Q x‖` and `sirkGraphTail_le_of_free` the
+> `sirkComplement V` form with `muF > c` instead of `0 < mu`.
+>
 > **Track A — newest (2026-11-15u):** “State of the project — 2026-11-15u: §16's hypotheses
 > discharged on the model” (end of file): `ChapterSirkEndToEnd` §21 exhibits a core `modelCore := ⊤`,
 > the restricted Hamiltonian `modelH`, the section `modelRes` from §18's explicit `resolventOp`, and
@@ -26523,4 +26529,22 @@ genuine constraint on a decidable object of the model.
 
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the four new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15v: the graph-norm gap reduced
+
+§19 removed the Schur coercivity hypothesis for a bounded generator; §22 does the same on a core.
+With `S = schurCompOp A Q U`, `graphNorm_res_le_of_free` gives
+`graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)(muF − c)⁻¹ + 1)‖Q x‖` from the free-part gap `muF`, a
+coupling constant `c`, the section property and the section-level Schur identity — the gap `mu` of
+§16/§20 never appears.  `sirkGraphTail_le_of_free` is the SIRK-split form, with `muF > c` rather
+than `0 < mu`.
+
+**Not proved.**  The free gap `muF` and `muF > c` for a continuum model; §22 relocates the spectral
+input to the *free* compressed Hamiltonian, which is the primitive object, and does not produce it.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on both new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.

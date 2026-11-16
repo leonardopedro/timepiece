@@ -2638,4 +2638,77 @@ theorem model_sirkGraphTail (w : Fin 2 → ℝ) (g : ℝ)
 
 end
 
+
+/-! ## 22. The graph-norm gap from the free gap and the coupling norm
+
+§16 and §20 carry a coercivity hypothesis on the Schur complement, `mu * ‖Q v‖² ≤ Re⟪Q v, S (Q v)⟫`.
+§19 showed that hypothesis is not independent data for a bounded generator; here the same reduction
+is made in the graph-norm setting, so §16's `mu` is the *derived* gap `muF − c`:
+
+* `graphNorm_res_le_of_free`: with `S = schurCompOp A Q U`, free-part coercivity with gap `muF` and
+  a coupling constant `c` (§19's `couplingCompOp`) give
+  `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)(muF − c)⁻¹ + 1)‖Q x‖` — the graph norm still costs exactly
+  one `‖z‖`, and the gap is no longer an input;
+* `sirkGraphTail_le_of_free`: the same for the SIRK split `Q = sirkComplement V`, with
+  `muF > c` replacing `0 < mu`.
+
+What remains is the free-part gap `muF` (a property of `Q A Q`, the free Hamiltonian compressed to
+the discarded sector) and the coupling constant `c` (readable from `‖Q A P‖`, `‖U‖`, `‖P A Q‖` by
+§19's `couplingComp_re_le`); the coercivity of the Schur complement is gone from the hypothesis
+list. -/
+
+noncomputable section
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- **The graph-norm gap is not independent data.**  In §16's setting, with the Schur complement
+`schurCompOp A Q U` as the operator `S`, coercivity of `S` with gap `muF − c` follows from
+coercivity of `Q A Q` with gap `muF` and a coupling constant `c` (§19).  So the graph-norm tail
+needs only the free-part gap and the coupling norm. -/
+theorem graphNorm_res_le_of_free {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {res : E →ₗ[ℂ] D}
+    {z : ℂ} (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y)
+    (Q : E →L[ℂ] E) (A U : E →L[ℂ] E) (muF c : ℝ)
+    (hS : ∀ y : E, schurCompOp A Q U (Q ((res (Q y) : D) : E)) = Q y)
+    (hfree : ∀ x : E, muF * ‖Q x‖ ^ 2
+      ≤ (inner ℂ (Q x) ((Q.comp (A.comp Q)) (Q x))).re)
+    (hcoup : ∀ x : E, (inner ℂ (Q x) (couplingCompOp A Q U (Q x))).re ≤ c * ‖Q x‖ ^ 2)
+    (hgap : 0 < muF - c)
+    (hinv : ∀ y : E, (ContinuousLinearMap.id ℂ E - Q) ((res (Q y) : D) : E) = 0) (x : E) :
+    graphNorm H (res (Q x)) ≤ ((1 + ‖z‖) * (muF - c)⁻¹ + 1) * ‖Q x‖ :=
+  graphNorm_res_le_of_schur hres Q (schurCompOp A Q U) (muF - c) hS
+    (schur_coercive_of_free A Q U muF c hfree hcoup) hgap hinv x
+
+/-- **§16's graph-norm tail with the reduced coercivity hypothesis.**  For the SIRK split
+`Q = sirkComplement V`, only free-part coercivity with gap `muF` and a coupling constant `c` are
+needed; the graph-norm gap is the derived `muF − c`, and `muF > c` replaces the old `0 < mu`. -/
+theorem sirkGraphTail_le_of_free (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {res : E →ₗ[ℂ] D} {z : ℂ} {A U : E →L[ℂ] E}
+    {muF c : ℝ}
+    (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y)
+    (hS : ∀ y : E,
+      schurCompOp A (sirkComplement V) U ((sirkComplement V) ((res ((sirkComplement V) y) : D) : E))
+        = (sirkComplement V) y)
+    (hfree : ∀ x : E, muF * ‖(sirkComplement V) x‖ ^ 2
+      ≤ (inner ℂ ((sirkComplement V) x)
+          (((sirkComplement V).comp (A.comp (sirkComplement V))) ((sirkComplement V) x))).re)
+    (hcoup : ∀ x : E,
+      (inner ℂ ((sirkComplement V) x)
+        (couplingCompOp A (sirkComplement V) U ((sirkComplement V) x))).re
+        ≤ c * ‖(sirkComplement V) x‖ ^ 2)
+    (hgap : 0 < muF - c)
+    (hinv : ∀ y : E,
+      (ContinuousLinearMap.id ℂ E - sirkComplement V) ((res ((sirkComplement V) y) : D) : E) = 0)
+    (x : E) :
+    graphNorm H (res ((sirkComplement V) x)) ≤ ((1 + ‖z‖) * (muF - c)⁻¹ + 1) * ‖x‖ := by
+  have hQidem := sirkComplement_idem V hVV
+  have hQadj := sirkComplement_adjoint_eq V
+  have hQle := norm_projection_le (sirkComplement V) hQidem hQadj x
+  have h := graphNorm_res_le_of_free hres (sirkComplement V) A U muF c hS hfree hcoup hgap hinv x
+  have hc : (0 : ℝ) ≤ (1 + ‖z‖) * (muF - c)⁻¹ + 1 := by positivity
+  calc graphNorm H (res ((sirkComplement V) x))
+      ≤ ((1 + ‖z‖) * (muF - c)⁻¹ + 1) * ‖(sirkComplement V) x‖ := h
+    _ ≤ ((1 + ‖z‖) * (muF - c)⁻¹ + 1) * ‖x‖ := mul_le_mul_of_nonneg_left hQle hc
+
+
+end
+
 end BookProof.ChapterSirkEndToEnd

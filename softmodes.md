@@ -4805,3 +4805,22 @@ is consistent and decidable in a model, not that the YM resolvent exists with a 
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the four new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The graph-norm gap from the free gap and the coupling norm (2026-11-15v)
+
+§16's and §20's graph-norm tails carried coercivity of the Schur complement as a hypothesis.  §22
+removes it in that setting too: with `S = schurCompOp A Q U`, §19's reduction gives coercivity of
+`S` with gap `muF − c` from the free-part gap `muF` and a coupling constant `c`.
+
+* `graphNorm_res_le_of_free`:
+  `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)(muF − c)⁻¹ + 1)‖Q x‖`, from `hres`, the section-level Schur
+  identity, free-part coercivity, the coupling bound and `muF > c` — no `mu` and no `hcoer`;
+* `sirkGraphTail_le_of_free`: the same with `Q = sirkComplement V`, `muF > c` replacing `0 < mu`.
+
+What is left is the free-part gap (a property of the *free* compressed Hamiltonian) and the
+coupling constant, which §19's `couplingComp_re_le` reads off `‖(Q A P) U (P A Q)‖`.  The graph norm
+still costs exactly one `‖z‖`.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on both new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
