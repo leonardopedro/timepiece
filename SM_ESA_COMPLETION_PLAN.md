@@ -5535,16 +5535,18 @@ the `m = 1` kernel.  Measured 2026-11-16:
 | 0 | 66 | 55 | 11 | elimination |
 | 1 | 132 | 110 | 22 | elimination |
 | 2 | 264 | 220 | 44 | blocks |
-| 3 | 528 | 440 | 88 | blocks |
+| 3 | 528 | 440 | 88 | elimination |
 | 4 | 1056 | 880 | 176 | blocks |
 | 5 | 2112 | 1760 | 352 | blocks |
 | 6 | 4224 | 3520 | 704 | blocks |
 
 The doubling is therefore not an `m = 1` accident: for `m ≤ 6` every matter block of `B` is checked
 entry by entry against the `m = 0` operator (the block identity above), so `B = (±1) ⊗ B₀` on each
-block and `dim ker B(m) = 2^m · 11` exactly.  `m ≤ 1` is recomputed from scratch by sparse elimination
-as an independent cross-check; `m ≥ 2` relies on the block identity, which is why the table says
-`blocks` rather than `elimination` for those rows.  The eleven vectors lift to every matter block and
+block and `dim ker B(m) = 2^m · 11` exactly.  `m ≤ 3` is recomputed from scratch by sparse elimination
+as an independent cross-check; `m ≥ 4` relies on the block identity, which is why the table says
+`blocks` rather than `elimination` for those rows.  The `m = 3` elimination is the largest one the
+script runs (~33 s): 528 sources, 440 of them independent, which is exactly the `2³ · 55` the block
+identity predicted.  The eleven vectors lift to every matter block and
 are verified killed there for `m = 1, 2, 3`, with the lifted family independent.
 
 **The three pure-weak pairs are now a theorem (`ChapterSmBrstGhost` §2b).**  The last column of the
@@ -5558,7 +5560,7 @@ summand, so a weak third index kills a gluon or abelian first/second index), the
 pigeonhole count `su2Struct_zero_of_pair_left`/`_right` (`epsZ_zero_of_pair_left`/`_right`, both
 `decide`): after the annihilation removes one of the two ghost modes only two weak labels remain, so the
 two creation indices repeat one of the three indices and `ε` vanishes.  Twenty-two of the twenty-three
-new declarations are listed in `Work/SmQuartetConstructedAudit.lean`, which now audits 108 declarations
+new declarations are listed in `Work/SmQuartetConstructedAudit.lean`, which now audits 120 declarations
 on `propext, Classical.choice, Quot.sound` only.
 
 **Boundaries.**  (i) The basis is *computed*, not proved: no Lean statement asserts
@@ -5568,11 +5570,25 @@ structure that underlies the table, and the bound `3 ≤ finrank (ker Ω₃)` it
 orthonormal, hence independent, so their span sits inside the kernel (`finrank_ker_ge_three` and
 `finrank_ker_smGhostCharge_ge_three`, §2b).  The *exact* dimension 11 is the only part that stays
 computed.  (ii) It is at `g = 2` and `m ≤ 6` as far as the *exact* kernel dimension goes (the block identity is entry-by-entry checked
-at `m = 3, …, 6`, and the dimension is eliminated from scratch at `m = 0, 1, 2`); the same block
-identity is verified at ghost degrees 1, 3 and 4 for `m = 1, 2, 3`, and the odd-degree kernels are
+at `m = 4, …, 6`, and the dimension is eliminated from scratch at `m = 0, 1, 2, 3`); the same block
+identity is verified at ghost degrees 1, 3 and 4 for `m = 1, 2, 3`, and those three kernels are
 eliminated at `m = 0` — degree 1 gives `dim Λ¹ = 12`, rank 11, kernel 1 (the survivor is the hypercharge
-ghost `|11>`, which `B` kills because every mixed structure constant vanishes) and degree 3 gives rank 163
-with kernel 57, both following the `2^m` law; the other even degrees of §95 remain dimensional facts, and the eighteen-mode doublet
-is still out of reach.  (iii) The twelve directions are *instantiations*: the general result stays
+ghost `|11>`, which `B` kills because every mixed structure constant vanishes), degree 3 gives rank 163
+with kernel 57, and degree 4 gives `dim Λ⁴ = 495` sources reaching 754 of the 792 five-mode states,
+rank 330 and kernel 165 — all three following the `2^m` law; the other even degrees of §95 remain
+dimensional facts, and the eighteen-mode doublet is still out of reach.
+(iii) The twelve directions are *instantiations*: the general result stays
 `matterGen_occ_entry` plus a nonzero matrix entry, and the twelve theorems record which entry, at which
 state, for the model's own `smGen`.
+
+(iv) There is no upper bound of eleven on the *whole* Fock space, and §2c now proves that:
+`finrank_ker_smGhostCharge_ge_two_pow` says `2^m ≤ finrank (ker Ω₃)` for every `f3`, because a cubic
+monomial carries no matter mode, so every state `occ T` built from matter modes alone is annihilated
+(`smGhostCharge_occ_matterOnly`, with `matterOcc_orthonormal` supplying the `2^m` orthonormal vectors and
+`finrank_ker_ge_card` turning an orthonormal family of kernel vectors into a dimension bound).  Hence
+`not_finrank_ker_le_eleven : ¬ ∀ m f3, finrank (ker (smGhostCharge m f3)) ≤ 11`, refuted at `m = 4`.  The
+number 11 is a statement about the ghost-number-two sector at `m = 0`, where the matter-only vectors are
+not available: the general lower bound there is the degree-free `3` of §2b, and the exact `11` needs a
+rank-55 certificate for the 66 × 55 matrix of the cubic charge on `Λ²ℂ¹²` over `ℚ(√3)`.  That
+certificate is what the script computes and no theorem states; upgrading it to Lean would mean proving
+one nonvanishing 55 × 55 minor, not a dimension count.

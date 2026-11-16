@@ -140,3 +140,12 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmBrstGhost.weakOcc_orthonormal
 #audit_axioms BookProof.SmBrstGhost.finrank_ker_ge_three
 #audit_axioms BookProof.SmBrstGhost.finrank_ker_smGhostCharge_ge_three
+
+-- §11b: the bound is degree-free, and an upper bound of eleven is false.
+#audit_axioms BookProof.SmBrstGhost.val_ghostMode
+#audit_axioms BookProof.SmBrstGhost.smGhostCharge_occ_matterOnly
+#audit_axioms BookProof.SmBrstGhost.matterEmb_mem
+#audit_axioms BookProof.SmBrstGhost.matterOcc_orthonormal
+#audit_axioms BookProof.SmBrstGhost.finrank_ker_ge_card
+#audit_axioms BookProof.SmBrstGhost.finrank_ker_smGhostCharge_ge_two_pow
+#audit_axioms BookProof.SmBrstGhost.not_finrank_ker_le_eleven

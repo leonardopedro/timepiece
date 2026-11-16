@@ -20,7 +20,7 @@ than a dimension count -- each block is compared entry by entry with the `m = 0`
 matter-free block agrees, the matter-occupied block is its *negative*, because the matter mode is a
 fermion and each of the three Jordan-Wigner signs of the monomial flips once) -- and the lifted copies
 of the eleven vectors are verified to be killed in every block.  The dimension is recomputed from
-scratch by elimination at `m = 0, 1` and follows from the block identity for `m = 2, ..., 6`, where
+scratch by elimination at `m = 0, 1, 2, 3` and follows from the block identity for `m = 4, ..., 6`, where
 the table reports how each rank was obtained.
 
 The arithmetic is exact and not floating point.  The structure constants of `su(3) + su(2)` with
@@ -477,7 +477,7 @@ def main():
                 raise SystemExit(f"m = {m}: block {bin(matter)} is not a copy of the m = 0 operator")
         return len(src)
 
-    # the degree-two case is settled by elimination at m = 0, 1, 2 and by the block identity above
+    # the degree-two case is settled by elimination at m = 0, 1, 2, 3 and by the block identity above
     table = [(0, 2, len(src0), rank0, dim0, "elimination")]
     terms1 = cubic_terms(1, f)
     src1, col1, rank1, basis1, _ = kernel_at(1, terms1)
@@ -494,8 +494,16 @@ def main():
         raise SystemExit("the m = 2 kernel is not exactly four times the m = 0 kernel")
     table.append((2, 2, len(src2), rank2, dim2, "elimination"))
 
-    # the block identity holds at every ghost degree; it is what the m >= 3 rows rest on
-    for m in (3, 4, 5, 6):
+    terms3 = cubic_terms(3, f)
+    src3, col3, rank3, basis3, _ = kernel_at(3, terms3)
+    dim3 = len(src3) - rank3
+    verify_kernel(col3, basis3, len(src3), "m = 3")
+    if not (len(src3) == 8 * len(src0) and rank3 == 8 * rank0 and dim3 == 8 * dim0):
+        raise SystemExit("the m = 3 kernel is not exactly eight times the m = 0 kernel")
+    table.append((3, 2, len(src3), rank3, dim3, "elimination"))
+
+    # the block identity holds at every ghost degree; it is what the m >= 4 rows rest on
+    for m in (4, 5, 6):
         n = blocks_are_copies(m, 2)
         if n != len(src0) << m:
             raise SystemExit(f"m = {m}: wrong number of two-ghost states")
@@ -503,13 +511,13 @@ def main():
     for deg in (1, 3, 4):
         for m in (1, 2, 3):
             blocks_are_copies(m, deg)
-    # odd degrees: eliminate the m = 0 operator from scratch
-    odd = []
-    for deg in (1, 3):
+    # the remaining degrees: eliminate the m = 0 operator from scratch
+    other = []
+    for deg in (1, 3, 4):
         terms = cubic_terms(0, f)
         src_d, col_d, rank_d, basis_d, dst_d = kernel_at(0, terms, deg)
         verify_kernel(col_d, basis_d, len(src_d), f"m = 0, degree {deg}")
-        odd.append((deg, len(src_d), len(dst_d), rank_d, len(src_d) - rank_d))
+        other.append((deg, len(src_d), len(dst_d), rank_d, len(src_d) - rank_d))
 
     print()
     print("ghost-number-2 kernel against the matter modes (all rows exact arithmetic)")
@@ -521,13 +529,13 @@ def main():
     print("negative (the matter mode is a fermion: all three Jordan-Wigner signs flip), so")
     print("B = (+-1) (x) B_0 on every matter block and dim ker(m) = 2^m * 11 exactly; the")
     print("`blocks` rows verify that block identity entry by entry, the `elimination` rows")
-    print("recompute the dimension from scratch at m = 0, 1, 2.")
+    print("recompute the dimension from scratch at m = 0, 1, 2, 3.")
     print()
-    print("the same block identity holds at odd ghost degree, so the 2^m law is not a")
+    print("the same block identity holds at degrees 1, 3 and 4, so the 2^m law is not a")
     print("ghost-number-two accident.  Eliminating from scratch at m = 0:")
     print("degree | dim Λ^d | dim Λ^(d+1) reached | rank | dim ker | 2^m law")
     print("------ | ------- | ------------------- | ---- | ------- | --------")
-    for deg, n, nd, rk, dm in odd:
+    for deg, n, nd, rk, dm in other:
         print(f"{deg:6d} | {n:7d} | {nd:19d} | {rk:4d} | {dm:7d} | "
               f"dim ker(m) = 2^m * {dm} for m = 1, 2, 3 (block identity)")
     print()

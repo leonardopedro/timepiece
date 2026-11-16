@@ -1755,4 +1755,110 @@ theorem finrank_ker_smGhostCharge_ge_three (m : ℕ) (f3 : Fin 8 → Fin 8 → F
   exact finrank_ker_ge_three (f3 := f3) (LinearMap.mem_ker.mpr h01)
     (LinearMap.mem_ker.mpr h02) (LinearMap.mem_ker.mpr h12) hli
 
+
+/-! ### Why the bound is about ghost degree two: the matter-only sector
+
+The lower bound above is degree-free.  An *upper* bound of eleven is not: the kernel of the cubic
+ghost charge on the whole Fock space grows with the number of matter modes, because a cubic
+monomial never contains a matter mode, so it annihilates every state built from matter modes alone.
+
+The general form of the annihilation lemma is `smGhostCharge_occ_of_ghostFree` in
+`ChapterSmQuartet`, which imports this chapter; the free-standing `smGhostCharge_occ_matterOnly`
+below is stated in terms of the numeric cutoff so that it can be used without that import.
+-/
+/-- A ghost mode is never among the first `m` modes. -/
+theorem val_ghostMode (m : ℕ) (a : Fin 12) : ((ghostMode m a : Fin (m + 12)) : ℕ) = m + a := by
+  simp [ghostMode]
+
+/-- **A state with no ghost mode occupied is annihilated by the cubic ghost charge**, for every
+choice of structure constants: the annihilation factor sees no occupied ghost mode. -/
+theorem smGhostCharge_occ_matterOnly {m : ℕ} (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    {T : Finset (Fin (m + 12))} (hT : ∀ i ∈ T, (i : ℕ) < m) :
+    smGhostCharge m f3 (occ T) = 0 := by
+  unfold smGhostCharge Q
+  simp only [LinearMap.sum_apply, LinearMap.smul_apply, Module.End.mul_apply]
+  refine Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun b _ =>
+    Finset.sum_eq_zero fun e _ => ?_
+  have hnotmem : ghostMode m e ∉ T := by
+    intro h
+    have h1 := hT _ h
+    rw [val_ghostMode] at h1
+    omega
+  rw [ghostAnn, annih_occ_of_notMem hnotmem]
+  simp
+
+/-- The canonical embedding of the `m` matter modes into the `m + 12` modes. -/
+abbrev matterEmb (m : ℕ) : Fin m ↪ Fin (m + 12) :=
+  ⟨Fin.castAdd 12, fun _ _ h => by simpa using h⟩
+
+theorem matterEmb_mem (m : ℕ) {i : Fin m} : ((matterEmb m i : Fin (m + 12)) : ℕ) = i := by
+  simp [matterEmb]
+
+/-- **The matter-only occupation states are orthonormal.** -/
+theorem matterOcc_orthonormal (m : ℕ) :
+    Orthonormal ℂ (fun T : Finset (Fin m) => occ (T.map (matterEmb m))) := by
+  rw [orthonormal_iff_ite]
+  intro T T'
+  by_cases h : T = T'
+  · subst h
+    rw [if_pos rfl]
+    simp [occ]
+  · have hne : T.map (matterEmb m) ≠ T'.map (matterEmb m) :=
+      fun hh => h (Finset.map_injective _ hh)
+    simp [occ, EuclideanSpace.inner_single_left, EuclideanSpace.single_apply, h, hne]
+
+/-- **A cardinality lower bound for the kernel from an orthonormal family of kernel vectors.** -/
+theorem finrank_ker_ge_card {m : ℕ} {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {ι : Type*}
+    [Fintype ι] (v : ι → FermiFock (m + 12)) (horth : Orthonormal ℂ v)
+    (hk : ∀ i, v i ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) :
+    Fintype.card ι ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  have hspan : Submodule.span ℂ (Set.range v) ≤
+      LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))) := by
+    rw [Submodule.span_le]
+    rintro _ ⟨i, rfl⟩
+    exact hk i
+  rw [← finrank_span_eq_card horth.linearIndependent]
+  exact Submodule.finrank_mono hspan
+
+set_option maxHeartbeats 800000 in
+-- Elaborating the family over `Finset (Fin m)` against the `FermiFock (m + 12)` finrank exceeds the
+-- default heartbeat budget.
+/-- **The kernel of the cubic ghost charge is at least `2^m`-dimensional**: every matter-only
+occupation state is annihilated, for every choice of structure constants. -/
+theorem finrank_ker_smGhostCharge_ge_two_pow (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    2 ^ m ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  have hcard : Fintype.card (Finset (Fin m)) = 2 ^ m := by
+    rw [Fintype.card_finset, Fintype.card_fin]
+  rw [← hcard]
+  refine finrank_ker_ge_card (fun T : Finset (Fin m) => occ (T.map (matterEmb m)))
+    (matterOcc_orthonormal m) fun T => ?_
+  rw [LinearMap.mem_ker]
+  unfold smGhostCharge Q
+  simp only [LinearMap.sum_apply, LinearMap.smul_apply, Module.End.mul_apply]
+  refine Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun b _ =>
+    Finset.sum_eq_zero fun e _ => ?_
+  have hnotmem : ghostMode m e ∉ T.map (matterEmb m) := by
+    rw [Finset.mem_map]
+    rintro ⟨j, _, hj⟩
+    have h1 : ((ghostMode m e : Fin (m + 12)) : ℕ) = m + e := val_ghostMode m e
+    have h2 : ((matterEmb m j : Fin (m + 12)) : ℕ) = j := matterEmb_mem m
+    rw [← hj] at h1
+    omega
+  rw [ghostAnn, annih_occ_of_notMem hnotmem]
+  simp
+
+/-- **No unconditional upper bound of eleven**: with four matter modes the kernel is at least
+sixteen-dimensional, whatever the structure constants. -/
+theorem not_finrank_ker_le_eleven :
+    ¬ ∀ (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ),
+      Module.finrank ℂ (LinearMap.ker (smGhostCharge m f3 :
+        Module.End ℂ (FermiFock (m + 12)))) ≤ 11 := by
+  intro h
+  have h4 := h 4 (fun _ _ _ => (0 : ℝ))
+  have hge := finrank_ker_smGhostCharge_ge_two_pow 4 (fun _ _ _ => (0 : ℝ))
+  norm_num at hge
+  omega
+
 end BookProof.SmBrstGhost

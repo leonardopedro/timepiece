@@ -1116,6 +1116,25 @@ require "$PLAN" 'rank 163' \
     "§96: the plan must keep the odd-degree elimination"
 require "scripts/sm-cubic-kernel-basis.py" "dim ker(m) = 2^m" \
     "§96: the kernel-basis script must report the 2^m law"
+require "scripts/sm-cubic-kernel-basis.py" 'elimination at `m = 0, 1, 2, 3`' \
+    "§96: the script must keep the m = 3 elimination"
+require "scripts/sm-cubic-kernel-basis.py" "the same block identity holds at degrees 1, 3 and 4" \
+    "§96: the script must keep the degree-four block check"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem finrank_ker_smGhostCharge_ge_two_pow" \
+    "§96: the matter-only lower bound must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" "theorem not_finrank_ker_le_eleven" \
+    "§96: the refutation of an upper bound of eleven must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" "theorem matterOcc_orthonormal" \
+    "§96: the orthonormality of the matter-only states must stay"
+require "$PLAN" '2^m ≤ finrank (ker Ω₃)' \
+    "§96: the plan must state the matter-only lower bound"
+require "$PLAN" 'not_finrank_ker_le_eleven' \
+    "§96: the plan must keep the refutation of the upper bound"
+require "$PLAN" 'rank 330' \
+    "§96: the plan must keep the degree-four elimination"
+require "$PLAN" '`m = 4, …, 6`, and the dimension is eliminated from scratch at `m = 0, 1, 2, 3`' \
+    "§96: the plan must keep the m = 3 promotion of the block-identity boundary"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

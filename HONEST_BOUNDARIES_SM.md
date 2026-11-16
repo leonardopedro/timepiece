@@ -698,3 +698,36 @@ at `g = 3`) is computed, not proved; Lean gives the vanishing per state and the 
 at `g = 2`.  Even degrees above two, and `m ≥ 3` by elimination, remain out of reach of sparse elimination
 in pure Python.  The gluon-sector basis vectors (`v₀, …, v₇`) still have no Lean counterpart, since they
 depend on the numerical `f3`.
+
+## Correction 2026-11-16e — `m = 3` eliminated, the degree-4 kernel, and why `≤ 11` is false
+
+**What changed.**  Two of the liabilities of 2026-11-16d are gone, and one new one turned out to be a
+theorem about the wrong statement.
+
+*`m = 3` is now eliminated from scratch.*  The script's sparse Gauss–Jordan runs at `m = 3` as well
+(528 sources, ~33 s) and returns 528 / 440 / 88, which is `8 × (66 / 55 / 11)`.  The block identity is
+therefore load-bearing only for `m = 4, 5, 6`.
+
+*Ghost degree four is in the table.*  At `m = 0` the sources are `dim Λ⁴ = 495`, of which 754 of the 792
+five-mode states are reached; rank 330, kernel 165 = `3 · 11`.  The block identity is checked at degree 4
+for `m = 1, 2, 3` as before, so the `2^m` law now holds at degrees 1, 2, 3 and 4, i.e. at four of the
+thirteen degrees rather than three.
+
+*No upper bound of eleven exists on the whole Fock space.*  `ChapterSmBrstGhost` §2c proves
+`finrank_ker_smGhostCharge_ge_two_pow`: `2^m ≤ finrank (ker (smGhostCharge m f3))` for every `f3` and
+every `m`.  The reason is structural — a cubic monomial `c†_a c†_b b_e` carries no matter mode, so
+`b_e` finds no occupied ghost mode in any state `occ T` built from matter modes alone
+(`smGhostCharge_occ_matterOnly`); those `2^m` states are orthonormal (`matterOcc_orthonormal`) and
+`finrank_ker_ge_card` converts an orthonormal family of kernel vectors into a dimension bound.  The
+corollary `not_finrank_ker_le_eleven` refutes `∀ m f3, finrank (ker Ω₃) ≤ 11` at `m = 4` (16 vectors).
+So the number 11 was always a statement about the ghost-number-two sector at `m = 0`; an unconditional
+upper bound is not merely unproved, it is false, and the earlier framing of "the exact dimension at
+`g = 2`" as an upper bound for the kernel was the ambiguity.  The audit is now 120 declarations, all on
+`propext, Classical.choice, Quot.sound` only.
+
+**What is still not a theorem.**  The `11` itself: `3 ≤ finrank` is the only lower bound Lean has on the
+ghost-number-two sector, and `11` needs a rank-55 certificate for the 66 × 55 matrix of `Ω₃` on
+`Λ²ℂ¹²` over `ℚ(√3)` — by rank–nullity one nonvanishing 55 × 55 minor is exactly what is missing, and
+nothing in this development computes or checks such a minor.  At `g = 2` the `m ≥ 4` rows still
+rest on the block identity, and the even degrees above four remain dimensional facts; the eighteen-mode
+doublet is out of reach.  The gluon-sector basis vectors (`v₀, …, v₇`) still have no Lean counterpart.
