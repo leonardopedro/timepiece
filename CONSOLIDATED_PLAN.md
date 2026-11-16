@@ -7,6 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16c):** “State of the project — 2026-11-16c:
+> the interaction as a convergent expansion” (end of file).  A nonnegative series of
+> factorized weights is reflection positive, so an unbounded `V₊` written as such a sum is
+> covered with `Σᵢ C² Dᵢ² < ∞` as the finiteness condition; a general `V₊` is not.
+>
 > **Newest build-layout decision (2026-11-16b):** “State of the project — 2026-11-16b:
 > what `lake build BookProof` never compiled” (end of file).  The 56 unbuilt modules are
 > resolved: 19 wired into the aggregator, 37 deleted as stale copies, placeholders or
@@ -26647,3 +26652,32 @@ bridge between them was unbuilt.  The target `BookProofReflectionPositivity` no 
 previously committed declaration is still reachable (the deleted files contain none of their
 own).  The `BookProofOperatorCore` roots grew by 11 modules, so a job that builds that part
 compiles more than it used to — the cost of the merge, not of the new imports.
+
+## State of the project — 2026-11-16c: the interaction as a convergent expansion
+
+**Question.** The 2026-11-16a theorem covers `ρ = g₁g₂` with `g` bounded, and the chapter named
+"an unbounded `V₊`" as open.  Two things were separately unclear: whether boundedness of the
+weight is doing any work, and whether *any* non-Gaussian weight is reachable by this mechanism.
+
+**Answer, in the module rather than in prose.**  `intStateSum` is the sum of the term states,
+`Measure.sum fun i => intState ν (g i)`, with density `ρ(z) = ∑' i, (g i) z₁ * (g i) z₂`.  Its
+reflection positivity is `intStateSum_reflectionPositive`: every term is bounded, hence reflection
+positive by `intState_reflectionPositive`, the integral over the sum of measures is the series of
+the integrals (`integral_sum_measure`, with `lintegral_sum_measure` and a bound `C² Dᵢ²` on each
+term supplying the `Integrable` hypothesis), and a series of nonnegative numbers is nonnegative.
+
+**What that buys.**  The mixture's density is *not* bounded — `D i` may grow — so an unbounded
+`V₊` is covered whenever it expands as a nonnegative series of factorized weights, and the
+summability `∑' i, C² Dᵢ²` is exactly the finiteness condition on the total form, not a technical
+afterthought.
+
+**What it does not buy.**  The weight must decompose into matched pairs `(g i)₁ (g i)₂`.  A
+general reflection-invariant `ρ` is not in the cone these generate, and the `L²` closure of the
+positive-time algebra is still untouched; both stay in the chapter's open list, and the chapter's
+wording was changed from "an unbounded `V₊` is not covered" to the precise statement.  The
+mechanism is a mean of squares, so a general `V` needs a genuinely different argument.
+
+**Verification.**  Zero warnings and no line above 100 code points in
+`HalfSpaceInteractingReflectionPositivity.lean` and `Book/EuclideanMomentHierarchy.lean`; the three
+new declarations are audited in `Work/EuclideanMomentAudit.lean` and depend only on
+`propext`, `Classical.choice` and `Quot.sound`; no `sorry`.
