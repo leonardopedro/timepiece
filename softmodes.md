@@ -4867,3 +4867,55 @@ reflection-invariant density, an unbounded `V₊` and the `L²` closure of the p
 and `lake build Book.EuclideanMomentHierarchy` succeed with no warning from either file and no line
 above 100 code points; `lake build Work.EuclideanMomentAudit` audits 102 declarations, all
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The form-finite statement, and why a general density has no such argument (2026-11-16d)
+
+**The `L²` step, taken as far as it goes.** The boundedness of the observable in
+`covState_reflectionPositive` and `intState_reflectionPositive` was doing exactly one job: making
+the triple product integrable. Stating that integrability as the hypothesis removes every bound:
+
+* `covState_reflectionPositive_of_integrable`: `0 ≤ ∫ z, H z.2 * H z.1 ∂covState ν` for
+  *measurable* `H` whose triple product is `Integrable` over `ν × (γ × γ)`;
+* `intState_reflectionPositive_of_integrable`: the same for `intState ν g` with a *measurable*,
+  *unbounded* `g ≥ 0` and a *measurable, unbounded* `F`, the hypothesis being the finiteness of
+  `F z.2 * F z.1 * ρ(z)` in the state.
+
+The proof is unchanged — `⟨θH H⟩ = ∫ (S_t H)² dν` with `S_t H = ∫ H (t + x) dγ` — so what is
+missing for the `L²` closure of the positive-time algebra is not a mechanism but the
+bounded-truncation argument that discharges finiteness from `MemLp`.
+
+**A general reflection-invariant density has no such argument — and does not need one, because
+the statement is false.** Reflection positivity is a *positivity* condition on the reflected
+kernel, whereas reflection invariance is a *symmetry* of it. Concretely, in exactly the state
+framework of these modules: let `ρ(z) = 1 − ε h(z₁) h(z₂)` with `|h| ≤ 1`, `∫ h dγ = 0`,
+`∫ h² dγ = 1` and `0 < ε < 1`. Then `ρ ≥ 1 − ε > 0` pointwise, so `ρ d(γ⊗γ)` is a probability
+density, and `ρ` is reflection invariant by symmetry of `h(z₁)h(z₂)`. But
+
+  `⟨θh, h⟩_ρ = ∫ h(z₂) h(z₁) (1 − ε h(z₁)h(z₂)) dγdγ = (∫h)² − ε (∫h²)² = −ε < 0`,
+
+so reflection positivity fails for the admissible test function `F = h`. For a shared random shift
+the same computation gives `∫_t [(∫ h dγ)² − ε (∫ h² dγ)²] = −ε`, so the failure is not an
+artefact of the product state. Replacing `1 − ε h₁h₂` by `1 + ε h₁h₂` restores positivity: the
+sign of the coefficient of the rank-one term *is* the statement.
+
+**What this says about the class we proved.** The densities that work are the nonnegative sums of
+matched rank-one products, `ρ = Σ_i w_i (g_i)₁ (g_i)₂` with `w_i ≥ 0` (signed `g_i` are allowed as
+long as the sum is nonnegative), because then the OS form is a sum of squares
+`Σ_i w_i (∫ F g_i dμ)²`. That is the positive semidefinite cone of the reflected kernel — the cone
+the two theorems of 2026-11-16a and 2026-11-16c generate — and not a large-`V` statement.
+
+**Consequence for the plan.** A general interaction cannot acquire reflection positivity from
+reflection invariance plus work on this mechanism. It needs an additional positivity structure —
+the standard ones being `V = V₊ + θV₊` (the class proved here), a decomposition of `V` into terms
+each individually reflection positive with nonnegative coefficients (GKS/Griffiths type), or an
+analytic continuation with a convergent expansion in a regime where the reflection-positive cone is
+stable. **None of these is available in this corpus for a general `V`, and the counterexample above
+shows that no argument of the "invariance ⟹ positivity" shape can exist.** The counterexample is a
+three-line computation and is *not* yet formalized in Lean; it needs a concrete `h` on the
+two-site space and the product-measure Fubini computation, which `covState_reflectionPositive`'s
+proof already contains the pieces for.
+
+**Verification.** `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`,
+`lake build Book.EuclideanMomentHierarchy` and `lake build Work.EuclideanMomentAudit` succeed;
+the audit reports `[propext, Classical.choice, Quot.sound]` for both new declarations; no `sorry`;
+no line above 100 code points in the two edited Lean files.

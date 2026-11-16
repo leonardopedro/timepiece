@@ -7,6 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16d):** “State of the project — 2026-11-16d:
+> form-finiteness instead of boundedness, and why a general density has no argument”
+> (end of file).  Both OS statements now need only that the form is finite; and a
+> reflection-invariant density that *fails* reflection positivity is exhibited, so the
+> general case is false rather than open.
+>
 > **Newest reconstruction extension (2026-11-16c):** “State of the project — 2026-11-16c:
 > the interaction as a convergent expansion” (end of file).  A nonnegative series of
 > factorized weights is reflection positive, so an unbounded `V₊` written as such a sum is
@@ -26681,3 +26687,36 @@ mechanism is a mean of squares, so a general `V` needs a genuinely different arg
 `HalfSpaceInteractingReflectionPositivity.lean` and `Book/EuclideanMomentHierarchy.lean`; the three
 new declarations are audited in `Work/EuclideanMomentAudit.lean` and depend only on
 `propext`, `Classical.choice` and `Quot.sound`; no `sorry`.
+
+## State of the project — 2026-11-16d: form-finiteness, and the general case is false
+
+**Two results, one question.** The 2026-11-16a/c theorems assumed bounded weights and a bounded
+observable.  The L² question ("does the mechanism survive to the `L²` closure of the
+positive-time algebra?") and the general question ("what would give reflection positivity for a
+general reflection-invariant density?") turn out to have different answers.
+
+**The `L²` answer: the bound was never the content.**  `covState_reflectionPositive_of_integrable`
+and `intState_reflectionPositive_of_integrable` replace every bound by the integrability of the
+triple product whose iterated integral is the OS form — equivalently, by finiteness of the form
+itself.  Unbounded `g` and unbounded `F` are covered; the mean-of-squares representation
+`⟨θH H⟩ = ∫ (S_t H)² dν` is untouched.  What remains for a closure statement is the truncation
+argument that discharges finiteness from `MemLp` — bookkeeping, not mathematics.
+
+**The general answer: no such argument exists, because the statement is false.**  Reflection
+positivity is positivity of the reflected kernel; reflection invariance only makes that kernel
+symmetric.  In the state framework of these modules, `ρ(z) = 1 − ε h(z₁)h(z₂)` with `|h| ≤ 1`,
+`∫ h dγ = 0`, `∫ h² dγ = 1`, `0 < ε < 1` is a strictly positive, reflection-invariant density, and
+
+  `⟨θh, h⟩_ρ = (∫h dγ)² − ε (∫h² dγ)² = −ε < 0`.
+
+So the chapter's "a general interaction still needs an argument" was too weak: it needs a
+*positivity structure*, and none exists that follows from invariance.  The densities that work are
+the nonnegative sums of matched rank-one products — exactly the cone the theorems of 2026-11-16a/c
+generate — because those make the OS form a sum of squares.  The counterexample is a three-line
+computation and is not yet formalized; the pieces for it (product-measure Fubini on `γ ⊗ γ`) are in
+the proof of `covState_reflectionPositive`.
+
+**Verification.**  `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`,
+`lake build Book.EuclideanMomentHierarchy` and `lake build Work.EuclideanMomentAudit` all succeed;
+the two new declarations audit to `[propext, Classical.choice, Quot.sound]`; no `sorry`; no line
+over 100 code points in the Lean files touched.
