@@ -691,6 +691,26 @@ was built on. These integrals are taken by Fubini for integrable functions, with
 is *not* available is anything beyond the pair. The interior cross moments, the four-point function
 and any statement that the law is Gaussian remain outside.
 
+The pair computed above is a special case of a complete second-moment calculus. Distinct
+coordinates are uncorrelated and a coordinate has unit variance, so the coordinates behave, as far
+as two-point functions are concerned, like the standard basis:
+
+```
+integral_shellLaw_coord_mul_coord : E[p_i p_j] = 1 if i = j, else 0
+streamField_eq_sum_coeff          : S_n = sum over j of streamCoeff(c, d, n, j) * p_j
+integral_shellLaw_linear_mul_coord : E[(sum w_j p_j) * p_k] = w_k
+integral_shellLaw_linear_mul_linear : E[(sum w_j p_j)(sum v_j p_j)] = sum w_j v_j
+integral_shellLaw_streamField_mul_linear : E[S_n (sum w_j p_j)] = sum streamCoeff_j w_j
+```
+
+The coefficient vector is explicit: `c^j` on the interior coordinates and the running drift
+`c^n d` on the exterior one. So a two-point function costs an inner product, and the whole family of
+second moments of linear statistics — the field, the renormalised field, any affine image of
+either — is a computation rather than an estimate. What the calculus does *not* yet contain is the
+cross-scale pairing between two different numbers of scales, which needs the coefficient vector
+reindexed along the inclusion of the smaller shell, and the four-point function, for which the
+pairing of four coordinates is no longer an inner product.
+
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of
 fresh independent Gaussians, and $`d \mapsto c d` is a definition, not a theorem about an

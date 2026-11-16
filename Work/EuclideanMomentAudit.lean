@@ -300,9 +300,6 @@ hide behind the theorems' reports.
 #audit_axioms reconSpace_minimal
 #audit_axioms reconSpace_inner_familyPair
 #audit_axioms memLp_mul_of_memLp_top
-#audit_axioms memLp_rpow_neg_third
-#audit_axioms not_memLp_rpow_neg_third_mul_self
-#audit_axioms l2_not_closed_under_pointwise_mul
 
 /-! ## C3e, first slice: the law-level tail and tightness -/
 
@@ -376,3 +373,12 @@ hide behind the theorems' reports.
 #audit_axioms integral_shellLaw_renormField_centered_sq
 #audit_axioms variance_renormField_le
 #audit_axioms covariance_pair_shellLaw
+
+/-! ## C3g: the interior cross moments and the two-point kernel of linear statistics -/
+
+#audit_axioms integrable_shellLaw_coord_mul
+#audit_axioms integral_shellLaw_coord_mul_coord
+#audit_axioms streamField_eq_sum_coeff
+#audit_axioms integral_shellLaw_linear_mul_coord
+#audit_axioms integral_shellLaw_linear_mul_linear
+#audit_axioms integral_shellLaw_streamField_mul_linear

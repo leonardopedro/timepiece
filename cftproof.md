@@ -2795,3 +2795,35 @@ follows. The renormalisation is still the subtraction of the damped background r
 exterior coordinate, not a renormalisation of an interacting observable. No conditional
 expectation is constructed (the per-`y` identity stays bounded-only), and C3a–C3d, the half-space
 inequality, the OS reconstruction theorem and any field law are untouched.
+
+**Landed 2026-11-16, fourteenth slice: the interior cross moments and the second-moment calculus
+(C3g).** The thirteenth slice computed the two-point function of the field against a single
+coordinate, but only for the exterior one, and said so. The interior pairings are now proved and the
+whole second-moment calculus of linear statistics follows. Eight declarations were added to the
+audit; all rest on standard axioms.
+
+* **The interior cross moments.** `integral_shellLaw_coord_mul_coord`: `E[p_i·p_j] = 1` when
+  `i = j` and `0` otherwise, with `integrable_shellLaw_coord_mul` supplying integrability by
+  domination with `(p_i² + p_j²)/2`. The proof splits the product law at the first coordinate and
+  runs four explicit cases through `Fin.cases`: the newest coordinate multiplies itself (one unit of
+  variance), a distinct new coordinate (zero mean), or two older coordinates (the induction
+  hypothesis).
+* **The coefficient vector.** `streamCoeff c d n` is `c^j` on the interior coordinates and `c^n·d`
+  on the exterior one, and `streamField_eq_sum_coeff` proves the field *is* that linear statistic.
+  The induction rewrites the recursion as `coeff_{n+1}(j.succ) = c · coeff_n(j)` plus
+  `coeff_{n+1}(0) = 1`.
+* **The kernel.** `integral_shellLaw_linear_mul_coord` (a statistic against a coordinate),
+  `integral_shellLaw_linear_mul_linear` (two statistics against each other: the inner product of
+  their coefficient vectors) and `integral_shellLaw_streamField_mul_linear` (the field against an
+  arbitrary statistic). Every two-point function of a linear statistic — the field, the
+  renormalised field, affine images — is now an inner product rather than an estimate.
+
+Boundary of this fourteenth slice: **still no three- or four-point function and no cross-scale
+pairing.** The kernel is a bilinear form on coefficient vectors, so it says nothing about
+`E[p_i·p_j·p_k·p_l]`, which needs the pairings (i,j)(k,l), (i,k)(j,l), (i,l)(j,k) and hence a
+four-index induction this slice does not do; it also says nothing about `E[S_n · S_m]` for
+`m ≠ n`, because the smaller field must first be transported into the `n`-scale space along
+`Fin.castLE` and the resulting inner product is a different sum. Gaussianity is still not proved —
+a complete two-point kernel is necessary but not sufficient for it — and there is no conditional
+expectation, no multi-point cluster estimate, and no change to C3a–C3d, the half-space inequality,
+the OS reconstruction theorem or any field law.

@@ -159,8 +159,18 @@ scale-indexed:
   covariance matrix of `(streamField, p_last)`.  These are computed by Fubini for *integrable*
   functions (`integral_shellLaw_cons_succ`) with the domination
   `|S·p_last| ≤ (S² + p_last²)/2`, which is a stronger standard than the truncation the totals
-  needed.  Still no multi-point function beyond the pair: the interior cross moments `E[p_i·p_j]`
-  and the four-point functions are not computed, and no Gaussianity is proved.
+  needed.
+* The interior cross moments complete the kernel: `integral_shellLaw_coord_mul_coord` gives
+  `E[p_i·p_j] = 1` on the diagonal and `0` off it, by the same split-at-the-first-coordinate
+  induction.  With them the field's coefficient vector is explicit — `streamCoeff` is `c^j` on the
+  interior and `c^n·d` on the exterior, and `streamField_eq_sum_coeff` identifies the field with
+  that linear statistic — so the two-point kernel of *any* pair of linear statistics is an inner
+  product of coefficient vectors (`integral_shellLaw_linear_mul_linear`), that of a statistic
+  against a single coordinate is the corresponding coefficient
+  (`integral_shellLaw_linear_mul_coord`), and the field against any statistic is the pairing with
+  `streamCoeff` (`integral_shellLaw_streamField_mul_linear`).  Still open: the four-point function,
+  the cross-scale covariance between two different numbers of scales (which needs the coefficient
+  vector reindexed along `Fin.castLE`), and any Gaussianity statement.
 -/
 
 namespace BookProof.OSReconstruction
@@ -1901,7 +1911,172 @@ theorem covariance_pair_shellLaw (n : ℕ) (c d : ℝ) :
   ⟨integral_shellLaw_streamField_mul_last n c d, integral_shellLaw_coord_sq (n + 1) (Fin.last n),
     integral_shellLaw_renormField_mul_last n c d, integral_shellLaw_renormField_sq n c d⟩
 
+/-- The product of two coordinates is integrable under the reference law. -/
+theorem integrable_shellLaw_coord_mul (m : ℕ) (i j : Fin m) :
+    Integrable (fun p : Fin m → ℝ => p i * p j) (shellLaw m) := by
+  have hdom : Integrable (fun p : Fin m → ℝ => ((p i) ^ 2 + (p j) ^ 2) / 2) (shellLaw m) := by
+    simpa using Integrable.div_const ((integrable_shellLaw_coord_sq m i).add
+      (integrable_shellLaw_coord_sq m j)) 2
+  refine Integrable.mono' hdom
+    ((by fun_prop : Measurable fun p : Fin m → ℝ => p i * p j)).aestronglyMeasurable ?_
+  filter_upwards with p
+  have h1 : |p i * p j| ≤ ((p i) ^ 2 + (p j) ^ 2) / 2 := by
+    have h2 : 0 ≤ (|p i| - |p j|) ^ 2 := sq_nonneg _
+    rw [abs_mul]
+    nlinarith [abs_nonneg (p i), abs_nonneg (p j), sq_abs (p i), sq_abs (p j)]
+  simpa [Real.norm_eq_abs] using h1
+
+/-- **The interior cross moments of the reference law**: distinct coordinates are uncorrelated and a
+coordinate has second moment `1`.  Proved by splitting the product law at the first coordinate: the
+newest coordinate multiplies either itself (one unit of variance) or a distinct coordinate (zero),
+and the induction hypothesis carries the product of the two older coordinates. -/
+theorem integral_shellLaw_coord_mul_coord (m : ℕ) (i j : Fin m) :
+    ∫ p, p i * p j ∂shellLaw m = if i = j then 1 else 0 := by
+  induction m with
+  | zero => exact i.elim0
+  | succ n ih =>
+      rw [integral_shellLaw_cons_succ n _ (integrable_shellLaw_coord_mul (n + 1) i j)]
+      refine Fin.cases ?_ ?_ i
+      · refine Fin.cases ?_ ?_ j
+        · have hz : (fun z : ℝ => ∫ g : (Fin n → ℝ), (Fin.cons z g : Fin (n + 1) → ℝ) 0
+              * (Fin.cons z g : Fin (n + 1) → ℝ) 0 ∂shellLaw n) = fun z => z * z := by
+            funext z
+            simp
+          have hzz : ∫ z : ℝ, z * z ∂blockUnit = 1 := by
+            have := integral_quadratic_blockUnit 0 0 1
+            simpa [pow_two] using this
+          rw [hz, hzz]
+          simp
+        · intro j
+          have hz : (fun z : ℝ => ∫ g : (Fin n → ℝ), (Fin.cons z g : Fin (n + 1) → ℝ) 0
+              * (Fin.cons z g : Fin (n + 1) → ℝ) (Fin.succ j) ∂shellLaw n) = fun _ => 0 := by
+            funext z
+            simp only [Fin.cons_zero, Fin.cons_succ]
+            rw [integral_const_mul, integral_shellLaw_coord n j, mul_zero]
+          rw [hz, if_neg (Ne.symm (Fin.succ_ne_zero j))]
+          simp
+      · intro i
+        refine Fin.cases ?_ ?_ j
+        · have hz : (fun z : ℝ => ∫ g : (Fin n → ℝ),
+              (Fin.cons z g : Fin (n + 1) → ℝ) (Fin.succ i)
+              * (Fin.cons z g : Fin (n + 1) → ℝ) 0 ∂shellLaw n) = fun _ => 0 := by
+            funext z
+            simp only [Fin.cons_zero, Fin.cons_succ]
+            rw [integral_mul_const, integral_shellLaw_coord n i, zero_mul]
+          rw [hz, if_neg (Fin.succ_ne_zero i)]
+          simp
+        · intro j
+          have hz : (fun z : ℝ => ∫ g : (Fin n → ℝ),
+              (Fin.cons z g : Fin (n + 1) → ℝ) (Fin.succ i)
+              * (Fin.cons z g : Fin (n + 1) → ℝ) (Fin.succ j) ∂shellLaw n)
+              = fun _ => (if i = j then (1 : ℝ) else 0) := by
+            funext z
+            simp only [Fin.cons_succ]
+            exact ih i j
+          rw [hz]
+          have hc : ∫ _ : ℝ, (if i = j then (1 : ℝ) else 0) ∂blockUnit
+              = (if i = j then (1 : ℝ) else 0) := by
+            rw [integral_const, probReal_univ, one_smul]
+          rw [hc]
+          by_cases h : i = j
+          · subst h
+            simp
+          · have hne : (Fin.succ i : Fin (n + 1)) ≠ Fin.succ j :=
+              fun hs => h (Fin.succ_inj.mp hs)
+            simp [h, hne]
+
+/-- **The coefficient vector of the cylinder field**: `c^j` on the interior coordinates and the
+running drift `c^n·d` on the exterior one. -/
+noncomputable def streamCoeff (c d : ℝ) (n : ℕ) : Fin (n + 1) → ℝ :=
+  fun i => if i = Fin.last n then c ^ n * d else c ^ (i : ℕ)
+
+/-- The field is the linear statistic with coefficient vector `streamCoeff`. -/
+theorem streamField_eq_sum_coeff (n : ℕ) (c d : ℝ) (f : Fin (n + 1) → ℝ) :
+    streamField c d n f = ∑ i, streamCoeff c d n i * f i := by
+  induction n with
+  | zero =>
+      simp [streamField, streamCoeff]
+  | succ n ih =>
+      have h0 : streamCoeff c d (n + 1) 0 = 1 := by
+        simp [streamCoeff, Fin.succ_ne_zero]
+      have hs : ∀ i : Fin (n + 1),
+          streamCoeff c d (n + 1) i.succ = c * streamCoeff c d n i := by
+        intro i
+        by_cases h : i = Fin.last n
+        · subst h
+          simp [streamCoeff, pow_succ']
+          ring
+        · have hne : (Fin.succ i : Fin (n + 1 + 1)) ≠ Fin.last (n + 1) := by
+            intro hs'
+            exact h (Fin.succ_inj.mp hs')
+          simp only [streamCoeff, if_neg h, if_neg hne, Fin.val_succ]
+          rw [pow_succ']
+      rw [streamField_succ, ih (fun i => f i.succ)]
+      conv_rhs => rw [Fin.sum_univ_succ]
+      have hsum : (∑ i : Fin (n + 1), streamCoeff c d (n + 1) i.succ * f i.succ)
+          = c * ∑ i : Fin (n + 1), streamCoeff c d n i * f i.succ := by
+        rw [Finset.mul_sum]
+        refine Finset.sum_congr rfl (fun i _ => ?_)
+        rw [hs i]
+        ring
+      rw [hsum, h0]
+      ring
+
+/-- **The two-point kernel against a coordinate**: a linear statistic pairs with coordinate `j` by
+its `j`-th coefficient. -/
+theorem integral_shellLaw_linear_mul_coord (m : ℕ) (w : Fin m → ℝ) (j : Fin m) :
+    ∫ p, (∑ i, w i * p i) * p j ∂shellLaw m = w j := by
+  have hfun : (fun p : Fin m → ℝ => (∑ i, w i * p i) * p j)
+      = fun p => ∑ i, (w i) * (p i * p j) := by
+    funext p
+    rw [Finset.sum_mul]
+    refine Finset.sum_congr rfl (fun i _ => ?_)
+    ring
+  rw [hfun]
+  rw [integral_finset_sum _ (fun i _ => (integrable_shellLaw_coord_mul m i j).const_mul (w i))]
+  simp only [integral_const_mul, integral_shellLaw_coord_mul_coord, mul_ite, mul_one, mul_zero]
+  simp
+
+/-- **The full two-point kernel of linear statistics**: two linear statistics pair by the inner
+product of their coefficient vectors. -/
+theorem integral_shellLaw_linear_mul_linear (m : ℕ) (w v : Fin m → ℝ) :
+    ∫ p, (∑ i, w i * p i) * (∑ j, v j * p j) ∂shellLaw m = ∑ i, w i * v i := by
+  have hfun : (fun p : Fin m → ℝ => (∑ i, w i * p i) * (∑ j, v j * p j))
+      = fun p => ∑ i, ∑ j, (w i * v j) * (p i * p j) := by
+    funext p
+    rw [Finset.sum_mul_sum]
+    refine Finset.sum_congr rfl (fun i _ => Finset.sum_congr rfl (fun j _ => ?_))
+    ring
+  have hinner : ∀ i : Fin m, Integrable
+      (fun p : Fin m → ℝ => ∑ j, (w i * v j) * (p i * p j)) (shellLaw m) :=
+    fun i => integrable_finset_sum _ (fun j _ =>
+      (integrable_shellLaw_coord_mul m i j).const_mul (w i * v j))
+  rw [hfun, integral_finset_sum _ (fun i _ => hinner i)]
+  have hterm : ∀ i : Fin m, ∫ p, (∑ j, (w i * v j) * (p i * p j)) ∂shellLaw m
+      = w i * v i := by
+    intro i
+    rw [integral_finset_sum _ (fun j _ =>
+      (integrable_shellLaw_coord_mul m i j).const_mul (w i * v j))]
+    simp only [integral_const_mul, integral_shellLaw_coord_mul_coord, mul_ite, mul_one, mul_zero]
+    simp
+  simp only [hterm]
+
+/-- **The field's two-point kernel against any linear statistic**: it pairs with the statistic by
+the inner product of `streamCoeff` with that statistic's coefficient vector.  This is the form the
+cross-scale covariance is read off from. -/
+theorem integral_shellLaw_streamField_mul_linear (n : ℕ) (c d : ℝ) (w : Fin (n + 1) → ℝ) :
+    ∫ p, streamField c d n p * (∑ i, w i * p i) ∂shellLaw (n + 1)
+      = ∑ i, streamCoeff c d n i * w i := by
+  have hfun : (fun p : Fin (n + 1) → ℝ =>
+        streamField c d n p * (∑ i, w i * p i))
+      = fun p => (∑ i, streamCoeff c d n i * p i) * (∑ i, w i * p i) := by
+    funext p
+    rw [streamField_eq_sum_coeff]
+  rw [hfun, integral_shellLaw_linear_mul_linear]
+
 end BookProof.OSReconstruction
+
+
 
 
 
