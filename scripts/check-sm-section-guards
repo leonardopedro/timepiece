@@ -1054,6 +1054,43 @@ require "$PLAN" 'it does **not**' \
 require "$PLAN" 'symmetry of the ranks is an' \
     "§95: the plan must keep the observed-symmetry caveat"
 
+# §96: the cubic term grades, the generator entry is a lemma, and the kernel has a basis
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem ghostNumber_mul_cubic_monomial" \
+    "§96: the monomial grading must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem ghostNumber_comm_smGhostCharge" \
+    "§96: the charge's grading must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem ghostNumber_smGhostCharge_eigen" \
+    "§96: the eigenstate grading must stay"
+require "$GAUGEREP" "theorem matterGen_occ_entry" \
+    "§96: the generator entry on a one-mode state must stay"
+require "$GAUGEREP" "theorem matterGen_occ_ne_zero" \
+    "§96: the nonzero-entry criterion must stay"
+require "$GAUGEREP" "theorem smGen_weak_entry" \
+    "§96: the weak generator's entry must stay"
+require "$GAUGEREP" "theorem smGen_gluon_entry" \
+    "§96: the gluon generator's entry must stay"
+require "$GAUGEREP" "theorem matterGen_smGen_weak_occ_ne_zero" \
+    "§96: the weak direction at the model must stay"
+require "$GAUGEREP" "theorem matterGen_smGen_gluon_occ_ne_zero" \
+    "§96: the gluon direction at the model must stay"
+require "scripts/sm-cubic-kernel-basis.py" "dim ker Omega_3 at g=2" \
+    "§96: the kernel-basis script must keep reporting the kernel's dimension"
+require "scripts/sm-cubic-kernel-basis.py" "all checks passed" \
+    "§96: the kernel-basis script must keep its exact verification"
+require "scripts/sm-cubic-kernel-basis.py" "is not in the kernel" \
+    "§96: the kernel-basis script must keep its self-checks"
+require "$PLAN" 'A basis of `ker B` at `g = 2`' \
+    "§96: the plan must keep the exhibited basis"
+require "$PLAN" 'The basis is *computed*, not proved' \
+    "§96: the plan must keep the computed-not-proved caveat"
+require "$PLAN" 'three of the twelve directions' \
+    "§96: the plan must keep the three-of-twelve boundary"
+require "$PLAN" 'which `B` kills outright' \
+    "§96: the plan must keep the basis' structural reading"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

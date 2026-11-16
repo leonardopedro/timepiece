@@ -589,3 +589,32 @@ symmetry of the ranks under `g ↦ 11 − g` is recorded as an observation only.
 blockwise ranks remain out of reach above one matter mode (the eighteen-mode doublet has `2^18` states); and
 for the doublet only the hypercharge direction is evaluated in Lean, the other eleven generators entering
 §94's general criterion as the hypothesis `G_a (occ S) ≠ 0`.
+
+## Correction 2026-11-16a — the cubic term grades, three of twelve directions, one exact basis
+
+**What changed.**  Three of §95's four boundaries are gone.
+
+*The grading is in Lean.*  `ChapterSmBrstGhost` §2 now proves `ghostNumber_comm_smGhostCharge` —
+`[N, Ω₃] = Ω₃` — and `ghostNumber_smGhostCharge_eigen`, so `Ω₃` shifts ghost number by one on any
+eigenstate of `N`.  The monomial lemma `ghostNumber_mul_cubic_monomial` is the intermediate step; it uses
+only the two one-factor relations and no anticommutation.
+
+*The generator-to-state entry is a lemma, not a hypothesis.*  `ChapterSmGaugeRepresentation` §6 proves
+`matterGen_occ_entry`: on the one-mode matter state `occ {j₀}`, the Gauss generator evaluated at `occ {i₀}`
+is `−i · T_a i₀ j₀`.  Hence `matterGen_occ_ne_zero`, and at the model's own representation
+`matterGen_smGen_weak_occ_ne_zero` (`smGen S3 y 8 1 0 = 1/2`) and `matterGen_smGen_gluon_occ_ne_zero`
+(`smGen λ y 0 2 0 = 1`).  With §95's hypercharge theorem, **three** of the twelve directions are now
+computed in Lean (`a = 11, 8, 0`); the other nine need the same lemma with a different entry.
+
+*A basis, not only a dimension.*  `scripts/sm-cubic-kernel-basis.py` computes `ker Ω₃` at ghost number two
+and `m = 0` exactly — rational arithmetic in `ℚ(√3)`, structure constants derived from the generators — and
+prints eleven vectors, checking `B v = 0` entry by entry and their independence.  The basis is four
+rational vectors in the gluon-pair states, four carrying the `λ₈` ghost with coefficient `±√3/3`, and the
+three pure weak pairs `|8+9>`, `|8+10>`, `|9+10>`; the rank is 55, so 11 = 66 − 55 as in §95's table.
+
+**What is still not a theorem.**  The basis and the rank are *computed*; no Lean statement asserts
+`dim ker Ω₃ = 11` on any degree, and the script is a re-runnable certificate.  It covers `g = 2`, `m = 0`
+only.  And the §94 refutation still takes "some generator fails to kill a ghost-free state" as an input:
+nine of the twelve directions have a nonzero entry available but no Lean instantiation, so the honest
+claim is "three directions at the model, all twelve via one general lemma", not "twelve directions at the
+model".

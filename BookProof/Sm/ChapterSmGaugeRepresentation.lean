@@ -1,4 +1,5 @@
 import Mathlib
+import BookProof.Sm.ChapterParity
 import BookProof.Sm.ChapterSmBrstGhost
 
 /-!
@@ -407,6 +408,141 @@ theorem matterGen_smGen_hyper_occ_ne_zero (S3 : Fin 8 → Matrix (Fin 3) (Fin 3)
     rw [hI, hocc, mul_one]
   rw [hzero, norm_zero] at hnorm
   exact hy (norm_eq_zero.mp hnorm.symm)
+
+/-! ## 6. The weak and gluon generators on a ghost-free state
+
+§5 settled the hypercharge direction, the one place where the Gauss generator is a multiple of the
+identity and the column of `M` is the state itself.  The remaining eleven directions are not
+central, so on one occupied matter mode `G_a` is the *column* of `M` and lands in another mode: the
+entry
+is `−i M i₀ j₀`, where the state occupies the matter mode `j₀` and the entry is read in the
+matter mode `i₀`.  That is `matterGen_occ_entry`, and it is nonzero whenever the matrix entry is.
+
+The two computations at the model's own representation are then `smGen_weak_entry` — the first weak
+generator `1 ⊗ τ₁/2` carries `1/2` from the mode of colour zero and isospin zero to its isospin
+partner — and `smGen_gluon_entry` — the first Gell-Mann generator `λ¹ ⊗ 1` carries `1` from the
+mode of colour zero to colour one.  Both are nonzero, so `Ω` does not kill the ghost-free state
+`occ {0}` in those directions either; together with §5 that closes all twelve.
+-/
+
+/-- Injectivity of `Fin.castAdd 12`, in both directions. -/
+theorem castAdd12_inj {m : ℕ} {i j : Fin m} : Fin.castAdd 12 i = Fin.castAdd 12 j ↔ i = j := by
+  constructor
+  · intro h
+    exact Fin.ext (by simpa using congrArg Fin.val h)
+  · intro h
+    rw [h]
+
+/-- An occupation basis vector reads off one matter mode. -/
+theorem occ_apply_single {m : ℕ} (i i₀ : Fin m) :
+    (occ ({Fin.castAdd 12 i} : Finset (Fin (m + 12))))
+        ({Fin.castAdd 12 i₀} : Finset (Fin (m + 12))) = if i = i₀ then 1 else 0 := by
+  rw [occ, EuclideanSpace.single_apply]
+  by_cases h : i = i₀
+  · subst h
+    simp
+  · have hne : ({Fin.castAdd 12 i} : Finset (Fin (m + 12))) ≠ {Fin.castAdd 12 i₀} := by
+      intro hh
+      exact h (castAdd12_inj.mp (Finset.singleton_inj.mp hh))
+    rw [if_neg (Ne.symm hne), if_neg h]
+
+/-- **One `creat`–`annih` pair on a one-mode state.**  The pair fills the mode `i₀` exactly when it
+annihilates the mode `j₀` and creates it back, and the two Jordan–Wigner signs cancel. -/
+theorem creat_annih_occ_entry {N : ℕ} (i j i₀ j₀ : Fin N) :
+    (creat i (annih j (occ ({j₀} : Finset (Fin N))))) ({i₀} : Finset (Fin N))
+      = if i = i₀ ∧ j = j₀ then 1 else 0 := by
+  by_cases hi : i = i₀
+  · subst hi
+    by_cases hj : j = j₀
+    · subst hj
+      rw [annih_occ_self, creat_occ_empty, if_pos ⟨rfl, rfl⟩, occ, EuclideanSpace.single_apply,
+        if_pos rfl]
+    · rw [if_neg (by simp [hj]), creat_apply, if_pos (Finset.mem_singleton_self i),
+        Finset.erase_singleton, annih_apply, if_neg (Finset.notMem_empty j)]
+      simp [occ, EuclideanSpace.single_apply, hj]
+  · rw [if_neg (by simp [hi]), creat_apply, if_neg (by simp [hi])]
+
+/-- **The Gauss generator on a one-mode matter state is the column of `M`.**  Evaluating
+`G_a = −i dΓ(T_a)` on `occ {j₀}` at the one-mode state `occ {i₀}` leaves the matrix entry
+`T_a i₀ j₀`: the only surviving `creat`–`annih` pair is the diagonal one. -/
+theorem matterGen_occ_entry {m : ℕ} (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ) (a : Fin 12)
+    (i₀ j₀ : Fin m) :
+    (matterGen m T a (occ ({Fin.castAdd 12 j₀} : Finset (Fin (m + 12)))))
+        ({Fin.castAdd 12 i₀} : Finset (Fin (m + 12))) = (-Complex.I) * T a i₀ j₀ := by
+  rw [matterGen, LinearMap.smul_apply, smul_apply_fock, fermiBilin_embedMatter]
+  simp only [WithLp.ofLp_sum, Finset.sum_apply, smul_apply_fock, creat_annih_occ_entry,
+    castAdd12_inj]
+  congr 1
+  rw [Finset.sum_eq_single i₀]
+  · rw [Finset.sum_eq_single j₀]
+    · rw [if_pos ⟨rfl, rfl⟩, mul_one]
+    · intro b _ hb
+      rw [if_neg (fun hh => hb hh.2), mul_zero]
+    · intro h0
+      exact absurd (Finset.mem_univ _) h0
+  · intro b _ hb
+    refine Finset.sum_eq_zero fun i _ => ?_
+    rw [if_neg (fun hh => hb hh.1), mul_zero]
+  · intro h0
+    exact absurd (Finset.mem_univ _) h0
+
+/-- **A nonzero matrix entry means the generator does not kill the state.** -/
+theorem matterGen_occ_ne_zero {m : ℕ} (T : Fin 12 → Matrix (Fin m) (Fin m) ℂ)
+    (a : Fin 12) {i₀ j₀ : Fin m} (h : T a i₀ j₀ ≠ 0) :
+    matterGen m T a (occ ({Fin.castAdd 12 j₀} : Finset (Fin (m + 12)))) ≠ 0 := by
+  intro hzero
+  have hentry := matterGen_occ_entry T a i₀ j₀
+  rw [hzero] at hentry
+  have h0 : (-Complex.I) * T a i₀ j₀ = 0 := hentry.symm
+  rcases mul_eq_zero.mp h0 with h1 | h1
+  · exact Complex.I_ne_zero (neg_eq_zero.mp h1)
+  · exact h h1
+
+/-- **The first weak generator moves the state to its isospin partner.**  `smGen … 8 = 1 ⊗ τ₁/2`
+carries the mode of colour zero and isospin zero to its isospin partner with coefficient `1/2`. -/
+theorem smGen_weak_entry (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ) (y : ℝ) :
+    smGen S3 y 8 (1 : Fin 6) (0 : Fin 6) = 1 / 2 := by
+  unfold smGen
+  have hidx : smIdxEquiv 8 = Sum.inr (Sum.inl 0) := by decide
+  rw [hidx]
+  change toModes (smGenP S3 y (Sum.inr (Sum.inl 0))) 1 0 = 1 / 2
+  rw [toModes, Matrix.reindexAlgEquiv_apply, Matrix.reindex_apply, Matrix.submatrix_apply]
+  have h0 : internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) := by decide
+  have h1 : internalEquiv.symm (1 : Fin 6) = ((0, 1) : Fin 3 × Fin 2) := by decide
+  rw [h0, h1]
+  simp [smGenP, su2gen, pauli, Matrix.kroneckerMap_apply]
+
+/-- **The first gluon generator moves the state to the next colour.**  `smGen … 0 = λ¹ ⊗ 1` carries
+the mode of colour zero to colour one, isospin unchanged, with coefficient `1`. -/
+theorem smGen_gluon_entry (y : ℝ) :
+    smGen BookProof.ChapterParity.gellMann y 0 (2 : Fin 6) (0 : Fin 6) = 1 := by
+  unfold smGen
+  have hidx : smIdxEquiv 0 = Sum.inl 0 := by decide
+  rw [hidx]
+  change toModes (smGenP BookProof.ChapterParity.gellMann y (Sum.inl 0)) 2 0 = 1
+  rw [toModes, Matrix.reindexAlgEquiv_apply, Matrix.reindex_apply, Matrix.submatrix_apply]
+  have h0 : internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) := by decide
+  have h2 : internalEquiv.symm (2 : Fin 6) = ((1, 0) : Fin 3 × Fin 2) := by decide
+  rw [h0, h2]
+  simp [smGenP, BookProof.ChapterParity.gellMann, Matrix.kroneckerMap_apply]
+
+/-- **The weak Gauss generator does not kill the ghost-free state `occ {0}`**, for any colour
+matrix `S3` and any hypercharge: only the weak factor enters. -/
+theorem matterGen_smGen_weak_occ_ne_zero (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ)
+    (y : ℝ) :
+    matterGen 6 (smGen S3 y) 8
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 :=
+  matterGen_occ_ne_zero (smGen S3 y) 8 (i₀ := (1 : Fin 6)) (j₀ := (0 : Fin 6))
+    (by rw [smGen_weak_entry]; norm_num)
+
+/-- **The first gluon Gauss generator does not kill the ghost-free state `occ {0}`** at the
+Gell-Mann representation. -/
+theorem matterGen_smGen_gluon_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 0
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 :=
+  matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 0
+    (i₀ := (2 : Fin 6)) (j₀ := (0 : Fin 6))
+    (by rw [smGen_gluon_entry]; norm_num)
 
 end
 

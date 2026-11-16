@@ -239,6 +239,52 @@ theorem occupation_occ {N : ℕ} (i : Fin N) (S : Finset (Fin N)) :
   by_cases h : i ∈ S <;> by_cases hT : T = S <;>
     simp [h, hT, occ, EuclideanSpace.single_apply]
 
+/-- **Annihilating the mode a state occupies leaves the vacuum.**  The `S = ∅` branch of
+`annih_apply` is the only one that can match a one-mode state. -/
+theorem annih_occ_self {N : ℕ} (j : Fin N) :
+    annih j (occ ({j} : Finset (Fin N))) = occ (∅ : Finset (Fin N)) := by
+  ext S
+  rw [annih_apply]
+  by_cases h : j ∈ S
+  · rw [if_pos h]
+    by_cases hS : S = ∅
+    · subst hS; simp at h
+    · simp [occ, EuclideanSpace.single_apply, hS]
+  · rw [if_neg h]
+    by_cases hS : S = ∅
+    · subst hS; simp [occ, EuclideanSpace.single_apply, jwSign]
+    · have hne : insert j S ≠ ({j} : Finset (Fin N)) := by
+        intro hh
+        refine hS (Finset.eq_empty_iff_forall_notMem.mpr fun x hx => ?_)
+        have hmem : x ∈ ({j} : Finset (Fin N)) := by
+          rw [← hh]
+          exact Finset.mem_insert_of_mem hx
+        rw [Finset.mem_singleton] at hmem
+        exact h (hmem ▸ hx)
+      simp [occ, EuclideanSpace.single_apply, hne, hS]
+
+/-- **Creating on the vacuum fills the mode.** -/
+theorem creat_occ_empty {N : ℕ} (i : Fin N) :
+    creat i (occ (∅ : Finset (Fin N))) = occ ({i} : Finset (Fin N)) := by
+  ext S
+  rw [creat_apply]
+  by_cases h : i ∈ S
+  · rw [if_pos h]
+    by_cases hS : S.erase i = ∅
+    · have hsingle : S = {i} := by
+        rw [← Finset.insert_erase h, hS, Finset.insert_empty]
+      subst hsingle
+      simp [occ, EuclideanSpace.single_apply, jwSign]
+    · have hne : S ≠ ({i} : Finset (Fin N)) := by
+        intro hh
+        exact hS (by rw [hh]; simp)
+      simp [occ, EuclideanSpace.single_apply, hS, hne]
+  · rw [if_neg h]
+    have hne : S ≠ ({i} : Finset (Fin N)) := by
+      intro hh
+      exact h (by rw [hh]; simp)
+    simp [occ, EuclideanSpace.single_apply, hne]
+
 /-- **The ghost number of an occupation state** is the number of occupied ghost modes. -/
 theorem ghostNumber_occ (m : ℕ) (S : Finset (Fin (m + 12))) :
     ghostNumber m (occ S)
@@ -371,6 +417,86 @@ theorem smGhostCharge_nilpotent (m : ℕ) {f3 : Fin 8 → Fin 8 → Fin 8 → �
     smGhostCharge m f3 * smGhostCharge m f3 = 0 :=
   brst_charge_nilpotent (smStruct f3) (ghostCre m) (ghostAnn m) (smGhostCAR m)
     (smStruct_antisymm h3anti) (smStruct_jacobi h3jac)
+
+
+/-! ### Grading: the cubic term raises the ghost number by one -/
+
+/-- **The ghost-number operator and a cubic ghost monomial do not commute.**  The two creation
+factors each raise the ghost number by one and the annihilation factor lowers it by one, so
+`N · c†_a c†_b b_e = c†_a c†_b b_e · N + c†_a c†_b b_e`: the monomial has ghost degree one. -/
+theorem ghostNumber_mul_cubic_monomial (m : ℕ) (a b e : Fin 12) :
+    ghostNumber m * (ghostCre m a * ghostCre m b * ghostAnn m e)
+      = (ghostCre m a * ghostCre m b * ghostAnn m e) * ghostNumber m
+        + (ghostCre m a * ghostCre m b * ghostAnn m e) := by
+  have hC : ∀ a : Fin 12,
+      ghostNumber m * ghostCre m a = ghostCre m a * ghostNumber m + ghostCre m a := by
+    intro a
+    have h := ghostNumber_comm_ghostCre m a
+    rw [sub_eq_iff_eq_add] at h
+    simpa [add_comm] using h
+  have hA : ∀ e : Fin 12,
+      ghostNumber m * ghostAnn m e = ghostAnn m e * ghostNumber m - ghostAnn m e := by
+    intro e
+    have h := ghostNumber_comm_ghostAnn m e
+    rw [sub_eq_iff_eq_add] at h
+    simpa [sub_eq_add_neg, add_comm] using h
+  calc ghostNumber m * (ghostCre m a * ghostCre m b * ghostAnn m e)
+      = (ghostNumber m * ghostCre m a) * (ghostCre m b * ghostAnn m e) := by noncomm_ring
+    _ = (ghostCre m a * ghostNumber m + ghostCre m a)
+          * (ghostCre m b * ghostAnn m e) := by rw [hC a]
+    _ = ghostCre m a * (ghostNumber m * ghostCre m b) * ghostAnn m e
+          + ghostCre m a * ghostCre m b * ghostAnn m e := by noncomm_ring
+    _ = ghostCre m a * (ghostCre m b * ghostNumber m + ghostCre m b) * ghostAnn m e
+          + ghostCre m a * ghostCre m b * ghostAnn m e := by rw [hC b]
+    _ = ghostCre m a * ghostCre m b * (ghostNumber m * ghostAnn m e)
+          + (2 : Module.End ℂ (FermiFock (m + 12)))
+            * (ghostCre m a * ghostCre m b * ghostAnn m e) := by noncomm_ring
+    _ = ghostCre m a * ghostCre m b * (ghostAnn m e * ghostNumber m - ghostAnn m e)
+          + (2 : Module.End ℂ (FermiFock (m + 12)))
+            * (ghostCre m a * ghostCre m b * ghostAnn m e) := by rw [hA e]
+    _ = (ghostCre m a * ghostCre m b * ghostAnn m e) * ghostNumber m
+          + ghostCre m a * ghostCre m b * ghostAnn m e := by noncomm_ring
+
+set_option maxHeartbeats 800000 in
+-- the twelvefold `Fin 8`-sum over `Module.End ℂ (FermiFock _)` exceeds the instance budget
+set_option synthInstance.maxHeartbeats 800000 in
+/-- **The cubic ghost charge raises the ghost number by exactly one**: `[N, Ω₃] = Ω₃`.  Hence
+`Ω₃` maps the ghost-number-`g` subspace into the ghost-number-`g+1` subspace. -/
+theorem ghostNumber_comm_smGhostCharge (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    ghostNumber m * smGhostCharge m f3 - smGhostCharge m f3 * ghostNumber m
+      = smGhostCharge m f3 := by
+  unfold smGhostCharge BookProof.BRSTNilpotent.Q
+  rw [Finset.mul_sum, Finset.sum_mul, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [Finset.mul_sum, Finset.sum_mul, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  rw [Finset.mul_sum, Finset.sum_mul, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun e _ => ?_
+  rw [mul_smul_comm, smul_mul_assoc, ← smul_sub, ghostNumber_mul_cubic_monomial,
+    add_sub_cancel_left]
+
+set_option maxHeartbeats 800000 in
+-- the same `End`-of-`FermiFock` instance cost, now routed through the commutator
+set_option synthInstance.maxHeartbeats 800000 in
+/-- **The cubic term shifts ghost number by one on eigenvectors.**  If `ψ` has ghost number
+`g`, then `Ω₃ ψ` has ghost number `g + 1`; in particular `Ω₃` is injective on a ghost-number
+subspace only if the image misses it, which is why the cohomology is graded. -/
+theorem ghostNumber_smGhostCharge_eigen (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (ψ : FermiFock (m + 12)) (g : ℂ) (hψ : ghostNumber m ψ = g • ψ) :
+    ghostNumber m (smGhostCharge m f3 ψ) = (g + 1) • (smGhostCharge m f3 ψ) := by
+  have h2 : ghostNumber m (smGhostCharge m f3 ψ) - smGhostCharge m f3 (ghostNumber m ψ)
+      = smGhostCharge m f3 ψ := by
+    have h := congrArg (fun A : Module.End ℂ (FermiFock (m + 12)) => A ψ)
+      (ghostNumber_comm_smGhostCharge m f3)
+    simpa using h
+  calc ghostNumber m (smGhostCharge m f3 ψ)
+      = (ghostNumber m (smGhostCharge m f3 ψ)
+          - smGhostCharge m f3 (ghostNumber m ψ))
+          + smGhostCharge m f3 (ghostNumber m ψ) := (sub_add_cancel _ _).symm
+    _ = smGhostCharge m f3 ψ + smGhostCharge m f3 (g • ψ) := by rw [h2, hψ]
+    _ = smGhostCharge m f3 ψ + g • smGhostCharge m f3 ψ := by rw [map_smul]
+    _ = (1 + g) • (smGhostCharge m f3 ψ) := by rw [add_smul, one_smul]
+    _ = (g + 1) • (smGhostCharge m f3 ψ) := by rw [add_comm 1 g]
 
 /-! ## 3. The full BRST charge, in the abstract -/
 
@@ -934,9 +1060,9 @@ ghost modes.  Its parity — `U = (-1)^{N_ghost}` — is the fundamental symmetr
 space: an involution, an isometry of the ambient inner product, and self-adjoint, so that
 `kform U x y = ⟪x, U y⟫` is a Krein form.  The charge is *odd* for it
 (`smGhostParity_mul_smBrstCharge`, `U Ω = -Ω U`): the Gauss term carries one ghost field and the
-cubic term three.  That is what lets the sector split of `ChapterSmBrstQuotient` §3 be applied to the
-SM charge, and it is the operator against which the no-ghost sign on `range smPhysProj` is computed
-(`ChapterSmQuartet` §12).
+cubic term three.  That is what lets the sector split of `ChapterSmBrstQuotient` §3 be applied to
+the SM charge, and it is the operator against which the no-ghost sign on `range smPhysProj` is
+computed (`ChapterSmQuartet` §12).
 
 The parity is written in the occupation basis rather than as the product `∏_a (1 - 2 c^a b_a)` so
 that its metric properties (involution, isometry, self-adjointness) are one computation each; the

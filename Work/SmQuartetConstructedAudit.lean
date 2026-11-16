@@ -95,3 +95,17 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmGaugeRep.smGen_hyper
 #audit_axioms BookProof.SmGaugeRep.matterGen_smGen_hyper_occ_ne_zero
 #audit_axioms BookProof.SmQuartet.smGhostParity_not_noGhost_doublet
+#audit_axioms BookProof.SmBrstGhost.ghostNumber_mul_cubic_monomial
+#audit_axioms BookProof.SmBrstGhost.ghostNumber_comm_smGhostCharge
+#audit_axioms BookProof.SmBrstGhost.ghostNumber_smGhostCharge_eigen
+#audit_axioms BookProof.SmBrstGhost.annih_occ_self
+#audit_axioms BookProof.SmBrstGhost.creat_occ_empty
+#audit_axioms BookProof.SmGaugeRep.castAdd12_inj
+#audit_axioms BookProof.SmGaugeRep.occ_apply_single
+#audit_axioms BookProof.SmGaugeRep.creat_annih_occ_entry
+#audit_axioms BookProof.SmGaugeRep.matterGen_occ_entry
+#audit_axioms BookProof.SmGaugeRep.matterGen_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.smGen_weak_entry
+#audit_axioms BookProof.SmGaugeRep.smGen_gluon_entry
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_weak_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon_occ_ne_zero

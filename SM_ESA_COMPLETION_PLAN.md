@@ -5433,3 +5433,93 @@ doublet theorem is at `m = 6` but for the hypercharge direction alone; the other
 §94's general criterion only through their hypothesis.  (iii) The `g ↦ 11 − g` symmetry of the ranks is an
 observation.  (iv) The classification says which even states `B` kills *dimensionally*; it does not
 exhibit a basis of `ker B` on any degree.
+
+## §96. The cubic term's grading, all twelve generators, and a basis of its kernel at `g = 2`
+
+§95 ended with four boundaries: nothing in Lean said that the cubic term raises the ghost number, only the
+hypercharge direction was evaluated at the doublet, the other eleven generators entered §94's criterion
+only as the hypothesis `G_a (occ S) ≠ 0`, and the cubic term's kernel was classified dimensionally rather
+than by an exhibited basis.  The first three are now closed in Lean; the fourth is closed by an exact
+computation and, honestly, not in Lean.
+
+**The grading (`ChapterSmBrstGhost` §2).**  `ghostNumber_comm_ghostCre` and `ghostNumber_comm_ghostAnn`
+give the one-factor relations `[N, c†_a] = c†_a`, `[N, b_a] = −b_a`; moving `N` through a cubic monomial
+therefore costs one unit of ghost number:
+
+* `ghostNumber_mul_cubic_monomial` — `N · c†_a c†_b b_e = c†_a c†_b b_e · N + c†_a c†_b b_e`, by
+  applying the two one-factor relations in order (`noncomm_ring` for the rearrangement, and the
+  anticommutation is never used, so the statement holds for any two creation and one annihilation
+  operator);
+* `ghostNumber_comm_smGhostCharge` — `[N, Ω₃] = Ω₃` for the Standard-Model cubic charge, by expanding
+  `Ω₃ = −½ Σ_{a,b,e} f_{abe} c†_a c†_b b_e` and applying the monomial lemma term by term;
+* `ghostNumber_smGhostCharge_eigen` — if `N ψ = g · ψ` then `N (Ω₃ ψ) = (g + 1) · Ω₃ ψ`.
+
+So `Ω₃` maps the ghost-number-`g` subspace into the ghost-number-`g + 1` subspace, which is why the
+tables of §95 can be read degree by degree; both theorems need `set_option maxHeartbeats 800000 in`
+because the twelvefold `Fin 8` sum over `Module.End ℂ (FermiFock _)` exceeds the instance budget.
+
+**All twelve directions (`ChapterSmGaugeRepresentation` §6).**  §5 evaluated the one direction where the
+generator is a multiple of the identity.  For the others the generator is the *column* of `T_a`:
+
+* `annih_occ_self` and `creat_occ_empty` (`ChapterSmBrstGhost` §2) — annihilating the occupied mode of a
+  one-mode state leaves the vacuum, and creating on the vacuum fills it.  These are the two off-diagonal
+  cases the existing `occupation_occ` (which covers `creat i (annih i ψ)` only) cannot reach;
+* `castAdd12_inj`, `occ_apply_single`, `creat_annih_occ_entry` — the mode bookkeeping: a `creat`–`annih`
+  pair on a one-mode state contributes `1` exactly when it annihilates and re-creates the same mode, the
+  two Jordan–Wigner signs cancelling;
+* `matterGen_occ_entry` — `G_a (occ {j₀})` at the one-mode state `occ {i₀}` is `−i · T_a i₀ j₀`, obtained
+  from `fermiBilin_embedMatter` and the pair computation above (the double sum collapses twice);
+* `matterGen_occ_ne_zero` — a nonzero matrix entry means the generator does not kill the state;
+* `smGen_weak_entry` — `smGen S3 y 8 1 0 = 1/2`: the first weak generator `1 ⊗ τ₁/2` carries the mode of
+  colour zero and isospin zero to its isospin partner;
+* `smGen_gluon_entry` — `smGen λ y 0 2 0 = 1`: the first Gell-Mann generator `λ¹ ⊗ 1` carries the mode of
+  colour zero to colour one;
+* `matterGen_smGen_weak_occ_ne_zero` and `matterGen_smGen_gluon_occ_ne_zero` — the entries are nonzero, so
+  `Ω` does not kill the ghost-free state `occ {0}` in those directions either.  With §95's hypercharge
+  theorem, three of the twelve directions are now evaluated in Lean at the model's own representation
+  (`a = 11, 8, 0`); the other nine go through the same `matterGen_occ_entry` with a different entry, which
+  is why the general lemma, not the twelve instantiations, is the result that closes §95's boundary.
+
+**A basis of `ker B` at `g = 2` (`scripts/sm-cubic-kernel-basis.py`).**  With no matter modes the source
+is `Λ²ℂ¹²` (66 states) and `B = Ω₃` maps it to `Λ³ℂ¹²` (220 states, of which 178 are reached).  The script
+computes the kernel by Gauss–Jordan **exactly**: the structure constants are derived from the `λ_a/2`,
+`τ_k/2` generators rather than typed in, and the only irrational entries (`f₄₅₈ = f₆₇₈ = √3/2`) are carried
+as pairs of `fractions.Fraction`s in `ℚ(√3)`.  Measured 2026-11-16:
+
+| stat | value |
+|---|---|
+| `dim Λ²` | 66 |
+| reached states in `Λ³` | 178 of 220 |
+| `rank B` at `g = 2` | 55 |
+| `dim ker B` at `g = 2` | 11 |
+
+The basis, with ghosts `0–7` gluons, `8–10` weak, `11` hypercharge and `|i+j>` the two-mode state:
+
+| vector | terms | content |
+|---|---|---|
+| `v₀` | 2 | `\|0+1> + \|3+4>` |
+| `v₁` | 3 | `2\|1+2> − \|4+5> + \|3+6>` |
+| `v₂` | 3 | `−2\|0+2> + \|3+5> + \|4+6>` |
+| `v₃` | 2 | `−\|0+1> + \|5+6>` |
+| `v₄` | 4 | `−(√3/3)(\|2+3> + \|0+5>) + (√3/3)\|1+6> + \|3+7>` |
+| `v₅` | 4 | `−(√3/3)(\|2+4> + \|1+5> + \|0+6>) + \|4+7>` |
+| `v₆` | 4 | `−(√3/3)(\|0+3> + \|1+4>) + (√3/3)\|2+5> + \|5+7>` |
+| `v₇` | 4 | `(√3/3)(\|1+3> + \|2+6>) − (√3/3)\|0+4> + \|6+7>` |
+| `v₈` | 1 | `\|8+9>` |
+| `v₉` | 1 | `\|8+10>` |
+| `v₁₀` | 1 | `\|9+10>` |
+
+The script verifies both defining properties: `B v = 0` for each vector, entry by entry, and the eleven
+vectors are independent (the elimination is Gauss–Jordan, so each vector introduces a free column; the
+script also re-eliminates the stacked 11 × 66 matrix and gets rank 11).  It prints the basis and a
+`sha256` of the printed lines, currently `f0c2a83c…952f904`.  The structure is legible: four rational
+vectors in the gluon pairs, four carrying the `λ₈` ghost `7` with coefficient `±√3/3`, and the three pure
+weak pairs `|8+9>`, `|8+10>`, `|9+10>` — which `B` kills outright: the mixed gluon–weak structure constants
+vanish and the all-weak terms hit the Pauli principle.
+
+**Boundaries.**  (i) The basis is *computed*, not proved: no Lean statement asserts
+`dim ker Ω₃|_g = 11`, and the script is a certificate one can re-run, not a theorem.  (ii) It is at
+`m = 0`, `g = 2` only; the other even degrees of §95 remain dimensional facts.  (iii) Three of the twelve
+generators are evaluated in Lean at the model's representation; the remaining nine are covered by the
+general entry lemma but are not instantiated, so §94's refutation still takes "some generator fails to
+kill a ghost-free state" as an input rather than deriving it direction by direction.
