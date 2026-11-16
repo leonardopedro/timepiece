@@ -4756,3 +4756,29 @@ The two-mode model makes the bound tight: `model_couplingOp_eq` gives `(Q H P) U
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the seven new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### §15 on a core: the Schur gap controls the unbounded resolvent (2026-11-15t)
+
+§16's graph-norm tail assumed the *vector-norm* resolvent bound `‖res y‖ ≤ mu⁻¹‖y‖` on the kept
+sector, i.e. a global estimate `‖R‖ ≤ mu⁻¹`.  §20 derives it from §15's Schur data instead, for
+`H : D →ₗ[ℂ] E` on a core with a section `res : E →ₗ[ℂ] D` of `H − z`:
+
+* `resolvent_tail_le_of_schur_core`: the section-level Schur identity `S (Q (res (Q y))) = Q y`
+  plus coercivity of `S` with gap `mu` (and nothing else about `S`) give
+  `‖Q (res (Q x))‖ ≤ mu⁻¹‖Q x‖` — §15's `‖Q R Q‖ ≤ mu⁻¹` without closedness or boundedness of `H`;
+* `res_eq_projection_of_invariant`: invariance of the kept sector,
+  `(1 − Q) (res (Q y)) = 0`, turns that into `res (Q y) = Q (res (Q y))`, so the compressed bound
+  bounds the full resolvent value;
+* `graphNorm_res_le_of_schur`: the graph-norm estimate
+  `‖res (Q x)‖_G ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖Q x‖` (the graph norm costs exactly one `‖z‖`, as in §16);
+* `sirkGraphTail_le_of_schur`: with `Q = sirkComplement V`, §16's tail bound with `mu` the gap of
+  the interacting complement only, so the discarded sector no longer needs its own resolvent
+  estimate.
+
+What remains assumed is the section-level identity `hS` itself — the unbounded counterpart of
+§15's `S (Q R Q) = Q`.  For a concrete `ymHamiltonian` it would have to be obtained by solving the
+block equation on the core; this section does not do that.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the four new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

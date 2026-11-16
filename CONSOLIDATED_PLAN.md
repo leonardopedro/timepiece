@@ -113,6 +113,15 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15t):** “State of the project — 2026-11-15t: §15 extended to unbounded
+> generators” (end of file): `ChapterSirkEndToEnd` §20 replaces §16's global resolvent hypothesis by
+> the Schur data — `resolvent_tail_le_of_schur_core` gives `‖Q (res (Q x))‖ ≤ mu⁻¹‖Q x‖` from the
+> section-level identity `S (Q (res (Q y))) = Q y` and coercivity of `S`;
+> `res_eq_projection_of_invariant` turns that into a bound on `res` when the kept sector is
+> invariant; `graphNorm_res_le_of_schur` and `sirkGraphTail_le_of_schur` give
+> `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖x‖` on a core.  The section-level identity itself
+> remains an input.
+>
 > **Track A — newest (2026-11-15s):** “State of the project — 2026-11-15s: the Schur gap is derived,
 > not assumed” (end of file): `ChapterSirkEndToEnd` §19 writes `S = Q A Q − (Q A P) U (P A Q)`
 > (`schurCompOp`, `couplingCompOp`) and proves `schur_coercive_of_free` — the free-part gap `muF`
@@ -26461,4 +26470,30 @@ it does not produce `muF` from nothing.
 
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the seven new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15t: §15 extended to unbounded generators
+
+§15's Schur tail estimate and §16's graph norms lived apart: §16 assumed the vector-norm resolvent
+bound `‖res y‖ ≤ mu⁻¹‖y‖`, i.e. a global `‖R‖ ≤ mu⁻¹`.  §20 joins them.
+
+* `resolvent_tail_le_of_schur_core`: for `H : D →ₗ[ℂ] E`, a section `res : E →ₗ[ℂ] D` and an
+  operator `S : E →L[ℂ] E`, the section-level identity `S (Q (res (Q y))) = Q y` plus coercivity of
+  `S` with gap `mu` give `‖Q (res (Q x))‖ ≤ mu⁻¹‖Q x‖` — no closedness, no boundedness, no
+  hypothesis on `S` beyond its quadratic form.
+* `res_eq_projection_of_invariant`: if `(1 − Q) (res (Q y)) = 0` the kept sector is invariant and
+  `res (Q y) = Q (res (Q y))`, so the compressed estimate controls the resolvent value itself.
+* `graphNorm_res_le_of_schur`: `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖Q x‖`, replacing
+  §16's `hvec` by the Schur data.
+* `sirkGraphTail_le_of_schur`: the §16 tail with `Q = sirkComplement V`, `mu` the gap of the
+  interacting complement.
+
+**Not proved.**  The section-level Schur identity `hS` — the unbounded analogue of
+`S (Q R Q) = Q` — is still an input; deriving it on the core of `ymHamiltonian` (by solving the
+block equation there) is the next analytic step.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the four new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.

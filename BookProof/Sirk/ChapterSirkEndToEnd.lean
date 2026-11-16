@@ -2415,4 +2415,141 @@ theorem schurOp_coercive_derived (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0)
 
 end
 
+
+/-! ## 20. §15 on a core: the Schur gap controls the unbounded resolvent
+
+§15 gives `‖Q R Q‖ ≤ mu⁻¹` for a bounded `H`, while §16's graph-norm tail takes the *vector-norm*
+bound `‖res y‖ ≤ mu⁻¹‖y‖` on the whole kept sector — a global resolvent estimate.  Here §15's
+Schur route is carried over to `H : D →ₗ[ℂ] E` on a core, with `res : E →ₗ[ℂ] D` a section of
+`H − z`, and it supplies exactly the missing bound, sector by sector:
+
+* `resolvent_tail_le_of_schur_core`: if the Schur complement `S : E →L[ℂ] E` satisfies the
+  section-level identity `S (Q (res (Q y))) = Q y` and is coercive on `range Q` with gap `mu`, then
+  `‖Q (res (Q x))‖ ≤ mu⁻¹‖Q x‖` — the unbounded analogue of `‖Q R Q‖ ≤ mu⁻¹`, with no closedness or
+  boundedness of `H` and no hypothesis on `S` beyond its quadratic form;
+* `res_eq_projection_of_invariant`: if the section keeps the kept sector invariant,
+  `(1 − Q) (res (Q y)) = 0`, then `res (Q y) = Q (res (Q y))`, so the compressed bound is a bound
+  on the full resolvent value;
+* `graphNorm_res_le_of_schur`: the graph-norm estimate
+  `‖res (Q x)‖_G ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖Q x‖` follows from the Schur data, replacing §16's `hvec`;
+* `sirkGraphTail_le_of_schur`: with `Q = sirkComplement V`, §16's tail
+  `≤ ((1 + ‖z‖)mu⁻¹ + 1)‖x‖` with `mu` the gap of the interacting complement alone.
+
+The invariance hypothesis is the unbounded counterpart of §14's `Q H = H Q`: it says the discarded
+sector is not re-entered by the resolvent, and it is what turns a bound on the compressed resolvent
+into one on `res` itself.  What is still assumed is the section-level Schur identity `hS` — the
+unbounded version of §15's `S (Q R Q) = Q`, which for a concrete `ymHamiltonian` would come from
+solving the block equation on the core rather than from an inverse of a bounded matrix. -/
+
+noncomputable section
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- **§15's Schur tail estimate for an unbounded generator.**  `H` is only a linear map on a core
+`D`, the resolvent is a section `res` solving `(H − z) res y = y`, and the Schur complement `S` is
+an operator on `E`.  If `S` inverts the *compressed* resolvent at the section level,
+`S (Q (res (Q y))) = Q y`, and is coercive on `range Q` with gap `mu`, then the compressed
+resolvent satisfies the same `mu⁻¹` bound as in the bounded §15.  Nothing about `S` is assumed
+beyond its quadratic form; `H` never needs to be closed or bounded. -/
+theorem resolvent_tail_le_of_schur_core {D : Submodule ℂ E} {res : E →ₗ[ℂ] D}
+    (Q S : E →L[ℂ] E) (mu : ℝ)
+    (hS : ∀ y : E, S (Q ((res (Q y) : D) : E)) = Q y)
+    (hcoer : ∀ v : E, mu * ‖Q v‖ ^ 2 ≤ (inner ℂ (Q v) (S (Q v))).re)
+    (hpos : 0 < mu) (x : E) :
+    ‖Q ((res (Q x) : D) : E)‖ ≤ mu⁻¹ * ‖Q x‖ := by
+  set w : E := Q x
+  set v : E := Q ((res w : D) : E) with hv
+  have hfix : S v = w := hS x
+  have hco : mu * ‖v‖ ^ 2 ≤ (inner ℂ v w).re := by
+    have h := hcoer ((res w : D) : E)
+    rw [← hv, hfix] at h
+    exact h
+  have hquad : mu * ‖v‖ ^ 2 ≤ ‖v‖ * ‖w‖ :=
+    hco.trans ((le_abs_self _).trans ((Complex.abs_re_le_norm _).trans (norm_inner_le_norm _ _)))
+  have hkey : ‖v‖ ≤ mu⁻¹ * ‖w‖ := by
+    rcases eq_or_lt_of_le (norm_nonneg v) with h0 | h0
+    · rw [← h0]
+      positivity
+    · have hstep : mu * ‖v‖ ≤ ‖w‖ := by
+        have h1 : mu * ‖v‖ * ‖v‖ ≤ ‖v‖ * ‖w‖ := by
+          calc mu * ‖v‖ * ‖v‖ = mu * ‖v‖ ^ 2 := by ring
+            _ ≤ ‖v‖ * ‖w‖ := hquad
+        exact le_of_mul_le_mul_right (by simpa [mul_comm] using h1) h0
+      calc ‖v‖ ≤ ‖w‖ / mu := by
+            rw [le_div_iff₀ hpos]
+            calc ‖v‖ * mu = mu * ‖v‖ := by ring
+              _ ≤ ‖w‖ := hstep
+        _ = mu⁻¹ * ‖w‖ := by rw [div_eq_inv_mul]
+  rw [hv]
+  exact hkey
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- If the section `res` keeps the kept sector `range Q` invariant, then on that sector the
+resolvent value equals its projection, so a bound for `Q (res ·)` controls the full `res ·`. -/
+theorem res_eq_projection_of_invariant (Q : E →L[ℂ] E) {D : Submodule ℂ E} {res : E →ₗ[ℂ] D}
+    (hinv : ∀ y : E, (ContinuousLinearMap.id ℂ E - Q) ((res (Q y) : D) : E) = 0) (x : E) :
+    ((res (Q x) : D) : E) = Q ((res (Q x) : D) : E) := by
+  have hsum : Q + (ContinuousLinearMap.id ℂ E - Q) = ContinuousLinearMap.id ℂ E :=
+    add_sub_cancel Q _
+  have h := congrArg (fun T : E →L[ℂ] E => T ((res (Q x) : D) : E)) hsum
+  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.id_apply] at h
+  rw [hinv x, add_zero] at h
+  exact h.symm
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- **Graph-norm control of the compressed resolvent from the Schur gap.**  Under the section-level
+Schur identity, coercivity of `S` with gap `mu`, and invariance of the kept sector, the *graph
+norm* of `res (Q x)` is `≤ ((1 + ‖z‖)mu⁻¹ + 1)‖Q x‖` — §16's `hvec` hypothesis replaced by the
+Schur data of §15. -/
+theorem graphNorm_res_le_of_schur {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {res : E →ₗ[ℂ] D}
+    {z : ℂ} (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y)
+    (Q S : E →L[ℂ] E) (mu : ℝ)
+    (hS : ∀ y : E, S (Q ((res (Q y) : D) : E)) = Q y)
+    (hcoer : ∀ v : E, mu * ‖Q v‖ ^ 2 ≤ (inner ℂ (Q v) (S (Q v))).re)
+    (hpos : 0 < mu)
+    (hinv : ∀ y : E, (ContinuousLinearMap.id ℂ E - Q) ((res (Q y) : D) : E) = 0) (x : E) :
+    graphNorm H (res (Q x)) ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖Q x‖ := by
+  have htail := resolvent_tail_le_of_schur_core Q S mu hS hcoer hpos x
+  have hfix := res_eq_projection_of_invariant Q hinv x
+  have hvec : ‖((res (Q x) : D) : E)‖ ≤ mu⁻¹ * ‖Q x‖ := by
+    rw [hfix]
+    exact htail
+  have h := graphNorm_res_le hres (Q x)
+  have hz : (0 : ℝ) ≤ 1 + ‖z‖ := by positivity
+  calc graphNorm H (res (Q x))
+      ≤ (1 + ‖z‖) * ‖((res (Q x) : D) : E)‖ + ‖Q x‖ := h
+    _ ≤ (1 + ‖z‖) * (mu⁻¹ * ‖Q x‖) + ‖Q x‖ := by
+        have h2 := mul_le_mul_of_nonneg_left hvec hz
+        linarith
+    _ = ((1 + ‖z‖) * mu⁻¹ + 1) * ‖Q x‖ := by ring
+
+/-- **§16's graph-norm tail with the Schur gap.**  With `Q = sirkComplement V`, the estimate
+`graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖x‖` now follows from the Schur data of §15 instead
+of a global resolvent bound, so `mu` is the spectral gap of the *interacting complement* only. -/
+theorem sirkGraphTail_le_of_schur (V : F →L[ℂ] E)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    {D : Submodule ℂ E} {H : D →ₗ[ℂ] E} {res : E →ₗ[ℂ] D} {z : ℂ} {S : E →L[ℂ] E} {mu : ℝ}
+    (hres : ∀ y : E, H (res y) - z • ((res y : D) : E) = y)
+    (hS : ∀ y : E, S ((sirkComplement V) ((res ((sirkComplement V) y) : D) : E))
+      = (sirkComplement V) y)
+    (hcoer : ∀ v : E, mu * ‖(sirkComplement V) v‖ ^ 2
+      ≤ (inner ℂ ((sirkComplement V) v) (S ((sirkComplement V) v))).re)
+    (hpos : 0 < mu)
+    (hinv : ∀ y : E,
+      (ContinuousLinearMap.id ℂ E - sirkComplement V) ((res ((sirkComplement V) y) : D) : E) = 0)
+    (x : E) :
+    graphNorm H (res ((sirkComplement V) x)) ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖ := by
+  have hQidem := sirkComplement_idem V hVV
+  have hQadj := sirkComplement_adjoint_eq V
+  have hQle := norm_projection_le (sirkComplement V) hQidem hQadj x
+  have h := graphNorm_res_le_of_schur hres (sirkComplement V) S mu hS hcoer hpos hinv x
+  have hc : (0 : ℝ) ≤ (1 + ‖z‖) * mu⁻¹ + 1 := by positivity
+  calc graphNorm H (res ((sirkComplement V) x))
+      ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖(sirkComplement V) x‖ := h
+    _ ≤ ((1 + ‖z‖) * mu⁻¹ + 1) * ‖x‖ := mul_le_mul_of_nonneg_left hQle hc
+
+
+
+end
+
 end BookProof.ChapterSirkEndToEnd
