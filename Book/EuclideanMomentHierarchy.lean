@@ -201,9 +201,30 @@ BookProof.OSReconstruction.intState_reflectionPositive_of_integrable :
 ```
 
 The mean-of-squares representation $`\langle \theta H, H\rangle = \int (S_t H)^2\,d\nu`$ is
-unchanged, so finiteness is the only hypothesis left, and the gap to the $`L^2`$ closure of the
-positive-time algebra is the truncation argument that discharges finiteness from `MemLp` — not a
-change of mechanism.
+unchanged, so finiteness is the only hypothesis left — and it is a hypothesis that can be
+*discharged*, not merely narrowed. The two halves of the form are integrated against shifted copies
+of the same Gaussian, so an $`L^2`$ statement about the shift lives one product measure away from
+the integrand. That distance is closed by two measure-preserving projections:
+
+```
+measurePreserving_covMarginal_left  : (t, x, y) ↦ (t, x)  pushes  ν ⊗ (γ ⊗ γ)  to  ν ⊗ γ
+measurePreserving_covMarginal_right : (t, x, y) ↦ (t, y)  pushes  ν ⊗ (γ ⊗ γ)  to  ν ⊗ γ
+```
+
+Both are `Prod.map id Prod.fst` and `Prod.map id Prod.snd`, so `Measure.map_prod_map` reduces each
+to the marginal law of a single Gaussian, and that marginal is $`\gamma`$ itself because $`\gamma`$
+is a probability. Lifting `MemLp` along them and multiplying the two halves by Hölder
+(`MemLp.integrable_mul`) produces the triple integrability, hence
+
+```
+BookProof.OSReconstruction.covState_reflectionPositive_of_memLp :
+  0 ≤ ∫ z, H z.2 * H z.1 ∂covState ν      (H measurable, H(· + ·) ∈ L²(ν ⊗ γ))
+```
+
+The bounded-truncation argument is *not* what closes this, and the reason is worth recording: the
+truncations $`H \wedge N \vee (-N)`$ converge with a dominator only if some integrable majorant of
+$`(S_t H)^2`$ exists, which is the finiteness being proved. The lift-and-Hölder route has no such
+circle, and it needs no boundedness anywhere.
 
 
 # Sandwiching the Free Regulator Against the C1 Slices
@@ -669,10 +690,14 @@ The sign is the whole story: `1 + ε h₁h₂` has OS form `+ε`, and that sign 
 rank-one term. So the general case is false rather than open, and what a general `V` needs is a
 *positivity structure* — $`V = V_+ + \theta V_+`$, a decomposition into individually
 reflection-positive terms, or a convergent expansion in a stable regime — not more work on this
-mechanism. The $`L^2`$ closure of the
-positive-time algebra is likewise not covered: the form-finite statement above defines the form
-wherever it is finite, and what is missing is the truncation that discharges finiteness from
-`MemLp`.
+mechanism. The $`L^2`$
+question splits, and only one half is settled: for the free covariant state the form's finiteness
+is now *derived*, not assumed, from the single hypothesis
+$`H(\cdot + \cdot) \in L^2(\nu \otimes \gamma)`$ (`covState_reflectionPositive_of_memLp`, resting
+on the two marginal projections). For the interacting state the corresponding statement —
+finiteness of the weighted form from an $`L^2`$ condition on $`g F`$ — and the closure of the
+positive-time algebra (completing the pre-Hilbert space, and multiplying two $`L^2`$ families) are
+still not proved.
 Separated-time *diagonal* positivity $`\langle A^\dagger e^{-hK} A\rangle \ge 0` at $`h > 0` is
 likewise not claimed: it needs a positive (spectral) evolution, a hypothesis this slice does not
 establish. The unbounded generator $`h_\sigma`, its closure and its selection, the field-law

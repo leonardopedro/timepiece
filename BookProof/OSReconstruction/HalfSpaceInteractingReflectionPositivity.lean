@@ -17,8 +17,8 @@ Boltzmann weight **factorizes across the reflection plane**:
   `ρ(z) = g z₁ * g z₂`,   `g ≥ 0` a positive-time weight,
 
 which is the lattice form of `e^{-V}` with `V = V₊ + θV₊` — an interaction built from positive-time
-fields plus its reflection, the Dyson–Lieb–Simon class.  Then the interacting OS form *is* a free OS
-form with `F` replaced by `F · g`:
+fields plus its reflection, the Dyson–Lieb–Simon class.  Then the interacting OS form *is* a
+free OS form with `F` replaced by `F · g`:
 
   `⟨θF F⟩_int = ∫ θF F · g₁ g₂ ∂μ₀ = ∫ θ(F g) (F g) ∂μ₀ ≥ 0`.
 
@@ -100,8 +100,9 @@ theorem intState_reflectionPositive {ι : Type*} [Fintype ι] (ν : Measure (ι 
   rw [hEq]
   exact hfree
 
-/-- The interacting OS expectation: the normalized form, which is what "the interacting state" means
-when the weight is not normalized.  Division by the mass preserves sign, so this is a corollary. -/
+/-- The interacting OS expectation: the normalized form, the meaning of "the interacting state"
+when the weight is not normalized.  Division by the mass preserves sign, so this is a
+corollary. -/
 theorem intState_expectation_re_nonneg {ι : Type*} [Fintype ι] (ν : Measure (ι → ℝ))
     [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0) (hg : Measurable g)
     (F : (ι → ℝ) → ℝ) (hF : Measurable F)
@@ -258,6 +259,62 @@ theorem covState_reflectionPositive_of_integrable {ι : Type*} [Fintype ι]
   rw [hinner t]
   exact mul_self_nonneg _
 
+/-! ## The marginal lift: `MemLp` on `ν ⊗ γ` transfers to `ν ⊗ γ ⊗ γ`
+
+The two halves of the OS form are integrals against *shifted* copies of the same Gaussian, so the
+`L²` hypothesis naturally lives on `ν ⊗ γ`, while the form's integrand lives on `ν ⊗ (γ ⊗ γ)`.
+The bridge is that each projection `(t, x, y) ↦ (t, x)` and `(t, x, y) ↦ (t, y)` pushes the triple
+product *down* to `ν ⊗ γ`: both are `Prod.map id Prod.fst` and `Prod.map id Prod.snd`, so
+`Measure.map_prod_map` reduces each to the marginal law of a single Gaussian, and that marginal is
+`γ` itself because `γ` is a probability.  With the lift in hand, Hölder
+(`MemLp.integrable_mul`) produces exactly the integrability the form-finiteness theorem asks for.
+-/
+
+/-- **The projection `(t, x, y) ↦ (t, x)` is measure preserving** from `ν ⊗ (γ ⊗ γ)` to `ν ⊗ γ`. -/
+theorem measurePreserving_covMarginal_left {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [SFinite ν] :
+    MeasurePreserving (fun p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)) => (p.1, p.2.1))
+      (ν.prod ((whiteNoise ι).prod (whiteNoise ι))) (ν.prod (whiteNoise ι)) := by
+  refine ⟨by fun_prop, ?_⟩
+  have h := Measure.map_prod_map (μa := ν) (μc := (whiteNoise ι).prod (whiteNoise ι))
+    (f := id) (g := Prod.fst) measurable_id measurable_fst
+  simp only [Measure.map_id, Measure.map_fst_prod, measure_univ, one_smul] at h
+  simpa [Prod.map] using h.symm
+
+/-- **The projection `(t, x, y) ↦ (t, y)` is measure preserving** from `ν ⊗ (γ ⊗ γ)` to `ν ⊗ γ`. -/
+theorem measurePreserving_covMarginal_right {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [SFinite ν] :
+    MeasurePreserving (fun p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)) => (p.1, p.2.2))
+      (ν.prod ((whiteNoise ι).prod (whiteNoise ι))) (ν.prod (whiteNoise ι)) := by
+  refine ⟨by fun_prop, ?_⟩
+  have h := Measure.map_prod_map (μa := ν) (μc := (whiteNoise ι).prod (whiteNoise ι))
+    (f := id) (g := Prod.snd) measurable_id measurable_snd
+  simp only [Measure.map_id, Measure.map_snd_prod, measure_univ, one_smul] at h
+  simpa [Prod.map] using h.symm
+
+/-- **Reflection positivity of the covariant state from an `L²` hypothesis.**
+
+The only hypothesis on the observable is that the shift-averaged field is square integrable on
+`ν ⊗ γ`; there is no bound and no separate integrability assumption.  The proof lifts the `L²`
+statement to the triple product by `measurePreserving_covMarginal_left`/`_right`, multiplies the
+two halves by Hölder, and hands the resulting integrability to
+`covState_reflectionPositive_of_integrable`.  This closes the gap the form-finiteness statement
+left open: the finiteness is *derived*, not assumed. -/
+theorem covState_reflectionPositive_of_memLp {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (H : (ι → ℝ) → ℝ) (hH : Measurable H)
+    (hLp : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => H (q.1 + q.2)) 2
+      (ν.prod (whiteNoise ι))) :
+    0 ≤ ∫ z : (ι → ℝ) × (ι → ℝ), H z.2 * H z.1 ∂covState ν := by
+  have hleft : MemLp (fun p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)) => H (p.1 + p.2.1)) 2
+      (ν.prod ((whiteNoise ι).prod (whiteNoise ι))) := by
+    have := hLp.comp_measurePreserving (measurePreserving_covMarginal_left ν)
+    simpa [Function.comp_def] using this
+  have hright : MemLp (fun p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)) => H (p.1 + p.2.2)) 2
+      (ν.prod ((whiteNoise ι).prod (whiteNoise ι))) := by
+    have := hLp.comp_measurePreserving (measurePreserving_covMarginal_right ν)
+    simpa [Function.comp_def] using this
+  exact covState_reflectionPositive_of_integrable (ν := ν) H hH (hright.integrable_mul hleft)
+
 /-- **The interacting inequality with no boundedness at all.**  A measurable nonnegative weight `g`
 and a measurable observable `F`, with only the finiteness of the interacting OS form assumed (as
 integrability in the state).  `g` may be unbounded and `F` unbounded. -/
@@ -355,7 +412,8 @@ theorem generalWeight_osForm (h : α → ℝ) (hh : Measurable h) (hbound : ∀ 
       (μ₀.prod μ₀) :=
     Integrable.of_bound (μ := μ₀.prod μ₀)
       (f := fun z : α × α => (h z.1 * h z.1) * (h z.2 * h z.2))
-      (((hh.mul hh).comp measurable_fst).mul ((hh.mul hh).comp measurable_snd)).aestronglyMeasurable
+      (((hh.mul hh).comp measurable_fst).mul
+        ((hh.mul hh).comp measurable_snd)).aestronglyMeasurable
       (1 : ℝ) (by
         filter_upwards with z
         rw [Real.norm_eq_abs, abs_mul]
@@ -386,9 +444,9 @@ theorem generalWeight_osForm (h : α → ℝ) (hh : Measurable h) (hbound : ∀ 
   rw [hsplit, hcross, hsq]
   ring
 
-/-- **Reflection positivity fails for a reflection-invariant positive weight.**  There is a strictly
-positive, reflection-invariant weight on `α × α` whose OS form is negative, so no argument from
-invariance alone can give reflection positivity for a general density. -/
+/-- **Reflection positivity fails for a reflection-invariant positive weight.**  There is a
+strictly positive, reflection-invariant weight on `α × α` whose OS form is negative, so no
+argument from invariance alone can give reflection positivity for a general density. -/
 theorem not_reflectionPositive_of_generalWeight (h : α → ℝ) (hh : Measurable h)
     (hbound : ∀ x, |h x| ≤ 1) (hmean : ∫ x, h x ∂μ₀ = 0) (hvar : ∫ x, h x * h x ∂μ₀ = 1)
     {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1) :

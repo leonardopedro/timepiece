@@ -4939,3 +4939,25 @@ truncations' dominated convergence needs the integrand's integrability — the v
 discharged. The `MemLp` route needs `MemLp` of each half under `ν ⊗ γ ⊗ γ`, which needs a
 marginal-lifting lemma for `(t, x, y) ↦ (t, x)` that mathlib does not have under the names tried;
 `MemLp.integrable_mul` would then finish it in three lines.
+
+### The marginal lift: `MemLp` closes the shifted-state `L²` case (2026-11-16f)
+
+The 2026-11-16e entry recorded the `L²` gap as "needs `MemLp.integrable_mul` after a marginal lift
+mathlib does not provide". It provides the pieces instead, and they are two lines each:
+
+* `measurePreserving_covMarginal_left` / `_right` — the projections `(t, x, y) ↦ (t, x)` and
+  `(t, x, y) ↦ (t, y)` push `ν ⊗ (γ ⊗ γ)` onto `ν ⊗ γ`. Both are `Prod.map id Prod.fst`/`Prod.snd`,
+  so `Measure.map_prod_map` plus `map_fst_prod`/`map_snd_prod` reduce them to the marginal law of
+  one Gaussian, which is `γ` because `γ` is a probability;
+* `covState_reflectionPositive_of_memLp` — `0 ≤ ∫ H z.2 * H z.1 ∂covState ν` from
+  `H(· + ·) ∈ L²(ν ⊗ γ)` and measurability of `H`: no bound, no integrability hypothesis, no
+  finiteness hypothesis. `MemLp.comp_measurePreserving` lifts it to the triple product and Hölder
+  multiplies the halves.
+
+The truncation route is not merely unnecessary but circular — its dominated convergence needs an
+integrable majorant of `(S_t H)²`, which is the finiteness being proved. Still open: the same for
+the interacting state (an `L²` condition on `g F`) and the closure of the positive-time algebra.
+
+**Verification.** The three declarations build with no `sorry` and no new warnings; the audit
+reports `[propext, Classical.choice, Quot.sound]`; no line above 100 code points in the new text.
+

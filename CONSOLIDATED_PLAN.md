@@ -26743,3 +26743,20 @@ caveated as proved only for two steps), and the affine-threshold Chebyshev tail
 (`shellDensity_affine_field_le`, `shellTail_le`) as C3c at general `n`.  Those declarations live in
 `BookProof/OSReconstruction/GaussianChainScales.lean`, which is **still uncommitted**, so the prose
 describes a module that a clean clone does not yet build.
+
+### 2026-11-16f — the marginal lift exists, so `MemLp` closes the shifted-state `L²` case
+
+The 2026-11-16e entry named a missing ingredient: `MemLp.integrable_mul` would finish the shifted
+case in three lines once `MemLp` lifted from `ν ⊗ γ` to `ν ⊗ γ ⊗ γ`, and mathlib had no
+"marginal-lifting lemma" under the names tried.  It does not need one: the projections
+`(t, x, y) ↦ (t, x)` and `(t, x, y) ↦ (t, y)` are `Prod.map id Prod.fst` / `Prod.map id Prod.snd`,
+so `Measure.map_prod_map` plus `map_fst_prod`/`map_snd_prod` (the marginal of a probability is
+itself) prove them measure preserving, `MemLp.comp_measurePreserving` lifts the hypothesis, and
+Hölder supplies the integrability.  Result: `covState_reflectionPositive_of_memLp` — reflection
+positivity of `covState ν` from `H(· + ·) ∈ L²(ν ⊗ γ)` alone, no bound, no integrability, no
+finiteness hypothesis.
+
+The truncated route stays dead, and for the reason recorded: its dominated convergence needs an
+integrable majorant of `(S_t H)²`, which is the finiteness being proved.  Still open: the same
+statement for the *interacting* state (an `L²` condition on `g F`), and the closure of the
+positive-time algebra.
