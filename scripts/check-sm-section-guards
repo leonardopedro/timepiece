@@ -1101,6 +1101,15 @@ require "$PLAN" 'are *instantiations*' \
 require "$PLAN" 'which `B` kills outright' \
     "§96: the plan must keep the basis' structural reading"
 
+require "$PLAN" 'smGhostCharge_occ_weakPair' \
+    "§96: the plan must keep the Lean pure-weak theorem"
+require "$PLAN" 'the block identity is entry-by-entry checked' \
+    "§96: the plan must keep the m >= 2 boundary"
+require "$PLAN" 'dim ker B(m) = 2^m' \
+    "§96: the plan must keep the several-matter-mode doubling"
+require "scripts/sm-cubic-kernel-basis.py" "how the rank was obtained" \
+    "§96: the kernel-basis script must keep its provenance column"
+
 if [ "$FAILED" -ne 0 ]; then
     echo
     echo "The sections above pair a result with its boundary.  If a side is genuinely"

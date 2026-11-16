@@ -1364,3 +1364,293 @@ theorem smGhostParity_mul_smBrstCharge (m : ℕ) (T : Fin 12 → Matrix (Fin m) 
 end
 
 end BookProof.SmBrstGhost
+
+namespace BookProof.SmBrstGhost
+
+open BookProof.SmCar BookProof.BRSTNilpotent
+
+/-! ## 2b. The cubic term on a pure-weak pair of ghosts
+
+The cubic term `Omega_3 = -1/2 f_{abe} c^a c^b b^e` raises the ghost number by one, so it maps
+ghost number two to ghost number three.  The exact computation in
+`scripts/sm-cubic-kernel-basis.py` shows that the kernel there is eleven-dimensional; the
+theorems below supply the part of that statement that is provable without knowing the gluon
+structure constants: every state whose two ghosts are *both weak* is killed.  The reason is
+block-diagonality of the Standard-Model structure constants (a nonzero `smStruct` confines all
+three indices to one simple summand) together with the pigeonhole count in the weak block: after
+the annihilation removes one of the two ghost modes there are only two weak labels left, so the
+two creation indices repeat one of them and `epsZ` vanishes. -/
+
+theorem annih_occ_of_notMem {N : ℕ} {i : Fin N} {S : Finset (Fin N)} (h : i ∉ S) :
+    annih i (occ S) = 0 := by
+  ext T
+  rw [annih_apply]
+  by_cases hT : i ∈ T
+  · simp [hT]
+  · have hne : insert i T ≠ S := fun hh => h (hh ▸ Finset.mem_insert_self i T)
+    simp [hT, occ, EuclideanSpace.single_apply, hne]
+
+theorem creat_occ_of_mem {N : ℕ} {i : Fin N} {S : Finset (Fin N)} (h : i ∈ S) :
+    creat i (occ S) = 0 := by
+  ext T
+  rw [creat_apply]
+  by_cases hT : i ∈ T
+  · have hne : T.erase i ≠ S := fun hh => Finset.notMem_erase i T (hh ▸ h)
+    simp [hT, occ, EuclideanSpace.single_apply, hne]
+  · simp [hT]
+
+/-- Creating on a mode that the remaining state occupies kills the state: the Pauli principle
+applied to the outer creation operator. -/
+theorem creat_creat_occ_of_mem {N : ℕ} {i j : Fin N} {S : Finset (Fin N)} (h : i ∈ S) :
+    creat i (creat j (occ S)) = 0 := by
+  ext T
+  rw [creat_apply]
+  by_cases hT : i ∈ T
+  · rw [if_pos hT, creat_apply]
+    by_cases hJ : j ∈ T.erase i
+    · have hne : (T.erase i).erase j ≠ S := by
+        intro hh
+        have hmem : i ∈ (T.erase i).erase j := hh ▸ h
+        exact Finset.notMem_erase i T (Finset.mem_of_mem_erase hmem)
+      simp [hJ, occ, EuclideanSpace.single_apply, hne]
+    · simp [hJ]
+  · simp [hT]
+
+theorem annih_occ_of_mem {N : ℕ} {i : Fin N} {S : Finset (Fin N)} (h : i ∈ S) :
+    annih i (occ S) = jwSign i (S.erase i) • occ (S.erase i) := by
+  ext T
+  rw [annih_apply, smul_apply_fock]
+  by_cases hT : i ∈ T
+  · have hne : T ≠ S.erase i := fun hh => Finset.notMem_erase i S (hh ▸ hT)
+    simp [hT, occ, EuclideanSpace.single_apply, hne]
+  · by_cases hE : T = S.erase i
+    · subst hE
+      rw [Finset.insert_erase h]
+      simp [occ, EuclideanSpace.single_apply]
+    · have hne : insert i T ≠ S := by
+        intro hh
+        exact hE (by rw [← hh, Finset.erase_insert hT])
+      simp [hT, occ, EuclideanSpace.single_apply, hE, hne]
+
+/-- The three weak generator labels. -/
+def wGhost (k : Fin 3) : Fin 12 := smIdxEquiv.symm (Sum.inr (Sum.inl k))
+
+theorem wGhost_spec (k : Fin 3) : smIdxEquiv (wGhost k) = Sum.inr (Sum.inl k) :=
+  Equiv.apply_symm_apply smIdxEquiv (Sum.inr (Sum.inl k))
+
+theorem wGhost_injective : Function.Injective wGhost := by
+  intro k l h
+  have h' := smIdxEquiv.symm.injective h
+  simpa using h'
+
+/-! ## The structure constants of the weak block -/
+
+theorem su2Struct_self_right (a b : Fin 3) : su2Struct a b a = 0 := by
+  rw [su2Struct]
+  exact_mod_cast (by decide +revert : epsZ a b a = 0)
+
+theorem su2Struct_self_left (a b : Fin 3) : su2Struct a a b = 0 := by
+  rw [su2Struct]
+  exact_mod_cast (by decide +revert : epsZ a a b = 0)
+
+/-- With the annihilation at the first weak label, only the two remaining labels are available. -/
+theorem epsZ_zero_of_pair_left : ∀ ka kb k l : Fin 3, k ≠ l → ka ≠ l → kb ≠ l → ka ≠ kb →
+    epsZ ka kb k = 0 := by decide
+
+theorem su2Struct_zero_of_pair_left {ka kb k l : Fin 3} (hkl : k ≠ l) (h1 : ka ≠ l)
+    (h2 : kb ≠ l) (h3 : ka ≠ kb) : su2Struct ka kb k = 0 := by
+  rw [su2Struct]
+  exact_mod_cast epsZ_zero_of_pair_left ka kb k l hkl h1 h2 h3
+
+/-- With the annihilation at the second weak label, only the two remaining labels are available. -/
+theorem epsZ_zero_of_pair_right : ∀ ka kb k l : Fin 3, k ≠ l → ka ≠ k → kb ≠ k → ka ≠ kb →
+    epsZ ka kb l = 0 := by decide
+
+theorem su2Struct_zero_of_pair_right {ka kb k l : Fin 3} (hkl : k ≠ l) (h1 : ka ≠ k)
+    (h2 : kb ≠ k) (h3 : ka ≠ kb) : su2Struct ka kb l = 0 := by
+  rw [su2Struct]
+  exact_mod_cast epsZ_zero_of_pair_right ka kb k l hkl h1 h2 h3
+
+/-- A `smStruct` with a weak third index kills a first index outside the weak block. -/
+theorem smStruct_eq_zero_of_not_weak_left {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {a b e : Fin 12}
+    {ke : Fin 3} (he : smIdxEquiv e = Sum.inr (Sum.inl ke))
+    (ha : ∀ ka, smIdxEquiv a ≠ Sum.inr (Sum.inl ka)) : smStruct f3 a b e = 0 := by
+  rcases hb : smIdxEquiv b with gb | (kb | ub) <;> rcases hx : smIdxEquiv a with ga | (ka | ua)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · exact absurd hx (ha ka)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · exact absurd hx (ha ka)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · exact absurd hx (ha ka)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+
+/-- A `smStruct` with a weak third index kills a second index outside the weak block. -/
+theorem smStruct_eq_zero_of_not_weak_right {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {a b e : Fin 12}
+    {ke : Fin 3} (he : smIdxEquiv e = Sum.inr (Sum.inl ke))
+    (hb : ∀ kb, smIdxEquiv b ≠ Sum.inr (Sum.inl kb)) : smStruct f3 a b e = 0 := by
+  rcases hx : smIdxEquiv a with ga | (ka | ua) <;> rcases hy : smIdxEquiv b with gb | (kb | ub)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · exact absurd hy (hb kb)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · exact absurd hy (hb kb)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · exact absurd hy (hb kb)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+
+/-! ## The cubic charge on a pure-weak pair of ghosts -/
+
+/-- **The cubic ghost term kills every pure-weak ghost pair.**  A cubic monomial applies two
+creation and one annihilation operator, so `Omega_3` moves ghost number two to ghost number
+three.  On a state whose two ghosts are both weak the only surviving structure constants are
+those of the weak block, and there the third index is forced to repeat one of the two already
+used: at ghost number two the weak sector has only two labels left over, so `epsZ` vanishes. -/
+theorem smGhostCharge_occ_weakPair (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    {k l : Fin 3} (hkl : k ≠ l) :
+    smGhostCharge m f3
+      (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))) = 0 := by
+  classical
+  have hklm : ghostMode m (wGhost k) ≠ ghostMode m (wGhost l) := fun h =>
+    hkl (wGhost_injective (ghostMode_injective m h))
+  have hSk : ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12))).erase
+      (ghostMode m (wGhost k)) = {ghostMode m (wGhost l)} :=
+    Finset.erase_insert (by simpa using hklm)
+  have hSl : ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12))).erase
+      (ghostMode m (wGhost l)) = {ghostMode m (wGhost k)} := by
+    rw [Finset.pair_comm]
+    exact Finset.erase_insert (by simpa using hklm.symm)
+  rw [smGhostCharge, Q]
+  simp only [LinearMap.sum_apply, LinearMap.smul_apply]
+  refine Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun b _ =>
+    Finset.sum_eq_zero fun e _ => ?_
+  have kill : ∀ (p q x : Fin 12), x ≠ wGhost k → x ≠ wGhost l →
+      ((ghostCre m p * ghostCre m q * ghostAnn m x)
+        (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+          Finset (Fin (m + 12))))) = 0 := by
+    intro p q x hx hx'
+    have hmem : ghostMode m x ∉ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+        Finset (Fin (m + 12))) := by
+      simp only [Finset.mem_insert, Finset.mem_singleton]
+      rintro (h | h)
+      · exact hx (ghostMode_injective m h)
+      · exact hx' (ghostMode_injective m h)
+    rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn, annih_occ_of_notMem hmem]
+    simp
+  by_cases hwe : ∃ ke : Fin 3, smIdxEquiv e = Sum.inr (Sum.inl ke)
+  · obtain ⟨ke, he⟩ := hwe
+    by_cases hwa : ∃ ka : Fin 3, smIdxEquiv a = Sum.inr (Sum.inl ka)
+    · obtain ⟨ka, ha⟩ := hwa
+      by_cases hwb : ∃ kb : Fin 3, smIdxEquiv b = Sum.inr (Sum.inl kb)
+      · obtain ⟨kb, hb⟩ := hwb
+        have ha' : a = wGhost ka := ((Equiv.symm_apply_eq smIdxEquiv).mpr ha.symm).symm
+        have hb' : b = wGhost kb := ((Equiv.symm_apply_eq smIdxEquiv).mpr hb.symm).symm
+        have he' : e = wGhost ke := ((Equiv.symm_apply_eq smIdxEquiv).mpr he.symm).symm
+        have hsub : smStruct f3 a b e = su2Struct ka kb ke := by
+          simp only [smStruct, sumStruct, ha, hb, he]
+        rw [hsub, ha', hb', he']
+        by_cases hk : ke = k
+        · rw [hk]
+          by_cases h1 : ka = l
+          · rw [h1]
+            have hz : ((ghostCre m (wGhost l) * ghostCre m (wGhost kb) *
+                ghostAnn m (wGhost k))
+                (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                  Finset (Fin (m + 12))))) = 0 := by
+              rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                annih_occ_of_mem (by simp [Finset.mem_insert]), hSk, map_smul, map_smul, ghostCre, ghostCre,
+                creat_creat_occ_of_mem (by simp)]
+              simp
+            rw [hz, smul_zero]
+          · by_cases h2 : kb = l
+            · rw [h2]
+              have hz : ((ghostCre m (wGhost ka) * ghostCre m (wGhost l) *
+                  ghostAnn m (wGhost k))
+                  (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                    Finset (Fin (m + 12))))) = 0 := by
+                rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                  annih_occ_of_mem (by simp [Finset.mem_insert]), hSk, map_smul, map_smul,
+                  ghostCre, ghostCre, creat_occ_of_mem (by simp)]
+                simp
+              rw [hz, smul_zero]
+            · by_cases h3 : ka = kb
+              · rw [h3]
+                have hz : ((ghostCre m (wGhost kb) * ghostCre m (wGhost kb) *
+                    ghostAnn m (wGhost k))
+                    (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                      Finset (Fin (m + 12))))) = 0 := by
+                  have hsq : (ghostCre m (wGhost kb) * ghostCre m (wGhost kb) :
+                      Module.End ℂ (FermiFock (m + 12))) = 0 := by
+                    rw [ghostCre]
+                    exact creat_sq _
+                  rw [Module.End.mul_apply, hsq]
+                  simp
+                rw [hz, smul_zero]
+              · rw [su2Struct_zero_of_pair_left hkl h1 h2 h3, zero_smul]
+        · by_cases hl : ke = l
+          · rw [hl]
+            by_cases h1 : ka = k
+            · rw [h1]
+              have hz : ((ghostCre m (wGhost k) * ghostCre m (wGhost kb) *
+                  ghostAnn m (wGhost l))
+                  (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                    Finset (Fin (m + 12))))) = 0 := by
+                rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                  annih_occ_of_mem (by simp [Finset.mem_insert]), hSl, map_smul, map_smul, ghostCre, ghostCre,
+                  creat_creat_occ_of_mem (by simp)]
+                simp
+              rw [hz, smul_zero]
+            · by_cases h2 : kb = k
+              · rw [h2]
+                have hz : ((ghostCre m (wGhost ka) * ghostCre m (wGhost k) *
+                    ghostAnn m (wGhost l))
+                    (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                      Finset (Fin (m + 12))))) = 0 := by
+                  rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                    annih_occ_of_mem (by simp [Finset.mem_insert]), hSl, map_smul, map_smul,
+                    ghostCre, ghostCre, creat_occ_of_mem (by simp)]
+                  simp
+                rw [hz, smul_zero]
+              · by_cases h3 : ka = kb
+                · rw [h3]
+                  have hz : ((ghostCre m (wGhost kb) * ghostCre m (wGhost kb) *
+                      ghostAnn m (wGhost l))
+                      (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                        Finset (Fin (m + 12))))) = 0 := by
+                    have hsq : (ghostCre m (wGhost kb) * ghostCre m (wGhost kb) :
+                        Module.End ℂ (FermiFock (m + 12))) = 0 := by
+                      rw [ghostCre]
+                      exact creat_sq _
+                    rw [Module.End.mul_apply, hsq]
+                    simp
+                  rw [hz, smul_zero]
+                · rw [su2Struct_zero_of_pair_right hkl h1 h2 h3, zero_smul]
+          · have hz : ((ghostCre m (wGhost ka) * ghostCre m (wGhost kb) *
+                ghostAnn m (wGhost ke))
+                (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                  Finset (Fin (m + 12))))) = 0 :=
+              kill (wGhost ka) (wGhost kb) (wGhost ke) (fun h => hk (wGhost_injective h))
+                (fun h => hl (wGhost_injective h))
+            rw [hz, smul_zero]
+      · push_neg at hwb
+        rw [smStruct_eq_zero_of_not_weak_right he hwb, zero_smul]
+    · push_neg at hwa
+      rw [smStruct_eq_zero_of_not_weak_left he hwa, zero_smul]
+  · push_neg at hwe
+    have hx : e ≠ wGhost k := fun h => hwe k (by rw [h, wGhost_spec])
+    have hx' : e ≠ wGhost l := fun h => hwe l (by rw [h, wGhost_spec])
+    rw [kill a b e hx hx']
+    simp
+
+/-- A pure-weak pair state. -/
+noncomputable def weakPair (m : ℕ) (k l : Fin 3) : FermiFock (m + 12) :=
+  occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))
+
+theorem weakPair_occ_apply (m : ℕ) (k l : Fin 3) :
+    weakPair m k l ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+      Finset (Fin (m + 12))) = 1 := by
+  simp [weakPair, occ, EuclideanSpace.single_apply]
+
+end BookProof.SmBrstGhost

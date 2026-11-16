@@ -643,3 +643,32 @@ copies of the eleven vectors are verified to be a basis of the `m = 1` kernel.  
 statement asserts `dim ker Ω₃ = 11`, and the check covers `g = 2`, `m ≤ 1` (the eighteen-mode doublet is
 still out of reach of sparse elimination in pure Python).  The twelve direction theorems are one matrix
 entry each at the model's `smGen`; they do not classify which ghost-free states a direction kills.
+
+## Correction 2026-11-16c — the doubling past `m = 1`, and the pure-weak pairs in Lean
+
+**What changed.**  Two of the liabilities of 2026-11-16b are gone.
+
+*The doubling is checked past `m = 1`.*  `scripts/sm-cubic-kernel-basis.py` no longer stops at `m = 1`.
+For `m = 0, 1` it recomputes the dimension from scratch by sparse elimination; for `m = 2, …, 6` it
+checks the block identity entry by entry (every matter block of `B` equals the `m = 0` operator, up to
+the sign `(−1)^{#occupied matter modes}`), which forces `dim ker B(m) = 2^m · 11`.  Measured
+2026-11-16: `m = 0 → 66/55/11`, `1 → 132/110/22`, `2 → 264/220/44`, `3 → 528/440/88`,
+`4 → 1056/880/176`, `5 → 2112/1760/352`, `6 → 4224/3520/704`.  The eleven `m = 0` vectors are also
+lifted into every matter block and verified killed for `m = 1, 2, 3`.
+
+*The three pure-weak pairs are a theorem.*  `ChapterSmBrstGhost` §2b proves
+`smGhostCharge_occ_weakPair`: `Ω₃` kills `occ {ghostMode m (wGhost k), ghostMode m (wGhost l)}` for every
+`m`, every `f3` and every pair of distinct weak labels.  This is exactly the part of the `g = 2` kernel
+that cannot depend on the gluon structure constants, so it needed no input from the script.  Supporting
+lemmas: block-diagonality of `smStruct` (`smStruct_eq_zero_of_not_weak_left`/`_right`), the Pauli facts
+`creat_occ_of_mem`, `creat_creat_occ_of_mem`, `annih_occ_of_mem`, `annih_occ_of_notMem`, and the
+pigeonhole count `su2Struct_zero_of_pair_left`/`_right` behind `epsZ_zero_of_pair_left`/`_right`
+(both by `decide`).  The audit `Work/SmQuartetConstructedAudit.lean` grew to 108 declarations, all on
+`propext, Classical.choice, Quot.sound` only.
+
+**What is still not a theorem.**  No Lean statement asserts `dim ker Ω₃ = 11`, and none asserts
+`3 ≤ finrank (ker Ω₃)`: the vanishing is per state, and the linear independence of the three states in
+Lean (the missing step for the dimension bound) is not formalised.  The `m ≥ 2` rows of the table rest on
+the entry-by-entry block identity, not on elimination; the script's own exact-arithmetic kernel check is
+run at `m = 0, 1`.  The gluon-sector basis vectors (`v₀, …, v₇`) still have no Lean counterpart, since
+they depend on the numerical `f3`.

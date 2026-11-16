@@ -5530,14 +5530,43 @@ the matter mode is a fermion sitting below every ghost mode, so each of the thre
 cubic monomial flips once.  The two lifted copies of the eleven vectors are then verified to be a basis of
 the `m = 1` kernel.  Measured 2026-11-16:
 
-| `m` | `dim Λ²` | `rank B` | `dim ker B` |
-|---|---|---|---|
-| 0 | 66 | 55 | 11 |
-| 1 | 132 | 110 | 22 |
+| `m` | `dim Λ²` | `rank B` | `dim ker B` | how the rank was obtained |
+|---|---|---|---|---|
+| 0 | 66 | 55 | 11 | elimination |
+| 1 | 132 | 110 | 22 | elimination |
+| 2 | 264 | 220 | 44 | blocks |
+| 3 | 528 | 440 | 88 | blocks |
+| 4 | 1056 | 880 | 176 | blocks |
+| 5 | 2112 | 1760 | 352 | blocks |
+| 6 | 4224 | 3520 | 704 | blocks |
+
+The doubling is therefore not an `m = 1` accident: for `m ≤ 6` every matter block of `B` is checked
+entry by entry against the `m = 0` operator (the block identity above), so `B = (±1) ⊗ B₀` on each
+block and `dim ker B(m) = 2^m · 11` exactly.  `m ≤ 1` is recomputed from scratch by sparse elimination
+as an independent cross-check; `m ≥ 2` relies on the block identity, which is why the table says
+`blocks` rather than `elimination` for those rows.  The eleven vectors lift to every matter block and
+are verified killed there for `m = 1, 2, 3`, with the lifted family independent.
+
+**The three pure-weak pairs are now a theorem (`ChapterSmBrstGhost` §2b).**  The last column of the
+basis — `|8+9>`, `|8+10>`, `|9+10>` — is the part of the kernel that holds for *every* `f3`, so it can be
+proved in Lean without knowing the gluon constants: `smGhostCharge_occ_weakPair` states
+`Ω₃ (occ {ghostMode m (wGhost k), ghostMode m (wGhost l)}) = 0` for all `m`, all `f3` and all distinct
+weak labels `k ≠ l`.  The proof needs three facts, each now a lemma: `smStruct_eq_zero_of_not_weak_left`
+and `smStruct_eq_zero_of_not_weak_right` (a nonzero `smStruct` confines all three indices to one simple
+summand, so a weak third index kills a gluon or abelian first/second index), the Pauli lemmas
+`creat_occ_of_mem`, `creat_creat_occ_of_mem`, `annih_occ_of_mem` and `annih_occ_of_notMem`, and the
+pigeonhole count `su2Struct_zero_of_pair_left`/`_right` (`epsZ_zero_of_pair_left`/`_right`, both
+`decide`): after the annihilation removes one of the two ghost modes only two weak labels remain, so the
+two creation indices repeat one of the three indices and `ε` vanishes.  Twenty-two of the twenty-three
+new declarations are listed in `Work/SmQuartetConstructedAudit.lean`, which now audits 108 declarations
+on `propext, Classical.choice, Quot.sound` only.
 
 **Boundaries.**  (i) The basis is *computed*, not proved: no Lean statement asserts
-`dim ker Ω₃|_g = 11`, and the script is a certificate one can re-run, not a theorem.  (ii) It is at
-`g = 2` and `m ≤ 1`; the other even degrees of §95 remain dimensional facts, and the eighteen-mode doublet
+`dim ker Ω₃|_g = 11`, and the script is a certificate one can re-run, not a theorem.  What Lean gives is
+the dimension-free half: `smGhostCharge_occ_weakPair` (every pure-weak pair is killed) and the block
+structure that underlies the table below.  A `3 ≤ finrank (ker Ω₃)` corollary needs the three states to
+be linearly independent in Lean, which is not formalised here.  (ii) It is at `g = 2` and `m ≤ 6`
+(the block identity is entry-by-entry checked, not eliminated); the other even degrees of §95 remain dimensional facts, and the eighteen-mode doublet
 is still out of reach.  (iii) The twelve directions are *instantiations*: the general result stays
 `matterGen_occ_entry` plus a nonzero matrix entry, and the twelve theorems record which entry, at which
 state, for the model's own `smGen`.

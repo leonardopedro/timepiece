@@ -120,3 +120,15 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon7_occ_ne_zero
 #audit_axioms BookProof.SmGaugeRep.matterGen_smGen_weak9_occ_ne_zero
 #audit_axioms BookProof.SmGaugeRep.matterGen_smGen_weak10_occ_ne_zero
+
+-- §10: the cubic ghost term on a pure-weak pair, and the lemmas it rests on.
+#audit_axioms BookProof.SmBrstGhost.ghostMode_injective
+#audit_axioms BookProof.SmBrstGhost.annih_occ_of_notMem
+#audit_axioms BookProof.SmBrstGhost.creat_occ_of_mem
+#audit_axioms BookProof.SmBrstGhost.creat_creat_occ_of_mem
+#audit_axioms BookProof.SmBrstGhost.annih_occ_of_mem
+#audit_axioms BookProof.SmBrstGhost.epsZ_zero_of_pair_left
+#audit_axioms BookProof.SmBrstGhost.epsZ_zero_of_pair_right
+#audit_axioms BookProof.SmBrstGhost.smStruct_eq_zero_of_not_weak_left
+#audit_axioms BookProof.SmBrstGhost.smStruct_eq_zero_of_not_weak_right
+#audit_axioms BookProof.SmBrstGhost.smGhostCharge_occ_weakPair

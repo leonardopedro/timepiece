@@ -13,13 +13,15 @@ basis of it and verifies the two claims that make it a basis:
   * the eleven vectors are linearly independent -- the elimination is Gauss-Jordan, so the pivot
     columns of each vector are new by construction, and the rank of the stacked matrix is eleven.
 
-It then switches on one matter mode and checks that the kernel is *exactly* twice as large, which is
-the statement `BookProof`'s `smGhostCharge_occ_of_ghostFree` makes degree by degree: a matter mode
-never appears in a cubic monomial, so the `m = 1` operator splits into the two matter blocks.  The
-checks are stronger than a dimension count -- each block is compared entry by entry with the `m = 0`
-operator (the matter-free block agrees, the matter-occupied block is its *negative*, because the
-matter mode is a fermion and each of the three Jordan-Wigner signs of the monomial flips once), and
-the two lifted copies of the eleven vectors are verified to be a basis of the `m = 1` kernel.
+It then switches on matter modes and checks that the kernel is *exactly* `2^m` times as large, which
+is the statement `BookProof`'s `smGhostCharge_occ_of_ghostFree` makes degree by degree: a matter mode
+never appears in a cubic monomial, so the operator splits into matter blocks.  The checks are stronger
+than a dimension count -- each block is compared entry by entry with the `m = 0` operator (the
+matter-free block agrees, the matter-occupied block is its *negative*, because the matter mode is a
+fermion and each of the three Jordan-Wigner signs of the monomial flips once) -- and the lifted copies
+of the eleven vectors are verified to be killed in every block.  The dimension is recomputed from
+scratch by elimination at `m = 0, 1` and follows from the block identity for `m = 2, ..., 6`, where
+the table reports how each rank was obtained.
 
 The arithmetic is exact and not floating point.  The structure constants of `su(3) + su(2)` with
 the `lambda_a / 2`, `tau_k / 2` normalisation lie in `Q(sqrt 3)` -- `f_458 = f_678 = sqrt 3 / 2` are
@@ -457,45 +459,77 @@ def main():
     print()
     print(f"sha256 of the printed basis: {digest.hexdigest()}")
 
-    # ---- one matter mode: the operator ignores it -----------------------------------
+    # ---- several matter modes: the operator ignores them ---------------------------
+    # A matter mode never appears in a cubic monomial, so every matter block of `Omega_3` is the
+    # `m = 0` operator, up to a sign: a cubic monomial applies three operators, and each of their
+    # Jordan-Wigner signs flips once for every occupied matter mode below it.
+    def blocks_are_copies(m):
+        terms = cubic_terms(m, f)
+        src = source_states(m)
+        low = (1 << m) - 1
+        for s in src:
+            matter = s & low
+            reference = act(terms0, s >> m)
+            sign = -1 if bin(matter).count("1") % 2 else 1
+            want = {((t << m) | matter): sign * v for t, v in reference.items()
+                    if not (sign * v).is_zero()}
+            if act(terms, s) != want:
+                raise SystemExit(f"m = {m}: the block {bin(matter)} is not a copy of the m = 0 operator")
+        return len(src)
+
+    table = [(0, len(src0), rank0, dim0, "elimination")]
+    # the m = 1 case is settled by full elimination as well, as an independent check
     terms1 = cubic_terms(1, f)
-    src1, col1, rank1, basis1, dst1 = kernel_at(1, terms1)
+    src1, col1, rank1, basis1, _ = kernel_at(1, terms1)
     dim1 = len(src1) - rank1
     verify_kernel(col1, basis1, len(src1), "m = 1")
-
-    # the m = 1 blocks are the matter-free operator: the matter-free block verbatim, and its
-    # negative when the matter mode is occupied, because the matter mode is a fermion and each of
-    # the three Jordan-Wigner signs of the monomial flips once.  Checked entry by entry.
-    at0 = {s: i for i, s in enumerate(src0)}
-    for b in (0, 1):
-        for i, s in enumerate(src1):
-            if matter_number(s, 1) != b:
-                continue
-            reference = col0[at0[s >> 1]]
-            sign = -1 if b else 1
-            want = {((t << 1) | (1 if b else 0)): sign * v for t, v in reference.items()
-                    if not (sign * v).is_zero()}
-            if col1[i] != want:
-                raise SystemExit(f"the matter block b = {b} is not a copy of the m = 0 operator")
-
-    # hence the kernel is the direct sum of the two lifted copies of the m = 0 kernel
-    at1 = {s: i for i, s in enumerate(src1)}
-    lifted = []
-    for b in (0, 1):
-        for v in basis0:
-            lifted.append({at1[(src0[c] << 1) | (1 if b else 0)]: x for c, x in v.items()})
-    verify_kernel(col1, lifted, len(src1), "m = 1 (lifted)")
+    if not (len(src1) == 2 * len(src0) and rank1 == 2 * rank0 and dim1 == 2 * dim0):
+        raise SystemExit("the m = 1 kernel is not exactly twice the m = 0 kernel")
+    table.append((1, len(src1), rank1, dim1, "elimination"))
+    for m in range(2, 7):
+        n = blocks_are_copies(m)
+        if n != len(src0) << m:
+            raise SystemExit(f"m = {m}: wrong number of two-ghost states")
+        table.append((m, n, rank0 << m, dim0 << m, "blocks"))
 
     print()
-    print("matter modes | ghost-number-2 dim | rank | dim ker")
-    print(f"{0:12d} | {len(src0):18d} | {rank0:4d} | {dim0:7d}")
-    print(f"{1:12d} | {len(src1):18d} | {rank1:4d} | {dim1:7d}")
-    if len(src1) != 2 * len(src0) or rank1 != 2 * rank0 or dim1 != 2 * dim0:
-        raise SystemExit("the m = 1 kernel is not exactly twice the m = 0 kernel")
+    print("matter modes | ghost-number-2 dim | rank | dim ker B | how the rank was obtained")
+    for m, n, rk, dm, how in table:
+        print(f"{m:12d} | {n:18d} | {rk:4d} | {dm:9d} | {how}")
     print()
     print("the matter-free block is the m = 0 operator and the matter-occupied block is its")
     print("negative (the matter mode is a fermion: all three Jordan-Wigner signs flip), so")
-    print("dim ker(m = 1) = 2 * dim ker(m = 0) = %d, with the basis the two lifted copies" % dim1)
+    print("B = (+-1) (x) B_0 on every matter block and dim ker(m) = 2^m * 11 exactly; the")
+    print("`blocks` rows verify that block identity entry by entry, the `elimination` rows")
+    print("recompute the dimension from scratch.")
+    # ---- every matter block carries its own copy of the eleven vectors -----------------
+    at0 = {s: i for i, s in enumerate(src0)}
+    for m in (1, 2, 3):
+        terms = cubic_terms(m, f)
+        src = source_states(m)
+        at = {s: i for i, s in enumerate(src)}
+        columns = [act(terms, s) for s in src]
+        lifted_all = []
+        for matter in range(1 << m):
+            for v in basis0:
+                lifted = {at[(src0[c] << m) | matter]: x for c, x in v.items()}
+                image = {}
+                for c, coef in lifted.items():
+                    for t, x in columns[c].items():
+                        image[t] = image.get(t, ZERO) + coef * x
+                if any(not x.is_zero() for x in image.values()):
+                    raise SystemExit(f"m = {m}: a lifted basis vector is not in the kernel")
+                lifted_all.append(lifted)
+        used = sorted({c for v in lifted_all for c in v})
+        stacked = [[v.get(c, ZERO) for c in used] for v in lifted_all]
+        rk, _ = kernel_basis(stacked, len(used))
+        if rk != len(lifted_all):
+            raise SystemExit(f"m = {m}: the lifted vectors are not independent")
+    print()
+    print("the eleven vectors lift to every matter block and are still killed there")
+    print("(checked at m = 1, 2, 3), and the lifted family is independent, so")
+    print("dim ker(m) >= 2^m * 11 for those m -- matching the table above.")
+    print()
     print("all checks passed (exact arithmetic in Q(sqrt 3))")
 
 
