@@ -7,6 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16g):** “State of the project — 2026-11-16g:
+> the interacting state inherits the lift; audit rewired” (end of file).  The weighted C2/E3
+> inequality now takes `L²` of `g F` instead of assuming the form is finite, because the
+> interacting state *is* the free state reweighted; and the audit is wired to the two now-committed
+> C3 modules, with every theorem in them audited.
+>
 > **Newest reconstruction extension (2026-11-16d):** “State of the project — 2026-11-16d:
 > form-finiteness instead of boundedness, and why a general density has no argument”
 > (end of file).  Both OS statements now need only that the form is finite; and a
@@ -26712,7 +26718,8 @@ symmetric.  In the state framework of these modules, `ρ(z) = 1 − ε h(z₁)h(
 So the chapter's "a general interaction still needs an argument" was too weak: it needs a
 *positivity structure*, and none exists that follows from invariance.  The densities that work are
 the nonnegative sums of matched rank-one products — exactly the cone the theorems of 2026-11-16a/c
-generate — because those make the OS form a sum of squares.  The counterexample is formalized in the same module:
+generate — because those make the OS form a sum of squares.  The counterexample is formalized in
+the same module:
 `generalWeight_pos` (the weight is strictly positive), `generalWeight_swap` (reflection invariance),
 `generalWeight_osForm` (the OS form is `-ε`, by `integral_prod_mul` on each half) and
 `notReflectionPositive_of_generalWeight` (the packaged negative statement).  **Update (2026-11-16e):
@@ -26758,6 +26765,29 @@ positivity of `covState ν` from `H(· + ·) ∈ L²(ν ⊗ γ)` alone, no bound
 finiteness hypothesis.
 
 The truncated route stays dead, and for the reason recorded: its dominated convergence needs an
-integrable majorant of `(S_t H)²`, which is the finiteness being proved.  Still open: the same
-statement for the *interacting* state (an `L²` condition on `g F`), and the closure of the
+integrable majorant of `(S_t H)²`, which is the finiteness being proved.  **Update (2026-11-16g):**
+the statement for the *interacting* state is now proved as `intState_reflectionPositive_of_memLp`;
+what stays open is whether `g F ∈ L²` for the interactions of C2/E3, and the closure of the
 positive-time algebra.
+
+## State of the project — 2026-11-16g: the interacting state inherits the lift; audit rewired
+
+`intState_reflectionPositive_of_memLp` states the C2/E3 inequality with `L²(g F)` on `ν ⊗ γ` in
+place of integrability of the weighted form.  It needs no new analysis: `intState` is `covState`
+reweighted by the product `g z.1 * g z.2`, so the weighted OS form *is* the free form of `F * g`,
+and `covState_reflectionPositive_of_memLp` applies verbatim.  The two `L²` statements therefore
+read the same, and the open work moves off the form and onto the model: whether `g F ∈ L²` holds
+for the interactions of C2/E3, plus the closure of the positive-time algebra.
+
+The audit is rewired to the two C3 modules, both now committed (`30654ca`).  Every theorem in
+`BookProof/OSReconstruction/GaussianChainScales.lean` and
+`BookProof/OSReconstruction/GaussianBlockCoarseDensity.lean` carries an `#audit_axioms` line — 114
+of them, of which `blockChainDensity_eq_iterated` was previously the only one missing — and the
+duplicated, empty `C3a/C3b` section header left by the merge is removed.  The chapter's declaration
+count follows the audit, which stands at 196.
+
+**Verification.** From a clean clone of the commit: `scripts/import_components.py BookProof
+--check` exits 0; `lake build` of both C3 modules, `Work.EuclideanMomentAudit`,
+`HalfSpaceInteractingReflectionPositivity` and `Book.EuclideanMomentHierarchy` exits 0 with no
+error; all 196 axiom reports are `[propext, Classical.choice, Quot.sound]`; no `sorry` and no line
+above 100 code points in the touched files.

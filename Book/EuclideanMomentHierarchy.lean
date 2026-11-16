@@ -690,14 +690,15 @@ The sign is the whole story: `1 + ε h₁h₂` has OS form `+ε`, and that sign 
 rank-one term. So the general case is false rather than open, and what a general `V` needs is a
 *positivity structure* — $`V = V_+ + \theta V_+`$, a decomposition into individually
 reflection-positive terms, or a convergent expansion in a stable regime — not more work on this
-mechanism. The $`L^2`$
-question splits, and only one half is settled: for the free covariant state the form's finiteness
-is now *derived*, not assumed, from the single hypothesis
+mechanism. The $`L^2`$ question splits, and both halves are now settled at the level of the form:
+for the free covariant state the finiteness is *derived*, not assumed, from the single hypothesis
 $`H(\cdot + \cdot) \in L^2(\nu \otimes \gamma)`$ (`covState_reflectionPositive_of_memLp`, resting
-on the two marginal projections). For the interacting state the corresponding statement —
-finiteness of the weighted form from an $`L^2`$ condition on $`g F`$ — and the closure of the
-positive-time algebra (completing the pre-Hilbert space, and multiplying two $`L^2`$ families) are
-still not proved.
+on the two marginal projections), and the interacting state inherits it verbatim -- `intState` is
+the free state reweighted by the product $`g z_1 g z_2`$, so the weight rides along with the
+observable and `intState_reflectionPositive_of_memLp` derives the weighted form's finiteness from
+$`g F \in L^2(\nu \otimes \gamma)`$. What is not proved is whether that condition holds for the
+interactions of C2/E3, and the closure of the positive-time algebra (completing the pre-Hilbert
+space, and multiplying two $`L^2`$ families).
 Separated-time *diagonal* positivity $`\langle A^\dagger e^{-hK} A\rangle \ge 0` at $`h > 0` is
 likewise not claimed: it needs a positive (spectral) evolution, a hypothesis this slice does not
 establish. The unbounded generator $`h_\sigma`, its closure and its selection, the field-law

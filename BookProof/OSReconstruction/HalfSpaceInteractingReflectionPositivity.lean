@@ -358,6 +358,36 @@ theorem intState_reflectionPositive_of_integrable {ι : Type*} [Fintype ι]
   rw [hEq]
   exact hfree
 
+/-- **The interacting inequality from an `L²` hypothesis on the weighted observable.**  The same
+statement as `intState_reflectionPositive_of_integrable`, except that the finiteness of the
+interacting OS form is not assumed: it follows from `MemLp` of `F * g` against the shift-averaged
+Gaussian.  This hypothesis is strictly stronger than the integrability used in
+`intState_reflectionPositive_of_integrable` -- the lift derives that integrability from it -- and
+it is the form in which the interacting state inherits the marginal lift: the weight `g` rides
+along with the observable because `intState` is `covState` reweighted by `g z.1 * g z.2`. -/
+theorem intState_reflectionPositive_of_memLp {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0) (hg : Measurable g)
+    (F : (ι → ℝ) → ℝ) (hF : Measurable F)
+    (hLp : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2) * (g (q.1 + q.2) : ℝ)) 2
+      (ν.prod (whiteNoise ι))) :
+    0 ≤ ∫ z : (ι → ℝ) × (ι → ℝ), F z.2 * F z.1 ∂intState ν g := by
+  classical
+  have hgR : Measurable fun x : ι → ℝ => (g x : ℝ) := hg.coe_nnreal_real
+  have hH : Measurable fun x : ι → ℝ => F x * (g x : ℝ) := hF.mul hgR
+  have hfree := covState_reflectionPositive_of_memLp (ν := ν)
+    (fun x : ι → ℝ => F x * (g x : ℝ)) hH hLp
+  unfold intState
+  rw [integral_withDensity_eq_integral_smul (measurable_intWeight hg)]
+  have hEq : (∫ z : (ι → ℝ) × (ι → ℝ),
+        intWeight g z • (F z.2 * F z.1) ∂covState ν)
+      = ∫ z : (ι → ℝ) × (ι → ℝ),
+        (F z.2 * (g z.2 : ℝ)) * (F z.1 * (g z.1 : ℝ)) ∂covState ν := by
+    refine integral_congr_ae (ae_of_all _ fun z => ?_)
+    simp only [intWeight, NNReal.smul_def, smul_eq_mul, NNReal.coe_mul]
+    ring
+  rw [hEq]
+  exact hfree
+
 /-! ## Why the hypothesis cannot be weakened to reflection invariance
 
 The theorems above need the weight to be a nonnegative sum of matched products.  Reflection
