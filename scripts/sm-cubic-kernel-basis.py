@@ -13,6 +13,14 @@ basis of it and verifies the two claims that make it a basis:
   * the eleven vectors are linearly independent -- the elimination is Gauss-Jordan, so the pivot
     columns of each vector are new by construction, and the rank of the stacked matrix is eleven.
 
+It then switches on one matter mode and checks that the kernel is *exactly* twice as large, which is
+the statement `BookProof`'s `smGhostCharge_occ_of_ghostFree` makes degree by degree: a matter mode
+never appears in a cubic monomial, so the `m = 1` operator splits into the two matter blocks.  The
+checks are stronger than a dimension count -- each block is compared entry by entry with the `m = 0`
+operator (the matter-free block agrees, the matter-occupied block is its *negative*, because the
+matter mode is a fermion and each of the three Jordan-Wigner signs of the monomial flips once), and
+the two lifted copies of the eleven vectors are verified to be a basis of the `m = 1` kernel.
+
 The arithmetic is exact and not floating point.  The structure constants of `su(3) + su(2)` with
 the `lambda_a / 2`, `tau_k / 2` normalisation lie in `Q(sqrt 3)` -- `f_458 = f_678 = sqrt 3 / 2` are
 the only irrational ones -- so every coefficient is a pair of `fractions.Fraction`s and the whole
@@ -268,25 +276,32 @@ def apply_word(word, mask):
     return mask, sign
 
 
-def cubic_terms(f):
-    """`Omega_3 = -sum_{a<b,e} f_abe c^a c^b b_e`, as `[(word, coefficient)]`."""
-    n = 12
+def cubic_terms(m, f):
+    """`Omega_3 = -sum_{a<b,e} f_abe c^a c^b b_e` on `m` matter modes, as `[(word, coefficient)]`.
+
+    The ghosts are the last twelve modes (`m + a`), so the matter modes never appear in a word:
+    the cubic term is the same operator for every `m`, just shifted.
+    """
     terms = []
-    for a in range(n):
-        for b in range(n):
+    for a in range(12):
+        for b in range(12):
             if a >= b:
                 continue
-            for e in range(n):
+            for e in range(12):
                 v = f.get((a, b, e), K(0))
                 if v.is_zero():
                     continue
                 # applied right to left: b_e first, then c^b, then c^a
-                terms.append(([("a", e), ("c", b), ("c", a)], -v))
+                terms.append(([("a", m + e), ("c", m + b), ("c", m + a)], -v))
     return terms
 
 
-def ghost_number(mask):
-    return bin(mask).count("1")
+def ghost_number(mask, m):
+    return bin(mask >> m).count("1")
+
+
+def matter_number(mask, m):
+    return bin(mask & ((1 << m) - 1)).count("1")
 
 
 def act(terms, mask):
@@ -304,9 +319,9 @@ def act(terms, mask):
     return out
 
 
-def source_states():
-    """The 66 two-ghost states, in increasing bitmask order."""
-    return [s for s in range(1 << 12) if ghost_number(s) == 2]
+def source_states(m):
+    """The two-ghost states on `m` matter modes, in increasing bitmask order."""
+    return [s for s in range(1 << (m + 12)) if ghost_number(s, m) == 2]
 
 
 def kernel_basis(rows, ncols):
@@ -353,72 +368,134 @@ def kernel_basis(rows, ncols):
 # --------------------------------------------------------------------------------------
 
 
-def main():
-    f = sm_structure()
-    if f.get((0, 1, 2), K(0)) != K(1):
-        raise SystemExit("the derived structure constants are not the standard ones")
-    n_su3 = su3_gell_mann_count()
-    terms = cubic_terms(f)
+def kernel_at(m, terms):
+    """`Omega_3` on the ghost-number-two part with `m` matter modes: `(src, columns, rank, basis)`.
 
-    src = source_states()
-    index = {s: i for i, s in enumerate(src)}
+    The image is kept sparse and per-source, which is all the elimination and the verification
+    need; the reached targets are returned too, for reporting.
+    """
+    src = source_states(m)
     columns = []
     for s in src:
-        col = {}
-        for t, v in act(terms, s).items():
-            if ghost_number(t) != 3:
+        col = act(terms, s)
+        for t in col:
+            if ghost_number(t, m) != 3:
                 raise SystemExit("the cubic term changed the ghost number by more than one")
-            col.setdefault(t, K(0))
-            col[t] = v
+            if matter_number(t, m) != matter_number(s, m):
+                raise SystemExit("the cubic term changed the matter number")
         columns.append(col)
-
-    # rows are the 220 three-ghost states that actually occur
     dst = sorted({t for col in columns for t in col})
     row_of = {t: i for i, t in enumerate(dst)}
     rows = [[ZERO] * len(src) for _ in dst]
     for c, col in enumerate(columns):
         for t, v in col.items():
             rows[row_of[t]][c] = v
-
     rank, basis = kernel_basis(rows, len(src))
-    dim = len(src) - rank
-    print(f"mode count            : m = 0 (no matter modes)")
-    print(f"ghost-number-2 source : {len(src)} states = C(12, 2)")
-    print(f"ghost-number-3 target : {len(dst)} states reached, of C(12, 3) = 220")
-    print(f"rank of Omega_3       : {rank}")
-    print(f"dim ker Omega_3 at g=2: {dim}")
-    print(f"su(3) constants nonzero: {n_su3}")
+    return src, columns, rank, basis, dst
 
-    # exact verification of the two defining properties
+
+def verify_kernel(columns, basis, ncols, what):
+    """Exact check: every basis vector is killed, and the vectors are independent."""
     for k, v in enumerate(basis):
         image = {}
         for c, coef in v.items():
             for t, x in columns[c].items():
-                val = image.get(t, ZERO) + coef * x
-                image[t] = val
+                image[t] = image.get(t, ZERO) + coef * x
         if any(not x.is_zero() for x in image.values()):
-            raise SystemExit(f"basis vector {k} is not in the kernel")
+            raise SystemExit(f"{what}: basis vector {k} is not in the kernel")
+    dim = ncols - rank_of(columns)
     if len(basis) != dim:
-        raise SystemExit("the basis does not have the kernel's dimension")
-    stacked = [[basis[j].get(c, K(0)) for c in range(len(src))] for j in range(len(basis))]
-    rk, _ = kernel_basis(stacked, len(src))
+        raise SystemExit(f"{what}: the basis does not have the kernel's dimension")
+    stacked = [[basis[j].get(c, ZERO) for c in range(ncols)] for j in range(len(basis))]
+    rk, _ = kernel_basis(stacked, ncols)
     if rk != len(basis):
-        raise SystemExit("the basis vectors are not independent")
+        raise SystemExit(f"{what}: the basis vectors are not independent")
+
+
+def rank_of(columns):
+    """Rank of the operator given columnwise, by the same elimination."""
+    dst = sorted({t for col in columns for t in col})
+    row_of = {t: i for i, t in enumerate(dst)}
+    rows = [[ZERO] * len(columns) for _ in dst]
+    for c, col in enumerate(columns):
+        for t, v in col.items():
+            rows[row_of[t]][c] = v
+    rank, _ = kernel_basis(rows, len(columns))
+    return rank
+
+
+def main():
+    f = sm_structure()
+    if f.get((0, 1, 2), K(0)) != K(1):
+        raise SystemExit("the derived structure constants are not the standard ones")
+    n_su3 = su3_gell_mann_count()
+
+    # ---- the reference case: no matter modes ----------------------------------------
+    terms0 = cubic_terms(0, f)
+    src0, col0, rank0, basis0, dst0 = kernel_at(0, terms0)
+    dim0 = len(src0) - rank0
+    verify_kernel(col0, basis0, len(src0), "m = 0")
+
+    print(f"ghost-number-2 source : {len(src0)} states = C(12, 2)  (m = 0)")
+    print(f"ghost-number-3 target : {len(dst0)} states reached, of C(12, 3) = 220")
+    print(f"rank of Omega_3       : {rank0}")
+    print(f"dim ker Omega_3 at g=2: {dim0}")
+    print(f"su(3) constants nonzero: {n_su3}")
 
     print()
     print("ghost labels 0-7: gluons, 8-10: weak, 11: hypercharge; |i+j> = the state with")
-    print("occupied modes i < j.  Basis (coefficients in Q(sqrt 3)):")
+    print("occupied modes i < j.  Basis at m = 0 (coefficients in Q(sqrt 3)):")
     digest = hashlib.sha256()
-    for j, v in enumerate(basis):
+    for j, v in enumerate(basis0):
         support = sorted(v)
         line = " + ".join(
             f"({v[c]!r})*|{'+'.join(str(i) for i in range(12) if s >> i & 1)}>"
-            for c, s in ((c, src[c]) for c in support)
+            for c, s in ((c, src0[c]) for c in support)
         )
         print(f"  v{j:<2} ({len(support):2d} terms) {line}")
         digest.update(line.encode())
     print()
     print(f"sha256 of the printed basis: {digest.hexdigest()}")
+
+    # ---- one matter mode: the operator ignores it -----------------------------------
+    terms1 = cubic_terms(1, f)
+    src1, col1, rank1, basis1, dst1 = kernel_at(1, terms1)
+    dim1 = len(src1) - rank1
+    verify_kernel(col1, basis1, len(src1), "m = 1")
+
+    # the m = 1 blocks are the matter-free operator: the matter-free block verbatim, and its
+    # negative when the matter mode is occupied, because the matter mode is a fermion and each of
+    # the three Jordan-Wigner signs of the monomial flips once.  Checked entry by entry.
+    at0 = {s: i for i, s in enumerate(src0)}
+    for b in (0, 1):
+        for i, s in enumerate(src1):
+            if matter_number(s, 1) != b:
+                continue
+            reference = col0[at0[s >> 1]]
+            sign = -1 if b else 1
+            want = {((t << 1) | (1 if b else 0)): sign * v for t, v in reference.items()
+                    if not (sign * v).is_zero()}
+            if col1[i] != want:
+                raise SystemExit(f"the matter block b = {b} is not a copy of the m = 0 operator")
+
+    # hence the kernel is the direct sum of the two lifted copies of the m = 0 kernel
+    at1 = {s: i for i, s in enumerate(src1)}
+    lifted = []
+    for b in (0, 1):
+        for v in basis0:
+            lifted.append({at1[(src0[c] << 1) | (1 if b else 0)]: x for c, x in v.items()})
+    verify_kernel(col1, lifted, len(src1), "m = 1 (lifted)")
+
+    print()
+    print("matter modes | ghost-number-2 dim | rank | dim ker")
+    print(f"{0:12d} | {len(src0):18d} | {rank0:4d} | {dim0:7d}")
+    print(f"{1:12d} | {len(src1):18d} | {rank1:4d} | {dim1:7d}")
+    if len(src1) != 2 * len(src0) or rank1 != 2 * rank0 or dim1 != 2 * dim0:
+        raise SystemExit("the m = 1 kernel is not exactly twice the m = 0 kernel")
+    print()
+    print("the matter-free block is the m = 0 operator and the matter-occupied block is its")
+    print("negative (the matter mode is a fermion: all three Jordan-Wigner signs flip), so")
+    print("dim ker(m = 1) = 2 * dim ker(m = 0) = %d, with the basis the two lifted copies" % dim1)
     print("all checks passed (exact arithmetic in Q(sqrt 3))")
 
 

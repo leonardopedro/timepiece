@@ -109,3 +109,14 @@ open BookProof.SmQuartet BookProof.SmQuartet.BrstQuartet
 #audit_axioms BookProof.SmGaugeRep.smGen_gluon_entry
 #audit_axioms BookProof.SmGaugeRep.matterGen_smGen_weak_occ_ne_zero
 #audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.smGen_entry_gluon
+#audit_axioms BookProof.SmGaugeRep.smGen_entry_weak
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon1_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon2_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon3_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon4_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon5_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon6_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_gluon7_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_weak9_occ_ne_zero
+#audit_axioms BookProof.SmGaugeRep.matterGen_smGen_weak10_occ_ne_zero

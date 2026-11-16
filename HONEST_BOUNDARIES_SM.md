@@ -618,3 +618,28 @@ only.  And the §94 refutation still takes "some generator fails to kill a ghost
 nine of the twelve directions have a nonzero entry available but no Lean instantiation, so the honest
 claim is "three directions at the model, all twelve via one general lemma", not "twelve directions at the
 model".
+
+## Correction 2026-11-16b — all twelve directions, and the matter-mode doubling seen structurally
+
+**What changed.**  The two liabilities left by 2026-11-16a are gone.
+
+*All twelve generators.*  `ChapterSmGaugeRepresentation` §6 now has `smGen_entry_gluon` and
+`smGen_entry_weak` — on the mode `(c, s)` a gluon direction `T_a ⊗ 1` has entry `T_a c c' · δ_{s s'}` and a
+weak direction `1 ⊗ τ_k/2` has entry `δ_{c c'} · (τ_k/2) s s'` — and the remaining eleven directions are
+instantiated: `matterGen_smGen_gluon{1..7}_occ_ne_zero` and `matterGen_smGen_weak{9,10}_occ_ne_zero`.
+Together with §5's hypercharge theorem, every one of the twelve Gauss generators has a computed
+nonvanishing at the model's representation: eight on the ghost-free state `occ {0}` and `λ⁴, …, λ⁷` on the
+one-mode state of colour two (`λ⁶, λ⁷` annihilate the colour-zero state, because their column there is
+zero).  §94's refutation no longer takes `G_a (occ S) ≠ 0` as an input in any direction.
+
+*The `m = 1` doubling is structural.*  `scripts/sm-cubic-kernel-basis.py` now switches the matter modes on
+and compares the `m = 1` blocks with the `m = 0` operator entry by entry: the matter-free block agrees
+exactly, the matter-occupied block is its **negative** — the matter mode is a fermion sitting below every
+ghost mode, so each of the three Jordan–Wigner signs of a cubic monomial flips once — and the two lifted
+copies of the eleven vectors are verified to be a basis of the `m = 1` kernel.  Dimensions: `m = 0` gives
+66 / 55 / 11 (dim / rank / kernel) and `m = 1` gives 132 / 110 / 22.
+
+**What is still not a theorem.**  The basis, the ranks and the doubling remain *computed*: no Lean
+statement asserts `dim ker Ω₃ = 11`, and the check covers `g = 2`, `m ≤ 1` (the eighteen-mode doublet is
+still out of reach of sparse elimination in pure Python).  The twelve direction theorems are one matrix
+entry each at the model's `smGen`; they do not classify which ghost-free states a direction kills.

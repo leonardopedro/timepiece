@@ -5474,11 +5474,16 @@ generator is a multiple of the identity.  For the others the generator is the *c
   colour zero and isospin zero to its isospin partner;
 * `smGen_gluon_entry` — `smGen λ y 0 2 0 = 1`: the first Gell-Mann generator `λ¹ ⊗ 1` carries the mode of
   colour zero to colour one;
-* `matterGen_smGen_weak_occ_ne_zero` and `matterGen_smGen_gluon_occ_ne_zero` — the entries are nonzero, so
-  `Ω` does not kill the ghost-free state `occ {0}` in those directions either.  With §95's hypercharge
-  theorem, three of the twelve directions are now evaluated in Lean at the model's own representation
-  (`a = 11, 8, 0`); the other nine go through the same `matterGen_occ_entry` with a different entry, which
-  is why the general lemma, not the twelve instantiations, is the result that closes §95's boundary.
+* `smGen_entry_gluon` and `smGen_entry_weak` — the two kinds of entry in general: on the mode `(c, s)` a
+  gluon direction `T_a ⊗ 1` has entry `T_a c c' · δ_{s s'}`, and a weak direction `1 ⊗ τ_k/2` has entry
+  `δ_{c c'} · (τ_k/2) s s'`.  These are the general forms of `smGen_gluon_entry` and `smGen_weak_entry`;
+* `matterGen_smGen_gluon{1..7}_occ_ne_zero` and `matterGen_smGen_weak{9,10}_occ_ne_zero` — the remaining
+  eleven directions, by `smGen_entry_gluon`/`smGen_entry_weak` and `matterGen_occ_ne_zero`.  With §95's
+  hypercharge theorem, **all twelve** Gauss generators now have a computed nonvanishing at the model's own
+  representation: eight of them on `occ {0}` (`a = 0, 1, 2, 7, 8, 9, 10, 11`) and `λ⁴, …, λ⁷` on the
+  one-mode state of colour two (`a = 3, 4, 5, 6`), where `λ⁶, λ⁷` annihilate the colour-zero state because
+  their column is zero there.  So §94's refutation no longer needs `G_a (occ S) ≠ 0` as an input for any
+  direction: each of the twelve is a lemma.
 
 **A basis of `ker B` at `g = 2` (`scripts/sm-cubic-kernel-basis.py`).**  With no matter modes the source
 is `Λ²ℂ¹²` (66 states) and `B = Ω₃` maps it to `Λ³ℂ¹²` (220 states, of which 178 are reached).  The script
@@ -5517,9 +5522,22 @@ vectors in the gluon pairs, four carrying the `λ₈` ghost `7` with coefficient
 weak pairs `|8+9>`, `|8+10>`, `|9+10>` — which `B` kills outright: the mixed gluon–weak structure constants
 vanish and the all-weak terms hit the Pauli principle.
 
+**Switching the matter modes on.**  §95 also recorded that at `m = 1` every rank and kernel dimension is
+exactly twice the `m = 0` value.  The script now checks that structurally, not just dimensionally: the
+`m = 1` operator splits into the matter blocks, and each block is compared **entry by entry** with the
+`m = 0` operator — the matter-free block agrees, and the matter-occupied block is its *negative*, because
+the matter mode is a fermion sitting below every ghost mode, so each of the three Jordan–Wigner signs of a
+cubic monomial flips once.  The two lifted copies of the eleven vectors are then verified to be a basis of
+the `m = 1` kernel.  Measured 2026-11-16:
+
+| `m` | `dim Λ²` | `rank B` | `dim ker B` |
+|---|---|---|---|
+| 0 | 66 | 55 | 11 |
+| 1 | 132 | 110 | 22 |
+
 **Boundaries.**  (i) The basis is *computed*, not proved: no Lean statement asserts
 `dim ker Ω₃|_g = 11`, and the script is a certificate one can re-run, not a theorem.  (ii) It is at
-`m = 0`, `g = 2` only; the other even degrees of §95 remain dimensional facts.  (iii) Three of the twelve
-generators are evaluated in Lean at the model's representation; the remaining nine are covered by the
-general entry lemma but are not instantiated, so §94's refutation still takes "some generator fails to
-kill a ghost-free state" as an input rather than deriving it direction by direction.
+`g = 2` and `m ≤ 1`; the other even degrees of §95 remain dimensional facts, and the eighteen-mode doublet
+is still out of reach.  (iii) The twelve directions are *instantiations*: the general result stays
+`matterGen_occ_entry` plus a nonzero matrix entry, and the twelve theorems record which entry, at which
+state, for the model's own `smGen`.

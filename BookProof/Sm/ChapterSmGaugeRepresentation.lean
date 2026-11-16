@@ -418,11 +418,15 @@ entry
 is `−i M i₀ j₀`, where the state occupies the matter mode `j₀` and the entry is read in the
 matter mode `i₀`.  That is `matterGen_occ_entry`, and it is nonzero whenever the matrix entry is.
 
-The two computations at the model's own representation are then `smGen_weak_entry` — the first weak
-generator `1 ⊗ τ₁/2` carries `1/2` from the mode of colour zero and isospin zero to its isospin
-partner — and `smGen_gluon_entry` — the first Gell-Mann generator `λ¹ ⊗ 1` carries `1` from the
-mode of colour zero to colour one.  Both are nonzero, so `Ω` does not kill the ghost-free state
-`occ {0}` in those directions either; together with §5 that closes all twelve.
+`smGen_entry_gluon` and `smGen_entry_weak` write the two kinds of surviving entry down once and for
+all: on the mode `(c, s)`, a gluon direction `T_a ⊗ 1` has entry `T_a c c' · δ_{s s'}` and a weak
+direction `1 ⊗ τ_k/2` has entry `δ_{c c'} · (τ_k/2) s s'`.  With them each of the remaining eleven
+directions is one computation: `smGen_weak_entry` and `smGen_gluon_entry` record the first weak and
+the first gluon entry, and `matterGen_smGen_gluon1_occ_ne_zero`, `…`,
+`matterGen_smGen_gluon7_occ_ne_zero` and `matterGen_smGen_weak9_occ_ne_zero`,
+`matterGen_smGen_weak10_occ_ne_zero` the rest.  So every one of the twelve Gauss generators
+fails to kill a ghost-free state at the model's own representation — eight of them on
+`occ {0}` and `λ⁴, …, λ⁷` on the one-mode state of colour two.
 -/
 
 /-- Injectivity of `Fin.castAdd 12`, in both directions. -/
@@ -526,6 +530,33 @@ theorem smGen_gluon_entry (y : ℝ) :
   rw [h0, h2]
   simp [smGenP, BookProof.ChapterParity.gellMann, Matrix.kroneckerMap_apply]
 
+/-- **The entry of a gluon direction on the mode `(c, s)`.**  A gluon generator is `T_a ⊗ 1`, so its
+entry is the colour entry `T_a c c'` times `δ_{s s'}`; this is the general form of
+`smGen_gluon_entry`, valid for every direction labelled by `Sum.inl g`. -/
+theorem smGen_entry_gluon (g : Fin 8) (a : Fin 12) (ha : smIdxEquiv a = Sum.inl g)
+    (y : ℝ) (c c' : Fin 3) (s s' : Fin 2) :
+    smGen BookProof.ChapterParity.gellMann y a
+        (internalEquiv (c, s)) (internalEquiv (c', s'))
+      = BookProof.ChapterParity.gellMann g c c' * (if s = s' then 1 else 0) := by
+  unfold smGen
+  rw [ha]
+  rw [toModes, Matrix.reindexAlgEquiv_apply, Matrix.reindex_apply, Matrix.submatrix_apply,
+    Equiv.symm_apply_apply, Equiv.symm_apply_apply]
+  simp [smGenP, Matrix.kroneckerMap_apply, Matrix.one_apply]
+
+/-- **The entry of a weak direction on the mode `(c, s)`.**  A weak generator is `1 ⊗ τ_k/2`, so its
+entry is `δ_{c c'}` times the weak entry; this is the general form of `smGen_weak_entry`, valid for
+every `S3` and every direction labelled by `Sum.inr (Sum.inl k)`. -/
+theorem smGen_entry_weak (k : Fin 3) (a : Fin 12) (ha : smIdxEquiv a = Sum.inr (Sum.inl k))
+    (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ) (y : ℝ) (c c' : Fin 3) (s s' : Fin 2) :
+    smGen S3 y a (internalEquiv (c, s)) (internalEquiv (c', s'))
+      = (if c = c' then 1 else 0) * su2gen k s s' := by
+  unfold smGen
+  rw [ha]
+  rw [toModes, Matrix.reindexAlgEquiv_apply, Matrix.reindex_apply, Matrix.submatrix_apply,
+    Equiv.symm_apply_apply, Equiv.symm_apply_apply]
+  simp [smGenP, Matrix.kroneckerMap_apply, Matrix.one_apply]
+
 /-- **The weak Gauss generator does not kill the ghost-free state `occ {0}`**, for any colour
 matrix `S3` and any hypercharge: only the weak factor enters. -/
 theorem matterGen_smGen_weak_occ_ne_zero (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ)
@@ -543,6 +574,137 @@ theorem matterGen_smGen_gluon_occ_ne_zero (y : ℝ) :
   matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 0
     (i₀ := (2 : Fin 6)) (j₀ := (0 : Fin 6))
     (by rw [smGen_gluon_entry]; norm_num)
+
+/-- **The gluon generator `λ²` does not kill a ghost-free state.**  On one occupied matter
+mode it carries colour zero and isospin zero to colour one with coefficient `i`. -/
+theorem matterGen_smGen_gluon1_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 1
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 1
+    (i₀ := (2 : Fin 6)) (j₀ := (0 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (2 : Fin 6),
+    ← Equiv.apply_symm_apply internalEquiv (0 : Fin 6),
+    show internalEquiv.symm (2 : Fin 6) = ((1, 0) : Fin 3 × Fin 2) from by decide,
+    show internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_gluon (1 : Fin 8) (1 : Fin 12) (by decide) y
+      (1 : Fin 3) (0 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [BookProof.ChapterParity.gellMann]
+
+/-- **The gluon generator `λ³` does not kill a ghost-free state.**  On one occupied matter
+mode the diagonal `λ³ = diag(1, -1, 0)` keeps the mode's colour and flips the sign. -/
+theorem matterGen_smGen_gluon2_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 2
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 2
+    (i₀ := (0 : Fin 6)) (j₀ := (0 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (0 : Fin 6),
+    show internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_gluon (2 : Fin 8) (2 : Fin 12) (by decide) y
+      (0 : Fin 3) (0 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [BookProof.ChapterParity.gellMann]
+
+/-- **The gluon generator `λ⁴` does not kill a ghost-free state.**  On one occupied matter
+mode it carries colour zero and isospin zero to colour two with coefficient `1`. -/
+theorem matterGen_smGen_gluon3_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 3
+        (occ ({Fin.castAdd 12 (4 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 3
+    (i₀ := (0 : Fin 6)) (j₀ := (4 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (0 : Fin 6),
+    ← Equiv.apply_symm_apply internalEquiv (4 : Fin 6),
+    show internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) from by decide,
+    show internalEquiv.symm (4 : Fin 6) = ((2, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_gluon (3 : Fin 8) (3 : Fin 12) (by decide) y
+      (0 : Fin 3) (2 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [BookProof.ChapterParity.gellMann]
+
+/-- **The gluon generator `λ⁵` does not kill a ghost-free state.**  On one occupied matter
+mode it carries colour zero and isospin zero to colour two with coefficient `-i`. -/
+theorem matterGen_smGen_gluon4_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 4
+        (occ ({Fin.castAdd 12 (4 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 4
+    (i₀ := (0 : Fin 6)) (j₀ := (4 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (0 : Fin 6),
+    ← Equiv.apply_symm_apply internalEquiv (4 : Fin 6),
+    show internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) from by decide,
+    show internalEquiv.symm (4 : Fin 6) = ((2, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_gluon (4 : Fin 8) (4 : Fin 12) (by decide) y
+      (0 : Fin 3) (2 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [BookProof.ChapterParity.gellMann]
+
+/-- **The gluon generator `λ⁶` does not kill a ghost-free state.**  On one occupied matter
+mode of colour two it lands on colour one with coefficient `1`. -/
+theorem matterGen_smGen_gluon5_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 5
+        (occ ({Fin.castAdd 12 (4 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 5
+    (i₀ := (2 : Fin 6)) (j₀ := (4 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (2 : Fin 6),
+    ← Equiv.apply_symm_apply internalEquiv (4 : Fin 6),
+    show internalEquiv.symm (2 : Fin 6) = ((1, 0) : Fin 3 × Fin 2) from by decide,
+    show internalEquiv.symm (4 : Fin 6) = ((2, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_gluon (5 : Fin 8) (5 : Fin 12) (by decide) y
+      (1 : Fin 3) (2 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [BookProof.ChapterParity.gellMann]
+
+/-- **The gluon generator `λ⁷` does not kill a ghost-free state.**  On one occupied matter
+mode of colour two it lands on colour one with coefficient `-i`. -/
+theorem matterGen_smGen_gluon6_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 6
+        (occ ({Fin.castAdd 12 (4 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 6
+    (i₀ := (2 : Fin 6)) (j₀ := (4 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (2 : Fin 6),
+    ← Equiv.apply_symm_apply internalEquiv (4 : Fin 6),
+    show internalEquiv.symm (2 : Fin 6) = ((1, 0) : Fin 3 × Fin 2) from by decide,
+    show internalEquiv.symm (4 : Fin 6) = ((2, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_gluon (6 : Fin 8) (6 : Fin 12) (by decide) y
+      (1 : Fin 3) (2 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [BookProof.ChapterParity.gellMann]
+
+/-- **The gluon generator `λ⁸` does not kill a ghost-free state.**  On one occupied matter
+mode it multiplies the mode by `1/√3`. -/
+theorem matterGen_smGen_gluon7_occ_ne_zero (y : ℝ) :
+    matterGen 6 (smGen BookProof.ChapterParity.gellMann y) 7
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen BookProof.ChapterParity.gellMann y) 7
+    (i₀ := (0 : Fin 6)) (j₀ := (0 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (0 : Fin 6),
+    show internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_gluon (7 : Fin 8) (7 : Fin 12) (by decide) y
+      (0 : Fin 3) (0 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [BookProof.ChapterParity.gellMann]
+
+/-- **The weak generator `1 ⊗ τ₂/2` does not kill the ghost-free state.**  On one occupied matter
+mode it lands on the isospin partner with coefficient `i/2`, for every colour matrix `S3`. -/
+theorem matterGen_smGen_weak9_occ_ne_zero (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ)
+    (y : ℝ) :
+    matterGen 6 (smGen S3 y) 9
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen S3 y) 9
+    (i₀ := (1 : Fin 6)) (j₀ := (0 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (1 : Fin 6),
+    ← Equiv.apply_symm_apply internalEquiv (0 : Fin 6),
+    show internalEquiv.symm (1 : Fin 6) = ((0, 1) : Fin 3 × Fin 2) from by decide,
+    show internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_weak (1 : Fin 3) (9 : Fin 12) (by decide) S3 y
+      (0 : Fin 3) (0 : Fin 3) (1 : Fin 2) (0 : Fin 2)]
+  simp [su2gen, pauli]
+
+/-- **The weak generator `1 ⊗ τ₃/2` does not kill the ghost-free state.**  The diagonal
+`τ₃/2 = diag(1, -1)/2` multiplies the occupied mode by `1/2`, for every colour matrix `S3`. -/
+theorem matterGen_smGen_weak10_occ_ne_zero (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ)
+    (y : ℝ) :
+    matterGen 6 (smGen S3 y) 10
+        (occ ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) ≠ 0 := by
+  refine matterGen_occ_ne_zero (smGen S3 y) 10
+    (i₀ := (0 : Fin 6)) (j₀ := (0 : Fin 6)) ?_
+  rw [← Equiv.apply_symm_apply internalEquiv (0 : Fin 6),
+    show internalEquiv.symm (0 : Fin 6) = ((0, 0) : Fin 3 × Fin 2) from by decide,
+    smGen_entry_weak (2 : Fin 3) (10 : Fin 12) (by decide) S3 y
+      (0 : Fin 3) (0 : Fin 3) (0 : Fin 2) (0 : Fin 2)]
+  simp [su2gen, pauli]
 
 end
 
