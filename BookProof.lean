@@ -646,12 +646,40 @@ import BookProof.OSReconstruction.PriorRefinement
 -- The continuum half of B0: a genuine probability measure on the information space, the dictionary
 -- in integral form, refinement invariance (pushforward) and exhaustion convergence.
 import BookProof.OSReconstruction.ContinuumPrior
+-- C0 of `cftproof.md`: the physical-object manifest, the `h + cI -> H + c N_out` identity, and
+-- the negative controls (shifted constant, dropped interaction, solver budget vs. cutoff, and an
+-- archive adapter on a foreign family or mismatched bases) — `ContinuumManifest`.
+import BookProof.OSReconstruction.ContinuumManifest
+-- C1 of `cftproof.md`: the finite-cutoff massive 4D Gaussian control in Mehler coordinates —
+-- the normalized product Gaussian cylinder law, its one-mode characteristic functional and smeared
+-- second moments, reflection-invariant Euclidean covariance, reflected-covariance positivity on
+-- half-space tests, the positive-covariance-but-negative-reflected-form control, and cutoff
+-- consistency of the cylinder laws (`GaussianMehlerControl`).
+import BookProof.OSReconstruction.GaussianMehlerControl
+-- C1, all-degree lift: the boundary-conditioned kernel form of the two-slice C1 covariance, a
+-- normalized shared-shift state, reflection positivity for every bounded cylinder observable
+-- (and, under OS integrability, every polynomial cylinder), the slice coordinates with the
+-- reflection swapping them, and the variance identity matching the C1 covariance
+-- (`GaussianMehlerCylinderRP`).
+import BookProof.OSReconstruction.GaussianMehlerCylinderRP
+-- C2, first slice: the regulator-level Euclidean moment hierarchy — `e^{-tK}` and its semigroup,
+-- ordered words and their extension convention, normalization of the reference vector, two-point
+-- positivity at coincident times, and a free one-mode correlation that is nonzero with
+-- nontrivial time dependence (`EuclideanMomentHierarchy`).
+import BookProof.OSReconstruction.EuclideanMomentHierarchy
+-- C2 ↔ C1: the free one-mode regulator, calibrated against the Mehler slice covariance.
+import BookProof.OSReconstruction.EuclideanMehlerCalibration
+-- C3a, first slice: the exact coarse-graining step of a reference Gaussian — the coarse density is
+-- `E[|Psi|² | G]`, not `|E[Psi | G]|²`, and the two differ by exactly the conditional variance
+-- (`GaussianBlockCoarseDensity`).
+import BookProof.OSReconstruction.GaussianBlockCoarseDensity
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` packet T0, the first review gate): the contract on Mathlib's actual `Kernel`
--- API — the integral action `P f x = ∫ f d(κ x)`, `P 1 = 1`, the pointwise Jensen estimate
--- `‖P f x‖² ≤ P (‖f‖²) x`, the `L²(π)` contraction under `Kernel.Invariant`, and the
--- reversible prior-refresh proposal `Kernel.const α π`.
+-- API — the integral action `P f x = ∫ f d(κ x)`, `P 1 = 1` from `IsMarkovKernel`, the
+-- pointwise Jensen estimate `‖P f x‖² ≤ P (‖f‖²) x` for every Markov kernel, and the
+-- prior-refresh benchmark `Kernel.const α π` with its invariant law, reversibility,
+-- `L²(π)` contraction, mean preservation and bilinear adjoint pairing.
 import BookProof.MCMC.KernelContract
 
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
