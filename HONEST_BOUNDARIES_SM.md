@@ -731,3 +731,37 @@ ghost-number-two sector, and `11` needs a rank-55 certificate for the 66 × 55 m
 nothing in this development computes or checks such a minor.  At `g = 2` the `m ≥ 4` rows still
 rest on the block identity, and the even degrees above four remain dimensional facts; the eighteen-mode
 doublet is out of reach.  The gluon-sector basis vectors (`v₀, …, v₇`) still have no Lean counterpart.
+
+## Correction 2026-11-16f — degree 4 at `m = 1, 2`, degree 5, and a rank certificate
+
+**What changed.**  Three additions to the computation, none of which turns a computed row into a
+theorem.
+
+*Degree 4 is eliminated at `m = 1, 2` as well.*  The rows are no longer `blocks`: the script eliminates
+the actual `2`- and `4`-sector operator matrices by Gauss–Jordan, giving `990 / 660 / 330` and
+`1980 / 1320 / 660`.  The sector split is not the block identity — it uses only that the cubic term
+preserves the matter occupation, which the script re-checks entry by entry on every image term; the
+per-sector ranks then add up because the matrix is block diagonal in that occupation.  At `m = 2` the
+whole-matrix elimination would be a `3016 × 1980` dense problem, so the sector split is also what makes
+the row affordable.
+
+*Ghost degree five is in the table.*  At `m = 0` the sources are `dim Λ⁵ = 792` of the 924 six-mode
+targets, of which 907 are reached; rank 461, kernel 331.  The block identity is checked
+at `m = 1, 2, 3`, so degree 5 obeys `dim ker(m) = 2^m · 331` on the same footing as degrees 1 and 3.
+
+*The rank 55 now has a certificate rather than a pivot count.*  The script prints a 55 × 55 square minor
+of the ghost-number-two operator at `m = 0` — 55 target states of `Λ³ℂ¹²` by 55 source states of
+`Λ²ℂ¹²` — with determinant `−3¹²/2³⁵`, computed twice by two different exact algorithms (Gaussian
+elimination and fraction-free Bareiss, asserted to agree) and pinned by a `sha256` of the printed labels.
+A nonzero determinant of a full-size square minor is exactly `rank ≥ 55`; the elimination's `rank ≤ 55`
+gives equality, so `dim ker = 66 − 55 = 11` follows from one explicit determinant.
+
+**What is still not a theorem.**  All of it, in the Lean sense: the certificate, the degree table and the
+`m = 3` elimination are re-runnable computations, not statements in `BookProof`.  What Lean has is the
+refutation of an unconditional bound (2026-11-16e) and the degree-free lower bound `3`.  Turning the
+55 × 55 determinant into a theorem would need the matrix entries as a Lean object (the `m = 0`,
+ghost-degree-two operator as a `66 × 220` `Matrix`) plus an exact determinant computation — a different
+project from this script.  Second, the sector-wise rows at `m = 1, 2` rest on matter conservation rather
+than on the block *identity*: they are independent of the sign structure, but they are not independent
+of the block-decomposition argument.  Third, the script's runtime is now ~2.5 min, up from ~33 s, which
+is the price of the three degree-four eliminations and the degree-five one.

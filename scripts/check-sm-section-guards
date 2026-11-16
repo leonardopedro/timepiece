@@ -1118,8 +1118,26 @@ require "scripts/sm-cubic-kernel-basis.py" "dim ker(m) = 2^m" \
     "§96: the kernel-basis script must report the 2^m law"
 require "scripts/sm-cubic-kernel-basis.py" 'elimination at `m = 0, 1, 2, 3`' \
     "§96: the script must keep the m = 3 elimination"
-require "scripts/sm-cubic-kernel-basis.py" "the same block identity holds at degrees 1, 3 and 4" \
-    "§96: the script must keep the degree-four block check"
+require "scripts/sm-cubic-kernel-basis.py" 'a `blocks` row checks the entry-by-entry block identity' \
+    "§96: the script must keep the block-identity provenance"
+require "scripts/sm-cubic-kernel-basis.py" "def sector_kernel" \
+    "§96: the script must keep the sector-wise elimination"
+require "scripts/sm-cubic-kernel-basis.py" "matter number" \
+    "§96: the sector check must keep verifying matter conservation"
+require "scripts/sm-cubic-kernel-basis.py" "rank certificate: one square minor" \
+    "§96: the script must keep printing the rank certificate"
+require "scripts/sm-cubic-kernel-basis.py" "def minor_certificate" \
+    "§96: the rank certificate must stay"
+require "scripts/sm-cubic-kernel-basis.py" "def det_k_bareiss" \
+    "§96: the certificate's determinant must keep its independent cross-check"
+require "scripts/sm-cubic-kernel-basis.py" "the two determinant algorithms disagree" \
+    "§96: the certificate must keep asserting the two determinants agree"
+require "$PLAN" 'kernel 331' \
+    "§96: the plan must keep the degree-five kernel"
+require "$PLAN" 'computed object' \
+    "§96: the plan must keep the certificate's not-a-theorem boundary"
+require "$PLAN" 'fraction-free Bareiss' \
+    "§96: the plan must keep the certificate's cross-check"
 require "BookProof/Sm/ChapterSmBrstGhost.lean" \
     "theorem finrank_ker_smGhostCharge_ge_two_pow" \
     "§96: the matter-only lower bound must stay"

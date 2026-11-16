@@ -23,6 +23,13 @@ of the eleven vectors are verified to be killed in every block.  The dimension i
 scratch by elimination at `m = 0, 1, 2, 3` and follows from the block identity for `m = 4, ..., 6`, where
 the table reports how each rank was obtained.
 
+At every ghost degree the same block structure gives `dim ker(m) = 2^m * dim ker(0)`; the script
+eliminates from scratch at the matter numbers where that is affordable (all of `m = 0, 1, 2` at degree
+four, `m = 0` at degrees one, three and five) and checks the entry-by-entry block identity elsewhere.
+It also prints a rank certificate for the ghost-number-two operator: one square minor (55 x 55) that
+is nonsingular, with its determinant computed twice, which is what *proves* the rank is 55 rather
+than reading it off the elimination.
+
 The arithmetic is exact and not floating point.  The structure constants of `su(3) + su(2)` with
 the `lambda_a / 2`, `tau_k / 2` normalisation lie in `Q(sqrt 3)` -- `f_458 = f_678 = sqrt 3 / 2` are
 the only irrational ones -- so every coefficient is a pair of `fractions.Fraction`s and the whole
@@ -426,6 +433,134 @@ def rank_of(columns):
     return rank
 
 
+def a_kernel_matrix(columns, ncols):
+    """The operator matrix, row-indexed by the reached targets: `(targets, rows)`."""
+    dst = sorted({t for col in columns for t in col})
+    row_of = {t: i for i, t in enumerate(dst)}
+    rows = [[ZERO] * ncols for _ in dst]
+    for c, col in enumerate(columns):
+        for t, v in col.items():
+            rows[row_of[t]][c] = v
+    return dst, rows
+
+
+def sector_kernel(m, deg, terms):
+    """Eliminate the degree block sector by sector: `(sources, reached, rank)`.
+
+    Every image term preserves the matter occupation (checked here, entry by entry), so the
+    operator matrix is block diagonal in the matter sector and its rank and kernel dimension are
+    the sums of the per-sector ones.  Each sector's matrix is built from the actual `m`-mode
+    operator, so the elimination is still from scratch; doing it per sector only keeps every
+    elimination at the size of the `m = 0` problem instead of `2^m` times it.
+    """
+    low = (1 << m) - 1
+    sectors = {}
+    for s in source_states(m, deg):
+        sectors.setdefault(s & low, []).append(s)
+    n_src = n_dst = rank = 0
+    for matter in sorted(sectors):
+        states = sectors[matter]
+        columns = []
+        for s in states:
+            col = act(terms, s)
+            for t in col:
+                if matter_number(t, m) != matter_number(s, m):
+                    raise SystemExit(f"m = {m}: the cubic term changed the matter number")
+            columns.append(col)
+        dst, rows = a_kernel_matrix(columns, len(states))
+        rk, basis = kernel_basis(rows, len(states))
+        verify_kernel(columns, basis, len(states), f"m = {m}, degree {deg}, matter {matter}")
+        n_src += len(states)
+        n_dst += len(dst)
+        rank += rk
+    return n_src, n_dst, rank
+
+
+def det_k(mat):
+    """Determinant over `Q(sqrt 3)`, by Gaussian elimination with row swaps."""
+    a = [row[:] for row in mat]
+    n = len(a)
+    det = ONE
+    for c in range(n):
+        p = next((i for i in range(c, n) if not a[i][c].is_zero()), None)
+        if p is None:
+            return ZERO
+        if p != c:
+            a[c], a[p] = a[p], a[c]
+            det = -det
+        det = det * a[c][c]
+        inv = K(1) / a[c][c]
+        for i in range(c + 1, n):
+            if not a[i][c].is_zero():
+                fac = a[i][c] * inv
+                a[i] = [x - fac * y for x, y in zip(a[i], a[c])]
+    return det
+
+
+def det_k_bareiss(mat):
+    """The same determinant fraction-free (Bareiss), as an independent cross-check."""
+    a = [row[:] for row in mat]
+    n = len(a)
+    sign = ONE
+    prev = ONE
+    for k in range(n - 1):
+        if a[k][k].is_zero():
+            p = next((i for i in range(k + 1, n) if not a[i][k].is_zero()), None)
+            if p is None:
+                return ZERO
+            a[k], a[p] = a[p], a[k]
+            sign = -sign
+        for i in range(k + 1, n):
+            for j in range(k + 1, n):
+                a[i][j] = (a[i][j] * a[k][k] - a[i][k] * a[k][j]) / prev
+        prev = a[k][k]
+    return sign * a[n - 1][n - 1]
+
+
+def minor_certificate(src, columns, what):
+    """A square minor of the operator with a computed nonzero determinant.
+
+    The elimination that computes the kernel also yields a certificate for the rank: its pivot
+    rows and pivot columns index a square minor whose elimination is triangular with nonzero
+    diagonal, so the minor is nonsingular.  The determinant of that extracted submatrix is then
+    computed again, independently, and asserted nonzero -- which is all `rank >= ncols` needs.
+    """
+    ncols = len(src)
+    dst, orig = a_kernel_matrix(columns, ncols)
+    rows = [row[:] for row in orig]
+    order = list(range(len(rows)))
+    r = 0
+    pivot_cols = []
+    for c in range(ncols):
+        p = next((i for i in range(r, len(rows)) if not rows[i][c].is_zero()), None)
+        if p is None:
+            continue
+        rows[r], rows[p] = rows[p], rows[r]
+        order[r], order[p] = order[p], order[r]
+        inv = K(1) / rows[r][c]
+        rows[r] = [x * inv for x in rows[r]]
+        for i in range(len(rows)):
+            if i != r and not rows[i][c].is_zero():
+                fac = rows[i][c]
+                rows[i] = [x - fac * y for x, y in zip(rows[i], rows[r])]
+        pivot_cols.append(c)
+        r += 1
+    rank = r
+    pivot_rows = sorted(order[:rank])
+    sub = [[orig[i][c] for c in pivot_cols] for i in pivot_rows]
+    det = det_k(sub)
+    if det != det_k_bareiss(sub):
+        raise SystemExit(f"{what}: the two determinant algorithms disagree")
+    if det.is_zero():
+        raise SystemExit(f"{what}: the pivot minor vanishes")
+    return [dst[i] for i in pivot_rows], [src[c] for c in pivot_cols], det
+
+
+def fmt_state(s, width):
+    """The occupation state as `|i+j+k>` over the modes below `width`."""
+    return "|" + "+".join(str(i) for i in range(width) if s >> i & 1) + ">"
+
+
 def main():
     f = sm_structure()
     if f.get((0, 1, 2), K(0)) != K(1):
@@ -467,6 +602,7 @@ def main():
         terms = cubic_terms(m, f)
         src = source_states(m, deg)
         low = (1 << m) - 1
+        reached = set()
         for s in src:
             matter = s & low
             reference = act(terms0, s >> m)
@@ -475,7 +611,8 @@ def main():
                     if not (sign * v).is_zero()}
             if act(terms, s) != want:
                 raise SystemExit(f"m = {m}: block {bin(matter)} is not a copy of the m = 0 operator")
-        return len(src)
+            reached.update(want)
+        return len(src), len(reached)
 
     # the degree-two case is settled by elimination at m = 0, 1, 2, 3 and by the block identity above
     table = [(0, 2, len(src0), rank0, dim0, "elimination")]
@@ -504,20 +641,37 @@ def main():
 
     # the block identity holds at every ghost degree; it is what the m >= 4 rows rest on
     for m in (4, 5, 6):
-        n = blocks_are_copies(m, 2)
+        n, _ = blocks_are_copies(m, 2)
         if n != len(src0) << m:
             raise SystemExit(f"m = {m}: wrong number of two-ghost states")
         table.append((m, 2, n, rank0 << m, dim0 << m, "blocks"))
-    for deg in (1, 3, 4):
+    # the other degrees: eliminate at the mattered numbers listed, block identity for the rest.
+    # `sector_kernel` eliminates the actual m-mode operator sector by sector, which is the same
+    # computation as eliminating its whole matrix once matter conservation is used.
+    degree_rows = []
+    for deg, eliminated in ((1, (0,)), (3, (0,)), (4, (0, 1, 2)), (5, (0,))):
+        base = None
+        for m in eliminated:
+            terms = cubic_terms(m, f)
+            if m == 0:
+                src_d, col_d, rank_d, basis_d, dst_d = kernel_at(0, terms, deg)
+                verify_kernel(col_d, basis_d, len(src_d), f"m = 0, degree {deg}")
+                n_src, n_dst = len(src_d), len(dst_d)
+            else:
+                n_src, n_dst, rank_d = sector_kernel(m, deg, terms)
+            dm = n_src - rank_d
+            if base is None:
+                base = (n_src, n_dst, rank_d, dm)
+            elif (n_src, n_dst, rank_d, dm) != tuple(x << m for x in base):
+                raise SystemExit(f"degree {deg}, m = {m}: the kernel is not 2^m times the m = 0 one")
+            degree_rows.append((deg, m, n_src, n_dst, rank_d, dm, "elimination"))
         for m in (1, 2, 3):
-            blocks_are_copies(m, deg)
-    # the remaining degrees: eliminate the m = 0 operator from scratch
-    other = []
-    for deg in (1, 3, 4):
-        terms = cubic_terms(0, f)
-        src_d, col_d, rank_d, basis_d, dst_d = kernel_at(0, terms, deg)
-        verify_kernel(col_d, basis_d, len(src_d), f"m = 0, degree {deg}")
-        other.append((deg, len(src_d), len(dst_d), rank_d, len(src_d) - rank_d))
+            if m in eliminated:
+                continue
+            n, nd = blocks_are_copies(m, deg)
+            if (n, nd) != (base[0] << m, base[1] << m):
+                raise SystemExit(f"degree {deg}, m = {m}: wrong number of states")
+            degree_rows.append((deg, m, n, nd, base[2] << m, base[3] << m, "blocks"))
 
     print()
     print("ghost-number-2 kernel against the matter modes (all rows exact arithmetic)")
@@ -531,13 +685,32 @@ def main():
     print("`blocks` rows verify that block identity entry by entry, the `elimination` rows")
     print("recompute the dimension from scratch at m = 0, 1, 2, 3.")
     print()
-    print("the same block identity holds at degrees 1, 3 and 4, so the 2^m law is not a")
-    print("ghost-number-two accident.  Eliminating from scratch at m = 0:")
-    print("degree | dim Λ^d | dim Λ^(d+1) reached | rank | dim ker | 2^m law")
-    print("------ | ------- | ------------------- | ---- | ------- | --------")
-    for deg, n, nd, rk, dm in other:
-        print(f"{deg:6d} | {n:7d} | {nd:19d} | {rk:4d} | {dm:7d} | "
-              f"dim ker(m) = 2^m * {dm} for m = 1, 2, 3 (block identity)")
+    print("the 2^m law at other degrees: an `elimination` row recomputes the dimension with")
+    print("Gauss-Jordan (at m > 0 sector by sector, since the operator preserves the matter")
+    print("occupation), a `blocks` row checks the entry-by-entry block identity instead:")
+    print("degree | m | dim Λ^d | dim Λ^(d+1) reached | rank | dim ker | how obtained")
+    print("------ | - | ------- | ------------------- | ---- | ------- | ------------")
+    for deg, m, n, nd, rk, dm, how in degree_rows:
+        print(f"{deg:6d} | {m} | {n:7d} | {nd:19d} | {rk:4d} | {dm:7d} | {how}")
+    print()
+    print("every row obeys dim ker(m) = 2^m * dim ker(0) for its degree")
+    print()
+
+    print("rank certificate: one square minor of the ghost-number-2 operator at m = 0")
+    cert_rows, cert_cols, cert_det = minor_certificate(src0, col0, "m = 0, g = 2")
+    if (len(cert_rows), len(cert_cols)) != (rank0, rank0):
+        raise SystemExit("the certificate minor is not rank by rank")
+    digest_cert = hashlib.sha256()
+    line_rows = "targets: " + " ".join(fmt_state(t, 12) for t in cert_rows)
+    line_cols = "sources: " + " ".join(fmt_state(t, 12) for t in cert_cols)
+    print(f"  size         : {len(cert_rows)} x {len(cert_cols)}")
+    print(f"  determinant  : {cert_det!r}")
+    print(f"  {line_rows}")
+    print(f"  {line_cols}")
+    digest_cert.update((line_rows + "\n" + line_cols).encode())
+    print(f"  sha256 of the certificate: {digest_cert.hexdigest()}")
+    print("a nonzero determinant of a square minor is all that rank >= 55 needs; with the")
+    print("elimination's rank <= 55 this pins the rank at g = 2 to exactly 55.")
     print()
     print("all checks passed (exact arithmetic in Q(sqrt 3))")
 
