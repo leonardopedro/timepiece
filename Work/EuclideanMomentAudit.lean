@@ -17,7 +17,6 @@ Run with the project toolchain: `lake build Work.EuclideanMomentAudit`.
 import BookProof.OSReconstruction.EuclideanMomentHierarchy
 import BookProof.OSReconstruction.EuclideanMehlerCalibration
 import BookProof.OSReconstruction.GaussianBlockCoarseDensity
-import BookProof.OSReconstruction.GaussianChainScales
 import BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity
 import BookProof.RoadmapAudit.AxiomAudit
 
@@ -134,24 +133,6 @@ open BookProof.OSReconstruction
 #audit_axioms integral_abs_partialIntegral_le
 #audit_axioms integral_abs_blockIntegral_le
 #audit_axioms integral_abs_blockChainDensity_le
-
-/-! ## C3d, first slice: the step iterated through arbitrarily many scales -/
-
-#audit_axioms shellDensity_succ
-#audit_axioms streamField_succ
-#audit_axioms streamField_cons
-#audit_axioms streamCovariance_succ
-#audit_axioms integral_quadratic_blockUnit
-#audit_axioms shellDensity_quadratic
-#audit_axioms shellDensity_streamField
-#audit_axioms shellDensity_streamField_sq
-#audit_axioms shellDensity_streamField_covariance
-#audit_axioms streamCovariance_nonneg
-#audit_axioms sum_range_pow_succ
-#audit_axioms streamCovariance_closed_form
-#audit_axioms streamCovariance_le_card
-#audit_axioms streamCovariance_le_inv
-#audit_axioms integral_shellDensity_streamField_sq
 
 /-! ## The interacting half-space inequality (C2 / E3) -/
 

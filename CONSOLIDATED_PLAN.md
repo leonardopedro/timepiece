@@ -26583,7 +26583,7 @@ positive-time algebra and the thermodynamic limit remain outside.
 
 **Verification.** `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`
 and `lake build Book.EuclideanMomentHierarchy` succeed with no warning from either file and no
-line above 100 code points; `lake build Work.EuclideanMomentAudit` audits 109 declarations, all
+line above 100 code points; `lake build Work.EuclideanMomentAudit` audits 102 declarations, all
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 
 **Clean clone.** The C1/C2 chain was rebuilt from a fresh `git clone` at `722b71c` (mathlib oleans

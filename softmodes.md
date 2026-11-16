@@ -4843,5 +4843,5 @@ reflection-invariant density, an unbounded `V₊` and the `L²` closure of the p
 
 **Verification.** `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`
 and `lake build Book.EuclideanMomentHierarchy` succeed with no warning from either file and no line
-above 100 code points; `lake build Work.EuclideanMomentAudit` audits 109 declarations, all
+above 100 code points; `lake build Work.EuclideanMomentAudit` audits 102 declarations, all
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
