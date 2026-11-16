@@ -118,6 +118,28 @@ axiom would poison every statement below without appearing in any of their repor
 #audit_axioms streamField
 #audit_axioms streamCovariance
 
+/-! ## The block coarse-graining definitions
+
+The objects the C3a/C3b theorems are about: the block step, the unit law it averages against, the
+block law and its densities.  Audited with the rest so that a definition importing an axiom cannot
+hide behind the theorems' reports.
+-/
+
+#audit_axioms blockUnit
+#audit_axioms blockStep
+#audit_axioms blockIntegral
+#audit_axioms blockField
+#audit_axioms blockLaw
+#audit_axioms naiveDensity
+#audit_axioms coarseDensity
+#audit_axioms blockNaiveChainDensity
+#audit_axioms blockChainDensity
+#audit_axioms blockChainField
+#audit_axioms blockChainLaw
+#audit_axioms blockChainCovariance
+#audit_axioms blockActivityNorm
+#audit_axioms blockChainActivityNorm
+
 /-! ## C3a: the exact coarse-graining step -/
 
 #audit_axioms integral_blockIntegral
