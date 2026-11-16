@@ -137,6 +137,17 @@ scale-indexed:
   affine image is computed, because that needs the `L¹` extension of the tower that the previous
   bullet records as missing.  `shellAffineTailLaw_one_zero` shows the scalar packet is the case
   `a = 1`, `b = 0`.
+* The `L¹` packet removes the boundedness restriction **at the level of totals**: the bounded
+  tower is applied to the truncation `min (a·S + b)² (N : ℝ)`, the truncation's density is
+  dominated by the exact quadratic value at every scale (`shellDensity_sq_min_le`) and converges
+  to it (`tendsto_shellDensity_sq_min`), and monotone convergence then gives
+  `lintegral_shellLaw_sq`.  From that come `integrable_sq_affine`, the moment identity
+  `integral_shellLaw_sq`, the mean `integral_shellLaw_streamField` (`= 0` — the drift cancels
+  once the exterior coordinate is averaged too), the variance
+  `integral_shellLaw_centered_sq = K_n + (c^n d)²` and its scale-uniform bound
+  `variance_shellLaw_le ≤ 1/(1 − c²) + d²`.  The per-`y` identity
+  `shellDensity_eq_integral_snoc` is *still* bounded-only: what is gained is the law-level
+  integral, obtained by truncation rather than by a Fubini/section-integrability argument.
 -/
 
 namespace BookProof.OSReconstruction
@@ -1142,5 +1153,504 @@ theorem shellAffineTailLaw_one_zero (n : ℕ) (c d M : ℝ) :
   rw [shellAffineTailLaw, shellTailLaw, shellAffineLargeSet, shellLargeSet]
   simp
 
+/-! ## The moment identity: truncation, and monotone convergence through the recursion -/
+
+/-- The second moment of an affine function with a constant shift, against the unit Gaussian. -/
+theorem integral_sq_affine_const_blockUnit (a t : ℝ) :
+    ∫ z, (a * z + t) ^ 2 ∂blockUnit = a ^ 2 + t ^ 2 := by
+  have h := integral_sq_affine_blockUnit a 1 t
+  simpa using h
+
+/-- `(z, g) ↦ Fin.cons z g` is measurable jointly in the inserted value. -/
+theorem measurable_fin_cons_prod (m : ℕ) :
+    Measurable (fun q : ℝ × (Fin m → ℝ) => Fin.cons (α := fun _ => ℝ) q.1 q.2) := by
+  refine measurable_pi_iff.2 fun i => ?_
+  refine Fin.cases ?_ ?_ i
+  · simpa using measurable_fst
+  · intro j
+    simpa using (measurable_pi_apply j).comp measurable_snd
+
+/-- **The density is measurable in a parameter**: for a jointly measurable family of
+observables, the iterated partial integral is measurable as a function of the parameter.  This is
+what lets a dominated-convergence argument run through the recursion. -/
+theorem measurable_shellDensity_param :
+    ∀ (n : ℕ) {β : Type*} [MeasurableSpace β] (Ψ : β → (Fin (n + 1) → ℝ) → ℝ),
+      Measurable (Function.uncurry Ψ) → ∀ y, Measurable (fun z : β => shellDensity n (Ψ z) y) := by
+  intro n
+  induction n with
+  | zero =>
+    intro β _ Ψ hΨ y
+    have h : Measurable (fun z : β => Ψ z (fun _ : Fin 1 => y)) :=
+      hΨ.comp (Measurable.prodMk measurable_id measurable_const)
+    simpa [shellDensity] using h
+  | succ n ih =>
+    intro β _ Ψ hΨ y
+    have hmap : Measurable (fun p : (β × ℝ) × (Fin (n + 1) → ℝ) =>
+        (p.1.1, Fin.cons (α := fun _ => ℝ) p.1.2 p.2)) :=
+      Measurable.prodMk (measurable_fst.comp measurable_fst)
+        ((measurable_fin_cons_prod (n + 1)).comp
+          (Measurable.prodMk (measurable_snd.comp measurable_fst) measurable_snd))
+    have hΘ : Measurable (Function.uncurry fun (q : β × ℝ) (g : Fin (n + 1) → ℝ) =>
+        Ψ q.1 (Fin.cons (α := fun _ => ℝ) q.2 g)) := by
+      have h := hΨ.comp hmap
+      simpa [Function.uncurry, Function.comp] using h
+    have hIH : Measurable (fun q : β × ℝ => shellDensity n
+        (fun g : Fin (n + 1) → ℝ => Ψ q.1 (Fin.cons (α := fun _ => ℝ) q.2 g)) y) :=
+      ih (fun (q : β × ℝ) (g : Fin (n + 1) → ℝ) => Ψ q.1 (Fin.cons q.2 g)) hΘ y
+    have hgoal : (fun z : β => shellDensity (n + 1) (Ψ z) y)
+        = fun z => ∫ z' : ℝ, (fun q : β × ℝ => shellDensity n
+            (fun g : Fin (n + 1) → ℝ => Ψ q.1 (Fin.cons (α := fun _ => ℝ) q.2 g)) y)
+            (z, z') ∂blockUnit := by
+      funext z
+      rw [shellDensity_succ]
+    rw [hgoal]
+    exact (StronglyMeasurable.integral_prod_right
+      (f := fun (z : β) (z' : ℝ) => shellDensity n
+        (fun g : Fin (n + 1) → ℝ => Ψ z (Fin.cons (α := fun _ => ℝ) z' g)) y)
+      hIH.stronglyMeasurable).measurable
+
+/-- **The truncated second moment is bounded by the exact one, at every scale.**  This is the
+induction that replaces a monotonicity lemma: the truncation `min (·) N` is dominated by the
+explicit quadratic value of the untruncated density, and the domination is preserved one step at
+a time, so no integrability of sections of the limit function is ever needed. -/
+theorem shellDensity_sq_min_le (n : ℕ) (c d y a b N : ℝ) (hN : 0 ≤ N) :
+    shellDensity n (fun p => min ((a * streamField c d n p + b) ^ 2) N) y
+      ≤ a ^ 2 * streamCovariance n c + (a * (c ^ n * d * y) + b) ^ 2 := by
+  induction n generalizing a b with
+  | zero =>
+    have h0 : shellDensity 0 (fun p => min ((a * streamField c d 0 p + b) ^ 2) N) y
+        = min ((a * (d * y) + b) ^ 2) N := by
+      simp [shellDensity, streamField]
+    rw [h0, streamCovariance, mul_zero, zero_add]
+    simp only [pow_zero, one_mul, mul_zero, zero_add]
+    exact min_le_left _ _
+  | succ n ih =>
+    rw [shellDensity_succ]
+    have hpt : ∀ z : ℝ, shellDensity n (fun g =>
+        min ((a * streamField c d (n + 1) (Fin.cons z g) + b) ^ 2) N) y
+        ≤ ((a * c) ^ 2 * streamCovariance n c
+            + ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2) := by
+      intro z
+      refine le_trans (le_of_eq (shellDensity_congr n ?_ y)) (ih (a * c) (a * z + b))
+      intro g
+      rw [streamField_cons]
+      have hlin : a * (z + c * streamField c d n g) + b
+          = (a * c) * streamField c d n g + (a * z + b) := by
+        ring
+      rw [hlin]
+    have hnonneg : ∀ z : ℝ, 0 ≤ shellDensity n (fun g =>
+        min ((a * streamField c d (n + 1) (Fin.cons z g) + b) ^ 2) N) y := by
+      intro z
+      exact shellDensity_nonneg n (fun g => le_min (sq_nonneg _) hN) y
+    have hInt : Integrable (fun z : ℝ =>
+        ((a * c) ^ 2 * streamCovariance n c + ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2))
+        blockUnit := by
+      have hp : Integrable (fun z : ℝ => (a * z + (b + (a * c) * (c ^ n * d * y))) ^ 2)
+          blockUnit := by
+        simpa [add_comm, add_left_comm, add_assoc] using
+          integrable_poly_blockUnit a (b + (a * c) * (c ^ n * d * y))
+      refine (integrable_const _).add ?_
+      have hcongr : (fun z : ℝ => ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2)
+          = fun z : ℝ => (a * z + (b + (a * c) * (c ^ n * d * y))) ^ 2 := by
+        funext z
+        ring
+      rw [hcongr]
+      exact hp
+    refine le_trans (integral_mono_of_nonneg (Eventually.of_forall hnonneg) hInt
+      (Eventually.of_forall hpt)) ?_
+    have hval : ∫ z, ((a * c) ^ 2 * streamCovariance n c
+        + ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2) ∂blockUnit
+        = a ^ 2 * streamCovariance (n + 1) c + (a * (c ^ (n + 1) * d * y) + b) ^ 2 := by
+      have hfun : (fun z : ℝ => ((a * c) ^ 2 * streamCovariance n c
+            + ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2))
+          = fun z : ℝ => (((a * c) ^ 2 * streamCovariance n c
+                + (b + a * c * (c ^ n * d * y)) ^ 2))
+            + (2 * a * (b + a * c * (c ^ n * d * y))) * z + a ^ 2 * z ^ 2 := by
+        funext z
+        ring
+      rw [hfun, integral_quadratic_blockUnit, streamCovariance_succ, pow_succ]
+      ring
+    rw [hval]
+
+/-- **Monotone convergence through the recursion**: the truncated second moment converges to the
+exact quadratic value at every fixed exterior coordinate.  The induction is a dominated
+convergence with the explicit quadratic majorant of `shellDensity_sq_min_le`, so the bounded
+tower can be passed to its limit without any integrability assumption on sections. -/
+theorem tendsto_shellDensity_sq_min (n : ℕ) (c d y a b : ℝ) :
+    Tendsto (fun N : ℕ =>
+        shellDensity n (fun p => min ((a * streamField c d n p + b) ^ 2) (N : ℝ)) y)
+      atTop (𝓝 (a ^ 2 * streamCovariance n c + (a * (c ^ n * d * y) + b) ^ 2)) := by
+  induction n generalizing a b with
+  | zero =>
+    have hval : a ^ 2 * streamCovariance 0 c + (a * (c ^ 0 * d * y) + b) ^ 2
+        = (a * (d * y) + b) ^ 2 := by
+      simp [streamCovariance]
+    rw [hval]
+    refine (tendsto_const_nhds (x := (a * (d * y) + b) ^ 2)).congr' ?_
+    filter_upwards [(tendsto_natCast_atTop_atTop (R := ℝ)).eventually
+      (eventually_ge_atTop ((a * (d * y) + b) ^ 2))] with N hN
+    simp [shellDensity, streamField, min_eq_left hN]
+  | succ n ih =>
+    simp only [shellDensity_succ]
+    set G : ℝ → ℝ := fun z => (a * c) ^ 2 * streamCovariance n c
+      + ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2 with hG
+    have hGint : Integrable G blockUnit := by
+      refine (integrable_const _).add ?_
+      have hcongr : (fun z : ℝ => ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2)
+          = fun z : ℝ => (a * z + (b + (a * c) * (c ^ n * d * y))) ^ 2 := by
+        funext z
+        ring
+      rw [hcongr]
+      exact integrable_poly_blockUnit a (b + (a * c) * (c ^ n * d * y))
+    have hGval : ∫ z, G z ∂blockUnit
+        = a ^ 2 * streamCovariance (n + 1) c + (a * (c ^ (n + 1) * d * y) + b) ^ 2 := by
+      have hfun : (fun z : ℝ => ((a * c) ^ 2 * streamCovariance n c
+            + ((a * c) * (c ^ n * d * y) + (a * z + b)) ^ 2))
+          = fun z : ℝ => (((a * c) ^ 2 * streamCovariance n c
+                + (b + a * c * (c ^ n * d * y)) ^ 2))
+            + (2 * a * (b + a * c * (c ^ n * d * y))) * z + a ^ 2 * z ^ 2 := by
+        funext z
+        ring
+      rw [hG, hfun, integral_quadratic_blockUnit, streamCovariance_succ, pow_succ]
+      ring
+    rw [← hGval]
+    refine tendsto_integral_of_dominated_convergence G ?_ hGint ?_ ?_
+    · intro N
+      have hΨ : Measurable (Function.uncurry fun (z : ℝ) (g : Fin (n + 1) → ℝ) =>
+          min ((a * streamField c d (n + 1) (Fin.cons (α := fun _ => ℝ) z g) + b) ^ 2)
+            (N : ℝ)) := by
+        have hbase : Measurable (fun q : ℝ × (Fin (n + 1) → ℝ) =>
+            a * streamField c d (n + 1) (Fin.cons (α := fun _ => ℝ) q.1 q.2) + b) :=
+          (((measurable_streamField c d (n + 1)).comp
+            (measurable_fin_cons_prod (n + 1))).const_mul a).add measurable_const
+        have hcore : Measurable (fun q : ℝ × (Fin (n + 1) → ℝ) =>
+            (a * streamField c d (n + 1) (Fin.cons (α := fun _ => ℝ) q.1 q.2) + b) ^ 2) := by
+          simpa [pow_two] using hbase.mul hbase
+        exact Measurable.min hcore measurable_const
+      exact (measurable_shellDensity_param n _ hΨ y).aestronglyMeasurable
+    · intro N
+      filter_upwards with z
+      have hN : (0 : ℝ) ≤ (N : ℝ) := Nat.cast_nonneg N
+      have hrewrite : shellDensity n (fun g =>
+          min ((a * streamField c d (n + 1) (Fin.cons z g) + b) ^ 2) (N : ℝ)) y
+          = shellDensity n (fun g => min
+              (((a * c) * streamField c d n g + (a * z + b)) ^ 2) (N : ℝ)) y := by
+        refine shellDensity_congr n (fun g => ?_) y
+        rw [streamField_cons]
+        have hlin : a * (z + c * streamField c d n g) + b
+            = (a * c) * streamField c d n g + (a * z + b) := by
+          ring
+        rw [hlin]
+      rw [hrewrite]
+      have hnn : 0 ≤ shellDensity n (fun g =>
+          min (((a * c) * streamField c d n g + (a * z + b)) ^ 2) (N : ℝ)) y :=
+        shellDensity_nonneg n (fun g => le_min (sq_nonneg _) hN) y
+      rw [Real.norm_of_nonneg hnn]
+      exact shellDensity_sq_min_le n c d y (a * c) (a * z + b) (N : ℝ) hN
+    · filter_upwards with z
+      have hfun : (fun N : ℕ => shellDensity n (fun g =>
+            min ((a * streamField c d (n + 1) (Fin.cons z g) + b) ^ 2) (N : ℝ)) y)
+          = fun N : ℕ => shellDensity n (fun g =>
+              min (((a * c) * streamField c d n g + (a * z + b)) ^ 2) (N : ℝ)) y := by
+        funext N
+        refine shellDensity_congr n (fun g => ?_) y
+        rw [streamField_cons]
+        have hlin : a * (z + c * streamField c d n g) + b
+            = (a * c) * streamField c d n g + (a * z + b) := by
+          ring
+        rw [hlin]
+      rw [hfun]
+      exact (ih (a * c) (a * z + b)).comp tendsto_natCast_atTop_atTop
+
+/-- **A bounded observable's density is measurable in the exterior coordinate**: by the tower
+identity it is an integral of a jointly measurable function of the exterior value and the inner
+coordinates. -/
+theorem measurable_shellDensity (n : ℕ) {f : (Fin (n + 1) → ℝ) → ℝ} (B : ℝ) (hB0 : 0 ≤ B)
+    (hB : ∀ p, |f p| ≤ B) (hf : Measurable f) :
+    Measurable (fun y => shellDensity n f y) := by
+  have hfun : (fun y => shellDensity n f y)
+      = fun y => ∫ g, f (Fin.snoc g y) ∂shellLaw n :=
+    funext fun y => shellDensity_eq_integral_snoc n f B hB0 hB hf y
+  rw [hfun]
+  have hjoint : StronglyMeasurable
+      (Function.uncurry fun (y : ℝ) (g : Fin n → ℝ) => f (Fin.snoc g y)) :=
+    (hf.comp (measurable_fin_snoc_prod n)).stronglyMeasurable
+  exact (StronglyMeasurable.integral_prod_right hjoint).measurable
+
+/-- The supremum of a convergent real sequence, read in `ℝ≥0∞`, is the `ℝ≥0∞` value of its
+limit. -/
+theorem ofReal_iSup_of_tendsto {u : ℕ → ℝ} {V : ℝ} (hu : Monotone u)
+    (hV : Tendsto u atTop (𝓝 V)) :
+    (⨆ N, ENNReal.ofReal (u N)) = ENNReal.ofReal V := by
+  refine le_antisymm (iSup_le fun N => ENNReal.ofReal_le_ofReal
+    (le_of_tendsto_of_tendsto tendsto_const_nhds hV
+      (Eventually.mono (eventually_ge_atTop N) fun M hM => hu hM))) ?_
+  refine ENNReal.le_of_forall_pos_le_add fun ε hε _ => ?_
+  have hεpos : (0 : ℝ) < (ε : ℝ) := by exact_mod_cast hε
+  have hlt : V - (ε : ℝ) < V := by linarith
+  obtain ⟨N, hN⟩ := (hV.eventually (isOpen_Ioi.mem_nhds hlt)).exists
+  have h1 : ENNReal.ofReal V
+      ≤ ENNReal.ofReal (V - (ε : ℝ)) + ENNReal.ofReal (ε : ℝ) := by
+    calc ENNReal.ofReal V ≤ ENNReal.ofReal ((V - (ε : ℝ)) + (ε : ℝ)) :=
+          ENNReal.ofReal_le_ofReal (by linarith)
+      _ ≤ ENNReal.ofReal (V - (ε : ℝ)) + ENNReal.ofReal (ε : ℝ) := ENNReal.ofReal_add_le
+  have h2 : ENNReal.ofReal (V - (ε : ℝ)) ≤ ⨆ N, ENNReal.ofReal (u N) :=
+    le_iSup_of_le N (ENNReal.ofReal_le_ofReal (le_of_lt hN))
+  calc ENNReal.ofReal V ≤ ENNReal.ofReal (V - (ε : ℝ)) + ENNReal.ofReal (ε : ℝ) := h1
+    _ ≤ (⨆ N, ENNReal.ofReal (u N)) + ENNReal.ofReal (ε : ℝ) := add_le_add h2 le_rfl
+    _ = (⨆ N, ENNReal.ofReal (u N)) + ε := by rw [ENNReal.ofReal_coe_nnreal]
+
+/-- The supremum of the truncations of a real, read in `ℝ≥0∞`. -/
+theorem iSup_ofReal_min (x : ℝ) :
+    (⨆ N : ℕ, ENNReal.ofReal (min x (N : ℝ))) = ENNReal.ofReal x := by
+  refine le_antisymm (iSup_le fun N => ENNReal.ofReal_le_ofReal (min_le_left _ _)) ?_
+  obtain ⟨N, hN⟩ := exists_nat_ge x
+  exact le_iSup_of_le N (by rw [min_eq_left hN])
+
+/-- **The truncated moments are the total of the densities**: the bounded tower applied to a
+truncation, with the density kept on the exterior side. -/
+theorem truncated_moment_eq (n : ℕ) {ψ : (Fin (n + 1) → ℝ) → ℝ} (hψm : Measurable ψ)
+    (hψ0 : ∀ p, 0 ≤ ψ p) (N : ℕ) :
+    ∫ p, min (ψ p) (N : ℝ) ∂shellLaw (n + 1)
+      = ∫ y, shellDensity n (fun p => min (ψ p) (N : ℝ)) y ∂blockUnit := by
+  have hN : (0 : ℝ) ≤ (N : ℝ) := Nat.cast_nonneg N
+  refine (integral_shellDensity_eq n (fun p => min (ψ p) (N : ℝ)) (N : ℝ) hN ?_ ?_).symm
+  · intro p
+    have h0 : 0 ≤ min (ψ p) (N : ℝ) := le_min (hψ0 p) hN
+    refine abs_le.mpr ⟨by linarith, by linarith [min_le_right (ψ p) (N : ℝ)]⟩
+  · exact hψm.min measurable_const
+
+/-- **The law-level `ℝ≥0∞` second moment of an affine function of the field**: the monotone
+convergence of the truncated densities, read as an equality of Lebesgue integrals.  This is the
+step that replaces the missing `L¹` extension of the tower. -/
+theorem lintegral_shellLaw_sq (n : ℕ) (c d a b : ℝ) :
+    ∫⁻ p, ENNReal.ofReal ((a * streamField c d n p + b) ^ 2) ∂shellLaw (n + 1)
+      = ENNReal.ofReal (a ^ 2 * streamCovariance n c + (a * c ^ n * d) ^ 2 + b ^ 2) := by
+  set ψ : (Fin (n + 1) → ℝ) → ℝ := fun p => (a * streamField c d n p + b) ^ 2 with hψ
+  set Gf : ℝ → ℝ :=
+    fun y => a ^ 2 * streamCovariance n c + (a * (c ^ n * d * y) + b) ^ 2 with hGf
+  have hψ0 : ∀ p, 0 ≤ ψ p := fun p => sq_nonneg _
+  have hψm : Measurable ψ := by
+    rw [hψ]
+    have hb : Measurable (fun p : Fin (n + 1) → ℝ => a * streamField c d n p + b) :=
+      ((measurable_streamField c d n).const_mul a).add measurable_const
+    simpa [pow_two] using hb.mul hb
+  have hGf_int : Integrable Gf blockUnit := by
+    have hcongr : Gf = fun y : ℝ =>
+        a ^ 2 * streamCovariance n c + (a * c ^ n * d * y + b) ^ 2 := by
+      rw [hGf]
+      funext y
+      ring
+    rw [hcongr]
+    exact (integrable_const _).add (integrable_poly_blockUnit (a * c ^ n * d) b)
+  have hGf_val : ∫ y, Gf y ∂blockUnit
+      = a ^ 2 * streamCovariance n c + (a * c ^ n * d) ^ 2 + b ^ 2 := by
+    have hcongr : Gf = fun y : ℝ =>
+        a ^ 2 * streamCovariance n c + (a * c ^ n * d * y + b) ^ 2 := by
+      rw [hGf]
+      funext y
+      ring
+    rw [hcongr, integral_add (integrable_const _) (integrable_poly_blockUnit (a * c ^ n * d) b),
+      integral_sq_affine_const_blockUnit, integral_const, probReal_univ, one_smul]
+    ring
+  set u : ℕ → ℝ := fun N => ∫ p, min (ψ p) (N : ℝ) ∂shellLaw (n + 1) with hu
+  have htrunc_int : ∀ N : ℕ, Integrable (fun p => min (ψ p) (N : ℝ)) (shellLaw (n + 1)) := by
+    intro N
+    have hN : (0 : ℝ) ≤ (N : ℝ) := Nat.cast_nonneg N
+    refine Integrable.of_bound (hψm.min measurable_const).aestronglyMeasurable (N : ℝ) ?_
+    filter_upwards with p
+    have h0 : 0 ≤ min (ψ p) (N : ℝ) := le_min (hψ0 p) hN
+    refine abs_le.mpr ⟨by linarith, by linarith [min_le_right (ψ p) (N : ℝ)]⟩
+  have hu_y : ∀ N : ℕ, u N
+      = ∫ y, shellDensity n (fun p => min (ψ p) (N : ℝ)) y ∂blockUnit :=
+    fun N => truncated_moment_eq n hψm hψ0 N
+  have hconv_y : Tendsto (fun N : ℕ =>
+      ∫ y, shellDensity n (fun p => min (ψ p) (N : ℝ)) y ∂blockUnit)
+      atTop (𝓝 (∫ y, Gf y ∂blockUnit)) := by
+    refine tendsto_integral_of_dominated_convergence Gf ?_ hGf_int ?_ ?_
+    · intro N
+      have hN : (0 : ℝ) ≤ (N : ℝ) := Nat.cast_nonneg N
+      refine (measurable_shellDensity n (N : ℝ) hN ?_
+        (hψm.min measurable_const)).aestronglyMeasurable
+      intro p
+      have h0 : 0 ≤ min (ψ p) (N : ℝ) := le_min (hψ0 p) hN
+      refine abs_le.mpr ⟨by linarith, by linarith [min_le_right (ψ p) (N : ℝ)]⟩
+    · intro N
+      filter_upwards with y
+      have hN : (0 : ℝ) ≤ (N : ℝ) := Nat.cast_nonneg N
+      have hnn : 0 ≤ shellDensity n (fun p => min (ψ p) (N : ℝ)) y :=
+        shellDensity_nonneg n (fun p => le_min (hψ0 p) hN) y
+      rw [Real.norm_of_nonneg hnn]
+      have hval : shellDensity n (fun p => min (ψ p) (N : ℝ)) y
+          = shellDensity n (fun p =>
+              min ((a * streamField c d n p + b) ^ 2) (N : ℝ)) y := by rw [hψ]
+      rw [hval]
+      exact shellDensity_sq_min_le n c d y a b (N : ℝ) hN
+    · filter_upwards with y
+      have hfun : (fun N : ℕ => shellDensity n (fun p => min (ψ p) (N : ℝ)) y)
+          = fun N : ℕ => shellDensity n (fun p =>
+              min ((a * streamField c d n p + b) ^ 2) (N : ℝ)) y := by
+        funext N
+        rw [hψ]
+      rw [hfun]
+      exact tendsto_shellDensity_sq_min n c d y a b
+  have hlim_u : Tendsto u atTop (𝓝 (∫ y, Gf y ∂blockUnit)) :=
+    hconv_y.congr' (Eventually.of_forall fun N => (hu_y N).symm)
+  have hu_mono : Monotone u := by
+    refine monotone_nat_of_le_succ fun N => ?_
+    have hN : (0 : ℝ) ≤ (N : ℝ) := Nat.cast_nonneg N
+    have hle : (N : ℝ) ≤ ((N + 1 : ℕ) : ℝ) := by
+      rw [Nat.cast_add_one]
+      linarith
+    refine integral_mono_of_nonneg
+      (Eventually.of_forall fun p => le_min (hψ0 p) hN)
+      (htrunc_int (N + 1))
+      (Eventually.of_forall fun p => min_le_min (le_refl _) hle)
+  have hchain : ∫⁻ p, ENNReal.ofReal (ψ p) ∂shellLaw (n + 1)
+      = ⨆ N, ENNReal.ofReal (u N) := by
+    have hfun : (fun p : Fin (n + 1) → ℝ => ENNReal.ofReal (ψ p))
+        = fun p => ⨆ N : ℕ, ENNReal.ofReal (min (ψ p) (N : ℝ)) := by
+      funext p
+      exact (iSup_ofReal_min (ψ p)).symm
+    rw [hfun]
+    rw [lintegral_iSup
+      (f := fun (N : ℕ) (p : Fin (n + 1) → ℝ) => ENNReal.ofReal (min (ψ p) (N : ℝ)))
+      (fun N => ENNReal.measurable_ofReal.comp (hψm.min measurable_const))
+      (monotone_nat_of_le_succ fun N p => ENNReal.ofReal_le_ofReal
+        (min_le_min (le_refl _) (by exact_mod_cast Nat.le_succ N)))]
+    exact iSup_congr fun N => (ofReal_integral_eq_lintegral_ofReal (htrunc_int N)
+      (Eventually.of_forall fun p => le_min (hψ0 p) (Nat.cast_nonneg N))).symm
+  have hsupV : (⨆ N, ENNReal.ofReal (u N)) = ENNReal.ofReal (∫ y, Gf y ∂blockUnit) :=
+    ofReal_iSup_of_tendsto hu_mono hlim_u
+  have hchain' : ∫⁻ p, ENNReal.ofReal ((a * streamField c d n p + b) ^ 2)
+        ∂shellLaw (n + 1) = ⨆ N, ENNReal.ofReal (u N) := by
+    rw [← hchain, hψ]
+  rw [hchain', hsupV, hGf_val]
+
+/-- **The second moment is finite**: the affine image of the reference field is square-integrable
+under the reference law at every scale.  This is the `L¹` fact the density identity could not
+supply. -/
+theorem integrable_sq_affine (n : ℕ) (c d a b : ℝ) :
+    Integrable (fun p => (a * streamField c d n p + b) ^ 2) (shellLaw (n + 1)) := by
+  have hψm : Measurable (fun p : Fin (n + 1) → ℝ => (a * streamField c d n p + b) ^ 2) := by
+    have hb : Measurable (fun p : Fin (n + 1) → ℝ => a * streamField c d n p + b) :=
+      ((measurable_streamField c d n).const_mul a).add measurable_const
+    simpa [pow_two] using hb.mul hb
+  refine ⟨hψm.aestronglyMeasurable, ?_⟩
+  rw [hasFiniteIntegral_iff_ofReal (Eventually.of_forall fun p => sq_nonneg _)]
+  rw [lintegral_shellLaw_sq]
+  exact ENNReal.ofReal_lt_top
+
+/-- **The moment identity at the law level**: the second moment of an affine function of the
+`n`-scale reference field, under the reference law of `n + 1` coordinates, is the accumulated
+covariance plus the square of the drift.  This is the law-level statement the density identity
+`shellDensity_quadratic` could not make: an honest integral against a probability measure,
+obtained by driving the bounded tower to its limit along truncations. -/
+theorem integral_shellLaw_sq (n : ℕ) (c d a b : ℝ) :
+    ∫ p, (a * streamField c d n p + b) ^ 2 ∂shellLaw (n + 1)
+      = a ^ 2 * streamCovariance n c + (a * c ^ n * d) ^ 2 + b ^ 2 := by
+  have hψm : Measurable (fun p : Fin (n + 1) → ℝ => (a * streamField c d n p + b) ^ 2) := by
+    have hb : Measurable (fun p : Fin (n + 1) → ℝ => a * streamField c d n p + b) :=
+      ((measurable_streamField c d n).const_mul a).add measurable_const
+    simpa [pow_two] using hb.mul hb
+  have hofReal : ENNReal.ofReal (∫ p, (a * streamField c d n p + b) ^ 2 ∂shellLaw (n + 1))
+      = ENNReal.ofReal (a ^ 2 * streamCovariance n c + (a * c ^ n * d) ^ 2 + b ^ 2) := by
+    rw [ofReal_integral_eq_lintegral_ofReal (integrable_sq_affine n c d a b)
+      (Eventually.of_forall fun p => sq_nonneg _), lintegral_shellLaw_sq]
+  have hnonneg : 0 ≤ ∫ p, (a * streamField c d n p + b) ^ 2 ∂shellLaw (n + 1) :=
+    integral_nonneg fun p => sq_nonneg _
+  have hR : 0 ≤ a ^ 2 * streamCovariance n c + (a * c ^ n * d) ^ 2 + b ^ 2 := by
+    exact add_nonneg (add_nonneg (mul_nonneg (sq_nonneg a) (streamCovariance_nonneg n c))
+      (sq_nonneg _)) (sq_nonneg b)
+  have h := congrArg ENNReal.toReal hofReal
+  rwa [ENNReal.toReal_ofReal hnonneg, ENNReal.toReal_ofReal hR] at h
+
+/-- The field itself is integrable under the reference law: it is dominated by its square. -/
+theorem integrable_streamField (n : ℕ) (c d : ℝ) :
+    Integrable (fun p => streamField c d n p) (shellLaw (n + 1)) := by
+  have hsq : Integrable (fun p => (streamField c d n p) ^ 2) (shellLaw (n + 1)) := by
+    simpa using integrable_sq_affine n c d 1 0
+  have hdom : Integrable (fun p => (streamField c d n p) ^ 2 / 2 + 1 / 2)
+      (shellLaw (n + 1)) :=
+    (hsq.div_const 2).add (integrable_const (1 / 2))
+  refine Integrable.mono' hdom (measurable_streamField c d n).aestronglyMeasurable ?_
+  filter_upwards with p
+  have h : |streamField c d n p| ≤ (streamField c d n p) ^ 2 / 2 + 1 / 2 := by
+    have h1 : 0 ≤ (|streamField c d n p| - 1) ^ 2 := sq_nonneg _
+    have h2 : |streamField c d n p| ^ 2 = (streamField c d n p) ^ 2 := sq_abs _
+    nlinarith [abs_nonneg (streamField c d n p)]
+  simpa [Real.norm_eq_abs] using h
+
+/-- **The mean of the reference field is zero**: with the exterior coordinate also averaged, the
+drift is symmetric and cancels.  This is the first honest expectation under the reference law. -/
+theorem integral_shellLaw_streamField (n : ℕ) (c d : ℝ) :
+    ∫ p, streamField c d n p ∂shellLaw (n + 1) = 0 := by
+  have hS : Integrable (fun p => streamField c d n p) (shellLaw (n + 1)) :=
+    integrable_streamField n c d
+  have hS2 : Integrable (fun p => (streamField c d n p) ^ 2) (shellLaw (n + 1)) := by
+    simpa using integrable_sq_affine n c d 1 0
+  have hsq : ∫ p, (streamField c d n p) ^ 2 ∂shellLaw (n + 1)
+      = streamCovariance n c + (c ^ n * d) ^ 2 := by
+    have h := integral_shellLaw_sq n c d 1 0
+    simpa using h
+  have hshift : ∫ p, (streamField c d n p - 1) ^ 2 ∂shellLaw (n + 1)
+      = streamCovariance n c + (c ^ n * d) ^ 2 + 1 := by
+    have h := integral_shellLaw_sq n c d 1 (-1)
+    simpa using h
+  have hexp : ∫ p, (streamField c d n p - 1) ^ 2 ∂shellLaw (n + 1)
+      = ∫ p, (streamField c d n p) ^ 2 ∂shellLaw (n + 1)
+        - 2 * ∫ p, streamField c d n p ∂shellLaw (n + 1) + 1 := by
+    have hfun : (fun p : Fin (n + 1) → ℝ => (streamField c d n p - 1) ^ 2)
+        = fun p => (streamField c d n p) ^ 2 - (2 * streamField c d n p - 1) := by
+      funext p
+      ring
+    have h2 : Integrable (fun p : Fin (n + 1) → ℝ => 2 * streamField c d n p - 1)
+        (shellLaw (n + 1)) := (hS.const_mul 2).sub (integrable_const 1)
+    rw [hfun, integral_sub hS2 h2]
+    have h3 : ∫ p, (2 * streamField c d n p - 1) ∂shellLaw (n + 1)
+        = 2 * ∫ p, streamField c d n p ∂shellLaw (n + 1) - 1 := by
+      rw [integral_sub (hS.const_mul 2) (integrable_const 1), integral_const_mul,
+        integral_const, probReal_univ, one_smul]
+    rw [h3]
+    ring
+  rw [hexp, hsq] at hshift
+  linarith
+
+/-- **The variance of the reference field**: the second central moment under the reference law is
+the accumulated covariance plus the doubled-drift term. -/
+theorem integral_shellLaw_centered_sq (n : ℕ) (c d : ℝ) :
+    ∫ p, (streamField c d n p - ∫ q, streamField c d n q ∂shellLaw (n + 1)) ^ 2
+        ∂shellLaw (n + 1)
+      = streamCovariance n c + (c ^ n * d) ^ 2 := by
+  have hmean := integral_shellLaw_streamField n c d
+  have hfun : (fun p : Fin (n + 1) → ℝ =>
+        (streamField c d n p - ∫ q, streamField c d n q ∂shellLaw (n + 1)) ^ 2)
+      = fun p => (streamField c d n p) ^ 2 := by
+    funext p
+    rw [hmean]
+    ring
+  rw [hfun]
+  have h := integral_shellLaw_sq n c d 1 0
+  simpa using h
+
+/-- **The law-level variance is uniformly bounded in the number of scales**: for a contracting
+per-scale weight the variance of the reference field never exceeds `1/(1 − c²) + d²`. -/
+theorem variance_shellLaw_le (n : ℕ) (c d : ℝ) (hc : c ^ 2 < 1) :
+    ∫ p, (streamField c d n p - ∫ q, streamField c d n q ∂shellLaw (n + 1)) ^ 2
+        ∂shellLaw (n + 1)
+      ≤ 1 / (1 - c ^ 2) + d ^ 2 := by
+  rw [integral_shellLaw_centered_sq]
+  have hK : streamCovariance n c ≤ 1 / (1 - c ^ 2) := streamCovariance_le_inv n c hc
+  have hpow : (c ^ n) ^ 2 ≤ 1 := by
+    have h : (c ^ 2) ^ n ≤ 1 := pow_le_one₀ (sq_nonneg c) (le_of_lt hc)
+    have he : (c ^ n) ^ 2 = (c ^ 2) ^ n := by
+      rw [← pow_mul, ← pow_mul, mul_comm]
+    rwa [he]
+  have hdrift : (c ^ n * d) ^ 2 ≤ d ^ 2 := by
+    rw [mul_pow]
+    exact mul_le_of_le_one_left (sq_nonneg d) hpow
+  linarith
+
 end BookProof.OSReconstruction
+
 

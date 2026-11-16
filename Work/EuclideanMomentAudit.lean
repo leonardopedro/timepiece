@@ -261,3 +261,22 @@ open BookProof.OSReconstruction
 #audit_axioms shellAffineTailLaw_le_inv
 #audit_axioms exists_shellAffineTailLaw_le
 #audit_axioms shellAffineTailLaw_one_zero
+
+/-! ## C3e, third packet: the `L¹` moment identity at the law level -/
+
+#audit_axioms integral_sq_affine_const_blockUnit
+#audit_axioms measurable_fin_cons_prod
+#audit_axioms measurable_shellDensity_param
+#audit_axioms shellDensity_sq_min_le
+#audit_axioms tendsto_shellDensity_sq_min
+#audit_axioms measurable_shellDensity
+#audit_axioms ofReal_iSup_of_tendsto
+#audit_axioms iSup_ofReal_min
+#audit_axioms truncated_moment_eq
+#audit_axioms lintegral_shellLaw_sq
+#audit_axioms integrable_sq_affine
+#audit_axioms integral_shellLaw_sq
+#audit_axioms integrable_streamField
+#audit_axioms integral_shellLaw_streamField
+#audit_axioms integral_shellLaw_centered_sq
+#audit_axioms variance_shellLaw_le

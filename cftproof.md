@@ -770,6 +770,41 @@ Chebyshev cost of the shift, and no statement is made that the laws of the affin
 that their means converge, or that any limiting covariance exists. The interacting C3a–C3d packets,
 the half-space inequality, the OS reconstruction theorem and any field law are untouched.
 
+**Landed 2026-11-16, twelfth slice: the `L¹` moment identity (C3e, third packet).** The
+boundedness hypothesis of the tower was never about the field: it was there because the
+per-`y` identity could only be built from integrability of sections. At the level of *totals* the
+obstruction disappears, and with it the gap that kept every expectation out of reach. Sixteen
+declarations were added to the audit, all on standard axioms.
+
+* **The truncation is dominated by the exact value.** `shellDensity_sq_min_le`: the density of the
+  truncation `min (a·S + b)² N` is at most `a²K_n + (a·c^n·d·y + b)²` at *every* scale. The
+  induction needs no monotonicity lemma and no section integrability — the majorant is explicit.
+* **The truncation rises to it.** `tendsto_shellDensity_sq_min`: dominated convergence through the
+  recursion, with that same quadratic as majorant, using the new parameter-measurability lemma
+  `measurable_shellDensity_param` (a jointly measurable family has a density measurable in the
+  parameter) and `measurable_shellDensity` (a bounded observable's density is measurable in `y`,
+  via the tower itself).
+* **The monotone limit.** `truncated_moment_eq` (bounded tower at the truncation),
+  `lintegral_shellLaw_sq` (`∫⁻` equality after `lintegral_iSup`, `iSup_ofReal_min`,
+  `ofReal_iSup_of_tendsto`), hence `integrable_sq_affine` — the square is integrable — and the
+  moment identity `integral_shellLaw_sq`:
+  `∫ (a·S_n + b)² ∂shellLaw(n+1) = a²K_n + (a·c^n·d)² + b²`.
+* **Expectation and variance.** `integral_shellLaw_streamField`: the mean is **zero** (the drift
+  multiplies the exterior coordinate, whose average vanishes; the moment formula at `b = t` and at
+  `b = 0` then forces the cross term to vanish). `integral_shellLaw_centered_sq`: the variance is
+  `K_n + (c^n·d)²`. `variance_shellLaw_le`: for `c² < 1` it is at most `1/(1 − c²) + d²`,
+  *uniformly in `n`*.
+
+Boundary of this twelfth slice: **the totals, not the sections.** What is proved is that the
+law-level integral of a quadratic of the field exists and equals the explicit number; the per-`y`
+identity `shellDensity_eq_integral_snoc` remains a statement about bounded observables, so no
+conditional expectation is constructed and no section-level statement is recovered. The variance is
+that of `streamField`, *not* of the renormalised observable `renormField`: the latter would need the
+cross moment `E[S · p_last]`, which is the first item of the two-point function and is not
+computed. There is no Gaussianity statement (the second moment is not a distribution), no
+correlation, no Prokhorov limit and no interacting observable; C3a–C3d, the half-space inequality,
+the OS reconstruction theorem and any field law are untouched.
+
 ### C3 — use Bałaban's multiscale method for the physical uniform estimates
 
 Bałaban's approach is a principal source of the analytic estimates, alongside reuse of the

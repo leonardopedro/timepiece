@@ -643,6 +643,32 @@ ceiling: the estimate is a probability statement about an *indicator*, so no exp
 or covariance of an affine image is computed. Those need the `L^1` extension of the tower named in
 the qualification below.
 
+The `L^1` gap closes at the level of *totals*, and that is where the expectations live. The
+bounded tower is applied to the truncation of the square rather than to the square; the truncated
+density is dominated, at every number of scales, by the exact quadratic value the induction
+already produces, and it rises to that value as the truncation is raised. Monotone convergence
+then turns the equality of real integrals into an equality of Lebesgue integrals, and the finiteness
+of the right-hand side is what makes the square integrable:
+
+```
+truncated_moment_eq      : the bounded tower at the truncation min (psi) N
+shellDensity_sq_min_le   : truncated density <= a^2 K_n + (a c^n d y + b)^2
+tendsto_shellDensity_sq_min : the truncated density rises to that value
+lintegral_shellLaw_sq    : the Lebesgue integral of the square is the same number
+integrable_sq_affine     : hence the square is integrable
+integral_shellLaw_sq     : its integral is a^2 K_n + (a c^n d)^2 + b^2
+integrable_streamField   : the field is integrable as well
+integral_shellLaw_centered_sq : the variance is K_n + (c^n d)^2
+variance_shellLaw_le     : c^2 < 1 -> variance <= 1/(1 - c^2) + d^2
+```
+
+Two consequences are worth naming. The mean of the reference field is zero: the drift `c^n d`
+multiplies the exterior coordinate, whose average is zero, so the moment formula at a shift `b = t`
+and at `b = 0` differ only by `t^2`, and the cross term forces the mean to vanish. The variance is
+therefore `K_n + (c^n d)^2`, and for a contracting weight it is bounded by `1/(1 - c^2) + d^2`
+uniformly in the number of scales — the same uniformity the small-field bound had, now for an
+honest second moment rather than for a Chebyshev count of indicators.
+
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of
 fresh independent Gaussians, and $`d \mapsto c d` is a definition, not a theorem about an
