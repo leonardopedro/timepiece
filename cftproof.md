@@ -190,6 +190,57 @@ dynamics. This does not erase inner constants: `h+cI` changes `H` by `c N_out`.
 field labels, renormalized smearings and the comparison archive hierarchy. Do not accept
 an arbitrary reference vacuum or field law in place of the specified physical object.
 
+**Landed 2026-11-15, in the finite form below.**
+`BookProof/OSReconstruction/ContinuumManifest.lean` writes the binder down and proves the
+identities and rejections it has to support. No `sorry`; axiom footprint of every theorem
+below `{propext, Classical.choice, Quot.sound}` only (`Work/ContinuumManifestAudit.lean`).
+
+* **The manifest.** `NestedSpec` binds the specified inner column family `h_sigma`, the
+  **physical cutoff** `(a, L, R)` (`PhysicalCutoff`), the **solver budget** `(m, q,
+  precision)` kept separate from it (`SolverBudget`), the renormalized scale, the colour
+  rank and the reference energy. `NestedSpec.finalHamiltonian` is `H_sigma = dΓ(h_sigma)`
+  and `numberOperator` is `N_out = dΓ(1)`, on the corpus's finite-mode Fock algebra — the
+  same operator the manuscript writes as `Σ_ij ⟨e_i, h_sigma e_j⟩ C†(e_i) A(e_j)`.
+* **`h + cI = H + c N_out`, and nothing else.**
+  `NestedSpec.finalHamiltonian_shift` proves the shifted manifest's Hamiltonian is
+  `dΓ(h_sigma) + c • dΓ(numberCol)`, and `NestedSpec.relativeGenerator_shift` that the
+  reference subtraction `K_sigma = H_sigma − E_ref • 1` moves by the same `c N_out`.
+  `NestedSpec.relativeGenerator_vac` records that `K_sigma Ω_out = −E_ref • Ω_out`: the
+  subtraction is relative dynamics and does not erase the inner constant.
+* **The inner object is recoverable.** `dGamma_injective` proves `dΓ` determines its
+  one-particle matrix (via `dGamma_oneVec` and `onePartVec_apply`), hence
+  `NestedSpec.inner_eq_of_finalHamiltonian_eq` and `NestedSpec.finalHamiltonian_eq_of_inner_eq`:
+  "the same `dΓ`" is a statement about `h_sigma`, not about notation.
+* **The negative controls.** `shift_changes_model` rejects a nonzero inner constant shift;
+  `droppedInteraction_rejected` rejects any other inner column family (in particular the
+  free part, i.e. a discarded interaction); `krylov_not_continuum` proves that enlarging
+  the Krylov rank changes no physical cutoff, so `m → ∞` at fixed `a, L, R` is not a
+  spacetime continuum limit; `unrelatedAdapter_rejected` and `mismatchedBasis_rejected`
+  reject an archive adapter on a foreign family or with `M.basis ≠ Q.port`, and
+  `ContinuumWitness` carries the compatibility proof with the witness so the archive side
+  cannot be re-chosen later.
+* **The observable dictionary.** `FieldLabel` names a smeared field observable together with
+  the scale it is smeared against, and `HalfSpaceData` binds the positive-time half of each
+  label to a `PositiveTimeAlgebra` element, with
+  `HalfSpaceData.labels_mem_positiveTime` (`θ` sends the labels to the negative-time half),
+  `HalfSpaceData.theta_labels_dependsOn_negTime`, and
+  `HalfSpaceData.label_outside_algebra_rejected`. `ObservableDictionary n Ω` pairs that
+  algebra data with the spatial prior and proves `labels_mem_positiveTime`,
+  `prior_prop_normalized`, `prior_corr_eq` (the dictionary in integral form) and
+  `label_outside_rejected`. `ContinuumWitness` now carries this dictionary together with
+  `halfSpace_eq`, so the positive-time algebra and the field labels are part of the same
+  witness as the Hamiltonian and the cutoff.
+
+The archive side is an **inventory, not an import**: `../OpenAI-YM-20261028` is absent in
+this workspace, so `ArchiveAdapter` records the data a real adapter must supply (the
+Wilson family as columns, the extraction order, the basis and port labels) and no archive
+theorem is assumed, ported or added as an axiom. Boundary: `NestedSpec.inner` is a
+concrete finite-mode column family, not a self-adjoint operator with an identified domain;
+the growing spatial regulator family, the gauge group/representation, the bare-coupling
+trajectory, the boundary condition and the numerical law of the spatial prior are still
+inputs (the dictionary binds which labels and positive-time algebra they act on, not the
+prior's values), and C2–C10 are untouched.
+
 ### C1 — complete a genuine 4D Gaussian control in Mehler coordinates
 
 Construct the massive scalar reference on distributions with covariance
@@ -223,6 +274,81 @@ already imported or locally verified theorem. It supplies no interacting QYM bri
 and Euclidean covariance, with cutoff convergence. This is a completed control case,
 not proof that the nonabelian interaction survives removal of cutoffs.
 
+**Landed 2026-11-15, in the finite cutoff form below.**
+`BookProof/OSReconstruction/GaussianMehlerControl.lean` constructs the control on two time
+slices and a finite three-dimensional momentum box, in Mehler coordinates. No `sorry`; axiom
+footprint `{propext, Classical.choice, Quot.sound}` only (`Work/GaussianMehlerAudit.lean`).
+
+* **The covariance.** With `SpatialMode M = Fin M × Fin M × Fin M`,
+  `spatialEigenvalue k = Σ_j (k_j + 1)²` and `variance m₀ p = 1/(m₀² + spatialEigenvalue
+  (p.2) + (if p.1 then 1 else 3))`; `variance_pos` gives strict positivity. The two time
+  slices are correlated, so the covariance is **not ultralocal** and is genuinely 4D (three
+  spatial momenta times two time slices). `variance_symm_ge_antisymm` proves the symmetric
+  Mehler mode dominates the antisymmetric one.
+* **The normalized law.** `law m₀` is the product of one-dimensional Gaussians over modes and
+  `law_isProbability` proves it is a probability measure.
+* **Cylinder laws and moments.** `marginal` computes every one-mode cylinder law as
+  `gaussianReal 0 (variance …)`; `charFun_one_mode` gives the one-mode characteristic
+  functional `∫ exp(i t y_p) dμ = exp(−variance · t²/2)`; `second_moment` gives the smeared
+  second moment `∫ y_p² dμ = variance m₀ p`.
+* **Euclidean covariance and reflection.** `covBilin` is the diagonal Mehler covariance
+  form, `covBilin_self_nonneg` its positivity, `reflectMehler` the time reflection
+  (`y₊ ↦ y₊`, `y₋ ↦ −y₋`) with `reflectMehler_involutive`, and `reflection_invariant` the
+  Euclidean-covariance clause `C(θf, θg) = C(f, g)`.
+* **Reflected-covariance positivity on half-space tests.** `posTest` lifts a spatial test to
+  the positive-time slice; `rp_covariance` proves `C(θf, f) ≥ 0` for `f = posTest g`, reducing
+  to `∑_k (variance (true,k) − variance (false,k)) · g k²/4 ≥ 0`.
+* **The negative control.** `badVariance` swaps the two Mehler eigenvalues while staying
+  strictly positive, so `badCovBilin` is a positive-definite diagonal covariance; `bad_rp_fails`
+  exhibits a spatial test with `badCovBilin (θf) f < 0`. A positive covariance matrix alone
+  is therefore insufficient, matching
+  [HalfSpaceInfiniteBandedCovariance](BookProof/OSReconstruction/HalfSpaceInfiniteBandedCovariance.lean).
+* **Cutoff consistency.** `embedMehler` includes a mode into the next cutoff,
+  `spatialEigenvalue_embed` and `variance_embed` show the variance is cutoff-independent on
+  the common modes, and `marginal_embed` shows the one-mode cylinder laws of the `M` and
+  `M + 1` cutoffs agree there.
+
+Boundary: this is the finite-dimensional control, not the `S'(R⁴)` field. The lift of
+reflected-covariance positivity from the covariance form to **all polynomial cylinders** is
+the next paragraph; no globally Hilbert–Schmidt `C₀^{1/2}`, no `L²(R⁴)` field and no
+`S'`-valued `M → ∞` limit is constructed here; only the consistent finite-dimensional
+cylinder laws are.
+
+**Landed 2026-11-15, all-degree lift via the boundary-conditioned kernel.**
+`BookProof/OSReconstruction/GaussianMehlerCylinderRP.lean`. No `sorry`; axiom footprint
+`{propext, Classical.choice, Quot.sound}` only (`Work/GaussianMehlerAudit.lean`).
+
+* **Why not Wick.** Degree two collapses the Isserlis sum to a square
+  (`ReflectionPositivity/QuadraticWick.lean`), but from degree three the pairing sum is a
+  permanent of the reflected kernel and carries no sign in general; the *Wick* route therefore
+  cannot be iterated. The all-degree mechanism is the kernel factorization of the free state.
+* **The kernel form.** With `v₊ k = variance m₀ (true, k)` and `v₋ k = variance m₀ (false, k)`,
+  the C1 covariance in the slice coordinates `x₀ = (y₊ − y₋)/√2`, `x₁ = (y₊ + y₋)/√2` is
+  `[[A, B], [B, A]]` with `A k = (v₊ k + v₋ k)/2` and `B k = (v₊ k − v₋ k)/2 ≥ 0`
+  (`variance_symm_ge_antisymm`). It is exactly the covariance of the shared-shift state
+  `x₀ = T + X`, `x₁ = T + Y` with `T, X, Y` independent and `Var T k = B k`, `Var X k =
+  Var Y k = v₋ k`; `shiftVariance`, `noiseVariance`, `shiftLaw`, `noiseLaw`, `kernelMap`,
+  `kernelLaw` write it down, `kernelLaw_isProbability` proves it is normalized, and
+  `sliceVariance_eq` records `B k + v₋ k = A k`.
+* **The lift.** `kernelLaw_reflectionPositive` proves, for **every bounded measurable**
+  cylinder observable `F` of one half, `0 ≤ ∫ z, F z.2 * F z.1 ∂(kernelLaw m₀)`. Conditioning
+  on the shared shift makes the halves independent copies of `T + X`, so the OS form is the
+  boundary average of `(∫ F (t + x) ∂γ)²`: one square, no degree restriction.
+* **Polynomial cylinders.** `kernelLaw_reflectionPositive_of_integrable` replaces boundedness
+  by integrability of the OS integrand, which is the form an unbounded polynomial takes:
+  `P (T + X) * P (T + Y)` is a polynomial in Gaussian variables. Polynomials are therefore
+  covered by the same inequality, with the polynomial-times-Gaussian moment input supplied as
+  the hypothesis rather than recomputed.
+* **The slice bridge.** `timeZero`, `timeOne` express the slices as functions of a Mehler
+  configuration and `timeZero_reflect`/`timeOne_reflect` prove that the Mehler reflection
+  swaps them, so the kernel state is the slice-coordinate form of the C1 covariance.
+
+Boundary of the lift: the identification with the Mehler law is at the level of the
+**covariance** (same two-point function, hence the same free `C₀`); equality of the two
+Gaussian laws is not formalized, and the unconditional theorem is the bounded-observable one,
+with polynomials entering through the integrability variant. The transfer operator is the
+mixture average over the boundary law, not an interacting dynamics.
+
 ### C2 — construct the regulated interacting state and its Euclidean dictionary
 
 At fixed `a,L`, close/select `h_sigma` and its outer lift on the specified common core.
@@ -248,6 +374,213 @@ hierarchy and its explicitly proved positivity axioms.
 **Acceptance:** nonzero separated correlations with nontrivial time dependence, RP on the
 physical positive-time algebra and the regulator-level moment/observable bridge. Independent
 half-space replicas with identically zero connected cross correlations do not pass this gate.
+
+**Landed 2026-11-15, first slice: the moment hierarchy at the regulator.**
+`BookProof/OSReconstruction/EuclideanMomentHierarchy.lean`. No `sorry`; axiom footprint
+`{propext, Classical.choice, Quot.sound}` only (`Work/EuclideanMomentAudit.lean`).
+
+* **Euclidean evolution.** `euclidEvol K t = e^{-tK}` for a **bounded** generator `K` on a
+  complete complex Hilbert space, with `euclidEvol_zero` and the semigroup law
+  `euclidEvol_add` (exponentials of commuting multiples of one generator), plus
+  `commute_euclidEvol`.
+* **Words and moments.** `euclidWord K A word` is the ordered product
+  `A e^{-Δ₁K} A₁ ⋯ e^{-ΔₙK} Aₙ`, and `euclidMoment K Ω A word = ⟨Ω, (that product) Ω⟩`.
+  `euclidWord_append` gives the **extension convention**: splitting a word at a gap composes
+  the two operator products. `euclidMoment_nil` and `euclidMoment_one_nil` give the empty
+  word and the normalization `⟨Ω, Ω⟩ = 1` of a unit reference vector.
+* **Two-point positivity at coincident times.** `euclidMoment_zero_adjoint` proves
+  `⟨Ω, A† A Ω⟩ = ‖A Ω‖²`, hence `euclidMoment_zero_adjoint_re_nonneg`: the regulator-level
+  square the separated-time half-space form has to generalize.
+* **Nonzero, time-dependent correlation.** The one-mode free regulator `scalarK m = m • 1`
+  has `euclidMoment_scalarK`: `⟨1, e^{-tK} 1⟩ = e^{-tm}`; `euclidMoment_scalarK_re_pos` makes
+  it strictly positive for every `t`, and `scalarMoment_ne_one` proves the time‑`1` and
+  time‑`0` moments differ for `m ≠ 0`. That is the C2 acceptance's non‑triviality condition at
+  the free regulator level.
+
+Boundary of this slice: `K` is bounded, so this is the finite‑mode regulator with every
+moment a finite scalar (domain and integrability hold by construction); the unbounded
+`h_sigma` closure and its selection are not built. Half-space OS positivity at the
+**interacting** regulator, the configuration/field-law representation, and the
+positivity-preserving semigroup with ground function are not constructed: moments of a
+positive `K` are not a classical path measure, and the scalar free moment is not evidence
+that the interaction survives cutoff removal.
+
+**Landed 2026-11-15, second slice: separated-time two-point functions and their
+reflection positivity at the regulator.** Same module, same audit; axiom footprint
+unchanged (`Work/EuclideanMomentAudit.lean` now covers 31 declarations).
+
+* **Separated-time two-point functions.** `twoPoint K Ω A B h = ⟨Ω, A e^{-hK} B Ω⟩` — `A`
+  inserted at time `0`, `B` at the later time `h`; `twoPoint_eq` unfolds it,
+  `twoPoint_zero` is the coincident-time value, and `twoPoint_adjoint_zero`
+  (`⟨Ω, A† A Ω⟩ = ‖A Ω‖²`) is the square at zero separation.
+* **The reflected (OS) form.** For a finite family of insertions `(sᵢ, Aᵢ)` with
+  `sᵢ ≥ 0`, time reflection sends `Aᵢ` at `+sᵢ` to `Aᵢ†` at `−sᵢ`; the reflected form is
+  `reflectedForm K Ω f = Σᵢ Σⱼ ⟨Aᵢ Ω, e^{-(sᵢ+sⱼ)K} Aⱼ Ω⟩`. Its entries are exactly the
+  separated-time two-point functions (`euclidMoment_adjoint_pair`,
+  `euclidMoment_adjoint_eq_inner`).
+* **Reflection positivity.** For a **self-adjoint** generator the evolution `e^{-sK}` is
+  self-adjoint (`euclidEvol_isSelfAdjoint`), so `reflectedForm_eq_inner` collapses the
+  double sum to `‖Σᵢ e^{-sᵢK}(Aᵢ Ω)‖²`, all degrees at once, and `reflectedForm_re_nonneg`
+  gives nonnegativity. The explicit two-insertion statement is
+  `twoPoint_reflected_eq_normSq` / `twoPoint_reflected_re_nonneg`: the four-term form is the
+  squared norm of `e^{-sK}(A Ω) + e^{-tK}(B Ω)`. `reflectedForm_scalarK_re_nonneg` is the
+  free-regulator instance.
+* **Calibration against C1** (`BookProof/OSReconstruction/EuclideanMehlerCalibration.lean`).
+  The C1 Mehler slice covariance is `C = [[A,B],[B,A]]` with `A = (v₊+v₋)/2`
+  (`sliceDiagonal`) and `B = (v₊−v₋)/2` (`sliceCross`); `sliceCross_eq_shiftVariance` and
+  `sliceDiagonal_eq_shiftVariance_add_noiseVariance` tie it to the boundary-conditioned
+  kernel, and `sliceCross_pos` / `sliceCross_lt_sliceDiagonal` show `B/A ∈ (0,1)`. In the
+  state `Ω = √A` the free one-mode regulator has `⟨Ω, e^{-hK} Ω⟩ = A e^{-hm}`
+  (`euclidMoment_scalarK_sqrt`), so `free_regulator_reproduces_slice_covariance` produces a
+  mass `m = −log(B/A) ≥ 0` for which the zero-separation moment is `A` and the unit-separation
+  moment is `B`: **the C1 slice covariance is exactly a free-regulator two-point function**.
+  `free_regulator_twoPoint_reflected_re_nonneg` is reflection positivity at that calibration.
+
+Boundary of this second slice: the calibration is a statement about the **two-point
+function** at one mode and unit separation, not equality of laws — the scalar regulator's
+moments are not the Mehler path measure, and no field law or transfer operator is
+identified. The mass is the free mass that reproduces the covariance ratio `B/A`, not the
+physical cutoff mass. Self-adjointness of the generator is used for RP; positivity of the
+diagonal moment `⟨A† e^{-hK} A⟩` at separated times is **not** claimed (it needs a positive
+evolution, i.e. a spectral hypothesis, which this slice does not establish). Reflection
+positivity here is the regulator statement `⟨θF, F⟩ = ‖·‖²`; the interacting half-space
+OS inequality remains open.
+
+**Landed 2026-11-15, third slice: the reflected form as a positive semidefinite form.**
+Same module, same audit; axiom footprint unchanged (42 declarations now audited). This is the
+first reconstruction step at the regulator: RP already *is* an inner product, so no measure
+theory is needed to see that the positive-time pair form is well defined.
+
+* **The reflected pairing.** `reflectedPair K Ω f g = Σᵢ Σⱼ ⟨Aᵢ Ω, e^{-(sᵢ+sⱼ)K} Bⱼ Ω⟩` for
+two finite families, with the same index type or different ones; `reflectedPair_self` recovers
+the reflected form on the diagonal, and `reflectedPair_eq_inner` identifies the pairing with
+`⟪reflectedVector f, reflectedVector g⟫` (self-adjoint `K`). `reflectedPair_conj_swap` is
+conjugate symmetry: `reflectedPair g f = conj (reflectedPair f g)`.
+* **Null space.** `reflectedForm_re_eq_normSq` gives `(reflectedForm f).re = ‖reflectedVector f‖²`,
+so `reflectedForm_eq_zero_iff` shows a family is null exactly when its reflected vector
+vanishes, and `reflectedPair_eq_zero_of_null` shows null families pair to zero with everything:
+the pairing descends to the quotient by null vectors, which is the reconstructed Hilbert space's
+first well-definedness obligation at the regulator.
+* **Cauchy–Schwarz.** `reflectedPair_cauchy_schwarz`: `‖reflectedPair f g‖ ≤ √(reflectedForm f).re · √(reflectedForm g).re`.
+The distinguished corollary is `twoPoint_cauchy_schwarz`: for a self-adjoint generator
+`‖⟨A† e^{-(s+t)K} B⟩‖² ≤ ⟨A† e^{-2sK} A⟩.re · ⟨B† e^{-2tK} B⟩.re`, i.e. the two-by-two reflected
+matrix of a pair of insertions is positive semidefinite — the standard OS bound on the
+separated-time two-point function, obtained without any spectral or positivity-of-evolution
+hypothesis beyond self-adjointness.
+
+Boundary of this third slice: this is the pairing of the **regulator**, built from bounded
+observables and bounded `K`; the quotient space is constructed only as a set of null classes
+(no completion, no topology, no measure), and Cauchy–Schwarz is proved through the explicit
+norm identity rather than by abstract form theory. Everything stated is about the reflected
+pairing of finitely supported families; the interacting half-space inequality, the
+reconstruction theorem, and the field law remain open.
+
+**Landed 2026-11-15, fourth slice: the reconstructed pre-Hilbert space at the regulator.**
+Same module; axiom footprint unchanged (55 declarations now audited). The object built is
+the regulator-level reconstruction itself: the quotient of families by null families carries
+a genuine inner product, realized isometrically inside the regulator Hilbert space.
+
+* **The reconstruction map.** Separating the insertion times from the operators,
+  `familyVector K Ω s A = Σᵢ e^{-sᵢK}(Aᵢ Ω)` is additive (`familyVector_add`) and
+  complex-homogeneous (`familyVector_smul`) in the operators, so it is the underlying map of
+  a complex-linear map `familyVectorLM`. The reflected pairing is then the ambient inner
+  product of images, `familyPair K Ω s A t B = ⟪familyVector K Ω s A, familyVector K Ω t B⟫`,
+  with `familyForm` its diagonal; `familyPair_eq_reflectedPair` proves this is the same
+  pairing as the section 6 double sum over separated-time two-point functions.
+* **The inner-product axioms on classes.** Additivity in each family
+  (`familyPair_add_left`/`familyPair_add_right`), `familyForm_eq_normSq`,
+  `familyForm_re_nonneg`, positive definiteness modulo nulls (`familyForm_eq_zero_iff`),
+  `familyPair_eq_zero_of_null`, and `familyPair_congr_left`: the pairing is a function of the
+  class of the reflected vector. `familyForm_sub_re_eq_dist_sq` identifies the class distance
+  with the ambient distance of reflected vectors, and `familyPair_cauchy_schwarz` is
+  Cauchy–Schwarz for the class pairing.
+* **The capstone.** `reflected_reconstruction` bundles these: the pairing is the inner
+  product of the images of a linear map, that map's kernel is exactly the null families, the
+  diagonal is nonnegative, and Cauchy–Schwarz holds. Completing the range therefore yields
+  the reconstructed Hilbert space, and the quotient is a pre-Hilbert space isometric to it.
+
+Boundary of this fourth slice: **pre-Hilbert, not Hilbert.** The quotient is realized as a
+subspace of the regulator space rather than as its own type; no completion, no topology on
+classes, no cyclic-vector or time-translation action on the reconstructed space is built.
+The inner product is the ambient one, so the result is honest but structural — it exhibits
+what RP already delivers at the regulator and does not address the interacting half-space
+inequality, the OS reconstruction theorem, or any field law.
+
+**Landed 2026-11-15, fifth slice: the coarse density of a block step (C3a, first packet).**
+New module `BookProof/OSReconstruction/GaussianBlockCoarseDensity.lean`; axiom footprint
+unchanged (76 declarations now audited, all `propext`/`Classical.choice`/`Quot.sound`). The
+plan's density warning is now a theorem instead of a caution: the coarse density of `|Psi|²`
+is `E[|Psi|² | G]`, and it is not `|E[Psi | G]|²`.
+
+* **The reference system.** Two independent unit Gaussians, one coordinate per variable: the
+  first is the block, the second the exterior field. Coarse graining is the partial integral
+  `blockIntegral f y = ∫ x, f (x, y) ∂gamma`, and `integral_blockIntegral` is the tower
+  identity `∫ f ∂(gamma ⊗ gamma) = ∫ (blockIntegral f) ∂gamma` — integrating the coarse
+  density over the exterior fields recovers the joint integral.
+* **The step as a map.** `blockIntegral_add`, `blockIntegral_nonneg`, `blockIntegral_const`,
+  `blockIntegral_exterior`: additive on integrable slices, pointwise nonnegative, normalised at
+  constants, and fixing observables of the exterior field. `blockIntegral_mul_exterior` is the
+  characterising identity — pairing `blockIntegral f` against an exterior test function
+  reproduces the joint integral of `f` times it — which is what makes the partial integral the
+  conditional expectation, with no sigma-field ever chosen.
+* **The two densities.** For the cylinder observable `Psi_c (x, y) = x + c y`,
+  `blockIntegral_blockField` gives the conditional mean `c y` and
+  `blockIntegral_blockField_sq` gives the coarse density `1 + c² y²`.
+  `coarseDensity_eq_naiveDensity_add` identifies the gap as the conditional variance `1`, and
+  `coarseDensity_ne_naiveDensity` shows the prescriptions genuinely differ (`1` versus `0` at
+  `y = 0`). The totals separate too: `integral_naiveDensity` is `c²`, `integral_blockField_sq`
+  is `1 + c²`, so `variance_decomposition` reads `∫ |Psi|² = ∫ naiveDensity + 1` and
+  `integral_coarseDensity_eq_integral_blockField_sq` confirms the coarse density reproduces the
+  mean of `|Psi|²` while the naive one cannot.
+
+Boundary of this fifth slice: **one block, real fields, no RG map.** The system is two real
+coordinates with a Gaussian reference law; no scale iteration, measure-level pushforward,
+gauge transport, constrained covariance, Haar/coarea/Faddeev–Popov factor or boundary
+condition is represented. The conditional expectation is the characterising identity on
+cylinder test functions, not a `condExp` construction, and the coarse-versus-naive theorem is
+a statement about this one Gaussian system, not a lower bound for interacting or gauge
+theories. C3b (small fields), C3c (large fields) and C3d (running parameters) remain open, as
+do the interacting half-space inequality, the OS reconstruction theorem and any field law.
+
+**Landed 2026-11-16, sixth slice: the step iterated twice, and the C3b packet it supports.**
+Same module `BookProof/OSReconstruction/GaussianBlockCoarseDensity.lean`; axiom footprint
+grown from 76 to 96 audited declarations, all `propext`/`Classical.choice`/`Quot.sound`. The
+step of the fifth slice is now a map that can be applied twice, and the small-field packet is
+proved for it instead of promised.
+
+* **The chain.** A three-coordinate reference law `blockChainLaw = (gamma ⊗ gamma) ⊗ gamma`,
+  an inner block, a shell and the exterior field. `blockStep f z y = ∫ x, f (x, z, y)` is the
+  fifth slice's partial integral, and `blockChainDensity f y = ∫ z, blockStep f z y` applies it
+  to the shell, so the second step is literally the same map one scale down
+  (`blockChainDensity_eq_iterated`). `integral_blockChainDensity` is the tower identity for the
+  composition, and `blockChainDensity_const`/`_nonneg`/`_add`/`_exterior` re-establish the
+  positive-unital-fixing-the-exterior structure for the composed map.
+* **The cylinder field.** For `Psi_{c,d}(x, z, y) = x + c z + d y`,
+  `blockStep_blockChainField` gives `c z + d y` after the first step and
+  `blockChainDensity_blockChainField` gives `d y` after the second: the interior coupling `c`
+  is invisible at the coarse scale (`blockChainDensity_blockChainField_independent`), which is
+  the background-stability statement, and `blockChainDensity_blockChainField_sq` gives the
+  density `1 + c² + d² y²`.
+* **C3b on this system.** The accumulated covariance is `1 + c²`, exactly and uniformly
+  (`blockChainCovariance_eq`), independent of the exterior background
+  (`blockChainCovariance_independent_of_background`) and bounded between `1` and `2` under the
+  small-field hypothesis `|c| ≤ 1` (`blockChainCovariance_small_field`): an explicit-constant
+  local covariance bound, scale-uniform in the only sense available here. The activity norm is
+  defined rather than assumed (`blockActivityNorm`, `blockChainActivityNorm`) and a coarse step
+  contracts it: `integral_abs_partialIntegral_le` for a general block measure,
+  `integral_abs_blockIntegral_le` for one step, `integral_abs_blockChainDensity_le` for the
+  chain.
+
+Boundary of this sixth slice: **two steps, still not an RG map.** The chain iterates the
+operation but not the scale — every coordinate is a fresh independent Gaussian, so no
+rescaling, translation, renormalisation or measure pushforward happens between the steps, and
+no lattice or gauge structure is present. The C3b claims are correspondingly narrow: the
+covariance bound is an identity with an explicit constant rather than an elliptic, derivative
+or Hessian estimate for an interacting measure; the activity estimate is L¹ contraction, not a
+polymer expansion with a summable activity ledger and localisation; no background stability for
+a non-Gaussian law, no large-field complement (C3c), no running coupling trajectory (C3d) and
+no observable limit estimate (C3e) is proved. The interacting half-space inequality, the OS
+reconstruction theorem and any field law also remain open.
 
 ### C3 — use Bałaban's multiscale method for the physical uniform estimates
 

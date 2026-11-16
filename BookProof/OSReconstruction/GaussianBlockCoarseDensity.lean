@@ -1,7 +1,7 @@
 import Mathlib
 
 /-!
-# The coarse density of a Gaussian block step
+# The coarse density of a Gaussian block step, iterated twice
 
 Plan: `cftproof.md`, **C3a** — the exact coarse-graining step.  The plan states a
 requirement that is easy to get wrong in prose and worth pinning down as a theorem:
@@ -17,6 +17,11 @@ so the coarse density of `f` is the partial integral
 `blockIntegral f y = ∫ x, f (x, y) ∂gamma`
 
 over the block coordinate at fixed exterior field `y`.
+
+The second half of the module iterates the step: a second block coordinate (the *shell*) is
+integrated out after the first, so the map becomes `∫ z, ∫ x, f (x, z, y)`.  That makes the
+composition, its tower identity and the small-field covariance bound of plan packet **C3b**
+statements about the same reference system rather than a new construction.
 
 ## Contents
 
@@ -38,12 +43,33 @@ over the block coordinate at fixed exterior field `y`.
 * `variance_decomposition` — the full second moment is the covariance of the conditional means
   plus the mean conditional variance, which is the form in which the plan asks for conditional
   means and their covariances to be preserved.
+* `blockChainLaw`, `blockStep`, `blockChainDensity`, `integral_blockChainDensity` — the **chain**:
+  the block step is iterated twice, the second step being `blockIntegral` applied to the first,
+  and the composed map is again a positive unital map fixing the exterior field, with its own
+  tower identity;
+* `blockChainField`, `blockStep_blockChainField`, `blockChainDensity_blockChainField` — the
+  cylinder field on three coordinates: the conditional mean after two steps is the exterior part
+  alone, so the interior coupling is irrelevant at the coarse scale and the background is stable;
+* `blockChainDensity_blockChainField_sq`, `blockChainCovariance_eq`,
+  `blockChainCovariance_small_field` — the **C3b small-field packet**: the covariance accumulated
+  over the two steps is `1 + c²`, independent of the exterior background `y` and of the exterior
+  coupling `d`, and bounded by `2` for `|c| ≤ 1`;
+* `blockActivityNorm`, `integral_abs_blockIntegral_le`, `integral_abs_blockChainDensity_le` — the
+  activity norm `∫ |f|` is contracted by a coarse step, which is the estimate a polymer activity
+  needs.
 
 ## Boundary
 
-* One block and one exterior coordinate, real-valued fields, unit Gaussian reference law.  No
-  gauge structure, no lattice, no multi-block coarse-graining map and no scale iteration: the
-  RG action is not represented, only the exact conditional step of a single reference Gaussian.
+* One block, one shell and one exterior coordinate, real-valued fields, unit Gaussian reference
+  law.  No gauge structure, no lattice, no measure-level pushforward and no iteration to
+  arbitrarily many scales: the RG action is not represented, only two exact conditional steps of
+  a reference Gaussian.  The chain is *not* an RG map — every coordinate is a fresh independent
+  Gaussian variable, so nothing is rescaled, translated or renormalised between the steps.
+* The C3b packet is small-field content *of this reference system only*: the covariance bound is
+  an exact identity with an explicit constant, not an elliptic estimate for an interacting
+  measure, and the activity estimate is L¹ contraction, not a polymer expansion with a summable
+  activity ledger.  No scale-uniform derivative bound, no background-stability theorem for a
+  non-Gaussian law and no running-coupling trajectory is proved here.
 * `blockIntegral_mul_exterior` is the characterising identity of the conditional expectation
   on cylinder test functions, not a `condExp` construction: no sigma-field is chosen and no
   existence theorem for conditional expectations is used.
@@ -333,6 +359,298 @@ theorem variance_decomposition (c : ℝ) :
       = ∫ y, naiveDensity c y ∂blockUnit + 1 := by
   rw [integral_blockField_sq, integral_naiveDensity]
   ring
+
+/-! ## The chain: the same block step, applied twice -/
+
+/-- **The three-coordinate reference law**: an inner block, a shell and the exterior field, all
+three independent unit Gaussians. -/
+def blockChainLaw : Measure ((ℝ × ℝ) × ℝ) := blockLaw.prod blockUnit
+
+instance blockChainLaw_isProbability : IsProbabilityMeasure blockChainLaw := by
+  unfold blockChainLaw
+  infer_instance
+
+/-- **The first coarse step**: integrate the inner block out at fixed shell `z` and exterior
+field `y`. -/
+def blockStep (f : (ℝ × ℝ) × ℝ → ℝ) (z y : ℝ) : ℝ := blockIntegral (fun p => f (p, y)) z
+
+/-- **The chain density**: apply the same block step to the shell.  This is the coarse density
+of `f` after two steps of coarse graining. -/
+def blockChainDensity (f : (ℝ × ℝ) × ℝ → ℝ) (y : ℝ) : ℝ := ∫ z, blockStep f z y ∂blockUnit
+
+/-- The chain density is literally the block integral applied to the result of the first step:
+the second step is not a new construction but the same map one scale down. -/
+theorem blockChainDensity_eq_iterated (f : (ℝ × ℝ) × ℝ → ℝ) (y : ℝ) :
+    blockChainDensity f y
+      = blockIntegral (fun q : ℝ × ℝ => blockIntegral (fun p : ℝ × ℝ => f (p, q.2)) q.1) y :=
+  rfl
+
+/-- **The tower identity for two steps**: integrating the chain density over the exterior fields
+recovers the joint integral of the three-coordinate law. -/
+theorem integral_blockChainDensity (f : (ℝ × ℝ) × ℝ → ℝ) (hf : Integrable f blockChainLaw) :
+    ∫ p, f p ∂blockChainLaw = ∫ y, blockChainDensity f y ∂blockUnit := by
+  rw [blockChainLaw, integral_prod_symm f hf]
+  refine integral_congr_ae ?_
+  filter_upwards [hf.prod_left_ae] with y hy
+  have h := integral_blockIntegral (fun q : ℝ × ℝ => f (q, y)) hy
+  simpa [blockChainDensity, blockStep] using h
+
+/-- The chain fixes constants. -/
+theorem blockChainDensity_const (c y : ℝ) : blockChainDensity (fun _ => c) y = c := by
+  have h : ∀ z, blockStep (fun _ => c) z y = c := by
+    intro z
+    unfold blockStep
+    exact blockIntegral_const c z
+  unfold blockChainDensity
+  simp only [h]
+  rw [integral_const]
+  simp
+
+/-- The chain is positive. -/
+theorem blockChainDensity_nonneg (f : (ℝ × ℝ) × ℝ → ℝ) (y : ℝ) (hf : ∀ p, 0 ≤ f p) :
+    0 ≤ blockChainDensity f y := by
+  unfold blockChainDensity
+  exact integral_nonneg fun z => blockIntegral_nonneg (fun p => f (p, y)) z fun p => hf (p, y)
+
+/-- The chain is additive. -/
+theorem blockChainDensity_add (f g : (ℝ × ℝ) × ℝ → ℝ) (y : ℝ)
+    (hf : Integrable (fun p : ℝ × ℝ => f (p, y)) blockLaw)
+    (hg : Integrable (fun p : ℝ × ℝ => g (p, y)) blockLaw) :
+    blockChainDensity (f + g) y = blockChainDensity f y + blockChainDensity g y := by
+  have hfi : Integrable (fun z : ℝ => ∫ x, f ((x, z), y) ∂blockUnit) blockUnit :=
+    hf.integral_prod_right
+  have hgi : Integrable (fun z : ℝ => ∫ x, g ((x, z), y) ∂blockUnit) blockUnit :=
+    hg.integral_prod_right
+  have hcongr : ∀ᵐ z ∂blockUnit,
+      (∫ x, (f + g) ((x, z), y) ∂blockUnit)
+        = (∫ x, f ((x, z), y) ∂blockUnit) + ∫ x, g ((x, z), y) ∂blockUnit := by
+    filter_upwards [hf.prod_left_ae, hg.prod_left_ae] with z hfz hgz
+    exact integral_add hfz hgz
+  have hleft : blockChainDensity (f + g) y
+      = ∫ z, ((∫ x, f ((x, z), y) ∂blockUnit) + ∫ x, g ((x, z), y) ∂blockUnit) ∂blockUnit := by
+    unfold blockChainDensity blockStep blockIntegral
+    rw [integral_congr_ae hcongr]
+  rw [hleft]
+  unfold blockChainDensity blockStep blockIntegral
+  rw [integral_add hfi hgi]
+
+/-- The chain fixes observables of the exterior field. -/
+theorem blockChainDensity_exterior (g : ℝ → ℝ) (y : ℝ) :
+    blockChainDensity (fun p => g p.2) y = g y := by
+  have h : ∀ z, blockStep (fun p : (ℝ × ℝ) × ℝ => g p.2) z y = g y := by
+    intro z
+    unfold blockStep
+    exact blockIntegral_const (g y) z
+  unfold blockChainDensity
+  simp only [h]
+  rw [integral_const]
+  simp
+
+/-! ## The cylinder field across the two steps -/
+
+/-- The three-coordinate cylinder field: inner block `x`, shell `z`, exterior `y`, with the two
+couplings `c` and `d`. -/
+def blockChainField (c d : ℝ) : (ℝ × ℝ) × ℝ → ℝ := fun p => p.1.1 + c * p.1.2 + d * p.2
+
+/-- **The first step does not see the exterior coupling**: after the inner block is integrated
+out the conditional mean is `c z + d y`, the sum of the shell and exterior parts. -/
+theorem blockStep_blockChainField (c d z y : ℝ) :
+    blockStep (blockChainField c d) z y = c * z + d * y := by
+  have hx : Integrable (fun x : ℝ => x) blockUnit :=
+    (memLp_id_gaussianReal (μ := 0) (v := 1) 2).integrable (by norm_num)
+  have hcz : Integrable (fun x : ℝ => c * z) blockUnit := integrable_const _
+  have hdy : Integrable (fun _ : ℝ => d * y) blockUnit := integrable_const _
+  have hfun : ∀ x : ℝ, blockChainField c d ((x, z), y) = (x + c * z) + d * y := fun _ => rfl
+  unfold blockStep blockIntegral
+  simp only [hfun]
+  rw [integral_add (f := fun x : ℝ => x + c * z) (g := fun _ : ℝ => d * y)
+      (hx.add hcz) hdy,
+    integral_add (f := fun x : ℝ => x) (g := fun _ : ℝ => c * z) hx hcz,
+    integral_id_blockUnit, integral_const, integral_const]
+  simp
+
+/-- **The second step removes the shell too**: the chain conditional mean is the exterior part
+`d y` alone.  The interior coupling `c` is gone, which is the background-stability statement of
+the small-field packet at this scale. -/
+theorem blockChainDensity_blockChainField (c d y : ℝ) :
+    blockChainDensity (blockChainField c d) y = d * y := by
+  have hcz : Integrable (fun z : ℝ => c * z) blockUnit :=
+    ((memLp_id_gaussianReal (μ := 0) (v := 1) 2).integrable (by norm_num)).const_mul c
+  have hdy : Integrable (fun _ : ℝ => d * y) blockUnit := integrable_const _
+  unfold blockChainDensity
+  simp only [blockStep_blockChainField]
+  rw [integral_add (f := fun z : ℝ => c * z) (g := fun _ : ℝ => d * y) hcz hdy,
+    integral_const_mul, integral_id_blockUnit, mul_zero, integral_const]
+  simp
+
+/-- **The interior coupling is irrelevant at the coarse scale**: two different interior couplings
+produce the same conditional mean after the second step. -/
+theorem blockChainDensity_blockChainField_independent (c c' d y : ℝ) :
+    blockChainDensity (blockChainField c d) y = blockChainDensity (blockChainField c' d) y := by
+  rw [blockChainDensity_blockChainField, blockChainDensity_blockChainField]
+
+/-! ## C3b: the small-field packet on the chain -/
+
+/-- The square of a shifted unit Gaussian: `∫ (x + a)² = 1 + a²`.  This is the one block
+variance that the two steps accumulate. -/
+theorem integral_sq_add_blockUnit (a : ℝ) :
+    ∫ x, (x + a) ^ 2 ∂blockUnit = 1 + a ^ 2 := by
+  have h := blockIntegral_blockField_sq 1 a
+  simpa [blockField] using h
+
+/-- The block integral of a square with a shell-dependent shift: at fixed shell the shift is a
+constant, so only its value at that shell matters. -/
+theorem blockIntegral_sq_add (h : ℝ → ℝ) (z : ℝ) :
+    blockIntegral (fun p : ℝ × ℝ => (p.1 + h p.2) ^ 2) z = 1 + (h z) ^ 2 := by
+  unfold blockIntegral
+  exact integral_sq_add_blockUnit (h z)
+
+/-- **The first step of the density**: the inner block contributes its unit variance, and the
+remaining shift is the shell-plus-exterior part. -/
+theorem blockStep_blockChainField_sq (c d z y : ℝ) :
+    blockStep (fun p => (blockChainField c d p) ^ 2) z y = 1 + (c * z + d * y) ^ 2 := by
+  have hfun : ∀ p : ℝ × ℝ,
+      (blockChainField c d (p, y)) ^ 2 = (p.1 + (c * p.2 + d * y)) ^ 2 := by
+    intro p
+    unfold blockChainField
+    ring
+  unfold blockStep
+  simp only [hfun]
+  exact blockIntegral_sq_add (fun z' => c * z' + d * y) z
+
+/-- The second moment of an affine function of a unit Gaussian. -/
+theorem integral_sq_affine_blockUnit (c d y : ℝ) :
+    ∫ z, (c * z + d * y) ^ 2 ∂blockUnit = c ^ 2 + d ^ 2 * y ^ 2 := by
+  have hz : Integrable (fun z : ℝ => z) blockUnit :=
+    (memLp_id_gaussianReal (μ := 0) (v := 1) 2).integrable (by norm_num)
+  have hz2 : Integrable (fun z : ℝ => z ^ 2) blockUnit :=
+    MemLp.integrable_sq (memLp_id_gaussianReal 2)
+  have hc2 : Integrable (fun z : ℝ => c ^ 2 * z ^ 2) blockUnit := hz2.const_mul _
+  have hlin : Integrable (fun z : ℝ => 2 * (c * (d * y)) * z) blockUnit := hz.const_mul _
+  have hconst : Integrable (fun _ : ℝ => (d * y) ^ 2) blockUnit := integrable_const _
+  have hfun : ∀ z : ℝ, (c * z + d * y) ^ 2
+      = c ^ 2 * z ^ 2 + (2 * (c * (d * y)) * z + (d * y) ^ 2) := by
+    intro z
+    ring
+  simp only [hfun]
+  rw [integral_add (f := fun z : ℝ => c ^ 2 * z ^ 2)
+      (g := fun z : ℝ => 2 * (c * (d * y)) * z + (d * y) ^ 2) hc2 (hlin.add hconst),
+    integral_add (f := fun z : ℝ => 2 * (c * (d * y)) * z) (g := fun _ : ℝ => (d * y) ^ 2)
+      hlin hconst,
+    integral_const_mul, integral_const_mul, integral_id_blockUnit, integral_sq_blockUnit,
+    integral_const, mul_zero]
+  simp
+  ring
+
+/-- **The density after two steps**: both integrated directions contribute their unit variance.
+The result is quadratic in the exterior field and carries each coupling once. -/
+theorem blockChainDensity_blockChainField_sq (c d y : ℝ) :
+    blockChainDensity (fun p => (blockChainField c d p) ^ 2) y = 1 + c ^ 2 + d ^ 2 * y ^ 2 := by
+  have hmem : MemLp (fun z : ℝ => c * z + d * y) 2 blockUnit :=
+    ((memLp_id_gaussianReal (μ := 0) (v := 1) 2).const_mul c).add (memLp_const (d * y))
+  have hquad : Integrable (fun z : ℝ => (c * z + d * y) ^ 2) blockUnit :=
+    MemLp.integrable_sq hmem
+  have hone : Integrable (fun _ : ℝ => (1 : ℝ)) blockUnit := integrable_const _
+  unfold blockChainDensity
+  simp only [blockStep_blockChainField_sq]
+  rw [integral_add (f := fun _ : ℝ => (1 : ℝ)) (g := fun z : ℝ => (c * z + d * y) ^ 2)
+      hone hquad,
+    integral_sq_affine_blockUnit]
+  simp
+  ring
+
+/-- The **naive density after two steps**: the square of the chain conditional mean. -/
+def blockNaiveChainDensity (c d : ℝ) (y : ℝ) : ℝ :=
+  (blockChainDensity (blockChainField c d) y) ^ 2
+
+/-- **The chain coarse density is the naive one plus the accumulated covariance.** -/
+theorem blockChainDensity_eq_naive_add (c d y : ℝ) :
+    blockChainDensity (fun p => (blockChainField c d p) ^ 2) y
+      = blockNaiveChainDensity c d y + (1 + c ^ 2) := by
+  unfold blockNaiveChainDensity
+  rw [blockChainDensity_blockChainField_sq, blockChainDensity_blockChainField]
+  ring
+
+/-- **The conditional covariance accumulated over the two steps**. -/
+def blockChainCovariance (c d : ℝ) (y : ℝ) : ℝ :=
+  blockChainDensity (fun p => (blockChainField c d p) ^ 2) y
+    - (blockChainDensity (blockChainField c d) y) ^ 2
+
+/-- **The covariance is a constant**: `1 + c²`, the sum of the two integrated unit variances. -/
+theorem blockChainCovariance_eq (c d y : ℝ) : blockChainCovariance c d y = 1 + c ^ 2 := by
+  unfold blockChainCovariance
+  rw [blockChainDensity_blockChainField_sq, blockChainDensity_blockChainField]
+  ring
+
+/-- **The covariance does not depend on the exterior background**, so it cannot grow with the
+field strength: the stability of the chosen background at this scale. -/
+theorem blockChainCovariance_independent_of_background (c d y y' : ℝ) :
+    blockChainCovariance c d y = blockChainCovariance c d y' := by
+  rw [blockChainCovariance_eq, blockChainCovariance_eq]
+
+/-- **The scale-uniform local covariance bound** (the C3b small-field estimate on this system):
+for `|c| ≤ 1` the covariance accumulated over two steps lies between `1` and `2`, uniformly in the
+exterior field `y` and the exterior coupling `d`. -/
+theorem blockChainCovariance_small_field (c d y : ℝ) (hc : |c| ≤ 1) :
+    1 ≤ blockChainCovariance c d y ∧ blockChainCovariance c d y ≤ 2 := by
+  have hc2 : c ^ 2 ≤ 1 := by
+    rw [sq_le_one_iff_abs_le_one]
+    exact hc
+  rw [blockChainCovariance_eq]
+  constructor <;> nlinarith
+
+/-! ## The activity norm -/
+
+/-- The **activity norm** of a local observable: its `L¹` norm at the reference law.  This is the
+explicitly defined norm in which the small-field activity estimate is stated. -/
+def blockActivityNorm (f : ℝ × ℝ → ℝ) : ℝ := ∫ p, |f p| ∂blockLaw
+
+/-- The activity norm of a two-step observable. -/
+def blockChainActivityNorm (f : (ℝ × ℝ) × ℝ → ℝ) : ℝ := ∫ p, |f p| ∂blockChainLaw
+
+/-- **A coarse step contracts the activity norm**: a partial integral over a probability
+measure cannot increase the `L¹` norm.  This is the estimate a polymer activity estimate needs,
+stated for a general block measure. -/
+theorem integral_abs_partialIntegral_le {α : Type*} [MeasurableSpace α]
+    (μ : Measure α) [IsProbabilityMeasure μ] (f : α × ℝ → ℝ)
+    (hf : Integrable f (μ.prod blockUnit)) :
+    ∫ y, |∫ a, f (a, y) ∂μ| ∂blockUnit ≤ ∫ p, |f p| ∂(μ.prod blockUnit) := by
+  have hn : Integrable (fun p : α × ℝ => |f p|) (μ.prod blockUnit) := by
+    simpa only [Real.norm_eq_abs] using hf.norm
+  have houter : Integrable (fun y : ℝ => ∫ a, |f (a, y)| ∂μ) blockUnit :=
+    hn.integral_prod_right
+  have hleft : Integrable (fun y : ℝ => |∫ a, f (a, y) ∂μ|) blockUnit := by
+    simpa only [Real.norm_eq_abs] using (hf.integral_prod_right).norm
+  calc ∫ y, |∫ a, f (a, y) ∂μ| ∂blockUnit
+      ≤ ∫ y, (∫ a, |f (a, y)| ∂μ) ∂blockUnit :=
+        integral_mono hleft houter fun y => by
+          simpa only [Real.norm_eq_abs] using norm_integral_le_integral_norm (fun a => f (a, y))
+    _ = ∫ p, |f p| ∂(μ.prod blockUnit) :=
+        (integral_prod_symm (fun p : α × ℝ => |f p|) hn).symm
+
+/-- The one-step activity contraction. -/
+theorem integral_abs_blockIntegral_le (f : ℝ × ℝ → ℝ) (hf : Integrable f blockLaw) :
+    ∫ y, |blockIntegral f y| ∂blockUnit ≤ blockActivityNorm f := by
+  have h : ∫ y, |∫ x, f (x, y) ∂blockUnit| ∂blockUnit
+      ≤ ∫ p, |f p| ∂(blockUnit.prod blockUnit) :=
+    integral_abs_partialIntegral_le blockUnit f (by simpa [blockLaw] using hf)
+  rw [blockActivityNorm, blockLaw]
+  exact h
+
+/-- **The two-step activity contraction**: the chain also cannot increase the activity norm. -/
+theorem integral_abs_blockChainDensity_le (f : (ℝ × ℝ) × ℝ → ℝ)
+    (hf : Integrable f blockChainLaw) :
+    ∫ y, |blockChainDensity f y| ∂blockUnit ≤ blockChainActivityNorm f := by
+  have hae : ∫ y, |blockChainDensity f y| ∂blockUnit
+      = ∫ y, |∫ q, f (q, y) ∂blockLaw| ∂blockUnit := by
+    refine integral_congr_ae ?_
+    filter_upwards [hf.prod_left_ae] with y hy
+    have hEq : blockChainDensity f y = ∫ q : ℝ × ℝ, f (q, y) ∂blockLaw := by
+      unfold blockChainDensity blockStep blockIntegral
+      exact (integral_prod_symm (fun q : ℝ × ℝ => f (q, y)) hy).symm
+    rw [hEq]
+  rw [hae, blockChainActivityNorm]
+  exact integral_abs_partialIntegral_le blockLaw f (by simpa [blockChainLaw] using hf)
 
 end
 

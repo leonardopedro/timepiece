@@ -36,6 +36,7 @@ import Book.BijectionProbability
 import Book.NullMeasure
 import Book.BaryonAsymmetry
 import Book.MeasurementLLN
+import Book.EuclideanMomentHierarchy
 import Book.OdeSingularity
 import Book.PaFreeHilbert
 import Book.DeterministicTransformations
@@ -455,6 +456,24 @@ the FLRW terminology of the gravity part.
 {include 0 Book.BaryonAsymmetry}
 
 {include 0 Book.MeasurementLLN}
+
+# The Continuum Limit
+%%%
+tag := "part-continuum-limit"
+%%%
+
+The Euclidean reconstruction thread of `cftproof.md`, presented at the one slice that is
+fully formalized. The chapter shows how the Euclidean moment hierarchy is built from a
+reference vector and the semigroup $`e^{-tK}`, why time reflection turns its reflected
+form into a squared norm (for every polynomial arrow, not only degree two), and how the
+free regulator's two-point function is calibrated against the Mehler slice covariance of
+C1. It is deliberately explicit about what is *not* proved: the interacting half-space
+Osterwalder–Schrader inequality, the field-law representation and the unbounded generator
+are open, and the chapter says so in its final section rather than in a footnote. Read it
+against {ref "free-field"}[the free-field chapter], whose Gaussian is the same covariance,
+and before the proof-plan appendix.
+
+{include 0 Book.EuclideanMomentHierarchy}
 
 # The ODE Singularity
 %%%
