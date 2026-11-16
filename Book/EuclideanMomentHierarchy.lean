@@ -526,7 +526,7 @@ $`1/(1-c^2)`$, and the error after $`n`$ scales is exactly geometric:
 
 ```
 streamCovariance_inv_sub  : K_n - 1/(1 - c^2) = - (c^2)^n / (1 - c^2)
-streamCovariance_lt_inv   : c^2 < 1 -> K_n < 1/(1 - c^2)          -- strictly, at every n
+streamCovariance_lt_inv   : c^2 < 1, c ≠ 0 -> K_n < 1/(1 - c^2)    -- strictly, at every n
 tendsto_streamCovariance  : c^2 < 1 -> K_n -> 1/(1 - c^2)
 tendsto_integral_shellDensity_streamField_sq
                           : the total K_n + c^{2n} d^2 tends to the same fixed point
@@ -538,9 +538,9 @@ decays for the same reason. The uniform bound of the previous paragraph is the m
 this statement; the convergence is what makes the domain statement quantitative rather than
 merely uniform.
 
-The two-step tower identity of the earlier section generalises, and it does so without the Fubini
-permutation a naive reading would demand. The pointwise form pins the exterior value as the
-*last* coordinate,
+The two-step tower identity of the earlier section generalises, and the induction needs one
+coordinate permutation rather than one per scale. The pointwise form pins the exterior value as
+the *last* coordinate,
 
 ```
 shellDensity_eq_integral_snoc : shellDensity n f y = ∫ g, f (Fin.snoc g y) ∂shellLaw n
@@ -548,7 +548,9 @@ shellDensity_eq_integral_snoc : shellDensity n f y = ∫ g, f (Fin.snoc g y) ∂
 
 and the induction splits the product law at its *first* coordinate —
 `integral_shellLaw_cons_succ` at scale $`n + 1`, with `integral_shellLaw_cons` at the base —
-peeling the coordinate the recursion peels. The result is the tower identity at every scale:
+peeling the coordinate the recursion peels. The permutation is the recentring
+`piFinSuccAbove` at the last coordinate, performed once and reused at every scale; it is not a
+Fubini shuffle of $`n`$ coordinates. The result is the tower identity at every scale:
 
 ```
 integral_shellDensity_eq : ∫ y, shellDensity n f y ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)
