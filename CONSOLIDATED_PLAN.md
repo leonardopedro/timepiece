@@ -26723,3 +26723,15 @@ in place and corrected here rather than rewritten.
 `lake build Book.EuclideanMomentHierarchy` and `lake build Work.EuclideanMomentAudit` all succeed;
 the two new declarations audit to `[propext, Classical.choice, Quot.sound]`; no `sorry`; no line
 over 100 code points in the Lean files touched.
+
+### 2026-11-16e — the counterexample is Lean, and where the `L²` gap actually is
+
+The 2026-11-16d entry recorded the counterexample as a hand computation; it is now four theorems in
+`BookProof/OSReconstruction/HalfSpaceInteractingReflectionPositivity.lean`
+(`generalWeight_pos`, `generalWeight_swap`, `generalWeight_osForm`,
+`not_reflectionPositive_of_generalWeight`).  The `L²` question gets its complete answer only for a
+product state (`productState_reflectionPositive`: the form is `(∫ H)²`, so *every* function of one
+half is admissible) — with a shared shift the form is a mean of squares of integrals and the
+truncation argument cannot discharge finiteness, because the limit needs the integrand's
+integrability.  The remaining route is `MemLp.integrable_mul` after a marginal lift of
+`MemLp` from `ν ⊗ γ` to `ν ⊗ γ ⊗ γ`, which mathlib does not provide under the names tried.

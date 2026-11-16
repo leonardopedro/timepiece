@@ -403,6 +403,28 @@ theorem not_reflectionPositive_of_generalWeight (h : α → ℝ) (hh : Measurabl
 
 end GeneralWeight
 
+
+/-! ## What the `L²` question has as a complete answer
+
+For the *product* state the two halves are independent, so the OS form collapses to a square and
+the statement holds for **every** function of one half — no measurability, no bound and no
+integrability hypothesis.  This is the `ν = δ₀` end of `covState`, and it shows that the
+obstruction to the general `L²` statement is the shared shift (which is what makes the form a mean
+of squares of *integrals* rather than a square of an integral), not the unboundedness of the
+observable.
+-/
+
+/-- **A product state is reflection positive for every observable.** -/
+theorem productState_reflectionPositive {α : Type*} [MeasurableSpace α] (μ₀ : Measure α)
+    [SFinite μ₀] (H : α → ℝ) : 0 ≤ ∫ z : α × α, H z.2 * H z.1 ∂(μ₀.prod μ₀) := by
+  have hprod := integral_prod_mul (μ := μ₀) (ν := μ₀) (L := ℝ)
+    (f := fun x : α => H x) (g := fun y : α => H y)
+  have hswap : (∫ z : α × α, H z.2 * H z.1 ∂(μ₀.prod μ₀))
+      = ∫ z : α × α, H z.1 * H z.2 ∂(μ₀.prod μ₀) :=
+    integral_congr_ae (ae_of_all _ fun z => mul_comm _ _)
+  rw [hswap, hprod]
+  exact mul_self_nonneg _
+
 end
 
 end BookProof.OSReconstruction

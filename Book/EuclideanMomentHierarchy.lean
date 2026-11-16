@@ -625,4 +625,4 @@ estimate (C3e) remain open.
 
 Everything proved in this chapter is `sorry`-free, and every declaration listed above
 depends only on Lean's standard `propext`, `Classical.choice` and `Quot.sound`
-(`Work/EuclideanMomentAudit.lean`, 111 declarations).
+(`Work/EuclideanMomentAudit.lean`, 112 declarations).

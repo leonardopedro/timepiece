@@ -4919,3 +4919,23 @@ proof already contains the pieces for.
 `lake build Book.EuclideanMomentHierarchy` and `lake build Work.EuclideanMomentAudit` succeed;
 the audit reports `[propext, Classical.choice, Quot.sound]` for both new declarations; no `sorry`;
 no line above 100 code points in the two edited Lean files.
+
+### Counterexample and the product-state case, formalized (2026-11-16e)
+
+The 2026-11-16d analysis is now Lean, in the same module:
+
+* `generalWeight_pos`, `generalWeight_swap`, `generalWeight_osForm`: the weight `1 - ε h z₁ h z₂`
+  is strictly positive, reflection invariant, and its OS form on `h` is `-ε` (two applications of
+  `integral_prod_mul`, one per half);
+* `not_reflectionPositive_of_generalWeight`: the packaged negative statement — a strictly positive
+  invariant weight with a negative OS form, so invariance does not imply positivity;
+* `productState_reflectionPositive`: for a product state the form is a square
+  `(∫ H)²`, so **every** function of one half is admissible — no measurability, bound or
+  integrability. That is the complete answer to the `L²` question at the `ν = δ₀` end.
+
+The shared shift is what blocks the general `L²` statement, not unboundedness: with a shift the
+form is a mean of squares of *integrals*, and the truncation route cannot close it because the
+truncations' dominated convergence needs the integrand's integrability — the very hypothesis being
+discharged. The `MemLp` route needs `MemLp` of each half under `ν ⊗ γ ⊗ γ`, which needs a
+marginal-lifting lemma for `(t, x, y) ↦ (t, x)` that mathlib does not have under the names tried;
+`MemLp.integrable_mul` would then finish it in three lines.

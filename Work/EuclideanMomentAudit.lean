@@ -154,3 +154,4 @@ open BookProof.OSReconstruction
 #audit_axioms generalWeight_swap
 #audit_axioms generalWeight_osForm
 #audit_axioms not_reflectionPositive_of_generalWeight
+#audit_axioms productState_reflectionPositive
