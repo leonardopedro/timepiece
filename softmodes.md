@@ -4960,8 +4960,15 @@ integrable majorant of `(S_t H)²`, which is the finiteness being proved.
 The interacting state then costs one line rather than a second proof. `intState` is `covState`
 reweighted by the product `g z.1 * g z.2`, so the weighted OS form *is* the free form of `F * g`;
 `intState_reflectionPositive_of_memLp` is `covState_reflectionPositive_of_memLp` applied to that
-product, with `L²(g F)` on `ν ⊗ γ` as the hypothesis. Still open: whether `g F ∈ L²` for the
-interactions of C2/E3, and the closure of the positive-time algebra.
+product, with `L²(g F)` on `ν ⊗ γ` as the hypothesis.
+
+For the weights C2/E3 actually uses, that hypothesis needs no separate work: they are bounded,
+and a bounded nonnegative factor can only shrink a norm, so `memLp_shift_mul_of_bound` derives
+`L²(g F)` from `L²(F)` by `MemLp.of_le` against the constant multiple `D * F`.
+`intState_reflectionPositive_of_memLp_of_bounded` is the resulting statement — bounded factorized
+weight, unrestricted measurable `L²` observable, no finiteness assumption — and it strictly
+generalizes `intState_reflectionPositive`, whose sup-norm hypothesis on `F` existed only to make
+the form finite. Still open: an unbounded `V₊`, and the closure of the positive-time algebra.
 
 **Verification.** The three declarations build with no `sorry` and no new warnings; the audit
 reports `[propext, Classical.choice, Quot.sound]`; no line above 100 code points in the new text.

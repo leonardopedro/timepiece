@@ -156,6 +156,8 @@ open BookProof.OSReconstruction
 #audit_axioms covState_reflectionPositive_of_memLp
 #audit_axioms intState_reflectionPositive_of_integrable
 #audit_axioms intState_reflectionPositive_of_memLp
+#audit_axioms memLp_shift_mul_of_bound
+#audit_axioms intState_reflectionPositive_of_memLp_of_bounded
 #audit_axioms generalWeight_pos
 #audit_axioms generalWeight_swap
 #audit_axioms generalWeight_osForm

@@ -388,6 +388,63 @@ theorem intState_reflectionPositive_of_memLp {ι : Type*} [Fintype ι]
   rw [hEq]
   exact hfree
 
+/-! ## Why the `L²` hypothesis holds for the factorized weights of C2/E3
+
+The hypothesis of `intState_reflectionPositive_of_memLp` is `MemLp (g F)` on `ν ⊗ γ`, and for the
+Dyson–Lieb–Simon weights of C2/E3 it is not an extra assumption: those weights are bounded, and a
+bounded nonnegative factor can only shrink the `L²` norm.  So `MemLp (g F)` follows from `MemLp F`
+alone, and the interacting inequality needs neither a bound on the observable nor any integrability
+hypothesis -- only that the observable is square integrable against the free Gaussian.
+-/
+
+/-- **A bounded weight preserves `L²`.**  If `g` is measurable, nonnegative and bounded above by
+`D`, then `F * g` is square integrable whenever the shift-averaged `F` is: pointwise the weight can
+only shrink the norm, and `MemLp.of_le` compares against `D * F`. -/
+theorem memLp_shift_mul_of_bound {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0) (hg : Measurable g)
+    (D : ℝ) (hD : ∀ x, (g x : ℝ) ≤ D) (F : (ι → ℝ) → ℝ)
+    (hF : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2)) 2
+      (ν.prod (whiteNoise ι))) :
+    MemLp (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2) * (g (q.1 + q.2) : ℝ)) 2
+      (ν.prod (whiteNoise ι)) := by
+  classical
+  have hgR : Measurable fun x : ι → ℝ => (g x : ℝ) := hg.coe_nnreal_real
+  have hgshift : Measurable fun q : (ι → ℝ) × (ι → ℝ) => (g (q.1 + q.2) : ℝ) :=
+    hgR.comp (measurable_fst.add measurable_snd)
+  have hD0 : 0 ≤ D := le_trans (NNReal.coe_nonneg (g (Classical.arbitrary (ι → ℝ)))) (hD _)
+  have haesm : AEStronglyMeasurable
+      (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2) * (g (q.1 + q.2) : ℝ))
+      (ν.prod (whiteNoise ι)) :=
+    hF.aestronglyMeasurable.mul hgshift.aestronglyMeasurable
+  have hDmul : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => D * F (q.1 + q.2)) 2
+      (ν.prod (whiteNoise ι)) := by
+    simpa only [smul_eq_mul] using hF.const_mul D
+  refine MemLp.of_le hDmul haesm ?_
+  filter_upwards with q
+  have hgq : (0 : ℝ) ≤ (g (q.1 + q.2) : ℝ) := NNReal.coe_nonneg _
+  have hleft : ‖F (q.1 + q.2) * (g (q.1 + q.2) : ℝ)‖
+      = ‖F (q.1 + q.2)‖ * (g (q.1 + q.2) : ℝ) := by
+    rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_mul, abs_of_nonneg hgq]
+  have hright : ‖D * F (q.1 + q.2)‖ = D * ‖F (q.1 + q.2)‖ := by
+    rw [Real.norm_eq_abs, Real.norm_eq_abs, abs_mul, abs_of_nonneg hD0]
+  rw [hleft, hright, mul_comm D ‖F (q.1 + q.2)‖]
+  exact mul_le_mul_of_nonneg_left (hD (q.1 + q.2)) (norm_nonneg (F (q.1 + q.2)))
+
+/-- **The interacting inequality for a bounded factorized weight and any `L²` observable.**  This is
+`intState_reflectionPositive_of_memLp` with its `L²` hypothesis discharged by
+`memLp_shift_mul_of_bound`: the weight is the bounded Dyson–Lieb–Simon weight of C2/E3, so the
+only hypothesis on the observable is square integrability against the free Gaussian.  No bound on `F`,
+no integrability of the form, and no normalization of the state. -/
+theorem intState_reflectionPositive_of_memLp_of_bounded {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0) (hg : Measurable g)
+    (D : ℝ) (hD : ∀ x, (g x : ℝ) ≤ D)
+    (F : (ι → ℝ) → ℝ) (hFm : Measurable F)
+    (hF : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2)) 2
+      (ν.prod (whiteNoise ι))) :
+    0 ≤ ∫ z : (ι → ℝ) × (ι → ℝ), F z.2 * F z.1 ∂intState ν g :=
+  intState_reflectionPositive_of_memLp (ν := ν) g hg F hFm
+    (memLp_shift_mul_of_bound ν g hg D hD F hF)
+
 /-! ## Why the hypothesis cannot be weakened to reflection invariance
 
 The theorems above need the weight to be a nonnegative sum of matched products.  Reflection

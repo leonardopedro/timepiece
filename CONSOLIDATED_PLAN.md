@@ -7,6 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16h):** “State of the project — 2026-11-16h:
+> the C2/E3 weights discharge the `L²` hypothesis” (end of file).  A bounded nonnegative weight can
+> only shrink the norm, so `MemLp (g F)` follows from `MemLp F` for the factorized weights: the
+> interacting inequality now has no bound on the observable and no finiteness assumption at all.
+> Only an unbounded `V₊` remains on that axis.
+>
 > **Newest reconstruction extension (2026-11-16g):** “State of the project — 2026-11-16g:
 > the interacting state inherits the lift; audit rewired” (end of file).  The weighted C2/E3
 > inequality now takes `L²` of `g F` instead of assuming the form is finite, because the
@@ -26777,7 +26783,8 @@ place of integrability of the weighted form.  It needs no new analysis: `intStat
 reweighted by the product `g z.1 * g z.2`, so the weighted OS form *is* the free form of `F * g`,
 and `covState_reflectionPositive_of_memLp` applies verbatim.  The two `L²` statements therefore
 read the same, and the open work moves off the form and onto the model: whether `g F ∈ L²` holds
-for the interactions of C2/E3, plus the closure of the positive-time algebra.
+for the interactions of C2/E3, plus the closure of the positive-time algebra.  **Update
+(2026-11-16h):** for the bounded factorized weights of C2/E3 it holds, so that half is closed too.
 
 The audit is rewired to the two C3 modules, both now committed (`30654ca`).  Every theorem in
 `BookProof/OSReconstruction/GaussianChainScales.lean` and
@@ -26791,3 +26798,24 @@ count follows the audit, which stands at 196.
 `HalfSpaceInteractingReflectionPositivity` and `Book.EuclideanMomentHierarchy` exits 0 with no
 error; all 196 axiom reports are `[propext, Classical.choice, Quot.sound]`; no `sorry` and no line
 above 100 code points in the touched files.
+
+## State of the project — 2026-11-16h: the C2/E3 weights discharge the `L²` hypothesis
+
+`intState_reflectionPositive_of_memLp` takes `MemLp (g F)` on `ν ⊗ γ` as a hypothesis.  For the
+Dyson–Lieb–Simon weights of C2/E3 that hypothesis is a theorem: they are bounded, and a bounded
+nonnegative factor can only shrink a norm.
+
+* `memLp_shift_mul_of_bound` — `g` measurable with `g ≤ D` makes
+  `q ↦ F (q.1 + q.2) * g (q.1 + q.2)` square integrable whenever `q ↦ F (q.1 + q.2)` is.
+  Pointwise `‖F g‖ = ‖F‖ g ≤ D ‖F‖`, so `MemLp.of_le` compares against the constant multiple.
+* `intState_reflectionPositive_of_memLp_of_bounded` — the interacting inequality for a bounded
+  factorized weight and *any* measurable `L²` observable: no bound on `F`, no integrability of the
+  weighted form, no normalization of the state.  This strictly generalizes
+  `intState_reflectionPositive`, whose sup-norm hypothesis on `F` was only there to make the form
+  finite.
+
+What is left on this axis is an *unbounded* `V₊` — an unbounded `g`, where `g F ∈ L²` no longer
+follows from `F ∈ L²` — and the closure of the positive-time algebra.
+
+**Verification.**  Both declarations build with no `sorry`; the audit reports
+`[propext, Classical.choice, Quot.sound]`; no line above 100 code points in the new text.

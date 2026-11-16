@@ -722,9 +722,13 @@ $`H(\cdot + \cdot) \in L^2(\nu \otimes \gamma)`$ (`covState_reflectionPositive_o
 on the two marginal projections), and the interacting state inherits it verbatim -- `intState` is
 the free state reweighted by the product $`g z_1 g z_2`$, so the weight rides along with the
 observable and `intState_reflectionPositive_of_memLp` derives the weighted form's finiteness from
-$`g F \in L^2(\nu \otimes \gamma)`$. What is not proved is whether that condition holds for the
-interactions of C2/E3, and the closure of the positive-time algebra (completing the pre-Hilbert
-space, and multiplying two $`L^2`$ families).
+$`g F \in L^2(\nu \otimes \gamma)`$. For the factorized weights of C2/E3 that condition is itself a
+theorem rather than a hypothesis: they are *bounded*, and a bounded nonnegative factor can only
+shrink the norm, so `memLp_shift_mul_of_bound` derives $`g F \in L^2`$ from $`F \in L^2`$ and
+`intState_reflectionPositive_of_memLp_of_bounded` states the interacting inequality with no bound
+on the observable and no finiteness assumption anywhere. What remains open is an *unbounded*
+$`V_+`$ (an unbounded $`g`$), and the closure of the positive-time algebra (completing the
+pre-Hilbert space, and multiplying two $`L^2`$ families).
 Separated-time *diagonal* positivity $`\langle A^\dagger e^{-hK} A\rangle \ge 0` at $`h > 0` is
 likewise not claimed: it needs a positive (spectral) evolution, a hypothesis this slice does not
 establish. The unbounded generator $`h_\sigma`, its closure and its selection, the field-law
