@@ -49,6 +49,29 @@ open BookProof.OSReconstruction
 #audit_axioms scalarK_isSelfAdjoint
 #audit_axioms reflectedForm_scalarK_re_nonneg
 
+/-! ## The moment hierarchy's definitions
+
+The definitions the theorems are about, audited for the same reason: a definition that pulled in an
+axiom would poison every statement below without appearing in any of their reports.
+-/
+
+#audit_axioms euclidEvol
+#audit_axioms euclidWord
+#audit_axioms euclidMoment
+#audit_axioms scalarK
+#audit_axioms twoPoint
+#audit_axioms twoPoint_eq_euclidMoment
+#audit_axioms ofReal_sq_re
+#audit_axioms ofReal_sq_re_nonneg
+#audit_axioms reflectedVector
+#audit_axioms reflectedPair
+#audit_axioms reflectedForm
+#audit_axioms familyVector
+#audit_axioms familyVectorLM
+#audit_axioms familyPair
+#audit_axioms familyForm
+#audit_axioms toInsertions
+
 /-! ## The reflected form as a positive semidefinite form -/
 
 #audit_axioms reflectedPair_self
@@ -87,6 +110,13 @@ open BookProof.OSReconstruction
 #audit_axioms sliceCross_lt_sliceDiagonal
 #audit_axioms free_regulator_reproduces_slice_covariance
 #audit_axioms free_regulator_twoPoint_reflected_re_nonneg
+
+/-! ## The reference flow's definitions -/
+
+#audit_axioms shellLaw
+#audit_axioms shellDensity
+#audit_axioms streamField
+#audit_axioms streamCovariance
 
 /-! ## C3a: the exact coarse-graining step -/
 
@@ -158,6 +188,8 @@ open BookProof.OSReconstruction
 #audit_axioms intState_reflectionPositive_of_memLp
 #audit_axioms memLp_shift_mul_of_bound
 #audit_axioms intState_reflectionPositive_of_memLp_of_bounded
+#audit_axioms memLp_shift_mul_of_memLp
+#audit_axioms intState_reflectionPositive_of_memLp_unbounded
 #audit_axioms generalWeight_pos
 #audit_axioms generalWeight_swap
 #audit_axioms generalWeight_osForm
@@ -245,6 +277,7 @@ open BookProof.OSReconstruction
 #audit_axioms familyVector_mem_reconSpace
 #audit_axioms reconSpace_minimal
 #audit_axioms reconSpace_inner_familyPair
+#audit_axioms memLp_mul_of_memLp_top
 
 /-! ## C3e, first slice: the law-level tail and tightness -/
 

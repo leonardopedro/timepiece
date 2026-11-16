@@ -433,8 +433,8 @@ theorem memLp_shift_mul_of_bound {ι : Type*} [Fintype ι]
 /-- **The interacting inequality for a bounded factorized weight and any `L²` observable.**  This is
 `intState_reflectionPositive_of_memLp` with its `L²` hypothesis discharged by
 `memLp_shift_mul_of_bound`: the weight is the bounded Dyson–Lieb–Simon weight of C2/E3, so the
-only hypothesis on the observable is square integrability against the free Gaussian.  No bound on `F`,
-no integrability of the form, and no normalization of the state. -/
+only hypothesis on the observable is square integrability against the free Gaussian.  No bound on
+`F`, no integrability of the form, and no normalization of the state. -/
 theorem intState_reflectionPositive_of_memLp_of_bounded {ι : Type*} [Fintype ι]
     (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0) (hg : Measurable g)
     (D : ℝ) (hD : ∀ x, (g x : ℝ) ≤ D)
@@ -444,6 +444,54 @@ theorem intState_reflectionPositive_of_memLp_of_bounded {ι : Type*} [Fintype ι
     0 ≤ ∫ z : (ι → ℝ) × (ι → ℝ), F z.2 * F z.1 ∂intState ν g :=
   intState_reflectionPositive_of_memLp (ν := ν) g hg F hFm
     (memLp_shift_mul_of_bound ν g hg D hD F hF)
+
+/-! ## An unbounded weight: Hölder instead of a bound
+
+`memLp_shift_mul_of_bound` needs `g` bounded, which excludes an unbounded `V₊`: with `g` unbounded,
+`MemLp (g F)` no longer follows from `MemLp F`, because `g` can grow faster than any power of `F`.
+What replaces the bound is Hölder: two `L⁴` factors multiply into an `L²`.  The weight may then be
+unbounded — what has to be finite is the *exponent*, not the sup norm — and the observable is
+allowed a lower integrability than before.
+-/
+
+/-- **Hölder, in the shape the interacting form needs**: an `L⁴` observable times an `L⁴` weight is
+`L²`, so the product is square integrable even when the weight is unbounded. -/
+theorem memLp_shift_mul_of_memLp {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0)
+    (F : (ι → ℝ) → ℝ)
+    (hF : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2)) 4
+      (ν.prod (whiteNoise ι)))
+    (hg : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => (g (q.1 + q.2) : ℝ)) 4
+      (ν.prod (whiteNoise ι))) :
+    MemLp (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2) * (g (q.1 + q.2) : ℝ)) 2
+      (ν.prod (whiteNoise ι)) := by
+  have hkey : ((4 : ℝ≥0∞)⁻¹ + (4 : ℝ≥0∞)⁻¹)⁻¹ = 2 := by
+    have h4 : (4 : ℝ≥0∞) = ((4 : ℝ≥0) : ℝ≥0∞) := by norm_num
+    have h2 : (2 : ℝ≥0∞) = ((2 : ℝ≥0) : ℝ≥0∞) := by norm_num
+    rw [h4, h2, ← ENNReal.coe_inv (by norm_num : ((4 : ℝ≥0)) ≠ 0), ← ENNReal.coe_add,
+      ← ENNReal.coe_inv (by norm_num : ((4 : ℝ≥0)⁻¹ + (4 : ℝ≥0)⁻¹) ≠ 0)]
+    push_cast
+    norm_num
+  haveI : ENNReal.HolderTriple (4 : ℝ≥0∞) 4 2 := ⟨by rw [← hkey, inv_inv]⟩
+  exact MemLp.mul' hg hF
+
+/-- **The interacting inequality for an unbounded `V₊`.**  The weight is measurable and
+*unbounded*, and the only hypothesis is that both the weight and the observable are `L⁴` against
+the Gaussian:
+Hölder then makes the weighted observable `L²`, so `intState_reflectionPositive_of_memLp` applies.
+For a Gaussian measure every polynomial growth lies in every finite `Lᵖ`, so this covers
+`V₊ = λ‖x‖^k` at either sign of the coupling — where `g = e^{-V₊}` is unbounded precisely because
+`V₊` is unbounded below — and it does not assume `g F ∈ L²` directly. -/
+theorem intState_reflectionPositive_of_memLp_unbounded {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0) (hg : Measurable g)
+    (F : (ι → ℝ) → ℝ) (hFm : Measurable F)
+    (hF : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => F (q.1 + q.2)) 4
+      (ν.prod (whiteNoise ι)))
+    (hgLp : MemLp (fun q : (ι → ℝ) × (ι → ℝ) => (g (q.1 + q.2) : ℝ)) 4
+      (ν.prod (whiteNoise ι))) :
+    0 ≤ ∫ z : (ι → ℝ) × (ι → ℝ), F z.2 * F z.1 ∂intState ν g :=
+  intState_reflectionPositive_of_memLp (ν := ν) g hg F hFm
+    (memLp_shift_mul_of_memLp ν g F hF hgLp)
 
 /-! ## Why the hypothesis cannot be weakened to reflection invariance
 

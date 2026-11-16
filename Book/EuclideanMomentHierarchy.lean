@@ -726,9 +726,12 @@ $`g F \in L^2(\nu \otimes \gamma)`$. For the factorized weights of C2/E3 that co
 theorem rather than a hypothesis: they are *bounded*, and a bounded nonnegative factor can only
 shrink the norm, so `memLp_shift_mul_of_bound` derives $`g F \in L^2`$ from $`F \in L^2`$ and
 `intState_reflectionPositive_of_memLp_of_bounded` states the interacting inequality with no bound
-on the observable and no finiteness assumption anywhere. What remains open is an *unbounded*
-$`V_+`$ (an unbounded $`g`$), and the closure of the positive-time algebra (completing the
-pre-Hilbert space, and multiplying two $`L^2`$ families).
+on the observable and no finiteness assumption anywhere. An *unbounded* $`V_+`$ is covered by
+Hölder instead of by a bound: `intState_reflectionPositive_of_memLp_unbounded` asks for the weight
+and the observable to be $`L^4`$ against the Gaussian, and `memLp_shift_mul_of_memLp` turns those
+two $`L^4`$ hypotheses into the $`L^2`$ hypothesis of the theorem above — so `g` may be unbounded
+(every polynomial growth is in every finite $`L^p`$ of a Gaussian), what must be finite is the
+exponent and not the sup norm.
 Separated-time *diagonal* positivity $`\langle A^\dagger e^{-hK} A\rangle \ge 0` at $`h > 0` is
 likewise not claimed: it needs a positive (spectral) evolution, a hypothesis this slice does not
 establish. The unbounded generator $`h_\sigma`, its closure and its selection, the field-law
@@ -748,9 +751,14 @@ there said what the product of two families is: `familyProduct` takes the joint 
 product of families is again a family, its form is the squared norm of that sum and hence
 nonnegative with no hypothesis (`familyForm_familyProduct`), and the product is continuous
 (`norm_familyVector_le_add`), which is what lets it descend to the completion.
-Cauchy–Schwarz is still derived from the explicit norm identity rather than from abstract form
-theory. The OS inequality proved is the finite-family one; the interacting version is the
-factorized-weight one above, and any field law remains outside this chapter.
+The *pointwise* product is a different operation, and it closes only against an essentially
+bounded factor: `memLp_mul_of_memLp_top` is Hölder at `(2, ∞)`, and without that hypothesis the
+statement is false — on $`(0,1)`$ the function $`x^{-1/3}`$ is square integrable while its square
+is not, so the $`L^2`$ closure is a module over the essentially bounded observables rather than an
+algebra under pointwise multiplication. Cauchy–Schwarz is still derived from the explicit norm
+identity rather than from abstract form theory. The OS inequality proved is the finite-family one;
+the interacting version is the factorized-weight one above, and any field law remains outside this
+chapter.
 
 _Fourth, the coarse-graining step is one, two or arbitrarily many blocks of a reference
 Gaussian._ The chain iterates the operation and, once indexed by $`n`, the number of scales

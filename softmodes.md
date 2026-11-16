@@ -4995,3 +4995,26 @@ product descend to the completion.
 Two things this is not: the product is the OS product of insertion families, not pointwise
 multiplication of `L²` functions, and the index types are `Type` rather than an arbitrary universe.
 
+### Unbounded `V₊`, the pointwise product, and the definition audits (2026-11-16j)
+
+*An unbounded weight.* `memLp_shift_mul_of_bound` could not reach it, because with `g` unbounded
+`MemLp (g F)` genuinely does not follow from `MemLp F`. The bound was never the point: Hölder is.
+`memLp_shift_mul_of_memLp` multiplies two `L⁴` functions into an `L²` (`MemLp.mul'`), and
+`intState_reflectionPositive_of_memLp_unbounded` is the interacting inequality with a measurable
+*unbounded* weight. For a Gaussian every polynomial growth is in every finite `Lᵖ`, so
+`V₊ = λ‖x‖^k` is covered at either sign of the coupling.
+
+`HolderTriple 4 4 2` has no numeral instance and `norm_num` cannot invert in `ℝ≥0∞`; the arithmetic
+`((4)⁻¹ + (4)⁻¹)⁻¹ = 2` goes through `ℝ≥0` by `ENNReal.coe_inv`/`coe_add`, with each `coe_inv`
+carrying its `≠ 0` side condition, and the class field follows by `inv_inv`.
+
+*The pointwise product.* It closes only against an essentially bounded factor — Hölder at
+`(2, ∞)`, i.e. `memLp_mul_of_memLp_top`. `L² × L² → L²` is false, not open: on `(0,1)`, `x^(-1/3)`
+is square integrable and its square is not. So the `L²` closure is a module over the essentially
+bounded observables, not an algebra under pointwise multiplication. The witness is prose in the
+module, not a formalized counterexample.
+
+*Audits.* Every definition of `EuclideanMomentHierarchy` and `GaussianChainScales` now carries an
+`#audit_axioms` line, so a definition that pulled in an axiom could no longer hide behind the
+theorems' reports.
+

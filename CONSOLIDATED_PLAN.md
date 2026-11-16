@@ -7,6 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16j):** “State of the project — 2026-11-16j:
+> an unbounded `V₊` through Hölder” (end of file).  The weight no longer has to be bounded: two
+> `L⁴` factors multiply into an `L²`, so `intState_reflectionPositive_of_memLp_unbounded` covers
+> an unbounded `g` (polynomial growth is in every finite `Lᵖ` of a Gaussian), and the audited
+> definitions of both modules close the last coverage gaps.
+>
 > **Newest reconstruction extension (2026-11-16i):** “State of the project — 2026-11-16i:
 > the reconstruction space is a Hilbert space and its products close” (end of file).  The
 > pre-Hilbert space of section 7 is now completed (`reconSpace`, closed hence complete, minimal
@@ -26860,3 +26866,38 @@ an arbitrary universe; and a field law, an unbounded $`V_+`$ and a continuum lim
 `Book.EuclideanMomentHierarchy` succeeds; all 232 axiom reports are
 `[propext, Classical.choice, Quot.sound]`; no `sorry` and no line above 100 code points in the
 new text.
+
+## State of the project — 2026-11-16j: an unbounded `V₊` through Hölder
+
+`memLp_shift_mul_of_bound` needed `g` bounded, so it could not reach an unbounded `V₊`: with `g`
+unbounded, `MemLp (g F)` genuinely does not follow from `MemLp F`.  The bound was never the point —
+Hölder is: two `L⁴` factors multiply into an `L²`.
+
+* `memLp_shift_mul_of_memLp` — `MemLp (g F)` from `MemLp (g ∘ shift) 4` and `MemLp (F ∘ shift) 4`
+  by `MemLp.mul'`.  No bound anywhere.
+* `intState_reflectionPositive_of_memLp_unbounded` — the interacting inequality for a measurable
+  *unbounded* weight and a measurable `L⁴` observable, feeding the previous theorem into
+  `intState_reflectionPositive_of_memLp`.  For a Gaussian measure every polynomial growth lies in
+  every finite `Lᵖ`, so `V₊ = λ‖x‖^k` is covered at either sign of the coupling.
+
+One Lean detail worth keeping: `HolderTriple 4 4 2` has no numeral instance, and `norm_num` cannot
+do inverses in `ℝ≥0∞`.  The proof of `((4)⁻¹ + (4)⁻¹)⁻¹ = 2` goes through `ℝ≥0` by
+`ENNReal.coe_inv`/`ENNReal.coe_add` (each `coe_inv` needs its `≠ 0` side condition, which is where
+the first attempts failed), and the class field is then `inv_inv` of it.
+
+**Also in this entry.**  Every definition of `EuclideanMomentHierarchy` and `GaussianChainScales`
+is now audited — `euclidEvol`, `euclidWord`, `euclidMoment`, `scalarK`, `twoPoint`, `ofReal_sq_re`,
+`reflectedVector`, `reflectedPair`, `reflectedForm`, `familyVector`, `familyVectorLM`,
+`familyPair`, `familyForm`, `toInsertions`, `shellLaw`, `shellDensity`, `streamField`,
+`streamCovariance` — so the audit no longer covers only the theorems.
+
+**The pointwise product.**  `memLp_mul_of_memLp_top` is Hölder at the pair `(2, ∞)`: an `L²`
+function times an essentially bounded one is `L²`.  That is the only sense in which pointwise
+products close, and the `L² × L² → L²` statement is not open but false: on
+`volume.restrict (Ioo 0 1)` the function `x ↦ x ^ (-(1/3))` is square integrable because
+`-2/3 > -1`, while its square `x ↦ x ^ (-(4/3))` is not.  The witness is recorded in the module's
+prose, not formalized, and the `L²` closure of the positive-time algebra is therefore a module over
+the essentially bounded observables rather than an algebra.
+
+**Not claimed.**  The `L⁴` hypothesis is sufficient, not necessary; a weight with faster-than-
+polynomial growth and `g F ∈ L²` with `F` only in `L²` are still open.

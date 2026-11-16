@@ -49,7 +49,7 @@ The interacting, unbounded, distribution‑valued case is the boundary (below).
 
 noncomputable section
 
-open scoped BigOperators InnerProductSpace
+open scoped BigOperators InnerProductSpace ENNReal
 
 namespace BookProof.OSReconstruction
 
@@ -746,6 +746,27 @@ theorem reconSpace_minimal {K : E →L[ℂ] E} {Ω : E} {q : Submodule ℂ E}
     (hq : IsClosed (q : Set E)) (h : reconstructionVectors K Ω ⊆ q) : reconSpace K Ω ≤ q := by
   rw [reconSpace, ← span_reconstructionVectors]
   exact Submodule.topologicalClosure_minimal _ (Submodule.span_le.2 h) hq
+
+/-! ### The pointwise product: what closes and what does not
+
+The product above is the joint insertion family, the OS product of two observables.  The *pointwise*
+product of two `L²` functions is a different operation, and on `L²` it closes only against an
+essentially bounded factor: Hölder with `p = 2`, `q = ∞` gives `MemLp (b * f) 2` from `MemLp f 2`
+and `MemLp b ∞`.  Without that hypothesis the statement is false rather than open — on
+`volume.restrict (Ioo 0 1)` the function `x ↦ x ^ (-(1/3))` is square integrable, since `-2/3 > -1`,
+while its square `x ↦ x ^ (-(4/3))` is not.  So the `L²` closure of the positive-time algebra is a
+module over the essentially bounded observables, not an algebra under pointwise multiplication; the
+counterexample is recorded here rather than formalized.
+-/
+
+open MeasureTheory in
+/-- **The pointwise product closes on `L²` against an essentially bounded factor.**  This is Hölder
+with the pair `(2, ∞)`, the only exponent pair for which a product of two `L²` functions is again
+`L²`. -/
+theorem memLp_mul_of_memLp_top {α : Type*} [MeasurableSpace α] (μ : Measure α) {b f : α → ℝ}
+    (hb : MemLp b (∞ : ℝ≥0∞) μ) (hf : MemLp f 2 μ) :
+    MemLp (fun x => b x * f x) 2 μ :=
+  MemLp.mul' hf hb
 
 /-- **The pairing on the completion agrees with the family pairing on the dense subspace**: for
 realized vectors the ambient inner product is `familyPair`, so the product of two families is the
