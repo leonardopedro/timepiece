@@ -5544,9 +5544,10 @@ The doubling is therefore not an `m = 1` accident: for `m ≤ 6` every matter bl
 entry by entry against the `m = 0` operator (the block identity above), so `B = (±1) ⊗ B₀` on each
 block and `dim ker B(m) = 2^m · 11` exactly.  `m ≤ 3` is recomputed from scratch by sparse elimination
 as an independent cross-check; `m ≥ 4` relies on the block identity, which is why the table says
-`blocks` rather than `elimination` for those rows.  The `m = 3` elimination takes ~25 s: 528 sources, 440 of them
-independent, which is exactly the `2³ · 55` the block identity predicted.  The whole script now takes
-~2.5 min, the cost of the degree-four and degree-five eliminations added below.  The eleven vectors lift to every matter block and
+`blocks` rather than `elimination` for those rows.  The `m = 3` row is eliminated like the
+others: 528 sources, 440 of them independent, which is exactly the `2³ · 55` the block identity
+predicted.  The whole script takes ~8 s: the Gauss–Jordan elimination is now row-sparse (the operator's
+columns carry at most eight entries), where the dense row operations had made it ~2.5 min.  The eleven vectors lift to every matter block and
 are verified killed there for `m = 1, 2, 3`, with the lifted family independent.
 
 **The three pure-weak pairs are now a theorem (`ChapterSmBrstGhost` §2b).**  The last column of the
@@ -5571,15 +5572,16 @@ orthonormal, hence independent, so their span sits inside the kernel (`finrank_k
 `finrank_ker_smGhostCharge_ge_three`, §2b).  The *exact* dimension 11 is the part that stays computed,
 and (iv) now certifies it with one explicit nonzero minor rather than a pivot count.  (ii) It is at `g = 2` and `m ≤ 6` as far as the *exact* kernel dimension goes (the block identity is entry-by-entry checked
 at `m = 4, …, 6`, and the dimension is eliminated from scratch at `m = 0, 1, 2, 3`); the same block
-identity is verified at ghost degrees 1, 3, 4 and 5, and those kernels are eliminated at `m = 0` —
+identity is verified at ghost degrees 1, 3, 4, 5 and 6, and those kernels are eliminated at `m = 0` —
 degree 1 gives `dim Λ¹ = 12`, rank 11, kernel 1 (the survivor is the hypercharge ghost `|11>`, which `B`
 kills because every mixed structure constant vanishes), degree 3 gives rank 163 with kernel 57, degree 4
 gives `dim Λ⁴ = 495` sources reaching 754 of the 792 five-mode states, rank 330 and kernel 165, and
-degree 5 gives `dim Λ⁵ = 792` sources reaching 907 of the 924 six-mode states, rank 461 and kernel 331;
-all four follow the `2^m` law.  Degree 4 is eliminated at `m = 1, 2` as well (990 / 660 / 330 and
+degree 5 gives `dim Λ⁵ = 792` sources reaching 907 of the 924 six-mode states, rank 461 and kernel 331,
+and degree 6 gives `dim Λ⁶ = 924` sources reaching 784 of the 792 seven-mode states, rank 461 and
+kernel 463; all five follow the `2^m` law.  Degree 4 is eliminated at `m = 1, 2` as well (990 / 660 / 330 and
 1980 / 1320 / 660), sector by sector: the cubic term preserves the matter occupation entry by entry, so
 the operator is block diagonal in it and the per-sector Gauss–Jordan ranks add up without using the
-block identity.  The other degrees of §95 remain dimensional facts, and the eighteen-mode doublet is
+block identity.  The remaining degrees of §95 are not in the table, and the eighteen-mode doublet is
 still out of reach.
 (iii) The twelve directions are *instantiations*: the general result stays
 `matterGen_occ_entry` plus a nonzero matrix entry, and the twelve theorems record which entry, at which

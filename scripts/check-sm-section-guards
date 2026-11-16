@@ -1138,6 +1138,14 @@ require "$PLAN" 'computed object' \
     "§96: the plan must keep the certificate's not-a-theorem boundary"
 require "$PLAN" 'fraction-free Bareiss' \
     "§96: the plan must keep the certificate's cross-check"
+require "scripts/sm-cubic-kernel-basis.py" "row-sparse" \
+    "§96: the elimination must stay row-sparse"
+require "$PLAN" 'row-sparse' \
+    "§96: the plan must keep the sparse-elimination note"
+require "$PLAN" 'kernel 463' \
+    "§96: the plan must keep the degree-six kernel"
+require "scripts/sm-cubic-kernel-basis.py" '(6, (0,))' \
+    "§96: the script must keep the degree-six elimination"
 require "BookProof/Sm/ChapterSmBrstGhost.lean" \
     "theorem finrank_ker_smGhostCharge_ge_two_pow" \
     "§96: the matter-only lower bound must stay"

@@ -765,3 +765,22 @@ project from this script.  Second, the sector-wise rows at `m = 1, 2` rest on ma
 than on the block *identity*: they are independent of the sign structure, but they are not independent
 of the block-decomposition argument.  Third, the script's runtime is now ~2.5 min, up from ~33 s, which
 is the price of the three degree-four eliminations and the degree-five one.
+
+## Correction 2026-11-16g — degree six, and an eight-second script
+
+**What changed.**  Two additions to the computation; the runtime claim of 2026-11-16f is superseded.
+
+*Ghost degree six is in the table.*  At `m = 0` the sources are `dim Λ⁶ = 924` of the 792 seven-mode
+targets, of which 784 are reached; rank 461, kernel 463.  The block identity is checked at `m = 1, 2, 3`,
+so degree 6 obeys `dim ker(m) = 2^m · 463`.  Five of the thirteen degrees now have an eliminated `m = 0`
+row (1, 3, 4, 5, 6) and the `2^m` law is checked at all five.
+
+*The elimination is row-sparse, and the script takes ~8 s instead of ~2.5 min.*  The `m = 0` basis and
+the 55 × 55 certificate are unchanged — both `sha256`s are identical — because the pivot order (first
+column, first row at or below the current one) and the reduced form are unchanged; only the
+representation of the rows changed, from dense `ncols`-long lists to `{column: value}` dictionaries.
+That is what made degree 6 affordable in the same run.
+
+**What is still not a theorem.**  Everything 2026-11-16f listed: the table and the certificate are
+computations, not Lean statements.  The remaining degrees of §95 are not in the table and the
+eighteen-mode doublet is out of reach.

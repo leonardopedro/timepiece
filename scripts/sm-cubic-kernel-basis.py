@@ -338,36 +338,52 @@ def kernel_basis(rows, ncols):
 
     Returns `(rank, basis)`, the basis as `{column: K}` sparse vectors in reduced form: the
     pivot columns of the reduced matrix are new, so the returned vectors are independent.
+
+    The elimination is row-sparse: the operator's columns carry at most eight entries, and the
+    reduced rows stay far shorter than `ncols`, so the dense list comprehension per row operation
+    was the whole cost.  The pivot order (first column, first row at or below the current one) and
+    the reduced form are unchanged, so the returned basis is the same one as before.
     """
     nrows = len(rows)
-    pivot_of_row = []
+    sp = [{c: x for c, x in enumerate(row) if not x.is_zero()} for row in rows]
     row = 0
     pivots = {}
     for c in range(ncols):
         p = None
         for r in range(row, nrows):
-            if not rows[r][c].is_zero():
+            if c in sp[r]:
                 p = r
                 break
         if p is None:
             continue
-        rows[row], rows[p] = rows[p], rows[row]
-        inv = K(1) / rows[row][c]
-        rows[row] = [x * inv for x in rows[row]]
+        if p != row:
+            sp[row], sp[p] = sp[p], sp[row]
+        inv = K(1) / sp[row][c]
+        pivot = {k: v * inv for k, v in sp[row].items()}
+        sp[row] = pivot
         for r in range(nrows):
-            if r != row and not rows[r][c].is_zero():
-                factor = rows[r][c]
-                rows[r] = [x - factor * y for x, y in zip(rows[r], rows[row])]
+            if r == row:
+                continue
+            factor = sp[r].get(c)
+            if factor is None or factor.is_zero():
+                continue
+            target = sp[r]
+            for k, v in pivot.items():
+                nv = target.get(k, ZERO) - factor * v
+                if nv.is_zero():
+                    target.pop(k, None)
+                else:
+                    target[k] = nv
         pivots[c] = row
-        pivot_of_row.append(c)
         row += 1
     rank = row
     basis = []
     for free in (c for c in range(ncols) if c not in pivots):
         v = {free: ONE}
         for c, r in pivots.items():
-            if not rows[r][free].is_zero():
-                v[c] = -rows[r][free]
+            x = sp[r].get(free)
+            if x is not None and not x.is_zero():
+                v[c] = -x
         basis.append(v)
     return rank, basis
 
@@ -649,7 +665,7 @@ def main():
     # `sector_kernel` eliminates the actual m-mode operator sector by sector, which is the same
     # computation as eliminating its whole matrix once matter conservation is used.
     degree_rows = []
-    for deg, eliminated in ((1, (0,)), (3, (0,)), (4, (0, 1, 2)), (5, (0,))):
+    for deg, eliminated in ((1, (0,)), (3, (0,)), (4, (0, 1, 2)), (5, (0,)), (6, (0,))):
         base = None
         for m in eliminated:
             terms = cubic_terms(m, f)
