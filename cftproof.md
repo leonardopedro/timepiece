@@ -740,6 +740,7 @@ chosen to make the second moment scale-uniform, not the subtraction of an intera
 and no observable is shown to converge. The interacting C3a–C3d packets, the half-space
 inequality, the OS reconstruction theorem and any field law are untouched.
 
+
 **Landed 2026-11-16, eleventh slice: the whole affine family, uniformly (C3e, second packet).**
 Tightness for one scalar sequence is weaker than it looks: the observable a multiscale argument
 actually thresholds is rarely the field itself but a *centred* version of it, or a difference of
@@ -2760,3 +2761,37 @@ Ordered by what unblocks the rest; each item names the module it lands in.
    intermediate value.  So item (iii) is blocked on the same operator⇄form bridge as (ii′), and
    `ChapterTempleSeparationBound`'s honest boundary ("the transfer across the strong-resolvent
    limit is not proved") should be read as covering this too.
+
+**Landed 2026-11-16, thirteenth slice: the two-point functions, and the renormalised variance
+(C3f).** The twelfth slice computed the moments of `streamField` but had to say that the variance of
+the *renormalised* observable `renormField = streamField − c^n·d·p_last` was out of reach, because
+it needs the cross moment `E[S · p_last]`. That moment is now computed. Twelve declarations were
+added to the audit; all rest on standard axioms.
+
+* **Coordinates.** `integral_shellLaw_coord` and `integral_shellLaw_coord_sq`: a single coordinate
+  has mean `0` and second moment `1` under the reference law, with `integrable_shellLaw_coord`
+  and `integrable_shellLaw_coord_sq` supplying the integrability. Both come from Mathlib's
+  `integral_comp_eval` (`∫ f (x i) ∂Measure.pi μ = ∫ f ∂μ i`) and the one-dimensional moment
+  `∫ z² ∂blockUnit = 1`.
+* **The cross moment.** `integral_shellLaw_streamField_mul_last`: `E[S_n · p_last] = c^n·d`.
+  Proved by induction on the number of scales, splitting the product law at the first coordinate
+  (`integral_shellLaw_cons_succ`, which is stated for *integrable* functions — this is the Fubini
+  step the density tower deliberately avoided). The newly integrated coordinate `z` multiplies
+  `g_last`, whose mean is zero, so each step only reads off its own drift. Integrability of the
+  product is `integrable_streamField_mul_last`, dominated by `(S² + p_last²)/2`.
+* **Decorrelation.** `integral_shellLaw_renormField_mul_last = 0`: the drift the renormalisation
+  subtracts is *exactly* the field's correlation with the exterior coordinate. Consequently
+  `integral_shellLaw_renormField_sq = K_n` and its mean-subtracted form
+  `integral_shellLaw_renormField_centered_sq = K_n`; with `c² < 1` the variance is at most
+  `1/(1 − c²)` uniformly in `n` (`variance_renormField_le`). `covariance_pair_shellLaw` packages the
+  `2×2` covariance matrix of `(streamField, p_last)` with its diagonal and off-diagonal.
+
+Boundary of this thirteenth slice: **the pair, and only the pair.** The two-point function is
+computed for the field against a single coordinate, including the drift coordinate it is
+renormalised against; the interior cross moments `E[p_i·p_j]` for two coordinates, the covariance
+`E[S_n · S_m]` between two different scales, and the four-point function are not computed, so no
+cluster expansion, no second-moment matrix in the multi-scale sense and no Gaussianity statement
+follows. The renormalisation is still the subtraction of the damped background read off the
+exterior coordinate, not a renormalisation of an interacting observable. No conditional
+expectation is constructed (the per-`y` identity stays bounded-only), and C3a–C3d, the half-space
+inequality, the OS reconstruction theorem and any field law are untouched.

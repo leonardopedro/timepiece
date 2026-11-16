@@ -133,10 +133,11 @@ scale-indexed:
   Chebyshev bound is `(a² K_n + b²)/M²` (`shellAffineTailLaw_le`), uniform bound
   `(a²/(1 − c²) + b²)/M²` (`shellAffineTailLaw_le_inv`), and `exists_shellAffineTailLaw_le`
   produces one threshold valid at every scale for a fixed `(a, b)`.  It is still a Chebyshev
-  estimate at a *bounded* observable (an indicator): no expectation, variance or covariance of an
-  affine image is computed, because that needs the `L¹` extension of the tower that the previous
-  bullet records as missing.  `shellAffineTailLaw_one_zero` shows the scalar packet is the case
-  `a = 1`, `b = 0`.
+  estimate at a *bounded* observable (an indicator): no expectation or variance of an affine image
+  is computed, because that needs the `L¹` extension of the tower that the previous bullet records
+  as missing (the later two-point packet computes the variance of the renormalised observable
+  itself, but not of its affine images).  `shellAffineTailLaw_one_zero` shows the scalar packet is
+  the case `a = 1`, `b = 0`.
 * The `L¹` packet removes the boundedness restriction **at the level of totals**: the bounded
   tower is applied to the truncation `min (a·S + b)² (N : ℝ)`, the truncation's density is
   dominated by the exact quadratic value at every scale (`shellDensity_sq_min_le`) and converges
@@ -148,6 +149,18 @@ scale-indexed:
   `variance_shellLaw_le ≤ 1/(1 − c²) + d²`.  The per-`y` identity
   `shellDensity_eq_integral_snoc` is *still* bounded-only: what is gained is the law-level
   integral, obtained by truncation rather than by a Fubini/section-integrability argument.
+* The two-point packet closes the covariance gap the previous bullet left open.
+  `integral_shellLaw_coord` and `integral_shellLaw_coord_sq` compute a single coordinate's first
+  two moments (`0` and `1`), and `integral_shellLaw_streamField_mul_last` gives the field's
+  covariance with the exterior coordinate, `c^n·d`.  Subtracting the drift is therefore exactly a
+  decorrelation: `integral_shellLaw_renormField_mul_last = 0`, and the renormalised observable's
+  variance is the drift-free `integral_shellLaw_renormField_centered_sq = K_n`, uniformly
+  `≤ 1/(1 − c²)` (`variance_renormField_le`); `covariance_pair_shellLaw` packages the `2×2`
+  covariance matrix of `(streamField, p_last)`.  These are computed by Fubini for *integrable*
+  functions (`integral_shellLaw_cons_succ`) with the domination
+  `|S·p_last| ≤ (S² + p_last²)/2`, which is a stronger standard than the truncation the totals
+  needed.  Still no multi-point function beyond the pair: the interior cross moments `E[p_i·p_j]`
+  and the four-point functions are not computed, and no Gaussianity is proved.
 -/
 
 namespace BookProof.OSReconstruction
@@ -1651,6 +1664,246 @@ theorem variance_shellLaw_le (n : ℕ) (c d : ℝ) (hc : c ^ 2 < 1) :
     exact mul_le_of_le_one_left (sq_nonneg d) hpow
   linarith
 
+/-! ## The two-point functions of the reference law
+
+The reference law is a product of independent unit Gaussians, so single coordinates have mean
+`0` and unit second moment, and the cylinder field's covariance with the exterior coordinate is
+explicit: `E[S_n · p_last] = c^n·d`.  That covariance is what the renormalised observable
+subtracts, so the renormalised field is orthogonal to its own drift coordinate and its variance is
+exactly `K_n`.
+
+These are computed by Fubini for *integrable* functions (`integral_shellLaw_cons_succ`), which is
+stronger than the truncation standard the total moment identity needed: the integrands here are
+dominated by `(S_n² + p_last²)/2`, and both factors are known to lie in `L²`.
+-/
+
+/-- A coordinate has mean zero under the reference law. -/
+theorem integral_shellLaw_coord (m : ℕ) (i : Fin m) :
+    ∫ p, p i ∂shellLaw m = 0 := by
+  have hz : ∫ z, z ∂blockUnit = 0 := by
+    have := integral_quadratic_blockUnit 0 1 0
+    simpa using this
+  have h := MeasureTheory.integral_comp_eval (μ := fun _ : Fin m => blockUnit) (i := i)
+    (f := fun z : ℝ => z) measurable_id.aestronglyMeasurable
+  rw [show (∫ p : Fin m → ℝ, p i ∂shellLaw m) = ∫ z, z ∂blockUnit from h, hz]
+
+/-- A coordinate is integrable under the reference law. -/
+theorem integrable_shellLaw_coord (m : ℕ) (i : Fin m) :
+    Integrable (fun p : Fin m → ℝ => p i) (shellLaw m) := by
+  have hz : Integrable (fun z : ℝ => z) blockUnit :=
+    (memLp_id_gaussianReal (μ := 0) (v := 1) 2).integrable (by norm_num)
+  have h := MeasureTheory.integrable_comp_eval (μ := fun _ : Fin m => blockUnit) (i := i) hz
+  simpa only [shellLaw] using h
+
+/-- A coordinate square is integrable under the reference law. -/
+theorem integrable_shellLaw_coord_sq (m : ℕ) (i : Fin m) :
+    Integrable (fun p : Fin m → ℝ => (p i) ^ 2) (shellLaw m) := by
+  have hz : Integrable (fun z : ℝ => z ^ 2) blockUnit :=
+    MemLp.integrable_sq (memLp_id_gaussianReal (μ := 0) (v := 1) 2)
+  have h := MeasureTheory.integrable_comp_eval (μ := fun _ : Fin m => blockUnit) (i := i) hz
+  simpa only [shellLaw] using h
+
+/-- A coordinate square has unit integral: the reference coordinates are unit variance. -/
+theorem integral_shellLaw_coord_sq (m : ℕ) (i : Fin m) :
+    ∫ p, (p i) ^ 2 ∂shellLaw m = 1 := by
+  have hz : ∫ z, z ^ 2 ∂blockUnit = 1 := by
+    have := integral_quadratic_blockUnit 0 0 1
+    simpa using this
+  have h := MeasureTheory.integral_comp_eval (μ := fun _ : Fin m => blockUnit) (i := i)
+    (f := fun z : ℝ => z ^ 2) (measurable_id.pow_const 2).aestronglyMeasurable
+  rw [show (∫ p : Fin m → ℝ, (p i) ^ 2 ∂shellLaw m) = ∫ z, z ^ 2 ∂blockUnit from h, hz]
+
+/-- The field times the exterior coordinate is integrable: both factors lie in `L²`, so the
+product is dominated by half the sum of their squares. -/
+theorem integrable_streamField_mul_last (n : ℕ) (c d : ℝ) :
+    Integrable (fun p : Fin (n + 1) → ℝ => streamField c d n p * p (Fin.last n))
+      (shellLaw (n + 1)) := by
+  have hsq : Integrable (fun p : Fin (n + 1) → ℝ => (streamField c d n p) ^ 2)
+      (shellLaw (n + 1)) := by
+    simpa using integrable_sq_affine n c d 1 0
+  have hlast : Integrable (fun p : Fin (n + 1) → ℝ => (p (Fin.last n)) ^ 2)
+      (shellLaw (n + 1)) := integrable_shellLaw_coord_sq (n + 1) (Fin.last n)
+  refine Integrable.mono' ((hsq.add hlast).div_const 2)
+    ((measurable_streamField c d n).mul (measurable_pi_apply (Fin.last n))).aestronglyMeasurable ?_
+  filter_upwards with p
+  have h1 : |streamField c d n p * p (Fin.last n)|
+      ≤ ((streamField c d n p) ^ 2 + (p (Fin.last n)) ^ 2) / 2 := by
+    have h2 : 0 ≤ (|streamField c d n p| - |p (Fin.last n)|) ^ 2 := sq_nonneg _
+    rw [abs_mul]
+    nlinarith [abs_nonneg (streamField c d n p), abs_nonneg (p (Fin.last n)),
+      sq_abs (streamField c d n p), sq_abs (p (Fin.last n))]
+  simpa [Real.norm_eq_abs] using h1
+
+/-- **The two-point correlation of the field with the exterior coordinate.**  The field at `n`
+scales, paired with the drift coordinate `p_last`, has expectation exactly the running drift
+`c^n·d`: under the product law only that coordinate carries the drift, and it is the one the field
+weights by `c^n·d`. -/
+theorem integral_shellLaw_streamField_mul_last (n : ℕ) (c d : ℝ) :
+    ∫ p, streamField c d n p * p (Fin.last n) ∂shellLaw (n + 1) = c ^ n * d := by
+  induction n with
+  | zero =>
+      have hfun : (fun p : Fin 1 → ℝ => streamField c d 0 p * p (Fin.last 0))
+          = fun p => d * (p 0) ^ 2 := by
+        funext p
+        simp [streamField]
+        ring
+      have hz : ∫ z, d * z ^ 2 ∂blockUnit = d := by
+        have := integral_quadratic_blockUnit 0 0 d
+        simpa using this
+      have h := MeasureTheory.integral_comp_eval (μ := fun _ : Fin 1 => blockUnit)
+        (i := (0 : Fin 1)) (f := fun z : ℝ => d * z ^ 2)
+        ((measurable_const.mul (measurable_id.pow_const 2))).aestronglyMeasurable
+      rw [hfun, show (∫ p : (Fin 1 → ℝ), d * (p 0) ^ 2 ∂shellLaw 1)
+        = ∫ z, d * z ^ 2 ∂blockUnit from h, hz]
+      simp
+  | succ n ih =>
+      have hF : Integrable (fun p : Fin (n + 2) → ℝ =>
+          streamField c d (n + 1) p * p (Fin.last (n + 1))) (shellLaw (n + 2)) :=
+        integrable_streamField_mul_last (n + 1) c d
+      rw [integral_shellLaw_cons_succ (n + 1) _ hF]
+      have hA : ∫ g : (Fin (n + 1) → ℝ), g (Fin.last n) ∂shellLaw (n + 1) = 0 :=
+        integral_shellLaw_coord (n + 1) (Fin.last n)
+      have hinner : ∀ z : ℝ, ∫ g : (Fin (n + 1) → ℝ),
+          streamField c d (n + 1) (Fin.cons z g)
+                * (Fin.cons z g : Fin (n + 2) → ℝ) (Fin.last (n + 1))
+            ∂shellLaw (n + 1) = z * 0 + c * (c ^ n * d) := by
+        intro z
+        have hfun : (fun g : Fin (n + 1) → ℝ =>
+            streamField c d (n + 1) (Fin.cons z g)
+                * (Fin.cons z g : Fin (n + 2) → ℝ) (Fin.last (n + 1)))
+            = fun g => g (Fin.last n) * z + c * (streamField c d n g * g (Fin.last n)) := by
+          funext g
+          have hlast : (Fin.cons z g : Fin (n + 2) → ℝ) (Fin.last (n + 1)) = g (Fin.last n) := by
+            simp
+          rw [streamField_cons, hlast]
+          ring
+        rw [hfun]
+        have h1 : Integrable (fun g : Fin (n + 1) → ℝ => g (Fin.last n) * z)
+            (shellLaw (n + 1)) :=
+          (integrable_shellLaw_coord (n + 1) (Fin.last n)).mul_const z
+        have h2 : Integrable (fun g : Fin (n + 1) → ℝ =>
+            c * (streamField c d n g * g (Fin.last n))) (shellLaw (n + 1)) :=
+          (integrable_streamField_mul_last n c d).const_mul c
+        rw [integral_add h1 h2, integral_mul_const, hA, integral_const_mul, ih]
+        ring
+      have houter : (fun z : ℝ => ∫ g : (Fin (n + 1) → ℝ),
+          streamField c d (n + 1) (Fin.cons z g)
+                * (Fin.cons z g : Fin (n + 2) → ℝ) (Fin.last (n + 1))
+            ∂shellLaw (n + 1)) = fun _ => c * (c ^ n * d) := by
+        funext z
+        rw [hinner z]
+        ring
+      rw [houter]
+      have hone : ∫ _ : ℝ, c * (c ^ n * d) ∂blockUnit = c * (c ^ n * d) := by
+        have := integral_quadratic_blockUnit (c * (c ^ n * d)) 0 0
+        simpa using this
+      rw [hone, pow_succ']
+      ring
+
+/-- The renormalised observable has mean zero under the reference law. -/
+theorem integral_shellLaw_renormField (n : ℕ) (c d : ℝ) :
+    ∫ p, renormField c d n p ∂shellLaw (n + 1) = 0 := by
+  have hS := integral_shellLaw_streamField n c d
+  have hlast := integral_shellLaw_coord (n + 1) (Fin.last n)
+  have hfun : (fun p : Fin (n + 1) → ℝ => renormField c d n p)
+      = fun p => streamField c d n p - (c ^ n * d) * p (Fin.last n) := by
+    funext p
+    rw [renormField]
+  have h2 : Integrable (fun p : Fin (n + 1) → ℝ => (c ^ n * d) * p (Fin.last n))
+      (shellLaw (n + 1)) :=
+    (integrable_shellLaw_coord (n + 1) (Fin.last n)).const_mul (c ^ n * d)
+  rw [hfun, integral_sub (integrable_streamField n c d) h2, integral_const_mul, hS, hlast]
+  ring
+
+/-- **The renormalised observable is orthogonal to its own drift coordinate.**  This is the
+two-point identity the variance needs: the drift the renormalisation subtracts is exactly the
+correlation the field has with the exterior coordinate, so nothing of it is left. -/
+theorem integral_shellLaw_renormField_mul_last (n : ℕ) (c d : ℝ) :
+    ∫ p, renormField c d n p * p (Fin.last n) ∂shellLaw (n + 1) = 0 := by
+  have hcross := integral_shellLaw_streamField_mul_last n c d
+  have hlast := integral_shellLaw_coord_sq (n + 1) (Fin.last n)
+  have hfun : (fun p : Fin (n + 1) → ℝ => renormField c d n p * p (Fin.last n))
+      = fun p => streamField c d n p * p (Fin.last n)
+          - (c ^ n * d) * (p (Fin.last n)) ^ 2 := by
+    funext p
+    rw [renormField]
+    ring
+  have h2 : Integrable (fun p : Fin (n + 1) → ℝ => (c ^ n * d) * (p (Fin.last n)) ^ 2)
+      (shellLaw (n + 1)) :=
+    (integrable_shellLaw_coord_sq (n + 1) (Fin.last n)).const_mul (c ^ n * d)
+  rw [hfun, integral_sub (integrable_streamField_mul_last n c d) h2, integral_const_mul,
+    hcross, hlast]
+  ring
+
+/-- **The variance of the renormalised observable is exactly the accumulated covariance** `K_n`:
+the drift is gone, and what remains is the sum of the `n` interior variances. -/
+theorem integral_shellLaw_renormField_sq (n : ℕ) (c d : ℝ) :
+    ∫ p, (renormField c d n p) ^ 2 ∂shellLaw (n + 1) = streamCovariance n c := by
+  have hS2 : ∫ p, (streamField c d n p) ^ 2 ∂shellLaw (n + 1)
+      = streamCovariance n c + (c ^ n * d) ^ 2 := by
+    have h := integral_shellLaw_sq n c d 1 0
+    simpa using h
+  have hcross := integral_shellLaw_streamField_mul_last n c d
+  have hlast := integral_shellLaw_coord_sq (n + 1) (Fin.last n)
+  have hfun : (fun p : Fin (n + 1) → ℝ => (renormField c d n p) ^ 2)
+      = fun p => (streamField c d n p) ^ 2
+          - 2 * (c ^ n * d) * (streamField c d n p * p (Fin.last n))
+          + (c ^ n * d) ^ 2 * (p (Fin.last n)) ^ 2 := by
+    funext p
+    rw [renormField]
+    ring
+  have hA : Integrable (fun p : Fin (n + 1) → ℝ => (streamField c d n p) ^ 2)
+      (shellLaw (n + 1)) := by
+    simpa using integrable_sq_affine n c d 1 0
+  have hB : Integrable (fun p : Fin (n + 1) → ℝ =>
+      2 * (c ^ n * d) * (streamField c d n p * p (Fin.last n))) (shellLaw (n + 1)) :=
+    (integrable_streamField_mul_last n c d).const_mul (2 * (c ^ n * d))
+  have hC : Integrable (fun p : Fin (n + 1) → ℝ => (c ^ n * d) ^ 2 * (p (Fin.last n)) ^ 2)
+      (shellLaw (n + 1)) :=
+    (integrable_shellLaw_coord_sq (n + 1) (Fin.last n)).const_mul ((c ^ n * d) ^ 2)
+  have hX : Integrable (fun p : Fin (n + 1) → ℝ => (streamField c d n p) ^ 2
+      - 2 * (c ^ n * d) * (streamField c d n p * p (Fin.last n))) (shellLaw (n + 1)) :=
+    hA.sub hB
+  rw [hfun, integral_add hX hC, integral_sub hA hB, integral_const_mul, integral_const_mul,
+    hS2, hcross, hlast]
+  ring
+
+/-- The mean-subtracted second moment of the renormalised observable, in the form a variance is
+usually quoted in. -/
+theorem integral_shellLaw_renormField_centered_sq (n : ℕ) (c d : ℝ) :
+    ∫ p, (renormField c d n p - ∫ q, renormField c d n q ∂shellLaw (n + 1)) ^ 2
+        ∂shellLaw (n + 1) = streamCovariance n c := by
+  have hmean := integral_shellLaw_renormField n c d
+  have hfun : (fun p : Fin (n + 1) → ℝ =>
+        (renormField c d n p - ∫ q, renormField c d n q ∂shellLaw (n + 1)) ^ 2)
+      = fun p => (renormField c d n p) ^ 2 := by
+    funext p
+    rw [hmean]
+    ring
+  rw [hfun, integral_shellLaw_renormField_sq]
+
+/-- **The variance of the renormalised observable is bounded uniformly in the number of scales**:
+for a contracting weight it never exceeds `1/(1 − c²)`, with no drift term at all. -/
+theorem variance_renormField_le (n : ℕ) (c d : ℝ) (hc : c ^ 2 < 1) :
+    ∫ p, (renormField c d n p - ∫ q, renormField c d n q ∂shellLaw (n + 1)) ^ 2
+        ∂shellLaw (n + 1) ≤ 1 / (1 - c ^ 2) := by
+  rw [integral_shellLaw_renormField_centered_sq]
+  exact streamCovariance_le_inv n c hc
+
+/-- **The two-point function of the reference law, packaged.**  For `k = c^n·d` the pair
+`(streamField, p_last)` has the covariance matrix `[[K_n + k², k], [k, 1]]`, and the renormalised
+field's pair with `p_last` has zero off-diagonal and variance `K_n`. -/
+theorem covariance_pair_shellLaw (n : ℕ) (c d : ℝ) :
+    (∫ p, streamField c d n p * p (Fin.last n) ∂shellLaw (n + 1) = c ^ n * d)
+      ∧ (∫ p, (p (Fin.last n)) ^ 2 ∂shellLaw (n + 1) = 1)
+      ∧ (∫ p, renormField c d n p * p (Fin.last n) ∂shellLaw (n + 1) = 0)
+      ∧ (∫ p, (renormField c d n p) ^ 2 ∂shellLaw (n + 1) = streamCovariance n c) :=
+  ⟨integral_shellLaw_streamField_mul_last n c d, integral_shellLaw_coord_sq (n + 1) (Fin.last n),
+    integral_shellLaw_renormField_mul_last n c d, integral_shellLaw_renormField_sq n c d⟩
+
 end BookProof.OSReconstruction
+
+
+
 
 

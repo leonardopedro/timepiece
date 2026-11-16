@@ -336,3 +336,18 @@ axiom would poison every statement below without appearing in any of their repor
 #audit_axioms integral_shellLaw_streamField
 #audit_axioms integral_shellLaw_centered_sq
 #audit_axioms variance_shellLaw_le
+
+/-! ## C3f: the two-point functions of the reference law -/
+
+#audit_axioms integral_shellLaw_coord
+#audit_axioms integrable_shellLaw_coord
+#audit_axioms integrable_shellLaw_coord_sq
+#audit_axioms integral_shellLaw_coord_sq
+#audit_axioms integrable_streamField_mul_last
+#audit_axioms integral_shellLaw_streamField_mul_last
+#audit_axioms integral_shellLaw_renormField
+#audit_axioms integral_shellLaw_renormField_mul_last
+#audit_axioms integral_shellLaw_renormField_sq
+#audit_axioms integral_shellLaw_renormField_centered_sq
+#audit_axioms variance_renormField_le
+#audit_axioms covariance_pair_shellLaw

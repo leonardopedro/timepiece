@@ -669,6 +669,28 @@ therefore `K_n + (c^n d)^2`, and for a contracting weight it is bounded by `1/(1
 uniformly in the number of scales — the same uniformity the small-field bound had, now for an
 honest second moment rather than for a Chebyshev count of indicators.
 
+The renormalised observable's variance then follows from one more computation: its covariance with
+the coordinate it is renormalised against. Under the product law a single coordinate has mean zero
+and unit second moment, and the field's pairing with the exterior coordinate is exactly the running
+drift:
+
+```
+integral_shellLaw_coord           : E[p_j] = 0
+integral_shellLaw_coord_sq        : E[p_j^2] = 1
+integral_shellLaw_streamField_mul_last : E[S_n · p_last] = c^n d
+integral_shellLaw_renormField_mul_last : E[renorm · p_last] = 0
+integral_shellLaw_renormField_sq  : E[renorm^2] = K_n
+variance_renormField_le           : c^2 < 1 -> E[renorm^2] <= 1/(1 - c^2)
+```
+
+So the subtraction of the damped background is precisely a decorrelation, not merely a recentring:
+the drift term is the whole of the field's correlation with the exterior coordinate, and removing it
+leaves the accumulated covariance `K_n` alone — the same scale-uniform object the small-field bound
+was built on. These integrals are taken by Fubini for integrable functions, with the domination
+`|S · p_last| <= (S^2 + p_last^2)/2`, which is stronger than the truncation the totals needed; what
+is *not* available is anything beyond the pair. The interior cross moments, the four-point function
+and any statement that the law is Gaussian remain outside.
+
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of
 fresh independent Gaussians, and $`d \mapsto c d` is a definition, not a theorem about an
