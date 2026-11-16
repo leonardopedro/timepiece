@@ -4782,3 +4782,26 @@ block equation on the core; this section does not do that.
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the four new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### §16's hypothesis package, discharged on an explicit model (2026-11-15u)
+
+§16 assumes a core, a generator `H : D →ₗ[ℂ] E`, a section `res : E → D` of `H − z`, a bound and a
+positive gap.  §21 discharges the whole package on the two-mode model, so none of the hypotheses is
+vacuous:
+
+* `modelCore := ⊤`, `modelH w g` = `hamOp w g` restricted to it, `modelRes w g` = §18's
+  `resolventOp` as a map into the core;
+* `model_res_section`: `(H − 0) (res y) = y`, from `hamOp_comp_resolventOp` — the section property
+  is a theorem here, not an assumption;
+* `model_res_bound`: `‖res y‖ ≤ mu⁻¹‖y‖` with the explicit `mu = (1 + ‖res‖)⁻¹`;
+* `exchangeOp_adjoint`: the mode exchange is self-adjoint, hence unitary
+  (`exchangeOp.adjoint.comp exchangeOp = 1`);
+* `model_sirkGraphTail`: `sirkGraphTail_le` with every hypothesis discharged by the above.
+
+Not done: constructing `res` for `ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99`.  There the section is the
+analytic resolvent of the interacting Hamiltonian; §21 shows the *shape* of the hypothesis package
+is consistent and decidable in a model, not that the YM resolvent exists with a gap.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the four new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

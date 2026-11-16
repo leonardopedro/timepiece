@@ -2552,4 +2552,90 @@ theorem sirkGraphTail_le_of_schur (V : F →L[ℂ] E)
 
 end
 
+
+/-! ## 21. Satisfiability of §16's hypotheses: an explicit resolvent section
+
+§16 assumes a core `D`, a generator `H : D →ₗ[ℂ] E`, a section `res : E → D` of `H − z`, a bound
+`‖res y‖ ≤ mu⁻¹‖y‖` and `mu > 0`.  The concrete target shape is
+`ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99` (§11 of the Yang–Mills chapter), whose core `D` and
+resolvent are analytic objects.  Here the *package* is discharged on the two-mode model, where
+every ingredient is explicit:
+
+* `modelCore := ⊤`, so the model Hamiltonian is a linear map on a core rather than a special case;
+* `modelH w g`: `hamOp w g` restricted to that core, `modelRes w g`: §18's `resolventOp` regarded as
+  a map into the core;
+* `model_res_section`: `(H − 0) (res y) = y` — the section property, from
+  `hamOp_comp_resolventOp`, so the "resolvent exists" hypothesis is a theorem here;
+* `model_res_bound`: `‖res y‖ ≤ mu⁻¹‖y‖` with the explicit `mu = (1 + ‖res‖)⁻¹`;
+* `exchangeOp_adjoint` and `model_sirkGraphTail`: `V` is the unitary mode exchange, and §16's
+  graph-norm tail conclusion follows with all hypotheses discharged.
+
+What this does *not* do is construct `res` for `ymHamiltonian`: there the section is the analytic
+resolvent of the interacting Hamiltonian, and the hypothesis package above is exactly the statement
+that such a section exists with a gap.  What §21 establishes is that the package is consistent and
+that every hypothesis is a real constraint on a decidable object in the model. -/
+
+noncomputable section
+/-- The model's core: the whole space, written as a submodule so §16 applies verbatim. -/
+def modelCore : Submodule ℂ YMMode := ⊤
+
+/-- The two-mode Hamiltonian as a linear map on that core. -/
+noncomputable def modelH (w : Fin 2 → ℝ) (g : ℝ) : modelCore →ₗ[ℂ] YMMode :=
+  (hamOp w g).toLinearMap.domRestrict modelCore
+
+/-- The resolvent section: the explicit inverse of §18, regarded as a map into the core. -/
+noncomputable def modelRes (w : Fin 2 → ℝ) (g : ℝ) : YMMode →ₗ[ℂ] modelCore :=
+  (resolventOp w g).toLinearMap.codRestrict modelCore fun _ => Submodule.mem_top
+
+/-- **The section property**: `(H − 0) (res y) = y` holds for the model, because `resolventOp` is a
+genuine right inverse of `hamOp`. -/
+theorem model_res_section (w : Fin 2 → ℝ) (g : ℝ)
+    (hΔ : (w 0 : ℂ) * (w 1 : ℂ) - (g : ℂ) ^ 2 ≠ 0) (y : YMMode) :
+    modelH w g (modelRes w g y) - (0 : ℂ) • ((modelRes w g y : modelCore) : YMMode) = y := by
+  have h := congrArg (fun T : YMMode →L[ℂ] YMMode => T y) (hamOp_comp_resolventOp w g hΔ)
+  simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.id_apply] at h
+  simpa [modelH, modelRes] using h
+
+/-- **The resolvent bound** holds with the explicit gap `mu = (1 + ‖res‖)⁻¹`. -/
+theorem model_res_bound (w : Fin 2 → ℝ) (g : ℝ) (y : YMMode) :
+    ‖((modelRes w g y : modelCore) : YMMode)‖
+      ≤ ((1 + ‖resolventOp w g‖)⁻¹)⁻¹ * ‖y‖ := by
+  have h1 : ((modelRes w g y : modelCore) : YMMode) = resolventOp w g y := by
+    simp [modelRes]
+  rw [h1, inv_inv]
+  calc ‖resolventOp w g y‖ ≤ ‖resolventOp w g‖ * ‖y‖ := ContinuousLinearMap.le_opNorm _ y
+    _ ≤ (1 + ‖resolventOp w g‖) * ‖y‖ :=
+        mul_le_mul_of_nonneg_right (by linarith [norm_nonneg (resolventOp w g)]) (norm_nonneg y)
+
+/-- The mode exchange is self-adjoint (it is a permutation matrix). -/
+theorem exchangeOp_adjoint : exchangeOp.adjoint = exchangeOp := by
+  have h : exchangeOp = exchangeOp.adjoint := by
+    rw [ContinuousLinearMap.eq_adjoint_iff]
+    intro x y
+    rw [EuclideanSpace.inner_eq_star_dotProduct, EuclideanSpace.inner_eq_star_dotProduct]
+    simp only [dotProduct, Fin.sum_univ_two, exchangeOp_ofLp, Pi.star_apply,
+      Equiv.swap_apply_left, Equiv.swap_apply_right]
+    ring_nf
+  exact h.symm
+
+/-- **§16's hypotheses are simultaneously satisfiable.**  With `V` the unitary mode exchange, the
+core `⊤`, the Hamiltonian `hamOp w g`, the section `modelRes` and the gap
+`mu = (1 + ‖resolventOp w g‖)⁻¹`, every hypothesis of `sirkGraphTail_le` holds. -/
+theorem model_sirkGraphTail (w : Fin 2 → ℝ) (g : ℝ)
+    (hΔ : (w 0 : ℂ) * (w 1 : ℂ) - (g : ℂ) ^ 2 ≠ 0) (x : YMMode) :
+    graphNorm (modelH w g) (modelRes w g ((sirkComplement exchangeOp) x))
+      ≤ ((1 + ‖(0 : ℂ)‖) * ((1 + ‖resolventOp w g‖)⁻¹)⁻¹ + 1) * ‖x‖ := by
+  have hVV : exchangeOp.adjoint.comp exchangeOp = ContinuousLinearMap.id ℂ YMMode := by
+    rw [exchangeOp_adjoint, exchangeOp_comp_self]
+  have hvec : ∀ y : YMMode, ‖((modelRes w g y : modelCore) : YMMode)‖
+      ≤ ((1 + ‖resolventOp w g‖)⁻¹)⁻¹ * ‖y‖ := fun y => model_res_bound w g y
+  have hres : ∀ y : YMMode,
+      modelH w g (modelRes w g y) - (0 : ℂ) • ((modelRes w g y : modelCore) : YMMode) = y :=
+    fun y => model_res_section w g hΔ y
+  have : (0 : ℝ) < (1 + ‖resolventOp w g‖)⁻¹ := by positivity
+  simpa using sirkGraphTail_le exchangeOp hVV hres hvec this x
+
+
+end
+
 end BookProof.ChapterSirkEndToEnd

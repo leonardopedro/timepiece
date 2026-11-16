@@ -113,6 +113,14 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15u):** “State of the project — 2026-11-15u: §16's hypotheses
+> discharged on the model” (end of file): `ChapterSirkEndToEnd` §21 exhibits a core `modelCore := ⊤`,
+> the restricted Hamiltonian `modelH`, the section `modelRes` from §18's explicit `resolventOp`, and
+> proves the section property (`model_res_section`), the bound with `mu = (1 + ‖res‖)⁻¹`
+> (`model_res_bound`), self-adjointness of the unitary `V` (`exchangeOp_adjoint`) and §16's
+> graph-norm tail with every hypothesis discharged (`model_sirkGraphTail`).  The YM resolvent section
+> itself remains analytic.
+>
 > **Track A — newest (2026-11-15t):** “State of the project — 2026-11-15t: §15 extended to unbounded
 > generators” (end of file): `ChapterSirkEndToEnd` §20 replaces §16's global resolvent hypothesis by
 > the Schur data — `resolvent_tail_le_of_schur_core` gives `‖Q (res (Q x))‖ ≤ mu⁻¹‖Q x‖` from the
@@ -26493,6 +26501,25 @@ bound `‖res y‖ ≤ mu⁻¹‖y‖`, i.e. a global `‖R‖ ≤ mu⁻¹`.  §
 **Not proved.**  The section-level Schur identity `hS` — the unbounded analogue of
 `S (Q R Q) = Q` — is still an input; deriving it on the core of `ymHamiltonian` (by solving the
 block equation there) is the next analytic step.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the four new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15u: §16's hypotheses discharged on the model
+
+§16 asks for a core `D`, `H : D →ₗ[ℂ] E`, a section `res : E → D` of `H − z`, `‖res y‖ ≤ mu⁻¹‖y‖`
+and `mu > 0`; the intended instance is `ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99`.  §21 discharges the
+package on the two-mode model: `modelCore := ⊤`, `modelH` = `hamOp` restricted to it, `modelRes` =
+§18's `resolventOp` into the core, with `model_res_section` (from `hamOp_comp_resolventOp`),
+`model_res_bound` (`mu = (1 + ‖res‖)⁻¹`), `exchangeOp_adjoint` (the unitary `V`) and
+`model_sirkGraphTail` (§16's conclusion with all hypotheses met).
+
+**Not proved.**  The existence of the YM resolvent section with a gap — that is the physics, and
+§21 does not claim it; it shows the hypothesis package is consistent and every hypothesis is a
+genuine constraint on a decidable object of the model.
 
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the four new declarations gives
