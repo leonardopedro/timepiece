@@ -142,3 +142,9 @@ open BookProof.OSReconstruction
 #audit_axioms intState_univ
 #audit_axioms intState_reflectionPositive
 #audit_axioms intState_expectation_re_nonneg
+
+/-! ## The interaction as a convergent expansion (C2 / E3) -/
+
+#audit_axioms intStateSum
+#audit_axioms intStateSum_univ
+#audit_axioms intStateSum_reflectionPositive
