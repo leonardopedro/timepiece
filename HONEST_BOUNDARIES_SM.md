@@ -889,3 +889,32 @@ the layer does not have yet; and the Jacobi identity for the structure constants
 `f`'s.  The nine table entries and antisymmetry do not imply it.  A future session should either prove
 the closure (mechanical but 64 matrix identities) and then the transfer, or state Jacobi as a computed
 certificate with the same honesty as the determinant.
+
+## Update 2026-11-16k — total antisymmetry proved; Jacobi measured, stated, and still open
+
+**What is proved.**  `Work/SmSu3Lie.lean` builds the trace algebra — `mtrace_mul_comm` (the trace does
+not see the order of two factors), `mmul_assoc`, `mtrace_cycle` (`tr(ABC) = tr(BCA)`), the pointwise
+additivity of `mmul` and `mtrace`, and `mtrace_comm_mul` (`tr([A,B]C) = tr(A[B,C])`) — and from it
+`f3Q_cyclic : f_{abc} = f_{bca}`, `f3Q_swap23`, `f3Q_swap13`, and `f3Q_transposition` bundling the three
+transpositions.  Together with `f3Q_antisym` this is *total* antisymmetry for every index triple, with
+no case analysis: the file compiles in 10.8 s.
+
+**What is not proved, and was measured before deciding.**  `jacobiStatement` is a `Prop`:
+
+  `∀ a b c d, Σ_e f_{abe} f_{cde} + Σ_e f_{bce} f_{ade} + Σ_e f_{cae} f_{bde} = 0`.
+
+Case evaluation is ruled out by measurement rather than by taste.  With `a` fixed and `b c d` free
+(512 goals), `fin_cases` + `simp` + `ext` + `norm_num` exceeds `maxHeartbeats 8000000` after 6 minutes
+of elaboration; all 4096 quadruples would be about an hour of kernel time, and the result would say
+nothing about *why* the identity holds.  The algebraic route needs the expansion of a matrix in the `λ`
+basis — equivalently the completeness relation
+`Σ_e (λ_e)_{ij} (λ_e)_{kl} = 2 δ_{il} δ_{jk} - (2/3) δ_{ij} δ_{kl}` — because the transfer
+`Σ_e f_{abe} f_{cde} = -(1/8) tr([λ_a,λ_b][λ_c,λ_d])` is exactly a Parseval statement for that basis.
+Antisymmetry never touches completeness, which is why it came free and Jacobi does not.  That expansion
+is the natural next step: 81 coefficient identities, then `Σ_cyc tr([λ_a,λ_b][λ_c,λ_d]) = 0` from the
+matrix Jacobi identity, which the trace algebra in this file already supports.
+
+**The statement is true, and checked where Lean is not asked to.**  `scripts/sm-cubic-kernel-basis.py`
+now verifies the Jacobi identity in exact `Q(sqrt 3)` arithmetic at all 4096 index quadruples and
+cyclicity at all 512 triples, and exits nonzero if either fails; it also prints both verdicts.  That is
+evidence, not a proof, and the difference is the whole point of the `Prop`.

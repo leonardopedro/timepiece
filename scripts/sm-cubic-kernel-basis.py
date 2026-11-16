@@ -249,6 +249,23 @@ def su3_gell_mann_count():
         raise SystemExit("f_458 is not sqrt3/2")
     if glu.get((5, 6, 7), K(0)) != K(0, Fraction(1, 2)):
         raise SystemExit("f_678 is not sqrt3/2")
+    for a in range(8):
+        for b in range(8):
+            for c in range(8):
+                for d in range(8):
+                    jac = K(0)
+                    for e in range(8):
+                        jac += glu.get((a, b, e), K(0)) * glu.get((c, d, e), K(0))
+                        jac += glu.get((b, c, e), K(0)) * glu.get((a, d, e), K(0))
+                        jac += glu.get((c, a, e), K(0)) * glu.get((b, d, e), K(0))
+                    if not jac.is_zero():
+                        raise SystemExit(f"the Jacobi identity fails at {a},{b},{c},{d}")
+    for a in range(8):
+        for b in range(8):
+            for c in range(8):
+                v = glu.get((a, b, c), K(0))
+                if glu.get((b, c, a), K(0)) != v:
+                    raise SystemExit(f"cyclicity fails at {a},{b},{c}")
     return len(glu)
 
 
@@ -692,6 +709,8 @@ def main():
     print(f"rank of Omega_3       : {rank0}")
     print(f"dim ker Omega_3 at g=2: {dim0}")
     print(f"su(3) constants nonzero: {n_su3}")
+    print("su(3) Jacobi identity  : holds at all 8^4 = 4096 index quadruples (exact)")
+    print("su(3) cyclicity        : holds at all 8^3 triples (exact)")
 
     print()
     print("ghost labels 0-7: gluons, 8-10: weak, 11: hypercharge; |i+j> = the state with")

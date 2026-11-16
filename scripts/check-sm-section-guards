@@ -1178,6 +1178,14 @@ require "Work/SmGhostMinorLit.lean" "theorem ghostMinorData_length" \
     "§96: the emitted minor's shape check must stay"
 require "Work/SmSu3Constants.lean" "theorem f3Q_antisym" \
     "§96: the structural antisymmetry proof must stay"
+require "Work/SmSu3Lie.lean" "theorem f3Q_cyclic" \
+    "§96: the cyclicity of the derived constants must stay"
+require "Work/SmSu3Lie.lean" "theorem f3Q_transposition" \
+    "§96: total antisymmetry must stay"
+require "Work/SmSu3Lie.lean" "def jacobiStatement" \
+    "§96: the open Jacobi statement must stay a Prop"
+require "scripts/sm-cubic-kernel-basis.py" "the Jacobi identity fails at" \
+    "§96: the script must keep checking Jacobi in exact arithmetic"
 require "BookProof/Sm/ChapterSmBrstGhost.lean" \
     "theorem finrank_ker_smGhostCharge_ge_two_pow" \
     "§96: the matter-only lower bound must stay"

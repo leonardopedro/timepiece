@@ -5622,10 +5622,21 @@ the determinant proof itself is still open.  Three `Work/` files (outside the bu
   (`ghostMinorData_length`, `ghostMinorData_rows`, both by `decide`), the matrix `ghostMinor`, and
   `ghostMinorStatement` as the open `Prop`.  The minor is now Lean data instead of a re-runnable script.
 
-Not proved, and not claimed: *total* antisymmetry (cyclicity) and the Jacobi identity.  Both need
-`mmul` associativity and distributivity over `CQ`; Jacobi additionally needs the closure
-`[λ_a, λ_b] ∈ span{λ_c}`, a 64-relation computation plus its transfer to the structure constants — a
-formalization of its own, and not something the trace formula gives for free.
+* `Work/SmSu3Lie.lean` — the trace algebra and total antisymmetry: `mtrace_mul_comm`,
+  `mmul_assoc`, `mtrace_cycle`, the pointwise additivity lemmas, `mtrace_comm_mul`
+  (`tr([A,B]C) = tr(A[B,C])`), then `f3Q_cyclic`, `f3Q_swap23`, `f3Q_swap13` and `f3Q_transposition`.
+  Total antisymmetry is thus derived for every index triple from associativity and cyclicity of the
+  trace, with no case analysis at all.
+
+Not proved, and not claimed: the Jacobi identity.  `jacobiStatement` records it as an `Prop`.  Two
+constraints were measured.  Case evaluation is out: a 512-goal slice (`a` fixed, `b c d` free) exceeds
+`maxHeartbeats 8000000` after 6 minutes of elaboration, so all 4096 quadruples would take about an
+hour of kernel time for a proof that says nothing about why it is true.  The algebraic route needs the
+expansion of a matrix in the `λ` basis, equivalently the completeness relation
+`Σ_e (λ_e)_{ij} (λ_e)_{kl} = 2 δ_{il} δ_{jk} - (2/3) δ_{ij} δ_{kl}` — an identity antisymmetry never
+touches, and the natural next formalization.  The statement itself is not in doubt: the script checks
+it in exact arithmetic at all 4096 quadruples and cyclicity at all 512 triples, and fails loudly if
+either breaks.
 
 What remains is the 55 × 55 literal: transcribe the script's minor as `ℚ(√3)` entries, prove the 3025
 entry identities relating it to `smGhostMatrixPhys`, and finish with a kernel-checkable determinant
