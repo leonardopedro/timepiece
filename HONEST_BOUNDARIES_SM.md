@@ -815,3 +815,48 @@ transcription equals the matrix entries (3025 entry identities about `Ω₃` on 
 **What this does not change.**  Nothing above upgrades a computation to a theorem.  The status of
 `11` is still: computed exactly by the script (2026-11-16f), not proved in Lean; the Lean-side facts
 remain the refutation of an unconditional bound (2026-11-16e) and the degree-free lower bound `3`.
+
+## Update 2026-11-16i — the two missing layers now exist in Lean; the minor still does not
+
+The 2026-11-16h entry listed three blockers.  Two of them are now closed by `Work/` files (outside the
+build), and the third is a smaller gap than it looked.
+
+**Blocker 1 — "the physical `f3` is not Lean data" — closed.**  `Work/SmSu3Constants.lean` derives the
+su(3) structure constants from the Gell-Mann matrices instead of assuming them:
+
+* the generators as `3 x 3` matrices over `Q(sqrt 3) + Q(sqrt 3) i` (`gm`), with `λ_8` carrying
+  `1/√3 = (0, 1/3)` and `λ_2, λ_5, λ_7` carrying `i`;
+* the trace formula `f3Q a b c = Im(tr([λ_a, λ_b] λ_c)) / 4` — no table is hard-coded;
+* the standard table as a *computed consequence*: `f3Q_123 = 1`, the six `1/2` constants
+  (`f3Q_147`, `f3Q_246`, `f3Q_257`, `f3Q_345`, `f3Q_516`, `f3Q_637`), and `f3Q_458 = f3Q_678 = √3/2`;
+* `smF3 : Fin 8 → Fin 8 → Fin 8 → ℝ` read back through `toReal`, with
+  `smF3_458 : smF3 3 4 7 = Real.sqrt 3 / 2` and `smF3_678` the same, and `smF3_123 = 1`, `smF3_147 = 1/2`.
+
+`Work/SmGhostSectorMatrix.lean` then instantiates the sector matrix: `smGhostMatrixPhys := smGhostMatrix smF3`
+is the physical `66 x 220` object, not a hypothetical.
+
+**Blocker 2 — "no `Q(sqrt 3)` arithmetic layer" — closed.**  `Work/Qsqrt3.lean` provides the exact field
+as pairs `a + b√3` over `ℚ` with a full `CommRing` instance (so Mathlib's `Matrix.det` applies),
+`sqrt3_sq : sqrt3 * sqrt3 = 3`, `toReal` with `toReal_add`/`toReal_mul`/`toReal_form`, conjugation, the
+norm-formula inverse with `mul_inv'_cancel` proved (not assumed), `detQ`, and a worked determinant: the
+`2 x 2` multiplication matrix of `a + b√3` has determinant `a² − 3b²` (`det_mulMat`).  There is no `Field`
+instance — inversion is available as data plus a proved right-inverse lemma under a nonzero-norm
+hypothesis, which is what the determinant use needs.
+
+**Blocker 3 — the determinant — remains, and it is now the only one.**  What is missing is the literal
+`55 x 55` minor as `ℚ(√3)` data, the 3025 entry identities tying it to `smGhostMatrixPhys`, and a
+kernel-checkable determinant certificate (an explicit triangular factor would do).  Two operational facts
+learned while building the layers, both worth recording:
+
+* `decide` cannot close these goals: kernel reduction gets stuck on `ℚ` equality (`Rat` normalisation is
+  not reducible), so the Gell-Mann table is proved by `simp`/`norm_num` evaluation of the concrete matrix
+  product, one entry at a time.  A 3025-entry transcription would need the same treatment, which is why
+  the count matters rather than the principle.
+* `native_decide` stays excluded (its proof term does not reduce in `nanoda`, and the audit would report
+  `Lean.ofReduceBool`), so the `55 x 55` determinant must be certified, not brute-forced.
+
+**Also this session:** the script's degree table gained ghost degree 7 — `dim Λ⁷ = 792` sources reaching
+491 of the 495 eight-mode states, rank 330, kernel 462 — and the `2^m` law holds there as everywhere else
+(462 → 924 → 1848 → 3696).  Nothing in this entry upgrades a computation to a theorem about the model:
+the status of `11` is unchanged, and the Lean-side facts remain the refutation of an unconditional bound
+(2026-11-16e), the degree-free lower bound `3`, and now the derived constants with their computed table.

@@ -5577,8 +5577,10 @@ degree 1 gives `dim Λ¹ = 12`, rank 11, kernel 1 (the survivor is the hyperchar
 kills because every mixed structure constant vanishes), degree 3 gives rank 163 with kernel 57, degree 4
 gives `dim Λ⁴ = 495` sources reaching 754 of the 792 five-mode states, rank 330 and kernel 165, and
 degree 5 gives `dim Λ⁵ = 792` sources reaching 907 of the 924 six-mode states, rank 461 and kernel 331,
-and degree 6 gives `dim Λ⁶ = 924` sources reaching 784 of the 792 seven-mode states, rank 461 and
-kernel 463; all five follow the `2^m` law.  Degree 4 is eliminated at `m = 1, 2` as well (990 / 660 / 330 and
+degree 6 gives `dim Λ⁶ = 924` sources reaching 784 of the 792 seven-mode states, rank 461 and
+kernel 463, and degree 7 gives `dim Λ⁷ = 792` sources reaching 491 of the 495 eight-mode states, rank
+330 and kernel 462; all six follow the `2^m` law (`331 → 662 → 1324 → 2648`, `463 → 926 → 1852 → 3704`,
+`462 → 924 → 1848 → 3696`).  Degree 4 is eliminated at `m = 1, 2` as well (990 / 660 / 330 and
 1980 / 1320 / 660), sector by sector: the cubic term preserves the matter occupation entry by entry, so
 the operator is block diagonal in it and the per-sector Gauss–Jordan ranks add up without using the
 block identity.  The remaining degrees of §95 are not in the table, and the eighteen-mode doublet is
@@ -5596,18 +5598,29 @@ states of `Λ²ℂ¹²`) whose determinant is `−3¹²/2³⁵ ≠ 0`, computed 
 `11 = 66 − 55` no longer rests on reading a pivot count, it rests on one explicit determinant.  What is
 still missing is a *Lean* statement of this: the certificate is a re-runnable computation, and
 `Work/SmQuartetConstructedAudit.lean` audits the imported theorems, not this output.
-(vi) The Lean *statement* of the certificate exists without its proof.  `Work/SmGhostSectorMatrix.lean`
-defines the two sectors as types and proves their cardinalities
-(`card_ghostDegreeTwo : Fintype.card GhostDegreeTwo = 66`, `card_ghostDegreeThree = 220`), defines the
-matrix itself (`smGhostMatrix f3 : Matrix GhostDegreeTwo GhostDegreeThree ℂ`, the entry being the
-coefficient of `occ T` in `Ω₃ (occ S)` read off by the inner product), and states the certificate as
-`ghostMinorStatement f3 rows cols`, the nonsingularity of a 55 × 55 minor.  The proof is open for three
-reasons, none of them cosmetic: the physical `f3` is not Lean data (the `λ_a/2` derivation that fixes
-the gluon constants lives only in the script — `smStruct` takes `f3` as a parameter everywhere); `ℚ(√3)`
-has no arithmetic layer in this development (the script carries `a + b√3` as a pair of `Fraction`s);
-and `native_decide` is excluded, since its proof term does not reduce in `nanoda` and the axiom audit
-would report `Lean.ofReduceBool`.  Closing it needs the 55 × 55 entries as Lean data plus a kernel-
-checkable determinant certificate (e.g. an explicit triangular factor), not a re-run of the script.
+(vi) The Lean *statement* of the certificate exists, together with the two layers its proof needed;
+the determinant proof itself is still open.  Three `Work/` files (outside the build) now hold:
+
+* `Work/SmGhostSectorMatrix.lean` — the two sectors as types with `Fintype.card = 66` and `220` proved,
+  the matrix `smGhostMatrix f3 : Matrix GhostDegreeTwo GhostDegreeThree ℂ` (entry: the coefficient of
+  `occ T` in `Ω₃ (occ S)`), its physical instantiation `smGhostMatrixPhys := smGhostMatrix smF3`, and
+  `ghostMinorStatement f3 rows cols`, the nonsingularity of a 55 × 55 minor.
+* `Work/Qsqrt3.lean` — the exact field as pairs `a + b√3` over `ℚ`, a `CommRing` instance (so Mathlib's
+  `Matrix.det` applies), `sqrt3_sq`, `toReal` with `toReal_add`/`toReal_mul`, conjugation, the norm-formula
+  inverse (`mul_inv'_cancel`, stated as an obligation rather than assumed), `detQ`, and a worked
+  determinant: the `2 × 2` multiplication matrix of `a + b√3` has determinant `a² − 3b²`.
+* `Work/SmSu3Constants.lean` — the Gell-Mann matrices over `ℚ(√3) + ℚ(√3)i`, the trace formula
+  `f_abc = Im(tr([λ_a, λ_b] λ_c))/4`, and the standard table *computed* (`f3Q_123`,
+  the six `1/2` constants, and `f3Q_458 = f3Q_678 = √3/2`), read back as `smF3 : Fin 8 → Fin 8 → Fin 8 → ℝ`
+  with `smF3_458 : smF3 3 4 7 = Real.sqrt 3 / 2`.  So `smStruct`'s parameter is now a derived object, not
+  a hypothesis.
+
+What remains is the 55 × 55 literal: transcribe the script's minor as `ℚ(√3)` entries, prove the 3025
+entry identities relating it to `smGhostMatrixPhys`, and finish with a kernel-checkable determinant
+certificate (an explicit triangular factor would do).  `native_decide` stays excluded — its proof term
+does not reduce in `nanoda` and the axiom audit would report `Lean.ofReduceBool`; `decide` alone cannot
+close the ℚ coordinates, which is why the Gell-Mann table is proved by `simp`/`norm_num` evaluation
+rather than by decision.  Nothing above upgrades the computation to a theorem about the model.
 (v) There is no upper bound of eleven on the *whole* Fock space, and §2c now proves that:
 `finrank_ker_smGhostCharge_ge_two_pow` says `2^m ≤ finrank (ker Ω₃)` for every `f3`, because a cubic
 monomial carries no matter mode, so every state `occ T` built from matter modes alone is annihilated

@@ -1,4 +1,5 @@
 import BookProof.Sm.ChapterSmBrstGhost
+import Work.SmSu3Constants
 
 /-!
 # The ghost-number-two matrix of the cubic charge
@@ -61,6 +62,14 @@ the three-ghost state `occ T` in `Omega_3 (occ S)`, i.e. its inner product with 
 noncomputable def smGhostMatrix (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
     Matrix GhostDegreeTwo GhostDegreeThree ℂ :=
   fun S T => inner ℂ (occ T.val) ((smGhostCharge 0 f3) (occ S.val))
+
+/-- **The physical matrix**: the cubic charge on ghost number two, with `f3` instantiated by the
+constants derived from the Gell-Mann generators in `Work/SmSu3Constants.lean`.  This is the matrix
+the
+script eliminates; what is still missing is the literal `55 x 55` minor and its determinant proof.
+-/
+noncomputable def smGhostMatrixPhys : Matrix GhostDegreeTwo GhostDegreeThree ℂ :=
+  smGhostMatrix BookProof.SmSu3.smF3
 
 /-- **The rank certificate as a statement**: a `55 x 55` minor of `smGhostMatrix` is nonsingular.
 With

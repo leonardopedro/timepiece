@@ -665,7 +665,7 @@ def main():
     # `sector_kernel` eliminates the actual m-mode operator sector by sector, which is the same
     # computation as eliminating its whole matrix once matter conservation is used.
     degree_rows = []
-    for deg, eliminated in ((1, (0,)), (3, (0,)), (4, (0, 1, 2)), (5, (0,)), (6, (0,))):
+    for deg, eliminated in ((1, (0,)), (3, (0,)), (4, (0, 1, 2)), (5, (0,)), (6, (0,)), (7, (0,))):
         base = None
         for m in eliminated:
             terms = cubic_terms(m, f)

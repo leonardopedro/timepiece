@@ -1154,8 +1154,20 @@ require "Work/SmGhostSectorMatrix.lean" "noncomputable def ghostMinorStatement" 
     "§96: the minor statement must stay"
 require "$PLAN" 'ghostMinorStatement' \
     "§96: the plan must keep the Lean statement of the certificate"
-require "$PLAN" 'the physical `f3` is not Lean data' \
-    "§96: the plan must keep the reason the proof is open"
+require "$PLAN" 'Work/SmSu3Constants.lean' \
+    "§96: the plan must keep the Gell-Mann derivation"
+require "$PLAN" 'smF3 3 4 7 = Real.sqrt 3 / 2' \
+    "§96: the plan must keep the derived weak constant"
+require "scripts/sm-cubic-kernel-basis.py" '(7, (0,))' \
+    "§96: the script must keep the degree-seven elimination"
+require "Work/SmSu3Constants.lean" "theorem smF3_458" \
+    "§96: the derived f_458 must stay"
+require "Work/SmSu3Constants.lean" "def f3Q" \
+    "§96: the trace formula must stay"
+require "Work/Qsqrt3.lean" "theorem det_mulMat" \
+    "§96: the determinant over Q(sqrt 3) must stay"
+require "Work/SmGhostSectorMatrix.lean" "noncomputable def smGhostMatrixPhys" \
+    "§96: the physical instantiation must stay"
 require "BookProof/Sm/ChapterSmBrstGhost.lean" \
     "theorem finrank_ker_smGhostCharge_ge_two_pow" \
     "§96: the matter-only lower bound must stay"
