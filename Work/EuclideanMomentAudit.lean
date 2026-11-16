@@ -7,14 +7,17 @@ extension convention, the empty-word normalization, two-point positivity at coin
 and a free one-mode regulator whose moment is a strictly positive, genuinely time-dependent
 scalar.  It also covers the C3a coarse-graining step of a reference Gaussian, where the coarse
 density is `E[|Psi|² | G]` rather than `|E[Psi | G]|²`, and the chain that applies that step
-twice, together with the C3b covariance and activity estimates proved for it.  Every declaration
-below must rest on `propext`, `Classical.choice`, `Quot.sound` only.
+twice, together with the C3b covariance and activity estimates proved for it, and finally the
+`n`-step chain of `GaussianChainScales`, whose accumulated covariance is bounded uniformly in
+the number of scales.  Every declaration below must rest on `propext`, `Classical.choice`,
+`Quot.sound` only.
 
 Run with the project toolchain: `lake build Work.EuclideanMomentAudit`.
 -/
 import BookProof.OSReconstruction.EuclideanMomentHierarchy
 import BookProof.OSReconstruction.EuclideanMehlerCalibration
 import BookProof.OSReconstruction.GaussianBlockCoarseDensity
+import BookProof.OSReconstruction.GaussianChainScales
 import BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity
 import BookProof.RoadmapAudit.AxiomAudit
 
@@ -132,15 +135,23 @@ open BookProof.OSReconstruction
 #audit_axioms integral_abs_blockIntegral_le
 #audit_axioms integral_abs_blockChainDensity_le
 
-/-! ## C3c at reference scale: the totals and the large-field complement -/
+/-! ## C3d, first slice: the step iterated through arbitrarily many scales -/
 
-#audit_axioms integral_blockNaiveChainDensity
-#audit_axioms integral_blockChainDensity_sq
-#audit_axioms integral_blockChainDensity_eq_integral_naive_add
-#audit_axioms blockNaiveChainDensity_zero_background
-#audit_axioms blockChainDensity_sq_zero_background
-#audit_axioms blockChainCovariance_le_coupling_sq
-#audit_axioms blockChainCovariance_le_mul_density
+#audit_axioms shellDensity_succ
+#audit_axioms streamField_succ
+#audit_axioms streamField_cons
+#audit_axioms streamCovariance_succ
+#audit_axioms integral_quadratic_blockUnit
+#audit_axioms shellDensity_quadratic
+#audit_axioms shellDensity_streamField
+#audit_axioms shellDensity_streamField_sq
+#audit_axioms shellDensity_streamField_covariance
+#audit_axioms streamCovariance_nonneg
+#audit_axioms sum_range_pow_succ
+#audit_axioms streamCovariance_closed_form
+#audit_axioms streamCovariance_le_card
+#audit_axioms streamCovariance_le_inv
+#audit_axioms integral_shellDensity_streamField_sq
 
 /-! ## The interacting half-space inequality (C2 / E3) -/
 

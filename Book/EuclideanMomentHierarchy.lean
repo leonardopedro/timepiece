@@ -441,6 +441,62 @@ coarse density, so with $`\varepsilon = 1` and $`|d y| \ge \sqrt 2` the correcti
 half the total. That is what "large fields are easy, small fields are the work" means once the
 covariance is a fixed constant rather than a field-dependent quantity.
 
+# Arbitrarily Many Scales
+
+The plan's C3d asks that the coupling trajectory "stay in the induction domain through
+arbitrarily many UV scales". The reference system can be made scale-indexed, and then that
+requirement — in the only form available here — is a theorem. The number of steps becomes a
+parameter $`n`:
+
+```
+shellLaw n        = gamma^{⊗ n}  on  Fin n → ℝ
+shellDensity n f y : the n-fold partial integral of f at fixed exterior value y
+streamField c d n : Psi_n(z, g) = z + c * Psi_{n-1}(g),  exterior weight c^n * d
+```
+
+The field therefore carries the geometric weights of a rescaling by $`c` per scale, and the
+exterior background is damped by $`c` at every step: the coupling runs, $`d \mapsto c d`. That is
+the one coupling trajectory a product of independent Gaussians supports. Against it, the
+density identity is a single induction with the quadratic invariant
+$`A + B \Psi + C \Psi^2`:
+
+```
+shellDensity_quadratic : E_n[A + B Psi_n + C Psi_n^2] y
+                           = A + B * (c^n * d * y) + C * (K_n + (c^n * d * y)^2)
+shellDensity_streamField        : the running mean is c^n * d * y
+shellDensity_streamField_sq     : the running second moment is K_n + (c^n d y)^2
+shellDensity_streamField_covariance : second moment - mean^2 = K_n
+```
+
+The covariance after $`n` steps is $`K_n`, independent of the exterior field and of its
+coupling, and it obeys the recursion
+
+```
+streamCovariance_succ        : K_{n+1} = 1 + c^2 * K_n
+streamCovariance_closed_form : K_n = sum_{j<n} c^{2j}
+streamCovariance_le_card     : c^2 ≤ 1 -> K_n ≤ n
+streamCovariance_le_inv      : c^2 < 1 -> K_n ≤ 1/(1 - c^2)      -- uniformly in n
+integral_shellDensity_streamField_sq : ∫ coarse = K_n + c^{2n} d^2
+```
+
+Each integrated Gaussian contributes exactly one unit of variance, so the accumulated covariance
+is the geometric sum; it grows at most linearly in the number of scales, and if the per-scale
+weight contracts ($`c^2 < 1`) it stays below the fixed constant $`1/(1-c^2)` for _every_
+number of scales $`n`. That is the sense in which the small-field domain is preserved through arbitrarily many
+scales: the bound does not degrade with the number of steps.
+
+Two honest qualifications belong here rather than in a footnote. First, the flow is a
+_weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of
+fresh independent Gaussians, and $`d \mapsto c d` is a definition, not a theorem about an
+effective action. Second, `shellDensity` is defined as the $`n`-fold iterated integral, and the
+*tower identity* $`\int f \,d\gamma^{\otimes (n+1)} = \int y, \mathrm{shellDensity}_n f y`
+is proved only for two steps (in the previous section). The recursion peels the innermost
+coordinate while the tower peels the outermost integrated one, so the general case needs one
+Fubini permutation per scale; until it is added, the statements above should be read as
+statements about iterated integrals. Nothing here is C3d in the plan's sense — there is no
+effective action, counterterm, marginal direction or logarithmic running, and the
+$`n`-uniformity is exactly what the triviality of the reference flow buys.
+
 # What Is Verified, and What Is Open
 
 Four honest boundaries delimit this chapter.
@@ -472,10 +528,11 @@ explicit norm identity rather than from abstract form theory. The OS inequality 
 finite-family one; the interacting version is the factorized-weight one above, and the
 completeness of the reconstructed space and any field law are outside this chapter.
 
-_Fourth, the coarse-graining step is one or two blocks of a reference Gaussian._ The chain
-iterates the step but does not iterate the scale: every coordinate is a fresh independent
-Gaussian, so nothing is rescaled, translated or renormalised between the two steps, and the
-chain is not an RG map. There is no measure-level pushforward, no gauge transport and no
+_Fourth, the coarse-graining step is one, two or arbitrarily many blocks of a reference
+Gaussian._ The chain iterates the operation and, once indexed by $`n`, the number of scales
+— but every coordinate remains a fresh independent Gaussian, so nothing is renormalised
+between steps, the per-scale weight is put in by hand, and neither the chain nor the indexed
+family is an RG map. There is no measure-level pushforward, no gauge transport and no
 lattice. `blockIntegral_mul_exterior` is the characterising identity of the conditional
 expectation on cylinder test functions rather than a construction of conditional
 expectations, and `coarseDensity_ne_naiveDensity` shows the two prescriptions differ in this
@@ -492,4 +549,4 @@ estimate (C3e) remain open.
 
 Everything proved in this chapter is `sorry`-free, and every declaration listed above
 depends only on Lean's standard `propext`, `Classical.choice` and `Quot.sound`
-(`Work/EuclideanMomentAudit.lean`, 109 declarations).
+(`Work/EuclideanMomentAudit.lean`, 117 declarations).
