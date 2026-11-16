@@ -56,7 +56,16 @@ statements about the same reference system rather than a new construction.
   coupling `d`, and bounded by `2` for `|c| ≤ 1`;
 * `blockActivityNorm`, `integral_abs_blockIntegral_le`, `integral_abs_blockChainDensity_le` — the
   activity norm `∫ |f|` is contracted by a coarse step, which is the estimate a polymer activity
-  needs.
+  needs;
+* `integral_blockNaiveChainDensity`, `integral_blockChainDensity_sq`,
+  `integral_blockChainDensity_eq_integral_naive_add` — the totals over the exterior field: the
+  coarse total is `1 + c² + d²`, the naive one is `d²`, and they differ by exactly the
+  accumulated covariance;
+* `blockNaiveChainDensity_zero_background`, `blockChainDensity_sq_zero_background`,
+  `blockChainCovariance_le_coupling_sq`, `blockChainCovariance_le_mul_density` — the **C3c
+  complement** at reference scale: the covariance grows only quadratically in the coupling, the
+  naive error is largest at zero background, and where the exterior field dominates the
+  covariance is a relative fraction `ε` of the coarse density.
 
 ## Boundary
 
@@ -70,6 +79,11 @@ statements about the same reference system rather than a new construction.
   measure, and the activity estimate is L¹ contraction, not a polymer expansion with a summable
   activity ledger.  No scale-uniform derivative bound, no background-stability theorem for a
   non-Gaussian law and no running-coupling trajectory is proved here.
+* The C3c complement is not a large-field theory: `blockChainCovariance_le_mul_density` says that
+  where the background is large the *fixed* covariance is relatively negligible — it does not
+  bound a fluctuation covariance, does not control the bad-block region of an interacting
+  measure and proves no summable tail.  `blockChainCovariance_le_coupling_sq` bounds the
+  covariance by `1 + M²` in the coupling `M`; it is not a large-field expansion.
 * `blockIntegral_mul_exterior` is the characterising identity of the conditional expectation
   on cylinder test functions, not a `condExp` construction: no sigma-field is chosen and no
   existence theorem for conditional expectations is used.
@@ -651,6 +665,111 @@ theorem integral_abs_blockChainDensity_le (f : (ℝ × ℝ) × ℝ → ℝ)
     rw [hEq]
   rw [hae, blockChainActivityNorm]
   exact integral_abs_partialIntegral_le blockLaw f (by simpa [blockChainLaw] using hf)
+
+/-! ## The totals, and the large-field complement of the small-field packet
+
+The small-field packet bounds the covariance where the background is small in *coupling*.
+The complement of C3b is the regime where the background field itself is large, and on this
+reference system that regime can be disposed of exactly: the covariance is fixed, so where the
+coarse density is large the covariance is a negligible *relative* correction. -/
+
+/-- **The mean of the naive coarse density** after two steps is `d²`, the exterior-dependent
+part. -/
+theorem integral_blockNaiveChainDensity (c d : ℝ) :
+    ∫ y, blockNaiveChainDensity c d y ∂blockUnit = d ^ 2 := by
+  have h : ∀ y : ℝ, blockNaiveChainDensity c d y = d ^ 2 * y ^ 2 := by
+    intro y
+    unfold blockNaiveChainDensity
+    rw [blockChainDensity_blockChainField]
+    ring
+  have hy2 : Integrable (fun y : ℝ => y ^ 2) blockUnit :=
+    MemLp.integrable_sq (memLp_id_gaussianReal 2)
+  simp only [h]
+  rw [integral_const_mul, integral_sq_blockUnit]
+  ring
+
+/-- **The total of the coarse density** after two steps: `1 + c² + d²`, one unit of variance
+from each integrated coordinate plus the exterior term. -/
+theorem integral_blockChainDensity_sq (c d : ℝ) :
+    ∫ y, blockChainDensity (fun p => (blockChainField c d p) ^ 2) y ∂blockUnit
+      = 1 + c ^ 2 + d ^ 2 := by
+  have h : ∀ y : ℝ, blockChainDensity (fun p => (blockChainField c d p) ^ 2) y
+      = 1 + (c ^ 2 + d ^ 2 * y ^ 2) := by
+    intro y
+    rw [blockChainDensity_blockChainField_sq]
+    ring
+  have hy2 : Integrable (fun y : ℝ => y ^ 2) blockUnit :=
+    MemLp.integrable_sq (memLp_id_gaussianReal 2)
+  have h1 : Integrable (fun _ : ℝ => (1 : ℝ)) blockUnit := integrable_const _
+  have hrest : Integrable (fun y : ℝ => c ^ 2 + d ^ 2 * y ^ 2) blockUnit :=
+    (integrable_const (c ^ 2)).add (hy2.const_mul (d ^ 2))
+  have hc : Integrable (fun _ : ℝ => c ^ 2) blockUnit := integrable_const _
+  have hd : Integrable (fun y : ℝ => d ^ 2 * y ^ 2) blockUnit := hy2.const_mul (d ^ 2)
+  simp only [h]
+  rw [integral_add (f := fun _ : ℝ => (1 : ℝ)) (g := fun y : ℝ => c ^ 2 + d ^ 2 * y ^ 2)
+      h1 hrest,
+    integral_add (f := fun _ : ℝ => c ^ 2) (g := fun y : ℝ => d ^ 2 * y ^ 2) hc hd,
+    integral_const_mul, integral_sq_blockUnit, integral_const, integral_const]
+  simp
+  ring
+
+/-- **The totals differ by exactly the accumulated covariance**: integrating the chain
+coarse/naive gap over the exterior field returns `1 + c²`, the same constant that bounds the
+covariance pointwise. -/
+theorem integral_blockChainDensity_eq_integral_naive_add (c d : ℝ) :
+    ∫ y, blockChainDensity (fun p => (blockChainField c d p) ^ 2) y ∂blockUnit
+      = (∫ y, blockNaiveChainDensity c d y ∂blockUnit) + (1 + c ^ 2) := by
+  rw [integral_blockChainDensity_sq, integral_blockNaiveChainDensity]
+  ring
+
+/-- The naive density vanishes at zero background. -/
+theorem blockNaiveChainDensity_zero_background (c d : ℝ) :
+    blockNaiveChainDensity c d 0 = 0 := by
+  unfold blockNaiveChainDensity
+  rw [blockChainDensity_blockChainField]
+  ring
+
+/-- The coarse density does **not** vanish there: at zero background it is the accumulated
+covariance `1 + c²`.  So the error of the naive prescription is largest exactly at the
+background where the small-field packet applies, which is why the large-field complement is
+stated as a *relative* bound. -/
+theorem blockChainDensity_sq_zero_background (c d : ℝ) :
+    blockChainDensity (fun p => (blockChainField c d p) ^ 2) 0 = 1 + c ^ 2 := by
+  rw [blockChainDensity_blockChainField_sq]
+  ring
+
+/-- **The covariance grows only quadratically in the coupling**: for `|c| ≤ M` it is at most
+`1 + M²`.  The small-field bound is the case `M = 1`; there is no exponential growth in the
+field strength. -/
+theorem blockChainCovariance_le_coupling_sq (c d y M : ℝ) (hM : |c| ≤ M) :
+    blockChainCovariance c d y ≤ 1 + M ^ 2 := by
+  have hc2 : c ^ 2 ≤ M ^ 2 := by
+    nlinarith [abs_le.mp hM]
+  rw [blockChainCovariance_eq]
+  linarith
+
+/-- **The large-field complement of the small-field packet.**  Wherever the exterior part of the
+field dominates, `√(2/ε) ≤ |d y|`, the covariance is at most the fraction `ε` of the coarse
+density: the accumulated variance is a negligible correction relative to the density it
+corrects.  With `ε = 1` this is the statement that on `|d y| ≥ √2` the correction is at most
+half of the total. -/
+theorem blockChainCovariance_le_mul_density (c d y ε : ℝ) (hε : 0 < ε) (hc : |c| ≤ 1)
+    (hR : Real.sqrt (2 / ε) ≤ |d * y|) :
+    blockChainCovariance c d y
+      ≤ ε * blockChainDensity (fun p => (blockChainField c d p) ^ 2) y := by
+  have hc2 : c ^ 2 ≤ 1 := by
+    rw [sq_le_one_iff_abs_le_one]
+    exact hc
+  have hsq : (Real.sqrt (2 / ε)) ^ 2 ≤ |d * y| ^ 2 := by
+    have hmul := mul_self_le_mul_self (Real.sqrt_nonneg (2 / ε)) hR
+    simpa [pow_two] using hmul
+  have h2 : 2 / ε ≤ d ^ 2 * y ^ 2 := by
+    rw [Real.sq_sqrt (by positivity), sq_abs, mul_pow] at hsq
+    exact hsq
+  have hmul : ε * (2 / ε) = 2 := by
+    field_simp
+  rw [blockChainCovariance_eq, blockChainDensity_blockChainField_sq]
+  nlinarith
 
 end
 

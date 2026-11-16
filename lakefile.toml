@@ -249,6 +249,11 @@ name = "BookProofFieldStrength"
 roots = ["BookProof.FieldStrength.ChapterFreeEMField"]
 
 [[lean_lib]]
+name = "BookProofGaussianChain"
+# independent part: 2 modules
+roots = ["BookProof.OSReconstruction.GaussianChainScales"]
+
+[[lean_lib]]
 name = "BookProofPauli"
 # independent part: 2 modules
 roots = ["BookProof.Pauli.ChapterPauliSU2"]

@@ -582,6 +582,194 @@ a non-Gaussian law, no large-field complement (C3c), no running coupling traject
 no observable limit estimate (C3e) is proved. The interacting half-space inequality, the OS
 reconstruction theorem and any field law also remain open.
 
+**Landed 2026-11-16, seventh slice: the totals and the large-field complement (C3c at reference
+scale).** Same module; 96 → 103 audited declarations, all standard axioms. C3b bounds the
+covariance where the *coupling* is small; this slice closes the bookkeeping of the chain and
+disposes of the opposite regime, where the *background field* is large.
+
+* **The totals.** `integral_blockChainDensity_sq` gives `∫ coarse = 1 + c² + d²` and
+  `integral_blockNaiveChainDensity` gives `∫ naive = d²`, so
+  `integral_blockChainDensity_eq_integral_naive_add` states `∫ coarse = ∫ naive + (1 + c²)`:
+  the total excess is exactly the constant that bounds the covariance pointwise.
+* **Where the naive error lives.** `blockNaiveChainDensity_zero_background` and
+  `blockChainDensity_sq_zero_background`: at zero background the naive density is `0` while the
+  coarse density is `1 + c²`. The naive prescription is therefore *most* wrong exactly where the
+  small-field packet applies, which is why the complement must be a relative statement.
+* **The complement.** `blockChainCovariance_le_coupling_sq`: `|c| ≤ M ⇒ cov ≤ 1 + M²` — quadratic
+  degradation in field strength, no exponential growth in the coupling.
+  `blockChainCovariance_le_mul_density`: if `√(2/ε) ≤ |d y|` and `|c| ≤ 1` then
+  `cov ≤ ε · coarse density`, so for `ε = 1`, `|d y| ≥ √2`, the accumulated variance is at most
+  half of the density it corrects. Large fields are easy because the covariance is a fixed
+  constant, not a field-dependent fluctuation covariance.
+
+Boundary of this seventh slice: **large fields are easy only because the reference covariance is
+constant.** `blockChainCovariance_le_mul_density` does not bound a fluctuation covariance, does
+not control a bad-block region or its entropy, and proves no summable tail — C3c in the plan's
+sense (the complement of an *interacting* small-field region with a summable tail after
+normalisation and insertions) is untouched. `blockChainCovariance_le_coupling_sq` is a quadratic
+bound in the coupling, not a large-field expansion, and the small-field packet it complements
+is still an exact identity for two steps of a reference Gaussian. Arbitrarily many UV scales
+(C3d) and the observable limit estimate (C3e) remain open, as do the interacting half-space
+inequality, the OS reconstruction theorem and any field law. The most valuable next item on this
+thread is not another identity of the same system but the scale-indexed version: an `n`-step
+chain with covariance `∑_{j<n} c^{2j}` and an `n`-uniform bound.
+
+**Landed 2026-11-16, eighth slice: the step iterated through arbitrarily many scales (C3d, first
+packet).** New module `BookProof/OSReconstruction/GaussianChainScales.lean`, importing the
+coarse-density module; 103 → 118 audited declarations of this thread, all standard axioms. The
+number of steps is now a parameter, and the C3d requirement is proved in the only form this
+reference system supports: the local covariance bound does **not** degrade with the number of
+scales.
+
+* **Scale-indexed data.** `shellLaw n = gamma^{⊗ n}` on `Fin n → ℝ`; `shellDensity n f y` is the
+  `n`-fold partial integral (first `n` coordinates out, last one held at `y`); `streamField c d n`
+  obeys `Psi_n(z, g) = z + c * Psi_{n-1}(g)` with exterior weight `c^n d` — the geometric weights
+  of a rescaling by `c` per scale, i.e. the coupling trajectory `d ↦ c d`.
+* **The density identity.** `shellDensity_quadratic`: for every `n`, a quadratic functional of the
+  field has coarse density the same functional at the *running* mean `c^n d y` with `K_n` in place
+  of the one-step variance. Hence `shellDensity_streamField` (running mean `c^n d y`),
+  `shellDensity_streamField_sq`, and `shellDensity_streamField_covariance`: the covariance after
+  `n` steps is `K_n`, independent of the background field and of its coupling.
+* **The covariance recursion and the `n`-uniform bound.** `streamCovariance_succ`:
+  `K_{n+1} = 1 + c² K_n` — one unit per integrated scale; `streamCovariance_closed_form`:
+  `K_n = ∑_{j<n} c^{2j}`; `streamCovariance_le_card`: `c² ≤ 1 ⇒ K_n ≤ n`; and
+  `streamCovariance_le_inv`: `c² < 1 ⇒ K_n ≤ 1/(1 − c²)` **uniformly in `n`**. The total after
+  `n` scales is `integral_shellDensity_streamField_sq`: `K_n + c^{2n} d²`.
+* **The measure-level step.** `integral_shellLaw_cons`: the reference law of `n + 2` coordinates
+  splits as `blockUnit ⊗ shellLaw (n + 1)`, so each step of the density recursion is a genuine
+  partial integral over the reference law at every scale, not only a formal iteration.
+* **The fixed point.** `K ↦ 1 + c² K` has the fixed point `K* = 1/(1 − c²)`, and the error is
+  exact: `streamCovariance_inv_sub` gives `K* − K_n = (c²)^n/(1 − c²)`; hence
+  `streamCovariance_lt_inv` (`c ≠ 0 ⇒ K_n < K*`) and `tendsto_streamCovariance`
+  (`c² < 1 ⇒ K_n → K*`). `tendsto_integral_shellDensity_streamField_sq` carries the limit over
+  to the total `K_n + c^{2n} d²` at fixed background. The `n`-uniform bound is thus the shadow of
+  a convergent recursion, and the domain is preserved *because* the trajectory converges inside
+  it.
+* **The large-field tail at every scale.** C3c asks for control of the complement; at the
+  reference scale that is Chebyshev inside the iterated integral. `shellDensity_congr` and
+  `shellDensity_nonneg` supply the structural facts, and
+  `shellDensity_affine_field_le` proves the induction: for any `a, b`,
+  `P{M ≤ |a·(field − running mean) + b|} ≤ (a² K_n + b²)/M²`. The step multiplies `a` by `c` and
+  adds the unit variance of the new coordinate, which is precisely `K_{n+1} = 1 + c² K_n` — the
+  tail recursion *is* the covariance recursion. Hence `shellTail_le`: `P{M ≤ |field − mean|} ≤
+  K_n/M²`, uniformly in `n` for `c² < 1`.
+
+Boundary of this eighth slice: **a weight, not a renormalisation.** `streamField` multiplies by
+`c` and `d ↦ c d` is a definition; the law remains a product of fresh independent Gaussians, so
+nothing is rescaled, blocked or pushed forward and there is no effective action, counterterm,
+marginal/irrelevant direction, volume or separation dependence, and no logarithmic running. The
+`n`-uniformity — and its sharp form, geometric convergence to `K*` — is exactly what the
+triviality of the reference recursion buys, and the bound degenerates as `c² → 1`, so it says
+nothing about a critical point: the fixed point that is reached is that of `K ↦ 1 + c² K`, a
+geometric series, not the critical fixed point of an interacting flow. One gap is closed and one
+remains: the tower identity is now proved at every scale (the next entry), but only for bounded
+observables, so the moment statements of this slice are still read as iterated integrals; and the
+tail bound `shellTail_le` is Chebyshev on a second moment: it is a moment estimate with no
+bad-block entropy, no polymer
+expansion and no small-field/large-field decomposition of an interacting weight, and it carries no
+gauge chart, volume or insertion dependence. C3e and the interacting C3a–C3d packets remain open,
+as do the interacting half-space inequality, the OS reconstruction theorem and any field law.
+
+**Landed 2026-11-16, ninth slice: the tower identity at every scale (C3d, measure-level
+coherence).** The gap left by the previous two slices was the composition of the recursion: the
+density is the iterated partial integral, and only the two-step tower
+(`integral_blockChainDensity`) related it to a `shellLaw`-integral. It is now proved at every
+`n`, for measurable **bounded** observables, and the previous slice's diagnosis was too
+pessimistic: no Fubini permutation is needed. Thirteen declarations were added to the audit, all
+on standard axioms.
+
+* **The trick is an indexing choice, not a measure-theoretic one.** Fix the exterior coordinate
+  as the *last* one (`Fin.snoc`) and split the product law at its *first* one: then the
+  recursion's peel and the tower's split act on the same coordinate and compose with no swap.
+  The proof is `shellDensity_eq_integral_snoc`
+  (`shellDensity n f y = ∫ g, f (Fin.snoc g y) ∂shellLaw n`), by induction on `n`; the one `Fin`
+  fact it needs is `fin_cons_snoc` (`cons z (snoc g y) = snoc (cons z g) y`), and the one measure
+  fact is `integral_shellLaw_cons_succ`, the product-law splitting of `integral_shellLaw_cons`
+  with an `m`-dimensional shell, so that it also covers `m = 0`.
+* **The tower.** `integral_shellDensity_eq`: for measurable bounded `f`,
+  `∫ y, shellDensity n f y ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)`. Integrability of the
+  sections — which is what a Fubini proof would have bought, and what blocks the general case —
+  is supplied here by a uniform bound through `Integrable.of_bound` and
+  `abs_shellDensity_le` (`|f| ≤ B ⇒ |shellDensity n f y| ≤ B`), plus the measurability facts
+  `measurable_fin_cons`, `measurable_fin_snoc`, `measurable_fin_snoc_prod`,
+  `measurable_comp_fin_cons`, `measurable_comp_fin_snoc`.
+* **What that buys.** The tail is no longer a formal iterated integral: `shellTail_eq_integral_snoc`
+  writes `shellTail n c d y M` as the reference-law expectation of its indicator over the `n`
+  inner coordinates at fixed exterior value, using `measurable_streamField`. The indicator is
+  bounded, so the tower of this slice covers exactly the large-field object of the previous one.
+
+Boundary of this ninth slice: **coherence of the definitions, not an estimate, and bounded
+observables only.** The tower says that integrating one observable over a product of independent
+Gaussians can be done inner-first or outer-first; it contains no blocks, pushforwards, effective
+action or interacting weight, and it does not by itself bound anything. The polynomial field
+moments (`integral_shellDensity_streamField_sq`, the fixed-point limit, `shellTail_le`) are *not*
+covered: extending the tower to them requires `L¹` section hypotheses in place of a uniform bound,
+or a joint-integrability development for polynomial observables, and until then those statements
+remain statements about the iterated integral. The natural next step on this thread is precisely
+that extension — the moment observables are the ones the plan's estimates are about, and they are
+the only reason the boundedness hypothesis is there.
+
+**Landed 2026-11-16, tenth slice: the law-level tail and tightness (C3e, first packet).** The
+tail of the previous slices was a *density* at fixed exterior value, which is why it could not be
+compared with a probability. Applying the tower to its indicator moves it to the level of the law,
+and the estimate becomes a statement about a measure of a set. Sixteen declarations were added to
+the audit, all on standard axioms.
+
+* **The substitution.** `shellDensity_subst_last`: substituting the vector's last coordinate for
+  the exterior parameter does not change the iterated partial integral, because the only vector
+  the recursion finally applies the observable to already carries the exterior value in its last
+  slot. That makes `renormField c d n p = streamField c d n p − c^n d · p(last)` the honest
+  renormalised observable and `shellTail_eq_density_renorm` the identification of the density-
+  level tail with the density of `renormField`'s large set.
+* **The law-level tail.** `shellTailLaw n c d M` is `(shellLaw (n+1)).real {p | M ≤ |renormField
+  p|}`, with `integral_shellTail_eq` (the tower at the indicator) and `shellTailLaw_eq_integral`
+  (`integral_indicator_one`) tying it to the density-level tail; `shellTailLaw_nonneg` and
+  `shellTailLaw_le_one` say it is in `[0, 1]`.
+* **The estimate.** `shellTailLaw_le`: `P{M ≤ |renorm|} ≤ K_n/M²`; `shellTailLaw_le_inv`: for
+  `c² < 1`, `≤ 1/((1 − c²)M²)`, *uniformly in `n`*. `exists_shellTailLaw_le` is the consequence
+  C3e asks for first: for every `ε > 0` there is one threshold `M > 0` with
+  `shellTailLaw n c d M ≤ ε` at every number of scales — **tightness** of the laws of the
+  renormalised observables.
+
+Boundary of this tenth slice: **tightness of one scalar sequence, not a limit theorem.**
+`exists_shellTailLaw_le` supplies the analytic hypothesis of Prokhorov's theorem on the line;
+Prokhorov's theorem itself, a limiting law, a summable Cauchy estimate for correlations and any
+multi-point function remain open, so C3e is started and not reached. The renormalisation is the
+subtraction of the damped background `c^n d` read off the exterior coordinate — a subtraction
+chosen to make the second moment scale-uniform, not the subtraction of an interacting divergence,
+and no observable is shown to converge. The interacting C3a–C3d packets, the half-space
+inequality, the OS reconstruction theorem and any field law are untouched.
+
+**Landed 2026-11-16, eleventh slice: the whole affine family, uniformly (C3e, second packet).**
+Tightness for one scalar sequence is weaker than it looks: the observable a multiscale argument
+actually thresholds is rarely the field itself but a *centred* version of it, or a difference of
+two observables, and both are affine images. Seventeen declarations were added to the audit, all on
+standard axioms, generalising the tenth slice from the single observable `renormField` to every
+affine image of it.
+
+* **The affine large set and its tail.** `shellAffineLargeSet c d n M a b = {p | M ≤ |a·renormField
+  p + b|}` with `shellAffineTailLaw` its `shellLaw (n+1)`-measure. The tower applies verbatim —
+  the indicator is bounded — giving `integral_shellAffineTail_eq` and
+  `shellAffineTailLaw_eq_integral`.
+* **The density input is already there.** `shellAffineTail_eq` says the iterated tail of an affine
+  image *is* the density that `shellDensity_affine_field_le` (proved in the tail slice, for
+  arbitrary `a`, `b`) bounds, so `shellAffineTail_le` costs nothing new. This is the payoff of
+  having proved Chebyshev for affine thresholds rather than only for the shifted one.
+* **The estimate, uniformly in the scale count.** `shellAffineTailLaw_le`: `≤ (a²K_n + b²)/M²`;
+  `shellAffineTailLaw_le_inv`: for `c² < 1`, `≤ (a²/(1 − c²) + b²)/M²` *uniformly in `n`*;
+  `exists_shellAffineTailLaw_le`: for every `ε > 0` one threshold `M = 2/ε + a²/(1−c²) + b² + 1`
+  works at every scale. `shellAffineTailLaw_one_zero` records that the scalar packet is `a = 1`,
+  `b = 0`, so this is a strict generalisation.
+
+Boundary of this eleventh slice: **the same ceiling as the tenth, at higher generality.** The
+estimate is a probability statement about an indicator of a bounded function; no expectation,
+variance, covariance or correlation of an affine image is computed, because each of those needs the
+`L¹` extension of the tower (section-integrability hypotheses in place of the uniform bound), which
+is still the open step. In particular the `b²` in the numerator is *not* a variance: it is the
+Chebyshev cost of the shift, and no statement is made that the laws of the affine images converge,
+that their means converge, or that any limiting covariance exists. The interacting C3a–C3d packets,
+the half-space inequality, the OS reconstruction theorem and any field law are untouched.
+
 ### C3 — use Bałaban's multiscale method for the physical uniform estimates
 
 Bałaban's approach is a principal source of the analytic estimates, alongside reuse of the

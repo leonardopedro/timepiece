@@ -673,6 +673,10 @@ import BookProof.OSReconstruction.EuclideanMehlerCalibration
 -- `E[|Psi|² | G]`, not `|E[Psi | G]|²`, and the two differ by exactly the conditional variance
 -- (`GaussianBlockCoarseDensity`).
 import BookProof.OSReconstruction.GaussianBlockCoarseDensity
+-- C3d, first slice: the same step iterated `n` times — the running mean `c^n d y`, the
+-- accumulated covariance `K_{n+1} = 1 + c² K_n` in closed form, and the `n`-uniform bound
+-- `K_n ≤ 1/(1 − c²)` that keeps the small-field domain (`GaussianChainScales`).
+import BookProof.OSReconstruction.GaussianChainScales
 import BookProof.MCMC.GeometricErgodicity
 
 -- Wave (`pcnl.md` packet T0, the first review gate): the contract on Mathlib's actual `Kernel`

@@ -17,6 +17,7 @@ Run with the project toolchain: `lake build Work.EuclideanMomentAudit`.
 import BookProof.OSReconstruction.EuclideanMomentHierarchy
 import BookProof.OSReconstruction.EuclideanMehlerCalibration
 import BookProof.OSReconstruction.GaussianBlockCoarseDensity
+import BookProof.OSReconstruction.GaussianChainScales
 import BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity
 import BookProof.RoadmapAudit.AxiomAudit
 
@@ -149,9 +150,115 @@ open BookProof.OSReconstruction
 #audit_axioms intStateSum_univ
 #audit_axioms intStateSum_reflectionPositive
 #audit_axioms covState_reflectionPositive_of_integrable
+#audit_axioms measurePreserving_covMarginal_left
+#audit_axioms measurePreserving_covMarginal_right
+#audit_axioms covState_reflectionPositive_of_memLp
 #audit_axioms intState_reflectionPositive_of_integrable
 #audit_axioms generalWeight_pos
 #audit_axioms generalWeight_swap
 #audit_axioms generalWeight_osForm
 #audit_axioms not_reflectionPositive_of_generalWeight
 #audit_axioms productState_reflectionPositive
+
+/-! ## C3a/C3b: the two-step chain, its covariance bound and the activity norm -/
+
+
+/-! ## C3c at reference scale: the totals and the large-field complement -/
+
+#audit_axioms integral_blockNaiveChainDensity
+#audit_axioms integral_blockChainDensity_sq
+#audit_axioms integral_blockChainDensity_eq_integral_naive_add
+#audit_axioms blockNaiveChainDensity_zero_background
+#audit_axioms blockChainDensity_sq_zero_background
+#audit_axioms blockChainCovariance_le_coupling_sq
+#audit_axioms blockChainCovariance_le_mul_density
+
+/-! ## C3d, first slice: the step iterated through arbitrarily many scales -/
+
+#audit_axioms shellDensity_succ
+#audit_axioms streamField_succ
+#audit_axioms streamField_cons
+#audit_axioms streamCovariance_succ
+#audit_axioms integral_quadratic_blockUnit
+#audit_axioms shellDensity_quadratic
+#audit_axioms shellDensity_streamField
+#audit_axioms shellDensity_streamField_sq
+#audit_axioms shellDensity_streamField_covariance
+#audit_axioms streamCovariance_nonneg
+#audit_axioms sum_range_pow_succ
+#audit_axioms streamCovariance_closed_form
+#audit_axioms streamCovariance_le_card
+#audit_axioms streamCovariance_le_inv
+#audit_axioms integral_shellDensity_streamField_sq
+#audit_axioms integral_shellLaw_cons
+
+/-! ## C3d, second slice: the fixed point of the reference flow -/
+
+#audit_axioms streamCovariance_inv_sub
+#audit_axioms streamCovariance_lt_inv
+#audit_axioms tendsto_streamCovariance
+#audit_axioms tendsto_integral_shellDensity_streamField_sq
+
+/-! ## C3c at arbitrary scale: the large-field tail -/
+
+#audit_axioms shellDensity_congr
+#audit_axioms shellDensity_nonneg
+#audit_axioms integrable_poly_blockUnit
+#audit_axioms shellDensity_affine_field_le
+#audit_axioms shellTail
+#audit_axioms shellTail_le
+
+/-! ## C3d, third slice: the tower identity at every scale -/
+
+#audit_axioms fin_cons_snoc
+#audit_axioms fin_snoc_castSucc_last
+#audit_axioms measurable_fin_cons
+#audit_axioms measurable_fin_snoc
+#audit_axioms measurable_fin_snoc_prod
+#audit_axioms measurable_comp_fin_cons
+#audit_axioms measurable_comp_fin_snoc
+#audit_axioms integral_shellLaw_cons_succ
+#audit_axioms abs_shellDensity_le
+#audit_axioms shellDensity_eq_integral_snoc
+#audit_axioms integral_shellDensity_eq
+#audit_axioms measurable_streamField
+#audit_axioms shellTail_eq_integral_snoc
+
+/-! ## C3e, first slice: the law-level tail and tightness -/
+
+#audit_axioms shellDensity_subst_last
+#audit_axioms renormField
+#audit_axioms shellLargeSet
+#audit_axioms shellTailLaw
+#audit_axioms measurable_renormField
+#audit_axioms measurableSet_shellLargeSet
+#audit_axioms indicator_shellLargeSet
+#audit_axioms shellTail_eq_density_renorm
+#audit_axioms integral_shellTail_eq
+#audit_axioms shellTailLaw_eq_integral
+#audit_axioms shellTail_nonneg
+#audit_axioms shellTailLaw_nonneg
+#audit_axioms shellTailLaw_le_one
+#audit_axioms shellTailLaw_le
+#audit_axioms shellTailLaw_le_inv
+#audit_axioms exists_shellTailLaw_le
+
+/-! ## C3e, second slice: affine images of the renormalised observable -/
+
+#audit_axioms shellAffineLargeSet
+#audit_axioms shellAffineTail
+#audit_axioms shellAffineTailLaw
+#audit_axioms measurable_affine_renormField
+#audit_axioms measurableSet_shellAffineLargeSet
+#audit_axioms indicator_shellAffineLargeSet
+#audit_axioms shellAffineTail_eq
+#audit_axioms shellAffineTail_nonneg
+#audit_axioms shellAffineTail_le
+#audit_axioms integral_shellAffineTail_eq
+#audit_axioms shellAffineTailLaw_eq_integral
+#audit_axioms shellAffineTailLaw_nonneg
+#audit_axioms shellAffineTailLaw_le_one
+#audit_axioms shellAffineTailLaw_le
+#audit_axioms shellAffineTailLaw_le_inv
+#audit_axioms exists_shellAffineTailLaw_le
+#audit_axioms shellAffineTailLaw_one_zero
