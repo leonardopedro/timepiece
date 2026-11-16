@@ -520,6 +520,64 @@ weight contracts ($`c^2 < 1`) it stays below the fixed constant $`1/(1-c^2)` for
 number of scales $`n`. That is the sense in which the small-field domain is preserved through
 arbitrarily many scales: the bound does not degrade with the number of steps.
 
+The recursion has a fixed point, and reading the statement that way is sharper than a uniform
+bound. With $`c^2 < 1`$ the map $`K \mapsto 1 + c^2 K`$ has the unique fixed point
+$`1/(1-c^2)`$, and the error after $`n`$ scales is exactly geometric:
+
+```
+streamCovariance_inv_sub  : K_n - 1/(1 - c^2) = - (c^2)^n / (1 - c^2)
+streamCovariance_lt_inv   : c^2 < 1 -> K_n < 1/(1 - c^2)          -- strictly, at every n
+tendsto_streamCovariance  : c^2 < 1 -> K_n -> 1/(1 - c^2)
+tendsto_integral_shellDensity_streamField_sq
+                          : the total K_n + c^{2n} d^2 tends to the same fixed point
+```
+
+So the accumulated covariance does not merely stay under a constant: it approaches the fixed
+point from below at rate $`c^2`$ per scale, and the second summand of the total, $`c^{2n}d^2`$,
+decays for the same reason. The uniform bound of the previous paragraph is the monotone half of
+this statement; the convergence is what makes the domain statement quantitative rather than
+merely uniform.
+
+The two-step tower identity of the earlier section generalises, and it does so without the Fubini
+permutation a naive reading would demand. The pointwise form pins the exterior value as the
+*last* coordinate,
+
+```
+shellDensity_eq_integral_snoc : shellDensity n f y = ∫ g, f (Fin.snoc g y) ∂shellLaw n
+```
+
+and the induction splits the product law at its *first* coordinate —
+`integral_shellLaw_cons_succ` at scale $`n + 1`, with `integral_shellLaw_cons` at the base —
+peeling the coordinate the recursion peels. The result is the tower identity at every scale:
+
+```
+integral_shellDensity_eq : ∫ y, shellDensity n f y ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)
+```
+
+for measurable bounded $`f`$, where `abs_shellDensity_le` and the `measurable_*` facts are what
+the induction needs. This repairs a caveat the earlier section had to carry: the tower was proved
+there only for two steps. It is now a theorem at every number of scales, and
+`shellTail_eq_integral_snoc` reads the Chebyshev tail through it, so the tail bound is an
+expectation over the reference law rather than a formal iterated integral.
+
+That reading is what the large-field complement needs at $`n`$ scales, which is C3c in its
+general-scale form:
+
+```
+shellDensity_nonneg          : f >= 0 -> shellDensity n f y >= 0
+shellDensity_affine_field_le : density of {M <= |a (field - running mean) + b|}
+                                 <= (a^2 K_n + b^2) / M^2
+shellTail, shellTail_le      : the deviation tail at n scales is at most K_n / M^2
+```
+
+The affine form is one-step Chebyshev composed with the recursion: one more integrated scale
+multiplies the coefficient $`a`$ by $`c`$ and adds a unit of variance, which is exactly
+$`K_{n+1} = 1 + c^2 K_n`$. So the large-field region at any number of scales is controlled by the
+same accumulated covariance the small-field packet bounds, and under $`c^2 < 1`$ the constant does
+not grow with $`n`$. The estimate uses only $`K_n`$, so it is a second-moment bound, not a
+bad-block entropy and not a polymer expansion, and $`M`$ is a threshold in the field's own units
+rather than a normalised large-field region.
+
 The tail bound is a statement about the *density* at fixed exterior value. Removing the damped
 background from the field turns it into a statement about the law. The renormalised observable
 subtracts the background read off the exterior coordinate, and its large set has a law-measure
@@ -539,16 +597,39 @@ first rung of the observable limit estimate (C3e) and no more: Prokhorov's theor
 limiting law and any multi-point function are not proved here, and the renormalisation is the
 subtraction of the background rather than of an interacting divergence.
 
+The scalar sequence is not the only object that behaves this way. Replacing the renormalised
+observable by an affine image of it keeps every step intact: the last coordinate still carries the
+exterior value, so the iterated tail of an affine functional is the density the Chebyshev induction
+already bounds, and the tower at its indicator moves the estimate to the law. What comes out is a
+threshold that works at every scale for a whole affine family at once:
+
+```
+shellAffineLargeSet         : {p | M <= |a * renormField p + b|}
+shellAffineTailLaw          : (shellLaw (n+1)).real (the affine large set)
+integral_shellAffineTail_eq : integral of the density = law-level integral of the indicator
+shellAffineTailLaw_le_inv   : c^2 < 1 -> tail <= (a^2/(1 - c^2) + b^2)/M^2
+exists_shellAffineTailLaw_le: eps > 0 -> exists M > 0, forall n, tail <= eps
+```
+
+A shifted threshold is what a *centred* observable, or a difference of two observables, is written
+in, and the price of the shift is the additive `b^2` in the numerator — which is the right scaling
+for a second-moment estimate: doubling the shift quadruples the bound, and the number of scales
+does not enter it at all. The scalar packet is the case `a = 1`, `b = 0`
+(`shellAffineTailLaw_one_zero`), so this is a strict generalisation of it, and it shares its
+ceiling: the estimate is a probability statement about an *indicator*, so no expectation, variance
+or covariance of an affine image is computed. Those need the `L^1` extension of the tower named in
+the qualification below.
+
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of
 fresh independent Gaussians, and $`d \mapsto c d` is a definition, not a theorem about an
 effective action. Second, `shellDensity` is defined as the $`n`-fold iterated integral, and the
 *tower identity* $`\int f \,d\gamma^{\otimes (n+1)} = \int y, \mathrm{shellDensity}_n f y`
-is proved only for two steps (in the previous section). The recursion peels the innermost
-coordinate while the tower peels the outermost integrated one, so the general case needs one
-Fubini permutation per scale; until it is added, the statements above should be read as
-statements about iterated integrals. Nothing here is C3d in the plan's sense — there is no
-effective action, counterterm, marginal direction or logarithmic running, and the
+is proved at every scale above, but only for measurable *bounded* observables — the induction's
+boundedness input is `abs_shellDensity_le`. Nothing here is a theory of the iterated integrals in
+$`L^1`$, and the density is still *defined* as an iterated partial integral rather than derived
+from a conditional expectation on a sigma-field. Nothing here is C3d in the plan's sense — there
+is no effective action, counterterm, marginal direction or logarithmic running, and the
 $`n`-uniformity is exactly what the triviality of the reference flow buys.
 
 # What Is Verified, and What Is Open

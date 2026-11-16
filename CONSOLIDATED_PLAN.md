@@ -26735,3 +26735,11 @@ half is admissible) — with a shared shift the form is a mean of squares of int
 truncation argument cannot discharge finiteness, because the limit needs the integrand's
 integrability.  The remaining route is `MemLp.integrable_mul` after a marginal lift of
 `MemLp` from `ν ⊗ γ` to `ν ⊗ γ ⊗ γ`, which mathlib does not provide under the names tried.
+
+The chapter `Book/EuclideanMomentHierarchy.lean` again carries the C3c/C3d prose it lost: the
+fixed point of `K ↦ 1 + c²K` (`streamCovariance_inv_sub`, `tendsto_streamCovariance`), the tower
+identity at every scale (`shellDensity_eq_integral_snoc`, `integral_shellDensity_eq`, previously
+caveated as proved only for two steps), and the affine-threshold Chebyshev tail
+(`shellDensity_affine_field_le`, `shellTail_le`) as C3c at general `n`.  Those declarations live in
+`BookProof/OSReconstruction/GaussianChainScales.lean`, which is **still uncommitted**, so the prose
+describes a module that a clean clone does not yet build.
