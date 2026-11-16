@@ -4541,3 +4541,39 @@ import BookProof.ReflectionPositivity.HaarReference
 -- eigenvector: `SpectralSplitting.mapsTo_orthogonal`, `complementProjection_commutes`,
 -- `eq_smul_eigenProjection_add_deflated`, `deflated_re_inner_ge`.
 import BookProof.Sirk.ChapterSpectralSplitting
+
+-- The `OSReconstruction` half-space chain (`cftproof.md`, E3 and C2/C3): the banded chain
+-- covariance and its row norms (`HalfSpaceChainBandCovariance`, `HalfSpaceChainBandHSNorm`,
+-- `HalfSpaceChainBandReflectionPositivity`), the covariance of the shared-shift state
+-- (`HalfSpaceCovStateCovariance`), the infinite-volume banded covariance and the free-field
+-- state on it (`HalfSpaceInfiniteBandedCovariance`, `HalfSpaceInfiniteVolumeGaussian`,
+-- `HalfSpaceInfiniteVolumePositivity`), the transfer step as a one-sided discrete semigroup with
+-- its two-point flow form (`HalfSpaceDiscreteSemigroup`, `HalfSpaceFlowMatrixElement`), the
+-- exponential `e^{-τH}` on the half-space carrier and the multipliers it is read through
+-- (`HalfSpaceExponential`, `HalfSpaceExpIdentification`, `HalfSpaceMultiplierAdjoint`,
+-- `HalfSpaceUnboundedExp`), the concrete lattice translation and the shift semigroup built on it
+-- (`HalfSpaceLatticeTranslation`, `HalfSpaceLatticeShiftSemigroup`), the split of the half-space
+-- lattice into its two halves (`ReflectionPositivity.HalfSpaceSplit`), and the interacting
+-- half-space inequality itself (`HalfSpaceInteractingReflectionPositivity`, C2/E3).
+import BookProof.OSReconstruction.HalfSpaceChainBandCovariance
+import BookProof.OSReconstruction.HalfSpaceChainBandHSNorm
+import BookProof.OSReconstruction.HalfSpaceChainBandReflectionPositivity
+import BookProof.OSReconstruction.HalfSpaceCovStateCovariance
+import BookProof.OSReconstruction.HalfSpaceDiscreteSemigroup
+import BookProof.OSReconstruction.HalfSpaceExpIdentification
+import BookProof.OSReconstruction.HalfSpaceExponential
+import BookProof.OSReconstruction.HalfSpaceFlowMatrixElement
+import BookProof.OSReconstruction.HalfSpaceInfiniteBandedCovariance
+import BookProof.OSReconstruction.HalfSpaceInfiniteVolumeGaussian
+import BookProof.OSReconstruction.HalfSpaceInfiniteVolumePositivity
+import BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity
+import BookProof.OSReconstruction.HalfSpaceLatticeShiftSemigroup
+import BookProof.OSReconstruction.HalfSpaceLatticeTranslation
+import BookProof.OSReconstruction.HalfSpaceMultiplierAdjoint
+import BookProof.OSReconstruction.HalfSpaceUnboundedExp
+import BookProof.ReflectionPositivity.HalfSpaceSplit
+
+-- The Standard-Model chapters no earlier chapter imported: the graded multiplication table of the
+-- algebra (`ChapterSmGradTable`) and the sector form domain (`ChapterSmSectorFormDomain`).
+import BookProof.Sm.ChapterSmGradTable
+import BookProof.Sm.ChapterSmSectorFormDomain

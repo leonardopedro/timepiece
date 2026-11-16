@@ -71,16 +71,15 @@ never default targets.
 
 ## Inventory
 
-### `BookProof` — 990 modules, 107 independent parts (19 with more than one module)
+### `BookProof` — 1009 modules, 106 independent parts (18 with more than one module)
 
 | modules | Lake target | maximal modules (the `roots` of the target) |
 | ---: | --- | --- |
-| 797 | `BookProofOperatorCore` | `BookProof.Attention.ChapterCoherentPositionSpace`, `BookProof.Attention.ChapterDeepLearningEnsemble`, `BookProof.Attention.ChapterDeepLearningMAP`, `BookProof.Attention.ChapterSoftmaxStability`, `BookProof.BrstLongitudinalExact`, `BookProof.ChapterAbelianMixture`, … (144 in total) |
+| 825 | `BookProofOperatorCore` | `BookProof.Attention.ChapterCoherentPositionSpace`, `BookProof.Attention.ChapterDeepLearningEnsemble`, `BookProof.Attention.ChapterDeepLearningMAP`, `BookProof.Attention.ChapterSoftmaxStability`, `BookProof.BrstLongitudinalExact`, `BookProof.ChapterAbelianMixture`, … (156 in total) |
 | 22 | `BookProofRealification` | `BookProof.Realification.ChapterA1Prop5`, `BookProof.Realification.ChapterA1g`, `BookProof.Realification.ChapterA1h`, `BookProof.Realification.ChapterA2d`, `BookProof.Realification.ChapterA2e`, `BookProof.Realification.ChapterSchurFiniteDimensional`, … (9 in total) |
 | 20 | `BookProofInducedSystems` | `BookProof.InducedSystems.ChapterMackeyGeneralBase`, `BookProof.InducedSystems.ChapterMackeyInducedSystem`, `BookProof.InducedSystems.ChapterMackeyTranslation`, `BookProof.InducedSystems.ChapterPvmFibreInducedSystem`, `BookProof.InducedSystems.ChapterPvmScalarMeasure`, `BookProof.InducedSystems.ChapterWignerSymmetryInfinite`, … (7 in total) |
 | 10 | `BookProofHarmonicAnalysis` | `BookProof.HarmonicAnalysis.ChapterNote68AllModes`, `BookProof.HarmonicAnalysis.ChapterSphericalPlancherel` |
 | 9 | `BookProofGravityAlgebra` | `BookProof.GravityAlgebra.ChapterGravityGenInverse`, `BookProof.GravityAlgebra.ChapterGravityPolymomentum`, `BookProof.GravityAlgebra.ChapterGravityRankSplit`, `BookProof.GravityAlgebra.ChapterGravitySplit` |
-| 9 | `BookProofReflectionPositivity` | `BookProof.ReflectionPositivity.ChainPartition`, `BookProof.ReflectionPositivity.HaarReference`, `BookProof.ReflectionPositivity.WilsonPartition` |
 | 5 | `BookProofDefinability` | `BookProof.Definability.ChapterCountableDefinability`, `BookProof.Definability.ChapterEll2Separable` |
 | 5 | `BookProofReconstruction` | `BookProof.Reconstruction.ChapterDeterministic`, `BookProof.Reconstruction.ChapterSymmetryEntropy` |
 | 3 | `BookProofLorentz` | `BookProof.Lorentz.ChapterLorentzDecomp` |
@@ -98,6 +97,16 @@ never default targets.
 The remaining 88 parts are single modules, each built by `lake build <module>`:
 
 `BookProof.ChapterA4`, `BookProof.ChapterA4b`, `BookProof.ChapterAbelianVonNeumannFinite`, `BookProof.ChapterAngularMomentum`, `BookProof.ChapterB3`, `BookProof.ChapterB3b`, `BookProof.ChapterBaryonAsymmetry`, `BookProof.ChapterBijectionProbability`, `BookProof.ChapterBornPhaseFiber`, `BookProof.ChapterBosonicCCR`, `BookProof.ChapterC`, `BookProof.ChapterCcrNoBounded`, `BookProof.ChapterClassicalLimit`, `BookProof.ChapterCollapseDiagonal`, `BookProof.ChapterCompactCompleteReducibility`, `BookProof.ChapterComputableScarcity`, `BookProof.ChapterConsciousnessNullMeasure`, `BookProof.ChapterCountablePartition`, `BookProof.ChapterD`, `BookProof.ChapterDampedOscillatorEnergy`, `BookProof.ChapterDutchBook`, `BookProof.ChapterE`, `BookProof.ChapterE2`, `BookProof.ChapterE3`, `BookProof.ChapterE4`, `BookProof.ChapterEntropy`, `BookProof.ChapterErrorNorms`, `BookProof.ChapterEulerComplexQuat`, `BookProof.ChapterEulerCountableChain`, `BookProof.ChapterEulerDensityMatrix`, `BookProof.ChapterEulerGenericDensity`, `BookProof.ChapterEulerNState`, `BookProof.ChapterEulerStochastic`, `BookProof.ChapterF5`, `BookProof.ChapterF6`, `BookProof.ChapterF7`, `BookProof.ChapterFiniteArithmeticPrior`, `BookProof.ChapterFockDegreesOfFreedom`, `BookProof.ChapterGaugeAdjointAlgebra`, `BookProof.ChapterGaugeUnconstrainedSpectrum`, `BookProof.ChapterGaugeVariantVanishing`, `BookProof.ChapterGaugeWeylResidual`, `BookProof.ChapterGleason2D`, `BookProof.ChapterGleasonPureMixed`, `BookProof.ChapterGravityIrrep`, `BookProof.ChapterHowlandAutonomization`, `BookProof.ChapterIPin`, `BookProof.ChapterIrreversible`, `BookProof.ChapterIrreversibleDynamics`, `BookProof.ChapterKernelBound`, `BookProof.ChapterKernelTransport`, `BookProof.ChapterLittleGroup`, `BookProof.ChapterLocalOperators`, `BookProof.ChapterLocalityConstraintNull`, `BookProof.ChapterLorentzTranslation`, `BookProof.ChapterMAPNull`, `BookProof.ChapterMajoranaClifford`, `BookProof.ChapterMajoranaProp61`, `BookProof.ChapterMajoranaProp76`, `BookProof.ChapterMaschkeFiniteGroup`, `BookProof.ChapterMassGap`, `BookProof.ChapterMaxEntropy`, `BookProof.ChapterMeasurementLLN`, `BookProof.ChapterNavierStokes`, `BookProof.ChapterNoBestPrior`, `BookProof.ChapterNoLebesgue`, `BookProof.ChapterNoUniformCountable`, `BookProof.ChapterNsAdvectionConvolution`, `BookProof.ChapterOdeComplexification`, `BookProof.ChapterParityMajoranaQuant`, `BookProof.ChapterProbabilityClockStochastic`, `BookProof.ChapterProbabilityInterface`, `BookProof.ChapterQuadraticOrdering`, `BookProof.ChapterQuantizationWeyl`, `BookProof.ChapterSmHiggsVacuum`, `BookProof.ChapterSpectralEnergyBound`, `BookProof.ChapterSpinStatistics`, `BookProof.ChapterStatisticalModelTheory`, `BookProof.ChapterSternGerlach`, `BookProof.ChapterTotalVariance`, `BookProof.ChapterUnitaryCompleteReducibility`, `BookProof.ChapterYangMillsBianchi`, `BookProof.MCMC.GroundStateConjugation`, `BookProof.MCMC.PCNGaussianFloor`, `BookProof.OSReconstruction.GaussianBlockCoarseDensity`, `BookProof.OSReconstruction.GaussianMoments`, `BookProof.ReflectionPositivity.QuadraticWick`, `BookProof.Sm.ChapterSmFreeModeExclusion`
+
+### Sub-system targets of `BookProof`
+
+A sub-system target is a *view* of one part: a coherent piece of the development that is far too connected to be a part of its own. Its `roots` are the modules it is about, and its cone is a subset of the containing part's cone, so it never duplicates work across jobs -- it only lets one job compile less.
+
+| Lake target | roots | modules in the cone | inside the part |
+| --- | --- | ---: | --- |
+| `BookProofDerivativeGauge` | `BookProof.Ns.ChapterNsBrstDerivativeGauge`, `BookProof.Ns.ChapterNsFieldMomentumInverse`, `BookProof.Qg.ChapterQgBrstDerivativeGauge` | 106 | `BookProofOperatorCore` |
+
+Unlike a part target, a sub-system target is not checked for closure: its cone is strictly larger than the sub-system, by construction. `--check` verifies instead that its roots are real modules, that they are exactly the maximal modules of the cone they generate, and that the cone stays inside a single part.
 
 ### Sub-system targets of `BookProof`
 
