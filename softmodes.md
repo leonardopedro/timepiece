@@ -5009,10 +5009,17 @@ multiplication of `L²` functions, and the index types are `Type` rather than an
 carrying its `≠ 0` side condition, and the class field follows by `inv_inv`.
 
 *The pointwise product.* It closes only against an essentially bounded factor — Hölder at
-`(2, ∞)`, i.e. `memLp_mul_of_memLp_top`. `L² × L² → L²` is false, not open: on `(0,1)`, `x^(-1/3)`
-is square integrable and its square is not. So the `L²` closure is a module over the essentially
-bounded observables, not an algebra under pointwise multiplication. The witness is prose in the
-module, not a formalized counterexample.
+`(2, ∞)`, i.e. `memLp_mul_of_memLp_top`. `L² × L² → L²` is false, not open, and the witness is
+formalized: on `volume.restrict (Set.Ioo 0 1)`, `memLp_rpow_neg_third` puts `x ↦ x^(-1/3)` in `L²`
+(exponent `-2/3 > -1`) while `not_memLp_rpow_neg_third_mul_self` keeps its pointwise square out
+(exponent `-4/3 < -1`), packaged as `l2_not_closed_under_pointwise_mul`. The engine is
+`memLp_two_iff_integrable_sq` plus `integrableOn_Ioo_rpow_iff`. So the `L²` closure is a module
+over the essentially bounded observables, not an algebra under pointwise multiplication.
+
+Two rpow traps: `IntegrableOn.congr_fun` needs the goal stated as `IntegrableOn` (a bare
+`Integrable` on `μ.restrict s` is only definitionally that), and `Real.rpow_mul`'s exponent is `ℝ`
+while `(x ^ y) ^ 2` is a natural power — so `← Real.rpow_two` has to convert the natural power to a
+real one before the multiplication law applies.
 
 *Audits.* Every definition of `EuclideanMomentHierarchy` and `GaussianChainScales` now carries an
 `#audit_axioms` line, so a definition that pulled in an axiom could no longer hide behind the

@@ -755,9 +755,56 @@ essentially bounded factor: Hölder with `p = 2`, `q = ∞` gives `MemLp (b * f)
 and `MemLp b ∞`.  Without that hypothesis the statement is false rather than open — on
 `volume.restrict (Ioo 0 1)` the function `x ↦ x ^ (-(1/3))` is square integrable, since `-2/3 > -1`,
 while its square `x ↦ x ^ (-(4/3))` is not.  So the `L²` closure of the positive-time algebra is a
-module over the essentially bounded observables, not an algebra under pointwise multiplication; the
-counterexample is recorded here rather than formalized.
+module over the essentially bounded observables, not an algebra under pointwise multiplication.
+The counterexample is `l2_not_closed_under_pointwise_mul` below: `x ↦ x ^ (-(1/3))` on `(0,1)`,
+square integrable with a square that is not.
 -/
+
+open MeasureTheory in
+/-- **`L²` is not closed under pointwise products.**  The witness lives on `(0,1)` with Lebesgue
+measure: `x ↦ x ^ (-(1/3))` is square integrable there, because `x ^ (-(2/3))` has exponent `-2/3`
+and `-2/3 > -1`, while the pointwise square of that function is `x ^ (-(4/3))`, whose exponent
+`-4/3 < -1` makes it non-integrable.  So no hypothesis short of essential boundedness (or a
+higher integrability, as in `memLp_shift_mul_of_memLp`) makes a product of two `L²` functions
+`L²`. -/
+theorem memLp_rpow_neg_third :
+    MemLp (fun x : ℝ => x ^ (-(1/3) : ℝ)) 2 (volume.restrict (Set.Ioo (0 : ℝ) 1)) := by
+  refine (memLp_two_iff_integrable_sq (by fun_prop)).2 ?_
+  have h : IntegrableOn (fun x : ℝ => x ^ (-(2 / 3) : ℝ)) (Set.Ioo (0 : ℝ) 1) :=
+    (intervalIntegral.integrableOn_Ioo_rpow_iff zero_lt_one).2 (by norm_num)
+  refine h.congr_fun ?_ measurableSet_Ioo
+  intro x hx
+  have hx0 : (0 : ℝ) ≤ x := le_of_lt hx.1
+  change x ^ (-(2 / 3) : ℝ) = (x ^ (-(1 / 3) : ℝ)) ^ 2
+  rw [show (-(2 / 3) : ℝ) = -(1 / 3) * 2 by norm_num, Real.rpow_mul hx0, Real.rpow_two]
+
+open MeasureTheory in
+/-- The pointwise square of the witness is **not** square integrable: its exponent `-4/3` is below
+`-1`, so `x ^ (-(4/3))` is not integrable on `(0,1)`. -/
+theorem not_memLp_rpow_neg_third_mul_self :
+    ¬ MemLp (fun x : ℝ => x ^ (-(1/3) : ℝ) * x ^ (-(1/3) : ℝ)) 2
+      (volume.restrict (Set.Ioo (0 : ℝ) 1)) := by
+  intro h
+  rw [memLp_two_iff_integrable_sq (by fun_prop)] at h
+  have h' : IntegrableOn (fun x : ℝ => x ^ (-(4 / 3) : ℝ)) (Set.Ioo (0 : ℝ) 1) := by
+    refine IntegrableOn.congr_fun (s := Set.Ioo (0 : ℝ) 1) h ?_ measurableSet_Ioo
+    intro x hx
+    have hx0 : (0 : ℝ) ≤ x := le_of_lt hx.1
+    change (x ^ (-(1 / 3) : ℝ) * x ^ (-(1 / 3) : ℝ)) ^ 2 = x ^ (-(4 / 3) : ℝ)
+    rw [(Real.rpow_add hx.1 (-(1/3)) (-(1/3))).symm]
+    rw [← Real.rpow_two (x ^ ((-(1/3) : ℝ) + (-(1/3))))]
+    rw [← Real.rpow_mul hx0 ((-(1/3) : ℝ) + (-(1/3))) 2]
+    rw [show ((-(1/3) : ℝ) + (-(1/3))) * 2 = -(4/3) by norm_num]
+  have hlt : -1 < -(4 / 3 : ℝ) := (intervalIntegral.integrableOn_Ioo_rpow_iff zero_lt_one).1 h'
+  norm_num at hlt
+
+open MeasureTheory in
+/-- **The packaged failure**: a square integrable function whose pointwise product with itself is
+not square integrable. -/
+theorem l2_not_closed_under_pointwise_mul :
+    ∃ f : ℝ → ℝ, MemLp f 2 (volume.restrict (Set.Ioo (0 : ℝ) 1)) ∧
+      ¬ MemLp (fun x => f x * f x) 2 (volume.restrict (Set.Ioo (0 : ℝ) 1)) :=
+  ⟨fun x => x ^ (-(1/3) : ℝ), memLp_rpow_neg_third, not_memLp_rpow_neg_third_mul_self⟩
 
 open MeasureTheory in
 /-- **The pointwise product closes on `L²` against an essentially bounded factor.**  This is Hölder

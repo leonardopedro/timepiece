@@ -775,10 +775,12 @@ nonnegative with no hypothesis (`familyForm_familyProduct`), and the product is 
 (`norm_familyVector_le_add`), which is what lets it descend to the completion.
 The *pointwise* product is a different operation, and it closes only against an essentially
 bounded factor: `memLp_mul_of_memLp_top` is Hölder at `(2, ∞)`, and without that hypothesis the
-statement is false — on $`(0,1)`$ the function $`x^{-1/3}`$ is square integrable while its square
-is not, so the $`L^2`$ closure is a module over the essentially bounded observables rather than an
-algebra under pointwise multiplication. Cauchy–Schwarz is still derived from the explicit norm
-identity rather than from abstract form theory. The OS inequality proved is the finite-family one;
+statement is false — `l2_not_closed_under_pointwise_mul` exhibits, on $`(0,1)`$ with Lebesgue
+measure, the function $`x^{-1/3}`$: square integrable, since its exponent $`-2/3`$ is above $`-1`$,
+while its pointwise square has exponent $`-4/3`$ and is not. So the $`L^2`$ closure is a module
+over the essentially bounded observables rather than an algebra under pointwise multiplication.
+Cauchy–Schwarz is still derived from the explicit norm identity rather than from abstract form
+theory. The OS inequality proved is the finite-family one;
 the interacting version is the factorized-weight one above, and any field law remains outside this
 chapter.
 

@@ -278,6 +278,9 @@ axiom would poison every statement below without appearing in any of their repor
 #audit_axioms reconSpace_minimal
 #audit_axioms reconSpace_inner_familyPair
 #audit_axioms memLp_mul_of_memLp_top
+#audit_axioms memLp_rpow_neg_third
+#audit_axioms not_memLp_rpow_neg_third_mul_self
+#audit_axioms l2_not_closed_under_pointwise_mul
 
 /-! ## C3e, first slice: the law-level tail and tightness -/
 

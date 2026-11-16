@@ -26895,9 +26895,12 @@ is now audited — `euclidEvol`, `euclidWord`, `euclidMoment`, `scalarK`, `twoPo
 function times an essentially bounded one is `L²`.  That is the only sense in which pointwise
 products close, and the `L² × L² → L²` statement is not open but false: on
 `volume.restrict (Ioo 0 1)` the function `x ↦ x ^ (-(1/3))` is square integrable because
-`-2/3 > -1`, while its square `x ↦ x ^ (-(4/3))` is not.  The witness is recorded in the module's
-prose, not formalized, and the `L²` closure of the positive-time algebra is therefore a module over
-the essentially bounded observables rather than an algebra.
+`-2/3 > -1`, while its square `x ↦ x ^ (-(4/3))` is not.  The witness is formalized —
+`memLp_rpow_neg_third`, `not_memLp_rpow_neg_third_mul_self` and the packaged
+`l2_not_closed_under_pointwise_mul` — on `volume.restrict (Ioo 0 1)`, via
+`integrableOn_Ioo_rpow_iff` and `memLp_two_iff_integrable_sq`.  The `L²` closure of the
+positive-time algebra is therefore a module over the essentially bounded observables rather than
+an algebra.
 
 **Not claimed.**  The `L⁴` hypothesis is sufficient, not necessary; a weight with faster-than-
 polynomial growth and `g F ∈ L²` with `F` only in `L²` are still open.
