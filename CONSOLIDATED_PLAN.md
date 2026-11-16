@@ -7,6 +7,13 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16i):** “State of the project — 2026-11-16i:
+> the reconstruction space is a Hilbert space and its products close” (end of file).  The
+> pre-Hilbert space of section 7 is now completed (`reconSpace`, closed hence complete, minimal
+> among closed spaces containing the family classes), and the product of two families is defined
+> — the joint insertion family — with its reflected vector equal to the sum, so the algebra closes
+> and the product descends to the completion.
+>
 > **Newest reconstruction extension (2026-11-16h):** “State of the project — 2026-11-16h:
 > the C2/E3 weights discharge the `L²` hypothesis” (end of file).  A bounded nonnegative weight can
 > only shrink the norm, so `MemLp (g F)` follows from `MemLp F` for the factorized weights: the
@@ -26819,3 +26826,37 @@ follows from `F ∈ L²` — and the closure of the positive-time algebra.
 
 **Verification.**  Both declarations build with no `sorry`; the audit reports
 `[propext, Classical.choice, Quot.sound]`; no line above 100 code points in the new text.
+
+## State of the project — 2026-11-16i: the reconstruction space is a Hilbert space
+
+The boundary list has said since 2026-11-16d that the momentum-hierarchy reconstruction is "a
+pre-Hilbert space, not a Hilbert space": section 7 of `EuclideanMomentHierarchy` realizes the inner
+product of the quotient by null families inside the regulator space, but the realization is a span,
+so it is neither closed nor complete, and no product of families is defined at all.
+
+**The completion.** `reconPreHilbert` is the set of realized vectors made into a submodule — the
+closure properties are `add_mem_reconstructionVectors` and `smul_mem_reconstructionVectors` — and
+`span_reconstructionVectors` shows the span of section 7 is that submodule, i.e. the realized
+vectors were already a vector space. `reconSpace` is its topological closure, so
+`reconSpace_isClosed` is immediate, `reconSpace_complete` gives `CompleteSpace (reconSpace K Ω)`,
+`closure_reconPreHilbert` says the pre-Hilbert space is dense in it, `familyVector_mem_reconSpace`
+says every family class has a limit there, and `reconSpace_minimal` says no smaller closed subspace
+contains them all.  The inner product is the ambient one (`Submodule.innerProductSpace`).
+
+**The product.** `familyProduct` is the joint insertion family on `ι ⊕ κ` — the OS product of two
+observables, one insertion set united with the other.  `familyVector_sum` is the load-bearing
+identity: the reflected vector of a product is the *sum* of the two reflected vectors.  Hence a
+product of families is again a family (`add_mem_reconstructionVectors`), its reflected form is the
+squared norm of that sum and so nonnegative with no hypothesis
+(`familyForm_familyProduct`, `familyForm_familyProduct_re_nonneg`), and
+`norm_familyVector_le_add` bounds the product's norm by the sum of the factors' norms, which is
+the continuity that lets the product descend to the completion.
+
+**What is still not claimed.**  The product is the OS product of insertion families, not
+pointwise multiplication of $`L^2`$ functions on a measure space; the index types are `Type`, not
+an arbitrary universe; and a field law, an unbounded $`V_+`$ and a continuum limit remain outside.
+
+**Verification.**  `lake build` of `EuclideanMomentHierarchy`, `Work.EuclideanMomentAudit` and
+`Book.EuclideanMomentHierarchy` succeeds; all 232 axiom reports are
+`[propext, Classical.choice, Quot.sound]`; no `sorry` and no line above 100 code points in the
+new text.

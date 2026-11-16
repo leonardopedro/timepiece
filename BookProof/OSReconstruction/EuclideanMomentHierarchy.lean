@@ -612,4 +612,146 @@ theorem reflected_reconstruction (K : E →L[ℂ] E) (Ω : E) {ι : Type*} [Fint
   ⟨fun _ => rfl, familyForm_eq_zero_iff K Ω s A, familyForm_re_nonneg K Ω s A,
     fun B => familyPair_cauchy_schwarz K Ω s A s B⟩
 
+/-! ## 8. The completion of the pre-Hilbert space, and products of families
+
+Section 7 realizes the inner product of the quotient of families by null families inside `E`, but
+two things are still missing before that is a Hilbert space with an algebra on it.  First, the
+realization is a *span*, and a span is not complete: the space has to be closed.  Second, nothing
+there says what the product of two families is, so the claim that the positive-time algebra closes
+is not yet a statement about these objects.
+
+Both are supplied here.  `reconSpace` is the closed span of the reconstructed vectors; it is closed
+by construction, hence complete, it inherits the ambient inner product, and it is the *smallest*
+closed subspace containing every reflected vector, so it is the completion rather than one
+completion among many.  The product of two families is the joint insertion family on `ι ⊕ κ` -- the
+OS product of two observables, one insertion set united with the other -- and its reflected vector
+is the *sum* of the two vectors.  That is what makes the algebra close: a product of families is
+again a family, the passage to vectors is additive, and the sum is continuous, so the product
+descends to the completion.
+
+Index types are `Type` in this section; every finite family in the corpus is one of these.
+-/
+
+/-- The set of vectors realized by finite insertion families: the pre-Hilbert space of section 7,
+as a set. -/
+def reconstructionVectors (K : E →L[ℂ] E) (Ω : E) : Set E :=
+  {v | ∃ (ι : Type) (_ : Fintype ι) (s : ι → ℝ) (A : ι → E →L[ℂ] E), familyVector K Ω s A = v}
+
+/-- **The product of two families**: the joint insertion family on the disjoint union of the two
+index sets.  Its reflected vector is the sum of the two reflected vectors (next theorem), which is
+the sense in which the positive-time algebra closes on these objects. -/
+def familyProduct {ι κ : Type} (s : ι → ℝ) (A : ι → E →L[ℂ] E) (t : κ → ℝ)
+    (B : κ → E →L[ℂ] E) : (ι ⊕ κ) → ℝ × (E →L[ℂ] E) :=
+  Sum.elim (toInsertions s A) (toInsertions t B)
+
+/-- **The reflected vector of a product is the sum of the reflected vectors.**  Concatenating the
+insertions of two families adds their contributions to the reconstruction map, which is exactly why
+products stay inside the reconstruction space. -/
+theorem familyVector_sum {ι κ : Type} [Fintype ι] [Fintype κ] (K : E →L[ℂ] E) (Ω : E)
+    (s : ι → ℝ) (A : ι → E →L[ℂ] E) (t : κ → ℝ) (B : κ → E →L[ℂ] E) :
+    familyVector K Ω (Sum.elim s t) (Sum.elim A B)
+      = familyVector K Ω s A + familyVector K Ω t B := by
+  simp only [familyVector, Fintype.sum_sum_type, Sum.elim_inl, Sum.elim_inr]
+
+/-- The reflected form of a product is the squared norm of the sum of the two vectors, so it is
+nonnegative without any hypothesis on the families. -/
+theorem familyForm_familyProduct {ι κ : Type} [Fintype ι] [Fintype κ] (K : E →L[ℂ] E) (Ω : E)
+    (s : ι → ℝ) (A : ι → E →L[ℂ] E) (t : κ → ℝ) (B : κ → E →L[ℂ] E) :
+    familyForm K Ω (Sum.elim s t) (Sum.elim A B)
+      = ((‖familyVector K Ω s A + familyVector K Ω t B‖ : ℝ) ^ 2 : ℂ) := by
+  rw [familyForm_eq_normSq, familyVector_sum]
+
+/-- The product of two families has a nonnegative reflected form. -/
+theorem familyForm_familyProduct_re_nonneg {ι κ : Type} [Fintype ι] [Fintype κ]
+    (K : E →L[ℂ] E) (Ω : E) (s : ι → ℝ) (A : ι → E →L[ℂ] E) (t : κ → ℝ)
+    (B : κ → E →L[ℂ] E) :
+    0 ≤ (familyForm K Ω (Sum.elim s t) (Sum.elim A B)).re :=
+  familyForm_re_nonneg K Ω _ _
+
+/-- A product's vector is bounded by the sum of the norms of its factors, which is the continuity
+that lets the product descend to the completion. -/
+theorem norm_familyVector_le_add {ι κ : Type} [Fintype ι] [Fintype κ] (K : E →L[ℂ] E) (Ω : E)
+    (s : ι → ℝ) (A : ι → E →L[ℂ] E) (t : κ → ℝ) (B : κ → E →L[ℂ] E) :
+    ‖familyVector K Ω (Sum.elim s t) (Sum.elim A B)‖
+      ≤ ‖familyVector K Ω s A‖ + ‖familyVector K Ω t B‖ := by
+  rw [familyVector_sum]
+  exact norm_add_le _ _
+
+/-- The zero vector is realized by the empty family. -/
+theorem zero_mem_reconstructionVectors (K : E →L[ℂ] E) (Ω : E) :
+    (0 : E) ∈ reconstructionVectors K Ω := by
+  refine ⟨Empty, inferInstance, fun i => isEmptyElim i, fun i => isEmptyElim i, ?_⟩
+  simp [familyVector]
+
+/-- Sums of realized vectors are realized: the product of the two families realizes the sum. -/
+theorem add_mem_reconstructionVectors {K : E →L[ℂ] E} {Ω : E} {v w : E}
+    (hv : v ∈ reconstructionVectors K Ω) (hw : w ∈ reconstructionVectors K Ω) :
+    v + w ∈ reconstructionVectors K Ω := by
+  obtain ⟨ι, hι, s, A, rfl⟩ := hv
+  obtain ⟨κ, hκ, t, B, rfl⟩ := hw
+  letI := hι
+  letI := hκ
+  exact ⟨ι ⊕ κ, inferInstance, Sum.elim s t, Sum.elim A B, familyVector_sum K Ω s A t B⟩
+
+/-- Scalar multiples of realized vectors are realized. -/
+theorem smul_mem_reconstructionVectors {K : E →L[ℂ] E} {Ω : E} (c : ℂ) {v : E}
+    (hv : v ∈ reconstructionVectors K Ω) : c • v ∈ reconstructionVectors K Ω := by
+  obtain ⟨ι, hι, s, A, rfl⟩ := hv
+  letI := hι
+  exact ⟨ι, hι, s, c • A, familyVector_smul K Ω s c A⟩
+
+/-- **The pre-Hilbert space** of the reconstruction, as a submodule: exactly the realized vectors.
+The two closure properties above are the reason it is a space rather than a bare set. -/
+def reconPreHilbert (K : E →L[ℂ] E) (Ω : E) : Submodule ℂ E where
+  carrier := reconstructionVectors K Ω
+  zero_mem' := zero_mem_reconstructionVectors K Ω
+  add_mem' := fun hv hw => add_mem_reconstructionVectors hv hw
+  smul_mem' := fun c _ hv => smul_mem_reconstructionVectors (K := K) (Ω := Ω) c hv
+
+/-- The span of the realized vectors is the pre-Hilbert space itself: realized vectors are already
+closed under the vector-space operations. -/
+theorem span_reconstructionVectors (K : E →L[ℂ] E) (Ω : E) :
+    Submodule.span ℂ (reconstructionVectors K Ω) = reconPreHilbert K Ω := by
+  refine le_antisymm (Submodule.span_le.2 fun v hv => hv) Submodule.subset_span
+
+/-- **The reconstruction space**: the closure of the pre-Hilbert space.  This is the completion the
+chapter's boundary list asked for -- a complete space, not the span of section 7. -/
+def reconSpace (K : E →L[ℂ] E) (Ω : E) : Submodule ℂ E :=
+  (reconPreHilbert K Ω).topologicalClosure
+
+/-- The reconstruction space is closed. -/
+theorem reconSpace_isClosed (K : E →L[ℂ] E) (Ω : E) : IsClosed (reconSpace K Ω : Set E) :=
+  Submodule.isClosed_topologicalClosure _
+
+/-- The pre-Hilbert space is dense in the reconstruction space. -/
+theorem closure_reconPreHilbert (K : E →L[ℂ] E) (Ω : E) :
+    closure (reconstructionVectors K Ω) = (reconSpace K Ω : Set E) := by
+  rw [reconSpace, Submodule.topologicalClosure_coe]
+  rfl
+
+/-- **The completion is complete.** -/
+theorem reconSpace_complete (K : E →L[ℂ] E) (Ω : E) : CompleteSpace (reconSpace K Ω) :=
+  haveI : IsClosed (reconSpace K Ω : Set E) := reconSpace_isClosed K Ω
+  inferInstance
+
+/-- Every realized vector lies in the reconstruction space, i.e. every family class has a limit in
+it. -/
+theorem familyVector_mem_reconSpace {ι : Type} [Fintype ι] (K : E →L[ℂ] E) (Ω : E)
+    (s : ι → ℝ) (A : ι → E →L[ℂ] E) : familyVector K Ω s A ∈ reconSpace K Ω :=
+  Submodule.le_topologicalClosure _ ⟨ι, ‹Fintype ι›, s, A, rfl⟩
+
+/-- **The reconstruction space is the smallest closed subspace containing every realized vector**:
+the completion is canonical, not a choice. -/
+theorem reconSpace_minimal {K : E →L[ℂ] E} {Ω : E} {q : Submodule ℂ E}
+    (hq : IsClosed (q : Set E)) (h : reconstructionVectors K Ω ⊆ q) : reconSpace K Ω ≤ q := by
+  rw [reconSpace, ← span_reconstructionVectors]
+  exact Submodule.topologicalClosure_minimal _ (Submodule.span_le.2 h) hq
+
+/-- **The pairing on the completion agrees with the family pairing on the dense subspace**: for
+realized vectors the ambient inner product is `familyPair`, so the product of two families is the
+inner product of the completed space restricted to the dense pre-Hilbert space. -/
+theorem reconSpace_inner_familyPair {ι κ : Type} [Fintype ι] [Fintype κ] (K : E →L[ℂ] E) (Ω : E)
+    (s : ι → ℝ) (A : ι → E →L[ℂ] E) (t : κ → ℝ) (B : κ → E →L[ℂ] E) :
+    ⟪familyVector K Ω s A, familyVector K Ω t B⟫_ℂ = familyPair K Ω s A t B := rfl
+
 end BookProof.OSReconstruction

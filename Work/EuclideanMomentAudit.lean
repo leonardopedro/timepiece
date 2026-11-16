@@ -225,6 +225,27 @@ open BookProof.OSReconstruction
 #audit_axioms measurable_streamField
 #audit_axioms shellTail_eq_integral_snoc
 
+/-! ## The completion of the pre-Hilbert space, and products of families -/
+
+#audit_axioms reconstructionVectors
+#audit_axioms familyProduct
+#audit_axioms familyVector_sum
+#audit_axioms familyForm_familyProduct
+#audit_axioms familyForm_familyProduct_re_nonneg
+#audit_axioms norm_familyVector_le_add
+#audit_axioms zero_mem_reconstructionVectors
+#audit_axioms add_mem_reconstructionVectors
+#audit_axioms smul_mem_reconstructionVectors
+#audit_axioms reconPreHilbert
+#audit_axioms span_reconstructionVectors
+#audit_axioms reconSpace
+#audit_axioms reconSpace_isClosed
+#audit_axioms closure_reconPreHilbert
+#audit_axioms reconSpace_complete
+#audit_axioms familyVector_mem_reconSpace
+#audit_axioms reconSpace_minimal
+#audit_axioms reconSpace_inner_familyPair
+
 /-! ## C3e, first slice: the law-level tail and tightness -/
 
 #audit_axioms shellDensity_subst_last

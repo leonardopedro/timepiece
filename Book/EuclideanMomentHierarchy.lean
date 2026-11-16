@@ -735,13 +735,22 @@ establish. The unbounded generator $`h_\sigma`, its closure and its selection, t
 representation, and the positivity-preserving semigroup with a ground function all remain open.
 Nothing here is evidence that an interaction survives cutoff removal.
 
-_Third, the reconstruction is a pre-Hilbert space, not a Hilbert space._
-The positivity-preserving form is built from bounded observables and
-a bounded `K`; the quotient by null families is realized isometrically inside the regulator
-space but is neither completed nor given its own type, and Cauchy–Schwarz is derived from the
-explicit norm identity rather than from abstract form theory. The OS inequality proved is the
-finite-family one; the interacting version is the factorized-weight one above, and the
-completeness of the reconstructed space and any field law are outside this chapter.
+_Third, the reconstruction is now a Hilbert space, and the algebra's product closes on it._
+The positivity-preserving form is built from bounded observables and a bounded `K`. Section 7 of
+`BookProof.OSReconstruction.EuclideanMomentHierarchy` realizes the quotient by null families
+isometrically inside the regulator space. Two things were missing there, and section 8 supplies
+them. The realization was a span, not a closed space: `reconSpace` is its closure, so it is closed
+by construction (`reconSpace_isClosed`), complete (`reconSpace_complete`), inherits the ambient
+inner product, contains every family class (`familyVector_mem_reconSpace`), and is the *smallest*
+closed subspace that does (`reconSpace_minimal`) — the completion, not one of several. And nothing
+there said what the product of two families is: `familyProduct` takes the joint insertion family on
+`ι ⊕ κ`, and its reflected vector is the *sum* of the two vectors (`familyVector_sum`), so a
+product of families is again a family, its form is the squared norm of that sum and hence
+nonnegative with no hypothesis (`familyForm_familyProduct`), and the product is continuous
+(`norm_familyVector_le_add`), which is what lets it descend to the completion.
+Cauchy–Schwarz is still derived from the explicit norm identity rather than from abstract form
+theory. The OS inequality proved is the finite-family one; the interacting version is the
+factorized-weight one above, and any field law remains outside this chapter.
 
 _Fourth, the coarse-graining step is one, two or arbitrarily many blocks of a reference
 Gaussian._ The chain iterates the operation and, once indexed by $`n`, the number of scales

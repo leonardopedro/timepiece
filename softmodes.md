@@ -4973,3 +4973,25 @@ the form finite. Still open: an unbounded `V₊`, and the closure of the positiv
 **Verification.** The three declarations build with no `sorry` and no new warnings; the audit
 reports `[propext, Classical.choice, Quot.sound]`; no line above 100 code points in the new text.
 
+### The reconstruction space: completed, and closed under products (2026-11-16i)
+
+Section 7 of `EuclideanMomentHierarchy` realized the quotient of families by null families inside
+`E`. Two gaps remained, and both were cheap once stated precisely.
+
+*Completion.* The realized vectors are closed under addition and scaling — addition is
+`familyVector_sum` and a scalar multiple rescales the operators — so they form a submodule
+`reconPreHilbert`, and the span of section 7 is that submodule, not something larger. Its
+topological closure `reconSpace` is then closed by definition, hence complete
+(`reconSpace_complete`), dense over the pre-Hilbert space (`closure_reconPreHilbert`), and minimal
+among closed subspaces containing the classes (`reconSpace_minimal`), which is what makes the
+completion canonical rather than an arbitrary choice. The inner product is the ambient one.
+
+*Products.* `familyProduct` is the joint insertion family on `ι ⊕ κ`. The identity that carries the
+closure is `familyVector_sum`: the reflected vector of a product is the *sum* of the two vectors.
+So a product of families is again a family, its form is the squared norm of that sum and hence
+nonnegative with no hypothesis, and `norm_familyVector_le_add` gives the continuity that lets the
+product descend to the completion.
+
+Two things this is not: the product is the OS product of insertion families, not pointwise
+multiplication of `L²` functions, and the index types are `Type` rather than an arbitrary universe.
+
