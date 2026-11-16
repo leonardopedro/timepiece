@@ -148,3 +148,5 @@ open BookProof.OSReconstruction
 #audit_axioms intStateSum
 #audit_axioms intStateSum_univ
 #audit_axioms intStateSum_reflectionPositive
+#audit_axioms covState_reflectionPositive_of_integrable
+#audit_axioms intState_reflectionPositive_of_integrable

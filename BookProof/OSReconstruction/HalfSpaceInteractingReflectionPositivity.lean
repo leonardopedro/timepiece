@@ -209,6 +209,98 @@ theorem intStateSum_reflectionPositive {ι : Type*} [Fintype ι] (ν : Measure (
   refine tsum_nonneg fun i => ?_
   exact intState_reflectionPositive ν (g i) (hg i) F hF C (D i) hC0 hC (hD0 i) (hD i)
 
+/-! ## The `L²`-free statement: only finiteness of the form is needed
+
+In the free theorem the observable is bounded, and that bound is used for exactly one thing:
+integrability of the triple product whose iterated integral is the OS form.  Nothing else.  So the
+hypothesis can be stated as what it really is — *the OS form is finite* — and the statement then
+covers unbounded observables: the mean-of-squares representation `⟨θH H⟩ = ∫ (S_t H)² dν` is
+unchanged, and only `Integrable` has to be supplied.  This is the form the `L²` closure of the
+positive-time algebra needs; the remaining gap to a closure statement is the bounded-truncation
+argument that would discharge the hypothesis from `MemLp`, not a change of mechanism.
+-/
+
+/-- **Reflection positivity of the covariant state for a form-finite observable.**  `H` need not
+be bounded: it is enough that the OS form's triple integral exists. -/
+theorem covState_reflectionPositive_of_integrable {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (H : (ι → ℝ) → ℝ) (hH : Measurable H)
+    (hint : Integrable (fun p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)) =>
+      H (p.1 + p.2.2) * H (p.1 + p.2.1))
+      (ν.prod ((whiteNoise ι).prod (whiteNoise ι)))) :
+    0 ≤ ∫ z : (ι → ℝ) × (ι → ℝ), H z.2 * H z.1 ∂covState ν := by
+  classical
+  set γ := whiteNoise ι with hγ
+  set S : (ι → ℝ) → ℝ := fun t => ∫ x, H (t + x) ∂γ with hS
+  have hinner : ∀ t : ι → ℝ,
+      (∫ q : (ι → ℝ) × (ι → ℝ), H (t + q.2) * H (t + q.1) ∂(γ.prod γ)) = S t * S t := by
+    intro t
+    have hswap : (∫ q : (ι → ℝ) × (ι → ℝ), H (t + q.2) * H (t + q.1) ∂(γ.prod γ))
+        = ∫ q : (ι → ℝ) × (ι → ℝ), H (t + q.1) * H (t + q.2) ∂(γ.prod γ) := by
+      refine integral_congr_ae (ae_of_all _ fun q => ?_)
+      ring
+    have hsplit : (∫ q : (ι → ℝ) × (ι → ℝ), H (t + q.1) * H (t + q.2) ∂(γ.prod γ))
+        = (∫ x : ι → ℝ, H (t + x) ∂γ) * (∫ y : ι → ℝ, H (t + y) ∂γ) := by
+      have h := integral_prod_mul (μ := γ) (ν := γ) (L := ℝ)
+        (f := fun x : ι → ℝ => H (t + x)) (g := fun y : ι → ℝ => H (t + y))
+      simpa using h
+    rw [hswap, hsplit, hS]
+  have hofz : AEStronglyMeasurable (fun z : (ι → ℝ) × (ι → ℝ) => H z.2 * H z.1) (covState ν) :=
+    Measurable.aestronglyMeasurable ((hH.comp measurable_snd).mul (hH.comp measurable_fst))
+  rw [covState, integral_map measurable_covMap.aemeasurable hofz]
+  have hstep : (∫ p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)),
+      (fun z : (ι → ℝ) × (ι → ℝ) => H z.2 * H z.1) (covMap p) ∂(ν.prod (γ.prod γ)))
+      = ∫ p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)),
+          H (p.1 + p.2.2) * H (p.1 + p.2.1) ∂(ν.prod (γ.prod γ)) := by
+    refine integral_congr_ae (ae_of_all _ fun p => ?_)
+    rfl
+  rw [hstep, integral_prod _ hint]
+  refine integral_nonneg fun t => ?_
+  rw [hinner t]
+  exact mul_self_nonneg _
+
+/-- **The interacting inequality with no boundedness at all.**  A measurable nonnegative weight `g`
+and a measurable observable `F`, with only the finiteness of the interacting OS form assumed (as
+integrability in the state).  `g` may be unbounded and `F` unbounded. -/
+theorem intState_reflectionPositive_of_integrable {ι : Type*} [Fintype ι]
+    (ν : Measure (ι → ℝ)) [IsProbabilityMeasure ν] (g : (ι → ℝ) → ℝ≥0) (hg : Measurable g)
+    (F : (ι → ℝ) → ℝ) (hF : Measurable F)
+    (hint : Integrable (fun z : (ι → ℝ) × (ι → ℝ) =>
+      F z.2 * F z.1 * (intWeight g z : ℝ)) (covState ν)) :
+    0 ≤ ∫ z : (ι → ℝ) × (ι → ℝ), F z.2 * F z.1 ∂intState ν g := by
+  classical
+  have hgR : Measurable fun x : ι → ℝ => (g x : ℝ) := hg.coe_nnreal_real
+  have hH : Measurable fun x : ι → ℝ => F x * (g x : ℝ) := hF.mul hgR
+  have hform : Measurable fun z : (ι → ℝ) × (ι → ℝ) => F z.2 * F z.1 * (intWeight g z : ℝ) :=
+    ((hF.comp measurable_snd).mul (hF.comp measurable_fst)).mul
+      (measurable_intWeight hg).coe_nnreal_real
+  -- transfer the finiteness hypothesis to the shift-averaged product
+  have hprod : Integrable (fun p : (ι → ℝ) × ((ι → ℝ) × (ι → ℝ)) =>
+      (F (p.1 + p.2.2) * (g (p.1 + p.2.2) : ℝ)) *
+        (F (p.1 + p.2.1) * (g (p.1 + p.2.1) : ℝ)))
+      (ν.prod ((whiteNoise ι).prod (whiteNoise ι))) := by
+    have hiff := (integrable_map_measure
+      (μ := ν.prod ((whiteNoise ι).prod (whiteNoise ι)))
+      (g := fun z : (ι → ℝ) × (ι → ℝ) => F z.2 * F z.1 * (intWeight g z : ℝ))
+      hform.aestronglyMeasurable measurable_covMap.aemeasurable).1
+    have h := hiff hint
+    refine h.congr ?_
+    filter_upwards with p
+    simp only [Function.comp_apply, covMap, intWeight, NNReal.coe_mul]
+    ring
+  have hfree := covState_reflectionPositive_of_integrable (ν := ν)
+    (fun x : ι → ℝ => F x * (g x : ℝ)) hH hprod
+  unfold intState
+  rw [integral_withDensity_eq_integral_smul (measurable_intWeight hg)]
+  have hEq : (∫ z : (ι → ℝ) × (ι → ℝ),
+        intWeight g z • (F z.2 * F z.1) ∂covState ν)
+      = ∫ z : (ι → ℝ) × (ι → ℝ),
+        (F z.2 * (g z.2 : ℝ)) * (F z.1 * (g z.1 : ℝ)) ∂covState ν := by
+    refine integral_congr_ae (ae_of_all _ fun z => ?_)
+    simp only [intWeight, NNReal.smul_def, smul_eq_mul, NNReal.coe_mul]
+    ring
+  rw [hEq]
+  exact hfree
+
 end
 
 end BookProof.OSReconstruction
