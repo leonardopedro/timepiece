@@ -1146,6 +1146,16 @@ require "$PLAN" 'kernel 463' \
     "§96: the plan must keep the degree-six kernel"
 require "scripts/sm-cubic-kernel-basis.py" '(6, (0,))' \
     "§96: the script must keep the degree-six elimination"
+require "Work/SmGhostSectorMatrix.lean" "theorem card_ghostDegreeTwo" \
+    "§96: the sector cardinality 66 must stay"
+require "Work/SmGhostSectorMatrix.lean" "noncomputable def smGhostMatrix" \
+    "§96: the matrix statement must stay"
+require "Work/SmGhostSectorMatrix.lean" "noncomputable def ghostMinorStatement" \
+    "§96: the minor statement must stay"
+require "$PLAN" 'ghostMinorStatement' \
+    "§96: the plan must keep the Lean statement of the certificate"
+require "$PLAN" 'the physical `f3` is not Lean data' \
+    "§96: the plan must keep the reason the proof is open"
 require "BookProof/Sm/ChapterSmBrstGhost.lean" \
     "theorem finrank_ker_smGhostCharge_ge_two_pow" \
     "§96: the matter-only lower bound must stay"

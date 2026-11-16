@@ -5596,6 +5596,18 @@ states of `Λ²ℂ¹²`) whose determinant is `−3¹²/2³⁵ ≠ 0`, computed 
 `11 = 66 − 55` no longer rests on reading a pivot count, it rests on one explicit determinant.  What is
 still missing is a *Lean* statement of this: the certificate is a re-runnable computation, and
 `Work/SmQuartetConstructedAudit.lean` audits the imported theorems, not this output.
+(vi) The Lean *statement* of the certificate exists without its proof.  `Work/SmGhostSectorMatrix.lean`
+defines the two sectors as types and proves their cardinalities
+(`card_ghostDegreeTwo : Fintype.card GhostDegreeTwo = 66`, `card_ghostDegreeThree = 220`), defines the
+matrix itself (`smGhostMatrix f3 : Matrix GhostDegreeTwo GhostDegreeThree ℂ`, the entry being the
+coefficient of `occ T` in `Ω₃ (occ S)` read off by the inner product), and states the certificate as
+`ghostMinorStatement f3 rows cols`, the nonsingularity of a 55 × 55 minor.  The proof is open for three
+reasons, none of them cosmetic: the physical `f3` is not Lean data (the `λ_a/2` derivation that fixes
+the gluon constants lives only in the script — `smStruct` takes `f3` as a parameter everywhere); `ℚ(√3)`
+has no arithmetic layer in this development (the script carries `a + b√3` as a pair of `Fraction`s);
+and `native_decide` is excluded, since its proof term does not reduce in `nanoda` and the axiom audit
+would report `Lean.ofReduceBool`.  Closing it needs the 55 × 55 entries as Lean data plus a kernel-
+checkable determinant certificate (e.g. an explicit triangular factor), not a re-run of the script.
 (v) There is no upper bound of eleven on the *whole* Fock space, and §2c now proves that:
 `finrank_ker_smGhostCharge_ge_two_pow` says `2^m ≤ finrank (ker Ω₃)` for every `f3`, because a cubic
 monomial carries no matter mode, so every state `occ T` built from matter modes alone is annihilated

@@ -784,3 +784,34 @@ That is what made degree 6 affordable in the same run.
 **What is still not a theorem.**  Everything 2026-11-16f listed: the table and the certificate are
 computations, not Lean statements.  The remaining degrees of §95 are not in the table and the
 eighteen-mode doublet is out of reach.
+
+## Correction 2026-11-16h — the Lean statement of the certificate, and why its proof is open
+
+**What exists.**  `Work/SmGhostSectorMatrix.lean` puts the certificate's *statement* in Lean:
+
+* `GhostDegreeTwo`/`GhostDegreeThree`, the two sectors as subtypes of `Finset (Fin 12)`, with
+  `card_ghostDegreeTwo : Fintype.card GhostDegreeTwo = 66` and
+  `card_ghostDegreeThree : Fintype.card GhostDegreeThree = 220` proved;
+* `smGhostMatrix f3 : Matrix GhostDegreeTwo GhostDegreeThree ℂ`, entry `inner ℂ (occ T) (Ω₃ (occ S))` —
+  the coefficient of the three-ghost state `occ T` in the cubic charge applied to a two-ghost state;
+* `ghostMinorStatement f3 rows cols : Prop`, the nonsingularity of a `55 × 55` minor of that matrix.
+
+**What does not exist: the proof.**  Three blockers, each checked rather than assumed:
+
+1. *The physical structure constants are not Lean data.*  `smStruct` takes
+   `f3 : Fin 8 → Fin 8 → Fin 8 → ℝ` as a parameter throughout `BookProof`, and the `λ_a/2` derivation
+   that fixes it (with `f₄₅₈ = f₆₇₈ = √3/2`) exists only in `scripts/sm-cubic-kernel-basis.py`.  The
+   rank-55 statement is false for a general `f3`: `f3 = 0` leaves the weak block alone and changes the
+   rank.  So the theorem would have to name a concrete `f3` first, and that object does not exist yet.
+2. *`ℚ(√3)` has no arithmetic layer here.*  The script's exact arithmetic is `a + b√3` with rational
+   `a`, `b`; the Lean development has neither that field nor a matrix/determinant computation over it.
+3. *`native_decide` is excluded.*  Its proof term does not reduce in `nanoda` (the S31 rule), and
+   `Work/SmQuartetConstructedAudit.lean` would report `Lean.ofReduceBool`, breaking the axiom gate.
+
+Closing it is therefore a project of its own: transcribe the 55 × 55 minor as `ℚ(√3)` data, prove the
+transcription equals the matrix entries (3025 entry identities about `Ω₃` on two-ghost states, which the
+§2b lemmas make mechanical but not free), and finish with a kernel-checkable determinant certificate.
+
+**What this does not change.**  Nothing above upgrades a computation to a theorem.  The status of
+`11` is still: computed exactly by the script (2026-11-16f), not proved in Lean; the Lean-side facts
+remain the refutation of an unconditional bound (2026-11-16e) and the degree-free lower bound `3`.
