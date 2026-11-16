@@ -113,6 +113,14 @@
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
 >
+> **Track A — newest (2026-11-15s):** “State of the project — 2026-11-15s: the Schur gap is derived,
+> not assumed” (end of file): `ChapterSirkEndToEnd` §19 writes `S = Q A Q − (Q A P) U (P A Q)`
+> (`schurCompOp`, `couplingCompOp`) and proves `schur_coercive_of_free` — the free-part gap `muF`
+> plus a coupling constant `c` give coercivity of `S` with gap `muF − c`, so §15's `hScoer` is no
+> longer a hypothesis (`sirkTailBudget_le_fock_schur_of_gap`).  `couplingComp_re_le` reads `c` off
+> `‖(Q A P) U (P A Q)‖`; in the two-mode model the coupling is `(g²/w 0) • Q`
+> (`model_couplingOp_eq`) and `schurOp_coercive_derived` re-derives §18's gap `w 1 − g²/w 0`.
+>
 > **Track A — newest (2026-11-15r):** “State of the project — 2026-11-15r: §15 instantiated on a
 > two-mode model” (end of file): `ChapterSirkEndToEnd` §18 puts a nonzero off-diagonal coupling
 > `W` on the two-mode model (`H = H_free + g·W`), proves the free part is block diagonal as an
@@ -26425,4 +26433,32 @@ field theory.
 
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the nine new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15s: the Schur gap is derived, not assumed
+
+§15's `sirkTailBudget_le_fock_schur` took coercivity of the Schur complement with a gap `mu` as a
+hypothesis.  §19 removes it: `schurCompOp A Q U = Q A Q − couplingCompOp A Q U`, and since the
+quadratic form is additive in the difference,
+
+`Re⟪Q v, S (Q v)⟫ ≥ (muF − c)‖Q v‖²`
+
+whenever `Q A Q` is coercive with gap `muF` and the coupling term is bounded by `c`
+(`schur_coercive_of_free`).  `couplingComp_re_le` turns an operator-norm bound
+`‖(Q A P) U (P A Q)‖ ≤ c` into the coupling constant, and `sirkTailBudget_le_fock_schur_of_gap` is
+§15's budget with only the free gap, the coupling constant and `muF > c` as inputs.
+
+**On the model.**  `model_couplingOp_eq`: the coupling term of the two-mode model is
+`(g²/w 0) • Q`; `free_gap_discard`: the free gap is `w 1`; `schurOp_coercive_derived`: the general
+lemma reproduces §18's `w 1 − g²/w 0`, so the model's gap is a special case of the a priori bound
+rather than an independent computation.
+
+**Not proved.**  That the free gap `muF` survives the truncation of a continuum model, and that
+`muF > ‖(Q A P) U (P A Q)‖` there.  The derivation says the Schur gap needs no *separate* input;
+it does not produce `muF` from nothing.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the seven new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.

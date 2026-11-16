@@ -4733,3 +4733,26 @@ two-mode model exhibits the identity and makes the gap computable; it does not b
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on the nine new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The Schur gap derived from the free gap and the coupling norm (2026-11-15s)
+
+§15 asked for coercivity of the Schur complement — a hypothesis about the very object whose size is
+being bounded.  §19 shows it is not primitive.  Write `S = Q A Q − (Q A P) U (P A Q)`
+(`schurCompOp`, with the coupling term `couplingCompOp`); taking real parts of the quadratic form
+gives `Re⟪Q v, S (Q v)⟫ ≥ (muF − c)‖Q v‖²` whenever `Q A Q` has gap `muF` and the coupling term is
+bounded by `c` in quadratic form.
+
+* `schur_coercive_of_free`: that inequality — coercivity of `S` with the *derived* gap `muF − c`,
+  with no hypothesis on `S`;
+* `couplingComp_re_le`: an operator-norm bound `‖(Q A P) U (P A Q)‖ ≤ c` supplies the coupling
+  constant, so `c` is read off from `‖Q A P‖`, `‖U‖`, `‖P A Q‖`;
+* `sirkTailBudget_le_fock_schur_of_gap`: §15's tail budget with `hScoer` and `hpos` replaced by the
+  free gap, the coupling constant and `muF > c`; the conclusion carries `(muF − c)⁻¹`.
+
+The two-mode model makes the bound tight: `model_couplingOp_eq` gives `(Q H P) U (P H Q) =
+(g²/w 0) • Q`, `free_gap_discard` gives the free gap `w 1`, so `schurOp_coercive_derived` recovers
+§18's gap `w 1 − g²/w 0` from the general lemma instead of assuming it.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the seven new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.

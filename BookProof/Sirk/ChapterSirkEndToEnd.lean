@@ -2237,4 +2237,182 @@ theorem tail_le_schur (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0)
 
 end
 
+
+/-! ## 19. The Schur gap from the free gap and the coupling norm
+
+§15 assumes coercivity of the Schur complement: `mu * ‖Q v‖² ≤ Re ⟪Q v, S (Q v)⟫` for an
+unspecified `mu > 0`.  That hypothesis is not primitive — the Schur complement is the compressed
+operator minus a two-block coupling term,
+
+`S = Q A Q − (Q A P) U (P A Q)`,
+
+so a lower bound follows from the free-part gap alone:
+
+`mu ≥ mu_free − ‖(Q A P) U (P A Q)‖`
+
+(with the coupling entering in quadratic form, `couplingCompOp`).
+
+* `schur_coercive_of_free`: free-part coercivity with gap `muF` plus a coupling constant `c` give
+  coercivity of `S` with the *derived* gap `muF − c` — no hypothesis on `S` itself;
+* `couplingComp_re_le`: an operator-norm bound `‖(Q A P) U (P A Q)‖ ≤ c` supplies that coupling
+  constant, so `c` can be read off from `‖Q A P‖`, `‖U‖` and `‖P A Q‖`;
+* `sirkTailBudget_le_fock_schur_of_gap`: §15's budget with `hScoer`/`hpos` replaced by the free
+  gap, the coupling constant and `muF > c`; the conclusion carries `(muF − c)⁻¹`.
+
+In the two-mode model the coupling term is `(g²/w 0) • Q` (`model_couplingOp_eq`), the free gap is
+`w 1` (`free_gap_discard`), so the derived gap is `w 1 − g²/w 0` — §18's `schurGap`, now *derived*
+(`schurOp_coercive_derived`) rather than assumed. -/
+
+noncomputable section
+/-- The two-block coupling term `(Q A P) U (P A Q)` of the compressed shift, `P = 1 − Q`. -/
+def couplingCompOp (A Q U : E →L[ℂ] E) : E →L[ℂ] E :=
+  (Q.comp (A.comp (ContinuousLinearMap.id ℂ E - Q))).comp
+    (U.comp ((ContinuousLinearMap.id ℂ E - Q).comp (A.comp Q)))
+
+/-- The Schur complement `Q A Q − (Q A P) U (P A Q)` of the compressed operator `A`. -/
+def schurCompOp (A Q U : E →L[ℂ] E) : E →L[ℂ] E :=
+  Q.comp (A.comp Q) - couplingCompOp A Q U
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- **The Schur gap from the free gap and the coupling bound.**  If the compressed operator `Q A Q`
+is coercive on `range Q` with gap `muF`, and the coupling term's quadratic form is bounded by `c`,
+then the Schur complement is coercive with the *derived* gap `muF − c`.  Coercivity of `S` is not
+assumed. -/
+theorem schur_coercive_of_free (A Q U : E →L[ℂ] E) (muF c : ℝ)
+    (hfree : ∀ x : E, muF * ‖Q x‖ ^ 2
+      ≤ (inner ℂ (Q x) ((Q.comp (A.comp Q)) (Q x))).re)
+    (hcoup : ∀ x : E, (inner ℂ (Q x) (couplingCompOp A Q U (Q x))).re ≤ c * ‖Q x‖ ^ 2) :
+    ∀ v : E, (muF - c) * ‖Q v‖ ^ 2 ≤ (inner ℂ (Q v) (schurCompOp A Q U (Q v))).re := by
+  intro v
+  have h1 := hfree v
+  have h2 := hcoup v
+  have hsub : (inner ℂ (Q v) (schurCompOp A Q U (Q v))).re
+      = (inner ℂ (Q v) ((Q.comp (A.comp Q)) (Q v))).re
+        - (inner ℂ (Q v) (couplingCompOp A Q U (Q v))).re := by
+    rw [schurCompOp, ContinuousLinearMap.sub_apply, inner_sub_right, Complex.sub_re]
+  rw [hsub]
+  nlinarith
+
+omit [CompleteSpace E] [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F] in
+/-- An operator-norm bound on the coupling term gives the quadratic-form bound used by
+`schur_coercive_of_free`. -/
+theorem couplingComp_re_le (A Q U : E →L[ℂ] E) {c : ℝ}
+    (hnorm : ‖couplingCompOp A Q U‖ ≤ c) :
+    ∀ x : E, (inner ℂ (Q x) (couplingCompOp A Q U (Q x))).re ≤ c * ‖Q x‖ ^ 2 := by
+  intro x
+  have h1 : (inner ℂ (Q x) (couplingCompOp A Q U (Q x))).re
+      ≤ ‖inner ℂ (Q x) (couplingCompOp A Q U (Q x))‖ :=
+    (le_abs_self _).trans (Complex.abs_re_le_norm _)
+  have h2 : ‖inner ℂ (Q x) (couplingCompOp A Q U (Q x))‖
+      ≤ ‖Q x‖ * ‖couplingCompOp A Q U (Q x)‖ := norm_inner_le_norm _ _
+  have h3 : ‖couplingCompOp A Q U (Q x)‖ ≤ ‖couplingCompOp A Q U‖ * ‖Q x‖ :=
+    ContinuousLinearMap.le_opNorm _ _
+  have h5 : ‖Q x‖ * ‖couplingCompOp A Q U (Q x)‖ ≤ c * ‖Q x‖ ^ 2 := by
+    calc ‖Q x‖ * ‖couplingCompOp A Q U (Q x)‖
+        ≤ ‖Q x‖ * (‖couplingCompOp A Q U‖ * ‖Q x‖) :=
+          mul_le_mul_of_nonneg_left h3 (norm_nonneg _)
+      _ ≤ ‖Q x‖ * (c * ‖Q x‖) :=
+          mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right hnorm (norm_nonneg _))
+            (norm_nonneg _)
+      _ = c * ‖Q x‖ ^ 2 := by ring
+  linarith
+
+/-- **§15 without a separate coercivity hypothesis.**  The Schur coercivity required by
+`sirkTailBudget_le_fock_schur` is *derived* from the free-part gap `muF` and a coupling constant
+`c`; the budget then holds with the gap `muF − c`. -/
+theorem sirkTailBudget_le_fock_schur_of_gap (V : F →L[ℂ] E) (A W H R U : E →L[ℂ] E) (g z : ℂ)
+    (muF c : ℝ) (B : F →L[ℂ] F)
+    (hVV : V.adjoint.comp V = ContinuousLinearMap.id ℂ F)
+    (hViso : ∀ x : F, ‖V x‖ = ‖x‖)
+    (hVadj : ∀ v : E, ‖V.adjoint v‖ ≤ ‖v‖)
+    (hRleft : R.comp (H - z • 1) = ContinuousLinearMap.id ℂ E)
+    (hRright : (H - z • 1).comp R = ContinuousLinearMap.id ℂ E)
+    (hBright : (V.adjoint.comp ((H - z • 1).comp V)).comp B
+      = ContinuousLinearMap.id ℂ F)
+    (hblock : (sirkComplement V).comp (A.comp (sirkReconstruction V)) = 0)
+    (hH : H = A + g • W)
+    (hU : U.comp ((sirkReconstruction V).comp ((H - z • 1).comp (sirkReconstruction V)))
+      = sirkReconstruction V)
+    (hfree : ∀ x : E, muF * ‖(sirkComplement V) x‖ ^ 2
+      ≤ (inner ℂ ((sirkComplement V) x)
+          (((sirkComplement V).comp ((H - z • 1).comp (sirkComplement V)))
+            ((sirkComplement V) x))).re)
+    (hcoup : ∀ x : E, (inner ℂ ((sirkComplement V) x)
+      (couplingCompOp (H - z • 1) (sirkComplement V) U ((sirkComplement V) x))).re
+        ≤ c * ‖(sirkComplement V) x‖ ^ 2)
+    (hpos : 0 < muF - c) :
+    sirkTailBudget V R
+      ≤ (2 * (‖g‖ * ‖W‖ * ‖sirkReconstruction V‖) * ‖B‖ + 1) * (muF - c)⁻¹ :=
+  sirkTailBudget_le_fock_schur V A W H R (schurCompOp (H - z • 1) (sirkComplement V) U) U g z
+    (muF - c) B hVV hViso hVadj hRleft hRright hBright hblock hH hU
+    (by
+      have hP : sirkReconstruction V = ContinuousLinearMap.id ℂ E - sirkComplement V := by
+        ext x
+        simp [sirkComplement]
+      simp only [schurCompOp, couplingCompOp, ← hP])
+    (schur_coercive_of_free (H - z • 1) (sirkComplement V) U muF c hfree hcoup) hpos
+
+/-- The Schur complement of the two-mode model is §19's `schurCompOp`. -/
+theorem schurCompOp_model (w : Fin 2 → ℝ) (g : ℝ) :
+    schurCompOp (hamOp w g) discardOp (Uinv w) = schurOp w g := by
+  rw [schurCompOp, couplingCompOp, schurOp, ← keepOp_eq_one_sub]
+
+/-- **The model's coupling term is `(g²/w 0) • Q`**, so the coupling constant of §19 is `g²/w 0`. -/
+theorem model_couplingOp_eq (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0) :
+    couplingCompOp (hamOp w g) discardOp (Uinv w)
+      = ((g : ℂ) ^ 2 / (w 0 : ℂ)) • discardOp := by
+  have hCeq : couplingCompOp (hamOp w g) discardOp (Uinv w)
+      = discardOp.comp ((hamOp w g).comp discardOp) - schurOp w g := by
+    rw [couplingCompOp, schurOp, ← keepOp_eq_one_sub]
+    abel
+  rw [hCeq, discardOp_hamOp_discardOp, schurOp_eq w g hw0,
+    ← sub_smul (w 1 : ℂ) ((schurGap w g : ℝ) : ℂ) discardOp]
+  congr 1
+  rw [schurGap]
+  push_cast
+  ring
+
+/-- The free-part gap of the model: `Q H Q = (w 1) • Q` is coercive on the discarded block. -/
+theorem free_gap_discard (w : Fin 2 → ℝ) (g : ℝ) :
+    ∀ x : YMMode, w 1 * ‖discardOp x‖ ^ 2
+      ≤ (inner ℂ (discardOp x)
+          ((discardOp.comp ((hamOp w g).comp discardOp)) (discardOp x))).re := by
+  intro x
+  have hidem : discardOp (discardOp x) = discardOp x := by
+    rw [← ContinuousLinearMap.comp_apply, discardOp_comp_self]
+  have h1 : (discardOp.comp ((hamOp w g).comp discardOp)) (discardOp x)
+      = (w 1 : ℂ) • discardOp x := by
+    have h := congrArg (fun T : YMMode →L[ℂ] YMMode => T (discardOp x))
+      (discardOp_hamOp_discardOp (w := w) (g := g))
+    simpa [hidem, ContinuousLinearMap.smul_apply] using h
+  rw [h1, inner_smul_right, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul,
+    sub_zero]
+  have hsq : (inner ℂ (discardOp x) (discardOp x)).re = ‖discardOp x‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℂ) (discardOp x)
+  rw [hsq]
+
+/-- **§18's coercivity re-derived, not assumed**: with the free gap `w 1` and the coupling constant
+`g²/w 0`, §19's general lemma yields the gap `w 1 − g²/w 0` for the model. -/
+theorem schurOp_coercive_derived (w : Fin 2 → ℝ) (g : ℝ) (hw0 : w 0 ≠ 0) :
+    ∀ v : YMMode, (w 1 - g ^ 2 / w 0) * ‖discardOp v‖ ^ 2
+      ≤ (inner ℂ (discardOp v) (schurOp w g (discardOp v))).re := by
+  have hcast : ((g ^ 2 / w 0 : ℝ) : ℂ) = (g : ℂ) ^ 2 / (w 0 : ℂ) := by
+    push_cast
+    ring
+  have hcoer := schur_coercive_of_free (hamOp w g) discardOp (Uinv w) (w 1) (g ^ 2 / w 0)
+    (free_gap_discard w g) ?_
+  · rw [schurCompOp_model] at hcoer
+    exact hcoer
+  intro x
+  have hidem : discardOp (discardOp x) = discardOp x := by
+    rw [← ContinuousLinearMap.comp_apply, discardOp_comp_self]
+  rw [model_couplingOp_eq w g hw0, ContinuousLinearMap.smul_apply, hidem, inner_smul_right,
+    ← hcast, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im, zero_mul, sub_zero]
+  have hsq : (inner ℂ (discardOp x) (discardOp x)).re = ‖discardOp x‖ ^ 2 := by
+    simpa using inner_self_eq_norm_sq (𝕜 := ℂ) (discardOp x)
+  rw [hsq]
+
+
+end
+
 end BookProof.ChapterSirkEndToEnd
