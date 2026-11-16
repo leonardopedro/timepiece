@@ -7,6 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16a):** “State of the project — 2026-11-16a:
+> the interacting half-space inequality for a factorized weight” (end of file).
+> C2's reflection positivity gains a measure-level interacting form for weights
+> `ρ = g₁g₂`, inherited from the free statement; verified by a clean-clone build of the
+> C1/C2 chain and by `scripts/import_components.py BookProof --check`.
+>
 > **Newest gauge pedagogy refinement (2026-11-15i):** “State of the project — 2026-11-15i:
 > comprehensive fixing, physical reduction and numerical compression” (end of file).
 > The book separates orbit coverage, Mehler probability, BRST metric/dynamics and SIRK
@@ -26548,3 +26554,40 @@ input to the *free* compressed Hamiltonian, which is the primitive object, and d
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on both new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-16a: the interacting half-space inequality
+
+Until now C2's reflection positivity came in two forms: the Hilbert-space norm identity for a
+bounded generator (`reflectedForm_eq_inner`, valid for any self-adjoint `K`), and the free
+measure-level OS inequality for the covariant state (`covState_reflectionPositive`). The
+*interacting* half-space inequality — the one every reconstruction of an interacting theory
+needs — was listed as open. It is now a theorem for the Dyson–Lieb–Simon class of interactions,
+in `BookProof/OSReconstruction/HalfSpaceInteractingReflectionPositivity.lean`:
+
+* `intWeight g` and `intState ν g = (covState ν).withDensity (intWeight g)` — the state whose
+  Boltzmann weight factorizes across the reflection plane, `ρ(z) = g z₁ * g z₂`;
+* `intState_univ` — the mass of that state is `∫⁻ ρ`, i.e. not one in general;
+* `intState_reflectionPositive` — for bounded measurable `g ≥ 0` and a bounded measurable
+  cylinder observable `F` of one half, `0 ≤ ∫ z, F z.2 * F z.1 ∂(intState ν g)`;
+* `intState_expectation_re_nonneg` — the normalized form `⟨θF F⟩_int / mass` is nonnegative.
+
+The proof is the classical factorization, not an approximation: each factor of the weight joins
+the observable on its own side, so `⟨θF F⟩_int = ∫ θ(F g)(F g) dμ₀`, and the free theorem applied
+to `F g` gives the sign. No cluster expansion, no smallness of the coupling, no Gaussian
+approximation and no cutoff removal enters; the interaction only has to factorize. The book
+chapter `Book/EuclideanMomentHierarchy.lean` gains a matching section and its "what is open"
+list narrows: a general reflection-invariant density, an unbounded `V₊`, the `L²` closure of the
+positive-time algebra and the thermodynamic limit remain outside.
+
+**Verification.** `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`
+and `lake build Book.EuclideanMomentHierarchy` succeed with no warning from either file and no
+line above 100 code points; `lake build Work.EuclideanMomentAudit` audits 109 declarations, all
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+**Clean clone.** The C1/C2 chain was rebuilt from a fresh `git clone` at `722b71c` (mathlib oleans
+hardlinked, every repository module compiled from source): 8252 jobs, exit 0, no errors. This
+closes the doubt raised when the aggregator was committed ahead of two of its imports.
+`scripts/import_components.py BookProof --check` also reports every generated part target closed
+under imports (it additionally notes 55 modules no part builds — the existing gap, unchanged).

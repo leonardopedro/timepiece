@@ -118,6 +118,58 @@ BookProof.OSReconstruction.twoPoint_reflected_eq_normSq :
 BookProof.OSReconstruction.twoPoint_reflected_re_nonneg :
   the real part of the left-hand side is nonnegative
 ```
+# The Interacting Half-Space Inequality
+
+The form above is an inner-product identity on a Hilbert space, not a statement about a measure.
+The measure-level version lives in the half-space modules and reads: for the state `covState ν`,
+a pair of fields on the two halves that share a random shift, and a bounded measurable observable
+`F` of one half,
+
+```
+BookProof.OSReconstruction.covState_reflectionPositive :
+  0 ≤ ∫ z, F z.2 * F z.1 ∂covState ν
+```
+
+The reverse ordering in the integrand is the reflection: `ρ` swaps the halves, so the reflected
+observable is `F` evaluated on the *first* coordinate. An interaction turns that inequality into a
+question about a non-Gaussian state, and there is exactly one class of interactions where the
+answer is inherited without any expansion: the ones whose Boltzmann weight factorizes across the
+reflection plane.
+
+```
+ρ(z) = g z₁ * g z₂,   g ≥ 0 a positive-time weight,
+BookProof.OSReconstruction.intWeight g z
+BookProof.OSReconstruction.intState ν g          = (covState ν).withDensity (intWeight g)
+BookProof.OSReconstruction.intState_univ         : mass = ∫⁻ ρ ∂(covState ν)
+```
+
+This is the lattice form of $`e^{-V}` with $`V = V_+ + \theta V_+`: an interaction built from
+positive-time fields together with its reflection, the Dyson–Lieb–Simon class. Reflecting it costs
+nothing, because the two factors are already one per half. The interacting Osterwalder–Schrader
+form then *is* the free form of a different observable — each factor of the weight joins the
+observable on its own side —
+
+```
+⟨θF F⟩_int = ∫ θF F · g₁ g₂ dμ₀ = ∫ θ(F g) (F g) dμ₀ ≥ 0
+```
+
+and the last inequality is the free statement applied to $`F g`$:
+
+```
+BookProof.OSReconstruction.intState_reflectionPositive :
+  0 ≤ ∫ z, F z.2 * F z.1 ∂intState ν g        (g bounded, measurable, nonnegative)
+BookProof.OSReconstruction.intState_expectation_re_nonneg :
+  the normalized form 0 ≤ ⟨θF F⟩_int / ∫ 1 ∂intState ν g
+```
+
+The point is what the proof does *not* need: no cluster expansion, no smallness of the coupling,
+no Gaussian approximation, and no cutoff removal. The interaction has to factorize, not to be
+weak. That is also the honest limit of the statement — a general reflection-invariant positive
+density does not preserve reflection positivity, and nothing here claims a converse. The weight is
+a positive-time weight on the free state rather than a Gibbs measure with a pressure and a
+thermodynamic limit, `g` and `F` are bounded, and `F` is a cylinder observable of one half rather
+than an element of the $`L^2`$ closure of the positive-time algebra.
+
 
 # Sandwiching the Free Regulator Against the C1 Slices
 
@@ -357,6 +409,38 @@ measure: a partial integral cannot increase the $`L^1` norm. That is the estimat
 activity needs, and it is the honest content of "an activity estimate in an explicitly
 defined norm" at this level — an $`L^1` contraction, not a polymer expansion.
 
+# The Totals, and the Large-Field Complement
+
+Integrating the two-step identities over the exterior field closes the bookkeeping and exposes
+the regime the small-field packet does not cover:
+
+```
+integral_blockNaiveChainDensity          : ∫ naive = d^2
+integral_blockChainDensity_sq            : ∫ coarse = 1 + c^2 + d^2
+integral_blockChainDensity_eq_integral_naive_add
+                                         : ∫ coarse = ∫ naive + (1 + c^2)
+blockNaiveChainDensity_zero_background   : naive at y = 0 is 0
+blockChainDensity_sq_zero_background     : coarse at y = 0 is 1 + c^2
+```
+
+The coarse total exceeds the naive one by exactly the constant that bounds the covariance
+pointwise, and at zero background the naive density vanishes while the coarse one is
+$`1 + c^2`. So the error of the naive prescription is _largest precisely where the background
+is small_ — the regime the small-field packet addresses — and the complement of C3b therefore
+has to be a statement in which the covariance is small _relative_ to the density it corrects:
+
+```
+blockChainCovariance_le_coupling_sq   : |c| ≤ M -> covariance ≤ 1 + M^2
+blockChainCovariance_le_mul_density   : sqrt(2/eps) ≤ |d*y| -> covariance ≤ eps * coarse
+```
+
+The first line shows the covariance degrades only quadratically in the field strength, with no
+exponential growth. The second is the C3c statement at this scale: wherever the exterior part
+of the field dominates, the accumulated variance is at most the fraction $`\varepsilon` of the
+coarse density, so with $`\varepsilon = 1` and $`|d y| \ge \sqrt 2` the correction is at most
+half the total. That is what "large fields are easy, small fields are the work" means once the
+covariance is a fixed constant rather than a field-dependent quantity.
+
 # What Is Verified, and What Is Open
 
 Four honest boundaries delimit this chapter.
@@ -366,22 +450,27 @@ scalar regulator's moments are not the Mehler path measure; no field law, transf
 or interacting dynamics is constructed. The mass is the free mass that reproduces the ratio
 $`B/A`, not the physical cutoff mass.
 
-*Second, "reflection positivity at the regulator" means the Hilbert-space identity
-$`\langle \theta F, F\rangle = \|\cdot\|^2` for bounded observables and their words.* It is
-not the interacting half-space Osterwalder–Schrader inequality. Separated-time *diagonal*
-positivity $`\langle A^\dagger e^{-hK} A\rangle \ge 0` at $`h > 0` is likewise not claimed:
-it needs a positive (spectral) evolution, a hypothesis this slice does not establish. The
-unbounded generator $`h_\sigma`, its closure and its selection, the field-law
-representation, and the positivity-preserving semigroup with a ground function all remain
-open. Nothing here is evidence that an interaction survives cutoff removal.
+*Second, "reflection positivity at the regulator" has two forms, and only one of them is
+general.* The Hilbert-space identity $`\langle \theta F, F\rangle = \|\cdot\|^2` for bounded
+observables and their words holds for any self-adjoint generator. The *interacting* half-space
+inequality $`\langle \theta F, F\rangle_{\mathrm{int}} \ge 0` holds here for the interactions whose
+weight factorizes across the reflection plane, $`\rho = g_1 g_2` with a bounded positive-time
+weight $`g` — where it is a consequence of the free statement, not an approximation to it. A
+general reflection-invariant density, an unbounded $`V_+`, and the $`L^2`$ closure of the
+positive-time algebra are not covered, and a general interaction still needs an argument.
+Separated-time *diagonal* positivity $`\langle A^\dagger e^{-hK} A\rangle \ge 0` at $`h > 0` is
+likewise not claimed: it needs a positive (spectral) evolution, a hypothesis this slice does not
+establish. The unbounded generator $`h_\sigma`, its closure and its selection, the field-law
+representation, and the positivity-preserving semigroup with a ground function all remain open.
+Nothing here is evidence that an interaction survives cutoff removal.
 
 _Third, the reconstruction is a pre-Hilbert space, not a Hilbert space._
 The positivity-preserving form is built from bounded observables and
 a bounded `K`; the quotient by null families is realized isometrically inside the regulator
 space but is neither completed nor given its own type, and Cauchy–Schwarz is derived from the
 explicit norm identity rather than from abstract form theory. The OS inequality proved is the
-finite-family one; the interacting half-space version, the completeness of the reconstructed
-space, and any field law are outside this chapter.
+finite-family one; the interacting version is the factorized-weight one above, and the
+completeness of the reconstructed space and any field law are outside this chapter.
 
 _Fourth, the coarse-graining step is one or two blocks of a reference Gaussian._ The chain
 iterates the step but does not iterate the scale: every coordinate is a fresh independent
@@ -394,9 +483,13 @@ one system without giving a lower bound for interacting or gauge theories. The C
 correspondingly narrow: `blockChainCovariance_small_field` is an exact identity with an
 explicit constant, not an elliptic or derivative estimate for an interacting measure, and
 `integral_abs_blockChainDensity_le` is $`L^1` contraction, not a polymer expansion with a
-summable activity ledger. Running couplings, the large-field complement and the observable
-limit estimate remain open.
+summable activity ledger. The C3c complement here is not a large-field theory either:
+`blockChainCovariance_le_mul_density` says the _fixed_ covariance is relatively negligible
+where the background is large; it does not bound a fluctuation covariance, control a bad-block
+region or prove a summable tail, and `blockChainCovariance_le_coupling_sq` is a quadratic bound
+in the coupling, not a large-field expansion. Running couplings (C3d) and the observable limit
+estimate (C3e) remain open.
 
 Everything proved in this chapter is `sorry`-free, and every declaration listed above
 depends only on Lean's standard `propext`, `Classical.choice` and `Quot.sound`
-(`Work/EuclideanMomentAudit.lean`, 96 declarations).
+(`Work/EuclideanMomentAudit.lean`, 109 declarations).

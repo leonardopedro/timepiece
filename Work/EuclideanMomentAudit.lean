@@ -15,6 +15,7 @@ Run with the project toolchain: `lake build Work.EuclideanMomentAudit`.
 import BookProof.OSReconstruction.EuclideanMomentHierarchy
 import BookProof.OSReconstruction.EuclideanMehlerCalibration
 import BookProof.OSReconstruction.GaussianBlockCoarseDensity
+import BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity
 import BookProof.RoadmapAudit.AxiomAudit
 
 open BookProof.OSReconstruction
@@ -130,3 +131,22 @@ open BookProof.OSReconstruction
 #audit_axioms integral_abs_partialIntegral_le
 #audit_axioms integral_abs_blockIntegral_le
 #audit_axioms integral_abs_blockChainDensity_le
+
+/-! ## C3c at reference scale: the totals and the large-field complement -/
+
+#audit_axioms integral_blockNaiveChainDensity
+#audit_axioms integral_blockChainDensity_sq
+#audit_axioms integral_blockChainDensity_eq_integral_naive_add
+#audit_axioms blockNaiveChainDensity_zero_background
+#audit_axioms blockChainDensity_sq_zero_background
+#audit_axioms blockChainCovariance_le_coupling_sq
+#audit_axioms blockChainCovariance_le_mul_density
+
+/-! ## The interacting half-space inequality (C2 / E3) -/
+
+#audit_axioms intWeight
+#audit_axioms measurable_intWeight
+#audit_axioms intState
+#audit_axioms intState_univ
+#audit_axioms intState_reflectionPositive
+#audit_axioms intState_expectation_re_nonneg

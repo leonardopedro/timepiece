@@ -4824,3 +4824,24 @@ still costs exactly one `‖z‖`.
 **Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
 file and no line above 100 code points; `#print axioms` on both new declarations gives
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+### The interacting half-space inequality for a factorized weight (2026-11-16a)
+
+The chapter named the interacting half-space OS inequality as open, and it stays open for a general
+interaction — but not for the Dyson–Lieb–Simon class, where the weight factorizes across the
+reflection plane: `ρ(z) = g z₁ * g z₂`.
+
+* `intState ν g`: the covariant state reweighted by that weight; `intState_univ` gives its mass as
+  `∫⁻ ρ`, so it is not a probability measure unless `g` is normalized;
+* `intState_reflectionPositive`: `0 ≤ ∫ z, F z.2 * F z.1 ∂(intState ν g)` for bounded measurable
+  `g ≥ 0` and a bounded cylinder observable `F` of one half;
+* `intState_expectation_re_nonneg`: the same after dividing by the mass.
+
+The mechanism is the factorization, not an expansion: `⟨θF F⟩_int = ∫ θ(F g)(F g) dμ₀ ≥ 0` by the
+free theorem `covState_reflectionPositive` applied to `F g`. What remains open is a general
+reflection-invariant density, an unbounded `V₊` and the `L²` closure of the positive-time algebra.
+
+**Verification.** `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`
+and `lake build Book.EuclideanMomentHierarchy` succeed with no warning from either file and no line
+above 100 code points; `lake build Work.EuclideanMomentAudit` audits 109 declarations, all
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
