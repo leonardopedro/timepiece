@@ -7,6 +7,53 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest reconstruction extension (2026-11-16j):** “State of the project — 2026-11-16j:
+> an unbounded `V₊` through Hölder” (end of file).  The weight no longer has to be bounded: two
+> `L⁴` factors multiply into an `L²`, so `intState_reflectionPositive_of_memLp_unbounded` covers
+> an unbounded `g` (polynomial growth is in every finite `Lᵖ` of a Gaussian), and the audited
+> definitions of both modules close the last coverage gaps.
+>
+> **Newest reconstruction extension (2026-11-16i):** “State of the project — 2026-11-16i:
+> the reconstruction space is a Hilbert space and its products close” (end of file).  The
+> pre-Hilbert space of section 7 is now completed (`reconSpace`, closed hence complete, minimal
+> among closed spaces containing the family classes), and the product of two families is defined
+> — the joint insertion family — with its reflected vector equal to the sum, so the algebra closes
+> and the product descends to the completion.
+>
+> **Newest reconstruction extension (2026-11-16h):** “State of the project — 2026-11-16h:
+> the C2/E3 weights discharge the `L²` hypothesis” (end of file).  A bounded nonnegative weight can
+> only shrink the norm, so `MemLp (g F)` follows from `MemLp F` for the factorized weights: the
+> interacting inequality now has no bound on the observable and no finiteness assumption at all.
+> Only an unbounded `V₊` remains on that axis.
+>
+> **Newest reconstruction extension (2026-11-16g):** “State of the project — 2026-11-16g:
+> the interacting state inherits the lift; audit rewired” (end of file).  The weighted C2/E3
+> inequality now takes `L²` of `g F` instead of assuming the form is finite, because the
+> interacting state *is* the free state reweighted; and the audit is wired to the two now-committed
+> C3 modules, with every theorem in them audited.
+>
+> **Newest reconstruction extension (2026-11-16d):** “State of the project — 2026-11-16d:
+> form-finiteness instead of boundedness, and why a general density has no argument”
+> (end of file).  Both OS statements now need only that the form is finite; and a
+> reflection-invariant density that *fails* reflection positivity is exhibited, so the
+> general case is false rather than open.
+>
+> **Newest reconstruction extension (2026-11-16c):** “State of the project — 2026-11-16c:
+> the interaction as a convergent expansion” (end of file).  A nonnegative series of
+> factorized weights is reflection positive, so an unbounded `V₊` written as such a sum is
+> covered with `Σᵢ C² Dᵢ² < ∞` as the finiteness condition; a general `V₊` is not.
+>
+> **Newest build-layout decision (2026-11-16b):** “State of the project — 2026-11-16b:
+> what `lake build BookProof` never compiled” (end of file).  The 56 unbuilt modules are
+> resolved: 19 wired into the aggregator, 37 deleted as stale copies, placeholders or
+> scratch.  `--check` now reports one unbuilt module, uncommitted work by another author.
+>
+> **Newest reconstruction extension (2026-11-16a):** “State of the project — 2026-11-16a:
+> the interacting half-space inequality for a factorized weight” (end of file).
+> C2's reflection positivity gains a measure-level interacting form for weights
+> `ρ = g₁g₂`, inherited from the free statement; verified by a clean-clone build of the
+> C1/C2 chain and by `scripts/import_components.py BookProof --check`.
+>
 > **Newest gauge pedagogy refinement (2026-11-15i):** “State of the project — 2026-11-15i:
 > comprehensive fixing, physical reduction and numerical compression” (end of file).
 > The book separates orbit coverage, Mehler probability, BRST metric/dynamics and SIRK
@@ -112,6 +159,99 @@
 > `1`, with `Aedge_band_order_least` showing no smaller order meets the threshold, and
 > `Aedge_ceiling_eq_one` showing the general ceiling lands on `1` as well once the constant is the
 > true `resid (xOrd 0) = 2/25` (`Aedge_ceiling_eq_four`: the inflated `2/5` gives `4`).
+>
+> **Track A — newest (2026-11-15v):** “State of the project — 2026-11-15v: the graph-norm gap
+> reduced” (end of file): `ChapterSirkEndToEnd` §22 replaces the Schur coercivity hypothesis of the
+> graph-norm tail by the free-part gap and the coupling norm — `graphNorm_res_le_of_free` gives
+> `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)(muF − c)⁻¹ + 1)‖Q x‖` and `sirkGraphTail_le_of_free` the
+> `sirkComplement V` form with `muF > c` instead of `0 < mu`.
+>
+> **Track A — newest (2026-11-15u):** “State of the project — 2026-11-15u: §16's hypotheses
+> discharged on the model” (end of file): `ChapterSirkEndToEnd` §21 exhibits a core `modelCore := ⊤`,
+> the restricted Hamiltonian `modelH`, the section `modelRes` from §18's explicit `resolventOp`, and
+> proves the section property (`model_res_section`), the bound with `mu = (1 + ‖res‖)⁻¹`
+> (`model_res_bound`), self-adjointness of the unitary `V` (`exchangeOp_adjoint`) and §16's
+> graph-norm tail with every hypothesis discharged (`model_sirkGraphTail`).  The YM resolvent section
+> itself remains analytic.
+>
+> **Track A — newest (2026-11-15t):** “State of the project — 2026-11-15t: §15 extended to unbounded
+> generators” (end of file): `ChapterSirkEndToEnd` §20 replaces §16's global resolvent hypothesis by
+> the Schur data — `resolvent_tail_le_of_schur_core` gives `‖Q (res (Q x))‖ ≤ mu⁻¹‖Q x‖` from the
+> section-level identity `S (Q (res (Q y))) = Q y` and coercivity of `S`;
+> `res_eq_projection_of_invariant` turns that into a bound on `res` when the kept sector is
+> invariant; `graphNorm_res_le_of_schur` and `sirkGraphTail_le_of_schur` give
+> `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖x‖` on a core.  The section-level identity itself
+> remains an input.
+>
+> **Track A — newest (2026-11-15s):** “State of the project — 2026-11-15s: the Schur gap is derived,
+> not assumed” (end of file): `ChapterSirkEndToEnd` §19 writes `S = Q A Q − (Q A P) U (P A Q)`
+> (`schurCompOp`, `couplingCompOp`) and proves `schur_coercive_of_free` — the free-part gap `muF`
+> plus a coupling constant `c` give coercivity of `S` with gap `muF − c`, so §15's `hScoer` is no
+> longer a hypothesis (`sirkTailBudget_le_fock_schur_of_gap`).  `couplingComp_re_le` reads `c` off
+> `‖(Q A P) U (P A Q)‖`; in the two-mode model the coupling is `(g²/w 0) • Q`
+> (`model_couplingOp_eq`) and `schurOp_coercive_derived` re-derives §18's gap `w 1 − g²/w 0`.
+>
+> **Track A — newest (2026-11-15r):** “State of the project — 2026-11-15r: §15 instantiated on a
+> two-mode model” (end of file): `ChapterSirkEndToEnd` §18 puts a nonzero off-diagonal coupling
+> `W` on the two-mode model (`H = H_free + g·W`), proves the free part is block diagonal as an
+> operator, that the coupling block `Q H P = g · (Q W)` is nonzero (so §14's commutation fails),
+> and instantiates §15: `U = (w 0)⁻¹ P` inverts `P H P`, the explicit resolvent
+> `R = Δ⁻¹(w1 P + w0 Q − g W)` satisfies `H R = 1`, the Schur complement is
+> `(w 1 − g²/w 0) • Q` (`schurOp_eq`), and `tail_le_schur` gives `‖Q R Q‖ ≤ mu⁻¹` with the explicit
+> gap `mu = w 1 − g²/w 0`.  Continuum positivity of that gap remains open.
+>
+> **Track A — newest (2026-11-15q):** “State of the project — 2026-11-15q: an explicit two-mode YM
+> model” (end of file): `ChapterSirkEndToEnd` §17 builds `YMMode := EuclideanSpace ℂ (Fin 2)` with
+> a diagonal free Hamiltonian and proves the free part is block diagonal
+> (`freeMode_keep_discard`, `freeMode_discard_keep` — the `Q A P = 0` of §13) and oscillator
+> coercivity with the explicit gap `w i` (`oscillator_coercive_discard`, `oscillator_coercive_keep`),
+> so `0 < w 1` supplies a witness for `mu > 0` (`oscillator_gap_discard`).  The interacting gap
+> remains a hypothesis.
+>
+> **Track A — newest (2026-11-15p):** “State of the project — 2026-11-15p: the SIRK budget on a
+> core” (end of file): `ChapterSirkEndToEnd` §16 states and proves the budget for
+> `H : D →ₗ[ℂ] E` on a core in the graph norm `‖u‖ + ‖H u‖` — `graphNorm_res_le` costs exactly
+> one `‖z‖`, `resolvent_graphNorm_le` and `sirkGraphTail_le` give
+> `‖Q R Q‖_G ≤ (1 + ‖z‖)mu⁻¹ + 1`, and `sirkGraphBudget_le` composes this with the pointwise
+> coupling `‖Q ((H − z) (P x))‖ ≤ c` for a section `P : E → D`.  The type mismatch that blocked
+> the concrete Yang–Mills instantiation is gone; the gap `mu > 0` remains a hypothesis.
+>
+> **Track A — newest (2026-11-15o):** “State of the project — 2026-11-15o: the invariant tail is
+> retired” (end of file): `ChapterSirkEndToEnd` §15 removes the vacuous `H Q = Q H` from the tail
+> bound.  With `P = 1 − Q`, `A = H − z` and `U` inverting `P A P` on `range P`, the block
+> equations of `A R = 1` give `S (Q R Q) = Q` for the Schur complement
+> `S = Q A Q − (Q A P) U (P A Q)` (`schur_comp_eq`), so coercivity of `S` alone bounds
+> `‖Q R Q‖ ≤ mu⁻¹` (`resolvent_tail_le_of_schur`) and
+> `sirkTailBudget_le_fock_schur` reads `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1) mu⁻¹` with the coupling
+> genuinely nonzero — `fock_tail_le` and `sirkTailBudget_le_fock` are marked superseded.
+>
+> **Track A — newest (2026-11-15m):** “State of the project — 2026-11-15m: the Fock coupling and
+> tail, and the unbounded `L²` case” (end of file): `ChapterSirkEndToEnd` §13 computes the two
+> numbers §11 left abstract for `H = A + g·W` — the coupling `‖Q (H − z) P‖ ≤ ‖g‖ ‖W‖ ‖P‖`
+> (`fock_coupling_le`, free part block diagonal) and the complement tail
+> `‖Q R Q‖ ≤ (mu + lam)⁻¹` (`fock_tail_le`, `H Q = Q H` plus coercivity at `z = −lam`) — so
+> `sirkTailBudget_le_fock` reads `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1)(mu + lam)⁻¹`; `KernelContract` §5
+> proves the `L²(π)` contraction for unbounded observables given the fiber and `π`
+> integrability obligations.
+>
+> **Track A — newest (2026-11-15l):** “State of the project — 2026-11-15l: the coupling, the scalar
+> marker, and the Fubini bridge” (end of file): `sirkTailBudget_le_of_tail_coupling` bounds `T` by
+> `‖Q R Q‖ ‖Q (H − z) P‖ ‖B‖`, §12 gives an explicit geometric marker with error `≤ ρ^q = e^{−a q}`
+> (the scalar half of `2 C̄ D̄ e^{−a q_m}`), and `KernelContract` gains `integral_bind_of_kernel`
+> plus the general `L²(π)` contraction.
+>
+> **Track A — newest (2026-11-15k):** “State of the project — 2026-11-15k: the finite inverse, and
+> U2's four allocations” (end of file): `sirk_block_error_eq_correction` proves
+> `V∗RV − B = −B·V∗((H−z)Q R V)` (§9), `sirk_fullSpace_error_le_shiftInvert` removes `V∗RV` from
+> the composed bound, and §10 defines `T`, `O`, `S` as proved norms with `sirk_error_le_budget` as
+> U2's envelope. Also restores the build: `BookProof/MCMC/KernelContract.lean` (imported since
+> `8bf5c1b`, never committed) now exists.
+>
+> **Track A — newest (2026-11-15j):** “State of the project — 2026-11-15j: the SIRK omitted space is
+> priced, not assumed” (end of file): `ChapterSirkEndToEnd` §8 replaces the exact-invariance premise
+> by `sirk_fullSpace_error_le`, `‖R − V B V∗‖ ≤ ‖V∗RV − B‖ + 2‖Q R P‖ + ‖Q R Q‖` with
+> `P = V V∗`, `Q = 1 − P`, and `sirk_offblock_norm_eq` shows the two off-block corners are adjoints
+> — so the leakage enters once, with a factor `2`, and no `V∗ V = 1` is assumed.
 >
 > **Track A — newest (2026-11-13af):** “State of the project — 2026-11-13af: the second-edge band,
 > discharged and instantiated” (end of file): `spectralSeparation_at_secondEdge_of_compressionBound`
@@ -26037,3 +26177,730 @@ separate targets. Fixed-action invariance under pointwise limits proves none of 
 The companion chapters on Gribov, SM, Yang–Mills and NS/QG elimination were aligned
 with this scope. Check citations and axioms, then render through the book wrapper
 and KaTeX checks as the specialist's final validation. No build was run here.
+
+## State of the project — 2026-11-15j: the SIRK omitted space is priced, not assumed
+
+`softmodes.md` U2/U6 step 2 asked for one concrete replacement of the exact
+invariance premise that `sirk_end_to_end` carries. This entry supplies it in
+`BookProof/Sirk/ChapterSirkEndToEnd.lean` §8 and nothing else: no constant is
+instantiated and no convergence claim is added.
+
+**The gap it closes.** `sirk_end_to_end` and `sirk_flow_error_*` need
+`V (V∗ v) = v` — invariance of the retained range. A generic Krylov space does
+not have it, and `sirk_error_opNorm_le`'s all-vector premise cannot be inferred
+from the seed theorem (`softmodes.md` U1's source audit). §8 replaces the premise
+by numbers on the same `V`: with the reconstruction `P = V V∗` and its complement
+`Q = 1 − P` (`sirkComplement`, self-adjoint by `sirkComplement_isSelfAdjoint`),
+
+  `‖R − V B V∗‖ ≤ ‖V∗ R V − B‖ + 2 ‖Q R P‖ + ‖Q R Q‖`
+  (`sirk_fullSpace_error_le`).
+
+The three terms are the reduced block error, the **leakage** out of `ran V`, and
+the **tail** on the omitted space. Exact invariance would set the last two to
+zero; the estimate prices them instead.
+
+**Why the factor is `2` and not `m`.** `R` is self-adjoint, so the two off-block
+corners are adjoints of one another and have equal operator norms:
+`sirk_offblock_norm_eq : ‖P R Q‖ = ‖Q R P‖`. Hence `‖P R Q‖ + ‖Q R P‖ = 2 ‖Q R P‖`
+— one cost for both corners, with no entrywise summation over the basis. The
+proof is `x = P x + Q x` applied twice, then the triangle inequality; it assumes
+only that `V` is isometric (`‖V y‖ = ‖y‖`) and that `‖V∗ v‖ ≤ ‖v‖`. It does
+**not** assume `V∗ V = 1`, so the estimate does not presuppose the invariance it
+replaces.
+
+**What this does not do.** The two off-block norms are not identified with the
+`sirkBound` constants, so U2's `B(g,L,q_m)` is still open: `T`, `S`, `O`, `F`
+remain unallocated, and the compression-versus-resolvent correction
+(`ChapterShiftInvertBookkeeping.compression_ne_resolvent`) is still to be
+composed before the first term may read `‖V∗RV − B‖` with `B` the finite
+shift-invert inverse. Row/column Schur bounds and a certified tail completion are
+the natural next allocations; solve-tolerance budgets are U2's paragraph on
+`m` solve-column errors of norm `ε/√m`.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no
+warning and no line above 100 code points. `#print axioms` on the four new theorems
+(`sirk_fullSpace_error_le`, `sirk_offblock_norm_eq`, `sirkComplement_isSelfAdjoint`,
+`sirkReconstruction_add_complement`) gives `[propext, Classical.choice, Quot.sound]`;
+no `sorry`.
+
+## State of the project — 2026-11-15k: the finite inverse, and U2's four allocations
+
+Two of the three gaps that §2026-11-15j left open are now closed in
+`BookProof/Sirk/ChapterSirkEndToEnd.lean` §9–§10, and the checkout builds again.
+
+**§9 — the compression correction.** `softmodes.md` U2 requires that the substitution
+`V∗ R_g V ↦ (V∗ K_g V + κ)⁻¹` be *paid for*:
+`ChapterShiftInvertBookkeeping.compression_ne_resolvent` only exhibits a two-dimensional
+witness. `sirk_block_error_eq_correction` is its general form. For `R = (H − z)⁻¹` and `B`
+a left inverse of `V∗(H − z)V`,
+
+  `V∗ R V − B = − B · V∗((H − z) Q R V)`,
+
+so the gap is *exactly* the leakage the compression discards, transported by `B`; it is an
+identity, not an estimate. `sirk_block_error_le_of_inverse` turns it into
+`‖V∗RV − B‖ ≤ ‖B‖ ‖(H − z)Q‖ ‖R P‖`, and `sirk_fullSpace_error_le_shiftInvert` inserts that
+number into §8, so the composed bound contains no reference to `V∗RV` at all: every term is
+computable from `B` and the two off-block norms. This is the "certified Schur complement /
+solve correction" U2 asks for, in the only form the corpus can currently support (bounded
+`H`; an unbounded generator would need graph-norm control, which is not claimed).
+
+**§10 — `T`, `S`, `O`, `F` allocated.** U2's envelope
+`2C̄D̄e^{−a q_m} + T + S + O + F` now has four of its five terms attached to proved operator
+norms on this scheme: `T = sirkTailBudget := 2‖Q R P‖ + ‖Q R Q‖` (the §8 leakage and tail),
+`O = sirkTransferBudget := ‖B‖‖(H − z)Q‖‖R P‖` (the §9 correction), `S =
+sirkSolveBudget m ε := ε`, justified by `solve_columns_budget` — `m` columns of norm `ε/√m`
+carry squared Frobenius mass exactly `ε²`, so a fixed `ε` is dimension-independent while a
+fixed per-column tolerance would grow — and `F` the caller's certified rounding-and-assembly
+budget. `sirk_error_le_budget` composes them: with `‖B − Bhat‖ ≤ S + F`,
+`‖R − V Bhat V∗‖ ≤ O + T + (S + F)`. The `2C̄D̄e^{−a q_m}` term is deliberately **not**
+claimed: it needs a rational approximation of `R_g` itself, which a propagator theorem does
+not supply. What changed is that `T`, `O`, `S` are now numbers that provably bound something
+in this scheme rather than placeholders.
+
+**Head repair.** `BookProof.lean` has imported `BookProof.MCMC.KernelContract` since commit
+`8bf5c1b`, but that file was never committed, so `lake build BookProof` failed with
+`no such file or directory` at the import stage. `BookProof/MCMC/KernelContract.lean` now
+exists and states the T0 contract in the observable orientation: `observableAction`,
+`P 1 = 1` from `IsMarkovKernel`, and `Kernel.const α π` reversible (`const_isReversible`,
+for *any* law) hence stationary (`const_invariant`, via
+`Kernel.IsReversible.invariant`). The module docstring records what it does **not** prove —
+pointwise Jensen, the `L²(π)` contraction, the `Lp ℂ 2 π` descent and the density action —
+because this Mathlib checkout has `lintegral_bind` but no `integral_bind`, and the contraction
+needs that bridge. The T0 comment in `BookProof.lean` was corrected to stop claiming it.
+
+**Verification.** `lake build BookProof` succeeds, `9015 jobs`. `lake build
+BookProof.Sirk.ChapterSirkEndToEnd` and `lake build BookProof.MCMC.KernelContract` succeed
+with no warning from either file and no line above 100 code points. `#print axioms` on
+`sirkReconstruction_comp_self`, `sirk_adjoint_comp_reconstruction`,
+`sirk_block_error_eq_correction`, `sirk_block_error_le_of_inverse`,
+`sirk_fullSpace_error_le_shiftInvert`, `solve_columns_budget`, `norm_sirkApprox_sub_le`,
+`sirk_error_le_budget` gives `[propext, Classical.choice, Quot.sound]` in all eight cases; no
+`sorry`.
+
+## State of the project — 2026-11-15l: the coupling, the scalar marker, and the Fubini bridge
+
+Three follow-ups on §2026-11-15k, all in `BookProof/Sirk/ChapterSirkEndToEnd.lean` (§11–§12)
+and `BookProof/MCMC/KernelContract.lean` (§4).
+
+**§11 — `T` from the tail and the coupling.** `sirkTailBudget` used to be a definition; now it is
+bounded by data the Schur and truncation-lift chapters actually certify. Compressing
+`Q R (H − z) P = Q P = 0` gives `(Q R P)(P (H − z) P) + (Q R Q)(Q (H − z) P) = 0`, and `V B V∗` is
+a right inverse of `P (H − z) P` exactly when `B` inverts the compressed shift `V∗(H − z)V`
+(`(V∗(H − z)V) B = 1`). Hence `sirk_leakage_le_of_tail_coupling`:
+`‖Q R P‖ ≤ ‖Q R Q‖ · ‖Q (H − z) P‖ · ‖B‖`, and `sirkTailBudget_le_of_tail_coupling`:
+`T ≤ (2‖Q (H − z) P‖ ‖B‖ + 1) · ‖Q R Q‖`. The coupling `‖Q (H − z) P‖` is precisely the
+off-diagonal block `ChapterSchurGershgorinGap.abs_inner_block_le` bounds, and `‖Q R Q‖` is the
+tail `ChapterTruncationGapLift` lifts; no entry is summed, so no factor `m` appears. What §11 does
+*not* do is instantiate those two numbers for the Fock model — that is still the modelling step.
+
+**§12 — an explicit marker for the resolvent on the segment.** `geomMarker q t = Σ_{j<q} (−t)^j`
+is the degree-`q` approximant of `1/(1 + t)`, and `geomMarker_remainder` is the *exact*
+remainder `(−t)^q/(1 + t)` — the finite geometric collapse, not an estimate. On the common
+segment `0 ≤ t ≤ ρ ≤ 1` this gives `geomMarker_error_le`: error `≤ ρ^q`, hence the `2 C D` term of
+`sirk_error_bound_at` with `C = 1`, `D = ρ^q` (`geomMarker_twoCD`), and `geomMarker_rate`:
+`ρ^q = e^{−a q}` with `a = −log ρ`. With `t = x/γ` on Hashimoto's segment `[0, 1/κ]` this is the
+scalar half of the `2 C̄ D̄ e^{−a q_m}` envelope. The propagation of that scalar bound through the
+deformation estimate, and the operator form of `R_g` itself, are **not** claimed.
+
+**§4 of `KernelContract` — the Fubini bridge.** This Mathlib version exports `lintegral_bind` but
+no `integral_bind`, so the real-valued identity was missing. `integral_bind_of_kernel` supplies it
+from `Kernel.integral_comp` with the constant kernel `Kernel.const Unit μ`, and
+`kernelOp_l2_contraction` uses it for the general `L²(π)` contraction under an arbitrary
+`Kernel.Invariant κ π` for bounded measurable observables — stationarity alone, no reversibility or
+self-adjointness. Unbounded observables still need the integrability obligations that boundedness
+supplies here.
+
+**Verification.** `lake build BookProof` succeeds, `9016 jobs`.
+`lake build BookProof.Sirk.ChapterSirkEndToEnd` and `lake build BookProof.MCMC.KernelContract`
+succeed with no warning from either file and no line above 100 code points. `#print axioms` on
+`sirk_leakage_le_of_tail_coupling`, `sirkTailBudget_le_of_tail_coupling`, `geomMarker_remainder`,
+`geomMarker_error_le`, `geomMarker_twoCD`, `geomMarker_rate`, `integral_bind_of_kernel` and
+`kernelOp_l2_contraction` gives `[propext, Classical.choice, Quot.sound]` in all eight cases; no
+`sorry`.
+
+## State of the project — 2026-11-15m: the Fock coupling and tail, and the unbounded `L²` case
+
+Three follow-ups on §2026-11-15l: `ChapterSirkEndToEnd` §13 instantiates `T` for the Fock model,
+and `KernelContract` §5 drops the boundedness hypothesis.
+
+**§13 — `T` for the Fock model.** The two numbers §11 leaves abstract are now computed for
+`H = A + g·W` split by the reconstruction `P = V V∗`, `Q = 1 − P`:
+
+* `opNorm_le_one_of_orthogonalProjection` (and `norm_projection_le`, `re_inner_projection`) show an
+  orthogonal projection does not amplify, so no factor `‖Q‖` enters the coupling estimate;
+* `fock_coupling_le`: if `Q A P = 0` then `Q (H − z) P = g · Q W P` for every `z`, hence
+  `‖Q (H − z) P‖ ≤ ‖g‖ ‖W‖ ‖P‖` — the off-diagonal block of the shifted generator is the
+  interaction alone, with `|g|` (as `‖g‖` for complex `g`) and no dependence on `m`;
+* `fock_tail_le`: if `H Q = Q H`, `H` is coercive on the discarded block with gap `mu`, the shift is
+  real-negative (`z = −lam`), and `R` is the corresponding inverse, then `‖Q R Q‖ ≤ (mu + lam)⁻¹`
+  — the resolvent estimate on the complement, with no symmetry of `H` assumed;
+* `sirkTailBudget_le_fock` combines them through §11:
+  `sirkTailBudget V R ≤ (2 ‖g‖ ‖W‖ ‖P‖ ‖B‖ + 1) (mu + lam)⁻¹`.
+
+The Fock numbers are therefore a function of the coupling `g`, the interaction norm `‖W‖` and the
+complement gap `mu + lam`; only `‖B‖` remains the reduced-system datum of the scheme. The model's
+other structural inputs stay hypotheses: `Q A P = 0` (free part block diagonal), `H Q = Q H`
+(the split is `H`-invariant) and the coercivity `mu‖Q v‖² ≤ ⟪Q v, H Q v⟫`.
+
+**§5 of `KernelContract` — the contraction without boundedness.** `integrable_kernelOp_norm_sq`
+proves `a ↦ P(‖f‖²)(a)` is `π`-integrable for a measurable `f` that is square-integrable against
+`π` and in every fiber, by transferring the `ℝ≥0∞` mass with `lintegral_bind`, and
+`kernelOp_l2_contraction_of_integrable` proves
+`∫ ‖P f‖² dπ ≤ ∫ ‖f‖² dπ` for such an `f` — same conclusion as the bounded version, with the
+integrability obligations as hypotheses rather than consequences of a bound. The docstring's
+`Boundary` section now records both tiers.
+
+**Verification.** `lake build BookProof` succeeds (`9021 jobs`);
+`lake build BookProof.Sirk.ChapterSirkEndToEnd` and `lake build BookProof.MCMC.KernelContract`
+succeed with no warning from either file and no line above 100 code points. `#print axioms` on
+`opNorm_le_one_of_orthogonalProjection`, `fock_coupling_le`, `re_inner_projection`,
+`norm_projection_le`, `fock_tail_le`, `sirkReconstruction_idem`, `sirkComplement_idem`,
+`sirkComplement_adjoint_eq` and `sirkTailBudget_le_fock` gives
+`[propext, Classical.choice, Quot.sound]` in all nine cases; no `sorry`.
+
+## State of the project — 2026-11-15n: §13's commutation hypothesis is vacuous, and `O` without it
+
+A correction to §2026-11-15m, and one allocation that survives it.
+
+**The defect.** §13's `sirkTailBudget_le_fock` assumed `H Q = Q H` to bound the compressed
+resolvent.  That hypothesis is not merely unproved for a SIRK split: together with
+`P = 1 − Q`, `Q² = Q` it forces `Q (H − z) P = 0`, so the coupling term is identically zero and
+the bound degenerates to `sirkTailBudget ≤ ‖Q R Q‖`.  `comp_shift_eq_zero_of_comm` is the formal
+statement, and `sirkTailBudget_le_of_invariant_split` is what invariance honestly delivers.  An
+exactly invariant split is the case SIRK exists to avoid, so §13's combined bound must not be
+read as covering the Krylov split.
+
+**The repair that needs no invariance.** `sirkTransferBudget_le_fock` bounds the transfer
+allocation for `H = A + g·W` by the triangle inequality alone:
+`‖(H − z) Q‖ ≤ ‖(A − z) Q‖ + ‖g‖‖W‖` because `‖Q‖ ≤ 1`, hence
+`O ≤ ‖B‖ (alpha + ‖g‖‖W‖) ‖R P‖` with `alpha` the free part's norm on the discarded sector.  The
+estimate is affine in `‖g‖`, valid for every split, and its only model input is `H = A + g·W`.
+
+**Why the Fock instantiation is not delivered.** The concrete Yang–Mills Hamiltonian in
+`BookProof/Qym/ChapterYangMillsHermite.lean` is `ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99` — a
+symmetric operator on a core, not the `E →L[ℂ] E` of §13–§14, so it cannot be substituted at
+all.  Beyond the type mismatch, the two hypotheses have different statuses: block diagonality of
+the free part (`Q A P = 0`) is a statement about the oscillator, while coercivity with `mu > 0`
+on the discarded block of the *interacting* Hamiltonian is a spectral-gap claim, which the
+project explicitly does not assert (`softmodes.md`, "no strictly positive mass gap of the
+physical continuum Hamiltonian is claimed").  The graph-norm route needed to even state §11–§14
+for an unbounded generator is likewise not started.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points.  `#print axioms` on `comp_shift_eq_zero_of_comm`,
+`sirkTailBudget_le_of_invariant_split` and `sirkTransferBudget_le_fock` gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15o: the invariant tail is retired
+
+A correction to §2026-11-15n: the tail of the SIRK budget no longer needs `H Q = Q H`.
+
+**The replacement.**  §13's `fock_tail_le` controlled `‖Q R Q‖` by coercivity *plus* invariance.
+The invariant-free statement is the Schur complement of the compressed shift.  With `P = 1 − Q`,
+`A = H − z` and `U` a one-sided inverse of `P A P` on `range P`, the block equations of `A R = 1`
+give `S (Q R Q) = Q` for `S = Q A Q − (Q A P) U (P A Q)`, so the tail is `mu⁻¹` where `mu` is the
+coercivity gap of `S` alone.
+
+* `schur_comp_eq` — the block identity, from `A R = 1`, `U (P A P) = P`, `Q² = Q`.  No
+  commutation with `Q` and no symmetry of `H` is used, and `Q A P ≠ 0` is allowed.
+* `resolvent_tail_le_of_schur` — coercivity of `S` on `range Q` gives `‖Q R Q‖ ≤ mu⁻¹`.
+* `sirkTailBudget_le_fock_schur` — for `H = A + g•W`,
+  `T ≤ (2‖g‖‖W‖‖P‖‖B‖ + 1) mu⁻¹`; the coupling is genuinely present, entering `S` as the
+  second-order term `(Q A P) U (P A Q)`.
+
+`fock_tail_le` and `sirkTailBudget_le_fock` remain — they are true and §14 uses them to exhibit
+the degenerate regime — but both docstrings now mark them superseded by §15.  The shift is no
+longer required to be negative real: `z` sits inside `S`.
+
+**What is still not delivered.**  Exactly what the previous entry recorded: `mu > 0` on the
+interacting complement is a spectral-gap claim this project does not make, and
+`ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99` is a symmetric operator on a core rather than the
+`E →L[ℂ] E` of §11–§15, so no concrete Yang–Mills instantiation exists yet.
+
+**Verification.** `lake build BookProof` succeeds (`9022 jobs`); no warning from the edited file
+and no line above 100 code points; `#print axioms` on the three new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15p: the SIRK budget on a core
+
+The analytic obstruction recorded in the previous two entries is removed: the budget no longer
+needs `H : E →L[ℂ] E`.
+
+**The model.**  Keep the core: `D : Submodule ℂ E`, `H : D →ₗ[ℂ] E`, and the graph norm
+`‖u‖_G = ‖u‖ + ‖H u‖` (`graphNorm`).  The resolvent is a section `res : E → D` with
+`(H − z) res y = y` and a vector-norm bound `‖res y‖ ≤ mu⁻¹‖y‖`; closedness is carried by that
+section rather than derived.
+
+**The budget.**  `H (res y) = y + z • res y` gives `‖res y‖_G ≤ (1 + ‖z‖)‖res y‖ + ‖y‖`
+(`graphNorm_res_le`), hence the resolvent estimate `‖res y‖_G ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖y‖`
+(`resolvent_graphNorm_le`) and the SIRK tail `‖Q R Q‖_G ≤ (1 + ‖z‖)mu⁻¹ + 1` (`sirkGraphTail_le`)
+— the analogue of `‖Q R Q‖ ≤ mu⁻¹`.  The coupling `Q (H − z) P` is only pointwise defined, so the
+budget takes it as a section `P : E → D` with `‖Q ((H − z) (P x))‖ ≤ c`, and
+`sirkGraphBudget_le` composes the two factors:
+`(2‖Q (H − z) P‖‖B‖ + 1)‖Q R Q‖_G ≤ (2c‖B‖ + 1)((1 + ‖z‖)mu⁻¹ + 1)‖x‖`.
+
+**What is still not delivered.**  `mu > 0` on the interacting complement is a spectral-gap claim
+the project does not make; and the hypotheses of §16 are still hypotheses — the payoff is that
+they now have the *shape* of assertions about `ymHamiltonian Φ fabc`, so a concrete instantiation
+is a matter of supplying a section and a gap, not of a type mismatch.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points; `#print axioms` on the five new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15q: an explicit two-mode YM model
+
+§17 turns §16's two hypotheses into theorems for a concrete truncation.
+
+**The model.**  `YMMode := EuclideanSpace ℂ (Fin 2)`, mode `0` kept and mode `1` discarded,
+`freeMode w x = Σ_i (w i) • x_i e_i` diagonal in the mode basis, with `keepMode`/`discardMode`
+the coordinate projections.
+
+**Proved.**  `freeMode_keep_discard` and `freeMode_discard_keep` — the free part is block
+diagonal, i.e. `Q A P = 0` of §13 and `A21 = 0` of §15.  `freeMode_inner_discard` reads the
+diagonal action as `⟪d, H_free d⟫ = w 1 ⟪d, d⟫` on the discarded mode, and
+`oscillator_coercive_discard` / `oscillator_coercive_keep` give `w i ‖x‖² ≤ Re⟪x, H_free x⟫` with
+the explicit gap `w i`; `oscillator_gap_discard` turns `0 < w 1` into a witness for `mu > 0`.
+
+**Not proved.**  The interacting gap: coercivity of `H_free + g·W` on the discarded block with
+`mu > 0` is still a physical input, and the truncation is a toy model, not the continuum
+operator.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from
+the file and no line above 100 code points; `#print axioms` on the six new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15r: §15 instantiated on a two-mode model
+
+§17 proved §16's geometric hypotheses in the degenerate (block-diagonal, `g = 0`) case.  §18 removes
+that degeneracy: on `EuclideanSpace ℂ (Fin 2)` with `H = H_free + g·W` and `W` the mode exchange,
+
+* the free part is block diagonal as an operator (`freeOp_discardOp_keepOp`,
+  `freeOp_keepOp_discardOp`, `keepOp_freeOp_keepOp = (w 0) • P`,
+  `discardOp_freeOp_discardOp = (w 1) • Q`) while the interaction is purely off-diagonal
+  (`keepOp_exchangeOp_keepOp = 0`, `discardOp_exchangeOp_discardOp = 0`);
+* the coupling block is nonzero (`discardOp_hamOp_keepOp = g • (Q W)`,
+  `discardOp_hamOp_keepOp_ne_zero`), so §14's invariance hypothesis is false and §15 is needed;
+* `U = (w 0)⁻¹ P` is the one-sided inverse of `P H P` (`Uinv_comp`), and the explicit resolvent
+  `R = Δ⁻¹(w1 P + w0 Q − g W)`, `Δ = w0 w1 − g²`, satisfies `H R = 1`
+  (`hamOp_comp_resolventOp`);
+* the Schur complement is `(w 1 − g²/w 0) • Q` (`schurOp_eq`), so the closed-loop gap is the free
+  discarded frequency shifted by the second-order term; `schur_identity` is §15's
+  `schur_comp_eq`, `schurOp_coercive` gives coercivity with that gap, and `tail_le_schur` is
+  §15's `resolvent_tail_le_of_schur`: `‖Q R Q‖ ≤ mu⁻¹` with `mu = schurGap w g`.
+
+**Not proved.**  Positivity of the downfolded gap for the continuum operator.  The toy model shows
+that the Schur identity, the coupling and the gap are all computable — it is not a bound on the
+field theory.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the nine new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15s: the Schur gap is derived, not assumed
+
+§15's `sirkTailBudget_le_fock_schur` took coercivity of the Schur complement with a gap `mu` as a
+hypothesis.  §19 removes it: `schurCompOp A Q U = Q A Q − couplingCompOp A Q U`, and since the
+quadratic form is additive in the difference,
+
+`Re⟪Q v, S (Q v)⟫ ≥ (muF − c)‖Q v‖²`
+
+whenever `Q A Q` is coercive with gap `muF` and the coupling term is bounded by `c`
+(`schur_coercive_of_free`).  `couplingComp_re_le` turns an operator-norm bound
+`‖(Q A P) U (P A Q)‖ ≤ c` into the coupling constant, and `sirkTailBudget_le_fock_schur_of_gap` is
+§15's budget with only the free gap, the coupling constant and `muF > c` as inputs.
+
+**On the model.**  `model_couplingOp_eq`: the coupling term of the two-mode model is
+`(g²/w 0) • Q`; `free_gap_discard`: the free gap is `w 1`; `schurOp_coercive_derived`: the general
+lemma reproduces §18's `w 1 − g²/w 0`, so the model's gap is a special case of the a priori bound
+rather than an independent computation.
+
+**Not proved.**  That the free gap `muF` survives the truncation of a continuum model, and that
+`muF > ‖(Q A P) U (P A Q)‖` there.  The derivation says the Schur gap needs no *separate* input;
+it does not produce `muF` from nothing.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the seven new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15t: §15 extended to unbounded generators
+
+§15's Schur tail estimate and §16's graph norms lived apart: §16 assumed the vector-norm resolvent
+bound `‖res y‖ ≤ mu⁻¹‖y‖`, i.e. a global `‖R‖ ≤ mu⁻¹`.  §20 joins them.
+
+* `resolvent_tail_le_of_schur_core`: for `H : D →ₗ[ℂ] E`, a section `res : E →ₗ[ℂ] D` and an
+  operator `S : E →L[ℂ] E`, the section-level identity `S (Q (res (Q y))) = Q y` plus coercivity of
+  `S` with gap `mu` give `‖Q (res (Q x))‖ ≤ mu⁻¹‖Q x‖` — no closedness, no boundedness, no
+  hypothesis on `S` beyond its quadratic form.
+* `res_eq_projection_of_invariant`: if `(1 − Q) (res (Q y)) = 0` the kept sector is invariant and
+  `res (Q y) = Q (res (Q y))`, so the compressed estimate controls the resolvent value itself.
+* `graphNorm_res_le_of_schur`: `graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)mu⁻¹ + 1)‖Q x‖`, replacing
+  §16's `hvec` by the Schur data.
+* `sirkGraphTail_le_of_schur`: the §16 tail with `Q = sirkComplement V`, `mu` the gap of the
+  interacting complement.
+
+**Not proved.**  The section-level Schur identity `hS` — the unbounded analogue of
+`S (Q R Q) = Q` — is still an input; deriving it on the core of `ymHamiltonian` (by solving the
+block equation there) is the next analytic step.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the four new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15u: §16's hypotheses discharged on the model
+
+§16 asks for a core `D`, `H : D →ₗ[ℂ] E`, a section `res : E → D` of `H − z`, `‖res y‖ ≤ mu⁻¹‖y‖`
+and `mu > 0`; the intended instance is `ymHamiltonian Φ fabc : D →ₗ[ℂ] L2d 99`.  §21 discharges the
+package on the two-mode model: `modelCore := ⊤`, `modelH` = `hamOp` restricted to it, `modelRes` =
+§18's `resolventOp` into the core, with `model_res_section` (from `hamOp_comp_resolventOp`),
+`model_res_bound` (`mu = (1 + ‖res‖)⁻¹`), `exchangeOp_adjoint` (the unitary `V`) and
+`model_sirkGraphTail` (§16's conclusion with all hypotheses met).
+
+**Not proved.**  The existence of the YM resolvent section with a gap — that is the physics, and
+§21 does not claim it; it shows the hypothesis package is consistent and every hypothesis is a
+genuine constraint on a decidable object of the model.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on the four new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-15v: the graph-norm gap reduced
+
+§19 removed the Schur coercivity hypothesis for a bounded generator; §22 does the same on a core.
+With `S = schurCompOp A Q U`, `graphNorm_res_le_of_free` gives
+`graphNorm H (res (Q x)) ≤ ((1 + ‖z‖)(muF − c)⁻¹ + 1)‖Q x‖` from the free-part gap `muF`, a
+coupling constant `c`, the section property and the section-level Schur identity — the gap `mu` of
+§16/§20 never appears.  `sirkGraphTail_le_of_free` is the SIRK-split form, with `muF > c` rather
+than `0 < mu`.
+
+**Not proved.**  The free gap `muF` and `muF > c` for a continuum model; §22 relocates the spectral
+input to the *free* compressed Hamiltonian, which is the primitive object, and does not produce it.
+
+**Verification.** `lake build BookProof.Sirk.ChapterSirkEndToEnd` succeeds with no warning from the
+file and no line above 100 code points; `#print axioms` on both new declarations gives
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+---
+
+## State of the project — 2026-11-16a: the interacting half-space inequality
+
+Until now C2's reflection positivity came in two forms: the Hilbert-space norm identity for a
+bounded generator (`reflectedForm_eq_inner`, valid for any self-adjoint `K`), and the free
+measure-level OS inequality for the covariant state (`covState_reflectionPositive`). The
+*interacting* half-space inequality — the one every reconstruction of an interacting theory
+needs — was listed as open. It is now a theorem for the Dyson–Lieb–Simon class of interactions,
+in `BookProof/OSReconstruction/HalfSpaceInteractingReflectionPositivity.lean`:
+
+* `intWeight g` and `intState ν g = (covState ν).withDensity (intWeight g)` — the state whose
+  Boltzmann weight factorizes across the reflection plane, `ρ(z) = g z₁ * g z₂`;
+* `intState_univ` — the mass of that state is `∫⁻ ρ`, i.e. not one in general;
+* `intState_reflectionPositive` — for bounded measurable `g ≥ 0` and a bounded measurable
+  cylinder observable `F` of one half, `0 ≤ ∫ z, F z.2 * F z.1 ∂(intState ν g)`;
+* `intState_expectation_re_nonneg` — the normalized form `⟨θF F⟩_int / mass` is nonnegative.
+
+The proof is the classical factorization, not an approximation: each factor of the weight joins
+the observable on its own side, so `⟨θF F⟩_int = ∫ θ(F g)(F g) dμ₀`, and the free theorem applied
+to `F g` gives the sign. No cluster expansion, no smallness of the coupling, no Gaussian
+approximation and no cutoff removal enters; the interaction only has to factorize. The book
+chapter `Book/EuclideanMomentHierarchy.lean` gains a matching section and its "what is open"
+list narrows: a general reflection-invariant density, an unbounded `V₊`, the `L²` closure of the
+positive-time algebra and the thermodynamic limit remain outside.
+
+**Verification.** `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`
+and `lake build Book.EuclideanMomentHierarchy` succeed with no warning from either file and no
+line above 100 code points; `lake build Work.EuclideanMomentAudit` audits 102 declarations, all
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+**Clean clone.** The C1/C2 chain was rebuilt from a fresh `git clone` at `722b71c` (mathlib oleans
+hardlinked, every repository module compiled from source): 8252 jobs, exit 0, no errors. This
+closes the doubt raised when the aggregator was committed ahead of two of its imports.
+`scripts/import_components.py BookProof --check` also reports every generated part target closed
+under imports (it additionally notes 55 modules no part builds — the existing gap, unchanged).
+
+## State of the project — 2026-11-16b: what `lake build BookProof` never compiled
+
+**Finding.** `scripts/import_components.py BookProof --check` exited 0 while reporting 56 modules
+under `BookProof/` that no part builds: 948 imports in the aggregator against 991 files.
+None of them had ever been compiled by CI, and the ones that reference each other were therefore
+never checked against each other.  Two of the 56 were this session's own
+(`OSReconstruction.HalfSpaceInteractingReflectionPositivity`) — the interactive chapter cited a
+module the root never imported.
+
+**The inventory is not one problem.**  Measured, not assumed (declaration names of every module
+against the union of the reachable ones):
+
+* **19 real modules, unwired.**  The whole `OSReconstruction` half-space chain
+  (`HalfSpaceChainBand{Covariance,HSNorm,ReflectionPositivity}`,
+  `HalfSpaceCovStateCovariance`, `HalfSpaceDiscreteSemigroup`, `HalfSpaceExponential`,
+  `HalfSpaceExpIdentification`, `HalfSpaceMultiplierAdjoint`, `HalfSpaceUnboundedExp`,
+  `HalfSpaceFlowMatrixElement`, `HalfSpaceInfiniteBandedCovariance`,
+  `HalfSpaceInfiniteVolumeGaussian`, `HalfSpaceInfiniteVolumePositivity`,
+  `HalfSpaceLatticeTranslation`, `HalfSpaceLatticeShiftSemigroup`,
+  `HalfSpaceInteractingReflectionPositivity`), `ReflectionPositivity.HalfSpaceSplit`, and
+  `Sm.ChapterSmGradTable` / `Sm.ChapterSmSectorFormDomain`.  All 19 built the moment they were
+  named — they were content, not rot.
+* **18 stale copies, redundant.**  17 `X/Part*.lean` split copies and the pre-rename
+  `WeylSL2/ChapterWeylSl2` (byte-identical to `ChapterWeylSL2Algebra` except the namespace).
+  Every declaration of each occurs in its monolithic module, so the split plan's Phase 0 rule —
+  delete, do not wire — applies; they had been restored after Phase 0 removed them.
+* **19 declaration-free files, deleted.**  The 9 unprefixed placeholder stubs the
+  2026-10-19b addendum already recorded as removed (`EsaClosure`, `Starobinsky`,
+  `YangMills{Hermite,Friedrichs}`, `NavierStokesFlow`, `HermiteCore`, `HashimotoShiftInvert`,
+  `SirkSpectralGeometry`, `FarisLavine` — each a `# Stub:` header and nothing else) plus the 10
+  `_scratch_*` experiment files (`_scratch_harm`, `_scratch_harm2`, `_scratch_tv`,
+  `_scratch_tv2` … `_scratch_tv8`).
+
+**What was done.**  The 19 are imported from `BookProof.lean` with a comment block naming what
+each carries; the 37 are deleted.  `lake build BookProof` now succeeds on **9042 jobs** (was
+8253 for the chain alone; the aggregator now covers the whole library), and
+`import_components.py BookProof --check` exits 0 with a single note: `GaussianChainScales`, which
+is uncommitted work in progress by another author and must be wired by whoever commits it.
+
+**A false independence claim, retracted.**  Wiring `ReflectionPositivity.HalfSpaceSplit` merges
+the 9-module part `BookProofReflectionPositivity` into `BookProofOperatorCore` (797 → 825
+modules, 107 → 106 parts): the split imports both `ReflectionPositivity.LatticeFreeField` and
+`ReflectionPositivity.WilsonLattice`, so those modules were only ever separate *because* the
+bridge between them was unbuilt.  The target `BookProofReflectionPositivity` no longer exists;
+`BUILD_COMPONENTS.md` and `lakefile.toml` were regenerated by the script, not by hand.
+
+**Boundary.**  This is a build-coverage change: no theorem was added or weakened, and every
+previously committed declaration is still reachable (the deleted files contain none of their
+own).  The `BookProofOperatorCore` roots grew by 11 modules, so a job that builds that part
+compiles more than it used to — the cost of the merge, not of the new imports.
+
+## State of the project — 2026-11-16c: the interaction as a convergent expansion
+
+**Question.** The 2026-11-16a theorem covers `ρ = g₁g₂` with `g` bounded, and the chapter named
+"an unbounded `V₊`" as open.  Two things were separately unclear: whether boundedness of the
+weight is doing any work, and whether *any* non-Gaussian weight is reachable by this mechanism.
+
+**Answer, in the module rather than in prose.**  `intStateSum` is the sum of the term states,
+`Measure.sum fun i => intState ν (g i)`, with density `ρ(z) = ∑' i, (g i) z₁ * (g i) z₂`.  Its
+reflection positivity is `intStateSum_reflectionPositive`: every term is bounded, hence reflection
+positive by `intState_reflectionPositive`, the integral over the sum of measures is the series of
+the integrals (`integral_sum_measure`, with `lintegral_sum_measure` and a bound `C² Dᵢ²` on each
+term supplying the `Integrable` hypothesis), and a series of nonnegative numbers is nonnegative.
+
+**What that buys.**  The mixture's density is *not* bounded — `D i` may grow — so an unbounded
+`V₊` is covered whenever it expands as a nonnegative series of factorized weights, and the
+summability `∑' i, C² Dᵢ²` is exactly the finiteness condition on the total form, not a technical
+afterthought.
+
+**What it does not buy.**  The weight must decompose into matched pairs `(g i)₁ (g i)₂`.  A
+general reflection-invariant `ρ` is not in the cone these generate, and the `L²` closure of the
+positive-time algebra is still untouched; both stay in the chapter's open list, and the chapter's
+wording was changed from "an unbounded `V₊` is not covered" to the precise statement.  The
+mechanism is a mean of squares, so a general `V` needs a genuinely different argument.
+
+**Verification.**  Zero warnings and no line above 100 code points in
+`HalfSpaceInteractingReflectionPositivity.lean` and `Book/EuclideanMomentHierarchy.lean`; the three
+new declarations are audited in `Work/EuclideanMomentAudit.lean` and depend only on
+`propext`, `Classical.choice` and `Quot.sound`; no `sorry`.
+
+## State of the project — 2026-11-16d: form-finiteness, and the general case is false
+
+**Two results, one question.** The 2026-11-16a/c theorems assumed bounded weights and a bounded
+observable.  The L² question ("does the mechanism survive to the `L²` closure of the
+positive-time algebra?") and the general question ("what would give reflection positivity for a
+general reflection-invariant density?") turn out to have different answers.
+
+**The `L²` answer: the bound was never the content.**  `covState_reflectionPositive_of_integrable`
+and `intState_reflectionPositive_of_integrable` replace every bound by the integrability of the
+triple product whose iterated integral is the OS form — equivalently, by finiteness of the form
+itself.  Unbounded `g` and unbounded `F` are covered; the mean-of-squares representation
+`⟨θH H⟩ = ∫ (S_t H)² dν` is untouched.  What remains for a closure statement is the truncation
+argument that discharges finiteness from `MemLp` — bookkeeping, not mathematics.
+
+**The general answer: no such argument exists, because the statement is false.**  Reflection
+positivity is positivity of the reflected kernel; reflection invariance only makes that kernel
+symmetric.  In the state framework of these modules, `ρ(z) = 1 − ε h(z₁)h(z₂)` with `|h| ≤ 1`,
+`∫ h dγ = 0`, `∫ h² dγ = 1`, `0 < ε < 1` is a strictly positive, reflection-invariant density, and
+
+  `⟨θh, h⟩_ρ = (∫h dγ)² − ε (∫h² dγ)² = −ε < 0`.
+
+So the chapter's "a general interaction still needs an argument" was too weak: it needs a
+*positivity structure*, and none exists that follows from invariance.  The densities that work are
+the nonnegative sums of matched rank-one products — exactly the cone the theorems of 2026-11-16a/c
+generate — because those make the OS form a sum of squares.  The counterexample is formalized in
+the same module:
+`generalWeight_pos` (the weight is strictly positive), `generalWeight_swap` (reflection invariance),
+`generalWeight_osForm` (the OS form is `-ε`, by `integral_prod_mul` on each half) and
+`notReflectionPositive_of_generalWeight` (the packaged negative statement).  **Update (2026-11-16e):
+what the 2026-11-16d entry called "not yet formalized" is now a theorem** — the plan entry is left
+in place and corrected here rather than rewritten.
+
+**Verification.**  `lake build BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity`,
+`lake build Book.EuclideanMomentHierarchy` and `lake build Work.EuclideanMomentAudit` all succeed;
+the two new declarations audit to `[propext, Classical.choice, Quot.sound]`; no `sorry`; no line
+over 100 code points in the Lean files touched.
+
+### 2026-11-16e — the counterexample is Lean, and where the `L²` gap actually is
+
+The 2026-11-16d entry recorded the counterexample as a hand computation; it is now four theorems in
+`BookProof/OSReconstruction/HalfSpaceInteractingReflectionPositivity.lean`
+(`generalWeight_pos`, `generalWeight_swap`, `generalWeight_osForm`,
+`not_reflectionPositive_of_generalWeight`).  The `L²` question gets its complete answer only for a
+product state (`productState_reflectionPositive`: the form is `(∫ H)²`, so *every* function of one
+half is admissible) — with a shared shift the form is a mean of squares of integrals and the
+truncation argument cannot discharge finiteness, because the limit needs the integrand's
+integrability.  The remaining route is `MemLp.integrable_mul` after a marginal lift of
+`MemLp` from `ν ⊗ γ` to `ν ⊗ γ ⊗ γ`, which mathlib does not provide under the names tried.
+
+The chapter `Book/EuclideanMomentHierarchy.lean` again carries the C3c/C3d prose it lost: the
+fixed point of `K ↦ 1 + c²K` (`streamCovariance_inv_sub`, `tendsto_streamCovariance`), the tower
+identity at every scale (`shellDensity_eq_integral_snoc`, `integral_shellDensity_eq`, previously
+caveated as proved only for two steps), and the affine-threshold Chebyshev tail
+(`shellDensity_affine_field_le`, `shellTail_le`) as C3c at general `n`.  Those declarations live in
+`BookProof/OSReconstruction/GaussianChainScales.lean`.  **Superseded (2026-11-16g):** that module
+and `GaussianBlockCoarseDensity` are now committed (`30654ca`), so the prose describes a module a
+clean clone builds; the audit's C3 sections are wired to them and cover every theorem in both.
+
+### 2026-11-16f — the marginal lift exists, so `MemLp` closes the shifted-state `L²` case
+
+The 2026-11-16e entry named a missing ingredient: `MemLp.integrable_mul` would finish the shifted
+case in three lines once `MemLp` lifted from `ν ⊗ γ` to `ν ⊗ γ ⊗ γ`, and mathlib had no
+"marginal-lifting lemma" under the names tried.  It does not need one: the projections
+`(t, x, y) ↦ (t, x)` and `(t, x, y) ↦ (t, y)` are `Prod.map id Prod.fst` / `Prod.map id Prod.snd`,
+so `Measure.map_prod_map` plus `map_fst_prod`/`map_snd_prod` (the marginal of a probability is
+itself) prove them measure preserving, `MemLp.comp_measurePreserving` lifts the hypothesis, and
+Hölder supplies the integrability.  Result: `covState_reflectionPositive_of_memLp` — reflection
+positivity of `covState ν` from `H(· + ·) ∈ L²(ν ⊗ γ)` alone, no bound, no integrability, no
+finiteness hypothesis.
+
+The truncated route stays dead, and for the reason recorded: its dominated convergence needs an
+integrable majorant of `(S_t H)²`, which is the finiteness being proved.  **Update (2026-11-16g):**
+the statement for the *interacting* state is now proved as `intState_reflectionPositive_of_memLp`;
+what stays open is whether `g F ∈ L²` for the interactions of C2/E3, and the closure of the
+positive-time algebra.
+
+## State of the project — 2026-11-16g: the interacting state inherits the lift; audit rewired
+
+`intState_reflectionPositive_of_memLp` states the C2/E3 inequality with `L²(g F)` on `ν ⊗ γ` in
+place of integrability of the weighted form.  It needs no new analysis: `intState` is `covState`
+reweighted by the product `g z.1 * g z.2`, so the weighted OS form *is* the free form of `F * g`,
+and `covState_reflectionPositive_of_memLp` applies verbatim.  The two `L²` statements therefore
+read the same, and the open work moves off the form and onto the model: whether `g F ∈ L²` holds
+for the interactions of C2/E3, plus the closure of the positive-time algebra.  **Update
+(2026-11-16h):** for the bounded factorized weights of C2/E3 it holds, so that half is closed too.
+
+The audit is rewired to the two C3 modules, both now committed (`30654ca`).  Every theorem in
+`BookProof/OSReconstruction/GaussianChainScales.lean` and
+`BookProof/OSReconstruction/GaussianBlockCoarseDensity.lean` carries an `#audit_axioms` line — 114
+of them, of which `blockChainDensity_eq_iterated` was previously the only one missing — and the
+duplicated, empty `C3a/C3b` section header left by the merge is removed.  The chapter's declaration
+count follows the audit, which stands at 196.
+
+**Verification.** From a clean clone of the commit: `scripts/import_components.py BookProof
+--check` exits 0; `lake build` of both C3 modules, `Work.EuclideanMomentAudit`,
+`HalfSpaceInteractingReflectionPositivity` and `Book.EuclideanMomentHierarchy` exits 0 with no
+error; all 196 axiom reports are `[propext, Classical.choice, Quot.sound]`; no `sorry` and no line
+above 100 code points in the touched files.
+
+## State of the project — 2026-11-16h: the C2/E3 weights discharge the `L²` hypothesis
+
+`intState_reflectionPositive_of_memLp` takes `MemLp (g F)` on `ν ⊗ γ` as a hypothesis.  For the
+Dyson–Lieb–Simon weights of C2/E3 that hypothesis is a theorem: they are bounded, and a bounded
+nonnegative factor can only shrink a norm.
+
+* `memLp_shift_mul_of_bound` — `g` measurable with `g ≤ D` makes
+  `q ↦ F (q.1 + q.2) * g (q.1 + q.2)` square integrable whenever `q ↦ F (q.1 + q.2)` is.
+  Pointwise `‖F g‖ = ‖F‖ g ≤ D ‖F‖`, so `MemLp.of_le` compares against the constant multiple.
+* `intState_reflectionPositive_of_memLp_of_bounded` — the interacting inequality for a bounded
+  factorized weight and *any* measurable `L²` observable: no bound on `F`, no integrability of the
+  weighted form, no normalization of the state.  This strictly generalizes
+  `intState_reflectionPositive`, whose sup-norm hypothesis on `F` was only there to make the form
+  finite.
+
+What is left on this axis is an *unbounded* `V₊` — an unbounded `g`, where `g F ∈ L²` no longer
+follows from `F ∈ L²` — and the closure of the positive-time algebra.
+
+**Verification.**  Both declarations build with no `sorry`; the audit reports
+`[propext, Classical.choice, Quot.sound]`; no line above 100 code points in the new text.
+
+## State of the project — 2026-11-16i: the reconstruction space is a Hilbert space
+
+The boundary list has said since 2026-11-16d that the momentum-hierarchy reconstruction is "a
+pre-Hilbert space, not a Hilbert space": section 7 of `EuclideanMomentHierarchy` realizes the inner
+product of the quotient by null families inside the regulator space, but the realization is a span,
+so it is neither closed nor complete, and no product of families is defined at all.
+
+**The completion.** `reconPreHilbert` is the set of realized vectors made into a submodule — the
+closure properties are `add_mem_reconstructionVectors` and `smul_mem_reconstructionVectors` — and
+`span_reconstructionVectors` shows the span of section 7 is that submodule, i.e. the realized
+vectors were already a vector space. `reconSpace` is its topological closure, so
+`reconSpace_isClosed` is immediate, `reconSpace_complete` gives `CompleteSpace (reconSpace K Ω)`,
+`closure_reconPreHilbert` says the pre-Hilbert space is dense in it, `familyVector_mem_reconSpace`
+says every family class has a limit there, and `reconSpace_minimal` says no smaller closed subspace
+contains them all.  The inner product is the ambient one (`Submodule.innerProductSpace`).
+
+**The product.** `familyProduct` is the joint insertion family on `ι ⊕ κ` — the OS product of two
+observables, one insertion set united with the other.  `familyVector_sum` is the load-bearing
+identity: the reflected vector of a product is the *sum* of the two reflected vectors.  Hence a
+product of families is again a family (`add_mem_reconstructionVectors`), its reflected form is the
+squared norm of that sum and so nonnegative with no hypothesis
+(`familyForm_familyProduct`, `familyForm_familyProduct_re_nonneg`), and
+`norm_familyVector_le_add` bounds the product's norm by the sum of the factors' norms, which is
+the continuity that lets the product descend to the completion.
+
+**What is still not claimed.**  The product is the OS product of insertion families, not
+pointwise multiplication of $`L^2`$ functions on a measure space; the index types are `Type`, not
+an arbitrary universe; and a field law, an unbounded $`V_+`$ and a continuum limit remain outside.
+
+**Verification.**  `lake build` of `EuclideanMomentHierarchy`, `Work.EuclideanMomentAudit` and
+`Book.EuclideanMomentHierarchy` succeeds; all 232 axiom reports are
+`[propext, Classical.choice, Quot.sound]`; no `sorry` and no line above 100 code points in the
+new text.
+
+## State of the project — 2026-11-16j: an unbounded `V₊` through Hölder
+
+`memLp_shift_mul_of_bound` needed `g` bounded, so it could not reach an unbounded `V₊`: with `g`
+unbounded, `MemLp (g F)` genuinely does not follow from `MemLp F`.  The bound was never the point —
+Hölder is: two `L⁴` factors multiply into an `L²`.
+
+* `memLp_shift_mul_of_memLp` — `MemLp (g F)` from `MemLp (g ∘ shift) 4` and `MemLp (F ∘ shift) 4`
+  by `MemLp.mul'`.  No bound anywhere.
+* `intState_reflectionPositive_of_memLp_unbounded` — the interacting inequality for a measurable
+  *unbounded* weight and a measurable `L⁴` observable, feeding the previous theorem into
+  `intState_reflectionPositive_of_memLp`.  For a Gaussian measure every polynomial growth lies in
+  every finite `Lᵖ`, so `V₊ = λ‖x‖^k` is covered at either sign of the coupling.
+
+One Lean detail worth keeping: `HolderTriple 4 4 2` has no numeral instance, and `norm_num` cannot
+do inverses in `ℝ≥0∞`.  The proof of `((4)⁻¹ + (4)⁻¹)⁻¹ = 2` goes through `ℝ≥0` by
+`ENNReal.coe_inv`/`ENNReal.coe_add` (each `coe_inv` needs its `≠ 0` side condition, which is where
+the first attempts failed), and the class field is then `inv_inv` of it.
+
+**Also in this entry.**  Every definition of `EuclideanMomentHierarchy` and `GaussianChainScales`
+is now audited — `euclidEvol`, `euclidWord`, `euclidMoment`, `scalarK`, `twoPoint`, `ofReal_sq_re`,
+`reflectedVector`, `reflectedPair`, `reflectedForm`, `familyVector`, `familyVectorLM`,
+`familyPair`, `familyForm`, `toInsertions`, `shellLaw`, `shellDensity`, `streamField`,
+`streamCovariance` — so the audit no longer covers only the theorems.
+
+**The pointwise product.**  `memLp_mul_of_memLp_top` is Hölder at the pair `(2, ∞)`: an `L²`
+function times an essentially bounded one is `L²`.  That is the only sense in which pointwise
+products close, and the `L² × L² → L²` statement is not open but false: on
+`volume.restrict (Ioo 0 1)` the function `x ↦ x ^ (-(1/3))` is square integrable because
+`-2/3 > -1`, while its square `x ↦ x ^ (-(4/3))` is not.  The witness is formalized —
+`memLp_rpow_neg_third`, `not_memLp_rpow_neg_third_mul_self` and the packaged
+`l2_not_closed_under_pointwise_mul` — on `volume.restrict (Ioo 0 1)`, via
+`integrableOn_Ioo_rpow_iff` and `memLp_two_iff_integrable_sq`.  The `L²` closure of the
+positive-time algebra is therefore a module over the essentially bounded observables rather than
+an algebra.
+
+**Not claimed.**  The `L⁴` hypothesis is sufficient, not necessary; a weight with faster-than-
+polynomial growth and `g F ∈ L²` with `F` only in `L²` are still open.

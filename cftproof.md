@@ -190,6 +190,57 @@ dynamics. This does not erase inner constants: `h+cI` changes `H` by `c N_out`.
 field labels, renormalized smearings and the comparison archive hierarchy. Do not accept
 an arbitrary reference vacuum or field law in place of the specified physical object.
 
+**Landed 2026-11-15, in the finite form below.**
+`BookProof/OSReconstruction/ContinuumManifest.lean` writes the binder down and proves the
+identities and rejections it has to support. No `sorry`; axiom footprint of every theorem
+below `{propext, Classical.choice, Quot.sound}` only (`Work/ContinuumManifestAudit.lean`).
+
+* **The manifest.** `NestedSpec` binds the specified inner column family `h_sigma`, the
+  **physical cutoff** `(a, L, R)` (`PhysicalCutoff`), the **solver budget** `(m, q,
+  precision)` kept separate from it (`SolverBudget`), the renormalized scale, the colour
+  rank and the reference energy. `NestedSpec.finalHamiltonian` is `H_sigma = dΓ(h_sigma)`
+  and `numberOperator` is `N_out = dΓ(1)`, on the corpus's finite-mode Fock algebra — the
+  same operator the manuscript writes as `Σ_ij ⟨e_i, h_sigma e_j⟩ C†(e_i) A(e_j)`.
+* **`h + cI = H + c N_out`, and nothing else.**
+  `NestedSpec.finalHamiltonian_shift` proves the shifted manifest's Hamiltonian is
+  `dΓ(h_sigma) + c • dΓ(numberCol)`, and `NestedSpec.relativeGenerator_shift` that the
+  reference subtraction `K_sigma = H_sigma − E_ref • 1` moves by the same `c N_out`.
+  `NestedSpec.relativeGenerator_vac` records that `K_sigma Ω_out = −E_ref • Ω_out`: the
+  subtraction is relative dynamics and does not erase the inner constant.
+* **The inner object is recoverable.** `dGamma_injective` proves `dΓ` determines its
+  one-particle matrix (via `dGamma_oneVec` and `onePartVec_apply`), hence
+  `NestedSpec.inner_eq_of_finalHamiltonian_eq` and `NestedSpec.finalHamiltonian_eq_of_inner_eq`:
+  "the same `dΓ`" is a statement about `h_sigma`, not about notation.
+* **The negative controls.** `shift_changes_model` rejects a nonzero inner constant shift;
+  `droppedInteraction_rejected` rejects any other inner column family (in particular the
+  free part, i.e. a discarded interaction); `krylov_not_continuum` proves that enlarging
+  the Krylov rank changes no physical cutoff, so `m → ∞` at fixed `a, L, R` is not a
+  spacetime continuum limit; `unrelatedAdapter_rejected` and `mismatchedBasis_rejected`
+  reject an archive adapter on a foreign family or with `M.basis ≠ Q.port`, and
+  `ContinuumWitness` carries the compatibility proof with the witness so the archive side
+  cannot be re-chosen later.
+* **The observable dictionary.** `FieldLabel` names a smeared field observable together with
+  the scale it is smeared against, and `HalfSpaceData` binds the positive-time half of each
+  label to a `PositiveTimeAlgebra` element, with
+  `HalfSpaceData.labels_mem_positiveTime` (`θ` sends the labels to the negative-time half),
+  `HalfSpaceData.theta_labels_dependsOn_negTime`, and
+  `HalfSpaceData.label_outside_algebra_rejected`. `ObservableDictionary n Ω` pairs that
+  algebra data with the spatial prior and proves `labels_mem_positiveTime`,
+  `prior_prop_normalized`, `prior_corr_eq` (the dictionary in integral form) and
+  `label_outside_rejected`. `ContinuumWitness` now carries this dictionary together with
+  `halfSpace_eq`, so the positive-time algebra and the field labels are part of the same
+  witness as the Hamiltonian and the cutoff.
+
+The archive side is an **inventory, not an import**: `../OpenAI-YM-20261028` is absent in
+this workspace, so `ArchiveAdapter` records the data a real adapter must supply (the
+Wilson family as columns, the extraction order, the basis and port labels) and no archive
+theorem is assumed, ported or added as an axiom. Boundary: `NestedSpec.inner` is a
+concrete finite-mode column family, not a self-adjoint operator with an identified domain;
+the growing spatial regulator family, the gauge group/representation, the bare-coupling
+trajectory, the boundary condition and the numerical law of the spatial prior are still
+inputs (the dictionary binds which labels and positive-time algebra they act on, not the
+prior's values), and C2–C10 are untouched.
+
 ### C1 — complete a genuine 4D Gaussian control in Mehler coordinates
 
 Construct the massive scalar reference on distributions with covariance
@@ -223,6 +274,81 @@ already imported or locally verified theorem. It supplies no interacting QYM bri
 and Euclidean covariance, with cutoff convergence. This is a completed control case,
 not proof that the nonabelian interaction survives removal of cutoffs.
 
+**Landed 2026-11-15, in the finite cutoff form below.**
+`BookProof/OSReconstruction/GaussianMehlerControl.lean` constructs the control on two time
+slices and a finite three-dimensional momentum box, in Mehler coordinates. No `sorry`; axiom
+footprint `{propext, Classical.choice, Quot.sound}` only (`Work/GaussianMehlerAudit.lean`).
+
+* **The covariance.** With `SpatialMode M = Fin M × Fin M × Fin M`,
+  `spatialEigenvalue k = Σ_j (k_j + 1)²` and `variance m₀ p = 1/(m₀² + spatialEigenvalue
+  (p.2) + (if p.1 then 1 else 3))`; `variance_pos` gives strict positivity. The two time
+  slices are correlated, so the covariance is **not ultralocal** and is genuinely 4D (three
+  spatial momenta times two time slices). `variance_symm_ge_antisymm` proves the symmetric
+  Mehler mode dominates the antisymmetric one.
+* **The normalized law.** `law m₀` is the product of one-dimensional Gaussians over modes and
+  `law_isProbability` proves it is a probability measure.
+* **Cylinder laws and moments.** `marginal` computes every one-mode cylinder law as
+  `gaussianReal 0 (variance …)`; `charFun_one_mode` gives the one-mode characteristic
+  functional `∫ exp(i t y_p) dμ = exp(−variance · t²/2)`; `second_moment` gives the smeared
+  second moment `∫ y_p² dμ = variance m₀ p`.
+* **Euclidean covariance and reflection.** `covBilin` is the diagonal Mehler covariance
+  form, `covBilin_self_nonneg` its positivity, `reflectMehler` the time reflection
+  (`y₊ ↦ y₊`, `y₋ ↦ −y₋`) with `reflectMehler_involutive`, and `reflection_invariant` the
+  Euclidean-covariance clause `C(θf, θg) = C(f, g)`.
+* **Reflected-covariance positivity on half-space tests.** `posTest` lifts a spatial test to
+  the positive-time slice; `rp_covariance` proves `C(θf, f) ≥ 0` for `f = posTest g`, reducing
+  to `∑_k (variance (true,k) − variance (false,k)) · g k²/4 ≥ 0`.
+* **The negative control.** `badVariance` swaps the two Mehler eigenvalues while staying
+  strictly positive, so `badCovBilin` is a positive-definite diagonal covariance; `bad_rp_fails`
+  exhibits a spatial test with `badCovBilin (θf) f < 0`. A positive covariance matrix alone
+  is therefore insufficient, matching
+  [HalfSpaceInfiniteBandedCovariance](BookProof/OSReconstruction/HalfSpaceInfiniteBandedCovariance.lean).
+* **Cutoff consistency.** `embedMehler` includes a mode into the next cutoff,
+  `spatialEigenvalue_embed` and `variance_embed` show the variance is cutoff-independent on
+  the common modes, and `marginal_embed` shows the one-mode cylinder laws of the `M` and
+  `M + 1` cutoffs agree there.
+
+Boundary: this is the finite-dimensional control, not the `S'(R⁴)` field. The lift of
+reflected-covariance positivity from the covariance form to **all polynomial cylinders** is
+the next paragraph; no globally Hilbert–Schmidt `C₀^{1/2}`, no `L²(R⁴)` field and no
+`S'`-valued `M → ∞` limit is constructed here; only the consistent finite-dimensional
+cylinder laws are.
+
+**Landed 2026-11-15, all-degree lift via the boundary-conditioned kernel.**
+`BookProof/OSReconstruction/GaussianMehlerCylinderRP.lean`. No `sorry`; axiom footprint
+`{propext, Classical.choice, Quot.sound}` only (`Work/GaussianMehlerAudit.lean`).
+
+* **Why not Wick.** Degree two collapses the Isserlis sum to a square
+  (`ReflectionPositivity/QuadraticWick.lean`), but from degree three the pairing sum is a
+  permanent of the reflected kernel and carries no sign in general; the *Wick* route therefore
+  cannot be iterated. The all-degree mechanism is the kernel factorization of the free state.
+* **The kernel form.** With `v₊ k = variance m₀ (true, k)` and `v₋ k = variance m₀ (false, k)`,
+  the C1 covariance in the slice coordinates `x₀ = (y₊ − y₋)/√2`, `x₁ = (y₊ + y₋)/√2` is
+  `[[A, B], [B, A]]` with `A k = (v₊ k + v₋ k)/2` and `B k = (v₊ k − v₋ k)/2 ≥ 0`
+  (`variance_symm_ge_antisymm`). It is exactly the covariance of the shared-shift state
+  `x₀ = T + X`, `x₁ = T + Y` with `T, X, Y` independent and `Var T k = B k`, `Var X k =
+  Var Y k = v₋ k`; `shiftVariance`, `noiseVariance`, `shiftLaw`, `noiseLaw`, `kernelMap`,
+  `kernelLaw` write it down, `kernelLaw_isProbability` proves it is normalized, and
+  `sliceVariance_eq` records `B k + v₋ k = A k`.
+* **The lift.** `kernelLaw_reflectionPositive` proves, for **every bounded measurable**
+  cylinder observable `F` of one half, `0 ≤ ∫ z, F z.2 * F z.1 ∂(kernelLaw m₀)`. Conditioning
+  on the shared shift makes the halves independent copies of `T + X`, so the OS form is the
+  boundary average of `(∫ F (t + x) ∂γ)²`: one square, no degree restriction.
+* **Polynomial cylinders.** `kernelLaw_reflectionPositive_of_integrable` replaces boundedness
+  by integrability of the OS integrand, which is the form an unbounded polynomial takes:
+  `P (T + X) * P (T + Y)` is a polynomial in Gaussian variables. Polynomials are therefore
+  covered by the same inequality, with the polynomial-times-Gaussian moment input supplied as
+  the hypothesis rather than recomputed.
+* **The slice bridge.** `timeZero`, `timeOne` express the slices as functions of a Mehler
+  configuration and `timeZero_reflect`/`timeOne_reflect` prove that the Mehler reflection
+  swaps them, so the kernel state is the slice-coordinate form of the C1 covariance.
+
+Boundary of the lift: the identification with the Mehler law is at the level of the
+**covariance** (same two-point function, hence the same free `C₀`); equality of the two
+Gaussian laws is not formalized, and the unconditional theorem is the bounded-observable one,
+with polynomials entering through the integrability variant. The transfer operator is the
+mixture average over the boundary law, not an interacting dynamics.
+
 ### C2 — construct the regulated interacting state and its Euclidean dictionary
 
 At fixed `a,L`, close/select `h_sigma` and its outer lift on the specified common core.
@@ -248,6 +374,437 @@ hierarchy and its explicitly proved positivity axioms.
 **Acceptance:** nonzero separated correlations with nontrivial time dependence, RP on the
 physical positive-time algebra and the regulator-level moment/observable bridge. Independent
 half-space replicas with identically zero connected cross correlations do not pass this gate.
+
+**Landed 2026-11-15, first slice: the moment hierarchy at the regulator.**
+`BookProof/OSReconstruction/EuclideanMomentHierarchy.lean`. No `sorry`; axiom footprint
+`{propext, Classical.choice, Quot.sound}` only (`Work/EuclideanMomentAudit.lean`).
+
+* **Euclidean evolution.** `euclidEvol K t = e^{-tK}` for a **bounded** generator `K` on a
+  complete complex Hilbert space, with `euclidEvol_zero` and the semigroup law
+  `euclidEvol_add` (exponentials of commuting multiples of one generator), plus
+  `commute_euclidEvol`.
+* **Words and moments.** `euclidWord K A word` is the ordered product
+  `A e^{-Δ₁K} A₁ ⋯ e^{-ΔₙK} Aₙ`, and `euclidMoment K Ω A word = ⟨Ω, (that product) Ω⟩`.
+  `euclidWord_append` gives the **extension convention**: splitting a word at a gap composes
+  the two operator products. `euclidMoment_nil` and `euclidMoment_one_nil` give the empty
+  word and the normalization `⟨Ω, Ω⟩ = 1` of a unit reference vector.
+* **Two-point positivity at coincident times.** `euclidMoment_zero_adjoint` proves
+  `⟨Ω, A† A Ω⟩ = ‖A Ω‖²`, hence `euclidMoment_zero_adjoint_re_nonneg`: the regulator-level
+  square the separated-time half-space form has to generalize.
+* **Nonzero, time-dependent correlation.** The one-mode free regulator `scalarK m = m • 1`
+  has `euclidMoment_scalarK`: `⟨1, e^{-tK} 1⟩ = e^{-tm}`; `euclidMoment_scalarK_re_pos` makes
+  it strictly positive for every `t`, and `scalarMoment_ne_one` proves the time‑`1` and
+  time‑`0` moments differ for `m ≠ 0`. That is the C2 acceptance's non‑triviality condition at
+  the free regulator level.
+
+Boundary of this slice: `K` is bounded, so this is the finite‑mode regulator with every
+moment a finite scalar (domain and integrability hold by construction); the unbounded
+`h_sigma` closure and its selection are not built. Half-space OS positivity at the
+**interacting** regulator, the configuration/field-law representation, and the
+positivity-preserving semigroup with ground function are not constructed: moments of a
+positive `K` are not a classical path measure, and the scalar free moment is not evidence
+that the interaction survives cutoff removal.
+
+**Landed 2026-11-15, second slice: separated-time two-point functions and their
+reflection positivity at the regulator.** Same module, same audit; axiom footprint
+unchanged (`Work/EuclideanMomentAudit.lean` now covers 31 declarations).
+
+* **Separated-time two-point functions.** `twoPoint K Ω A B h = ⟨Ω, A e^{-hK} B Ω⟩` — `A`
+  inserted at time `0`, `B` at the later time `h`; `twoPoint_eq` unfolds it,
+  `twoPoint_zero` is the coincident-time value, and `twoPoint_adjoint_zero`
+  (`⟨Ω, A† A Ω⟩ = ‖A Ω‖²`) is the square at zero separation.
+* **The reflected (OS) form.** For a finite family of insertions `(sᵢ, Aᵢ)` with
+  `sᵢ ≥ 0`, time reflection sends `Aᵢ` at `+sᵢ` to `Aᵢ†` at `−sᵢ`; the reflected form is
+  `reflectedForm K Ω f = Σᵢ Σⱼ ⟨Aᵢ Ω, e^{-(sᵢ+sⱼ)K} Aⱼ Ω⟩`. Its entries are exactly the
+  separated-time two-point functions (`euclidMoment_adjoint_pair`,
+  `euclidMoment_adjoint_eq_inner`).
+* **Reflection positivity.** For a **self-adjoint** generator the evolution `e^{-sK}` is
+  self-adjoint (`euclidEvol_isSelfAdjoint`), so `reflectedForm_eq_inner` collapses the
+  double sum to `‖Σᵢ e^{-sᵢK}(Aᵢ Ω)‖²`, all degrees at once, and `reflectedForm_re_nonneg`
+  gives nonnegativity. The explicit two-insertion statement is
+  `twoPoint_reflected_eq_normSq` / `twoPoint_reflected_re_nonneg`: the four-term form is the
+  squared norm of `e^{-sK}(A Ω) + e^{-tK}(B Ω)`. `reflectedForm_scalarK_re_nonneg` is the
+  free-regulator instance.
+* **Calibration against C1** (`BookProof/OSReconstruction/EuclideanMehlerCalibration.lean`).
+  The C1 Mehler slice covariance is `C = [[A,B],[B,A]]` with `A = (v₊+v₋)/2`
+  (`sliceDiagonal`) and `B = (v₊−v₋)/2` (`sliceCross`); `sliceCross_eq_shiftVariance` and
+  `sliceDiagonal_eq_shiftVariance_add_noiseVariance` tie it to the boundary-conditioned
+  kernel, and `sliceCross_pos` / `sliceCross_lt_sliceDiagonal` show `B/A ∈ (0,1)`. In the
+  state `Ω = √A` the free one-mode regulator has `⟨Ω, e^{-hK} Ω⟩ = A e^{-hm}`
+  (`euclidMoment_scalarK_sqrt`), so `free_regulator_reproduces_slice_covariance` produces a
+  mass `m = −log(B/A) ≥ 0` for which the zero-separation moment is `A` and the unit-separation
+  moment is `B`: **the C1 slice covariance is exactly a free-regulator two-point function**.
+  `free_regulator_twoPoint_reflected_re_nonneg` is reflection positivity at that calibration.
+
+Boundary of this second slice: the calibration is a statement about the **two-point
+function** at one mode and unit separation, not equality of laws — the scalar regulator's
+moments are not the Mehler path measure, and no field law or transfer operator is
+identified. The mass is the free mass that reproduces the covariance ratio `B/A`, not the
+physical cutoff mass. Self-adjointness of the generator is used for RP; positivity of the
+diagonal moment `⟨A† e^{-hK} A⟩` at separated times is **not** claimed (it needs a positive
+evolution, i.e. a spectral hypothesis, which this slice does not establish). Reflection
+positivity here is the regulator statement `⟨θF, F⟩ = ‖·‖²`; the interacting half-space
+OS inequality remains open.
+
+**Landed 2026-11-15, third slice: the reflected form as a positive semidefinite form.**
+Same module, same audit; axiom footprint unchanged (42 declarations now audited). This is the
+first reconstruction step at the regulator: RP already *is* an inner product, so no measure
+theory is needed to see that the positive-time pair form is well defined.
+
+* **The reflected pairing.** `reflectedPair K Ω f g = Σᵢ Σⱼ ⟨Aᵢ Ω, e^{-(sᵢ+sⱼ)K} Bⱼ Ω⟩` for
+two finite families, with the same index type or different ones; `reflectedPair_self` recovers
+the reflected form on the diagonal, and `reflectedPair_eq_inner` identifies the pairing with
+`⟪reflectedVector f, reflectedVector g⟫` (self-adjoint `K`). `reflectedPair_conj_swap` is
+conjugate symmetry: `reflectedPair g f = conj (reflectedPair f g)`.
+* **Null space.** `reflectedForm_re_eq_normSq` gives `(reflectedForm f).re = ‖reflectedVector f‖²`,
+so `reflectedForm_eq_zero_iff` shows a family is null exactly when its reflected vector
+vanishes, and `reflectedPair_eq_zero_of_null` shows null families pair to zero with everything:
+the pairing descends to the quotient by null vectors, which is the reconstructed Hilbert space's
+first well-definedness obligation at the regulator.
+* **Cauchy–Schwarz.** `reflectedPair_cauchy_schwarz`: `‖reflectedPair f g‖ ≤ √(reflectedForm f).re · √(reflectedForm g).re`.
+The distinguished corollary is `twoPoint_cauchy_schwarz`: for a self-adjoint generator
+`‖⟨A† e^{-(s+t)K} B⟩‖² ≤ ⟨A† e^{-2sK} A⟩.re · ⟨B† e^{-2tK} B⟩.re`, i.e. the two-by-two reflected
+matrix of a pair of insertions is positive semidefinite — the standard OS bound on the
+separated-time two-point function, obtained without any spectral or positivity-of-evolution
+hypothesis beyond self-adjointness.
+
+Boundary of this third slice: this is the pairing of the **regulator**, built from bounded
+observables and bounded `K`; the quotient space is constructed only as a set of null classes
+(no completion, no topology, no measure), and Cauchy–Schwarz is proved through the explicit
+norm identity rather than by abstract form theory. Everything stated is about the reflected
+pairing of finitely supported families; the interacting half-space inequality, the
+reconstruction theorem, and the field law remain open.
+
+**Landed 2026-11-15, fourth slice: the reconstructed pre-Hilbert space at the regulator.**
+Same module; axiom footprint unchanged (55 declarations now audited). The object built is
+the regulator-level reconstruction itself: the quotient of families by null families carries
+a genuine inner product, realized isometrically inside the regulator Hilbert space.
+
+* **The reconstruction map.** Separating the insertion times from the operators,
+  `familyVector K Ω s A = Σᵢ e^{-sᵢK}(Aᵢ Ω)` is additive (`familyVector_add`) and
+  complex-homogeneous (`familyVector_smul`) in the operators, so it is the underlying map of
+  a complex-linear map `familyVectorLM`. The reflected pairing is then the ambient inner
+  product of images, `familyPair K Ω s A t B = ⟪familyVector K Ω s A, familyVector K Ω t B⟫`,
+  with `familyForm` its diagonal; `familyPair_eq_reflectedPair` proves this is the same
+  pairing as the section 6 double sum over separated-time two-point functions.
+* **The inner-product axioms on classes.** Additivity in each family
+  (`familyPair_add_left`/`familyPair_add_right`), `familyForm_eq_normSq`,
+  `familyForm_re_nonneg`, positive definiteness modulo nulls (`familyForm_eq_zero_iff`),
+  `familyPair_eq_zero_of_null`, and `familyPair_congr_left`: the pairing is a function of the
+  class of the reflected vector. `familyForm_sub_re_eq_dist_sq` identifies the class distance
+  with the ambient distance of reflected vectors, and `familyPair_cauchy_schwarz` is
+  Cauchy–Schwarz for the class pairing.
+* **The capstone.** `reflected_reconstruction` bundles these: the pairing is the inner
+  product of the images of a linear map, that map's kernel is exactly the null families, the
+  diagonal is nonnegative, and Cauchy–Schwarz holds. Completing the range therefore yields
+  the reconstructed Hilbert space, and the quotient is a pre-Hilbert space isometric to it.
+
+Boundary of this fourth slice: **pre-Hilbert, not Hilbert.** The quotient is realized as a
+subspace of the regulator space rather than as its own type; no completion, no topology on
+classes, no cyclic-vector or time-translation action on the reconstructed space is built.
+The inner product is the ambient one, so the result is honest but structural — it exhibits
+what RP already delivers at the regulator and does not address the interacting half-space
+inequality, the OS reconstruction theorem, or any field law.
+
+**Landed 2026-11-15, fifth slice: the coarse density of a block step (C3a, first packet).**
+New module `BookProof/OSReconstruction/GaussianBlockCoarseDensity.lean`; axiom footprint
+unchanged (76 declarations now audited, all `propext`/`Classical.choice`/`Quot.sound`). The
+plan's density warning is now a theorem instead of a caution: the coarse density of `|Psi|²`
+is `E[|Psi|² | G]`, and it is not `|E[Psi | G]|²`.
+
+* **The reference system.** Two independent unit Gaussians, one coordinate per variable: the
+  first is the block, the second the exterior field. Coarse graining is the partial integral
+  `blockIntegral f y = ∫ x, f (x, y) ∂gamma`, and `integral_blockIntegral` is the tower
+  identity `∫ f ∂(gamma ⊗ gamma) = ∫ (blockIntegral f) ∂gamma` — integrating the coarse
+  density over the exterior fields recovers the joint integral.
+* **The step as a map.** `blockIntegral_add`, `blockIntegral_nonneg`, `blockIntegral_const`,
+  `blockIntegral_exterior`: additive on integrable slices, pointwise nonnegative, normalised at
+  constants, and fixing observables of the exterior field. `blockIntegral_mul_exterior` is the
+  characterising identity — pairing `blockIntegral f` against an exterior test function
+  reproduces the joint integral of `f` times it — which is what makes the partial integral the
+  conditional expectation, with no sigma-field ever chosen.
+* **The two densities.** For the cylinder observable `Psi_c (x, y) = x + c y`,
+  `blockIntegral_blockField` gives the conditional mean `c y` and
+  `blockIntegral_blockField_sq` gives the coarse density `1 + c² y²`.
+  `coarseDensity_eq_naiveDensity_add` identifies the gap as the conditional variance `1`, and
+  `coarseDensity_ne_naiveDensity` shows the prescriptions genuinely differ (`1` versus `0` at
+  `y = 0`). The totals separate too: `integral_naiveDensity` is `c²`, `integral_blockField_sq`
+  is `1 + c²`, so `variance_decomposition` reads `∫ |Psi|² = ∫ naiveDensity + 1` and
+  `integral_coarseDensity_eq_integral_blockField_sq` confirms the coarse density reproduces the
+  mean of `|Psi|²` while the naive one cannot.
+
+Boundary of this fifth slice: **one block, real fields, no RG map.** The system is two real
+coordinates with a Gaussian reference law; no scale iteration, measure-level pushforward,
+gauge transport, constrained covariance, Haar/coarea/Faddeev–Popov factor or boundary
+condition is represented. The conditional expectation is the characterising identity on
+cylinder test functions, not a `condExp` construction, and the coarse-versus-naive theorem is
+a statement about this one Gaussian system, not a lower bound for interacting or gauge
+theories. C3b (small fields), C3c (large fields) and C3d (running parameters) remain open, as
+do the interacting half-space inequality, the OS reconstruction theorem and any field law.
+
+**Landed 2026-11-16, sixth slice: the step iterated twice, and the C3b packet it supports.**
+Same module `BookProof/OSReconstruction/GaussianBlockCoarseDensity.lean`; axiom footprint
+grown from 76 to 96 audited declarations, all `propext`/`Classical.choice`/`Quot.sound`. The
+step of the fifth slice is now a map that can be applied twice, and the small-field packet is
+proved for it instead of promised.
+
+* **The chain.** A three-coordinate reference law `blockChainLaw = (gamma ⊗ gamma) ⊗ gamma`,
+  an inner block, a shell and the exterior field. `blockStep f z y = ∫ x, f (x, z, y)` is the
+  fifth slice's partial integral, and `blockChainDensity f y = ∫ z, blockStep f z y` applies it
+  to the shell, so the second step is literally the same map one scale down
+  (`blockChainDensity_eq_iterated`). `integral_blockChainDensity` is the tower identity for the
+  composition, and `blockChainDensity_const`/`_nonneg`/`_add`/`_exterior` re-establish the
+  positive-unital-fixing-the-exterior structure for the composed map.
+* **The cylinder field.** For `Psi_{c,d}(x, z, y) = x + c z + d y`,
+  `blockStep_blockChainField` gives `c z + d y` after the first step and
+  `blockChainDensity_blockChainField` gives `d y` after the second: the interior coupling `c`
+  is invisible at the coarse scale (`blockChainDensity_blockChainField_independent`), which is
+  the background-stability statement, and `blockChainDensity_blockChainField_sq` gives the
+  density `1 + c² + d² y²`.
+* **C3b on this system.** The accumulated covariance is `1 + c²`, exactly and uniformly
+  (`blockChainCovariance_eq`), independent of the exterior background
+  (`blockChainCovariance_independent_of_background`) and bounded between `1` and `2` under the
+  small-field hypothesis `|c| ≤ 1` (`blockChainCovariance_small_field`): an explicit-constant
+  local covariance bound, scale-uniform in the only sense available here. The activity norm is
+  defined rather than assumed (`blockActivityNorm`, `blockChainActivityNorm`) and a coarse step
+  contracts it: `integral_abs_partialIntegral_le` for a general block measure,
+  `integral_abs_blockIntegral_le` for one step, `integral_abs_blockChainDensity_le` for the
+  chain.
+
+Boundary of this sixth slice: **two steps, still not an RG map.** The chain iterates the
+operation but not the scale — every coordinate is a fresh independent Gaussian, so no
+rescaling, translation, renormalisation or measure pushforward happens between the steps, and
+no lattice or gauge structure is present. The C3b claims are correspondingly narrow: the
+covariance bound is an identity with an explicit constant rather than an elliptic, derivative
+or Hessian estimate for an interacting measure; the activity estimate is L¹ contraction, not a
+polymer expansion with a summable activity ledger and localisation; no background stability for
+a non-Gaussian law, no large-field complement (C3c), no running coupling trajectory (C3d) and
+no observable limit estimate (C3e) is proved. The interacting half-space inequality, the OS
+reconstruction theorem and any field law also remain open.
+
+**Landed 2026-11-16, seventh slice: the totals and the large-field complement (C3c at reference
+scale).** Same module; 96 → 103 audited declarations, all standard axioms. C3b bounds the
+covariance where the *coupling* is small; this slice closes the bookkeeping of the chain and
+disposes of the opposite regime, where the *background field* is large.
+
+* **The totals.** `integral_blockChainDensity_sq` gives `∫ coarse = 1 + c² + d²` and
+  `integral_blockNaiveChainDensity` gives `∫ naive = d²`, so
+  `integral_blockChainDensity_eq_integral_naive_add` states `∫ coarse = ∫ naive + (1 + c²)`:
+  the total excess is exactly the constant that bounds the covariance pointwise.
+* **Where the naive error lives.** `blockNaiveChainDensity_zero_background` and
+  `blockChainDensity_sq_zero_background`: at zero background the naive density is `0` while the
+  coarse density is `1 + c²`. The naive prescription is therefore *most* wrong exactly where the
+  small-field packet applies, which is why the complement must be a relative statement.
+* **The complement.** `blockChainCovariance_le_coupling_sq`: `|c| ≤ M ⇒ cov ≤ 1 + M²` — quadratic
+  degradation in field strength, no exponential growth in the coupling.
+  `blockChainCovariance_le_mul_density`: if `√(2/ε) ≤ |d y|` and `|c| ≤ 1` then
+  `cov ≤ ε · coarse density`, so for `ε = 1`, `|d y| ≥ √2`, the accumulated variance is at most
+  half of the density it corrects. Large fields are easy because the covariance is a fixed
+  constant, not a field-dependent fluctuation covariance.
+
+Boundary of this seventh slice: **large fields are easy only because the reference covariance is
+constant.** `blockChainCovariance_le_mul_density` does not bound a fluctuation covariance, does
+not control a bad-block region or its entropy, and proves no summable tail — C3c in the plan's
+sense (the complement of an *interacting* small-field region with a summable tail after
+normalisation and insertions) is untouched. `blockChainCovariance_le_coupling_sq` is a quadratic
+bound in the coupling, not a large-field expansion, and the small-field packet it complements
+is still an exact identity for two steps of a reference Gaussian. Arbitrarily many UV scales
+(C3d) and the observable limit estimate (C3e) remain open, as do the interacting half-space
+inequality, the OS reconstruction theorem and any field law. The most valuable next item on this
+thread is not another identity of the same system but the scale-indexed version: an `n`-step
+chain with covariance `∑_{j<n} c^{2j}` and an `n`-uniform bound.
+
+**Landed 2026-11-16, eighth slice: the step iterated through arbitrarily many scales (C3d, first
+packet).** New module `BookProof/OSReconstruction/GaussianChainScales.lean`, importing the
+coarse-density module; 103 → 118 audited declarations of this thread, all standard axioms. The
+number of steps is now a parameter, and the C3d requirement is proved in the only form this
+reference system supports: the local covariance bound does **not** degrade with the number of
+scales.
+
+* **Scale-indexed data.** `shellLaw n = gamma^{⊗ n}` on `Fin n → ℝ`; `shellDensity n f y` is the
+  `n`-fold partial integral (first `n` coordinates out, last one held at `y`); `streamField c d n`
+  obeys `Psi_n(z, g) = z + c * Psi_{n-1}(g)` with exterior weight `c^n d` — the geometric weights
+  of a rescaling by `c` per scale, i.e. the coupling trajectory `d ↦ c d`.
+* **The density identity.** `shellDensity_quadratic`: for every `n`, a quadratic functional of the
+  field has coarse density the same functional at the *running* mean `c^n d y` with `K_n` in place
+  of the one-step variance. Hence `shellDensity_streamField` (running mean `c^n d y`),
+  `shellDensity_streamField_sq`, and `shellDensity_streamField_covariance`: the covariance after
+  `n` steps is `K_n`, independent of the background field and of its coupling.
+* **The covariance recursion and the `n`-uniform bound.** `streamCovariance_succ`:
+  `K_{n+1} = 1 + c² K_n` — one unit per integrated scale; `streamCovariance_closed_form`:
+  `K_n = ∑_{j<n} c^{2j}`; `streamCovariance_le_card`: `c² ≤ 1 ⇒ K_n ≤ n`; and
+  `streamCovariance_le_inv`: `c² < 1 ⇒ K_n ≤ 1/(1 − c²)` **uniformly in `n`**. The total after
+  `n` scales is `integral_shellDensity_streamField_sq`: `K_n + c^{2n} d²`.
+* **The measure-level step.** `integral_shellLaw_cons`: the reference law of `n + 2` coordinates
+  splits as `blockUnit ⊗ shellLaw (n + 1)`, so each step of the density recursion is a genuine
+  partial integral over the reference law at every scale, not only a formal iteration.
+* **The fixed point.** `K ↦ 1 + c² K` has the fixed point `K* = 1/(1 − c²)`, and the error is
+  exact: `streamCovariance_inv_sub` gives `K* − K_n = (c²)^n/(1 − c²)`; hence
+  `streamCovariance_lt_inv` (`c ≠ 0 ⇒ K_n < K*`) and `tendsto_streamCovariance`
+  (`c² < 1 ⇒ K_n → K*`). `tendsto_integral_shellDensity_streamField_sq` carries the limit over
+  to the total `K_n + c^{2n} d²` at fixed background. The `n`-uniform bound is thus the shadow of
+  a convergent recursion, and the domain is preserved *because* the trajectory converges inside
+  it.
+* **The large-field tail at every scale.** C3c asks for control of the complement; at the
+  reference scale that is Chebyshev inside the iterated integral. `shellDensity_congr` and
+  `shellDensity_nonneg` supply the structural facts, and
+  `shellDensity_affine_field_le` proves the induction: for any `a, b`,
+  `P{M ≤ |a·(field − running mean) + b|} ≤ (a² K_n + b²)/M²`. The step multiplies `a` by `c` and
+  adds the unit variance of the new coordinate, which is precisely `K_{n+1} = 1 + c² K_n` — the
+  tail recursion *is* the covariance recursion. Hence `shellTail_le`: `P{M ≤ |field − mean|} ≤
+  K_n/M²`, uniformly in `n` for `c² < 1`.
+
+Boundary of this eighth slice: **a weight, not a renormalisation.** `streamField` multiplies by
+`c` and `d ↦ c d` is a definition; the law remains a product of fresh independent Gaussians, so
+nothing is rescaled, blocked or pushed forward and there is no effective action, counterterm,
+marginal/irrelevant direction, volume or separation dependence, and no logarithmic running. The
+`n`-uniformity — and its sharp form, geometric convergence to `K*` — is exactly what the
+triviality of the reference recursion buys, and the bound degenerates as `c² → 1`, so it says
+nothing about a critical point: the fixed point that is reached is that of `K ↦ 1 + c² K`, a
+geometric series, not the critical fixed point of an interacting flow. One gap is closed and one
+remains: the tower identity is now proved at every scale (the next entry), but only for bounded
+observables, so the moment statements of this slice are still read as iterated integrals; and the
+tail bound `shellTail_le` is Chebyshev on a second moment: it is a moment estimate with no
+bad-block entropy, no polymer
+expansion and no small-field/large-field decomposition of an interacting weight, and it carries no
+gauge chart, volume or insertion dependence. C3e and the interacting C3a–C3d packets remain open,
+as do the interacting half-space inequality, the OS reconstruction theorem and any field law.
+
+**Landed 2026-11-16, ninth slice: the tower identity at every scale (C3d, measure-level
+coherence).** The gap left by the previous two slices was the composition of the recursion: the
+density is the iterated partial integral, and only the two-step tower
+(`integral_blockChainDensity`) related it to a `shellLaw`-integral. It is now proved at every
+`n`, for measurable **bounded** observables, and the previous slice's diagnosis was too
+pessimistic: no Fubini permutation is needed. Thirteen declarations were added to the audit, all
+on standard axioms.
+
+* **The trick is an indexing choice, not a measure-theoretic one.** Fix the exterior coordinate
+  as the *last* one (`Fin.snoc`) and split the product law at its *first* one: then the
+  recursion's peel and the tower's split act on the same coordinate and compose with no swap.
+  The proof is `shellDensity_eq_integral_snoc`
+  (`shellDensity n f y = ∫ g, f (Fin.snoc g y) ∂shellLaw n`), by induction on `n`; the one `Fin`
+  fact it needs is `fin_cons_snoc` (`cons z (snoc g y) = snoc (cons z g) y`), and the one measure
+  fact is `integral_shellLaw_cons_succ`, the product-law splitting of `integral_shellLaw_cons`
+  with an `m`-dimensional shell, so that it also covers `m = 0`.
+* **The tower.** `integral_shellDensity_eq`: for measurable bounded `f`,
+  `∫ y, shellDensity n f y ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)`. Integrability of the
+  sections — which is what a Fubini proof would have bought, and what blocks the general case —
+  is supplied here by a uniform bound through `Integrable.of_bound` and
+  `abs_shellDensity_le` (`|f| ≤ B ⇒ |shellDensity n f y| ≤ B`), plus the measurability facts
+  `measurable_fin_cons`, `measurable_fin_snoc`, `measurable_fin_snoc_prod`,
+  `measurable_comp_fin_cons`, `measurable_comp_fin_snoc`.
+* **What that buys.** The tail is no longer a formal iterated integral: `shellTail_eq_integral_snoc`
+  writes `shellTail n c d y M` as the reference-law expectation of its indicator over the `n`
+  inner coordinates at fixed exterior value, using `measurable_streamField`. The indicator is
+  bounded, so the tower of this slice covers exactly the large-field object of the previous one.
+
+Boundary of this ninth slice: **coherence of the definitions, not an estimate, and bounded
+observables only.** The tower says that integrating one observable over a product of independent
+Gaussians can be done inner-first or outer-first; it contains no blocks, pushforwards, effective
+action or interacting weight, and it does not by itself bound anything. The polynomial field
+moments (`integral_shellDensity_streamField_sq`, the fixed-point limit, `shellTail_le`) are *not*
+covered: extending the tower to them requires `L¹` section hypotheses in place of a uniform bound,
+or a joint-integrability development for polynomial observables, and until then those statements
+remain statements about the iterated integral. The natural next step on this thread is precisely
+that extension — the moment observables are the ones the plan's estimates are about, and they are
+the only reason the boundedness hypothesis is there.
+
+**Landed 2026-11-16, tenth slice: the law-level tail and tightness (C3e, first packet).** The
+tail of the previous slices was a *density* at fixed exterior value, which is why it could not be
+compared with a probability. Applying the tower to its indicator moves it to the level of the law,
+and the estimate becomes a statement about a measure of a set. Sixteen declarations were added to
+the audit, all on standard axioms.
+
+* **The substitution.** `shellDensity_subst_last`: substituting the vector's last coordinate for
+  the exterior parameter does not change the iterated partial integral, because the only vector
+  the recursion finally applies the observable to already carries the exterior value in its last
+  slot. That makes `renormField c d n p = streamField c d n p − c^n d · p(last)` the honest
+  renormalised observable and `shellTail_eq_density_renorm` the identification of the density-
+  level tail with the density of `renormField`'s large set.
+* **The law-level tail.** `shellTailLaw n c d M` is `(shellLaw (n+1)).real {p | M ≤ |renormField
+  p|}`, with `integral_shellTail_eq` (the tower at the indicator) and `shellTailLaw_eq_integral`
+  (`integral_indicator_one`) tying it to the density-level tail; `shellTailLaw_nonneg` and
+  `shellTailLaw_le_one` say it is in `[0, 1]`.
+* **The estimate.** `shellTailLaw_le`: `P{M ≤ |renorm|} ≤ K_n/M²`; `shellTailLaw_le_inv`: for
+  `c² < 1`, `≤ 1/((1 − c²)M²)`, *uniformly in `n`*. `exists_shellTailLaw_le` is the consequence
+  C3e asks for first: for every `ε > 0` there is one threshold `M > 0` with
+  `shellTailLaw n c d M ≤ ε` at every number of scales — **tightness** of the laws of the
+  renormalised observables.
+
+Boundary of this tenth slice: **tightness of one scalar sequence, not a limit theorem.**
+`exists_shellTailLaw_le` supplies the analytic hypothesis of Prokhorov's theorem on the line;
+Prokhorov's theorem itself, a limiting law, a summable Cauchy estimate for correlations and any
+multi-point function remain open, so C3e is started and not reached. The renormalisation is the
+subtraction of the damped background `c^n d` read off the exterior coordinate — a subtraction
+chosen to make the second moment scale-uniform, not the subtraction of an interacting divergence,
+and no observable is shown to converge. The interacting C3a–C3d packets, the half-space
+inequality, the OS reconstruction theorem and any field law are untouched.
+
+
+**Landed 2026-11-16, eleventh slice: the whole affine family, uniformly (C3e, second packet).**
+Tightness for one scalar sequence is weaker than it looks: the observable a multiscale argument
+actually thresholds is rarely the field itself but a *centred* version of it, or a difference of
+two observables, and both are affine images. Seventeen declarations were added to the audit, all on
+standard axioms, generalising the tenth slice from the single observable `renormField` to every
+affine image of it.
+
+* **The affine large set and its tail.** `shellAffineLargeSet c d n M a b = {p | M ≤ |a·renormField
+  p + b|}` with `shellAffineTailLaw` its `shellLaw (n+1)`-measure. The tower applies verbatim —
+  the indicator is bounded — giving `integral_shellAffineTail_eq` and
+  `shellAffineTailLaw_eq_integral`.
+* **The density input is already there.** `shellAffineTail_eq` says the iterated tail of an affine
+  image *is* the density that `shellDensity_affine_field_le` (proved in the tail slice, for
+  arbitrary `a`, `b`) bounds, so `shellAffineTail_le` costs nothing new. This is the payoff of
+  having proved Chebyshev for affine thresholds rather than only for the shifted one.
+* **The estimate, uniformly in the scale count.** `shellAffineTailLaw_le`: `≤ (a²K_n + b²)/M²`;
+  `shellAffineTailLaw_le_inv`: for `c² < 1`, `≤ (a²/(1 − c²) + b²)/M²` *uniformly in `n`*;
+  `exists_shellAffineTailLaw_le`: for every `ε > 0` one threshold `M = 2/ε + a²/(1−c²) + b² + 1`
+  works at every scale. `shellAffineTailLaw_one_zero` records that the scalar packet is `a = 1`,
+  `b = 0`, so this is a strict generalisation.
+
+Boundary of this eleventh slice: **the same ceiling as the tenth, at higher generality.** The
+estimate is a probability statement about an indicator of a bounded function; no expectation,
+variance, covariance or correlation of an affine image is computed, because each of those needs the
+`L¹` extension of the tower (section-integrability hypotheses in place of the uniform bound), which
+is still the open step. In particular the `b²` in the numerator is *not* a variance: it is the
+Chebyshev cost of the shift, and no statement is made that the laws of the affine images converge,
+that their means converge, or that any limiting covariance exists. The interacting C3a–C3d packets,
+the half-space inequality, the OS reconstruction theorem and any field law are untouched.
+
+**Landed 2026-11-16, twelfth slice: the `L¹` moment identity (C3e, third packet).** The
+boundedness hypothesis of the tower was never about the field: it was there because the
+per-`y` identity could only be built from integrability of sections. At the level of *totals* the
+obstruction disappears, and with it the gap that kept every expectation out of reach. Sixteen
+declarations were added to the audit, all on standard axioms.
+
+* **The truncation is dominated by the exact value.** `shellDensity_sq_min_le`: the density of the
+  truncation `min (a·S + b)² N` is at most `a²K_n + (a·c^n·d·y + b)²` at *every* scale. The
+  induction needs no monotonicity lemma and no section integrability — the majorant is explicit.
+* **The truncation rises to it.** `tendsto_shellDensity_sq_min`: dominated convergence through the
+  recursion, with that same quadratic as majorant, using the new parameter-measurability lemma
+  `measurable_shellDensity_param` (a jointly measurable family has a density measurable in the
+  parameter) and `measurable_shellDensity` (a bounded observable's density is measurable in `y`,
+  via the tower itself).
+* **The monotone limit.** `truncated_moment_eq` (bounded tower at the truncation),
+  `lintegral_shellLaw_sq` (`∫⁻` equality after `lintegral_iSup`, `iSup_ofReal_min`,
+  `ofReal_iSup_of_tendsto`), hence `integrable_sq_affine` — the square is integrable — and the
+  moment identity `integral_shellLaw_sq`:
+  `∫ (a·S_n + b)² ∂shellLaw(n+1) = a²K_n + (a·c^n·d)² + b²`.
+* **Expectation and variance.** `integral_shellLaw_streamField`: the mean is **zero** (the drift
+  multiplies the exterior coordinate, whose average vanishes; the moment formula at `b = t` and at
+  `b = 0` then forces the cross term to vanish). `integral_shellLaw_centered_sq`: the variance is
+  `K_n + (c^n·d)²`. `variance_shellLaw_le`: for `c² < 1` it is at most `1/(1 − c²) + d²`,
+  *uniformly in `n`*.
+
+Boundary of this twelfth slice: **the totals, not the sections.** What is proved is that the
+law-level integral of a quadratic of the field exists and equals the explicit number; the per-`y`
+identity `shellDensity_eq_integral_snoc` remains a statement about bounded observables, so no
+conditional expectation is constructed and no section-level statement is recovered. The variance is
+that of `streamField`, *not* of the renormalised observable `renormField`: the latter would need the
+cross moment `E[S · p_last]`, which is the first item of the two-point function and is not
+computed. There is no Gaussianity statement (the second moment is not a distribution), no
+correlation, no Prokhorov limit and no interacting observable; C3a–C3d, the half-space inequality,
+the OS reconstruction theorem and any field law are untouched.
 
 ### C3 — use Bałaban's multiscale method for the physical uniform estimates
 
@@ -2204,3 +2761,69 @@ Ordered by what unblocks the rest; each item names the module it lands in.
    intermediate value.  So item (iii) is blocked on the same operator⇄form bridge as (ii′), and
    `ChapterTempleSeparationBound`'s honest boundary ("the transfer across the strong-resolvent
    limit is not proved") should be read as covering this too.
+
+**Landed 2026-11-16, thirteenth slice: the two-point functions, and the renormalised variance
+(C3f).** The twelfth slice computed the moments of `streamField` but had to say that the variance of
+the *renormalised* observable `renormField = streamField − c^n·d·p_last` was out of reach, because
+it needs the cross moment `E[S · p_last]`. That moment is now computed. Twelve declarations were
+added to the audit; all rest on standard axioms.
+
+* **Coordinates.** `integral_shellLaw_coord` and `integral_shellLaw_coord_sq`: a single coordinate
+  has mean `0` and second moment `1` under the reference law, with `integrable_shellLaw_coord`
+  and `integrable_shellLaw_coord_sq` supplying the integrability. Both come from Mathlib's
+  `integral_comp_eval` (`∫ f (x i) ∂Measure.pi μ = ∫ f ∂μ i`) and the one-dimensional moment
+  `∫ z² ∂blockUnit = 1`.
+* **The cross moment.** `integral_shellLaw_streamField_mul_last`: `E[S_n · p_last] = c^n·d`.
+  Proved by induction on the number of scales, splitting the product law at the first coordinate
+  (`integral_shellLaw_cons_succ`, which is stated for *integrable* functions — this is the Fubini
+  step the density tower deliberately avoided). The newly integrated coordinate `z` multiplies
+  `g_last`, whose mean is zero, so each step only reads off its own drift. Integrability of the
+  product is `integrable_streamField_mul_last`, dominated by `(S² + p_last²)/2`.
+* **Decorrelation.** `integral_shellLaw_renormField_mul_last = 0`: the drift the renormalisation
+  subtracts is *exactly* the field's correlation with the exterior coordinate. Consequently
+  `integral_shellLaw_renormField_sq = K_n` and its mean-subtracted form
+  `integral_shellLaw_renormField_centered_sq = K_n`; with `c² < 1` the variance is at most
+  `1/(1 − c²)` uniformly in `n` (`variance_renormField_le`). `covariance_pair_shellLaw` packages the
+  `2×2` covariance matrix of `(streamField, p_last)` with its diagonal and off-diagonal.
+
+Boundary of this thirteenth slice: **the pair, and only the pair.** The two-point function is
+computed for the field against a single coordinate, including the drift coordinate it is
+renormalised against; the interior cross moments `E[p_i·p_j]` for two coordinates, the covariance
+`E[S_n · S_m]` between two different scales, and the four-point function are not computed, so no
+cluster expansion, no second-moment matrix in the multi-scale sense and no Gaussianity statement
+follows. The renormalisation is still the subtraction of the damped background read off the
+exterior coordinate, not a renormalisation of an interacting observable. No conditional
+expectation is constructed (the per-`y` identity stays bounded-only), and C3a–C3d, the half-space
+inequality, the OS reconstruction theorem and any field law are untouched.
+
+**Landed 2026-11-16, fourteenth slice: the interior cross moments and the second-moment calculus
+(C3g).** The thirteenth slice computed the two-point function of the field against a single
+coordinate, but only for the exterior one, and said so. The interior pairings are now proved and the
+whole second-moment calculus of linear statistics follows. Eight declarations were added to the
+audit; all rest on standard axioms.
+
+* **The interior cross moments.** `integral_shellLaw_coord_mul_coord`: `E[p_i·p_j] = 1` when
+  `i = j` and `0` otherwise, with `integrable_shellLaw_coord_mul` supplying integrability by
+  domination with `(p_i² + p_j²)/2`. The proof splits the product law at the first coordinate and
+  runs four explicit cases through `Fin.cases`: the newest coordinate multiplies itself (one unit of
+  variance), a distinct new coordinate (zero mean), or two older coordinates (the induction
+  hypothesis).
+* **The coefficient vector.** `streamCoeff c d n` is `c^j` on the interior coordinates and `c^n·d`
+  on the exterior one, and `streamField_eq_sum_coeff` proves the field *is* that linear statistic.
+  The induction rewrites the recursion as `coeff_{n+1}(j.succ) = c · coeff_n(j)` plus
+  `coeff_{n+1}(0) = 1`.
+* **The kernel.** `integral_shellLaw_linear_mul_coord` (a statistic against a coordinate),
+  `integral_shellLaw_linear_mul_linear` (two statistics against each other: the inner product of
+  their coefficient vectors) and `integral_shellLaw_streamField_mul_linear` (the field against an
+  arbitrary statistic). Every two-point function of a linear statistic — the field, the
+  renormalised field, affine images — is now an inner product rather than an estimate.
+
+Boundary of this fourteenth slice: **still no three- or four-point function and no cross-scale
+pairing.** The kernel is a bilinear form on coefficient vectors, so it says nothing about
+`E[p_i·p_j·p_k·p_l]`, which needs the pairings (i,j)(k,l), (i,k)(j,l), (i,l)(j,k) and hence a
+four-index induction this slice does not do; it also says nothing about `E[S_n · S_m]` for
+`m ≠ n`, because the smaller field must first be transported into the `n`-scale space along
+`Fin.castLE` and the resulting inner product is a different sum. Gaussianity is still not proved —
+a complete two-point kernel is necessary but not sufficient for it — and there is no conditional
+expectation, no multi-point cluster estimate, and no change to C3a–C3d, the half-space inequality,
+the OS reconstruction theorem or any field law.

@@ -71,6 +71,10 @@ COMPONENT_NAMES = {
     "BookProof.ReflectionPositivity.ChainPartition": "BookProofReflectionPositivity",
     "BookProof.EnergyBand.ChapterEnergyBandDecomposition": "BookProofEnergyBand",
     "BookProof.FieldStrength.ChapterFreeEMField": "BookProofFieldStrength",
+    # The C3 coarse-graining thread of `cftproof.md` (C3a-C3d): the exact block
+    # step, its two-step chain and the scale-indexed chain.  It imports Mathlib
+    # only, so it is a part of its own, not a view of the operator core.
+    "BookProof.OSReconstruction.GaussianBlockCoarseDensity": "BookProofGaussianChain",
     "BookProof.Probability.ChapterFreeFieldBorn": "BookProofFreeFieldBorn",
     "BookProof.GravityAlgebra.ChapterGravityGenInverse": "BookProofGravityAlgebra",
     "BookProof.InducedSystems.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
