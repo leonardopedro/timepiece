@@ -239,6 +239,52 @@ theorem occupation_occ {N : ℕ} (i : Fin N) (S : Finset (Fin N)) :
   by_cases h : i ∈ S <;> by_cases hT : T = S <;>
     simp [h, hT, occ, EuclideanSpace.single_apply]
 
+/-- **Annihilating the mode a state occupies leaves the vacuum.**  The `S = ∅` branch of
+`annih_apply` is the only one that can match a one-mode state. -/
+theorem annih_occ_self {N : ℕ} (j : Fin N) :
+    annih j (occ ({j} : Finset (Fin N))) = occ (∅ : Finset (Fin N)) := by
+  ext S
+  rw [annih_apply]
+  by_cases h : j ∈ S
+  · rw [if_pos h]
+    by_cases hS : S = ∅
+    · subst hS; simp at h
+    · simp [occ, EuclideanSpace.single_apply, hS]
+  · rw [if_neg h]
+    by_cases hS : S = ∅
+    · subst hS; simp [occ, EuclideanSpace.single_apply, jwSign]
+    · have hne : insert j S ≠ ({j} : Finset (Fin N)) := by
+        intro hh
+        refine hS (Finset.eq_empty_iff_forall_notMem.mpr fun x hx => ?_)
+        have hmem : x ∈ ({j} : Finset (Fin N)) := by
+          rw [← hh]
+          exact Finset.mem_insert_of_mem hx
+        rw [Finset.mem_singleton] at hmem
+        exact h (hmem ▸ hx)
+      simp [occ, EuclideanSpace.single_apply, hne, hS]
+
+/-- **Creating on the vacuum fills the mode.** -/
+theorem creat_occ_empty {N : ℕ} (i : Fin N) :
+    creat i (occ (∅ : Finset (Fin N))) = occ ({i} : Finset (Fin N)) := by
+  ext S
+  rw [creat_apply]
+  by_cases h : i ∈ S
+  · rw [if_pos h]
+    by_cases hS : S.erase i = ∅
+    · have hsingle : S = {i} := by
+        rw [← Finset.insert_erase h, hS, Finset.insert_empty]
+      subst hsingle
+      simp [occ, EuclideanSpace.single_apply, jwSign]
+    · have hne : S ≠ ({i} : Finset (Fin N)) := by
+        intro hh
+        exact hS (by rw [hh]; simp)
+      simp [occ, EuclideanSpace.single_apply, hS, hne]
+  · rw [if_neg h]
+    have hne : S ≠ ({i} : Finset (Fin N)) := by
+      intro hh
+      exact h (by rw [hh]; simp)
+    simp [occ, EuclideanSpace.single_apply, hne]
+
 /-- **The ghost number of an occupation state** is the number of occupied ghost modes. -/
 theorem ghostNumber_occ (m : ℕ) (S : Finset (Fin (m + 12))) :
     ghostNumber m (occ S)
@@ -371,6 +417,86 @@ theorem smGhostCharge_nilpotent (m : ℕ) {f3 : Fin 8 → Fin 8 → Fin 8 → �
     smGhostCharge m f3 * smGhostCharge m f3 = 0 :=
   brst_charge_nilpotent (smStruct f3) (ghostCre m) (ghostAnn m) (smGhostCAR m)
     (smStruct_antisymm h3anti) (smStruct_jacobi h3jac)
+
+
+/-! ### Grading: the cubic term raises the ghost number by one -/
+
+/-- **The ghost-number operator and a cubic ghost monomial do not commute.**  The two creation
+factors each raise the ghost number by one and the annihilation factor lowers it by one, so
+`N · c†_a c†_b b_e = c†_a c†_b b_e · N + c†_a c†_b b_e`: the monomial has ghost degree one. -/
+theorem ghostNumber_mul_cubic_monomial (m : ℕ) (a b e : Fin 12) :
+    ghostNumber m * (ghostCre m a * ghostCre m b * ghostAnn m e)
+      = (ghostCre m a * ghostCre m b * ghostAnn m e) * ghostNumber m
+        + (ghostCre m a * ghostCre m b * ghostAnn m e) := by
+  have hC : ∀ a : Fin 12,
+      ghostNumber m * ghostCre m a = ghostCre m a * ghostNumber m + ghostCre m a := by
+    intro a
+    have h := ghostNumber_comm_ghostCre m a
+    rw [sub_eq_iff_eq_add] at h
+    simpa [add_comm] using h
+  have hA : ∀ e : Fin 12,
+      ghostNumber m * ghostAnn m e = ghostAnn m e * ghostNumber m - ghostAnn m e := by
+    intro e
+    have h := ghostNumber_comm_ghostAnn m e
+    rw [sub_eq_iff_eq_add] at h
+    simpa [sub_eq_add_neg, add_comm] using h
+  calc ghostNumber m * (ghostCre m a * ghostCre m b * ghostAnn m e)
+      = (ghostNumber m * ghostCre m a) * (ghostCre m b * ghostAnn m e) := by noncomm_ring
+    _ = (ghostCre m a * ghostNumber m + ghostCre m a)
+          * (ghostCre m b * ghostAnn m e) := by rw [hC a]
+    _ = ghostCre m a * (ghostNumber m * ghostCre m b) * ghostAnn m e
+          + ghostCre m a * ghostCre m b * ghostAnn m e := by noncomm_ring
+    _ = ghostCre m a * (ghostCre m b * ghostNumber m + ghostCre m b) * ghostAnn m e
+          + ghostCre m a * ghostCre m b * ghostAnn m e := by rw [hC b]
+    _ = ghostCre m a * ghostCre m b * (ghostNumber m * ghostAnn m e)
+          + (2 : Module.End ℂ (FermiFock (m + 12)))
+            * (ghostCre m a * ghostCre m b * ghostAnn m e) := by noncomm_ring
+    _ = ghostCre m a * ghostCre m b * (ghostAnn m e * ghostNumber m - ghostAnn m e)
+          + (2 : Module.End ℂ (FermiFock (m + 12)))
+            * (ghostCre m a * ghostCre m b * ghostAnn m e) := by rw [hA e]
+    _ = (ghostCre m a * ghostCre m b * ghostAnn m e) * ghostNumber m
+          + ghostCre m a * ghostCre m b * ghostAnn m e := by noncomm_ring
+
+set_option maxHeartbeats 800000 in
+-- the twelvefold `Fin 8`-sum over `Module.End ℂ (FermiFock _)` exceeds the instance budget
+set_option synthInstance.maxHeartbeats 800000 in
+/-- **The cubic ghost charge raises the ghost number by exactly one**: `[N, Ω₃] = Ω₃`.  Hence
+`Ω₃` maps the ghost-number-`g` subspace into the ghost-number-`g+1` subspace. -/
+theorem ghostNumber_comm_smGhostCharge (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    ghostNumber m * smGhostCharge m f3 - smGhostCharge m f3 * ghostNumber m
+      = smGhostCharge m f3 := by
+  unfold smGhostCharge BookProof.BRSTNilpotent.Q
+  rw [Finset.mul_sum, Finset.sum_mul, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [Finset.mul_sum, Finset.sum_mul, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  rw [Finset.mul_sum, Finset.sum_mul, ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun e _ => ?_
+  rw [mul_smul_comm, smul_mul_assoc, ← smul_sub, ghostNumber_mul_cubic_monomial,
+    add_sub_cancel_left]
+
+set_option maxHeartbeats 800000 in
+-- the same `End`-of-`FermiFock` instance cost, now routed through the commutator
+set_option synthInstance.maxHeartbeats 800000 in
+/-- **The cubic term shifts ghost number by one on eigenvectors.**  If `ψ` has ghost number
+`g`, then `Ω₃ ψ` has ghost number `g + 1`; in particular `Ω₃` is injective on a ghost-number
+subspace only if the image misses it, which is why the cohomology is graded. -/
+theorem ghostNumber_smGhostCharge_eigen (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    (ψ : FermiFock (m + 12)) (g : ℂ) (hψ : ghostNumber m ψ = g • ψ) :
+    ghostNumber m (smGhostCharge m f3 ψ) = (g + 1) • (smGhostCharge m f3 ψ) := by
+  have h2 : ghostNumber m (smGhostCharge m f3 ψ) - smGhostCharge m f3 (ghostNumber m ψ)
+      = smGhostCharge m f3 ψ := by
+    have h := congrArg (fun A : Module.End ℂ (FermiFock (m + 12)) => A ψ)
+      (ghostNumber_comm_smGhostCharge m f3)
+    simpa using h
+  calc ghostNumber m (smGhostCharge m f3 ψ)
+      = (ghostNumber m (smGhostCharge m f3 ψ)
+          - smGhostCharge m f3 (ghostNumber m ψ))
+          + smGhostCharge m f3 (ghostNumber m ψ) := (sub_add_cancel _ _).symm
+    _ = smGhostCharge m f3 ψ + smGhostCharge m f3 (g • ψ) := by rw [h2, hψ]
+    _ = smGhostCharge m f3 ψ + g • smGhostCharge m f3 ψ := by rw [map_smul]
+    _ = (1 + g) • (smGhostCharge m f3 ψ) := by rw [add_smul, one_smul]
+    _ = (g + 1) • (smGhostCharge m f3 ψ) := by rw [add_comm 1 g]
 
 /-! ## 3. The full BRST charge, in the abstract -/
 
@@ -934,9 +1060,9 @@ ghost modes.  Its parity — `U = (-1)^{N_ghost}` — is the fundamental symmetr
 space: an involution, an isometry of the ambient inner product, and self-adjoint, so that
 `kform U x y = ⟪x, U y⟫` is a Krein form.  The charge is *odd* for it
 (`smGhostParity_mul_smBrstCharge`, `U Ω = -Ω U`): the Gauss term carries one ghost field and the
-cubic term three.  That is what lets the sector split of `ChapterSmBrstQuotient` §3 be applied to the
-SM charge, and it is the operator against which the no-ghost sign on `range smPhysProj` is computed
-(`ChapterSmQuartet` §12).
+cubic term three.  That is what lets the sector split of `ChapterSmBrstQuotient` §3 be applied to
+the SM charge, and it is the operator against which the no-ghost sign on `range smPhysProj` is
+computed (`ChapterSmQuartet` §12).
 
 The parity is written in the occupation basis rather than as the product `∏_a (1 - 2 c^a b_a)` so
 that its metric properties (involution, isometry, self-adjointness) are one computation each; the
@@ -1236,5 +1362,503 @@ theorem smGhostParity_mul_smBrstCharge (m : ℕ) (T : Fin 12 → Matrix (Fin m) 
   abel
 
 end
+
+end BookProof.SmBrstGhost
+
+namespace BookProof.SmBrstGhost
+
+open BookProof.SmCar BookProof.BRSTNilpotent
+
+/-! ## 2b. The cubic term on a pure-weak pair of ghosts
+
+The cubic term `Omega_3 = -1/2 f_{abe} c^a c^b b^e` raises the ghost number by one, so it maps
+ghost number two to ghost number three.  The exact computation in
+`scripts/sm-cubic-kernel-basis.py` shows that the kernel there is eleven-dimensional; the
+theorems below supply the part of that statement that is provable without knowing the gluon
+structure constants: every state whose two ghosts are *both weak* is killed.  The reason is
+block-diagonality of the Standard-Model structure constants (a nonzero `smStruct` confines all
+three indices to one simple summand) together with the pigeonhole count in the weak block: after
+the annihilation removes one of the two ghost modes there are only two weak labels left, so the
+two creation indices repeat one of them and `epsZ` vanishes. -/
+
+theorem annih_occ_of_notMem {N : ℕ} {i : Fin N} {S : Finset (Fin N)} (h : i ∉ S) :
+    annih i (occ S) = 0 := by
+  ext T
+  rw [annih_apply]
+  by_cases hT : i ∈ T
+  · simp [hT]
+  · have hne : insert i T ≠ S := fun hh => h (hh ▸ Finset.mem_insert_self i T)
+    simp [hT, occ, EuclideanSpace.single_apply, hne]
+
+theorem creat_occ_of_mem {N : ℕ} {i : Fin N} {S : Finset (Fin N)} (h : i ∈ S) :
+    creat i (occ S) = 0 := by
+  ext T
+  rw [creat_apply]
+  by_cases hT : i ∈ T
+  · have hne : T.erase i ≠ S := fun hh => Finset.notMem_erase i T (hh ▸ h)
+    simp [hT, occ, EuclideanSpace.single_apply, hne]
+  · simp [hT]
+
+/-- Creating on a mode that the remaining state occupies kills the state: the Pauli principle
+applied to the outer creation operator. -/
+theorem creat_creat_occ_of_mem {N : ℕ} {i j : Fin N} {S : Finset (Fin N)} (h : i ∈ S) :
+    creat i (creat j (occ S)) = 0 := by
+  ext T
+  rw [creat_apply]
+  by_cases hT : i ∈ T
+  · rw [if_pos hT, creat_apply]
+    by_cases hJ : j ∈ T.erase i
+    · have hne : (T.erase i).erase j ≠ S := by
+        intro hh
+        have hmem : i ∈ (T.erase i).erase j := hh ▸ h
+        exact Finset.notMem_erase i T (Finset.mem_of_mem_erase hmem)
+      simp [hJ, occ, EuclideanSpace.single_apply, hne]
+    · simp [hJ]
+  · simp [hT]
+
+theorem annih_occ_of_mem {N : ℕ} {i : Fin N} {S : Finset (Fin N)} (h : i ∈ S) :
+    annih i (occ S) = jwSign i (S.erase i) • occ (S.erase i) := by
+  ext T
+  rw [annih_apply, smul_apply_fock]
+  by_cases hT : i ∈ T
+  · have hne : T ≠ S.erase i := fun hh => Finset.notMem_erase i S (hh ▸ hT)
+    simp [hT, occ, EuclideanSpace.single_apply, hne]
+  · by_cases hE : T = S.erase i
+    · subst hE
+      rw [Finset.insert_erase h]
+      simp [occ, EuclideanSpace.single_apply]
+    · have hne : insert i T ≠ S := by
+        intro hh
+        exact hE (by rw [← hh, Finset.erase_insert hT])
+      simp [hT, occ, EuclideanSpace.single_apply, hE, hne]
+
+/-- The three weak generator labels. -/
+def wGhost (k : Fin 3) : Fin 12 := smIdxEquiv.symm (Sum.inr (Sum.inl k))
+
+theorem wGhost_spec (k : Fin 3) : smIdxEquiv (wGhost k) = Sum.inr (Sum.inl k) :=
+  Equiv.apply_symm_apply smIdxEquiv (Sum.inr (Sum.inl k))
+
+theorem wGhost_injective : Function.Injective wGhost := by
+  intro k l h
+  have h' := smIdxEquiv.symm.injective h
+  simpa using h'
+
+/-! ## The structure constants of the weak block -/
+
+theorem su2Struct_self_right (a b : Fin 3) : su2Struct a b a = 0 := by
+  rw [su2Struct]
+  exact_mod_cast (by decide +revert : epsZ a b a = 0)
+
+theorem su2Struct_self_left (a b : Fin 3) : su2Struct a a b = 0 := by
+  rw [su2Struct]
+  exact_mod_cast (by decide +revert : epsZ a a b = 0)
+
+/-- With the annihilation at the first weak label, only the two remaining labels are available. -/
+theorem epsZ_zero_of_pair_left : ∀ ka kb k l : Fin 3, k ≠ l → ka ≠ l → kb ≠ l → ka ≠ kb →
+    epsZ ka kb k = 0 := by decide
+
+theorem su2Struct_zero_of_pair_left {ka kb k l : Fin 3} (hkl : k ≠ l) (h1 : ka ≠ l)
+    (h2 : kb ≠ l) (h3 : ka ≠ kb) : su2Struct ka kb k = 0 := by
+  rw [su2Struct]
+  exact_mod_cast epsZ_zero_of_pair_left ka kb k l hkl h1 h2 h3
+
+/-- With the annihilation at the second weak label, only the two remaining labels are available. -/
+theorem epsZ_zero_of_pair_right : ∀ ka kb k l : Fin 3, k ≠ l → ka ≠ k → kb ≠ k → ka ≠ kb →
+    epsZ ka kb l = 0 := by decide
+
+theorem su2Struct_zero_of_pair_right {ka kb k l : Fin 3} (hkl : k ≠ l) (h1 : ka ≠ k)
+    (h2 : kb ≠ k) (h3 : ka ≠ kb) : su2Struct ka kb l = 0 := by
+  rw [su2Struct]
+  exact_mod_cast epsZ_zero_of_pair_right ka kb k l hkl h1 h2 h3
+
+/-- A `smStruct` with a weak third index kills a first index outside the weak block. -/
+theorem smStruct_eq_zero_of_not_weak_left {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {a b e : Fin 12}
+    {ke : Fin 3} (he : smIdxEquiv e = Sum.inr (Sum.inl ke))
+    (ha : ∀ ka, smIdxEquiv a ≠ Sum.inr (Sum.inl ka)) : smStruct f3 a b e = 0 := by
+  rcases hb : smIdxEquiv b with gb | (kb | ub) <;> rcases hx : smIdxEquiv a with ga | (ka | ua)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · exact absurd hx (ha ka)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · exact absurd hx (ha ka)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · simp only [smStruct, sumStruct, he, hb, hx]
+  · exact absurd hx (ha ka)
+  · simp only [smStruct, sumStruct, he, hb, hx]
+
+/-- A `smStruct` with a weak third index kills a second index outside the weak block. -/
+theorem smStruct_eq_zero_of_not_weak_right {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {a b e : Fin 12}
+    {ke : Fin 3} (he : smIdxEquiv e = Sum.inr (Sum.inl ke))
+    (hb : ∀ kb, smIdxEquiv b ≠ Sum.inr (Sum.inl kb)) : smStruct f3 a b e = 0 := by
+  rcases hx : smIdxEquiv a with ga | (ka | ua) <;> rcases hy : smIdxEquiv b with gb | (kb | ub)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · exact absurd hy (hb kb)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · exact absurd hy (hb kb)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · simp only [smStruct, sumStruct, he, hx, hy]
+  · exact absurd hy (hb kb)
+  · simp only [smStruct, sumStruct, he, hx, hy]
+
+/-! ## The cubic charge on a pure-weak pair of ghosts -/
+
+/-- **The cubic ghost term kills every pure-weak ghost pair.**  A cubic monomial applies two
+creation and one annihilation operator, so `Omega_3` moves ghost number two to ghost number
+three.  On a state whose two ghosts are both weak the only surviving structure constants are
+those of the weak block, and there the third index is forced to repeat one of the two already
+used: at ghost number two the weak sector has only two labels left over, so `epsZ` vanishes. -/
+theorem smGhostCharge_occ_weakPair (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    {k l : Fin 3} (hkl : k ≠ l) :
+    smGhostCharge m f3
+      (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))) = 0 := by
+  classical
+  have hklm : ghostMode m (wGhost k) ≠ ghostMode m (wGhost l) := fun h =>
+    hkl (wGhost_injective (ghostMode_injective m h))
+  have hSk : ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12))).erase
+      (ghostMode m (wGhost k)) = {ghostMode m (wGhost l)} :=
+    Finset.erase_insert (by simpa using hklm)
+  have hSl : ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12))).erase
+      (ghostMode m (wGhost l)) = {ghostMode m (wGhost k)} := by
+    rw [Finset.pair_comm]
+    exact Finset.erase_insert (by simpa using hklm.symm)
+  rw [smGhostCharge, Q]
+  simp only [LinearMap.sum_apply, LinearMap.smul_apply]
+  refine Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun b _ =>
+    Finset.sum_eq_zero fun e _ => ?_
+  have kill : ∀ (p q x : Fin 12), x ≠ wGhost k → x ≠ wGhost l →
+      ((ghostCre m p * ghostCre m q * ghostAnn m x)
+        (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+          Finset (Fin (m + 12))))) = 0 := by
+    intro p q x hx hx'
+    have hmem : ghostMode m x ∉ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+        Finset (Fin (m + 12))) := by
+      simp only [Finset.mem_insert, Finset.mem_singleton]
+      rintro (h | h)
+      · exact hx (ghostMode_injective m h)
+      · exact hx' (ghostMode_injective m h)
+    rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn, annih_occ_of_notMem hmem]
+    simp
+  by_cases hwe : ∃ ke : Fin 3, smIdxEquiv e = Sum.inr (Sum.inl ke)
+  · obtain ⟨ke, he⟩ := hwe
+    by_cases hwa : ∃ ka : Fin 3, smIdxEquiv a = Sum.inr (Sum.inl ka)
+    · obtain ⟨ka, ha⟩ := hwa
+      by_cases hwb : ∃ kb : Fin 3, smIdxEquiv b = Sum.inr (Sum.inl kb)
+      · obtain ⟨kb, hb⟩ := hwb
+        have ha' : a = wGhost ka := ((Equiv.symm_apply_eq smIdxEquiv).mpr ha.symm).symm
+        have hb' : b = wGhost kb := ((Equiv.symm_apply_eq smIdxEquiv).mpr hb.symm).symm
+        have he' : e = wGhost ke := ((Equiv.symm_apply_eq smIdxEquiv).mpr he.symm).symm
+        have hsub : smStruct f3 a b e = su2Struct ka kb ke := by
+          simp only [smStruct, sumStruct, ha, hb, he]
+        rw [hsub, ha', hb', he']
+        by_cases hk : ke = k
+        · rw [hk]
+          by_cases h1 : ka = l
+          · rw [h1]
+            have hz : ((ghostCre m (wGhost l) * ghostCre m (wGhost kb) *
+                ghostAnn m (wGhost k))
+                (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                  Finset (Fin (m + 12))))) = 0 := by
+              rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                annih_occ_of_mem (by simp [Finset.mem_insert]), hSk, map_smul, map_smul,
+                ghostCre, ghostCre,
+                creat_creat_occ_of_mem (by simp)]
+              simp
+            rw [hz, smul_zero]
+          · by_cases h2 : kb = l
+            · rw [h2]
+              have hz : ((ghostCre m (wGhost ka) * ghostCre m (wGhost l) *
+                  ghostAnn m (wGhost k))
+                  (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                    Finset (Fin (m + 12))))) = 0 := by
+                rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                  annih_occ_of_mem (by simp [Finset.mem_insert]), hSk, map_smul, map_smul,
+                  ghostCre, ghostCre, creat_occ_of_mem (by simp)]
+                simp
+              rw [hz, smul_zero]
+            · by_cases h3 : ka = kb
+              · rw [h3]
+                have hz : ((ghostCre m (wGhost kb) * ghostCre m (wGhost kb) *
+                    ghostAnn m (wGhost k))
+                    (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                      Finset (Fin (m + 12))))) = 0 := by
+                  have hsq : (ghostCre m (wGhost kb) * ghostCre m (wGhost kb) :
+                      Module.End ℂ (FermiFock (m + 12))) = 0 := by
+                    rw [ghostCre]
+                    exact creat_sq _
+                  rw [Module.End.mul_apply, hsq]
+                  simp
+                rw [hz, smul_zero]
+              · rw [su2Struct_zero_of_pair_left hkl h1 h2 h3, zero_smul]
+        · by_cases hl : ke = l
+          · rw [hl]
+            by_cases h1 : ka = k
+            · rw [h1]
+              have hz : ((ghostCre m (wGhost k) * ghostCre m (wGhost kb) *
+                  ghostAnn m (wGhost l))
+                  (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                    Finset (Fin (m + 12))))) = 0 := by
+                rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                  annih_occ_of_mem (by simp [Finset.mem_insert]), hSl, map_smul, map_smul,
+                  ghostCre, ghostCre,
+                  creat_creat_occ_of_mem (by simp)]
+                simp
+              rw [hz, smul_zero]
+            · by_cases h2 : kb = k
+              · rw [h2]
+                have hz : ((ghostCre m (wGhost ka) * ghostCre m (wGhost k) *
+                    ghostAnn m (wGhost l))
+                    (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                      Finset (Fin (m + 12))))) = 0 := by
+                  rw [Module.End.mul_apply, Module.End.mul_apply, ghostAnn,
+                    annih_occ_of_mem (by simp [Finset.mem_insert]), hSl, map_smul, map_smul,
+                    ghostCre, ghostCre, creat_occ_of_mem (by simp)]
+                  simp
+                rw [hz, smul_zero]
+              · by_cases h3 : ka = kb
+                · rw [h3]
+                  have hz : ((ghostCre m (wGhost kb) * ghostCre m (wGhost kb) *
+                      ghostAnn m (wGhost l))
+                      (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                        Finset (Fin (m + 12))))) = 0 := by
+                    have hsq : (ghostCre m (wGhost kb) * ghostCre m (wGhost kb) :
+                        Module.End ℂ (FermiFock (m + 12))) = 0 := by
+                      rw [ghostCre]
+                      exact creat_sq _
+                    rw [Module.End.mul_apply, hsq]
+                    simp
+                  rw [hz, smul_zero]
+                · rw [su2Struct_zero_of_pair_right hkl h1 h2 h3, zero_smul]
+          · have hz : ((ghostCre m (wGhost ka) * ghostCre m (wGhost kb) *
+                ghostAnn m (wGhost ke))
+                (occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+                  Finset (Fin (m + 12))))) = 0 :=
+              kill (wGhost ka) (wGhost kb) (wGhost ke) (fun h => hk (wGhost_injective h))
+                (fun h => hl (wGhost_injective h))
+            rw [hz, smul_zero]
+      · push_neg at hwb
+        rw [smStruct_eq_zero_of_not_weak_right he hwb, zero_smul]
+    · push_neg at hwa
+      rw [smStruct_eq_zero_of_not_weak_left he hwa, zero_smul]
+  · push_neg at hwe
+    have hx : e ≠ wGhost k := fun h => hwe k (by rw [h, wGhost_spec])
+    have hx' : e ≠ wGhost l := fun h => hwe l (by rw [h, wGhost_spec])
+    rw [kill a b e hx hx']
+    simp
+
+/-- A pure-weak pair state. -/
+noncomputable def weakPair (m : ℕ) (k l : Fin 3) : FermiFock (m + 12) :=
+  occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))
+
+theorem weakPair_occ_apply (m : ℕ) (k l : Fin 3) :
+    weakPair m k l ({ghostMode m (wGhost k), ghostMode m (wGhost l)} :
+      Finset (Fin (m + 12))) = 1 := by
+  simp [weakPair, occ, EuclideanSpace.single_apply]
+
+/-- The occupation state of a pure-weak pair of ghosts. -/
+noncomputable abbrev weakOcc (m : ℕ) (k l : Fin 3) : FermiFock (m + 12) :=
+  occ ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))
+
+theorem weakOcc_inner (m : ℕ) (k l k' l' : Fin 3) :
+    inner ℂ (weakOcc m k l) (weakOcc m k' l')
+      = if ({ghostMode m (wGhost k), ghostMode m (wGhost l)} : Finset (Fin (m + 12)))
+          = {ghostMode m (wGhost k'), ghostMode m (wGhost l')} then 1 else 0 := by
+  simp [weakOcc, occ, EuclideanSpace.inner_single_left, EuclideanSpace.single_apply]
+
+theorem weakOcc_norm (m : ℕ) (k l : Fin 3) : ‖weakOcc m k l‖ = 1 := by
+  simp [weakOcc, occ]
+
+theorem gm_ne {m : ℕ} {a b : Fin 3} (h : a ≠ b) :
+    ghostMode m (wGhost a) ≠ ghostMode m (wGhost b) :=
+  fun hh => h (wGhost_injective (ghostMode_injective m hh))
+
+set_option maxHeartbeats 800000 in
+-- The three-element matrix literal of occupation states, with the inner-product normalisation facts
+-- for each of them, exceeds the default heartbeat budget.
+/-- **The three pure-weak pair states are orthonormal.** -/
+theorem weakOcc_orthonormal (m : ℕ) :
+    Orthonormal ℂ ![weakOcc m 0 1, weakOcc m 0 2, weakOcc m 1 2] := by
+  rw [orthonormal_iff_ite]
+  have h01 : ({ghostMode m (wGhost 0), ghostMode m (wGhost 1)} : Finset (Fin (m + 12)))
+      ≠ {ghostMode m (wGhost 0), ghostMode m (wGhost 2)} := by
+    intro h
+    have hm : ghostMode m (wGhost 1) ∈ ({ghostMode m (wGhost 0),
+        ghostMode m (wGhost 2)} : Finset (Fin (m + 12))) := by rw [← h]; simp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+    rcases hm with hm | hm
+    · exact (gm_ne (by decide : (1 : Fin 3) ≠ 0)) hm
+    · exact (gm_ne (by decide : (1 : Fin 3) ≠ 2)) hm
+  have h02 : ({ghostMode m (wGhost 0), ghostMode m (wGhost 1)} : Finset (Fin (m + 12)))
+      ≠ {ghostMode m (wGhost 1), ghostMode m (wGhost 2)} := by
+    intro h
+    have hm : ghostMode m (wGhost 0) ∈ ({ghostMode m (wGhost 1),
+        ghostMode m (wGhost 2)} : Finset (Fin (m + 12))) := by rw [← h]; simp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+    rcases hm with hm | hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 1)) hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 2)) hm
+  have h12 : ({ghostMode m (wGhost 0), ghostMode m (wGhost 2)} : Finset (Fin (m + 12)))
+      ≠ {ghostMode m (wGhost 1), ghostMode m (wGhost 2)} := by
+    intro h
+    have hm : ghostMode m (wGhost 0) ∈ ({ghostMode m (wGhost 1),
+        ghostMode m (wGhost 2)} : Finset (Fin (m + 12))) := by rw [← h]; simp
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hm
+    rcases hm with hm | hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 1)) hm
+    · exact (gm_ne (by decide : (0 : Fin 3) ≠ 2)) hm
+  intro i j
+  fin_cases i <;> fin_cases j <;>
+    simp [weakOcc_inner, weakOcc_norm, h01, h02, h12, Ne.symm h01, Ne.symm h02,
+      Ne.symm h12]
+
+/-- **Three independent kernel vectors force a three-dimensional kernel.** -/
+theorem finrank_ker_ge_three {m : ℕ} {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    {u v w : FermiFock (m + 12)}
+    (hu : u ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))))
+    (hv : v ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))))
+    (hw : w ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))))
+    (hli : LinearIndependent ℂ ![u, v, w]) :
+    3 ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  classical
+  have hmem : ∀ i : Fin 3, ![u, v, w] i ∈
+      LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))) := by
+    intro i
+    fin_cases i
+    · exact hu
+    · exact hv
+    · exact hw
+  have hspan : Submodule.span ℂ (Set.range ![u, v, w])
+      ≤ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))) := by
+    rw [Submodule.span_le]
+    rintro _ ⟨i, rfl⟩
+    exact hmem i
+  have hdim : Module.finrank ℂ (Submodule.span ℂ (Set.range ![u, v, w])) = 3 := by
+    rw [finrank_span_eq_card hli]
+    simp
+  calc (3 : ℕ) = Module.finrank ℂ (Submodule.span ℂ (Set.range ![u, v, w])) := hdim.symm
+    _ ≤ Module.finrank ℂ
+        (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) :=
+        Submodule.finrank_mono hspan
+
+set_option maxHeartbeats 800000 in
+-- The final instantiation unfolds the three occupation states into the matrix literal.
+/-- **The cubic term's kernel at ghost number two is at least three-dimensional.** -/
+theorem finrank_ker_smGhostCharge_ge_three (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    3 ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  have h01 := smGhostCharge_occ_weakPair m f3 (k := (0 : Fin 3)) (l := 1) (by decide)
+  have h02 := smGhostCharge_occ_weakPair m f3 (k := (0 : Fin 3)) (l := 2) (by decide)
+  have h12 := smGhostCharge_occ_weakPair m f3 (k := (1 : Fin 3)) (l := 2) (by decide)
+  have hli : LinearIndependent ℂ ![weakOcc m 0 1, weakOcc m 0 2, weakOcc m 1 2] :=
+    (weakOcc_orthonormal m).linearIndependent
+  exact finrank_ker_ge_three (f3 := f3) (LinearMap.mem_ker.mpr h01)
+    (LinearMap.mem_ker.mpr h02) (LinearMap.mem_ker.mpr h12) hli
+
+
+/-! ### Why the bound is about ghost degree two: the matter-only sector
+
+The lower bound above is degree-free.  An *upper* bound of eleven is not: the kernel of the cubic
+ghost charge on the whole Fock space grows with the number of matter modes, because a cubic
+monomial never contains a matter mode, so it annihilates every state built from matter modes alone.
+
+The general form of the annihilation lemma is `smGhostCharge_occ_of_ghostFree` in
+`ChapterSmQuartet`, which imports this chapter; the free-standing `smGhostCharge_occ_matterOnly`
+below is stated in terms of the numeric cutoff so that it can be used without that import.
+-/
+/-- A ghost mode is never among the first `m` modes. -/
+theorem val_ghostMode (m : ℕ) (a : Fin 12) : ((ghostMode m a : Fin (m + 12)) : ℕ) = m + a := by
+  simp [ghostMode]
+
+/-- **A state with no ghost mode occupied is annihilated by the cubic ghost charge**, for every
+choice of structure constants: the annihilation factor sees no occupied ghost mode. -/
+theorem smGhostCharge_occ_matterOnly {m : ℕ} (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ)
+    {T : Finset (Fin (m + 12))} (hT : ∀ i ∈ T, (i : ℕ) < m) :
+    smGhostCharge m f3 (occ T) = 0 := by
+  unfold smGhostCharge Q
+  simp only [LinearMap.sum_apply, LinearMap.smul_apply, Module.End.mul_apply]
+  refine Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun b _ =>
+    Finset.sum_eq_zero fun e _ => ?_
+  have hnotmem : ghostMode m e ∉ T := by
+    intro h
+    have h1 := hT _ h
+    rw [val_ghostMode] at h1
+    omega
+  rw [ghostAnn, annih_occ_of_notMem hnotmem]
+  simp
+
+/-- The canonical embedding of the `m` matter modes into the `m + 12` modes. -/
+abbrev matterEmb (m : ℕ) : Fin m ↪ Fin (m + 12) :=
+  ⟨Fin.castAdd 12, fun _ _ h => by simpa using h⟩
+
+theorem matterEmb_mem (m : ℕ) {i : Fin m} : ((matterEmb m i : Fin (m + 12)) : ℕ) = i := by
+  simp [matterEmb]
+
+/-- **The matter-only occupation states are orthonormal.** -/
+theorem matterOcc_orthonormal (m : ℕ) :
+    Orthonormal ℂ (fun T : Finset (Fin m) => occ (T.map (matterEmb m))) := by
+  rw [orthonormal_iff_ite]
+  intro T T'
+  by_cases h : T = T'
+  · subst h
+    rw [if_pos rfl]
+    simp [occ]
+  · have hne : T.map (matterEmb m) ≠ T'.map (matterEmb m) :=
+      fun hh => h (Finset.map_injective _ hh)
+    simp [occ, EuclideanSpace.inner_single_left, EuclideanSpace.single_apply, h, hne]
+
+/-- **A cardinality lower bound for the kernel from an orthonormal family of kernel vectors.** -/
+theorem finrank_ker_ge_card {m : ℕ} {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ} {ι : Type*}
+    [Fintype ι] (v : ι → FermiFock (m + 12)) (horth : Orthonormal ℂ v)
+    (hk : ∀ i, v i ∈ LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) :
+    Fintype.card ι ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  have hspan : Submodule.span ℂ (Set.range v) ≤
+      LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12))) := by
+    rw [Submodule.span_le]
+    rintro _ ⟨i, rfl⟩
+    exact hk i
+  rw [← finrank_span_eq_card horth.linearIndependent]
+  exact Submodule.finrank_mono hspan
+
+set_option maxHeartbeats 800000 in
+-- Elaborating the family over `Finset (Fin m)` against the `FermiFock (m + 12)` finrank exceeds the
+-- default heartbeat budget.
+/-- **The kernel of the cubic ghost charge is at least `2^m`-dimensional**: every matter-only
+occupation state is annihilated, for every choice of structure constants. -/
+theorem finrank_ker_smGhostCharge_ge_two_pow (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ) :
+    2 ^ m ≤ Module.finrank ℂ
+      (LinearMap.ker (smGhostCharge m f3 : Module.End ℂ (FermiFock (m + 12)))) := by
+  have hcard : Fintype.card (Finset (Fin m)) = 2 ^ m := by
+    rw [Fintype.card_finset, Fintype.card_fin]
+  rw [← hcard]
+  refine finrank_ker_ge_card (fun T : Finset (Fin m) => occ (T.map (matterEmb m)))
+    (matterOcc_orthonormal m) fun T => ?_
+  rw [LinearMap.mem_ker]
+  unfold smGhostCharge Q
+  simp only [LinearMap.sum_apply, LinearMap.smul_apply, Module.End.mul_apply]
+  refine Finset.sum_eq_zero fun a _ => Finset.sum_eq_zero fun b _ =>
+    Finset.sum_eq_zero fun e _ => ?_
+  have hnotmem : ghostMode m e ∉ T.map (matterEmb m) := by
+    rw [Finset.mem_map]
+    rintro ⟨j, _, hj⟩
+    have h1 : ((ghostMode m e : Fin (m + 12)) : ℕ) = m + e := val_ghostMode m e
+    have h2 : ((matterEmb m j : Fin (m + 12)) : ℕ) = j := matterEmb_mem m
+    rw [← hj] at h1
+    omega
+  rw [ghostAnn, annih_occ_of_notMem hnotmem]
+  simp
+
+/-- **No unconditional upper bound of eleven**: with four matter modes the kernel is at least
+sixteen-dimensional, whatever the structure constants. -/
+theorem not_finrank_ker_le_eleven :
+    ¬ ∀ (m : ℕ) (f3 : Fin 8 → Fin 8 → Fin 8 → ℝ),
+      Module.finrank ℂ (LinearMap.ker (smGhostCharge m f3 :
+        Module.End ℂ (FermiFock (m + 12)))) ≤ 11 := by
+  intro h
+  have h4 := h 4 (fun _ _ _ => (0 : ℝ))
+  have hge := finrank_ker_smGhostCharge_ge_two_pow 4 (fun _ _ _ => (0 : ℝ))
+  norm_num at hge
+  omega
 
 end BookProof.SmBrstGhost

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import BookProof.Sm.ChapterSmQuartet
+import BookProof.Sm.ChapterSmGaugeRepresentation
 
 /-!
 # A b-ghost with a formula
@@ -251,6 +252,221 @@ theorem smPhysProjFormula_range (hT : BookProof.YangMillsSU3.ClosesWithStructure
     LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)) =
       closed (smBrstCharge m T f3) ⊓ (LinearMap.range (smBrstCharge m T f3))ᗮ :=
   range_physProjOf_canonical (isBrst_smBrstCharge hT h3anti h3jac)
+
+-- As in `ChapterSmQuartet` §8: with the two model constants opaque the unifier never evaluates
+-- their bodies.  The statements below put `smBrstCharge` inside a typeclass-carrying expression
+-- (`Module.finrank` of a submodule of `FermiFock (m + 12)`), which is the shape that otherwise
+-- exhausts the heartbeat budget while elaborating the *statement*.
+attribute [local irreducible] BookProof.SmBrstGhost.smBrstCharge
+  BookProof.SmBrstGhost.smGhostParity
+
+/-! ## 4. The two projectors have equally large ranges
+
+`ChapterSmQuartet` §15–§16 describe the chosen projector `smPhysProj` (range `ker Ω ⊓ ker P`) and
+this chapter the canonical one (`range smPhysProjFormula = ker Ω ⊓ (range Ω)ᗮ`).  They are different
+subspaces, because the two homotopies are different complements of the exact states — but they are
+equally large: both are complements of `range Ω` inside `ker Ω`, so both have dimension
+`dim ker Ω − dim range Ω`.
+
+This is the precise form of "characterised, not canonical": the choice of complement moves the
+physical subspace around inside the closed space without changing its dimension.  Nothing here
+identifies the two ranges, and nothing here supplies the metric; positivity on either is the
+separate no-ghost input. -/
+
+/-- **The formula projector's range has the cohomology's dimension.**  Its homotopy is the canonical
+one, so `finrank_range_physProjOf` applies with no choice involved. -/
+theorem finrank_smPhysProjFormula_range (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T
+    (smStruct f3)) (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    Module.finrank ℂ (LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)))
+        + Module.finrank ℂ (LinearMap.range (smBrstCharge m T f3))
+      = Module.finrank ℂ (closed (smBrstCharge m T f3)) :=
+  BrstQuartet.finrank_range_physProjOf (isBrst_smBrstCharge hT h3anti h3jac)
+    (canonicalHomotopy_QSQ (smBrstCharge m T f3))
+    (canonicalHomotopy_SQS (smBrstCharge m T f3))
+
+/-- **The chosen and the canonical physical subspaces are equally large**: both ranges are
+complements of the exact states in the closed space, so their dimensions agree even though the
+subspaces need not. -/
+theorem smPhysProj_finrank_eq_formula (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T
+    (smStruct f3)) (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    Module.finrank ℂ (LinearMap.range (smPhysProj hT h3anti h3jac))
+      = Module.finrank ℂ (LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3))) := by
+  have h1 := smPhysProj_finrank (m := m) (T := T) (f3 := f3) hT h3anti h3jac
+  have h2 := finrank_smPhysProjFormula_range (m := m) (T := T) (f3 := f3) hT h3anti h3jac
+  omega
+
+/-! ## 5. A metric for the SM charge: the projection onto the canonical physical range
+
+§4 compares the two projectors and records that "nothing here supplies the metric".  §19 of
+`ChapterSmQuartet` shows the quartet does supply one, once it is allowed to be *semidefinite*: the
+orthogonal projection onto the physical range.  Here that metric is written at the model.
+
+Both hypotheses of `physicalPositivity_starProjection` are properties of the canonical range itself:
+the split `ker Ω = range Ω ⊔ range V` (§91) and orthogonality to the exact states, which is
+`smPhysProjFormula_range` read as a statement about the subspace.  So the no-ghost condition is a
+*theorem* for this `η`, and the price is visible: `η` is semidefinite with radical the gauge orbit,
+and on the physical range its form is the ambient norm squared
+(`smPhysMetric_kform_eq_norm_sq_of_mem`).
+
+**Boundary.**  This is not a Krein metric, it does not identify the physical range with the
+transverse even sector, and it does not prove the norm inequality of `ChapterSmQuartet` §12.  What
+it establishes is that the no-ghost *definition* is satisfiable at the model's charge and which
+operator satisfies it, so what survives as an input is an identification, not positivity as such. -/
+
+/-- **A metric for the SM charge**: the orthogonal projection onto the canonical physical range
+`ker Ω ⊓ (range Ω)ᗮ`. -/
+noncomputable def smPhysMetric : FermiFock (m + 12) →ₗ[ℂ] FermiFock (m + 12) :=
+  ((LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3))).starProjection).toLinearMap
+
+/-- **The canonical physical range is orthogonal to the exact states.**  It is
+`ker Ω ⊓ (range Ω)ᗮ` (`smPhysProjFormula_range`), so this is the second conjunct of that equality
+read as a subspace statement. -/
+theorem smPhysProjFormula_le_orthogonal (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T
+    (smStruct f3)) (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    LinearMap.range (smBrstCharge m T f3) ≤
+      (LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)))ᗮ := by
+  have hD : LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)) ≤
+      (LinearMap.range (smBrstCharge m T f3))ᗮ := by
+    rw [smPhysProjFormula_range hT h3anti h3jac]
+    exact inf_le_right
+  exact le_trans (Submodule.le_orthogonal_orthogonal _) (Submodule.orthogonal_le hD)
+
+/-- **The closed space splits along the canonical physical range**: `ker Ω = range Ω ⊔ D`. -/
+theorem closed_eq_sup_range_smPhysProjFormula
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    closed (smBrstCharge m T f3) = LinearMap.range (smBrstCharge m T f3) ⊔
+      LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)) :=
+  BrstQuartet.closed_eq_sup_range_physProjOf (isBrst_smBrstCharge hT h3anti h3jac)
+    (canonicalHomotopy_QSQ (smBrstCharge m T f3))
+
+/-- **The projection metric is no-ghost at the SM charge.**  The closed space splits off the exact
+states along the canonical range (§91) and every exact state is orthogonal to that range
+(`smPhysProjFormula_range`), so `PhysicalPositivity` holds for `smPhysMetric`. -/
+theorem smPhysicalPositivity_physMetric (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T
+    (smStruct f3)) (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0) :
+    PhysicalPositivity (smBrstCharge m T f3) (smPhysMetric (m := m) (T := T) (f3 := f3)) :=
+  BrstQuartet.physicalPositivity_starProjection _
+    (smPhysProjFormula_le_orthogonal hT h3anti h3jac)
+    (closed_eq_sup_range_smPhysProjFormula hT h3anti h3jac)
+
+/-- **The metric is the ambient norm on the physical range**: on `ker Ω ⊓ (range Ω)ᗮ` the form is
+positive definite, so the descended form is an inner product on the cohomology. -/
+theorem smPhysMetric_kform_eq_norm_sq_of_mem {d : BookProof.SmCar.FermiFock (m + 12)}
+    (hd : d ∈ LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3))) :
+    (kform (smPhysMetric (m := m) (T := T) (f3 := f3)) d d).re = ‖d‖ ^ 2 :=
+  BrstQuartet.kform_starProjection_eq_norm_sq_of_mem _ hd
+
+/-! ## 6. The radical is the gauge orbit: the quotient inner product at the model
+
+`ChapterSmQuartet` §21 states the four facts that make a projector form an inner product on
+`ker Ω / range Ω`; this section is those four facts at `smPhysMetric`:
+
+* `smPhysMetric_radical_eq_gauge` — on the closed space the form vanishes exactly on the exact
+  states, so it is definite on the cohomology rather than merely semidefinite;
+* `smPhysMetric_descends` — shifting either argument by an exact state changes nothing, so the form
+  is a function of the cohomology class;
+* `smPhysMetric_definite` — on the canonical range it *is* the ambient norm, hence positive;
+* `smPhysMetric_representative` — every closed state is exact plus a member of that range.
+
+Taken together: the cohomology is modelled by the canonical range `ker Ω ⊓ (range Ω)ᗮ`, and the
+descended form is the ambient inner product transported along `ker Ω / range Ω ≃ D`.  The radical
+being the gauge orbit is exactly what makes the semidefinite metric of §5 an inner product on the
+physical Hilbert space instead of just a non-negative form.
+
+**Boundary.**  The identification is stated as a decomposition (with uniqueness available from
+`BrstQuartet.representative_unique`), not as an `Equiv` or an `InnerProductSpace` instance, and `D`
+is the canonical range — so the identification is a property of that choice of complement. -/
+
+/-- **The metric's radical on the closed space is the gauge orbit.** -/
+theorem smPhysMetric_radical_eq_gauge
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    {x : BookProof.SmCar.FermiFock (m + 12)} (hx : x ∈ closed (smBrstCharge m T f3)) :
+    (kform (smPhysMetric (m := m) (T := T) (f3 := f3)) x x).re = 0 ↔
+      x ∈ gauge (smBrstCharge m T f3) :=
+  BrstQuartet.kform_starProjection_radical _
+    (smPhysProjFormula_le_orthogonal (m := m) (T := T) (f3 := f3) hT h3anti h3jac)
+    (closed_eq_sup_range_smPhysProjFormula (m := m) (T := T) (f3 := f3) hT h3anti h3jac) hx
+
+/-- **The metric descends to the cohomology**: exact shifts in either argument are invisible. -/
+theorem smPhysMetric_descends
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    (x y z w : BookProof.SmCar.FermiFock (m + 12)) :
+    kform (smPhysMetric (m := m) (T := T) (f3 := f3))
+        (x + smBrstCharge m T f3 z) (y + smBrstCharge m T f3 w)
+      = kform (smPhysMetric (m := m) (T := T) (f3 := f3)) x y :=
+  BrstQuartet.kform_starProjection_descends _
+    (smPhysProjFormula_le_orthogonal (m := m) (T := T) (f3 := f3) hT h3anti h3jac) x y z w
+
+/-- **The descended form is positive definite on the canonical range.**  No hypothesis on the
+representation is needed: on that range the form is the ambient norm squared
+(`smPhysMetric_kform_eq_norm_sq_of_mem`). -/
+theorem smPhysMetric_definite
+    {d : BookProof.SmCar.FermiFock (m + 12)}
+    (hd : d ∈ LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)))
+    (h0 : (kform (smPhysMetric (m := m) (T := T) (f3 := f3)) d d).re = 0) : d = 0 :=
+  BrstQuartet.kform_starProjection_definite _ hd h0
+
+/-- **Every closed state is exact plus one member of the canonical range.** -/
+theorem smPhysMetric_representative
+    (hT : BookProof.YangMillsSU3.ClosesWithStructureConstants T (smStruct f3))
+    (h3anti : ∀ a b c, f3 a b c = -f3 b a c)
+    (h3jac : ∀ a b c h : Fin 8, ∑ e, (f3 a b e * f3 e c h + f3 b c e * f3 e a h
+      + f3 c a e * f3 e b h) = 0)
+    {x : BookProof.SmCar.FermiFock (m + 12)} (hx : x ∈ closed (smBrstCharge m T f3)) :
+    ∃ e ∈ LinearMap.range (smBrstCharge m T f3),
+      ∃ d ∈ LinearMap.range (smPhysProjFormula (m := m) (T := T) (f3 := f3)), x = e + d :=
+  BrstQuartet.exists_gauge_add_mem _
+    (closed_eq_sup_range_smPhysProjFormula (m := m) (T := T) (f3 := f3) hT h3anti h3jac) hx
+
+/-! ## 7. The doublet's own charge refutes the ghost-parity input
+
+§20 of `ChapterSmQuartet` says one nonzero Gauss matrix entry at a ghost-free state refutes
+`PhysicalPositivity` for the ghost parity.  `ChapterSmGaugeRepresentation` §5 supplies that entry at
+the model's own representation: the hypercharge generator is `y` times the identity on the six matter
+modes, so `G₁₁` sends the ghost-free state `occ {0}` to `−i y · occ {0}`.  Hence the refutation is
+now a theorem about `smGen` itself, with no hypothesis left over except the two defining relations of
+the `su(3)` generators and `y ≠ 0`.
+
+**Boundary.**  The state is one ghost-free occupation state, not the whole even sector; and the
+conclusion is that the ghost *parity* is not a no-ghost metric — §5's projection metric is untouched
+by it, and still satisfies `PhysicalPositivity`. -/
+
+/-- **The ghost parity is not a no-ghost metric at the doublet.**  One even state with `Ω x ≠ 0` is
+enough, and `ChapterSmGaugeRepresentation`'s hypercharge generator supplies it. -/
+theorem smGhostParity_not_noGhost_doublet
+    (S3 : Fin 8 → Matrix (Fin 3) (Fin 3) ℂ) {f3 : Fin 8 → Fin 8 → Fin 8 → ℝ}
+    (hS3 : BookProof.YangMillsSU3.TraceOrthonormal S3)
+    (hf3 : BookProof.YangMillsSU3.ClosesWithStructureConstants S3 f3) {y : ℝ} (hy : y ≠ 0) :
+    ¬ PhysicalPositivity (smBrstCharge 6 (BookProof.SmGaugeRep.smGen S3 y) f3)
+        (smGhostParity 6) := by
+  refine BrstQuartet.not_physicalPositivity_of_ghostFree_gauss
+    (S := ({Fin.castAdd 12 (0 : Fin 6)} : Finset (Fin (6 + 12)))) (a := 11)
+    (BookProof.SmGaugeRep.smGen_closes hf3 y)
+    (BookProof.YangMillsSU3.structureConstant_antisymm_swap hS3 hf3)
+    (BookProof.YangMillsSU3.structureConstant_jacobi hS3 hf3) ?_ ?_
+  · intro a hmem
+    have hEq : ghostMode 6 a = Fin.castAdd 12 (0 : Fin 6) := Finset.mem_singleton.mp hmem
+    have hval : (ghostMode 6 a).val = (Fin.castAdd 12 (0 : Fin 6)).val := by rw [hEq]
+    simp [ghostMode] at hval
+  · exact BookProof.SmGaugeRep.matterGen_smGen_hyper_occ_ne_zero S3
+      (Complex.ofReal_ne_zero.mpr hy)
 
 end
 

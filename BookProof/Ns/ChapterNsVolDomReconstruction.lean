@@ -773,6 +773,25 @@ theorem dual_pairing (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f) (
   · intro hx
     exact absurd (Finset.mem_univ x') hx
 
+/-- **The pairing of a residue in dual coordinates with the lattice directions**: the wave number
+`(2π/N) Σ_x m_x f_x` reads off `2π m_{x'}/N` against `e_{x'}`.  This is `dual_pairing` with the
+scalar pulled out, and it is the form in which the torus grid of §10 is commensurate. -/
+theorem dualResidue_pairing (N : ℕ) (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f)
+    (m : Fin 3 → ℤ) (x : Fin 3) :
+    ∑ y, (dualResidue N f m) y * e x y = 2 * Real.pi * (m x : ℝ) / N := by
+  have hw : ∀ y : Fin 3, (dualResidue N f m) y * e x y
+      = (2 * Real.pi / N) * ((∑ x', (m x' : ℝ) * f x' y) * e x y) := by
+    intro y
+    rw [dualResidue]
+    ring
+  calc ∑ y, (dualResidue N f m) y * e x y
+      = ∑ y, (2 * Real.pi / N) * ((∑ x', (m x' : ℝ) * f x' y) * e x y) :=
+          Finset.sum_congr rfl fun y _ => hw y
+    _ = (2 * Real.pi / N) * ∑ y, (∑ x', (m x' : ℝ) * f x' y) * e x y := by
+          rw [← Finset.mul_sum]
+    _ = (2 * Real.pi / N) * (m x : ℝ) := by rw [dual_pairing e f hdual m x]
+    _ = 2 * Real.pi * ((m x : ℤ) : ℝ) / N := by ring
+
 /-- **The pairing of a dual-lattice vector is its integer coordinate**: the dual coordinates are
 what a plane wave `2π Σ_x k_x f_x` reads off against the lattice directions. -/
 theorem dualComb_pairing (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f) (k : Fin 3 → ℤ)
@@ -820,21 +839,7 @@ theorem alias_class_dual (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ)
     (hdual : IsDualBasis e f) (m : Fin 3 → ℤ) :
     (∀ j : Fin 3 → Fin N, phase (dualResidue N f m) (latPoint N e j) = 1) ↔
       ∃ k : Fin 3 → ℤ, dualResidue N f m = dualComb f k := by
-  have hin : ∀ x : Fin 3, ∑ y, (dualResidue N f m) y * e x y
-      = 2 * Real.pi * ((m x : ℤ) : ℝ) / N := by
-    intro x
-    have hw : ∀ y : Fin 3, (dualResidue N f m) y * e x y
-        = (2 * Real.pi / N) * ((∑ x', (m x' : ℝ) * f x' y) * e x y) := by
-      intro y
-      rw [dualResidue]
-      ring
-    calc ∑ y, (dualResidue N f m) y * e x y
-        = ∑ y, (2 * Real.pi / N) * ((∑ x', (m x' : ℝ) * f x' y) * e x y) :=
-            Finset.sum_congr rfl fun y _ => hw y
-      _ = (2 * Real.pi / N) * ∑ y, (∑ x', (m x' : ℝ) * f x' y) * e x y := by
-            rw [← Finset.mul_sum]
-      _ = (2 * Real.pi / N) * (m x : ℝ) := by rw [dual_pairing e f hdual m x]
-      _ = 2 * Real.pi * ((m x : ℤ) : ℝ) / N := by ring
+  have hin := dualResidue_pairing N e f hdual m
   rw [latBox_character_one_iff N hN e _ m hin]
   constructor
   · intro hdiv
@@ -1041,8 +1046,9 @@ and §8's bound applies; the labels are the integer differences `j_x - j'_x`, an
 then forces each component to agree.  Hence the penalty theorem needs **no distinctness hypothesis**
 at this grid — only that the model's wave numbers lie on it.
 
-The independence and pairing lemmas are for the standard axis basis `axis x`; nothing here needs a
-skew basis, and `gridBox N axis` is the ordinary `N³` box. -/
+The independence and pairing lemmas are for the standard axis basis `axis x`, so `gridBox N axis`
+is the ordinary `N³` box; §10 removes that restriction — the same first-Brillouin argument runs in
+any basis once the wave numbers are written in its dual basis. -/
 
 /-- The standard basis vector `e_x` of `Fin 3 → ℝ`. -/
 noncomputable def axis (x : Fin 3) : Fin 3 → ℝ := fun y => if y = x then 1 else 0
@@ -1183,5 +1189,225 @@ theorem volPot_of_shear_constant_of_torus {K : Type*} [Fintype K] (kappa c ε t 
       (1 + dispGrad kv y a).det = 1 + (((c * ε * t : ℝ)) : ℂ)) :
     volPot kappa kv = MvPolynomial.C (((kappa / 2) * (c * ε * t) ^ 2 : ℝ) : ℂ) :=
   volPot_of_single_mode_of_torus kappa (c * ε * t) kv N hN m hS hp h0 hconst
+
+/-! ## 10. A skew box: the same first-Brillouin argument in an arbitrary basis
+
+§9 discharged distinctness on the coordinate box, where the wave numbers are `2π j_x/N` along the
+axes.  Nothing in that argument used orthogonality.  What it used is that the *dual* coordinates
+of a difference of two wave numbers are the integer differences `j_x − j'_x`, so `|j_x − j'_x| < N`
+makes every pairing smaller than `2π` and §8's bound applies.
+
+So let `e` generate the box `gridBox N e` — an arbitrary, possibly skew, triple of directions — and
+put the wave numbers in the basis `f` dual to it (`IsDualBasis`, `⟨f_x, e_{x'}⟩ = δ_{x x'}`):
+
+  `skewWave N f j = (2π/N) Σ_x j_x · f_x`.
+
+Then `skewWave_pairing` evaluates the pairing as `2π(j_x − j'_x)/N` — §9's formula with the
+coordinates replaced by dual coordinates — and `hdvd_skew` repeats §9's divisibility argument
+verbatim: three integer labels divisible by `N`, each smaller than `N` in modulus, hence all zero,
+hence `j = j'`, hence `q = q'`.  The axis case is recovered in `skewWave_axis`: `axis` is its own
+dual basis, so `torusWave` *is* `skewWave` there.
+
+**Boundary.**  `hdvd_skew` still takes the labelling `hp` as an input.  The dual basis supplies the
+*pairing formula*, not the assertion that the model's spectrum lies on the grid: the latter is §7's
+periodicity condition (`commensurate_of_periodic`), read with the skew lattice generated by `e`. -/
+
+/-- **The `N`-torus grid of a skew box**: the wave numbers `(2π/N) Σ_x j_x · f_x`, in the basis `f`
+dual to the box's directions. -/
+noncomputable def skewWave (N : ℕ) (f : Fin 3 → Fin 3 → ℝ) (j : Fin 3 → Fin N) : Fin 3 → ℝ :=
+  dualResidue N f fun x => (j x : ℤ)
+
+/-- **The axis case is recovered**: `axis` is its own dual basis, so `skewWave` at `axis` is §9's
+`torusWave`. -/
+theorem skewWave_axis (N : ℕ) (j : Fin 3 → Fin N) : skewWave N axis j = torusWave N j := by
+  funext y
+  have hsum : ∑ x, (((j x : ℤ)) : ℝ) * axis x y = (((j y : ℤ)) : ℝ) := by
+    rw [Finset.sum_eq_single y (fun b _ hb => ?_)
+      (fun hy => absurd (Finset.mem_univ y) hy)]
+    · simp [axis]
+    · have hz : axis b y = 0 := by simp [axis, Ne.symm hb]
+      rw [hz, mul_zero]
+  rw [skewWave, dualResidue, hsum, Int.cast_natCast]
+  simp only [torusWave]
+  ring
+
+/-- **The pairing of a difference of two skew-torus modes is the integer label**: in the box's own
+directions, `q − q'` reads off `j_x − j'_x`, scaled by `2π/N`. -/
+theorem skewWave_pairing {N : ℕ} (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f)
+    (j j' : Fin 3 → Fin N) (x : Fin 3) :
+    ∑ y, (skewWave N f j - skewWave N f j') y * e x y
+      = 2 * Real.pi * ((j x : ℝ) - (j' x : ℝ)) / N := by
+  have h1 := dualResidue_pairing N e f hdual (fun x => (j x : ℤ)) x
+  have h2 := dualResidue_pairing N e f hdual (fun x => (j' x : ℤ)) x
+  have hsplit : ∀ y : Fin 3, (skewWave N f j - skewWave N f j') y * e x y
+      = (dualResidue N f fun x => (j x : ℤ)) y * e x y
+        - (dualResidue N f fun x => (j' x : ℤ)) y * e x y := by
+    intro y
+    simp only [skewWave, Pi.sub_apply, sub_mul]
+  rw [Finset.sum_congr rfl fun y _ => hsplit y, Finset.sum_sub_distrib, h1, h2]
+  push_cast
+  ring
+
+/-- **Distinctness holds on a skew box with no extra hypothesis**, given the dual basis:
+divisibility of all three labels by `N` forces every dual component to agree, and the modes to
+coincide.  This is `hdvd_torus` with the box directions `e` and the wave numbers in the dual basis
+`f`. -/
+theorem hdvd_skew (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f)
+    (S : Finset (Fin 3 → ℝ))
+    (hS : ∀ q ∈ S, ∃ j : Fin 3 → Fin N, q = skewWave N f j)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hp : ∀ q ∈ S, ∀ q' ∈ S, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N) :
+    ∀ q ∈ S, ∀ q' ∈ S, (∀ x, (N : ℤ) ∣ m q q' x) ↔ q = q' := by
+  intro q hq q' hq'
+  obtain ⟨j, hj⟩ := hS q hq
+  obtain ⟨j', hj'⟩ := hS q' hq'
+  subst hj
+  subst hj'
+  have hlabel : ∀ x, m (skewWave N f j) (skewWave N f j') x
+      = (j x : ℤ) - (j' x : ℤ) := by
+    intro x
+    have hp' := hp (skewWave N f j) hq (skewWave N f j') hq' x
+    rw [skewWave_pairing e f hdual j j' x] at hp'
+    have hN' : (N : ℝ) ≠ 0 := by exact_mod_cast hN.ne'
+    have hpi : (2 * Real.pi : ℝ) ≠ 0 := by positivity
+    have h2 : (((m (skewWave N f j) (skewWave N f j') x : ℤ)) : ℝ)
+        = ((j x : ℝ) - (j' x : ℝ)) := by
+      have h3 := hp'
+      field_simp at h3
+      linarith [h3]
+    exact_mod_cast h2
+  constructor
+  · intro hd
+    have hcomp : ∀ x, j x = j' x := by
+      intro x
+      have hzero : m (skewWave N f j) (skewWave N f j') x = 0 := by
+        refine abs_eq_zero_of_dvd_of_abs_lt (by exact_mod_cast hN) (hd x) ?_
+        rw [hlabel x, abs_lt]
+        constructor
+        · have h1 := (j x).isLt
+          have h2 := (j' x).isLt
+          omega
+        · have h1 := (j x).isLt
+          have h2 := (j' x).isLt
+          omega
+      have hz : (j x : ℤ) = (j' x : ℤ) := by
+        rw [hlabel x] at hzero
+        exact sub_eq_zero.mp hzero
+      exact Fin.ext (by exact_mod_cast hz)
+    rw [funext hcomp]
+  · intro hqq x
+    have hzero : (((m (skewWave N f j) (skewWave N f j') x : ℤ)) : ℝ) = 0 := by
+      have hpz := hp (skewWave N f j) hq (skewWave N f j') hq' x
+      rw [sub_eq_zero.mpr hqq] at hpz
+      simp only [Pi.zero_apply, zero_mul, Finset.sum_const_zero] at hpz
+      have hN' : (N : ℝ) ≠ 0 := by exact_mod_cast hN.ne'
+      have hpi : (2 * Real.pi : ℝ) ≠ 0 := by positivity
+      rcases div_eq_zero_iff.mp hpz.symm with h | h
+      · rcases mul_eq_zero.mp h with h' | h'
+        · exact absurd h' hpi
+        · exact h'
+      · exact absurd h hN'
+    have hm : m (skewWave N f j) (skewWave N f j') x = 0 := by exact_mod_cast hzero
+    rw [hm]
+    exact dvd_zero (N : ℤ)
+
+/-- **The penalty on a skew torus grid needs no distinctness hypothesis.**  `hdvd` is discharged by
+`hdvd_skew`; what remains is that the model's wave numbers are the dual-basis modes of the box and
+that they are labelled by the pairings. -/
+theorem volPot_of_single_mode_of_skew_torus {K : Type*} [Fintype K] (kappa Λ : ℝ)
+    (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f)
+    (hindep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * e x y = 0) → c = 0)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hS : ∀ q ∈ waveSet kv, ∃ j : Fin 3 → Fin N, q = skewWave N f j)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ gridBox N e →
+      (1 + dispGrad kv y a).det = 1 + ((Λ : ℝ) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * Λ ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_lattice_commensurate kappa Λ kv N hN e hindep m hp
+    (hdvd_skew N hN e f hdual (waveSet kv) hS m hp) h0 hconst
+
+/-- The shear family on a skew torus grid: `(κ/2)(c·ε·t)²` with neither `hspec`, `horth` nor a
+distinctness hypothesis. -/
+theorem volPot_of_shear_constant_of_skew_torus {K : Type*} [Fintype K] (kappa c ε t : ℝ)
+    (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f)
+    (hindep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * e x y = 0) → c = 0)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hS : ∀ q ∈ waveSet kv, ∃ j : Fin 3 → Fin N, q = skewWave N f j)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (hconst : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ gridBox N e →
+      (1 + dispGrad kv y a).det = 1 + (((c * ε * t : ℝ)) : ℂ)) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * (c * ε * t) ^ 2 : ℝ) : ℂ) :=
+  volPot_of_single_mode_of_skew_torus kappa (c * ε * t) kv N hN e f hdual hindep m hS hp h0 hconst
+
+/-! ## 11. The shear family's constant residual is a determinant
+
+§2 and §9–§10 carry the *constancy* of the residual as a hypothesis: `hconst` says that on the grid
+the determinant of `1 + ∇ξ` is the constant `1 + Λ`, independently of the configuration and of the
+point.  For §63's shear family that constant is `c·ε·t`, and here the determinant half of it is
+proved.
+
+The deformation gradient of the family is
+
+  `1 + t·e_x⊗e_y + ε·e_y⊗e_x`,
+
+whose determinant is `1 − εt` (`det_one_add_shearGrad`) — the `(εt)²` of the penalty's normal form
+is the square of exactly this number.  So a model whose gradient at every configuration and every
+grid point is this matrix has `hconst` with `Λ = −εt` (`hconst_of_dispGrad_shear`), and therefore
+the penalty `(κ/2)(εt)²` (`volPot_of_shearGrad_of_torus`).
+
+**Boundary.**  What is not proved here, and does not follow from the grid, is that a concrete finite
+Fourier model *has* this gradient: `dispGrad` is a sum of `i w_c ξ̂_{m,r} e^{i w·a}` over the
+model's modes, so its value at a configuration is fixed by that configuration's coefficients, and
+the identification with the shear matrix is a statement about which configuration and which
+truncation.
+The theorems here make that identification the single remaining input, and discharge everything
+downstream of it. -/
+
+/-- **§63's shear family, as a deformation gradient**: `1 + t·e_x⊗e_y + ε·e_y⊗e_x`, i.e. the matrix
+with `(x,y)` entry `t` and `(y,x)` entry `ε`. -/
+noncomputable def shearGrad (t ε : ℝ) : Matrix (Fin 3) (Fin 3) ℂ :=
+  !![0, (t : ℂ), 0; (ε : ℂ), 0, 0; 0, 0, 0]
+
+/-- **The shear's determinant is `1 − εt`**: the residual of the family is `−εt`, which is what
+§63's normal form `(c·ε·t)²` is the square of. -/
+theorem det_one_add_shearGrad (t ε : ℝ) :
+    (1 + shearGrad t ε).det = 1 + ((-(ε * t) : ℝ) : ℂ) := by
+  rw [Matrix.det_fin_three]
+  simp [shearGrad, Matrix.add_apply]
+  ring
+
+/-- **The deformation-gradient constancy hypothesis holds for the shear family**, once the model's
+gradient is identified with the shear matrix: `hconst` at `Λ = −εt`. -/
+theorem hconst_of_dispGrad_shear {K : Type*} [Fintype K] (kv : K → Fin 3 → ℝ) (t ε : ℝ)
+    (G : Finset (Fin 3 → ℝ))
+    (h : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), dispGrad kv y a = shearGrad t ε) :
+    ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), a ∈ G →
+      (1 + dispGrad kv y a).det = 1 + ((-(ε * t) : ℝ) : ℂ) := by
+  intro y a _
+  rw [h y a, det_one_add_shearGrad]
+
+/-- **The penalty on the shear family at the torus grid**: `(κ/2)(εt)²`, with the determinant half
+of `hconst` proved and only the gradient identification assumed. -/
+theorem volPot_of_shearGrad_of_torus {K : Type*} [Fintype K] (kappa t ε : ℝ)
+    (kv : K → Fin 3 → ℝ)
+    (N : ℕ) (hN : 0 < N) (e f : Fin 3 → Fin 3 → ℝ) (hdual : IsDualBasis e f)
+    (hindep : ∀ c : Fin 3 → ℝ, (∀ y, ∑ x, c x * e x y = 0) → c = 0)
+    (m : (Fin 3 → ℝ) → (Fin 3 → ℝ) → Fin 3 → ℤ)
+    (hS : ∀ q ∈ waveSet kv, ∃ j : Fin 3 → Fin N, q = skewWave N f j)
+    (hp : ∀ q ∈ waveSet kv, ∀ q' ∈ waveSet kv, ∀ x,
+      ∑ y, (q - q') y * e x y = 2 * Real.pi * ((m q q' x : ℤ) : ℝ) / N)
+    (h0 : (0 : Fin 3 → ℝ) ∈ waveSet kv)
+    (h : ∀ (y : DIdx K → ℝ) (a : Fin 3 → ℝ), dispGrad kv y a = shearGrad t ε) :
+    volPot kappa kv = MvPolynomial.C (((kappa / 2) * (t * ε) ^ 2 : ℝ) : ℂ) := by
+  rw [volPot_of_single_mode_of_skew_torus kappa (-(ε * t)) kv N hN e f hdual hindep m hS hp h0
+    (hconst_of_dispGrad_shear kv t ε (gridBox N e) h)]
+  rw [show ((kappa / 2) * (-(ε * t)) ^ 2 : ℝ) = (kappa / 2) * (t * ε) ^ 2 by ring]
 
 end BookProof.NsVolDomReconstruction

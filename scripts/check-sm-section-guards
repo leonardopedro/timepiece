@@ -596,6 +596,8 @@ require "$PLAN" 'one line of' \
 # The reduction of §9 could be misread as "positivity is now bookkeeping".  §72 decides the opposite with
 # an explicit quartet, so the counterexample and the statement it refutes must both stay.
 QUARTET=BookProof/Sm/ChapterSmQuartet.lean
+FORMULA=BookProof/Sm/ChapterSmBghostFormula.lean
+GAUGEREP=BookProof/Sm/ChapterSmGaugeRepresentation.lean
 require "$QUARTET" "theorem exNotPhysicalPositivity" \
     "§72: the counterexample must stay asserted"
 require "$QUARTET" "def exQuartet3" \
@@ -806,8 +808,8 @@ require "$QUARTET" "theorem bGhost_QSQ" \
     "§84: the derivable half of the contraction must stay"
 require "$PLAN" 'The parity of the b-ghost is *forced*' \
     "§84: the plan must keep the forced-sign section"
-require "$PLAN" 'does not elaborate in this toolchain' \
-    "§84: the plan must keep the instantiation boundary"
+require "$PLAN" 'Boundary that has since been passed' \
+    "§84: the plan must keep the instantiation boundary, now marked as passed"
 
 # ---- 38. §85 distinctness is separation, not a new hypothesis
 # §82 left `hdvd` open.  It is the statement that the box resolves the model's modes, and it follows
@@ -843,6 +845,362 @@ require "$PLAN" 'The first-Brillouin bound is discharged on the `N`-torus grid' 
     "§86: the plan must keep the grid section"
 require "$PLAN" 'no distinctness hypothesis' \
     "§86: the plan must keep the unconditional claim"
+
+# ---- 40. §87 the odd homotopy is instantiated: smQuartet is built from it, b-ghost is odd
+# §84's instantiation boundary is passed by making the two model constants locally `irreducible`, which
+# stops the unifier evaluating the operator body.  The quartet now comes from the bundle, and the parity
+# is a theorem about the b-ghost field.  Dropping either the instantiation or the parity would let §84's
+# withdrawn caveat stand unchallenged.
+require "$QUARTET" "def quartetOfOddHomotopy" \
+    "§87: the quartet-from-bundle construction must stay"
+require "$QUARTET" "theorem odd_comp_odd" \
+    "§87: two odd maps must still compose evenly"
+require "$QUARTET" "theorem bGhostOf_odd" \
+    "§87: the correction term must not disturb the parity"
+require "$QUARTET" "def smOddHomotopy" \
+    "§87: the model's bundled odd homotopy must stay"
+require "$QUARTET" "attribute [local irreducible] BookProof.SmBrstGhost.smBrstCharge" \
+    "§87: the elaboration workaround must stay with the instantiation"
+require "$QUARTET" "theorem smBghost_odd" \
+    "§87: the b-ghost parity at the model must stay"
+require "$PLAN" 'The odd homotopy is instantiated: `smQuartet` is built from it' \
+    "§87: the plan must keep the instantiation section"
+require "$PLAN" 'Marking the two' \
+    "§87: the plan must keep the workaround explanation"
+require "$PLAN" 'is a parity statement, not a no-ghost statement' \
+    "§87: the plan must keep the parity/no-ghost boundary"
+
+# ---- 41. §88 the model's physical subspace is `ker Ω ⊓ ker P`, exactly
+# The bundled homotopy is what §9 could not use: it exposes `P`, so the range of the model's projector is
+# characterised rather than merely contained in the closed space.  Dropping `smPhysProj_range` while keeping
+# the parity corollary would let the characterisation read as a definition, and dropping the canonical-range
+# boundary would silently identify two different complements of the exact states.
+require "$QUARTET" "theorem smPhysProj_range" \
+    "§88: the range characterisation at the model must stay"
+require "$QUARTET" "theorem smPhysProj_mem_range_iff" \
+    "§88: the membership form must stay"
+require "$QUARTET" "theorem smPhysProj_eq_physProjOf" \
+    "§88: the projector must stay exposed at the bundled homotopy"
+require "$QUARTET" "theorem smClosed_decompose" \
+    "§88: the quartet split at the model must stay"
+require "$QUARTET" "theorem smPhysicalPositivity_imp_evenRange" \
+    "§88: positivity must still force the range even"
+require "$PLAN" 'The physical subspace of `smBrstCharge`, exactly' \
+    "§88: the plan must keep the characterisation section"
+require "$PLAN" 'range smPhysProj = ker Ω ⊓ ker P' \
+    "§88: the plan must keep the exact range"
+require "$PLAN" 'different choices of complement of the exact states' \
+    "§88: the plan must keep the chosen/canonical distinction"
+
+# ---- 42. §89 the grid discharge works in a skew basis
+# §86's axis basis was a choice, not a limitation: the argument only needs the dual coordinates of a
+# difference of wave numbers to be the integer component differences.  Dropping the skew extension would
+# restore the withdrawn boundary, and dropping `skewWave_axis` would make the two grids look unrelated.
+require "$REC" "theorem hdvd_skew" \
+    "§89: skew-box distinctness must stay"
+require "$REC" "theorem skewWave_pairing" \
+    "§89: the skew pairing must stay evaluated"
+require "$REC" "theorem skewWave_axis" \
+    "§89: the axis grid must stay the f = axis member"
+require "$REC" "theorem volPot_of_single_mode_of_skew_torus" \
+    "§89: the skew penalty theorem must stay"
+require "$REC" "theorem dualResidue_pairing" \
+    "§89: the shared dual-residue pairing step must stay"
+require "$PLAN" 'A skew box: the grid argument does not need the axes' \
+    "§89: the plan must keep the skew-box section"
+require "$PLAN" 'was the orthogonal member of this' \
+    "§89: the plan must keep the axis-as-corollary reading"
+
+# ---- 43. §90 the shear's constant residual is a determinant
+# `hconst` is carried by every penalty theorem; for §63's shear family its determinant half is proved, with
+# the gradient identification left as the single input.  Dropping the det computation would make `hconst`
+# look like a measurement, and dropping the gradient boundary would read the family as a concrete model.
+require "$REC" "noncomputable def shearGrad" \
+    "§90: the shear matrix must stay"
+require "$REC" "theorem det_one_add_shearGrad" \
+    "§90: the shear determinant must stay computed"
+require "$REC" "theorem hconst_of_dispGrad_shear" \
+    "§90: hconst at the shear must stay derived from the determinant"
+require "$REC" "theorem volPot_of_shearGrad_of_torus" \
+    "§90: the shear penalty at the grid must stay"
+require "$PLAN" "The shear's constant residual is a determinant" \
+    "§90: the plan must keep the shear section"
+require "$PLAN" 'does not follow' \
+    "§90: the plan must keep the gradient-identification boundary"
+
+# ---- 44. §91 the physical range is a complement, and both projectors are equally large
+# §88 identifies `range smPhysProj`; this says how big it is.  Both projectors are complements of the
+# exact states in the closed space, so they have equal dimension while remaining different subspaces.
+# Dropping the disjointness/sum pair would leave `range V` described but unsized, and dropping the
+# chosen/canonical dimension comparison would let the choice read as canonical.
+require "$QUARTET" "theorem range_physProjOf_disjoint" \
+    "§91: the disjointness of the exact and physical states must stay"
+require "$QUARTET" "theorem closed_eq_sup_range_physProjOf" \
+    "§91: the sum decomposition of the closed space must stay"
+require "$QUARTET" "theorem finrank_range_physProjOf" \
+    "§91: the dimension count must stay"
+require "$QUARTET" "theorem smPhysProj_finrank" \
+    "§91: the model's dimension count must stay"
+require "$FORMULA" "theorem finrank_smPhysProjFormula_range" \
+    "§91: the canonical projector's dimension count must stay"
+require "$FORMULA" "theorem smPhysProj_finrank_eq_formula" \
+    "§91: the equal-size statement must stay"
+require "$FORMULA" "attribute [local irreducible] BookProof.SmBrstGhost.smBrstCharge" \
+    "§91: the second copy of the elaboration workaround must stay"
+require "$PLAN" 'The physical range is a complement of the exact states' \
+    "§91: the plan must keep the sizing section"
+require "$PLAN" 'different subspaces of equal size' \
+    "§91: the plan must keep the characterised-not-canonical reading"
+
+# ---- 45. §92 the no-ghost input is exactly "the closed space is even", and the range is weaker
+# §83/§88 carry the input in two pieces and say the range implication has no converse "for want of the
+# radical half".  §92 proves the non-negativity half is an absence statement, shows the radical half is
+# then derived (so the input is one statement), and witnesses that range evenness is strictly weaker.
+# Dropping the equivalence would put the input back to two hypotheses; dropping the witness would let
+# §12's sufficient condition read as necessary.
+require "$QUARTET" "theorem closed_mem_of_closed_of_odd" \
+    "§92: closed-space stability under a charge-odd map must stay"
+require "$QUARTET" "theorem nonneg_iff_noOddClosed" \
+    "§92: non-negativity as absence of odd closed states must stay"
+require "$QUARTET" "theorem physicalPositivity_iff_closed_le_even" \
+    "§92: the closed-space form of the input must stay"
+require "$QUARTET" "theorem smPhysicalPositivity_iff_closed_even" \
+    "§92: the model's one-line form of the input must stay"
+require "$QUARTET" "theorem exPar_isometry" \
+    "§92: the witness metric must stay an isometry"
+require "$QUARTET" "theorem exVh_range_even" \
+    "§92: the witness's range evenness must stay"
+require "$QUARTET" "theorem exEvenRange_not_positivity" \
+    "§92: the strictness witness must stay"
+require "$PLAN" 'The no-ghost input is exactly' \
+    "§92: the plan must keep the closed-space form of the input"
+require "$PLAN" 'The range version is strictly weaker' \
+    "§92: the plan must keep the strictness verdict"
+
+# ---- 46. §93 what the input costs, and the metric that works ------------------
+# §92 made the input exact; §93 draws both consequences.  On one side positivity *forces* the charge
+# to kill the even sector (`physicalPositivity_imp_charge_kills_even`) — a condition refutable on a
+# single vector — so the ghost-parity metric is not no-ghost in general.  On the other the quartet
+# supplies a metric that *does* satisfy the definition (`physicalPositivity_starProjection`,
+# `smPhysicalPositivity_physMetric`), semidefinite, with radical the gauge orbit.  Dropping the
+# necessary condition would let the parity metric pass silently; dropping the metric construction
+# would make the whole input look unattainable.
+require "$QUARTET" "theorem image_even_mem_odd_closed" \
+    "§93: the obstruction's mechanism must stay"
+require "$QUARTET" "theorem physicalPositivity_imp_charge_kills_even" \
+    "§93: the necessary condition on the charge must stay"
+require "$QUARTET" "theorem not_physicalPositivity_of_even_image" \
+    "§93: the one-vector refutation must stay"
+require "$QUARTET" "theorem smPhysicalPositivity_imp_even_killed" \
+    "§93: the necessary condition at the model must stay"
+require "$QUARTET" "theorem kform_starProjection_self" \
+    "§93: the projector form must stay a squared norm"
+require "$QUARTET" "theorem physicalPositivity_starProjection" \
+    "§93: the quartet metric's no-ghost theorem must stay"
+require "$FORMULA" "def smPhysMetric" \
+    "§93: the model's metric construction must stay"
+require "$FORMULA" "theorem smPhysicalPositivity_physMetric" \
+    "§93: the model's no-ghost theorem must stay"
+require "$FORMULA" "theorem smPhysMetric_kform_eq_norm_sq_of_mem" \
+    "§93: the form's definiteness on the physical range must stay"
+require "scripts/sm-physical-positivity-smoke.py" "max ||Omega x|| over even basis states" \
+    "§93: the numerical smoke test must keep section 18's check"
+require "scripts/sm-physical-positivity-smoke.py" "PhysicalPositivity Omega (projector)" \
+    "§93: the numerical smoke test must keep section 19's check"
+require "$PLAN" 'the charge must kill the even sector, and the metric that works' \
+    "§93: the plan must keep both halves"
+require "$PLAN" 'parity metric is not no-ghost at this truncation' \
+    "§93: the plan must keep the truncation's verdict"
+
+# §94: the ghost-free sector decides the parity metric, and the radical is the cohomology
+require "$QUARTET" "theorem matterGen_eq_zero_of_kills" \
+    "§94: the ghost-free sector's criterion must stay"
+require "$QUARTET" "theorem ghostAnn_smBrstCharge_occ_of_ghostFree" \
+    "§94: recovering one Gauss generator from the charge must stay"
+require "$QUARTET" "theorem not_physicalPositivity_of_ghostFree_gauss" \
+    "§94: the one-entry refutation must stay"
+require "$QUARTET" "theorem kform_starProjection_radical" \
+    "§94: the radical/gauge identification must stay"
+require "$QUARTET" "theorem kform_starProjection_descends" \
+    "§94: the descent to the cohomology must stay"
+require "$FORMULA" "theorem smPhysMetric_radical_eq_gauge" \
+    "§94: the model's radical statement must stay"
+require "$FORMULA" "theorem smPhysMetric_descends" \
+    "§94: the model's descent statement must stay"
+require "scripts/sm-ghost-free-witness.py" "even sector inside ker Omega" \
+    "§94: the witness script must keep the kernel containment check"
+require "$PLAN" 'The ghost-free sector decides the parity metric' \
+    "§94: the plan must keep the decision"
+require "$PLAN" 'no-ghost at the Standard Model' \
+    "§94: the plan must keep the verdict"
+require "$PLAN" 'out of reach for sparse' \
+    "§94: the plan must keep the truncation boundary"
+
+# §95: the doublet's own generator, the per-degree numbers, and what the cubic term kills
+require "$GAUGEREP" "theorem fermiBilin_embedMatter" \
+    "§95: the matter-block restriction of dGamma must stay"
+require "$GAUGEREP" "theorem smGen_hyper" \
+    "§95: the hypercharge generator must stay y times the identity"
+require "$GAUGEREP" "theorem matterGen_smGen_hyper_occ_ne_zero" \
+    "§95: the one matrix entry at the doublet must stay"
+require "$FORMULA" "theorem smGhostParity_not_noGhost_doublet" \
+    "§95: the doublet's refutation must stay"
+require "scripts/sm-ghost-free-witness.py" "per ghost number" \
+    "§95: the witness script must keep the per-degree tables"
+require "$PLAN" 'What the cubic term kills' \
+    "§95: the plan must keep the cubic-term classification"
+require "$PLAN" 'it does **not**' \
+    "§95: the plan must keep the cubic term's failure verdict"
+require "$PLAN" 'symmetry of the ranks is an' \
+    "§95: the plan must keep the observed-symmetry caveat"
+
+# §96: the cubic term grades, the generator entry is a lemma, and the kernel has a basis
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem ghostNumber_mul_cubic_monomial" \
+    "§96: the monomial grading must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem ghostNumber_comm_smGhostCharge" \
+    "§96: the charge's grading must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem ghostNumber_smGhostCharge_eigen" \
+    "§96: the eigenstate grading must stay"
+require "$GAUGEREP" "theorem matterGen_occ_entry" \
+    "§96: the generator entry on a one-mode state must stay"
+require "$GAUGEREP" "theorem matterGen_occ_ne_zero" \
+    "§96: the nonzero-entry criterion must stay"
+require "$GAUGEREP" "theorem smGen_weak_entry" \
+    "§96: the weak generator's entry must stay"
+require "$GAUGEREP" "theorem smGen_gluon_entry" \
+    "§96: the gluon generator's entry must stay"
+require "$GAUGEREP" "theorem matterGen_smGen_weak_occ_ne_zero" \
+    "§96: the weak direction at the model must stay"
+require "$GAUGEREP" "theorem matterGen_smGen_gluon_occ_ne_zero" \
+    "§96: the gluon direction at the model must stay"
+require "scripts/sm-cubic-kernel-basis.py" "dim ker Omega_3 at g=2" \
+    "§96: the kernel-basis script must keep reporting the kernel's dimension"
+require "scripts/sm-cubic-kernel-basis.py" "matter modes" \
+    "§96: the script must keep the matter-mode table"
+require "scripts/sm-cubic-kernel-basis.py" "is not a copy of the m = 0 operator" \
+    "§96: the script must keep the entry-by-entry block check"
+require "$PLAN" 'Switching the matter modes on' \
+    "§96: the plan must keep the matter-mode doubling"
+require "$PLAN" 'g = 2' \
+    "§96: the plan must keep the degree the basis is computed at"
+require "scripts/sm-cubic-kernel-basis.py" "all checks passed" \
+    "§96: the kernel-basis script must keep its exact verification"
+require "scripts/sm-cubic-kernel-basis.py" "is not in the kernel" \
+    "§96: the kernel-basis script must keep its self-checks"
+require "$PLAN" 'A basis of `ker B` at `g = 2`' \
+    "§96: the plan must keep the exhibited basis"
+require "$PLAN" 'The basis is *computed*, not proved' \
+    "§96: the plan must keep the computed-not-proved caveat"
+require "$PLAN" 'all twelve' \
+    "§96: the plan must keep the twelve-direction claim"
+require "$PLAN" 'are *instantiations*' \
+    "§96: the plan must keep the instantiations boundary"
+require "$PLAN" 'which `B` kills outright' \
+    "§96: the plan must keep the basis' structural reading"
+
+require "$PLAN" 'smGhostCharge_occ_weakPair' \
+    "§96: the plan must keep the Lean pure-weak theorem"
+require "$PLAN" 'the block identity is entry-by-entry checked' \
+    "§96: the plan must keep the m >= 2 boundary"
+require "$PLAN" 'dim ker B(m) = 2^m' \
+    "§96: the plan must keep the several-matter-mode doubling"
+require "scripts/sm-cubic-kernel-basis.py" "how the rank was obtained" \
+    "§96: the kernel-basis script must keep its provenance column"
+
+require "$PLAN" 'finrank_ker_smGhostCharge_ge_three' \
+    "§96: the plan must keep the formalised dimension bound"
+require "$PLAN" 'rank 163' \
+    "§96: the plan must keep the odd-degree elimination"
+require "scripts/sm-cubic-kernel-basis.py" "dim ker(m) = 2^m" \
+    "§96: the kernel-basis script must report the 2^m law"
+require "scripts/sm-cubic-kernel-basis.py" 'elimination at `m = 0, 1, 2, 3`' \
+    "§96: the script must keep the m = 3 elimination"
+require "scripts/sm-cubic-kernel-basis.py" 'a `blocks` row checks the entry-by-entry block identity' \
+    "§96: the script must keep the block-identity provenance"
+require "scripts/sm-cubic-kernel-basis.py" "def sector_kernel" \
+    "§96: the script must keep the sector-wise elimination"
+require "scripts/sm-cubic-kernel-basis.py" "matter number" \
+    "§96: the sector check must keep verifying matter conservation"
+require "scripts/sm-cubic-kernel-basis.py" "rank certificate: one square minor" \
+    "§96: the script must keep printing the rank certificate"
+require "scripts/sm-cubic-kernel-basis.py" "def minor_certificate" \
+    "§96: the rank certificate must stay"
+require "scripts/sm-cubic-kernel-basis.py" "def det_k_bareiss" \
+    "§96: the certificate's determinant must keep its independent cross-check"
+require "scripts/sm-cubic-kernel-basis.py" "the two determinant algorithms disagree" \
+    "§96: the certificate must keep asserting the two determinants agree"
+require "$PLAN" 'kernel 331' \
+    "§96: the plan must keep the degree-five kernel"
+require "$PLAN" 'computed object' \
+    "§96: the plan must keep the certificate's not-a-theorem boundary"
+require "$PLAN" 'fraction-free Bareiss' \
+    "§96: the plan must keep the certificate's cross-check"
+require "scripts/sm-cubic-kernel-basis.py" "row-sparse" \
+    "§96: the elimination must stay row-sparse"
+require "$PLAN" 'row-sparse' \
+    "§96: the plan must keep the sparse-elimination note"
+require "$PLAN" 'kernel 463' \
+    "§96: the plan must keep the degree-six kernel"
+require "scripts/sm-cubic-kernel-basis.py" '(6, (0,))' \
+    "§96: the script must keep the degree-six elimination"
+require "Work/SmGhostSectorMatrix.lean" "theorem card_ghostDegreeTwo" \
+    "§96: the sector cardinality 66 must stay"
+require "Work/SmGhostSectorMatrix.lean" "noncomputable def smGhostMatrix" \
+    "§96: the matrix statement must stay"
+require "Work/SmGhostSectorMatrix.lean" "noncomputable def ghostMinorStatement" \
+    "§96: the minor statement must stay"
+require "$PLAN" 'ghostMinorStatement' \
+    "§96: the plan must keep the Lean statement of the certificate"
+require "$PLAN" 'Work/SmSu3Constants.lean' \
+    "§96: the plan must keep the Gell-Mann derivation"
+require "$PLAN" 'smF3 3 4 7 = Real.sqrt 3 / 2' \
+    "§96: the plan must keep the derived weak constant"
+require "scripts/sm-cubic-kernel-basis.py" '(7, (0,))' \
+    "§96: the script must keep the degree-seven elimination"
+require "Work/SmSu3Constants.lean" "theorem smF3_458" \
+    "§96: the derived f_458 must stay"
+require "Work/SmSu3Constants.lean" "def f3Q" \
+    "§96: the trace formula must stay"
+require "Work/Qsqrt3.lean" "theorem det_mulMat" \
+    "§96: the determinant over Q(sqrt 3) must stay"
+require "Work/SmGhostSectorMatrix.lean" "noncomputable def smGhostMatrixPhys" \
+    "§96: the physical instantiation must stay"
+require "scripts/sm-cubic-kernel-basis.py" '(8, (0,))' \
+    "§96: the script must keep the degree-eight elimination"
+require "scripts/sm-cubic-kernel-basis.py" "def emit_minor_lean" \
+    "§96: the script must keep the minor emission"
+require "Work/SmGhostMinorLit.lean" "def ghostMinorData" \
+    "§96: the emitted minor must stay"
+require "Work/SmGhostMinorLit.lean" "theorem ghostMinorData_length" \
+    "§96: the emitted minor's shape check must stay"
+require "Work/SmSu3Constants.lean" "theorem f3Q_antisym" \
+    "§96: the structural antisymmetry proof must stay"
+require "Work/SmSu3Lie.lean" "theorem f3Q_cyclic" \
+    "§96: the cyclicity of the derived constants must stay"
+require "Work/SmSu3Lie.lean" "theorem f3Q_transposition" \
+    "§96: total antisymmetry must stay"
+require "Work/SmSu3Lie.lean" "def jacobiStatement" \
+    "§96: the open Jacobi statement must stay a Prop"
+require "scripts/sm-cubic-kernel-basis.py" "the Jacobi identity fails at" \
+    "§96: the script must keep checking Jacobi in exact arithmetic"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" \
+    "theorem finrank_ker_smGhostCharge_ge_two_pow" \
+    "§96: the matter-only lower bound must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" "theorem not_finrank_ker_le_eleven" \
+    "§96: the refutation of an upper bound of eleven must stay"
+require "BookProof/Sm/ChapterSmBrstGhost.lean" "theorem matterOcc_orthonormal" \
+    "§96: the orthonormality of the matter-only states must stay"
+require "$PLAN" '2^m ≤ finrank (ker Ω₃)' \
+    "§96: the plan must state the matter-only lower bound"
+require "$PLAN" 'not_finrank_ker_le_eleven' \
+    "§96: the plan must keep the refutation of the upper bound"
+require "$PLAN" 'rank 330' \
+    "§96: the plan must keep the degree-four elimination"
+require "$PLAN" '`m = 4, …, 6`, and the dimension is eliminated from scratch at `m = 0, 1, 2, 3`' \
+    "§96: the plan must keep the m = 3 promotion of the block-identity boundary"
 
 if [ "$FAILED" -ne 0 ]; then
     echo

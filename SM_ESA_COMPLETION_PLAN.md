@@ -4986,23 +4986,17 @@ contracting homotopy of an odd charge can always be taken odd — the sign in §
 choice of convention — and `ChapterSmQuartet` §13, `§77`'s dependency, now uses it.
 
 **What the chosen `smQuartet` exposes.**  `BrstQuartet.bGhost_QSQ` derives `Ω P Ω = Ω` from the
-quartet record alone.  The second identity `P Ω P = P` is *not* in the record: it is a property of the
-homotopy `quartetOfHomotopy` started from, which the record does not store — which is exactly why §5.1
-bundles one.  The parity of the chosen b-ghost is likewise not recoverable: it is `P − Ω P²` for an
-unexposed `P`.
+quartet record alone.  The second identity `P Ω P = P` is *not* in a record built by `quartetOfHomotopy`:
+it is a property of the homotopy that record started from — which is exactly why §5.1 bundles one.  Since
+§87 the model's quartet is built **from** that bundle, so both identities and the parity come with it.
 
-Boundary: instantiating §5.1 at `FermiFock (m + 12)` does not elaborate in this toolchain, and the
-cause is now localised.  `set_option diagnostics true` on the failing application reports **81 372**
-unfoldings of `DFunLike.coe`, 69 133 of `Nat.rec`, 62 286 of `HAdd.hAdd`/`Add.add`, 46 080 of `Nat.add`,
-11 910 of `smGhostParity`, plus `ghostCre`/`ghostAnn`/`Fin.foldr`/`WithLp.equiv`: the unifier is
-*evaluating* the operator's body (a finite sum over `Finset (Fin (m+12))`, so `Nat.add m 12` is
-unfolded too) instead of assigning the metavariable.  Consequences: the type *as an antecedent*
-elaborates in ~4 s, the instances synthesise cheaply, and the two hypothesis statements elaborate
-cheaply; what fails is either the application (metavariable `?U` unified against `smGhostParity` by
-reduction) or a *conclusion* mentioning the operator twice, at 200k, 300k, 800k and 1.6M heartbeats.
-So the model's chosen quartet is not claimed to be odd, and the instantiation stays recorded as a
-toolchain limitation rather than a mathematical gap — the obstruction half needs no instantiation, so
-the sign question is settled regardless.
+Boundary that has since been passed.  Instantiating §5.1 at `FermiFock (m + 12)` initially did not
+elaborate; `set_option diagnostics true` on the failing application reported **81 372** unfoldings of
+`DFunLike.coe`, 69 133 of `Nat.rec`, 62 286 of `HAdd.hAdd`/`Add.add`, 46 080 of `Nat.add`, 11 910 of
+`smGhostParity`, plus `ghostCre`/`ghostAnn`/`Fin.foldr`/`WithLp.equiv` — the unifier was *evaluating* the
+operator's body instead of assigning the metavariable, and it failed at 200k, 300k, 800k and 1.6M
+heartbeats.  §87 records the fix, so the "chosen quartet is not claimed odd" caveat is withdrawn: it is
+now `smBghost_odd`, a proved statement about the model's b-ghost.
 
 ## 85. Distinctness of the alias labels is separation, not a new hypothesis
 
@@ -5051,8 +5045,613 @@ their labels are the pairings, then `volPot = C((κ/2)Λ²)`, respectively `C((�
 is (i) a membership statement about the model's spectrum and (ii) constancy of the deformation gradient's
 determinant on the grid — neither is a truncation artefact.
 
-Boundary: `axis` is the coordinate basis, so `gridBox N axis` is the ordinary cube and §5's skew-basis
-generality is not exercised here; a model whose wave numbers are not integer multiples of `2π/N` (a
-non-commensurate box) has no modes on this grid and is out of scope of §9, though it is not excluded by
-§85 provided its own first-Brillouin bound can be checked.  The grid itself presumes periodicity, which is
-the physical content of the truncation, not an additional assumption.
+Boundary at the time: `axis` is the coordinate basis, so `gridBox N axis` is the ordinary cube and §5's
+skew-basis generality was not exercised there.  §89 removes that restriction — the same first-Brillouin
+argument runs in any basis once the wave numbers are written in its dual basis — while a model whose wave
+numbers are not integer multiples of `2π/N` (a non-commensurate box) has no modes on the grid and stays
+out of scope, though it is not excluded by §85 provided its own first-Brillouin bound can be checked.  The
+grid itself presumes periodicity, which is the physical content of the truncation, not an additional
+assumption.
+
+## 87. The odd homotopy is instantiated: `smQuartet` is built from it, and the b-ghost is odd
+
+§84 left one boundary: §5.1's construction could not be *applied* to `FermiFock (m + 12)`, so the
+model's quartet was chosen from a contracting homotopy and its parity was not claimed.  That boundary is
+now passed, and the fix is one attribute.
+
+**The wall was unification, not mathematics.**  Every input already existed as a lemma about the model's
+constants — `smGhostParity_involutive` for `U² = 1` and `smGhostParity_odd_smBrstCharge` for `U Ω = −Ω U`
+— so no goal ever needed to *unfold* `smBrstCharge` or `smGhostParity`.  What forced the unfolding was
+elaboration: the same constants also occur in the statement, and the unifier reduced their bodies while
+unifying the construction's conclusion with the concrete `EuclideanSpace` instance.  Marking the two
+constants `irreducible` *locally* (from the instantiation to the end of the chapter) removes the
+reduction; the same statement then elaborates under `400000` heartbeats, where it previously failed at
+`800000`.
+
+**The instantiation.**  `smOddHomotopy m T f3 : OddHomotopy (smGhostParity m) (smBrstCharge m T f3)`,
+obtained by `Classical.choice` from `exists_odd_homotopy`.  Note what is *not* assumed: nilpotence, the
+gauge algebra `su(3) ⊕ su(2) ⊕ u(1)`, the structure constants and any property of the mode content.  The
+bundle needs only involution and oddness, which is why it is available before the quartet is.
+
+**The quartet is built from the bundle.**  `smQuartet` is now
+`quartetOfOddHomotopy (isBrst_smBrstCharge …) (smOddHomotopy …)`, so the record keeps the homotopy it
+came from rather than an anonymous `Classical.choice` of a bare contracting homotopy.  The old derivation
+`smBrstCharge_quartet_nonempty` (from `exists_contractingHomotopy`) remains, as the comparison that shows
+the bundle is extra structure and not a restatement.
+
+**The b-ghost is odd.**  `smBghost_odd`: `U P = −P U` for `U = smGhostParity` and `P = smBghost`.  Two
+generic steps carry it: `odd_comp_odd` (a product of two odd maps is even) and `bGhostOf_odd` (the
+correction `P ↦ P − Ω P²` subtracts two odd maps, since `P²` is even, so the quartet identity's
+correction term does not disturb the parity).  `oddHomotopy_bGhost_odd` is the bundled form.  With §84's
+`even_homotopy_eq_zero`, the sign question is now answered in both directions *at the model*: the even
+choice is impossible, and the chosen b-ghost realises the odd one.
+
+Boundary: `smBghost_odd` is a parity statement, not a no-ghost statement.  Positivity of the charge form
+on the range of `smPhysProj` (`smPhysicalPositivity_of_physForm`) is still the open input, and no metric
+for `smBrstCharge` is constructed.  What §88 adds is the range itself: the bundle does put `range
+smPhysProj` into an exact description, `ker Ω ⊓ ker P`.
+
+## 88. The physical subspace of `smBrstCharge`, exactly
+
+§87 built the model's quartet from a bundle, so the choice it makes has a *name*: the homotopy is the
+`P` field of `smOddHomotopy`.  That is exactly what §55/§56 and §9 of the quartet chapter could not
+use — they could only record containment in the closed space, because the homotopy behind the
+`Classical.choice` was not exposed.  With the bundle in hand the characterisation is available at the
+model:
+
+  `range smPhysProj = ker Ω ⊓ ker P`      (`smPhysProj_range`),
+
+so the physical subspace of the Standard-Model charge is *exactly* the closed states killed by the
+chosen b-ghost — the harmonic representatives of the cohomology — and a state is physical iff it is
+closed and `P` kills it (`smPhysProj_mem_range_iff`).  The two halves of the quartet split are
+`smClosed_decompose` (`x = Ω (b x) + V x` for closed `x`, with `b = smBghost` the corrected b-ghost)
+and `smPhysProj_comp_smBrstCharge` (the gauge orbit is annihilated).  The exposure itself is
+`smBghost_eq_bGhostOf` and `smPhysProj_eq_physProjOf`: the model's b-ghost and projector are §5's
+`bGhostOf`/`physProjOf` at `P`.
+
+**The range is graded.**  The bundle's `P` is odd, so §83's forward implication applies at
+`smBrstCharge` with no remaining parameter: `smPhysicalPositivity_imp_evenRange` — positivity of the
+ghost-parity form on the closed space forces every physical state to be ghost-parity even.  The
+transverse, even description of `range smPhysProj` is therefore a *consequence* of the no-ghost input
+and never a route around it; this is where §77's `smPhysicalPositivity_of_evenRange` and §83's
+implication meet at the model's own b-ghost.
+
+Boundary: nothing here compares `range smPhysProj` with `range smPhysProjFormula`.  The two homotopies
+are different choices of complement of the exact states, so the two ranges are different subspaces of
+the same closed space; only the canonical one is proved to be `ker Ω ⊓ (range Ω)ᗮ`
+(`smPhysProjFormula_range`, `ChapterSmBghostFormula` §3), and the sign on the chosen range stays the
+input (`smPhysicalPositivity_of_physForm`).
+
+## 89. A skew box: the grid argument does not need the axes
+
+§86 discharged distinctness on the coordinate box, where the wave numbers are `2π j_x/N` along the
+axes, and recorded the loss of §5's skew-basis generality as a boundary.  That boundary is not real:
+nothing in the argument used orthogonality — what it used is that the *dual* coordinates of a
+difference of two wave numbers are the integer differences `j_x − j'_x`, so `|j_x − j'_x| < N` makes
+every pairing smaller than `2π` and §85's bound applies.
+
+So `skewWave N f j = (2π/N) Σ_x j_x · f_x` writes the torus modes in the basis `f` dual to the box's
+directions `e` (`IsDualBasis`), `skewWave_pairing` evaluates the pairing as `2π(j_x − j'_x)/N`, and
+`hdvd_skew` repeats §86's divisibility argument verbatim on `gridBox N e`: three integer labels
+divisible by `N`, each smaller than `N` in modulus (`abs_eq_zero_of_dvd_of_abs_lt`), hence all zero,
+hence `j = j'`, hence `q = q'`.  `volPot_of_single_mode_of_skew_torus` and
+`volPot_of_shear_constant_of_skew_torus` are the penalty theorems at that grid, with `hdvd`
+discharged.  The axis case is a corollary in the literal sense: `axis` is its own dual basis, so
+`skewWave_axis` shows `torusWave` *is* `skewWave` there — §86 was the orthogonal member of this
+family, not a separate construction.
+
+`dualResidue_pairing` is the shared step: the pairing of `(2π/N) Σ_x m_x f_x` against `e_{x'}` is
+`2π m_{x'}/N`, which is `dual_pairing` with the scalar pulled out, and it is used both here and in
+§81's alias-class computation.
+
+Boundary: `hdvd_skew` still takes the labelling as an input.  The dual basis supplies the *pairing
+formula*, not the assertion that the model's spectrum lies on the grid — that remains §85's
+periodicity condition (`commensurate_of_periodic`), read with the skew lattice generated by `e`.
+
+## 90. The shear's constant residual is a determinant
+
+§74 and §86–§89 carry the *constancy* of the residual as a hypothesis: `hconst` says that on the grid
+the determinant of `1 + ∇ξ` is the constant `1 + Λ`, independently of the configuration and of the
+grid point.  For §63's shear family the constant is `c·ε·t`; the determinant half of that is now
+proved.
+
+The deformation gradient is `1 + t·e_x⊗e_y + ε·e_y⊗e_x` (`shearGrad`), whose determinant is `1 − εt`
+(`det_one_add_shearGrad`) — the `(εt)²` of the penalty's normal form is the square of exactly this
+number, so the *sign* of the residual is pinned down and not merely its square.  Then
+`hconst_of_dispGrad_shear` gives `hconst` at `Λ = −εt` for any model whose gradient is that matrix,
+and `volPot_of_shearGrad_of_torus` gives the penalty `(κ/2)(εt)²` on the skew torus grid.
+
+Boundary: the identification `dispGrad kv y a = shearGrad t ε` is *not* proved, and does not follow
+from the grid.  `dispGrad` is a sum of `i w_c ξ̂_{m,r} e^{i w·a}` over the model's modes, so its value
+at a configuration is fixed by that configuration's coefficients; matching it to the shear matrix is a
+statement about which configuration and which truncation.  The theorems above make that the single
+remaining input and discharge everything downstream of it.
+
+## 91. The physical range is a complement of the exact states, so both projectors are equally large
+
+§88 characterised `range smPhysProj` as `ker Ω ⊓ ker P`.  That description also fixes its *size*: a
+contracting homotopy pairs the closed space with the exact states, so the physical subspace is a
+complement of `range Ω` inside `ker Ω`.
+
+* **Disjointness** — `range_physProjOf_disjoint`: `range Q ⊓ range V = ⊥`.  An exact state in `range V`
+  is killed by the homotopy (`P_physProjOf`), while `Q P Q = Q` says `Q z = Q (P (Q z))`, so it
+  vanishes.
+* **Sum** — `closed_eq_sup_range_physProjOf`: `closed Q = range Q ⊔ range V`, from the split
+  `x = Q (P x) + V x` for closed `x` (the quartet decomposition one correction term earlier).
+* **Dimension** — `finrank_range_physProjOf`: `dim range V + dim range Q = dim ker Q`, and at the model
+  `smPhysProj_finrank` reads `dim range smPhysProj + dim range Ω = dim ker Ω`.
+
+**Both projectors are equally large.**  The canonical projector of `ChapterSmBghostFormula` has the
+same dimension (`finrank_smPhysProjFormula_range`), so `smPhysProj_finrank_eq_formula` makes the
+chosen/canonical distinction quantitative: the choice of complement moves the physical subspace
+around inside the closed space without changing its dimension.  This is the exact sense in which §88's
+range is characterised rather than canonical — the two ranges are different subspaces of equal size,
+and nothing identifies them.
+
+**A second copy of the elaboration wall.**  The statements of this section put `smBrstCharge` inside a
+typeclass-carrying expression (`Module.finrank` of a submodule of `FermiFock (m + 12)`), which is
+exactly the shape §87 hit: elaborating the *statement* exhausted the budget at `200000` heartbeats.
+The same `attribute [local irreducible]` for `smBrstCharge` and `smGhostParity`, declared at the start
+of the new section in `ChapterSmBghostFormula`, removes it — so the workaround is not specific to the
+odd-homotopy instantiation, it is what any statement quantifying over the concrete operator needs.
+
+Boundary: the identification of `dim range V` with the dimension of the cohomology `ker Ω ⧸ range Ω`
+is not stated as a quotient: what is proved is the finrank identity above, and the quotient form is the
+standard finrank additivity one step further.  Positivity on either range is still the separate
+no-ghost input, and no metric for `smBrstCharge` is constructed.
+
+## 92. The no-ghost input is exactly "the closed space is ghost-parity even"
+
+§39 and §77 carried the Kugo–Ojima input in two pieces — non-negativity and radical-equals-gauge —
+and left the converse of the range implication in prose.  This section gives the input a single exact
+form and proves the strictness of the range version.
+
+**Non-negativity is an absence statement.**  For a unitary involution `U` an odd vector has charge
+form `−‖·‖²` (`kform_self_eq_neg_norm_sq_of_odd`), so non-negativity on `ker Q` is *equivalent* to
+the vanishing of odd closed states (`nonneg_iff_noOddClosed`).  Nilpotency alone keeps `ker Q` stable
+under a charge-odd map (`closed_mem_of_closed_of_odd`: `Q (U x) = −U (Q x) = 0`), so the odd part of
+a closed state is closed and the equivalence is exact in both directions.
+
+**The radical half comes free.**  With no odd closed state, every closed state is even
+(`x = evenPart x`), the charge form on `ker Q` is the ambient norm squared, and its radical is `{0}`.
+So the second conjunct of `PhysicalPositivity`, which §39's `physicalPositivity_nonneg_of_sectors` and §77's
+`smPhysicalPositivity_iff_parityNorms` carried separately, is derived:
+`PhysicalPositivity Q U ↔ ker Q ≤ evenSpace U`, and at the model
+`smPhysicalPositivity_iff_closed_even` reads "every `Ω`-closed state is fixed by the ghost parity".
+Nilpotency of `Q` is used nowhere in the equivalence — the input is about the grading and the kernel.
+
+**The range version is strictly weaker, and §10 decides it.**  §10's three-dimensional block under the
+diagonal metric `exPar = diag(1, −1, 1)` keeps every hypothesis §83 assumes at the model: `exPar` is a
+unitary involution (`exPar_comp`, `exPar_isometry`), the charge and the b-ghost are odd for it
+(`exPar_Q_odd`, `exPar_B_odd`), the quartet identity is §10's, and the physical range `span e₂` is
+even (`exVh_range_even`).  Positivity still fails, because the *exact* state `e₁` is closed and odd
+(`exE3_one_closed`, `exPar_e1`), giving the charge form the value `−1` there
+(`exEvenRange_not_positivity`).  Hence §12's sufficient condition (§77's
+`smPhysicalPositivity_of_evenRange`) cannot be made necessary: the obstruction is invisible to the
+range and visible only on the closed space.
+
+**Correction carried with it.**  §83's caveat said the converse would need "the radical half of
+positivity … through its second conjunct".  Both halves of that sentence were wrong: an odd closed
+vector violates *non-negativity* (its form is `−‖x‖²`), and given evenness of the closed space the
+radical half is derived.  The caveat's conclusion stands — the range cannot be identified with the
+even sector — but for the reason above, which is now a theorem.
+
+Boundary: no metric for `smBrstCharge` is constructed, and nothing here proves the model's closed
+space is even; that is exactly the remaining no-ghost input, now stated in one line.
+
+## 93. What the input costs: the charge must kill the even sector, and the metric that works
+
+§92 made the no-ghost input exact.  This section draws its two consequences: one that can be
+refuted on a single vector, and one that shows the definition is satisfiable.
+
+**A necessary condition on one vector.**  For an even state `x`, `Ω x` is closed (nilpotency) and odd
+(`U (Ω x) = −Ω (U x) = −Ω x`), so it is an odd closed state unless it vanishes
+(`image_even_mem_odd_closed`).  With §92's equivalence this gives
+`physicalPositivity_imp_charge_kills_even`: positivity forces `Ω x = 0` for every even `x`, and a
+single even state with `Ω x ≠ 0` refutes the input (`not_physicalPositivity_of_even_image`, and at the
+model `smPhysicalPositivity_imp_even_killed`).  The Gauss term `Σ_a c_a† G_a` is exactly the piece of
+`Ω` that can map an even state to a nonzero one, so for a charge with a Gauss term this is a real
+condition, not a formality.
+
+**A metric that does work.**  The quartet supplies one: the orthogonal projection `η = P_D` onto the
+physical range `D`.  Its charge form is `‖P_D x‖²` (`kform_starProjection_self`), non-negative on the
+*whole* space; the radical condition needs the quartet: `ker Q = range Q ⊔ D` (§91) plus `range Q ⟂ D`
+gives it (`physicalPositivity_starProjection`).  At the model this is `smPhysMetric` (the projection
+onto `ker Ω ⊓ (range Ω)ᗮ`), `smPhysicalPositivity_physMetric` proves `PhysicalPositivity` for it, and
+`smPhysMetric_kform_eq_norm_sq_of_mem` says the form is the ambient norm squared on that range.
+
+The price is stated in the same theorems: `η` is *semidefinite*, with radical the gauge orbit.  This is
+not a Krein metric, and it does not identify the physical range with the transverse even sector — what
+it does establish is that the no-ghost definition holds at the SM charge for an explicit operator, so
+what remains open is an identification, not positivity as a hypothesis.
+
+**Numerical smoke test.**  `scripts/sm-physical-positivity-smoke.py` re-implements the truncation's
+fermionic algebra with the chapter's own conventions (`jwSign`, `annih`, `creat`,
+`Ω = Σ_a c_a† G_a − ½ f_{abc} c_a† c_b† b_c`, `G_a = −i dΓ(T_a)`) on the su(2) block of the gauge
+algebra: 3 matter + 3 ghost modes, 64 states, pure-Python Gaussian elimination.  Measured on
+2026-11-15:
+
+* the hypotheses hold exactly: `‖Ω²‖ = 0`, `‖UΩ + ΩU‖ = 0`, `‖U² − 1‖ = 0`;
+* `dim ker Ω = 36`, `dim range Ω = 28`, `dim (odd ∩ ker Ω) = 24` — so the closed space is not even and
+  §92 predicts positivity fails; the ghost-parity form on `ker Ω` has minimum eigenvalue `−1`, with an
+  explicit odd closed basis state as witness;
+* `max ‖Ω x‖` over even basis states is `1.2247 ≠ 0`, i.e. §18's necessary condition fails — the
+  parity metric is not no-ghost at this truncation;
+* the projector metric onto `ker Ω ⊓ (range Ω)ᗮ` (dimension 8 = `dim ker Ω − dim range Ω`) satisfies
+  `PhysicalPositivity`: the form on `ker Ω` is exactly `B†B` (residual `0`), and its radical has
+  dimension 28 = `dim range Ω`;
+* on 40 random dimension-six instances satisfying the hypotheses, both directions of §92's
+  equivalence agree in **40/40**, with 19 of them in the positivity-holding regime.
+
+The truncation is the su(2) block, not the Standard Model: the numbers illustrate the statements, they
+do not decide the model's closed space.
+
+Boundary: whether `smBrstCharge` itself annihilates its even sector is not decided here; §18 turns it
+into a one-vector question, and the smoke test shows what the answer looks like on a truncation where
+the Gauss term is present.
+
+## §94. The ghost-free sector decides the parity metric; the projector's radical is the cohomology
+
+§93 left one question explicitly open: *does `smBrstCharge` itself annihilate its even sector?*  It is now
+decided for a sector that can be written down by hand, and the answer is **no** — not for this charge,
+not for any charge whose Gauss term acts nontrivially on ghost-free states.
+
+**The computation (`ChapterSmQuartet` §20).**  Take a state with matter occupied and *no ghost*: an
+occupation state `occ S` with `GhostFree m S`.  The cubic term dies at once, since its rightmost factor
+is a ghost annihilation (`smGhostCharge_occ_of_ghostFree`), so
+
+  `Ω (occ S) = Σ_a c^a G_a (occ S)`   (`smBrstCharge_occ_of_ghostFree`),
+
+and applying one ghost annihilation recovers exactly one Gauss generator,
+
+  `b_a (Ω (occ S)) = G_a (occ S)`   (`ghostAnn_smBrstCharge_occ_of_ghostFree`),
+
+because the CAR pairs `b_a` with `c^a` and the remaining terms meet a ghost-free state.  Therefore `Ω`
+kills a ghost-free state **iff** every Gauss generator does (`matterGen_eq_zero_of_kills`).  Since
+ghost-free states are fixed by the ghost parity (`smGhostParity_occ_of_ghostFree`), §18 turns this into
+
+  `PhysicalPositivity Ω U  ⟹  ∀ S a, GhostFree m S → G_a (occ S) = 0`
+  (`smPhysicalPositivity_imp_matterGen_kills_ghostFree`),
+
+and its contrapositive is a refutation from a single matrix entry: one `a` and one ghost-free `S` with
+`G_a (occ S) ≠ 0` gives one even state with `Ω x ≠ 0`, hence `¬ PhysicalPositivity Ω U`
+(`not_physicalPositivity_of_ghostFree_gauss`).  No truncation appears in any of these statements.
+
+**The numbers (`scripts/sm-ghost-free-witness.py`).**  The script rebuilds the charge from the Gell-Mann
+and Pauli matrices (structure constants checked: 60 nonzero triples, antisymmetry residual `0`, Jacobi
+residual `3.3e-16`) and uses the ghost-number/matter-number block structure — `Ω` raises the ghost number
+by one and preserves the matter number — so the ranks are computed block by block with sparse
+elimination.  Full `su(3) ⊕ su(2) ⊕ u(1)` ghost sector, measured 2026-11-15:
+
+| model | states | `‖Ω²‖` | `dim ker Ω` | `dim range Ω` | even ∩ ker | odd ∩ ker | even ⊆ ker |
+|---|---|---|---|---|---|---|---|
+| `m = 0` (ghost sector only) | 4096 | `3.3e-16` | 2056 | 2040 | 1028 | 1028 | **no** |
+| `m = 1` (hypercharge `y = 1`) | 8192 | `3.3e-16` | 4104 | 4088 | 2052 | 2052 | **no** |
+
+`ker + range = dim` holds in both rows, and the even and odd halves of the kernel have equal dimension —
+as they must, since `U Ω = −Ω U` leaves `ker Ω` invariant.  At the six-mode coloured weak doublet
+(`m = 6`, `ChapterSmGaugeRepresentation`'s representation) the even state with matter mode 0 occupied and
+the ghost vacuum has `‖Ω ψ‖ = 1.7559`, `Σ_a ‖G_a ψ‖² = 37/12 = 3.0833`, cubic part `0`, and
+`‖Ω ψ − Σ_a c^a G_a ψ‖ = 0` — the identity above, checked independently of the proof.  The Gauss
+generators that act nontrivially there are `{0,1,2,3,4,7,8,9,10,11}`.  So the parity metric is **not**
+no-ghost at the Standard Model's charge, and the reason is a Gauss term, not a truncation artefact.
+
+**The projector's radical is the cohomology (`ChapterSmQuartet` §21, `ChapterSmBghostFormula` §6).**  The
+metric that *does* work was built in §93; §21 states what "an inner product on the cohomology" unpacks
+into, without leaving the quotient implicit:
+
+* `kform_starProjection_radical`: on the closed space the form vanishes **iff** the state is exact, so it
+  is definite on `ker Ω / range Ω` and not merely semidefinite there;
+* `kform_starProjection_descends`: shifting either argument by an exact state changes nothing — the
+  well-definedness that `kform_well_defined` states abstractly, now proved for this `η`;
+* `kform_starProjection_definite` and `kform_starProjection_eq_norm_sq_of_mem`: on the canonical range the
+  form **is** the ambient norm squared, hence positive definite;
+* `exists_gauge_add_mem` and `representative_unique`: every closed state is exact plus **one** member of
+  that range, so `ker Ω / range Ω ≃ D` and the descended form is the ambient inner product transported
+  along the identification.
+
+At the model these are `smPhysMetric_radical_eq_gauge`, `smPhysMetric_descends`, `smPhysMetric_definite`
+and `smPhysMetric_representative`, with the two hypotheses of §93 extracted as
+`smPhysProjFormula_le_orthogonal` and `closed_eq_sup_range_smPhysProjFormula`.
+
+**Boundaries.**  (i) §20's condition is necessary, not sufficient: the converse of §18 is still missing,
+and a closed even state can also be produced by the cubic term, which §20 does not classify (the `m = 0`
+row shows the cubic term alone already fails to kill the even sector).  (ii) The blockwise ranks reach the
+full twelve-ghost sector only with trivial or hypercharge-only matter (`m ≤ 1`, 8192 states); the
+eighteen-mode doublet has `2^18 = 262144` states and blocks of `20 · C(12,6)`, out of reach for sparse
+elimination in pure Python, so for it only the one-state witness is computed.  (iii) The quotient
+identification is recorded as a decomposition with uniqueness, not as an `Equiv` or an
+`InnerProductSpace` instance, and `D` is the canonical range, so it is a property of that choice of
+complement.  (iv) The Lean refutation takes `G_a (occ S) ≠ 0` as a hypothesis; that the model's
+hypercharge generator satisfies it at the six-mode doublet is checked numerically, not in Lean.
+
+## §95. The doublet's own generator, the cohomology by ghost number, and what the cubic term kills
+
+§94 ended with a boundary of its own: the Lean refutation took `G_a (occ S) ≠ 0` as a hypothesis, and the
+matrix entry at the doublet was checked only numerically.  That gap is now closed, and the blockwise
+numbers of §94 are broken down by ghost degree.
+
+**The generator at the doublet (`ChapterSmGaugeRepresentation` §5).**  Evaluating a Gauss generator on an
+occupation state needs the second quantization of the *matter block* only, and the embedded matter block
+is supported on the matter modes `Fin.castAdd 12 i`:
+
+* `fermiBilin_embedMatter` — `dΓ(embedMatter m M) ψ = Σ_{i,j < m} M i j · c†_i a_j ψ`: reindexing the
+  mode sums by `Fin m ⊕ Fin 12` leaves the matter block, and its ghost rows and columns are zero
+  (`embedMatter_apply_ghost_col`, `embedMatter_apply_ghost_row`);
+* `fermiBilin_embedMatter_diagonal` — for a diagonal one-particle matrix this is the weighted matter
+  occupation number;
+* `fermiBilin_embedMatter_scalar_occ` — on a single occupied matter mode it is that column, so for a
+  multiple of the identity it is the state itself;
+* `smGen_hyper` — the hypercharge generator of `smGen` is `y` times the identity on the six matter modes
+  (`smIdxEquiv 11 = Sum.inr (Sum.inr 0)`), hence
+  `matterGen_smGen_hyper_occ_ne_zero` — `G₁₁ (occ {0}) = −i y · occ {0} ≠ 0` for `y ≠ 0`: exactly the
+  matrix entry §94's refutation was taking as a hypothesis.
+
+**The refutation is now a theorem about `smGen` (`ChapterSmBghostFormula` §7).**
+`smGhostParity_not_noGhost_doublet` : for `TraceOrthonormal S3`, `ClosesWithStructureConstants S3 f3` and
+`y ≠ 0`,
+
+  `¬ PhysicalPositivity (smBrstCharge 6 (smGen S3 y) f3) (smGhostParity 6)`.
+
+No hypothesis about the generator survives: the ghost parity is **not** a no-ghost metric at the Standard
+Model's six-mode coloured weak doublet.  §93's projection metric `smPhysMetric` is of course untouched —
+it satisfies `PhysicalPositivity` at the same charge.
+
+**The cohomology by ghost degree.**  `scripts/sm-ghost-free-witness.py` now also reports, per ghost number,
+the dimension, the rank of the charge and the kernel split by parity.  Measured 2026-11-15, full
+`su(3) ⊕ su(2) ⊕ u(1)` ghosts:
+
+| `m` | `g` | `dim Λ^g` | `dim ker Ω` | `dim range Ω` |
+|---|---|---|---|---|
+| 0 | 0,1,2,3,4,5,6 | 1, 12, 66, 220, 495, 792, 924 | 1, 1, 11, 57, 165, 331, 463 | 0, 11, 55, 163, 330, 461, 461 |
+| 0 | 7,8,9,10,11,12 | 792, 495, 220, 66, 12, 1 | 462, 332, 165, 55, 12, 1 | 330, 163, 55, 11, 0, 0 |
+| 1 | 0,1,2,3,4,5,6 | 2, 24, 132, 440, 990, 1584, 1848 | 1, 2, 22, 112, 330, 661, 925 | 1, 22, 110, 328, 660, 923, 923 |
+| 1 | 7,8,9,10,11,12 | 1584, 990, 440, 132, 24, 2 | 924, 662, 330, 110, 23, 2 | 660, 328, 110, 22, 1, 0 |
+
+The kernel of `Ω` is invariant under the ghost parity (it is `dim ker = ker(even) + ker(odd)` degree by
+degree, with one half always zero), as it must be since `U Ω = −Ω U`.
+
+**What the cubic term kills.**  The cubic term `B = −Σ_{a<b,e} f_{abe} c†_a c†_b b_e` raises the ghost
+number by one, so its kernel can be read degree by degree.  At `m = 0`:
+
+| `g` | 0 | 2 | 4 | 6 | 8 | 10 | 12 |
+|---|---|---|---|---|---|---|---|
+| `dim Λ^g` | 1 | 66 | 495 | 924 | 495 | 66 | 1 |
+| `dim ker B` | 1 | 11 | 165 | 463 | 332 | 55 | 1 |
+
+so the ghost-free criterion of §94 is the **degree-0** case, where `B` kills everything (Lean:
+`smGhostCharge_occ_of_ghostFree`, valid for every representation and every `f`), and it does **not**
+extend: at every even degree `2 ≤ g ≤ 10` the kernel is a proper subspace of codimension given by the rank
+of `B` on that degree (`55, 330, 461, 163, 11` at `g = 2,4,6,8,10`).  Two structure checks: at `m = 1` every
+rank and kernel dimension is exactly twice the `m = 0` value, as they must be because `B` never touches the
+matter mode; and the ranks are symmetric under `g ↦ 11 − g` (`11, 55, 163, 330, 461` in both directions) —
+a Hodge-star-like symmetry of the truncated charge, observed here and not proved.
+
+**Boundaries.**  (i) The per-degree dimensions are *computed*, not proved: no Lean statement asserts them,
+and §94's blockwise rank argument is limited to trivial or hypercharge-only matter (`m ≤ 1`).  (ii) The
+doublet theorem is at `m = 6` but for the hypercharge direction alone; the other eleven generators enter
+§94's general criterion only through their hypothesis.  (iii) The `g ↦ 11 − g` symmetry of the ranks is an
+observation.  (iv) The classification says which even states `B` kills *dimensionally*; it does not
+exhibit a basis of `ker B` on any degree.
+
+## §96. The cubic term's grading, all twelve generators, and a basis of its kernel at `g = 2`
+
+§95 ended with four boundaries: nothing in Lean said that the cubic term raises the ghost number, only the
+hypercharge direction was evaluated at the doublet, the other eleven generators entered §94's criterion
+only as the hypothesis `G_a (occ S) ≠ 0`, and the cubic term's kernel was classified dimensionally rather
+than by an exhibited basis.  The first three are now closed in Lean; the fourth is closed by an exact
+computation and, honestly, not in Lean.
+
+**The grading (`ChapterSmBrstGhost` §2).**  `ghostNumber_comm_ghostCre` and `ghostNumber_comm_ghostAnn`
+give the one-factor relations `[N, c†_a] = c†_a`, `[N, b_a] = −b_a`; moving `N` through a cubic monomial
+therefore costs one unit of ghost number:
+
+* `ghostNumber_mul_cubic_monomial` — `N · c†_a c†_b b_e = c†_a c†_b b_e · N + c†_a c†_b b_e`, by
+  applying the two one-factor relations in order (`noncomm_ring` for the rearrangement, and the
+  anticommutation is never used, so the statement holds for any two creation and one annihilation
+  operator);
+* `ghostNumber_comm_smGhostCharge` — `[N, Ω₃] = Ω₃` for the Standard-Model cubic charge, by expanding
+  `Ω₃ = −½ Σ_{a,b,e} f_{abe} c†_a c†_b b_e` and applying the monomial lemma term by term;
+* `ghostNumber_smGhostCharge_eigen` — if `N ψ = g · ψ` then `N (Ω₃ ψ) = (g + 1) · Ω₃ ψ`.
+
+So `Ω₃` maps the ghost-number-`g` subspace into the ghost-number-`g + 1` subspace, which is why the
+tables of §95 can be read degree by degree; both theorems need `set_option maxHeartbeats 800000 in`
+because the twelvefold `Fin 8` sum over `Module.End ℂ (FermiFock _)` exceeds the instance budget.
+
+**All twelve directions (`ChapterSmGaugeRepresentation` §6).**  §5 evaluated the one direction where the
+generator is a multiple of the identity.  For the others the generator is the *column* of `T_a`:
+
+* `annih_occ_self` and `creat_occ_empty` (`ChapterSmBrstGhost` §2) — annihilating the occupied mode of a
+  one-mode state leaves the vacuum, and creating on the vacuum fills it.  These are the two off-diagonal
+  cases the existing `occupation_occ` (which covers `creat i (annih i ψ)` only) cannot reach;
+* `castAdd12_inj`, `occ_apply_single`, `creat_annih_occ_entry` — the mode bookkeeping: a `creat`–`annih`
+  pair on a one-mode state contributes `1` exactly when it annihilates and re-creates the same mode, the
+  two Jordan–Wigner signs cancelling;
+* `matterGen_occ_entry` — `G_a (occ {j₀})` at the one-mode state `occ {i₀}` is `−i · T_a i₀ j₀`, obtained
+  from `fermiBilin_embedMatter` and the pair computation above (the double sum collapses twice);
+* `matterGen_occ_ne_zero` — a nonzero matrix entry means the generator does not kill the state;
+* `smGen_weak_entry` — `smGen S3 y 8 1 0 = 1/2`: the first weak generator `1 ⊗ τ₁/2` carries the mode of
+  colour zero and isospin zero to its isospin partner;
+* `smGen_gluon_entry` — `smGen λ y 0 2 0 = 1`: the first Gell-Mann generator `λ¹ ⊗ 1` carries the mode of
+  colour zero to colour one;
+* `smGen_entry_gluon` and `smGen_entry_weak` — the two kinds of entry in general: on the mode `(c, s)` a
+  gluon direction `T_a ⊗ 1` has entry `T_a c c' · δ_{s s'}`, and a weak direction `1 ⊗ τ_k/2` has entry
+  `δ_{c c'} · (τ_k/2) s s'`.  These are the general forms of `smGen_gluon_entry` and `smGen_weak_entry`;
+* `matterGen_smGen_gluon{1..7}_occ_ne_zero` and `matterGen_smGen_weak{9,10}_occ_ne_zero` — the remaining
+  eleven directions, by `smGen_entry_gluon`/`smGen_entry_weak` and `matterGen_occ_ne_zero`.  With §95's
+  hypercharge theorem, **all twelve** Gauss generators now have a computed nonvanishing at the model's own
+  representation: eight of them on `occ {0}` (`a = 0, 1, 2, 7, 8, 9, 10, 11`) and `λ⁴, …, λ⁷` on the
+  one-mode state of colour two (`a = 3, 4, 5, 6`), where `λ⁶, λ⁷` annihilate the colour-zero state because
+  their column is zero there.  So §94's refutation no longer needs `G_a (occ S) ≠ 0` as an input for any
+  direction: each of the twelve is a lemma.
+
+**A basis of `ker B` at `g = 2` (`scripts/sm-cubic-kernel-basis.py`).**  With no matter modes the source
+is `Λ²ℂ¹²` (66 states) and `B = Ω₃` maps it to `Λ³ℂ¹²` (220 states, of which 178 are reached).  The script
+computes the kernel by Gauss–Jordan **exactly**: the structure constants are derived from the `λ_a/2`,
+`τ_k/2` generators rather than typed in, and the only irrational entries (`f₄₅₈ = f₆₇₈ = √3/2`) are carried
+as pairs of `fractions.Fraction`s in `ℚ(√3)`.  Measured 2026-11-16:
+
+| stat | value |
+|---|---|
+| `dim Λ²` | 66 |
+| reached states in `Λ³` | 178 of 220 |
+| `rank B` at `g = 2` | 55 |
+| `dim ker B` at `g = 2` | 11 |
+
+The basis, with ghosts `0–7` gluons, `8–10` weak, `11` hypercharge and `|i+j>` the two-mode state:
+
+| vector | terms | content |
+|---|---|---|
+| `v₀` | 2 | `\|0+1> + \|3+4>` |
+| `v₁` | 3 | `2\|1+2> − \|4+5> + \|3+6>` |
+| `v₂` | 3 | `−2\|0+2> + \|3+5> + \|4+6>` |
+| `v₃` | 2 | `−\|0+1> + \|5+6>` |
+| `v₄` | 4 | `−(√3/3)(\|2+3> + \|0+5>) + (√3/3)\|1+6> + \|3+7>` |
+| `v₅` | 4 | `−(√3/3)(\|2+4> + \|1+5> + \|0+6>) + \|4+7>` |
+| `v₆` | 4 | `−(√3/3)(\|0+3> + \|1+4>) + (√3/3)\|2+5> + \|5+7>` |
+| `v₇` | 4 | `(√3/3)(\|1+3> + \|2+6>) − (√3/3)\|0+4> + \|6+7>` |
+| `v₈` | 1 | `\|8+9>` |
+| `v₉` | 1 | `\|8+10>` |
+| `v₁₀` | 1 | `\|9+10>` |
+
+The script verifies both defining properties: `B v = 0` for each vector, entry by entry, and the eleven
+vectors are independent (the elimination is Gauss–Jordan, so each vector introduces a free column; the
+script also re-eliminates the stacked 11 × 66 matrix and gets rank 11).  It prints the basis and a
+`sha256` of the printed lines, currently `f0c2a83c…952f904`.  The structure is legible: four rational
+vectors in the gluon pairs, four carrying the `λ₈` ghost `7` with coefficient `±√3/3`, and the three pure
+weak pairs `|8+9>`, `|8+10>`, `|9+10>` — which `B` kills outright: the mixed gluon–weak structure constants
+vanish and the all-weak terms hit the Pauli principle.
+
+**Switching the matter modes on.**  §95 also recorded that at `m = 1` every rank and kernel dimension is
+exactly twice the `m = 0` value.  The script now checks that structurally, not just dimensionally: the
+`m = 1` operator splits into the matter blocks, and each block is compared **entry by entry** with the
+`m = 0` operator — the matter-free block agrees, and the matter-occupied block is its *negative*, because
+the matter mode is a fermion sitting below every ghost mode, so each of the three Jordan–Wigner signs of a
+cubic monomial flips once.  The two lifted copies of the eleven vectors are then verified to be a basis of
+the `m = 1` kernel.  Measured 2026-11-16:
+
+| `m` | `dim Λ²` | `rank B` | `dim ker B` | how the rank was obtained |
+|---|---|---|---|---|
+| 0 | 66 | 55 | 11 | elimination |
+| 1 | 132 | 110 | 22 | elimination |
+| 2 | 264 | 220 | 44 | blocks |
+| 3 | 528 | 440 | 88 | elimination |
+| 4 | 1056 | 880 | 176 | blocks |
+| 5 | 2112 | 1760 | 352 | blocks |
+| 6 | 4224 | 3520 | 704 | blocks |
+
+The doubling is therefore not an `m = 1` accident: for `m ≤ 6` every matter block of `B` is checked
+entry by entry against the `m = 0` operator (the block identity above), so `B = (±1) ⊗ B₀` on each
+block and `dim ker B(m) = 2^m · 11` exactly.  `m ≤ 3` is recomputed from scratch by sparse elimination
+as an independent cross-check; `m ≥ 4` relies on the block identity, which is why the table says
+`blocks` rather than `elimination` for those rows.  The `m = 3` row is eliminated like the
+others: 528 sources, 440 of them independent, which is exactly the `2³ · 55` the block identity
+predicted.  The whole script takes ~8 s: the Gauss–Jordan elimination is now row-sparse (the operator's
+columns carry at most eight entries), where the dense row operations had made it ~2.5 min.  The eleven vectors lift to every matter block and
+are verified killed there for `m = 1, 2, 3`, with the lifted family independent.
+
+**The three pure-weak pairs are now a theorem (`ChapterSmBrstGhost` §2b).**  The last column of the
+basis — `|8+9>`, `|8+10>`, `|9+10>` — is the part of the kernel that holds for *every* `f3`, so it can be
+proved in Lean without knowing the gluon constants: `smGhostCharge_occ_weakPair` states
+`Ω₃ (occ {ghostMode m (wGhost k), ghostMode m (wGhost l)}) = 0` for all `m`, all `f3` and all distinct
+weak labels `k ≠ l`.  The proof needs three facts, each now a lemma: `smStruct_eq_zero_of_not_weak_left`
+and `smStruct_eq_zero_of_not_weak_right` (a nonzero `smStruct` confines all three indices to one simple
+summand, so a weak third index kills a gluon or abelian first/second index), the Pauli lemmas
+`creat_occ_of_mem`, `creat_creat_occ_of_mem`, `annih_occ_of_mem` and `annih_occ_of_notMem`, and the
+pigeonhole count `su2Struct_zero_of_pair_left`/`_right` (`epsZ_zero_of_pair_left`/`_right`, both
+`decide`): after the annihilation removes one of the two ghost modes only two weak labels remain, so the
+two creation indices repeat one of the three indices and `ε` vanishes.  Twenty-two of the twenty-three
+new declarations are listed in `Work/SmQuartetConstructedAudit.lean`, which now audits 120 declarations
+on `propext, Classical.choice, Quot.sound` only.
+
+**Boundaries.**  (i) The basis is *computed*, not proved: no Lean statement asserts
+`dim ker Ω₃|_g = 11`, and the script is a certificate one can re-run, not a theorem.  What Lean gives is
+the dimension-free half: `smGhostCharge_occ_weakPair` (every pure-weak pair is killed), the block
+structure that underlies the table, and the bound `3 ≤ finrank (ker Ω₃)` itself — those three states are
+orthonormal, hence independent, so their span sits inside the kernel (`finrank_ker_ge_three` and
+`finrank_ker_smGhostCharge_ge_three`, §2b).  The *exact* dimension 11 is the part that stays computed,
+and (iv) now certifies it with one explicit nonzero minor rather than a pivot count.  (ii) It is at `g = 2` and `m ≤ 6` as far as the *exact* kernel dimension goes (the block identity is entry-by-entry checked
+at `m = 4, …, 6`, and the dimension is eliminated from scratch at `m = 0, 1, 2, 3`); the same block
+identity is verified at ghost degrees 1, 3, 4, 5 and 6, and those kernels are eliminated at `m = 0` —
+degree 1 gives `dim Λ¹ = 12`, rank 11, kernel 1 (the survivor is the hypercharge ghost `|11>`, which `B`
+kills because every mixed structure constant vanishes), degree 3 gives rank 163 with kernel 57, degree 4
+gives `dim Λ⁴ = 495` sources reaching 754 of the 792 five-mode states, rank 330 and kernel 165, and
+degree 5 gives `dim Λ⁵ = 792` sources reaching 907 of the 924 six-mode states, rank 461 and kernel 331,
+degree 6 gives `dim Λ⁶ = 924` sources reaching 784 of the 792 seven-mode states, rank 461 and
+kernel 463, degree 7 gives `dim Λ⁷ = 792` sources reaching 491 of the 495 eight-mode states, rank
+330 and kernel 462, and degree 8 gives `dim Λ⁸ = 495` sources reaching 216 of the 220 nine-mode states,
+rank 163 and kernel 332; all seven follow the `2^m` law (`331 → 662 → 1324 → 2648`,
+`463 → 926 → 1852 → 3704`, `462 → 924 → 1848 → 3696`, `332 → 664 → 1328 → 2656`).  Degree 4 is eliminated at `m = 1, 2` as well (990 / 660 / 330 and
+1980 / 1320 / 660), sector by sector: the cubic term preserves the matter occupation entry by entry, so
+the operator is block diagonal in it and the per-sector Gauss–Jordan ranks add up without using the
+block identity.  The remaining degrees of §95 are not in the table, and the eighteen-mode doublet is
+still out of reach.
+(iii) The twelve directions are *instantiations*: the general result stays
+`matterGen_occ_entry` plus a nonzero matrix entry, and the twelve theorems record which entry, at which
+state, for the model's own `smGen`.
+
+(iv) The rank certificate exists as a *computed object*, not as a theorem.  `scripts/sm-cubic-kernel-basis.py`
+prints a 55 × 55 square minor of the ghost-number-two operator (55 target states of `Λ³ℂ¹²` by 55 source
+states of `Λ²ℂ¹²`) whose determinant is `−3¹²/2³⁵ ≠ 0`, computed twice by two different algorithms
+(Gaussian elimination and fraction-free Bareiss, which the script asserts agree), together with a
+`sha256` of the printed row and column labels.  A nonzero square minor of full size is exactly what
+`rank ≥ 55` needs, and the elimination's `rank ≤ 55` then pins the rank at `55` — so the dimension
+`11 = 66 − 55` no longer rests on reading a pivot count, it rests on one explicit determinant.  What is
+still missing is a *Lean* statement of this: the certificate is a re-runnable computation, and
+`Work/SmQuartetConstructedAudit.lean` audits the imported theorems, not this output.
+(vi) The Lean *statement* of the certificate exists, together with the two layers its proof needed;
+the determinant proof itself is still open.  Three `Work/` files (outside the build) now hold:
+
+* `Work/SmGhostSectorMatrix.lean` — the two sectors as types with `Fintype.card = 66` and `220` proved,
+  the matrix `smGhostMatrix f3 : Matrix GhostDegreeTwo GhostDegreeThree ℂ` (entry: the coefficient of
+  `occ T` in `Ω₃ (occ S)`), its physical instantiation `smGhostMatrixPhys := smGhostMatrix smF3`, and
+  `ghostMinorStatement f3 rows cols`, the nonsingularity of a 55 × 55 minor.
+* `Work/Qsqrt3.lean` — the exact field as pairs `a + b√3` over `ℚ`, a `CommRing` instance (so Mathlib's
+  `Matrix.det` applies), `sqrt3_sq`, `toReal` with `toReal_add`/`toReal_mul`, conjugation, the norm-formula
+  inverse (`mul_inv'_cancel`, stated as an obligation rather than assumed), `detQ`, and a worked
+  determinant: the `2 × 2` multiplication matrix of `a + b√3` has determinant `a² − 3b²`.
+* `Work/SmSu3Constants.lean` — the Gell-Mann matrices over `ℚ(√3) + ℚ(√3)i`, the trace formula
+  `f_abc = Im(tr([λ_a, λ_b] λ_c))/4`, and the standard table *computed* (`f3Q_123`,
+  the six `1/2` constants, and `f3Q_458 = f3Q_678 = √3/2`), read back as `smF3 : Fin 8 → Fin 8 → Fin 8 → ℝ`
+  with `smF3_458 : smF3 3 4 7 = Real.sqrt 3 / 2`.  So `smStruct`'s parameter is now a derived object, not
+  a hypothesis.  `f3Q_antisym` proves the constants are antisymmetric in their first two indices *from
+  the commutator* (`[λ_b,λ_a] = -[λ_a,λ_b]`, negation pulled through the product, the trace and the
+  imaginary part), not by enumerating 512 cases.
+* `Work/SmGhostMinorLit.lean` — generated by `scripts/sm-cubic-kernel-basis.py --emit-minor`: the
+  certificate's 3025 entries as exact `ℚ(√3)` literal pairs (`ghostMinorData`), their shape proved
+  (`ghostMinorData_length`, `ghostMinorData_rows`, both by `decide`), the matrix `ghostMinor`, and
+  `ghostMinorStatement` as the open `Prop`.  The minor is now Lean data instead of a re-runnable script.
+
+* `Work/SmSu3Lie.lean` — the trace algebra and total antisymmetry: `mtrace_mul_comm`,
+  `mmul_assoc`, `mtrace_cycle`, the pointwise additivity lemmas, `mtrace_comm_mul`
+  (`tr([A,B]C) = tr(A[B,C])`), then `f3Q_cyclic`, `f3Q_swap23`, `f3Q_swap13` and `f3Q_transposition`.
+  Total antisymmetry is thus derived for every index triple from associativity and cyclicity of the
+  trace, with no case analysis at all.
+
+Not proved, and not claimed: the Jacobi identity.  `jacobiStatement` records it as an `Prop`.  Two
+constraints were measured.  Case evaluation is out: a 512-goal slice (`a` fixed, `b c d` free) exceeds
+`maxHeartbeats 8000000` after 6 minutes of elaboration, so all 4096 quadruples would take about an
+hour of kernel time for a proof that says nothing about why it is true.  The algebraic route needs the
+expansion of a matrix in the `λ` basis, equivalently the completeness relation
+`Σ_e (λ_e)_{ij} (λ_e)_{kl} = 2 δ_{il} δ_{jk} - (2/3) δ_{ij} δ_{kl}` — an identity antisymmetry never
+touches, and the natural next formalization.  The statement itself is not in doubt: the script checks
+it in exact arithmetic at all 4096 quadruples and cyclicity at all 512 triples, and fails loudly if
+either breaks.
+
+What remains is the 55 × 55 literal: transcribe the script's minor as `ℚ(√3)` entries, prove the 3025
+entry identities relating it to `smGhostMatrixPhys`, and finish with a kernel-checkable determinant
+certificate (an explicit triangular factor would do).  `native_decide` stays excluded — its proof term
+does not reduce in `nanoda` and the axiom audit would report `Lean.ofReduceBool`; `decide` alone cannot
+close the ℚ coordinates, which is why the Gell-Mann table is proved by `simp`/`norm_num` evaluation
+rather than by decision.  Nothing above upgrades the computation to a theorem about the model.
+(v) There is no upper bound of eleven on the *whole* Fock space, and §2c now proves that:
+`finrank_ker_smGhostCharge_ge_two_pow` says `2^m ≤ finrank (ker Ω₃)` for every `f3`, because a cubic
+monomial carries no matter mode, so every state `occ T` built from matter modes alone is annihilated
+(`smGhostCharge_occ_matterOnly`, with `matterOcc_orthonormal` supplying the `2^m` orthonormal vectors and
+`finrank_ker_ge_card` turning an orthonormal family of kernel vectors into a dimension bound).  Hence
+`not_finrank_ker_le_eleven : ¬ ∀ m f3, finrank (ker (smGhostCharge m f3)) ≤ 11`, refuted at `m = 4`.  The
+number 11 is a statement about the ghost-number-two sector at `m = 0`, where the matter-only vectors are
+not available: the general lower bound there is the degree-free `3` of §2b, and the exact `11` needs a
+rank-55 certificate for the 66 × 55 matrix of the cubic charge on `Λ²ℂ¹²` over `ℚ(√3)`.  That
+certificate is what the script computes and no theorem states; upgrading it to Lean would mean proving
+one nonvanishing 55 × 55 minor, not a dimension count.
