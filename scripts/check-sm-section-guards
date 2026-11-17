@@ -1183,7 +1183,23 @@ require "Work/SmSu3Lie.lean" "theorem f3Q_cyclic" \
 require "Work/SmSu3Lie.lean" "theorem f3Q_transposition" \
     "§96: total antisymmetry must stay"
 require "Work/SmSu3Lie.lean" "def jacobiStatement" \
-    "§96: the open Jacobi statement must stay a Prop"
+    "§96: the Jacobi statement must stay a named Prop (it is now proved)"
+require "Work/SmSu3Ring.lean" "attribute [instance] commRing" \
+    "§96: the CommRing instance on CQ must stay the enabler"
+require "Work/SmSu3Jacobi.lean" "theorem parsevalInteger" \
+    "§96: the completeness relation must stay proved"
+require "Work/SmSu3Jacobi.lean" "theorem jacobi_mcomm" \
+    "§96: the matrix Jacobi identity must stay proved"
+require "Work/SmSu3Jacobi.lean" "theorem cyclic_tracePair_zero" \
+    "§96: the vanishing cyclic pairing sum must stay proved"
+require "Work/SmSu3Jacobi.lean" "theorem jacobi_holds" \
+    "§96: the Jacobi identity itself must stay proved"
+require "$PLAN" "The Jacobi identity is now proved" \
+    "§96: the plan must keep the Jacobi verdict"
+require "$PLAN" 'a `CommRing CQ` instance' \
+    "§96: the plan must keep the enabler named"
+require "$PLAN" 'cancellation of `3`' \
+    "§96: the plan must keep the characteristic-zero caveat"
 require "scripts/sm-cubic-kernel-basis.py" "the Jacobi identity fails at" \
     "§96: the script must keep checking Jacobi in exact arithmetic"
 require "BookProof/Sm/ChapterSmBrstGhost.lean" \

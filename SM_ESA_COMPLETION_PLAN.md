@@ -5627,16 +5627,44 @@ the determinant proof itself is still open.  Three `Work/` files (outside the bu
   (`tr([A,B]C) = tr(A[B,C])`), then `f3Q_cyclic`, `f3Q_swap23`, `f3Q_swap13` and `f3Q_transposition`.
   Total antisymmetry is thus derived for every index triple from associativity and cyclicity of the
   trace, with no case analysis at all.
+* `Work/SmSu3Ring.lean` and `Work/SmSu3Jacobi.lean` — the Jacobi identity: the `CommRing CQ`
+  instance, then `parsevalInteger`, `purity`, `term_eq`, `fsum_sixteen`, `tracePair_traceless`,
+  `jacobi_mcomm`, `trace_bracket_sum`, `cyclic_tracePair_zero`, and `jacobi_holds : jacobiStatement`,
+  on the three standard axioms.
 
-Not proved, and not claimed: the Jacobi identity.  `jacobiStatement` records it as an `Prop`.  Two
-constraints were measured.  Case evaluation is out: a 512-goal slice (`a` fixed, `b c d` free) exceeds
-`maxHeartbeats 8000000` after 6 minutes of elaboration, so all 4096 quadruples would take about an
-hour of kernel time for a proof that says nothing about why it is true.  The algebraic route needs the
-expansion of a matrix in the `λ` basis, equivalently the completeness relation
-`Σ_e (λ_e)_{ij} (λ_e)_{kl} = 2 δ_{il} δ_{jk} - (2/3) δ_{ij} δ_{kl}` — an identity antisymmetry never
-touches, and the natural next formalization.  The statement itself is not in doubt: the script checks
-it in exact arithmetic at all 4096 quadruples and cyclicity at all 512 triples, and fails loudly if
-either breaks.
+**The Jacobi identity is now proved.**  `jacobiStatement` was the last open identity of the derived
+constants; `Work/SmSu3Jacobi.lean` closes it, and `jacobi_holds : jacobiStatement` depends on
+`propext, Classical.choice, Quot.sound` only (no `sorry`, no `native_decide`; the file compiles in
+78 s).
+
+* `Work/SmSu3Ring.lean` is the enabler: a `CommRing CQ` instance for the frame
+  `ℚ(√3) + ℚ(√3)i`.  With it `∑` over the eight generator indices and `ring`-normal `3 × 3` matrix
+  algebra become available, so the identity is a *symbolic* statement rather than 4096 cases.  The
+  instance is exported from that module alone, so `SmSu3Constants`' own behavior is unchanged.
+* `parsevalInteger` is the completeness relation for the Gell-Mann basis in the *integer* basis
+  `gmZ` — `λ_8` rescaled to `diag(1,1,-2)`, i.e. `√3 · λ_8`, so that `1/√3` never appears — namely
+  `3 Σ_{e<8} tr(M λ_e) tr(N λ_e) + 2 tr M tr N = 6 tr(MN)`, one polynomial identity in the 18 entries
+  of `M` and `N`.  `three_mul_seven` recovers the factor of `3` for the original `λ_8`
+  (`tracePair_three`), and `tracePair_traceless` drops the `2 tr M tr N` term for traceless arguments
+  — which is what a commutator is (`mtrace_mcomm`), leaving `tracePair M N = 2 tr(MN)`.
+* `purity` — `Tr([λ_a,λ_b] λ_e)` is purely imaginary (512 closed computations), so
+  `16 f_{abe} f_{cde}` is `-Tr([λ_a,λ_b] λ_e) Tr([λ_c,λ_d] λ_e)` in its real part (`term_eq`,
+  `fsum_sixteen`).
+* `jacobi_mcomm` (the matrix Jacobi identity, entry by entry) yields `trace_bracket_sum` —
+  `Σ_cyc tr([[λ_a,λ_b],λ_c] λ_d) = 0` — and `mtrace_comm_mul` turns each term into
+  `tr([λ_a,λ_b][λ_c,λ_d])`, so `cyclic_tracePair_zero` gives the vanishing cyclic sum of the three
+  pairings.  Since `16 ×` the Jacobi sum is minus that cyclic sum, it is zero, and `16` cancels.
+
+Boundaries on this, stated rather than implied.  (i) The cancellation of `3` and of `16` is done in
+coordinates (`Qsqrt3.three_cancel`, `Qsqrt3.sixteen_cancel`: `ext` to `ℚ`, `norm_num` on the scalar
+hypotheses, `nlinarith`), because `ℚ(√3)` here is a hand-written field and no tactic closes its
+characteristic-zero facts outright.  (ii) The five algebraic lemmas the assembly rests on
+(`tracePair_traceless`, `cyclic_tracePair_zero`, `jacobi_mcomm`, `jacobi_holds`, `purity`) were
+audited; the audit output is `propext, Classical.choice, Quot.sound` for the four largest.  (iii)
+`Work/*.lean` is compiled ad hoc (`lake env lean`), so this is not part of `lake build`; the guard
+gate pins the declarations, not a build target.  (iv) The exact-arithmetic script still checks the
+identity at all 4096 quadruples and cyclicity at all 512 triples, and still fails loudly — that
+computation and this proof are now independent witnesses of the same statement.
 
 What remains is the 55 × 55 literal: transcribe the script's minor as `ℚ(√3)` entries, prove the 3025
 entry identities relating it to `smGhostMatrixPhys`, and finish with a kernel-checkable determinant

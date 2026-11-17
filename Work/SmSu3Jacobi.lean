@@ -3,17 +3,17 @@ import Work.SmSu3Ring
 /-!
 # The Jacobi identity for the derived `su(3)` constants
 
-This file proves `jacobiStatement` from `Work/SmSu3Lie.lean`.  The route is the algebraic one, and the
-one thing that makes it work is a `CommRing` structure on `CQ` (`Work/SmSu3Ring.lean`): with it, sums
-over the `λ` index and `ring`-normal `3 x 3` matrix algebra become available, and the whole identity is
-a *symbolic* statement rather than 4096 numerical cases.
+This file proves `jacobiStatement` from `Work/SmSu3Lie.lean`.  The route is the algebraic one, and
+the one thing that makes it work is a `CommRing` structure on `CQ` (`Work/SmSu3Ring.lean`): with it,
+sums over the `λ` index and `ring`-normal `3 x 3` matrix algebra become available, and the whole
+identity is a *symbolic* statement rather than 4096 numerical cases.
 
 The steps:
 
 1. `parsevalInteger` — the completeness (Parseval) relation for the Gell-Mann basis, in the
-   integer-coefficient form `3 Σ_{e<8} tr(M λ_e) tr(N λ_e) + 2 tr M tr N = 6 tr(MN)`, where `λ_8` has
-   been rescaled by `sqrt 3` so that no `1/sqrt 3` ever appears.  This is a single polynomial identity
-   in the 18 entries of `M` and `N`.
+   integer-coefficient form `3 Σ_{e<8} tr(M λ_e) tr(N λ_e) + 2 tr M tr N = 6 tr(MN)`, where
+   `λ_8` has been rescaled by `sqrt 3` so that no `1/sqrt 3` ever appears.  This is a single
+   polynomial identity in the 18 entries of `M` and `N`.
 2. `tracePair_three` — the same with the original `λ_8`, which costs one factor of `3`.
 3. `purity` — for `M` a commutator of two generators, `tr(M λ_e)` is purely imaginary, so
    `tr(M λ_e) tr(N λ_e)` is the negative of the product of the imaginary parts.
@@ -45,7 +45,8 @@ open Qsqrt3
 @[simp] theorem CQ.ofRat_im (q : ℚ) : (CQ.ofRat q).im = 0 := rfl
 
 /-- The cast lemmas in the post-`CommRing` notation: numerals now resolve through the instance's own
-`NatCast`, so the pre-instance `natCast_re` no longer matches.  (Same phenomenon, and same fix, as in
+`NatCast`, so the pre-instance `natCast_re` no longer matches.  (Same phenomenon, and same fix, as
+in
 `Work/Qsqrt3.lean`.) -/
 @[simp] theorem CQ.num_re (n : ℕ) : ((n : CQ)).re = Qsqrt3.ofRat n := by
   have h : (n : CQ) = CQ.ofRat n := rfl
@@ -60,7 +61,8 @@ open Qsqrt3
 /-! ## The rescaled eighth generator
 
 `λ_8 = diag(1,1,-2)/sqrt 3`, so `sqrt 3 * λ_8 = diag(1,1,-2)` has integer entries.  Working in that
-basis removes every `1/sqrt 3` from the completeness relation; the cost is a factor of `3`, recovered
+basis removes every `1/sqrt 3` from the completeness relation; the cost is a factor of `3`,
+recovered
 in `tracePair_three`. -/
 
 /-- The generators with `λ_8` multiplied by `sqrt 3`, so that every entry is an integer. -/
@@ -138,7 +140,8 @@ theorem three_mul_seven (M N : M3) :
   ring_nf
   rw [sqrt3C_pow]
 
-/-- **The pairing, with the original `λ_8`:** `3 Σ_e tr(M λ_e) tr(N λ_e) + 2 tr M tr N = 6 tr(MN)`. -/
+/-- **The pairing, with the original `λ_8`:**
+`3 Σ_e tr(M λ_e) tr(N λ_e) + 2 tr M tr N = 6 tr(MN)`. -/
 theorem tracePair_three (M N : M3) :
     3 * tracePair M N + 2 * (mtrace M * mtrace N) = 6 * mtrace (mmul M N) := by
   have h := parsevalInteger M N
@@ -153,9 +156,9 @@ def oct (u : Fin 8 → Qsqrt3) : Qsqrt3 :=
   u 0 + u 1 + u 2 + u 3 + u 4 + u 5 + u 6 + u 7
 
 set_option maxHeartbeats 4000000 in
-/-- **Purity.**  `Tr([λ_a, λ_b] λ_e)` is `i` times a real number: its `re` component vanishes.  This is
-the anti-Hermiticity of the commutator against Hermiticity of the generators, and it is the only place
-where the generators are evaluated (`8^3 = 512` closed computations). -/
+/-- **Purity.**  `Tr([λ_a, λ_b] λ_e)` is `i` times a real number: its `re` component vanishes.
+This is the anti-Hermiticity of the commutator against Hermiticity of the generators, and it is the
+only place where the generators are evaluated (`8^3 = 512` closed computations). -/
 theorem purity (a b e : Fin 8) :
     (mtrace (mmul (mcomm (gm a) (gm b)) (gm e))).re = 0 := by
   fin_cases a <;> fin_cases b <;> fin_cases e <;>
@@ -166,7 +169,7 @@ theorem eq_hat_of_re_zero {T : CQ} (h : T.re = 0) : T = ⟨0, T.im⟩ := by
   cases T with
   | mk re im => simp_all
 
-/-- Cancellation of `3` in `Q(sqrt 3)`: it is a field of characteristic zero, checked in coordinates. -/
+/-- Cancellation of `3` in `Q(sqrt 3)`: a field of characteristic zero, checked in coordinates. -/
 theorem Qsqrt3.three_cancel {x y : Qsqrt3} (h : (3 : Qsqrt3) * x = 3 * y) : x = y := by
   ext
   · have hre := congrArg Qsqrt3.re h
@@ -190,8 +193,8 @@ theorem CQ.three_cancel {x y : CQ} (h : 3 * x = 3 * y) : x = y := by
 
 /-! ## The termwise conversion to the structure constants -/
 
-/-- `16 f_{abe} f_{cde}` is `-Tr([λ_a,λ_b] λ_e) Tr([λ_c,λ_d] λ_e)` in its real part, when both traces
-are purely imaginary. -/
+/-- `16 f_{abe} f_{cde}` is `-Tr([λ_a,λ_b] λ_e) Tr([λ_c,λ_d] λ_e)` in its real part, when both
+traces are purely imaginary. -/
 theorem term_eq (T U : CQ) (hT : T = ⟨0, T.im⟩) (hU : U = ⟨0, U.im⟩) :
     16 * ((T.im * Qsqrt3.ofRat (1 / 4)) * (U.im * Qsqrt3.ofRat (1 / 4))) = -(T * U).re := by
   rw [hT, hU]
@@ -199,7 +202,8 @@ theorem term_eq (T U : CQ) (hT : T = ⟨0, T.im⟩) (hU : U = ⟨0, U.im⟩) :
   rw [show (16 : Qsqrt3) = Qsqrt3.ofRat 16 from rfl]
   ext <;> simp [Qsqrt3.ofRat] <;> ring
 
-/-- **The sum form.**  `16 Σ_e f_{abe} f_{cde}` is minus the real part of the trace pairing of the two
+/-- **The sum form.**  `16 Σ_e f_{abe} f_{cde}` is minus the real part of the trace pairing of the
+   two
 commutators. -/
 theorem fsum_sixteen (a b c d : Fin 8) :
     16 * oct (fun e => f3Q a b e * f3Q c d e) =
@@ -223,7 +227,8 @@ theorem mtrace_mcomm (A B : M3) : mtrace (mcomm A B) = 0 := by
   exact add_neg_cancel _
 
 /-- **The pairing of two traceless matrices is twice their product trace.**  The `2/3` term of the
-completeness relation is `2 tr M tr N / 3`, so it is gone; what remains is the cancellation of `3`. -/
+completeness relation is `2 tr M tr N / 3`, so it is gone; what remains is the cancellation of `3`.
+-/
 theorem tracePair_traceless (M N : M3) (hM : mtrace M = 0) (hN : mtrace N = 0) :
     tracePair M N = 2 * mtrace (mmul M N) := by
   have h := tracePair_three M N
@@ -237,7 +242,8 @@ theorem tracePair_traceless (M N : M3) (hM : mtrace M = 0) (hN : mtrace N = 0) :
 /-! ## The matrix Jacobi identity and cyclicity of the trace -/
 
 set_option maxHeartbeats 4000000 in
-/-- `[[A,B],C] + [[B,C],A] + [[C,A],B] = 0`, entry by entry.  This is associativity and distributivity
+/-- `[[A,B],C] + [[B,C],A] + [[C,A],B] = 0`, entry by entry.  This is associativity and
+   distributivity
 of `CQ` alone: the four terms `ABC, BCA, CAB` and their negatives cancel pairwise. -/
 theorem jacobi_mcomm (A B C : M3) (i j : Fin 3) :
     mcomm (mcomm A B) C i j + mcomm (mcomm B C) A i j + mcomm (mcomm C A) B i j = 0 := by
@@ -283,35 +289,50 @@ theorem Qsqrt3.sixteen_cancel {x y : Qsqrt3} (h : (16 : Qsqrt3) * x = 16 * y) : 
     norm_num at him
     nlinarith
 
-/-- **The Jacobi identity**, in structure-constant form.  Assembling:
+set_option maxHeartbeats 8000000 in
+/-- **The cyclic sum of the pairings vanishes.**  Each pairing of two commutators is twice the trace
+of their product (`tracePair_traceless`), and `trace_bracket_sum` makes the cyclic sum of those
+traces zero. -/
+theorem cyclic_tracePair_zero (A B C D : M3) :
+    tracePair (mcomm A B) (mcomm C D) + tracePair (mcomm B C) (mcomm A D) +
+        tracePair (mcomm C A) (mcomm B D) =
+      0 := by
+  rw [tracePair_traceless _ _ (mtrace_mcomm A B) (mtrace_mcomm C D),
+    tracePair_traceless _ _ (mtrace_mcomm B C) (mtrace_mcomm A D),
+    tracePair_traceless _ _ (mtrace_mcomm C A) (mtrace_mcomm B D)]
+  have h := trace_bracket_sum A B C D
+  rw [mtrace_comm_mul (mcomm A B) C D, mtrace_comm_mul (mcomm B C) A D,
+    mtrace_comm_mul (mcomm C A) B D] at h
+  linear_combination 2 * h
+
+set_option maxHeartbeats 8000000 in
+/-- **The Jacobi identity** for the derived constants.  Assembling:
 
 * `fsum_sixteen` writes `16 Σ_e f_{abe} f_{cde}` as minus the real part of
   `tr([λ_a,λ_b] [λ_c,λ_d])`;
-* `tracePair_traceless` evaluates the pairing as `2 tr(MN)` for the traceless commutators;
+* `tracePair_traceless` evaluates each pairing as `2 tr(MN)` for the traceless commutators;
 * `trace_bracket_sum` kills the cyclic sum of those pairings.
 
-So `16 ×` the Jacobi sum is zero, and `16` cancels. -/
-set_option maxHeartbeats 8000000 in
+So `16 ×` the Jacobi sum is zero, and `16` cancels in `Q(sqrt 3)`. -/
 theorem jacobi_holds : jacobiStatement := by
   intro a b c d
   show (∑ e : Fin 8, f3Q a b e * f3Q c d e) + (∑ e : Fin 8, f3Q b c e * f3Q a d e) +
       (∑ e : Fin 8, f3Q c a e * f3Q b d e) = 0
   rw [← oct_eq_sum, ← oct_eq_sum, ← oct_eq_sum]
-  -- the three trace pairings
-  have hcyc := trace_bracket_sum (gm a) (gm b) (gm c) (gm d)
-  have hcycR :
-      (mtrace (mmul (mcomm (gm a) (gm b)) (mcomm (gm c) (gm d)))).re +
-          (mtrace (mmul (mcomm (gm b) (gm c)) (mcomm (gm a) (gm d)))).re +
-        (mtrace (mmul (mcomm (gm c) (gm a)) (mcomm (gm b) (gm d)))).re =
-      0 := by
+  have hcyc : tracePair (mcomm (gm a) (gm b)) (mcomm (gm c) (gm d)) +
+      tracePair (mcomm (gm b) (gm c)) (mcomm (gm a) (gm d)) +
+      tracePair (mcomm (gm c) (gm a)) (mcomm (gm b) (gm d)) = 0 :=
+    cyclic_tracePair_zero _ _ _ _
+  have hcycR : (tracePair (mcomm (gm a) (gm b)) (mcomm (gm c) (gm d))).re +
+      (tracePair (mcomm (gm b) (gm c)) (mcomm (gm a) (gm d))).re +
+      (tracePair (mcomm (gm c) (gm a)) (mcomm (gm b) (gm d))).re = 0 := by
     have := congrArg CQ.re hcyc
     simpa [CQ.add_re, CQ.zero_re] using this
-  have h16 :
-      16 * (oct (fun e => f3Q a b e * f3Q c d e) + oct (fun e => f3Q b c e * f3Q a d e) +
-          oct (fun e => f3Q c a e * f3Q b d e)) =
-        0 := by
-    rw [mul_add, mul_add, fsum_sixteen a b c d, fsum_sixteen b c a d, fsum_sixteen c a b d]
-    linear_combination -hcycR
-  exact Qsqrt3.sixteen_cancel (by rw [h16])
+  have h16 : 16 * (oct (fun e => f3Q a b e * f3Q c d e) +
+        oct (fun e => f3Q b c e * f3Q a d e) +
+        oct (fun e => f3Q c a e * f3Q b d e)) = 0 := by
+    linear_combination (fsum_sixteen a b c d) + (fsum_sixteen b c a d) +
+      (fsum_sixteen c a b d) - hcycR
+  exact Qsqrt3.sixteen_cancel (by rw [h16, mul_zero])
 
 end BookProof.SmSu3

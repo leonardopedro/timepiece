@@ -918,3 +918,31 @@ matrix Jacobi identity, which the trace algebra in this file already supports.
 now verifies the Jacobi identity in exact `Q(sqrt 3)` arithmetic at all 4096 index quadruples and
 cyclicity at all 512 triples, and exits nonzero if either fails; it also prints both verdicts.  That is
 evidence, not a proof, and the difference is the whole point of the `Prop`.
+
+## Update 2026-11-17a — the Jacobi identity of the derived constants, proved
+
+**What is proved.**  `jacobi_holds : jacobiStatement` in `Work/SmSu3Jacobi.lean`, on the three
+standard axioms only, with no `sorry` and no `native_decide`; the file compiles in 78 s.  This closes
+the identity that 2026-11-16k stated and left open, and it is not a case evaluation: 4096 quadruples
+are never touched.
+
+**How.**  The enabler is `Work/SmSu3Ring.lean`, a `CommRing CQ` instance for `ℚ(√3) + ℚ(√3)i`, which
+makes `∑` over the generator index and `ring`-normal `3 × 3` matrix algebra available.  Then:
+
+* `parsevalInteger` — the completeness (Parseval) relation in the *integer* basis `gmZ`, where `λ_8` is
+  rescaled to `diag(1,1,-2) = √3·λ_8` so no `1/√3` appears; `three_mul_seven` restores the factor `3`
+  for the original `λ_8` (`tracePair_three`).
+* `tracePair_traceless` — a commutator is traceless (`mtrace_mcomm`), so the `2 tr M tr N` term is
+  gone and the pairing is `2 tr(MN)`.
+* `purity` + `term_eq` + `fsum_sixteen` — `Tr([λ_a,λ_b]λ_e)` is purely imaginary (512 closed
+  computations), so `16 Σ_e f_{abe}f_{cde}` is minus the real part of `Tr([λ_a,λ_b][λ_c,λ_d])`.
+* `jacobi_mcomm` → `trace_bracket_sum` → `cyclic_tracePair_zero` — the matrix Jacobi identity makes
+  the cyclic sum of the pairings vanish, and `16 ×` the Jacobi sum is minus that sum.
+
+**What is not upgraded.**  (i) The last step cancels `16` (and, for the pairing, `3`) in *coordinates*:
+`ext` to `ℚ`, `norm_num` on the scalar hypotheses, `nlinarith`.  That is a proof about this
+hand-written field, not a general cancellation lemma.  (ii) `Work/*.lean` is compiled ad hoc with
+`lake env lean`; it is outside `lake build`, so the guard gate pins declarations rather than a build
+target.  (iii) Nothing here says anything about the Standard Model Hamiltonian itself: this is the
+structure-constant identity that `smStruct` needs, not a statement about `Ω₃` or about the Fock-space
+operator.  (iv) The 55 × 55 minor certificate is untouched and still has no Lean determinant proof.
