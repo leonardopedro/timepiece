@@ -654,6 +654,103 @@ import BookProof.MCMC.GeometricErgodicity
 -- reversible prior-refresh proposal `Kernel.const α π`.
 import BookProof.MCMC.KernelContract
 
+-- Wave (`pcnl.md` packet T0, deliverable `GaussianKernelBridge.lean`): the concrete Gaussian pCN
+-- proposal kernel `x' = ρ x + s ξ` on `ℝ`, its state measure, the joint representation, prior
+-- invariance for `ρ² + s² = 1`, and the joint-symmetry reduction of reversibility.
+import BookProof.MCMC.GaussianKernelBridge
+
+-- Wave (`pcnl.md` packet T1, deliverable `GaussianARBenchmark.lean`): the affine Gaussian AR
+-- chain's exact stationary law `N(c/(1-a), σ/(1-a²))`, the degree-1 and degree-2 Hermite
+-- eigenvalue identities `a`, `a²`, the linear-cell bias `b(1+ρ)/2` with its `β²` rate, the
+-- unstable cell, and mini-batch noise inflation.
+import BookProof.MCMC.GaussianARBenchmark
+
+-- Wave (`pcnl.md` packets T0/P1): detailed balance of the Gaussian proposal.  The joint law of
+-- one Mehler step has Lebesgue density `(2π s)⁻¹ exp(-(x² - 2ρxy + y²)/(2s²))`, symmetric in
+-- `x ↔ y`; hence the joint is swap-invariant and the kernel is reversible for `ρ² + s² = 1`.
+import BookProof.MCMC.GaussianReversibility
+
+-- Wave (`pcnl.md` packet T1, `aⁿ` layer): the affine Gaussian chain's semigroup law, its
+-- `n`-step iterate with multiplier `aⁿ`, the `n`-step mean, and the exact transient bias
+-- `E[xₙ] - m = aⁿ (x - m)`.  Also records why the general Mehler eigenvalue `aⁿ` reduces to
+-- Stein's lemma for polynomials.
+import BookProof.MCMC.GaussianARIterated
+
+-- Wave (`pcnl.md` packet T1, Stein prerequisites): polynomial-times-Gaussian integrability
+-- (natural powers, absent from the pinned Mathlib) and the Hermite derivative recurrence
+-- `Heₙ₊₁' = (n+1) Heₙ` over `ℤ[X]`.  These are the two analytic inputs the general Mehler
+-- eigenvalue `aⁿ` still needs, beyond the IBP step itself.
+import BookProof.MCMC.GaussianStein
+
+-- Wave (`pcnl.md` packet T1, Stein's lemma): the IBP core against `exp(-b z²)`, shifted
+-- polynomial-times-Gaussian integrability, and Stein's lemma
+-- `∫ y, (y - m) p y ∂N(m,v) = v ∫ y, p' y ∂N(m,v)` against `gaussianReal`.
+import BookProof.MCMC.GaussianSteinLemma
+
+-- Wave (`pcnl.md` packet T1, the `aⁿ` Mehler eigenvalue): polynomial integrability against a
+-- Gaussian measure, the probabilists' Hermite polynomials over `ℝ`, the Stein/Mehler recursion
+-- and `∫ y, Heₙ(y) ∂N(a u, 1 - a²) = aⁿ Heₙ(u)` — closing `GaussianARBenchmark`'s degree-`n`
+-- boundary.
+import BookProof.MCMC.MehlerEigenvalueReal
+
+-- Wave (`pcnl.md` packet T1, affine kernel): standardising change of variables for
+-- `gaussianReal` and the `aⁿ` Mehler eigenvalue of `gaussianARKernel a c σ` at arbitrary
+-- innovation variance: `∫ Heₙ((y-m)/s) ∂κ x = aⁿ Heₙ((x-m)/s)`.
+import BookProof.MCMC.MehlerEigenvalueAffine
+
+-- Wave (`pcnl.md` packet T0, `Lp` descent): the kernel action on almost-everywhere classes —
+-- representative independence `f =ᵐ[π] g → Pf = Pg` under `κ x ≪ π`, plus additivity and
+-- homogeneity of the action.
+import BookProof.MCMC.LpDescent
+
+-- Wave (`pcnl.md` packet T0, `Lp` operator through the joint measure): the first/second
+-- marginals of `π ⊗ₘ κ`, the a.e. existence of the pointwise action `x ↦ ∫ f ∂(κ x)` (the gap
+-- `KernelContract` and `LpDescent` both record), and the `L²` contraction with a.e. hypotheses.
+import BookProof.MCMC.LpMarkovOperator
+
+-- Wave (`pcnl.md` packet T0, pCN instantiation): the state measures as `gaussianReal (ρ x) s²`,
+-- their absolute continuity in `π`, and `MemLp`/`eLpNorm` contraction for the pCN proposal with
+-- no integrability hypothesis at the state measures left open.
+import BookProof.MCMC.GaussianPCNL2
+
+-- Wave (`pcnl.md` packet T0, `Lp` packaging): the Markov action as a `ContinuousLinearMap` on
+-- `Lp ℂ 2 π` with norm at most one (`markovOpLp`), and its pCN instantiation (`gaussianPCNOp`).
+import BookProof.MCMC.LpKernelOperator
+
+-- Wave (`pcnl.md` packets T0/T1, spectrum and degenerate proposal): the pCN Hermite eigenrelation
+-- `P Hen = ρⁿ Hen` (kernel level and `Lp` level), and the `s = 0` Dirac proposal as an isometry.
+import BookProof.MCMC.GaussianPCNSpectrum
+
+-- Wave (`pcnl.md` packet T1, eigenbasis): the Hermite classes are dense in `L²(π)` — completeness
+-- via the corpus Hermite-function basis, the Gaussian moment lemma and the degree induction.
+import BookProof.MCMC.GaussianPCNCompleteness
+
+-- Wave (`pcnl.md` packet T1, spectral gap): the normalised Hermite classes as a `HilbertBasis` of
+-- `L²(π)`, the diagonalisation `P f = ∑' n, (⟨eₙ,f⟩ ρⁿ) eₙ`, `‖Pᵏ f‖ ≤ |ρ|ᵏ‖f‖` on the whole
+-- mean-zero subspace, Parseval, self-adjointness of `P`, the `L²` convergence rate of the chain
+-- (`Pᵏ f → ⟨e₀,f⟩ e₀`), the converse spectral statement (every nonzero eigenvalue is a `ρⁿ`),
+-- positivity of `P` for `ρ ≥ 0` via the diagonalised quadratic form, and the total-variation rate
+-- obtained by composing with `ConvergenceTheorem.tvDist_le_half_l2`; then the a.e. transport
+-- `Pᵐ f =ᵐ` the `m`-fold kernel action (so the densities of the iterates are constructed rather
+-- than assumed), `0` in the spectrum as a limit point of the eigenvalues `ρⁿ` (and not an
+-- eigenvalue when `ρ ≠ 0`), the Hermite coefficients packaged as an explicit spectral measure
+-- with the spectral theorem `∫ t dμ_f = Re ⟨P f, f⟩`, the bounded functional calculus
+-- `φ ↦ φ(P)` with `∫ φ dμ_f = Re ⟨φ(P) f, f⟩` (hence all moments `∫ tᵐ dμ_f = Re ⟨Pᵐ f, f⟩`),
+-- the density positivity that turns the TV estimate into an unconditional statement for
+-- sup-norm-bounded data, and the identification of the spectrum as the closure of the eigenvalue
+-- set (with the uniformly bounded Hermite-diagonal operators used to exhibit the inverse of
+-- `λ • 1 − P`), the resolvent bounded by `(infDist λ {ρⁿ})⁻¹`, compactness of `P` as a norm limit
+-- of its finite-rank eigenvalue truncations, and the resulting compact-operator shape of the
+-- spectrum for `|ρ| < 1` (exactly `{0} ∪ {ρⁿ}`, countable, spectral radius `1`, every nonzero
+-- spectral point isolated, `0` the only accumulation point), and the resolvent norm identity
+-- `‖(λ - P)⁻¹‖ = (infDist λ {ρⁿ})⁻¹` with the resolvent self-adjoint at real parameters.
+import BookProof.MCMC.GaussianPCNGap
+
+-- Wave (`pcnl.md` packet T0, joint-measure conditional expectation): the identification
+-- `(π ⊗ₘ κ)[f ∘ snd | comap Prod.fst] =ᵐ fun z => ∫ y, f y ∂(κ z.1)`, with the integrability
+-- and `comap`-measurability layer it needs.
+import BookProof.MCMC.MarkovOperatorCondExp
+
 -- Wave (`pcnl.md` Milestone 5): the Born-to-variation step that `GeometricErgodicity` records as
 -- its boundary — `‖ν − π‖_TV ≤ ½‖dν/dπ − 1‖_{L²}` — plus the resulting geometric convergence
 -- in total variation (`pcnl_mcmc_geometric_convergence`).
