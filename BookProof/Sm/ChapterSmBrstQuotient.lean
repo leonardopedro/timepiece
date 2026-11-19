@@ -247,6 +247,160 @@ theorem physicalPositivity_nonneg_of_sectors {Q U η : H →ₗ[ℂ] H}
     ∀ x : H, x ∈ closed Q → 0 ≤ (kform η x x).re :=
   fun x hx => kform_quadForm_nonneg (x := x) hU hUnorm hηU hUQ hev hod hx
 
+/-! ## 5. Finite-window dimension bookkeeping
+
+`unfer`'s finite `N <= 2` BRST window is a three-term graded complex
+`C0 <- C1 <- C2` with `Q1 * Q2 = 0`.  The block ranks are measured in Rust; this
+section is the kernel-checked arithmetic that turns those measured block ranks
+into the cohomology dimensions.  It does **not** construct the 1,419- or
+11,067-dimensional matrices in Lean, and it does not identify the finite
+quotient with the physical Krein quotient. -/
+
+section FiniteWindow
+
+variable {C0 C1 C2 : Type*}
+variable [AddCommGroup C0] [Module ℂ C0] [FiniteDimensional ℂ C0]
+variable [AddCommGroup C1] [Module ℂ C1] [FiniteDimensional ℂ C1]
+variable [AddCommGroup C2] [Module ℂ C2] [FiniteDimensional ℂ C2]
+
+/-- **Finite-window cohomology dimensions.**  For a three-term complex with
+`q1 ∘ q2 = 0`, the dimensions of `ker q1 / im q2`, `ker q2`, and `coker q1` are
+`d1 - r1 - r2`, `d2 - r2`, and `d0 - r1`.  `hcomplex` is the finite-window
+`Q^2 = 0` hypothesis; `r1` and `r2` are the measured block ranks. -/
+theorem finiteWindow_finrank
+    (q1 : C1 →ₗ[ℂ] C0) (q2 : C2 →ₗ[ℂ] C1)
+    (hcomplex : q1 ∘ₗ q2 = 0)
+    (d0 d1 d2 r1 r2 : ℕ)
+    (hC0 : Module.finrank ℂ C0 = d0)
+    (hC1 : Module.finrank ℂ C1 = d1)
+    (hC2 : Module.finrank ℂ C2 = d2)
+    (hr1 : Module.finrank ℂ (LinearMap.range q1) = r1)
+    (hr2 : Module.finrank ℂ (LinearMap.range q2) = r2) :
+    Module.finrank ℂ (C0 ⧸ LinearMap.range q1) = d0 - r1 ∧
+    Module.finrank ℂ
+        ((LinearMap.ker q1) ⧸ (LinearMap.range q2).comap (LinearMap.ker q1).subtype)
+      = d1 - r1 - r2 ∧
+    Module.finrank ℂ (LinearMap.ker q2) = d2 - r2 := by
+  have hle : LinearMap.range q2 ≤ LinearMap.ker q1 := by
+    rintro _ ⟨x, rfl⟩
+    rw [LinearMap.mem_ker]
+    have h := congrFun (congrArg DFunLike.coe hcomplex) x
+    simpa [LinearMap.comp_apply] using h
+  have hker1 : Module.finrank ℂ (LinearMap.ker q1) = d1 - r1 := by
+    have h := LinearMap.finrank_range_add_finrank_ker q1
+    omega
+  have hker2 : Module.finrank ℂ (LinearMap.ker q2) = d2 - r2 := by
+    have h := LinearMap.finrank_range_add_finrank_ker q2
+    omega
+  let R2 : Submodule ℂ (LinearMap.ker q1) :=
+    (LinearMap.range q2).comap (LinearMap.ker q1).subtype
+  have hR2 : Module.finrank ℂ R2 = r2 := by
+    have e := Submodule.comapSubtypeEquivOfLe hle
+    exact e.finrank_eq.trans hr2
+  have hquot1 : Module.finrank ℂ (C0 ⧸ LinearMap.range q1) = d0 - r1 := by
+    have h := Submodule.finrank_quotient_add_finrank (LinearMap.range q1 : Submodule ℂ C0)
+    omega
+  have hquot2 : Module.finrank ℂ ((LinearMap.ker q1) ⧸ R2) = d1 - r1 - r2 := by
+    have h := Submodule.finrank_quotient_add_finrank R2
+    omega
+  exact ⟨hquot1, hquot2, hker2⟩
+
+/-- **The matter-extended finite window.**  The Rust artifact measures
+`C0 = 1`, `C1 = 148`, `C2 = 10,918`, block ranks `r1 = 0` and `r2 = 138`.
+The kernel-checked conclusion is `[1, 10, 10,780]`. -/
+theorem finiteWindow_matter_finrank
+    (q1 : C1 →ₗ[ℂ] C0) (q2 : C2 →ₗ[ℂ] C1)
+    (hcomplex : q1 ∘ₗ q2 = 0)
+    (hC0 : Module.finrank ℂ C0 = 1)
+    (hC1 : Module.finrank ℂ C1 = 148)
+    (hC2 : Module.finrank ℂ C2 = 10918)
+    (hr1 : Module.finrank ℂ (LinearMap.range q1) = 0)
+    (hr2 : Module.finrank ℂ (LinearMap.range q2) = 138) :
+    Module.finrank ℂ (C0 ⧸ LinearMap.range q1) = 1 ∧
+    Module.finrank ℂ
+        ((LinearMap.ker q1) ⧸ (LinearMap.range q2).comap (LinearMap.ker q1).subtype)
+      = 10 ∧
+    Module.finrank ℂ (LinearMap.ker q2) = 10780 := by
+  have h := finiteWindow_finrank q1 q2 hcomplex 1 148 10918 0 138 hC0 hC1 hC2 hr1 hr2
+  simpa using h
+
+/-- **The jet-inclusive finite window.**  The Rust artifact adds all 120
+independent derivative-jet coordinates to the matter window, measuring
+`C0 = 1`, `C1 = 268`, `C2 = 35,938`, block ranks `r1 = 0` and `r2 = 249`.
+The kernel-checked conclusion is `[1, 19, 35,689]`.  The jet coordinates are
+independent E1 fields, not constrained spatial derivatives, and this remains a
+finite-window statement. -/
+theorem finiteWindow_jet_finrank
+    (q1 : C1 →ₗ[ℂ] C0) (q2 : C2 →ₗ[ℂ] C1)
+    (hcomplex : q1 ∘ₗ q2 = 0)
+    (hC0 : Module.finrank ℂ C0 = 1)
+    (hC1 : Module.finrank ℂ C1 = 268)
+    (hC2 : Module.finrank ℂ C2 = 35938)
+    (hr1 : Module.finrank ℂ (LinearMap.range q1) = 0)
+    (hr2 : Module.finrank ℂ (LinearMap.range q2) = 249) :
+    Module.finrank ℂ (C0 ⧸ LinearMap.range q1) = 1 ∧
+    Module.finrank ℂ
+        ((LinearMap.ker q1) ⧸ (LinearMap.range q2).comap (LinearMap.ker q1).subtype)
+      = 19 ∧
+    Module.finrank ℂ (LinearMap.ker q2) = 35689 := by
+  have h := finiteWindow_finrank q1 q2 hcomplex 1 268 35938 0 249 hC0 hC1 hC2 hr1 hr2
+  simpa using h
+
+end FiniteWindow
+
+/-! ## 6. The jet-window block charge
+
+The jet-inclusive window is the three-term complex
+`C0 <- C1 <- C2` with dimensions `1/268/35,938`.  Written in degree order,
+its total charge is the block matrix
+
+`Q = [[0, q1, 0], [0, 0, q2], [0, 0, 0]]`.
+
+This section formalizes the matrix identity `Q * Q = 0`: it is exactly the
+condition `q1 * q2 = 0`, with no additional block conditions.  The concrete
+entries and their measured `q1 * q2 = 0` residual remain in the Rust artifact;
+this theorem does not construct the 36,207-state matrix. -/
+
+section JetChargeMatrix
+
+open Matrix
+
+/-- The total charge matrix of the jet-inclusive finite window, in degree order
+`C0, C1, C2` with dimensions `1, 268, 35,938`. -/
+noncomputable def jetWindowCharge
+    (q1 : Matrix (Fin 1) (Fin 268) ℂ)
+    (q2 : Matrix (Fin 268) (Fin 35938) ℂ) :
+    Matrix ((Fin 1 ⊕ Fin 268) ⊕ Fin 35938)
+      ((Fin 1 ⊕ Fin 268) ⊕ Fin 35938) ℂ :=
+  Matrix.fromBlocks (Matrix.fromBlocks 0 q1 0 0)
+    (Matrix.fromRows 0 q2) 0 0
+
+lemma fromBlocks_zero_q1_mul_fromRows
+    (q1 : Matrix (Fin 1) (Fin 268) ℂ)
+    (q2 : Matrix (Fin 268) (Fin 35938) ℂ) :
+    (Matrix.fromBlocks (0 : Matrix (Fin 1) (Fin 1) ℂ) q1
+      (0 : Matrix (Fin 268) (Fin 1) ℂ) (0 : Matrix (Fin 268) (Fin 268) ℂ)) *
+      (Matrix.fromRows (0 : Matrix (Fin 1) (Fin 35938) ℂ) q2) =
+      Matrix.fromRows (q1 * q2) (0 : Matrix (Fin 268) (Fin 35938) ℂ) := by
+  ext i j
+  rcases i with i0 | i1 <;>
+    simp [Matrix.mul_apply, Matrix.fromBlocks, Matrix.fromRows, Fintype.sum_sum_type]
+
+/-- **The jet-window Q² = 0 matrix identity.**  The block total charge squares
+to zero exactly when its degree-two-to-one block is annihilated by its
+degree-one-to-zero block. -/
+theorem jetWindowCharge_sq
+    (q1 : Matrix (Fin 1) (Fin 268) ℂ)
+    (q2 : Matrix (Fin 268) (Fin 35938) ℂ)
+    (hcomplex : q1 * q2 = 0) :
+    jetWindowCharge q1 q2 * jetWindowCharge q1 q2 = 0 := by
+  ext i j
+  rcases i with (i0 | i1) | i2 <;> rcases j with (j0 | j1) | j2 <;>
+    simp [jetWindowCharge, Matrix.fromBlocks_multiply,
+      fromBlocks_zero_q1_mul_fromRows, hcomplex]
+
+end JetChargeMatrix
+
 end
 
 end BookProof.SmBrstQuotient

@@ -774,8 +774,10 @@ import BookProof.MCMC.GaussianPCNCompleteness
 -- `λ • 1 − P`), the resolvent bounded by `(infDist λ {ρⁿ})⁻¹`, compactness of `P` as a norm limit
 -- of its finite-rank eigenvalue truncations, and the resulting compact-operator shape of the
 -- spectrum for `|ρ| < 1` (exactly `{0} ∪ {ρⁿ}`, countable, spectral radius `1`, every nonzero
--- spectral point isolated, `0` the only accumulation point), and the resolvent norm identity
--- `‖(λ - P)⁻¹‖ = (infDist λ {ρⁿ})⁻¹` with the resolvent self-adjoint at real parameters.
+-- spectral point isolated, `0` the only accumulation point), the resolvent norm identity
+-- `‖(λ - P)⁻¹‖ = (infDist λ {ρⁿ})⁻¹` with the resolvent self-adjoint at real parameters, the
+-- resolvent equation `R(λ) - R(μ) = (μ - λ) R(λ) R(μ)`, and the Neumann series at infinity
+-- `R(λ) = ∑ₙ (λ ^ (n + 1))⁻¹ Pⁿ` for `1 < ‖λ‖`.
 import BookProof.MCMC.GaussianPCNGap
 
 -- Wave (`pcnl.md` packet T0, joint-measure conditional expectation): the identification

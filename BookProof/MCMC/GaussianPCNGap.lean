@@ -151,6 +151,19 @@ operator contracts by the factor `|ρ| < 1`, so the `n`-th mode carries the geom
 * **`exists_selfAdjoint_resolvent_norm_eq`**, **`star_eq_self_of_inverse`** — for a **real**
   parameter the resolvent of the self-adjoint `P` is itself **self-adjoint** (`star R = R`), with
   the norm identity above.
+* **`resolvent_sub_eq`**, **`resolvent_commute`**, **`norm_resolvent_sub_le`** — the **resolvent
+  equation** `R(λ) − R(μ) = (μ − λ) R(λ) R(μ)` (proved algebraically, for any two-sided inverses),
+  commutativity of resolvents at distinct parameters, and the Lipschitz bound
+  `‖R(λ) − R(μ)‖ ≤ ‖μ − λ‖ ‖R(λ)‖ ‖R(μ)‖` (§23).
+* **`norm_gaussianPCNOp_pow_le`**, **`opNorm_gaussianPCNOp_pow_le`** — **`P` is a contraction**:
+  `‖Pᵏ f‖ ≤ ‖f‖` for every `f`, `k`, and `‖Pᵏ‖ ≤ 1` in operator norm (§24).
+* **`summable_resolvent_series`**, **`hasSum_resolvent_series`**, **`norm_tsum_resolvent_series`** —
+  **the Neumann series at infinity**: for `1 < ‖λ‖` the series `∑ₙ (λ ^ (n + 1))⁻¹ • Pⁿ` converges
+  absolutely in operator norm to the resolvent of `λ • 1 − P` (partial sums telescope to
+  `1 − (λ^N)⁻¹ P^N`), and its norm is `(infDist λ {ρⁿ})⁻¹` (§24).
+* **`closure_range_pow_subset_closedUnitBall`**, **`resolvent_series_of_one_lt_norm`** — the
+  **spectrum is bounded** by the closed unit disc, so every `λ` off it is in the resolvent set
+  (§25).
 * **`gaussianPCN_spectral_theorem`** — **the spectral theorem for `P` in measure form**: the three
   statements above, packaged: finite, supported on the eigenvalues, total mass `‖f‖²`, first moment
   the quadratic form.
@@ -178,10 +191,13 @@ operator contracts by the factor `|ρ| < 1`, so the `n`-th mode carries the geom
   derived from compactness: for `|ρ| = 1` the spectrum is the unit circle, and turning that into a
   contradiction with compactness is precisely the Fredholm input that is **not** formalized.  No
   Gelfand formula `spectralRadius = lim ‖Pⁿ‖ ^ (1/n)`, no essential spectrum, no spectral
-  projections.  The norm identity is stated for a single `λ`; no claim is made about the resolvent
-  as an *analytic* operator-valued function of `λ` (no power-series expansion at infinity, no
-  resolvent equation `R(λ) − R(μ) = (μ − λ)R(λ)R(μ)`), and the self-adjointness statement needs a
-  real parameter — for non-real `λ` the resolvent is not self-adjoint.
+  projections.  §23 supplies the resolvent equation and §24 the power series at infinity: for
+  `1 < ‖λ‖` the Neumann series `∑ₙ (λ ^ (n + 1))⁻¹ • Pⁿ` converges in operator norm to the resolvent
+  and has norm `(infDist λ {ρⁿ})⁻¹`.  That is analyticity in its *power-series* form only: no
+  differentiability statement for `λ ↦ R(λ)` is formalized, the series is only used on
+  `1 < ‖λ‖`, and no analytic continuation to the rest of the resolvent set is
+  performed.  The self-adjointness
+  statement needs a real parameter — for non-real `λ` the resolvent is not self-adjoint.
 * The spectral measure is *discrete by construction* — a `Measure.sum` of weighted Diracs over
   `ℕ` — and its total mass and all its moments are computed.  The functional calculus is built for
   `φ` bounded by `1` on the spectrum only; general bounded `φ` is the scaled case and is not
@@ -2591,5 +2607,413 @@ theorem exists_selfAdjoint_resolvent_norm_eq (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2
       ‖R‖ = (Metric.infDist (a : ℂ) (Set.range fun n : ℕ => (ρ : ℂ) ^ n))⁻¹ := by
   obtain ⟨R, hleft, hright, hnorm⟩ := exists_resolvent_norm_eq ρ s hρs hs ha
   exact ⟨R, hleft, hright, star_eq_self_of_inverse ρ s hρs hs a R hleft hright, hnorm⟩
+
+/-! ## 23. The resolvent equation
+
+With `A_λ = λ • 1 - P`, the resolvents `R(λ) = A_λ⁻¹` satisfy the **first resolvent identity**
+
+`R(λ) - R(μ) = (μ - λ) • R(λ) R(μ)`.
+
+The proof is pure algebra: telescope `R(λ) - R(μ) = R(λ)(A_μ - A_λ)R(μ)` and use
+`A_μ - A_λ = (μ - λ) • 1`.  Only two of the four inverse identities are needed — `R(λ) A_λ = 1`
+and `A_μ R(μ) = 1` — and no information about the diagonal form is used.
+
+* `resolvent_sub_eq` — the resolvent equation.
+* `resolvent_commute` — **resolvents at distinct parameters commute**.
+* `norm_resolvent_sub_le` — **the resolvent map is Lipschitz**:
+  `‖R(λ) - R(μ)‖ ≤ ‖μ - λ‖ ‖R(λ)‖ ‖R(μ)‖`.
+* `exists_resolvent_sub_eq` — the existence form: both resolvents exist off `closure {ρⁿ}`, obey the
+  equation, and `‖R(λ) - R(μ)‖ ≤ ‖μ - λ‖ / (dist(λ, {ρⁿ}) dist(μ, {ρⁿ}))` by §22's norm identity.
+
+The norm bound is what makes the resolvent continuous in `λ` off the spectrum.  It is not a
+differentiability statement, and the equation is stated for two parameters — no analytic
+continuation or resolvent calculus (Riesz projections, Dunford calculus) is built here.
+-/
+
+/-- **The resolvent equation (first resolvent identity)** for `P`: for two-sided inverses `Rl` of
+`lam • 1 - P` and `Rm` of `mu • 1 - P`, `Rl - Rm = (mu - lam) • (Rl * Rm)`.  The proof is the
+algebraic telescoping `Rl - Rm = Rl (A_mu - A_lam) Rm`; only the two inverse identities
+`Rl * A_lam = 1` and `A_mu * Rm = 1` enter.  No spectral information is used. -/
+theorem resolvent_sub_eq (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) (lam mu : ℂ)
+    (Rl Rm : Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1))
+    (hl : Rl * ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) = 1)
+    (hr : ((mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) * Rm = 1) :
+    Rl - Rm = (mu - lam) • (Rl * Rm) := by
+  set P := gaussianPCNOp ρ s hρs hs with hP
+  set A : Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1) :=
+    lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) - P with hAdef
+  set B : Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1) :=
+    mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) - P with hBdef
+  have hBA : B - A = (mu - lam) • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) := by
+    rw [hAdef, hBdef, sub_sub_sub_cancel_right, sub_smul]
+  have hkey : Rl - Rm = Rl * (B - A) * Rm := by
+    calc Rl - Rm = Rl * 1 - 1 * Rm := by rw [mul_one, one_mul]
+      _ = Rl * (B * Rm) - (Rl * A) * Rm := by rw [hr, hl, mul_one, one_mul]
+      _ = Rl * (B - A) * Rm := by noncomm_ring
+  rw [hkey, hBA, mul_smul_comm, smul_mul_assoc]
+  congr 1
+
+/-- **Resolvents at distinct spectral parameters commute** — a corollary of the resolvent equation
+applied twice, with the roles of `lam` and `mu` exchanged. -/
+theorem resolvent_commute (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) {lam mu : ℂ}
+    (Rl Rm : Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1))
+    (hl : Rl * ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) = 1)
+    (hr : ((mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) * Rm = 1)
+    (hl' : ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) * Rl = 1)
+    (hr' : Rm * ((mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) = 1) (hne : mu ≠ lam) :
+    Rl * Rm = Rm * Rl := by
+  have h1 := resolvent_sub_eq ρ s hρs hs lam mu Rl Rm hl hr
+  have h2 := resolvent_sub_eq ρ s hρs hs mu lam Rm Rl hr' hl'
+  have h3 : (mu - lam) • (Rm * Rl) = Rl - Rm := by
+    have hcoef : mu - lam = -(lam - mu) := by ring
+    rw [hcoef, neg_smul, ← h2, neg_sub]
+  have h4 : (mu - lam) • (Rl * Rm - Rm * Rl) = 0 := by
+    rw [smul_sub, ← h1, h3, sub_self]
+  have hne' : mu - lam ≠ 0 := sub_ne_zero.2 hne
+  have h5 : Rl * Rm - Rm * Rl = 0 := by
+    rcases smul_eq_zero.1 h4 with h | h
+    · exact absurd h hne'
+    · exact h
+  exact sub_eq_zero.1 h5
+
+/-- **The resolvent map is Lipschitz in the spectral parameter**:
+`‖R(λ) - R(μ)‖ ≤ ‖μ - λ‖ ‖R(λ)‖ ‖R(μ)‖`. -/
+theorem norm_resolvent_sub_le (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) {lam mu : ℂ}
+    (Rl Rm : Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1))
+    (hl : Rl * ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) = 1)
+    (hr : ((mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+        - gaussianPCNOp ρ s hρs hs)) * Rm = 1) :
+    ‖Rl - Rm‖ ≤ ‖mu - lam‖ * ‖Rl‖ * ‖Rm‖ := by
+  rw [resolvent_sub_eq ρ s hρs hs lam mu Rl Rm hl hr, norm_smul, mul_assoc]
+  exact mul_le_mul_of_nonneg_left (norm_mul_le Rl Rm) (norm_nonneg _)
+
+/-- **The resolvent equation for `P`, in existence form**: for two parameters off the spectrum both
+resolvents exist, satisfy `Rl - Rm = (mu - lam) • (Rl * Rm)`, and obey the Lipschitz bound
+`‖Rl - Rm‖ ≤ ‖mu - lam‖ / (dist(lam, {ρⁿ}) dist(mu, {ρⁿ}))`. -/
+theorem exists_resolvent_sub_eq (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) {lam mu : ℂ}
+    (hlam : lam ∉ closure (Set.range fun n : ℕ => (ρ : ℂ) ^ n))
+    (hmu : mu ∉ closure (Set.range fun n : ℕ => (ρ : ℂ) ^ n)) :
+    ∃ Rl Rm : Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1),
+      (∀ f : Lp ℂ 2 (gaussianReal 0 1),
+        Rl (((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+          - gaussianPCNOp ρ s hρs hs)) f) = f) ∧
+      (∀ g : Lp ℂ 2 (gaussianReal 0 1),
+        ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+          - gaussianPCNOp ρ s hρs hs)) (Rl g) = g) ∧
+      (∀ f : Lp ℂ 2 (gaussianReal 0 1),
+        Rm (((mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+          - gaussianPCNOp ρ s hρs hs)) f) = f) ∧
+      (∀ g : Lp ℂ 2 (gaussianReal 0 1),
+        ((mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+          - gaussianPCNOp ρ s hρs hs)) (Rm g) = g) ∧
+      Rl - Rm = (mu - lam) • (Rl * Rm) ∧
+      ‖Rl - Rm‖ ≤ ‖mu - lam‖
+        * (Metric.infDist lam (Set.range fun n : ℕ => (ρ : ℂ) ^ n))⁻¹
+        * (Metric.infDist mu (Set.range fun n : ℕ => (ρ : ℂ) ^ n))⁻¹ := by
+  obtain ⟨Rl, hll, hlr, hln⟩ := exists_resolvent_norm_eq ρ s hρs hs hlam
+  obtain ⟨Rm, hml, hmr, hmn⟩ := exists_resolvent_norm_eq ρ s hρs hs hmu
+  have hl : Rl * ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+      - gaussianPCNOp ρ s hρs hs)) = 1 := ContinuousLinearMap.ext hlr
+  have hr : ((mu • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+      - gaussianPCNOp ρ s hρs hs)) * Rm = 1 := ContinuousLinearMap.ext hml
+  refine ⟨Rl, Rm, hlr, hll, hmr, hml, ?_, ?_⟩
+  · exact resolvent_sub_eq ρ s hρs hs lam mu Rl Rm hl hr
+  · have h := norm_resolvent_sub_le ρ s hρs hs (lam := lam) (mu := mu) Rl Rm hl hr
+    rw [hln, hmn] at h
+    exact h
+
+/-! ## 24. Analyticity at infinity: the Neumann series
+
+Off the closed unit disc the resolvent is a power series in `1 / λ`:
+
+`R(λ) = (λ • 1 - P)⁻¹ = ∑ₙ (λ ^ (n + 1))⁻¹ • Pⁿ`,  for `1 < ‖λ‖`.
+
+Since `P` is a contraction (§24's `norm_gaussianPCNOp_pow_le`), the series converges absolutely in
+operator norm, and its partial sums telescope:
+`(λ • 1 - P) * ∑_{n<N} (λ ^ (n + 1))⁻¹ • Pⁿ = 1 - (λ ^ N)⁻¹ • P^N → 1`.
+
+* `norm_gaussianPCNOp_pow_le` — **`P` is a contraction**: `‖Pᵏ f‖ ≤ ‖f‖` for every `f`, `k`.
+* `opNorm_gaussianPCNOp_pow_le` — `‖Pᵏ‖ ≤ 1` in operator norm.
+* `summable_resolvent_series` — the Neumann series is absolutely convergent for `1 < ‖λ‖`.
+* `hasSum_resolvent_series` — **the series sums to the resolvent**.
+-/
+
+
+/-- **`P` is a contraction in `L²(π)`**: `‖Pᵏ f‖ ≤ ‖f‖` for every `f` and every `k`.  Split `f` into
+its component along `e₀` (which `P` fixes) and the orthogonal complement (on which `Pᵏ` decays by
+`|ρ|ᵏ`); the two parts stay orthogonal, so Pythagoras gives the bound. -/
+theorem norm_gaussianPCNOp_pow_le (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) (k : ℕ)
+    (f : Lp ℂ 2 (gaussianReal 0 1)) :
+    ‖((gaussianPCNOp ρ s hρs hs) ^ k) f‖ ≤ ‖f‖ := by
+  set P := gaussianPCNOp ρ s hρs hs with hP
+  have hPstar : star P = P :=
+    ContinuousLinearMap.isSelfAdjoint_iff'.1 (gaussianPCNOp_isSelfAdjoint ρ s hρs hs)
+  have hPs : star (P ^ k) = P ^ k := by
+    induction k with
+    | zero => simp
+    | succ k ih =>
+        rw [pow_succ, star_mul, ih, hPstar]
+        simpa using pow_mul_comm P 1 k
+  set a : ℂ := inner ℂ (hermiteLpNorm 0) f with ha
+  set g : Lp ℂ 2 (gaussianReal 0 1) := f - a • hermiteLpNorm 0 with hg
+  have hsplit : f = a • hermiteLpNorm 0 + g := by
+    rw [hg]; abel
+  have h11 : inner ℂ (hermiteLpNorm 0) (hermiteLpNorm 0) = 1 := by
+    rw [orthonormal_iff_ite.1 orthonormal_hermiteLpNorm 0 0, if_pos rfl]
+  have hg0 : inner ℂ (hermiteLpNorm 0) g = 0 := by
+    rw [hg, inner_sub_right, inner_smul_right, ha, h11]
+    ring
+  have hfix : (P ^ k) (a • hermiteLpNorm 0) = a • hermiteLpNorm 0 := by
+    rw [map_smul, gaussianPCNOp_pow_hermiteLpNorm]
+    simp
+  have hcoef0 : inner ℂ (hermiteLpNorm 0) ((P ^ k) g) = 0 := by
+    have h1 : inner ℂ (hermiteLpNorm 0) ((P ^ k) g)
+        = inner ℂ ((star (P ^ k)) (hermiteLpNorm 0)) g :=
+      (ContinuousLinearMap.adjoint_inner_left (P ^ k) g (hermiteLpNorm 0)).symm
+    rw [h1, hPs, gaussianPCNOp_pow_hermiteLpNorm]
+    simp [hg0]
+  have horth : inner ℂ ((P ^ k) (a • hermiteLpNorm 0)) ((P ^ k) g) = 0 := by
+    rw [hfix, inner_smul_left, hcoef0]
+    simp
+  have hdec : (P ^ k) f = (P ^ k) (a • hermiteLpNorm 0) + (P ^ k) g := by
+    rw [hsplit, map_add]
+  have hpy : ‖(P ^ k) f‖ ^ 2
+      = ‖(P ^ k) (a • hermiteLpNorm 0)‖ ^ 2 + ‖(P ^ k) g‖ ^ 2 := by
+    rw [hdec]
+    simpa [pow_two] using norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero _ _ horth
+  have hgdec : ‖f‖ ^ 2 = ‖a • hermiteLpNorm 0‖ ^ 2 + ‖g‖ ^ 2 := by
+    have h : inner ℂ (a • hermiteLpNorm 0) g = 0 := by
+      rw [inner_smul_left, hg0]; simp
+    rw [hsplit]
+    simpa [pow_two] using norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero _ _ h
+  have hstep : ‖(P ^ k) g‖ ^ 2 ≤ ‖g‖ ^ 2 := by
+    have hle := norm_gaussianPCNOp_pow_le_of_inner_eq_zero ρ s hρs hs k hg0
+    have h1 : |ρ| ^ k ≤ 1 := pow_le_one₀ (abs_nonneg ρ) (abs_rho_lt_one hρs hs).le
+    have hle' : ‖(P ^ k) g‖ ≤ ‖g‖ := by
+      refine hle.trans ?_
+      nlinarith [h1, norm_nonneg g]
+    exact pow_le_pow_left₀ (norm_nonneg _) hle' 2
+  have hsq : ‖(P ^ k) f‖ ^ 2 ≤ ‖f‖ ^ 2 := by
+    calc ‖(P ^ k) f‖ ^ 2
+        = ‖(P ^ k) (a • hermiteLpNorm 0)‖ ^ 2 + ‖(P ^ k) g‖ ^ 2 := hpy
+      _ = ‖a • hermiteLpNorm 0‖ ^ 2 + ‖(P ^ k) g‖ ^ 2 := by rw [hfix]
+      _ ≤ ‖a • hermiteLpNorm 0‖ ^ 2 + ‖g‖ ^ 2 := by linarith
+      _ = ‖f‖ ^ 2 := hgdec.symm
+  have habs : |‖(P ^ k) f‖| ≤ |‖f‖| := sq_le_sq.1 hsq
+  simpa using habs
+
+
+theorem opNorm_gaussianPCNOp_pow_le (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) (k : ℕ) :
+    ‖(gaussianPCNOp ρ s hρs hs) ^ k‖ ≤ 1 := by
+  refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun f => ?_
+  simpa using norm_gaussianPCNOp_pow_le ρ s hρs hs k f
+
+theorem summable_resolvent_series (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) {lam : ℂ}
+    (hlam : 1 < ‖lam‖) :
+    Summable (fun n : ℕ => (lam ^ (n + 1))⁻¹ • (gaussianPCNOp ρ s hρs hs) ^ n) := by
+  have h0 : (0 : ℝ) ≤ ‖lam‖⁻¹ := by positivity
+  have h1 : ‖lam‖⁻¹ < 1 := by
+    rw [inv_lt_one_iff₀]
+    exact Or.inr hlam
+  have hgeom : Summable (fun n : ℕ => (‖lam‖ ^ (n + 1))⁻¹) := by
+    have h := (summable_geometric_of_lt_one h0 h1).mul_left ‖lam‖⁻¹
+    simpa [inv_pow, pow_succ] using h
+  refine Summable.of_norm_bounded (f := fun n : ℕ =>
+    (lam ^ (n + 1))⁻¹ • (gaussianPCNOp ρ s hρs hs) ^ n) hgeom fun n => ?_
+  rw [norm_smul, norm_inv, norm_pow]
+  have h2 : ‖(gaussianPCNOp ρ s hρs hs) ^ n‖ ≤ 1 :=
+    opNorm_gaussianPCNOp_pow_le ρ s hρs hs n
+  calc (‖lam‖ ^ (n + 1))⁻¹ * ‖(gaussianPCNOp ρ s hρs hs) ^ n‖
+      ≤ (‖lam‖ ^ (n + 1))⁻¹ * 1 := by
+        refine mul_le_mul_of_nonneg_left h2 (by positivity)
+    _ = (‖lam‖ ^ (n + 1))⁻¹ := by rw [mul_one]
+
+
+private abbrev H := Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1)
+
+theorem hasSum_resolvent_series (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) {lam : ℂ}
+    (hlam : 1 < ‖lam‖) :
+    ∃ R : H,
+      (∀ g : Lp ℂ 2 (gaussianReal 0 1),
+        ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+          - gaussianPCNOp ρ s hρs hs)) (R g) = g) ∧
+      (∀ f : Lp ℂ 2 (gaussianReal 0 1),
+        R (((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+          - gaussianPCNOp ρ s hρs hs)) f) = f) ∧
+      HasSum (fun n : ℕ => (lam ^ (n + 1))⁻¹ •
+        (gaussianPCNOp ρ s hρs hs) ^ n) R := by
+  set P := gaussianPCNOp ρ s hρs hs with hP
+  set A : H := lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) - P with hAdef
+  set T : ℕ → H := fun n => (lam ^ (n + 1))⁻¹ • P ^ n with hT
+  set u : ℕ → H := fun n => (lam ^ n)⁻¹ • P ^ n with hu
+  have hlam0 : lam ≠ 0 := by
+    intro h; rw [h, norm_zero] at hlam; linarith
+  have hS : Summable T := summable_resolvent_series ρ s hρs hs hlam
+  set S : H := ∑' n, T n with hSdef
+  have hcoef : ∀ n : ℕ, (lam ^ (n + 1))⁻¹ * lam = (lam ^ n)⁻¹ := by
+    intro n
+    rw [pow_succ, mul_inv]
+    field_simp
+  have hpowL : ∀ n : ℕ, A * P ^ n = lam • P ^ n - P ^ (n + 1) := by
+    intro n
+    rw [hAdef, sub_mul, smul_mul_assoc, ← pow_succ']
+    congr 1
+  have hpowR : ∀ n : ℕ, P ^ n * A = lam • P ^ n - P ^ (n + 1) := by
+    intro n
+    rw [hAdef, mul_sub, mul_smul_comm, ← pow_succ]
+    congr 1
+  have htermL : ∀ n : ℕ, A * T n = u n - u (n + 1) := by
+    intro n
+    have h1 : A * T n = (lam ^ (n + 1))⁻¹ • (A * P ^ n) := by
+      rw [hT, mul_smul_comm]
+    rw [h1, hpowL, smul_sub, smul_smul, hcoef, hu]
+  have htermR : ∀ n : ℕ, T n * A = u n - u (n + 1) := by
+    intro n
+    have h1 : T n * A = (lam ^ (n + 1))⁻¹ • (P ^ n * A) := by
+      rw [hT, smul_mul_assoc]
+    rw [h1, hpowR, smul_sub, smul_smul, hcoef, hu]
+  have htelL : ∀ N : ℕ, ∑ n ∈ Finset.range N, A * T n = 1 - (lam ^ N)⁻¹ • P ^ N := by
+    intro N
+    have hfun : (fun n => A * T n) = fun n => u n - u (n + 1) := funext htermL
+    rw [hfun, Finset.sum_range_sub']
+    simp [hu]
+  have htelR : ∀ N : ℕ, ∑ n ∈ Finset.range N, T n * A = 1 - (lam ^ N)⁻¹ • P ^ N := by
+    intro N
+    have hfun : (fun n => T n * A) = fun n => u n - u (n + 1) := funext htermR
+    rw [hfun, Finset.sum_range_sub']
+    simp [hu]
+  have hrem : Tendsto (fun N : ℕ => (lam ^ N)⁻¹ • P ^ N) atTop (𝓝 0) := by
+    have hgeom : Tendsto (fun N : ℕ => (‖lam‖⁻¹) ^ N) atTop (𝓝 0) := by
+      refine tendsto_pow_atTop_nhds_zero_of_lt_one (by positivity) ?_
+      rw [inv_lt_one_iff₀]
+      exact Or.inr hlam
+    refine squeeze_zero_norm (fun N => ?_) hgeom
+    rw [norm_smul, norm_inv, norm_pow, ← inv_pow]
+    exact mul_le_of_le_one_right (by positivity)
+      (opNorm_gaussianPCNOp_pow_le ρ s hρs hs N)
+  have hlimL : Tendsto (fun N : ℕ => ∑ n ∈ Finset.range N, A * T n) atTop (𝓝 1) := by
+    have h := (tendsto_const_nhds (x := (1 : H)) (f := atTop)).sub hrem
+    simpa [htelL] using h
+  have hlimR : Tendsto (fun N : ℕ => ∑ n ∈ Finset.range N, T n * A) atTop (𝓝 1) := by
+    have h := (tendsto_const_nhds (x := (1 : H)) (f := atTop)).sub hrem
+    simpa [htelR] using h
+  have hSumL : HasSum (fun n => A * T n) (A * S) := by
+    have h := hS.hasSum.mul_left A
+    rwa [← hSdef] at h
+  have hSumR : HasSum (fun n => T n * A) (S * A) := by
+    have h := hS.hasSum.mul_right A
+    rwa [← hSdef] at h
+  have hleft : A * S = 1 := tendsto_nhds_unique hSumL.tendsto_sum_nat hlimL
+  have hright : S * A = 1 := tendsto_nhds_unique hSumR.tendsto_sum_nat hlimR
+  refine ⟨S, ?_, ?_, ?_⟩
+  · intro g
+    have := congrArg (fun X : H => X g) hleft
+    simpa using this
+  · intro f
+    have := congrArg (fun X : H => X f) hright
+    simpa using this
+  · have h := hS.hasSum
+    rw [← hSdef] at h
+    simpa [hT] using h
+
+/-- **The spectrum of `P` lies in the closed unit disc**, so every `lam` with `1 < ‖lam‖` is off the
+spectrum — the region where the Neumann series of `hasSum_resolvent_series` is available. -/
+theorem notMem_closure_of_one_lt_norm (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0)
+    {lam : ℂ} (hlam : 1 < ‖lam‖) :
+    lam ∉ closure (Set.range fun n : ℕ => (ρ : ℂ) ^ n) := by
+  intro hmem
+  have hsub : closure (Set.range fun n : ℕ => (ρ : ℂ) ^ n) ⊆ {x : ℂ | ‖x‖ ≤ 1} := by
+    refine closure_minimal ?_ (isClosed_le continuous_norm continuous_const)
+    rintro x ⟨n, rfl⟩
+    simpa [norm_pow] using
+      pow_le_one₀ (abs_nonneg ρ) (abs_rho_lt_one hρs hs).le (n := n)
+  have h1 : ‖lam‖ ≤ 1 := hsub hmem
+  linarith
+
+/-- **The norm of the Neumann series is the reciprocal distance to the eigenvalue list**: the series
+sum of `hasSum_resolvent_series` is a two-sided inverse of `lam • 1 - P`, so by §22's norm identity
+its norm is `(infDist lam {ρⁿ})⁻¹`. -/
+theorem norm_tsum_resolvent_series (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) {lam : ℂ}
+    (hlam : 1 < ‖lam‖) :
+    ‖∑' n : ℕ, (lam ^ (n + 1))⁻¹ • (gaussianPCNOp ρ s hρs hs) ^ n‖
+      = (Metric.infDist lam (Set.range fun n : ℕ => (ρ : ℂ) ^ n))⁻¹ := by
+  set P := gaussianPCNOp ρ s hρs hs with hP
+  obtain ⟨R, hRl, hRr, hRs⟩ := hasSum_resolvent_series ρ s hρs hs hlam
+  have hmem := notMem_closure_of_one_lt_norm ρ s hρs hs hlam
+  obtain ⟨R', hR'l, hR'r, hR'n⟩ := exists_resolvent_norm_eq ρ s hρs hs hmem
+  have hA : ∀ (X : H), X * ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) - P)) = 1 →
+      ∀ (Y : H), ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) - P)) * Y = 1 →
+      X = Y := by
+    intro X hX Y hY
+    calc X = X * 1 := (mul_one X).symm
+      _ = X * (((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) - P)) * Y) := by
+          rw [hY]
+      _ = (X * ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1)) - P))) * Y :=
+          (mul_assoc _ _ _).symm
+      _ = 1 * Y := by rw [hX]
+      _ = Y := one_mul Y
+  have hRe : R = R' :=
+    hA R (ContinuousLinearMap.ext hRr) R' (ContinuousLinearMap.ext hR'l)
+  have hsum : (∑' n : ℕ, (lam ^ (n + 1))⁻¹ • (gaussianPCNOp ρ s hρs hs) ^ n) = R' := by
+    rw [← hRe]
+    exact hRs.tsum_eq
+  rw [hsum, hR'n]
+
+
+/-! ## 25. What compactness does and does not give: the Riesz-theoretic input
+
+The literature story is: `P` is compact and self-adjoint, so (Riesz/Fredholm) its spectrum is
+`{0} ∪ {eigenvalues}`, the nonzero eigenvalues are isolated with finite multiplicity, and they
+accumulate only at `0`.  §§19–21 obtain exactly this *shape* for `P`, but from the diagonal
+representation rather than from compactness.
+
+Two points belong in the record.
+
+* The hypothesis `|ρ| < 1` used from §5 on is **not** a consequence of compactness.  A compact
+  self-adjoint operator can have the eigenvalue `1` (a rank-one projection does), so compactness
+  alone permits `|ρ| = 1`.  Here `|ρ| < 1` instead follows from the proposal being non-degenerate:
+  `ρ² + s² = 1` with `s ≠ 0` gives `|ρ| < 1` (`abs_rho_lt_one`).
+* What *does* follow from the contraction bound `‖Pᵏ‖ ≤ 1` is boundedness of the spectrum: the
+  closure of the eigenvalue list lies in the closed unit disc
+  (`closure_range_pow_subset_closedUnitBall`), so every `λ` with `1 < ‖λ‖` lies in the resolvent
+  set, with the Neumann series of §24 as its resolvent (`resolvent_series_of_one_lt_norm`).
+
+The general Riesz/Fredholm theorem for compact operators on a Banach space — finite multiplicity of
+each nonzero eigenvalue, `0` the only possible accumulation point, spectral projections — is
+**not** formalized here, and is not needed: §§19–21 reach the same conclusions from the explicit
+eigenvalue list.
+-/
+
+
+/-- **The closure of the eigenvalue list lies in the closed unit disc.**  This is the
+Riesz-theoretic bound "the spectrum is contained in the closed disc of radius `‖P‖`", here read off
+from `|ρ| < 1`: every eigenvalue `ρⁿ` has modulus at most `1`, and the closed unit disc is
+closed. -/
+theorem closure_range_pow_subset_closedUnitBall (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0) :
+    closure (Set.range fun n : ℕ => (ρ : ℂ) ^ n) ⊆ {x : ℂ | ‖x‖ ≤ 1} := by
+  refine closure_minimal ?_ (isClosed_le continuous_norm continuous_const)
+  rintro x ⟨n, rfl⟩
+  simpa [norm_pow] using pow_le_one₀ (abs_nonneg ρ) (abs_rho_lt_one hρs hs).le (n := n)
+
+/-- **Every point off the closed unit disc is in the resolvent set of `P`**, with the Neumann series
+of §24 as its resolvent.  This is the direction of Riesz/Fredholm theory that the diagonal
+representation makes elementary: the spectrum is *bounded* by the contraction bound. -/
+theorem resolvent_series_of_one_lt_norm (ρ s : ℝ) (hρs : ρ ^ 2 + s ^ 2 = 1) (hs : s ≠ 0)
+    {lam : ℂ} (hlam : 1 < ‖lam‖) :
+    ∃ R : Lp ℂ 2 (gaussianReal 0 1) →L[ℂ] Lp ℂ 2 (gaussianReal 0 1),
+      (∀ g : Lp ℂ 2 (gaussianReal 0 1),
+        ((lam • ContinuousLinearMap.id ℂ (Lp ℂ 2 (gaussianReal 0 1))
+          - gaussianPCNOp ρ s hρs hs)) (R g) = g) ∧
+      HasSum (fun n : ℕ => (lam ^ (n + 1))⁻¹ •
+        (gaussianPCNOp ρ s hρs hs) ^ n) R := by
+  obtain ⟨R, hl, _, hs'⟩ := hasSum_resolvent_series ρ s hρs hs hlam
+  exact ⟨R, hl, hs'⟩
 
 end BookProof.MCMC
