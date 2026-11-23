@@ -26904,3 +26904,46 @@ an algebra.
 
 **Not claimed.**  The `L⁴` hypothesis is sufficient, not necessary; a weight with faster-than-
 polynomial growth and `g F ∈ L²` with `F` only in `L²` are still open.
+
+## State of the project — 2026-11-21: scalar λφ⁴ on the nested Mehler core
+
+The scalar work order starts with the continuous-coordinate independent-jet operator. The
+one-particle operator contains the entire double-well interaction, including its
+constant. The outer Hamiltonian is the creation-left, annihilation-right enclosure of
+that operator. Each outer excitation carries all the inner coordinates. The scalar and three independent
+jets are real variables. Hermite indices label functions of those variables. The periodic
+site model uses spatial finite differences and supplies a separate lattice comparison.
+[Current scalar work order](PHI4_FORMALIZATION_PLAN.md)
+
+- **U — operator and vacuum.** The inner operator has a positive self-adjoint closure.
+  The completed symmetric outer sectors carry its second quantization. Their dense
+  finite-particle core gives the outer Stone flow. The outer closure is nonnegative
+  and the unit outer vacuum attains zero energy. Ground-state uniqueness and a
+  positive gap require further spectral estimates.
+  [Inner operator](BookProof/Phi4/ChapterScalarMehler.lean) ·
+  [Outer dynamics](BookProof/Phi4/ChapterScalarOuter.lean) ·
+  [Ground-state proof](BookProof/Phi4/ChapterScalarEnergy.lean)
+- **U — finite Mehler windows.** The inverses of the actual compressed Hamiltonians
+  converge strongly at nonzero imaginary shifts. Their flows converge on each state
+  uniformly on bounded time intervals. The one-site rank-one return theorem bounds
+  the normalized Gaussian return below by 1 − (97/32)t² at unit parameters.
+  [Window theorem](BookProof/Phi4/ChapterScalarWindows.lean) ·
+  [One-site full-action estimate](BookProof/Phi4/ChapterScalarSirk.lean)
+- **U — two-site finite identities.** Lean identifies the three input columns with the
+  full rotated Hamiltonian including all ten output modes, checks the Hermite metric,
+  and computes the rank-two Hashimoto generator and its full defect. The squared
+  defect on the initial column and the Hilbert–Schmidt bound control different terms
+  in the time integral. Lean proves its affine residual estimate for differentiable
+  core orbits. The analytic derivation gives the normalized return interval
+  [0.99789375, 0.999775] at t = 0.01. The time-dependent inference remains to be
+  packaged in Lean. Rust has a three-mode compressed exponential test for this lattice
+  example. A full-action-enclosed rank-two Rust trajectory remains open.
+  [Two-site action](BookProof/Phi4/ChapterScalarTwoSite.lean) ·
+  [Rank-two proof](BookProof/Phi4/ChapterScalarRankTwo.lean) ·
+  [Derivation and replay](../unfer/docs/PHI4_ANALYTIC_PLAN.md)
+
+**Specialist handoff.** Use the full Gaussian column of `jetModel` to prove the unit-width,
+unit-parameter mean 17/8 and variance 145/32. Bind the rational orbit to this operator
+and compare the error with the change under a coupling variation,
+increasing the occupation cutoff independently of the rational Krylov rank. The current
+bounds address one fixed scalar model and give no uniform-in-rank rate or field limit.

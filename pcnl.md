@@ -1,9 +1,136 @@
 # pCNL: Mehler operators, nested Fock representations and convergence certificates
 
-## Current programme: certify the target, the kernel and useful predictions (2026-11-15)
+## Specialist work order and critical review · 2026-11-20
 
-This is the current mathematical execution guide for the **LLM-Lean4-specialist**. It
-refines T0–T5 and supersedes older priorities that make a Fock drift bound the only missing
+The sharp scalar Gaussian reference rate is now in Lean source. The highest-value
+open proof is to connect a *particular nonconstant likelihood*, its implemented
+transition and a predictive error bound. The best application evidence so far is for
+averaging a small head on frozen embeddings. The experiments also supply two useful
+lessons. A properly scored RL objective can lose to supervised
+training, and correct state normalization can coexist with poor predictions and mixing.
+
+This review uses timepiece `fa22e6f` and the local unfer tree based on `b0aaa7c`,
+including its working changes to the rotation head, tests and results ledger. Numerical
+values below are recorded experiments. The unfer results ledger's **R12 cross-chain
+retention and mixing audit** supersedes earlier draw summaries and the unfixed-retention
+description in the R12 plan. Q0–Q7 below give the mathematical details for this order.
+[Research plan](../unfer/pcnl/RESEARCH_PLAN.md) · [Results ledger](../unfer/docs/PCNL_STATUS.md)
+
+### What the results establish
+
+**Scalar Gaussian pCN.** For standard Gaussian reference, `ρ²+s²=1` and `s≠0`,
+the actual Markov operator acts on complex Gaussian L². Its complete Hermite basis
+has eigenvalues `ρⁿ`. The degree-one mode attains the centred operator norm `|ρ|`,
+giving the sharp absolute gap `1−|ρ|`. For constructed measures with a centred
+density deviation whose representative is bounded in modulus by one,
+`gaussianPCN_tv_geometric_convergence_of_bounded` gives a TV rate. Reuse this result
+for the independent-complement product proof. A point start or neural likelihood
+requires further arguments. [Operator construction](BookProof/MCMC/LpKernelOperator.lean) ·
+[Gap and TV statements](BookProof/MCMC/GaussianPCNGap.lean)
+
+**Unadjusted SG-pCNL.** Tilt a standard-normal prior by a linear log likelihood
+of slope b. At a fixed nonzero step the stable scalar update has unit stationary
+variance and mean `b(1+ρ)/2`, while the posterior mean is b. The source also
+exhibits a normalizable quadratic target with an unstable update. Use the signed
+mean bias as a regression check for the implemented drift. Annealing changes the
+kernel at every step. A proof for that branch must account for total mobility,
+batch noise, clipping when enabled, and the weights used to average predictions.
+[Gaussian AR benchmark](BookProof/MCMC/GaussianARBenchmark.lean) ·
+[Rust schedule and step](../unfer/pcnl/src/sampler.rs)
+
+**Adjusted references and R8.** Lean supplies finite-state MH minorization and
+a separate normalized box model with stationarity and conditional rates. Rust
+supplies evidence and predictive enclosures on tiny examples, a product benchmark
+and a one-direction Edge0 chart. The global neural likelihood floor gives a
+practically vacuous constant. Instantiate the continuous independence-MH theorem
+on the tiny target using its evidence bound, then identify the kernel and work per
+step for the proposed local/refresh mixture. Carry the numerical assumptions on
+supplied node values explicitly. [Finite model](BookProof/MCMC/PositivityCone.lean) ·
+[Box model](BookProof/MCMC/PCNGaussianFloor.lean) ·
+[Rust witnesses](../unfer/pcnl/tests/d_track.rs)
+
+The Mehler/Fock description diagonalizes the Gaussian reference. Adding a likelihood
+introduces an acceptance probability and a rejection atom, and changes the equilibrium
+measure. A band estimate on a polynomial core or a few Ritz values supplies neither
+that operator identification nor a lower bound on its full-space gap. High acceptance
+can also accompany tiny moves. Measure effective draws of the *predictions* per unit
+cost. [Core estimates](BookProof/MCMC/FockLangevinOperator.lean) ·
+[Scope of the numerical spectral certificate](../unfer/pcnl/src/operator_cert.rs)
+
+### What is worth pursuing in unfer
+
+- **Edge0 with RLCD (R9)** implements typed probabilities, a four-path marginal and
+  a Brier estimator checked by finite enumeration. Decision paths are sampled *inside*
+  the model. Posterior parameter draws would average different models. The stored
+  five-seed, 2,000-update campaign gives RLCD minus supervised Brier excess
+  **+0.00223 ± 0.00184** (paired 95% t half-width, one world split, lower is better).
+  The later six-arm state-gate experiment also favored supervision, **+0.00096 ±
+  0.00020**. Keep the required RLCD arm and exact marginal control. Its advantage
+  in calibrated decisions remains speculative until a held-out score or utility
+  gain survives a matched budget. R7's decision-transformer NLL stop still stands.
+- **Frozen text heads (R10/R11)** offer a plausible use for posterior averaging when
+  the point fit is overconfident. On 32 AG News training rows the R10 rank-8 full-head
+  run reduced test NLL from 1.9535 to 0.7842 with accuracy moving from 72.50% to
+  73.33%. The encoder was fixed. Brier- and NLL-target controls performed similarly.
+  For continual learning, carrying a Gaussian summary plus replay sometimes improves
+  on reset. The calibrated joint fit won on NLL and Brier on all five matched
+  four-class 20 Newsgroups resplits. Price the compression and the replay budget
+  against a calibrated joint reference before claiming a continual-learning benefit.
+- **Signed rotation head (R12)** already composes orthogonal maps per parameter draw,
+  reopens a checkpoint and scores the accumulated event prefix. The corrected
+  80-cell readout allocates draws across both chains. In raw AG News at width 8
+  its base NLL moved from 1.6467 to **1.4281**; the tuned softmax achieved **0.4691**.
+  Fifteen of sixteen configuration-level mean split R-hats on draw NLL exceeded
+  1.05, using only five draws per chain. The scores describe this budget. They
+  cannot identify the stationary predictive, a sign-sensitive learning advantage,
+  or a failure of all rotation architectures. The current CLI consumes embeddings
+  or fixture rows, and the reported shallow fits used a single batch update.
+  English ingestion, the planned four-hidden-layer delivery and predictive gains on
+  a labelled stream each need a separate demonstration.
+
+### Next proof and experiment, in dependency order
+
+1. **Identify the rotation transition at its stored endpoints.** Fix the basis,
+   event prefix, temperature, empirical or independent prior centre and diagonal
+   covariance C. For positive temperature the target density relative to that prior
+   is proportional to the product of observed squared amplitudes raised to that
+   temperature. Show positive evidence on a common positive-likelihood set. At a
+   Born zero the log loss is infinite and its gradient is singular. Specify the
+   support and rejection rule. In `mh_pcn_centered_step` the shrinkage is followed
+   by a drift using the gradient of the **total** negative log density. At constant
+   likelihood its centred proposal coefficient is `ρ−β²/2`; the proposed
+   likelihood-gradient reference has coefficient `ρ`. Both can use MH with their
+   respective Gaussian densities. Derive detailed balance for the specified ideal
+   kernel, then compare to the Rust forward density evaluated from the sampled
+   innovation before rounding and the reverse density at stored endpoints. Acceptance
+   one at constant likelihood is a test of the likelihood-only reference.
+   [Implemented proposal](../unfer/pcnl/src/rotation_head.rs)
+2. **Give the specialist an exact Born example.** For one angle t with prior
+   N(0,v), v positive, class-zero probability cos²(t) and one class-zero
+   observation at unit temperature, the evidence is (1+exp(−2v))/2 by the Gaussian
+   characteristic function. The posterior prediction for a second class-zero
+   observation is E[cos⁴(t)]/E[cos²(t)]. Prove both integrals and compare the
+   retained-draw readout with quadrature and its Monte Carlo standard error (MCSE).
+   Distinguish two observations from two rotations of the same draw before one
+   measurement, whose likelihood is cos²(2t). This tests event counting and
+   composition with a known answer. For Q1 use the evidence in the reference
+   bound c = ω Z/M and report the step budget implied by (1−c) raised to that
+   budget. Transfer Q2 only across a genuinely independent Gaussian complement.
+3. **Measure prediction error and decide what to fund.** First run dispersed
+   chains with per-chain provenance and enough retained draws to estimate MCSE for
+   class probabilities, log score and composed outcomes. Predeclare precision smaller
+   than the improvement worth detecting. Compare the frozen text head to temperature
+   scaling and a compute-matched ensemble on fresh documents. Compare R12 prefix
+   updates to an independent full-prefix fit and a reset arm with equal data. Test
+   signed composition against an intermediate measurement on sequence labels that
+   distinguish them. Advance Edge0/RLCD to a decision-utility claim only after a
+   paired, world-clustered comparison on new worlds. If score differences disappear
+   under these controls, retain the project as a measured inference benchmark.
+
+## Q0–Q7 programme: certify the target, the kernel and useful predictions (2026-11-15)
+
+These research packets supply the mathematical details for the specialist work order above.
+They refine T0–T5 and supersede older priorities that make a Fock drift bound the only missing
 step. Coordinate it with the active programme in
 [the crate research plan](../unfer/pcnl/RESEARCH_PLAN.md) and
 [the new development plan](../unfer/pcnl/DEVELOPMENT_PLAN.md).
@@ -11,7 +138,8 @@ The required new application track is **R9**, specified in
 [the Edge0/RLCD plan](../unfer/pcnl/EDGE0_RLCD_PLAN.md) and executed through development
 packets **E0–E7**. It adapts the local `../Edge0/` latent MoE architecture to a small typed
 probability model. RLCD includes an explicit proper-score policy-gradient update;
-supervised CE+Brier is a comparator/warm start, not a substitute. First prove finite
+supervised CE+Brier supplies the comparator and warm start. The Rust identities have
+fixture tests. The Lean tasks are to prove finite
 simplex, proper-score, mixture-estimator and policy-gradient identities. The optional
 parameter posterior then uses Q0–Q7 below; latent decision paths are not posterior draws.
 
@@ -94,10 +222,10 @@ fallback even when its bound is too pessimistic for production.
 
 ### Q2. Prove sharper dimension statements on controlled families
 
-First finish the Gaussian Mehler kernel bridge, then formalize the exact informed-product
+Reuse the completed scalar Gaussian kernel and its Hermite gap, then formalize the exact informed-product
 benchmark. If `Ψ(z,w)=Ψ_r(z)` and the prior is `μ_r⊗μ_n`, the posterior factors as
 `π_r⊗μ_n`. For a simultaneous product of reversible kernels with absolute gaps `γ_r`
-and `1-ρ`, the full absolute gap is `min(γ_r,1-ρ)`, independent of complement dimension
+and `1-ρ` (with `0 ≤ ρ < 1`), the full absolute gap is `min(γ_r,1-ρ)`, independent of complement dimension
 `n`. Reuse Hermite tensorization and the actual invariant density, not the coefficient
 form `pcn_gap_uniform` alone. The prior-refresh coefficient also stays independent of
 `n` in this exact factorized case because its evidence is an `r`-dimensional integral.
@@ -201,8 +329,8 @@ clipping the predictive changes the readout; price the floor's bias and label it
 For held-out DT data, steps share trajectories: implement trajectory-clustered uncertainty
 and independent-seed comparisons rather than treating tokens as independent replicates.
 Parameter-chain correlation, test-data correlation and rollout noise are three different
-variance sources. The current `policy_readout::paired_delta` calls its step-independent
-SE optimistic; it is an implementation task to replace that acceptance statistic.
+variance sources. The crate now supplies `trajectory_clustered_delta` for paired trajectory-level inference.
+Use it for decisions and audit parameter-draw MCSE separately.
 
 ### Q5. Connect policy approximation to return without promising policy optimality
 
@@ -252,7 +380,7 @@ keep Fock/diffusion realization and spherical limits off that first certificate'
 Execute **Q0 → Q1 → Gaussian/product Q2 → Q3 → Q4**, with coupled-target Q2 and Q5 as
 extensions. Q6 is optional unless it yields a sharper verified bound. T0–T5 remain useful
 subproof packets under this order. Proposed Lean deliverables are target well-posedness,
-prior-refresh minorization and mixture contraction, the actual Gaussian `L²` action,
+continuous prior-refresh minorization and mixture contraction using the existing scalar Gaussian `L²` action,
 product/conditional comparison, kernel perturbation, predictive MC error and policy-value
 stability. Search and reuse local declarations before introducing any new API. The
 `PCNGaussianFloor` box/ball, stationarity and normalized-target results are available;
@@ -273,7 +401,7 @@ loose rates and corrected target definitions remain valuable completed research 
 
 ## Revised research and formalization work order (2026-11-08)
 
-This section supersedes the architecture, milestone ordering and completion claims below
+At its November 8 snapshot this section superseded the architecture, milestone ordering and completion claims below
 **as a reading guide for this file**. Earlier dated notes remain implementation history.
 It does not change the programme ordering in `CURRENT_WORK_ORDER.md`. The task is to
 identify a concrete Markov operator, prove its gap under explicit assumptions, and connect
@@ -590,7 +718,7 @@ They are specifications for the Lean specialist and the crate's R0–R3 work. Im
 them as small modules with explicit probability, integrability and domain assumptions;
 do not introduce axioms to fill the missing identifications.
 
-#### T0 — reuse the actual kernel API, then build its `L2` action
+#### T0 — original specification, now implemented for the scalar Gaussian reference
 
 The pinned Mathlib already supplies `ProbabilityTheory.Kernel`, `IsMarkovKernel`,
 `Kernel.Invariant`, `Kernel.IsReversible` and `Kernel.IsReversible.invariant` in
@@ -612,8 +740,9 @@ evolution with the adjoint. Derive self-adjointness from detailed balance on a d
 test class and continuity. Complete the product-Gaussian kernel instance before any
 posterior or outer-Fock lift.
 
-**Deliverable:** `KernelContract.lean` plus `GaussianKernelBridge.lean`, with an actual
-`Kernel`-to-continuous-linear-map construction. Any finite-state tests should use the
+**Current reuse.** `KernelContract.lean`, `GaussianKernelBridge.lean` and
+`LpKernelOperator.lean` now supply the scalar reference construction.
+Instantiate the chosen nonconstant-likelihood kernel and its density transport. Any finite-state tests should use the
 same observable/density orientation. `ChapterAttentionMarkov`'s stochastic-matrix
 contraction is a useful finite-state check, but an attention-position kernel is not the
 parameter-space sampling kernel.
@@ -797,7 +926,7 @@ All paths in this ledger are under `BookProof/MCMC/` unless stated otherwise.
 |---|---|---|
 | `MehlerEigenfunction.mehlerOp_physHermite` | U: 1D Gaussian identity | Product `L2` operator |
 | `GegenbauerEigenvalue.pcnZonalEigen_tendsto` | U: quotient limit | Sphere operator/tail |
-| `UnadjustedPCNGap.pcn_gap_uniform` | U: defined coefficient-form bound | Gaussian kernel map |
+| `UnadjustedPCNGap.pcn_gap_uniform` | U: defined coefficient-form bound | Product-kernel identification in the chosen dimension |
 | `FockLangevinOperator.polyMul_mul` | U: polynomial ladder algebra | Posterior transform |
 | `FockLangevinOperator.polyDrift_band` | U: polynomial core band | Nonpolynomial/error bound |
 | `FockLangevinOperator.driftFormBound_holds` | U: constant drift bound | Actual symmetric form |
@@ -805,9 +934,8 @@ All paths in this ledger are under `BookProof/MCMC/` unless stated otherwise.
 | `ConvergenceTheorem.tvDist_le_half_l2` | U: density-ratio TV bound | Kernel density evolution |
 | `BayesianTransformer/` | Geometry/noise source statements | Local compile/model audit |
 
-Execute **T0 → T1 → T2 → T3** for the first concrete kernel, bias benchmarks and
-exact MH-pCN theorem. These implement P0–P3; the scalar algebra in T1 can be prepared
-while T0's integration/quotient bridge is being built. T4 implements P5 only after its
+Reuse the completed scalar T0 operator and T1 Gaussian AR benchmarks for T2 and T3.
+The target-specific product and MH comparisons still require proofs. T4 implements P5 only after its
 tail and coupling hypotheses are available. T5 connects the proof to P6 and the crate.
 P4 remains a separate diffusion/Fock branch, with its ground-transform identity required
 before reusing polynomial band estimates. Preserve the historical notes below, but use

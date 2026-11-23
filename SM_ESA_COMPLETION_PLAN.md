@@ -1,9 +1,153 @@
 # Full Standard-Model ESA: completion plan and implementation audit
 
-## Current programme: well-defined full SM and certified joint dynamics (2026-11-15)
+## Specialist decision and evidence review · 2026-11-20
 
-This is the current work order for the **LLM-Lean4-specialist**, coordinated with the
-`unfer` implementation specialist. It supersedes the forward ordering and stale blockers
+**First deliverable.** Identify the complete *unreduced* E1 operator on one
+explicit dense core, including its three first-order spatial Dirac terms. Prove its
+essential self-adjointness (ESA) there. This would give a unique unitary time evolution
+for a specified model with interactions and fixed parameters. The finite physical
+quotients and numerical certificates below are useful independent work. Neither can
+discharge the domain hypotheses of this theorem. This order updates SM0–SM9 and the
+November 15 numerical snapshot. The cross-track priority remains QYM first.
+
+### What the definition buys, and what it costs
+
+E1 uses independent spatial, field and jet coordinates and a finite matter CAR space.
+Its inner state can already contain a Higgs fluctuation and occupied quark and lepton
+modes. The outer operator acts on *one such configuration at a time*,
+`H = Σᵢⱼ ⟨eᵢ,h_SM eⱼ⟩ C†(eᵢ) A(eⱼ)`. All 49 bosonic squares, spatial Dirac,
+gauge–matter and all four real Higgs/Yukawa components belong inside that matrix
+element. On the one-outer-quantum sector the action recovers h_SM. The rightmost
+annihilator kills the empty outer state. Calling it a ground state additionally
+requires nonnegativity of h_SM on the corresponding inner space. Adding cI inside shifts an
+n-quantum sector by nc. Removing a scalar during normal ordering changes relative energies
+across outer sectors.
+
+The Mehler/Hermite basis gives a common dense polynomial core and computable ladder
+matrix elements. A unitary change of widths transports the state, operator *and*
+observable. Occupation truncation can make the same physical state expensive in the
+new basis. Likewise, E1 has independent jet variables. Identifying them with derivatives
+of spatial fields needs a reconstruction map and compatible local constraints. The
+NS/QG spatial convolution prescription does not supply that SM identification.
+Full unreduced E1 ESA looks plausible because the internal CAR matrices are bounded
+and the scalar comparison already controls the differential directions. The remaining
+issue is how those matrices and unbounded spatial derivatives enter the form commutator.
+The defensible near-term goal is an explicit interacting E1 model and a bounded
+observable with controlled numerical error. A physical spectrum, regulator-independent
+four-dimensional theory, or derivation of measured masses remains speculative.
+
+### Results the specialist can reuse
+
+- **Inner analysis.** The bosonic ESA theorem and the ESA of the 43-direction scalar
+  comparison are available. The 49-form derivative table supplies the potential
+  self-bound. The four-component matter coefficients and their adjoints, finite
+  CAR operators and a coupled dense core also exist. The tensor-identity ESA
+  theorem takes a graph-core hypothesis. The matter normal form omits the bosonic
+  quartic, and its active-40 estimate does not cover the three spatial momenta.
+  [Scalar bounds](BookProof/Sm/ChapterSmGradTable.lean) ·
+  [Comparison](BookProof/Sm/ChapterSmFullComparisonEsa.lean) ·
+  [Coupled core](BookProof/Sm/ChapterSmFullCoupledCore.lean)
+- **Finite BRST.** For the finite matter–ghost charge with generator closure,
+  antisymmetry and Jacobi, the canonical physical range is the kernel orthogonal to
+  the exact states. The orthogonal projector onto that range supplies a form which
+  descends, with radical precisely the exact states on the closed space. An odd
+  contracting homotopy is constructed. The proposed even one forces the charge to
+  vanish under the stated homotopy identities. The projection metric is degenerate
+  on the ambient space and distinct from imposing ghost parity as the Krein metric.
+  Identify which construction the physical E1 model needs.
+  [Charge](BookProof/Sm/ChapterSmBrstGhost.lean) ·
+  [Quartet](BookProof/Sm/ChapterSmQuartet.lean) ·
+  [Quotient metric](BookProof/Sm/ChapterSmBghostFormula.lean)
+- **Exact algebra outside the main build.** The derived SU(3) constants satisfy
+  Jacobi in the standalone Work proof. For the cubic ghost term alone at zero
+  matter modes and ghost degree two, exact elimination gives rank 55 on a
+  66-dimensional source. The selected minor has computed determinant
+  −3¹²/2³⁵. Its Lean literal and shape proofs exist. To certify nullity eleven,
+  prove entry agreement, nonvanishing of that minor *and* the upper rank bound
+  (e.g. eleven independent kernel vectors). The imported whole-space lower
+  bound is 2ᵐ for m matter modes. None of these dimensions counts physical SM particles.
+  [Jacobi](Work/SmSu3Jacobi.lean) · [Minor data](Work/SmGhostMinorLit.lean)
+- **Symbolic computation.** The Cadabra2 transcript records 19 gauge-fixed and
+  54 comparison checks. The full script exports 40 momenta, 49 forms and 1,152 matter
+  entries. The checked LaTeX goes through mathhook into the Rust action, with an
+  independent native construction and mutation tests. Only commuting coefficients
+  cross this interface. Rust supplies ordered CCR/CAR words, their contractions and
+  the single graded outer lift. Agreement can detect a sign, index or missing term;
+  two implementations can still share an incorrect physical convention. Match a
+  named core action to the manuscript and Lean independently.
+  [Cadabra script](../unfer/docs/sm_full_nested.cdb) ·
+  [Implementation and execution record](../unfer/docs/SM_FULL_IMPLEMENTATION.md)
+- **Kernel-checked pieces of numerical evidence.** The CAR export proves six
+  one-mode identities. The 4-by-4 defect fixture binds its matrix, isometry and seed.
+  Separate exports verify endpoint arithmetic, the abstract Duhamel estimate and
+  skew-adjointness for the specified matrix. Its measured error at t=0.2 is
+  0.75460 against an interval upper endpoint of 1.07106. The overall fixture remains
+  conditional, including the matrix-to-bound identification and the Padé witness.
+  Finite BRST exports likewise prove dimension formulas under rank hypotheses
+  and block nilpotency under a zero block product. The 36,207-state jet matrix,
+  ranks [0,249] and numerical cohomology [1,19,35689] are measured at tolerance
+  10⁻⁹. A verified implication can have a measured premise.
+  [Defect fixture](../unfer/docs/fixtures/sm_defect_bridge.json) ·
+  [Jet fixture](../unfer/docs/fixtures/sm_brst_jet_window.json)
+
+### Next work, with a result that can settle each question
+
+1. **Unreduced E1 (SM0, SM2–SM3).** Supply the named 163-coordinate permutation,
+   spin frame, CAR ordering, parameter convention and 96-mode internal action.
+   Evaluate a spatial derivative, a nonabelian magnetic cross term and a complex
+   off-diagonal Yukawa entry plus its adjoint on common-core vectors. Then prove
+   equality for every indexed term of the sum. Transfer the comparison graph core
+   through the finite internal factor and control the three spatial derivatives
+   with the separate spatial oscillator of the comparison. Prove the commutator
+   bounded by the *quadratic form* of the shifted comparison. A bound by its
+   squared graph norm gives a different right-hand side. Apply Faris–Lavine and
+   state the resulting closure with its actual domain. Separately test lower
+   boundedness with high-spatial-momentum packets in a signed Dirac branch,
+   including a justification that the packets are in the core or graph limit.
+2. **Physical E1 (SM1, SM4–SM5).** Write down the map between Lean's ghost-creation
+   Gauss term and Rust's ghost-annihilation convention, including grading, vacuum,
+   phases and ghost number. The Rust generators also rotate gauge, Higgs and jet
+   coordinates. Prove all twelve generators and their commutators on the joint
+   invariant core before transporting nilpotency or the quotient metric. Establish
+   a nonzero ghost-number sector, positivity on the quotient and invariance under
+   the *closed* evolution, e.g. by reduction of its resolvents. Then lift the
+   descended operator to the graded outer space and test two-particle signs.
+   A roundoff-sized commutator on selected images is a good regression test.
+   [Joint generators](../unfer/nested_fock_algebra/src/sm_constraints.rs) ·
+   [Finite-window statements](BookProof/Sm/ChapterSmBrstQuotient.lean)
+3. **Numerical E1 (SM6–SM7).** Reuse N6 manifests, N7 dictionary, N8 defect and
+   N10 joint-constraint fixtures. For actual computed V and reduced generator G,
+   evaluate the defect iVG−HV on full joint images. Price initial leakage, Gram
+   conditioning, shifted GMRES, inverse compression, Padé, arithmetic and restarts
+   without double-counting errors already covered by the defect. First close the
+   bound for the returned map on an independent finite matrix, then for one named
+   bounded observable at fixed nonzero time on an E1 state. Record a useful upper
+   error *below* the effect to be resolved. The N11 5% strong-coupling variation
+   produced a change of −3.38×10⁻⁶ in up occupation; even the tighter defect-weighted
+   two-run estimate was 0.02827. A new observable-specific estimate or representation
+   would justify reopening that experiment. More Krylov ranks at fixed window do
+   not address this discrepancy. [N8–N11 measurements](../unfer/docs/SM_FULL_IMPLEMENTATION.md)
+4. **Field limit (SM8).** Specify embeddings, spatial regulator, counterterms,
+   physical observables and order of limits. Vary occupation cutoff independently
+   of spatial mode count. The N12 scalar four-point pilot changes both the number
+   and location of matching roots across occupation cutoffs; it identifies a
+   truncation artifact. Require uniform control on the embeddings and resolvents
+   or smeared correlations of the *interacting* family before invoking a limit
+   theorem. Keep a cutoff-effective E1 result as a deliverable in its own right.
+   [N12 experiment](../unfer/docs/SM_RESEARCH_PLAN.md)
+
+This review used timepiece `fa22e6f`, unfer based on `b0aaa7c` with local changes,
+and recorded fixtures and transcripts. N14 reports 73 Rust passes and six nanoda
+replays in the November 18 sweep. The local file at the cited path
+`target/sm-full-check.log` contains 70 passes and three replay confirmations.
+All six stored proof payloads match the SHA-256 digests in their manifests. That checks
+artifact identity. The recorded kernel replays belong to their respective runs. Archive
+the exact log digest and per-stage outcomes with the next run.
+
+## November 15 programme: well-defined full SM and certified joint dynamics (2026-11-15)
+
+These detailed packets support the November 20 work order for the **LLM-Lean4-specialist** and the
+`unfer` implementation specialist. The November 15 programme superseded the ordering and blockers
 in the historical P0–P8/N0–N5 sections below, preserving their actual results and dated
 build reports. Read [CURRENT_WORK_ORDER.md](CURRENT_WORK_ORDER.md) for cross-track priority;
 QYM remains first. This revision reads sources and evidence only: **no Lean/Rust build,
@@ -201,8 +345,9 @@ anticommuting grading cannot satisfy that `hKrein`. This is a new plan-level alg
 finding to formalize, not a theorem claimed to be already in `BookProof`. Existing
 conditional statements remain valid implications; their premises cannot count as an
 achieved no-ghost model without a nonzero witness. Similarly `UQ=-QU`, an **even**
-contracting homotopy `UP=PU` and `QPQ=Q` force `Q=0`. The compatible canonical homotopy
-should have the charge's odd degree; prove its grading rather than assuming evenness.
+contracting homotopy `UP=PU` and `QPQ=Q` force `Q=0`. ChapterSmQuartet now proves the
+finite-dimensional odd-homotopy construction and the even-homotopy obstruction. Reuse them for
+the joint charge once its representation has been identified.
 
 Keep the computed norm-difference identities as identities. Use a separate admissible
 `eta`, or a directly constructed positive reduced representation with a proved dictionary.
@@ -395,32 +540,14 @@ The numerical execution guide is
 implemented foundation and specifies manifests, full-action defect certificates,
 Mehler/cutoff studies, physical constraints and field-limit research with acceptance gates.
 
-Reuse the implemented full-SM suite and historical cells. The next implementer should:
-
-1. Emit a manifest binding operator/parameter/fixture hashes, precision, window, seed,
-   shifts, actual numerical rank, solver tolerances, resource caps and full residual data.
-   Keep first-image tails separate from later basis/evolution tails and from finite-matrix
-   reference errors. Resolve the historical 37/41 counts against the present test list.
-2. Instantiate SM6's defect bound on the 70/230-state references, then on a declared wider
-   window if resources permit. Enclose coefficient arithmetic and residual norms before
-   calling an interval rigorous. A zero first-image tail must fail a purported invariance
-   certificate when `H` of another retained vector leaks out.
-3. Keep operator mutations, Majorana/spin-frame checks and mixed graded probes. Extend
-   physical-probe coverage to off-diagonal gauge actions, all four Higgs components and
-   cross-generation/color coherences; a single fixed matter-content window misses some.
-4. Implement the full constraint dictionary from SM4 before evaluating nilpotency or
-   physical reduction. Probe `[H,Q]`, `Q²` and physical-projector leakage with **full**
-   images and boundary leakage separated. Compression can break an exact gauge identity;
-   a failed truncated commutator alone must not be called a physical anomaly.
-5. Reinterpret the electric-only, density-only and Coulomb-band rows through those exact
-   dictionaries. Changing generators, metric, projection or constraint elimination creates
-   a new model/result label; preserve the earlier diagnostic values.
-
-The existing runner is [run-sm-full-validation](../unfer/scripts/run-sm-full-validation).
-It and the wide tier are **future execution instructions**, not run here. Add targeted
-regressions for changed algorithms/constraints before a full sweep; use the recorded
-Cadabra engine/feature conditions. Neither elapsed time nor a historical passing total
-is a correctness argument. Publish negative and inconclusive cells alongside improvements.
+Reuse the N6 manifest, N7 dictionary, N8 finite fixture and N10 joint generators.
+Apply SM6 to the actual returned generator at the 70/230-state cells, propagate
+intervals to a bounded observable, and retain full-image rather than projected residuals.
+The N9 width pilot and N11 response search already ran. Reopen either with a new
+representation or bound and a predeclared improvement it can resolve. Exercise the
+operator mutations, per-generator commutators and outside-window leakage on every
+changed dictionary. Record the exact scope and digest of the default and wide runs.
+[Validation runner](../unfer/scripts/run-sm-full-validation)
 
 **Acceptance:** a reproducible full-operator error/constraint report whose conclusions
 match its precision and cutoff scope. No supplied mass or scalar Higgs benchmark is a
@@ -470,9 +597,9 @@ endpoint, not a reason to postpone the finite E1 theorem. No global mass gap is 
 completion criterion, and no physical-sector assumption may be the claimed conclusion.
 
 The first concrete proof deliverables are: the named physical coefficient/coordinate
-adapter; the ghost-grading/metric consistency lemmas; the 43-direction comparison graph
-core and actual first-order support transfer; the full finite-matrix form commutator;
-and the defect-to-evolution error theorem for the **implemented** generator. Each is
+adapter; the joint ghost dictionary and compatible physical metric; the 43-direction graph core
+and actual first-order support transfer; the full finite-matrix form commutator;
+and the application of the existing Duhamel bound to the **implemented** generator. Each is
 reviewable independently and avoids reopening the already-proved potential self-bound.
 
 After implementation, the Lean specialist checks targeted elaboration, exact endpoint
@@ -5666,12 +5793,11 @@ gate pins the declarations, not a build target.  (iv) The exact-arithmetic scrip
 identity at all 4096 quadruples and cyclicity at all 512 triples, and still fails loudly — that
 computation and this proof are now independent witnesses of the same statement.
 
-What remains is the 55 × 55 literal: transcribe the script's minor as `ℚ(√3)` entries, prove the 3025
-entry identities relating it to `smGhostMatrixPhys`, and finish with a kernel-checkable determinant
-certificate (an explicit triangular factor would do).  `native_decide` stays excluded — its proof term
-does not reduce in `nanoda` and the axiom audit would report `Lean.ofReduceBool`; `decide` alone cannot
-close the ℚ coordinates, which is why the Gell-Mann table is proved by `simp`/`norm_num` evaluation
-rather than by decision.  Nothing above upgrades the computation to a theorem about the model.
+The generated literal in `Work/SmGhostMinorLit.lean` supplies the 55 × 55 entries and their shape.
+Prove their agreement with the corresponding entries of `smGhostMatrixPhys`, then certify the
+determinant, for example by an explicit triangular factorization. The proof term produced by
+`native_decide` does not reduce in `nanoda` and the axiom audit would report `Lean.ofReduceBool`.
+The Gell-Mann table proof uses `simp` and `norm_num` to evaluate the rational coordinates.  Nothing above upgrades the computation to a theorem about the model.
 (v) There is no upper bound of eleven on the *whole* Fock space, and §2c now proves that:
 `finrank_ker_smGhostCharge_ge_two_pow` says `2^m ≤ finrank (ker Ω₃)` for every `f3`, because a cubic
 monomial carries no matter mode, so every state `occ T` built from matter modes alone is annihilated
@@ -5680,6 +5806,6 @@ monomial carries no matter mode, so every state `occ T` built from matter modes 
 `not_finrank_ker_le_eleven : ¬ ∀ m f3, finrank (ker (smGhostCharge m f3)) ≤ 11`, refuted at `m = 4`.  The
 number 11 is a statement about the ghost-number-two sector at `m = 0`, where the matter-only vectors are
 not available: the general lower bound there is the degree-free `3` of §2b, and the exact `11` needs a
-rank-55 certificate for the 66 × 55 matrix of the cubic charge on `Λ²ℂ¹²` over `ℚ(√3)`.  That
-certificate is what the script computes and no theorem states; upgrading it to Lean would mean proving
-one nonvanishing 55 × 55 minor, not a dimension count.
+rank-55 certificate for the cubic charge from degree two (66 sources) to degree three (220 targets).
+A nonvanishing 55 × 55 minor proves the lower rank bound. Eleven independent kernel vectors would
+supply the upper bound. The script computes the rank over `ℚ(√3)`. Certifying it in Lean is open.

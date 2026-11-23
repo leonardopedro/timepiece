@@ -8,197 +8,119 @@ open Verso.Genre.Manual.InlineLean
 tag := "solovay-tensor"
 %%%
 
-# Orientation and Status
-
-:::paragraph
-The second chapter of the foundation, and the construction the physics parts
-run on: finite observable data coupled to a separable infinite-dimensional
-Hilbert space. We distinguish the product of probability spaces from the tensor
-product of their wave-function spaces. The Mehler sphere limit supplies the
-Gaussian coordinate prior; the Kopperman perspective asks which statements our
-chosen language can decide. The construction allows an arbitrary finite-head
-law, rather than every probability law on every function space.
-:::
-
-:::paragraph
-The route: the three-instant ABL reconstruction and its joint and marginal laws
-(the finite-dimensional model), post-selection and the reconstruction formula,
-the tensor product and its finite-query language, the two factors and their
-laws (arbitrary on the finite head, Gaussian on the tail with specified finite
-marginals), the cross-dimensional inner product, and a closing
-account of what is proved versus planned.
-:::
-
-:::paragraph
-The proofs are spread across `BookProof/ChapterSolovayHilbertTensor`,
-`ChapterSolovaySeparableExistence`, `ChapterSolovayCrossDim`,
-`ChapterSolovayTailDimension`, `ChapterTensorCompleteness`, and the Mehler
-uniqueness and orthogonal-invariance chapters; the planned items are stated in
-the chapter and collected in {ref "proof-plans"}[the appendix]. The chapter
-below on {ref "statistical-model-theory"}[statistical model theory] closes this
-part, and the {ref "free-field"}[free-field chapter] later reuses the Mehler
-measure as its Gaussian.
-:::
-
 # The Question
 
 :::paragraph
-The Introduction asks for a usable probability model of functions or fields:
-a carrier with countable dense approximants, a reference prior, and a language
-of queries that can be evaluated from finite data. These are separate
-requirements. Separable function spaces and probability measures on them are
-standard objects; the specific task here is to combine their analytic structure
-with an explicitly controlled query language.
+Suppose a detector has two channels. The amplitude in each channel can depend
+on arbitrarily many real field coordinates. How can we decide an exact
+statement about the resulting state? Start with the distribution of one
+coordinate, build the two amplitudes, then ask whether their inner products
+satisfy a given equation. The same example will also show how to decide a
+question that quantifies over an entire Hilbert space.
 :::
 
 :::paragraph
-The manuscript also repeatedly forms *tensor products of sample spaces*. A joint
-probability density lives on a product $`X \times Y`; the prior wave-function can be
-"redefined as a tensor product of two Fock-spaces"; and often "we are interested in a
-tensor product of sample spaces, some of which have finite degrees of freedom," for
-instance $`\mathbb{Z}_2^n \times \mathbb{R}^m`. The construction below answers the
-Introduction's problem precisely by building such a tensor product: a
-*finite-dimensional* factor that carries an *arbitrary* probability law, tensored
-with a *separable infinite-dimensional* wave-function factor built from a specified
-Gaussian law. Uniqueness means uniqueness with those Gaussian finite marginals.
+Two ingredients enter at different steps. The uniform hypersphere supplies the
+Gaussian law seen by finitely many coordinates as the dimension grows.
+Kopperman's Hilbert-space formalism motivates the choice of a completed
+carrier and a language for discussing its vectors. Decidability depends on
+which questions that language admits. We first work over the reals, where the
+geometry is easiest to see. Complex amplitudes use the corresponding complex
+inner product.
+:::
+
+# From Uniform Hyperspheres to the Mehler Prior
+
+:::paragraph
+Suppose a vector in $`\mathbb R^d` has unit length and we have no preferred axis.
+Rotation symmetry selects normalized surface area $`\sigma_d` on the unit sphere.
+This is the sense in which the prior expresses ignorance of *direction*.
+What would an observer who measures just the first coordinate see as $`d` grows?
+If $`U` has law $`\sigma_d`, symmetry and $`\sum_j U_j^2=1` give
+$`\mathbb E[U_1^2]=1/d`. The observable $`Z_d=\sqrt d\,U_1` therefore
+keeps unit variance at every dimension.
 :::
 
 :::paragraph
-A simpler finite-dimensional instance of the same problem arises in
-{ref "double-slit"}[the double-slit chapter]: given only the final screen position,
-can one reconstruct the intermediate "which slit" trajectory? The
-Aharonov–Bergmann–Lebowitz (ABL) two-state reconstruction answers this affirmatively.
-The reconstruction is a finite-phase-space version of the same idea: a quantum
-trajectory can be measured directly only at its final time, but the intermediate
-instants can be recovered from the statistics of runs that ended in a chosen final
-outcome — using probabilities conditional on the final state and the same quantum
-time-evolution.
+To see the shape of its law, write $`u=U_1=\cos\theta`. At polar angle
+$`\theta` the other coordinates lie on a sphere of radius $`\sin\theta`.
+The area of that slice contributes $`(\sin\theta)^{d-2}`, and changing
+from $`\theta` to $`u` removes one factor of $`\sin\theta`. Thus for
+$`d\ge 3` the one-coordinate density is proportional to
+$`(1-u^2)^{(d-3)/2}` on $`[-1,1]`. The last azimuth runs through
+$`[0,2\pi)` while each polar angle runs through $`[0,\pi]`.
+Integrating out the other angles supplies the normalizing constant.
 :::
 
-# The Three-Instant ABL Reconstruction
-
 :::paragraph
-Model three instants — initial, intermediate, final — on a finite phase space. A unit
-initial wave-function $`\Psi` is evolved by a unitary $`U` to the intermediate time,
-where a measurement in the standard basis yields outcome $`a` with the Born
-probability and *collapses* the state to $`e_a`:
+The joint limit has a short proof. Draw independent standard Gaussians
+$`G_1,G_2,\ldots`. The direction of $`(G_1,\ldots,G_d)` has law $`\sigma_d`
+by rotation invariance. The Gaussian vector’s length divided by $`\sqrt d` tends to one almost
+surely by the strong law. For every fixed number $`k` of observed coordinates,
 :::
 
-```
-#check @midProb
-```
+$$`\sqrt d\,(U_1,\ldots,U_k)\ \Longrightarrow\ \mathcal N(0,I_k).`
 
 :::paragraph
-The collapsed state is then evolved by a unitary $`V` to the final time, where outcome
-$`f` occurs with probability
-:::
-
-```
-#check @transProb
-```
-
-:::paragraph
-Both are genuine probabilities — non-negative, and each sums to one over its outcomes:
+The compatible limits give a Gaussian product law on $`\mathbb R^{\mathbb N}`.
+A typical draw satisfies $`d^{-1}\sum_{j=1}^d G_j^2\to1` and hence has
+infinite squared length. The Hilbert space used below consists of
+square-integrable *wave functions* of these sequences. In Lean,
+`poincare_borel_ae` proves the coordinatewise almost-sure limit in this
+coupling. The finite-block law above also uses the identification of the
+normalized Gaussian direction with uniform area.
+[Limiting Probability Measures](https://arxiv.org/abs/1901.10507)
 :::
 
 ```
-#check @midProb_nonneg
-#check @midProb_sum
-#check @transProb_sum
+#check @mehler_concentrates_on_unit_sphere
+#check @PhysHSGaussian.poincare_borel_ae
 ```
 
-# The Joint and Marginal Laws
-
 :::paragraph
-The joint law of the intermediate outcome $`a` and the final outcome $`f` is the
-product of the two Born factors:
+What happens to a wave function on the sphere? Choose an axis and consider
+waves that depend only on $`u`, the coordinate along it. Their orthogonal
+degree-$`n` modes are proportional to the Gegenbauer polynomials
+$`C_n^{(\lambda)}(u)`, where $`\lambda=(d-2)/2=\alpha/2`. Put
+$`x=\sqrt\lambda\,u`. The surface weight becomes proportional to
+$`(1-x^2/\lambda)^{\lambda-1/2}` on $`|x|\le\sqrt\lambda` and tends,
+before normalization, to $`e^{-x^2}`. In these units $`x` has limiting
+variance $`1/2`, and $`z=\sqrt2\,x` has limiting variance one.
+López and Temme's equation (1.4) follows an individual mode at fixed degree.
+[López and Temme (1999)](https://ir.cwi.nl/pub/4562)
 :::
 
-```
-#check @jointProb
-```
+$$`\lambda^{-n/2} C_n^{(\lambda)}(x/\sqrt\lambda)
+   \longrightarrow H_n(x)/n!.`
 
 :::paragraph
-Summing over the intermediate outcome gives the marginal law of the final outcome:
+For example, the scaled degree-two mode is $`2(1+1/\lambda)x^2-1`.
+Its limit is $`2x^2-1=z^2-1`. The constant term matters. Subtracting one
+makes the mean vanish under the standard Gaussian, exactly as orthogonality
+to the constant mode requires. Its squared norm is $`3-2+1=2` by the
+Gaussian fourth moment. Thus $`(z^2-1)/\sqrt2` is the normalized two-quanta
+state of this one Gaussian mode. Products of normalized Hermites in finitely
+many coordinates give the occupation basis of the symmetric Fock space.
 :::
 
-```
-#check @finalProb
-```
-
 :::paragraph
-The collapsed three-instant process is a genuine probability law: the marginal final
-probabilities sum to one. This uses only the unitarity of $`U` and $`V` and the
-normalization $`\|\Psi\| = 1`:
-:::
-
-```
-#check @finalProb_total
-```
-
-# Post-Selection: the Reconstruction Formula
-
-:::paragraph
-Now condition on the final outcome $`f`. The *post-selected* law of the intermediate
-outcome — the probability that the trajectory passed through $`a`, given that it ended
-at $`f` — is the conditional probability
-:::
-
-$$`\mathrm{condProb}(f, a) = \frac{\mathrm{jointProb}(f, a)}{\mathrm{finalProb}(f)}.`
-
-```
-#check @condProb
-#check @condProb_nonneg
-```
-
-:::paragraph
-For each fixed final outcome $`f`, this is again a probability distribution over the
-intermediate outcomes:
-:::
-
-```
-#check @condProb_sum
-```
-
-:::paragraph
-This is the reconstruction: although $`a` was not recorded, its conditional
-distribution is determined by the final outcome and the same unitary evolution, and it
-is a honest probability law.
-:::
-
-# Consistency of the Reconstruction
-
-:::paragraph
-The reconstruction does not depend on which final outcome one post-selects. Summing
-the post-selected joint law over *all* final outcomes recovers the original
-intermediate Born distribution:
-:::
-
-```
-#check @jointProb_sum_final_eq_midProb
-```
-
-:::paragraph
-So the intermediate statistics are stable: marginalizing the reconstructed joint law
-back over the final outcomes returns exactly the Born probabilities one would have
-measured directly at the intermediate time. The post-selection adds information about
-individual runs without distorting the ensemble.
-:::
-
-# The Solovay–Kopperman Tensor Product
-
-:::paragraph
-The ABL reconstruction is a finite-phase-space instance of the general problem. The
-general construction — the Solovay–Kopperman tensor product — answers the
-Introduction's question directly: it is a systematic separable probability space
-carrying an arbitrary finite-head law and a specified Gaussian coordinate law.
-Its Hilbert-space interpretation requires keeping the following spaces distinct.
+In this representation the constant wave $`1` is the vacuum. Its Born law
+is the reference probability $`\gamma` itself. A normalized wave
+$`\Psi` gives the law $`|\Psi|^2\,d\gamma`. For example, the one-quantum
+wave $`\Psi(z)=z` gives $`z^2\,d\gamma(z)`, putting more weight on large
+absolute readings. On the finite sphere, the coefficient of a normalized
+harmonic $`Y` in a wave $`\Psi` is the overlap
+$`\int\overline{Y}\,\Psi\,d\sigma_d`. Its squared modulus gives the
+probability for projection onto that mode. These are two different measurements.
+For example, the Gaussian wave $`\mathrm{sgn}(z)` has zero overlap with the
+vacuum by symmetry. Its squared modulus is one almost everywhere, so a coordinate
+measurement still has exactly the prior law.
 :::
 
 # A Finite Vector Space Tensored with an Infinite Hilbert Space
 
 :::paragraph
-The tensor product in the question motivating this chapter is
+Write the space of detector states as
 $`V \widehat\otimes K`, where $`V` has finite dimension $`d` and $`K` is a
 separable infinite-dimensional Hilbert space. Fix an orthonormal basis
 $`e_1,\ldots,e_d` of $`V`. Every vector then has a unique description
@@ -218,7 +140,8 @@ once and for all.
 :::paragraph
 For the Gaussian realization, take $`\Omega=\mathbb R^{\mathbb N}` with
 $`\gamma=\bigotimes_{j\ge0}\mathcal N(0,1)` and
-$`K=L^2(\Omega,\gamma;\mathbb C)`. Hermite polynomials in finitely many
+$`K=L^2(\Omega,\gamma;\mathbb R)` for real amplitudes. The complex
+wave-function model uses $`L^2(\Omega,\gamma;\mathbb C)`. Hermite polynomials in finitely many
 coordinates give the finite expressions; their completed span gives the
 wave-function Hilbert space. A finite discrete head with $`d` positive weights
 $`\mu_a` realizes the same tensor product as
@@ -243,15 +166,31 @@ product. The two constructions serve different purposes.
 # A Two-Channel Calculation
 
 :::paragraph
-Let $`h_0(z)=1` and $`h_1(z)=z_0` under the standard Gaussian product law.
-They are orthonormal because $`\mathbb E z_0=0` and $`\mathbb E z_0^2=1`.
-For $`V=\mathbb C^2`, the state
-$`\Psi=\alpha e_1\otimes h_0+\beta e_2\otimes h_1` has squared norm
-$`|\alpha|^2+|\beta|^2`. Its normalization is an exact finite calculation,
-even though its ambient space is infinite-dimensional. More general finite
-Hermite expansions use finitely many Gaussian moments, computable exactly for
-algebraic coefficients. A general completed vector is handled by approximants
-and a supplied error modulus; density alone gives no algorithm for that modulus.
+Write $`z_0,z_1` for two coordinate functions under the limiting prior. Their
+inner products in the real Gaussian space are expectations. Each has squared
+norm one and their inner product is zero. For a real algebraic number $`r`,
+ask whether there is a unit state whose first channel is exactly $`r z_0`.
+Writing the second channel as $`w` turns this into a Hilbert-space sentence:
+:::
+
+$$`\exists w\in K,\qquad
+\|e_1\otimes (r z_0)+e_2\otimes w\|^2=1.`
+
+:::paragraph
+Orthogonality of the *channels* makes the left side $`r^2+\|w\|^2`, even
+when $`w` and $`z_0` are correlated. The answer is yes exactly when
+$`1-r^2\ge0`. At $`r=3/5` one witness is $`w=(4/5)z_0`. At $`r=6/5` every
+choice of $`w` would require a negative squared norm. The input is a finite
+code for $`r` and the decision is one algebraic sign test.
+:::
+
+:::paragraph
+Now ask for a unit vector $`u` *within one channel* having overlap
+$`\langle z_0,u\rangle=r`. Its component along $`z_0` is fixed. Its
+orthogonal remainder must have squared norm $`1-r^2`. Whenever that quantity
+is nonnegative, $`u=r z_0+\sqrt{1-r^2}\,z_1` is a witness. Here the
+orthogonality comes from the Gaussian *coordinates*. This is the same
+two-vector Gram test that the general decision argument below uses.
 :::
 
 # The Two Factors
@@ -318,20 +257,25 @@ careful separation of the completed carrier from the language used to describe i
 :::
 
 :::paragraph
-For example, two unit vectors with real overlap $`r` have Gram matrix
+For the within-channel question above, the Gram matrix is
 $`\left(\begin{smallmatrix}1&r\\r&1\end{smallmatrix}\right)`.
-Such vectors exist in an infinite-dimensional real Hilbert space exactly when
-$`1-r^2\ge0`. For algebraic $`r` this is an effective finite test of a statement
-quantifying over infinite-dimensional vectors. Gaussian moment evaluation in
-the two-channel example is a separate finite calculation.
+Its determinant gives exactly the test $`1-r^2\ge0`. More generally,
+a real symmetric $`m\times m` matrix is the Gram matrix of $`m` vectors in
+an infinite-dimensional real Hilbert space precisely when it is positive
+semidefinite. A factorization gives vectors in at most $`m` dimensions,
+which fit inside the ambient space. This explains why the reduction can keep
+the dimension of its calculation tied to the formula.
 :::
 
 :::paragraph
-The finite tensor factor preserves the finite-tuple description through
-$`V\widehat\otimes K\cong K^d`. A decision claim for an expanded language
-must also specify its allowed coefficients, predicates and operators and prove
-the corresponding reduction. Arbitrary measures, Hamiltonians and expectation
-operators do not automatically belong to the decidable pure geometric language.
+Fix a basis of the finite channel space. A quantified tensor vector becomes
+$`d` quantified vectors of $`K`, one per channel. Replace each tensor inner
+product by the sum of its channel inner products and translate the Boolean
+connectives and quantifiers in their original order. For the pure real
+geometric language this gives a finite Hilbert-space formula to which the
+decision result applies. Explicit Gaussian moments enter when a query names
+particular polynomial wave-functions. Extending the language with a general
+integration operator would require a further decision theorem.
 :::
 
 :::paragraph
@@ -571,54 +515,6 @@ finite-dimensional part is an arbitrary probability distribution.* Nothing
 constrains it; it is the part we are free to choose.
 :::
 
-# From Uniform Hyperspheres to the Mehler Prior
-
-:::paragraph
-Start with independent $`G_j\sim\mathcal N(0,1)`. Radial normalization gives
-$`U_n=(G_1,\ldots,G_n)/(\sum_{j=1}^nG_j^2)^{1/2}`, uniform on the unit
-sphere in $`\mathbb R^n`. The strong law makes the denominator divided by
-$`\sqrt n` tend to $`1`. Consequently, for each fixed $`k`,
-:::
-
-$$`\sqrt n\,(U_{n,1},\ldots,U_{n,k})
-\ \Longrightarrow\ \mathcal N(0,I_k).`
-
-:::paragraph
-Equivalently, use spheres of radius $`\sqrt n` and leave their coordinates
-unscaled. The unscaled coordinates of a unit sphere instead tend to zero.
-The convergence is of fixed finite-coordinate distributions. This classical
-Poincaré–Borel limit is the probabilistic reading of the manuscript's Mehler
-sphere formalism; see the research account
-[Limiting Probability Measures](https://arxiv.org/abs/1901.10507).
-It motivates the compatible Gaussian marginals from which the coordinate tail
-law is constructed. The existing `poincare_borel_ae` theorem already proves
-the key coupling:
-normalized Gaussian coordinates converge almost surely, coordinate by
-coordinate, to the original Gaussian sequence. Packaging this as weak
-convergence of fixed-dimensional sphere marginals requires identifying the
-finite-block pushforward laws and applying bounded continuous test functions.
-The polynomial and weight limits below provide complementary results.
-:::
-
-:::paragraph
-For the resulting product law, the existing theorem states
-$`n^{-1}\sum_{j<n}z_j^2\to1` almost surely:
-:::
-
-```
-#check @mehler_concentrates_on_unit_sphere
-#check @PhysHSGaussian.poincare_borel_ae
-```
-
-:::paragraph
-The name uses the manuscript's sphere terminology. Its statement concerns an
-*empirical mean squared radius*. In particular, $`\sum_j z_j^2=\infty`
-almost surely. A Gaussian sequence sampled from this law is not an
-$`\ell^2` vector or a point on the norm-unit sphere of a separable Hilbert space.
-The countably additive prior lives on the sequence space $`\mathbb R^{\mathbb N}`;
-its square-integrable wave-functions form the Hilbert space $`K` used above.
-:::
-
 # The Hilbert Space Associated with the Gaussian Prior
 
 :::paragraph
@@ -634,11 +530,24 @@ sequence is not a vector in that Hilbert space.
 To obtain an actual Hilbert-valued Gaussian random vector instead, choose a
 positive trace-class covariance $`C`: in an eigenbasis, take
 $`X=\sum_j\sqrt{\lambda_j}G_je_j` with $`\sum_j\lambda_j<\infty`.
-Then $`\mathbb E\|X\|^2=\sum_j\lambda_j`. Identity covariance in infinite
-dimension fails this condition. This distinction is explained in
-[Hairer's Gaussian measure notes](https://hairer.org/notes/SPDEs.pdf).
-A chosen covariance changes the prior and its symmetry group; it must be
-recorded when identifying a field model with the Gaussian construction.
+Then $`\mathbb E\|X\|^2=\sum_j\lambda_j`. For a concrete link to the
+hyperspheres, choose $`\lambda_j=2^{-j}` for $`j\ge1`. In the Gaussian
+coupling above, multiply coordinate $`j` of the radius-$`\sqrt n` sphere by
+$`2^{-j/2}` and pad by zeros. The resulting Hilbert vector is
+:::
+
+$$`X_n=\frac{\sqrt n}{(\sum_{j=1}^nG_j^2)^{1/2}}
+            \sum_{j=1}^n 2^{-j/2}G_j e_j.`
+
+:::paragraph
+The scalar prefactor tends to one almost surely. The sum of squared coefficients has expectation $`\sum_{j\ge1}2^{-j}=1`, so its coefficients are
+square-summable almost surely. Its orthogonal partial sums therefore converge
+in Hilbert norm. Together these facts give $`X_n\to X` almost surely in that
+norm, with a Gaussian limit of covariance $`Ce_j=2^{-j}e_j`. The weighting
+is part of this example's prior. The unweighted construction earlier gives
+standard Gaussian finite marginals. This derivation illustrates the choice of
+carrier and covariance. The cited Lean coupling concerns the unweighted
+coordinates. See [Hairer's Gaussian measure notes](https://hairer.org/notes/SPDEs.pdf).
 :::
 
 :::paragraph
@@ -685,10 +594,9 @@ between the sphere, Hermite polynomials and field operators.
 :::
 
 :::paragraph
-At the same time the Gegenbauer polynomials $`C_n^{(\lambda)}` (orthogonal with
-respect to the uniform measure, and defining the hyperspherical harmonics) become
-the Hermite polynomials $`H_n/n!` (with the physicists' $`H_n` from the recurrence
-$`H_0 = 1, H_1 = 2x, H_{n+2} = 2x H_{n+1} - 2(n+1)H_n`), in the scaled limit
+For a fixed axis the degree-$`n` zonal harmonic is proportional to
+$`C_n^{(\lambda)}`. Using the physicists' Hermites, with
+$`H_0=1` and $`H_1=2x`, López and Temme obtain the following limit
 :::
 
 $$`\lim_{\lambda\to\infty}\lambda^{-n/2}
@@ -696,11 +604,33 @@ $$`\lim_{\lambda\to\infty}\lambda^{-n/2}
    = \frac{H_n(x)}{n!}.`
 
 :::paragraph
-And the normalizations converge consistently: the (squared) Gegenbauer
-normalization integral against the hyperspherical weight tends to the Hermite
-normalization integral against the Gaussian weight, $`\int_\mathbb{R}[H_n(x)/n!]^2
-e^{-x^2}dx = \sqrt{\pi}\,2^n/n!`. The verified statements live in
-`BookProof.PhysHSGaussian`:
+The normalization follows the same change of variable. Write the scaled squared
+norm at $`\alpha=2\lambda>0` using the unnormalized surface weight.
+:::
+
+$$`N_n^{(\alpha)}
+ =\lambda^{1/2-n}\int_{-1}^1 [C_n^{(\lambda)}(u)]^2
+       (1-u^2)^{\lambda-1/2}\,du
+ =\lambda^{1/2-n}\frac{\pi\,2^{1-2\lambda}\Gamma(n+2\lambda)}
+ {n!(n+\lambda)\Gamma(\lambda)^2}.`
+
+:::paragraph
+In the integral, $`\sqrt\lambda` is the Jacobian from $`du` to $`dx` and
+$`\lambda^{-n}` comes from squaring the rescaled polynomial. Lean proves
+convergence of the rescaled integrals by dominated convergence and evaluates
+the limiting Hermite integral. The finite gamma-function expression is the
+classical Gegenbauer norm. The result in the unnormalized weight is
+:::
+
+$$`\lim_{\alpha\to\infty}N_n^{(\alpha)}
+  =\int_{\mathbb R}\left[H_n(x)/n!\right]^2 e^{-x^2}\,dx
+  =\sqrt\pi\,2^n/n!.`
+
+:::paragraph
+Dividing by the degree-zero mass $`\sqrt\pi` converts this to the
+probability convention of section 4.2. In the $`x` variable the unit vector of
+degree $`n` is therefore $`H_n(x)/\sqrt{2^n n!}`. The Lean declarations
+for the limits and the Gaussian norms are listed below.
 :::
 
 ```
@@ -715,8 +645,8 @@ e^{-x^2}dx = \sqrt{\pi}\,2^n/n!`. The verified statements live in
 ```
 
 :::paragraph
-For each fixed polynomial degree, the scaled Gegenbauer functions converge to
-Hermite functions with the displayed normalization. Tensor products of Hermite
+For each fixed polynomial degree, the scaled Gegenbauer functions converge pointwise to
+Hermite polynomials with the displayed normalization. Tensor products of Hermite
 polynomials give the Gaussian Fock description. The limiting dictionary is:
 :::
 
@@ -725,7 +655,7 @@ polynomials give the Gaussian Fock description. The limiting dictionary is:
 | scaled, normalized coordinate marginals | normalized Gaussian coordinate law |
 | weight $`(1-u^2)^{\lambda-1/2}` | weight $`e^{-x^2}` |
 | scaled Gegenbauer polynomials | Hermite polynomials $`H_n/n!` |
-| hyperspherical harmonics | number states $`\ket{n}` |
+| normalized zonal modes of fixed degree | single-mode number states $`\ket{n}` |
 | uniform "no-information" prior | Gaussian source qsample $`\Psi_0 = \ket{0}` |
 
 :::paragraph
@@ -845,6 +775,117 @@ product is well defined across head dimensions," made precise:
 #check @BookProof.ChapterSolovayCrossDim.cross_dim_isProbability
 ```
 
+# The Three-Instant ABL Reconstruction
+
+:::paragraph
+We now apply the finite probability description to post-selection.
+Model three instants — initial, intermediate, final — on a finite phase space. A unit
+initial wave-function $`\Psi` is evolved by a unitary $`U` to the intermediate time,
+where a measurement in the standard basis yields outcome $`a` with the Born
+probability and *collapses* the state to $`e_a`:
+:::
+
+```
+#check @midProb
+```
+
+:::paragraph
+The collapsed state is then evolved by a unitary $`V` to the final time, where outcome
+$`f` occurs with probability
+:::
+
+```
+#check @transProb
+```
+
+:::paragraph
+Both are genuine probabilities — non-negative, and each sums to one over its outcomes:
+:::
+
+```
+#check @midProb_nonneg
+#check @midProb_sum
+#check @transProb_sum
+```
+
+# The Joint and Marginal Laws
+
+:::paragraph
+The joint law of the intermediate outcome $`a` and the final outcome $`f` is the
+product of the two Born factors:
+:::
+
+```
+#check @jointProb
+```
+
+:::paragraph
+Summing over the intermediate outcome gives the marginal law of the final outcome:
+:::
+
+```
+#check @finalProb
+```
+
+:::paragraph
+The collapsed three-instant process is a genuine probability law: the marginal final
+probabilities sum to one. This uses only the unitarity of $`U` and $`V` and the
+normalization $`\|\Psi\| = 1`:
+:::
+
+```
+#check @finalProb_total
+```
+
+# Post-Selection: the Reconstruction Formula
+
+:::paragraph
+Now condition on the final outcome $`f`. The *post-selected* law of the intermediate
+outcome — the probability that the trajectory passed through $`a`, given that it ended
+at $`f` — is the conditional probability
+:::
+
+$$`\mathrm{condProb}(f, a) = \frac{\mathrm{jointProb}(f, a)}{\mathrm{finalProb}(f)}.`
+
+```
+#check @condProb
+#check @condProb_nonneg
+```
+
+:::paragraph
+For each final outcome of positive probability, this is again a probability distribution over the
+intermediate outcomes:
+:::
+
+```
+#check @condProb_sum
+```
+
+:::paragraph
+This is the reconstruction: although $`a` was not recorded, its conditional
+distribution is determined by the final outcome and the same unitary evolution, and it
+is a probability law.
+:::
+
+# Consistency of the Reconstruction
+
+:::paragraph
+The conditional law can depend on the final outcome. Summing
+the post-selected joint law over *all* final outcomes recovers the original
+intermediate Born distribution:
+:::
+
+```
+#check @jointProb_sum_final_eq_midProb
+```
+
+:::paragraph
+So the intermediate statistics are stable: marginalizing the reconstructed joint law
+back over the final outcomes returns exactly the Born probabilities one would have
+measured directly at the intermediate time. The post-selection adds information about
+individual runs without distorting the ensemble.
+:::
+
 # What Is Proved and What Is Planned
 
 | Layer | Source results and scope |
@@ -858,13 +899,12 @@ product is well defined across head dimensions," made precise:
 | Sphere ingredients | radial measures, concentration, coordinatewise coupling, polynomial limits |
 
 :::paragraph
-The cited declarations are existing source proofs; this documentation edit has
-not compiled them. Remaining tasks are an effective syntax and decision
-procedure for the intended expanded language, packaging of the existing almost-sure coupling as weak
-sphere-marginal convergence, and any claimed measure-preserving bridge
-between the abstract substrate prior and the coordinate model. See
-{ref "proof-plans"}[the specialist plan]. None of these tasks requires replacing
-the available tensor-density or Gaussian-marginal uniqueness proofs.
+The source proofs above give the analytic model and the reduction for specified
+queries. Three further tasks concern the book’s combined language and prior.
+Encode its formulas and verify the decision algorithm on those codes. Express
+the sphere coupling as weak convergence of the finite marginal laws. Specify
+the measure map if identifying the coordinate prior with a prior on the abstract
+substrate. These tasks are described in {ref "proof-plans"}[the specialist plan].
 :::
 
 # Why This Matters Here

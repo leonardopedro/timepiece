@@ -281,11 +281,13 @@ and specifies the additional logical work separately.
 
 # Tensor Products and Finite Queries
 
-The next chapter gives the full explanation of
-$`V\widehat\otimes K\cong K^d` for a finite-dimensional vector space $`V`
-and a separable infinite-dimensional Hilbert space $`K`, including a two-channel
-Gaussian calculation. This is the tensor product relevant to finite channels
-carrying infinite-dimensional states.
+For a detector with two channels, a state is a pair of amplitudes in the
+completed Hilbert space $`K`. Asking for a unit state with a prescribed first
+amplitude leaves one unknown vector, the second amplitude. Its squared norm
+must supply the missing part of one. The
+{ref "solovay-tensor"}[tensor-product chapter] works out this decision for a
+Gaussian coordinate amplitude, starting from the uniform finite sphere.
+With $`d` channels the same decomposition gives $`V\widehat\otimes K\cong K^d`.
 
 ## Products of Carriers and Tensors of Wave-Functions
 

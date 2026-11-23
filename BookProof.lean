@@ -4078,6 +4078,13 @@ import BookProof.Sm.ChapterSmCrossTermHessian
 -- `nsRedFullFockHam` on its finite-parcel core (`nsRedFullFockHam_esa`).
 import BookProof.Qym.ChapterYangMillsNonAbelianEsa
 import BookProof.Sm.ChapterSmFockEsa
+import BookProof.Phi4.ChapterScalarJet
+import BookProof.Phi4.ChapterScalarSirk
+import BookProof.Phi4.ChapterScalarEnergy
+import BookProof.Phi4.ChapterScalarTwoSite
+import BookProof.Phi4.ChapterScalarRankTwo
+import BookProof.Phi4.ChapterScalarRankTwoOrbit
+import BookProof.Phi4.ChapterScalarWindows
 import BookProof.Ns.ChapterNsReducedCoreEsa
 -- `ChapterSmFullEnclosure` (2026-09-24c): the full Standard-Model one-particle Hamiltonian
 -- `h_full = h_B ⊗ 1 + 1 ⊗ (smDirac + smYukawa)` on `L²(ℝ¹⁶³) ⊗̂ FermiFock n` (fixed Higgs
