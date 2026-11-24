@@ -1,6 +1,68 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
-## Current mass-gap plan: uniform SIRK error and a strong-coupling witness (2026-11-15)
+## Continuous-momentum mass-gap work order · 2026-11-24
+
+**First deliverable.** Compute a nonzero matrix element of the cubic magnetic cross term
+between smooth packets of distinct momenta and colors. Derive it independently from the
+coordinate-space Weyl-gauge Hamiltonian and its continuous Fourier kernel. Use the
+same signed structure constants, polarization, normalization and packet inner product
+in Cadabra2, Lean and the numerical fixture. This tests the interaction whose control
+is needed in the soft directions. A free diagonal dispersion cannot test it.
+[Manuscript](book.tex) · [Magnetic split on the existing core](BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean)
+
+1. **Bind U0 to the physical operator.** For the convention
+   $\hat A(k)=\int e^{-2\pi i k\cdot x}A(x)\,d^3x$, the Weyl-gauge curvature has the kernel
+
+   $$
+   \widehat F^a_{ij}(k)=2\pi i\big(k_i\widehat A_j^a(k)-k_j\widehat A_i^a(k)\big)
+     +g\sum_{bc} f^a{}_{bc}\int_{\mathbb R^3}\widehat A_i^b(q)\widehat A_j^c(k-q)\,d^3q .
+   $$
+
+   Here $f$ is signed in the convention $F=dA+g[A,A]$. Record whether the source
+   coefficient already includes $g$. Use $B_i^a=\epsilon_{ijk}F^a_{jk}/2$ and the
+   positive-energy convention $h_g=\tfrac12\int(\pi^\dagger\pi+B^\dagger B)$ with
+   component sums, smearing and domain specified. Keep the quadratic curl, both
+   ordered cross terms, quartic magnetic term, inner pair terms and constants.
+   The differentiated leg already has its Fourier multiplier. There is no independent
+   spatial-jet constraint to solve. Weyl gauge still has residual Gauss symmetry.
+   Identify the physical reducing space, inner product and closed operator there.
+   The final Hamiltonian is $d\Gamma(h_g)$ with creation on the left and annihilation
+   on the right. Fourier transformation of the position slots of the 99-coordinate
+   comparison leaves its 72 jet slots intact. Its ESA and finite-sector certificates
+   apply to the momentum target only through a proved correspondence or fresh estimates.
+2. **Prove a rank-independent error in energy units (U1–U4).** Fix the physical
+   scale, smearing, coupling and admissible shift schedules. Discretize the Hermite
+   window and rational Krylov rank while keeping spatial momentum continuous. For
+   each admitted rank bound the error of the reconstructed resolvent on the declared
+   spectral space, including full off-window action, packet-integration tails,
+   non-invariant subspace leakage and arithmetic. Supply an independent exclusion
+   estimate on the complement if only a low-energy window is certified. Price the
+   conversion to energy intervals using the positive inverse-map margin in U3.
+   The output is a common upper bound on the mass error for all admitted ranks.
+   A small residual on the seed, a converging return probability, and monotonic Ritz
+   values each leave untested directions. Probe normalized transverse packets with
+   support approaching $k=0$ and commuting-color directions as controls for a proposed
+   coercive estimate. The analytic estimate must cover the whole relevant complement.
+3. **Exhibit the strong-coupling witness (U5–U6).** At one declared renormalized
+   scale, specify $g_\star$ in the strong-coupling regime and certify
+   $\widehat M(g_\star)-\overline E_{\rm mass}(g_\star)>0$ for the same operator,
+   spectral sector and units. For the gap above the unique empty outer vacuum the
+   required edge is the **absolute** bottom of $h_g$. For a populated physical ground
+   the target is the edge above its *whole* ground projection and both energy errors
+   enter unless the ground energy is exact. Exclude lower unseen spectrum in either
+   case. A spectral edge can be a threshold in infinite volume. Calling it a particle
+   eigenstate requires a further theorem. No strong-coupling witness for the full
+   momentum operator is established by the existing two-mode reflection-sector data.
+4. **Transfer to a Bałaban theory only for a matched phase.** To report this gap
+   for a selected Wilson continuum witness, identify its positive-time cyclic space
+   and relative generator with the named physical nested sector. Transport the
+   projection and prove uniformity in any physical cutoffs actually removed.
+   A coarse renormalized $g_\star$ must match the running Wilson trajectory in physical
+   units. A fixed strong bare lattice coupling supplies no such matching.
+   [Continuum identification](cftproof.md#balaban-yangmills-and-the-continuous-momentum-hamiltonian) ·
+   [Numerical and symbolic handoff](../unfer/PLAN_MASS_GAP.md)
+
+## Spectral certificate U0–U6: uniform SIRK error and a strong-coupling witness (2026-11-15)
 
 This is the current S2–S4 execution guide for the **LLM-Lean4-specialist**. It refines the
 2026-11-15 consolidated P2/P3 packets and supersedes the older S3 recommendations below on
@@ -35,12 +97,14 @@ An inner excitation certificate alone therefore does not prove the outer-vacuum 
 Adding `cI` inside `h_g` adds `c N_out` outside and changes the model; it cannot be used
 to manufacture the required absolute gap. Preserve the populated-prior interpretation below.
 
-Use four separate parameters: coupling `g`, physical basis/mode cutoff `L`, retained
-Krylov dimension `m`, and rational/shift order `q`. Record the shift budget `N` separately
+Record coupling `g`, Mehler occupation window `L`, retained Krylov dimension `m`,
+and rational/shift order `q`. Separately name physical smearing, volume, any UV
+scale and packet-integration error. Record the shift budget `N` separately
 from all four and from outer particle number. Start with a fixed physical operator and
 admissible schedules. Uniformity in `m` is not uniformity in `L`, `g`, time or rounding
 precision. A claim about the continuum requires full-space estimates or an explicitly
-proved uniform-in-`L` transfer; a fixed-cutoff certificate stays labeled as such.
+proved transfer in every removed cutoff, including any physical regulator. Uniformity
+in the Hermite window alone controls only that approximation.
 
 ### U1. Define the maximum error on a space where it can be controlled
 
@@ -306,7 +370,7 @@ remains S0–S4 below, in the nested-Fock/Mehler/Hashimoto/SIRK formalism. Its e
 an absolute inner form bound (target 1), or separation above an identified inner ground
 space (target 2), followed by the appropriate outer lift and certified approximation.
 Neither target requires a Wightman construction or a four-dimensional Euclidean measure.
-The optional comparison with those theories belongs to [cftproof.md](cftproof.md), B0–B3.
+The optional comparison with those theories follows the selected-witness work order in [cftproof.md](cftproof.md).
 
 ### Physical state: one outer particle per informed spatial point
 
