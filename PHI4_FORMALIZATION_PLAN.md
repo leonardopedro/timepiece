@@ -2,8 +2,18 @@
 
 The scalar inner operator, its positive closure and its Mehler-window convergence
 are now instantiated in Lean. Each outer excitation carries the complete scalar
-configuration. Read the degree-ordered window theorem for the limit of a shifted solve,
-and specialize it to `jetModel` for continuous-coordinate scalar dynamics.
+configuration. All active formalization work focuses **100% on the constraint-free
+`book.tex` continuous-momentum SIRK / Mehler / nested-Fock formalism**:
+momentum space `k ∈ ℝ³` is **continuous** (integrated with `∫ d³k`, never
+discretized into a momentum sum — only the SIRK Krylov subspace / Hermite
+window is discrete). The quadratic spatial gradient `½ ∫ |∇φ|² d³x` becomes the
+pure diagonal continuous multiplier `½ ∫ |k|² |φ̂(k)|² d³k` (no spatial-derivative
+jet constraints or derivative convolutions needed), realized on `L²(ℝ³_k × ℝ_φ)`
+as `h_cont(k, φ) = ½ p_φ² + ½ |k|² φ² + (λ/4)(φ² − v²)²`, while the full
+coordinate-space quartic is the continuous composite-pair integral
+`(λ/4) ∫ d³Q |Ψ(Q)|²`. Periodic lattice modules (`siteModel`, `twoSite`,
+`RankTwo`) and the auxiliary static-jet model (`jetModel`) are frozen comparisons.
+[Master cheap-LLM plan](PHI4_IMPROVEMENT_PLAN.md) ·
 [Analytical plan](../unfer/docs/PHI4_ANALYTIC_PLAN.md) ·
 [Numerical plan](../unfer/docs/PHI4_NUMERICAL_PLAN.md)
 
@@ -149,35 +159,43 @@ convergence, orbit estimate and two-site certificates, returned only `propext`,
 distinguished four deliberate mutations and reproduced the complete JSON fixture.
 The aggregate project build and a dedicated scalar Rust trajectory run remain separate.
 
-## Next proofs for the Lean4 specialist
+## Next proofs for the Lean4 specialist (100% continuous-momentum `book.tex` formalism)
 
-1. **Certify an occupied continuous-coordinate Gaussian.** The column is now
-   `BookProof.Phi4.unitJet_vacuum_column`: at unit width and λ = v = 1 it derives
-   the field Hermites of degrees two and four and the three degree-two jet
-   components, with mean 17/8. `jet_variance_weights` checks the factorial-weighted
-   sum 145/32. Remaining: prove that weighted sum as an `L²` norm equality, apply
-   the rank-one phase estimate, then `Model.orbit_error` to a rational orbit using
-   the full jet columns. Vary the occupation window and Krylov rank independently.
-2. **Periodic comparison only. Close the rank-two time-dependent theorem in Lean.** The first transport step is
-   now `BookProof.Phi4.RankTwoOrbit.twoSite_residual`: the exact fixture column minus
-   the `13/4` Gaussian phase is the ten-mode residual polynomial, and
-   `synthesize_eq` identifies synthesized coefficients with its Gaussian image. What
-   remains is the norm bound on that residual and its integration against the Stone
-   group. Transport the dissipative matrix identity through the embedding of rational
-   complex coefficients into ℂ.
-   Differentiate the reduced Gram norm along the matrix exponential to get forward
-   contractivity. Use `synthesis_inner` for the reconstructed orbit and `site_columns`
-   for its full image. Instantiate `Model.orbit_error`, which already integrates an
-   affine residual bound for a differentiable core orbit, using `orbit_rates`. Prove that the normalized Gaussian return lies inside
-   the rational interval above. This is a finite-time claim for one seed and one
-   occupation window. Any uniform-in-rank rate needs a separate proof.
-3. **Identify the sector flows.** Prove agreement of the one- and two-particle Stone
-   groups with the tensor-power actions under the canonical embeddings. Transport global
-   reflection through the closures to certify parity selection rules. Distinguish
-   an odd-channel excitation energy from the absolute lower bound needed for an outer gap.
-4. **Compare larger scalar models within this framework.** First hold the spatial model
-   fixed and vary the occupation window and Krylov rank independently. For any change
-   in the number of inner coordinates, supply embeddings, compatible priors and a
-   common smeared observable. Prove a Cauchy estimate for that observable under those
-   embeddings. The independent jets and a spatial derivative determined by site fields
-   require their own comparison map. No such map is used in the fixed-model proofs.
+Detailed step-by-step instructions and pre-verified rational targets live in
+[PHI4_IMPROVEMENT_PLAN.md](PHI4_IMPROVEMENT_PLAN.md) (`P4`–`P10`). Do **not**
+discretize momentum space into sums, do **not** extend the frozen periodic
+lattice comparison (`siteModel`, `twoSite`, `ChapterScalarRankTwoOrbit`), and
+do **not** introduce spatial-derivative jet constraints for λφ⁴.
+
+1. **Continuous-momentum model `momContModel` & rank-1 bounds (`P5`).**
+   Create `BookProof/Phi4/ChapterScalarMomentum.lean`: define
+   `momContModel (p : Parameters) : Model 4 1 4` on `L²(ℝ³_k × ℝ_φ)` with
+   `h_cont(k, φ) = ½ p_φ² + ½(k₁² + k₂² + k₃²) φ² + (λ/4)(φ² − v²)²` (`form 0`
+   wall, `form 1..3 = X r * X 0`). Prove `unitMomCont_vacuum_column` (mean `17/8`,
+   explicit `He₂(φ) K₂` continuous momentum–field coupling), `unitMomCont_defect_norm_sq`
+   (`553/32`), `unitMomCont_rankOne_error`, and `unitMomCont_return_probability`
+   (`1 − (553/32) t²`).
+2. **Unconditional absolute inner gap, unique outer vacuum ground state, and `ℤ₂`
+   parity (`P6`).** Create `BookProof/Phi4/ChapterScalarMomentumGap.lean`:
+   combine `0 ≤ ‖(P₀ − iα X₀) ψ‖²` with square completion of `(λ/4)(φ² − v²)²`
+   at `α = min (1/(2v²)) (min (1/2) (λ/2))` and pointwise `½|k|²φ² ≥ 0` to prove
+   `momCont_inner_gap` (`≥ (7/32)α`; `7/64` for `unitMomCont`), lift to
+   `momCont_outer_gap` and `momCont_vacuum_unique_ground`, and prove `φ ↦ −φ` and
+   `k ↦ −k` symmetries via `ChapterQuadraticRotationEsa`.
+3. **Continuous momentum-space Fourier integral identities (`P7`).** Create
+   `BookProof/Phi4/ChapterScalarFourierIntegral.lean`: using
+   `ChapterNsAdvectionConvolution`, prove `fourier_grad_sq_identity` (diagonal
+   `‖𝓕(∂_m φ) k‖² = (2π ⟨k, m⟩)² ‖𝓕 φ k‖²` in continuous `k ∈ ℝ³`) and
+   `fourier_phi4_composite_integral` (`𝓕(φ⁴) R = ∫ Q, Ψ(Q) Ψ(R − Q)` —
+   continuous integral over `ℝ³`, zero discrete sums!).
+4. **3-mode `S₃`-symmetric rank-2 Hashimoto-SIRK & closed orbit interval on
+   `unitMomCont` (`P8`–`P9`).** Create `ChapterScalarMomRankTwo.lean` and
+   `ChapterScalarMomOrbit.lean`: certify the 11-mode full action of `unitMomCont`
+   on `{1, He₂(φ), K₂}` (Gram `diag(1, 2, 6)`), the exact rational Hashimoto
+   generator and dissipation at shifts `(10, 5)` from `phi4_momentum_mehler.json`,
+   forward contractivity of `e^{sG}`, and the kernel-checked two-sided return
+   interval `[319447/320000, 39999/40000]` at `t = 1/100` via `Model.orbit_error`.
+5. **Outer shift law & axiom audit (`P10`).** Create `ChapterScalarSectorOps.lean`
+   (`dΓ(h + cI) = dΓ(h) + c N_out` and 1-particle sector agreement) and
+   `Work/Phi4Audit.lean` auditing every public `BookProof.Phi4` endpoint against
+   `[propext, Classical.choice, Quot.sound]`.

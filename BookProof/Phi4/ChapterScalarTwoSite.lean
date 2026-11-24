@@ -3,6 +3,9 @@ import BookProof.Phi4.ChapterScalarMehler
 /-!
 # The periodic two-site scalar operator in uniform and staggered modes
 
+Frozen periodic-lattice comparison. The primary book.tex model is the
+continuous-momentum `momContModel` in `ChapterScalarMomentum`.
+
 The `2 x 1 x 1` periodic grid has two oriented links along its active axis and no
 link along the two singleton axes. Rotating the site coordinates,
 

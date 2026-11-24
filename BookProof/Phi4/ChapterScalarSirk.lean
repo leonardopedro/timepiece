@@ -139,7 +139,7 @@ theorem unitCell_rankOne_error {T : UnboundedSelfAdjoint (L2d 1)}
 
 /-- Loss of return probability is bounded by squared distance from any
 equal-norm reference state on the same ray. The inequality is homogeneous. -/
-private theorem overlap_loss {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+theorem overlap_loss {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
     (x y : F) (hy : ‖y‖ = ‖x‖) :
     ‖x‖^4 - ‖inner ℂ x y‖^2 ≤ ‖x‖^2 * ‖x-y‖^2 := by
   rw [norm_sub_sq (𝕜 := ℂ), hy]

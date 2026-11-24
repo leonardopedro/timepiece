@@ -3,6 +3,9 @@ import BookProof.Phi4.ChapterScalarRankTwo
 /-!
 # The full-action residual of the rank-two two-site seed
 
+Frozen periodic-lattice comparison. The continuous-momentum orbit and return
+interval are `ChapterScalarMomOrbit`.
+
 The exact fixture column and the site operator identify the seed residual with the
 ten-mode coefficient vector `fullColumns · 0 - (13/4) e₀`. This is the first
 transport step from the rational compressed matrix to the full Stone orbit; the

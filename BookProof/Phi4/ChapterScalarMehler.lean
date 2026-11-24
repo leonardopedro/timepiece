@@ -10,6 +10,11 @@ A single outer quantum carries all the inner coordinates. The scalar model `jetM
 acts on continuous field and jet variables. Its Mehler indices enumerate Hermite functions.
 `siteModel` is a separate lattice comparison whose gradient uses periodic differences
 when instantiated with `periodicNext`. Both reuse the bosonic SM closure and outer lift.
+
+Frozen comparisons: `jetModel` is an auxiliary static-jet comparison (uncoupled
+jets), and `siteModel`/`periodicNext`/`unitCell` are the frozen periodic-lattice
+comparison. The primary book.tex continuous-momentum model is `momContModel` in
+`ChapterScalarMomentum`, where `(k₁, k₂, k₃)` are continuous momentum coordinates.
 -/
 namespace BookProof.Phi4
 
@@ -41,14 +46,18 @@ theorem real_wall {d : ℕ} (s : Fin d) (scale offset : ℝ) : RealCoeff (wall s
   RealCoeff.smul (SmHamiltonian.RealCoeff.sub' ((realCoeff_X s).mul (realCoeff_X s))
     (SmHamiltonian.realCoeff_C_real offset))
 
-/-- Unit-volume local model. Coordinate zero is the scalar, the other three are jets. -/
+/-- Unit-volume local model. Coordinate zero is the scalar, the other three are jets.
+
+Frozen auxiliary static-jet comparison; not the continuous-momentum scalar model. -/
 def jetModel (p : Parameters) : Model 4 1 4 where
   momentum := fun _ => 0
   distinct := fun _ _ _ => Subsingleton.elim _ _
   form := Fin.cases (wall 0 (Real.sqrt (p.coupling / 2)) (p.vev ^ 2)) (fun i => X i.succ)
   real_form := Fin.cases (real_wall ..) (fun i => realCoeff_X i.succ)
 
-/-- Four forms per site: the wall, followed by the three forward links. -/
+/-- Four forms per site: the wall, followed by the three forward links.
+
+Frozen periodic-lattice comparison; see `ChapterScalarMomentum` for the primary model. -/
 def siteForm {m : ℕ} (next : Fin m → Fin 3 → Fin m) (p : Parameters) (a : ℝ)
     (site : Fin m) : Fin 4 → MvPolynomial (Fin m) ℂ :=
   Fin.cases (wall site (Real.sqrt (p.coupling / (2 * a ^ 3))) (a ^ 3 * p.vev ^ 2))
@@ -188,6 +197,7 @@ theorem coordinate_momentum_commutator {d : ℕ} (i j : Fin d) (p : MvPolynomial
   · simp [h, pderiv_X_of_ne h]
     ring
 
+/-- Frozen periodic-lattice comparison at a single unit cell. -/
 def unitCell : Model 1 1 (1*4) :=
   siteModel (periodicNext 0 0 0) ⟨1, by norm_num, 1, by norm_num⟩ 1 (by norm_num)
 

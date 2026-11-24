@@ -4,6 +4,9 @@ import BookProof.ChapterQuadraticRotationEsa
 /-!
 # An exact two-site rank-two Hashimoto calculation
 
+Frozen periodic-lattice comparison. The continuous-momentum rank-two certificate
+is `ChapterScalarMomRankTwo`.
+
 The three columns are in unnormalized product Hermites. Rational complex numbers
 keep every finite identity decidable in the kernel. The Hermite Gram matrix enters
 both the dual used in the compression and the norm of the discarded action.
