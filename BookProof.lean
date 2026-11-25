@@ -1432,6 +1432,11 @@ import BookProof.Sirk.ChapterSirkEndToEnd
 -- dimension-independent envelope.  Pure ℝ arithmetic; the ordered spectral-count and
 -- whole-space error inputs stay hypotheses.
 import BookProof.Sirk.ChapterMassErrorArithmetic
+-- The three bounded mass-gap steps (U3/U4/U5): finite-model count-certified witness,
+-- the Courant–Fischer k=1 count, and the absolute one-particle floor in the diagonal model.
+import BookProof.Sirk.ChapterFiniteModelWitness
+import BookProof.Sirk.ChapterMinMaxCount
+import BookProof.Sirk.ChapterAbsoluteFormBound
 -- The U5 search census (softmodes.md U5): the recorded gauge-fixed campaign rows from
 -- ../unfer transcribed into Lean, with the proof that none supplies a positive margin;
 -- the one positive window is the lattice-era diagnostic, emitted physical:false.

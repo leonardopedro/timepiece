@@ -5220,3 +5220,46 @@ made, and no witness is instantiated.
 `[ok] census matches 10 solves / 20 manifest rows, 0 certified_positive`; no warning and no
 line above 100 characters; `#print axioms` gives `[propext, Classical.choice, Quot.sound]`.
 
+### Three bounded mass-gap steps (2026-11-25b)
+
+Done in order, without claiming the continuum theorem:
+
+1. **Finite-model witness.** `ChapterFiniteModelWitness.FiniteModelCert` bundles the cutoff
+   `N`, operator data, count level `β` and positive margin; `gap_pos` composes Temple with
+   `gap_of_temple_bounds` to prove the gap of `H_N` positive.  `qymG2N10Row` transcribes the
+   `g = 2, N ≤ 10` Lanczos-60 row (certified 1.221834608) and its arithmetic is checked;
+   the operator-level hypotheses remain fields, not asserted here.
+2. **Courant–Fischer count.** `ChapterMinMaxCount` proves that a form bound on `yᗮ` forces
+   `b ≤ minmaxLevel A 1` (two-dimensional subspace meets `yᗮ`) — the `k = 1` inequality the
+   plan records as missing.  It is an inequality, not an eigenvalue count.
+3. **Absolute one-particle floor.** `ChapterAbsoluteFormBound` shows that with a root
+   direction and `g > 0`, `m = rootCount T · g/(2√2) > 0` bounds the Yang–Mills symbol and
+   its core/closed forms and spectrum.  This is the diagonal model, not the full `h_g`; the
+   `dΓ` lift still takes its one-particle gap as a hypothesis.
+
+**Verification.** `lake build BookProof` succeeds (9076 jobs); no warning from the new
+files and no line above 100 characters; `#print axioms` gives `[propext, Classical.choice,
+Quot.sound]`.  The modules join `BookProofOperatorCore`; its target roots were updated.
+
+### The finite-model witness row is emitted and drift-checked (2026-11-25c)
+
+`unfer/fock_sirk/tests/finite_model_witness_emission.rs` emits the count-certified
+`g = 2, N ≤ 10` row to
+`fock_sirk/tests/fixtures/finite_model_witness/qym_g2_n10_count.ndjson`: sector blocks of
+`H_N`, `β` from `certify_spectrum`, exact in-sector ground vectors (residual ~1e-13),
+Temple, with positive/sound assertions before writing.  Emitted:
+`θᵒ₀ = -9.02285258839461`, `rᵒ = 1.0810843612259794e-13`,
+`θᵉ₀ = -10.244687196756285`, `β = -7.5819940659713465`,
+`temple = exact = 1.2218346083616751`, `physical: false`.
+
+`qymG2N10Row` in `ChapterFiniteModelWitness.lean` now transcribes those exact numbers, and
+`scripts/check-finite-model-witness` fails on drift.  The full-operator census remains
+unchanged (20/20 `certified_positive: false`).
+
+**Boundary.** A rigorous gap for `H_N` at one cutoff, emitted `physical: false` — not the
+continuum theorem and not an inhabitant of the full-operator `StrongCouplingWitness`.
+
+**Verification.** `cargo test --release -p fock_sirk --test finite_model_witness_emission`
+passes; `python3 scripts/check-finite-model-witness` reports `[ok]`;
+`lake build BookProof` succeeds.
+

@@ -7,6 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest finite-model emission entry (2026-11-25c):** “State of the project —
+> 2026-11-25c: the finite-model witness row is emitted and drift-checked” (end of file).
+> An `unfer` test emits the count-certified `g=2, N≤10` row and a Lean gate keeps the
+> transcribed numbers equal to it.
+>
+> **Newest bounded mass-gap steps entry (2026-11-25b):** “State of the project —
+> 2026-11-25b: three bounded mass-gap steps” (end of file).  A finite-model count-certified
+> witness, the Courant–Fischer `k = 1` count, and the absolute floor in the diagonal
+> one-particle model are landed; none closes the continuum mass gap.
+>
 > **Newest U5 search entry (2026-11-25):** “State of the project — 2026-11-25: the U5
 > search census over the recorded campaign” (end of file).  All 20 recorded gauge-fixed
 > campaign rows have `certified_positive: false`; the one positive window is a
@@ -27175,3 +27185,69 @@ Transfer a gap only after identifying the generator and its ground projection an
 proving the required uniform infrared bound or transporting one already proved.
 No current certificate identifies this phase with the nested theory or establishes
 a positive mass gap for it. [Bałaban formalization plan](cftproof.md)
+
+## State of the project — 2026-11-25b: three bounded mass-gap steps
+
+Three bounded steps toward the mass gap are landed, in the order requested.  None of them
+closes the continuum theorem, and no claim is made that it has been proved.
+
+* **Finite-model witness (U5, finite model).** `BookProof/Sirk/ChapterFiniteModelWitness.lean`
+  defines `FiniteModelCert`, bundling the cutoff `N`, the operator data, the count level
+  `β`, and a positive margin; `certified_le_gap` composes
+  `RitzCertificate.temple_lower_bound` with `TempleSeparationBound.gap_of_temple_bounds`,
+  and `gap_pos` proves the gap of `H_N` positive from an inhabited certificate.
+  `qymG2N10Row` transcribes the `g = 2, N ≤ 10` Lanczos-60 row of the `../unfer` exclusion
+  campaign (θᵒ₀ = −9.022852588, rᵒ = 7.6e−14, θᵉ₀ = −10.244687197,
+  β = −7.581992784, emitted gap 1.221834608); its arithmetic is checked by `norm_num`.
+  The operator-level hypotheses remain fields — instantiating them for the concrete matrix
+  is work in unfer, not asserted here.
+* **Courant–Fischer count (U3).** `BookProof/Sirk/ChapterMinMaxCount.lean` proves
+  `minmaxLevel_one_ge_of_formBound_on_orthogonal`: a form bound `b‖z‖² ≤ rayleighVal A z`
+  on `yᗮ` forces `b ≤ minmaxLevel A 1`, by intersecting a two-dimensional subspace with the
+  codimension-one `yᗮ`.  This is the `k = 1` inequality the plan records as missing; it is
+  an inequality, not an eigenvalue or ordered resolvent values, and does not discharge
+  U3's edge identification.
+* **Absolute one-particle floor (U4, diagonal model).**
+  `BookProof/Sirk/ChapterAbsoluteFormBound.lean` proves that with a root direction and
+  `g > 0`, `m = rootCount T · zeroPoint g 0 = rootCount T · g/(2√2)` is positive and
+  bounds every value of the Yang–Mills symbol; it transfers to the core form
+  (`yangMillsForm_absolute`), the closed form (`closedForm_absolute`) and the symbol's
+  spectrum (`spectrum_above_floor`).  The object is the diagonal one-particle model of the
+  form of record, not the full `h_g`; the `dΓ` lift still takes its one-particle gap as a
+  hypothesis, so no physical outer-vacuum gap is claimed.
+
+**Verification.** `lake build BookProof` succeeds (9076 jobs); no warning from the new
+files and no line above 100 characters; `#print axioms` on the main theorems gives
+`[propext, Classical.choice, Quot.sound]`.  The three modules join `BookProofOperatorCore`
+and their roots were added to its Lake target; the import-components gate is at its
+baseline (two pre-existing stale phi4 roots).
+
+## State of the project — 2026-11-25c: the finite-model witness row is emitted and drift-checked
+
+The 2026-11-25b finite-model witness no longer relies on numbers copied from a printed
+table.  `unfer/fock_sirk/tests/finite_model_witness_emission.rs` builds `H_N` at `g = 2`,
+`N ≤ 10`, forms the reflection-odd/even sector blocks, obtains the `λ₂` lower bound `β`
+from `certificate::certify_spectrum`, takes the exact in-sector ground eigenvectors
+(matvec residual ~1e-13), applies Temple, and asserts positivity and soundness against the
+exact truncated gap **before** writing the fixture
+
+`unfer/fock_sirk/tests/fixtures/finite_model_witness/qym_g2_n10_count.ndjson`
+(`dimension = 420`, `physical: false`).  The emitted row is
+`θᵒ₀ = -9.02285258839461`, `rᵒ = 1.0810843612259794e-13`,
+`θᵉ₀ = -10.244687196756285`, `β = -7.5819940659713465`,
+`temple = exact = 1.2218346083616751`.
+
+`qymG2N10Row` in `ChapterFiniteModelWitness.lean` was updated to these exact values, and
+`scripts/check-finite-model-witness` fails on any drift between the Lean transcript and
+the fixture (including the `physical: false` flag).  `scripts/check-witness-census`
+continues to cover the full-operator campaign, where all 20 rows remain
+`certified_positive: false`.
+
+**Boundary unchanged.** This is a rigorous gap for the truncated `H_N` at one cutoff,
+emitted with `physical: false`.  It is not a continuum theorem and does not instantiate the
+full-operator `StrongCouplingWitness`.
+
+**Verification.** `cargo test --release -p fock_sirk --test finite_model_witness_emission`
+passes; `nix-shell -p python3 --run "python3 scripts/check-finite-model-witness"` reports
+`[ok] finite-model row matches emitted fixture`; `lake env lean
+BookProof/Sirk/ChapterFiniteModelWitness.lean` and `lake build BookProof` succeed.
