@@ -254,6 +254,12 @@ name = "BookProofGaussianChain"
 roots = ["BookProof.OSReconstruction.GaussianChainScales"]
 
 [[lean_lib]]
+name = "BookProofMassError"
+# independent part: 3 modules — the U3/U6 arithmetic (Mathlib only), the U5 witness
+# contract that consumes it, and the census of the recorded ../unfer campaign rows.
+roots = ["BookProof.Sirk.ChapterWitnessCensus"]
+
+[[lean_lib]]
 name = "BookProofPauli"
 # independent part: 2 modules
 roots = ["BookProof.Pauli.ChapterPauliSU2"]

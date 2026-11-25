@@ -1429,6 +1429,29 @@ import BookProof.Qg.ChapterScalaronDensitizedTransfer
 -- one and — for time-independent constants — uniformly in time; the reconstruction step
 -- `V ∘ V∗` is the orthogonal projection onto the retained subspace.
 import BookProof.Sirk.ChapterSirkEndToEnd
+-- The conditional U3/U6 mass arithmetic (softmodes.md): inverse-resolvent intervals,
+-- the two-level error |M − Mhat| ≤ E_gap, the margin test Mhat > E_gap, and the
+-- dimension-independent envelope.  Pure ℝ arithmetic; the ordered spectral-count and
+-- whole-space error inputs stay hypotheses.
+import BookProof.Sirk.ChapterMassErrorArithmetic
+-- The U5 search census (softmodes.md U5): the recorded gauge-fixed campaign rows from
+-- ../unfer transcribed into Lean, with the proof that none supplies a positive margin;
+-- the one positive window is the lattice-era diagnostic, emitted physical:false.
+import BookProof.Sirk.ChapterWitnessCensus
+-- The U2 budget arithmetic (softmodes.md U6 step 3): nondecreasing rational order gives
+-- an explicit non-growth guarantee, the real shift schedule is admissible below N/s, and
+-- a lower bound on Dmin has the wrong direction for a product in which Dmin multiplies.
+import BookProof.Sirk.ChapterBudgetEnvelope
+-- The U1 counterchecks as formal examples (softmodes.md U6 step 2): a finite-rank
+-- reconstruction of an infinite-dimensional isometry has whole-space error ≥ 1, and a
+-- norm limit of finite-rank operators is compact, so `e_R → 0` is a compact-resolvent
+-- claim that must not be smuggled into the mass-gap route.
+import BookProof.Sirk.ChapterFiniteRankObstructions
+-- The U5 strong-coupling witness contract (softmodes.md): an inhabited witness bundles
+-- the coupling/cutoff/Krylov/rational/shift data and the full-space, spectral-count and
+-- margin obligations; soundness turns it into a strictly positive excitation mass.  No
+-- numerical row is instantiated here.
+import BookProof.Sirk.ChapterStrongCouplingWitness
 -- The multi-shift forward-sequence span identity (plan §12, Gap 4b): the forward sequence
 -- `w₀ = v₀`, `wₖ₊₁ = (H − zₖ I) wₖ` of an arbitrary shift schedule spans exactly the standard
 -- Krylov subspace, so the choice of shifts changes the basis but never the compressed space.

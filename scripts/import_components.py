@@ -80,6 +80,9 @@ COMPONENT_NAMES = {
     "BookProof.InducedSystems.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
     "BookProof.Probability.ChapterHolomorphic": "BookProofHolomorphic",
     "BookProof.Sirk.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
+    # The U3/U6 mass arithmetic and the U5 witness contract import only Mathlib and each
+    # other, so they form their own independent part (not a view of the operator core).
+    "BookProof.Sirk.ChapterMassErrorArithmetic": "BookProofMassError",
     "BookProof.Lorentz.ChapterLorentzDecomp": "BookProofLorentz",
     "BookProof.Ode.ChapterOdeSampling": "BookProofSamplingTheory",
     "BookProof.Pauli.ChapterPauliLorentz": "BookProofPauli",
