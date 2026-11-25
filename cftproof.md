@@ -1,5 +1,365 @@
 # Euclidean fields, Mehler coordinates and nested-Fock reconstruction
 
+## Path-integral–Hamiltonian equivalence in the nested Fock / Mehler / SIRK formalism (2026-11-24)
+
+**Strategy update.** This section updates the forward execution plan to follow the two-part
+Hamiltonian-to-path-integral equivalence strategy of [cft_path.md](cft_path.md), adapted to the
+nested Fock-space, Mehler-coordinate and SIRK formalism of [book.tex](book.tex) and the existing
+`BookProof` corpus. It complements—rather than discards—the Bałaban/October-archive continuum-limit
+programme (**C0–C10** and the 2026-11-24 work order below): **H0–H6** construct the regulated
+Hamiltonian $\leftrightarrow$ Euclidean path-integral bridge, its SIRK certification and its
+broken-phase vacuum-projection control directly from $H_\sigma = d\Gamma(h_\sigma)$, while
+**H7 / C3–C9** handle UV/IR cutoff removal, archive compatibility, OS reconstruction and spectral
+gap transfer. No Lean compilation, proof replay or numerical run is performed by this planning
+update.
+
+### Why the textbook derivation must be adapted to this formalism
+
+[cft_path.md](cft_path.md) lays out two classical pillars:
+(I) time-slicing $e^{-i\hat{H}T/\hbar}$ (or its Euclidean Wick-rotated semigroup $e^{-T\hat{H}}$)
+via the Lie–Trotter product formula, inserting complete sets of position and momentum eigenstates
+$|q_j\rangle, |p_j\rangle$, integrating out the Gaussian momentum variables, taking $N \to \infty$
+with midpoint/Weyl ordering for position–momentum cross-terms; and
+(II) projecting onto vacuum expectation values by Euclidean damping $e^{-T\hat{H}}$ at
+$\tau = \pm T$, which **fails** in infinite spatial volume $V_3 \to \infty$ whenever the true
+vacuum has a non-zero VEV ($\langle\Omega_v|\phi=0\rangle \propto e^{-c v^2 V_3} \to 0$) unless
+equivalence is restored by shifting the field ($\phi = v + h$) or by adding an external source $J$
+with the strict limit order $V_3 \to \infty$ **before** $J \to 0^+$.
+
+Adapting both pillars honestly to [book.tex](book.tex) and `BookProof` enforces five structural
+rules:
+
+1. **Euclidean Feynman–Kac, not a $\sigma$-additive Minkowski path measure.**
+   [book.tex](book.tex) explicitly rejects the oscillatory Minkowski Feynman path integral as a
+   $\sigma$-additive measure ("not an integral", §*Quantization due to time-evolution*), while
+   identifying imaginary-time evolution with a Wiener/Markov stochastic process (§*Reconstructing
+   the classical trajectory*) and introducing continuous time-slicing through infinitesimal
+   timepiece intervals (§*Statistical Source Field Theory*). Accordingly, the equivalence target
+   is the **Euclidean semigroup** $e^{-\tau K_\sigma}$ ($\tau \ge 0$) and its Feynman–Kac /
+   Mehler path measure, with real-time unitarity recovered after identifying the self-adjoint
+   generator (preserving the 2026-11-08 forward-semigroup correction below).
+2. **Time-slicing acts on the *inner* Hamiltonian $h_\sigma$ under $e^{-\tau d\Gamma(h_\sigma)} = \Gamma(e^{-\tau h_\sigma})$.**
+   In [book.tex](book.tex) (§*Free field parametrization in Statistical Field Theory*, §*Pure
+   SU(3) Yang-Mills theory*) and [ContinuumManifest](BookProof/OSReconstruction/ContinuumManifest.lean),
+   the regulated Hamiltonian is outer-quadratic and number-conserving:
+   $$H_\sigma = d\Gamma(h_\sigma) = \sum_{ij} \langle e_i, h_\sigma e_j \rangle\, C^\dagger(e_i) A(e_j),$$
+   with all interactions living inside the **inner** operator $h_\sigma$. On the empty outer vacuum
+   $\Omega_{\text{out}}$, $H_\sigma \Omega_{\text{out}} = 0$ identically; physical observables
+   (normalized number-density propositions at resolved spatial supports) act on a **populated
+   spatial prior / cyclic initial state** $\Psi_{\text{info}}$ (or $\omega_{\text{info}}$), with
+   one outer particle per informed spatial point ([softmodes.md](softmodes.md),
+   [ObservablePrior](BookProof/OSReconstruction/ObservablePrior.lean),
+   [ContinuumPrior](BookProof/OSReconstruction/ContinuumPrior.lean)).
+3. **Mehler/Hermite kernels replace flat $|q\rangle, |p\rangle$ eigenstates.**
+   Non-normalizable $|q\rangle, |p\rangle$ eigenstates and divergent Lebesgue prefactors
+   $(m/2\pi\epsilon)^{N/2}\prod dq_j$ are replaced by the unitary Mehler bridge
+   $U f = \gamma^{1/2} f : L^2(\gamma) \to L^2(dx)$
+   ([ChapterYangMillsMehlerBridge](BookProof/Qym/ChapterYangMillsMehlerBridge.lean)) and the
+   orthonormal Hermite basis ([ChapterHermiteFunctions](BookProof/Toolbox/ChapterHermiteFunctions.lean),
+   [ChapterHermiteProductBasis](BookProof/Toolbox/ChapterHermiteProductBasis.lean)). The free
+   Euclidean slice is the **normalized Markovian Mehler semigroup** $T_\rho$ ($\rho = e^{-\epsilon}$,
+   [MehlerEigenfunction](BookProof/MCMC/MehlerEigenfunction.lean)), which preserves the Gaussian
+   reference probability measure $\gamma$ automatically with no divergent prefactor.
+4. **SIRK complements Trotter rather than competing with it.**
+   [ChapterSirkSingleTimeShift](BookProof/Sirk/ChapterSirkSingleTimeShift.lean) proves that SIRK
+   evaluates the propagator at a **single finite time** using only the bounded shift-invert
+   resolvent $(K_\sigma + \gamma)^{-1}$—with **no time discretization and no Trotter splitting**—and
+   [ChapterHashimotoShiftInvert](BookProof/Sirk/ChapterHashimotoShiftInvert.lean) proves the
+   Galerkin shift-invert limit selects the Friedrichs extension (`hashimoto_shiftInvert_selects_friedrichs`).
+   Trotter / Mehler time-slicing therefore supplies the *analytic equivalence* to the Euclidean
+   Feynman–Kac measure and reflection positivity, while SIRK supplies *time-discretization-free
+   numerical/certified evaluation* and domain selection at fixed cutoffs $(a, L, R)$.
+5. **Elitzur's theorem separates gauge symmetry from global/scalar SSB.**
+   [book.tex](book.tex) (§*Gauge-variant gaussian measure and the phase diagram*, §*Spontaneous
+   symmetry breaking*) and [ChapterGaugeVariantVanishing](BookProof/ChapterGaugeVariantVanishing.lean)
+   (`no_spontaneous_gauge_symmetry_breaking`) establish that local/global *gauge* symmetry is never
+   spontaneously broken in gauge-invariant expectations, whereas gauge-variant Gaussian reference
+   measures and non-invariant cyclic initial states are mathematically valid. The VEV overlap
+   catastrophe of [cft_path.md](cft_path.md) applies directly to **global/scalar SSB** (the Higgs
+   multiplet of [ChapterSmHiggsVacuum](BookProof/ChapterSmHiggsVacuum.lean) and the $\phi^4$ double
+   well of [ChapterScalarMehler](BookProof/Phi4/ChapterScalarMehler.lean)) and to any shifted
+   Mehler reference measure $\gamma_v \perp \gamma_0$ in infinite volume.
+
+---
+
+### H0 — Inner/outer semigroup factorization and reference-state contract
+
+*Adapts [cft_path.md](cft_path.md) §1 (Setup) to $H_\sigma = d\Gamma(h_\sigma)$.*
+
+* **Bind the operator split.** Extend `NestedSpec` in
+  [ContinuumManifest](BookProof/OSReconstruction/ContinuumManifest.lean) so the specified inner
+  Hamiltonian carries an explicit decomposition $h_\sigma = h_{0,\sigma} + V_\sigma$ on a common
+  core, where $h_{0,\sigma} \ge 0$ is the Mehler/Dirichlet reference kinetic operator and
+  $V_\sigma$ is the interaction (magnetic curvature $B_{ia}^2$ in Weyl-gauge QYM, Higgs/$\phi^4$
+  potential, or gauge-covariant matter/vielbein couplings). Retain the exact invariant
+  $h_\sigma + cI \mapsto H_\sigma + c N_{\text{out}}$ (`finalHamiltonian_shift`,
+  `shift_changes_model`) and the separation of physical cutoffs $(a, L, R)$ from solver budget
+  $(m, q, \text{precision})$ (`krylov_not_continuum`).
+* **Factorize the outer Euclidean semigroup.** Prove on each $N$-particle outer sector
+  ([ChapterScalarOuter](BookProof/Phi4/ChapterScalarOuter.lean),
+  [ContinuumManifest](BookProof/OSReconstruction/ContinuumManifest.lean)) that
+  $$e^{-\tau d\Gamma(h_\sigma)}\big|_{\mathcal F^{(N)}_{\text{out}}} = \big(e^{-\tau h_\sigma}\big)^{\otimes N} \qquad (\tau \ge 0),$$
+  so the $N$-point Euclidean evolution of a populated prior $\Psi_{\text{info}}$ reduces to
+  evaluating the inner semigroup $e^{-\tau h_\sigma}$ on each informed spatial factor, while
+  $e^{-\tau d\Gamma(h_\sigma)} \Omega_{\text{out}} = \Omega_{\text{out}}$ remains empty.
+* **Acceptance:** a `sorry`-free sector-factorization theorem tying `NestedSpec.finalHamiltonian`
+  and `NestedSpec.relativeGenerator` to $\Gamma(e^{-\tau h_\sigma})$, with a negative control
+  confirming that $\Omega_{\text{out}}$ gives trivial expectations for number-density observables.
+
+### H1 — Mehler/Hermite representation and the free Euclidean transition kernel
+
+*Adapts [cft_path.md](cft_path.md) §§2 & 4 (Position/momentum resolutions of identity and Gaussian momentum integration).*
+
+* **Use the Mehler bridge as the canonical chart.** Build on
+  [ChapterYangMillsMehlerBridge](BookProof/Qym/ChapterYangMillsMehlerBridge.lean)
+  (`conj_deriv`: $U\partial U^{-1} = \partial + x/2$; `conj_dirichlet`:
+  $U(-\partial^2 + x\partial)U^{-1} = -\partial^2 + x^2/4 - 1/2$; `conj_mult`: $UVU^{-1} = V$)
+  and its multi-coordinate Hermite basis
+  ([ChapterHermiteProductBasis](BookProof/Toolbox/ChapterHermiteProductBasis.lean)).
+* **Close the Mehler kernel gap.** [MehlerEigenfunction](BookProof/MCMC/MehlerEigenfunction.lean)
+  already proves the eigenfunction identity `mehlerOp_physHermite` ($T_\rho H_n = \rho^n H_n$ for
+  $\rho = e^{-\epsilon}$) and `mehlerOp_vacuum` ($T_\rho 1 = 1$), but the **closed-form Mehler
+  transition density** $K_\epsilon(x, y)$ with respect to $\gamma(dy)$ is not yet formalized in
+  Lean. Prove the kernel representation:
+  $$(e^{-\epsilon h_0} f)(x) = (T_{e^{-\epsilon}} f)(x) = \int K_\epsilon(x, y)\, f(y)\, \gamma(dy),$$
+  with $K_\epsilon(x, y) > 0$, symmetry $K_\epsilon(x, y) = K_\epsilon(y, x)$, semigroup
+  composition $\int K_{\epsilon_1}(x, z) K_{\epsilon_2}(z, y)\,\gamma(dz) = K_{\epsilon_1+\epsilon_2}(x, y)$,
+  and exact probability normalization $\int K_\epsilon(x, y)\,\gamma(dy) = 1$.
+* **Bridge to existing Feynman–Kac and 4D Gaussian controls.** Identify $K_\epsilon$ (under the
+  ground-state transform $U$) with `freeTransferKernel` / `fkKernelProduct` in
+  [FeynmanKac](BookProof/ReflectionPositivity/FeynmanKac.lean) and calibrate its two-slice
+  covariance against [GaussianMehlerControl](BookProof/OSReconstruction/GaussianMehlerControl.lean)
+  and [EuclideanMehlerCalibration](BookProof/OSReconstruction/EuclideanMehlerCalibration.lean).
+* **Acceptance:** explicit closed-form Mehler kernel theorem on finite mode products, semigroup
+  Chapman–Kolmogorov identity, positivity and $\gamma$-preservation, eliminating flat-space
+  normalization divergences.
+
+### H2 — Euclidean Lie–Trotter product formula and midpoint/Weyl ordering
+
+*Adapts [cft_path.md](cft_path.md) §3 (Trotter approximation) and the Note on Operator Ordering (Midpoint Rule).*
+
+* **Formalize the Euclidean Lie–Trotter product formula.** The Lean corpus currently has the
+  *Trotter–Kato resolvent-to-flow approximation theorem*
+  ([ChapterSirkTrotterKato](BookProof/Sirk/ChapterSirkTrotterKato.lean)), **not** the Lie–Trotter
+  product formula. Build it in two stages:
+  1. *Finite-dimensional / bounded stage:* for bounded (or Hermite-truncated) operators $A, B$,
+     prove $\|(e^{-\frac{T}{N}A} e^{-\frac{T}{N}B})^N - e^{-T(A+B)}\| = \mathcal{O}(T^2/N)$
+     (and the symmetric Strang splitting $e^{-\frac{\epsilon}{2}V} e^{-\epsilon h_0} e^{-\frac{\epsilon}{2}V}$
+     for $\mathcal{O}(T^3/N^2)$ and exact slice self-adjointness).
+  2. *Unbounded nonnegative self-adjoint stage:* for $h_0 \ge 0$ and $V \ge 0$ (or $h_0$-form-bounded
+     with relative bound $< 1$) on a common core, prove strong convergence
+     $$(e^{-\frac{T}{N}h_0} e^{-\frac{T}{N}V})^N \psi \xrightarrow{N\to\infty} e^{-T(h_0 \dot{+} V)} \psi$$
+     using the nonnegative semigroup machinery of
+     [ChapterNonnegSemigroup](BookProof/ChapterNonnegSemigroup.lean) and Chernoff's product
+     formula.
+* **Enforce the midpoint / Weyl operator-ordering gate.**
+  * When $h_\sigma = h_{0,\sigma} + V_\sigma(q)$ has **no** first-order position–momentum
+    cross-terms (e.g. pure Weyl-gauge QYM $h_W = -\frac{1}{2}\pi_a^i\pi_a^i - \frac{1}{2}B_{ia}^2$
+    where the electric kinetic operator is purely quadratic in $\pi$ and $B_{ia}$ depends on $A$
+    and spatial momentum convolutions, or pure $\phi^4$/Higgs scalar potentials), endpoint and
+    Strang/midpoint splittings agree in the $N \to \infty$ limit.
+  * When cross-terms appear—gauge-covariant matter kinetic terms $(p - eA(q))^2$, curved-space /
+    QG vielbein kinetic operators, or non-constant field-space metrics—$\Delta q \sim \sqrt{\epsilon}$
+    produces an $\mathcal{O}(\epsilon)$ ambiguity that survives $N\epsilon = T$. Require **midpoint
+    discretization** $\bar{q}_j = \frac{1}{2}(q_{j+1} + q_j)$ (Stratonovich / Weyl ordering),
+    connecting to [book.tex](book.tex) §*Quadratic Ordering* & §*Quantization due to time evolution*
+    and [ChapterQuantizationWeyl](BookProof/ChapterQuantizationWeyl.lean). Keep Weyl ordering
+    (which preserves operator exponentials in Trotter products) explicitly distinct from
+    [book.tex](book.tex)'s Quadratic Ordering (which enforces number conservation and zero
+    $\Omega_{\text{out}}$ expectation).
+* **Acceptance:** a `sorry`-free Lie–Trotter theorem (bounded + unbounded nonnegative form-sum
+  version) and a negative control demonstrating the $\mathcal{O}(1)$ drift error when endpoint
+  discretization is mistakenly applied to a position–momentum cross-term.
+
+### H3 — Time-sliced Mehler Feynman–Kac representation and reflection positivity
+
+*Adapts [cft_path.md](cft_path.md) §§4–5 (Configuration-space path integral and $N\to\infty$ continuum-time limit).*
+
+* **Time-sliced Markov path measure.** Combining H1 and H2 on the $N$-slice grid
+  $\tau_j = j\epsilon$ ($\epsilon = T/N$), define the normalized finite-slice path measure
+  $\mu_{\sigma, N}$ on $(\mathscr X_\sigma)^{N+1}$ with transition kernel $K_\epsilon$ and
+  Strang-symmetrized potential weight $\exp(-\frac{\epsilon}{2}V_\sigma(q_0) - \epsilon\sum_{j=1}^{N-1} V_\sigma(q_j) - \frac{\epsilon}{2}V_\sigma(q_N))$
+  (or midpoint weight when cross-terms are present). Prove exact algebraic identity between the
+  $N$-slice integral and the inner matrix element
+  $\langle \psi_b, (e^{-\frac{\epsilon}{2}V_\sigma} e^{-\epsilon h_{0,\sigma}} e^{-\frac{\epsilon}{2}V_\sigma})^N \psi_a \rangle$.
+* **Continuous-time limit ($N \to \infty$ at fixed spatial cutoffs $(a, L, R)$).** Pass $N \to \infty$
+  via H2 to identify the continuous-time Euclidean propagator and ordered multi-time moments
+  ([EuclideanMomentHierarchy](BookProof/OSReconstruction/EuclideanMomentHierarchy.lean):
+  `euclidWord`, `euclidMoment`, `twoPoint`) with the Mehler/Ornstein–Uhlenbeck Feynman–Kac
+  expectation:
+  $$\langle \psi_b, e^{-T h_\sigma} \psi_a \rangle = \mathbb{E}_{\text{OU/Mehler}}\!\left[\overline{\psi_b}(X_T)\,\psi_a(X_0)\,\exp\!\left(-\int_0^T V_\sigma(X_s)\,ds\right)\right].$$
+* **Regulator reflection positivity.** Discharge the honest boundary of
+  [FeynmanKac](BookProof/ReflectionPositivity/FeynmanKac.lean) by identifying the Strang-symmetric
+  time-sliced path measure with `fkMeasure ρ ν` across the $\tau = 0$ slice, inheriting
+  all-degree reflection positivity (`fk_reflectionPositive`,
+  [HalfSpaceSplit](BookProof/ReflectionPositivity/HalfSpaceSplit.lean),
+  [GaussianMehlerCylinderRP](BookProof/OSReconstruction/GaussianMehlerCylinderRP.lean)) for
+  ordered positive-time observable words.
+* **Acceptance:** exact $N$-slice equivalence, $N \to \infty$ Feynman–Kac identity at fixed
+  $(a, L, R)$, and derived (not assumed) reflection positivity on the regulated positive-time
+  algebra.
+
+### H4 — SIRK certification without time-discretization error
+
+*Integrates the project's SIRK/Hashimoto machinery into the [cft_path.md](cft_path.md) equivalence.*
+
+* **Single-time Euclidean evaluation.** While H2–H3 use time-slicing $N \to \infty$ to *prove*
+  equivalence with the path integral, evaluating or certifying finite-time Euclidean propagators
+  $e^{-\tau K_\sigma} v$ and correlation words does **not** require time-slicing. Reuse
+  [ChapterSirkSingleTimeShift](BookProof/Sirk/ChapterSirkSingleTimeShift.lean)
+  (`sirk_single_time_shiftInvert_bound`),
+  [ChapterCrouzeixSelfAdjoint](BookProof/Sirk/ChapterCrouzeixSelfAdjoint.lean)
+  (`sirk_error_bound_selfAdjoint`) and
+  [ChapterSirkTruncation](BookProof/Sirk/ChapterSirkTruncation.lean) to bound the rational-Krylov
+  approximation of $e^{-\tau K_\sigma} v$ from the bounded shift-invert resolvent
+  $(K_\sigma + \gamma)^{-1}$ ($\gamma > 0$) with **zero Trotter time-step error**.
+* **Friedrichs domain selection.** Use `hashimoto_shiftInvert_selects_friedrichs`
+  ([ChapterHashimotoShiftInvert](BookProof/Sirk/ChapterHashimotoShiftInvert.lean)) to pin down
+  the self-adjoint realization of $h_\sigma$ whose semigroup H2–H3 represent as a Feynman–Kac
+  integral, eliminating domain ambiguity between formal differential expressions and their
+  self-adjoint closures.
+* **Missing Euclidean heat-semigroup Trotter–Kato transfer.** Prove the nonnegative
+  imaginary-time counterpart of
+  [ChapterSirkTrotterKato](BookProof/Sirk/ChapterSirkTrotterKato.lean): strong resolvent
+  convergence $(K_n + \gamma)^{-1} \to (K + \gamma)^{-1}$ ($\gamma > 0$, common lower bound
+  $K_n \ge 0$) implies locally uniform strong convergence $e^{-\tau K_n} v \to e^{-\tau K} v$
+  for $\tau \ge 0$. Combine with **U0–U6** of [softmodes.md](softmodes.md) for Hermite-tail and
+  leakage control, and with **C6** below for telescoping multi-point correlation certificates.
+* **Acceptance:** Euclidean heat-semigroup Trotter–Kato theorem, single-time SIRK error bound on
+  `euclidMoment`, and explicit separation of solver error from physical cutoff error.
+
+### H5 — Euclidean vacuum projection and the infinite-volume overlap catastrophe
+
+*Adapts [cft_path.md](cft_path.md) Part II §§1–2 (Projecting onto the vacuum state; why a Higgs / non-zero-VEV potential breaks naive equivalence).*
+
+* **Physical ground-state projection ($T \to \infty$).** Lift the multiplier-model theorems of
+  [MultiplierSelfAdjoint](BookProof/OSReconstruction/MultiplierSelfAdjoint.lean)
+  (`norm_flowOfHCLM_sub_limitProjection`, `tendsto_opNorm_flowOfHCLM_sub_limitProjection_iff_gap`,
+  `exists_time_norm_flowOfHCLM_sub_limitProjection_lt`) from `MulModel` to the physical cyclic
+  representation of $K_\sigma = (H_\sigma - E_0 I)|_{\mathcal H_{\text{ref}}} \ge 0$. Prove that
+  for boundary states $\Psi_a, \Psi_b$ at $\tau = \pm T$,
+  $$\lim_{T\to\infty} \frac{\langle \Psi_b, e^{-T K_\sigma} \mathcal{O}_1 e^{-\Delta\tau K_\sigma} \mathcal{O}_2 e^{-T K_\sigma} \Psi_a \rangle}{\langle \Psi_b, e^{-(2T+\Delta\tau) K_\sigma} \Psi_a \rangle} = \langle \Omega_v, \mathcal{O}_1 e^{-\Delta\tau K_\sigma} \mathcal{O}_2 \Omega_v \rangle$$
+  holds **if and only if** the boundary states have **non-zero overlap** with the ground state
+  ($\langle \Omega_v | \Psi_a \rangle \neq 0$, $\langle \Psi_b | \Omega_v \rangle \neq 0$) and
+  the ground projection $P_0 = |\Omega_v\rangle\langle\Omega_v|$ is rank-one in the selected
+  sector (otherwise the limit projects onto $P_0 \Psi_a, P_0 \Psi_b$). Note that in
+  [book.tex](book.tex) (L6616–6622, L7499–7506), finite-$T$ expectations in a general non-stationary
+  populated prior $\Psi_{\text{info}}$ remain valid prior-dependent predictions even without taking
+  $T \to \infty$.
+* **Formalize the infinite-volume overlap collapse (Kakutani orthogonality).** Build directly on
+  the existing Gaussian/coherent overlap lemmas—
+  [ChapterCoherentOverlap](BookProof/Attention/ChapterCoherentOverlap.lean)
+  (`coherentOverlap_eq_gaussian`),
+  [ChapterCoherentGeometry](BookProof/Attention/ChapterCoherentGeometry.lean)
+  (`neg_two_mul_log_coherentOverlap`: $-2\log\langle q|k\rangle = \|q-k\|^2$) and
+  [ChapterF3](BookProof/Textbook/ChapterF3.lean) (`overlap_prod_pos`)—to prove that for a
+  spatially constant field shift $v \neq 0$ across $N(V_3) \propto V_3$ spatial modes, the overlap
+  between the unshifted Mehler reference state $|\phi = 0\rangle$ and the shifted ground state
+  $|\Omega_v\rangle$ decays exponentially with volume:
+  $$|\langle \Omega_v | \phi = 0 \rangle| \le \exp(-c\, v^2\, V_3) \xrightarrow{V_3 \to \infty} 0.$$
+* **Record the two broken-phase failure modes on project models.** Instantiate on the static
+  Mexican-hat Higgs potential of [ChapterSmHiggsVacuum](BookProof/ChapterSmHiggsVacuum.lean)
+  (`higgsV_sq_form`, `higgsV_eq_min_iff`, `higgs_goldstone`, `higgs_radial`) and the double-well
+  $\phi^4$ sector of [ChapterScalarMehler](BookProof/Phi4/ChapterScalarMehler.lean) and
+  [ChapterScalarMomentumGap](BookProof/Phi4/ChapterScalarMomentumGap.lean) (`fieldReflMatrix`):
+  1. *Symmetric averaging over vacua:* imposing naive Dirichlet / unshifted Mehler boundary
+     conditions $\phi(\pm\infty) = 0$ sums symmetrically over $\pm v$ (connected by finite-volume
+     tunneling/instanton sectors), producing $\langle \phi \rangle_{\text{PI}} = 0 \neq v$.
+  2. *Tachyonic expansion around $\phi = 0$:* expanding around the unstable maximum
+     $V''(0) = -\mu^2 < 0$ breaks positivity of the quadratic reference form and invalidates naive
+     Gaussian-reference damping.
+* **Preserve Elitzur's gauge-symmetry boundary.** In pure QYM and gauge sectors, retain
+  [ChapterGaugeVariantVanishing](BookProof/ChapterGaugeVariantVanishing.lean)
+  (`expectation_gauge_variant_eq_zero`, `no_spontaneous_gauge_symmetry_breaking`): gauge-variant
+  operators have zero expectation in any gauge-invariant state, so the VEV obstruction above
+  concerns **global/scalar order parameters** (Higgs/$\phi^4$) or gauge-fixed/gauge-variant
+  Mehler reference measures ([book.tex](book.tex) L6652–6735), not spontaneous breaking of local
+  gauge symmetry.
+* **Acceptance:** a `sorry`-free volume-decay overlap theorem $\exp(-c v^2 V_3) \to 0$, a
+  $\mathbb{Z}_2$-symmetric boundary-averaging theorem proving $\langle\phi\rangle = 0$ under
+  unshifted boundary conditions, and an explicit non-zero-overlap hypothesis in the $T \to \infty$
+  vacuum-projection theorem.
+
+### H6 — Restoring equivalence in broken-symmetry / non-zero-VEV sectors
+
+*Adapts [cft_path.md](cft_path.md) Part II §3 (Field shift $\phi = v + h$ and external source $J$ with $V_3 \to \infty$ before $J \to 0^+$).*
+
+Implement both restoration mechanisms inside the Mehler / nested-Fock framework:
+
+1. **Route A — Mehler-center shift (displacement $D(v)$, $\phi = v + h$).**
+   * Define the displaced Mehler reference measure $\gamma_v = T_v^* \gamma_0$ centered at a
+     minimum $v$ of `higgsV` (or `vev` in `ChapterScalarMehler`) and the corresponding unitary
+     Weyl displacement operator $D(v)$ in finite volume.
+   * Conjugate the inner Hamiltonian $h_\sigma \mapsto h_{\sigma, v} = D(v)^\dagger h_\sigma D(v)$
+     before constructing the Hermite basis, Mehler kernel (H1), Lie–Trotter split (H2) and SIRK
+     compression (H4). Then the fluctuating field $h = \phi - v$ has $\langle h \rangle = 0$, the
+     radial curvature is strictly positive ($V''(v) = 2\mu^2 > 0$, `higgs_radial`), boundary
+     condition $h(\pm\infty) = 0$ corresponds to $\phi(\pm\infty) = v$, and the shifted Mehler
+     reference state maintains strictly positive overlap with $|\Omega_v\rangle$.
+   * Record that in infinite volume $V_3 \to \infty$, $\gamma_v \perp \gamma_0$ (H5): the shift
+     selects an inequivalent GNS / superselection sector rather than a unitary within the
+     unshifted Fock space.
+2. **Route B — External source $J$ / symmetry-breaking conditional prior with strict limit order.**
+   * Add a linear symmetry-breaking source $h_\sigma(J) = h_\sigma - J \int \phi$ (or condition the
+     spatial prior on a symmetry-breaking event $C = 0$ via `SpatialPrior.cond` in
+     [PriorRefinement](BookProof/OSReconstruction/PriorRefinement.lean), directly formalizing
+     [book.tex](book.tex) L6741–6749's conditional-expectation definition of SSB).
+   * Formalize the **non-commuting limit order** theorem on a concrete double-well / Ising-type
+     finite-volume benchmark first, then as the general sector-selection contract:
+     $$\lim_{J \to 0^+} \lim_{V_3 \to \infty} \langle \phi \rangle_{V_3, J} = v \neq 0, \qquad
+       \lim_{V_3 \to \infty} \lim_{J \to 0^+} \langle \phi \rangle_{V_3, J} = 0.$$
+   * Match the selected $J \to 0^+$ phase to the phase disintegration used in the archive adapter
+     (**C0 / C8**) and to Yang's long-range two-point criterion ([book.tex](book.tex) L6747–6749).
+* **Acceptance:** a `sorry`-free finite-volume displacement equivalence theorem (Route A) and a
+  `sorry`-free non-commuting limit-order theorem for $V_3 \to \infty$ vs. $J \to 0^+$ (Route B),
+  plus a negative control rejecting reversed limits or unshifted expansions around $V''(0) < 0$.
+
+### H7 — Continuum limit, Bałaban compatibility and OS reconstruction
+
+**H0–H6** establish the Hamiltonian $\leftrightarrow$ Euclidean path-integral equivalence, SIRK
+certification and broken-phase boundary control **at regulated physical cutoffs $(a, L, R)$**
+(with continuous Euclidean time $N \to \infty$ already taken in H3). Passing to the 4D continuum
+theory connects directly into the existing programme below:
+
+* **UV/IR cutoff removal:** supply uniform multiscale moment, tightness and renormalization bounds
+  via **C3–C5** (Bałaban small/large-field packets) or prove compatibility of the regulated H3
+  Euclidean hierarchy with the selected October-archive Wilson witness via **C0** and the
+  2026-11-24 Bałaban work order below.
+* **OS reconstruction & unitary bridge:** apply **C7–C8** (half-space OS quotient, forward
+  contraction semigroup, cyclic unitary $U : \mathcal H_{\text{OS}} \to \mathcal H_{\text{ref}}$)
+  to identify the continuum OS generator with the limiting nested Hamiltonian $K$.
+* **Mass gap & nontriviality kept separate:** retain **C9** and [softmodes.md](softmodes.md)
+  **U0–U6**; neither Trotter/Feynman–Kac equivalence nor SIRK convergence nor vacuum uniqueness in
+  a selected phase implies a positive mass gap by itself.
+
+### Readiness ledger and negative controls for H0–H7
+
+| Packet | Existing `BookProof` reusable machinery | Missing Lean deliverable |
+| :--- | :--- | :--- |
+| **H0** | `ContinuumManifest` (`NestedSpec`, `finalHamiltonian_shift`, `krylov_not_continuum`), `ChapterScalarOuter` (`outer_number_conserving`), `ObservablePrior`, `ContinuumPrior` | Outer-sector semigroup factorization $e^{-\tau d\Gamma(h)} = \Gamma(e^{-\tau h})$ |
+| **H1** | `ChapterYangMillsMehlerBridge` (`conj_deriv`, `conj_dirichlet`, `conj_mult`), `MehlerEigenfunction` (`mehlerOp_physHermite`, `mehlerOp_vacuum`), `GaussianMehlerControl`, `EuclideanMehlerCalibration`, `ChapterHermiteProductBasis` | Closed-form Mehler transition density $K_\epsilon(x,y)$ and bridge to `FeynmanKac.freeTransferKernel` |
+| **H2** | `ChapterQuantizationWeyl` (Heisenberg/Weyl conjugation), `ChapterNonnegSemigroup` (`semigroupS`), `ChapterSirkTrotterKato` (resolvent approximation only) | Euclidean Lie–Trotter / Strang product formula (bounded & unbounded form sums) and midpoint cross-term ordering theorem |
+| **H3** | `FeynmanKac` (`fkMeasure`, `fk_reflectionPositive`), `HalfSpaceSplit`, `GaussianMehlerCylinderRP`, `EuclideanMomentHierarchy` | $N$-slice Markov path measure identification with `fkMeasure` and $N \to \infty$ Feynman–Kac limit |
+| **H4** | `ChapterSirkSingleTimeShift` (`sirk_single_time_shiftInvert_bound`), `ChapterHashimotoShiftInvert` (`hashimoto_shiftInvert_selects_friedrichs`), `ChapterCrouzeixSelfAdjoint`, `ChapterSirkTruncation` | Euclidean heat-semigroup Trotter–Kato transfer ($e^{-\tau K_n} \to e^{-\tau K}$) |
+| **H5** | `MultiplierSelfAdjoint` (`norm_flowOfHCLM_sub_limitProjection`, `…_iff_gap`), `ChapterCoherentOverlap`, `ChapterCoherentGeometry`, `ChapterF3` (`overlap_prod_pos`), `ChapterSmHiggsVacuum`, `ChapterScalarMehler`, `ChapterScalarMomentumGap`, `ChapterGaugeVariantVanishing` | Physical-representation ground projection $P_0$; infinite-volume overlap decay $\exp(-cv^2 V_3) \to 0$; symmetric-boundary $\langle\phi\rangle = 0$ theorem |
+| **H6** | `PriorRefinement` (`SpatialPrior.cond`), `ChapterSmHiggsVacuum` (`higgs_radial`, `higgs_goldstone`) | Displaced Mehler measure $\gamma_v$ / Weyl shift $D(v)$; external-source $J$ non-commuting limit-order theorem ($V_3 \to \infty$ before $J \to 0^+$) |
+| **H7** | **C0–C10** and **E0–E5** infrastructure below | Multiscale UV/IR cutoff removal (**C3–C5**) or archive witness compatibility (**C0/C8**) |
+
+**Additional negative controls (extending C10):** reject any proof claiming that (a)
+`ChapterSirkTrotterKato` is a Lie–Trotter product formula; (b) endpoint time-slicing reproduces a
+Weyl-ordered Hamiltonian with position–momentum cross-terms; (c) an oscillatory Minkowski path
+integral is a $\sigma$-additive probability measure; (d) $\Omega_{\text{out}}$ is the physical
+vacuum of a populated number-density algebra; (e) naive $\phi(\pm\infty)=0$ boundary conditions or
+reversed limits ($J \to 0^+$ before $V_3 \to \infty$) reproduce a broken-symmetry VEV; or (f)
+finite-time SIRK accuracy replaces UV/IR cutoff removal.
+
+**Execution order:** **H0 → H1 → H2 → H3** (regulated Hamiltonian $\leftrightarrow$ Mehler
+Feynman–Kac equivalence), in parallel with **H4** (Euclidean SIRK transfer) and **H5 → H6**
+(vacuum projection, overlap collapse and broken-phase restoration), feeding into **H7 / C3–C9**
+for the continuum limit.
+
+---
+
 ## Balaban Yang–Mills and the continuous-momentum Hamiltonian
 
 **Work order, 2026-11-24.** Reuse the October archive's existence theorem for its

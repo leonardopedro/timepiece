@@ -119,6 +119,10 @@ def defect : Mat 11 2 := !![
     ⟨0, 0⟩, ⟨1317831680/1172304151961, 1567020848/1172304151961⟩;
     ⟨0, 0⟩, ⟨2635663360/1172304151961, 3134041696/1172304151961⟩]
 
+/-- The physical Gram matrix of the two-column basis is Hermitian. -/
+theorem gram_hermitian : gram.conjTranspose = gram := by
+  decide +kernel
+
 /-- The retained window is Hermitian for the Hermite metric. -/
 theorem window_hermitian : hWin.conjTranspose * metric = metric * hWin := by
   decide +kernel

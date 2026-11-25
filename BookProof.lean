@@ -1106,6 +1106,8 @@ import BookProof.Toolbox.ChapterFriedrichsExtension
 import BookProof.Toolbox.ChapterHermiteProductCore
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
+import BookProof.Qym.ChapterYangMillsMagneticPacket
+import BookProof.Qym.ChapterYangMillsResolventBudget
 -- Part F.11: the *second quantization* of that one-particle Hamiltonian on the
 -- finite-occupation states over the core: the Fock space `ℓ²(ℕ →₀ ℕ)`, the
 -- ladder operators with `[a_j, a_j†] = 1`, `dΓ(A) = Σ ⟪e_j, A e_k⟫ a_j† a_k`, its
