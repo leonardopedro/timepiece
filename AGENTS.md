@@ -125,6 +125,7 @@ bare NixOS shell, so python entry points carry their `nix-shell -p python3
 | `test_health.py` | regression tests for `health.sh`'s baseline rule: at baseline is `[warn]`, one finding over is `[FAIL]`, a skipped check is `[gap]`, never a pass. Runs stub checks in a temporary repo (stdlib only); CI runs it in `ci.yml`. |
 | `check-gitbook-drift` | identifiers cited by `../test`'s GitBook pages still exist here (skips when `../test` is absent). |
 | `pending-lemmas.txt` | data, not a script: the reviewed forward-reference ledger the drift gate consults. A MISS listed there is `[pending]` (a planned lemma for the Lean4 specialist, not rot); an unlisted MISS fails; a listed identifier that now resolves is `[stale]` — remove it in the change that lands the lemma. |
+| `check-witness-census` | the U5 search census in `BookProof/Sirk/ChapterWitnessCensus.lean` still matches the recorded `../unfer` gauge-fixed campaign fixtures (10 solves / 20 manifest rows / zero certified-positive). Run with `nix-shell -p python3 --run "python3 scripts/check-witness-census"`. |
 | `check-book-sync` | `unfer/`'s synced copy of the LaTeX corpus still matches this repo (the source of record). |
 | `sync-book` | one-way sync of that corpus into `../unfer`; `check-book-sync` is its verifier. |
 | `workspace-root.sh` | shared workspace discovery, sourced by `sync-book`/`check-book-sync` (not run directly). |

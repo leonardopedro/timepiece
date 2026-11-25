@@ -5025,3 +5025,134 @@ real one before the multiplication law applies.
 `#audit_axioms` line, so a definition that pulled in an axiom could no longer hide behind the
 theorems' reports.
 
+### The U3/U6 mass arithmetic is a lemma packet (2026-11-24)
+
+U6 step 1 asks for the inverse-interval, two-level error and positive-margin lemmas before
+any coupling witness.  `BookProof/Sirk/ChapterMassErrorArithmetic.lean` (namespace
+`BookProof.ChapterMassErrorArithmetic`) now carries them, over `ℝ` with no physics import:
+
+* **`resolvent_inv_interval`** / **`energy_interval`** — U3's first display: from
+  `|mu − muhat| ≤ e`, `0 < e < muhat`, `1/(muhat+e) ≤ 1/mu ≤ 1/(muhat−e)`, and the
+  energy window after `E = s(1/mu − κ)` for `s ≥ 0`;
+* **`mass_lower_bound`** / **`mass_lower_bound_pos`** —
+  `M ≥ s[1/(muhat₁+e) − 1/(muhat₀−e)]`, positive when `muhat₀ − muhat₁ > 2e`;
+* **`level_error_bound`**, **`mass_error_bound`** — `|M − Mhat| ≤ E_gap` with U3's
+  `Mhat` and `δ₀ + δ₁`, and **`positive_margin`** / **`gapError_le_two`** implementing
+  the stopping rules `Mhat > E_gap` and `Mhat > 2 E_level`;
+* **`levelError_uniform`** / **`gapError_uniform`** — the dimension-independent
+  `Ebar_gap = 2 s e/(u0(u0 − e))` under a denominator margin `u0 > e`.
+
+**Boundary.** The ordered true resolvent values (the min–max/counting output), the
+whole-space bound `e_R ≤ e` and the uniform margin `u0` are *hypotheses*, not theorems
+here.  Nothing in this module instantiates U5 or claims a gap; it is the arithmetic the
+SIRK/Temple chain will consume once those inputs are supplied.
+
+**Verification.** `lake build BookProof.Sirk.ChapterMassErrorArithmetic` succeeds
+(`8026 jobs`), no warning from the file and no line above 100 characters; `#print axioms`
+on the five main theorems gives `[propext, Classical.choice, Quot.sound]`.
+
+### The U5 witness contract is a soundness theorem (2026-11-24b)
+
+`BookProof/Sirk/ChapterStrongCouplingWitness.lean` (namespace
+`BookProof.SirkStrongCouplingWitness`) defines **`StrongCouplingWitness`**: the declared
+threshold `g_sc`, the coupling `g_star ≥ g_sc`, the four distinct parameters
+`L, m, q, N_shift`, scale `s > 0` and shift `κ > 0`, the whole-space error `e`, the
+uniform denominator margin `u0`, the certified and true ordered resolvent values, and a
+positive rational margin `η`.  Its `Prop` fields are exactly U5's obligations: the
+spectral-count ordering and level errors, `e_R ≤ e`, `e < u0 ≤ muhat₁ ≤ muhat₀`, and
+`η ≤ Mhat − Ebar_gap`.
+
+Soundness composes with the 2026-11-24 arithmetic packet: `certifiedMass_pos`,
+`uniform_error`, `certifiedMass_le_mass`, **`mass_positive`** (also via
+`mass_positive_of_margin`), the two energy windows and `mass_lower_bound_of_witness`.
+An inhabited witness therefore proves a strictly positive inner excitation mass at its
+own coupling.
+
+**Boundary.** `g_sc` is a declared threshold, not the lattice `g²/2` value, which U5
+excludes for the unchanged operator.  No numerical row is instantiated here:
+`qcdG2M4Row` is a truncated/reflection diagnostic, not an inhabitant.  The spectral
+count, `e_R ≤ e` and `u0` stay hypotheses; all couplings, regulator removal and U4's
+absolute outer-vacuum bound are untouched.
+
+**Verification.** `lake build BookProofMassError` (`8028 jobs`) and `lake build BookProof`
+(`9070 jobs`) succeed, no warning from the file and no line above 100 characters;
+`#print axioms` on the three main theorems gives `[propext, Classical.choice, Quot.sound]`.
+The two modules are their own independent part (`BookProofMassError`), so the
+import-components gate stays at baseline.
+
+### The U1 counterchecks are formal examples (2026-11-24c)
+
+U6 step 2 asks for the two U1 warnings as small examples, so no later theorem silently
+asks for an impossible norm limit.  `BookProof/Sirk/ChapterFiniteRankObstructions.lean`
+(namespace `BookProof.FiniteRankObstructions`) supplies them:
+
+* **`finiteRank_has_kernel`** — a finite-rank operator on an infinite-dimensional space
+  has a nonzero kernel vector;
+* **`finiteRank_isometry_norm_sub_ge_one`** (and `..._identity_...`) — `1 ≤ ‖U − F‖`
+  for an isometric `U` and finite-rank `F`, so seed-wise Krylov convergence cannot give a
+  vanishing worst-case unitary-flow error;
+* **`finiteRank_isCompactOperator`** and **`isCompactOperator_of_tendsto_finiteRank`** —
+  finite-dimensional range is compact, and so is a norm limit of finite-rank operators;
+* **`not_tendsto_finiteRank_to_isometry`** / **`..._to_identity`** — an isometry on an
+  infinite-dimensional space is not such a limit.
+
+**Boundary.**  No claim that `R_g` is non-compact: the obstructions only say an
+`e_R → 0` assertion for finite-rank reconstructions of the unreduced operator would be a
+compact-resolvent claim, which U1 forbids without proof.  Pricing the leakage/tail or
+using a finite positive error for U5 stays the route.
+
+**Verification.** `lake build BookProof` succeeds (`9071 jobs`), no warning from the file
+and no line above 100 characters; `#print axioms` on the four main theorems gives
+`[propext, Classical.choice, Quot.sound]`.
+
+### The U2 non-growth envelope is arithmetic (2026-11-24d)
+
+`BookProof/Sirk/ChapterBudgetEnvelope.lean` (namespace `BookProof.BudgetEnvelope`) lands
+the order/arithmetic half of U6 step 3.  With `rationalBudget = 2 Cbar Dbar e^{−a q}` and
+`errorBudget = rationalBudget + T + S + O + F`:
+
+* **`rationalBudget_antitone`** / **`errorBudget_nonGrowth`** — for `a > 0` and a
+  nondecreasing schedule `q_m`, `B(g,L,q_m) ≤ B(g,L,q_m₀)` for `m₀ ≤ m`: the explicit
+  non-growth guarantee U2 asks for;
+* **`powBudget_nonGrowth`** — the same in the `ρ^q` form of `geomMarker_rate`;
+* **`shift_positive_of_lt_div`**, **`admitted_order_le_ceil`**,
+  **`finite_admitted_orders`** — `γ_j = N − s j > 0`, `q < N/s`, finitely many orders;
+* **`dmin_lower_bound_does_not_control`** — a lower bound on `Dmin` cannot bound a product
+  in which `Dmin` multiplies, so the old `inf Dmin_m > 0` has the wrong direction.
+
+**Boundary.** No instantiation: no `Cbar, Dbar, a`, shift budget or allocation is computed
+for `ymHamiltonian`, and the scalar rational error remains `geomMarker_error_le`.
+
+**Verification.** `lake env lean BookProof/Sirk/ChapterBudgetEnvelope.lean` and
+`lake build BookProof` succeed; no warning from the file and no line above 100 characters;
+`#print axioms` gives `[propext, Classical.choice, Quot.sound]`.
+
+### The U5 search census over the recorded campaign (2026-11-25)
+
+U5 asks for one coupling whose certified mass exceeds its error budget.  The search
+actually on record is the gauge-fixed campaign in
+`../unfer/fock_sirk/tests/fixtures/mass_gap_campaign/`: 20 manifest rows (ten distinct
+solves at `g ∈ {0, 1/2, 1, 2, 3}`, `m ∈ {10, 12}`, cross-checked at `N = 6, 8`), **all**
+with `certified_positive: false`.
+
+`BookProof/Sirk/ChapterWitnessCensus.lean` transcribes the ten solves and proves
+`census_lo_le_zero`, `census_gap_le_zero`, `row_margin_le_zero` and `no_positive_margin`:
+no positive `η` can satisfy the witness field `η ≤ Mhat − Ebar_gap = gap − delta` on any
+recorded row.  The one positive window `[1.932, 2.043]` is isolated as
+`latticeEraDiagnostic` — the lattice-era `g = 2, m = 4` solve of `qcdG2M4Row`, emitted
+`physical: false` and proved `diagnostic_not_in_campaign`.
+
+`scripts/check-witness-census` re-parses the Lean transcript and the NDJSON fixtures to
+catch drift (10 solves / 20 manifest rows / zero certified-positive).
+
+**Boundary.** This is a search result, **not a no-gap theorem**.  The exact truncated gaps
+are positive and grow with `g` (≈ 0.09 at `g = 1`, ≈ 1.24 at `g = 2`); the certificate
+fails because the squeezed ground's Parlett residuals make the window far too wide.  U5
+still needs a solve whose signal exceeds its budget; no continuum or regulator claim is
+made, and no witness is instantiated.
+
+**Verification.** `lake build BookProofMassError` (8029 jobs) and `lake build BookProof`
+(9073 jobs) succeed; `scripts/check-witness-census` reports
+`[ok] census matches 10 solves / 20 manifest rows, 0 certified_positive`; no warning and no
+line above 100 characters; `#print axioms` gives `[propext, Classical.choice, Quot.sound]`.
+
