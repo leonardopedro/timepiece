@@ -76,9 +76,10 @@ setting by a theorem and a concrete model.
   hypothesis. Bałaban's published results (ultraviolet stability in finite volume) do not supply
   such a spectral bound.
 * Not formalised (assessment): converting Bałaban's Euclidean lattice RG into a Hamiltonian
-  (reflection positivity at each scale); uniformity in volume and number of RG steps; and the
-  fact that the interacting effective Hamiltonian is not of the form `dΓ(h)`, so Step 4 applies
-  only through the perturbative extensions.
+  (reflection positivity at each scale); uniformity in volume and number of RG steps; and identification
+  of the selected OS generator with the specified nested dynamics. An interacting inner
+  operator can be enclosed exactly by `dΓ(h)`. The archive does not supply that identification.
+  [Current bridge work order](cftproof.md)
 
 ## 2. Claim B: the artificial gap in the nested Fock space
 

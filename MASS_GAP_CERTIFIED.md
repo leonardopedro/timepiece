@@ -1,5 +1,10 @@
 # The QCD Mass Gap from Certified Hashimoto Uncertainty Bands
 
+For the current pure Yang–Mills gap target, use the continuous-momentum work order.
+The finite-sector and floating-point results below are inputs with specified
+hypotheses. Identifying the full physical edge requires spectral coverage and
+a positive margin on the complete operator. [Current gap plan](softmodes.md)
+
 *A proof sketch, and a certification path for the numerical kernel that makes it
 usable inside a Lean4 proof.*
 

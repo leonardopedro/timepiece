@@ -1,6 +1,72 @@
 # Euclidean fields, Mehler coordinates and nested-Fock reconstruction
 
-## Current continuum-limit programme (2026-11-15)
+## Balaban Yang–Mills and the continuous-momentum Hamiltonian
+
+**Work order, 2026-11-24.** Reuse the October archive's existence theorem for its
+four-dimensional Wilson family. The new formalization target is a comparison with
+the specified continuous-momentum nested Hamiltonian. Two choices matter from the
+first lemma. Wilson links, plaquettes, mesh and volume belong to the Bałaban-side
+regulator. On the nested side a spatial derivative is multiplication by $2\pi i k_j$
+on continuous spatial momentum, and the nonabelian curvature contains an ordered
+convolution over $q,k-q$. Euclidean time remains available for reflection and the
+forward transfer semigroup. Independent derivative jets and a spatial lattice are
+unnecessary on this side. Residual gauge symmetry, Gauss reduction and positive
+physical states still need their own identification.
+[Hamiltonian and spectral targets](softmodes.md) · [Public existence theorem](../OpenAI-YM-20261028/Solution.lean)
+
+1. **Retain the actual witness.** In the archive's pinned environment, specialize
+   `YangMills.jointExistence` to a matching simple gauge group and representation.
+   For the SU(3) target supply its simplicity data. The supplied SU(2) specialization
+   is a useful first check. Keep the chosen Wilson family fixed *before* choosing the
+   increasing volume order and its refinement. Carry the same hierarchy and selected
+   character through reconstruction. The Wilson convergence statement concerns the
+   unselected correlations. Passing to a particular phase requires the archive's
+   phase disintegration and a matching nested state. Use the detailed construction
+   when contact data or an OPE reader is needed. Uniqueness of the vacuum in a
+   selected reconstruction leaves uniqueness across phases and models open.
+   [Exact quantifiers](../OpenAI-YM-20261028/ChallengeSpec.lean) ·
+   [Detailed witnesses](../OpenAI-YM-20261028/Construction.lean)
+2. **Start with one gauge-invariant smeared insertion.** Select an actual archive
+   token and its normalized stencil. Specify its proposed nested observable from
+   smeared field strengths with color indices contracted, and prove its gauge
+   invariance, normalization and vacuum centering. A magnetic component alone does
+   not identify the archive's stress trace. Compare a pair at separated positive
+   Euclidean times on smooth tests. Prove convergence of the difference between
+   the Wilson smears and nested heat-semigroup matrix elements in the archive's
+   mesh-then-volume order, with explicit uniformity in test seminorms. A first
+   pair checks the dictionary. Identification requires compatible estimates on a
+   generating family of words, reflection, state and time translations.
+   [Wilson smearing](../OpenAI-YM-20261028/WilsonBridge.lean) ·
+   [Ordered extraction](../OpenAI-YM-20261028/YM/Extraction/Limits.lean)
+3. **Assign each error to the construction that produces it.** On the Wilson side
+   prove or import bounds for the chosen blocking map, local gauge normalization,
+   small-field estimates, large-field tails and running parameters with insertions.
+   On the nested side define the closed physical inner operator, its bosonic outer
+   lift for pure YM, and the populated stationary cyclic state
+   used for expectations. Bound smearing, Hermite tails, rational-solve error and
+   arithmetic independently. Use C3–C6 only with the hypotheses verified for the
+   same observable and scales. The local summable-increment theorem assembles an
+   input estimate. It supplies no gauge-theory increment bound by itself.
+   [Local RG convergence lemma](BookProof/BalabanRG/Convergence.lean)
+4. **Reconstruct, then state the spectral consequence at its proved scope.**
+   Equality of the positive-time forms on the generating algebra induces an isometry
+   of the OS quotients. Prove density on both sides and intertwining of the forward
+   semigroups for all times. This identifies the relative self-adjoint generators in
+   the selected cyclic representation. To transfer a positive gap also transport
+   the entire ground projection. Alternatively prove a uniform exponential bound
+   on the ground-complement heat semigroup there. A short-distance OPE, vacuum
+   uniqueness or decay in a single trial channel supplies no such infrared bound.
+   Existence and the comparison of theories can progress without a gap theorem.
+   [Reconstruction bridge](../OpenAI-YM-20261028/HierarchyBridge.lean) ·
+   [Strong-coupling and spectral coverage work](softmodes.md#continuous-momentum-mass-gap-work-order--2026-11-24)
+
+The adapter is proposed. Keep the archive on Lean 4.32 and the local proof on its
+pinned Lean 4.28 until an explicit port or checked correspondence exists. The separate
+`balaban-lean` repository formalizes the low-temperature O(N) **spin** model. Its
+estimates require new hypotheses to apply to Yang–Mills.
+[Archive verification scope](../OpenAI-YM-20261028/README.md) · [Spin-model scope](../balaban-lean/README.md)
+
+## Detailed continuum-limit programme (2026-11-15)
 
 This is the execution guide for the **LLM-Lean4-specialist**. It supersedes the forward
 ordering of E0–E5/B0–B3 and the historical task lists below; their proofs, corrections and
@@ -169,13 +235,14 @@ H_sigma = dGamma(h_sigma)
 ```
 
 The complete specified interacting **inner** operator, with scalar terms, is enclosed
-between outer creation on the left and annihilation on the right. The existing fixed
-99-coordinate QYM realization is not yet a growing spatial regulator family. Construct
-that family and prove spatial/jet compatibility, constraints and the finite-model adapter
-before treating its coordinate count as an ultraviolet cutoff. Keep physical UV
-spacing/mode cutoff `a`, spatial volume `L`, Hermite/occupation cutoff `R`, Krylov rank `m`,
-rational order `q` and arithmetic precision separate. Taking `m -> infinity` at fixed
-`a,L,R` is not a spacetime continuum limit.
+between outer creation on the left and annihilation on the right. The fixed
+99-coordinate QYM realization supplies a comparison with independent jet variables.
+Construct the nested momentum operator on packets. An equivalence claim for the
+99-coordinate model would require a separate map of domains and actions. Track Wilson
+spacing and volume on the archive side, smearing on both sides, and Mehler occupation
+cutoff, Krylov rank, rational order and precision on the numerical side. Increasing
+the rank of a fixed projected solve advances neither the Wilson limits nor removal of
+a physical smearing.
 
 Select the spatial information prior and its joint law. A nonempty reference state is
 necessary for the manuscript's number-preserving observables: `H Omega_out=0` and such

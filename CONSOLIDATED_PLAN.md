@@ -27138,3 +27138,40 @@ the new file and no line above 100 characters; `#print axioms` on the three main
 gives `[propext, Classical.choice, Quot.sound]`.  The witness part is now three modules;
 its Lake target root moved to `BookProof.Sirk.ChapterWitnessCensus` and the
 import-components gate stays at baseline.
+
+## Full SM work order · 2026-11-24 · continuous momentum
+
+The formalization, symbolic calculation and numerical experiment now target smeared SM
+fields on continuous momentum space. The derivative on a field leg is its Fourier
+multiplier. Local interactions couple different momenta through ordered integrals.
+This defines the derivative directly without imposing a jet constraint. Gauge-sector
+positivity and descent of the Hamiltonian remain independent obligations.
+
+Start with the free Dirac, curl and Higgs symbols and compare a nonzero mixed packet
+matrix element across Cadabra2, Lean and Rust. Assemble the interacting inner operator
+before its graded outer lift. The recorded 163-coordinate dictionary, finite gauge
+quotients and N6–N14 numerical results keep their comparison labels. The continuous
+SM kernel, closure and validated packet evolution are planned.
+[Lean work order](SM_ESA_COMPLETION_PLAN.md) ·
+[Cadabra2 work order](../unfer/docs/SM_HAMILTONIAN_AUDIT.md#continuous-momentum-cadabra2-work-order) ·
+[Numerical work order](../unfer/docs/SM_RESEARCH_PLAN.md#continuous-momentum-numerical-work-order)
+
+## Pure Yang–Mills · 2026-11-24 · physical gap and Bałaban comparison
+
+Use continuous spatial momentum in the nested model. Bind the full gauge-fixed
+electric and magnetic action, including the mixed curvature terms, to smeared
+packets and a specified physical space. The next symbolic/numerical check is a
+nonzero magnetic cross term on distinct colored packets. The first spectral
+certificate needs a bound uniform in the admitted Krylov ranks, low-spectrum
+coverage and a strong coupling with mass above the full energy error. Specify
+whether the edge is absolute or relative to a physical ground.
+[Mass-gap plan](softmodes.md) · [Numerical and symbolic work](../unfer/PLAN_MASS_GAP.md)
+
+For the Euclidean formalization, retain the selected Wilson family, extraction
+order, hierarchy and phase from the October archive. Start the comparison with
+a normalized gauge-invariant insertion on separated tests. Extend it to the
+positive-time generating algebra and intertwine the reconstructed semigroup.
+Transfer a gap only after identifying the generator and its ground projection and
+proving the required uniform infrared bound or transporting one already proved.
+No current certificate identifies this phase with the nested theory or establishes
+a positive mass gap for it. [Bałaban formalization plan](cftproof.md)

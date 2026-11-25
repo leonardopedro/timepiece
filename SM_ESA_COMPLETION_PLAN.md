@@ -1,6 +1,67 @@
 # Full Standard-Model ESA: completion plan and implementation audit
 
-## Specialist decision and evidence review · 2026-11-20
+## Current Lean work order · 2026-11-24
+
+**Define the full SM inner Hamiltonian directly on continuous momentum packets.**
+In the Fourier convention $e^{-2\pi i x\cdot k}$ the spatial derivative on a field
+leg is $2\pi i k_j$. Thus the derivative of that leg is already determined. There is
+no auxiliary derivative coordinate, equation $iD_x\psi=0$, jet projector or jet ghost
+to construct for this target. The sum over an orthonormal Mehler basis in
+$H=d\Gamma(h)=\sum_{ij}\langle e_i,h e_j\rangle C^\dagger(e_i)A(e_j)$ acts on
+whole one-particle states. Momentum $k\in\mathbb R^3$ stays continuous. The gauge
+symmetries and the physical-state question of the SM still require their own treatment.
+[Scalar construction and scope](../test/numerical-physics/scalar-phi4.md) ·
+[Manuscript gauge, Higgs and matter conventions](book.tex)
+
+1. **Fix the representation and free core.** Specify the bosonic field/CCR representation,
+   the spin, color, chirality, flavor and CAR factors, the measure and adjoints. Start with
+   smeared Schwartz momentum packets and finite Hermite/occupation vectors in a specified
+   dense domain. Include the electric and Higgs canonical momenta. The free spatial Dirac
+   symbol acts by $2\pi\sum_j\alpha^j k_j$ in the manuscript spin frame. The free magnetic
+   energy uses the curl symbol, including its longitudinal null direction. Check the
+   free four-component Higgs gradient by Plancherel. The scalar momentum model and
+   continuous Fourier lemmas in the working tree provide examples of the necessary
+   statements. Its scalar energy and return intervals apply to its own Hamiltonian.
+   [Scalar momentum model](BookProof/Phi4/ChapterScalarMomentum.lean) ·
+   [Schwartz product and derivative lemmas](BookProof/ChapterNsAdvectionConvolution.lean) ·
+   [Smeared CAR](BookProof/Sm/ChapterSmCarContinuum.lean)
+2. **Bind the interacting forms on packets.** Match each Cadabra kernel to a matrix
+   element on the proposed core. Include the gluon and weak curvature, abelian curl,
+   Higgs covariant gradient and complete wall, spatial Dirac term, gauge currents and
+   all four real Higgs/Yukawa components with their adjoints. Preserve the three
+   right-handed neutrinos, complex generation matrices, CCR/CAR contractions and inner
+   constants. A local product gives an ordered integral over $q$ and $k-q$. The cross
+   terms in a squared covariant derivative or curvature survive this transform. Prove
+   the differentiated-leg and adjoint rules on Schwartz inputs first. A product
+   identity for test functions alone does not construct an interacting field operator.
+   [Signed magnetic split as comparison](BookProof/Sm/ChapterSmFieldStrengthSplit.lean) ·
+   [Cadabra kernel work order](../unfer/docs/SM_HAMILTONIAN_AUDIT.md#continuous-momentum-cadabra2-work-order)
+3. **Close the specified operator.** Establish existence and symmetry of the smeared
+   matrix elements, including the Higgs constant in the stated volume/smearing convention.
+   Prove core or form-domain bounds for the actual mixed convolution terms, then prove
+   closability and the claimed self-adjoint realization. A claim of ESA requires
+   uniqueness on the stated operator core. The existing 49-form potential bound and
+   43-direction comparison use independent jet multipliers. Reuse a bound here only
+   after verifying its hypotheses on the momentum operator. If a chosen smearing
+   must be removed, exhibit compatible domains and convergence on a fixed observable.
+4. **Enclose and approximate the same operator.** Prove the graded outer lift acts as
+   $h$ on one excitation and annihilates the empty outer vacuum. An inner shift $cI$
+   lifts to $cN_{\rm out}$. To claim vacuum minimality prove the appropriate lower
+   bound. For a physical-sector claim identify the gauge generators, positive
+   representation and descent of the closed dynamics. For a fixed packet certify the
+   shifted solves, compressed-resolvent generator and full-action error of a bounded
+   observable. Vary Hermite window and rational rank independently.
+   [Numerical work order](../unfer/docs/SM_RESEARCH_PLAN.md#continuous-momentum-numerical-work-order)
+
+**Evidence boundary.** The earlier E1 model on 163 independent coordinates (including
+120 jet slots) and 96 complex CAR labels remains a comparison with a working operator
+dictionary and solver. Fourier transforming its three spectator position coordinates
+leaves all 120 independent slots. This operation alone cannot identify the two inner
+Hamiltonians. An equivalence claim would need an explicit domain and action intertwiner.
+Constructing the momentum target directly has no such prerequisite. SM0–SM9 below
+retain their original endpoint labels and proof histories.
+
+## Independent-coordinate E1 comparison · specialist review of 2026-11-20
 
 **First deliverable.** Identify the complete *unreduced* E1 operator on one
 explicit dense core, including its three first-order spatial Dirac terms. Prove its
@@ -26,9 +87,8 @@ across outer sectors.
 The Mehler/Hermite basis gives a common dense polynomial core and computable ladder
 matrix elements. A unitary change of widths transports the state, operator *and*
 observable. Occupation truncation can make the same physical state expensive in the
-new basis. Likewise, E1 has independent jet variables. Identifying them with derivatives
-of spatial fields needs a reconstruction map and compatible local constraints. The
-NS/QG spatial convolution prescription does not supply that SM identification.
+new basis. The independent jet variables belong to this E1 comparison. Any claim
+that it reproduces the momentum operator requires a representation theorem.
 Full unreduced E1 ESA looks plausible because the internal CAR matrices are bounded
 and the scalar comparison already controls the differential directions. The remaining
 issue is how those matrices and unbounded spatial derivatives enter the form commutator.
@@ -127,9 +187,9 @@ four-dimensional theory, or derivation of measured masses remains speculative.
    two-run estimate was 0.02827. A new observable-specific estimate or representation
    would justify reopening that experiment. More Krylov ranks at fixed window do
    not address this discrepancy. [N8–N11 measurements](../unfer/docs/SM_FULL_IMPLEMENTATION.md)
-4. **Field limit (SM8).** Specify embeddings, spatial regulator, counterterms,
-   physical observables and order of limits. Vary occupation cutoff independently
-   of spatial mode count. The N12 scalar four-point pilot changes both the number
+4. **Field limit (SM8).** Specify packet embeddings, smearing, any required
+   counterterms, physical observables and order of limits. Vary occupation cutoff
+   independently of packet resolution on continuous momentum space. The N12 scalar four-point pilot changes both the number
    and location of matching roots across occupation cutoffs; it identifies a
    truncation artifact. Require uniform control on the embeddings and resolvents
    or smeared correlations of the *interacting* family before invoking a limit
@@ -320,8 +380,9 @@ Retain the Higgs constant and the trace constant in
 `c† K c = Tr(K)/2 + (i/4) gamma^T R gamma`. Inner products act before enclosure;
 `dGamma(BC)` is generally not `dGamma(B)dGamma(C)`, and inner identity lifts to `N_out`.
 The SM E1 spatial derivative is at fixed independent collective/jet coordinates. The
-NS/QG momentum-convolution elimination must not silently replace it. A total-jet or
-spatial field interpretation requires a further intertwiner and compatibility relations.
+NS/QG momentum-convolution elimination must not silently replace it. Transferring this comparison to the continuous-momentum
+SM would require proving a domain and action intertwiner. The direct kernel construction
+at the head of this plan proceeds independently.
 
 **Acceptance:** one full-operator definition, common core and term-by-term representation
 identity, including negative controls deleting a coupling, changing a sign or scalar,
@@ -556,8 +617,9 @@ prediction derived from the complete physical SM.
 ### SM8 — extend to infinite inner modes and a field-theory endpoint explicitly
 
 Start from the existing smeared continuum CAR and compatible finite-mode embeddings.
-Define spatially smeared gauge/Higgs/matter fields, physical jets/derivatives, their
-constraints and the renormalized interactions on a common domain. Boundedness of `a(f)`
+Define smeared gauge, Higgs and matter fields on continuous momentum space. On each
+field leg represent the spatial derivative by its Fourier multiplier. Construct the
+ordered interaction kernels and specify the gauge action on their common domain. Boundedness of `a(f)`
 for `f in L²` does not bound products at the same point or an unsmeared Yukawa density.
 Keep inner matter-mode cutoff, spatial cutoff/volume, Hermite occupation and Krylov rank
 separate. Infinite outer Fock sectors alone remove none of these inner cutoffs.

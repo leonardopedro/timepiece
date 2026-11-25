@@ -18,7 +18,8 @@ constraint. The periodic lattice (`siteModel`, `twoSite`) and static-jet
 namespace BookProof.Phi4
 
 open MvPolynomial HermiteProductCore HermiteProductBasis HermiteCore
-open BookProof.YangMillsNonAbelianEsa BookProof.YangMillsHermite
+open BookProof.YangMillsNonAbelianEsa BookProof.YangMillsHermite EsaClosure ChapterStoneResolvent
+open ChapterSirkTrotterKato FarisLavine YangMillsFriedrichs
 open scoped InnerProductSpace
 
 noncomputable section
