@@ -19,6 +19,7 @@ import Book.FourierElimination
 import Book.NsOneParticleHamiltonian
 import Book.NsComparisonOperator
 import Book.SecondQuantizationEsa
+import Book.Lambda4Scalar
 import Book.QgElimination
 import Book.Starobinsky
 import Book.NavierStokesHashimoto
@@ -343,7 +344,11 @@ reproducing the vielbein self-interaction and the scalaron coupling verbatim.
 Those three chapters are the structural companion of
 {ref "starobinsky-scalaron"}[the Starobinsky scalaron] and of the Navier–Stokes
 and numerics chapters that follow, and they are where the final-Hamiltonian
-convention of the whole programme is explained for these two systems.
+convention of the whole programme is explained for these two systems. The
+{ref "lambda4-sector"}[real scalar $`\lambda\phi^4` chapter] applies the same
+convention to a single scalar field, where the one-particle gap is unconditional,
+the continuous Fourier identities are proved for Schwartz data, and the outer
+shift law $`d\Gamma(h + c) = d\Gamma(h) + cN_{\rm out}` is proved outright.
 
 {include 0 Book.GaugeSymmetry}
 
@@ -368,6 +373,8 @@ convention of the whole programme is explained for these two systems.
 {include 0 Book.NsComparisonOperator}
 
 {include 0 Book.SecondQuantizationEsa}
+
+{include 0 Book.Lambda4Scalar}
 
 {include 0 Book.QgElimination}
 
