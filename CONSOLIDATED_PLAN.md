@@ -27302,3 +27302,60 @@ inclusion's derivation is the particle number, and hence `outerHam_add_const` �
 unlisted scalar modules, and `BookProof/HAMILTONIAN_SCOPE.md` carries a `Real scalar λφ⁴`
 bullet.  Verified with `lake build BookProof.Phi4.ChapterScalarSectorOps Work.Phi4Audit`
 (8227 jobs).
+
+## State of the project — 2026-11-25e: the ultrafinitist Solovay–Mehler–Kopperman component
+
+`ultrafinite.md` derives `U-SMK_{D,M,ρ,B}`, the strictly finite pre-limit of the
+Solovay–Mehler–Kopperman foundation, and its five pillars land as the new `sorry`-free
+`BookProof/Ultrafinitism/` component: five modules, no `MeasureTheory`, no custom axioms.
+Each pillar answers one of the five obstructions the earlier foundation carried —
+Hilbert's Hotel in the tail, actual limits over uncountable `ℝ`, doubly exponential RCF
+decision, the Wintner–Wielandt obstruction, and the Sorites paradox.
+
+[Krawtchouk tail](BookProof/Ultrafinitism/ChapterKrawtchoukTail.lean) replaces the
+infinite coordinate tail `(ℕ → ℝ, γ)` with the dyadic hypercube `BitCube M = Fin M → Bool`
+under `cubeExpect M`: Walsh characters are an exact orthonormal basis, the unnormalized
+Krawtchouk modes are orthogonal with squared norm `Nat.choose M n`, the Bonami–Beckner
+bit-flip channel is a self-adjoint Markov semigroup with eigenvalues `ρ ^ n`, and at
+`M = 4 ^ q` the scaled block sum has mean `0`, variance `1` and fourth moment
+`3 - 2 / 4 ^ q`. Everything there is computable over `ℚ`, by design.
+
+[Deformed CCR](BookProof/Ultrafinitism/ChapterDeformedCCR.lean) mounts the ladder on that
+finite space: creation halts at degree `M` (`creOp_top`), `creOp M`, `annOp M` and
+`posOp M` are explicitly bounded, the deformed relation `[a_M, a_M†] = I - (2 / M) N̂`
+holds with vanishing trace (`trace_deformed_ccr_eq_zero`), and the defect on grades
+`k ≤ d ≪ M` is `2d / M` (`deformed_ccr_defect_bound`) — Wintner–Wielandt dissolved
+without leaving bounded operators.
+
+[Resource-accounting tensor](BookProof/Ultrafinitism/ChapterUltrafinitistTensor.lean):
+a tail carries an explicit budget `MultiTail R M`, enlargement by `k ≤ R` consumes `k`
+coordinates while conserving total capacity (`ultra_enlarge_expect_eq`), tensoring adds
+budgets (`ultra_tensor_expect_eq`, `ultra_tensor_inner_mul`), and Hilbert's Hotel is
+impossible (`no_hilbert_hotel_tail`); head-only observables still decouple in `O(1)`
+(`ultra_inner_reduces_to_head`).
+
+[Mehler-damped effects](BookProof/Ultrafinitism/ChapterMehlerFeasibility.lean):
+`FiniteEffect n` with the discrete Mehler semigroup as a graded feasibility operator —
+`sorites_consistency_theorem` holds exact base `1`, successor stability `≤ β`, decay
+`≤ 1/(1 + k β)` and dissolution below any `ε > 0` simultaneously, without contradiction;
+`parikh_proof_chain_drift` bounds a chain of `L` approximate steps by `L β ‖v‖²`; and
+`ultraMul` makes arithmetic exact inside `[0, B)` with explicit dyadic tail uncertainty
+on overflow.
+
+[Gram decision](BookProof/Ultrafinitism/ChapterGramPolyDecision.lean): a finite-channel
+rational Gram query over residual tail capacity `R` is `G ⪰ 0 ∧ rank G ≤ R`
+(`HasBoundedGramFactor`), decided by the computable `O(m³)` rational Schur elimination
+`decideGram`, with `decideGram_sound` and `decideGram_complete` — zero `noncomputable`,
+zero `native_decide` — in place of the doubly exponential RCF route.
+
+The manual chapter `Book/UltrafinitistSMK.lean` (Verse id `ultrafinitist-smk`) carries
+the derivation into the book. `BookProof.lean` imports the five modules, the
+`BookProofUltrafinitism` Lake target builds them, and the `lakefile.toml` operator-core
+roots grow 848 → 863. Verified with `lake build BookProofUltrafinitism` (3108 jobs) and
+`lake build BookProof` (9090 jobs); `./patches/build-book.sh` and
+`./patches/check-katex.sh` (5006 snippets, 0 failures) pass, and `scripts/health.sh`
+reports 3 pass / 0 fail.
+
+**Boundary.** This is a finite pre-limit: no continuum statement is claimed, and the
+classical infinite-tail `Book/` SMK chapters are unchanged — they remain a separate
+realization and the comparison record.
