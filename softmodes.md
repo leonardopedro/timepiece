@@ -5351,3 +5351,27 @@ continuum theorem and not an inhabitant of the full-operator `StrongCouplingWitn
 passes; `python3 scripts/check-finite-model-witness` reports `[ok]`;
 `lake build BookProof` succeeds.
 
+
+### Kinetic Casimir of the Gauss constraint (2026-11-25f)
+
+`BookProof/ChapterBrstYmCommute.lean` recorded the Hamiltonian half of `[H, Ω] = 0` as
+two missing Casimir lemmas.  The first now exists:
+`BookProof/Qym/ChapterYangMillsGaussCasimir.lean` proves `momSq_comm`,
+`[Σ_{(j,b)} π², 𝒢_d] = 0` on the Gauss–polynomial core, for every colour `d`.
+
+The route is direct rather than through the raw `∂`/`x` pair: `mulOp_X_comm_deriv` and
+`pderiv_comm_deriv` (built on `pderiv_pderiv` and the concrete `∂_i (ymGaussVec G d k)`,
+`pderiv_vec_eq`) give the adjoint action on the deformed ladders `derOp = ∂ − ½ x`,
+`derOp_comm_gauss`; `sum_sq_comm_of_adjoint` then cancels the squares because the
+coefficient matrix is antisymmetric (`G.antisymm`).  `derOpSq_comm` is the `derOp` form
+and `momSq_comm` the `π = −i ∂` form.
+
+**Boundary.** `ymGauss_comm_magSq`, `[Σ B², 𝒢_d] = 0`, is still open: it needs the field
+strength to transform in the adjoint, `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}`, whose scalar
+content is the contracted Jacobi identity.  So `[H, Ω] = 0` itself, `ymOmega_comm_ymH`
+and the `physicalStates`/`exactStates` membership corollaries remain open, and the
+`ymPolyH` packaging the module docstring used to promise does not exist.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussCasimir` succeeds (8067
+jobs); `#print axioms` on `momSq_comm`, `derOpSq_comm`, `derOp_comm_gauss` and
+`pderiv_vec_eq` gives `[propext, Classical.choice, Quot.sound]`.

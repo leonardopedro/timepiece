@@ -19,9 +19,9 @@ time-evolution"):
 
 * `H` — the Weyl-gauge Yang–Mills Hamiltonian `H = ½ Σ_m π_m² + ½ Σ_m B_m²`
   (`book.tex:7077`, sign reconciled), whose polynomial formula is exactly the one packaged by
-  `BookProof.YangMillsHermite.ymHamiltonian` on the Gauss–polynomial core of `L²(ℝ⁹⁹)`
-  (see `ymPolyH_eq` and `ymHamiltonian_eq_op_ymPolyH` below: the two are the same operator,
-  one at the polynomial level and one transported through a `CoreRep`).
+  `BookProof.YangMillsHermite.ymHamiltonian` on the Gauss–polynomial core of `L²(ℝ⁹⁹)`;
+  identifying the two is `BookProof/Qym/ChapterYangMillsGaussCasimir.lean`'s job and is
+  not yet done.
 * `Ω` — the BRST charge `book.tex:7084`,
   `Ω = π^k_a ∂_k ψ†_a − π^k_a f_{abc} A_{kb} ψ†_c − (i/2) f_{abc} ψ†_a ψ†_b ψ_c`,
   the Weyl-gauge (spatial) form of `bookOmega` of `BookProof/ChapterBookBrstYangMills.lean`,
@@ -76,16 +76,13 @@ they are exactly the hypotheses that the Hamiltonian half consumes.
 
 ## What remains, and why it is the other half
 
-The headline `[H, Ω] = 0` needs two Casimir lemmas that are **not** in this module:
+The headline `[H, Ω] = 0` needs two Casimir lemmas:
 
 * `ymGauss_comm_momSq` — `[Σ_m π_m², 𝒢_d] = 0` for the 24 momenta
   `π_m = momOp (idxA (decodeSpace m) (decodeColor m))` of `BookProof.YangMillsHermite`.
-  The intended route is the vector relation `[∂_{jc}, 𝒢_d] = Σ_b f_{bcd} ∂_{jb}`
-  (and its `mulOp (X_{jc})` partner `[x_{jc}, 𝒢_d] = −Σ_g f_{cgd} x_{jg}`), from which
-  `[Σ_c ∂_{jc}², 𝒢_d]`, `[Σ_c x_{jc}∂_{jc}, 𝒢_d]` and `[Σ_c x_{jc}², 𝒢_d]` each vanish by
-  antisymmetry of `f` — and `Σ_m π_m²` is exactly the `−i(∂ − x/2)` combination of those
-  three.  The one genuinely missing input is `∂_i (ymGaussVec G d k)`, which needs the
-  coordinate case split through `idxA_surjective_val`/`idxD_surjective_val`.
+  **Proved**: `momSq_comm` of `BookProof/Qym/ChapterYangMillsGaussCasimir.lean`, by the
+  deformed-ladder route (`derOp_comm_gauss` + `sum_sq_comm_of_adjoint`) rather than the
+  raw `∂`/`x` pair.
 * `ymGauss_comm_magSq` — `[Σ_m B_m², 𝒢_d] = 0` for `B_m = magPoly G.f`.  Since
   `[mulOp B, 𝒢_d] = −mulOp (𝒢_d B)`, this reduces to `Σ_{i,a} B_{ia} 𝒢_d(B_{ia}) = 0`,
   which follows once `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}` (the field strength transforming in

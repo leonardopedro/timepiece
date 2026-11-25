@@ -27359,3 +27359,36 @@ reports 3 pass / 0 fail.
 **Boundary.** This is a finite pre-limit: no continuum statement is claimed, and the
 classical infinite-tail `Book/` SMK chapters are unchanged — they remain a separate
 realization and the comparison record.
+
+## 2026-11-25f — QYM: the kinetic Casimir `[Σ π², 𝒢_d] = 0` is proved
+
+New module `BookProof/Qym/ChapterYangMillsGaussCasimir.lean` (imported by
+`BookProof.lean`) proves the first of the two Casimir lemmas that
+`BookProof/ChapterBrstYmCommute.lean` names as the Hamiltonian half of `[H, Ω] = 0`:
+
+* `pderiv_pderiv`, `mulOp_X_comm_deriv`, `pderiv_comm_deriv` — the action of the gauge
+  rotation on the coordinates and derivatives;
+* `mulOp_add'`, `mulOp_sum`, `mulOp_C_smul`, `pderiv_linear_idxA`, `pderiv_linear_idxD`,
+  `blockA_pderiv`, `blockD_pderiv`, `pderiv_vec_eq`, `sum_pderiv_gaussVec`,
+  `sum_pderiv_vec_eval`, `pderiv_comm_gaussVec` — `∂_i (ymGaussVec G d k)` on the
+  concrete 99-coordinate field, i.e. the case split through `decodeSpace`/`decodeColor`;
+* `derOp_comm_gauss` — the adjoint action `[derOp, 𝒢_d] = Σ_b f_{bad} derOp`, on the
+  deformed ladders `derOp = ∂ − ½ x`;
+* `sum_sq_comm_of_adjoint` — the general cancellation of squares of a family acting in
+  the adjoint representation (the structure constants are antisymmetric);
+* `rotCoeff`, `rotCoeff_anticomm`, `sum_rotCoeff`, `derOpSq_comm`, `momSq_comm` — the
+  instantiation to the 24 momenta, `[Σ_{(j,b)} π², 𝒢_d] = 0`.
+
+The module docstring carries the boundary: `ymGauss_comm_magSq` (`[Σ B², 𝒢_d] = 0`) is
+not proved — it needs `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}`, the contracted Jacobi
+identity — so `ymOmega_comm_ymH`, the Hamiltonian packaging `ymPolyH`, and the
+`physicalStates`/`exactStates` membership corollaries stay open.
+`BookProof/ChapterBrstYmCommute.lean`'s docstring is corrected accordingly (it advertised
+`ymPolyH_eq` and `ymHamiltonian_eq_op_ymPolyH`, which do not exist).
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussCasimir` succeeds
+(8067 jobs); `#print axioms` gives `[propext, Classical.choice, Quot.sound]` for
+`momSq_comm`, `derOpSq_comm`, `derOp_comm_gauss` and `pderiv_vec_eq`.
+
+**Boundary.** Polynomial-core identity only: no operator-domain, no `CoreRep` transport,
+no magnetic half.

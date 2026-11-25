@@ -1104,6 +1104,7 @@ import BookProof.Toolbox.ChapterFriedrichsExtension
 -- `H₁ = ½Σπ² + ½ΣB²` is symmetric and positive on the core, so the Friedrichs
 -- extension theorem and the Hashimoto/SIRK selection theorem apply to it.
 import BookProof.Toolbox.ChapterHermiteProductCore
+import BookProof.Qym.ChapterYangMillsGaussCasimir
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
