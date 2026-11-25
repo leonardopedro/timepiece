@@ -88,6 +88,7 @@ COMPONENT_NAMES = {
     "BookProof.Pauli.ChapterPauliLorentz": "BookProofPauli",
     "BookProof.RoadmapAudit.AxiomAudit": "BookProofRoadmapAudit",
     "BookProof.RoadmapAudit.ChapterRoadmapAudit": "BookProofRoadmapAudit",
+    "BookProof.Ultrafinitism.ChapterDeformedCCR": "BookProofUltrafinitism",
     "BookProof.WeylSL2.ChapterWeylSL2Group": "BookProofWeylSL2",
     "BookProof.WignerOrbit.ChapterWignerLittleGroup": "BookProofWignerOrbit",
 }

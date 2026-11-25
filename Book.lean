@@ -51,6 +51,7 @@ import Book.StatisticalModelTheory
 import Book.StandardModel
 import Book.SolovayTensor
 import Book.ConditionalUnitary
+import Book.UltrafinitistSMK
 
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
@@ -172,6 +173,8 @@ repays re-reading them.
 {include 0 Book.SolovayTensor}
 
 {include 0 Book.StatisticalModelTheory}
+
+{include 0 Book.UltrafinitistSMK}
 
 # Probability as Coherent Belief
 %%%

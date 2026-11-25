@@ -204,6 +204,11 @@ name = "BookProofReconstruction"
 roots = ["BookProof.Reconstruction.ChapterDeterministic", "BookProof.Reconstruction.ChapterSymmetryEntropy"]
 
 [[lean_lib]]
+name = "BookProofUltrafinitism"
+# independent part: 5 modules
+roots = ["BookProof.Ultrafinitism.ChapterGramPolyDecision", "BookProof.Ultrafinitism.ChapterMehlerFeasibility"]
+
+[[lean_lib]]
 name = "BookProofLorentz"
 # independent part: 3 modules
 roots = ["BookProof.Lorentz.ChapterLorentzDecomp"]

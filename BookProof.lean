@@ -4725,3 +4725,13 @@ import BookProof.ReflectionPositivity.HalfSpaceSplit
 -- algebra (`ChapterSmGradTable`) and the sector form domain (`ChapterSmSectorFormDomain`).
 import BookProof.Sm.ChapterSmGradTable
 import BookProof.Sm.ChapterSmSectorFormDomain
+
+-- The Ultrafinitist Solovay–Mehler–Kopperman (`U-SMK`) theory: strictly finite dyadic
+-- Krawtchouk–Mehler tail, bounded deformed CCR resolving Wintner–Wielandt, resource-accounting
+-- tensor product (no Hilbert's Hotel), polynomial-time rational Gram decidability, and
+-- Mehler-damped effect logic resolving the Sorites and Parikh bounds.
+import BookProof.Ultrafinitism.ChapterKrawtchoukTail
+import BookProof.Ultrafinitism.ChapterDeformedCCR
+import BookProof.Ultrafinitism.ChapterUltrafinitistTensor
+import BookProof.Ultrafinitism.ChapterMehlerFeasibility
+import BookProof.Ultrafinitism.ChapterGramPolyDecision
