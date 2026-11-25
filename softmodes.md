@@ -5375,3 +5375,21 @@ and the `physicalStates`/`exactStates` membership corollaries remain open, and t
 **Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussCasimir` succeeds (8067
 jobs); `#print axioms` on `momSq_comm`, `derOpSq_comm`, `derOp_comm_gauss` and
 `pderiv_vec_eq` gives `[propext, Classical.choice, Quot.sound]`.
+
+#### The magnetic half's identity, reduced
+
+`ymGauss_comm_magSq` needs `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}`.  Expanding `magPoly`
+(product rule on `A_jb A_kc`) leaves exactly one scalar identity, the docstring's
+contracted Jacobi statement
+
+`Σ_e f_{aec} f_{ebd} + Σ_e f_{abe} f_{ecd} = Σ_g f_{agd} f_{gbc}`,
+
+and it is not an extra hypothesis: `G.jacobi a b c d` says the left side equals
+`−Σ_e f_{bce} f_{ead}`, and `G.cyclic` rewrites that to `Σ_e f_{ebc} f_{aed}`, which is the
+right side after `G.antisymm`.  Checked numerically against the su(3) structure constants
+over all 4096 index tuples before attempting the proof (0 failures).
+
+What is still missing is mechanical, not conceptual: `mulOp f * D = D * mulOp f + mulOp (D f)`
+for a derivation `D`, the two coordinate evaluations `𝒢_d X(idxD j k a) = Σ_g f_{agd} X(idxD j k g)`
+and the `idxA` case, the swap `Σ_{i,a} B_{ia} (𝒢_d B_{ia}) = −Σ_{i,a} B_{ia} (𝒢_d B_{ia})`,
+and then `sum_sq_comm_of_adjoint` with `T (i,a) := mulOp (magPoly … i a)`.
