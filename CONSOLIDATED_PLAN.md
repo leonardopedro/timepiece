@@ -27251,3 +27251,32 @@ full-operator `StrongCouplingWitness`.
 passes; `nix-shell -p python3 --run "python3 scripts/check-finite-model-witness"` reports
 `[ok] finite-model row matches emitted fixture`; `lake env lean
 BookProof/Sirk/ChapterFiniteModelWitness.lean` and `lake build BookProof` succeed.
+
+## State of the project — 2026-11-25d: continuous-momentum λφ⁴ closed through the axiom audit
+
+`PHI4_IMPROVEMENT_PLAN.md` `P4`–`P10` are executed in Lean (the remaining Rust items are
+`P11`–`P13`).  The continuous-momentum chain now runs from the Mehler core to the outer
+sector: `ChapterScalarMehler` gives the one-particle ESA and Stone flow,
+`ChapterScalarMomentum` the rank-one bounds (`17/8`, `553/32`, `unitMomCont_return_probability`),
+`ChapterScalarMomentumGap` the unconditional inner gap (`7/64`) with a unique outer vacuum and
+the `φ ↦ −φ`, `k ↦ −k` parities, `ChapterScalarFourierIntegral` the continuous-`k` gradient
+identity and composite-pair integral, and `ChapterScalarMomRankTwo` the 11-mode `S₃`
+certificate at shifts `(10, 5)` including `defect_split`.  `ChapterScalarMomOrbit` transports the
+rational data to `ℂ`, certifies the speed, acceleration and transverse Gram bounds, and closes
+the two-sided return interval `[319447/320000, 39999/40000]` at `t = 1/100` through
+`Model.orbit_error` plus the rank-one projection geometry.
+
+`P10` adds `BookProof/Phi4/ChapterScalarSectorOps.lean`: the derivation, sector and
+symmetrized-sector operators are additive and homogeneous in the one-particle operator, the
+inclusion's derivation is the particle number, and hence `outerHam_add_const` —
+`dΓ(h + c·1) = dΓ(h) + c·N_out` on `hbosonicFockDom` for the new `outerNumber` — and
+`outerHam_oneParticle_eq`, identifying the `n = 1` outer action with `M.innerHam`.
+[Shift law](BookProof/Phi4/ChapterScalarSectorOps.lean)
+
+`Work/Phi4Audit.lean` audits all 241 public theorems of the ten `BookProof.Phi4` modules
+(`ChapterScalarMehler`, `Momentum`, `MomentumGap`, `FourierIntegral`, `MomRankTwo`,
+`MomOrbit`, `Outer`, `Energy`, `Windows`, `SectorOps`); every printed line is
+`[propext, Classical.choice, Quot.sound]`.  `BookProof.lean` now imports the eight previously
+unlisted scalar modules, and `BookProof/HAMILTONIAN_SCOPE.md` carries a `Real scalar λφ⁴`
+bullet.  Verified with `lake build BookProof.Phi4.ChapterScalarSectorOps Work.Phi4Audit`
+(8227 jobs).
