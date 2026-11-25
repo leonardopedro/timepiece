@@ -27392,3 +27392,30 @@ identity — so `ymOmega_comm_ymH`, the Hamiltonian packaging `ymPolyH`, and the
 
 **Boundary.** Polynomial-core identity only: no operator-domain, no `CoreRep` transport,
 no magnetic half.
+
+## 2026-11-25g — U-SMK: polynomial representation does not collapse P versus NP
+
+`BookProof/Ultrafinitism/ChapterKrawtchoukTail.lean` grows section 6 with the
+representation-theoretic facts the finite spectral picture needs, all `sorry`-free over
+`ℚ`: `walshCoeff`, `card_walsh_basis` (the Walsh basis on `BitCube M` has `2 ^ M`
+elements), `sum_walsh_mul` (the completeness kernel), `walsh_expansion` (every function is
+its exact multilinear Walsh polynomial), `parity`, `parity_orth_low_degree` and the
+low-degree error bound.
+
+`Book/UltrafinitistSMK.lean` gains the chapter section "Polynomial Approximation and the
+P versus NP Problem", which uses those facts to separate four notions that could be
+mistaken for a complexity collapse: exponential exact basis size; low-degree `L²`/Mehler
+approximation that erases high-degree structure (parity is `O(M)` computable over
+`𝔽₂` yet of maximal Walsh degree); average-case error `2^{-M}` that misses a
+worst-case witness; and finite-horizon feasibility versus asymptotic Turing classes.
+The section cross-references `pa-free-chapter` and states plainly that no Clay claim is
+made.
+
+**Verification.** `lake build BookProof.Ultrafinitism.ChapterKrawtchoukTail` succeeds
+(3102 jobs) with no warning from the file; `#print axioms` gives
+`[propext, Classical.choice, Quot.sound]`; `./patches/build-book.sh` renders
+`_out/html-single/index.html` (no `<base>`, fragment links present) and
+`./patches/check-katex.sh` checks 5064 snippets with 0 failures.
+
+**Boundary.** Metamathematical interpretation, not a theorem about `SAT ∉ P`; the
+asymptotic bridge to the continuum chapters remains out of scope.

@@ -29,6 +29,9 @@ zero `sorry`, zero custom axioms).
 * `dyadicGauss_mean`, `dyadicGauss_variance`, `dyadicGauss_fourth_moment` — for
   `M = 4 ^ q`, the scaled sum `dyadicGauss q` is an exact dyadic rational with
   mean `0`, variance `1`, and fourth moment `3 - 2 / 4 ^ q`.
+* `walsh_expansion`, `card_walsh_basis`, `parity_low_degree_l2_error`,
+  `discreteMehler_parity`, `pointInd_sq_expect`, `pointInd_walshCoeff` — exact
+  degree-`2^M` representation and low-degree / `L²` approximation obstructions.
 -/
 
 namespace BookProof.Ultrafinitism.ChapterKrawtchoukTail
@@ -598,5 +601,150 @@ theorem dyadicGauss_fourth_moment (q : ℕ) :
   rw [hscale, cubeExpect_smul, hexp4]
   field_simp [hMne]
   linarith [hchoose]
+
+/-! ## 6. Polynomial representation vs. complexity obstructions -/
+
+/-- Exact Walsh–Fourier coefficient of `f : BitCube M → ℚ` on subset `S`. -/
+def walshCoeff {M : ℕ} (f : BitCube M → ℚ) (S : Finset (Fin M)) : ℚ :=
+  cubeExpect M (fun x => f x * walsh S x)
+
+/-- The full Walsh polynomial basis on `BitCube M` has dimension `2 ^ M`. -/
+theorem card_walsh_basis (M : ℕ) : Fintype.card (Finset (Fin M)) = 2 ^ M := by
+  simp [Fintype.card_finset]
+
+/-- Completeness kernel of the Walsh basis on `BitCube M`. -/
+theorem sum_walsh_mul (M : ℕ) (x y : BitCube M) :
+    (∑ S : Finset (Fin M), walsh S y * walsh S x) =
+      if y = x then ((2 ^ M : ℕ) : ℚ) else 0 := by
+  have hprod : (∑ S : Finset (Fin M), walsh S y * walsh S x) =
+      ∏ i : Fin M, (1 + bitSign (y i) * bitSign (x i)) := by
+    have hpow : (∏ i : Fin M, (1 + bitSign (y i) * bitSign (x i))) =
+        ∑ S ∈ (Finset.univ : Finset (Fin M)).powerset,
+          ∏ i ∈ S, (bitSign (y i) * bitSign (x i)) :=
+      Finset.prod_one_add Finset.univ
+    rw [hpow, Finset.powerset_univ]
+    refine Finset.sum_congr rfl fun S _ => ?_
+    simp [walsh, Finset.prod_mul_distrib]
+  rw [hprod]
+  by_cases hyx : y = x
+  · subst hyx
+    simp only [↓reduceIte]
+    have hfac : ∀ i : Fin M, 1 + bitSign (y i) * bitSign (y i) = (2 : ℚ) := by
+      intro i
+      rw [bitSign_mul_self]
+      norm_num
+    rw [Finset.prod_congr rfl fun i _ => hfac i, Finset.prod_const,
+      Finset.card_univ, Fintype.card_fin]
+    norm_cast
+  · simp only [if_neg hyx]
+    obtain ⟨i₀, hi₀⟩ := Function.ne_iff.mp hyx
+    refine Finset.prod_eq_zero (Finset.mem_univ i₀) ?_
+    cases h1 : y i₀ <;> cases h2 : x i₀ <;> simp_all [bitSign]
+
+/-- Every function on `BitCube M` equals an exact multilinear Walsh polynomial. -/
+theorem walsh_expansion (M : ℕ) (f : BitCube M → ℚ) (x : BitCube M) :
+    f x = ∑ S : Finset (Fin M), walshCoeff f S * walsh S x := by
+  have hden : ((2 ^ M : ℕ) : ℚ) ≠ 0 := two_pow_ne_zero_rat M
+  have hsum : (∑ S : Finset (Fin M), walshCoeff f S * walsh S x) =
+      (∑ y : BitCube M, f y * ∑ S : Finset (Fin M), walsh S y * walsh S x) /
+        ((2 ^ M : ℕ) : ℚ) := by
+    simp only [walshCoeff, cubeExpect, div_mul_eq_mul_div, ← Finset.sum_div]
+    congr 1
+    simp_rw [Finset.sum_mul]
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun y _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun S _ => by ring
+  rw [hsum]
+  have hker : (∑ y : BitCube M, f y * ∑ S : Finset (Fin M), walsh S y * walsh S x) =
+      f x * ((2 ^ M : ℕ) : ℚ) := by
+    have h1 : (∑ y : BitCube M, f y * ∑ S : Finset (Fin M), walsh S y * walsh S x) =
+        ∑ y : BitCube M, if y = x then f y * ((2 ^ M : ℕ) : ℚ) else 0 := by
+      refine Finset.sum_congr rfl fun y _ => ?_
+      rw [sum_walsh_mul]
+      split_ifs <;> simp
+    rw [h1, Finset.sum_ite_eq']
+    simp
+  rw [hker, mul_div_cancel_right₀ _ hden]
+
+/-- Maximal-degree parity function `∏ i, bitSign (x i)` on `BitCube M`. -/
+def parity (M : ℕ) (x : BitCube M) : ℚ :=
+  walsh (Finset.univ : Finset (Fin M)) x
+
+/-- Parity is orthogonal to every Walsh character of degree strictly below `M`. -/
+theorem parity_orth_low_degree (M : ℕ) (S : Finset (Fin M)) (hS : S.card < M) :
+    cubeExpect M (fun x => parity M x * walsh S x) = 0 := by
+  unfold parity
+  rw [walsh_inner]
+  have hne : (Finset.univ : Finset (Fin M)) ≠ S := by
+    intro h
+    have hcard : (Finset.univ : Finset (Fin M)).card = S.card := by rw [h]
+    rw [Finset.card_univ, Fintype.card_fin] at hcard
+    omega
+  simp [hne]
+
+/-- Every polynomial of degree `< M` has squared `L²` error at least `1` against parity. -/
+theorem parity_low_degree_l2_error (M : ℕ) (c : Finset (Fin M) → ℚ)
+    (hc : ∀ S, M ≤ S.card → c S = 0) :
+    1 ≤ cubeExpect M (fun x =>
+      (parity M x - ∑ S : Finset (Fin M), c S * walsh S x) ^ 2) := by
+  let p : BitCube M → ℚ := fun x => ∑ S : Finset (Fin M), c S * walsh S x
+  have hexp : (fun x => (parity M x - p x) ^ 2) =
+      fun x => parity M x * parity M x - 2 * (parity M x * p x) + p x ^ 2 := by
+    ext x
+    ring
+  change 1 ≤ cubeExpect M (fun x => (parity M x - p x) ^ 2)
+  rw [hexp, cubeExpect_add, cubeExpect_sub, cubeExpect_smul]
+  have hpar : cubeExpect M (fun x => parity M x * parity M x) = 1 := by
+    unfold parity
+    rw [walsh_inner]
+    simp
+  have hcross : cubeExpect M (fun x => parity M x * p x) = 0 := by
+    have hp : (fun x => parity M x * p x) =
+        fun x => ∑ S : Finset (Fin M), c S * (parity M x * walsh S x) := by
+      ext x
+      simp only [p, Finset.mul_sum]
+      refine Finset.sum_congr rfl fun S _ => by ring
+    rw [hp, cubeExpect_sum]
+    refine Finset.sum_eq_zero fun S _ => ?_
+    rw [cubeExpect_smul]
+    by_cases hS : S.card < M
+    · rw [parity_orth_low_degree M S hS, mul_zero]
+    · rw [hc S (Nat.le_of_not_lt hS), zero_mul]
+  have hsq : 0 ≤ cubeExpect M (fun x => p x ^ 2) :=
+    cubeExpect_nonneg M _ (fun x => sq_nonneg (p x))
+  rw [hpar, hcross]
+  linarith
+
+/-- The discrete Mehler semigroup attenuates parity exponentially as `ρ ^ M`. -/
+theorem discreteMehler_parity (M : ℕ) (ρ : ℚ) (x : BitCube M) :
+    discreteMehler M ρ (parity M) x = ρ ^ M * parity M x := by
+  unfold parity
+  simpa [Finset.card_univ, Fintype.card_fin] using
+    discreteMehler_walsh M ρ Finset.univ x
+
+/-- Point indicator of a single assignment `a : BitCube M` (needle-in-a-haystack witness). -/
+def pointInd {M : ℕ} (a : BitCube M) (x : BitCube M) : ℚ :=
+  if x = a then 1 else 0
+
+/-- A unique satisfying assignment has `L²` norm squared `2 ^ (-M)` under `cubeExpect M`. -/
+theorem pointInd_sq_expect (M : ℕ) (a : BitCube M) :
+    cubeExpect M (fun x => pointInd a x ^ 2) = 1 / ((2 ^ M : ℕ) : ℚ) := by
+  unfold cubeExpect pointInd
+  have hsum : (∑ x : BitCube M, (if x = a then (1 : ℚ) else 0) ^ 2) =
+      ∑ x : BitCube M, if x = a then (1 : ℚ) else 0 := by
+    refine Finset.sum_congr rfl fun x _ => by split_ifs <;> norm_num
+  rw [hsum, Finset.sum_ite_eq']
+  simp
+
+/-- Every Walsh coefficient of a point indicator has magnitude `2 ^ (-M)`. -/
+theorem pointInd_walshCoeff (M : ℕ) (a : BitCube M) (S : Finset (Fin M)) :
+    walshCoeff (pointInd a) S = walsh S a / ((2 ^ M : ℕ) : ℚ) := by
+  unfold walshCoeff cubeExpect pointInd
+  have hsum : (∑ x : BitCube M, (if x = a then (1 : ℚ) else 0) * walsh S x) =
+      ∑ x : BitCube M, if x = a then walsh S x else 0 := by
+    refine Finset.sum_congr rfl fun x _ => by split_ifs <;> simp
+  rw [hsum, Finset.sum_ite_eq']
+  simp
 
 end BookProof.Ultrafinitism.ChapterKrawtchoukTail

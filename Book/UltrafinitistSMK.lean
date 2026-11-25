@@ -19,9 +19,9 @@ on actual infinity or super-polynomial resources:
 1. *Hilbert's Hotel in the tail:* `tailTensorEquiv_map` ($`\Gamma \otimes \Gamma \cong \Gamma`)
    and `enlargeEquiv_map` ($`N \mapsto N+k`) duplicate and consume infinite coordinates at
    zero resource cost.
-2. *Actual limits and uncountable scalars:* the infinite product $`(\mathbb{R}^{\mathbb{N}}, \gamma)`
-   takes the $`d \to \infty` Mehler limit over uncountable $`\mathbb{R}` and passes to a
-   Cauchy completion.
+2. *Actual limits and uncountable scalars:* the infinite product
+   $`(\mathbb{R}^{\mathbb{N}}, \gamma)` takes the $`d \to \infty` Mehler limit over
+   uncountable $`\mathbb{R}` and passes to a Cauchy completion.
 3. *Non-elementary decision complexity:* full first-order real-closed-field decision
    (Tarski / Solovay–Arthan–Harrison) has a doubly exponential $`2^{2^{\Omega(q)}}` lower
    bound in quantifier alternations $`q`.
@@ -204,12 +204,87 @@ with certified mean $`0` and variance $`1`.
 #check @BookProof.Ultrafinitism.ChapterMehlerFeasibility.ultraMul_overflow_moments
 ```
 
+# Polynomial Approximation and the P versus NP Problem
+
+At first sight, replacing infinite real spaces by finite polynomial expansions on
+`BitCube M` might appear to threaten complexity separations: if every function can be
+represented or approximated by polynomials, and polynomial-size checks such as
+`decideGram` run in $`O(m^3)` rational operations, why does $`\mathrm{U\text{-}SMK}`
+not collapse $`\mathrm{NP}` into $`\mathrm{P}`? Four verified distinctions explain why
+universal polynomial representability does *not* decide or collapse
+$`\mathrm{P}` versus $`\mathrm{NP}`:
+
+1. *Exact polynomial representation requires exponential basis size:*
+   Every function $`f : \Omega_M \to \mathbb{Q}` equals an *exact* multilinear
+   Walsh polynomial (`walsh_expansion`). However, the Walsh basis on $`M` bits has
+   cardinality $`2^M` (`card_walsh_basis`). Truncating to degree $`\le d` still
+   involves $`\sum_{k=0}^d \binom{M}{k}` monomials, which stays polynomial in $`M`
+   only for constant degree $`d = O(1)` and grows exponentially whenever
+   $`d = \Theta(M)`. Existential representation by a polynomial says nothing about
+   *sparse description length* or *polynomial-time evaluation*.
+
+2. *Low-degree $`L^2` and Mehler approximations erase high-degree structure:*
+   The maximal-degree parity character $`\chi_{[M]}` (`parity M`) is orthogonal to
+   every Walsh character of degree $`< M` (`parity_orth_low_degree`), so *no*
+   polynomial of degree $`< M` achieves squared $`L^2` error below $`1`
+   (`parity_low_degree_l2_error`) — no better than the identically zero polynomial.
+   Moreover, the discrete Mehler channel $`T_\rho` attenuates parity as $`\rho^M`
+   (`discreteMehler_parity`): Mehler smoothing yields low-degree approximations only
+   by *filtering out* high-degree observables, not by computing them. Notice also that
+   polynomial degree over $`\mathbb{Q}` does not even coincide with $`\mathrm{P}`:
+   parity is trivially computable in linear time $`O(M)` over $`\mathbb{F}_2` (hence
+   in $`\mathrm{P}`), yet has maximal Walsh degree $`M`.
+
+3. *Average-case $`L^2` approximation misses worst-case $`\mathrm{NP}` witnesses:*
+   Consider the indicator `pointInd a` of a single satisfying assignment $`a \in \Omega_M`
+   (the archetype of `Unique-SAT`). Under the uniform prior `cubeExpect M`, its total
+   squared $`L^2` norm is $`2^{-M}` (`pointInd_sq_expect`), and every individual Walsh
+   coefficient has magnitude $`2^{-M}` (`pointInd_walshCoeff`). Hence the trivial zero
+   polynomial $`p \equiv 0` approximates `pointInd a` to exponentially small $`L^2`
+   error $`2^{-M}` while completely missing the worst-case witness ($`\mathbf{1}_a(a) = 1`).
+   Distributional / low-degree $`L^2` approximation on $`\Omega_M` cannot capture
+   worst-case $`\mathrm{NP}` verification.
+
+4. *Finite-horizon feasibility vs. asymptotic Turing complexity:*
+   Classical $`\mathrm{P}` and $`\mathrm{NP}` are asymptotic classes defined as input
+   length $`n \to \infty`. Inside any fixed finite horizon $`(D, M, R, B)`, every
+   function has a finite lookup table, so a fixed-horizon theory cannot prove or
+   refute an asymptotic separation. What $`\mathrm{U\text{-}SMK}` *does* supply is an
+   internal resource stratification: feasible algebraic fragments — low spectral degree
+   $`d \ll M`, sparse Walsh–Krawtchouk support, and $`O(m^3)` rational Gram checks
+   `decideGram` — separate cleanly from noise-dissolved, statistically unobservable
+   frontiers (high-degree correlations damped as $`\rho^M`, and rare witnesses of $`L^2`
+   mass $`2^{-M}` falling below any threshold $`\varepsilon` under
+   `sorites_consistency_theorem`).
+
+_Interpretation (metamathematics, not a Clay theorem):_ This finite spectral picture
+aligns naturally with standard Boolean-analysis and low-degree barriers in complexity
+theory — such as Linial–Mansour–Nisan ($`\mathrm{AC}^0` Fourier concentration),
+Razborov–Smolensky (low-degree polynomial approximation obstacles), and low-degree
+statistical hardness heuristics — while remaining strictly disjoint from proving
+$`\mathrm{P} = \mathrm{NP}` or $`\mathrm{P} \neq \mathrm{NP}`.
+
+```
+#check @BookProof.Ultrafinitism.ChapterKrawtchoukTail.card_walsh_basis
+#check @BookProof.Ultrafinitism.ChapterKrawtchoukTail.walsh_expansion
+#check @BookProof.Ultrafinitism.ChapterKrawtchoukTail.parity_orth_low_degree
+#check @BookProof.Ultrafinitism.ChapterKrawtchoukTail.parity_low_degree_l2_error
+#check @BookProof.Ultrafinitism.ChapterKrawtchoukTail.discreteMehler_parity
+#check @BookProof.Ultrafinitism.ChapterKrawtchoukTail.pointInd_sq_expect
+#check @BookProof.Ultrafinitism.ChapterKrawtchoukTail.pointInd_walshCoeff
+```
+
 # Honest Boundary
 
 Everything in `BookProof/Ultrafinitism/` is `sorry`-free and relies only on Lean's
 standard axioms (with `ChapterKrawtchoukTail`, `ChapterUltrafinitistTensor`, and the
-executable `decideGram` witnesses purely constructive over `ℚ`). The asymptotic
-analytic bridge showing convergence of `BitCube M` marginals and Krawtchouk moments to
-the continuous Gaussian laws of `ChapterSolovayCoordinates` and `PhysHSGaussian` as
-$`M, D \to \infty` (via Berry–Esseen and Diaconis–Freedman) is a separate meta-theoretic
-companion task, deliberately kept outside the strictly finite object theory.
+executable `decideGram` witnesses purely constructive over `ℚ`). In keeping with
+{ref "pa-free-chapter"}[Completeness without Peano Arithmetic] and
+`BookProof/Toolbox/PhysMehler.lean`, nothing in $`\mathrm{U\text{-}SMK}` settles the
+classical Clay $`\mathrm{P}` versus $`\mathrm{NP}` problem (`SAT ∉ P`): low-degree
+and Mehler obstructions are strictly internal finite-horizon facts, separate from
+asymptotic Turing complexity. Likewise, the asymptotic analytic bridge showing
+convergence of `BitCube M` marginals and Krawtchouk moments to the continuous Gaussian
+laws of `ChapterSolovayCoordinates` and `PhysHSGaussian` as $`M, D \to \infty` (via
+Berry–Esseen and Diaconis–Freedman) is a separate meta-theoretic companion task,
+deliberately kept outside the strictly finite object theory.
