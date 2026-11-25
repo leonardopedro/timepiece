@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""Check that the finite-model row transcribed in
+BookProof/Sirk/ChapterFiniteModelWitness.lean matches the emitted ../unfer fixture
+fock_sirk/tests/fixtures/finite_model_witness/qym_g2_n10_count.ndjson.
+
+Pure stdlib; run with:
+  nix-shell -p python3 --run "python3 scripts/check-finite-model-witness"
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from decimal import Decimal
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+LEAN = ROOT / "BookProof/Sirk/ChapterFiniteModelWitness.lean"
+FIXTURE = (ROOT.parent / "unfer/fock_sirk/tests/fixtures/finite_model_witness"
+           / "qym_g2_n10_count.ndjson")
+
+FIELDS = {
+    "theta": "theta_odd",
+    "r": "residual_odd",
+    "theta_even": "theta_even",
+    "beta": "beta_lambda2_odd",
+    "certified_reported": "temple_bound",
+}
+
+
+def lean_row() -> dict[str, Decimal]:
+    text = LEAN.read_text()
+    block = text.split("def qymG2N10Row : NumericRow :=", 1)[1].split("}", 1)[0]
+    out = {}
+    for name in ("g", "cutoff", "dim", *FIELDS):
+        m = re.search(rf"\b{name}\s*:=\s*([^,\s}}]+)", block)
+        if m is None:
+            raise SystemExit(f"[fail] qymG2N10Row missing field {name}")
+        out[name] = Decimal(m.group(1))
+    return out
+
+
+def main() -> int:
+    if not FIXTURE.is_file():
+        raise SystemExit(f"[gap] fixture absent: {FIXTURE}")
+    row = json.loads(FIXTURE.read_text().splitlines()[0])
+    lean = lean_row()
+    if int(lean["g"]) != row["coupling"] or int(lean["cutoff"]) != row["cutoff"]:
+        print(f"[fail] coupling/cutoff: Lean={lean['g']}/{lean['cutoff']} "
+              f"fixture={row['coupling']}/{row['cutoff']}")
+        return 1
+    if int(lean["dim"]) != row["dimension"]:
+        print(f"[fail] dimension: Lean={lean['dim']} fixture={row['dimension']}")
+        return 1
+    for lean_name, fixture_name in FIELDS.items():
+        want = Decimal(repr(row[fixture_name]))
+        if lean[lean_name] != want:
+            print(f"[fail] {lean_name}: Lean={lean[lean_name]} fixture={want}")
+            return 1
+    if row["physical"] is not False:
+        print(f"[fail] finite-model fixture must be physical:false")
+        return 1
+    print(f"[ok] finite-model row matches emitted fixture "
+          f"(g={row['coupling']}, N<={row['cutoff']}, dim={row['dimension']}, "
+          f"temple={row['temple_bound']})")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
