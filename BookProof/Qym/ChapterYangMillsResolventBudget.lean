@@ -68,7 +68,8 @@ theorem upper_edge_error {ι : Type*} {f g : ι → ℝ} {μ est ε : ℝ}
   exact abs_le.mpr ⟨by linarith, by linarith⟩
 
 /-- A full operator-norm enclosure controls every normalized Rayleigh test at once. -/
-theorem rayleigh_error {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F] {R A : F →L[ℂ] F} {ε : ℝ}
+theorem rayleigh_error {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+    {R A : F →L[ℂ] F} {ε : ℝ}
     (herr : ‖R - A‖ ≤ ε) {x : F} (hx : ‖x‖ = 1) :
     |(inner ℂ x (R x)).re - (inner ℂ x (A x)).re| ≤ ε := by
   rw [← Complex.sub_re, ← inner_sub_right, ← ContinuousLinearMap.sub_apply]
@@ -125,5 +126,98 @@ theorem positive_margin {M estimate error : ℝ}
     (herr : |M - estimate| ≤ error) (htest : error < estimate) : 0 < M := by
   have := (abs_le.mp herr).1
   linarith
+
+section RayleighEdges
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+
+/-- Upper edge tested on every unit vector in K. It can be a threshold. -/
+def UpperEdgeOn (R : F →L[ℂ] F) (K : Submodule ℂ F) (μ : ℝ) : Prop :=
+  IsLUB (Set.range fun x : {v : F // v ∈ K ∧ ‖v‖ = 1} => (inner ℂ (x : F) (R x)).re) μ
+
+theorem upperEdgeOn_stability {R A : F →L[ℂ] F} {K : Submodule ℂ F} {μ est ε : ℝ}
+    (hR : UpperEdgeOn R K μ) (hA : UpperEdgeOn A K est) (herr : ‖R - A‖ ≤ ε) :
+    |μ - est| ≤ ε :=
+  upper_edge_error hR hA (fun x => rayleigh_error herr x.property.2)
+
+/-- Pass from a full-space rank-uniform resolvent bound to a rank-uniform mass error
+using the full normalized Rayleigh sets of the same operator and its reconstructions.
+For an excitation mass, the caller identifies R with the physical shifted inverse and
+ground with its entire ground subspace. An approximate ground requires projection control. -/
+theorem uniform_mass_error_of_rayleigh_edges {R : F →L[ℂ] F} {A : ℕ → F →L[ℂ] F}
+    {ground : Submodule ℂ F} {admitted : Set ℕ} {est₀ est₁ : ℕ → ℝ} {μ₀ μ₁ s κ ε u : ℝ}
+    (hs : 0 ≤ s) (he : 0 ≤ ε) (hu : ε < u)
+    (h₀ : UpperEdgeOn R ⊤ μ₀) (h₁ : UpperEdgeOn R groundᗮ μ₁)
+    (herr : ∀ m ∈ admitted, ‖R - A m‖ ≤ ε)
+    (head : ∀ m ∈ admitted, UpperEdgeOn (A m) ⊤ (est₀ m) ∧ u ≤ est₀ m)
+    (rest : ∀ m ∈ admitted, UpperEdgeOn (A m) groundᗮ (est₁ m) ∧ u ≤ est₁ m) :
+    ∀ m ∈ admitted,
+      |(s * (1 / μ₁ - κ) - s * (1 / μ₀ - κ)) -
+        (s * (1 / est₁ m - κ) - s * (1 / est₀ m - κ))| ≤
+        2 * (s * ε / (u * (u - ε))) :=
+  uniform_mass_error hs he hu
+    (fun m hm => ⟨(head m hm).2, upperEdgeOn_stability h₀ (head m hm).1 (herr m hm)⟩)
+    (fun m hm => ⟨(rest m hm).2, upperEdgeOn_stability h₁ (rest m hm).1 (herr m hm)⟩)
+
+end RayleighEdges
+
+section EnergyProjection
+
+open scoped InnerProductSpace
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F] [CompleteSpace F]
+
+/-- With R = T* T, the ideal energy-space Galerkin error is the square of the
+entire omitted map. For a positive shifted Hamiltonian T is its inverse square root.
+The projection acts on the image of the trial space in the energy norm. -/
+theorem energy_projection_error (T : F →L[ℂ] F) (U : Submodule ℂ F)
+    [U.HasOrthogonalProjection] :
+    ‖star T * T - star T * U.starProjection * T‖ = ‖Uᗮ.starProjection * T‖ ^ 2 := by
+  have heq : star T * T - star T * U.starProjection * T =
+      star (Uᗮ.starProjection * T) * (Uᗮ.starProjection * T) := by
+    rw [star_mul, (isSelfAdjoint_starProjection Uᗮ).star_eq, U.starProjection_orthogonal']
+    noncomm_ring
+    rw [← mul_assoc U.starProjection U.starProjection T,
+      U.isIdempotentElem_starProjection.eq]
+    module
+  rw [heq, CStarRing.norm_star_mul_self, sq]
+
+/-- For nested trial spaces the maximum ideal resolvent error actually decreases
+weakly with rank, even when the omitted operator fails to converge to zero in norm. -/
+theorem energy_projection_error_antitone (T : F →L[ℂ] F) {U V : Submodule ℂ F}
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (h : U ≤ V) :
+    ‖star T * T - star T * V.starProjection * T‖ ≤
+      ‖star T * T - star T * U.starProjection * T‖ := by
+  have hV := energy_projection_error T V
+  have hU := energy_projection_error T U
+  rw [hV, hU]
+  have hcomp : Vᗮ.starProjection * Uᗮ.starProjection = Vᗮ.starProjection :=
+    Submodule.starProjection_comp_starProjection_of_le (Submodule.orthogonal_le h)
+  have hn : ‖Vᗮ.starProjection * T‖ ≤ ‖Uᗮ.starProjection * T‖ := calc
+    _ = ‖Vᗮ.starProjection * (Uᗮ.starProjection * T)‖ := by rw [← mul_assoc, hcomp]
+    _ ≤ ‖Vᗮ.starProjection‖ * ‖Uᗮ.starProjection * T‖ := norm_mul_le _ _
+    _ ≤ 1 * ‖Uᗮ.starProjection * T‖ := by
+      apply mul_le_mul_of_nonneg_right _ (norm_nonneg _)
+      exact Submodule.starProjection_norm_le (K := Vᗮ)
+    _ = _ := one_mul _
+  exact pow_le_pow_left₀ (norm_nonneg _) hn 2
+
+/-- An implementation may deviate from the variational solve at each rank. A uniform
+bound on that deviation adds once to the initial whole-space error. -/
+theorem inexact_energy_projection_envelope (T A : F →L[ℂ] F) {U V : Submodule ℂ F}
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (h : U ≤ V) {δ : ℝ}
+    (hδ : ‖star T * V.starProjection * T - A‖ ≤ δ) :
+    ‖star T * T - A‖ ≤ ‖Uᗮ.starProjection * T‖ ^ 2 + δ := by
+  calc
+    ‖star T * T - A‖
+        = ‖(star T * T - star T * V.starProjection * T) +
+            (star T * V.starProjection * T - A)‖ := by noncomm_ring
+    _ ≤ ‖star T * T - star T * V.starProjection * T‖ +
+        ‖star T * V.starProjection * T - A‖ := norm_add_le _ _
+    _ ≤ ‖star T * T - star T * U.starProjection * T‖ + δ :=
+      add_le_add (energy_projection_error_antitone T h) hδ
+    _ = _ := by rw [energy_projection_error T U]
+
+end EnergyProjection
 
 end BookProof.YangMillsResolventBudget

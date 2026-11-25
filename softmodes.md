@@ -1,14 +1,102 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
-## Continuous-momentum mass-gap work order · 2026-11-24
+## Current work order and execution record · 2026-11-25
 
-**First deliverable.** Compute a nonzero matrix element of the cubic magnetic cross term
-between smooth packets of distinct momenta and colors. Derive it independently from the
-coordinate-space Weyl-gauge Hamiltonian and its continuous Fourier kernel. Use the
-same signed structure constants, polarization, normalization and packet inner product
-in Cadabra2, Lean and the numerical fixture. This tests the interaction whose control
-is needed in the soft directions. A free diagonal dispersion cannot test it.
-[Manuscript](book.tex) · [Magnetic split on the existing core](BookProof/Qym/ChapterYangMillsFieldStrengthSplit.lean)
+The continuous-momentum cubic magnetic packet is implemented. The physical mass-gap claim
+is open. Read this section before the dated U0–U6 instructions and the historical ledger.
+
+**Interaction check.** Use the positive Weyl-gauge energy, $f^3{}_{12}=+1$ and one
+external factor of $g$. For $f_j=e^{-\pi|x|^2}\cos(2\pi j x_3)$, take
+$A_1^1=X f_1$, $A_2^2=Y f_2$, $A_2^3=Z x_1 f_3$. The real packet amplitudes have
+independent unit Mehler variance. The empty and triple-Hermite *inner* states each
+belong to one occupied outer sector. Their matrix element is $gK$, where
+$$
+K=\frac{1+e^{-4\pi/3}+e^{-16\pi/3}+e^{-12\pi}}{12\sqrt3}
+\in[0.048842133090274,0.048842133090275].
+$$
+The two signed colour contributions give $2K/3$ and $K/3$. The Fourier derivative
+uses cycles per unit length and the undifferentiated product uses transfer $k-q$.
+The enclosing interval follows from rational bounds on the Gaussian formula. Independent
+continuous quadrature and the Rust ladder action reproduce it. At fixed cutoff 3, going
+from rank 2 to 3 improves the return against dense evolution, while the largest reported
+column tail *increases* from 2.87 to 6.04. This example explains why U2 asks for a bound
+on the resolvent over the entire relevant space. A transverse one-colour packet of
+momentum width $w$ has normalized curl energy $5\pi w^2/2$, tending to zero. The electric
+term and interacting quantum fluctuations still enter the physical Hamiltonian.
+[Packet identities](BookProof/Qym/ChapterYangMillsMagneticPacket.lean) ·
+[Symbolic calculation](../unfer/docs/qym_magnetic_packet.cdb) ·
+[Quadrature and enclosure](../unfer/scripts/check_qym_magnetic_packet.py) ·
+[Occupied-packet SIRK test](../unfer/fock_sirk/tests/qym_magnetic_packet.rs)
+
+**Proof and evidence review.** U1's finite-rank obstructions, U2's conditional
+non-growth envelope and U3's reciprocal error arithmetic already have Lean proofs.
+The full block estimate, Rayleigh edge stability and two-edge mass bound can be reused
+once estimates for this physical operator are available. The min–max result gives a
+one-sided inequality on a specified complement. The existing absolute floor is for
+the diagonal comparison. The witness census reproduces ten distinct solves, twenty
+manifest rows and zero positive lower endpoints. The separate count at $g=2$, occupation
+cutoff 10, concerns the finite reflection operator. Its negative inner energies and
+sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
+[Finite-rank obstructions](BookProof/Sirk/ChapterFiniteRankObstructions.lean) ·
+[Rank envelope](BookProof/Sirk/ChapterBudgetEnvelope.lean) ·
+[Energy arithmetic](BookProof/Sirk/ChapterMassErrorArithmetic.lean) ·
+[Operator bounds](BookProof/Qym/ChapterYangMillsResolventBudget.lean) ·
+[Witness census](BookProof/Sirk/ChapterWitnessCensus.lean)
+
+**Execution results and next dependency.**
+
+1. **U0, residual Gauss symmetry.** Giving all three profiles all three colours
+   produces $gK\det[X;Y;Z]$. The six signed Hermite words are orthogonal.
+   The normalized constant-colour singlet has matrix element $\sqrt6\,gK$,
+   about $0.119638304020279$ at $g=1$. A spatially varying transformation
+   already leaves the enlarged ansatz at zero connection. Take
+   $\omega=x_3 e^{-\pi |x|^2}T^1$. The third component of its gradient at the origin is
+   $T^1$, whereas every ansatz field has $A_3=0$. The natural enlargement on the
+   classical side is the Schwartz class. There $D_i\omega=\partial_i\omega+
+   g[A_i,\omega]$ has an exact Fourier derivative and convolution, and the
+   pointwise curvature variation is $g[F_{ij},\omega]$ in the signed SU(2) block.
+   The magnetic half square has zero first variation. For the quantum reduction,
+   construct the residual action on a common dense Mehler domain and prove that the
+   closed Hamiltonian preserves it and commutes with the charge there. The unbounded
+   BRST transfer already names these domain and commutation hypotheses.
+   [Packet and Schwartz proofs](BookProof/Qym/ChapterYangMillsMagneticPacket.lean) ·
+   [Unbounded BRST transfer](BookProof/ChapterBrstReducedTransferUnbounded.lean)
+2. **U3, ordered finite comparison.** For the $g=2$, occupation-10 diagnostic,
+   the dimension is 420 odd plus 581 even. Sparse inertia on the assembled blocks
+   gives the following counts strictly below each common threshold.
+
+   | Threshold | Even | Odd |
+   |---:|---:|---:|
+   | $-10.25$ | 0 | 0 |
+   | $-10.234375$ | 1 | 0 |
+   | $-9.03125$ | 1 | 0 |
+   | $-9.015625$ | 1 | 1 |
+
+   Thus the lowest finite level is even and the second is odd, counting multiplicity.
+   Their difference belongs to $[77/64,79/64]$. This independently checks the position
+   of the Temple estimate $1.22183460836$. The Lean theorem takes the four combined
+   counts as hypotheses; the executable inertia checker supplies them for the numerical
+   matrices. Operator assembly, removal of the occupation cutoff and identification
+   with the physical continuum are additional steps. The original Temple row retains
+   its own fixture and replay.
+   [Ordered-level theorem](BookProof/Sirk/ChapterFiniteModelWitness.lean) ·
+   [Two-block counts](../unfer/fock_sirk/tests/fixtures/finite_model_witness/qym_g2_n10_ordered.ndjson) ·
+   [Drift check](scripts/check-finite-model-witness)
+3. **U2–U5, full operator.** `uniform_mass_error_of_rayleigh_edges` now derives the
+   rank-independent mass error from a common operator-norm bound and the Rayleigh suprema
+   of the exact and reconstructed resolvents on the full space and the same ground
+   complement. It accommodates thresholds and an arbitrary ground multiplicity.
+   `StrongCouplingWitness` checks a tuple of real numbers at one row. Its fields alone
+   do not tie the numbers to an operator or quantify over a family of reconstructions.
+   On the identified physical space estimate the off-block
+   couplings and the omitted resolvent, or derive a coercive estimate on the complete
+   form. Apply the inverse-map margin to the same target at every admitted rank.
+   An inner splitting requires coverage above the entire ground space. An outer-vacuum
+   claim requires the absolute bottom of the unchanged inner operator. Try a specified
+   strong coupling only with these estimates in hand. Bałaban transfer additionally
+   needs the positive-time generator and phase identification in item 4 below.
+
+## Continuous-momentum Hamiltonian and spectral target
 
 1. **Bind U0 to the physical operator.** For the convention
    $\hat A(k)=\int e^{-2\pi i k\cdot x}A(x)\,d^3x$, the Weyl-gauge curvature has the kernel
@@ -64,7 +152,7 @@ is needed in the soft directions. A free diagonal dispersion cannot test it.
 
 ## Spectral certificate U0–U6: uniform SIRK error and a strong-coupling witness (2026-11-15)
 
-This is the current S2–S4 execution guide for the **LLM-Lean4-specialist**. It refines the
+This section gives the S2–S4 proof specifications. Consult the execution record above for status. It refines the
 2026-11-15 consolidated P2/P3 packets and supersedes the older S3 recommendations below on
 uniform error, shift schedules and the final positivity test. Keep the S0/S1 operator and
 physical-sector obligations. Existing dated results remain proof history; their hypotheses

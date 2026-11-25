@@ -1105,6 +1105,7 @@ import BookProof.Toolbox.ChapterFriedrichsExtension
 -- extension theorem and the Hashimoto/SIRK selection theorem apply to it.
 import BookProof.Toolbox.ChapterHermiteProductCore
 import BookProof.Qym.ChapterYangMillsHermite
+import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
 import BookProof.Qym.ChapterYangMillsMagneticPacket
 import BookProof.Qym.ChapterYangMillsResolventBudget

@@ -27252,6 +27252,28 @@ passes; `nix-shell -p python3 --run "python3 scripts/check-finite-model-witness"
 `[ok] finite-model row matches emitted fixture`; `lake env lean
 BookProof/Sirk/ChapterFiniteModelWitness.lean` and `lake build BookProof` succeed.
 
+## State of the project — 2026-11-25, continuous Gauss variations and joint finite counts
+
+The [QYM work order](softmodes.md) supersedes the earlier packet and U2–U6 task lists as
+a reading guide. The normalized three-profile cubic colour singlet at unit coupling has
+matrix element 0.119638304020279. Enlarging each profile to three adjoint colours handles
+constant rotations. A smooth local gauge variation at zero connection produces a third
+spatial component outside that family. The classical Schwartz tangent has the continuous
+Fourier derivative and convolution; in the SU(2) block the first curvature variation
+preserves the magnetic half square. The closed quantum Gauss domain and its reduction
+remain open. [Packet proofs](BookProof/Qym/ChapterYangMillsMagneticPacket.lean)
+
+A common operator-norm error and denominator margin now imply a common mass error on
+the full Rayleigh space and the identified ground complement, at every admitted rank.
+Physical identification and an upper bound on the actual omitted resolvent remain
+inputs. [Rank-uniform energy bound](BookProof/Qym/ChapterYangMillsResolventBudget.lean)
+
+At coupling 2 and occupation cutoff 10, joint inertia counts on 581 even and 420 odd
+coordinates enclose the first ordered splitting of the finite matrices in [77/64, 79/64].
+Lean checks the implication from the four counts. The separate 20-row campaign still
+has no positive certified lower endpoint. A strong-coupling mass-gap witness for the
+physical continuous operator remains open. [Count arithmetic](BookProof/Sirk/ChapterFiniteModelWitness.lean)
+
 ## State of the project — 2026-11-25d: continuous-momentum λφ⁴ closed through the axiom audit
 
 `PHI4_IMPROVEMENT_PLAN.md` `P4`–`P10` are executed in Lean (the remaining Rust items are
