@@ -218,6 +218,42 @@ theorem inexact_energy_projection_envelope (T A : F →L[ℂ] F) {U V : Submodul
       add_le_add (energy_projection_error_antitone T h) hδ
     _ = _ := by rw [energy_projection_error T U]
 
+/-- A two-sided envelope for ordinary orthogonal compression of a *fixed* bounded
+resolvent, including a non-self-adjoint complex shift. The initial subspace controls
+both omitted maps. The head error is measured against the operator actually returned. -/
+theorem nested_compression_envelope (R A : F →L[ℂ] F) {U V : Submodule ℂ F}
+    [U.HasOrthogonalProjection] [V.HasOrthogonalProjection] (h : U ≤ V) {δ : ℝ}
+    (hδ : ‖V.starProjection * R * V.starProjection - A‖ ≤ δ) :
+    ‖R - A‖ ≤ ‖Uᗮ.starProjection * R‖ + ‖R * Uᗮ.starProjection‖ + δ := by
+  have hleft : Vᗮ.starProjection * Uᗮ.starProjection = Vᗮ.starProjection :=
+    Submodule.starProjection_comp_starProjection_of_le (Submodule.orthogonal_le h)
+  have hright : Uᗮ.starProjection * Vᗮ.starProjection = Vᗮ.starProjection := by
+    simpa only [star_mul, (isSelfAdjoint_starProjection Uᗮ).star_eq,
+      (isSelfAdjoint_starProjection Vᗮ).star_eq] using congrArg star hleft
+  have hL : ‖Vᗮ.starProjection * R‖ ≤ ‖Uᗮ.starProjection * R‖ := calc
+    _ = ‖Vᗮ.starProjection * (Uᗮ.starProjection * R)‖ := by rw [← mul_assoc, hleft]
+    _ ≤ ‖Vᗮ.starProjection‖ * ‖Uᗮ.starProjection * R‖ := norm_mul_le _ _
+    _ ≤ _ := by
+      simpa only [one_mul] using mul_le_mul_of_nonneg_right
+        (Submodule.starProjection_norm_le (K := Vᗮ)) (norm_nonneg (Uᗮ.starProjection * R))
+  have hR : ‖V.starProjection * R * Vᗮ.starProjection‖ ≤ ‖R * Uᗮ.starProjection‖ := calc
+    _ = ‖V.starProjection * (R * Uᗮ.starProjection) * Vᗮ.starProjection‖ := by
+      simp only [mul_assoc, hright]
+    _ ≤ ‖V.starProjection * (R * Uᗮ.starProjection)‖ * ‖Vᗮ.starProjection‖ := norm_mul_le _ _
+    _ ≤ ‖V.starProjection * (R * Uᗮ.starProjection)‖ := by
+      simpa using mul_le_mul_of_nonneg_left (Submodule.starProjection_norm_le (K := Vᗮ))
+        (norm_nonneg (V.starProjection * (R * Uᗮ.starProjection)))
+    _ ≤ ‖V.starProjection‖ * ‖R * Uᗮ.starProjection‖ := norm_mul_le _ _
+    _ ≤ _ := by
+      simpa only [one_mul] using mul_le_mul_of_nonneg_right
+        (Submodule.starProjection_norm_le (K := V)) (norm_nonneg (R * Uᗮ.starProjection))
+  have split : R - A = Vᗮ.starProjection * R + V.starProjection * R * Vᗮ.starProjection +
+      (V.starProjection * R * V.starProjection - A) := by
+    rw [V.starProjection_orthogonal']
+    noncomm_ring
+  rw [split]
+  exact (norm_add_le _ _).trans (add_le_add ((norm_add_le _ _).trans (add_le_add hL hR)) hδ)
+
 end EnergyProjection
 
 end BookProof.YangMillsResolventBudget

@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26h):** “2026-11-26h — QYM: the reverse domain inclusion, and the
+> **Current QYM and OS work (2026-11-26).** The three-profile absolute mass exceeds
+> its common variational error at coupling 2. The OS bridge transports the whole
+> stationary projection. The physical gauge reduction and selected Wilson comparison
+> remain open. [Spectral work order](softmodes.md) · [Continuum work order](cftproof.md)
+>
+> **QYM entry (2026-11-26h):** “2026-11-26h — QYM: the reverse domain inclusion, and the
 > Gauss charge is skew-adjoint” (end of file).  `ChapterYangMillsGaussSkewAdjointDomain`
 > proves `dom Ā† ⊆ dom Ā` for a closed skew operator: `1 - A` is bounded below
 > (`‖z - A z‖² = ‖z‖² + ‖A z‖²`), dense range from the deficiency at `+1`, closed from the
@@ -28486,3 +28491,25 @@ cluster decomposition, positive overlap or mass gap follows.
 **Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
 `symmetrizedGaussian_expectation`, `symmetrizedGaussian_second_moment` and
 `symmetrizedGaussian_variance` gives `[propext, Classical.choice, Quot.sound]`.
+
+## 2026-11-26 · Three-profile mass bound and the OS stationary projection
+
+Completing the cubic magnetic square gives a lower form bound of 37/2 at every
+Hermite degree on the three fixed continuous profiles. At coupling 2 the Gaussian
+seed gives a ceiling of 32, so the worst absolute Ritz mass error over seed-containing
+spaces is at most the seed energy minus 37/2, strictly below 27/2. An independent exact calculation
+at occupation cutoff 3 brackets the occupied edge between 23.62 and 23.625 for the
+decimal-coefficient Hamiltonian. The complex SIRK compression now has a two-sided
+omitted-space estimate for nested trial spaces at a fixed shift.
+[Form estimate](BookProof/Qym/ChapterYangMillsPacketFloor.lean) ·
+[Solver estimate](BookProof/Qym/ChapterYangMillsResolventBudget.lean) ·
+[Exact finite check](../unfer/scripts/check_qym_packet_floor.py)
+
+The OS bridge transports closed spaces characterized by stationarity for every
+positive time and preserves the operator norm of heat flow minus the corresponding
+projection. A physical continuum application still needs equality on a generating
+positive-time algebra of the selected Wilson and nested states. The next spectral
+step is a lower bound or resolvent-tail estimate stable under spatial enlargement
+and local Gauss reduction. Widening the unreduced spatial profiles by $L$ and squeezing
+the seed amplitudes gives energy proportional to $1/L$ at fixed bare coupling. This
+rules out a width-independent positive floor within that family. [Stationary projection](BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean)

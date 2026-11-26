@@ -1,5 +1,59 @@
 # Euclidean fields, Mehler coordinates and nested-Fock reconstruction
 
+## Current continuum work order · 2026-11-26
+
+The October archive proves existence of a Wilson family with a compatible extracted
+hierarchy and the reconstruction properties in its public statement. Its quantifiers
+allow choices of extraction and phase. Uniqueness of a vacuum within a reconstructed
+representation leaves uniqueness across candidate continuum theories open. The
+outstanding existence question here is whether the specified continuous-momentum
+nested-Fock Hamiltonian and state produce that selected hierarchy.
+[Existence proof](../OpenAI-YM-20261028/Solution.lean) ·
+[Quantifiers](../OpenAI-YM-20261028/ChallengeSpec.lean)
+
+1. **Compare an observable before identifying two theories.** Fix the Wilson family,
+   extraction order, phase, token, test normalization and time reflection from one
+   witness. Use `YangMills.moment_eq` to express
+   a finite Wilson moment in archive variables, then `wilsonLimit` for its ordered
+   extraction. On the nested side choose the corresponding gauge-invariant smeared
+   observable and a populated stationary state. Compare the centered pair at separated
+   positive times. Record a bound on their difference in the same tests as the mesh
+   tends to zero and the volume grows in the archive order. The trace test includes
+   its own centering and short-distance normalization. A cubic magnetic packet entry
+   alone cannot realize it. Extend the comparison to a generating positive-time
+   algebra before constructing an OS isometry.
+   [Wilson moment identity](../OpenAI-YM-20261028/WilsonBridge.lean) ·
+   [Hierarchy extraction](../OpenAI-YM-20261028/HierarchyBridge.lean) ·
+   [Trace test](../OpenAI-YM-20261028/TraceBridge.lean)
+
+2. **Keep three convergence questions distinct.** The free Mehler kernel composes
+   exactly at fixed finite times. An infinite sequence of discrete transitions exists,
+   and finite path measures admit a positive Strang weight and a domination estimate.
+   For an interacting continuous-time measure, identify all the required cylinder
+   marginals, prove convergence of the weights and identify the limiting semigroup on
+   the physical form domain. A bound on a shifted SIRK solve at one regulator controls
+   its numerical error. Removing the spatial and volume regulators still requires
+   estimates uniform in the observable tests. Bałaban blocking and large-field bounds
+   are candidates for that last step once their insertions and scale conventions match.
+   [Free kernel](BookProof/ReflectionPositivity/ChapterMehlerKernelSemigroup.lean) ·
+   [Discrete trajectories](BookProof/OSReconstruction/ChapterMehlerTrajMeasure.lean) ·
+   [Weighted paths](BookProof/OSReconstruction/ChapterWeightedPathMeasure.lean)
+
+3. **Transport the entire stationary space.** Given a surjective isometry intertwining
+   forward semigroups, `map_stationary_space` identifies subspaces characterized by
+   stationarity at all nonnegative times. `ground_projection_error_eq` then gives
+   equality of the two operator norms of heat flow minus stationary projection, at
+   every such time. This includes ground degeneracy. For a nonnegative self-adjoint
+   relative generator this is the quantity that tests exponential decay on the ground
+   complement. The older contraction estimate toward a *single vector* imposes a
+   different condition on a linear semigroup. Testing it on the zero input forces
+   that vector to vanish as soon as the contraction factor drops below one. A physical application requires the
+   actual bridge, generator and decay bound. The three-profile mass estimate applies
+   in its occupied packet sector; it provides no value for this continuum decay rate.
+   [Projection transport](BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean) ·
+   [Generator on differentiable orbits](BookProof/OSReconstruction/ChapterGeneratorTransport.lean) ·
+   [Spectral work order](softmodes.md)
+
 ## Path-integral–Hamiltonian equivalence in the nested Fock / Mehler / SIRK formalism (2026-11-24)
 
 **Strategy update.** This section updates the forward execution plan to follow the two-part
@@ -119,8 +173,8 @@ rules:
 * **Close the Mehler kernel gap.** [MehlerEigenfunction](BookProof/MCMC/MehlerEigenfunction.lean)
   already proves the eigenfunction identity `mehlerOp_physHermite` ($T_\rho H_n = \rho^n H_n$ for
   $\rho = e^{-\epsilon}$) and `mehlerOp_vacuum` ($T_\rho 1 = 1$), but the **closed-form Mehler
-  transition density** $K_\epsilon(x, y)$ with respect to $\gamma(dy)$ is not yet formalized in
-  Lean. Prove the kernel representation:
+  transition density** $K_\epsilon(x, y)$ with respect to $\gamma(dy)$ is formalized for a one-dimensional slice against Lebesgue measure. For the
+  finite-product stationary Gaussian reference, establish the kernel representation
   $$(e^{-\epsilon h_0} f)(x) = (T_{e^{-\epsilon}} f)(x) = \int K_\epsilon(x, y)\, f(y)\, \gamma(dy),$$
   with $K_\epsilon(x, y) > 0$, symmetry $K_\epsilon(x, y) = K_\epsilon(y, x)$, semigroup
   composition $\int K_{\epsilon_1}(x, z) K_{\epsilon_2}(z, y)\,\gamma(dz) = K_{\epsilon_1+\epsilon_2}(x, y)$,
@@ -231,8 +285,8 @@ rules:
 **Status (2026-11-26): H7/C8 bridge gap invariance.**
 `BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean` proves that an exponential
 flow-gap estimate toward a fixed point is invariant under the cyclic unitary `OsFockBridge`:
-`FlowGap P x m C ↔ FlowGapOn Q (U x) m C`.  This is the quantitative generator-identification
-step C7/C8 needs; no gap value is asserted.
+`FlowGap P x m C ↔ FlowGapOn Q (U x) m C`.  This transports the stated fixed-vector estimate. The current work order uses
+the full stationary projection for the spectral claim.
 
 **Status (2026-11-26): H7/C7 generator transport.**
 `BookProof/OSReconstruction/ChapterGeneratorTransport.lean` proves that an `OsFockBridge`
@@ -418,16 +472,15 @@ theory connects directly into the existing programme below:
 
 ### Readiness ledger and negative controls for H0–H7
 
-| Packet | Existing `BookProof` reusable machinery | Missing Lean deliverable |
-| :--- | :--- | :--- |
-| **H0** | `ContinuumManifest` (`NestedSpec`, `finalHamiltonian_shift`, `krylov_not_continuum`), `ChapterScalarOuter` (`outer_number_conserving`), `ObservablePrior`, `ContinuumPrior` | Outer-sector semigroup factorization $e^{-\tau d\Gamma(h)} = \Gamma(e^{-\tau h})$ |
-| **H1** | `ChapterYangMillsMehlerBridge` (`conj_deriv`, `conj_dirichlet`, `conj_mult`), `MehlerEigenfunction` (`mehlerOp_physHermite`, `mehlerOp_vacuum`), `GaussianMehlerControl`, `EuclideanMehlerCalibration`, `ChapterHermiteProductBasis` | Closed-form Mehler transition density $K_\epsilon(x,y)$ and bridge to `FeynmanKac.freeTransferKernel` |
-| **H2** | `ChapterQuantizationWeyl` (Heisenberg/Weyl conjugation), `ChapterNonnegSemigroup` (`semigroupS`), `ChapterSirkTrotterKato` (resolvent approximation only) | Euclidean Lie–Trotter / Strang product formula (bounded & unbounded form sums) and midpoint cross-term ordering theorem |
-| **H3** | `FeynmanKac` (`fkMeasure`, `fk_reflectionPositive`), `HalfSpaceSplit`, `GaussianMehlerCylinderRP`, `EuclideanMomentHierarchy` | $N$-slice Markov path measure identification with `fkMeasure` and $N \to \infty$ Feynman–Kac limit |
-| **H4** | `ChapterSirkSingleTimeShift` (`sirk_single_time_shiftInvert_bound`), `ChapterHashimotoShiftInvert` (`hashimoto_shiftInvert_selects_friedrichs`), `ChapterCrouzeixSelfAdjoint`, `ChapterSirkTruncation` | Euclidean heat-semigroup Trotter–Kato transfer ($e^{-\tau K_n} \to e^{-\tau K}$) |
-| **H5** | `MultiplierSelfAdjoint` (`norm_flowOfHCLM_sub_limitProjection`, `…_iff_gap`), `ChapterCoherentOverlap`, `ChapterCoherentGeometry`, `ChapterF3` (`overlap_prod_pos`), `ChapterSmHiggsVacuum`, `ChapterScalarMehler`, `ChapterScalarMomentumGap`, `ChapterGaugeVariantVanishing` | Physical-representation ground projection $P_0$; infinite-volume overlap decay $\exp(-cv^2 V_3) \to 0$; symmetric-boundary $\langle\phi\rangle = 0$ theorem |
-| **H6** | `PriorRefinement` (`SpatialPrior.cond`), `ChapterSmHiggsVacuum` (`higgs_radial`, `higgs_goldstone`) | Displaced Mehler measure $\gamma_v$ / Weyl shift $D(v)$; external-source $J$ non-commuting limit-order theorem ($V_3 \to \infty$ before $J \to 0^+$) |
-| **H7** | **C0–C10** and **E0–E5** infrastructure below | Multiscale UV/IR cutoff removal (**C3–C5**) or archive witness compatibility (**C0/C8**) |
+| Packet | Implemented | Next analytical identification |
+| --- | --- | --- |
+| H0 | Stone flow on tensor sectors, vacuum fixed | Identify the heat semigroup of the closed interacting inner generator on the physical outer sectors. |
+| H1 | Scalar Mehler density, mass one, Gaussian kernel composition and the free endpoint limit | Pass to the chosen mode product, with detailed balance in the stationary Gaussian convention. |
+| H2 | Midpoint cancellation for the exact Heisenberg/BCH example | Prove product convergence for the interacting form sum on its domain. |
+| H3 | Finite Markov measures, last-slice consistency, discrete infinite trajectory, positive weighted finite measures and a constant-potential time limit | Identify all finite marginals and the continuous-time interacting weight with the physical semigroup and reflection form. |
+| H4 | Heat transfer for bounded operators under norm hypotheses | Prove physical unbounded-generator convergence and keep SIRK tolerances separate from regulator removal. |
+| H5–H6 | Coherent overlap collapse, displaced Gaussian benchmarks, symmetric mixture moments and a source-limit-order example | Identify these quantities in the selected interacting stationary state or phase. |
+| H7 | Conditional generator-derivative transport, stationary-space identification and equality of heat errors | Match the selected Wilson hierarchy and construct the physical OS bridge. A positive gap also needs a full-complement decay estimate. |
 
 **Additional negative controls (extending C10):** reject any proof claiming that (a)
 `ChapterSirkTrotterKato` is a Lie–Trotter product formula; (b) endpoint time-slicing reproduces a
@@ -522,8 +575,9 @@ proves positivity, unit mass, the identity with `FeynmanKac.freeTransferKernel` 
 $2/(1-\rho^2)$ and drift $\rho x$, and that `mehlerOp ρ f x = ∫ f(z) K_\rho(x,z) dz`; the
 stationary slice is $K_0(x,z)=(\sqrt\pi)^{-1}e^{-z^2}$, independent of $x$ (hence not symmetric
 in the two configurations).  This is
-the one-slice analytic equivalence only; the $N$-slice Markov measure, $N\to\infty$
-Feynman–Kac limit and reflection positivity of the interacting theory (H3) are not proved.
+the one-slice identity. H3 subsequently constructed finite path measures and the
+discrete trajectory described above. Its interacting continuous-time identification
+and physical reflection-positivity argument remain open.
 
 ---
 
@@ -585,7 +639,7 @@ physical states still need their own identification.
    uniqueness or decay in a single trial channel supplies no such infrared bound.
    Existence and the comparison of theories can progress without a gap theorem.
    [Reconstruction bridge](../OpenAI-YM-20261028/HierarchyBridge.lean) ·
-   [Strong-coupling and spectral coverage work](softmodes.md#continuous-momentum-mass-gap-work-order--2026-11-24)
+   [Strong-coupling and spectral coverage work](softmodes.md#continuous-momentum-hamiltonian-and-spectral-target)
 
 The adapter is proposed. Keep the archive on Lean 4.32 and the local proof on its
 pinned Lean 4.28 until an explicit port or checked correspondence exists. The separate

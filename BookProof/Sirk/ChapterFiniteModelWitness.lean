@@ -187,4 +187,21 @@ theorem qymG2N10_ordered_gap {levels : Fin 1001 → ℝ} (sorted : Monotone leve
     (by rw [h₂]; decide) (by rw [h₃]; decide)
   constructor <;> linarith [hg.1, hg.2, he.1, he.2]
 
+/-- In the separate three-profile g=2 packet window, the inertia counts bound the
+absolute occupied bottom. Every exact Ritz space containing the common seed has
+its Rayleigh infimum between that bottom and the same seed ceiling. -/
+theorem packetG2N3_uniform_ritz_margin {levels : Fin 20 → ℝ} (sorted : Monotone levels)
+    (hlo : countBelow levels (1181 / 50) = 0) (hhi : countBelow levels (189 / 8) = 1)
+    {full trial : Set ℝ} (hfull : IsGLB full (levels 0)) (hsub : trial ⊆ full)
+    {estimate seed : ℝ} (htrial : IsGLB trial estimate) (hseed : seed ∈ trial)
+    (hceiling : seed < 788 / 25) :
+    1181 / 50 ≤ levels 0 ∧ levels 0 < 189 / 8 ∧
+      |estimate - levels 0| < 79 / 10 ∧ 79 / 10 < levels 0 := by
+  have bracket := ordered_level_bracket sorted 0 (lo := 1181 / 50) (hi := 189 / 8)
+    (by simp [hlo]) (by simp [hhi])
+  have above : levels 0 ≤ estimate := htrial.2 fun _ hx => hfull.1 (hsub hx)
+  have below : estimate ≤ seed := htrial.1 hseed
+  rw [abs_of_nonneg (sub_nonneg.mpr above)]
+  exact ⟨bracket.1, bracket.2, by linarith [bracket.1], by linarith [bracket.1]⟩
+
 end BookProof.FiniteModelWitness

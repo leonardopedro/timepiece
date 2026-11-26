@@ -1,9 +1,103 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
-## Current work order and execution record · 2026-11-25
+## Current work order and execution record · 2026-11-26
 
-The continuous-momentum cubic magnetic packet is implemented. The physical mass-gap claim
-is open. Read this section before the dated U0–U6 instructions and the historical ledger.
+At coupling $g=2$ the three-profile magnetic Hamiltonian has an absolute energy
+floor that exceeds a common error bound for its lowest variational Ritz level. This
+statement covers every Hermite degree on **three fixed continuous spatial profiles**.
+The physical Yang–Mills mass gap remains open. Spatial packet resolution, Gauss
+reduction and Krylov rank are three distinct limits in this argument.
+
+### What the mass and the error measure
+
+Write $H=d\Gamma(h)$, with one outer creation operator to the left of $h$ and
+one outer annihilation operator to the right. The empty outer state has energy zero.
+For positive $h$, a lower edge $E=\inf\sigma(h)>0$ is the gap above that vacuum
+on the bosonic lift. A difference between two inner Ritz levels answers a different
+question. If the edge is continuous, it is a threshold and need not have an eigenvector.
+
+1. **A floor at all Hermite degrees for the three profiles.** In the amplitude
+   coordinates $X,Y,Z$, let $M_j$ be the spatial profile norms squared, $c_j$
+   their curl coefficients, $K$ the cubic entry below, and $b,w>0$ the
+   $X^2Y^2,X^2Z^2$ wall coefficients. Complete the magnetic square
+   $$
+   \frac{c_3 Z^2}{2}+gKXYZ+\frac{g^2b X^2Y^2}{2}
+     =\frac{(c_3-K^2/b)Z^2}{2}+\frac{(gbXY+KZ)^2}{2b}.
+   $$
+   The other wall stays positive. The three remaining stiffnesses dominate
+   $M_j\nu_j^2$ for $\nu=(6,12,19)$. Applying the Mehler-core oscillator inequality
+   to each $P_j^2/(2M_j)+M_j\nu_j^2 X_j^2/2$ gives a form floor of $37/2$ for
+   every real $g$. Lean proves the form inequality and instantiates the exact decimals.
+   Cadabra checks the Gaussian metric and curl identities, and a separate rational
+   checker verifies the inequalities for the unrounded integral formulas. The core
+   bound passes to the Friedrichs form closure. At $g=2$ the normalized inner
+   Gaussian seed has energy below 32. Hence $37/2\le E\le E_m<32$ for every
+   exact Ritz space containing that seed, and $0\le E_m-E<27/2<37/2$.
+   This compares the absolute mass with a maximum error common to all such ranks.
+   To apply it to an inexact Ritz value, add its independently bounded energy error.
+   [Mehler form proof](BookProof/Qym/ChapterYangMillsPacketFloor.lean) ·
+   [Symbolic coefficients](../unfer/docs/qym_magnetic_packet.cdb) ·
+   [Continuous coefficient bounds](../unfer/scripts/check_qym_magnetic_packet.py)
+
+2. **Independent finite check.** At total occupation at most 3, there are 20
+   one-outer-particle states. Exact rational elimination on the matrix defined by the
+   decimal coefficients gives 0 and 1 negative pivots at $1181/50$ and $189/8$.
+   Multiplication by the positive diagonal Hermite Gram matrix makes this a symmetric
+   inertia calculation. Products act before compression. With the seed Rayleigh quotient
+   below $788/25$, every seed-containing exact Ritz mass has error below $79/10$.
+   The Rust solver gives $23.62315084$ for the dense finite edge. The older
+   occupation-10 reflection splitting below refers to another operator.
+   [Exact finite check](../unfer/scripts/check_qym_packet_floor.py) ·
+   [Lean implication from counts](BookProof/Sirk/ChapterFiniteModelWitness.lean)
+
+3. **A fixed target across ranks.** For a positive shifted resolvent written $T^*T$,
+   the exact energy-space Galerkin error is $\|(1-P_m)T\|^2$. Lean proves it is
+   nonincreasing for nested energy trial spaces. The real-time SIRK code computes a
+   compression of $R=(\gamma+i h)^{-1}$. For this algorithm, fix the final shift across
+   ranks and measure the head error $\delta_m=\|P_m R P_m-A_m\|$. Lean proves
+   $$
+   \|R-A_m\|\le\|(1-P_1)R\|+\|R(1-P_1)\|+\delta_m,\qquad P_1\le P_m .
+   $$
+   At $g=2,\gamma=4$, ranks 1–3 on the 20-state window give whole-window errors
+   0.027931232 (positive variational) and 0.031198539 (complex SIRK), at the displayed
+   precision. The two initial complex tails sum to 0.062397078. The Rust test checks
+   subspace inclusion and the lifted solve against dense inverses. These floating-point
+   diagnostics illustrate why a return amplitude can improve while the largest error
+   stays flat. A varying final shift requires a separate bound on the change of target.
+   [Operator-norm proofs](BookProof/Qym/ChapterYangMillsResolventBudget.lean) ·
+   [Fixed-shift solver replay](../unfer/fock_sirk/tests/qym_magnetic_packet.rs)
+
+4. **Spatial widening at fixed bare coupling.** Let each entire profile become
+   $f(x/L)$, including the polynomial factor of the third profile. The volume
+   Jacobian gives $M_j(L)=L^3M_j$, each curl square gives $c_j(L)=L c_j$, and
+   the cubic and wall coefficients are $L^2K$ and $L^3(b,w)$. In this amplitude
+   chart use a normalized Gaussian of standard deviation $1/L$. Its field and
+   momentum variances are $1/L^2$ and $L^2/4$. The cubic has zero expectation by
+   parity and both quartic expectations scale as $1/L^4$. Its full energy is
+   exactly the unit-width seed energy divided by $L$. Thus for every positive
+   proposed floor a sufficiently wide **unreduced three-profile** model has a
+   Gaussian trial below it, even at $g=2$. A squeezed Gaussian generally occupies
+   arbitrarily high Hermite degrees in the original chart. This test requires
+   neither a coordinate lattice nor an assumption about high-rank SIRK behavior.
+   [Dilation theorem](BookProof/Qym/ChapterYangMillsPacketFloor.lean) ·
+   [Gaussian integrals and dilation checks](../unfer/docs/qym_magnetic_packet.cdb)
+
+### Next physical proof obligation
+
+Enlarge the packet family on a common continuous-momentum form domain. Start with
+the gradient and colour-rotation images of the seed profiles. Compute the projected
+Gauss commutator and bound its discarded part as the family grows. The bottom of a smaller
+variational space is an **upper bound** on the enlarged bottom. Its lower bound
+need not survive enlargement.
+The dilation calculation now rules out a common positive floor for these isolated
+bare packet models. Determine whether the squeezed states embed as normalized
+physical states after Gauss reduction, and bound the energy contributed by modes
+outside the packet. If their full physical energies still vanish, the variational
+principle rules out the proposed gap for that operator. Otherwise quantify which
+term or physical restriction defeats this sequence. Prove a lower form bound or certify
+both omitted resolvent maps there. Price rounding and shifted solves on that same
+space, then test the strong-coupling margin. A continuum interpretation additionally
+requires the selected phase and stationary subspace in [cftproof.md](cftproof.md).
 
 **Interaction check.** Use the positive Weyl-gauge energy, $f^3{}_{12}=+1$ and one
 external factor of $g$. For $f_j=e^{-\pi|x|^2}\cos(2\pi j x_3)$, take
@@ -32,8 +126,8 @@ term and interacting quantum fluctuations still enter the physical Hamiltonian.
 non-growth envelope and U3's reciprocal error arithmetic already have Lean proofs.
 The full block estimate, Rayleigh edge stability and two-edge mass bound can be reused
 once estimates for this physical operator are available. The min–max result gives a
-one-sided inequality on a specified complement. The existing absolute floor is for
-the diagonal comparison. The witness census reproduces ten distinct solves, twenty
+one-sided inequality on a specified complement. The older diagonal floor and the three-profile interacting floor above have
+different domains. The witness census reproduces ten distinct solves, twenty
 manifest rows and zero positive lower endpoints. The separate count at $g=2$, occupation
 cutoff 10, concerns the finite reflection operator. Its negative inner energies and
 sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
@@ -55,93 +149,27 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    classical side is the Schwartz class. There $D_i\omega=\partial_i\omega+
    g[A_i,\omega]$ has an exact Fourier derivative and convolution, and the
    pointwise curvature variation is $g[F_{ij},\omega]$ in the signed SU(2) block.
-   The magnetic half square has zero first variation. For the quantum reduction,
-   construct the residual action on a common dense Mehler domain and prove that the
-   closed Hamiltonian preserves it and commutes with the charge there. The unbounded
-   BRST transfer already names these domain and commutation hypotheses.
-   **2026-11-26:** the *infinitesimal* half is landed —
-   `BookProof/Qym/ChapterYangMillsGaussSkew.lean` proves that `𝒢_d` is skew-adjoint on
-   the dense Mehler core (`i·𝒢_d` symmetric, the generator of the residual rotation) and
-   that the transported Hamiltonian commutes with it there.  **2026-11-26b:** the closure
-   half for the charge alone is landed too — `BookProof/Qym/ChapterYangMillsGaussClosure.lean`
-   packages `𝒢_d` as a partially defined operator on `L²(ℝ⁹⁹)`, proves it closable, and
-   proves its closure closed, densely defined and **skew**.  **2026-11-26c:** the skewness
-   is now stated in adjoint form, `closure 𝒢_d ≤ −(closure 𝒢_d)†` — the domain of the
-   closure lies in the domain of its adjoint with `A† y = −A y` there — and the closure is
-   shown to be the minimal closed extension, with the Gauss–polynomial core a core of it.
-   What remains is the *reverse* inclusion `dom A† ⊆ dom A`, i.e. skew-*adjoint*ness
-   itself (hence no Stone group yet), the
-   Hamiltonian's own closure and essential self-adjointness in the non-abelian sector, and
-   the ghost Fock completion of the full charge.
-   **2026-11-26d:** three additions on that track, with the remaining gaps named rather than
-   papered over.  (i) `BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean` turns the open
-   inclusion into a *reduction*: with `A ≤ −A†` already proved, skew-adjointness `A† = −A` is
-   *equivalent* to `dom A† ⊆ dom A`, so that inclusion is the entire remaining content; the
-   graph-norm identity `‖A x + x‖² = ‖A x‖² + ‖x‖²` is proved as the deficiency-index input
-   (`A + 1` injective and bounded below by `1`).  The inclusion itself is still **not**
-   proved — it is essential skew-adjointness of the derivation, needing the unitary flow or
-   elliptic regularity, neither in the corpus.  (ii)
-   `BookProof/Qym/ChapterYangMillsGaussParity.lean` supplies a *concrete* bounded symmetry for
-   the domain/commutation hypotheses the unbounded BRST transfer leaves open: field-space
-   parity `x ↦ −x` is a linear isometry on `L²(ℝ⁹⁹)`, preserves the Gauss–polynomial core,
-   commutes with `𝒢_d` there (the Gauss vector field is linear, hence odd, so the two sign
-   flips cancel), and the commutation passes to the domain of the closure by the graph
-   argument; the physical and exact states of `closure 𝒢_d` are parity invariant.  This is a
-   symmetry, not the one-parameter evolution.  (iii)
-   `BookProof/Qym/ChapterYangMillsGaussBosonic.lean` carries the chain to the **bosonic part**
-   of the BRST charge: `Ω_bos z = Σ_a z_a 𝒢_a` with *real* ghost coefficients is skew on the
-   core, formally adjoint to its negative, closable, with closed densely defined closure, and
-   `closure Ω_bos z ≤ −(closure Ω_bos z)†`.  Complex coefficients are deliberately **not**
-   claimed: `(z A)† = conj z · A†`, so a complex combination of skew operators is not skew;
-   the ghost operators and `Ω² = 0` are outside the module.
-   **2026-11-26e:** the *Hamiltonian* half of that sentence — "the closed Hamiltonian ...
-   commutes with the charge" — is now on the core for the **closed** pair.
-   `BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean` first proves the rewrite the
-   skew chapter left open (the transported polynomial Hamiltonian *is* the analytic
-   `ymHamiltonian` on the core), so the core commutation is stated for the operator `ym_h_esa`
-   makes essentially self-adjoint; then builds that operator's graph closure, proves it is the
-   **unique** self-adjoint extension of the core operator (values, symmetry and the
-   self-adjointness criterion from `ym_h_esa`, plus von Neumann uniqueness), and proves
-   `Ā (H̄ x) = H̄ (Ā x)` on the shared Gauss core for the two closed operators.  What is still
-   missing is invariance of all of `dom Ā` under `H̄` — the same graph-norm/regularity input as
-   the reverse inclusion, not a separate obstruction.
-   **2026-11-26f:** the flow route to that reverse inclusion is now concrete.
-   `BookProof/Qym/ChapterYangMillsGaussFlow.lean` records what the residual rotation *is*
-   (`v = ymGaussVec G d` is linear, `Σ_m x_m v_m = 0` and `Σ_m ∂_m v_m = 0`, so `M` is
-   antisymmetric and the classical flow `x ↦ e^{-tM}x` is a rotation), states the L² data it
-   produces as a hypothesis bundle (`U 0 = 1`, `‖U t‖ ≤ 1`, core invariance, derivative `𝒢_d`),
-   and proves the deficiency computation `ker(𝒢_d† ∓ 1) = 0` from it — the classical
-   `f' = c f`, `f t = f 0 e^{ct}`-against-a-uniform-bound argument — for both signs and on the
-   concrete field core.  Still missing: the L² construction of `U(t)` itself, and the
-   range/surjectivity step from the two deficiencies to `dom A† ⊆ dom A`.
-   **2026-11-26g:** the commutation is now on domains, in the two cases the mathematics
-   separates into.  `BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean` proves the
-   graph argument unconditionally for a **bounded** operator commuting with `𝒢_d` on the core
-   (`bounded_preserves_closure_domain`, `gaussClosure_bounded_preserves`) — the general form of
-   the earlier parity result — and for the unbounded closed Hamiltonian
-   (`hamClosure_comm_gaussClosure_of_core_seq`) with the two Hamiltonian graph-norm limits at
-   `y` and at `Ā y` as the explicit input.  Those limits are the same elliptic-regularity
-   statement as the reverse inclusion; what the module adds is that everything downstream of
-   them is closed, so the remaining gap is exactly a density statement about the core.
-   **2026-11-26h:** the reverse inclusion is proved.
-   `BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean` shows that on a closed skew
-   operator `1 - A` is bounded below (`‖z - A z‖² = ‖z‖² + ‖A z‖²`), has dense range when the
-   adjoint has no deficiency at `+1`, and is closed because `A` is, hence surjective;
-   von Neumann's trick and the deficiency at `-1` then place `dom A†` inside `dom A`.  At `𝒢_d`
-   this gives `(closure 𝒢_d)† = -(closure 𝒢_d)`: the closed charge is **skew-adjoint**, the
-   hypothesis Stone's theorem needs.  What is left on this line is the L² realisation of the
-   flow `U(t)` itself, now the only input the chain consumes.
-   [Gauss adjoint domain](BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean) ·
-   [Gauss Hamiltonian domains](BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean) ·
-   [Gauss flow and deficiency](BookProof/Qym/ChapterYangMillsGaussFlow.lean) ·
-   [Gauss Hamiltonian closure](BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean) ·
-   [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
-   [Skew-adjointness reduction](BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean) ·
-   [Parity symmetry](BookProof/Qym/ChapterYangMillsGaussParity.lean) ·
-   [Smeared bosonic charge](BookProof/Qym/ChapterYangMillsGaussBosonic.lean) ·
-   [Gauss constraint on the core](BookProof/Qym/ChapterYangMillsGaussSkew.lean) ·
-   [Packet and Schwartz proofs](BookProof/Qym/ChapterYangMillsMagneticPacket.lean) ·
-   [Unbounded BRST transfer](BookProof/ChapterBrstReducedTransferUnbounded.lean)
+   The magnetic half square has zero first variation. For orthonormal real
+   Schwartz packets, the projected local charge is symmetric on a common dense
+   Mehler core. Its commutator with a coordinate recovers the affine Gauss
+   tangent. On the inner Gaussian only the projected gradient creates a first
+   Hermite excitation. For the single profile $w=e^{-\pi|x|^2}$, projecting
+   multiplication by $w$ back onto its span loses the strictly positive squared
+   norm $\sqrt{1/8}-8/27$ per unit input. Increasing Hermite degree or solver rank
+   leaves this spatial omission in place.
+   [Local charge](BookProof/Qym/ChapterYangMillsPacketCharge.lean) ·
+   [Exact spatial projection defect](BookProof/Qym/ChapterYangMillsMagneticPacket.lean)
+
+   The separately implemented 99-coordinate colour rotation has a skew-symmetric
+   core generator and a closed skew extension. Skew-adjointness of that closure is
+   proved **given** an all-time contraction flow preserving the core with the stated
+   derivative. Realizing the flow discharges this input for the rotation. Extending
+   Hamiltonian commutation from the core to unbounded domains also requires the two
+   Hamiltonian graph limits in the domain theorem. The projected local charge above
+   has an additional translation, and requires its own physical reduction.
+   [Adjoint-domain theorem](BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean) ·
+   [Hamiltonian domain theorem](BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean) ·
+   [BRST domain transfer](BookProof/ChapterBrstReducedTransferUnbounded.lean)
 2. **U3, ordered finite comparison.** For the $g=2$, occupation-10 diagnostic,
    the dimension is 420 odd plus 581 even. Sparse inertia on the assembled blocks
    gives the following counts strictly below each common threshold.

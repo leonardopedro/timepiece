@@ -1180,6 +1180,7 @@ import BookProof.Qym.ChapterYangMillsGaussFlow
 import BookProof.Qym.ChapterYangMillsGaussHamiltonianDomain
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
+import BookProof.Qym.ChapterYangMillsPacketFloor
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
 import BookProof.Qym.ChapterYangMillsMagneticPacket
 import BookProof.Qym.ChapterYangMillsResolventBudget
