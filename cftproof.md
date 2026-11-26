@@ -496,7 +496,9 @@ kernel (`mehlerStep`) and feeds it to Mathlib's Ionescu–Tulcea theorem
 `ℕ → ℝ`.  `mehlerPathMeasure_step` identifies the joint law of the history up to `n` and the
 next position as the kernel-composition law.  `mehlerPathMeasure_eval_zero` (via the general
 `trajMeasure_eval_zero`) pins the first coordinate to the starting Dirac `x`, the anchor of the
-finite-marginal identification.  This is the infinite discrete-time
+finite-marginal identification.  `mehlerPathMeasure_eval_one` further identifies the law of the
+position at time `1` with the first Mehler kernel density, so the first two coordinates agree
+with the two-slice `pathMeasure`.  This is the infinite discrete-time
 measure only: the full finite marginals are not identified with `pathMeasure`, no continuum limit
 `ε = T/N → 0` is taken, and the interacting Strang weight is absent.
 

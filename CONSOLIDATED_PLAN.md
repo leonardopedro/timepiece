@@ -28040,7 +28040,10 @@ explicitly to keep the dependent typeclass inference tractable.  A follow-up pro
 `trajMeasure_eval_zero`: the first coordinate of a `trajMeasure` has law `μ₀`.  The proof uses
 `lintegral_traj` at `a = 0`, the `updateFinset` invariance of first-coordinate cylinder functions,
 `Measure.bind_apply` and `lintegral_map`; `mehlerPathMeasure_eval_zero` specializes it to the
-starting Dirac `x`.
+starting Dirac `x`.  A second follow-up proves `trajMeasure_eval_zero_history` (the law of the
+history up to time `0` is `μ₀.map piUnique.symm`) and `mehlerPathMeasure_eval_one`: the position
+at time `1` has density `mehlerKernel (ρ 0) x` against Lebesgue measure.  Together these identify
+the first two coordinates of `mehlerPathMeasure` with the two-slice `pathMeasure`.
 
 **Boundary.** Infinite *discrete* time only.  The full finite marginals are not identified with the
 `Fin`-indexed `pathMeasure` of `ChapterFinitePathMeasure`, the continuum limit

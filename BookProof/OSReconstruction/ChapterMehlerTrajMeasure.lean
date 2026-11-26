@@ -128,6 +128,65 @@ lemma trajMeasure_eval_zero {μ₀ : Measure ℝ} [IsProbabilityMeasure μ₀]
       (measurable_pi_apply (⟨0, by simp⟩ : Finset.Iic 0))
   · exact (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm.measurable
 
+/-- A cylinder function of the history up to time `0` is unchanged by `updateFinset`. -/
+lemma traj_eval_zero_history_key (κ' : (n : ℕ) → Kernel (Π i : Finset.Iic n, ℝ) ℝ)
+    [∀ n, IsMarkovKernel (κ' n)]
+    (y : Π i : Finset.Iic 0, ℝ) (T : Set (Π i : Finset.Iic 0, ℝ))
+    (hT : MeasurableSet T) :
+    (∫⁻ ω : ℕ → ℝ, T.indicator (fun _ : (Π i : Finset.Iic 0, ℝ) => (1 : ENNReal))
+      (frestrictLe 0 ω) ∂traj κ' 0 y) =
+      T.indicator (fun _ : (Π i : Finset.Iic 0, ℝ) => (1 : ENNReal)) y := by
+  rw [lintegral_traj (X := fun _ : ℕ => ℝ) (κ := κ') y]
+  · have hupd : (fun ω : ℕ → ℝ => T.indicator
+        (fun _ : (Π i : Finset.Iic 0, ℝ) => (1 : ENNReal))
+        (frestrictLe 0 (updateFinset ω (Finset.Iic 0) y))) =
+        fun _ => T.indicator (fun _ : (Π i : Finset.Iic 0, ℝ) => (1 : ENNReal)) y := by
+      funext ω
+      apply congrArg (fun h : (Π i : Finset.Iic 0, ℝ) =>
+        T.indicator (fun _ => (1 : ENNReal)) h)
+      funext i
+      simp [frestrictLe, updateFinset]
+    rw [hupd]
+    simp
+  · exact (measurable_const.indicator hT).comp (measurable_frestrictLe 0)
+
+/-- The law of the history up to time `0` is the initial measure pushed through `piUnique`. -/
+lemma trajMeasure_eval_zero_history {μ₀ : Measure ℝ} [IsProbabilityMeasure μ₀]
+    (κ' : (n : ℕ) → Kernel (Π i : Finset.Iic n, ℝ) ℝ)
+    [∀ n, IsMarkovKernel (κ' n)] :
+    (trajMeasure (X := fun _ : ℕ => ℝ) μ₀ κ').map (frestrictLe 0) =
+      μ₀.map (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm := by
+  ext T hT
+  rw [Measure.map_apply (measurable_frestrictLe 0) hT]
+  rw [← lintegral_indicator_one hT]
+  dsimp [trajMeasure]
+  rw [Measure.bind_apply
+    (f := traj (X := fun _ : ℕ => ℝ) κ' 0)
+    (s := frestrictLe 0 ⁻¹' T)
+    (hT.preimage (measurable_frestrictLe 0)) (Kernel.aemeasurable _)]
+  have hsetint (a : Π i : Finset.Iic 0, ℝ) :
+      ((traj (X := fun _ : ℕ => ℝ) κ' 0) a) (frestrictLe 0 ⁻¹' T) =
+        T.indicator (fun _ : (Π i : Finset.Iic 0, ℝ) => (1 : ENNReal)) a := by
+    rw [← lintegral_indicator_one (hT.preimage (measurable_frestrictLe 0))]
+    calc
+      (∫⁻ ω : ℕ → ℝ, (frestrictLe 0 ⁻¹' T).indicator
+          (1 : (ℕ → ℝ) → ENNReal) ω ∂traj κ' 0 a) =
+          ∫⁻ ω : ℕ → ℝ, T.indicator (fun _ : (Π i : Finset.Iic 0, ℝ) => (1 : ENNReal))
+            (frestrictLe 0 ω) ∂traj κ' 0 a := by
+        apply lintegral_congr_ae
+        filter_upwards with ω
+        by_cases hω : frestrictLe 0 ω ∈ T <;> simp [hω]
+      _ = T.indicator (fun _ : (Π i : Finset.Iic 0, ℝ) => (1 : ENNReal)) a :=
+        traj_eval_zero_history_key κ' a T hT
+  simp_rw [hsetint]
+  rw [lintegral_map']
+  · rw [lintegral_map']
+    · rfl
+    · exact (measurable_const.indicator hT).aemeasurable
+    · exact (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm.measurable.aemeasurable
+  · exact (measurable_const.indicator hT).aemeasurable
+  · exact (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm.measurable.aemeasurable
+
 /-- The Mehler path measure is pinned at the starting point `x`. -/
 theorem mehlerPathMeasure_eval_zero (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n) ^ 2 < 1) (x : ℝ) :
     (mehlerPathMeasure ρ hρ x).map (fun ω => ω 0) = Measure.dirac x := by
@@ -142,5 +201,46 @@ theorem mehlerPathMeasure_step (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n) ^ 2 < 1) 
   simpa only [mehlerPathMeasure] using
     (map_frestrictLe_trajMeasure_compProd_eq_map_trajMeasure
       (X := fun _ : ℕ => ℝ) (μ₀ := Measure.dirac x) (κ := mehlerStep ρ hρ) (a := n)).symm
+
+/-- The one-step law of the Mehler path measure is the first Mehler kernel: the position at
+    time `1` has density `mehlerKernel (ρ 0) x` against Lebesgue measure. -/
+lemma kernel_comp_dirac {α β : Type*} [MeasurableSpace α] [MeasurableSingletonClass α]
+    [MeasurableSpace β] (κ : Kernel α β) (a : α) : (κ ∘ₘ Measure.dirac a) = κ a := by
+  ext s hs
+  rw [Measure.bind_apply hs (Kernel.aemeasurable κ)]
+  exact lintegral_dirac a _
+
+theorem mehlerPathMeasure_eval_one (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n) ^ 2 < 1) (x : ℝ) :
+    (mehlerPathMeasure ρ hρ x).map (fun ω => ω 1) =
+      volume.withDensity (fun y : ℝ => ENNReal.ofReal (mehlerKernel (ρ 0) x y)) := by
+  let P := mehlerPathMeasure ρ hρ x
+  have hstep := mehlerPathMeasure_step ρ hρ x 0
+  have hsnd := congrArg (fun μ : Measure ((Π i : Finset.Iic 0, ℝ) × ℝ) => μ.snd) hstep
+  change (P.map (fun ω => (frestrictLe 0 ω, ω 1))).snd =
+    ((P.map (frestrictLe 0)) ⊗ₘ (mehlerStep ρ hρ 0)).snd at hsnd
+  have hsnd_rhs : (P.map (fun ω => (frestrictLe 0 ω, ω 1))).snd = P.map (fun ω => ω 1) := by
+    change Measure.map Prod.snd (Measure.map (fun ω => (frestrictLe 0 ω, ω 1)) P) = _
+    rw [Measure.map_map measurable_snd (by fun_prop)]
+    rfl
+  rw [hsnd_rhs] at hsnd
+  rw [Measure.snd_compProd] at hsnd
+  have hhist : P.map (frestrictLe 0) =
+      (Measure.dirac x).map (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm := by
+    dsimp [P, mehlerPathMeasure]
+    exact trajMeasure_eval_zero_history (μ₀ := Measure.dirac x) (mehlerStep ρ hρ)
+  rw [hhist] at hsnd
+  have hdirac : (Measure.dirac x).map
+      (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm =
+      Measure.dirac (fun _ : Finset.Iic 0 => x) := by
+    rw [Measure.map_dirac (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm.measurable]
+    congr
+  rw [hdirac, kernel_comp_dirac] at hsnd
+  have happly : (mehlerStep ρ hρ 0) (fun _ : Finset.Iic 0 => x) =
+      volume.withDensity (fun y : ℝ => ENNReal.ofReal (mehlerKernel (ρ 0) x y)) := by
+    dsimp [mehlerStep]
+    rw [Kernel.withDensity_apply _ (mehlerStep_meas ρ hρ 0)]
+    simp
+  rw [happly] at hsnd
+  simpa [P, mehlerPathMeasure] using hsnd
 
 end BookProof.MehlerTrajMeasure
