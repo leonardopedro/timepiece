@@ -281,6 +281,14 @@ heat semigroups `exp(−τ A_n) → exp(−τ A₀)` at every fixed time, via co
 `NormedSpace.exp` with the `NormedAlgebra ℚ` restriction instance for `E →L[ℂ] E`.  The
 unbounded strong-resolvent-to-heat theorem is still open; the bounded result does not replace it.
 
+**Status (2026-11-26): H4 resolvent-to-heat bridge (bounded).**
+`BookProof/Sirk/ChapterResolventToHeatSemigroup.lean` connects H4's resolvent hypothesis to the
+bounded transfer: since inversion is continuous at a unit of the Banach algebra `E →L[ℂ] E`
+(`NormedRing.inverse_continuousAt`), norm convergence of `(A_n + γ)⁻¹` at one resolvent point
+implies norm convergence of `A_n`, hence of the heat semigroups.  A quantitative bound
+`‖A − A₀‖ ≤ ‖A₀+γ‖ ‖R₀−R‖ ‖A+γ‖` is also proved.  This is still the bounded case; each
+`A_n + γ` is assumed invertible and no unbounded/strong-resolvent theorem is claimed.
+
 ### H5 — Euclidean vacuum projection and the infinite-volume overlap catastrophe
 
 *Adapts [cft_path.md](cft_path.md) Part II §§1–2 (Projecting onto the vacuum state; why a Higgs / non-zero-VEV potential breaks naive equivalence).*

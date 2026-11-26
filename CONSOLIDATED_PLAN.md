@@ -28002,3 +28002,25 @@ sector inequivalence (H5) or mass gap follows.
 **Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
 `shifted_field_mean_zero` and `shifted_field_variance` gives
 `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H4 resolvent-to-heat bridge (bounded)
+
+`BookProof/Sirk/ChapterResolventToHeatSemigroup.lean` supplies the bounded algebraic step that
+connects H4's resolvent formulation to the previously proved bounded semigroup transfer.
+`tendsto_of_tendsto_resolvent`: if every `A n + γ` and `A₀ + γ` is a unit of the Banach algebra
+`E →L[ℂ] E` and `Ring.inverse (A n + γ) → Ring.inverse (A₀ + γ)` in norm, then `A n → A₀` in
+norm.  The proof uses `NormedRing.inverse_continuousAt` twice: once to pass from the converging
+resolvents back to the original operators, and once to identify the limit.  `norm_sub_le_resolvent`
+gives the quantitative bound via the noncommutative resolvent identity
+`A − A₀ = (A₀+γ)((A₀+γ)⁻¹ − (A+γ)⁻¹)(A+γ)` and `ContinuousLinearMap.opNorm_comp_le`.
+`heatSemigroup_tendsto_of_resolvent` composes this with
+`ChapterHeatSemigroupBoundedTransfer.heatSemigroup_tendsto`.
+
+**Boundary.** This is the bounded, norm-resolvent case only.  The unbounded strong-resolvent to
+heat semigroup theorem is still open; invertibility of `A n + γ` is an assumption, not a
+consequence, and no physical Hamiltonian, nonnegativity or gap is involved.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on the three
+declarations gives `[propext, Classical.choice, Quot.sound]`.  Registered as the new independent
+part `BookProofHeatSemigroupTransfer` (2 modules) in `lakefile.toml` and
+`scripts/import_components.py`.

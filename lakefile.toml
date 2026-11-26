@@ -270,6 +270,12 @@ name = "BookProofWeylOrdering"
 roots = ["BookProof.ChapterSymmetricTimeStepOrdering"]
 
 [[lean_lib]]
+name = "BookProofHeatSemigroupTransfer"
+# independent part: 2 modules — the bounded generator-to-heat transfer and the H4
+# resolvent-to-generator bridge that feeds it.
+roots = ["BookProof.Sirk.ChapterResolventToHeatSemigroup"]
+
+[[lean_lib]]
 name = "BookProofMassError"
 # independent part: 3 modules — the U3/U6 arithmetic (Mathlib only), the U5 witness
 # contract that consumes it, and the census of the recorded ../unfer campaign rows.

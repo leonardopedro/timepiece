@@ -81,6 +81,8 @@ COMPONENT_NAMES = {
     "BookProof.InducedSystems.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
     "BookProof.Probability.ChapterHolomorphic": "BookProofHolomorphic",
     "BookProof.Sirk.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
+    # The bounded heat-semigroup transfer and the H4 resolvent-to-heat bridge form a part.
+    "BookProof.Sirk.ChapterHeatSemigroupBoundedTransfer": "BookProofHeatSemigroupTransfer",
     # The U3/U6 mass arithmetic and the U5 witness contract import only Mathlib and each
     # other, so they form their own independent part (not a view of the operator core).
     "BookProof.Sirk.ChapterMassErrorArithmetic": "BookProofMassError",

@@ -3587,6 +3587,9 @@ import BookProof.ChapterFlowDGammaEsa
 -- H4's bounded Euclidean semigroup transfer: operator-norm convergence of bounded generators
 -- implies convergence of the heat semigroups exp(-tau A_n) at fixed Euclidean time.
 import BookProof.Sirk.ChapterHeatSemigroupBoundedTransfer
+-- H4's bounded resolvent-to-semigroup bridge: norm convergence of resolvents at one point
+-- implies norm convergence of generators and hence of the heat semigroups.
+import BookProof.Sirk.ChapterResolventToHeatSemigroup
 -- H7/C8: the exponential flow-gap estimate is invariant under the cyclic unitary OS bridge.
 import BookProof.OSReconstruction.ChapterBridgeGapInvariance
 -- H7/C7: the OS generator is transported to the physical generator by the bridge.
