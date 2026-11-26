@@ -1128,6 +1128,13 @@ import BookProof.Qym.ChapterYangMillsGaussClosure
 -- itself is not proved: it is essential skew-adjointness of the derivation and needs the
 -- unitary flow or elliptic regularity, neither of which is in the corpus.
 import BookProof.Qym.ChapterYangMillsGaussSkewAdjoint
+-- `ChapterYangMillsGaussSkewAdjointDomain` (2026-11-26h): the reverse domain inclusion the
+-- skew-adjointness module left open.  On a skew operator the graph norm splits
+-- (`‖z - A z‖² = ‖z‖² + ‖A z‖²`), so `1 - A` is bounded below and injective; the deficiency
+-- at `+1` makes its range dense and closedness of `A` makes it closed, hence surjective.
+-- von Neumann's trick then places every `y ∈ dom A†` in `dom A`, so `ker(A† ∓ 1) = 0` gives
+-- `A† = -A` — the Gauss closure is skew-adjoint (`gaussPMap_closure_skewAdjoint_of_flow`).
+import BookProof.Qym.ChapterYangMillsGaussSkewAdjointDomain
 -- `ChapterYangMillsGaussParity` (2026-11-26d): a *concrete* bounded symmetry of the Gauss
 -- charge, supplying the two hypotheses `DomPreserve` / `StrongCommute` of
 -- `ChapterBrstReducedTransferUnbounded` with no hypothesis left.  The field-space parity

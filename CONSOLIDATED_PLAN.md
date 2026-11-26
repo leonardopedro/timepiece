@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26g):** “2026-11-26g — QYM: the closed Hamiltonian and the
+> **Newest QYM entry (2026-11-26h):** “2026-11-26h — QYM: the reverse domain inclusion, and the
+> Gauss charge is skew-adjoint” (end of file).  `ChapterYangMillsGaussSkewAdjointDomain`
+> proves `dom Ā† ⊆ dom Ā` for a closed skew operator: `1 - A` is bounded below
+> (`‖z - A z‖² = ‖z‖² + ‖A z‖²`), dense range from the deficiency at `+1`, closed from the
+> closedness of `A`, hence surjective; von Neumann's trick and the deficiency at `-1` then give
+> `A† = -A`.  Instantiated at `𝒢_d` with the flow bundle, this makes the closed charge
+> **skew-adjoint** — the 2026-11-26d reduction is now closed.  The only remaining input is the
+> L² realisation of `U(t)`.
+>
+> **QYM entry (2026-11-26g):** “2026-11-26g — QYM: the closed Hamiltonian and the
 > charge on domains” (end of file).  `ChapterYangMillsGaussHamiltonianDomain` carries the
 > 2026-11-26e commutation off the core onto the domains twice over: unconditionally for a
 > **bounded** intertwiner (`bounded_preserves_closure_domain`, with its Gauss instance
@@ -27981,3 +27990,69 @@ the pre-existing warnings in the dependency cone).  `#print axioms` on
 `bounded_preserves_closure_domain`, `gaussClosure_bounded_preserves` and
 `hamClosure_comm_gaussClosure_of_core_seq` all give `[propext, Classical.choice, Quot.sound]`;
 no `sorry`.  Imported by the `BookProof` aggregator.
+
+## 2026-11-26h — QYM: the reverse domain inclusion, and the Gauss charge is skew-adjoint
+
+One module, `BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean`.  The
+2026-11-26d entry reduced skew-adjointness of the closed charge to `dom Ā† ≤ dom Ā` and named
+two standard proofs, both needing input the corpus lacked.  This module supplies the
+inclusion from the input the corpus does have — the 2026-11-26f flow and its deficiency
+computation — so the chain now closes.
+
+### 1. The range argument, in general
+
+For a closed, densely defined operator `A` with `⟪A x, y⟫ = −⟪x, A y⟫` on its domain:
+
+* `skew_norm_sub_one` — the graph norm of `1 − A` splits:
+  `‖z − A z‖² = ‖z‖² + ‖A z‖²` (`skew_re_inner_zero` from 2026-11-26d does the work);
+  hence `skew_sub_one_norm_le`: `1 − A` is bounded below by `1`.
+* `range_oneSub_orthogonal_eq_bot` — `w ⟂ ran (1 − A)` says `⟪z, w⟫ = ⟪A z, w⟫` for every
+  core `z`, the deficiency equation at `+1`.  So the range is dense (`hplus`).
+  The sign is the point: it is `1 − A`, not `1 + A`, because the adjoint of a skew operator
+  is its negative.
+* `exists_oneSub_eq` — **`1 − A` is surjective.**  A sequence `zₙ − A zₙ → w` has
+  `‖zₙ − zₘ‖ ≤ ‖(zₙ − A zₙ) − (zₘ − A zₘ)‖`, so `zₙ` is Cauchy; its limit `z` inherits
+  `A z = z − w` from closedness of `A`.  Density plus this closure gives the range `= ⊤`.
+* `adjoint_domain_le` / `skewAdjoint_of_deficiency` — **von Neumann's trick.**  For
+  `y ∈ dom A†`, put `w = A† y + y`, choose `z` with `z − A z = w`; then `u = y − z` satisfies
+  `A† u + u = 0`.  Formal adjointness turns `A† u = −u` into the deficiency equation at `−1`
+  for `u`, which `hminus` kills.  So `u = 0`, `y = z ∈ dom A`, and with the forward half
+  already in the corpus, `A† = −A`.
+
+The two deficiency hypotheses enter exactly where expected: `+1` for the density of
+`ran (1 − A)`, `−1` once in von Neumann's step.  Nothing else is assumed — in particular no
+elliptic regularity and no Fourier estimate.
+
+### 2. The Gauss instance
+
+`gaussPMap_closure_skewAdjoint_of_flow` feeds in the closure's closedness, density, skewness
+and forward inclusion (all from 2026-11-26b/d), the two deficiencies from the flow chapter —
+including the `−1` companion `gaussPMap_polyGaussCore_deficiency_neg_one_eq_zero_of_flow`,
+which the flow module did not instantiate — and concludes
+
+```text
+SkewAdjoint (closure 𝒢_d)     -- i.e.  (closure 𝒢_d)† = −(closure 𝒢_d)
+```
+
+so `dom Ā† = dom Ā` and the closed charge is skew-adjoint.  This is the hypothesis Stone's
+theorem needs, and it is the operator-theoretic form of `𝒢_d` being the generator of the
+residual colour rotation.
+
+### What remains
+
+The flow's hypothesis bundle is still an input: `U : ℝ → L² →L L²` with `U 0 = 1`,
+`‖U t‖ ≤ 1`, core invariance and derivative `𝒢_d` on the core, i.e. the matrix exponential of
+the antisymmetric matrix `M` together with its change of variables.  It is now consumed in
+exactly one place (the deficiency theorem), and nothing downstream of it is conditional: the
+2026-11-26d reduction and this module's range argument are unconditional given the
+deficiencies.  So the remaining gap for the charge is the L² realisation of `U(t)`, stated
+once and used once.
+
+### Verification
+
+`lake build BookProof.Qym.ChapterYangMillsGaussSkewAdjointDomain` — 8072 jobs, success (only
+pre-existing warnings in the dependency cone).  `#print axioms` on `skew_norm_sub_one`,
+`exists_oneSub_eq`, `adjoint_domain_le`, `skewAdjoint_of_deficiency` and
+`gaussPMap_closure_skewAdjoint_of_flow` all give `[propext, Classical.choice, Quot.sound]`;
+no `sorry`.  Imported by the `BookProof` aggregator, and the `ChapterYangMillsGaussSkewAdjoint`
+header now points at this module instead of calling the inclusion open.

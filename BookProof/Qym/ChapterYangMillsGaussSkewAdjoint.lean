@@ -12,6 +12,12 @@ inclusion already available, skew-adjointness is *equivalent* to the reverse inc
 
 ## Why the reverse inclusion is not proved here
 
+> **Update (2026-11-26h):** the reverse inclusion *is* proved, in
+> `BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean`: `1 − A` is surjective on a
+> closed skew operator (bounded below + the deficiency at `+1`), and von Neumann's trick
+> places every `y ∈ dom A†` in `dom A`.  The paragraph below records why *this* module
+> states it as a hypothesis instead of proving it.
+
 `dom A† ⊆ dom A` is the classical essential-skew-adjointness statement for the derivation
 `Σ_m v_m ∂_m` of the colour rotation on the Gauss–polynomial core.  The two standard proofs
 both need input the corpus does not carry: either the unitary group `e^{tM}` of the linear

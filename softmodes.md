@@ -123,6 +123,15 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    `y` and at `Ā y` as the explicit input.  Those limits are the same elliptic-regularity
    statement as the reverse inclusion; what the module adds is that everything downstream of
    them is closed, so the remaining gap is exactly a density statement about the core.
+   **2026-11-26h:** the reverse inclusion is proved.
+   `BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean` shows that on a closed skew
+   operator `1 - A` is bounded below (`‖z - A z‖² = ‖z‖² + ‖A z‖²`), has dense range when the
+   adjoint has no deficiency at `+1`, and is closed because `A` is, hence surjective;
+   von Neumann's trick and the deficiency at `-1` then place `dom A†` inside `dom A`.  At `𝒢_d`
+   this gives `(closure 𝒢_d)† = -(closure 𝒢_d)`: the closed charge is **skew-adjoint**, the
+   hypothesis Stone's theorem needs.  What is left on this line is the L² realisation of the
+   flow `U(t)` itself, now the only input the chain consumes.
+   [Gauss adjoint domain](BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean) ·
    [Gauss Hamiltonian domains](BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean) ·
    [Gauss flow and deficiency](BookProof/Qym/ChapterYangMillsGaussFlow.lean) ·
    [Gauss Hamiltonian closure](BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean) ·
