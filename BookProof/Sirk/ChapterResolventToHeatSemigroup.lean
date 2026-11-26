@@ -17,7 +17,7 @@ result is conditional on each `A_n + γ` (and the limit) being a unit of `E →L
 not replace the unbounded strong-resolvent-to-heat theorem, which remains open.
 -/
 
-set_option maxHeartbeats 400000
+set_option maxHeartbeats 800000
 
 noncomputable section
 
@@ -29,6 +29,8 @@ open BookProof.HeatSemigroupBoundedTransfer
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E] [CompleteSpace E]
 
 local notation "R" => E →L[ℂ] E
+
+local instance : NormedAlgebra ℚ R := NormedAlgebra.restrictScalars ℚ ℂ R
 
 /-- Norm convergence of the resolvents at one point implies norm convergence of the generators.
     The proof applies continuity of inversion twice: resolvents converge to the limit resolvent,
@@ -92,6 +94,24 @@ theorem norm_sub_le_resolvent {A A₀ : R} {γ : ℂ}
   change ‖((u₀ : R).comp ((↑(u₀⁻¹) : R) - (↑(u⁻¹) : R))).comp (u : R)‖ ≤
     ‖(u₀ : R)‖ * ‖(↑(u₀⁻¹) : R) - (↑(u⁻¹) : R)‖ * ‖(u : R)‖
   linarith
+
+/-- Joint continuity of the bounded heat semigroup in the time parameter and the generator. -/
+theorem heatSemigroup_continuous :
+    Continuous (fun p : ℝ × R => heatSemigroup p.1 p.2) := by
+  dsimp [heatSemigroup]
+  apply NormedSpace.exp_continuous.comp
+  have hc : Continuous (fun p : ℝ × R => -(p.1 : ℂ)) := by fun_prop
+  exact hc.smul continuous_snd
+
+/-- Joint convergence: time and generators may vary together. -/
+theorem heatSemigroup_tendsto_joint {τ : ℕ → ℝ} {A : ℕ → R} {τ₀ : ℝ} {A₀ : R}
+    (hτ : Tendsto τ atTop (𝓝 τ₀)) (hA : Tendsto A atTop (𝓝 A₀)) :
+    Tendsto (fun n => heatSemigroup (τ n) (A n)) atTop (𝓝 (heatSemigroup τ₀ A₀)) := by
+  have hprod : Tendsto (fun n => (τ n, A n)) atTop (𝓝 (τ₀, A₀)) := by
+    rw [nhds_prod_eq]
+    exact hτ.prodMk hA
+  simpa [Function.comp_def] using
+    (heatSemigroup_continuous.tendsto (τ₀, A₀)).comp hprod
 
 /-- At every fixed Euclidean time, norm resolvent convergence implies norm convergence of the
     bounded heat semigroups.  This is the bounded counterpart of H4's requested transfer. -/

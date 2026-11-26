@@ -305,8 +305,10 @@ unbounded strong-resolvent-to-heat theorem is still open; the bounded result doe
 bounded transfer: since inversion is continuous at a unit of the Banach algebra `E →L[ℂ] E`
 (`NormedRing.inverse_continuousAt`), norm convergence of `(A_n + γ)⁻¹` at one resolvent point
 implies norm convergence of `A_n`, hence of the heat semigroups.  A quantitative bound
-`‖A − A₀‖ ≤ ‖A₀+γ‖ ‖R₀−R‖ ‖A+γ‖` is also proved.  This is still the bounded case; each
-`A_n + γ` is assumed invertible and no unbounded/strong-resolvent theorem is claimed.
+`‖A − A₀‖ ≤ ‖A₀+γ‖ ‖R₀−R‖ ‖A+γ‖` is also proved, and `heatSemigroup_continuous` /
+`heatSemigroup_tendsto_joint` give joint continuity in time and generator.  This is still the
+bounded case; each `A_n + γ` is assumed invertible and no unbounded/strong-resolvent theorem is
+claimed.
 
 ### H5 — Euclidean vacuum projection and the infinite-volume overlap catastrophe
 

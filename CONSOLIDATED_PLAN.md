@@ -28017,7 +28017,10 @@ resolvents back to the original operators, and once to identify the limit.  `nor
 gives the quantitative bound via the noncommutative resolvent identity
 `A − A₀ = (A₀+γ)((A₀+γ)⁻¹ − (A+γ)⁻¹)(A+γ)` and `ContinuousLinearMap.opNorm_comp_le`.
 `heatSemigroup_tendsto_of_resolvent` composes this with
-`ChapterHeatSemigroupBoundedTransfer.heatSemigroup_tendsto`.
+`ChapterHeatSemigroupBoundedTransfer.heatSemigroup_tendsto`.  A further packet adds
+`heatSemigroup_continuous` (joint continuity of `(τ, A) ↦ exp(−τA)` from continuity of
+`NormedSpace.exp`) and `heatSemigroup_tendsto_joint`, allowing the time parameter and generator
+to vary together.
 
 **Boundary.** This is the bounded, norm-resolvent case only.  The unbounded strong-resolvent to
 heat semigroup theorem is still open; invertibility of `A n + γ` is an assumption, not a
