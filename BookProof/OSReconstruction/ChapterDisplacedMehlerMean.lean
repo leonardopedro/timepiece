@@ -28,6 +28,18 @@ theorem displaced_reference_eq_map (v : ℝ) (σ : NNReal) :
     (gaussianReal 0 σ).map (fun x : ℝ => x + v) = gaussianReal v σ := by
   simpa using (gaussianReal_map_add_const (μ := 0) (v := σ) v)
 
+/-- Integrating against the displaced reference equals integrating the translated observable
+    against the centered reference.  This is the Route A change of variables `φ = v + h`. -/
+theorem integral_displaced {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    (v : ℝ) (σ : NNReal) (f : ℝ → E)
+    (hf : AEStronglyMeasurable f (gaussianReal v σ)) :
+    (∫ x, f x ∂gaussianReal v σ) = ∫ x, f (x + v) ∂gaussianReal 0 σ := by
+  rw [← displaced_reference_eq_map v σ]
+  have hf' : AEStronglyMeasurable f
+      (Measure.map (fun x : ℝ => x + v) (gaussianReal 0 σ)) := by
+    simpa [displaced_reference_eq_map v σ] using hf
+  exact integral_map (by fun_prop) hf'
+
 /-- The mean of the displaced reference is exactly the vacuum `v`. -/
 theorem displaced_reference_mean (v : ℝ) (σ : NNReal) :
     (∫ x : ℝ, x ∂gaussianReal v σ) = v := by

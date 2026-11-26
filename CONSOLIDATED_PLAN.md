@@ -27992,7 +27992,9 @@ the pushforward of `gaussianReal 0 σ` under `x ↦ x + v`; `displaced_reference
 fluctuation variance is unchanged by the translation; and `displaced_pdf_pos` gives strict
 positivity of the shifted density wherever `σ ≠ 0`.  These use Mathlib's Gaussian API
 (`gaussianReal_map_add_const`, `gaussianReal_map_sub_const`, `integral_id_gaussianReal`,
-`variance_map`, `gaussianPDFReal_pos`).
+`variance_map`, `gaussianPDFReal_pos`).  A follow-up adds `integral_displaced`: for any
+measurable observable, `∫ f dγ_v = ∫ f(· + v) dγ_0`, the Route A change of variables
+`φ = v + h`.
 
 **Boundary.** This is the Gaussian reference measure only.  No Weyl displacement `D(v)` is
 conjugated through the interacting Hamiltonian, no nested-Fock vacuum `Ω_v` is constructed, no
