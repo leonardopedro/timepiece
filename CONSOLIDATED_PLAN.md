@@ -7,7 +7,17 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26d):** “2026-11-26d — QYM: the bosonic charge, a concrete
+> **Newest QYM entry (2026-11-26e):** “2026-11-26e — QYM: the Hamiltonian's closure, and the
+> two closed operators commuting on the core” (end of file).  One module,
+> `ChapterYangMillsGaussHamiltonianClosure`: the bridge from the transported polynomial
+> Hamiltonian to the analytic `ymHamiltonian` (the rewrite the skew chapter left open), the
+> core commutation `[H, 𝒢_d] = 0` stated for that operator, the graph closure `hamClosure`
+> proved to be *the* unique self-adjoint extension of the core operator, and `Ā (H̄ x) =
+> H̄ (Ā x)` on the shared Gauss core for the two **closed** operators.  Invariance of
+> `dom Ā` under all of `H̄`, and skew-adjointness of `Ā`, remain open — the same
+> graph-norm/regularity input seen from two sides.
+>
+> **QYM entry (2026-11-26d):** “2026-11-26d — QYM: the bosonic charge, a concrete
 > symmetry, and what is left of skew-adjointness” (end of file).  Three modules:
 > `ChapterYangMillsGaussSkewAdjoint` reduces skew-adjointness to the single inclusion
 > `dom A† ⊆ dom A` (with the graph-norm identity as the deficiency-index input) and does
@@ -27775,3 +27785,68 @@ and is now known to be exactly `dom A† ⊆ dom A`; there is no Stone theorem, 
 parity, not an evolution.  The Hamiltonian's own closure and the quartic magnetic term
 `f ≠ 0` are untouched, and the ghost operators (as opposed to their real coefficients) are
 not modelled.
+
+## 2026-11-26e — QYM: the Hamiltonian's closure, and the two closed operators commuting on the core
+
+One module, `BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean`, joining three
+chapters that each stopped one step short of the other.  It supersedes the boundary sentence
+of 2026-11-26d that called "the Hamiltonian's own closure" untouched: the closure is now
+built, though *not* the invariance of the charge's domain under it.
+
+### 1. The bridge the skew chapter left open
+
+`ChapterYangMillsGaussSkew` proves `[H, 𝒢_d] = 0` on the Gauss–polynomial core for the
+*transported polynomial* Hamiltonian `Φ.op (ymHamPoly G)`, and says in its header that
+identifying it with the analytic `ymHamiltonian` "is a further rewrite that is not carried
+out in this module".  `coreOp_ymHamPoly_eq_ymHamiltonian` carries it out: pointwise on the
+core, `ymHamiltonian (coreRepPoly 99) G.f x = ((hamEndo G x : PolyCore) : L2d 99)`.  It is a
+rewrite chain (`weylOp = subtype ∘ weylOpDom`, `piOps`/`magOps` are `op` of `momOp`/`mulOp`,
+`ymHamPoly` is the same `½ • (Σ π² + Σ B²)`), not a new analytic fact — but without it the
+core commutation was a statement about an operator nobody had shown to be the physical one.
+
+`ymHamiltonian_comm_gauss_core` is the consequence: `H (𝒢_d x) = 𝒢_d (H x)` for the operator
+that `ym_h_esa` makes essentially self-adjoint, on the core those two chapters share.
+
+### 2. The Hamiltonian's closure
+
+`hamClosure G := clExt (ymHamiltonian (coreRepPoly 99) G.f) polyGaussCore_dense
+(ymHamiltonian_symmetricOn …)` is the graph closure.  `hamClosure_isSelfAdjointExtension`
+proves it is a self-adjoint extension of the core operator — values by `clExt_extends`,
+symmetry by `clExt_symmetricOn`, self-adjointness by `clExt_selfAdjointCriterion` fed with
+`ym_h_esa`.  `hamClosure_unique` adds von Neumann uniqueness
+(`isSelfAdjointExtension_unique_of_esa`): every self-adjoint extension of the core operator
+has `hamClosure`'s domain and values, so the closure is *determined*, not chosen.  Together
+with `ym_dGamma_esa`'s second-quantized companion this is the operator the Stone flows of
+the ESA chapter evolve; the module does not itself restate the Stone bridge.
+
+### 3. The two closed operators commute on the shared core
+
+`hamClosure_comm_gaussClosure_core` states `Ā (H̄ x) = H̄ (Ā x)` for `x` in the Gauss core,
+where `Ā` is `(gaussPMap G d (coreRepPoly 99)).closure` and `H̄` is `hamClosure G`.  Both
+closures agree with their operators on the core (`gaussPMap_closure_apply_core`,
+`hamClosure_apply_core`), so the identity is `ymHamiltonian_comm_gauss_core` after those two
+rewrites.  This is the core-level form of the `DomPreserve`/`StrongCommute` pair for the
+*closed* objects — the pair `ChapterBrstReducedTransferUnbounded` states for a bounded
+evolution, here between the closed charge and the closed Hamiltonian.
+
+### Boundary
+
+* Commutation is stated **on the core**, which lies in both domains.  It is not stated on all
+  of `dom H̄`: `H̄` leaving `dom Ā` invariant is exactly the graph-norm/regularity input whose
+  absence 2026-11-26d records for the reverse inclusion `dom A† ⊆ dom A`.  The two open items
+  are the same obstruction seen from two sides, and the module header says so.
+* No Stone group `e^{−it𝒢_d}`, no skew-adjointness of `Ā`, no essential self-adjointness of
+  `i·𝒢_d`.  The ghost sector, `Ω² = 0` and the quartic magnetic term `f ≠ 0` are untouched.
+* `hamClosure` is the closure of the *one-particle* Hamiltonian.  The coloured operator's
+  closure (`colouredHamiltonian_extension_eq_closure`, 2026-11-11n-era) is a different object
+  and is not identified with it here.
+
+### Verification
+
+`lake build BookProof.Qym.ChapterYangMillsGaussHamiltonianClosure` — 8144 jobs, success (only
+the pre-existing `ChapterFockNumberPreservingGap` unused-simp-arg warning appears in the
+dependency cone).  `#print axioms` on `coreOp_ymHamPoly_eq_ymHamiltonian`,
+`ymHamiltonian_comm_gauss_core`, `hamClosure_apply_core`, `hamClosure_symmetricOn`,
+`hamClosure_isSelfAdjointExtension`, `hamClosure_unique` and
+`hamClosure_comm_gaussClosure_core` all give `[propext, Classical.choice, Quot.sound]`; the
+file contains no `sorry`.  It is imported by the `BookProof` aggregator.

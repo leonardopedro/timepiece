@@ -1145,6 +1145,15 @@ import BookProof.Qym.ChapterYangMillsGaussParity
 -- (`closure_skew_of_graph_form`).  Complex coefficients are *not* claimed: `(z A)† = conj z A†`,
 -- so only real `z` keeps the object skew.  The ghost operators and `Ω² = 0` are out of scope.
 import BookProof.Qym.ChapterYangMillsGaussBosonic
+-- `ChapterYangMillsGaussHamiltonianClosure` (2026-11-26e): the bridge from the transported
+-- polynomial Hamiltonian to the analytic `ymHamiltonian` (`coreOp_ymHamPoly_eq_ymHamiltonian`),
+-- so the core commutation `[H, 𝒢_d] = 0` is stated for the operator `ym_h_esa` makes
+-- essentially self-adjoint (`ymHamiltonian_comm_gauss_core`); the graph closure of that
+-- Hamiltonian (`hamClosure`), proved to be *the* unique self-adjoint extension of the core
+-- operator; and the identity `Ā (H̄ x) = H̄ (Ā x)` on the shared Gauss core for the two closed
+-- operators (`hamClosure_comm_gaussClosure_core`).  The invariance of `dom Ā` under `H̄` — all
+-- of `dom H̄`, not just the core — is still open, as is skew-adjointness of `Ā`.
+import BookProof.Qym.ChapterYangMillsGaussHamiltonianClosure
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit

@@ -93,7 +93,19 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    core, formally adjoint to its negative, closable, with closed densely defined closure, and
    `closure Ω_bos z ≤ −(closure Ω_bos z)†`.  Complex coefficients are deliberately **not**
    claimed: `(z A)† = conj z · A†`, so a complex combination of skew operators is not skew;
-   the ghost operators and `Ω² = 0` are outside the module.  [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
+   the ghost operators and `Ω² = 0` are outside the module.
+   **2026-11-26e:** the *Hamiltonian* half of that sentence — "the closed Hamiltonian ...
+   commutes with the charge" — is now on the core for the **closed** pair.
+   `BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean` first proves the rewrite the
+   skew chapter left open (the transported polynomial Hamiltonian *is* the analytic
+   `ymHamiltonian` on the core), so the core commutation is stated for the operator `ym_h_esa`
+   makes essentially self-adjoint; then builds that operator's graph closure, proves it is the
+   **unique** self-adjoint extension of the core operator (values, symmetry and the
+   self-adjointness criterion from `ym_h_esa`, plus von Neumann uniqueness), and proves
+   `Ā (H̄ x) = H̄ (Ā x)` on the shared Gauss core for the two closed operators.  What is still
+   missing is invariance of all of `dom Ā` under `H̄` — the same graph-norm/regularity input as
+   the reverse inclusion, not a separate obstruction.  [Gauss Hamiltonian closure](BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean) ·
+   [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
    [Skew-adjointness reduction](BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean) ·
    [Parity symmetry](BookProof/Qym/ChapterYangMillsGaussParity.lean) ·
    [Smeared bosonic charge](BookProof/Qym/ChapterYangMillsGaussBosonic.lean) ·
