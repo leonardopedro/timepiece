@@ -27962,3 +27962,23 @@ does not establish a mass gap.  No gap value is asserted.
 **Verification.** `lake env lean` and `lake build BookProof` succeed (9112 jobs);
 `#print axioms` on `generator_image`, `generator_eq` and `generator_image_unique` gives
 `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H3 projective consistency at the last slice
+
+`BookProof/OSReconstruction/ChapterPathMeasureMarginal.lean` upgrades the finite path measures
+of `ChapterFinitePathMeasure` to a projective family at the last coordinate.  The projection
+`dropLast z i = z i.castSucc` is measurable and equals the second component of
+`MeasurableEquiv.piFinSuccAbove ... (Fin.last (N+1))`.  `pathMeasure_marginal` proves
+`map dropLast (pathMeasure x ρ) = pathMeasure x (fun j => ρ j.castSucc)` for every admitted
+schedule `ρ : Fin (N+1) → ℝ`: split the path at its last coordinate, rewrite the set integral
+as a pushforward integral with `lintegral_map`, apply `lintegral_prod_symm`, factor the density
+with `density_symm_last`, integrate the final Mehler kernel to one with
+`mehlerKernel_lintegral`, and identify the remaining density integral with the smaller path
+measure.  This is the consistency input an Ionescu–Tulcea / Kolmogorov extension would need.
+
+**Boundary.** No extension measure is constructed, no `N → ∞` Feynman–Kac convergence is
+proved, and the interacting Strang-weighted measure and continuum time are untouched.  H3
+remains open.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`pathMeasure_marginal` and `dropLast_eq_snd` gives `[propext, Classical.choice, Quot.sound]`.

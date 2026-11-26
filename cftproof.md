@@ -456,6 +456,14 @@ The `N`-slice product **measure**, the $N\to\infty$
 Feynman–Kac limit, the interacting potential weight and the full positive-time algebra are
 **not** proved; H3 is not complete.
 
+**Status (2026-11-26): H3 projective consistency at the last slice.**
+`BookProof/OSReconstruction/ChapterPathMeasureMarginal.lean` proves `pathMeasure_marginal`:
+dropping the final time slice of `pathMeasure x ρ` by the coordinate projection gives exactly
+`pathMeasure x (fun j => ρ j.castSucc)`, the measure with the final Mehler kernel removed.
+This is the consistency relation the Ionescu–Tulcea extension needs to pass from the finite
+family to a measure on infinite paths; it does not construct that limit measure or prove
+convergence to continuous time.
+
 **Status (2026-11-25): H1 landed (one-slice density).**
 `BookProof/ReflectionPositivity/ChapterMehlerTransitionDensity.lean` defines
 $K_\rho(x,z) = (\sqrt{\pi(1-\rho^2)})^{-1}\exp(-(z-\rho x)^2/(1-\rho^2))$ for $\rho^2<1$ and

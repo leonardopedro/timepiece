@@ -3611,6 +3611,9 @@ import BookProof.OSReconstruction.ChapterWeightedPathMeasure
 -- H3's general finite-slice path measure: the Tonelli induction proving total mass one for
 -- every admitted finite schedule of Mehler kernels.
 import BookProof.OSReconstruction.ChapterPathMeasureInduction
+-- H3's projective consistency: marginalizing the final Mehler slice recovers the smaller
+-- finite path measure, the consistency input for the Ionescu–Tulcea limit.
+import BookProof.OSReconstruction.ChapterPathMeasureMarginal
 -- H3's general finite-slice path measure (research): Fin-based base measure, its splitting
 -- at the last coordinate, and the kernel-product density factorization.
 import BookProof.OSReconstruction.ChapterFinitePathMeasure
