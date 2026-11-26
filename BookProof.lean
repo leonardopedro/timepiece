@@ -3600,6 +3600,9 @@ import BookProof.OSReconstruction.ChapterEquivalenceNoGap
 -- H6 Route B (strict limit order): the finite-volume source response has non-commuting
 -- limits -- removing the source after the volume limit leaves a nonzero VEV.
 import BookProof.ChapterExternalSourceLimitOrder
+-- H6 Route B at the measure level: the Gaussian expectation inherits the benchmark's
+-- non-commuting volume/source limit order.
+import BookProof.OSReconstruction.ChapterGaussianSourceExpectation
 -- H6 Route A (finite-volume shift): at a Higgs vacuum the radial curvature is strictly
 -- positive and the Goldstone direction has no quadratic term.
 import BookProof.Qym.ChapterShiftedVacuumEquivalence

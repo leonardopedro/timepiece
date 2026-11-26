@@ -28044,3 +28044,20 @@ not included.  H3's Feynman–Kac convergence remains open.
 **Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
 `mehlerStep_isMarkov` and `mehlerPathMeasure_step` gives
 `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H6 Route B Gaussian expectation
+
+`BookProof/OSReconstruction/ChapterGaussianSourceExpectation.lean` lifts the finite-volume
+magnetization benchmark of `ChapterExternalSourceLimitOrder` to a measure-valued statement.
+`sourceGaussian V J v σ` is `gaussianReal (finiteMagnet V J v) σ`; `sourceGaussian_expectation`
+identifies its mean with the benchmark (Mathlib's `integral_id_gaussianReal`), and
+`sourceGaussian_tendsto_volume`, `sourceGaussian_tendsto_source` and
+`sourceGaussian_limit_order_noncommute` transfer both limit orders to the expectation.  This is
+registered as the new independent part `BookProofSourceLimitOrder`.
+
+**Boundary.** A measure-valued benchmark only.  The Gaussian is not the physical Higgs/φ⁴
+finite-volume measure; there is no conditional prior refinement (`SpatialPrior.cond`), no lift to
+the nested-Fock measure and no phase-disintegration / long-range-order match (C0/C8).
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`sourceGaussian_limit_order_noncommute` gives `[propext, Classical.choice, Quot.sound]`.

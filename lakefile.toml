@@ -270,6 +270,12 @@ name = "BookProofWeylOrdering"
 roots = ["BookProof.ChapterSymmetricTimeStepOrdering"]
 
 [[lean_lib]]
+name = "BookProofSourceLimitOrder"
+# independent part: 2 modules — the finite-volume magnetization benchmark and the
+# Gaussian-measure lift of its non-commuting limit order.
+roots = ["BookProof.OSReconstruction.ChapterGaussianSourceExpectation"]
+
+[[lean_lib]]
 name = "BookProofHeatSemigroupTransfer"
 # independent part: 2 modules — the bounded generator-to-heat transfer and the H4
 # resolvent-to-generator bridge that feeds it.

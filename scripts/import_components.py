@@ -81,6 +81,8 @@ COMPONENT_NAMES = {
     "BookProof.InducedSystems.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
     "BookProof.Probability.ChapterHolomorphic": "BookProofHolomorphic",
     "BookProof.Sirk.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
+    # The finite-volume source limit-order benchmark and its Gaussian-measure lift form a part.
+    "BookProof.ChapterExternalSourceLimitOrder": "BookProofSourceLimitOrder",
     # The bounded heat-semigroup transfer and the H4 resolvent-to-heat bridge form a part.
     "BookProof.Sirk.ChapterHeatSemigroupBoundedTransfer": "BookProofHeatSemigroupTransfer",
     # The U3/U6 mass arithmetic and the U5 witness contract import only Mathlib and each

@@ -254,6 +254,13 @@ finite-volume benchmark `m_V(J) = v·VJ/(1+VJ)`: the source removed after the vo
 `v ≠ 0`, while the volume limit after removing the source leaves `0`.  The lift to the physical
 nested-Fock measure is open.
 
+**Status (2026-11-26): H6 Route B Gaussian expectation.**
+`BookProof/OSReconstruction/ChapterGaussianSourceExpectation.lean` lifts the benchmark to a
+measure: `sourceGaussian V J v σ` is the Gaussian with mean `m_V(J)`, its expectation is exactly
+`m_V(J)`, and it inherits both limit orders.  This is a measure-valued benchmark, not the
+physical infinite-volume Higgs/φ⁴ expectation; no conditional prior or phase disintegration is
+matched.
+
 **Status (2026-11-26): H6 Route A finite-volume shift.**
 `BookProof/Qym/ChapterShiftedVacuumEquivalence.lean` proves the algebraic input: at a Higgs
 vacuum `v`, the radial curvature `μ²‖v‖²` is strictly positive and a transverse shift has no
