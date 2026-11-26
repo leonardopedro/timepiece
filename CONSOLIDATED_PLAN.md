@@ -54,6 +54,54 @@
 > bosonic part `Σ_a z_a 𝒢_a` of the BRST charge for **real** ghost coefficients (complex ones
 > are not skew).
 >
+> **Newest cftproof H7/C8 entry (2026-11-26):** “State of the project — 2026-11-26:
+> bridge gap invariance landed” (end of file).  The exponential flow-gap estimate transports
+> unchanged across the cyclic unitary OS bridge.
+>
+> **Newest cftproof H7/C9 entry (2026-11-26):** “State of the project — 2026-11-26:
+> equivalence-no-gap negative control” (end of file).  The equivalence data alone cannot
+> certify a mass gap without a density floor.
+>
+> **Newest cftproof H6 Route B entry (2026-11-26):** “State of the project — 2026-11-26:
+> H6 limit order landed” (end of file).  The finite-volume source response has non-commuting
+> limits; the nested-Fock lift is open.
+>
+> **Newest cftproof H6 Route A entry (2026-11-26):** “State of the project — 2026-11-26:
+> H6 shifted-vacuum equivalence” (end of file).  At a Higgs vacuum the radial curvature is
+> strictly positive and the Goldstone direction has no quadratic term; the Mehler/SIRK field
+> redefinition remains open.
+>
+> **Newest cftproof H5 overlap entry (2026-11-26):** “State of the project — 2026-11-26:
+> H5 overlap collapse landed” (end of file).  The coherent overlap under a constant shift v
+> across N modes is exp(−N v²/2) → 0; the physical ground-state lift is open.
+>
+> **Newest cftproof H4 bounded transfer entry (2026-11-26):** “State of the project —
+> 2026-11-26: bounded Euclidean semigroup transfer” (end of file).  Norm convergence of bounded
+> generators transfers to their heat semigroups at fixed time; the unbounded theorem is open.
+>
+> **Newest cftproof H3 convolution entry (2026-11-25h):** “State of the project —
+> 2026-11-25h: the Mehler convolution law is proved” (end of file).  The N-slice composition
+> identity `∫ K_ρ K_σ = K_{ρσ}` is landed; the N-slice measure and continuous-time limit are open.
+>
+> **Newest cftproof H3 entry (2026-11-25g):** “State of the project — 2026-11-25g:
+> cftproof H3 one-slice reflection positivity landed” (end of file).  The Mehler-kernel slice
+> measure has a nonnegative OS form directly and through fkMeasure; the N-slice limit is open.
+>
+> **Newest cftproof H2 entry (2026-11-25f):** “State of the project — 2026-11-25f:
+> cftproof H2 midpoint ordering landed” (end of file).  The symmetric Strang step is exactly
+> Weyl-ordered in the Heisenberg model; the endpoint Lie step carries the half-commutator
+> defect.  The general Lie–Trotter limit remains open.
+>
+> **Newest cftproof H1 entry (2026-11-25e):** “State of the project — 2026-11-25e:
+> cftproof H1 Mehler density landed” (end of file).  The closed-form one-slice transition
+> density is proved positive, normalized, equal to a normalized free transfer kernel, and to
+> realize `mehlerOp` as an integral against it.
+>
+> **Newest cftproof H0 entry (2026-11-25d):** “State of the project — 2026-11-25d:
+> cftproof H0 sector factorization landed” (end of file).  The N-particle outer flow is the
+> N-fold tensor power of the one-particle Stone flow, with its group law and vacuum fixed
+> point; H1–H7 remain open.
+
 > **QYM entry (2026-11-26c):** “State of the project — 2026-11-26c: the closure of the
 > Gauss constraint lies in the negative of its adjoint” (end of file).  `closure 𝒢_d ≤ −(closure
 > 𝒢_d)†`, i.e. the domain of the closure sits inside the domain of its adjoint with `A† y =
@@ -27316,6 +27364,195 @@ passes; `nix-shell -p python3 --run "python3 scripts/check-finite-model-witness"
 `[ok] finite-model row matches emitted fixture`; `lake env lean
 BookProof/Sirk/ChapterFiniteModelWitness.lean` and `lake build BookProof` succeed.
 
+## State of the project — 2026-11-25d: cftproof H0 sector factorization landed
+
+`cftproof.md`'s current order begins H0 → H1 → H2 → H3.  H0's core-level deliverable is now in
+`BookProof/OSReconstruction/ChapterOuterSemigroupFactorization.lean` (namespace
+`BookProof.OuterSemigroupFactorization`, imported from `BookProof.lean`):
+
+* `dmap_add` — the one-particle Stone flow composes on its invariant domain;
+* `tpow_add` — `U(s+t)⊗ⁿ = U(s)⊗ⁿ ∘ U(t)⊗ⁿ` on the `N`-fold tensor power;
+* `fockOrbit_add` — the group law on the completed bosonic `N`-particle sector;
+* `fockOrbit_zero_sector` — the `N = 0` (empty outer vacuum) sector is fixed;
+* `sector_flow_is_tensor_power` — the factorization statement: the sector orbit is the
+  symmetrized `N`-fold tensor power, whose derivative is the sector Hamiltonian of
+  `ChapterFlowDGammaEsa.hasDerivAt_fockOrbit`.
+
+**Boundary.** This is the core/group-law half of H0's acceptance, not the unbounded operator
+identity `e^{−τ dΓ(h)} = Γ(e^{−τ h})` on `L²`.  H1 (closed-form Mehler density), H2 (Trotter),
+H3 (Feynman–Kac limit), H4–H7 and C3–C9 remain open; no Euclidean measure or continuum limit
+is claimed.
+
+**Verification.** `lake env lean` on the module and `lake build BookProof` succeed (9079
+jobs); `#print axioms` on `tpow_add`/`fockOrbit_add` gives `[propext, Classical.choice,
+Quot.sound]`.  The module joins `BookProofOperatorCore` and its root was added to the Lake
+target; the import-components gate is at its baseline.
+
+## State of the project — 2026-11-25e: cftproof H1 Mehler density landed
+
+`BookProof/ReflectionPositivity/ChapterMehlerTransitionDensity.lean` (namespace
+`BookProof.MehlerTransitionDensity`, imported from `BookProof.lean`) closes H1's one-slice
+deliverable:
+
+* `mehlerKernel ρ x z = (√(π(1−ρ²)))⁻¹ exp(−(z−ρx)²/(1−ρ²))` for `ρ² < 1`;
+* `mehlerKernel_pos` — strict positivity of the density;
+* `mehlerKernel_integral` — unit mass, from translation and `integral_gaussian`;
+* `mehlerKernel_eq_freeTransferKernel` — on a one-site configuration space the exponent is
+  `freeTransferKernel (2/(1−ρ²))` with drift `ρx`;
+* `mehlerOp_eq_integral_mehlerKernel` — `mehlerOp ρ f x = ∫ z, f z * mehlerKernel ρ x z`,
+  by translation/scaling of the Lebesgue integral and the prefactor identity
+  `√(π(1−ρ²)) = √π · √(1−ρ²)`.
+
+**Boundary.** This is one Euclidean slice, not the `N`-slice Markov path measure, the
+`N → ∞` Feynman–Kac limit (H3), or reflection positivity of the interacting theory.  No
+cutoff removal or continuum claim is made.
+
+**Verification.** `lake env lean` on the module and `lake build BookProof` succeed (9080
+jobs); `#print axioms` on the three main theorems gives `[propext, Classical.choice,
+Quot.sound]`.  The module joins `BookProofOperatorCore` and its root was added to the Lake
+target; the import-components gate is at its baseline.
+
+## State of the project — 2026-11-25f: cftproof H2 midpoint ordering landed
+
+`BookProof/ChapterSymmetricTimeStepOrdering.lean` (namespace
+`BookProof.SymmetricTimeStepOrdering`, imported from `BookProof.lean`) proves the exact
+algebraic half of H2 in the Heisenberg/BCH model of `ChapterQuantizationWeyl`:
+
+* `symmetric_time_step` — `exp(aX/2) exp(bY) exp(aX/2) = exp(aX + bY)`: the symmetric
+  (Strang/midpoint) step cancels the first BCH commutator;
+* `endpoint_time_step_not_weyl` — for `ab ≠ 0` the unsymmetric Lie step differs from the
+  Weyl exponential, the negative control against endpoint time-slicing of cross-term
+  Hamiltonians;
+* `endpoint_defect` — the exact defect is multiplication by `exp((ab/2)Z)`.
+
+**Boundary.** No general Lie–Trotter/Strang product formula for bounded or unbounded form
+sums is proved: this Mathlib has no such theorem, and `ChapterSirkTrotterKato` is a different
+statement (strong resolvent convergence of a family), as cftproof's readiness ledger
+records.  No Euclidean measure, continuum limit or physical Hamiltonian is used.
+
+**Verification.** `lake env lean` on the module, `lake build BookProofWeylOrdering` and
+`lake build BookProof` succeed (9081 jobs); `#print axioms` on the three main theorems gives
+`[propext, Classical.choice, Quot.sound]`.  The two modules form their own independent part
+(`BookProofWeylOrdering`) with roots registered in `lakefile.toml` and
+`scripts/import_components.py`; the import-components gate is at its baseline.
+
+## State of the project — 2026-11-25g: cftproof H3 one-slice reflection positivity landed
+
+`BookProof/ReflectionPositivity/ChapterMehlerSliceReflectionPositivity.lean` (namespace
+`BookProof.MehlerSliceReflectionPositivity`, imported from `BookProof.lean`) closes the
+reflection-positivity half of H3 for **one slice**:
+
+* `mehlerSliceMeasure ρ z` — the measure with density `mehlerKernel ρ z`;
+* `continuous_mehlerKernel` — continuity of the density for `ρ² < 1`;
+* `mehlerSlice_osForm_nonneg` — the boundary integral of the square of the conditional
+  expectation is nonnegative, with no boundedness hypothesis;
+* `mehlerSlice_fk_reflectionPositive` — the same OS form through `fkMeasure`, with the
+  explicit integrability hypotheses `fk_reflectionPositive` requires;
+* `fkOSForm_eq_kernel_square` — the exact identification: the `fkMeasure` OS form equals
+  `∫ z (∫ y F z y * mehlerKernel ρ 0 y)² dz`, by `fk_integral_eq` and the `withDensity`
+  integral identity;
+* `mehlerSliceMeasure_univ` — the slice kernel measure is a probability, from H1's unit-mass
+  theorem and `ofReal_integral_eq_lintegral_ofReal`.
+
+**Boundary.** H3 is **not** complete: the `N`-slice product measure, the `N → ∞`
+Feynman–Kac limit, the interacting potential weight and the full positive-time algebra of
+`EuclideanMomentHierarchy` remain open.  No continuum or regulator claim is made.
+
+**Verification.** `lake env lean` on the module and `lake build BookProof` succeed (9082
+jobs); `#print axioms` on the two main theorems gives `[propext, Classical.choice,
+Quot.sound]`.  The module joins `BookProofOperatorCore` and its root was added to the Lake
+target; the import-components gate is at its baseline.
+
+## State of the project — 2026-11-25h: the Mehler convolution law is proved
+
+`BookProof/ReflectionPositivity/ChapterMehlerKernelSemigroup.lean` (namespace
+`BookProof.MehlerKernelSemigroup`, imported from `BookProof.lean`) proves, for `ρ² < 1` and
+`σ² < 1`,
+
+`∫ z : ℝ, mehlerKernel ρ x z * mehlerKernel σ z y = mehlerKernel (ρ*σ) x y`
+
+by completing the square in the exponent, translating and scaling the Gaussian integral, and
+combining the prefactors with `Real.sqrt_mul`/`Real.sqrt_div`; `mehlerKernel_integral_mul_three`
+iterates it to the three-slice path integral in path order (no Fubini swap), and
+`pathIntegral_eq` proves for every nonempty finite schedule that the nested integral equals
+`mehlerKernel (paramProd ρs)`; `paramProd_sq_lt_one` keeps the product parameter in the unit
+disc.  `paramProd_replicate` and `pathIntegral_exp_schedule` show that the exponential schedule
+`ρ_N = exp(−T/N)` reproduces `mehlerKernel (exp(−T))` exactly after `N` slices;
+`tendsto_paramProd_linear` and `tendsto_pathIntegral_linear` prove the Euler schedule
+`ρ_N = 1 − T/N` converges to the same continuous-time kernel as `N → ∞`;
+`BookProof/OSReconstruction/ChapterStrangPotentialWeight.lean` gives the Strang-symmetric
+potential weight (`strangWeight_pos`, `strangWeight_factor`, `strangWeight_one`,
+`strangWeight_const`) with the
+interior sum over `1..N−1` (so the final endpoint is not double-counted); the constant-potential
+case gives the total factor `exp(−(ε·N·c))`.
+`BookProof/OSReconstruction/ChapterTwoSlicePathMeasure.lean` builds the first
+measure-valued slice: the two-slice kernel-density measure on `ℝ × ℝ`, proved a
+probability by Tonelli (`lintegral_prod`) in path order; `ChapterThreeSlicePathMeasure` extends
+this to three nested slices by two Tonelli steps.  A general recursive path type was attempted
+and abandoned: proving `Measurable (fun p => p.1)` into a `MeasurableSpace.comap` path space is
+not discharged by the available instances. A `Fin (N+1) → ℝ` path space then gave
+`pathBase_split` (base splits at the last coordinate into `volume.prod (pathBase x N)`) and
+`pathDensity_last` (kernel product splits off the final transition), and
+`ChapterPathMeasureInduction.pathMeasure_univ` closes the Tonelli induction: for every admitted
+schedule the finite-slice path measure is a probability;
+`ChapterWeightedPathMeasure` attaches the Strang weight and bounds its path integral by
+`exp(−ε N m)` for a potential with floor `m`, and `ChapterContinuousTimeWeight` shows the
+constant-potential factor is exactly `exp(−T c)` at `ε = T/N`, independent of `N`.  The measure
+convergence to continuous time remains open.
+These are the composition laws the
+finite-slice Markov measure and the `N → ∞` Feynman–Kac transfer consume.
+
+**Boundary.** The general `N`-slice path measure family, the continuous-time limit, the interacting
+potential weight and the full positive-time algebra are still open; H3 is not complete.
+
+**Verification.** `lake env lean` on the module and `lake build BookProof` succeed (9083
+jobs); `#print axioms mehlerKernel_integral_mul` gives `[propext, Classical.choice,
+Quot.sound]`.  The module joins `BookProofOperatorCore` and its root was added to the Lake
+target; the import-components gate is at its baseline.
+
+## State of the project — 2026-11-26: bounded Euclidean semigroup transfer
+
+`BookProof/Sirk/ChapterHeatSemigroupBoundedTransfer.lean` (namespace
+`BookProof.HeatSemigroupBoundedTransfer`, imported from `BookProof.lean`) proves the bounded half
+of H4's missing Euclidean transfer: with `heatSemigroup τ A = NormedSpace.exp ((−τ) • A)`,
+operator-norm convergence `A_n → A₀` transfers to
+`heatSemigroup τ (A_n) → heatSemigroup τ (A₀)` at every fixed time, using continuity of
+`NormedSpace.exp` and a local `NormedAlgebra ℚ` restriction instance for `E →L[ℂ] E`.
+
+**Boundary.** This is the bounded-generator step only. The unbounded strong-resolvent-to-heat
+semigroup theorem (`K_n ≥ 0`, `γ > 0`, locally uniform strong convergence) remains open; no
+claim about `e^{−τK}` for unbounded `K` is made.
+
+**Verification.** `lake env lean` on the module and `lake build BookProof` succeed (9086
+jobs); `#print axioms heatSemigroup_tendsto` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H5 overlap collapse landed
+
+`BookProof/OSReconstruction/ChapterOverlapCollapse.lean` proves, from the coherent-overlap
+Gaussian kernel, that the overlap of the zero configuration with a constant shift `v` across
+`N` modes is `exp(−N v²/2)` and tends to zero for `v ≠ 0` as `N → ∞` — the Gaussian-level
+Kakutani orthogonality of H5.
+
+**Boundary.** The lift to the physical Higgs/φ⁴ ground states, the rank-one ground projection
+and the two broken-phase failure modes remain open; no physical VEV claim is made.
+
+**Verification.** `lake env lean` on the module and `lake build BookProof` succeed (9092
+jobs); `#print axioms` on both theorems gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H6 Route A finite-volume shift
+
+`BookProof/Qym/ChapterShiftedVacuumEquivalence.lean` proves the algebraic input of H6 Route A:
+at a Higgs vacuum `v`, `radial_curvature_pos` gives `0 < μ²‖v‖²` and `goldstone_no_quadratic`
+gives that a transverse shift adds only a quartic term; `shifted_vacuum_min` records that `v`
+attains the potential minimum.
+
+**Boundary.** The Mehler/SIRK field redefinition `h_σ ↦ D(v)† h_σ D(v)`, the strict limit order
+(Route B), and the infinite-volume sector inequivalence are open; no physical VEV claim.
+
+**Verification.** `lake env lean`, `lake build BookProofShiftedVacuum` and `lake build BookProof`
+succeed (9093 jobs); `#print axioms` on the main theorems gives `[propext, Classical.choice,
+Quot.sound]`.  New independent part `BookProofShiftedVacuum` registered.
+
 ## State of the project — 2026-11-25, continuous Gauss variations and joint finite counts
 
 The [QYM work order](softmodes.md) supersedes the earlier packet and U2–U6 task lists as
@@ -27528,6 +27765,19 @@ the cubic contraction over random `A` and all `(i,a,d)`) before the proof was at
 
 **Boundary.** Polynomial-core identity for the constant-multiplet model (`G.D = 0`); no
 operator-domain statement, no `CoreRep` transport, no completion.
+
+## State of the project — 2026-11-26: H6 Route B limit order
+
+`BookProof/ChapterExternalSourceLimitOrder.lean` proves, on the finite-volume benchmark
+`m_V(J) = v·VJ/(1+VJ)`, the strict limit order of H6 Route B: for `v ≠ 0`,
+`lim_{J→0+} lim_{V→∞} m_V(J) = v` while `lim_{V→∞} lim_{J→0+} m_V(J) = 0`, so the limits do not
+commute (`limit_order_noncommute`).
+
+**Boundary.** This is a benchmark response, not the physical nested-Fock expectation; the lift
+to the Higgs/φ⁴ measure and the phase-disintegration match are open.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9107 jobs); `#print
+axioms limit_order_noncommute` gives `[propext, Classical.choice, Quot.sound]`.
 
 ## 2026-11-26 — QYM: the Gauss constraint is skew on the completed Mehler core
 
@@ -28056,3 +28306,183 @@ pre-existing warnings in the dependency cone).  `#print axioms` on `skew_norm_su
 `gaussPMap_closure_skewAdjoint_of_flow` all give `[propext, Classical.choice, Quot.sound]`;
 no `sorry`.  Imported by the `BookProof` aggregator, and the `ChapterYangMillsGaussSkewAdjoint`
 header now points at this module instead of calling the inclusion open.
+
+## State of the project — 2026-11-26: H7/C9 equivalence-no-gap negative control
+
+`BookProof/OSReconstruction/ChapterEquivalenceNoGap.lean` proves
+`no_norm_convergence_of_no_floor`: without a positive lower bound on the multiplier density off
+its zero set, the transfer semigroup `flowOfHCLM` does not converge in norm to the ground
+projection, using the existing iff-gap criterion.  This is H7/C9's separation of equivalence
+from gap: reflection positivity, the OS bridge and resolvent convergence do not by themselves
+give a mass gap.
+
+**Boundary.** No no-gap theorem for the physical continuum theory is claimed; this is the
+negative control that the equivalence data are insufficient.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9110 jobs); `#print
+axioms no_norm_convergence_of_no_floor` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H7/C8 bridge gap invariance
+
+`BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean` defines `FlowGap`/`FlowGapOn` and
+proves `flowGap_bridge_iff`: an exponential contraction estimate toward a fixed point is
+equivalent on the OS side and the physical side of an `OsFockBridge`.  This is the quantitative
+generator-identification step of C7/C8; no gap value is asserted.
+
+**Boundary.** No continuum cutoff removal, OS generator self-adjointness or mass-gap theorem is
+claimed; the estimate is transported, not established.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9111 jobs); `#print
+axioms flowGap_bridge_iff` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H7/C7 generator transport
+
+`BookProof/OSReconstruction/ChapterGeneratorTransport.lean` takes the infinitesimal step that
+C7/C8 left open: if an `OsFockBridge` intertwines two strongly continuous contraction flows for
+`τ ≥ 0`, then at a vector where the OS orbit has a right derivative at `0`, the bridge image of
+that derivative is a right derivative of the physical orbit (`generator_image`).  Uniqueness of
+the derivative on `Ici 0` (`generator_eq`) then gives `generator_image_unique`: the transported
+generator value is the one the physical orbit has.  The proofs use
+`HasFDerivAt.comp_hasDerivWithinAt`, `HasDerivWithinAt.congr_of_eventuallyEq` (with the
+intertwining holding eventually on `𝓝[Ici 0] 0`) and `UniqueDiffWithinAt.eq_deriv`.
+
+**Boundary.** This identifies generators only at vectors where the relevant right derivative
+exists; it does not prove the OS generator is self-adjoint, does not remove UV/IR cutoffs and
+does not establish a mass gap.  No gap value is asserted.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9112 jobs);
+`#print axioms` on `generator_image`, `generator_eq` and `generator_image_unique` gives
+`[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H3 projective consistency at the last slice
+
+`BookProof/OSReconstruction/ChapterPathMeasureMarginal.lean` upgrades the finite path measures
+of `ChapterFinitePathMeasure` to a projective family at the last coordinate.  The projection
+`dropLast z i = z i.castSucc` is measurable and equals the second component of
+`MeasurableEquiv.piFinSuccAbove ... (Fin.last (N+1))`.  `pathMeasure_marginal` proves
+`map dropLast (pathMeasure x ρ) = pathMeasure x (fun j => ρ j.castSucc)` for every admitted
+schedule `ρ : Fin (N+1) → ℝ`: split the path at its last coordinate, rewrite the set integral
+as a pushforward integral with `lintegral_map`, apply `lintegral_prod_symm`, factor the density
+with `density_symm_last`, integrate the final Mehler kernel to one with
+`mehlerKernel_lintegral`, and identify the remaining density integral with the smaller path
+measure.  This is the consistency input an Ionescu–Tulcea / Kolmogorov extension would need.
+
+**Boundary.** No extension measure is constructed, no `N → ∞` Feynman–Kac convergence is
+proved, and the interacting Strang-weighted measure and continuum time are untouched.  H3
+remains open.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`pathMeasure_marginal` and `dropLast_eq_snd` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H6 Route A Gaussian reference
+
+`BookProof/OSReconstruction/ChapterDisplacedMehlerMean.lean` lands the Gaussian-reference half of
+H6 Route A's field redefinition.  `displaced_reference_eq_map` identifies `gaussianReal v σ` as
+the pushforward of `gaussianReal 0 σ` under `x ↦ x + v`; `displaced_reference_mean` gives mean
+`v`; `shifted_field_mean_zero` gives `∫(φ−v) dγ_v = 0`; `shifted_field_variance` shows the
+fluctuation variance is unchanged by the translation; and `displaced_pdf_pos` gives strict
+positivity of the shifted density wherever `σ ≠ 0`.  These use Mathlib's Gaussian API
+(`gaussianReal_map_add_const`, `gaussianReal_map_sub_const`, `integral_id_gaussianReal`,
+`variance_map`, `gaussianPDFReal_pos`).  A follow-up adds `integral_displaced`: for any
+measurable observable, `∫ f dγ_v = ∫ f(· + v) dγ_0`, the Route A change of variables
+`φ = v + h`, and `displaced_reference_second_moment`: `∫ φ² dγ_v = σ + v²`.  The two Gaussian
+reference chapters form the independent part `BookProofGaussianReference`.
+
+**Boundary.** This is the Gaussian reference measure only.  No Weyl displacement `D(v)` is
+conjugated through the interacting Hamiltonian, no nested-Fock vacuum `Ω_v` is constructed, no
+Mehler/SIRK redefinition of the compressed operator is carried out, and no infinite-volume
+sector inequivalence (H5) or mass gap follows.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`shifted_field_mean_zero` and `shifted_field_variance` gives
+`[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H4 resolvent-to-heat bridge (bounded)
+
+`BookProof/Sirk/ChapterResolventToHeatSemigroup.lean` supplies the bounded algebraic step that
+connects H4's resolvent formulation to the previously proved bounded semigroup transfer.
+`tendsto_of_tendsto_resolvent`: if every `A n + γ` and `A₀ + γ` is a unit of the Banach algebra
+`E →L[ℂ] E` and `Ring.inverse (A n + γ) → Ring.inverse (A₀ + γ)` in norm, then `A n → A₀` in
+norm.  The proof uses `NormedRing.inverse_continuousAt` twice: once to pass from the converging
+resolvents back to the original operators, and once to identify the limit.  `norm_sub_le_resolvent`
+gives the quantitative bound via the noncommutative resolvent identity
+`A − A₀ = (A₀+γ)((A₀+γ)⁻¹ − (A+γ)⁻¹)(A+γ)` and `ContinuousLinearMap.opNorm_comp_le`.
+`heatSemigroup_tendsto_of_resolvent` composes this with
+`ChapterHeatSemigroupBoundedTransfer.heatSemigroup_tendsto`.  A further packet adds
+`heatSemigroup_continuous` (joint continuity of `(τ, A) ↦ exp(−τA)` from continuity of
+`NormedSpace.exp`) and `heatSemigroup_tendsto_joint`, allowing the time parameter and generator
+to vary together.
+
+**Boundary.** This is the bounded, norm-resolvent case only.  The unbounded strong-resolvent to
+heat semigroup theorem is still open; invertibility of `A n + γ` is an assumption, not a
+consequence, and no physical Hamiltonian, nonnegativity or gap is involved.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on the three
+declarations gives `[propext, Classical.choice, Quot.sound]`.  Registered as the new independent
+part `BookProofHeatSemigroupTransfer` (2 modules) in `lakefile.toml` and
+`scripts/import_components.py`.
+
+## State of the project — 2026-11-26: H3 infinite Mehler path measure
+
+`BookProof/OSReconstruction/ChapterMehlerTrajMeasure.lean` constructs an actual probability
+measure on infinite discrete-time paths.  `mehlerStep ρ hρ n` is the Markov kernel with density
+`ENNReal.ofReal (mehlerKernel (ρ n) (last history))` against Lebesgue measure; its
+`IsMarkovKernel` instance is exactly `mehlerKernel_lintegral`.  `mehlerPathMeasure ρ hρ x` is
+`ProbabilityTheory.Kernel.trajMeasure (dirac x) (mehlerStep ρ hρ)`, a probability measure by
+Ionescu–Tulcea, and `mehlerPathMeasure_step` is the Mathlib compProd characterization of its
+one-step dynamics.  The dependence on the constant family `X := fun _ : ℕ => ℝ` is given
+explicitly to keep the dependent typeclass inference tractable.  A follow-up proves the general
+`trajMeasure_eval_zero`: the first coordinate of a `trajMeasure` has law `μ₀`.  The proof uses
+`lintegral_traj` at `a = 0`, the `updateFinset` invariance of first-coordinate cylinder functions,
+`Measure.bind_apply` and `lintegral_map`; `mehlerPathMeasure_eval_zero` specializes it to the
+starting Dirac `x`.  A second follow-up proves `trajMeasure_eval_zero_history` (the law of the
+history up to time `0` is `μ₀.map piUnique.symm`) and `mehlerPathMeasure_eval_one`: the position
+at time `1` has density `mehlerKernel (ρ 0) x` against Lebesgue measure.  Together these identify
+the first two coordinates of `mehlerPathMeasure` with the two-slice `pathMeasure`.
+
+**Boundary.** Infinite *discrete* time only.  The full finite marginals are not identified with the
+`Fin`-indexed `pathMeasure` of `ChapterFinitePathMeasure`, the continuum limit
+`ε = T/N → 0` to continuous Euclidean time is not taken, and the interacting Strang weight is
+not included.  H3's Feynman–Kac convergence remains open.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`mehlerStep_isMarkov` and `mehlerPathMeasure_step` gives
+`[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H6 Route B Gaussian expectation
+
+`BookProof/OSReconstruction/ChapterGaussianSourceExpectation.lean` lifts the finite-volume
+magnetization benchmark of `ChapterExternalSourceLimitOrder` to a measure-valued statement.
+`sourceGaussian V J v σ` is `gaussianReal (finiteMagnet V J v) σ`; `sourceGaussian_expectation`
+identifies its mean with the benchmark (Mathlib's `integral_id_gaussianReal`), and
+`sourceGaussian_tendsto_volume`, `sourceGaussian_tendsto_source` and
+`sourceGaussian_limit_order_noncommute` transfer both limit orders to the expectation.  This is
+registered as the new independent part `BookProofSourceLimitOrder`.
+
+**Boundary.** A measure-valued benchmark only.  The Gaussian is not the physical Higgs/φ⁴
+finite-volume measure; there is no conditional prior refinement (`SpatialPrior.cond`), no lift to
+the nested-Fock measure and no phase-disintegration / long-range-order match (C0/C8).
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`sourceGaussian_limit_order_noncommute` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H5 symmetric-boundary mean at density level
+
+`BookProof/OSReconstruction/ChapterSymmetrizedGaussianMean.lean` defines `symmetrizedGaussian v σ`
+as `(1/2) • gaussianReal v σ + (1/2) • gaussianReal (-v) σ`, proves it is a probability measure,
+and proves `symmetrizedGaussian_expectation`: its first moment is zero for every `v` and `σ`.
+The proof uses `integral_add_measure`, `integral_smul_measure` and the integrability of the
+identity under a Gaussian from `memLp_id_gaussianReal`.  A second packet adds the general
+identity `integral_sq_eq_variance_add_sq_mean` and derives
+`symmetrizedGaussian_second_moment` / `symmetrizedGaussian_variance`: both equal `σ + v²`,
+separating the fluctuation `σ` from the squared center separation `v²`.  A third packet proves
+`symmetrizedGaussian_neg_invariant`: the mixture is invariant under `x ↦ −x` (the sign flip swaps
+the two Gaussian components), the distribution-level form of the symmetric average.
+
+**Boundary.** This is the density-level symmetric-average mechanism only.  It is not the
+physical Higgs/φ⁴ ground state, not an infinite-volume superselection-sector statement, and no
+cluster decomposition, positive overlap or mass gap follows.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`symmetrizedGaussian_expectation`, `symmetrizedGaussian_second_moment` and
+`symmetrizedGaussian_variance` gives `[propext, Classical.choice, Quot.sound]`.

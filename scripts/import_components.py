@@ -81,9 +81,20 @@ COMPONENT_NAMES = {
     "BookProof.InducedSystems.ChapterHilbertSumIntertwine": "BookProofInducedSystems",
     "BookProof.Probability.ChapterHolomorphic": "BookProofHolomorphic",
     "BookProof.Sirk.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
+    # The finite-volume source limit-order benchmark and its Gaussian-measure lift form a part.
+    "BookProof.ChapterExternalSourceLimitOrder": "BookProofSourceLimitOrder",
+    # The displaced and symmetrized Gaussian reference chapters form a part.
+    "BookProof.OSReconstruction.ChapterDisplacedMehlerMean": "BookProofGaussianReference",
+    # The bounded heat-semigroup transfer and the H4 resolvent-to-heat bridge form a part.
+    "BookProof.Sirk.ChapterHeatSemigroupBoundedTransfer": "BookProofHeatSemigroupTransfer",
     # The U3/U6 mass arithmetic and the U5 witness contract import only Mathlib and each
     # other, so they form their own independent part (not a view of the operator core).
     "BookProof.Sirk.ChapterMassErrorArithmetic": "BookProofMassError",
+    # ChapterQuantizationWeyl (the Heisenberg/BCH model) and the H2 midpoint-ordering
+    # chapter that imports it form their own independent part.
+    "BookProof.ChapterQuantizationWeyl": "BookProofWeylOrdering",
+    # ChapterSmHiggsVacuum (the Higgs vacuum lemmas) and the H6 shifted-vacuum chapter.
+    "BookProof.ChapterSmHiggsVacuum": "BookProofShiftedVacuum",
     "BookProof.Lorentz.ChapterLorentzDecomp": "BookProofLorentz",
     "BookProof.Ode.ChapterOdeSampling": "BookProofSamplingTheory",
     "BookProof.Pauli.ChapterPauliLorentz": "BookProofPauli",

@@ -228,6 +228,90 @@ rules:
 * **Acceptance:** Euclidean heat-semigroup Trotter–Kato theorem, single-time SIRK error bound on
   `euclidMoment`, and explicit separation of solver error from physical cutoff error.
 
+**Status (2026-11-26): H7/C8 bridge gap invariance.**
+`BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean` proves that an exponential
+flow-gap estimate toward a fixed point is invariant under the cyclic unitary `OsFockBridge`:
+`FlowGap P x m C ↔ FlowGapOn Q (U x) m C`.  This is the quantitative generator-identification
+step C7/C8 needs; no gap value is asserted.
+
+**Status (2026-11-26): H7/C7 generator transport.**
+`BookProof/OSReconstruction/ChapterGeneratorTransport.lean` proves that an `OsFockBridge`
+intertwining two contraction flows carries a right derivative at `0` of the OS orbit to a right
+derivative of the physical orbit (`generator_image`), that the right derivative is unique on
+`Ici 0` (`generator_eq`), and hence that the transported generator value is unique
+(`generator_image_unique`).  This is the infinitesimal (operator-level) half of C7, complementing
+the flow-level gap invariance of C8; no generator self-adjointness or gap value is asserted.
+
+**Status (2026-11-26): H7/C9 negative control.**
+`BookProof/OSReconstruction/ChapterEquivalenceNoGap.lean` records the sharp separation: without
+a positive floor on the multiplier density the transfer semigroup does not converge in norm to
+the ground projection, so the Hamiltonian ↔ Euclidean equivalence data by itself cannot certify
+a mass gap.  This is a negative control; no no-gap theorem for the physical theory is claimed.
+
+**Status (2026-11-26): H6 Route B limit order.**
+`BookProof/ChapterExternalSourceLimitOrder.lean` proves the non-commuting limit order on the
+finite-volume benchmark `m_V(J) = v·VJ/(1+VJ)`: the source removed after the volume limit leaves
+`v ≠ 0`, while the volume limit after removing the source leaves `0`.  The lift to the physical
+nested-Fock measure is open.
+
+**Status (2026-11-26): H6 Route B Gaussian expectation.**
+`BookProof/OSReconstruction/ChapterGaussianSourceExpectation.lean` lifts the benchmark to a
+measure: `sourceGaussian V J v σ` is the Gaussian with mean `m_V(J)`, its expectation is exactly
+`m_V(J)`, and it inherits both limit orders.  This is a measure-valued benchmark, not the
+physical infinite-volume Higgs/φ⁴ expectation; no conditional prior or phase disintegration is
+matched.
+
+**Status (2026-11-26): H6 Route A finite-volume shift.**
+`BookProof/Qym/ChapterShiftedVacuumEquivalence.lean` proves the algebraic input: at a Higgs
+vacuum `v`, the radial curvature `μ²‖v‖²` is strictly positive and a transverse shift has no
+quadratic term.  The field redefinition at the Mehler/SIRK level and the infinite-volume sector
+inequivalence remain open.
+
+**Status (2026-11-26): H6 Route A Gaussian reference.**
+`BookProof/OSReconstruction/ChapterDisplacedMehlerMean.lean` proves the Gaussian-reference
+half of the field redefinition: the Gaussian centered at `v` is the translated centered
+Gaussian, its mean is `v`, the fluctuation `h = φ − v` has mean zero and unchanged variance,
+and its density is strictly positive at nonzero variance.  `integral_displaced` gives the Route A
+change of variables `∫ f dγ_v = ∫ f(·+v) dγ_0`, and `displaced_reference_second_moment` gives
+`∫ φ² dγ_v = σ + v²`.  There is no
+Weyl conjugation of the interacting Hamiltonian, no nested-Fock vacuum `Ω_v` and no
+infinite-volume sector result.
+
+**Status (2026-11-26): H5 symmetric-boundary mean at density level.**
+`BookProof/OSReconstruction/ChapterSymmetrizedGaussianMean.lean` proves that the equally
+weighted mixture of the Gaussians centered at `±v` is a probability measure whose first moment
+is zero, independently of `v` and `σ`.  The second moment is `σ + v²` (and hence the variance
+is `σ + v²`, since the mean vanishes), separating the common Gaussian fluctuation from the
+separation of the two centers.  `symmetrizedGaussian_neg_invariant` shows the mixture is
+invariant under `x ↦ −x` — the distribution-level form of the symmetric average.  This is the
+density-level form of the symmetric-average
+`⟨φ⟩ = 0` mechanism; no physical ground state, infinite-volume sector or cluster statement is
+implied.
+
+**Status (2026-11-26): H5 overlap collapse.**
+`BookProof/OSReconstruction/ChapterOverlapCollapse.lean` proves that the coherent overlap of the
+unshifted reference with a spatially constant shift `v` across `N` modes is
+`exp(−N v²/2)` and tends to zero as `N → ∞` for `v ≠ 0` — the Gaussian/coherent-level
+Kakutani bound.  The lift to the physical Higgs/φ⁴ ground states and the symmetric-average /
+tachyonic failure modes remain open.
+
+**Status (2026-11-26): H4 bounded transfer.**
+`BookProof/Sirk/ChapterHeatSemigroupBoundedTransfer.lean` proves the bounded-generator half of
+the missing Euclidean transfer: operator-norm convergence `A_n → A₀` implies convergence of the
+heat semigroups `exp(−τ A_n) → exp(−τ A₀)` at every fixed time, via continuity of
+`NormedSpace.exp` with the `NormedAlgebra ℚ` restriction instance for `E →L[ℂ] E`.  The
+unbounded strong-resolvent-to-heat theorem is still open; the bounded result does not replace it.
+
+**Status (2026-11-26): H4 resolvent-to-heat bridge (bounded).**
+`BookProof/Sirk/ChapterResolventToHeatSemigroup.lean` connects H4's resolvent hypothesis to the
+bounded transfer: since inversion is continuous at a unit of the Banach algebra `E →L[ℂ] E`
+(`NormedRing.inverse_continuousAt`), norm convergence of `(A_n + γ)⁻¹` at one resolvent point
+implies norm convergence of `A_n`, hence of the heat semigroups.  A quantitative bound
+`‖A − A₀‖ ≤ ‖A₀+γ‖ ‖R₀−R‖ ‖A+γ‖` is also proved, and `heatSemigroup_continuous` /
+`heatSemigroup_tendsto_joint` give joint continuity in time and generator.  This is still the
+bounded case; each `A_n + γ` is assumed invertible and no unbounded/strong-resolvent theorem is
+claimed.
+
 ### H5 — Euclidean vacuum projection and the infinite-volume overlap catastrophe
 
 *Adapts [cft_path.md](cft_path.md) Part II §§1–2 (Projecting onto the vacuum state; why a Higgs / non-zero-VEV potential breaks naive equivalence).*
@@ -357,6 +441,89 @@ finite-time SIRK accuracy replaces UV/IR cutoff removal.
 Feynman–Kac equivalence), in parallel with **H4** (Euclidean SIRK transfer) and **H5 → H6**
 (vacuum projection, overlap collapse and broken-phase restoration), feeding into **H7 / C3–C9**
 for the continuum limit.
+
+**Status (2026-11-25): H0 landed (core level).**
+`BookProof/OSReconstruction/ChapterOuterSemigroupFactorization.lean` proves that on each
+$N$-particle outer sector the Stone flow of a self-adjoint one-particle operator is the
+$N$-fold tensor power `Γ(U t)`: `tpow_add` gives the one-parameter group law,
+`fockOrbit_add` carries it to the completed sector, `fockOrbit_zero_sector` pins the empty
+vacuum, and `sector_flow_is_tensor_power` is the factorization statement itself (with
+`ChapterFlowDGammaEsa.hasDerivAt_fockOrbit` supplying the sector derivation).  This is the
+core-level factorization of H0's acceptance, not the unbounded operator equality
+$e^{-\tau d\Gamma(h)}=\Gamma(e^{-\tau h})$ on $L^2$; H1–H7 remain open.
+
+**Status (2026-11-25): H2 landed (midpoint ordering).**
+`BookProof/ChapterSymmetricTimeStepOrdering.lean` proves in the exact Heisenberg/BCH model
+that the symmetric Strang step $\exp(aX/2)\exp(bY)\exp(aX/2)$ equals $\exp(aX+bY)$ (no first
+BCH commutator), while the endpoint Lie step differs by $\tfrac{ab}{2}Z$ — the negative
+control against endpoint time-slicing of a Weyl-ordered cross-term Hamiltonian.  The general
+operator-norm Lie–Trotter limit is **not** proved: this Mathlib has no product formula, and
+`ChapterSirkTrotterKato` proves a different statement (strong resolvent convergence of a
+family), as the readiness ledger requires us to note.
+
+**Status (2026-11-25): H3 landed (one slice only).**
+`BookProof/ReflectionPositivity/ChapterMehlerSliceReflectionPositivity.lean` identifies the
+Mehler-kernel slice measure and proves its OS form nonnegative both directly (square of a
+conditional expectation) and through `fkMeasure`/`fk_reflectionPositive`;
+`fkOSForm_eq_kernel_square` is the exact identification of the two forms and
+`mehlerSliceMeasure_univ` shows the slice kernel measure is a probability, and
+`ChapterTwoSlicePathMeasure` builds the two-slice path measure and proves it a probability
+by Tonelli, and `ChapterThreeSlicePathMeasure` extends this to three slices by two Tonelli
+steps in path order.  Generalizing to arbitrary `N` was attempted with a recursive path type,
+but the required measurable-space recursion (`Measurable (fun p => p.1)` into a `comap` space)
+is not discharged by the available instances. A `Fin (N+1) → ℝ` path space was then developed:
+`ChapterFinitePathMeasure` proves the base splitting at the last coordinate (`pathBase_split`)
+and the kernel-product factorization (`pathDensity_last`) with zero-step normalization;
+`ChapterPathMeasureInduction` closes the Tonelli induction, so the general `N`-slice path
+measure is a probability for every admitted schedule (`pathMeasure_univ`), and
+`ChapterWeightedPathMeasure` attaches the Strang weight, bounding its path integral by
+`exp(−ε N m)` for a potential with floor `m` (`weighted_pathMeasure_le`), and
+`ChapterContinuousTimeWeight` shows that at `ε = T/N` the constant-potential factor is exactly
+`exp(−T c)` for every `N > 0`.  The measure convergence to continuous time remains open; and
+`BookProof/ReflectionPositivity/ChapterMehlerKernelSemigroup.lean` proves the Gaussian
+convolution law `∫ K_ρ(x,z)K_σ(z,y) dz = K_{ρσ}(x,y)` for the N-slice composition, iterated in
+`mehlerKernel_integral_mul_three` to the three-slice path integral, and
+`pathIntegral_eq` to any nonempty finite slice schedule (the nested path integral equals the
+kernel at the product parameter), `pathIntegral_exp_schedule` shows the exponential schedule
+$\rho_N=e^{-T/N}$ reproduces the continuous-time kernel exactly after $N$ slices, and
+`tendsto_pathIntegral_linear` shows the Euler schedule $\rho_N=1-T/N$ converges to it as
+$N\to\infty$, and `ChapterStrangPotentialWeight` gives the exact Strang weight
+$\exp(-\epsilon V(q_0)/2 - \epsilon\sum_{j=1}^{N-1}V(q_j) - \epsilon V(q_N)/2)$ with its
+endpoint/interior factorization and the constant-potential total factor `exp(−(εN·c))`.
+The `N`-slice product **measure**, the $N\to\infty$
+Feynman–Kac limit, the interacting potential weight and the full positive-time algebra are
+**not** proved; H3 is not complete.
+
+**Status (2026-11-26): H3 infinite Mehler path measure.**
+`BookProof/OSReconstruction/ChapterMehlerTrajMeasure.lean` builds the Mehler one-step Markov
+kernel (`mehlerStep`) and feeds it to Mathlib's Ionescu–Tulcea theorem
+(`trajMeasure`), obtaining a probability measure `mehlerPathMeasure ρ hρ x` on infinite paths
+`ℕ → ℝ`.  `mehlerPathMeasure_step` identifies the joint law of the history up to `n` and the
+next position as the kernel-composition law.  `mehlerPathMeasure_eval_zero` (via the general
+`trajMeasure_eval_zero`) pins the first coordinate to the starting Dirac `x`, the anchor of the
+finite-marginal identification.  `mehlerPathMeasure_eval_one` further identifies the law of the
+position at time `1` with the first Mehler kernel density, so the first two coordinates agree
+with the two-slice `pathMeasure`.  This is the infinite discrete-time
+measure only: the full finite marginals are not identified with `pathMeasure`, no continuum limit
+`ε = T/N → 0` is taken, and the interacting Strang weight is absent.
+
+**Status (2026-11-26): H3 projective consistency at the last slice.**
+`BookProof/OSReconstruction/ChapterPathMeasureMarginal.lean` proves `pathMeasure_marginal`:
+dropping the final time slice of `pathMeasure x ρ` by the coordinate projection gives exactly
+`pathMeasure x (fun j => ρ j.castSucc)`, the measure with the final Mehler kernel removed.
+This is the consistency relation the Ionescu–Tulcea extension needs to pass from the finite
+family to a measure on infinite paths; it does not construct that limit measure or prove
+convergence to continuous time.
+
+**Status (2026-11-25): H1 landed (one-slice density).**
+`BookProof/ReflectionPositivity/ChapterMehlerTransitionDensity.lean` defines
+$K_\rho(x,z) = (\sqrt{\pi(1-\rho^2)})^{-1}\exp(-(z-\rho x)^2/(1-\rho^2))$ for $\rho^2<1$ and
+proves positivity, unit mass, the identity with `FeynmanKac.freeTransferKernel` at stiffness
+$2/(1-\rho^2)$ and drift $\rho x$, and that `mehlerOp ρ f x = ∫ f(z) K_\rho(x,z) dz`; the
+stationary slice is $K_0(x,z)=(\sqrt\pi)^{-1}e^{-z^2}$, independent of $x$ (hence not symmetric
+in the two configurations).  This is
+the one-slice analytic equivalence only; the $N$-slice Markov measure, $N\to\infty$
+Feynman–Kac limit and reflection positivity of the interacting theory (H3) are not proved.
 
 ---
 
