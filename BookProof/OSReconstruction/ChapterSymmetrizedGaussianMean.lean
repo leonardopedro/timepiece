@@ -38,6 +38,15 @@ lemma integrable_sq_gaussian (m : ℝ) (σ : NNReal) :
     (by norm_num : (2 : ENNReal) ≠ 0) (by norm_num : (2 : ENNReal) ≠ ⊤)
   simpa [Real.norm_eq_abs, sq_abs] using h
 
+/-- The symmetric mixture is invariant under the sign flip `x ↦ −x`: it swaps the two
+    Gaussian components.  This is the distribution-level form of `⟨φ⟩ = 0`. -/
+theorem symmetrizedGaussian_neg_invariant (v : ℝ) (σ : NNReal) :
+    (symmetrizedGaussian v σ).map (fun x : ℝ => -x) = symmetrizedGaussian v σ := by
+  dsimp [symmetrizedGaussian]
+  rw [Measure.map_add _ _ measurable_neg, Measure.map_smul, Measure.map_smul]
+  rw [gaussianReal_map_neg, gaussianReal_map_neg]
+  simp [add_comm]
+
 /-- The second moment of a probability measure is its variance plus the square of its mean. -/
 lemma integral_sq_eq_variance_add_sq_mean {μ : Measure ℝ} [IsProbabilityMeasure μ]
     (h2 : MemLp (fun x : ℝ => x) 2 μ) :

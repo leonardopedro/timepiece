@@ -28084,7 +28084,9 @@ The proof uses `integral_add_measure`, `integral_smul_measure` and the integrabi
 identity under a Gaussian from `memLp_id_gaussianReal`.  A second packet adds the general
 identity `integral_sq_eq_variance_add_sq_mean` and derives
 `symmetrizedGaussian_second_moment` / `symmetrizedGaussian_variance`: both equal `σ + v²`,
-separating the fluctuation `σ` from the squared center separation `v²`.
+separating the fluctuation `σ` from the squared center separation `v²`.  A third packet proves
+`symmetrizedGaussian_neg_invariant`: the mixture is invariant under `x ↦ −x` (the sign flip swaps
+the two Gaussian components), the distribution-level form of the symmetric average.
 
 **Boundary.** This is the density-level symmetric-average mechanism only.  It is not the
 physical Higgs/φ⁴ ground state, not an infinite-volume superselection-sector statement, and no
