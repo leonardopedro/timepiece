@@ -27982,3 +27982,23 @@ remains open.
 
 **Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
 `pathMeasure_marginal` and `dropLast_eq_snd` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H6 Route A Gaussian reference
+
+`BookProof/OSReconstruction/ChapterDisplacedMehlerMean.lean` lands the Gaussian-reference half of
+H6 Route A's field redefinition.  `displaced_reference_eq_map` identifies `gaussianReal v σ` as
+the pushforward of `gaussianReal 0 σ` under `x ↦ x + v`; `displaced_reference_mean` gives mean
+`v`; `shifted_field_mean_zero` gives `∫(φ−v) dγ_v = 0`; `shifted_field_variance` shows the
+fluctuation variance is unchanged by the translation; and `displaced_pdf_pos` gives strict
+positivity of the shifted density wherever `σ ≠ 0`.  These use Mathlib's Gaussian API
+(`gaussianReal_map_add_const`, `gaussianReal_map_sub_const`, `integral_id_gaussianReal`,
+`variance_map`, `gaussianPDFReal_pos`).
+
+**Boundary.** This is the Gaussian reference measure only.  No Weyl displacement `D(v)` is
+conjugated through the interacting Hamiltonian, no nested-Fock vacuum `Ω_v` is constructed, no
+Mehler/SIRK redefinition of the compressed operator is carried out, and no infinite-volume
+sector inequivalence (H5) or mass gap follows.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`shifted_field_mean_zero` and `shifted_field_variance` gives
+`[propext, Classical.choice, Quot.sound]`.

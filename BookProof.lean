@@ -3600,6 +3600,9 @@ import BookProof.ChapterExternalSourceLimitOrder
 -- H6 Route A (finite-volume shift): at a Higgs vacuum the radial curvature is strictly
 -- positive and the Goldstone direction has no quadratic term.
 import BookProof.Qym.ChapterShiftedVacuumEquivalence
+-- H6 Route A (Gaussian reference): the displaced Gaussian is the translated centered one,
+-- its mean is the vacuum v, and the fluctuation h = phi - v has mean zero and variance sigma.
+import BookProof.OSReconstruction.ChapterDisplacedMehlerMean
 -- H5's overlap collapse: the coherent overlap of the zero state with a constant shift v
 -- across N modes is exp(-N v^2/2), tending to zero for v != 0 (Kakutani orthogonality).
 import BookProof.OSReconstruction.ChapterOverlapCollapse

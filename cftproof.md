@@ -260,6 +260,13 @@ vacuum `v`, the radial curvature `μ²‖v‖²` is strictly positive and a tran
 quadratic term.  The field redefinition at the Mehler/SIRK level and the infinite-volume sector
 inequivalence remain open.
 
+**Status (2026-11-26): H6 Route A Gaussian reference.**
+`BookProof/OSReconstruction/ChapterDisplacedMehlerMean.lean` proves the Gaussian-reference
+half of the field redefinition: the Gaussian centered at `v` is the translated centered
+Gaussian, its mean is `v`, the fluctuation `h = φ − v` has mean zero and unchanged variance,
+and its density is strictly positive at nonzero variance.  There is no Weyl conjugation of the
+interacting Hamiltonian, no nested-Fock vacuum `Ω_v` and no infinite-volume sector result.
+
 **Status (2026-11-26): H5 overlap collapse.**
 `BookProof/OSReconstruction/ChapterOverlapCollapse.lean` proves that the coherent overlap of the
 unshifted reference with a spatially constant shift `v` across `N` modes is
