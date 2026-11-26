@@ -7,7 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26e):** “2026-11-26e — QYM: the Hamiltonian's closure, and the
+> **Newest QYM entry (2026-11-26f):** “2026-11-26f — QYM: the flow of the residual rotation,
+> and the deficiency computation” (end of file).  `ChapterYangMillsGaussFlow` states the
+> rotation's L² action as a concrete hypothesis bundle (`U 0 = 1`, `‖U t‖ ≤ 1`, core
+> invariance, generator `𝒢_d`) and proves the deficiency computation
+> `ker(𝒢_d† ∓ 1) = 0` from it (`deficiency_eq_zero_of_flow` and its two signs), with the
+> Gauss instances on the core and on `L²(ℝ⁹⁹)`.  The L² realisation of `U(t)` and the
+> range argument from the two deficiencies to `dom A† ⊆ dom A` are named as the remaining
+> steps.
+>
+> **QYM entry (2026-11-26e):** “2026-11-26e — QYM: the Hamiltonian's closure, and the
 > two closed operators commuting on the core” (end of file).  One module,
 > `ChapterYangMillsGaussHamiltonianClosure`: the bridge from the transported polynomial
 > Hamiltonian to the analytic `ymHamiltonian` (the rewrite the skew chapter left open), the
@@ -27850,3 +27859,64 @@ dependency cone).  `#print axioms` on `coreOp_ymHamPoly_eq_ymHamiltonian`,
 `hamClosure_isSelfAdjointExtension`, `hamClosure_unique` and
 `hamClosure_comm_gaussClosure_core` all give `[propext, Classical.choice, Quot.sound]`; the
 file contains no `sorry`.  It is imported by the `BookProof` aggregator.
+
+## 2026-11-26f — QYM: the flow of the residual rotation, and the deficiency computation
+
+One module, `BookProof/Qym/ChapterYangMillsGaussFlow.lean`.  It takes up the first of the two
+inputs 2026-11-26d named for the reverse inclusion `dom A† ⊆ dom A`: **the unitary flow of the
+linear colour rotation**.  It does not build that flow; it states the flow as a precise,
+concrete hypothesis bundle and proves everything downstream, so the gap is now a single
+constructive task (the matrix exponential on `L²(ℝ⁹⁹)`) rather than an unnamed "Stone theorem".
+
+### 1. What the concrete flow is
+
+`𝒢_d` is the first-order operator `Σ_m v_m ∂_m` with `v = ymGaussVec G d` **linear**.  Two
+existing identities make such a field a rotation: `sum_X_ymGaussVec` (`Σ_m x_m v_m = 0`, the
+field is tangent to spheres, so the flow is orthogonal) and `pderiv_ymGaussVec_self`
+(`Σ_m ∂_m v_m = 0`, volume preserving).  Equivalently the matrix `M` with `v_m = Σ_k M_{m k}
+x_k` is antisymmetric, the flow is `E(t) = e^{-tM}`, and `E(t)` is a one-parameter group of
+rotations of `ℝ⁹⁹`; composing gives a group of isometries of `L²(ℝ⁹⁹)` preserving the
+Gauss–polynomial core (because `‖x‖²` is preserved).  The module states the resulting
+operator-theoretic data as hypotheses: `U 0 = 1`, `‖U t‖ ≤ 1`, `U t` maps the core into
+itself, and `t ↦ U t v` is differentiable at every `t` with derivative `A (U t v)` — literally
+"`A` is the generator of `U` on the core".
+
+### 2. The deficiency computation
+
+`deficiency_eq_zero_of_flow` proves the classical argument in full:
+
+* `f t = ⟪U t v, w⟫` has derivative `c f t` at **every** `t`, because the generator hypothesis
+  gives `f'(t) = ⟪A (U t v), w⟫` and the eigenvalue equation `⟪A u, w⟫ = c ⟪u, w⟫` applies to
+  the core vector `u = U t v`;
+* hence `t ↦ f t · e^{-ct}` has derivative zero, so it is constant, so `f t = f 0 · e^{ct}`;
+* `‖U t‖ ≤ 1` bounds `f` by `‖v‖ ‖w‖` uniformly in `t`, and `e^{ct}` with `c = ±1` is
+  unbounded in one direction — so `f 0 = 0`;
+* `v` ranges over a dense core, so `w = 0`.
+
+The two signs are split out as `deficiency_one_eq_zero_of_flow` and
+`deficiency_neg_one_eq_zero_of_flow`.  The Gauss instance is
+`gaussPMap_deficiency_eq_zero_of_flow`, and `gaussPMap_polyGaussCore_deficiency_eq_zero_of_flow`
+is the field-space form on `L²(ℝ⁹⁹)`.  So **the flow discharges the deficiency input**:
+`ker(Ā† ∓ 1) = 0`.
+
+### 3. What is still missing, precisely
+
+* The L² realisation of `U(t)` — matrix exponential, change of variables, core invariance,
+  differentiability — is *not* constructed.  It is the only input the module consumes.
+* The passage from `ker(Ā† ∓ 1) = 0` to `dom Ā† ⊆ dom Ā` is not in the module: it is the
+  range argument for `Ā ∓ 1` (`A ∓ 1` injective with closed range, `(ran (A ∓ 1))ᗮ = ker(Ā† ±
+  1)`, hence `ran (A ∓ 1) = ⊤`, then `(A+1)z = (1-A†)y` and `y - z ⟂ ran (A-1) = ⊤`).  That
+  argument is elementary and needs no new analysis; it is the next step, not a gap in
+  principle.
+* A technical detail: the module's `A` is the linear map on the core, not the closure, so what
+  is computed is `ker(A† ∓ 1)` for the core operator.  Identifying it with the closure's
+  adjoint (`Ā† = A†` for closable `A`) is standard and separate.
+
+### Verification
+
+`lake build BookProof.Qym.ChapterYangMillsGaussFlow` — 8071 jobs, success.  `#print axioms` on
+`deficiency_eq_zero_of_flow`, `deficiency_one_eq_zero_of_flow`,
+`deficiency_neg_one_eq_zero_of_flow`, `gaussPMap_deficiency_eq_zero_of_flow` and
+`gaussPMap_polyGaussCore_deficiency_eq_zero_of_flow` all give
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.  Imported by the `BookProof`
+aggregator.

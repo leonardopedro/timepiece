@@ -104,7 +104,17 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    self-adjointness criterion from `ym_h_esa`, plus von Neumann uniqueness), and proves
    `Ā (H̄ x) = H̄ (Ā x)` on the shared Gauss core for the two closed operators.  What is still
    missing is invariance of all of `dom Ā` under `H̄` — the same graph-norm/regularity input as
-   the reverse inclusion, not a separate obstruction.  [Gauss Hamiltonian closure](BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean) ·
+   the reverse inclusion, not a separate obstruction.
+   **2026-11-26f:** the flow route to that reverse inclusion is now concrete.
+   `BookProof/Qym/ChapterYangMillsGaussFlow.lean` records what the residual rotation *is*
+   (`v = ymGaussVec G d` is linear, `Σ_m x_m v_m = 0` and `Σ_m ∂_m v_m = 0`, so `M` is
+   antisymmetric and the classical flow `x ↦ e^{-tM}x` is a rotation), states the L² data it
+   produces as a hypothesis bundle (`U 0 = 1`, `‖U t‖ ≤ 1`, core invariance, derivative `𝒢_d`),
+   and proves the deficiency computation `ker(𝒢_d† ∓ 1) = 0` from it — the classical
+   `f' = c f`, `f t = f 0 e^{ct}`-against-a-uniform-bound argument — for both signs and on the
+   concrete field core.  Still missing: the L² construction of `U(t)` itself, and the
+   range/surjectivity step from the two deficiencies to `dom A† ⊆ dom A`.  [Gauss flow and deficiency](BookProof/Qym/ChapterYangMillsGaussFlow.lean) ·
+   [Gauss Hamiltonian closure](BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean) ·
    [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
    [Skew-adjointness reduction](BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean) ·
    [Parity symmetry](BookProof/Qym/ChapterYangMillsGaussParity.lean) ·

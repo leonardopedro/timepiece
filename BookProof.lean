@@ -1154,6 +1154,15 @@ import BookProof.Qym.ChapterYangMillsGaussBosonic
 -- operators (`hamClosure_comm_gaussClosure_core`).  The invariance of `dom Ā` under `H̄` — all
 -- of `dom H̄`, not just the core — is still open, as is skew-adjointness of `Ā`.
 import BookProof.Qym.ChapterYangMillsGaussHamiltonianClosure
+-- `ChapterYangMillsGaussFlow` (2026-11-26f): the flow input the skew-adjointness reduction
+-- names, and the deficiency computation it discharges.  `deficiency_eq_zero_of_flow` is the
+-- classical argument: a contraction family `U(t)` preserving a dense core and generated there
+-- by `A` forces `ker(A† ∓ 1) = 0` — the function `t ↦ ⟪U t v, w⟫` obeys `f' = c f`, hence
+-- `f t = f 0 · e^{ct}`, which the uniform bound kills.  Instantiated for `𝒢_d` on the
+-- Gauss–polynomial core (`gaussPMap_deficiency_eq_zero_of_flow`).  The L² construction of
+-- `U(t)` from the antisymmetric matrix exponential is *not* built here; the passage from the
+-- two deficiency spaces to `dom A† ⊆ dom A` is the separate range argument for `A ∓ 1`.
+import BookProof.Qym.ChapterYangMillsGaussFlow
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
