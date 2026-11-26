@@ -7,6 +7,10 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest cftproof H6 Route B entry (2026-11-26):** “State of the project — 2026-11-26:
+> H6 limit order landed” (end of file).  The finite-volume source response has non-commuting
+> limits; the nested-Fock lift is open.
+>
 > **Newest cftproof H6 Route A entry (2026-11-26):** “State of the project — 2026-11-26:
 > H6 shifted-vacuum equivalence” (end of file).  At a Higgs vacuum the radial curvature is
 > strictly positive and the Goldstone direction has no quadratic term; the Mehler/SIRK field
@@ -27689,3 +27693,16 @@ the cubic contraction over random `A` and all `(i,a,d)`) before the proof was at
 
 **Boundary.** Polynomial-core identity for the constant-multiplet model (`G.D = 0`); no
 operator-domain statement, no `CoreRep` transport, no completion.
+
+## State of the project — 2026-11-26: H6 Route B limit order
+
+`BookProof/ChapterExternalSourceLimitOrder.lean` proves, on the finite-volume benchmark
+`m_V(J) = v·VJ/(1+VJ)`, the strict limit order of H6 Route B: for `v ≠ 0`,
+`lim_{J→0+} lim_{V→∞} m_V(J) = v` while `lim_{V→∞} lim_{J→0+} m_V(J) = 0`, so the limits do not
+commute (`limit_order_noncommute`).
+
+**Boundary.** This is a benchmark response, not the physical nested-Fock expectation; the lift
+to the Higgs/φ⁴ measure and the phase-disintegration match are open.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9107 jobs); `#print
+axioms limit_order_noncommute` gives `[propext, Classical.choice, Quot.sound]`.

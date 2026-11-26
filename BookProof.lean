@@ -3572,6 +3572,9 @@ import BookProof.ChapterFlowDGammaEsa
 -- H4's bounded Euclidean semigroup transfer: operator-norm convergence of bounded generators
 -- implies convergence of the heat semigroups exp(-tau A_n) at fixed Euclidean time.
 import BookProof.Sirk.ChapterHeatSemigroupBoundedTransfer
+-- H6 Route B (strict limit order): the finite-volume source response has non-commuting
+-- limits -- removing the source after the volume limit leaves a nonzero VEV.
+import BookProof.ChapterExternalSourceLimitOrder
 -- H6 Route A (finite-volume shift): at a Higgs vacuum the radial curvature is strictly
 -- positive and the Goldstone direction has no quadratic term.
 import BookProof.Qym.ChapterShiftedVacuumEquivalence

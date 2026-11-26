@@ -228,6 +228,12 @@ rules:
 * **Acceptance:** Euclidean heat-semigroup Trotter–Kato theorem, single-time SIRK error bound on
   `euclidMoment`, and explicit separation of solver error from physical cutoff error.
 
+**Status (2026-11-26): H6 Route B limit order.**
+`BookProof/ChapterExternalSourceLimitOrder.lean` proves the non-commuting limit order on the
+finite-volume benchmark `m_V(J) = v·VJ/(1+VJ)`: the source removed after the volume limit leaves
+`v ≠ 0`, while the volume limit after removing the source leaves `0`.  The lift to the physical
+nested-Fock measure is open.
+
 **Status (2026-11-26): H6 Route A finite-volume shift.**
 `BookProof/Qym/ChapterShiftedVacuumEquivalence.lean` proves the algebraic input: at a Higgs
 vacuum `v`, the radial curvature `μ²‖v‖²` is strictly positive and a transverse shift has no
