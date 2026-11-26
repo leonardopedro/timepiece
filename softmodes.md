@@ -59,6 +59,21 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    construct the residual action on a common dense Mehler domain and prove that the
    closed Hamiltonian preserves it and commutes with the charge there. The unbounded
    BRST transfer already names these domain and commutation hypotheses.
+   **2026-11-26:** the *infinitesimal* half is landed —
+   `BookProof/Qym/ChapterYangMillsGaussSkew.lean` proves that `𝒢_d` is skew-adjoint on
+   the dense Mehler core (`i·𝒢_d` symmetric, the generator of the residual rotation) and
+   that the transported Hamiltonian commutes with it there.  **2026-11-26b:** the closure
+   half for the charge alone is landed too — `BookProof/Qym/ChapterYangMillsGaussClosure.lean`
+   packages `𝒢_d` as a partially defined operator on `L²(ℝ⁹⁹)`, proves it closable, and
+   proves its closure closed, densely defined and **skew**.  **2026-11-26c:** the skewness
+   is now stated in adjoint form, `closure 𝒢_d ≤ −(closure 𝒢_d)†` — the domain of the
+   closure lies in the domain of its adjoint with `A† y = −A y` there — and the closure is
+   shown to be the minimal closed extension, with the Gauss–polynomial core a core of it.
+   What remains is the *reverse* inclusion `dom A† ⊆ dom A`, i.e. skew-*adjoint*ness
+   itself (hence no Stone group yet), the
+   Hamiltonian's own closure and essential self-adjointness in the non-abelian sector, and
+   the ghost Fock completion of the full charge.  [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
+   [Gauss constraint on the core](BookProof/Qym/ChapterYangMillsGaussSkew.lean) ·
    [Packet and Schwartz proofs](BookProof/Qym/ChapterYangMillsMagneticPacket.lean) ·
    [Unbounded BRST transfer](BookProof/ChapterBrstReducedTransferUnbounded.lean)
 2. **U3, ordered finite comparison.** For the $g=2$, occupation-10 diagnostic,
