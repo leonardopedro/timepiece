@@ -24,13 +24,13 @@ marginals with the `Fin`-indexed `pathMeasure`, does not take the continuum limi
 continuous time remains open.
 -/
 
-set_option maxHeartbeats 800000
+set_option maxHeartbeats 1000000
 
 noncomputable section
 
 namespace BookProof.MehlerTrajMeasure
 
-open MeasureTheory ProbabilityTheory Kernel Filter Topology Preorder Finset
+open MeasureTheory ProbabilityTheory Kernel Filter Topology Preorder Finset Function
 open BookProof.MehlerTransitionDensity
 open BookProof.TwoSlicePathMeasure
 
@@ -74,6 +74,65 @@ instance mehlerPathMeasure_isProbability (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n)
     IsProbabilityMeasure (mehlerPathMeasure ρ hρ x) := by
   dsimp [mehlerPathMeasure]
   infer_instance
+
+/-- A cylinder function of the first coordinate is unchanged by replacing the path before time
+    `0` with the given initial history.  This is the `a = 0` case of `lintegral_traj`. -/
+lemma traj_eval_zero_key (κ' : (n : ℕ) → Kernel (Π i : Finset.Iic n, ℝ) ℝ)
+    [∀ n, IsMarkovKernel (κ' n)]
+    (y : Π i : Finset.Iic 0, ℝ) (s : Set ℝ) (hs : MeasurableSet s) :
+    (∫⁻ ω : ℕ → ℝ, s.indicator (fun _ : ℝ => (1 : ENNReal)) (ω 0) ∂traj κ' 0 y) =
+      s.indicator (fun _ : ℝ => (1 : ENNReal)) (y ⟨0, by simp⟩) := by
+  rw [lintegral_traj (X := fun _ : ℕ => ℝ) (κ := κ') y]
+  · have hupd : (fun ω : ℕ → ℝ => s.indicator (fun _ : ℝ => (1 : ENNReal))
+        ((updateFinset ω (Finset.Iic 0) y) 0)) =
+        fun _ => s.indicator (fun _ : ℝ => (1 : ENNReal)) (y ⟨0, by simp⟩) := by
+      funext ω
+      simp [updateFinset]
+    rw [hupd]
+    simp
+  · exact (measurable_const.indicator hs).comp (measurable_pi_apply 0)
+
+/-- The initial coordinate of an Ionescu–Tulcea path measure has law `μ₀`.  This is the
+    anchor of the finite-marginal identification with the `pathMeasure` family. -/
+lemma trajMeasure_eval_zero {μ₀ : Measure ℝ} [IsProbabilityMeasure μ₀]
+    (κ' : (n : ℕ) → Kernel (Π i : Finset.Iic n, ℝ) ℝ)
+    [∀ n, IsMarkovKernel (κ' n)] :
+    (trajMeasure (X := fun _ : ℕ => ℝ) μ₀ κ').map (fun ω => ω 0) = μ₀ := by
+  ext s hs
+  rw [Measure.map_apply (by fun_prop) hs]
+  rw [← lintegral_indicator_one hs]
+  dsimp [trajMeasure]
+  rw [Measure.bind_apply
+    (f := traj (X := fun _ : ℕ => ℝ) κ' 0)
+    (s := (fun ω : ℕ → ℝ => ω 0) ⁻¹' s)
+    (hs.preimage (measurable_pi_apply 0)) (Kernel.aemeasurable _)]
+  have hsetint (a : Π i : Finset.Iic 0, ℝ) :
+      ((traj (X := fun _ : ℕ => ℝ) κ' 0) a) ((fun ω : ℕ → ℝ => ω 0) ⁻¹' s) =
+        s.indicator (fun _ : ℝ => (1 : ENNReal)) (a ⟨0, by simp⟩) := by
+    rw [← lintegral_indicator_one (hs.preimage (measurable_pi_apply 0))]
+    calc
+      (∫⁻ ω : ℕ → ℝ, ((fun ω : ℕ → ℝ => ω 0) ⁻¹' s).indicator
+          (1 : (ℕ → ℝ) → ENNReal) ω ∂traj κ' 0 a) =
+          ∫⁻ ω : ℕ → ℝ, s.indicator (fun _ : ℝ => (1 : ENNReal)) (ω 0) ∂traj κ' 0 a := by
+        apply lintegral_congr_ae
+        filter_upwards with ω
+        by_cases hω : ω 0 ∈ s <;> simp [hω]
+      _ = s.indicator (fun _ : ℝ => (1 : ENNReal)) (a ⟨0, by simp⟩) :=
+        traj_eval_zero_key κ' a s hs
+  simp_rw [hsetint]
+  rw [MeasureTheory.lintegral_map]
+  · apply lintegral_congr_ae
+    filter_upwards with a
+    rfl
+  · exact (measurable_const.indicator hs).comp
+      (measurable_pi_apply (⟨0, by simp⟩ : Finset.Iic 0))
+  · exact (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm.measurable
+
+/-- The Mehler path measure is pinned at the starting point `x`. -/
+theorem mehlerPathMeasure_eval_zero (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n) ^ 2 < 1) (x : ℝ) :
+    (mehlerPathMeasure ρ hρ x).map (fun ω => ω 0) = Measure.dirac x := by
+  dsimp [mehlerPathMeasure]
+  exact trajMeasure_eval_zero (μ₀ := Measure.dirac x) (mehlerStep ρ hρ)
 
 /-- The joint law of the history up to `n` and the next position is the history law composed
     with the Mehler step kernel.  This is the Markov property of the constructed measure. -/

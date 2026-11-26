@@ -28036,9 +28036,13 @@ measure on infinite discrete-time paths.  `mehlerStep ρ hρ n` is the Markov ke
 `ProbabilityTheory.Kernel.trajMeasure (dirac x) (mehlerStep ρ hρ)`, a probability measure by
 Ionescu–Tulcea, and `mehlerPathMeasure_step` is the Mathlib compProd characterization of its
 one-step dynamics.  The dependence on the constant family `X := fun _ : ℕ => ℝ` is given
-explicitly to keep the dependent typeclass inference tractable.
+explicitly to keep the dependent typeclass inference tractable.  A follow-up proves the general
+`trajMeasure_eval_zero`: the first coordinate of a `trajMeasure` has law `μ₀`.  The proof uses
+`lintegral_traj` at `a = 0`, the `updateFinset` invariance of first-coordinate cylinder functions,
+`Measure.bind_apply` and `lintegral_map`; `mehlerPathMeasure_eval_zero` specializes it to the
+starting Dirac `x`.
 
-**Boundary.** Infinite *discrete* time only.  The finite marginals are not identified with the
+**Boundary.** Infinite *discrete* time only.  The full finite marginals are not identified with the
 `Fin`-indexed `pathMeasure` of `ChapterFinitePathMeasure`, the continuum limit
 `ε = T/N → 0` to continuous Euclidean time is not taken, and the interacting Strang weight is
 not included.  H3's Feynman–Kac convergence remains open.

@@ -494,8 +494,10 @@ Feynman–Kac limit, the interacting potential weight and the full positive-time
 kernel (`mehlerStep`) and feeds it to Mathlib's Ionescu–Tulcea theorem
 (`trajMeasure`), obtaining a probability measure `mehlerPathMeasure ρ hρ x` on infinite paths
 `ℕ → ℝ`.  `mehlerPathMeasure_step` identifies the joint law of the history up to `n` and the
-next position as the history law composed with the kernel.  This is the infinite discrete-time
-measure only: finite marginals are not identified with `pathMeasure`, no continuum limit
+next position as the kernel-composition law.  `mehlerPathMeasure_eval_zero` (via the general
+`trajMeasure_eval_zero`) pins the first coordinate to the starting Dirac `x`, the anchor of the
+finite-marginal identification.  This is the infinite discrete-time
+measure only: the full finite marginals are not identified with `pathMeasure`, no continuum limit
 `ε = T/N → 0` is taken, and the interacting Strang weight is absent.
 
 **Status (2026-11-26): H3 projective consistency at the last slice.**
