@@ -7,7 +7,12 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26):** “State of the project — 2026-11-26: the Gauss constraint
+> **Newest QYM entry (2026-11-26b):** “State of the project — 2026-11-26b: the closure of the
+> Gauss constraint exists and is skew” (end of file).  `𝒢_d` is packaged as a partially
+> defined operator on `L²(ℝ⁹⁹)`, proved closable, and its closure is closed, densely
+> defined and skew.  Skew-adjointness of the closure is not proved.
+>
+> **QYM entry (2026-11-26):** “State of the project — 2026-11-26: the Gauss constraint
 > is skew on the completed Mehler core” (end of file).  `𝒢_d` is realised on the dense
 > Gauss–polynomial core of `L²(ℝ⁹⁹)` and proved skew-adjoint there (`i·𝒢_d` symmetric),
 > and the transported Hamiltonian commutes with it on that core.
@@ -27543,3 +27548,60 @@ theorem is the transported polynomial Hamiltonian `Φ.op (ymHamPoly G)`; identif
 the analytic `ymHamiltonian` of `ChapterYangMillsHermite` is a further rewrite not carried
 out here.  The constant-multiplet regime `G.D = 0` is inherited from
 `ChapterBrstYmCommute`.
+
+## 2026-11-26b — QYM: the closure of the Gauss constraint exists and is skew
+
+`BookProof/Qym/ChapterYangMillsGaussClosure.lean` (new, imported by `BookProof.lean`)
+continues this morning's `ChapterYangMillsGaussSkew`: it passes `𝒢_d` from the dense core
+to a partially defined operator on `L²(ℝ⁹⁹)` and closes it.  This is the "…and the
+closure" half of softmodes U0 item 1, at the level of the *charge* alone.
+
+## The operator
+
+`gaussPMap G d Φ` is the `LinearPMap` with domain the Gauss–polynomial core `D` and action
+the transported `Φ.op (ymGaussPoly G d)`; `negGauss` is the same operator with negated
+values on the same domain (so that the domain equality in the adjoint criterion is
+definitional).  `gaussPMap_isFormalAdjoint_negGauss` is `𝒢_d` skewness read as
+`IsFormalAdjoint 𝒢_d (−𝒢_d)`.
+
+## Closability
+
+`gaussPMap ≤ (negGauss)†` by `IsFormalAdjoint.le_adjoint` (the density `hD` is the only
+hypothesis), the adjoint of a densely defined operator is closed
+(`LinearPMap.adjoint_isClosed`), and a closed extension makes an operator closable
+(`LinearPMap.IsClosed.isClosable`, `LinearPMap.IsClosable.leIsClosable`).  Hence
+`gaussPMap_isClosable`, `gaussPMap_closure_isClosed`, and the domain of the closure is
+dense (`gaussPMap_closure_domain_dense`, from `le_closure`).
+
+## The closure is skew
+
+`gaussPMap_graph_form_zero` shows the alternating form
+`ω (u, v) = ⟪u₂, v₁⟫ + ⟪u₁, v₂⟫` vanishes on pairs of *graph* elements — that is just
+skewness of `𝒢_d` itself, read as `⟪𝒢_d x, y⟫ + ⟪x, 𝒢_d y⟫ = 0`.
+`gaussPMap_closure_graph_form_zero` then extends the vanishing to the graph of the closure
+by the standard two-step density argument: `graph (closure 𝒢_d)` is
+`(graph 𝒢_d).topologicalClosure` (`IsClosable.graph_closure_eq_closure_graph`), `ω` is
+separately continuous in a Hilbert space, so its zero set contains the closure of a
+subset it contains.  This is the identity that `‖e^{−it𝒢_d}‖ = 1` would give, without any
+unitary group being constructed.  `gaussPMap_closure_skew` is the statement on the
+closure's domain and `gaussPMap_closure_inner_re_zero` its real-expectation corollary.
+
+The concrete instance is hypothesis-free for the field-space core: `coreRepPoly 99` with
+`polyGaussCore_dense` gives `gaussPMap_polyGaussCore_isClosable`,
+`gaussPMap_polyGaussCore_closure_domain_dense`, `gaussPMap_polyGaussCore_closure_skew` and
+`gaussPMap_polyGaussCore_closure_inner_re_zero`.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussClosure` succeeds (8069
+jobs) with no warning from the file, and `lake build BookProof` at 9093 jobs; `#print
+axioms` on `gaussPMap_isFormalAdjoint_negGauss`, `gaussPMap_isClosable`,
+`gaussPMap_closure_isClosed`, `gaussPMap_closure_domain_dense`, `gaussPMap_graph_form_zero`,
+`gaussPMap_closure_graph_form_zero`, `gaussPMap_closure_skew`,
+`gaussPMap_closure_inner_re_zero` and the four core instantiations all give
+`[propext, Classical.choice, Quot.sound]`.
+
+**Boundary.** The closure is skew, not skew-adjoint: `dom (closure 𝒢_d)† = dom (closure 𝒢_d)`
+is not proved, so no Stone theorem, no unitary group and no essential self-adjointness of
+(any self-adjoint translate of) `𝒢_d` is claimed.  Nothing here touches the ghost sector,
+the Hamiltonian's own closure, or the quartic magnetic term `f ≠ 0`; the commutation of
+2026-11-26 is still a core-level statement.  Treating `i·𝒢_d` as self-adjoint would also
+need the domain identity, since symmetry of `i·𝒢_d` is only half of it.

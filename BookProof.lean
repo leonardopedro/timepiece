@@ -1113,6 +1113,13 @@ import BookProof.Qym.ChapterYangMillsGaussCasimir
 -- `CoreRep`, and paired with the transported `[H, 𝒢_d] = 0`.  This is the operator-level
 -- half of the completion `ChapterYangMillsGaussCasimir` names as its boundary.
 import BookProof.Qym.ChapterYangMillsGaussSkew
+-- `ChapterYangMillsGaussClosure` (2026-11-26): `𝒢_d` packaged as a partially defined
+-- operator on `L²(ℝ⁹⁹)`, proved closable (dense skew ⇒ below the closed adjoint of its
+-- negative), and its closure proved to exist, to be closed with dense domain, and to be
+-- **skew**: the alternating form vanishes on the graph by skewness and, being separately
+-- continuous, on the graph closure.  Skew-adjointness of the closure and the unitary group
+-- it would generate are *not* claimed (the domain identity `dom A† = dom A` is open).
+import BookProof.Qym.ChapterYangMillsGaussClosure
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
