@@ -1120,6 +1120,31 @@ import BookProof.Qym.ChapterYangMillsGaussSkew
 -- continuous, on the graph closure.  Skew-adjointness of the closure and the unitary group
 -- it would generate are *not* claimed (the domain identity `dom A† = dom A` is open).
 import BookProof.Qym.ChapterYangMillsGaussClosure
+-- `ChapterYangMillsGaussSkewAdjoint` (2026-11-26d): skew-adjointness of the Gauss closure
+-- reduced to the one domain inclusion that is missing.  `SkewAdjoint A` is `A† = −A`; given
+-- `A ≤ −A†` (the closure module) it is *equivalent* to `dom A† ⊆ dom A`, so nothing else is
+-- open.  The graph-norm identity `‖A x + x‖² = ‖A x‖² + ‖x‖²` is proved as the
+-- deficiency-index input (`A + 1` is injective and bounded below by `1`).  The inclusion
+-- itself is not proved: it is essential skew-adjointness of the derivation and needs the
+-- unitary flow or elliptic regularity, neither of which is in the corpus.
+import BookProof.Qym.ChapterYangMillsGaussSkewAdjoint
+-- `ChapterYangMillsGaussParity` (2026-11-26d): a *concrete* bounded symmetry of the Gauss
+-- charge, supplying the two hypotheses `DomPreserve` / `StrongCommute` of
+-- `ChapterBrstReducedTransferUnbounded` with no hypothesis left.  The field-space parity
+-- `(parityU f) x = f (−x)` is a linear isometry on `L²(ℝ⁹⁹)`; it preserves the
+-- Gauss–polynomial core, and it commutes with `𝒢_d` there because the Gauss vector field is
+-- linear (hence odd), the two sign flips cancelling; the commutation passes to the domain of
+-- the closure by the graph argument.  The physical and exact states of `closure 𝒢_d` are
+-- therefore parity invariant.
+import BookProof.Qym.ChapterYangMillsGaussParity
+-- `ChapterYangMillsGaussBosonic` (2026-11-26d): the Gauss chain for the *bosonic part* of the
+-- BRST charge, `Ω_bos z = Σ_a z_a 𝒢_a` with real ghost coefficients.  Skewness, formal
+-- adjointness of the negative, closability, closed closure with dense domain and skewness of
+-- that closure (`A ≤ −A†`) are all proved for the smeared charge, and the closure's
+-- alternating-form argument is stated once for an arbitrary closable operator
+-- (`closure_skew_of_graph_form`).  Complex coefficients are *not* claimed: `(z A)† = conj z A†`,
+-- so only real `z` keeps the object skew.  The ghost operators and `Ω² = 0` are out of scope.
+import BookProof.Qym.ChapterYangMillsGaussBosonic
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit

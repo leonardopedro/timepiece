@@ -7,11 +7,23 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26c):** “State of the project — 2026-11-26c: the closure of the
+> **Newest QYM entry (2026-11-26d):** “2026-11-26d — QYM: the bosonic charge, a concrete
+> symmetry, and what is left of skew-adjointness” (end of file).  Three modules:
+> `ChapterYangMillsGaussSkewAdjoint` reduces skew-adjointness to the single inclusion
+> `dom A† ⊆ dom A` (with the graph-norm identity as the deficiency-index input) and does
+> **not** prove the inclusion; `ChapterYangMillsGaussParity` instantiates `DomPreserve` /
+> `StrongCommute` with no hypothesis left — field-space parity preserves the Gauss–polynomial
+> core, commutes with `𝒢_d` there and on the closure's domain, so the physical and exact
+> states are parity invariant; `ChapterYangMillsGaussBosonic` carries the chain to the
+> bosonic part `Σ_a z_a 𝒢_a` of the BRST charge for **real** ghost coefficients (complex ones
+> are not skew).
+>
+> **QYM entry (2026-11-26c):** “State of the project — 2026-11-26c: the closure of the
 > Gauss constraint lies in the negative of its adjoint” (end of file).  `closure 𝒢_d ≤ −(closure
 > 𝒢_d)†`, i.e. the domain of the closure sits inside the domain of its adjoint with `A† y =
 > −A y` there; that is the `A ⊆ −A†` half of skew-adjointness.  The reverse domain inclusion,
-> and with it skew-adjointness and Stone’s theorem, is still open.
+> and with it skew-adjointness and Stone’s theorem, is still open (2026-11-26d shows it is the
+> only open part).
 >
 > **QYM entry (2026-11-26b):** “State of the project — 2026-11-26b: the closure of the
 > Gauss constraint exists and is skew” (end of file).  `𝒢_d` is packaged as a partially
@@ -27665,3 +27677,101 @@ is the whole remaining gap — no Stone theorem, no unitary group `e^{−it𝒢_
 essential self-adjointness of `i·𝒢_d`.  Nothing here touches the ghost sector, the
 Hamiltonian's own closure or the quartic magnetic term `f ≠ 0`.  The module header records
 the same boundary.
+
+## 2026-11-26d — QYM: the bosonic charge, a concrete symmetry, and what is left of skew-adjointness
+
+Three modules on the Gauss track, each naming its boundary instead of widening a claim.
+
+### 1. Skew-adjointness is exactly one domain inclusion
+
+`BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean` states the target as a predicate,
+`SkewAdjoint A : Prop := A† = −A`, and proves
+
+`skewAdjoint_iff_adjoint_domain_le : A ≤ −A† → (dom A† ≤ dom A ↔ SkewAdjoint A)`.
+
+Since `gaussPMap_closure_le_negAdjoint` (2026-11-26c) supplies `A ≤ −A†` for the Gauss
+closure, `gaussPMap_closure_skewAdjoint_iff_domain_le` says the reverse inclusion
+`dom A† ⊆ dom A` is the *entire* remaining content of skew-adjointness for `closure 𝒢_d`;
+`gaussPMap_closure_skewAdjoint_of_domain_le` is the conditional theorem.  Also landed:
+`skewAdjoint_adjoint_domain` (domain equality follows), and the graph-norm identity
+`skew_norm_add_one : ‖A x + x‖² = ‖A x‖² + ‖x‖²` with its corollaries
+`skew_add_one_norm_le` (`‖x‖ ≤ ‖A x + x‖`, so `A + 1` is bounded below by `1`) and
+`skew_add_one_injective` — the deficiency-index input.  The field-space instance is
+`gaussPMap_closure_norm_add_one`.
+
+**Why the inclusion itself is not proved.**  `dom A† ⊆ dom A` is essential
+skew-adjointness of the first-order derivation `Σ_m v_m ∂_m` on the Gauss–polynomial core.
+The two standard proofs both need input the corpus does not carry: the unitary group
+`e^{tM}` of the linear flow (a Stone theorem, absent from Mathlib) or the density of the
+polynomial core in the graph norm of `A†` (an elliptic-regularity/Fourier estimate).
+Neither is faked here: the module proves the reduction and states the boundary in its
+header.
+
+### 2. A concrete bounded symmetry: `DomPreserve` / `StrongCommute` for parity
+
+`BookProof/ChapterBrstReducedTransferUnbounded.lean` reduces the unbounded commutation of a
+charge with an evolution to two hypotheses, `DomPreserve` and `StrongCommute`, and leaves
+them open because no concrete evolution of the field-theoretic charge existed.
+`BookProof/Qym/ChapterYangMillsGaussParity.lean` supplies one.
+
+Field-space parity `negMap x = −x` is measure preserving (`Measure.map_neg_eq_self`), so
+`parityU f = f ∘ negMap` is a **linear isometry** of `L²(ℝ⁹⁹)` (`parityU`, `norm_parityU`,
+`parityU_coeFn`).  On the polynomial side the sign flip `parityAlg p = p(−X)` satisfies
+`parityU_pgLp : parityU (p·e^{−‖x‖²/4}) = (θp)·e^{−‖x‖²/4}`, hence preserves the core
+(`parityU_mem_core`).  The Gauss vector field is *linear*, hence odd:
+`parityAlg_ymGaussVec : θ (v_m) = −v_m`, and with the chain rule
+`parityAlg_pderiv : θ (∂_m p) = −∂_m (θ p)` the two sign flips cancel:
+`parityAlg_ymGaussPoly : θ (𝒢_d p) = 𝒢_d (θ p)`.  Transported to `L²` this is
+`gaussPMap_polyGaussCore_parity_commute`, and the graph argument extends it to the domain of
+the closure (`gaussPMap_closure_parity`): a point of that domain is a limit of core points
+with their images, `parityU` is continuous and `𝒢_d` is closed, so both pass to the limit.
+
+That is `gaussPMap_closure_parity_domPreserve` and `gaussPMap_closure_parity_strongCommute`
+with **no hypothesis left**, and through the abstract transfer chapter,
+`gaussPMap_closure_physicalStates_parity_invariant` and
+`gaussPMap_closure_exactStates_parity_invariant`: the physical (Gauss-closed) and exact
+(pure-gauge) states of `closure 𝒢_d` are parity invariant.  This is a symmetry of order two,
+*not* the one-parameter group `e^{−it𝒢_d}`, which needs the domain inclusion of part 1.
+
+### 3. The bosonic part of the BRST charge
+
+`BookProof/Qym/ChapterYangMillsGaussBosonic.lean` carries the whole chain from one generator
+to the smeared charge.  `Ω_bos z = Σ_a z_a 𝒢_a` with `z : Fin 8 → ℝ` is
+`smearedPMap G z Φ`; the module proves
+
+* `smearedPoly_skewOn_core` — skew on the Gauss–polynomial core (skewness is preserved by
+  real linear combinations; `coreRep_op_smeared` is the transport of the sum);
+* `smearedPMap_isClosable`, `smearedPMap_closure_isClosed`,
+  `smearedPMap_closure_domain_dense` — the operator chain;
+* `closure_skew_of_graph_form` — the alternating-form argument, stated **once for an
+  arbitrary closable operator** with a skew graph, instead of once per operator;
+* `smearedPMap_closure_skew`, `smearedPMap_closure_inner_re_zero`,
+  `smearedPMap_closure_adjoint_apply`, and `smearedPMap_closure_le_negAdjoint`:
+  `closure (Ω_bos z) ≤ −(closure (Ω_bos z))†`;
+* the hypothesis-free instances `smearedPMap_polyGaussCore_isClosable`,
+  `_closure_skew`, `_closure_le_negAdjoint`.
+
+**Why the coefficients are real.**  Skewness is not preserved by complex scalars:
+`(z A)† = conj z · A† = −conj z · A`, which is `−(z A)` only for real `z`.  A complex linear
+combination of the Gauss generators is therefore **not** skew, and the module does not claim
+it is; real coefficients are the ones a ghost occupation-number sector produces (in that
+basis `c†_a` has real matrix elements).  Ghost anticommutation, the ghost number grading and
+the nilpotency `Ω² = 0` are outside the module, and skew-adjointness inherits part 1's open
+inclusion.
+
+**Verification.**  `lake build BookProof` succeeds (9096 jobs; the only warnings are the
+pre-existing long-line ones in `BookProof/Toolbox/ChapterFriedrichsExtension.lean` and
+`BookProof.lean`).  `#print axioms` on `skewAdjoint_iff_adjoint_domain_le`,
+`gaussPMap_closure_norm_add_one`, `parityU_pgLp`, `parityAlg_ymGaussPoly`,
+`gaussPMap_closure_parity`, `gaussPMap_closure_strongCommute`-side invariants,
+`smearedPoly_skewOn_core`, `smearedPMap_isClosable`, `closure_skew_of_graph_form`,
+`smearedPMap_closure_skew` and `smearedPMap_closure_le_negAdjoint` all give
+`[propext, Classical.choice, Quot.sound]`; none of the three files contains `sorry`.  All
+three are imported by the `BookProof` aggregator.
+
+**Boundary.**  Skew-*adjoint*ness of `closure 𝒢_d` (and of the smeared charge) remains open
+and is now known to be exactly `dom A† ⊆ dom A`; there is no Stone theorem, no unitary group
+`e^{−it𝒢_d}` and no essential self-adjointness of `i·𝒢_d`.  The concrete symmetry proved is
+parity, not an evolution.  The Hamiltonian's own closure and the quartic magnetic term
+`f ≠ 0` are untouched, and the ghost operators (as opposed to their real coefficients) are
+not modelled.

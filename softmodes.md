@@ -72,7 +72,31 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    What remains is the *reverse* inclusion `dom A† ⊆ dom A`, i.e. skew-*adjoint*ness
    itself (hence no Stone group yet), the
    Hamiltonian's own closure and essential self-adjointness in the non-abelian sector, and
-   the ghost Fock completion of the full charge.  [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
+   the ghost Fock completion of the full charge.
+   **2026-11-26d:** three additions on that track, with the remaining gaps named rather than
+   papered over.  (i) `BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean` turns the open
+   inclusion into a *reduction*: with `A ≤ −A†` already proved, skew-adjointness `A† = −A` is
+   *equivalent* to `dom A† ⊆ dom A`, so that inclusion is the entire remaining content; the
+   graph-norm identity `‖A x + x‖² = ‖A x‖² + ‖x‖²` is proved as the deficiency-index input
+   (`A + 1` injective and bounded below by `1`).  The inclusion itself is still **not**
+   proved — it is essential skew-adjointness of the derivation, needing the unitary flow or
+   elliptic regularity, neither in the corpus.  (ii)
+   `BookProof/Qym/ChapterYangMillsGaussParity.lean` supplies a *concrete* bounded symmetry for
+   the domain/commutation hypotheses the unbounded BRST transfer leaves open: field-space
+   parity `x ↦ −x` is a linear isometry on `L²(ℝ⁹⁹)`, preserves the Gauss–polynomial core,
+   commutes with `𝒢_d` there (the Gauss vector field is linear, hence odd, so the two sign
+   flips cancel), and the commutation passes to the domain of the closure by the graph
+   argument; the physical and exact states of `closure 𝒢_d` are parity invariant.  This is a
+   symmetry, not the one-parameter evolution.  (iii)
+   `BookProof/Qym/ChapterYangMillsGaussBosonic.lean` carries the chain to the **bosonic part**
+   of the BRST charge: `Ω_bos z = Σ_a z_a 𝒢_a` with *real* ghost coefficients is skew on the
+   core, formally adjoint to its negative, closable, with closed densely defined closure, and
+   `closure Ω_bos z ≤ −(closure Ω_bos z)†`.  Complex coefficients are deliberately **not**
+   claimed: `(z A)† = conj z · A†`, so a complex combination of skew operators is not skew;
+   the ghost operators and `Ω² = 0` are outside the module.  [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
+   [Skew-adjointness reduction](BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean) ·
+   [Parity symmetry](BookProof/Qym/ChapterYangMillsGaussParity.lean) ·
+   [Smeared bosonic charge](BookProof/Qym/ChapterYangMillsGaussBosonic.lean) ·
    [Gauss constraint on the core](BookProof/Qym/ChapterYangMillsGaussSkew.lean) ·
    [Packet and Schwartz proofs](BookProof/Qym/ChapterYangMillsMagneticPacket.lean) ·
    [Unbounded BRST transfer](BookProof/ChapterBrstReducedTransferUnbounded.lean)
