@@ -274,6 +274,13 @@ Gaussian, its mean is `v`, the fluctuation `h = φ − v` has mean zero and unch
 and its density is strictly positive at nonzero variance.  There is no Weyl conjugation of the
 interacting Hamiltonian, no nested-Fock vacuum `Ω_v` and no infinite-volume sector result.
 
+**Status (2026-11-26): H5 symmetric-boundary mean at density level.**
+`BookProof/OSReconstruction/ChapterSymmetrizedGaussianMean.lean` proves that the equally
+weighted mixture of the Gaussians centered at `±v` is a probability measure whose first moment
+is zero, independently of `v` and `σ`.  This is the density-level form of the symmetric-average
+`⟨φ⟩ = 0` mechanism; no physical ground state, infinite-volume sector or cluster statement is
+implied.
+
 **Status (2026-11-26): H5 overlap collapse.**
 `BookProof/OSReconstruction/ChapterOverlapCollapse.lean` proves that the coherent overlap of the
 unshifted reference with a spatially constant shift `v` across `N` modes is
