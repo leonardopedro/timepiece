@@ -277,7 +277,9 @@ interacting Hamiltonian, no nested-Fock vacuum `Ω_v` and no infinite-volume sec
 **Status (2026-11-26): H5 symmetric-boundary mean at density level.**
 `BookProof/OSReconstruction/ChapterSymmetrizedGaussianMean.lean` proves that the equally
 weighted mixture of the Gaussians centered at `±v` is a probability measure whose first moment
-is zero, independently of `v` and `σ`.  This is the density-level form of the symmetric-average
+is zero, independently of `v` and `σ`.  The second moment is `σ + v²` (and hence the variance
+is `σ + v²`, since the mean vanishes), separating the common Gaussian fluctuation from the
+separation of the two centers.  This is the density-level form of the symmetric-average
 `⟨φ⟩ = 0` mechanism; no physical ground state, infinite-volume sector or cluster statement is
 implied.
 

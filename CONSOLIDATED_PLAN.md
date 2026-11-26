@@ -28068,11 +28068,15 @@ the nested-Fock measure and no phase-disintegration / long-range-order match (C0
 as `(1/2) • gaussianReal v σ + (1/2) • gaussianReal (-v) σ`, proves it is a probability measure,
 and proves `symmetrizedGaussian_expectation`: its first moment is zero for every `v` and `σ`.
 The proof uses `integral_add_measure`, `integral_smul_measure` and the integrability of the
-identity under a Gaussian from `memLp_id_gaussianReal`.
+identity under a Gaussian from `memLp_id_gaussianReal`.  A second packet adds the general
+identity `integral_sq_eq_variance_add_sq_mean` and derives
+`symmetrizedGaussian_second_moment` / `symmetrizedGaussian_variance`: both equal `σ + v²`,
+separating the fluctuation `σ` from the squared center separation `v²`.
 
 **Boundary.** This is the density-level symmetric-average mechanism only.  It is not the
 physical Higgs/φ⁴ ground state, not an infinite-volume superselection-sector statement, and no
 cluster decomposition, positive overlap or mass gap follows.
 
 **Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
-`symmetrizedGaussian_expectation` gives `[propext, Classical.choice, Quot.sound]`.
+`symmetrizedGaussian_expectation`, `symmetrizedGaussian_second_moment` and
+`symmetrizedGaussian_variance` gives `[propext, Classical.choice, Quot.sound]`.
