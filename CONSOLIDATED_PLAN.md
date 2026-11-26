@@ -7,6 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest QYM entry (2026-11-26):** “State of the project — 2026-11-26: the Gauss constraint
+> is skew on the completed Mehler core” (end of file).  `𝒢_d` is realised on the dense
+> Gauss–polynomial core of `L²(ℝ⁹⁹)` and proved skew-adjoint there (`i·𝒢_d` symmetric),
+> and the transported Hamiltonian commutes with it on that core.
+>
 > **Newest finite-model emission entry (2026-11-25c):** “State of the project —
 > 2026-11-25c: the finite-model witness row is emitted and drift-checked” (end of file).
 > An `unfer` test emits the count-certified `g=2, N≤10` row and a Lean gate keeps the
@@ -27464,3 +27469,77 @@ the cubic contraction over random `A` and all `(i,a,d)`) before the proof was at
 
 **Boundary.** Polynomial-core identity for the constant-multiplet model (`G.D = 0`); no
 operator-domain statement, no `CoreRep` transport, no completion.
+
+## 2026-11-26 — QYM: the Gauss constraint is skew on the completed Mehler core
+
+`BookProof/Qym/ChapterYangMillsGaussSkew.lean` (new, imported by `BookProof.lean`) takes the
+first half of the passage that `BookProof/Qym/ChapterYangMillsGaussCasimir.lean` records as
+its boundary — "the passage of `Ω` and `H` to the completed Hilbert space" — at the
+infinitesimal level: `𝒢_d` is realised on the dense Gauss–polynomial core of `L²(ℝ⁹⁹)` and
+proved **skew** there, and the Hamiltonian is shown to preserve that core and commute with
+it.
+
+## Why skew, not symmetric
+
+`𝒢_d` generates the residual colour rotation, so as an operator it is skew-adjoint,
+`⟪𝒢_d x, y⟫ = −⟪x, 𝒢_d y⟫`, equivalently `i·𝒢_d` is symmetric — the shape the ghost
+current of `Ω = Σ_a c†_a 𝒢_a + …` needs.  The polynomial statement is `PolySkew`, the
+negative of the `PolyAdj` pairing behind `PolySym` in `ChapterYangMillsHermite`.
+
+## The proof
+
+`𝒢_d` is the first-order operator `Σ_m v_m ∂_m` of the linear vector field
+`v_m = ymGaussVec G d m`, and for a general first-order operator the adjoint computation is
+exact:
+
+* `gaussInt_mul_pderiv` — one-coordinate integration by parts,
+  `∫ h (∂_m f) g = ∫ x_m h f g − ∫ (∂_m h) f g − ∫ h f (∂_m g)`;
+* `gaussInt_firstOrder` — summed over `m`,
+  `∫ (Σ v_m ∂_m f) g = ∫ ((Σ x_m v_m) f g) − ∫ ((Σ ∂_m v_m) f g) − ∫ f (Σ v_m ∂_m g)`;
+* `firstOrder_polySkew` — hence a first-order operator is skew as soon as its vector field
+  **kills the radius** (`Σ_m x_m v_m = 0`) and is **divergence free**
+  (`Σ_m ∂_m v_m = 0`).
+
+For the colour rotation both are the antisymmetry of the structure constants:
+`Σ_m x_m v_m = Σ_{b,g} f_{bgd} x_b x_g = 0` on each block (`sum_antisymm_quad` →
+`sum_X_gaussVec_blockA`/`_blockD` → `sum_X_ymGaussVec`), and `∂_m v_m = f_{bbd} = 0`
+coordinate by coordinate (`pderiv_ymGaussVec_self`, `sum_pderiv_ymGaussVec`).  This is the
+operator-level counterpart of the two Casimir identities of 2026-11-25f/h: those say the
+*squares* of the fields commute with `𝒢_d`, this says `𝒢_d` itself is the generator of a
+one-parameter family of isometries.
+
+## Declarations
+
+* `PolySkew`, `gaussInt_neg`, `gaussInt_zero`, `sum_antisymm_quad`,
+  `gaussInt_mul_pderiv`, `gaussInt_firstOrder`, `firstOrder_polySkew` — the general skew
+  criterion for first-order operators;
+* `realCoeff_ymGaussVec`, `ymGaussVec_split`, `sum_X_gaussVec_blockA` / `_blockD` (and the
+  `_zero` forms), `sum_X_ymGaussVec`, `pderiv_idxD_idxD`, `pderiv_ymGaussVec_self`,
+  `sum_pderiv_ymGaussVec` — the two hypotheses, for the colour rotation;
+* `ymGaussPoly_eq_firstOrder`, `ymGaussPoly_polySkew` — **`𝒢_d` is skew on the polynomial
+  algebra**;
+* `coreRep_op_add` / `_mul` / `_sum` / `_smul`, `coreRep_skewOn_op` — the transport of the
+  adjoint pairing to the dense core of `L²(ℝᵈ)`;
+* `ymGaussPoly_skewOn_core`, `ymGaussPoly_inner_re_zero` — **`𝒢_d` is skew on the
+  completed Gauss–polynomial core**, with vanishing real expectation values;
+* `coreRep_ham_comm_gauss`, `coreRep_ham_comm_gauss_apply` — **`H` preserves the core of
+  `𝒢_d` and the two commute there**, the core-level content of the `DomPreserve` /
+  `StrongCommute` pair of `ChapterBrstReducedTransferUnbounded`.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussSkew` succeeds (8068
+jobs) with no warning from the file; `#print axioms` gives
+`[propext, Classical.choice, Quot.sound]` for `sum_antisymm_quad`,
+`gaussInt_firstOrder`, `firstOrder_polySkew`, `sum_X_ymGaussVec`,
+`pderiv_ymGaussVec_self`, `ymGaussPoly_polySkew`, `coreRep_skewOn_op`,
+`ymGaussPoly_skewOn_core`, `ymGaussPoly_inner_re_zero`, `coreRep_ham_comm_gauss` and
+`coreRep_ham_comm_gauss_apply`.
+
+**Boundary.** The core, not the closure: no closedness, essential self-adjointness or
+unitary group `e^{−itT}` is claimed for `𝒢_d` or for `H`, and for `f ≠ 0` the quartic
+magnetic term remains the open problem of `ChapterYangMillsBandBounds`.  The ghost sector is
+not completed here: `𝒢_d` is bosonic, and `ChapterYangMillsGhostSector` builds the ghost
+Fock completion only for a diagonal (free) ghost Hamiltonian.  `H` in the commutation
+theorem is the transported polynomial Hamiltonian `Φ.op (ymHamPoly G)`; identifying it with
+the analytic `ymHamiltonian` of `ChapterYangMillsHermite` is a further rewrite not carried
+out here.  The constant-multiplet regime `G.D = 0` is inherited from
+`ChapterBrstYmCommute`.

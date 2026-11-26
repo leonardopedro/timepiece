@@ -59,6 +59,12 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    construct the residual action on a common dense Mehler domain and prove that the
    closed Hamiltonian preserves it and commutes with the charge there. The unbounded
    BRST transfer already names these domain and commutation hypotheses.
+   **2026-11-26:** the *infinitesimal* half is landed —
+   `BookProof/Qym/ChapterYangMillsGaussSkew.lean` proves that `𝒢_d` is skew-adjoint on
+   the dense Mehler core (`i·𝒢_d` symmetric, the generator of the residual rotation) and
+   that the transported Hamiltonian commutes with it there.  What remains is the closure
+   (`𝒢_d` closed, the Hamiltonian essentially self-adjoint in the non-abelian sector) and
+   the ghost Fock completion of the full charge.  [Gauss constraint on the core](BookProof/Qym/ChapterYangMillsGaussSkew.lean) ·
    [Packet and Schwartz proofs](BookProof/Qym/ChapterYangMillsMagneticPacket.lean) ·
    [Unbounded BRST transfer](BookProof/ChapterBrstReducedTransferUnbounded.lean)
 2. **U3, ordered finite comparison.** For the $g=2$, occupation-10 diagnostic,

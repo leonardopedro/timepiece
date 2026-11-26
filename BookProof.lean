@@ -1105,6 +1105,14 @@ import BookProof.Toolbox.ChapterFriedrichsExtension
 -- extension theorem and the Hashimoto/SIRK selection theorem apply to it.
 import BookProof.Toolbox.ChapterHermiteProductCore
 import BookProof.Qym.ChapterYangMillsGaussCasimir
+-- `ChapterYangMillsGaussSkew` (2026-11-26): the Gauss constraint `𝒢_d` is *skew* on the
+-- completed Gauss–polynomial core of `L²(ℝ⁹⁹)` — it generates the residual colour
+-- rotation, so `⟪𝒢_d x, y⟫ = −⟪x, 𝒢_d y⟫` and `i·𝒢_d` is symmetric.  A general
+-- first-order skew criterion (`Σ_m x_m v_m = 0` and `Σ_m ∂_m v_m = 0`) is instantiated
+-- by the antisymmetry of the structure constants, transported to the core through
+-- `CoreRep`, and paired with the transported `[H, 𝒢_d] = 0`.  This is the operator-level
+-- half of the completion `ChapterYangMillsGaussCasimir` names as its boundary.
+import BookProof.Qym.ChapterYangMillsGaussSkew
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
