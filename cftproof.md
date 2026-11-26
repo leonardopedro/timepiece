@@ -228,6 +228,12 @@ rules:
 * **Acceptance:** Euclidean heat-semigroup Trotter–Kato theorem, single-time SIRK error bound on
   `euclidMoment`, and explicit separation of solver error from physical cutoff error.
 
+**Status (2026-11-26): H7/C9 negative control.**
+`BookProof/OSReconstruction/ChapterEquivalenceNoGap.lean` records the sharp separation: without
+a positive floor on the multiplier density the transfer semigroup does not converge in norm to
+the ground projection, so the Hamiltonian ↔ Euclidean equivalence data by itself cannot certify
+a mass gap.  This is a negative control; no no-gap theorem for the physical theory is claimed.
+
 **Status (2026-11-26): H6 Route B limit order.**
 `BookProof/ChapterExternalSourceLimitOrder.lean` proves the non-commuting limit order on the
 finite-volume benchmark `m_V(J) = v·VJ/(1+VJ)`: the source removed after the volume limit leaves

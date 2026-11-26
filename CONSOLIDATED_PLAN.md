@@ -7,6 +7,10 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest cftproof H7/C9 entry (2026-11-26):** “State of the project — 2026-11-26:
+> equivalence-no-gap negative control” (end of file).  The equivalence data alone cannot
+> certify a mass gap without a density floor.
+>
 > **Newest cftproof H6 Route B entry (2026-11-26):** “State of the project — 2026-11-26:
 > H6 limit order landed” (end of file).  The finite-volume source response has non-commuting
 > limits; the nested-Fock lift is open.
@@ -27907,3 +27911,18 @@ is the whole remaining gap — no Stone theorem, no unitary group `e^{−it𝒢_
 essential self-adjointness of `i·𝒢_d`.  Nothing here touches the ghost sector, the
 Hamiltonian's own closure or the quartic magnetic term `f ≠ 0`.  The module header records
 the same boundary.
+
+## State of the project — 2026-11-26: H7/C9 equivalence-no-gap negative control
+
+`BookProof/OSReconstruction/ChapterEquivalenceNoGap.lean` proves
+`no_norm_convergence_of_no_floor`: without a positive lower bound on the multiplier density off
+its zero set, the transfer semigroup `flowOfHCLM` does not converge in norm to the ground
+projection, using the existing iff-gap criterion.  This is H7/C9's separation of equivalence
+from gap: reflection positivity, the OS bridge and resolvent convergence do not by themselves
+give a mass gap.
+
+**Boundary.** No no-gap theorem for the physical continuum theory is claimed; this is the
+negative control that the equivalence data are insufficient.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9110 jobs); `#print
+axioms no_norm_convergence_of_no_floor` gives `[propext, Classical.choice, Quot.sound]`.

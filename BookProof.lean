@@ -3587,6 +3587,9 @@ import BookProof.ChapterFlowDGammaEsa
 -- H4's bounded Euclidean semigroup transfer: operator-norm convergence of bounded generators
 -- implies convergence of the heat semigroups exp(-tau A_n) at fixed Euclidean time.
 import BookProof.Sirk.ChapterHeatSemigroupBoundedTransfer
+-- H7/C9 negative control: equivalence of Hamiltonian and Euclidean data does not supply the
+-- density floor, so it cannot by itself certify a mass gap.
+import BookProof.OSReconstruction.ChapterEquivalenceNoGap
 -- H6 Route B (strict limit order): the finite-volume source response has non-commuting
 -- limits -- removing the source after the volume limit leaves a nonzero VEV.
 import BookProof.ChapterExternalSourceLimitOrder
