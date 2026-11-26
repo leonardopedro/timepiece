@@ -7,7 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26f):** “2026-11-26f — QYM: the flow of the residual rotation,
+> **Newest QYM entry (2026-11-26g):** “2026-11-26g — QYM: the closed Hamiltonian and the
+> charge on domains” (end of file).  `ChapterYangMillsGaussHamiltonianDomain` carries the
+> 2026-11-26e commutation off the core onto the domains twice over: unconditionally for a
+> **bounded** intertwiner (`bounded_preserves_closure_domain`, with its Gauss instance
+> `gaussClosure_bounded_preserves`), and for the unbounded closed Hamiltonian
+> (`hamClosure_comm_gaussClosure_of_core_seq`) with the two Hamiltonian graph-norm limits
+> named as the remaining regularity input — `dom Ā ⊆ dom H̄` is not claimed.
+>
+> **QYM entry (2026-11-26f):** “2026-11-26f — QYM: the flow of the residual rotation,
 > and the deficiency computation” (end of file).  `ChapterYangMillsGaussFlow` states the
 > rotation's L² action as a concrete hypothesis bundle (`U 0 = 1`, `‖U t‖ ≤ 1`, core
 > invariance, generator `𝒢_d`) and proves the deficiency computation
@@ -27920,3 +27928,56 @@ is the field-space form on `L²(ℝ⁹⁹)`.  So **the flow discharges the defic
 `gaussPMap_polyGaussCore_deficiency_eq_zero_of_flow` all give
 `[propext, Classical.choice, Quot.sound]`; no `sorry`.  Imported by the `BookProof`
 aggregator.
+
+## 2026-11-26g — QYM: the closed Hamiltonian and the charge on domains
+
+One module, `BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean`.  It carries the
+2026-11-26e commutation `Ā (H̄ x) = H̄ (Ā x)` off the Gauss core and onto the domains, and it
+separates cleanly into the half that needs no hypothesis and the half that does.
+
+### 1. The bounded case, with nothing assumed
+
+`bounded_preserves_closure_domain` is the abstract graph argument: for a closed operator
+`Ā = closure A` and a **bounded** `S` that maps `A`'s domain into itself and satisfies
+`A (S x) = S (A x)` there,
+
+* a core sequence `xₙ → y` in the graph norm of `A` (extracted from `y ∈ dom Ā` via
+  `IsClosable.graph_closure_eq_closure_graph` and `mem_closure_iff_seq_limit`) is mapped by
+  continuity of `S` to `S xₙ → S y` with `A (S xₙ) = S (A xₙ) → S (Ā y)`;
+* those pairs lie in the graph of the closure, which is closed, so `S y ∈ dom Ā` and
+  `Ā (S y) = S (Ā y)`.
+
+`gaussClosure_bounded_preserves` is its Gauss instance: **any** bounded operator commuting with
+`𝒢_d` on the core preserves `dom Ā` and commutes with the closure.  Parity is one such operator,
+and this recovers the parity chapter's `DomPreserve`/`StrongCommute` pair as a special case of
+one general theorem.
+
+### 2. The unbounded case, and the honest boundary
+
+`H̄ = hamClosure G` is self-adjoint but *not* bounded, so `S xₙ → S y` cannot come from
+continuity.  `hamClosure_comm_gaussClosure_of_core_seq` supplies exactly what replaces it: a
+core sequence whose Hamiltonian images converge in the right places,
+`H̄ xₙ → H̄ y` and `H̄ (Ā xₙ) → H̄ (Ā y)` (the second written with the core's own `gaussEndo`).
+Given that, the pairs `(H xₙ, Ā (H xₙ)) = (H xₙ, H (Ā xₙ))` converge to `(H̄ y, H̄ (Ā y))`,
+and closedness of `Ā` gives `H̄ y ∈ dom Ā` with `Ā (H̄ y) = H̄ (Ā y)`.
+
+The two limit hypotheses are a regularity input, and the module says so in its header rather
+than hiding it: they say the Gauss–polynomial core is dense in `dom Ā` in the graph norm of
+`H̄`, twice (at `y` and at `Ā y`).  That is the elliptic-regularity / graph-norm domination
+statement the corpus has recorded as missing since the Friedrichs chapters.  It is not
+recoverable from symmetry and commutation alone — a closed symmetric operator can commute with
+a self-adjoint one on a dense core and still fail to have its domain preserved.  So what is
+proved here is the **full graph argument** plus a precise statement of the remaining density
+input; `dom Ā ⊆ dom H̄` is *not* claimed.
+
+For the record, the two unconditional endpoints now stand as: bounded intertwiners (this
+module, `bounded_preserves_closure_domain`), and the closed pair on the core (2026-11-26e,
+`hamClosure_comm_gaussClosure_core`).
+
+### Verification
+
+`lake build BookProof.Qym.ChapterYangMillsGaussHamiltonianDomain` — 8145 jobs, success (only
+the pre-existing warnings in the dependency cone).  `#print axioms` on
+`bounded_preserves_closure_domain`, `gaussClosure_bounded_preserves` and
+`hamClosure_comm_gaussClosure_of_core_seq` all give `[propext, Classical.choice, Quot.sound]`;
+no `sorry`.  Imported by the `BookProof` aggregator.

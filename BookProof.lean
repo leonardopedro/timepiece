@@ -1163,6 +1163,14 @@ import BookProof.Qym.ChapterYangMillsGaussHamiltonianClosure
 -- `U(t)` from the antisymmetric matrix exponential is *not* built here; the passage from the
 -- two deficiency spaces to `dom A† ⊆ dom A` is the separate range argument for `A ∓ 1`.
 import BookProof.Qym.ChapterYangMillsGaussFlow
+-- `ChapterYangMillsGaussHamiltonianDomain` (2026-11-26g): the commutation of the closed
+-- Hamiltonian `H̄` with the closed charge `Ā` *on domains*, not just on the core.
+-- `bounded_preserves_closure_domain` is the unconditional graph argument for a bounded
+-- intertwiner (a core sequence converging in the graph norm maps to one converging to the
+-- image, and the graph of the closure is closed); `hamClosure_comm_gaussClosure_of_core_seq`
+-- is the same argument for the unbounded `H̄`, with the two Hamiltonian graph-norm limits
+-- taken as the explicit regularity input the unbounded case cannot do without.
+import BookProof.Qym.ChapterYangMillsGaussHamiltonianDomain
 import BookProof.Qym.ChapterYangMillsHermite
 import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit

@@ -113,7 +113,18 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    and proves the deficiency computation `ker(𝒢_d† ∓ 1) = 0` from it — the classical
    `f' = c f`, `f t = f 0 e^{ct}`-against-a-uniform-bound argument — for both signs and on the
    concrete field core.  Still missing: the L² construction of `U(t)` itself, and the
-   range/surjectivity step from the two deficiencies to `dom A† ⊆ dom A`.  [Gauss flow and deficiency](BookProof/Qym/ChapterYangMillsGaussFlow.lean) ·
+   range/surjectivity step from the two deficiencies to `dom A† ⊆ dom A`.
+   **2026-11-26g:** the commutation is now on domains, in the two cases the mathematics
+   separates into.  `BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean` proves the
+   graph argument unconditionally for a **bounded** operator commuting with `𝒢_d` on the core
+   (`bounded_preserves_closure_domain`, `gaussClosure_bounded_preserves`) — the general form of
+   the earlier parity result — and for the unbounded closed Hamiltonian
+   (`hamClosure_comm_gaussClosure_of_core_seq`) with the two Hamiltonian graph-norm limits at
+   `y` and at `Ā y` as the explicit input.  Those limits are the same elliptic-regularity
+   statement as the reverse inclusion; what the module adds is that everything downstream of
+   them is closed, so the remaining gap is exactly a density statement about the core.
+   [Gauss Hamiltonian domains](BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean) ·
+   [Gauss flow and deficiency](BookProof/Qym/ChapterYangMillsGaussFlow.lean) ·
    [Gauss Hamiltonian closure](BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean) ·
    [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
    [Skew-adjointness reduction](BookProof/Qym/ChapterYangMillsGaussSkewAdjoint.lean) ·
