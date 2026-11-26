@@ -3620,6 +3620,8 @@ import BookProof.OSReconstruction.ChapterPathMeasureInduction
 -- H3's projective consistency: marginalizing the final Mehler slice recovers the smaller
 -- finite path measure, the consistency input for the Ionescu–Tulcea limit.
 import BookProof.OSReconstruction.ChapterPathMeasureMarginal
+-- H3's infinite discrete-time path measure: Ionescu–Tulcea iteration of the Mehler kernel.
+import BookProof.OSReconstruction.ChapterMehlerTrajMeasure
 -- H3's general finite-slice path measure (research): Fin-based base measure, its splitting
 -- at the last coordinate, and the kernel-product density factorization.
 import BookProof.OSReconstruction.ChapterFinitePathMeasure

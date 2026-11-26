@@ -28024,3 +28024,23 @@ consequence, and no physical Hamiltonian, nonnegativity or gap is involved.
 declarations gives `[propext, Classical.choice, Quot.sound]`.  Registered as the new independent
 part `BookProofHeatSemigroupTransfer` (2 modules) in `lakefile.toml` and
 `scripts/import_components.py`.
+
+## State of the project — 2026-11-26: H3 infinite Mehler path measure
+
+`BookProof/OSReconstruction/ChapterMehlerTrajMeasure.lean` constructs an actual probability
+measure on infinite discrete-time paths.  `mehlerStep ρ hρ n` is the Markov kernel with density
+`ENNReal.ofReal (mehlerKernel (ρ n) (last history))` against Lebesgue measure; its
+`IsMarkovKernel` instance is exactly `mehlerKernel_lintegral`.  `mehlerPathMeasure ρ hρ x` is
+`ProbabilityTheory.Kernel.trajMeasure (dirac x) (mehlerStep ρ hρ)`, a probability measure by
+Ionescu–Tulcea, and `mehlerPathMeasure_step` is the Mathlib compProd characterization of its
+one-step dynamics.  The dependence on the constant family `X := fun _ : ℕ => ℝ` is given
+explicitly to keep the dependent typeclass inference tractable.
+
+**Boundary.** Infinite *discrete* time only.  The finite marginals are not identified with the
+`Fin`-indexed `pathMeasure` of `ChapterFinitePathMeasure`, the continuum limit
+`ε = T/N → 0` to continuous Euclidean time is not taken, and the interacting Strang weight is
+not included.  H3's Feynman–Kac convergence remains open.
+
+**Verification.** `lake env lean` and `lake build` succeed; `#print axioms` on
+`mehlerStep_isMarkov` and `mehlerPathMeasure_step` gives
+`[propext, Classical.choice, Quot.sound]`.
