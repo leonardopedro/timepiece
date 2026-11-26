@@ -27994,7 +27994,8 @@ positivity of the shifted density wherever `σ ≠ 0`.  These use Mathlib's Gaus
 (`gaussianReal_map_add_const`, `gaussianReal_map_sub_const`, `integral_id_gaussianReal`,
 `variance_map`, `gaussianPDFReal_pos`).  A follow-up adds `integral_displaced`: for any
 measurable observable, `∫ f dγ_v = ∫ f(· + v) dγ_0`, the Route A change of variables
-`φ = v + h`.
+`φ = v + h`, and `displaced_reference_second_moment`: `∫ φ² dγ_v = σ + v²`.  The two Gaussian
+reference chapters form the independent part `BookProofGaussianReference`.
 
 **Boundary.** This is the Gaussian reference measure only.  No Weyl displacement `D(v)` is
 conjugated through the interacting Hamiltonian, no nested-Fock vacuum `Ω_v` is constructed, no

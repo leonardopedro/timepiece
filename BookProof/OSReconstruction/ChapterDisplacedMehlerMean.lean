@@ -1,5 +1,6 @@
 import Mathlib
 import Mathlib.Probability.Distributions.Gaussian.Real
+import BookProof.OSReconstruction.ChapterSymmetrizedGaussianMean
 
 /-!
 # Chapter DisplacedMehlerMean — H6 Route A at the Gaussian reference level
@@ -43,6 +44,14 @@ theorem integral_displaced {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E
 /-- The mean of the displaced reference is exactly the vacuum `v`. -/
 theorem displaced_reference_mean (v : ℝ) (σ : NNReal) :
     (∫ x : ℝ, x ∂gaussianReal v σ) = v := by
+  simp
+
+/-- The second moment of the displaced reference is the fluctuation variance plus the squared
+    vacuum: `∫ φ² = σ + v²`. -/
+theorem displaced_reference_second_moment (v : ℝ) (σ : NNReal) :
+    (∫ x : ℝ, x ^ 2 ∂gaussianReal v σ) = (σ : ℝ) + v ^ 2 := by
+  rw [BookProof.SymmetrizedGaussianMean.integral_sq_eq_variance_add_sq_mean
+    (memLp_id_gaussianReal (μ := v) (v := σ) 2)]
   simp
 
 /-- The fluctuating field `h = φ − v` has zero mean under the displaced reference. -/

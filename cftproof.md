@@ -272,7 +272,8 @@ inequivalence remain open.
 half of the field redefinition: the Gaussian centered at `v` is the translated centered
 Gaussian, its mean is `v`, the fluctuation `h = φ − v` has mean zero and unchanged variance,
 and its density is strictly positive at nonzero variance.  `integral_displaced` gives the Route A
-change of variables `∫ f dγ_v = ∫ f(·+v) dγ_0` for arbitrary measurable observables.  There is no
+change of variables `∫ f dγ_v = ∫ f(·+v) dγ_0`, and `displaced_reference_second_moment` gives
+`∫ φ² dγ_v = σ + v²`.  There is no
 Weyl conjugation of the interacting Hamiltonian, no nested-Fock vacuum `Ω_v` and no
 infinite-volume sector result.
 

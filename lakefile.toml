@@ -270,6 +270,11 @@ name = "BookProofWeylOrdering"
 roots = ["BookProof.ChapterSymmetricTimeStepOrdering"]
 
 [[lean_lib]]
+name = "BookProofGaussianReference"
+# independent part: 2 modules — the displaced and symmetrized Gaussian reference chapters.
+roots = ["BookProof.OSReconstruction.ChapterDisplacedMehlerMean"]
+
+[[lean_lib]]
 name = "BookProofSourceLimitOrder"
 # independent part: 2 modules — the finite-volume magnetization benchmark and the
 # Gaussian-measure lift of its non-commuting limit order.
