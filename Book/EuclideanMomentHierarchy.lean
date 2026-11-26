@@ -711,6 +711,42 @@ cross-scale pairing between two different numbers of scales, which needs the coe
 reindexed along the inclusion of the smaller shell, and the four-point function, for which the
 pairing of four coordinates is no longer an inner product.
 
+A second moment is not the end of what the reference law computes. Two further statements are
+proved in the same module, and the second is a complete moment calculus.
+
+The first puts two different numbers of scales in the same space. A field of `m < n` scales is a
+statistic of the first `m + 1` coordinates; lifting its coefficient vector along the inclusion and
+reading the extra coordinates with weight `0` (`truncCoeff`, `sum_truncCoeff_mul`) makes it a
+statistic of the `n`-scale space, and the kernel then pairs it with the larger field:
+
+```
+integral_shellLaw_streamField_mul_smaller :
+    E[S_n · S_m] = K_m + c^(2m) · d        (m < n)
+```
+
+The point worth pausing on is the exponent. The smaller field's exterior coefficient is `c^m·d`;
+in the larger space that coordinate is *interior* with coefficient `c^m`. So the answer is not the
+smaller field's own second moment `K_m + (c^m d)²` — the two differ by exactly the drift the larger
+field assigns to a coordinate the smaller one treats as background. Cross-scale covariance is
+therefore a property of the trajectory, not of either field alone.
+
+The second statement is not a moment but all of them. Because the reference law is a product,
+
+```
+integral_shellLaw_prod_coord_pow :
+    E[∏ i, (p i)^(e i)] = ∏ i, E[z^(e i)]
+```
+
+by a single application of `integral_fintype_prod_eq_prod` — no induction on the number of
+coordinates, no truncation, no domination. Every coordinate moment of the law is a product of
+one-dimensional moments. The four-point function is the case in which the exponent vector is
+supported on four coordinates: with multiplicities `2, 2` the product is `1`, with multiplicities
+`1, 1, 1, 1` it is `0`, and with a single multiplicity `4` it is `3`, which is the Wick sum
+`δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk` read through the pattern of equalities among the four indices.
+Turning that reading into a Lean statement about the four indices — a case analysis over the
+equality pattern — is what the module does *not* yet do; it proves the factorization, not the
+`δ`-form.
+
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of
 fresh independent Gaussians, and $`d \mapsto c d` is a definition, not a theorem about an

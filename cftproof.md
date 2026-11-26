@@ -3475,3 +3475,41 @@ four-index induction this slice does not do; it also says nothing about `E[S_n �
 a complete two-point kernel is necessary but not sufficient for it — and there is no conditional
 expectation, no multi-point cluster estimate, and no change to C3a–C3d, the half-space inequality,
 the OS reconstruction theorem or any field law.
+
+**Landed 2026-11-26, fifteenth slice: the cross-scale covariance and the factorization of every
+coordinate moment (C3h).** The fourteenth slice left two items open and named both. This slice
+closes the cross-scale one and, in doing so, replaces the induction route to multi-point functions
+with a one-line factorization, which changes what the four-point function now costs. Six
+declarations were added to the audit; all rest on standard axioms.
+
+* **The cross-scale covariance.** `integral_shellLaw_streamField_mul_smaller`: for `m < n`,
+  `E[S_n · S_m] = K_m + c^(2m)·d`, where the smaller field is read in the `n`-scale space through
+  `Fin.castLE`. The route is three new pieces — `truncCoeff` lifts a coefficient vector along the
+  inclusion and reads the extra coordinates with weight `0`, `sum_truncCoeff_mul` proves the lifted
+  pairing is the small-space pairing (a filtered-`Finset` argument, not a new induction), and
+  `sum_streamCoeff_mul_pow` evaluates the resulting pairing against the powers `c^j` as
+  `K_m + c^(2m)·d`. With `integral_shellLaw_streamField_mul_coord` (the field against one
+  coordinate is that coordinate's coefficient) the kernel is now closed under inclusion.
+* **The exponent.** The correct answer is *not* `K_m + (c^m d)²`, the smaller field's own second
+  moment. Its exterior coefficient `c^m·d` meets the larger field's *interior* coefficient `c^m`,
+  because in the larger space coordinate `m` is no longer the exterior one. The correction is the
+  drift the larger field assigns to a coordinate the smaller one treats as background, so
+  cross-scale covariance is a property of the trajectory and not of either field alone. This is the
+  formula the previous slice's boundary paragraph anticipated in the wrong exponent; the Lean
+  statement is the one above.
+* **Every coordinate moment at once.** `integral_shellLaw_prod_coord_pow`:
+  `∫ ∏ i, (p i)^(e i) = ∏ i, ∫ z, z^(e i)`, by a single application of
+  `integral_fintype_prod_eq_prod` to the product law. No induction over the number of coordinates,
+  no truncation, no domination. This is a stronger standard than the pair-restricted kernel: every
+  coordinate moment of the reference law is now a product of one-dimensional moments.
+
+Boundary of this fifteenth slice: **the `δ`-form of the four-point function is not a Lean
+statement.** The factorization gives it as `∏ i, ∫ z^(e i)` for the exponent vector supported on
+the four indices, and evaluating that product to
+`δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk` is arithmetic on the multiplicity pattern —
+`(1,1,1,1) → 0`, `(2,2) → 1`, `(2,1,1) → 0`, `(3,1) → 0`, `(4) → 3`. What is missing is the case
+analysis over the six equalities among `i, j, k, l` that turns the one into the other, and while it
+is elementary it is not yet done. There is also still no three-point function as a Lean statement,
+no Gaussianity proof (the factorization is consistent with it but does not assert it), no
+conditional expectation, no multi-point cluster estimate, and no change to C3a–C3d, the half-space
+inequality, the OS reconstruction theorem or any field law.

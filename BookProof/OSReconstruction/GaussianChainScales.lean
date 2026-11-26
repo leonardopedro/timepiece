@@ -168,9 +168,24 @@ scale-indexed:
   product of coefficient vectors (`integral_shellLaw_linear_mul_linear`), that of a statistic
   against a single coordinate is the corresponding coefficient
   (`integral_shellLaw_linear_mul_coord`), and the field against any statistic is the pairing with
-  `streamCoeff` (`integral_shellLaw_streamField_mul_linear`).  Still open: the four-point function,
-  the cross-scale covariance between two different numbers of scales (which needs the coefficient
-  vector reindexed along `Fin.castLE`), and any Gaussianity statement.
+  `streamCoeff` (`integral_shellLaw_streamField_mul_linear`).
+* The cross-scale packet puts that kernel to work across two different numbers of scales.
+  `truncCoeff` lifts a coefficient vector along `Fin.castLE` (zero on the extra coordinates),
+  `sum_truncCoeff_mul` shows the lifted pairing is the small-space one, and
+  `integral_shellLaw_streamField_mul_smaller` gives the covariance of the field at `n` scales with
+  the field at `m < n` scales: `K_m + c^(2m)·d`.  The exterior coefficient `c^m·d` of the smaller
+  field meets the *interior* coefficient `c^m` of the larger one, which is why the answer is not
+  the smaller field's own second moment `K_m + (c^m d)²`: the larger field treats that coordinate
+  as background, and the two readings differ by exactly that drift.
+* The moment packet removes the pair restriction altogether in one step.
+  `integral_shellLaw_prod_coord_pow` says every coordinate monomial factorises,
+  `∫ ∏ i, (p i)^(e i) = ∏ i, ∫ z, z^(e i)`, by `integral_fintype_prod_eq_prod` on the product
+  law — no induction, no truncation and no domination.  The four-point function is the exponent
+  vector supported on four coordinates; its Wick form is then one-dimensional arithmetic on
+  multiplicities (`∫ z = 0`, `∫ z² = 1`, `∫ z³ = 0`, `∫ z⁴ = 3`) rather than an integral.  Still
+  open: that multiplicity case analysis (so the `δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk` form of the
+  four-point function is not yet a Lean statement), any three-point function, and any Gaussianity
+  statement.
 -/
 
 namespace BookProof.OSReconstruction
@@ -2073,6 +2088,158 @@ theorem integral_shellLaw_streamField_mul_linear (n : ℕ) (c d : ℝ) (w : Fin 
     funext p
     rw [streamField_eq_sum_coeff]
   rw [hfun, integral_shellLaw_linear_mul_linear]
+
+/-! ## The cross-scale covariance, and every coordinate moment at once
+
+The kernel of the previous section pairs the field at `n` scales with a linear statistic of the
+same `n + 1` coordinates.  Two further readings of the reference law are available.
+
+**Cross-scale pairing.**  A field of `m < n` scales is a statistic of the first `m + 1`
+coordinates, so it enters the `n`-scale space by reading the extra coordinates with weight `0`
+(`truncCoeff`).  The covariance is then an inner product in which the smaller field's exterior
+coefficient `c^m·d` meets the *interior* coefficient `c^m` of the larger one, which is why the
+answer is `K_m + c^(2m)·d` — not `K_m + (c^m d)²`, the smaller field's own second moment.  The
+difference is exactly the drift the larger field assigns to the coordinate the smaller one
+treats as its own exterior background.
+
+**All coordinate moments.**  The reference law is a product, and `integral_fintype_prod_eq_prod`
+says a product of one-variable functions integrates to the product of the one-variable integrals.
+Applied to `∏ i, (p i)^(e i)` this computes *every* coordinate moment of the law at once; the
+four-point function is the case in which the exponent vector `e` is supported on four indices, and
+the Wick form of it is then a one-dimensional multiplicity computation rather than an integral.
+-/
+
+/-- **The lift of a coefficient vector along `Fin.castLE`**: a statistic of `m + 1` coordinates
+becomes a statistic of `n + 1 ≥ m + 1` coordinates by reading the extra coordinates with weight
+`0`. -/
+noncomputable def truncCoeff {m n : ℕ} (v : Fin (m + 1) → ℝ) (_h : m ≤ n) :
+    Fin (n + 1) → ℝ :=
+  fun i => if hi : (i : ℕ) ≤ m then v ⟨i, Nat.lt_succ_of_le hi⟩ else 0
+
+/-- The lift does nothing on the coordinates it came from. -/
+theorem truncCoeff_castLE {m n : ℕ} (v : Fin (m + 1) → ℝ) (h : m ≤ n) (i : Fin (m + 1)) :
+    truncCoeff v h (Fin.castLE (Nat.succ_le_succ h) i) = v i := by
+  have hi : ((Fin.castLE (Nat.succ_le_succ h) i : Fin (n + 1)) : ℕ) ≤ m :=
+    Nat.le_of_lt_succ i.isLt
+  simp only [truncCoeff, hi, dif_pos]
+  exact congrArg v (Fin.ext rfl)
+
+/-- **The lifted sum is the smaller sum**: pairing a statistic of the big space with the lift of a
+coefficient vector reads off the small space. -/
+theorem sum_truncCoeff_mul {m n : ℕ} (v : Fin (m + 1) → ℝ) (h : m ≤ n)
+    (g : Fin (n + 1) → ℝ) :
+    (∑ i : Fin (n + 1), truncCoeff v h i * g i)
+      = ∑ i : Fin (m + 1), v i * g (Fin.castLE (Nat.succ_le_succ h) i) := by
+  have hfilter : (Finset.univ.filter (fun i : Fin (n + 1) => (i : ℕ) ≤ m))
+      = Finset.univ.image (Fin.castLE (Nat.succ_le_succ h)) := by
+    ext i
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_image]
+    constructor
+    · intro hi
+      exact ⟨⟨i, Nat.lt_succ_of_le hi⟩, Fin.ext rfl⟩
+    · rintro ⟨j, -, rfl⟩
+      exact Nat.le_of_lt_succ j.isLt
+  have hsplit : (∑ i : Fin (n + 1), truncCoeff v h i * g i)
+      = (Finset.univ.filter (fun i : Fin (n + 1) => (i : ℕ) ≤ m)).sum
+          (fun i => truncCoeff v h i * g i) := by
+    refine (Finset.sum_subset (Finset.filter_subset _ _) ?_).symm
+    intro i _ hi
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, not_le] at hi
+    simp [truncCoeff, not_le.mpr hi]
+  rw [hsplit, hfilter, Finset.sum_image]
+  · exact Finset.sum_congr rfl (fun i _ => by rw [truncCoeff_castLE])
+  · intro a _ b _ hab
+    exact Fin.ext (by simpa using congrArg Fin.val hab)
+
+/-- **The field's own coefficient pairing**: the coefficient vector of `S_m` against the coordinate
+powers `c^j` is the accumulated covariance plus the exterior term.  The exterior coefficient
+`c^m·d` meets `c^m`, hence `c^(2m)·d`. -/
+theorem sum_streamCoeff_mul_pow (m : ℕ) (c d : ℝ) :
+    (∑ i : Fin (m + 1), streamCoeff c d m i * c ^ (i : ℕ))
+      = streamCovariance m c + c ^ (2 * m) * d := by
+  rw [Fin.sum_univ_castSucc]
+  have hlast : streamCoeff c d m (Fin.last m) * c ^ ((Fin.last m : Fin (m + 1)) : ℕ)
+      = c ^ (2 * m) * d := by
+    have hv : ((Fin.last m : Fin (m + 1)) : ℕ) = m := Fin.val_last m
+    have hc : streamCoeff c d m (Fin.last m) = c ^ m * d := by
+      simp [streamCoeff]
+    rw [hc, hv]
+    have hp : c ^ m * c ^ m = c ^ (2 * m) := by
+      rw [← pow_add, two_mul]
+    calc c ^ m * d * c ^ m = (c ^ m * c ^ m) * d := by ring
+      _ = c ^ (2 * m) * d := by rw [hp]
+  have hint : ∀ i : Fin m,
+      streamCoeff c d m (Fin.castSucc i) * c ^ ((Fin.castSucc i : Fin (m + 1)) : ℕ)
+        = (c ^ 2) ^ (i : ℕ) := by
+    intro i
+    have hne : (Fin.castSucc i : Fin (m + 1)) ≠ Fin.last m := Fin.castSucc_ne_last i
+    have hv : ((Fin.castSucc i : Fin (m + 1)) : ℕ) = (i : ℕ) := Fin.val_castSucc i
+    rw [show streamCoeff c d m (Fin.castSucc i) = c ^ (i : ℕ) by
+      simp [streamCoeff, hne], hv, ← mul_pow, ← pow_two]
+  rw [Finset.sum_congr rfl (fun i _ => hint i), hlast]
+  have hK : streamCovariance m c = ∑ j ∈ Finset.range m, (c ^ 2) ^ j :=
+    streamCovariance_closed_form m c
+  rw [hK, Fin.sum_univ_eq_sum_range (fun j => (c ^ 2) ^ j)]
+
+/-- **The field against a single coordinate** is that coordinate's coefficient. -/
+theorem integral_shellLaw_streamField_mul_coord (n : ℕ) (c d : ℝ) (j : Fin (n + 1)) :
+    ∫ p, streamField c d n p * p j ∂shellLaw (n + 1) = streamCoeff c d n j := by
+  conv_lhs => rw [show (fun p : Fin (n + 1) → ℝ => streamField c d n p * p j)
+    = fun p => (∑ i, streamCoeff c d n i * p i) * p j from by
+      funext p; rw [streamField_eq_sum_coeff]]
+  exact integral_shellLaw_linear_mul_coord (n + 1) (streamCoeff c d n) j
+
+/-- **The cross-scale covariance**: the field at `n` scales against the field at `m < n` scales.
+The smaller field is read in the larger space through `Fin.castLE`; its exterior coefficient
+`c^m·d` then meets the larger field's interior coefficient `c^m`, so the answer is
+`K_m + c^(2m)·d`. -/
+theorem integral_shellLaw_streamField_mul_smaller {m n : ℕ} (hmn : m < n) (c d : ℝ) :
+    ∫ p : Fin (n + 1) → ℝ, streamField c d n p
+        * streamField c d m (fun i => p (Fin.castLE (Nat.succ_le_succ hmn.le) i))
+      ∂shellLaw (n + 1) = streamCovariance m c + c ^ (2 * m) * d := by
+  have hcoe : ∀ i : Fin (m + 1),
+      streamCoeff c d n (Fin.castLE (Nat.succ_le_succ hmn.le) i) = c ^ (i : ℕ) := by
+    intro i
+    have hv : ((Fin.castLE (Nat.succ_le_succ hmn.le) i : Fin (n + 1)) : ℕ) = (i : ℕ) := rfl
+    have hlt : (i : ℕ) < n := lt_of_le_of_lt (Nat.le_of_lt_succ i.isLt) hmn
+    have hne : (Fin.castLE (Nat.succ_le_succ hmn.le) i : Fin (n + 1)) ≠ Fin.last n := by
+      intro hs
+      have := congrArg Fin.val hs
+      rw [Fin.val_last, hv] at this
+      omega
+    simp only [streamCoeff, if_neg hne, hv]
+  have hshift : ∀ p : Fin (n + 1) → ℝ,
+      streamField c d m (fun i => p (Fin.castLE (Nat.succ_le_succ hmn.le) i))
+        = ∑ i : Fin (n + 1), truncCoeff (streamCoeff c d m) hmn.le i * p i := by
+    intro p
+    rw [streamField_eq_sum_coeff, sum_truncCoeff_mul]
+  have hcongr : (∫ p : Fin (n + 1) → ℝ, streamField c d n p
+        * streamField c d m (fun i => p (Fin.castLE (Nat.succ_le_succ hmn.le) i))
+        ∂shellLaw (n + 1))
+      = ∫ p : Fin (n + 1) → ℝ, streamField c d n p
+          * (∑ i, truncCoeff (streamCoeff c d m) hmn.le i * p i) ∂shellLaw (n + 1) :=
+    integral_congr_ae (Eventually.of_forall fun p =>
+      congrArg (fun x => streamField c d n p * x) (hshift p))
+  rw [hcongr, integral_shellLaw_streamField_mul_linear]
+  rw [show (∑ i : Fin (n + 1),
+        streamCoeff c d n i * truncCoeff (streamCoeff c d m) hmn.le i)
+      = ∑ i : Fin (n + 1),
+        truncCoeff (streamCoeff c d m) hmn.le i * streamCoeff c d n i from
+    Finset.sum_congr rfl (fun i _ => mul_comm _ _)]
+  rw [sum_truncCoeff_mul]
+  rw [Finset.sum_congr rfl (fun i _ => by rw [hcoe i])]
+  exact sum_streamCoeff_mul_pow m c d
+
+/-- **Every coordinate moment of the reference law factorises**: a monomial in the coordinates
+integrates to the product of its one-dimensional moments.  The reference law is a product of unit
+Gaussians, so this is `integral_fintype_prod_eq_prod` read coordinate by coordinate; the
+four-point function is the exponent vector supported on four indices. -/
+theorem integral_shellLaw_prod_coord_pow (m : ℕ) (e : Fin m → ℕ) :
+    ∫ p : Fin m → ℝ, ∏ i, (p i) ^ (e i) ∂shellLaw m
+      = ∏ i, ∫ z, z ^ (e i) ∂blockUnit := by
+  have h := integral_fintype_prod_eq_prod (μ := fun _ : Fin m => blockUnit)
+    (f := fun i z => z ^ (e i))
+  simpa only [shellLaw] using h
 
 end BookProof.OSReconstruction
 
