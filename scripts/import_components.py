@@ -83,6 +83,11 @@ COMPONENT_NAMES = {
     # The U3/U6 mass arithmetic and the U5 witness contract import only Mathlib and each
     # other, so they form their own independent part (not a view of the operator core).
     "BookProof.Sirk.ChapterMassErrorArithmetic": "BookProofMassError",
+    # ChapterQuantizationWeyl (the Heisenberg/BCH model) and the H2 midpoint-ordering
+    # chapter that imports it form their own independent part.
+    "BookProof.ChapterQuantizationWeyl": "BookProofWeylOrdering",
+    # ChapterSmHiggsVacuum (the Higgs vacuum lemmas) and the H6 shifted-vacuum chapter.
+    "BookProof.ChapterSmHiggsVacuum": "BookProofShiftedVacuum",
     "BookProof.Lorentz.ChapterLorentzDecomp": "BookProofLorentz",
     "BookProof.Ode.ChapterOdeSampling": "BookProofSamplingTheory",
     "BookProof.Pauli.ChapterPauliLorentz": "BookProofPauli",

@@ -3567,6 +3567,52 @@ import BookProof.ChapterDiagonalDGammaEsa
 -- `𝓕_fin(D)`.  `dGamma_position_essentiallySelfAdjointOn_fockCore` is the unbounded instance
 -- (multiplication by `k` on `ℓ²(ℤ)`).
 import BookProof.ChapterFlowDGammaEsa
+-- H4's bounded Euclidean semigroup transfer: operator-norm convergence of bounded generators
+-- implies convergence of the heat semigroups exp(-tau A_n) at fixed Euclidean time.
+import BookProof.Sirk.ChapterHeatSemigroupBoundedTransfer
+-- H6 Route A (finite-volume shift): at a Higgs vacuum the radial curvature is strictly
+-- positive and the Goldstone direction has no quadratic term.
+import BookProof.Qym.ChapterShiftedVacuumEquivalence
+-- H5's overlap collapse: the coherent overlap of the zero state with a constant shift v
+-- across N modes is exp(-N v^2/2), tending to zero for v != 0 (Kakutani orthogonality).
+import BookProof.OSReconstruction.ChapterOverlapCollapse
+-- H3's continuous-time weight: at epsilon = T/N the Strang factor is exactly exp(-T c),
+-- independent of the slice count.
+import BookProof.OSReconstruction.ChapterContinuousTimeWeight
+-- H3's weighted path measure: the Strang potential floor bound and its measure-integrated form.
+import BookProof.OSReconstruction.ChapterWeightedPathMeasure
+-- H3's general finite-slice path measure: the Tonelli induction proving total mass one for
+-- every admitted finite schedule of Mehler kernels.
+import BookProof.OSReconstruction.ChapterPathMeasureInduction
+-- H3's general finite-slice path measure (research): Fin-based base measure, its splitting
+-- at the last coordinate, and the kernel-product density factorization.
+import BookProof.OSReconstruction.ChapterFinitePathMeasure
+-- H3's finite-slice path measure: the three-slice nested product measure and its probability
+-- by two Tonelli steps, extending the two-slice construction.
+import BookProof.OSReconstruction.ChapterThreeSlicePathMeasure
+-- H3's finite-slice path measure: the two-slice kernel density measure and its probability
+-- normalization via Tonelli, the first measure-valued step of the N-slice construction.
+import BookProof.OSReconstruction.ChapterTwoSlicePathMeasure
+-- H3's finite-slice potential weight: the Strang-symmetric endpoint/interior form and its
+-- factorization, consumed by the N-slice path measure.
+import BookProof.OSReconstruction.ChapterStrangPotentialWeight
+-- H3's N-slice algebra: the Gaussian convolution law for the closed Mehler kernel,
+-- mehlerKernel rho . mehlerKernel sigma = mehlerKernel (rho*sigma), the composition
+-- identity behind the finite-slice Markov measure and the continuous-time limit.
+import BookProof.ReflectionPositivity.ChapterMehlerKernelSemigroup
+-- H3 of `cftproof.md` (one slice): the Mehler kernel measure across the reflection slice,
+-- its OS form as a square of a conditional expectation, and the fkMeasure specialization.
+import BookProof.ReflectionPositivity.ChapterMehlerSliceReflectionPositivity
+-- H2 of `cftproof.md` (midpoint ordering): the symmetric Strang step equals the Weyl
+-- exponential in the Heisenberg/BCH model, while the endpoint Lie step carries the half-
+-- commutator defect — the negative control for time-slicing with cross terms.
+import BookProof.ChapterSymmetricTimeStepOrdering
+-- H1 of `cftproof.md`: the closed-form Mehler transition density, its normalization, its
+-- identification with a normalized free transfer kernel, and the bridge from mehlerOp.
+import BookProof.ReflectionPositivity.ChapterMehlerTransitionDensity
+-- H0 of `cftproof.md`: the outer N-particle sector flow is the N-fold tensor power of the
+-- one-particle Stone flow; its group law and the N=0 vacuum fixed point are proved here.
+import BookProof.OSReconstruction.ChapterOuterSemigroupFactorization
 
 -- `ChapterEsaOneParticleDGamma` (2026-09-20): the one-particle operator is only
 -- **essentially self-adjoint** on its domain `D` — symmetric with trivial deficiency, not
