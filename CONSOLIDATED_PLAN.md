@@ -27419,3 +27419,48 @@ made.
 
 **Boundary.** Metamathematical interpretation, not a theorem about `SAT ∉ P`; the
 asymptotic bridge to the continuum chapters remains out of scope.
+
+## 2026-11-25h — QYM: the magnetic Casimir and `[H, Ω] = 0`
+
+`BookProof/Qym/ChapterYangMillsGaussCasimir.lean` now proves the second half of the
+Hamiltonian and the commutator itself:
+
+* `mulOp_comm_deriv` — `[mulOp f, 𝒢_d] = −mulOp (𝒢_d f)`, the commutator of a
+  multiplication operator with the Gauss derivation;
+* `ymGaussDer_X` / `ymGaussDer_X_idxA` / `ymGaussDer_X_idxD` — `𝒢_d` on the coordinates;
+* `magJacobi` — the contracted Jacobi identity
+  `Σ_g f_{agc} f_{gbd} + Σ_g f_{abg} f_{gcd} = Σ_g f_{agd} f_{gbc}`, from `G.jacobi`
+  with `G.cyclic` twice and `G.antisymm`;
+* `ymGaussDer_magInner`, `ymGaussDer_magCubicFirst`, `ymGaussDer_magCubicSecond`,
+  `ymGaussDer_magCubic` — the product rule on `A_jb A_kc` and the cubic contraction,
+  with the two summation swaps `sum_swap_idx` (`Finset.sum_comm`) and the cast
+  bookkeeping `push_cast`;
+* `ymGaussDer_magPoly` — `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}`; the compact form is
+  `magPoly_adjoint_sum`, a reordering of the expanded action via `sum_rotate3` /
+  `sum_rotate5`, so the theorem is `ymGaussDer_magPoly_expanded.trans …`;
+* `mulOp_smul`, `mulOp_ymGaussDer_magPoly`, `sum_rotCoeff_mag`, `mulOp_magSq_adjoint`,
+  `magSq_comm` — `[Σ_{(i,a)} B_{ia}², 𝒢_d] = 0` by `sum_sq_comm_of_adjoint` with the
+  same `rotCoeff` as the kinetic half (the `−` is `G.antisymm`, so no second matrix);
+* `decodeSpace_finProdFinEquiv`, `decodeColor_finProdFinEquiv`, `sum_fin24` — the `24`
+  field/colour pairs of `BookProof.YangMillsHermite` are `Fin 3 × Fin 8`;
+* `ymHamPoly`, `ymHamPoly_eq`, `ymHamPoly_comm` — `H = ½ Σ π² + ½ Σ B²` on the
+  polynomial core (the polynomial form of `ymHamiltonian`, positive convention) commutes
+  with every constraint;
+* `ymH`, `ymGauss_comm_ymH`, `ymOmega_comm_ymH` — `[Ω, H] = 0` for the concrete model,
+  one application of `brstCharge_comm_of_comm` after transporting through `ymBos`;
+* `ymPhysicalStates`, `ymExactStates`, `ymH_mem_physicalStates`, `ymH_mem_exactStates` —
+  `H` preserves the BRST-closed and BRST-exact states, so it descends to the cohomology.
+
+`BookProof/ChapterBrstYmCommute.lean`'s "What remains" section is rewritten: both Casimir
+lemmas and the commutator are proved, and only the passage to the completed Hilbert space
+(the hypothesis of the reduced-transfer chapters) remains outside this algebraic result.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussCasimir` succeeds with no
+warning from the file; `#print axioms` gives `[propext, Classical.choice, Quot.sound]` for
+`magSq_comm`, `ymGaussDer_magPoly`, `ymGauss_comm_ymH`, `ymOmega_comm_ymH`,
+`ymH_mem_physicalStates` and `ymH_mem_exactStates`.  The scalar inputs were checked
+numerically against the su(3) structure constants (Jacobi, the contracted identity, and
+the cubic contraction over random `A` and all `(i,a,d)`) before the proof was attempted.
+
+**Boundary.** Polynomial-core identity for the constant-multiplet model (`G.D = 0`); no
+operator-domain statement, no `CoreRep` transport, no completion.

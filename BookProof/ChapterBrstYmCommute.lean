@@ -74,23 +74,23 @@ they are exactly the hypotheses that the Hamiltonian half consumes.
   `Ω² = 0`, the latter being `brst_full_nilpotent` applied to the instance, exactly as in
   `bookOmega_nilpotent`.
 
-## What remains, and why it is the other half
+## The Hamiltonian half: the two Casimir lemmas
 
-The headline `[H, Ω] = 0` needs two Casimir lemmas:
+The headline `[H, Ω] = 0` needs two Casimir lemmas, both now proved in
+`BookProof/Qym/ChapterYangMillsGaussCasimir.lean`:
 
 * `ymGauss_comm_momSq` — `[Σ_m π_m², 𝒢_d] = 0` for the 24 momenta
   `π_m = momOp (idxA (decodeSpace m) (decodeColor m))` of `BookProof.YangMillsHermite`.
-  **Proved**: `momSq_comm` of `BookProof/Qym/ChapterYangMillsGaussCasimir.lean`, by the
-  deformed-ladder route (`derOp_comm_gauss` + `sum_sq_comm_of_adjoint`) rather than the
-  raw `∂`/`x` pair.
-* `ymGauss_comm_magSq` — `[Σ_m B_m², 𝒢_d] = 0` for `B_m = magPoly G.f`.  Since
-  `[mulOp B, 𝒢_d] = −mulOp (𝒢_d B)`, this reduces to `Σ_{i,a} B_{ia} 𝒢_d(B_{ia}) = 0`,
-  which follows once `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}` (the field strength transforming in
-  the adjoint).  That identity in turn is the contracted `ε`/`f` statement whose scalar form
-  is `Σ_e f_{aec} f_{ebd} + Σ_e f_{abe} f_{ecd} = Σ_g f_{agd} f_{gbc}`, a consequence of
-  `G.jacobi` together with `G.antisymm` and `G.cyclic`.
+  **Proved**: `momSq_comm`, by the deformed-ladder route (`derOp_comm_gauss` +
+  `sum_sq_comm_of_adjoint`) rather than the raw `∂`/`x` pair.
+* `ymGauss_comm_magSq` — `[Σ_m B_m², 𝒢_d] = 0` for `B_m = magPoly G.f`.  **Proved**:
+  `magSq_comm`.  Since `[mulOp B, 𝒢_d] = −mulOp (𝒢_d B)`, it reduces to
+  `Σ_{i,a} B_{ia} 𝒢_d(B_{ia}) = 0`, which follows from the field strength transforming in
+  the adjoint, `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}` (`ymGaussDer_magPoly`).  That identity's
+  scalar content is the contracted Jacobi identity
+  `Σ_e f_{aec} f_{ebd} + Σ_e f_{abe} f_{ecd} = Σ_g f_{agd} f_{gbc}`, which is `magJacobi`.
 
-Once those two exist, `ymOmega_comm_ymH` is one application of
+With both in place, `ymOmega_comm_ymH` (`[Ω, H] = 0`) is one application of
 `brstCharge_comm_of_comm` (`BookProof/ChapterBookBrstGaugeFixing.lean`), and
 `ymH_mem_physicalStates` / `ymH_mem_exactStates` follow from it as in
 `BookProof/Ns/ChapterNsBrstDerivativeGauge.lean`.

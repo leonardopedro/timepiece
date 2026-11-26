@@ -5389,7 +5389,13 @@ and it is not an extra hypothesis: `G.jacobi a b c d` says the left side equals
 right side after `G.antisymm`.  Checked numerically against the su(3) structure constants
 over all 4096 index tuples before attempting the proof (0 failures).
 
-What is still missing is mechanical, not conceptual: `mulOp f * D = D * mulOp f + mulOp (D f)`
-for a derivation `D`, the two coordinate evaluations `𝒢_d X(idxD j k a) = Σ_g f_{agd} X(idxD j k g)`
-and the `idxA` case, the swap `Σ_{i,a} B_{ia} (𝒢_d B_{ia}) = −Σ_{i,a} B_{ia} (𝒢_d B_{ia})`,
-and then `sum_sq_comm_of_adjoint` with `T (i,a) := mulOp (magPoly … i a)`.
+**Landed** in `BookProof/Qym/ChapterYangMillsGaussCasimir.lean`: `mulOp_comm_deriv` (the
+`[mulOp f, 𝒢] = −mulOp (𝒢 f)` form), the two coordinate evaluations
+(`ymGaussDer_X_idxA` / `ymGaussDer_X_idxD`), the cubic contraction `ymGaussDer_magCubic`
+organised by two summation swaps (`sum_swap_idx`, plus the index rotations
+`sum_rotate3` / `sum_rotate5`), the reordering `magPoly_adjoint_sum`, and `magSq_comm`
+through `sum_sq_comm_of_adjoint` with the coefficient matrix `rotCoeff`.  No separate
+sign swap is needed: the `−` from `[mulOp B, 𝒢] = −mulOp (𝒢 B)` is exactly `G.antisymm`,
+so the same `rotCoeff` that served the kinetic half serves here.  With `momSq_comm`,
+`ymHamPoly_comm` follows, then `ymOmega_comm_ymH` (via `brstCharge_comm_of_comm`) and
+the membership corollaries `ymH_mem_physicalStates` / `ymH_mem_exactStates`.
