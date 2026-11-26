@@ -7,10 +7,16 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
-> **Newest QYM entry (2026-11-26b):** “State of the project — 2026-11-26b: the closure of the
+> **Newest QYM entry (2026-11-26c):** “State of the project — 2026-11-26c: the closure of the
+> Gauss constraint lies in the negative of its adjoint” (end of file).  `closure 𝒢_d ≤ −(closure
+> 𝒢_d)†`, i.e. the domain of the closure sits inside the domain of its adjoint with `A† y =
+> −A y` there; that is the `A ⊆ −A†` half of skew-adjointness.  The reverse domain inclusion,
+> and with it skew-adjointness and Stone’s theorem, is still open.
+>
+> **QYM entry (2026-11-26b):** “State of the project — 2026-11-26b: the closure of the
 > Gauss constraint exists and is skew” (end of file).  `𝒢_d` is packaged as a partially
 > defined operator on `L²(ℝ⁹⁹)`, proved closable, and its closure is closed, densely
-> defined and skew.  Skew-adjointness of the closure is not proved.
+> defined and skew.
 >
 > **QYM entry (2026-11-26):** “State of the project — 2026-11-26: the Gauss constraint
 > is skew on the completed Mehler core” (end of file).  `𝒢_d` is realised on the dense
@@ -27605,3 +27611,57 @@ is not proved, so no Stone theorem, no unitary group and no essential self-adjoi
 the Hamiltonian's own closure, or the quartic magnetic term `f ≠ 0`; the commutation of
 2026-11-26 is still a core-level statement.  Treating `i·𝒢_d` as self-adjoint would also
 need the domain identity, since symmetry of `i·𝒢_d` is only half of it.
+
+## 2026-11-26c — QYM: the closure of the Gauss constraint lies in the negative of its adjoint
+
+`BookProof/Qym/ChapterYangMillsGaussClosure.lean` gained a new section (the module is
+already imported by `BookProof.lean`).  Yesterday's entry proved the closure of `𝒢_d` skew,
+which is a statement about the alternating form on graph pairs; this one states the same
+fact in adjoint form, which is the form the operator-theoretic machinery consumes.
+
+## The adjoint of the closure
+
+`gaussPMap_closure_adjoint_domain_ge`: every `y` in the domain of the closure is in the
+domain of the adjoint.  The proof is the skew identity itself — for `x` in the domain of
+the closure, `⟪y, A x⟫ = ⟪−A y, x⟫`, so the functional `x ↦ ⟪y, A x⟫` is a fixed
+continuous functional and `LinearPMap.mem_adjoint_domain_of_exists` applies with witness
+`w = −A y`.  (The `Continuous` formulation `LinearPMap.mem_adjoint_domain_iff` is the same
+statement, but rewriting through it made the elaborator unfold the `if` inside
+`LinearPMap.adjoint` and blew the heartbeat budget; the `_of_exists` corollary avoids the
+unfolding and is what the proofs below use.)
+
+`gaussPMap_closure_adjoint_apply` identifies the value: on that domain
+`(closure 𝒢_d)† y = −(closure 𝒢_d) y`.  The witness of the previous lemma is unique because
+the domain of the closure is dense (`gaussPMap_closure_domain_dense`), which is exactly what
+`LinearPMap.adjoint_apply_eq` needs.
+
+`gaussPMap_closure_le_negAdjoint` packages the two in the partial-map order:
+**`closure 𝒢_d ≤ −(closure 𝒢_d)†`**, that is `dom (closure 𝒢_d) ⊆ dom ((closure 𝒢_d)†)`
+with `A† y = −A y` there.  Together with `A†.IsFormalAdjoint A` (Mathlib's
+`LinearPMap.adjoint_isFormalAdjoint`) this is the `A ⊆ −A†` half of skew-adjointness; the
+missing half is the reverse inclusion `dom A† ⊆ dom A`.
+
+`gaussPMap_closure_le_of_isClosed`: the closure is the *minimal* closed extension, so the
+skewness statements are statements about every closed extension of the core operator and
+not only about the one Mathlib happens to name.  `gaussPMap_closure_hasCore`: the
+Gauss–polynomial core `D` is a core of the closure (`LinearPMap.closureHasCore`).
+
+## Concrete instance
+
+Hypothesis-free on the field-space core: `gaussPMap_polyGaussCore_closure_adjoint_domain_ge`,
+`gaussPMap_polyGaussCore_closure_le_negAdjoint` and
+`gaussPMap_polyGaussCore_closure_hasCore` specialize the three statements to
+`coreRepPoly 99` and `polyGaussCore (d := 99)`.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussClosure` succeeds (8069
+jobs) with no warning from the file, and `#print axioms` on
+`gaussPMap_closure_adjoint_domain_ge`, `gaussPMap_closure_adjoint_apply`,
+`gaussPMap_closure_le_negAdjoint`, `gaussPMap_closure_le_of_isClosed`,
+`gaussPMap_closure_hasCore` and the three core instantiations all give
+`[propext, Classical.choice, Quot.sound]`.
+
+**Boundary.** `A ≤ −A†`, not `A = −A†`: skew-adjointness needs `dom A† ⊆ dom A`, and that
+is the whole remaining gap — no Stone theorem, no unitary group `e^{−it𝒢_d}`, no
+essential self-adjointness of `i·𝒢_d`.  Nothing here touches the ghost sector, the
+Hamiltonian's own closure or the quartic magnetic term `f ≠ 0`.  The module header records
+the same boundary.

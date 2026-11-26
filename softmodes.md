@@ -65,8 +65,12 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
    that the transported Hamiltonian commutes with it there.  **2026-11-26b:** the closure
    half for the charge alone is landed too — `BookProof/Qym/ChapterYangMillsGaussClosure.lean`
    packages `𝒢_d` as a partially defined operator on `L²(ℝ⁹⁹)`, proves it closable, and
-   proves its closure closed, densely defined and **skew**.  What remains is
-   skew-*adjoint*ness of the closure (`dom A† = dom A`, hence no Stone group yet), the
+   proves its closure closed, densely defined and **skew**.  **2026-11-26c:** the skewness
+   is now stated in adjoint form, `closure 𝒢_d ≤ −(closure 𝒢_d)†` — the domain of the
+   closure lies in the domain of its adjoint with `A† y = −A y` there — and the closure is
+   shown to be the minimal closed extension, with the Gauss–polynomial core a core of it.
+   What remains is the *reverse* inclusion `dom A† ⊆ dom A`, i.e. skew-*adjoint*ness
+   itself (hence no Stone group yet), the
    Hamiltonian's own closure and essential self-adjointness in the non-abelian sector, and
    the ghost Fock completion of the full charge.  [Gauss closure](BookProof/Qym/ChapterYangMillsGaussClosure.lean) ·
    [Gauss constraint on the core](BookProof/Qym/ChapterYangMillsGaussSkew.lean) ·

@@ -17,12 +17,20 @@ The route is the standard one:
   `graph 𝒢_d × graph 𝒢_d` by skewness, is separately continuous, and therefore vanishes
   on `closure (graph 𝒢_d) × closure (graph 𝒢_d) = graph (closure 𝒢_d)²`.
 
+## The adjoint of the closure
+
+Skewness read as an adjoint statement is `closure 𝒢_d ≤ −(closure 𝒢_d)†`: for every `y` in
+the domain of the closure the functional `x ↦ ⟪y, 𝒢_d x⟫` is the continuous functional
+`x ↦ ⟪−𝒢_d y, x⟫`, so `dom (closure 𝒢_d) ⊆ dom (closure 𝒢_d)†` with `A† y = −A y` there.
+That is the "`A ⊆ −A†`" half of skew-adjointness, proved in
+`gaussPMap_closure_le_negAdjoint`; the reverse inclusion `dom A† ⊆ dom A` is the missing
+half.
+
 ## What is *not* here
 
 * **Skew-adjointness of the closure.**  A skew operator `A` is skew-adjoint when in
-  addition `dom A† = dom A`; only `A ≤ (A†)`'s skew analogue is proved, so no Stone
-  theorem, no unitary group `e^{−it𝒢_d}`, and no statement that `i·𝒢_d` is *self*-adjoint
-  is claimed.
+  addition `dom A† = dom A`; only `A ≤ −A†` is proved, so no Stone theorem, no unitary
+  group `e^{−it𝒢_d}`, and no statement that `i·𝒢_d` is *self*-adjoint is claimed.
 * No closedness of `𝒢_d` itself: what is closed is its closure.
 * The ghost sector and the quartic magnetic term are untouched; see the boundary notes of
   `ChapterYangMillsGaussSkew`.
@@ -221,6 +229,77 @@ theorem gaussPMap_closure_inner_re_zero (G : GaugeAlgebra 8) (d : Fin 8)
   simp only [Complex.neg_re, Complex.conj_re] at hre
   linarith
 
+/-! ## The adjoint of the closure
+
+Skewness of the closure says `⟪A x, y⟫ = −⟪x, A y⟫` for `x`, `y` in the domain of `A`.
+Rearranged, it says that for `y` in that domain the functional `x ↦ ⟪y, A x⟫` *is* the
+functional `x ↦ ⟪−A y, x⟫`, which is continuous.  By `LinearPMap.mem_adjoint_domain_iff`
+this puts `y` in the domain of the adjoint, and `LinearPMap.adjoint_apply_eq` identifies
+the value as `−A y`.  The result is `A ≤ −A†`, the half of skew-adjointness that does not
+need a new idea. -/
+
+/-- The domain of the closure of `𝒢_d` lies in the domain of its adjoint. -/
+theorem gaussPMap_closure_adjoint_domain_ge (G : GaugeAlgebra 8) (d : Fin 8)
+    (Φ : CoreRep 99 D) (hD : Dense (D : Set (L2d 99))) :
+    (gaussPMap G d Φ).closure.domain ≤ (gaussPMap G d Φ).closure.adjoint.domain := by
+  intro y hy
+  refine LinearPMap.mem_adjoint_domain_of_exists (T := (gaussPMap G d Φ).closure)
+    (y : L2d 99) ⟨-(gaussPMap G d Φ).closure ⟨y, hy⟩, ?_⟩
+  intro x
+  rw [inner_neg_left]
+  have h := gaussPMap_closure_skew G d Φ hD ⟨y, hy⟩ x
+  rw [h]
+  ring
+
+/-- On the domain of the closure the adjoint acts as the negative of the closure. -/
+theorem gaussPMap_closure_adjoint_apply (G : GaugeAlgebra 8) (d : Fin 8)
+    (Φ : CoreRep 99 D) (hD : Dense (D : Set (L2d 99)))
+    (y : (gaussPMap G d Φ).closure.domain) :
+    (gaussPMap G d Φ).closure.adjoint
+        ⟨(y : L2d 99), gaussPMap_closure_adjoint_domain_ge G d Φ hD y.2⟩
+      = -(gaussPMap G d Φ).closure y := by
+  refine LinearPMap.adjoint_apply_eq (T := (gaussPMap G d Φ).closure)
+    (gaussPMap_closure_domain_dense G d Φ hD) ?_ ?_
+  intro x
+  rw [inner_neg_left]
+  have h := gaussPMap_closure_skew G d Φ hD y x
+  rw [h]
+  ring
+
+/-- **The closure of `𝒢_d` is contained in the negative of its own adjoint**: `A ≤ −A†`,
+i.e. `dom A ⊆ dom A†` and `A† y = −A y` on that domain.  This is the half of
+skew-adjointness that needs no new argument; `dom A† ⊆ dom A` is the other half. -/
+theorem gaussPMap_closure_le_negAdjoint (G : GaugeAlgebra 8) (d : Fin 8)
+    (Φ : CoreRep 99 D) (hD : Dense (D : Set (L2d 99))) :
+    (gaussPMap G d Φ).closure ≤ -(gaussPMap G d Φ).closure.adjoint := by
+  refine ⟨gaussPMap_closure_adjoint_domain_ge G d Φ hD, ?_⟩
+  intro x y hxy
+  rw [LinearPMap.neg_apply]
+  have hstep : (gaussPMap G d Φ).closure.adjoint y
+      = (gaussPMap G d Φ).closure.adjoint
+          ⟨(x : L2d 99), gaussPMap_closure_adjoint_domain_ge G d Φ hD x.2⟩ := by
+    congr 1
+    exact Subtype.ext hxy.symm
+  rw [hstep, gaussPMap_closure_adjoint_apply G d Φ hD]
+  rw [neg_neg]
+
+/-- **The closure is the minimal closed extension of `𝒢_d`**, so skewness of the closure
+is a statement about every closed extension of the core operator. -/
+theorem gaussPMap_closure_le_of_isClosed (G : GaugeAlgebra 8) (d : Fin 8)
+    (Φ : CoreRep 99 D) (hD : Dense (D : Set (L2d 99))) {T : L2d 99 →ₗ.[ℂ] L2d 99}
+    (hT : T.IsClosed) (hle : gaussPMap G d Φ ≤ T) :
+    (gaussPMap G d Φ).closure ≤ T := by
+  refine LinearPMap.le_of_le_graph ?_
+  rw [← (gaussPMap_isClosable G d Φ hD).graph_closure_eq_closure_graph]
+  exact Submodule.topologicalClosure_minimal _ (LinearPMap.le_graph_of_le hle) hT
+
+/-- The core `D` is a core of the closure: restricting the closure to the Gauss–polynomial
+core and closing again returns the closure. -/
+theorem gaussPMap_closure_hasCore (G : GaugeAlgebra 8) (d : Fin 8) (Φ : CoreRep 99 D) :
+    (gaussPMap G d Φ).closure.HasCore D := by
+  have h := LinearPMap.closureHasCore (gaussPMap G d Φ)
+  rwa [gaussPMap_domain] at h
+
 /-! ## The concrete instance -/
 
 /-- The Gauss constraint on the Gauss–polynomial core of `L²(ℝ⁹⁹)` is closable. -/
@@ -247,6 +326,24 @@ theorem gaussPMap_polyGaussCore_closure_inner_re_zero (G : GaugeAlgebra 8) (d : 
     (x : (gaussPMap G d (coreRepPoly 99)).closure.domain) :
     (inner ℂ ((gaussPMap G d (coreRepPoly 99)).closure x) (x : L2d 99)).re = 0 :=
   gaussPMap_closure_inner_re_zero G d (coreRepPoly 99) polyGaussCore_dense x
+
+/-- On the field-space core the domain of the closure lies in the domain of its adjoint. -/
+theorem gaussPMap_polyGaussCore_closure_adjoint_domain_ge (G : GaugeAlgebra 8) (d : Fin 8) :
+    (gaussPMap G d (coreRepPoly 99)).closure.domain
+      ≤ (gaussPMap G d (coreRepPoly 99)).closure.adjoint.domain :=
+  gaussPMap_closure_adjoint_domain_ge G d (coreRepPoly 99) polyGaussCore_dense
+
+/-- **The field-space closure is contained in the negative of its own adjoint**, with no
+hypothesis left. -/
+theorem gaussPMap_polyGaussCore_closure_le_negAdjoint (G : GaugeAlgebra 8) (d : Fin 8) :
+    (gaussPMap G d (coreRepPoly 99)).closure
+      ≤ -(gaussPMap G d (coreRepPoly 99)).closure.adjoint :=
+  gaussPMap_closure_le_negAdjoint G d (coreRepPoly 99) polyGaussCore_dense
+
+/-- The Gauss–polynomial core is a core of the field-space closure. -/
+theorem gaussPMap_polyGaussCore_closure_hasCore (G : GaugeAlgebra 8) (d : Fin 8) :
+    (gaussPMap G d (coreRepPoly 99)).closure.HasCore (polyGaussCore (d := 99)) :=
+  gaussPMap_closure_hasCore G d (coreRepPoly 99)
 
 end
 
