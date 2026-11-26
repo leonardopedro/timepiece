@@ -39,6 +39,16 @@ acting on each tensor factor, restricted to the intended statistics.
   Koopman and Lagrangian comparison generators have separate statements; the six-coordinate parcel
   does not construct all cross-momentum products.
 
+- Real scalar λφ⁴. Inner operator and reusable proof: the continuous-momentum
+  `h = ½p_φ² + ½(k₁²+k₂²+k₃²)φ² + (λ/4)(φ²−v²)²` on `L²(ℝ³_k × ℝ_φ)`, with the
+  one-particle ESA ([Mehler core](Phi4/ChapterScalarMehler.lean)), the unconditional inner gap
+  and unique outer vacuum ground state ([momentum gap](Phi4/ChapterScalarMomentumGap.lean),
+  [outer energy](Phi4/ChapterScalarEnergy.lean)), the two-sided return interval at `t=1/100`
+  ([rank-2 orbit](Phi4/ChapterScalarMomOrbit.lean)), and the outer shift law
+  `dΓ(h+cI)=dΓ(h)+c·N_out` with its one-particle sector identification
+  ([sector ops](Phi4/ChapterScalarSectorOps.lean)). Boundary: the frozen periodic lattice
+  (`siteModel`, `twoSite`) and the static-jet comparison (`jetModel`) are not this object.
+
 
 ## Consequences of the enclosure
 

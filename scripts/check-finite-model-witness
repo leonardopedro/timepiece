@@ -61,6 +61,22 @@ def main() -> int:
     if row["physical"] is not False:
         print(f"[fail] finite-model fixture must be physical:false")
         return 1
+    ordered_file = FIXTURE.with_name("qym_g2_n10_ordered.ndjson")
+    if not ordered_file.is_file():
+        raise SystemExit(f"[gap] ordered-count fixture absent: {ordered_file}")
+    ordered = json.loads(ordered_file.read_text(), parse_float=Decimal)
+    declaration = LEAN.read_text().split("theorem qymG2N10_ordered_gap ", 1)[1]
+    dimension = int(re.search(r"levels : Fin (\d+)", declaration).group(1))
+    expected = [(Decimal(t), int(n)) for t, n in re.findall(
+        r"countBelow levels \(([-\d.]+)\) = (\d+)", declaration.split(":= by", 1)[0])]
+    observed = [(cell["shift"], cell["odd"] + cell["even"]) for cell in ordered["inertia_counts"]]
+    if (ordered["schema"] != "qym-finite-reflection-counts/v1" or ordered["physical"] is not False
+            or ordered["coupling"] != row["coupling"] or ordered["cutoff"] != row["cutoff"]
+            or ordered["odd_dimension"] != row["dimension"]
+            or ordered["odd_dimension"] + ordered["even_dimension"] != dimension
+            or len(expected) != 4 or expected != observed):
+        raise SystemExit(f"[fail] finite ordered counts or model differ: {expected=} {observed=}")
+    print(f"[ok] combined counts match the four Lean hypotheses for {dimension} levels")
     print(f"[ok] finite-model row matches emitted fixture "
           f"(g={row['coupling']}, N<={row['cutoff']}, dim={row['dimension']}, "
           f"temple={row['temple_bound']})")

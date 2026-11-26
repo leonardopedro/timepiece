@@ -51,6 +51,7 @@ IMPORT_RE = re.compile(r"\s*import\s+([A-Za-z0-9_.]+)")
 # A component that is not listed keeps no dedicated target: a single-module
 # component is already built by `lake build <module>`.
 COMPONENT_NAMES = {
+    "BookProof.Qym.ChapterYangMillsMagneticPacket": "BookProofMagneticPacket",
     "BookProof.Realification.ChapterA": "BookProofRealification",
     # `BookProofLieRep` was merged into `BookProofOperatorCore` (2026-09-24,
     # CONSOLIDATED_PLAN.md): the merged part keeps the `BookProofOperatorCore`
@@ -93,6 +94,7 @@ COMPONENT_NAMES = {
     "BookProof.Pauli.ChapterPauliLorentz": "BookProofPauli",
     "BookProof.RoadmapAudit.AxiomAudit": "BookProofRoadmapAudit",
     "BookProof.RoadmapAudit.ChapterRoadmapAudit": "BookProofRoadmapAudit",
+    "BookProof.Ultrafinitism.ChapterDeformedCCR": "BookProofUltrafinitism",
     "BookProof.WeylSL2.ChapterWeylSL2Group": "BookProofWeylSL2",
     "BookProof.WignerOrbit.ChapterWignerLittleGroup": "BookProofWignerOrbit",
 }

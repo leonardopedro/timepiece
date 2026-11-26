@@ -1104,7 +1104,9 @@ import BookProof.Toolbox.ChapterFriedrichsExtension
 -- `H₁ = ½Σπ² + ½ΣB²` is symmetric and positive on the core, so the Friedrichs
 -- extension theorem and the Hashimoto/SIRK selection theorem apply to it.
 import BookProof.Toolbox.ChapterHermiteProductCore
+import BookProof.Qym.ChapterYangMillsGaussCasimir
 import BookProof.Qym.ChapterYangMillsHermite
+import BookProof.Qym.ChapterYangMillsPacketCharge
 import BookProof.Qym.ChapterYangMillsFieldStrengthSplit
 import BookProof.Qym.ChapterYangMillsMagneticPacket
 import BookProof.Qym.ChapterYangMillsResolventBudget
@@ -4156,11 +4158,19 @@ import BookProof.Qym.ChapterYangMillsNonAbelianEsa
 import BookProof.Sm.ChapterSmFockEsa
 import BookProof.Phi4.ChapterScalarJet
 import BookProof.Phi4.ChapterScalarSirk
+import BookProof.Phi4.ChapterScalarMehler
+import BookProof.Phi4.ChapterScalarMomentum
+import BookProof.Phi4.ChapterScalarMomentumGap
+import BookProof.Phi4.ChapterScalarFourierIntegral
+import BookProof.Phi4.ChapterScalarMomRankTwo
+import BookProof.Phi4.ChapterScalarMomOrbit
+import BookProof.Phi4.ChapterScalarOuter
 import BookProof.Phi4.ChapterScalarEnergy
 import BookProof.Phi4.ChapterScalarTwoSite
 import BookProof.Phi4.ChapterScalarRankTwo
 import BookProof.Phi4.ChapterScalarRankTwoOrbit
 import BookProof.Phi4.ChapterScalarWindows
+import BookProof.Phi4.ChapterScalarSectorOps
 import BookProof.Ns.ChapterNsReducedCoreEsa
 -- `ChapterSmFullEnclosure` (2026-09-24c): the full Standard-Model one-particle Hamiltonian
 -- `h_full = h_B ⊗ 1 + 1 ⊗ (smDirac + smYukawa)` on `L²(ℝ¹⁶³) ⊗̂ FermiFock n` (fixed Higgs
@@ -4763,3 +4773,13 @@ import BookProof.ReflectionPositivity.HalfSpaceSplit
 -- algebra (`ChapterSmGradTable`) and the sector form domain (`ChapterSmSectorFormDomain`).
 import BookProof.Sm.ChapterSmGradTable
 import BookProof.Sm.ChapterSmSectorFormDomain
+
+-- The Ultrafinitist Solovay–Mehler–Kopperman (`U-SMK`) theory: strictly finite dyadic
+-- Krawtchouk–Mehler tail, bounded deformed CCR resolving Wintner–Wielandt, resource-accounting
+-- tensor product (no Hilbert's Hotel), polynomial-time rational Gram decidability, and
+-- Mehler-damped effect logic resolving the Sorites and Parikh bounds.
+import BookProof.Ultrafinitism.ChapterKrawtchoukTail
+import BookProof.Ultrafinitism.ChapterDeformedCCR
+import BookProof.Ultrafinitism.ChapterUltrafinitistTensor
+import BookProof.Ultrafinitism.ChapterMehlerFeasibility
+import BookProof.Ultrafinitism.ChapterGramPolyDecision

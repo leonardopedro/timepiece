@@ -159,6 +159,21 @@ convergence, orbit estimate and two-site certificates, returned only `propext`,
 distinguished four deliberate mutations and reproduced the complete JSON fixture.
 The aggregate project build and a dedicated scalar Rust trajectory run remain separate.
 
+**Executed in Lean on 2026-11-25 (`P4`–`P10`, continuous momentum).**
+`ChapterScalarMehler` (Mehler core, one-particle ESA, Stone flow),
+`ChapterScalarMomentum` (`momContModel`: mean `17/8`, defect norm squared `553/32`,
+rank-one error, `unitMomCont_return_probability`), `ChapterScalarMomentumGap`
+(unconditional `unitMomCont_inner_gap` at `7/64`, unique outer vacuum, `φ ↦ −φ`
+and `k ↦ −k` parity), `ChapterScalarFourierIntegral` (continuous-`k` gradient identity
+and the composite-pair integral), `ChapterScalarMomRankTwo` (11-mode `S₃` certificate,
+shifts `10, 5`, `defect_split` with outside-window squared norm `9/2`),
+`ChapterScalarMomOrbit` (rational transport to `ℂ`, speed/acceleration and transverse
+Gram certificates, `Model.orbit_error`, and the two-sided interval
+`[319447/320000, 39999/40000]` at `t = 1/100`) and `ChapterScalarSectorOps`
+(`dΓ(h+cI) = dΓ(h) + c·N_out`, and the `n = 1` outer sector identified with
+`M.innerHam`). `Work/Phi4Audit` audits all 241 public `BookProof.Phi4` theorems; every
+line prints only `propext`, `Classical.choice`, `Quot.sound`.
+
 ## Next proofs for the Lean4 specialist (100% continuous-momentum `book.tex` formalism)
 
 Detailed step-by-step instructions and pre-verified rational targets live in

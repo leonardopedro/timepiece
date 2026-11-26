@@ -27476,3 +27476,216 @@ attains the potential minimum.
 **Verification.** `lake env lean`, `lake build BookProofShiftedVacuum` and `lake build BookProof`
 succeed (9093 jobs); `#print axioms` on the main theorems gives `[propext, Classical.choice,
 Quot.sound]`.  New independent part `BookProofShiftedVacuum` registered.
+
+## State of the project — 2026-11-25, continuous Gauss variations and joint finite counts
+
+The [QYM work order](softmodes.md) supersedes the earlier packet and U2–U6 task lists as
+a reading guide. The normalized three-profile cubic colour singlet at unit coupling has
+matrix element 0.119638304020279. Enlarging each profile to three adjoint colours handles
+constant rotations. A smooth local gauge variation at zero connection produces a third
+spatial component outside that family. The classical Schwartz tangent has the continuous
+Fourier derivative and convolution; in the SU(2) block the first curvature variation
+preserves the magnetic half square. The closed quantum Gauss domain and its reduction
+remain open. [Packet proofs](BookProof/Qym/ChapterYangMillsMagneticPacket.lean)
+
+A common operator-norm error and denominator margin now imply a common mass error on
+the full Rayleigh space and the identified ground complement, at every admitted rank.
+Physical identification and an upper bound on the actual omitted resolvent remain
+inputs. [Rank-uniform energy bound](BookProof/Qym/ChapterYangMillsResolventBudget.lean)
+
+At coupling 2 and occupation cutoff 10, joint inertia counts on 581 even and 420 odd
+coordinates enclose the first ordered splitting of the finite matrices in [77/64, 79/64].
+Lean checks the implication from the four counts. The separate 20-row campaign still
+has no positive certified lower endpoint. A strong-coupling mass-gap witness for the
+physical continuous operator remains open. [Count arithmetic](BookProof/Sirk/ChapterFiniteModelWitness.lean)
+
+## State of the project — 2026-11-25d: continuous-momentum λφ⁴ closed through the axiom audit
+
+`PHI4_IMPROVEMENT_PLAN.md` `P4`–`P10` are executed in Lean (the remaining Rust items are
+`P11`–`P13`).  The continuous-momentum chain now runs from the Mehler core to the outer
+sector: `ChapterScalarMehler` gives the one-particle ESA and Stone flow,
+`ChapterScalarMomentum` the rank-one bounds (`17/8`, `553/32`, `unitMomCont_return_probability`),
+`ChapterScalarMomentumGap` the unconditional inner gap (`7/64`) with a unique outer vacuum and
+the `φ ↦ −φ`, `k ↦ −k` parities, `ChapterScalarFourierIntegral` the continuous-`k` gradient
+identity and composite-pair integral, and `ChapterScalarMomRankTwo` the 11-mode `S₃`
+certificate at shifts `(10, 5)` including `defect_split`.  `ChapterScalarMomOrbit` transports the
+rational data to `ℂ`, certifies the speed, acceleration and transverse Gram bounds, and closes
+the two-sided return interval `[319447/320000, 39999/40000]` at `t = 1/100` through
+`Model.orbit_error` plus the rank-one projection geometry.
+
+`P10` adds `BookProof/Phi4/ChapterScalarSectorOps.lean`: the derivation, sector and
+symmetrized-sector operators are additive and homogeneous in the one-particle operator, the
+inclusion's derivation is the particle number, and hence `outerHam_add_const` —
+`dΓ(h + c·1) = dΓ(h) + c·N_out` on `hbosonicFockDom` for the new `outerNumber` — and
+`outerHam_oneParticle_eq`, identifying the `n = 1` outer action with `M.innerHam`.
+[Shift law](BookProof/Phi4/ChapterScalarSectorOps.lean)
+
+`Work/Phi4Audit.lean` audits all 241 public theorems of the ten `BookProof.Phi4` modules
+(`ChapterScalarMehler`, `Momentum`, `MomentumGap`, `FourierIntegral`, `MomRankTwo`,
+`MomOrbit`, `Outer`, `Energy`, `Windows`, `SectorOps`); every printed line is
+`[propext, Classical.choice, Quot.sound]`.  `BookProof.lean` now imports the eight previously
+unlisted scalar modules, and `BookProof/HAMILTONIAN_SCOPE.md` carries a `Real scalar λφ⁴`
+bullet.  Verified with `lake build BookProof.Phi4.ChapterScalarSectorOps Work.Phi4Audit`
+(8227 jobs).
+
+## State of the project — 2026-11-25e: the ultrafinitist Solovay–Mehler–Kopperman component
+
+`ultrafinite.md` derives `U-SMK_{D,M,ρ,B}`, the strictly finite pre-limit of the
+Solovay–Mehler–Kopperman foundation, and its five pillars land as the new `sorry`-free
+`BookProof/Ultrafinitism/` component: five modules, no `MeasureTheory`, no custom axioms.
+Each pillar answers one of the five obstructions the earlier foundation carried —
+Hilbert's Hotel in the tail, actual limits over uncountable `ℝ`, doubly exponential RCF
+decision, the Wintner–Wielandt obstruction, and the Sorites paradox.
+
+[Krawtchouk tail](BookProof/Ultrafinitism/ChapterKrawtchoukTail.lean) replaces the
+infinite coordinate tail `(ℕ → ℝ, γ)` with the dyadic hypercube `BitCube M = Fin M → Bool`
+under `cubeExpect M`: Walsh characters are an exact orthonormal basis, the unnormalized
+Krawtchouk modes are orthogonal with squared norm `Nat.choose M n`, the Bonami–Beckner
+bit-flip channel is a self-adjoint Markov semigroup with eigenvalues `ρ ^ n`, and at
+`M = 4 ^ q` the scaled block sum has mean `0`, variance `1` and fourth moment
+`3 - 2 / 4 ^ q`. Everything there is computable over `ℚ`, by design.
+
+[Deformed CCR](BookProof/Ultrafinitism/ChapterDeformedCCR.lean) mounts the ladder on that
+finite space: creation halts at degree `M` (`creOp_top`), `creOp M`, `annOp M` and
+`posOp M` are explicitly bounded, the deformed relation `[a_M, a_M†] = I - (2 / M) N̂`
+holds with vanishing trace (`trace_deformed_ccr_eq_zero`), and the defect on grades
+`k ≤ d ≪ M` is `2d / M` (`deformed_ccr_defect_bound`) — Wintner–Wielandt dissolved
+without leaving bounded operators.
+
+[Resource-accounting tensor](BookProof/Ultrafinitism/ChapterUltrafinitistTensor.lean):
+a tail carries an explicit budget `MultiTail R M`, enlargement by `k ≤ R` consumes `k`
+coordinates while conserving total capacity (`ultra_enlarge_expect_eq`), tensoring adds
+budgets (`ultra_tensor_expect_eq`, `ultra_tensor_inner_mul`), and Hilbert's Hotel is
+impossible (`no_hilbert_hotel_tail`); head-only observables still decouple in `O(1)`
+(`ultra_inner_reduces_to_head`).
+
+[Mehler-damped effects](BookProof/Ultrafinitism/ChapterMehlerFeasibility.lean):
+`FiniteEffect n` with the discrete Mehler semigroup as a graded feasibility operator —
+`sorites_consistency_theorem` holds exact base `1`, successor stability `≤ β`, decay
+`≤ 1/(1 + k β)` and dissolution below any `ε > 0` simultaneously, without contradiction;
+`parikh_proof_chain_drift` bounds a chain of `L` approximate steps by `L β ‖v‖²`; and
+`ultraMul` makes arithmetic exact inside `[0, B)` with explicit dyadic tail uncertainty
+on overflow.
+
+[Gram decision](BookProof/Ultrafinitism/ChapterGramPolyDecision.lean): a finite-channel
+rational Gram query over residual tail capacity `R` is `G ⪰ 0 ∧ rank G ≤ R`
+(`HasBoundedGramFactor`), decided by the computable `O(m³)` rational Schur elimination
+`decideGram`, with `decideGram_sound` and `decideGram_complete` — zero `noncomputable`,
+zero `native_decide` — in place of the doubly exponential RCF route.
+
+The manual chapter `Book/UltrafinitistSMK.lean` (Verse id `ultrafinitist-smk`) carries
+the derivation into the book. `BookProof.lean` imports the five modules, the
+`BookProofUltrafinitism` Lake target builds them, and the `lakefile.toml` operator-core
+roots grow 848 → 863. Verified with `lake build BookProofUltrafinitism` (3108 jobs) and
+`lake build BookProof` (9090 jobs); `./patches/build-book.sh` and
+`./patches/check-katex.sh` (5006 snippets, 0 failures) pass, and `scripts/health.sh`
+reports 3 pass / 0 fail.
+
+**Boundary.** This is a finite pre-limit: no continuum statement is claimed, and the
+classical infinite-tail `Book/` SMK chapters are unchanged — they remain a separate
+realization and the comparison record.
+
+## 2026-11-25f — QYM: the kinetic Casimir `[Σ π², 𝒢_d] = 0` is proved
+
+New module `BookProof/Qym/ChapterYangMillsGaussCasimir.lean` (imported by
+`BookProof.lean`) proves the first of the two Casimir lemmas that
+`BookProof/ChapterBrstYmCommute.lean` names as the Hamiltonian half of `[H, Ω] = 0`:
+
+* `pderiv_pderiv`, `mulOp_X_comm_deriv`, `pderiv_comm_deriv` — the action of the gauge
+  rotation on the coordinates and derivatives;
+* `mulOp_add'`, `mulOp_sum`, `mulOp_C_smul`, `pderiv_linear_idxA`, `pderiv_linear_idxD`,
+  `blockA_pderiv`, `blockD_pderiv`, `pderiv_vec_eq`, `sum_pderiv_gaussVec`,
+  `sum_pderiv_vec_eval`, `pderiv_comm_gaussVec` — `∂_i (ymGaussVec G d k)` on the
+  concrete 99-coordinate field, i.e. the case split through `decodeSpace`/`decodeColor`;
+* `derOp_comm_gauss` — the adjoint action `[derOp, 𝒢_d] = Σ_b f_{bad} derOp`, on the
+  deformed ladders `derOp = ∂ − ½ x`;
+* `sum_sq_comm_of_adjoint` — the general cancellation of squares of a family acting in
+  the adjoint representation (the structure constants are antisymmetric);
+* `rotCoeff`, `rotCoeff_anticomm`, `sum_rotCoeff`, `derOpSq_comm`, `momSq_comm` — the
+  instantiation to the 24 momenta, `[Σ_{(j,b)} π², 𝒢_d] = 0`.
+
+The module docstring carries the boundary: `ymGauss_comm_magSq` (`[Σ B², 𝒢_d] = 0`) is
+not proved — it needs `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}`, the contracted Jacobi
+identity — so `ymOmega_comm_ymH`, the Hamiltonian packaging `ymPolyH`, and the
+`physicalStates`/`exactStates` membership corollaries stay open.
+`BookProof/ChapterBrstYmCommute.lean`'s docstring is corrected accordingly (it advertised
+`ymPolyH_eq` and `ymHamiltonian_eq_op_ymPolyH`, which do not exist).
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussCasimir` succeeds
+(8067 jobs); `#print axioms` gives `[propext, Classical.choice, Quot.sound]` for
+`momSq_comm`, `derOpSq_comm`, `derOp_comm_gauss` and `pderiv_vec_eq`.
+
+**Boundary.** Polynomial-core identity only: no operator-domain, no `CoreRep` transport,
+no magnetic half.
+
+## 2026-11-25g — U-SMK: polynomial representation does not collapse P versus NP
+
+`BookProof/Ultrafinitism/ChapterKrawtchoukTail.lean` grows section 6 with the
+representation-theoretic facts the finite spectral picture needs, all `sorry`-free over
+`ℚ`: `walshCoeff`, `card_walsh_basis` (the Walsh basis on `BitCube M` has `2 ^ M`
+elements), `sum_walsh_mul` (the completeness kernel), `walsh_expansion` (every function is
+its exact multilinear Walsh polynomial), `parity`, `parity_orth_low_degree` and the
+low-degree error bound.
+
+`Book/UltrafinitistSMK.lean` gains the chapter section "Polynomial Approximation and the
+P versus NP Problem", which uses those facts to separate four notions that could be
+mistaken for a complexity collapse: exponential exact basis size; low-degree `L²`/Mehler
+approximation that erases high-degree structure (parity is `O(M)` computable over
+`𝔽₂` yet of maximal Walsh degree); average-case error `2^{-M}` that misses a
+worst-case witness; and finite-horizon feasibility versus asymptotic Turing classes.
+The section cross-references `pa-free-chapter` and states plainly that no Clay claim is
+made.
+
+**Verification.** `lake build BookProof.Ultrafinitism.ChapterKrawtchoukTail` succeeds
+(3102 jobs) with no warning from the file; `#print axioms` gives
+`[propext, Classical.choice, Quot.sound]`; `./patches/build-book.sh` renders
+`_out/html-single/index.html` (no `<base>`, fragment links present) and
+`./patches/check-katex.sh` checks 5064 snippets with 0 failures.
+
+**Boundary.** Metamathematical interpretation, not a theorem about `SAT ∉ P`; the
+asymptotic bridge to the continuum chapters remains out of scope.
+
+## 2026-11-25h — QYM: the magnetic Casimir and `[H, Ω] = 0`
+
+`BookProof/Qym/ChapterYangMillsGaussCasimir.lean` now proves the second half of the
+Hamiltonian and the commutator itself:
+
+* `mulOp_comm_deriv` — `[mulOp f, 𝒢_d] = −mulOp (𝒢_d f)`, the commutator of a
+  multiplication operator with the Gauss derivation;
+* `ymGaussDer_X` / `ymGaussDer_X_idxA` / `ymGaussDer_X_idxD` — `𝒢_d` on the coordinates;
+* `magJacobi` — the contracted Jacobi identity
+  `Σ_g f_{agc} f_{gbd} + Σ_g f_{abg} f_{gcd} = Σ_g f_{agd} f_{gbc}`, from `G.jacobi`
+  with `G.cyclic` twice and `G.antisymm`;
+* `ymGaussDer_magInner`, `ymGaussDer_magCubicFirst`, `ymGaussDer_magCubicSecond`,
+  `ymGaussDer_magCubic` — the product rule on `A_jb A_kc` and the cubic contraction,
+  with the two summation swaps `sum_swap_idx` (`Finset.sum_comm`) and the cast
+  bookkeeping `push_cast`;
+* `ymGaussDer_magPoly` — `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}`; the compact form is
+  `magPoly_adjoint_sum`, a reordering of the expanded action via `sum_rotate3` /
+  `sum_rotate5`, so the theorem is `ymGaussDer_magPoly_expanded.trans …`;
+* `mulOp_smul`, `mulOp_ymGaussDer_magPoly`, `sum_rotCoeff_mag`, `mulOp_magSq_adjoint`,
+  `magSq_comm` — `[Σ_{(i,a)} B_{ia}², 𝒢_d] = 0` by `sum_sq_comm_of_adjoint` with the
+  same `rotCoeff` as the kinetic half (the `−` is `G.antisymm`, so no second matrix);
+* `decodeSpace_finProdFinEquiv`, `decodeColor_finProdFinEquiv`, `sum_fin24` — the `24`
+  field/colour pairs of `BookProof.YangMillsHermite` are `Fin 3 × Fin 8`;
+* `ymHamPoly`, `ymHamPoly_eq`, `ymHamPoly_comm` — `H = ½ Σ π² + ½ Σ B²` on the
+  polynomial core (the polynomial form of `ymHamiltonian`, positive convention) commutes
+  with every constraint;
+* `ymH`, `ymGauss_comm_ymH`, `ymOmega_comm_ymH` — `[Ω, H] = 0` for the concrete model,
+  one application of `brstCharge_comm_of_comm` after transporting through `ymBos`;
+* `ymPhysicalStates`, `ymExactStates`, `ymH_mem_physicalStates`, `ymH_mem_exactStates` —
+  `H` preserves the BRST-closed and BRST-exact states, so it descends to the cohomology.
+
+`BookProof/ChapterBrstYmCommute.lean`'s "What remains" section is rewritten: both Casimir
+lemmas and the commutator are proved, and only the passage to the completed Hilbert space
+(the hypothesis of the reduced-transfer chapters) remains outside this algebraic result.
+
+**Verification.** `lake build BookProof.Qym.ChapterYangMillsGaussCasimir` succeeds with no
+warning from the file; `#print axioms` gives `[propext, Classical.choice, Quot.sound]` for
+`magSq_comm`, `ymGaussDer_magPoly`, `ymGauss_comm_ymH`, `ymOmega_comm_ymH`,
+`ymH_mem_physicalStates` and `ymH_mem_exactStates`.  The scalar inputs were checked
+numerically against the su(3) structure constants (Jacobi, the contracted identity, and
+the cubic contraction over random `A` and all `(i,a,d)`) before the proof was attempted.
+
+**Boundary.** Polynomial-core identity for the constant-multiplet model (`G.D = 0`); no
+operator-domain statement, no `CoreRep` transport, no completion.

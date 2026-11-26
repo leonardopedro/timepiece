@@ -21,7 +21,7 @@ It composes `RitzCertificate.temple_lower_bound` with
 * emitted certified gap `1.2218346083616751`, equal to the exact truncated gap.
 
 `NumericRow.temple_lower` is the Temple correction `r²/(β − θ)`; it is negligible here
-because the Lanczos residual is ~1e-14.  The row's arithmetic is checked by `norm_num`,
+because the eigenvector residual is ~1e-13.  The row's arithmetic is checked by `norm_num`,
 but the operator-level hypotheses (`SpectralSeparation` for `β`, unit vector with the
 recorded Rayleigh quotient and residual, `l_even ≤ θ_even`) are *fields* of
 `FiniteModelWitness`: instantiating them for the concrete `H_N` matrix is work in unfer,
@@ -122,7 +122,7 @@ structure NumericRow where
   beta : ℝ
   certified_reported : ℝ
 
-/-- `g = 2, N ≤ 10`, dimension 420, Lanczos 60 with count witness. -/
+/-- `g = 2, N ≤ 10`, odd dimension 420, dense eigenvectors with count witness. -/
 def qymG2N10Row : NumericRow :=
   { g := 2, cutoff := 10, dim := 420,
     theta := -9.02285258839461, r := 1.0810843612259794e-13,
@@ -138,7 +138,7 @@ theorem qymG2N10_delta :
     qymG2N10Row.r ^ 2 / (qymG2N10Row.beta - qymG2N10Row.theta) < 1e-20 := by
   norm_num [qymG2N10Row]
 
-/-- The row's arithmetic certifies a gap of about `1.221834609`; a margin of `1` fits
+/-- The row's arithmetic certifies a gap of about `1.221834608`; a margin of `1` fits
     strictly below the Temple lower bound.  (The emitter reports `1.221834608`, agreeing
     to its nine-decimal output precision.) -/
 theorem qymG2N10_margin :
@@ -147,5 +147,44 @@ theorem qymG2N10_margin :
   constructor
   · norm_num
   · norm_num [qymG2N10Row]
+
+/-- Strict eigenvalue count for a complete ordered list including multiplicity. -/
+noncomputable def countBelow {n : ℕ} (levels : Fin n → ℝ) (t : ℝ) : ℕ :=
+  (Finset.univ.filter fun i => levels i < t).card
+
+theorem ordered_level_bracket {n : ℕ} {levels : Fin n → ℝ} (sorted : Monotone levels)
+    (i : Fin n) {lo hi : ℝ} (hl : countBelow levels lo ≤ i.val)
+    (hh : i.val < countBelow levels hi) : lo ≤ levels i ∧ levels i < hi := by
+  constructor
+  · by_contra! h
+    have hsub : Finset.Iic i ⊆ Finset.univ.filter (fun j => levels j < lo) := by
+      intro j hj
+      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, (sorted (Finset.mem_Iic.mp hj)).trans_lt h⟩
+    have hc := Finset.card_le_card hsub
+    rw [Fin.card_Iic] at hc
+    unfold countBelow at hl
+    omega
+  · by_contra! h
+    have hsub : Finset.univ.filter (fun j => levels j < hi) ⊆ Finset.Iio i := by
+      intro j hj
+      apply Finset.mem_Iio.mpr
+      by_contra! hij
+      exact ((sorted hij).trans_lt (Finset.mem_filter.mp hj).2).not_ge h
+    have hc := Finset.card_le_card hsub
+    rw [Fin.card_Iio] at hc
+    unfold countBelow at hh
+    omega
+
+/-- Combine the two reflection blocks. The four count hypotheses are the output
+of the external inertia checker on the finite matrices. -/
+theorem qymG2N10_ordered_gap {levels : Fin 1001 → ℝ} (sorted : Monotone levels)
+    (h₀ : countBelow levels (-10.25) = 0) (h₁ : countBelow levels (-10.234375) = 1)
+    (h₂ : countBelow levels (-9.03125) = 1) (h₃ : countBelow levels (-9.015625) = 2) :
+    77 / 64 ≤ levels 1 - levels 0 ∧ levels 1 - levels 0 ≤ 79 / 64 := by
+  have hg := ordered_level_bracket sorted 0 (lo := -10.25) (hi := -10.234375)
+    (by simp [h₀]) (by simp [h₁])
+  have he := ordered_level_bracket sorted 1 (lo := -9.03125) (hi := -9.015625)
+    (by rw [h₂]; decide) (by rw [h₃]; decide)
+  constructor <;> linarith [hg.1, hg.2, he.1, he.2]
 
 end BookProof.FiniteModelWitness

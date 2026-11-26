@@ -19,9 +19,9 @@ time-evolution"):
 
 * `H` — the Weyl-gauge Yang–Mills Hamiltonian `H = ½ Σ_m π_m² + ½ Σ_m B_m²`
   (`book.tex:7077`, sign reconciled), whose polynomial formula is exactly the one packaged by
-  `BookProof.YangMillsHermite.ymHamiltonian` on the Gauss–polynomial core of `L²(ℝ⁹⁹)`
-  (see `ymPolyH_eq` and `ymHamiltonian_eq_op_ymPolyH` below: the two are the same operator,
-  one at the polynomial level and one transported through a `CoreRep`).
+  `BookProof.YangMillsHermite.ymHamiltonian` on the Gauss–polynomial core of `L²(ℝ⁹⁹)`;
+  identifying the two is `BookProof/Qym/ChapterYangMillsGaussCasimir.lean`'s job and is
+  not yet done.
 * `Ω` — the BRST charge `book.tex:7084`,
   `Ω = π^k_a ∂_k ψ†_a − π^k_a f_{abc} A_{kb} ψ†_c − (i/2) f_{abc} ψ†_a ψ†_b ψ_c`,
   the Weyl-gauge (spatial) form of `bookOmega` of `BookProof/ChapterBookBrstYangMills.lean`,
@@ -74,26 +74,23 @@ they are exactly the hypotheses that the Hamiltonian half consumes.
   `Ω² = 0`, the latter being `brst_full_nilpotent` applied to the instance, exactly as in
   `bookOmega_nilpotent`.
 
-## What remains, and why it is the other half
+## The Hamiltonian half: the two Casimir lemmas
 
-The headline `[H, Ω] = 0` needs two Casimir lemmas that are **not** in this module:
+The headline `[H, Ω] = 0` needs two Casimir lemmas, both now proved in
+`BookProof/Qym/ChapterYangMillsGaussCasimir.lean`:
 
 * `ymGauss_comm_momSq` — `[Σ_m π_m², 𝒢_d] = 0` for the 24 momenta
   `π_m = momOp (idxA (decodeSpace m) (decodeColor m))` of `BookProof.YangMillsHermite`.
-  The intended route is the vector relation `[∂_{jc}, 𝒢_d] = Σ_b f_{bcd} ∂_{jb}`
-  (and its `mulOp (X_{jc})` partner `[x_{jc}, 𝒢_d] = −Σ_g f_{cgd} x_{jg}`), from which
-  `[Σ_c ∂_{jc}², 𝒢_d]`, `[Σ_c x_{jc}∂_{jc}, 𝒢_d]` and `[Σ_c x_{jc}², 𝒢_d]` each vanish by
-  antisymmetry of `f` — and `Σ_m π_m²` is exactly the `−i(∂ − x/2)` combination of those
-  three.  The one genuinely missing input is `∂_i (ymGaussVec G d k)`, which needs the
-  coordinate case split through `idxA_surjective_val`/`idxD_surjective_val`.
-* `ymGauss_comm_magSq` — `[Σ_m B_m², 𝒢_d] = 0` for `B_m = magPoly G.f`.  Since
-  `[mulOp B, 𝒢_d] = −mulOp (𝒢_d B)`, this reduces to `Σ_{i,a} B_{ia} 𝒢_d(B_{ia}) = 0`,
-  which follows once `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}` (the field strength transforming in
-  the adjoint).  That identity in turn is the contracted `ε`/`f` statement whose scalar form
-  is `Σ_e f_{aec} f_{ebd} + Σ_e f_{abe} f_{ecd} = Σ_g f_{agd} f_{gbc}`, a consequence of
-  `G.jacobi` together with `G.antisymm` and `G.cyclic`.
+  **Proved**: `momSq_comm`, by the deformed-ladder route (`derOp_comm_gauss` +
+  `sum_sq_comm_of_adjoint`) rather than the raw `∂`/`x` pair.
+* `ymGauss_comm_magSq` — `[Σ_m B_m², 𝒢_d] = 0` for `B_m = magPoly G.f`.  **Proved**:
+  `magSq_comm`.  Since `[mulOp B, 𝒢_d] = −mulOp (𝒢_d B)`, it reduces to
+  `Σ_{i,a} B_{ia} 𝒢_d(B_{ia}) = 0`, which follows from the field strength transforming in
+  the adjoint, `𝒢_d(B_{ia}) = Σ_g f_{agd} B_{ig}` (`ymGaussDer_magPoly`).  That identity's
+  scalar content is the contracted Jacobi identity
+  `Σ_e f_{aec} f_{ebd} + Σ_e f_{abe} f_{ecd} = Σ_g f_{agd} f_{gbc}`, which is `magJacobi`.
 
-Once those two exist, `ymOmega_comm_ymH` is one application of
+With both in place, `ymOmega_comm_ymH` (`[Ω, H] = 0`) is one application of
 `brstCharge_comm_of_comm` (`BookProof/ChapterBookBrstGaugeFixing.lean`), and
 `ymH_mem_physicalStates` / `ymH_mem_exactStates` follow from it as in
 `BookProof/Ns/ChapterNsBrstDerivativeGauge.lean`.
