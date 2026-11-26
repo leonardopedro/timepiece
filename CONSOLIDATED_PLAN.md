@@ -7,6 +7,10 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **Newest cftproof H7/C8 entry (2026-11-26):** “State of the project — 2026-11-26:
+> bridge gap invariance landed” (end of file).  The exponential flow-gap estimate transports
+> unchanged across the cyclic unitary OS bridge.
+>
 > **Newest cftproof H7/C9 entry (2026-11-26):** “State of the project — 2026-11-26:
 > equivalence-no-gap negative control” (end of file).  The equivalence data alone cannot
 > certify a mass gap without a density floor.
@@ -27926,3 +27930,35 @@ negative control that the equivalence data are insufficient.
 
 **Verification.** `lake env lean` and `lake build BookProof` succeed (9110 jobs); `#print
 axioms no_norm_convergence_of_no_floor` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H7/C8 bridge gap invariance
+
+`BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean` defines `FlowGap`/`FlowGapOn` and
+proves `flowGap_bridge_iff`: an exponential contraction estimate toward a fixed point is
+equivalent on the OS side and the physical side of an `OsFockBridge`.  This is the quantitative
+generator-identification step of C7/C8; no gap value is asserted.
+
+**Boundary.** No continuum cutoff removal, OS generator self-adjointness or mass-gap theorem is
+claimed; the estimate is transported, not established.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9111 jobs); `#print
+axioms flowGap_bridge_iff` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-26: H7/C7 generator transport
+
+`BookProof/OSReconstruction/ChapterGeneratorTransport.lean` takes the infinitesimal step that
+C7/C8 left open: if an `OsFockBridge` intertwines two strongly continuous contraction flows for
+`τ ≥ 0`, then at a vector where the OS orbit has a right derivative at `0`, the bridge image of
+that derivative is a right derivative of the physical orbit (`generator_image`).  Uniqueness of
+the derivative on `Ici 0` (`generator_eq`) then gives `generator_image_unique`: the transported
+generator value is the one the physical orbit has.  The proofs use
+`HasFDerivAt.comp_hasDerivWithinAt`, `HasDerivWithinAt.congr_of_eventuallyEq` (with the
+intertwining holding eventually on `𝓝[Ici 0] 0`) and `UniqueDiffWithinAt.eq_deriv`.
+
+**Boundary.** This identifies generators only at vectors where the relevant right derivative
+exists; it does not prove the OS generator is self-adjoint, does not remove UV/IR cutoffs and
+does not establish a mass gap.  No gap value is asserted.
+
+**Verification.** `lake env lean` and `lake build BookProof` succeed (9112 jobs);
+`#print axioms` on `generator_image`, `generator_eq` and `generator_image_unique` gives
+`[propext, Classical.choice, Quot.sound]`.

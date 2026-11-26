@@ -228,6 +228,20 @@ rules:
 * **Acceptance:** Euclidean heat-semigroup Trotter–Kato theorem, single-time SIRK error bound on
   `euclidMoment`, and explicit separation of solver error from physical cutoff error.
 
+**Status (2026-11-26): H7/C8 bridge gap invariance.**
+`BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean` proves that an exponential
+flow-gap estimate toward a fixed point is invariant under the cyclic unitary `OsFockBridge`:
+`FlowGap P x m C ↔ FlowGapOn Q (U x) m C`.  This is the quantitative generator-identification
+step C7/C8 needs; no gap value is asserted.
+
+**Status (2026-11-26): H7/C7 generator transport.**
+`BookProof/OSReconstruction/ChapterGeneratorTransport.lean` proves that an `OsFockBridge`
+intertwining two contraction flows carries a right derivative at `0` of the OS orbit to a right
+derivative of the physical orbit (`generator_image`), that the right derivative is unique on
+`Ici 0` (`generator_eq`), and hence that the transported generator value is unique
+(`generator_image_unique`).  This is the infinitesimal (operator-level) half of C7, complementing
+the flow-level gap invariance of C8; no generator self-adjointness or gap value is asserted.
+
 **Status (2026-11-26): H7/C9 negative control.**
 `BookProof/OSReconstruction/ChapterEquivalenceNoGap.lean` records the sharp separation: without
 a positive floor on the multiplier density the transfer semigroup does not converge in norm to
