@@ -1,4 +1,5 @@
 import BookProof.Qym.ChapterYangMillsGaussFlow
+import BookProof.Qym.ChapterYangMillsGaussSkewAdjointDomain
 import BookProof.ChapterQuadraticRotationEsa
 
 /-!
@@ -31,9 +32,9 @@ matrices:
 
 The rotation acts on functions by `x ↦ E t x`.  Because it preserves the Gaussian measure,
 `gaussFlowOp t f = f ∘ E t` is a linear isometry of `L²(ℝ⁹⁹)`
-(`gaussFlowOp_norm`, `gaussFlowOp_zero`), and on the Gauss–polynomial core it is the
-substitution `rotPoly (E t)`, so it preserves the core (`gaussFlowOp_pgLp`,
-`gaussFlowOp_mem_core`).
+(`gaussFlowOp_zero`, `gaussFlowOp_norm_le`), and on the Gauss–polynomial core it is the
+substitution `rotPoly (E t)`, so it preserves the core and every `CoreRep` core
+(`gaussFlowOp_pgLp`, `gaussFlowOp_mem_core`, `gaussFlowOp_mem_domain`).
 
 ## What is left
 
@@ -41,15 +42,18 @@ Only the generator identity enters as a hypothesis: that `t ↦ gaussFlowOp t v`
 differentiable at every `t` with derivative `𝒢_d (gaussFlowOp t v)`.  It is the statement
 that `𝒢_d` is the derivative at `0` of the substitution `rotPoly (E t)`, and it is not
 proved here.  Everything else in the flow bundle of `ChapterYangMillsGaussFlow` is proved
-in this module.
+in this module, so `gaussPMap_closure_skewAdjoint_of_rotation` derives the skew-adjointness
+of the closed Gauss charge from that one identity.
 -/
 
 namespace BookProof.Qym.GaussRotationFlow
 
-open Matrix MvPolynomial
+open Matrix MvPolynomial MeasureTheory
 open scoped Norms.Operator
 open BookProof.Qym.GaussCasimir BookProof.BrstYmCommute BookProof.BookBrstYangMills
 open BookProof.YangMillsHermite BookProof.HermiteProductCore BookProof.Qym.GaussSkew
+open BookProof.Qym.GaussClosure BookProof.Qym.GaussSkewAdjoint
+open BookProof.Qym.GaussSkewAdjointDomain
 open BookProof.QuadraticRotation
 
 noncomputable section
@@ -218,7 +222,7 @@ theorem gaussMat_antisymm (G : GaugeAlgebra 8) (d : Fin 8) (m j : Fin 99) :
     gaussMat G d j m = -gaussMat G d m j := by
   have hq : (∑ k : Fin 99, (X k : YmPoly)
       * (∑ l : Fin 99, (((gaussMat G d k l : ℝ) : ℂ)) • (X l : YmPoly))) = 0 := by
-    rw [← sum_X_ymGaussVec]
+    rw [← sum_X_ymGaussVec G d]
     refine Finset.sum_congr rfl fun k _ => ?_
     rw [ymGaussVec_eq_sum_gaussMat]
   have hzero : pderiv m (pderiv j (∑ k : Fin 99, (X k : YmPoly)
@@ -273,7 +277,7 @@ theorem gaussFlow_transpose_mul (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) :
     rw [gaussFlow]
     exact (Matrix.exp_transpose (t • gaussMat G d)).symm
   rw [htrans, hM]
-  show NormedSpace.exp (-(t • gaussMat G d)) * NormedSpace.exp (t • gaussMat G d) = 1
+  change NormedSpace.exp (-(t • gaussMat G d)) * NormedSpace.exp (t • gaussMat G d) = 1
   rw [← NormedSpace.exp_add_of_commute
     (Commute.neg_left (Commute.refl (t • gaussMat G d))), neg_add_cancel, NormedSpace.exp_zero]
 
@@ -309,10 +313,10 @@ def gaussFlowIso (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) :
 /-- At `t = 0` the rotation is the identity. -/
 theorem gaussFlowIso_apply_zero (G : GaugeAlgebra 8) (d : Fin 8) (x : Vd 99) :
     gaussFlowIso G d 0 x = x := by
-  show rotIso (gaussFlow_transpose_mul G d 0) x = x
+  change rotIso (gaussFlow_transpose_mul G d 0) x = x
   rw [rotIso_apply, gaussFlow_zero]
   ext i
-  simp [rotLin]
+  simp [rotLin, Matrix.one_apply]
 
 /-- **The flow on `L²(ℝ⁹⁹)`**: composition with the rotation.  It is a linear isometry
 because the rotation preserves Lebesgue measure. -/
@@ -347,11 +351,12 @@ theorem gaussFlowOp_pgLp (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ)
 
 /-- The flow is the identity at `t = 0`. -/
 theorem gaussFlowOp_zero (G : GaugeAlgebra 8) (d : Fin 8) :
-    (gaussFlowOp G d 0).toContinuousLinearMap = 1 := by
-  ext f
+    (gaussFlowOp G d 0).toContinuousLinearMap = ContinuousLinearMap.id ℂ (L2d 99) := by
+  refine ContinuousLinearMap.ext fun f => ?_
   refine Lp.ext ?_
   have h1 := gaussFlowOp_coeFn G d 0 f
-  have h2 : (fun x => (f : Vd 99 → ℂ) (gaussFlowIso G d 0 x)) = (f : Vd 99 → ℂ) := by
+  have h2 : (fun x : Vd 99 => (f : Vd 99 → ℂ) (gaussFlowIso G d 0 x))
+      = (f : Vd 99 → ℂ) := by
     funext x
     rw [gaussFlowIso_apply_zero]
   simpa [h2] using h1
@@ -360,15 +365,15 @@ theorem gaussFlowOp_zero (G : GaugeAlgebra 8) (d : Fin 8) :
 theorem gaussFlowOp_norm_le (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) :
     ‖(gaussFlowOp G d t).toContinuousLinearMap‖ ≤ 1 := by
   refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun f => ?_
-  rw [LinearIsometry.coe_toContinuousLinearMap]
-  calc ‖gaussFlowOp G d t f‖ = ‖f‖ := LinearIsometry.norm_map _ f
-    _ = 1 * ‖f‖ := (one_mul _).symm
+  rw [LinearIsometry.coe_toContinuousLinearMap, LinearIsometry.norm_map, one_mul]
 
 /-- **The flow preserves the core**: it maps `pgLp p` to `pgLp (rotPoly p)`. -/
 theorem gaussFlowOp_mem_core (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) {v : L2d 99}
     (hv : v ∈ polyGaussCore (d := 99)) :
     gaussFlowOp G d t v ∈ polyGaussCore (d := 99) := by
-  obtain ⟨p, rfl⟩ := hv
+  obtain ⟨p, hp⟩ := hv
+  rw [← hp]
+  change gaussFlowOp G d t (pgLp p) ∈ polyGaussCore (d := 99)
   rw [gaussFlowOp_pgLp]
   exact pgLp_mem_core _
 
@@ -376,11 +381,14 @@ theorem gaussFlowOp_mem_core (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) {v : L2d
 theorem gaussFlowOp_mem_domain (G : GaugeAlgebra 8) (d : Fin 8)
     {D : Submodule ℂ (L2d 99)} (Φ : CoreRep 99 D) (t : ℝ) {v : L2d 99} (hv : v ∈ D) :
     gaussFlowOp G d t v ∈ D := by
-  have hcoe : ((⟨v, hv⟩ : D) : L2d 99) = pgLp (Φ.equiv.symm ⟨v, hv⟩) := Φ.coe_symm _
-  have hpg : gaussFlowOp G d t v
-      = pgLp (rotPoly (gaussFlow G d t) (Φ.equiv.symm ⟨v, hv⟩)) := by
-    rw [← hcoe, gaussFlowOp_pgLp]
-  rw [hpg, ← Φ.coe_equiv (rotPoly (gaussFlow G d t) (Φ.equiv.symm ⟨v, hv⟩))]
+  set p : MvPolynomial (Fin 99) ℂ := Φ.equiv.symm ⟨v, hv⟩ with hp
+  have hcoe : v = pgLp p := by
+    have h := Φ.coe_symm (⟨v, hv⟩ : D)
+    simpa [hp] using h
+  have hpg : gaussFlowOp G d t v = pgLp (rotPoly (gaussFlow G d t) p) := by
+    conv_lhs => rw [hcoe]
+    exact gaussFlowOp_pgLp G d t p
+  rw [hpg, ← Φ.coe_equiv (rotPoly (gaussFlow G d t) p)]
   exact (Φ.equiv _).2
 
 /-- **The flow bundle of the Gauss constraint, from the rotation.**  Everything the flow
@@ -394,7 +402,7 @@ theorem gaussPMap_closure_skewAdjoint_of_rotation (G : GaugeAlgebra 8) (d : Fin 
     SkewAdjoint (gaussPMap G d (coreRepPoly 99)).closure :=
   gaussPMap_closure_skewAdjoint_of_flow G d
     (fun t => (gaussFlowOp G d t).toContinuousLinearMap)
-    (gaussFlowOp_zero G d) (fun t => gaussFlowOp_norm_le G d t)
+    (by simpa using gaussFlowOp_zero G d) (fun t => gaussFlowOp_norm_le G d t)
     (fun t v => gaussFlowOp_mem_core G d t v.2) (fun v t => hgen v t)
 
 end
