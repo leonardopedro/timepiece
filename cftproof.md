@@ -576,8 +576,15 @@ continuum contracts enforces five structural rules:
   shift $v$ across $N$ modes is $\exp(-N v^2/2) \to 0$ as $N \to \infty$ for $v \neq 0$ (building
   on [ChapterCoherentOverlap](BookProof/Attention/ChapterCoherentOverlap.lean),
   [ChapterCoherentGeometry](BookProof/Attention/ChapterCoherentGeometry.lean) and
-  [ChapterF3](BookProof/Textbook/ChapterF3.lean)). Lift this bound from coherent Gaussian probes
-  to the physical interacting Higgs/$\phi^4$ ground state $|\Omega_v\rangle$:
+  [ChapterF3](BookProof/Textbook/ChapterF3.lean)). The finite-volume half is now proved in
+  [ChapterOverlapCollapse](BookProof/OSReconstruction/ChapterOverlapCollapse.lean): the overlap is
+  strictly positive at every finite $N$ (`coherentOverlap_zero_const_pos`), identically one when
+  $v=0$ (`coherentOverlap_zero_const_eq_one`), strictly decreasing in $N$ for $v \neq 0$
+  (`coherentOverlap_const_strictAnti`), and eventually below every $\varepsilon > 0$
+  (`coherentOverlap_const_eventually_lt`). This is exactly the nonzero-overlap condition that
+  `cft_path.md` requires of the boundary state before $T \to \infty$ projection: it holds at
+  finite volume and fails only in the infinite-volume limit. Lift this bound from coherent
+  Gaussian probes to the physical interacting Higgs/$\phi^4$ ground state $|\Omega_v\rangle$:
   $$|\langle \Omega_v | \phi = 0 \rangle| \le \exp(-c\, v^2\, V_3) \xrightarrow{V_3 \to \infty} 0.$$
 * **Broken-phase failure modes on project models.**
   [ChapterSymmetrizedGaussianMean](BookProof/OSReconstruction/ChapterSymmetrizedGaussianMean.lean)

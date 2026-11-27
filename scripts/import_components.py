@@ -83,6 +83,8 @@ COMPONENT_NAMES = {
     "BookProof.Sirk.ChapterKrylovShiftSpan": "BookProofKrylovShiftSpan",
     # The finite-volume source limit-order benchmark and its Gaussian-measure lift form a part.
     "BookProof.ChapterExternalSourceLimitOrder": "BookProofSourceLimitOrder",
+    # The satisficing target and the prior-refresh independence sampler form a part.
+    "BookProof.MCMC.PriorRefreshDoeblin": "BookProofPriorRefresh",
     # The displaced and symmetrized Gaussian reference chapters form a part.
     "BookProof.OSReconstruction.ChapterDisplacedMehlerMean": "BookProofGaussianReference",
     # The bounded heat-semigroup transfer and the H4 resolvent-to-heat bridge form a part.

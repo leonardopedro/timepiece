@@ -60,4 +60,43 @@ theorem coherentOverlap_const_tendsto_zero {v : ℝ} (hv : v ≠ 0) :
     ring
   simpa only [Function.comp_apply] using (Real.tendsto_exp_atBot.comp hlin'')
 
+/-- At every finite volume the overlap with a constant shift is strictly positive.  This is the
+    nonzero-overlap condition that `cft_path.md` requires of the boundary state before a
+    large-Euclidean-time projection can select the shifted vacuum: collapse is an infinite-volume
+    phenomenon only. -/
+theorem coherentOverlap_zero_const_pos (N : ℕ) (v : ℝ) :
+    0 < coherentOverlap (0 : EuclideanSpace ℝ (Fin N))
+      (WithLp.toLp 2 (fun _ : Fin N => v) : EuclideanSpace ℝ (Fin N)) := by
+  rw [coherentOverlap_zero_const]
+  exact Real.exp_pos _
+
+/-- Without a shift there is no collapse: the overlap stays identically one at every finite
+    volume.  A nonzero VEV is essential to the argument, not just a large number of modes. -/
+theorem coherentOverlap_zero_const_eq_one (N : ℕ) :
+    coherentOverlap (0 : EuclideanSpace ℝ (Fin N))
+      (WithLp.toLp 2 (fun _ : Fin N => (0 : ℝ)) : EuclideanSpace ℝ (Fin N)) = 1 := by
+  rw [coherentOverlap_zero_const]
+  norm_num
+
+/-- For a nonzero shift the finite-volume overlap strictly decreases with the number of modes.
+    The collapse is monotone, so a positive lower bound at one volume bounds all smaller ones. -/
+theorem coherentOverlap_const_strictAnti {v : ℝ} (hv : v ≠ 0) :
+    StrictAnti (fun N : ℕ => coherentOverlap (0 : EuclideanSpace ℝ (Fin N))
+      (WithLp.toLp 2 (fun _ : Fin N => v) : EuclideanSpace ℝ (Fin N))) := by
+  intro m n hmn
+  simp_rw [coherentOverlap_zero_const]
+  apply Real.exp_lt_exp.mpr
+  have hv2 : 0 < v ^ 2 := sq_pos_of_ne_zero hv
+  have hmn' : (m : ℝ) < n := by exact_mod_cast hmn
+  nlinarith
+
+/-- Quantitative form of the collapse: for every positive tolerance the overlap is eventually
+    below it.  Combined with `coherentOverlap_zero_const_pos`, this separates finite-volume
+    nonzero overlap from infinite-volume orthogonality. -/
+theorem coherentOverlap_const_eventually_lt {v : ℝ} (hv : v ≠ 0) {ε : ℝ} (hε : 0 < ε) :
+    ∀ᶠ N : ℕ in atTop, coherentOverlap (0 : EuclideanSpace ℝ (Fin N))
+      (WithLp.toLp 2 (fun _ : Fin N => v) : EuclideanSpace ℝ (Fin N)) < ε := by
+  have ht := coherentOverlap_const_tendsto_zero hv
+  exact (tendsto_order.1 ht).2 ε hε
+
 end BookProof.OverlapCollapse

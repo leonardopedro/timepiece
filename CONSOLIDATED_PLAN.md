@@ -28820,3 +28820,27 @@ warnings and no `sorry`.  `#print axioms` on `mem_hamClosure_domain_of_core_seq`
 `packetGram_mul_packetDualKinetic`, `packetWall_isSymm`, `packetMixed_comm`,
 `packetMixed_eq_ordered_product`, `packetMixed_smul`, `packetNormalizedMixed_smul`) gives
 `[propext, Classical.choice, Quot.sound]`; the last nine are recorded in `Work/Phi4Audit`.
+
+## State of the project — 2026-11-27d: finite-volume overlap and the gate repair
+
+This entry adds the finite-volume half of H5's vacuum-projection condition; it supersedes nothing.
+The 2026-11-27c entry stays the reading guide for the Gauss domain gap and the scalar packet form.
+
+**Finite volume retains the overlap.** `ChapterOverlapCollapse` already proved
+`coherentOverlap_zero_const` (`exp(−N v²/2)`) and its collapse to zero for `v ≠ 0`. Four further
+theorems now record the complementary finite-volume side that `cft_path.md` makes necessary for a
+`T → ∞` vacuum projection: `coherentOverlap_zero_const_pos` (strictly positive at every finite
+`N`), `coherentOverlap_zero_const_eq_one` (no collapse when `v = 0`),
+`coherentOverlap_const_strictAnti` (strict decrease in `N` for `v ≠ 0`) and
+`coherentOverlap_const_eventually_lt` (eventually below every positive tolerance). The boundary
+is unchanged: these are coherent Gaussian probes, not physical Higgs/φ⁴ ground states, and no
+large-time projection theorem is lifted.
+
+**Gate repair.** The recent MCMC modules left one unnamed import component and one unlisted
+root; `scripts/import_components.py` now names the satisficing/prior-refresh part
+`BookProofPriorRefresh` and `lakefile.toml` lists `BookProof.MCMC.GaussianProductGap` as a root of
+`BookProofOperatorCore`. `scripts/health.sh` is back to 3 pass / 0 warn / 0 fail.
+
+**Verification.** `lake build BookProof.OSReconstruction.ChapterOverlapCollapse` green at 8030
+jobs; full `BookProof` build green at 9134 jobs; `#print axioms` on the four new theorems gives
+`[propext, Classical.choice, Quot.sound]`; doc index and drift gates green.
