@@ -618,9 +618,10 @@ The last line is **tightness**: one threshold works at every scale, which is the
 of Prokhorov's theorem for the sequence of laws of the renormalised observables. That is the
 first rung of the observable limit estimate (C3e) and no more: Prokhorov's theorem itself and a
 limiting law are not proved here, and the renormalisation is the subtraction of the background
-rather than of an interacting divergence. The multi-point functions that *are* proved later in
-this chapter (`integral_shellLaw_coord_three`, `integral_shellLaw_coord_four`) are moments of this
-reference law, not of any limit.
+rather than of an interacting divergence. The multi-point functions and the connected four-point
+function that *are* proved later in this chapter (`integral_shellLaw_coord_three` through
+`integral_shellLaw_coord_six`, `connectedFour_coord_eq_zero`) are statements about this reference
+law, not about any limit.
 
 The scalar sequence is not the only object that behaves this way. Replacing the renormalised
 observable by an affine image of it keeps every step intact: the last coordinate still carries the
@@ -810,13 +811,36 @@ contractions. This is the shape of a matching sum — perfect matchings, oriente
 member — and it is the same presentation the QYM developments use for their `Matching` and `corners`
 constructions.
 
+The moments are not the only thing the pairing structure computes. The joint cumulant of four
+fields is the Möbius sum over the partitions of the four positions — the same partition formula
+the QYM development uses at three points (`connectedThree` in `MSPositionLabels.lean`) — and under
+the centred reference law every term with a singleton block vanishes, leaving the four-point
+function minus the three pairings:
+
+```
+connectedFour :
+    m1234 - (m12 m34 + m13 m24 + m14 m23) - (single-block terms)
+      + 2(...) - 6 m1 m2 m3 m4
+connectedFourShell_eq_pair :
+    kappa = m1234 - m12 m34 - m13 m24 - m14 m23
+connectedFourShell_eq_zero :
+    kappa = 0
+```
+
+Both `m1234` and the pair moments are Isserlis pairings, so substituting the `δ`-forms gives
+`(δδ + δδ + δδ) − δδ − δδ − δδ = 0`: the reference law has no connected four-point part. This is
+the statement that a Gaussian's fourth cumulant vanishes, proved for this law rather than assumed.
+It is a property of the law, not a criterion for one: a vanishing fourth cumulant does not make a
+law Gaussian, and `connectedFour_coord_eq_zero` does not assert that it does.
+
 What stays open is not these moments but their converse. `integral_shellLaw_coord_four` is
 Isserlis' theorem for the covariance `1`: it computes the four-point function of *this* law, and
-nothing in the module shows that a law with these moments is Gaussian, or computes a cumulant, a
-connected correlation, or any moment above the sixth. The general statements are uniform in the
-number of fields, but the per-pairing evaluation at four and six sites is a finite computation, so
-no closed form for the number of pairings at arbitrary `M` is derived here. So Gaussianity as a
-property of a limit law is still unproved; only its first few consequences are.
+nothing in the module shows that a law with these moments is Gaussian, or computes a cumulant above
+the fourth, a connected correlation at separated points, or any moment above the sixth. The general
+statements are uniform in the number of fields, but the per-pairing evaluation at four and six
+sites is a finite computation, so no closed form for the number of pairings at arbitrary `M` is
+derived here. So Gaussianity as a property of a limit law is still unproved; only its first few
+consequences are.
 
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of

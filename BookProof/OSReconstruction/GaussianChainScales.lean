@@ -91,7 +91,11 @@ scale-indexed:
   the sum over the three pairings**, `E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`;
 * `pairingSet_six`, `pairingSet_six_card`, `wickSum_six`, `integral_shellLaw_coord_six` — **the
   six-point function is the sum over the fifteen pairings**, the `3 · 5 · 1` perfect matchings of
-  six sites, by Isserlis' theorem on the product Gaussian.
+  six sites, by Isserlis' theorem on the product Gaussian;
+* `connectedFour`, `connectedFourShell_eq`, `connectedFourShell_eq_zero`,
+  `connectedFour_coord_eq_zero` — **the connected four-point function vanishes**: the joint
+  cumulant is the Möbius sum over the partitions of the four positions, the centred law keeps only
+  the pairing partitions (`κ = m₁₂₃₄ − m₁₂ m₃₄ − m₁₃ m₂₄ − m₁₄ m₂₃`), and Isserlis makes it zero.
 
 ## Boundary
 
@@ -118,10 +122,11 @@ scale-indexed:
   law-level form (`shellTailLaw_le_inv`, `exists_shellTailLaw_le`) is the tightness packet at the
   end of this file, which starts C3e; no limiting law and no correlation estimate is proved.
   The only multi-point functions here are those of the *reference* law
-  (`integral_shellLaw_coord_three` through `integral_shellLaw_coord_six`, and the uniform Wick
-  lemmas behind them), and they are Isserlis for independent unit Gaussians: they say nothing
-  about the interacting theory, no cluster or connected-correlation statement is derived from
-  them, and they are moments, not a characterisation of Gaussianity.
+  (`integral_shellLaw_coord_three` through `integral_shellLaw_coord_six`, the vanishing connected
+  four-point function `connectedFour_coord_eq_zero`, and the uniform Wick lemmas behind them), and
+  they are Isserlis for independent unit Gaussians: they say nothing about the interacting theory,
+  no cluster or separated connected-correlation statement is derived from them, and they are
+  moments and one cumulant, not a characterisation of Gaussianity.
 * `shellDensity` is *defined* as the `n`-fold iterated partial integral: it integrates the first
   `n` coordinates at fixed value of the last one.  The **tower identity** `∫ y, shellDensity n f y
   ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)` *is* proved, but only for measurable **bounded**
@@ -2295,13 +2300,20 @@ statements come first and are uniform in the number of fields; the low moments a
   fifteen perfect matchings of `Fin 6` are listed (`pairingSet_six`), counted
   (`pairingSet_six_card`), evaluated contraction by contraction (`pairingProdSix01` through
   `pairingProdSix15`, summed by `wickSum_six`) and read on the six indices.
+* `connectedFour`, `connectedFourShell_eq_pair`, `connectedFourShell_eq_zero` — the connected
+  four-point function: the fourth joint cumulant (the Möbius sum over the partitions of the four
+  positions) reduces for this centred law to `m₁₂₃₄ − m₁₂ m₃₄ − m₁₃ m₂₄ − m₁₄ m₂₃`, which
+  vanishes because every term is an Isserlis pairing.
 
-**Boundary.** These are the moments of *this* reference law.  `integral_shellLaw_coord_four` and
-`integral_shellLaw_coord_six` are Isserlis' theorem for the covariance `1`, not a Gaussianity
-criterion: nothing here says a law with these moments is Gaussian, and no cumulant or connected
-correlation is computed.  The general-`M` statements are uniform in the number of fields, but the
-per-pairing evaluation at four and six sites is discharged by `decide` on the concrete index types
-`Fin 4` and `Fin 6`; no closed form for the pairing count at arbitrary `M` is derived here.
+**Boundary.** These are the moments and the fourth cumulant of *this* reference law.
+`integral_shellLaw_coord_four` and `integral_shellLaw_coord_six` are Isserlis' theorem for the
+covariance `1`, not a Gaussianity criterion: nothing here says a law with these moments is
+Gaussian, the fourth cumulant is computed and vanishes but no higher cumulant and no separated
+connected correlation is computed, and the vanishing is a property of this law rather than a
+characterisation of Gaussianity.  The general-`M` statements are uniform in the number of fields,
+but the per-pairing evaluation at four and six sites is discharged by `decide` on the concrete
+index types `Fin 4` and `Fin 6`; no closed form for the pairing count at arbitrary `M` is derived
+here.
 -/
 
 /-- The reference law is the product Gaussian of `GaussianMoments`: the same `Measure.pi` of `m`
@@ -2753,6 +2765,139 @@ theorem integral_shellLaw_coord_six (m : ℕ) (i j k l r s : Fin m) :
     integral_congr_ae (Eventually.of_forall hprod),
     integral_shellLaw_prod_coord_eq_wickSum, wickSum_six]
   simp [g]
+
+/-! ## The connected four-point function of the reference law
+
+The joint cumulant of four fields is the Möbius sum over the partitions of the four positions,
+
+`κ = m₁₂₃₄ − (m₁₂ m₃₄ + m₁₃ m₂₄ + m₁₄ m₂₃) − (m₁ m₂₃₄ + m₂ m₁₃₄ + m₃ m₁₂₄ + m₄ m₁₂₃)
+     + 2 (m₁₂ m₃ m₄ + … six terms) − 6 m₁ m₂ m₃ m₄`,
+
+the partition formula used at three points by `connectedThree` in the QYM development
+(`../OpenAI-YM-20261104/lean/MSPositionLabels.lean`; `../QCD` carries the frozen reference copy of
+the same development).  Under the reference law every one-point function vanishes, so every term
+with a singleton block drops out and only the partition into two pairs survives:
+
+`κ = m₁₂₃₄ − m₁₂ m₃₄ − m₁₃ m₂₄ − m₁₄ m₂₃`.
+
+Both the four-point function and the two-point functions are Isserlis pairings, so the cumulant is
+zero: the reference law has no connected four-point part.
+-/
+
+/-- **The fourth joint cumulant**, as the Möbius sum over the partitions of the four positions.
+`face s` is the joint moment of the positions in `s`; a partition into `k` blocks contributes
+`(-1)^(k-1) (k-1)!` times the product of its block moments. -/
+def connectedFour {R : Type*} [CommRing R] (face : Finset (Fin 4) → R) : R :=
+  face Finset.univ
+    - (face {0, 1} * face {2, 3} + face {0, 2} * face {1, 3} + face {0, 3} * face {1, 2})
+    - (face {0} * face {1, 2, 3} + face {1} * face {0, 2, 3}
+        + face {2} * face {0, 1, 3} + face {3} * face {0, 1, 2})
+    + 2 * (face {0, 1} * face {2} * face {3} + face {0, 2} * face {1} * face {3}
+        + face {0, 3} * face {1} * face {2} + face {1, 2} * face {0} * face {3}
+        + face {1, 3} * face {0} * face {2} + face {2, 3} * face {0} * face {1})
+    - 6 * face {0} * face {1} * face {2} * face {3}
+
+/-- The joint moment of the positions in `s`, for the tuple of sites `f`. -/
+noncomputable def shellFace (m : ℕ) (f : Fin 4 → Fin m) (s : Finset (Fin 4)) : ℝ :=
+  ∫ p : Fin m → ℝ, ∏ t ∈ s, p (f t) ∂shellLaw m
+
+@[simp] theorem shellFace_empty (m : ℕ) (f : Fin 4 → Fin m) :
+    shellFace m f ∅ = 1 := by
+  simp [shellFace]
+
+/-- A single position has zero moment under the reference law. -/
+theorem shellFace_singleton (m : ℕ) (f : Fin 4 → Fin m) (i : Fin 4) :
+    shellFace m f {i} = 0 := by
+  simp only [shellFace, Finset.prod_singleton]
+  exact integral_shellLaw_coord m (f i)
+
+/-- The connected four-point function of the reference law. -/
+noncomputable def connectedFourShell (m : ℕ) (f : Fin 4 → Fin m) : ℝ :=
+  connectedFour (shellFace m f)
+
+/-- The reference law is centred, so the cumulant keeps only the partition into two pairs. -/
+theorem connectedFourShell_eq (m : ℕ) (f : Fin 4 → Fin m) :
+    connectedFourShell m f
+      = shellFace m f Finset.univ - shellFace m f {0, 1} * shellFace m f {2, 3}
+        - shellFace m f {0, 2} * shellFace m f {1, 3}
+        - shellFace m f {0, 3} * shellFace m f {1, 2} := by
+  simp only [connectedFourShell, connectedFour, shellFace_singleton]
+  ring
+
+/-- The full moment, read as a monomial in the four sites. -/
+theorem shellFace_univ (m : ℕ) (f : Fin 4 → Fin m) :
+    shellFace m f Finset.univ
+      = ∫ p, p (f 0) * p (f 1) * p (f 2) * p (f 3) ∂shellLaw m := by
+  simp only [shellFace]
+  refine integral_congr_ae (Eventually.of_forall fun p => ?_)
+  simp [Fin.prod_univ_four]
+
+/-- A two-position face is a pair moment. -/
+theorem shellFace_pair (m : ℕ) (f : Fin 4 → Fin m) {a b : Fin 4} (hab : a ≠ b) :
+    shellFace m f {a, b} = ∫ p, p (f a) * p (f b) ∂shellLaw m := by
+  simp only [shellFace]
+  refine integral_congr_ae (Eventually.of_forall fun p => ?_)
+  change (∏ t ∈ ({a, b} : Finset (Fin 4)), p (f t)) = p (f a) * p (f b)
+  rw [Finset.prod_pair hab]
+
+/-- **The four-point cumulant in moment language**: for this centred law the partition sum
+collapses to the four-point function minus the three pairings. -/
+theorem connectedFourShell_eq_pair (m : ℕ) (f : Fin 4 → Fin m) :
+    connectedFourShell m f
+      = (∫ p, p (f 0) * p (f 1) * p (f 2) * p (f 3) ∂shellLaw m)
+        - (∫ p, p (f 0) * p (f 1) ∂shellLaw m) * (∫ p, p (f 2) * p (f 3) ∂shellLaw m)
+        - (∫ p, p (f 0) * p (f 2) ∂shellLaw m) * (∫ p, p (f 1) * p (f 3) ∂shellLaw m)
+        - (∫ p, p (f 0) * p (f 3) ∂shellLaw m) * (∫ p, p (f 1) * p (f 2) ∂shellLaw m) := by
+  rw [connectedFourShell_eq, shellFace_univ,
+    shellFace_pair m f (show (0 : Fin 4) ≠ 1 by decide),
+    shellFace_pair m f (show (2 : Fin 4) ≠ 3 by decide),
+    shellFace_pair m f (show (0 : Fin 4) ≠ 2 by decide),
+    shellFace_pair m f (show (1 : Fin 4) ≠ 3 by decide),
+    shellFace_pair m f (show (0 : Fin 4) ≠ 3 by decide),
+    shellFace_pair m f (show (1 : Fin 4) ≠ 2 by decide)]
+
+/-- **The connected four-point function vanishes.**  The four-point function is the three
+pairings and every two-point function is a `δ`, so the cumulant is
+`(δδ + δδ + δδ) − δδ − δδ − δδ = 0`. -/
+theorem connectedFourShell_eq_zero (m : ℕ) (f : Fin 4 → Fin m) :
+    connectedFourShell m f = 0 := by
+  rw [connectedFourShell_eq_pair]
+  have h4 : (∫ p, p (f 0) * p (f 1) * p (f 2) * p (f 3) ∂shellLaw m)
+      = (if f 0 = f 1 then 1 else 0) * (if f 2 = f 3 then 1 else 0)
+        + (if f 0 = f 2 then 1 else 0) * (if f 1 = f 3 then 1 else 0)
+        + (if f 0 = f 3 then 1 else 0) * (if f 1 = f 2 then 1 else 0) :=
+    integral_shellLaw_coord_four m (f 0) (f 1) (f 2) (f 3)
+  have h01 : (∫ p, p (f 0) * p (f 1) ∂shellLaw m) = if f 0 = f 1 then 1 else 0 :=
+    integral_shellLaw_coord_mul_coord m (f 0) (f 1)
+  have h23 : (∫ p, p (f 2) * p (f 3) ∂shellLaw m) = if f 2 = f 3 then 1 else 0 :=
+    integral_shellLaw_coord_mul_coord m (f 2) (f 3)
+  have h02 : (∫ p, p (f 0) * p (f 2) ∂shellLaw m) = if f 0 = f 2 then 1 else 0 :=
+    integral_shellLaw_coord_mul_coord m (f 0) (f 2)
+  have h13 : (∫ p, p (f 1) * p (f 3) ∂shellLaw m) = if f 1 = f 3 then 1 else 0 :=
+    integral_shellLaw_coord_mul_coord m (f 1) (f 3)
+  have h03 : (∫ p, p (f 0) * p (f 3) ∂shellLaw m) = if f 0 = f 3 then 1 else 0 :=
+    integral_shellLaw_coord_mul_coord m (f 0) (f 3)
+  have h12 : (∫ p, p (f 1) * p (f 2) ∂shellLaw m) = if f 1 = f 2 then 1 else 0 :=
+    integral_shellLaw_coord_mul_coord m (f 1) (f 2)
+  rw [h4, h01, h23, h02, h13, h03, h12]
+  ring
+
+/-- **The connected four-point function at four coordinates**, derived: the full cumulant of
+`p_i, p_j, p_k, p_l` is the four-point function minus the three pairings of the four indices. -/
+theorem connectedFour_coord_eq (m : ℕ) (i j k l : Fin m) :
+    connectedFour (fun s => ∫ p : Fin m → ℝ, ∏ t ∈ s, p (![i, j, k, l] t) ∂shellLaw m)
+      = (∫ p, p i * p j * p k * p l ∂shellLaw m)
+        - (∫ p, p i * p j ∂shellLaw m) * (∫ p, p k * p l ∂shellLaw m)
+        - (∫ p, p i * p k ∂shellLaw m) * (∫ p, p j * p l ∂shellLaw m)
+        - (∫ p, p i * p l ∂shellLaw m) * (∫ p, p j * p k ∂shellLaw m) := by
+  have h := connectedFourShell_eq_pair m ![i, j, k, l]
+  simpa using h
+
+/-- **The connected four-point function at four coordinates vanishes**: the cumulant of
+`p_i, p_j, p_k, p_l` is zero. -/
+theorem connectedFour_coord_eq_zero (m : ℕ) (i j k l : Fin m) :
+    connectedFour (fun s => ∫ p : Fin m → ℝ, ∏ t ∈ s, p (![i, j, k, l] t) ∂shellLaw m) = 0 :=
+  connectedFourShell_eq_zero m ![i, j, k, l]
 
 end BookProof.OSReconstruction
 

@@ -431,3 +431,18 @@ hide behind the theorems' reports.
 #audit_axioms pairingProdSix15
 #audit_axioms wickSum_six
 #audit_axioms integral_shellLaw_coord_six
+
+/-! ## C3k: the connected four-point function of the reference law -/
+
+#audit_axioms connectedFour
+#audit_axioms shellFace
+#audit_axioms shellFace_empty
+#audit_axioms shellFace_singleton
+#audit_axioms connectedFourShell
+#audit_axioms connectedFourShell_eq
+#audit_axioms shellFace_univ
+#audit_axioms shellFace_pair
+#audit_axioms connectedFourShell_eq_pair
+#audit_axioms connectedFourShell_eq_zero
+#audit_axioms connectedFour_coord_eq
+#audit_axioms connectedFour_coord_eq_zero

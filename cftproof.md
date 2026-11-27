@@ -3627,3 +3627,51 @@ half-space inequality, the OS reconstruction theorem and every field law are unc
 `lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
 all twenty-three new declarations (327 rows in the ledger). `./patches/build-book.sh` under
 `nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
+
+**Landed 2026-11-27, eighteenth slice: the connected four-point function vanishes (C3k).** The
+seventeenth slice ended by naming the cumulants as still open: "no cumulant, connected correlation
+or clustered moment". This slice computes the fourth joint cumulant of the reference law — the
+first cumulant above the two-point function — and proves it zero. Twelve declarations were added
+to the audit; all rest on standard axioms.
+
+* **The cumulant, by its partition formula.** `connectedFour` is the fourth joint cumulant as the
+  Möbius sum over the partitions of the four positions: `m₁₂₃₄`, minus the three partitions into
+  two pairs, minus the four partitions into a singleton and a triple, plus twice the six
+  partitions into a pair and two singletons, minus six times the four singletons — the
+  coefficients `(−1)^(k−1)(k−1)!` of a partition into `k` blocks. This is the four-point analogue
+  of `connectedThree` in the QYM development
+  (`../OpenAI-YM-20261104/lean/MSPositionLabels.lean`), and `../QCD` carries the frozen reference
+  copy of the same development (`provenance/supplied-comparator/frozen/reference/YM/...`); that
+  development defines the three-point cumulant by exactly this inclusion–exclusion, and the
+  definition here follows it rather than inventing a convention. Neither development states a
+  Gaussian cumulant theorem, so nothing is imported or reused.
+* **The face functional and the centring.** `shellFace m f s = ∫ p, ∏ t ∈ s, p (f t)` is the
+  joint moment of the positions in `s`, with `shellFace_empty` (the empty product integrates to
+  one) and `shellFace_singleton` (a single coordinate has mean zero, `integral_shellLaw_coord`).
+  The cumulant of the law is `connectedFourShell m f = connectedFour (shellFace m f)`.
+* **The derivation.** `connectedFourShell_eq` evaluates the singleton terms to zero and
+  `connectedFourShell_eq_pair` states the result in moment language:
+  `κ = m₁₂₃₄ − m₁₂ m₃₄ − m₁₃ m₂₄ − m₁₄ m₂₃`. Only the partition into two pairs survives, because
+  every other partition has a singleton block and the law is centred. `connectedFour_coord_eq`
+  reads the same identity at four coordinates.
+* **The vanishing.** `connectedFourShell_eq_zero` (and `connectedFour_coord_eq_zero`) substitute
+  the Isserlis forms: the four-point function is δ₁₂δ₃₄ + δ₁₃δ₂₄ + δ₁₄δ₂₃ and each pair moment is
+  a δ, so the cumulant is `(δδ + δδ + δδ) − δδ − δδ − δδ`, which `ring` closes to `0`. The
+  reference law has no connected four-point part.
+
+Boundary of this eighteenth slice: **one cumulant of one law, and its vanishing is not a
+Gaussianity criterion.** The computation shows that *this* product law has zero fourth cumulant —
+the property every Gaussian has — but not that a law with vanishing fourth cumulant is Gaussian,
+and no converse is attempted. No cumulant above the fourth is defined, no connected correlation at
+separated points is computed, and no clustering estimate follows: the vanishing is the algebraic
+cancellation of Isserlis pairings, not a decay statement. The cumulant is defined by its explicit
+fifteen-term partition formula on `Fin 4`, not by a general moment–cumulant transform, and no
+partition-lattice machinery is built. Everything remains a statement about the reference law;
+C3a–C3d, the half-space inequality, the OS reconstruction theorem and every field law are
+unchanged.
+
+**Verification.** `lake env lean BookProof/OSReconstruction/GaussianChainScales.lean` is clean and
+`lake build BookProof.OSReconstruction.GaussianChainScales` succeeds (8028 jobs).
+`lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
+all twelve new declarations (339 rows in the ledger). `./patches/build-book.sh` under
+`nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
