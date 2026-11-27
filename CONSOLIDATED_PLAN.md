@@ -28611,3 +28611,56 @@ before `integral_map`.  `lakefile.toml` roots were updated for `ChapterPairingCo
 
 **Verification.** `lake build BookProof` green at 9127 jobs; `scripts/health.sh` 3 pass, 0 warn,
 0 fail; `#print axioms card_pairingSet_rec` gives `[propext, Classical.choice, Quot.sound]`.
+
+## 2026-11-27a — QYM: the Gauss generator, unconditional skew-adjointness, Stone's group
+
+`BookProof/Qym/ChapterYangMillsGaussGenerator.lean` proves the one identity that 2026-11-26i
+left as a hypothesis — that `t ↦ gaussFlowOp t v` is differentiable in `L²(ℝ⁹⁹)` with
+derivative `𝒢_d (gaussFlowOp t v)` — and then closes the charge.
+
+**The pointwise chain rule.**  `hasDerivAt_eval_along` differentiates
+`s ↦ p(y s)` for a polynomial `p` along any differentiable curve, by
+`MvPolynomial.induction_on`: constants are constant, sums add, and `∂_m (p * X_i)` splits by
+the product rule.  Composed with the matrix derivative of the transposed flow
+(`gaussFlow_transpose_hasDerivAt`, `gaussFlow_transpose_mulVec_hasDerivAt`, using
+`M Eᵀ = Eᵀ M`) this gives the derivative of the rotated polynomial.  Commuting `M` past
+`E(t)ᵀ` and reading off the Gauss vector field identifies the result with `𝒢_d p`:
+`eval_sum_pderiv_gaussFlow`, hence `hasDerivAt_eval_gaussFlow` — for every `x`,
+
+  `d/dt p(E(t)ᵀx) = (firstOrder (ymGaussVec G d) (rotPoly (E t) p)) (x)`.
+
+**Growth, domination, `L²`.**  `exists_bound_genSum` bounds the generator by
+`C (1 + ‖x‖)^{deg+1}` — `E(s)` orthogonal makes `‖E(s)ᵀx‖ = ‖x‖`, entries of `E(s)` are
+bounded by `1`, and a polynomial of total degree `N` grows like `(1 + ‖x‖)^N`
+(`exists_norm_eval_le`).  The mean value theorem applied to
+`p(E(u)ᵀx) - (u - t) 𝒢_d p (x)` bounds the difference quotient uniformly in the parameter
+(`norm_slope_eval_le`), and the sum is dominated by an integrable multiple of
+`(1 + ‖x‖)^{2N+2}` times the Gaussian (`integrable_oneAddNorm_pow_mul_gaussWD`).
+Dominated convergence then makes the squared `L²` norms of the difference quotients tend to
+zero (`hasDerivAt_gaussFlowOp_pgLp`), using only
+`‖pgLp q‖² ≤ ∫ ‖q‖² gaussWD` — no finite-dimensional norm machinery.
+
+**Unconditional skew-adjointness.**  Transporting to the core gives
+`hasDerivAt_gaussFlowOp`, so `gaussPMap_closure_skewAdjoint` — the thesis of
+`ChapterYangMillsGaussSkewAdjointDomain` with `hgen` discharged.  The closed Gauss charge
+`Ā = (gaussPMap G d (coreRepPoly 99)).closure` satisfies `Ā† = -Ā` with no hypothesis.
+
+**Stone's unitary group.**  `i Ā` is symmetric (from skewness: `⟪iĀx, y⟫ = ⟪x, iĀy⟫`) and its
+adjoint domain is its domain — the inclusion `dom(iĀ)† ⊆ dom Ā` uses only
+`LinearPMap.mem_adjoint_domain_of_exists` and `Ā† = -Ā`.  This bundles
+`gaussChargeSelfAdjoint : UnboundedSelfAdjoint (L2d 99)` with domain `dom Ā`, and
+`gaussCharge_stoneFlow` invokes the Stone bridge (`isStoneFlow_stoneU`) to obtain a strongly
+continuous one-parameter unitary group with `d/dt U(t) v = 𝒢_d (U(t) v)` on the domain.
+
+**Boundary.**  Everything here is about the charge alone.  `dom Ā ⊆ dom H̄` is *not* proved
+and is not implied by skew-adjointness: the missing input remains the elliptic-regularity /
+graph-norm statement recorded in `BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean`
+(the Gauss–polynomial core dense in `dom Ā` in the graph norm of `H̄ = hamClosure G`), and the
+flow `gaussFlowOp` is a rotation of field-space coordinates, not the Hamiltonian's flow.
+Ghosts and the physical Gauss reduction are untouched.
+
+**Verification.**  `lake env lean` and `lake build BookProof.Qym.ChapterYangMillsGaussGenerator`
+succeed with no warnings and no `sorry`; `#print axioms` on `exists_bound_genSum`,
+`hasDerivAt_gaussFlowOp_pgLp`, `hasDerivAt_gaussFlowOp`, `gaussPMap_closure_skewAdjoint`,
+`gaussChargeSelfAdjoint` and `gaussCharge_stoneFlow` gives
+`[propext, Classical.choice, Quot.sound]`.

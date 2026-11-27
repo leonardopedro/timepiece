@@ -17,14 +17,20 @@ inclusion already available, skew-adjointness is *equivalent* to the reverse inc
 > closed skew operator (bounded below + the deficiency at `+1`), and von Neumann's trick
 > places every `y ∈ dom A†` in `dom A`.  The paragraph below records why *this* module
 > states it as a hypothesis instead of proving it.
+>
+> **Update (2026-11-27a):** both routes named below are now in the corpus.  The
+> rotation-flow route is closed by `BookProof/Qym/ChapterYangMillsGaussGenerator.lean`: the
+> generator identity is a theorem there (`hasDerivAt_gaussFlowOp`), so
+> `gaussPMap_closure_skewAdjoint` is unconditional, and the flow's unitary group is packaged
+> by Stone's theorem in the same module (`gaussChargeSelfAdjoint`, `gaussCharge_stoneFlow`).
 
 `dom A† ⊆ dom A` is the classical essential-skew-adjointness statement for the derivation
 `Σ_m v_m ∂_m` of the colour rotation on the Gauss–polynomial core.  The two standard proofs
-both need input the corpus does not carry: either the unitary group `e^{tM}` of the linear
-flow (a Stone theorem, absent from Mathlib), or the density of the polynomial core in the
-graph norm of `A†` (an elliptic-regularity/Fourier estimate).  What is proved below is the
-reduction: the domain inclusion is the *only* remaining hypothesis, and the module records
-the two equivalent forms it can be attacked in.
+both need input the corpus did not carry when this module was written: either the unitary
+group `e^{tM}` of the linear flow (a Stone theorem, absent from Mathlib), or the density of
+the polynomial core in the graph norm of `A†` (an elliptic-regularity/Fourier estimate).
+What is proved below is the reduction: the domain inclusion is the *only* remaining
+hypothesis, and the module records the two equivalent forms it can be attacked in.
 
 ## Contents
 

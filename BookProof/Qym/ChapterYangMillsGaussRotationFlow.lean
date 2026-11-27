@@ -36,14 +36,23 @@ The rotation acts on functions by `x ↦ E t x`.  Because it preserves the Gauss
 substitution `rotPoly (E t)`, so it preserves the core and every `CoreRep` core
 (`gaussFlowOp_pgLp`, `gaussFlowOp_mem_core`, `gaussFlowOp_mem_domain`).
 
-## What is left
+## The generator identity, and what is left
 
-Only the generator identity enters as a hypothesis: that `t ↦ gaussFlowOp t v` is
-differentiable at every `t` with derivative `𝒢_d (gaussFlowOp t v)`.  It is the statement
-that `𝒢_d` is the derivative at `0` of the substitution `rotPoly (E t)`, and it is not
-proved here.  Everything else in the flow bundle of `ChapterYangMillsGaussFlow` is proved
-in this module, so `gaussPMap_closure_skewAdjoint_of_rotation` derives the skew-adjointness
-of the closed Gauss charge from that one identity.
+The one hypothesis still bundled here is the generator identity: that `t ↦ gaussFlowOp t v`
+is differentiable at every `t` with derivative `𝒢_d (gaussFlowOp t v)`.  **It is proved**
+in `BookProof/Qym/ChapterYangMillsGaussGenerator.lean`: the chain rule for
+`MvPolynomial.eval`, the polynomial growth of the generator, the mean value theorem and
+dominated convergence give `hasDerivAt_gaussFlowOp_pgLp`, which transports to the core as
+`hasDerivAt_gaussFlowOp`; the unconditional form of
+`gaussPMap_closure_skewAdjoint_of_rotation` is `gaussPMap_closure_skewAdjoint` there.  So
+`hgen` no longer has to be supplied by a caller.
+
+What remains open is a *different* statement, about the Hamiltonian rather than the charge:
+the elliptic-regularity / graph-norm domination input recorded in
+`BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean` — the Gauss–polynomial core
+being dense in `dom Ā` with respect to the graph norm of `H̄ = hamClosure G`, from which
+`dom Ā ⊆ dom H̄` (and the commutation of the two closures on that domain) would follow.
+Skew-adjointness of `Ā` does not give it, and neither does commutation on the core.
 -/
 
 namespace BookProof.Qym.GaussRotationFlow

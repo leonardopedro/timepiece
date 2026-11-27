@@ -1148,6 +1148,18 @@ import BookProof.Qym.ChapterYangMillsGaussSkewAdjointDomain
 -- the core (`gaussFlowOp_mem_domain`).  `gaussPMap_closure_skewAdjoint_of_rotation` therefore
 -- derives the whole flow bundle from the single generator identity `hgen`.
 import BookProof.Qym.ChapterYangMillsGaussRotationFlow
+-- `ChapterYangMillsGaussGenerator` (2026-11-27a): the generator identity the rotation-flow
+-- chapter assumes, and its consequences.  The scalar function `s ↦ p(E(s)ᵀx)` is
+-- differentiable with derivative `𝒢_d p` (`hasDerivAt_eval_along`, the chain rule for
+-- `MvPolynomial.eval`, then `eval_sum_pderiv_gaussFlow`); the generator grows like
+-- `(1 + ‖x‖)^{deg+1}` (`exists_bound_genSum`), so the mean value theorem bounds the
+-- difference quotients (`norm_slope_eval_le`) and dominated convergence gives
+-- differentiability in `L²` (`hasDerivAt_gaussFlowOp_pgLp`).  Transported to the core this is
+-- `hasDerivAt_gaussFlowOp`, so the Gauss closure is skew-adjoint **unconditionally**
+-- (`gaussPMap_closure_skewAdjoint`).  `i 𝒢_d` is then a bundled `UnboundedSelfAdjoint`
+-- (`gaussChargeSelfAdjoint`) and Stone's theorem supplies its unitary group
+-- (`gaussCharge_stoneFlow`).
+import BookProof.Qym.ChapterYangMillsGaussGenerator
 -- `ChapterYangMillsGaussParity` (2026-11-26d): a *concrete* bounded symmetry of the Gauss
 -- charge, supplying the two hypotheses `DomPreserve` / `StrongCommute` of
 -- `ChapterBrstReducedTransferUnbounded` with no hypothesis left.  The field-space parity
