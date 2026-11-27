@@ -3680,8 +3680,11 @@ all twelve new declarations (339 rows in the ledger). `./patches/build-book.sh` 
 `BookProof/OSReconstruction/ChapterPairingCount.lean` specializes the existing `wickSum_rec`
 bijection to the constant weight one: `wickSum_one_eq_card` identifies the Wick sum with
 `(pairingSet s).card`, and `card_pairingSet_rec` counts pairings by the partner of the least site
-and the pairings of the remaining sites. This is a counting recursion, not yet the closed form
-`(2m−1)‼` and not an `M`-uniform δ-algorithm; all declarations rest on standard axioms.
+and the pairings of the remaining sites. Strong induction on the cardinality then gives the
+closed form: `card_pairingSet_eq_doubleFactorial` states `card (pairingSet s) = (s.card−1)‼` for
+even `s.card` (odd sets have no pairings, by `Equiv.Perm.two_dvd_card_support`), and
+`card_pairings_even` specializes to `card (pairings (2m)) = (2m−1)‼`.  This closes the counting
+item from the seventeenth slice; an `M`-uniform δ-algorithm on `shellLaw` is still open.
 
 **Verification note (2026-11-27).** `lake build BookProof` is green at 9127 jobs after repairing
 two elaboration failures in `BookProof/Qym/ChapterYangMillsPacketCharge.lean` (commit `6e62952`),

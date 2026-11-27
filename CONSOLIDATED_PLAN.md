@@ -28573,8 +28573,11 @@ finite-degree polynomial curve, and it is not proved here.
 
 `BookProof/OSReconstruction/ChapterPairingCount.lean` derives a counting recursion for
 `pairingSet` from the existing `wickSum_rec` bijection at the constant weight one:
-`wickSum_one_eq_card` and `card_pairingSet_rec`.  This is the first counting step named as open in
-the C3j seventeenth slice; the closed form `(2m−1)‼` and an `M`-uniform δ-algorithm are still open.
+`wickSum_one_eq_card` and `card_pairingSet_rec`; strong induction on the cardinality then gives
+`card_pairingSet_eq_doubleFactorial` (`card (pairingSet s) = (s.card−1)‼` for even `s.card`) and
+`card_pairings_even` (`card (pairings (2m)) = (2m−1)‼`).  Odd-cardinality sets have no pairings,
+by `Equiv.Perm.two_dvd_card_support`.  This closes the counting item named open in the C3j
+seventeenth slice; an `M`-uniform δ-algorithm on `shellLaw` is still open.
 
 Separately, `BookProof/Qym/ChapterYangMillsPacketCharge.lean` had two elaboration failures
 (`constant_row_ward` line 272, `translated_marginal_ne` line 315) introduced by external commit
