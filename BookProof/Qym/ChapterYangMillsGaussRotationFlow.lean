@@ -268,9 +268,7 @@ theorem gaussFlow_add (G : GaugeAlgebra 8) (d : Fin 8) (s t : ℝ) :
       = NormedSpace.exp ((-s) • gaussMat G d + (-t) • gaussMat G d) :=
         (NormedSpace.exp_add_of_commute hcomm).symm
     _ = NormedSpace.exp ((-(s + t)) • gaussMat G d) := by
-        rw [← add_smul]
-        congr 1
-        linarith
+        rw [← add_smul, show (-(s + t) : ℝ) = -s + -t by ring]
 
 /-- **The flow is orthogonal**: `(E t)ᵀ * E t = 1`. -/
 theorem gaussFlow_transpose_mul (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) :
