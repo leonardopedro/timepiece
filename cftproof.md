@@ -701,7 +701,7 @@ into **C0–C10** below and targets the three continuum reference contracts expl
 | --- | --- | --- | --- |
 | **H0** | `ChapterOuterSemigroupFactorization` (Stone flow on tensor sectors, vacuum fixed); `ChapterYangMillsGaussHamiltonianClosure` / `Domain` / `Generator` / `Flow` (closed `[H, 𝒢_d] = 0` on core, skew-adjoint Gauss Stone flow); `ContinuumManifest` | Prove $e^{-\tau d\Gamma(h)} = \Gamma(e^{-\tau h})$ on $L^2$; discharge joint-core graph-norm regularity and local colour-rotation covariance (`softmodes.md`) | [WilsonBridge](../OpenAI-YM-20261028/WilsonBridge.lean), [PerturbativeMatching](../OpenAI-YM-20261104/lean/YangMills/PerturbativeMatching.lean) (`MatchedRun.realizes`), [Tower](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Tower.lean) (`Run.Actual`) |
 | **H1** | `ChapterMehlerTransitionDensity` (1D Lebesgue Mehler density, `freeTransferKernel` bridge); `ChapterMehlerKernelSemigroup` (exact convolution composition & Euler limit); `ChapterYangMillsMehlerBridge`, `GaussianMehlerControl`, `EuclideanMehlerCalibration` | Pass to the finite mode-product kernel with detailed balance in the stationary Gaussian $\gamma$-convention and calibrate physical field normalizations | [Calibration](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Calibration.lean) (`SourceRead`, `TaperHol.Matches`), [NativeLattice](../OpenAI-YM-20261104/lean/YangMills/PerturbativeMatching/NativeLattice.lean) (`NativeCoordinates`) |
-| **H2** | `ChapterSymmetricTimeStepOrdering` (Heisenberg/BCH Strang midpoint cancellation vs. Lie endpoint error); `ChapterQuantizationWeyl`; `ChapterNonnegSemigroup` | Prove bounded and unbounded form-sum Euclidean Lie–Trotter / Strang convergence and verify stress Ward conservation for cross-term splittings | [VacuumReconstruction](../OpenAI-YM-20261104/lean/YangMills/VacuumReconstruction.lean) (`ContinuedStress`), [Correlations](../OpenAI-YM-20261104/lean/YangMills/PerturbativeMatching/Correlations.lean) (`stressExpansion`), [Physics](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Physics.lean) (`Physics.Stress`) |
+| **H2** | `ChapterSymmetricTimeStepOrdering` (Heisenberg/BCH Strang midpoint cancellation vs. Lie endpoint error); `ChapterQuantizationWeyl`; `ChapterNonnegSemigroup`; **`ChapterTrotterProduct`** (bounded Euclidean Lie–Trotter product formula `(e^{(T/N)a} e^{(T/N)b})^N → e^{T(a+b)}` with the telescoping rate, its heat-sign form and the commuting exactness check) | Bounded Lie–Trotter **done**; open: unbounded form-sum convergence, the Strang `O(ε²)` step estimate, and stress Ward conservation for cross-term splittings | [VacuumReconstruction](../OpenAI-YM-20261104/lean/YangMills/VacuumReconstruction.lean) (`ContinuedStress`), [Correlations](../OpenAI-YM-20261104/lean/YangMills/PerturbativeMatching/Correlations.lean) (`stressExpansion`), [Physics](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Physics.lean) (`Physics.Stress`) |
 | **H3** | `ChapterMehlerSliceReflectionPositivity`, `ChapterFinitePathMeasure`, `ChapterPathMeasureInduction`, `ChapterPathMeasureMarginal`, `ChapterMehlerTrajMeasure` (Ionescu–Tulcea), `ChapterWeightedPathMeasure` (`partition_mass_of_action_event`, `normalized_insertion_error`/`limit`), `ChapterContinuousTimeWeight`, `GaussianChainScales` (all-order cumulants $\ge 3$ vanish) | Identify all finite marginals of `mehlerPathMeasure`; prove $Z \ge z > 0$, $N \to \infty$ interacting Feynman–Kac weight convergence, full positive-time RP and `Fields.Slabs` Gram bounds | [Euclidean](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Euclidean.lean) (`Fields.gram`, `Fields.Slabs`), [Tower](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Tower.lean) (`Run.Actual`), [VolumeLimits](../OpenAI-YM-20261104/lean/YangMills/PerturbativeMatching/VolumeLimits.lean) (`SmoothMeshLimit`) |
 | **H4** | `ChapterSirkSingleTimeShift`, `ChapterHashimotoShiftInvert` (`hashimoto_shiftInvert_selects_friedrichs`), `ChapterCrouzeixSelfAdjoint`, `ChapterSirkTruncation`, `ChapterHeatSemigroupBoundedTransfer`, `ChapterResolventToHeatSemigroup` | Prove unbounded strong-resolvent-to-heat Trotter–Kato transfer ($e^{-\tau K_n} \to e^{-\tau K}$) and pay regulator/SIRK budgets per selected character before continuum closure | [Massive](../OpenAI-QCD-20261104/proof/YM/Plata/Massive.lean) (`interacting_six` budget order) |
 | **H5** | `ChapterOverlapCollapse` ($\exp(-N v^2/2) \to 0$); `ChapterSymmetrizedGaussianMean` (all odd moments zero); `MultiplierSelfAdjoint`, `ChapterSmHiggsVacuum`, `ChapterScalarMehler`, `ChapterGaugeVariantVanishing` | Lift overlap collapse and symmetric-average $\langle\phi\rangle = 0$ to physical Higgs/$\phi^4$ ground states; prove $T \to \infty$ projection with $\langle\Omega_v|\Psi_a\rangle \neq 0$ | [Phases](../OpenAI-YM-20261104/lean/YangMills/Phases.lean) (`ObservablePhases.Law.trains`), [Correlations](../OpenAI-YM-20261104/lean/YangMills/PerturbativeMatching/Correlations.lean) (`phaseAgreement`), [Wightman](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Wightman.lean) (`Vacua.Decomposes`) |
@@ -4155,7 +4155,7 @@ inequality, the OS reconstruction theorem and every field law are unchanged.
 **Verification.** `lake build BookProof.OSReconstruction.GaussianChainScales` succeeds (8028 jobs)
 with no new warnings. `lake env lean Work/EuclideanMomentAudit.lean` reports
 `[propext, Classical.choice, Quot.sound]` for all thirteen new declarations (364 rows in the
-ledger). `lake build BookProof` succeeds (9128 jobs). `./patches/build-book.sh` under
+ledger). `lake build BookProof` succeeds (9135 jobs). `./patches/build-book.sh` under
 `nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
 `scripts/health.sh` reports 3 pass, 0 warn, 0 gap, 0 fail; `check-links` resolves 273 relative
 links over 88 documents and the doc index is fresh (88 docs, 252 links).
@@ -4230,3 +4230,59 @@ new declarations (383 rows in the ledger). `lake build BookProof` succeeds (9128
 `./patches/build-book.sh` under `nix-shell -p python3` renders the book and asserts
 `OK: no <base>; fragment links present`. `scripts/health.sh` reports 3 pass, 0 warn, 0 gap, 0 fail;
 `check-links` resolves 273 relative links over 88 documents and the doc index is fresh.
+
+**Landed 2026-11-27, twenty-second slice: the bounded Euclidean Lie–Trotter product formula
+(H2).** The H2 packet asked for two things — the finite-dimensional/bounded product formula with
+its `O(T²/N)` error, and the unbounded nonnegative form-sum version — and named the corpus gap
+precisely: `ChapterSirkTrotterKato` is a resolvent-to-flow transfer, not a product formula, and
+`ChapterSymmetricTimeStepOrdering` proves the exact algebraic Strang identity, not a convergence
+rate. This slice lands the first half in the only form that needs nothing beyond `Mathlib`'s
+Banach-algebra exponential. Seven declarations were added to the audit; all rest on standard
+axioms.
+
+* **The statement.** `trotter_product_tendsto`: for `a b` in a real Banach algebra and `T ≥ 0`,
+  `(exp ((T/N) • a) * exp ((T/N) • b))^N → exp (T • (a + b))`. No commutativity, no finite
+  dimension, no self-adjointness, no positivity: the theorem is about the algebra of the
+  semigroup, which is what `cft_path.md` §3's `e^{-(i/ℏ)(T̂+V̂)ε} ≈ e^{-(i/ℏ)T̂ε} e^{-(i/ℏ)V̂ε}`
+  actually uses. `trotter_heat_tendsto` is the Euclidean sign, `exp (-(T/N) • a)` against
+  `exp (-(T/N) • b)`, which is the form the H3 path measure will consume.
+* **The two halves of the proof.** The single step is a derivative statement: the product
+  `ε ↦ exp (ε a) exp (ε b)` and `ε ↦ exp (ε (a + b))` agree to first order at `0` because both
+  have derivative `a + b` there (from `hasDerivAt_exp_smul_const` and `HasDerivAt.mul`), so the
+  one-step defect is `o(ε)`. The `N`-fold step is the norm telescoping
+  `norm_pow_sub_pow_le`: `‖x^n - y^n‖ ≤ n ‖x - y‖ M^{n-1}` for `‖x‖, ‖y‖ ≤ M`, so the product
+  error is at most `N ‖S_N - Y_N‖ M^{N-1}`. With `‖S_N‖, ‖Y_N‖ ≤ exp (ε (‖a‖ + ‖b‖ + ‖a+b‖))`
+  the power is bounded uniformly in `N`, and the accumulated error is `T · o(1)`.
+* **The only non-triangle estimate.** `norm_exp_sub_one_sub_id_le`: `‖exp x - 1 - x‖ ≤ ‖x‖² exp ‖x‖`,
+  proved from the exponential series by shifting the sum two places
+  (`hasSum_nat_add_iff`) and comparing `(n+2)!⁻¹ ≤ n!⁻¹`. `norm_exp_le` (`‖exp x‖ ≤ exp ‖x‖`)
+  and `hasSum_exp_norm` record the two series facts it rests on.
+* **The commuting check.** `trotter_product_of_commute`: if `a` and `b` commute the product is
+  exactly `exp (T • (a + b))` at every `N ≥ 1`, so the theorem's content is precisely the
+  non-commuting case — the analogue, for the product formula, of the negative controls the plan
+  lists for the ordering claims.
+
+Boundary of this twenty-second slice: **bounded, and only bounded.** The unbounded form-sum
+statement — `h₀ ≥ 0`, `V ≥ 0` on a common core, strong convergence of
+`(e^{-(T/N)h₀} e^{-(T/N)V})^N` to the semigroup of the form sum — is not proved; it is the rest
+of the H2 packet, and it is what `ChapterNonnegSemigroup` plus a Chernoff argument would have to
+supply. The symmetric Strang product `e^{-εV/2} e^{-εh₀} e^{-εV/2}` is not covered: its exact
+algebra is in `ChapterSymmetricTimeStepOrdering`, but no `O(ε²)` step estimate is assembled here,
+so nothing in this slice distinguishes endpoint from midpoint discretisation, and the
+midpoint/Weyl ordering requirement for position–momentum cross-terms remains a separate
+obligation (a product formula for a fixed pair `(a, b)` cannot encode an ordering correction).
+The convergence is proved, not a stated rate: the proof's quantitative content is
+`N ‖S_N - Y_N‖ e^{Tc}` with `‖S_N - Y_N‖ = o(T/N)`, i.e. `T · o(1)`, and no explicit `C T²/N`
+constant is extracted even though the second-order remainder bound needed for one is available.
+Stress Ward conservation for cross-term splittings is untouched. Nothing here constructs a path
+measure, identifies a marginal of `mehlerPathMeasure`, proves reflection positivity or touches
+the C3 moment chain; and it does not upgrade `ChapterSirkTrotterKato` into a product formula —
+the two remain different theorems.
+
+**Verification.** `lake build BookProof.OSReconstruction.ChapterTrotterProduct` succeeds
+(8026 jobs) with no warnings. `lake env lean Work/EuclideanMomentAudit.lean` reports
+`[propext, Classical.choice, Quot.sound]` for all seven new declarations (390 rows in the
+ledger). `lake build BookProof` succeeds (9135 jobs). `./patches/build-book.sh` under
+`nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
+`scripts/health.sh` reports 3 pass, 0 warn, 0 gap, 0 fail; `check-links` resolves the corpus
+links and the doc index is fresh.

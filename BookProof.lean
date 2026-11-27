@@ -624,6 +624,8 @@ import BookProof.OSReconstruction.MomentumBasis
 import BookProof.OSReconstruction.GaussianMoments
 -- C3j: counting recursion for pairings, from the constant-weight Wick recursion.
 import BookProof.OSReconstruction.ChapterPairingCount
+-- H2: the bounded Euclidean Lie–Trotter product formula, with its telescoping rate.
+import BookProof.OSReconstruction.ChapterTrotterProduct
 import BookProof.OSReconstruction.YangMillsBridge
 import BookProof.OSReconstruction.FockIntertwining
 -- B2 on the one-particle sector: a concrete `OsFockBridge` whose `U` is constructed, not assumed

@@ -944,6 +944,52 @@ from a conditional expectation on a sigma-field. Nothing here is C3d in the plan
 is no effective action, counterterm, marginal direction or logarithmic running, and the
 $`n`-uniformity is exactly what the triviality of the reference flow buys.
 
+# Slicing the Euclidean evolution
+
+The chapter's Euclidean evolution `euclidEvol K τ = exp(-τ K)` is one exponential of a sum.
+The path-integral equivalence of `cft_path.md` §3 is the statement that such an exponential is
+the limit of a product of exponentials of the two pieces. That identity is now a theorem, in the
+bounded case and in an arbitrary real Banach algebra — no commutativity, no finite dimension and
+no self-adjointness (chapter `BookProof.OSReconstruction.ChapterTrotterProduct`):
+
+```
+trotter_product_tendsto  (a b : A) (T ≥ 0) :
+    Tendsto (fun N => (exp ((T/N) • a) * exp ((T/N) • b)) ^ N) atTop (𝓝 (exp (T • (a + b))))
+trotter_heat_tendsto  (a b : A) (T ≥ 0) :
+    Tendsto (fun N => (exp (-(T/N) • a) * exp (-(T/N) • b)) ^ N) atTop (𝓝 (exp (-T • (a + b))))
+trotter_product_of_commute  (h : Commute a b) (T : ℝ) {N} (hN : 1 ≤ N) :
+    (exp ((T/N) • a) * exp ((T/N) • b)) ^ N = exp (T • (a + b))
+```
+
+The proof has two halves and neither is a perturbation series. The single step is a derivative
+statement: the product `ε ↦ exp (ε a) exp (ε b)` and the exponential `ε ↦ exp (ε (a+b))` both
+equal the identity at `ε = 0` and both have derivative `a + b` there, so their difference is
+`o(ε)` at `0`, and the whole analytic input is `hasDerivAt_exp_smul_const`. The `N`-fold step is
+a telescoping inequality in norms,
+
+```
+norm_pow_sub_pow_le : ‖x ^ n - y ^ n‖ ≤ n * ‖x - y‖ * M ^ (n - 1)   for ‖x‖, ‖y‖ ≤ M
+```
+
+so the product error is at most `N · ‖S_N - Y_N‖ · M^(N-1)`. Because `‖S_N‖` and `‖Y_N‖` are
+bounded by `exp (ε (‖a‖ + ‖b‖))`, the power `M^(N-1)` is `exp (T (‖a‖ + ‖b‖ + ‖a+b‖)) · O(1)`
+uniformly in `N`, and the accumulated error is `T · o(1)`. The only estimate that is not a
+triangle inequality is the second-order remainder of the exponential series,
+`‖exp x - 1 - x‖ ≤ ‖x‖² exp ‖x‖` (`norm_exp_sub_one_sub_id_le`), which is what makes the
+one-step defect first order rather than constant.
+
+The commuting case is a check rather than a corollary: there `exp (ε a) exp (ε b) = exp (ε (a+b))`
+exactly, so the product is exact at every `N` and the theorem's content is precisely the
+non-commuting situation. Two boundaries are worth stating next to these statements. The
+theorem is *bounded*: `a` and `b` are Banach-algebra elements, i.e. uniformly bounded generators,
+so it says nothing directly about the unbounded form sum `h₀ ≥ 0`, `V ≥ 0` on a common core, whose
+strong-convergence version is the H2 item still open. And the symmetric Strang product
+`exp (-εV/2) exp (-ε h₀) exp (-εV/2)` is not covered: the exact algebraic Strang identity is in
+`ChapterSymmetricTimeStepOrdering`, but its `O(ε²)` step estimate is not assembled here, so no
+statement of this chapter distinguishes endpoint from midpoint discretisation. Nothing here
+constructs a path measure, identifies a marginal of `mehlerPathMeasure` or proves reflection
+positivity.
+
 # What Is Verified, and What Is Open
 
 Four honest boundaries delimit this chapter.

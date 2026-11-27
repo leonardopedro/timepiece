@@ -18,10 +18,11 @@ import BookProof.OSReconstruction.EuclideanMomentHierarchy
 import BookProof.OSReconstruction.EuclideanMehlerCalibration
 import BookProof.OSReconstruction.GaussianBlockCoarseDensity
 import BookProof.OSReconstruction.GaussianChainScales
+import BookProof.OSReconstruction.ChapterTrotterProduct
 import BookProof.OSReconstruction.HalfSpaceInteractingReflectionPositivity
 import BookProof.RoadmapAudit.AxiomAudit
 
-open BookProof.OSReconstruction
+open BookProof.OSReconstruction BookProof.TrotterProduct
 
 #audit_axioms euclidEvol_zero
 #audit_axioms commute_euclidEvol
@@ -499,3 +500,13 @@ hide behind the theorems' reports.
 #audit_axioms shellMoment_wick
 #audit_axioms cumulant_shellMoment_eq_zero
 #audit_axioms cumulant_seven_eq_zero
+
+/-! ## H2: the bounded Euclidean Lie–Trotter product formula -/
+
+#audit_axioms norm_exp_le
+#audit_axioms hasSum_exp_norm
+#audit_axioms norm_exp_sub_one_sub_id_le
+#audit_axioms norm_pow_sub_pow_le
+#audit_axioms trotter_product_tendsto
+#audit_axioms trotter_product_of_commute
+#audit_axioms trotter_heat_tendsto
