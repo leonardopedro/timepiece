@@ -80,12 +80,18 @@ scale-indexed:
   there is a threshold `M > 0` with `shellTailLaw n c d M ≤ ε` at *every* number of scales `n`;
 * `shellLaw_eq_productGauss`, `integral_shellLaw_prod_coord` — the reference law is the product
   Gaussian of `GaussianMoments`, and the multiplicity factorisation read at a tuple of sites;
-* `exists_odd_card_fiber_three`, `integral_pow_odd_blockUnit`, `integral_shellLaw_coord_three` —
-  **the three-point function vanishes**, because three sites cannot all occur an even number of
-  times;
+* `integral_shellLaw_prod_coord_eq_wickSum`, `integral_shellLaw_prod_coord_odd`,
+  `integral_shellLaw_prod_coord_even` — the multiplicity factorisation in **Wick form, uniformly
+  in the number of fields**: at every `M` the moment is the weighted pairing sum, the odd-`M`
+  moments vanish, and the even-`M` moments are the sum over the pairings;
+* `exists_odd_card_fiber_three`, `integral_pow_odd_blockUnit`, `integral_shellLaw_coord_three`,
+  `integral_shellLaw_coord_five` — **the three- and five-point functions vanish**, because an odd
+  number of sites cannot all occur an even number of times;
 * `pairingSet_four`, `wickSum_four`, `integral_shellLaw_coord_four` — **the four-point function is
-  the sum over the three pairings**, `E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`,
-  by Isserlis' theorem on the product Gaussian.
+  the sum over the three pairings**, `E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`;
+* `pairingSet_six`, `pairingSet_six_card`, `wickSum_six`, `integral_shellLaw_coord_six` — **the
+  six-point function is the sum over the fifteen pairings**, the `3 · 5 · 1` perfect matchings of
+  six sites, by Isserlis' theorem on the product Gaussian.
 
 ## Boundary
 
@@ -112,10 +118,10 @@ scale-indexed:
   law-level form (`shellTailLaw_le_inv`, `exists_shellTailLaw_le`) is the tightness packet at the
   end of this file, which starts C3e; no limiting law and no correlation estimate is proved.
   The only multi-point functions here are those of the *reference* law
-  (`integral_shellLaw_coord_three`, `integral_shellLaw_coord_four`), and they are Isserlis for
-  independent unit Gaussians: they say nothing about the interacting theory, no cluster or
-  connected-correlation statement is derived from them, and they are moments, not a
-  characterisation of Gaussianity.
+  (`integral_shellLaw_coord_three` through `integral_shellLaw_coord_six`, and the uniform Wick
+  lemmas behind them), and they are Isserlis for independent unit Gaussians: they say nothing
+  about the interacting theory, no cluster or connected-correlation statement is derived from
+  them, and they are moments, not a characterisation of Gaussianity.
 * `shellDensity` is *defined* as the `n`-fold iterated partial integral: it integrates the first
   `n` coordinates at fixed value of the last one.  The **tower identity** `∫ y, shellDensity n f y
   ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)` *is* proved, but only for measurable **bounded**
@@ -2261,30 +2267,41 @@ theorem integral_shellLaw_prod_coord_pow (m : ℕ) (e : Fin m → ℕ) :
     (f := fun i z => z ^ (e i))
   simpa only [shellLaw] using h
 
-/-! ## The three- and four-point functions of the reference law
+/-! ## The three- to six-point functions of the reference law, uniformly in the fields
 
 `shellLaw m` *is* Mathlib's product Gaussian on `Fin m → ℝ`, read through `blockUnit`, so Isserlis'
 theorem on that product (`GaussianMoments`) computes every higher moment of the reference law.  This
-section makes the two computations the Gaussianity statements of the plan ask for.
+section makes those computations the Gaussianity statements of the plan ask for.  The two general
+statements come first and are uniform in the number of fields; the low moments are instances.
 
 * `integral_shellLaw_prod_coord` — the multiplicity factorisation indexed by *sites*: a product of
   `M` coordinate values integrates to the product, over sites, of the one-dimensional moments of the
   multiplicities.  `integral_shellLaw_prod_coord_pow` above is the same statement written with an
   exponent vector instead of a tuple of indices.
-* `integral_shellLaw_coord_three` — the three-point function vanishes: three sites cannot all occur
-  an even number of times, so some factor is the integral of an odd power.
+* `integral_shellLaw_prod_coord_eq_wickSum`, `integral_shellLaw_prod_coord_odd`,
+  `integral_shellLaw_prod_coord_even` — the same factorisation in Wick form, **for every `M`**: the
+  product of one-dimensional moments is the weighted pairing sum with the identity-contraction
+  weight (`wickSum_identity_eq_prod_doubleFactorial`), the pairing set is empty for odd `M`
+  (`pairingSet_univ_odd`), and for even `M` it is the full pairing set (`pairingSet_univ_even`).
+  Pairings are oriented by their smaller member, the convention of the matching sums in the QYM
+  developments.
+* `integral_shellLaw_coord_three`, `integral_shellLaw_coord_five` — the odd moments vanish: three
+  or five sites cannot all occur an even number of times, so some factor is the integral of an odd
+  power.
 * `integral_shellLaw_coord_four` — the four-point function is the sum over the three pairings,
-  `δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`.  The derivation runs through the multiplicity product: the
-  product of one-dimensional moments is identified with the pairing sum by
-  `wickSum_identity_eq_prod_doubleFactorial`, and the pairing sum over four sites is evaluated by
-  listing the three pairings of `Fin 4` (`pairingSet_four`, then `wickSum_four`).
+  `δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`.  The pairing sum over four sites is evaluated by listing
+  the three pairings of `Fin 4` (`pairingSet_four`, then `wickSum_four`).
+* `integral_shellLaw_coord_six` — the six-point function is the sum over the fifteen pairings.  The
+  fifteen perfect matchings of `Fin 6` are listed (`pairingSet_six`), counted
+  (`pairingSet_six_card`), evaluated contraction by contraction (`pairingProdSix01` through
+  `pairingProdSix15`, summed by `wickSum_six`) and read on the six indices.
 
-**Boundary.** These are the moments of *this* reference law.  `integral_shellLaw_coord_four` is
-Isserlis' theorem for the covariance `1`, not a Gaussianity criterion: nothing here says a law with
-these three- and four-point functions is Gaussian, and no five- or higher-point function, cumulant
-or connected correlation is computed.  The multiplicities are discharged by `decide` on the
-concrete index types `Fin 3` and `Fin 4`; the general-`M` Wick recursion lives in `GaussianMoments`
-and is not restated on `shellLaw`.
+**Boundary.** These are the moments of *this* reference law.  `integral_shellLaw_coord_four` and
+`integral_shellLaw_coord_six` are Isserlis' theorem for the covariance `1`, not a Gaussianity
+criterion: nothing here says a law with these moments is Gaussian, and no cumulant or connected
+correlation is computed.  The general-`M` statements are uniform in the number of fields, but the
+per-pairing evaluation at four and six sites is discharged by `decide` on the concrete index types
+`Fin 4` and `Fin 6`; no closed form for the pairing count at arbitrary `M` is derived here.
 -/
 
 /-- The reference law is the product Gaussian of `GaussianMoments`: the same `Measure.pi` of `m`
@@ -2423,6 +2440,318 @@ theorem integral_shellLaw_coord_four (m : ℕ) (i j k l : Fin m) :
       simpa only [blockUnit] using integral_pow_gaussianReal_one_moment
         (Fintype.card {t : Fin 4 // g t = a})]
   rw [← wickSum_identity_eq_prod_doubleFactorial g, wickSum_four]
+  simp [g]
+
+/-- **The Wick form of the multiplicity factorisation, uniformly in the number of fields**: for an
+arbitrary tuple of `M` sites the moment is the weighted pairing sum with the identity-contraction
+weight.  `M` is not fixed: the same statement covers every number of fields. -/
+theorem integral_shellLaw_prod_coord_eq_wickSum {m M : ℕ} (f : Fin M → Fin m) :
+    ∫ p : Fin m → ℝ, ∏ t, p (f t) ∂shellLaw m
+      = wickSum (fun a b => if f a = f b then (1 : ℝ) else 0) Finset.univ := by
+  rw [integral_shellLaw_prod_coord]
+  rw [show (∏ a, ∫ z, z ^ (Fintype.card {t : Fin M // f t = a}) ∂blockUnit)
+      = ∏ a, if Even (Fintype.card {t : Fin M // f t = a})
+          then (Nat.doubleFactorial (Fintype.card {t : Fin M // f t = a} - 1) : ℝ) else 0 from
+    Finset.prod_congr rfl fun a _ => by
+      simpa only [blockUnit] using integral_pow_gaussianReal_one_moment
+        (Fintype.card {t : Fin M // f t = a})]
+  rw [← wickSum_identity_eq_prod_doubleFactorial f]
+
+/-- **Odd moments vanish, uniformly in the number of fields**: with `2 * k + 1` sites the pairing
+set is empty, so the weighted pairing sum — hence the moment — is zero for every `k`. -/
+theorem integral_shellLaw_prod_coord_odd {m k : ℕ} (f : Fin (2 * k + 1) → Fin m) :
+    ∫ p : Fin m → ℝ, ∏ t, p (f t) ∂shellLaw m = 0 := by
+  rw [integral_shellLaw_prod_coord_eq_wickSum, wickSum, pairingSet_univ_odd, Finset.sum_empty]
+
+/-- **Isserlis' theorem for the reference law, uniformly in the number of fields**: with `2 * k`
+sites the moment is the sum over the pairings of those sites, with the identity-contraction weight.
+This is the even partner of `integral_shellLaw_prod_coord_odd`, again at every `k`. -/
+theorem integral_shellLaw_prod_coord_even {m k : ℕ} (f : Fin (2 * k) → Fin m) :
+    ∫ p : Fin m → ℝ, ∏ t, p (f t) ∂shellLaw m
+      = ∑ σ ∈ pairings (2 * k),
+          ∏ a ∈ Finset.univ.filter (fun a : Fin (2 * k) => a < σ a),
+            (if f a = f (σ a) then (1 : ℝ) else 0) := by
+  rw [integral_shellLaw_prod_coord_eq_wickSum, wickSum, pairingSet_univ_even]
+
+/-- **The five-point function vanishes**: five sites cannot all occur an even number of times, so
+the odd-`M` form of the uniform Wick theorem applies. -/
+theorem integral_shellLaw_coord_five (m : ℕ) (i j k l r : Fin m) :
+    ∫ p : Fin m → ℝ, p i * p j * p k * p l * p r ∂shellLaw m = 0 := by
+  classical
+  set g : Fin 5 → Fin m := ![i, j, k, l, r] with hg
+  have hprod : ∀ p : Fin m → ℝ, p i * p j * p k * p l * p r = ∏ t, p (g t) := by
+    intro p
+    rw [Fin.prod_univ_five]
+    simp [g]
+  rw [show (∫ p : Fin m → ℝ, p i * p j * p k * p l * p r ∂shellLaw m)
+      = ∫ p : Fin m → ℝ, ∏ t, p (g t) ∂shellLaw m from
+    integral_congr_ae (Eventually.of_forall hprod)]
+  exact integral_shellLaw_prod_coord_odd (k := 2) g
+
+/-- The pairing `(0 1)(2 3)(4 5)` of six sites. -/
+def pairingSix01 : Equiv.Perm (Fin 6) := Equiv.swap 0 1 * Equiv.swap 2 3 * Equiv.swap 4 5
+
+/-- The pairing `(0 1)(2 4)(3 5)` of six sites. -/
+def pairingSix02 : Equiv.Perm (Fin 6) := Equiv.swap 0 1 * Equiv.swap 2 4 * Equiv.swap 3 5
+
+/-- The pairing `(0 1)(2 5)(3 4)` of six sites. -/
+def pairingSix03 : Equiv.Perm (Fin 6) := Equiv.swap 0 1 * Equiv.swap 2 5 * Equiv.swap 3 4
+
+/-- The pairing `(0 2)(1 3)(4 5)` of six sites. -/
+def pairingSix04 : Equiv.Perm (Fin 6) := Equiv.swap 0 2 * Equiv.swap 1 3 * Equiv.swap 4 5
+
+/-- The pairing `(0 2)(1 4)(3 5)` of six sites. -/
+def pairingSix05 : Equiv.Perm (Fin 6) := Equiv.swap 0 2 * Equiv.swap 1 4 * Equiv.swap 3 5
+
+/-- The pairing `(0 2)(1 5)(3 4)` of six sites. -/
+def pairingSix06 : Equiv.Perm (Fin 6) := Equiv.swap 0 2 * Equiv.swap 1 5 * Equiv.swap 3 4
+
+/-- The pairing `(0 3)(1 2)(4 5)` of six sites. -/
+def pairingSix07 : Equiv.Perm (Fin 6) := Equiv.swap 0 3 * Equiv.swap 1 2 * Equiv.swap 4 5
+
+/-- The pairing `(0 3)(1 4)(2 5)` of six sites. -/
+def pairingSix08 : Equiv.Perm (Fin 6) := Equiv.swap 0 3 * Equiv.swap 1 4 * Equiv.swap 2 5
+
+/-- The pairing `(0 3)(1 5)(2 4)` of six sites. -/
+def pairingSix09 : Equiv.Perm (Fin 6) := Equiv.swap 0 3 * Equiv.swap 1 5 * Equiv.swap 2 4
+
+/-- The pairing `(0 4)(1 2)(3 5)` of six sites. -/
+def pairingSix10 : Equiv.Perm (Fin 6) := Equiv.swap 0 4 * Equiv.swap 1 2 * Equiv.swap 3 5
+
+/-- The pairing `(0 4)(1 3)(2 5)` of six sites. -/
+def pairingSix11 : Equiv.Perm (Fin 6) := Equiv.swap 0 4 * Equiv.swap 1 3 * Equiv.swap 2 5
+
+/-- The pairing `(0 4)(1 5)(2 3)` of six sites. -/
+def pairingSix12 : Equiv.Perm (Fin 6) := Equiv.swap 0 4 * Equiv.swap 1 5 * Equiv.swap 2 3
+
+/-- The pairing `(0 5)(1 2)(3 4)` of six sites. -/
+def pairingSix13 : Equiv.Perm (Fin 6) := Equiv.swap 0 5 * Equiv.swap 1 2 * Equiv.swap 3 4
+
+/-- The pairing `(0 5)(1 3)(2 4)` of six sites. -/
+def pairingSix14 : Equiv.Perm (Fin 6) := Equiv.swap 0 5 * Equiv.swap 1 3 * Equiv.swap 2 4
+
+/-- The pairing `(0 5)(1 4)(2 3)` of six sites. -/
+def pairingSix15 : Equiv.Perm (Fin 6) := Equiv.swap 0 5 * Equiv.swap 1 4 * Equiv.swap 2 3
+
+/-- **The pairings of six sites, listed**: the fifteen ways to split `{0, 1, 2, 3, 4, 5}` into
+three pairs, in the order of their smallest elements.  This is what makes the six-point pairing sum
+a sum of fifteen explicit terms. -/
+theorem pairingSet_six :
+    pairingSet (Finset.univ : Finset (Fin 6))
+      = {pairingSix01, pairingSix02, pairingSix03, pairingSix04, pairingSix05, pairingSix06,
+          pairingSix07, pairingSix08, pairingSix09, pairingSix10, pairingSix11, pairingSix12,
+          pairingSix13, pairingSix14, pairingSix15} := by
+  decide
+
+/-- **There are fifteen pairings of six sites**: `5 · 3 · 1`.  This is the count behind the
+fifteen-term six-point sum. -/
+theorem pairingSet_six_card : (pairingSet (Finset.univ : Finset (Fin 6))).card = 15 := by
+  rw [pairingSet_six]
+  decide
+
+theorem pairingProdSix01 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix01 x), c x (pairingSix01 x))
+      = c 0 1 * c 2 3 * c 4 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix01 x) = {0, 2, 4} from by decide]
+  have h0 : pairingSix01 0 = 1 := by decide
+  have h2 : pairingSix01 2 = 3 := by decide
+  have h4 : pairingSix01 4 = 5 := by decide
+  simp [h0, h2, h4]
+  ring
+
+theorem pairingProdSix02 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix02 x), c x (pairingSix02 x))
+      = c 0 1 * c 2 4 * c 3 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix02 x) = {0, 2, 3} from by decide]
+  have h0 : pairingSix02 0 = 1 := by decide
+  have h2 : pairingSix02 2 = 4 := by decide
+  have h3 : pairingSix02 3 = 5 := by decide
+  simp [h0, h2, h3]
+  ring
+
+theorem pairingProdSix03 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix03 x), c x (pairingSix03 x))
+      = c 0 1 * c 2 5 * c 3 4 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix03 x) = {0, 2, 3} from by decide]
+  have h0 : pairingSix03 0 = 1 := by decide
+  have h2 : pairingSix03 2 = 5 := by decide
+  have h3 : pairingSix03 3 = 4 := by decide
+  simp [h0, h2, h3]
+  ring
+
+theorem pairingProdSix04 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix04 x), c x (pairingSix04 x))
+      = c 0 2 * c 1 3 * c 4 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix04 x) = {0, 1, 4} from by decide]
+  have h0 : pairingSix04 0 = 2 := by decide
+  have h1 : pairingSix04 1 = 3 := by decide
+  have h4 : pairingSix04 4 = 5 := by decide
+  simp [h0, h1, h4]
+  ring
+
+theorem pairingProdSix05 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix05 x), c x (pairingSix05 x))
+      = c 0 2 * c 1 4 * c 3 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix05 x) = {0, 1, 3} from by decide]
+  have h0 : pairingSix05 0 = 2 := by decide
+  have h1 : pairingSix05 1 = 4 := by decide
+  have h3 : pairingSix05 3 = 5 := by decide
+  simp [h0, h1, h3]
+  ring
+
+theorem pairingProdSix06 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix06 x), c x (pairingSix06 x))
+      = c 0 2 * c 1 5 * c 3 4 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix06 x) = {0, 1, 3} from by decide]
+  have h0 : pairingSix06 0 = 2 := by decide
+  have h1 : pairingSix06 1 = 5 := by decide
+  have h3 : pairingSix06 3 = 4 := by decide
+  simp [h0, h1, h3]
+  ring
+
+theorem pairingProdSix07 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix07 x), c x (pairingSix07 x))
+      = c 0 3 * c 1 2 * c 4 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix07 x) = {0, 1, 4} from by decide]
+  have h0 : pairingSix07 0 = 3 := by decide
+  have h1 : pairingSix07 1 = 2 := by decide
+  have h4 : pairingSix07 4 = 5 := by decide
+  simp [h0, h1, h4]
+  ring
+
+theorem pairingProdSix08 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix08 x), c x (pairingSix08 x))
+      = c 0 3 * c 1 4 * c 2 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix08 x) = {0, 1, 2} from by decide]
+  have h0 : pairingSix08 0 = 3 := by decide
+  have h1 : pairingSix08 1 = 4 := by decide
+  have h2 : pairingSix08 2 = 5 := by decide
+  simp [h0, h1, h2]
+  ring
+
+theorem pairingProdSix09 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix09 x), c x (pairingSix09 x))
+      = c 0 3 * c 1 5 * c 2 4 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix09 x) = {0, 1, 2} from by decide]
+  have h0 : pairingSix09 0 = 3 := by decide
+  have h1 : pairingSix09 1 = 5 := by decide
+  have h2 : pairingSix09 2 = 4 := by decide
+  simp [h0, h1, h2]
+  ring
+
+theorem pairingProdSix10 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix10 x), c x (pairingSix10 x))
+      = c 0 4 * c 1 2 * c 3 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix10 x) = {0, 1, 3} from by decide]
+  have h0 : pairingSix10 0 = 4 := by decide
+  have h1 : pairingSix10 1 = 2 := by decide
+  have h3 : pairingSix10 3 = 5 := by decide
+  simp [h0, h1, h3]
+  ring
+
+theorem pairingProdSix11 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix11 x), c x (pairingSix11 x))
+      = c 0 4 * c 1 3 * c 2 5 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix11 x) = {0, 1, 2} from by decide]
+  have h0 : pairingSix11 0 = 4 := by decide
+  have h1 : pairingSix11 1 = 3 := by decide
+  have h2 : pairingSix11 2 = 5 := by decide
+  simp [h0, h1, h2]
+  ring
+
+theorem pairingProdSix12 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix12 x), c x (pairingSix12 x))
+      = c 0 4 * c 1 5 * c 2 3 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix12 x) = {0, 1, 2} from by decide]
+  have h0 : pairingSix12 0 = 4 := by decide
+  have h1 : pairingSix12 1 = 5 := by decide
+  have h2 : pairingSix12 2 = 3 := by decide
+  simp [h0, h1, h2]
+  ring
+
+theorem pairingProdSix13 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix13 x), c x (pairingSix13 x))
+      = c 0 5 * c 1 2 * c 3 4 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix13 x) = {0, 1, 3} from by decide]
+  have h0 : pairingSix13 0 = 5 := by decide
+  have h1 : pairingSix13 1 = 2 := by decide
+  have h3 : pairingSix13 3 = 4 := by decide
+  simp [h0, h1, h3]
+  ring
+
+theorem pairingProdSix14 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix14 x), c x (pairingSix14 x))
+      = c 0 5 * c 1 3 * c 2 4 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix14 x) = {0, 1, 2} from by decide]
+  have h0 : pairingSix14 0 = 5 := by decide
+  have h1 : pairingSix14 1 = 3 := by decide
+  have h2 : pairingSix14 2 = 4 := by decide
+  simp [h0, h1, h2]
+  ring
+
+theorem pairingProdSix15 (c : Fin 6 → Fin 6 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 6 => x < pairingSix15 x), c x (pairingSix15 x))
+      = c 0 5 * c 1 4 * c 2 3 := by
+  rw [show Finset.univ.filter (fun x : Fin 6 => x < pairingSix15 x) = {0, 1, 2} from by decide]
+  have h0 : pairingSix15 0 = 5 := by decide
+  have h1 : pairingSix15 1 = 4 := by decide
+  have h2 : pairingSix15 2 = 3 := by decide
+  simp [h0, h1, h2]
+  ring
+
+/-- **Isserlis' six-point sum, evaluated**: over six sites the weighted pairing sum is the sum of
+the fifteen contractions, one per pairing of `{0, …, 5}`. -/
+theorem wickSum_six (c : Fin 6 → Fin 6 → ℝ) :
+    wickSum c (Finset.univ : Finset (Fin 6))
+      = c 0 1 * c 2 3 * c 4 5 + c 0 1 * c 2 4 * c 3 5 + c 0 1 * c 2 5 * c 3 4
+        + c 0 2 * c 1 3 * c 4 5 + c 0 2 * c 1 4 * c 3 5 + c 0 2 * c 1 5 * c 3 4
+        + c 0 3 * c 1 2 * c 4 5 + c 0 3 * c 1 4 * c 2 5 + c 0 3 * c 1 5 * c 2 4
+        + c 0 4 * c 1 2 * c 3 5 + c 0 4 * c 1 3 * c 2 5 + c 0 4 * c 1 5 * c 2 3
+        + c 0 5 * c 1 2 * c 3 4 + c 0 5 * c 1 3 * c 2 4 + c 0 5 * c 1 4 * c 2 3 := by
+  rw [wickSum, pairingSet_six]
+  rw [Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_singleton]
+  rw [pairingProdSix01, pairingProdSix02, pairingProdSix03, pairingProdSix04,
+    pairingProdSix05, pairingProdSix06, pairingProdSix07, pairingProdSix08,
+    pairingProdSix09, pairingProdSix10, pairingProdSix11, pairingProdSix12,
+    pairingProdSix13, pairingProdSix14, pairingProdSix15]
+  ring
+
+/-- **The six-point function**: `E[p_i p_j p_k p_l p_r p_s]` is the sum of the fifteen pairings,
+`Σ δ_ab δ_cd δ_ef` over the perfect matchings of the six indices. -/
+theorem integral_shellLaw_coord_six (m : ℕ) (i j k l r s : Fin m) :
+    ∫ p : Fin m → ℝ, p i * p j * p k * p l * p r * p s ∂shellLaw m
+      = (if i = j then 1 else 0) * (if k = l then 1 else 0) * (if r = s then 1 else 0)
+        + (if i = j then 1 else 0) * (if k = r then 1 else 0) * (if l = s then 1 else 0)
+        + (if i = j then 1 else 0) * (if k = s then 1 else 0) * (if l = r then 1 else 0)
+        + (if i = k then 1 else 0) * (if j = l then 1 else 0) * (if r = s then 1 else 0)
+        + (if i = k then 1 else 0) * (if j = r then 1 else 0) * (if l = s then 1 else 0)
+        + (if i = k then 1 else 0) * (if j = s then 1 else 0) * (if l = r then 1 else 0)
+        + (if i = l then 1 else 0) * (if j = k then 1 else 0) * (if r = s then 1 else 0)
+        + (if i = l then 1 else 0) * (if j = r then 1 else 0) * (if k = s then 1 else 0)
+        + (if i = l then 1 else 0) * (if j = s then 1 else 0) * (if k = r then 1 else 0)
+        + (if i = r then 1 else 0) * (if j = k then 1 else 0) * (if l = s then 1 else 0)
+        + (if i = r then 1 else 0) * (if j = l then 1 else 0) * (if k = s then 1 else 0)
+        + (if i = r then 1 else 0) * (if j = s then 1 else 0) * (if k = l then 1 else 0)
+        + (if i = s then 1 else 0) * (if j = k then 1 else 0) * (if l = r then 1 else 0)
+        + (if i = s then 1 else 0) * (if j = l then 1 else 0) * (if k = r then 1 else 0)
+        + (if i = s then 1 else 0) * (if j = r then 1 else 0) * (if k = l then 1 else 0) := by
+  classical
+  set g : Fin 6 → Fin m := ![i, j, k, l, r, s] with hg
+  have hprod : ∀ p : Fin m → ℝ, p i * p j * p k * p l * p r * p s = ∏ t, p (g t) := by
+    intro p
+    rw [Fin.prod_univ_six]
+    simp [g]
+  rw [show (∫ p : Fin m → ℝ, p i * p j * p k * p l * p r * p s ∂shellLaw m)
+      = ∫ p : Fin m → ℝ, ∏ t, p (g t) ∂shellLaw m from
+    integral_congr_ae (Eventually.of_forall hprod),
+    integral_shellLaw_prod_coord_eq_wickSum, wickSum_six]
   simp [g]
 
 end BookProof.OSReconstruction

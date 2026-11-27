@@ -405,3 +405,29 @@ hide behind the theorems' reports.
 #audit_axioms exists_odd_card_fiber_three
 #audit_axioms integral_shellLaw_coord_three
 #audit_axioms integral_shellLaw_coord_four
+
+/-! ## C3j: the five- and six-point functions, uniformly in the number of fields -/
+
+#audit_axioms integral_shellLaw_prod_coord_eq_wickSum
+#audit_axioms integral_shellLaw_prod_coord_odd
+#audit_axioms integral_shellLaw_prod_coord_even
+#audit_axioms integral_shellLaw_coord_five
+#audit_axioms pairingSet_six
+#audit_axioms pairingSet_six_card
+#audit_axioms pairingProdSix01
+#audit_axioms pairingProdSix02
+#audit_axioms pairingProdSix03
+#audit_axioms pairingProdSix04
+#audit_axioms pairingProdSix05
+#audit_axioms pairingProdSix06
+#audit_axioms pairingProdSix07
+#audit_axioms pairingProdSix08
+#audit_axioms pairingProdSix09
+#audit_axioms pairingProdSix10
+#audit_axioms pairingProdSix11
+#audit_axioms pairingProdSix12
+#audit_axioms pairingProdSix13
+#audit_axioms pairingProdSix14
+#audit_axioms pairingProdSix15
+#audit_axioms wickSum_six
+#audit_axioms integral_shellLaw_coord_six

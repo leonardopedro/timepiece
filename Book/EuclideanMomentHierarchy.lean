@@ -770,10 +770,52 @@ integral_shellLaw_coord_three :
     E[p_i p_j p_k] = 0
 ```
 
+The same factorization does not stop at four fields, and the statements above are instances of one
+theorem stated for an arbitrary number of them. Reading the multiplicity product as a weighted sum
+over pairings gives the moment at *every* tuple of sites: odd tuples have no pairing to sum over,
+even tuples sum over all of them, and the number of fields is a parameter rather than a case:
+
+```
+integral_shellLaw_prod_coord_eq_wickSum :
+    E[∏_t p_(f t)] = wickSum (fun a b => if f a = f b then 1 else 0) univ
+integral_shellLaw_prod_coord_odd :
+    E[∏_t p_(f t)] = 0                            (2k+1 sites)
+integral_shellLaw_prod_coord_even :
+    E[∏_t p_(f t)] = sum over the pairings            (2k sites)
+```
+
+The five-point function is the odd case at `k = 2`, and it vanishes for the same reason the
+three-point function does — five sites cannot all occur an even number of times:
+
+```
+integral_shellLaw_coord_five :
+    E[p_i p_j p_k p_l p_r] = 0
+```
+
+The six-point function is the even case at `k = 3`, where the pairings of six sites are fifteen —
+`5 · 3 · 1`, the perfect matchings of `{0, …, 5}` — listed, counted, and evaluated contraction by
+contraction:
+
+```
+pairingSet_six      : the fifteen pairings of Fin 6, listed
+pairingSet_six_card : 15 pairings
+wickSum_six         : the pairing sum is the fifteen contractions
+integral_shellLaw_coord_six :
+    E[p_i p_j p_k p_l p_r p_s] = sum of δ_ab δ_cd δ_ef over the fifteen pairings
+```
+
+Each contraction is read exactly as in the four-point case: the filter `{a | a < σ a}` orients every
+pair by its smaller member, and the product over the filter is the product of the three
+contractions. This is the shape of a matching sum — perfect matchings, oriented by their smaller
+member — and it is the same presentation the QYM developments use for their `Matching` and `corners`
+constructions.
+
 What stays open is not these moments but their converse. `integral_shellLaw_coord_four` is
 Isserlis' theorem for the covariance `1`: it computes the four-point function of *this* law, and
-nothing in the module shows that a law with these three- and four-point functions is Gaussian, or
-computes a cumulant, a connected correlation, or any moment above the fourth. So Gaussianity as a
+nothing in the module shows that a law with these moments is Gaussian, or computes a cumulant, a
+connected correlation, or any moment above the sixth. The general statements are uniform in the
+number of fields, but the per-pairing evaluation at four and six sites is a finite computation, so
+no closed form for the number of pairings at arbitrary `M` is derived here. So Gaussianity as a
 property of a limit law is still unproved; only its first few consequences are.
 
 Two honest qualifications belong here rather than in a footnote. First, the flow is a

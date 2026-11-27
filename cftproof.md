@@ -3567,3 +3567,63 @@ to completion on this tree; the Gaussian chain module and the audit are independ
 `lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
 all eleven new declarations (304 rows in the ledger). `./patches/build-book.sh` under
 `nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
+
+**Landed 2026-11-27, seventeenth slice: the five- and six-point functions, uniformly in the
+number of fields (C3j).** The sixteenth slice closed the `δ`-form of the four-point function but
+named three things as still open: a five-point function, a moment above the fourth, and the
+general-`M` Wick recursion "on `shellLaw` itself" (it lived only in `GaussianMoments`, on
+`productGauss`). This slice closes all three in one step, because the right object is not the
+five-point or the six-point function but the moment at an *arbitrary* tuple of sites. Twenty-three
+declarations were added to the audit; all rest on standard axioms.
+
+* **The uniform statement, first.** `integral_shellLaw_prod_coord_eq_wickSum`: for every
+  `f : Fin M → Fin m`,
+  `∫ p, ∏ t, p (f t) = wickSum (fun a b ↦ if f a = f b then 1 else 0) univ`.
+  The multiplicity product of `integral_shellLaw_prod_coord` is turned into the pairing sum by
+  `wickSum_identity_eq_prod_doubleFactorial` in one rewrite; `M` is a parameter, so the theorem is
+  uniform in the number of fields and neither the five-point nor the six-point case is a separate
+  computation.
+* **Both parities, from the pairing set.** `integral_shellLaw_prod_coord_odd`
+  (`f : Fin (2k+1) → Fin m`) is zero because `pairingSet_univ_odd` says the pairing set of an odd
+  number of sites is empty, and `integral_shellLaw_prod_coord_even` (`f : Fin (2k) → Fin m`) is the
+  sum over `pairings (2k)` because `pairingSet_univ_even` says the pairing set is the full one. Both
+  are the same one-line rewriting of the uniform Wick form; neither re-proves a moment.
+* **The five-point function.** `integral_shellLaw_coord_five`:
+  `E[p_i p_j p_k p_l p_r] = 0`. It is the odd case at `k = 2` after `Fin.prod_univ_five` reads
+  `p_i p_j p_k p_l p_r` as `∏ t, p (![i, j, k, l, r] t)`. No parity argument over multiplicities is
+  repeated: the vanishing is the emptiness of the pairing set.
+* **The six-point function.** `integral_shellLaw_coord_six`:
+  `E[p_i p_j p_k p_l p_r p_s] = δ_ij δ_kl δ_rs + … (fifteen terms)`. It is the even case at
+  `k = 3`. The pairings of six sites are the fifteen perfect matchings of `{0, …, 5}` — `5 · 3 · 1`
+  — and the slice uses the same route as at four sites: `pairingSet_six` lists the fifteen
+  permutations (`pairingSix01` … `pairingSix15`, products of three disjoint swaps, checked by
+  `decide`), `pairingSet_six_card` records the count `15`, `pairingProdSix01` … `pairingProdSix15`
+  evaluate each filtered product to its three contractions, `wickSum_six` sums the fifteen terms,
+  and substituting `f = ![i, j, k, l, r, s]` turns each contraction into a `δ`. The orientation
+  filter `{a | a < σ a}` is the one used at four sites.
+* **Reference cross-check.** The two QYM developments were consulted for the convention in which a
+  pairing is a perfect matching and each pair is oriented by its smaller member:
+  `../OpenAI-YM-20261028/YM/Push/STRESS_FLUX/Pairing.lean` proves its two-point contractions by
+  summing over matchings of `Occ` oriented by `corners`, and
+  `../OpenAI-YM-20261104/lean/YM/Maxwell/Wick.lean` gives the general `Matching`/`corners`/`graph`
+  presentation, `∑ over matchings of ∏ over corners`. This slice's `pairingSet`/`filter (a < σ a)`
+  is the same shape, and the fifteen-term sum is the `n = 6` instance of it. Those developments do
+  not contain a Gaussian-moment theorem, so nothing is imported or reused from them; the reference
+  is for the matching convention, not for a proof.
+
+Boundary of this seventeenth slice: **the moments are still those of the reference law, and the
+uniformity stops where the combinatorics is evaluated.** The odd/even and pairing-sum statements
+are uniform in `M`, but the per-pairing evaluation at four and six sites is a finite `decide`
+computation on `Fin 4` and `Fin 6`; no closed form for the number of pairings at arbitrary `M`
+(e.g. `(M-1)‼` on `shellLaw`) is derived, and no `M`-uniform algorithm for the `δ`-form is
+extracted. The six-point display is fifteen explicit contractions rather than a single indexed
+formula. There is still no cumulant, connected correlation, clustered moment, or Gaussianity
+criterion: Isserlis for covariance `1` computes the moments of *this* product law and says nothing
+about a law merely having them, and no interacting-theory statement follows. C3a–C3d, the
+half-space inequality, the OS reconstruction theorem and every field law are unchanged.
+
+**Verification.** `lake env lean BookProof/OSReconstruction/GaussianChainScales.lean` is clean and
+`lake build BookProof.OSReconstruction.GaussianChainScales` succeeds (8028 jobs).
+`lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
+all twenty-three new declarations (327 rows in the ledger). `./patches/build-book.sh` under
+`nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
