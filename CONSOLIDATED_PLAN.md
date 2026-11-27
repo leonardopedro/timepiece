@@ -21,6 +21,17 @@
 > **skew-adjoint** — the 2026-11-26d reduction is now closed.  The only remaining input is the
 > L² realisation of `U(t)`.
 >
+> **QYM entry (2026-11-26i):** “2026-11-26i — QYM: the residual colour rotation as an
+> exponential flow” (end of file).  `ChapterYangMillsGaussRotationFlow` builds the flow the
+> earlier entry left as a hypothesis: the matrix `gaussMat` of the linear Gauss field
+> (`ymGaussVec_eq_sum_gaussMat`), its antisymmetry from `Σ_m x_m v_m = 0`
+> (`gaussMat_antisymm`), the exponential `gaussFlow t = exp (t • gaussMat)` with group law,
+> orthogonality and derivative (`gaussFlow_add`, `gaussFlow_transpose_mul`,
+> `gaussFlow_mulVec_hasDerivAt`), and its action on `L²(ℝ⁹⁹)` as a linear isometry of norm
+> `≤ 1`, the identity at `0`, acting as `rotPoly` on the core and preserving it
+> (`gaussFlowOp`, `gaussFlowOp_pgLp`, `gaussFlowOp_mem_domain`).  The only input left is the
+> single generator identity `d/dt (U t v) = 𝒢_d (U t v)`.
+>
 > **QYM entry (2026-11-26g):** “2026-11-26g — QYM: the closed Hamiltonian and the
 > charge on domains” (end of file).  `ChapterYangMillsGaussHamiltonianDomain` carries the
 > 2026-11-26e commutation off the core onto the domains twice over: unconditionally for a
@@ -28513,3 +28524,47 @@ step is a lower bound or resolvent-tail estimate stable under spatial enlargemen
 and local Gauss reduction. Widening the unreduced spatial profiles by $L$ and squeezing
 the seed amplitudes gives energy proportional to $1/L$ at fixed bare coupling. This
 rules out a width-independent positive floor within that family. [Stationary projection](BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean)
+
+## 2026-11-26i — QYM: the residual colour rotation as an exponential flow
+
+`BookProof/Qym/ChapterYangMillsGaussRotationFlow.lean` builds the `L²(ℝ⁹⁹)` flow that
+`ChapterYangMillsGaussFlow` (2026-11-26f) assumed and that `ChapterYangMillsGaussSkewAdjointDomain`
+(2026-11-26h) consumed for the deficiency computation.  The Gauss vector field
+`ymGaussVec G d m` is a finite sum of real multiples of the coordinates, so it has a matrix
+`gaussMat G d`; `ymGaussVec_eq_sum_gaussMat` is the identity `v_m = Σ_j M_{m j} x_j` in the
+polynomial ring, proved by reindexing each of the two index blocks (`block_eq`).  The identity
+`Σ_m x_m v_m = 0` (`sum_X_ymGaussVec`) reads as the vanishing of the quadratic form `xᵀ M x`,
+and its mixed second derivative is `M_{j m} + M_{m j}`
+(`pderiv_pderiv_quad`), so `gaussMat_antisymm` gives `Mᵀ = -M`.
+
+The generator's exponential `gaussFlow G d t = exp (t • gaussMat G d)` is then a one-parameter
+group of orthogonal matrices: `gaussFlow_zero`, `gaussFlow_add`
+(`exp_add_of_commute`), and `gaussFlow_transpose_mul` (`(E t)ᵀ * E t = 1`, from
+`exp_transpose`, antisymmetry and `exp (-A) * exp A = 1`).  Its matrix derivative is the
+generator (`gaussFlow_hasDerivAt`, `hasDerivAt_exp_smul_const'`), and on a fixed vector
+`gaussFlow_mulVec_hasDerivAt` computes `x'(t) = M *ᵥ (E t *ᵥ x)` entrywise.
+
+Composing with the rotation gives `gaussFlowOp G d t`, a linear isometry of `L²(ℝ⁹⁹)` because
+`rotIso` is measure preserving (`Lp.compMeasurePreservingₗᵢ`): `gaussFlowOp_zero` (identity at
+`0`, from `gaussFlowIso_apply_zero`), `gaussFlowOp_norm_le` (`‖U t‖ ≤ 1`), and
+`gaussFlowOp_pgLp`, the statement that the flow sends `pgLp p` to `pgLp (rotPoly (E t) p)` —
+the substitution formula `pgFun_rotPoly` plus a.e. invariance of the Gaussian measure.  Hence
+the flow preserves both `polyGaussCore` and any `CoreRep` core (`gaussFlowOp_mem_core`,
+`gaussFlowOp_mem_domain`).
+
+**What this closes.**  `gaussPMap_closure_skewAdjoint_of_rotation` instantiates the 2026-11-26h
+theorem with this flow: three of the four hypotheses of the flow bundle — `U 0 = 1`,
+`‖U t‖ ≤ 1`, core invariance — are now theorems, not assumptions.  The remaining input is the
+single generator identity `HasDerivAt (fun s => U s v) (𝒢_d (U t v)) t`, i.e. that the
+polynomial substitution `rotPoly (exp (t M))` has derivative `firstOrder (ymGaussVec G d)` at
+`t = 0` in `L²`.  That is a differentiation-under-the-integral statement about a
+finite-degree polynomial curve, and it is not proved here.
+
+**Boundary.**  No unitary group of the closed charge is claimed, no Stone generator, and no
+`dom Ā ⊆ dom H̄`; the flow is a rotation of the field-space coordinates only, exactly as in
+2026-11-26f.  The ghost sector and the physical Gauss reduction are untouched.
+
+**Verification.**  `lake env lean` and `lake build` succeed with no warnings;
+`#print axioms` on `ymGaussVec_eq_sum_gaussMat`, `gaussMat_antisymm`, `gaussFlow_add`,
+`gaussFlow_transpose_mul`, `gaussFlowOp_pgLp`, `gaussFlowOp_mem_domain` and
+`gaussPMap_closure_skewAdjoint_of_rotation` gives `[propext, Classical.choice, Quot.sound]`.

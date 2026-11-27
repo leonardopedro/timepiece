@@ -1135,6 +1135,17 @@ import BookProof.Qym.ChapterYangMillsGaussSkewAdjoint
 -- von Neumann's trick then places every `y ∈ dom A†` in `dom A`, so `ker(A† ∓ 1) = 0` gives
 -- `A† = -A` — the Gauss closure is skew-adjoint (`gaussPMap_closure_skewAdjoint_of_flow`).
 import BookProof.Qym.ChapterYangMillsGaussSkewAdjointDomain
+-- `ChapterYangMillsGaussRotationFlow` (2026-11-26i): the concrete residual colour rotation
+-- behind the flow bundle.  `gaussMat` is the matrix of the linear Gauss vector field
+-- (`ymGaussVec_eq_sum_gaussMat`); `Σ_m x_m v_m = 0` proves it antisymmetric
+-- (`gaussMat_antisymm`), so `gaussFlow t = exp (t • gaussMat)` is a one-parameter group of
+-- orthogonal matrices (`gaussFlow_add`, `gaussFlow_transpose_mul`) with derivative the
+-- generator (`gaussFlow_mulVec_hasDerivAt`).  Composition with it is a linear isometry of
+-- `L²(ℝ⁹⁹)` (`gaussFlowOp`), the identity at `0`, of norm `≤ 1`, and it acts on the
+-- Gauss–polynomial core as the substitution `rotPoly` (`gaussFlowOp_pgLp`), hence preserves
+-- the core (`gaussFlowOp_mem_domain`).  `gaussPMap_closure_skewAdjoint_of_rotation` therefore
+-- derives the whole flow bundle from the single generator identity `hgen`.
+import BookProof.Qym.ChapterYangMillsGaussRotationFlow
 -- `ChapterYangMillsGaussParity` (2026-11-26d): a *concrete* bounded symmetry of the Gauss
 -- charge, supplying the two hypotheses `DomPreserve` / `StrongCommute` of
 -- `ChapterBrstReducedTransferUnbounded` with no hypothesis left.  The field-space parity

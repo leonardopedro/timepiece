@@ -162,12 +162,17 @@ sector splitting cannot supply an absolute lower bound for the outer-vacuum gap.
 
    The separately implemented 99-coordinate colour rotation has a skew-symmetric
    core generator and a closed skew extension. Skew-adjointness of that closure is
-   proved **given** an all-time contraction flow preserving the core with the stated
-   derivative. Realizing the flow discharges this input for the rotation. Extending
-   Hamiltonian commutation from the core to unbounded domains also requires the two
-   Hamiltonian graph limits in the domain theorem. The projected local charge above
-   has an additional translation, and requires its own physical reduction.
+   proved from an all-time contraction flow preserving the core with the stated
+   derivative. That flow is now explicit: the Gauss field's matrix is antisymmetric,
+   its exponential is an orthogonal one-parameter group, and composition with it is a
+   linear isometry of $L^2(\mathbb R^{99})$ of norm $\le 1$, the identity at $0$, acting
+   as the polynomial substitution on the core and preserving it. The one input still
+   assumed is the generator identity $\tfrac{d}{dt}(U_t v) = \mathcal G_d (U_t v)$ in
+   $L^2$. Extending Hamiltonian commutation from the core to unbounded domains also
+   requires the two Hamiltonian graph limits in the domain theorem. The projected local
+   charge above has an additional translation, and requires its own physical reduction.
    [Adjoint-domain theorem](BookProof/Qym/ChapterYangMillsGaussSkewAdjointDomain.lean) ·
+   [Rotation flow](BookProof/Qym/ChapterYangMillsGaussRotationFlow.lean) ·
    [Hamiltonian domain theorem](BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean) ·
    [BRST domain transfer](BookProof/ChapterBrstReducedTransferUnbounded.lean)
 2. **U3, ordered finite comparison.** For the $g=2$, occupation-10 diagnostic,
