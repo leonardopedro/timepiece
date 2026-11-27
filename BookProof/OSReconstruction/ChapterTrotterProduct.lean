@@ -22,6 +22,14 @@ Banach algebra: no commutativity, no finite dimension and no self-adjointness is
   (so the theorem's content is precisely the non-commuting one).
 * `trotter_heat_tendsto` — the Euclidean/heat sign, `e^{−Ta}` and `e^{−Tb}` sliced against each
   other converging to `e^{−T(a+b)}`.
+* `trotterStepCoefficient` — an explicit constant `K(a, b, T)` with
+  `‖e^{εa} e^{εb} − e^{ε(a+b)}‖ ≤ K ε²` for `0 ≤ ε ≤ T`.
+* `trotterErrorConstant` — `K(a, b, T) · e^{T(‖a‖ + ‖b‖ + ‖a+b‖)}`, the constant in the
+  quantitative rate.
+* `trotter_product_norm_le` — the explicit rate
+  `‖(e^{(T/N)a} e^{(T/N)b})^N − e^{T(a+b)}‖ ≤ trotterErrorConstant a b T · T² / N` for `N ≥ 1`:
+the `C T²/N` of `cft_path.md` §3, with `C` named rather than merely asserted to exist.
+* `trotter_heat_norm_le` — the same rate in the heat sign.
 
 ## Boundary
 
@@ -34,8 +42,9 @@ argument would have to supply. The symmetric Strang product `e^{−εV/2} e^{−
 covered either: the exact algebraic Strang identity lives in `ChapterSymmetricTimeStepOrdering`,
 but its `O(ε²)` step estimate is not assembled here. Convergence is proved, not a stated rate:
 the quantitative content is the telescoping bound `‖S_N^N − Y_N^N‖ ≤ N‖S_N − Y_N‖ e^{Tc}` together
-with `‖S_N − Y_N‖ = o(T/N)` from the derivative at `0`, i.e. `T·o(1)`; no explicit `C T²/N`
-constant is extracted. Midpoint/Weyl ordering for position–momentum cross-terms is untouched:
+with `‖S_N − Y_N‖ = o(T/N)` from the derivative at `0`, i.e. `T·o(1)`, and the explicit bound
+`trotter_product_norm_le` gives `C T²/N` with `C = trotterErrorConstant a b T`.
+Midpoint/Weyl ordering for position–momentum cross-terms is untouched:
 a product formula for a fixed pair `(a, b)` cannot encode an operator-ordering correction.
 Nothing here constructs a path measure, identifies a marginal of `mehlerPathMeasure`, or proves
 reflection positivity — those are H3's items.
@@ -352,6 +361,257 @@ theorem trotter_heat_tendsto (a b : A) {T : ℝ} (hT : 0 ≤ T) :
           NormedSpace.exp ((-(T / (N : ℝ))) • b)) ^ N)
       atTop (𝓝 (NormedSpace.exp ((-T) • (a + b)))) := by
   have h := trotter_product_tendsto (-a) (-b) hT
+  have h1 : ∀ N : ℕ, (-(T / (N:ℝ))) • (-a) = (T / (N:ℝ)) • a := by
+    intro N; rw [neg_smul, smul_neg, neg_neg]
+  have h2 : (-T) • (-a + -b) = T • (a + b) := by
+    rw [← neg_add, smul_neg, neg_smul, neg_neg]
+  simpa [h1, h2] using h
+
+/-- An explicit constant controlling the one-step defect: for `0 ≤ ε ≤ T`,
+`‖e^{εa} e^{εb} − e^{ε(a+b)}‖ ≤ trotterStepCoefficient a b T · ε²`. -/
+noncomputable def trotterStepCoefficient (a b : A) (T : ℝ) : ℝ :=
+  ‖a‖ * ‖b‖
+    + ‖b‖ ^ 2 * Real.exp (T * ‖b‖)
+    + T * ‖a‖ * ‖b‖ ^ 2 * Real.exp (T * ‖b‖)
+    + ‖a‖ ^ 2 * Real.exp (T * ‖a‖)
+    + T * ‖a‖ ^ 2 * ‖b‖ * Real.exp (T * ‖a‖)
+    + T ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖) * (‖b‖ ^ 2 * Real.exp (T * ‖b‖))
+    + ‖a + b‖ ^ 2 * Real.exp (T * ‖a + b‖)
+
+/-- The constant in the explicit `C T²/N` rate. -/
+noncomputable def trotterErrorConstant (a b : A) (T : ℝ) : ℝ :=
+  trotterStepCoefficient a b T * Real.exp (T * (‖a‖ + ‖b‖ + ‖a + b‖))
+
+omit [NormOneClass A] [NormedAlgebra ℝ A] [CompleteSpace A] in
+/-- Triangle inequality for seven summands. -/
+private lemma norm_add_seven_le (a1 a2 a3 a4 a5 a6 a7 : A) :
+    ‖a1 + a2 + a3 + a4 + a5 + a6 + a7‖ ≤
+      ‖a1‖ + ‖a2‖ + ‖a3‖ + ‖a4‖ + ‖a5‖ + ‖a6‖ + ‖a7‖ := by
+  have h1 := norm_add_le (a1 + a2 + a3 + a4 + a5 + a6) a7
+  have h2 := norm_add_le (a1 + a2 + a3 + a4 + a5) a6
+  have h3 := norm_add_le (a1 + a2 + a3 + a4) a5
+  have h4 := norm_add_le (a1 + a2 + a3) a4
+  have h5 := norm_add_le (a1 + a2) a3
+  have h6 := norm_add_le a1 a2
+  linarith
+
+omit [NormOneClass A] in
+omit [NormOneClass A] in
+/-- The one-step defect is `O(ε²)`, with the constant `trotterStepCoefficient` made explicit.
+Expanding both sides through `exp z = 1 + z + R z` leaves six correction terms, each of which
+is bounded by `ε²` times a `T`-dependent factor. -/
+private lemma norm_step_sub_le (a b : A) {T ε : ℝ} (hε0 : 0 ≤ ε) (hεT : ε ≤ T) :
+    ‖NormedSpace.exp (ε • a) * NormedSpace.exp (ε • b) - NormedSpace.exp (ε • (a + b))‖
+      ≤ trotterStepCoefficient a b T * ε ^ 2 := by
+  set x : A := ε • a with hxdef
+  set y : A := ε • b with hydef
+  have hx : ‖x‖ = ε * ‖a‖ := by
+    rw [hxdef, norm_smul, Real.norm_eq_abs, abs_of_nonneg hε0]
+  have hy : ‖y‖ = ε * ‖b‖ := by
+    rw [hydef, norm_smul, Real.norm_eq_abs, abs_of_nonneg hε0]
+  have hxy : x + y = ε • (a + b) := by rw [hxdef, hydef, smul_add]
+  set Rx : A := NormedSpace.exp x - 1 - x with hRxdef
+  set Ry : A := NormedSpace.exp y - 1 - y with hRydef
+  set Rz : A := NormedSpace.exp (x + y) - 1 - (x + y) with hRzdef
+  have hRx : ‖Rx‖ ≤ ε ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖) := by
+    have h := norm_exp_sub_one_sub_id_le x
+    calc ‖Rx‖ = ‖NormedSpace.exp x - 1 - x‖ := rfl
+      _ ≤ ‖x‖ ^ 2 * Real.exp ‖x‖ := h
+      _ = (ε * ‖a‖) ^ 2 * Real.exp (ε * ‖a‖) := by rw [hx]
+      _ ≤ ε ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖) := by
+          have hee : Real.exp (ε * ‖a‖) ≤ Real.exp (T * ‖a‖) :=
+            Real.exp_le_exp.mpr (by nlinarith [norm_nonneg a])
+          have hpos : (0:ℝ) ≤ ε ^ 2 * ‖a‖ ^ 2 := by positivity
+          calc (ε * ‖a‖) ^ 2 * Real.exp (ε * ‖a‖)
+              = (ε ^ 2 * ‖a‖ ^ 2) * Real.exp (ε * ‖a‖) := by ring
+            _ ≤ (ε ^ 2 * ‖a‖ ^ 2) * Real.exp (T * ‖a‖) :=
+                mul_le_mul_of_nonneg_left hee hpos
+  have hRy : ‖Ry‖ ≤ ε ^ 2 * ‖b‖ ^ 2 * Real.exp (T * ‖b‖) := by
+    have h := norm_exp_sub_one_sub_id_le y
+    calc ‖Ry‖ = ‖NormedSpace.exp y - 1 - y‖ := rfl
+      _ ≤ ‖y‖ ^ 2 * Real.exp ‖y‖ := h
+      _ = (ε * ‖b‖) ^ 2 * Real.exp (ε * ‖b‖) := by rw [hy]
+      _ ≤ ε ^ 2 * ‖b‖ ^ 2 * Real.exp (T * ‖b‖) := by
+          have hee : Real.exp (ε * ‖b‖) ≤ Real.exp (T * ‖b‖) :=
+            Real.exp_le_exp.mpr (by nlinarith [norm_nonneg b])
+          have hpos : (0:ℝ) ≤ ε ^ 2 * ‖b‖ ^ 2 := by positivity
+          calc (ε * ‖b‖) ^ 2 * Real.exp (ε * ‖b‖)
+              = (ε ^ 2 * ‖b‖ ^ 2) * Real.exp (ε * ‖b‖) := by ring
+            _ ≤ (ε ^ 2 * ‖b‖ ^ 2) * Real.exp (T * ‖b‖) :=
+                mul_le_mul_of_nonneg_left hee hpos
+  have hRz : ‖Rz‖ ≤ ε ^ 2 * ‖a + b‖ ^ 2 * Real.exp (T * ‖a + b‖) := by
+    have h := norm_exp_sub_one_sub_id_le (x + y)
+    calc ‖Rz‖ = ‖NormedSpace.exp (x + y) - 1 - (x + y)‖ := rfl
+      _ ≤ ‖x + y‖ ^ 2 * Real.exp ‖x + y‖ := h
+      _ = (ε * ‖a + b‖) ^ 2 * Real.exp (ε * ‖a + b‖) := by
+          rw [hxy, norm_smul, Real.norm_eq_abs, abs_of_nonneg hε0]
+      _ ≤ ε ^ 2 * ‖a + b‖ ^ 2 * Real.exp (T * ‖a + b‖) := by
+          have hee : Real.exp (ε * ‖a + b‖) ≤ Real.exp (T * ‖a + b‖) :=
+            Real.exp_le_exp.mpr (by nlinarith [norm_nonneg (a + b)])
+          have hpos : (0:ℝ) ≤ ε ^ 2 * ‖a + b‖ ^ 2 := by positivity
+          calc (ε * ‖a + b‖) ^ 2 * Real.exp (ε * ‖a + b‖)
+              = (ε ^ 2 * ‖a + b‖ ^ 2) * Real.exp (ε * ‖a + b‖) := by ring
+            _ ≤ (ε ^ 2 * ‖a + b‖ ^ 2) * Real.exp (T * ‖a + b‖) :=
+                mul_le_mul_of_nonneg_left hee hpos
+  have hxy_prod : ‖x * y‖ ≤ ε ^ 2 * (‖a‖ * ‖b‖) := by
+    have h := norm_mul_le x y
+    rw [hx, hy] at h
+    have h1 : (ε * ‖a‖) * (ε * ‖b‖) = ε ^ 2 * (‖a‖ * ‖b‖) := by ring
+    linarith [h, h1]
+  have hxRy : ‖x * Ry‖ ≤ ε ^ 2 * (T * ‖a‖ * ‖b‖ ^ 2 * Real.exp (T * ‖b‖)) := by
+    have hT0 : 0 ≤ T := hε0.trans hεT
+    have hxe : ‖x‖ ≤ T * ‖a‖ := by rw [hx]; nlinarith [norm_nonneg a]
+    calc ‖x * Ry‖ ≤ ‖x‖ * ‖Ry‖ := norm_mul_le _ _
+      _ ≤ (T * ‖a‖) * (ε ^ 2 * ‖b‖ ^ 2 * Real.exp (T * ‖b‖)) :=
+          mul_le_mul hxe hRy (norm_nonneg _) (by positivity)
+      _ = ε ^ 2 * (T * ‖a‖ * ‖b‖ ^ 2 * Real.exp (T * ‖b‖)) := by ring
+  have hRxy : ‖Rx * y‖ ≤ ε ^ 2 * (T * ‖a‖ ^ 2 * ‖b‖ * Real.exp (T * ‖a‖)) := by
+    have hye : ‖y‖ ≤ T * ‖b‖ := by rw [hy]; nlinarith [norm_nonneg b]
+    calc ‖Rx * y‖ ≤ ‖Rx‖ * ‖y‖ := norm_mul_le _ _
+      _ ≤ (ε ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖)) * (T * ‖b‖) :=
+          mul_le_mul hRx hye (norm_nonneg _) (by positivity)
+      _ = ε ^ 2 * (T * ‖a‖ ^ 2 * ‖b‖ * Real.exp (T * ‖a‖)) := by ring
+  have hRxRy : ‖Rx * Ry‖ ≤ ε ^ 2 * (T ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖) *
+      (‖b‖ ^ 2 * Real.exp (T * ‖b‖))) := by
+    have hε2 : ε ^ 2 ≤ T ^ 2 := by
+      have := pow_le_pow_left₀ hε0 hεT 2
+      simpa [pow_two] using this
+    have hpos : (0:ℝ) ≤ ‖a‖ ^ 2 * Real.exp (T * ‖a‖) *
+        (‖b‖ ^ 2 * Real.exp (T * ‖b‖)) := by positivity
+    calc ‖Rx * Ry‖ ≤ ‖Rx‖ * ‖Ry‖ := norm_mul_le _ _
+      _ ≤ (ε ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖)) *
+            (ε ^ 2 * ‖b‖ ^ 2 * Real.exp (T * ‖b‖)) :=
+          mul_le_mul hRx hRy (norm_nonneg _) (by positivity)
+      _ = ε ^ 2 * ε ^ 2 * (‖a‖ ^ 2 * Real.exp (T * ‖a‖) *
+            (‖b‖ ^ 2 * Real.exp (T * ‖b‖))) := by ring
+      _ ≤ ε ^ 2 * (T ^ 2 * (‖a‖ ^ 2 * Real.exp (T * ‖a‖) *
+            (‖b‖ ^ 2 * Real.exp (T * ‖b‖)))) := by
+          rcases eq_or_lt_of_le hε0 with h | h
+          · subst h; simp
+          · have := mul_le_mul_of_nonneg_right hε2 hpos
+            nlinarith
+      _ = ε ^ 2 * (T ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖) *
+            (‖b‖ ^ 2 * Real.exp (T * ‖b‖))) := by ring
+  have hsplit : NormedSpace.exp x * NormedSpace.exp y - NormedSpace.exp (x + y)
+      = x * y + Ry + x * Ry + Rx + Rx * y + Rx * Ry + (- Rz) := by
+    have hxe : NormedSpace.exp x = 1 + x + Rx := by rw [hRxdef]; abel
+    have hye : NormedSpace.exp y = 1 + y + Ry := by rw [hRydef]; abel
+    have hze : NormedSpace.exp (x + y) = 1 + (x + y) + Rz := by rw [hRzdef]; abel
+    rw [hxe, hye, hze]
+    noncomm_ring
+  have hK : trotterStepCoefficient a b T * ε ^ 2
+      = ε ^ 2 * (‖a‖ * ‖b‖)
+        + ε ^ 2 * (‖b‖ ^ 2 * Real.exp (T * ‖b‖))
+        + ε ^ 2 * (T * ‖a‖ * ‖b‖ ^ 2 * Real.exp (T * ‖b‖))
+        + ε ^ 2 * (‖a‖ ^ 2 * Real.exp (T * ‖a‖))
+        + ε ^ 2 * (T * ‖a‖ ^ 2 * ‖b‖ * Real.exp (T * ‖a‖))
+        + ε ^ 2 * (T ^ 2 * ‖a‖ ^ 2 * Real.exp (T * ‖a‖) *
+            (‖b‖ ^ 2 * Real.exp (T * ‖b‖)))
+        + ε ^ 2 * (‖a + b‖ ^ 2 * Real.exp (T * ‖a + b‖)) := by
+    unfold trotterStepCoefficient
+    ring
+  calc ‖NormedSpace.exp x * NormedSpace.exp y - NormedSpace.exp (ε • (a + b))‖
+      = ‖NormedSpace.exp x * NormedSpace.exp y - NormedSpace.exp (x + y)‖ := by rw [hxy]
+    _ = ‖x * y + Ry + x * Ry + Rx + Rx * y + Rx * Ry + (- Rz)‖ := by rw [hsplit]
+    _ ≤ ‖x * y‖ + ‖Ry‖ + ‖x * Ry‖ + ‖Rx‖ + ‖Rx * y‖ + ‖Rx * Ry‖ + ‖Rz‖ := by
+        have h := norm_add_seven_le (x * y) Ry (x * Ry) Rx (Rx * y) (Rx * Ry) (- Rz)
+        simpa [norm_neg] using h
+    _ ≤ trotterStepCoefficient a b T * ε ^ 2 := by
+        rw [hK]
+        linarith [hxy_prod, hRy, hxRy, hRx, hRxy, hRxRy, hRz]
+
+/-- The explicit `C T²/N` error bound for the bounded Euclidean Lie–Trotter product formula: for
+`N ≥ 1`, the accumulated error of the `N`-step product is at most
+`trotterErrorConstant a b T · T² / N`. -/
+theorem trotter_product_norm_le (a b : A) {T : ℝ} (hT : 0 ≤ T) {N : ℕ} (hN : 1 ≤ N) :
+    ‖(NormedSpace.exp ((T / (N : ℝ)) • a) * NormedSpace.exp ((T / (N : ℝ)) • b)) ^ N
+        - NormedSpace.exp (T • (a + b))‖ ≤
+      trotterErrorConstant a b T * T ^ 2 / (N : ℝ) := by
+  have hNpos : (0:ℝ) < (N : ℝ) := by exact_mod_cast hN
+  set ε : ℝ := T / (N : ℝ) with hεdef
+  have hε0 : 0 ≤ ε := by rw [hεdef]; positivity
+  have hεT : ε ≤ T := by
+    rw [hεdef, div_le_iff₀ hNpos]
+    nlinarith [hT, show (1:ℝ) ≤ (N : ℝ) by exact_mod_cast hN]
+  set S : A := NormedSpace.exp (ε • a) * NormedSpace.exp (ε • b) with hS
+  set Y : A := NormedSpace.exp (ε • (a + b)) with hY
+  set c : ℝ := ‖a‖ + ‖b‖ + ‖a + b‖ with hc
+  have hc0 : 0 ≤ c := by rw [hc]; positivity
+  have hexp1 : ‖NormedSpace.exp (ε • a)‖ ≤ Real.exp (ε * ‖a‖) := by
+    have h := norm_exp_le (ε • a)
+    rwa [norm_smul, Real.norm_eq_abs, abs_of_nonneg hε0] at h
+  have hexp2 : ‖NormedSpace.exp (ε • b)‖ ≤ Real.exp (ε * ‖b‖) := by
+    have h := norm_exp_le (ε • b)
+    rwa [norm_smul, Real.norm_eq_abs, abs_of_nonneg hε0] at h
+  have hexpab : ‖NormedSpace.exp (ε • (a + b))‖ ≤ Real.exp (ε * ‖a + b‖) := by
+    have h := norm_exp_le (ε • (a + b))
+    rwa [norm_smul, Real.norm_eq_abs, abs_of_nonneg hε0] at h
+  have hSle : ‖S‖ ≤ Real.exp (ε * c) := by
+    have h1 : ‖S‖ ≤ Real.exp (ε * ‖a‖) * Real.exp (ε * ‖b‖) := by
+      calc ‖S‖ = ‖NormedSpace.exp (ε • a) * NormedSpace.exp (ε • b)‖ := rfl
+        _ ≤ ‖NormedSpace.exp (ε • a)‖ * ‖NormedSpace.exp (ε • b)‖ := norm_mul_le _ _
+        _ ≤ Real.exp (ε * ‖a‖) * Real.exp (ε * ‖b‖) := by gcongr
+    calc ‖S‖ ≤ Real.exp (ε * ‖a‖) * Real.exp (ε * ‖b‖) := h1
+      _ = Real.exp (ε * ‖a‖ + ε * ‖b‖) := (Real.exp_add _ _).symm
+      _ = Real.exp (ε * (‖a‖ + ‖b‖)) := by ring_nf
+      _ ≤ Real.exp (ε * c) := by
+          refine Real.exp_le_exp.mpr ?_
+          rw [hc]
+          nlinarith [hε0, norm_nonneg (a + b)]
+  have hYle : ‖Y‖ ≤ Real.exp (ε * c) := by
+    calc ‖Y‖ ≤ Real.exp (ε * ‖a + b‖) := hexpab
+      _ ≤ Real.exp (ε * c) := by
+          refine Real.exp_le_exp.mpr ?_
+          rw [hc]
+          nlinarith [hε0, norm_nonneg a, norm_nonneg b]
+  have htelesc := norm_pow_sub_pow_le hSle hYle N
+  have hM : (Real.exp (ε * c)) ^ (N - 1) ≤ Real.exp (T * c) := by
+    rw [← Real.exp_nat_mul]
+    refine Real.exp_le_exp.mpr ?_
+    have hNsub : ((N - 1 : ℕ) : ℝ) = (N:ℝ) - 1 := by
+      rw [Nat.cast_sub hN]; norm_num
+    rw [hNsub]
+    have hle : ((N:ℝ) - 1) * ε ≤ T := by
+      rw [hεdef]
+      rw [show ((N:ℝ) - 1) * (T / (N:ℝ)) = T * (((N:ℝ) - 1) / (N:ℝ)) by ring]
+      have hratio : ((N:ℝ) - 1) / (N:ℝ) ≤ 1 := by
+        rw [div_le_one hNpos]
+        linarith
+      nlinarith [hT, hratio]
+    calc ((N:ℝ) - 1) * (ε * c) = (((N:ℝ) - 1) * ε) * c := by ring
+      _ ≤ T * c := mul_le_mul_of_nonneg_right hle hc0
+  have hbase : ‖S - Y‖ ≤ trotterStepCoefficient a b T * ε ^ 2 :=
+    norm_step_sub_le a b hε0 hεT
+  have hYpow : Y ^ N = NormedSpace.exp (T • (a + b)) := by
+    rw [hY, ← NormedSpace.exp_nsmul]
+    congr 1
+    rw [← Nat.cast_smul_eq_nsmul ℝ, smul_smul]
+    have h2 : (N:ℝ) * ε = T := by rw [hεdef]; field_simp
+    rw [h2]
+  have hkey : ‖S ^ N - Y ^ N‖ ≤ trotterErrorConstant a b T * T ^ 2 / (N : ℝ) := by
+    calc ‖S ^ N - Y ^ N‖ ≤ (N : ℝ) * ‖S - Y‖ * (Real.exp (ε * c)) ^ (N - 1) :=
+          htelesc
+      _ ≤ (N : ℝ) * ‖S - Y‖ * Real.exp (T * c) := by
+          refine mul_le_mul_of_nonneg_left hM ?_
+          positivity
+      _ ≤ (N : ℝ) * (trotterStepCoefficient a b T * ε ^ 2) * Real.exp (T * c) := by
+          refine mul_le_mul_of_nonneg_right ?_ (Real.exp_pos _).le
+          exact mul_le_mul_of_nonneg_left hbase (by positivity)
+      _ = trotterErrorConstant a b T * T ^ 2 / (N : ℝ) := by
+          unfold trotterErrorConstant
+          rw [hεdef, hc]
+          field_simp
+  rw [hYpow] at hkey
+  simpa [hS, hεdef] using hkey
+
+/-- The explicit rate in the heat/Euclidean sign: `e^{−(T/N)a}` and `e^{−(T/N)b}` sliced against
+each other accumulate at most `trotterErrorConstant (−a) (−b) T · T² / N` error. -/
+theorem trotter_heat_norm_le (a b : A) {T : ℝ} (hT : 0 ≤ T) {N : ℕ} (hN : 1 ≤ N) :
+    ‖(NormedSpace.exp ((-(T / (N : ℝ))) • a) *
+        NormedSpace.exp ((-(T / (N : ℝ))) • b)) ^ N
+        - NormedSpace.exp ((-T) • (a + b))‖ ≤
+      trotterErrorConstant (-a) (-b) T * T ^ 2 / (N : ℝ) := by
+  have h := trotter_product_norm_le (-a) (-b) hT hN
   have h1 : ∀ N : ℕ, (-(T / (N:ℝ))) • (-a) = (T / (N:ℝ)) • a := by
     intro N; rw [neg_smul, smul_neg, neg_neg]
   have h2 : (-T) • (-a + -b) = T • (a + b) := by
