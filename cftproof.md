@@ -3683,7 +3683,9 @@ bijection to the constant weight one: `wickSum_one_eq_card` identifies the Wick 
 and the pairings of the remaining sites. Strong induction on the cardinality then gives the
 closed form: `card_pairingSet_eq_doubleFactorial` states `card (pairingSet s) = (s.card−1)‼` for
 even `s.card` (odd sets have no pairings, by `Equiv.Perm.two_dvd_card_support`), and
-`card_pairings_even` specializes to `card (pairings (2m)) = (2m−1)‼`.  This closes the counting
+`card_pairings_even` specializes to `card (pairings (2m)) = (2m−1)‼`;
+`pairingSet_six_card_closed` cross-checks the explicit six-site enumeration against the closed
+form (15).  This closes the counting
 item from the seventeenth slice; an `M`-uniform δ-algorithm on `shellLaw` is still open.
 
 **Verification note (2026-11-27).** `lake build BookProof` is green at 9127 jobs after repairing

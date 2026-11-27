@@ -130,4 +130,10 @@ theorem card_pairings_even (m : ℕ) : (pairings (2 * m)).card = (2 * m - 1)‼ 
     (by refine ⟨m, ?_⟩; simp [two_mul])
   simpa using h
 
+/-- The explicit six-site enumeration of the C3j slice matches the closed form: 15 pairings. -/
+theorem pairingSet_six_card_closed :
+    (pairingSet (Finset.univ : Finset (Fin 6))).card = 15 := by
+  rw [pairingSet_univ_even 3, card_pairings_even 3]
+  norm_num [Nat.doubleFactorial]
+
 end BookProof.PairingCount
