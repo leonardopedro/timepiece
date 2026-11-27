@@ -28870,3 +28870,11 @@ the same weighted state gives
 `|⟨(F−cF)(G−cG)⟩_w − (cFG − cF·cG)| ≤ (εFG + |cF| εG + |cG| εF)/z` under `z ≤ ∫w`, with
 integrability of `w`, `wF`, `wG`, `wFG`.  The mass cancels exactly in the centering; no spectral
 or positivity hypothesis is used.  Axioms: `[propext, Classical.choice, Quot.sound]`.
+
+**H1 detailed balance of the Mehler kernel.** `ChapterMehlerTransitionDensity` proves
+`mehlerKernel_detailedBalance`: `exp(−x²)·k(x,y) = exp(−y²)·k(y,x)` for `ρ² < 1`, from the
+symmetric exponent `−(x² + y² − 2ρxy)/(1−ρ²)`; `mehlerKernel_stationary` integrates over the
+starting point, using normalization in the second argument, to get
+`∫ exp(−x²)k(x,y) dx = exp(−y²)`.  This is the pointwise reversibility input H1 asks for; the
+finite mode-product kernel, `L²(γ)` operator symmetry and field normalization remain open.
+Axioms: `[propext, Classical.choice, Quot.sound]`.

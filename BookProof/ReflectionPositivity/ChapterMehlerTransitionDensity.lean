@@ -161,4 +161,46 @@ theorem mehlerOp_eq_integral_mehlerKernel {ρ : ℝ} (hρ : ρ ^ 2 < 1) (f : ℝ
   rw [← hpref]
   field_simp [ne_of_gt ha]
 
+/-- Detailed balance of the Mehler kernel in its stationary Gaussian convention: with
+    `γ(dx) = exp(−x²) dx` (up to normalization), `γ(dx)·k(x,y) = γ(dy)·k(y,x)` pointwise.
+    The prefactor of the kernel cancels and the exponent reduces to the symmetric form
+    `−(x² + y² − 2ρxy)/(1 − ρ²)`.  This is the H1 input `cftproof.md` asks for — detailed balance
+    in the stationary Gaussian `γ`-convention — before any finite-mode product or domain claim. -/
+theorem mehlerKernel_detailedBalance (ρ x y : ℝ) (hρ : ρ ^ 2 < 1) :
+    Real.exp (-(x ^ 2)) * mehlerKernel ρ x y =
+      Real.exp (-(y ^ 2)) * mehlerKernel ρ y x := by
+  have hden : 1 - ρ ^ 2 ≠ 0 := by linarith
+  have hexp : Real.exp (-(x ^ 2)) * Real.exp (-((y - ρ * x) ^ 2) / (1 - ρ ^ 2)) =
+      Real.exp (-(y ^ 2)) * Real.exp (-((x - ρ * y) ^ 2) / (1 - ρ ^ 2)) := by
+    rw [← Real.exp_add, ← Real.exp_add]
+    congr 1
+    field_simp [hden]
+    ring
+  dsimp [mehlerKernel]
+  calc
+    Real.exp (-(x ^ 2)) *
+        ((Real.sqrt (Real.pi * (1 - ρ ^ 2)))⁻¹ *
+          Real.exp (-((y - ρ * x) ^ 2) / (1 - ρ ^ 2))) =
+        (Real.sqrt (Real.pi * (1 - ρ ^ 2)))⁻¹ *
+          (Real.exp (-(x ^ 2)) * Real.exp (-((y - ρ * x) ^ 2) / (1 - ρ ^ 2))) := by ring
+    _ = (Real.sqrt (Real.pi * (1 - ρ ^ 2)))⁻¹ *
+          (Real.exp (-(y ^ 2)) * Real.exp (-((x - ρ * y) ^ 2) / (1 - ρ ^ 2))) := by
+            rw [hexp]
+    _ = Real.exp (-(y ^ 2)) *
+        ((Real.sqrt (Real.pi * (1 - ρ ^ 2)))⁻¹ *
+          Real.exp (-((x - ρ * y) ^ 2) / (1 - ρ ^ 2))) := by ring
+
+/-- The Gaussian density is stationary for the Mehler kernel: integrating its product with
+    `k(x,y)` over the *starting* point gives the density at `y`.  This follows from detailed
+    balance and normalization of the kernel in its second argument, not from a separate
+    Gaussian integral. -/
+theorem mehlerKernel_stationary (ρ y : ℝ) (hρ : ρ ^ 2 < 1) :
+    (∫ x : ℝ, Real.exp (-(x ^ 2)) * mehlerKernel ρ x y) = Real.exp (-(y ^ 2)) := by
+  have hpoint : ∀ x : ℝ, Real.exp (-(x ^ 2)) * mehlerKernel ρ x y =
+      Real.exp (-(y ^ 2)) * mehlerKernel ρ y x := fun x => mehlerKernel_detailedBalance ρ x y hρ
+  simp_rw [hpoint]
+  rw [MeasureTheory.integral_const_mul]
+  rw [mehlerKernel_integral hρ y]
+  ring
+
 end BookProof.MehlerTransitionDensity
