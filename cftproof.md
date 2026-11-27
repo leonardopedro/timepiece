@@ -872,10 +872,10 @@ $e^{-\tau d\Gamma(h)}=\Gamma(e^{-\tau h})$ on $L^2$; H1–H7 remain open.
 `BookProof/ChapterSymmetricTimeStepOrdering.lean` proves in the exact Heisenberg/BCH model
 that the symmetric Strang step $\exp(aX/2)\exp(bY)\exp(aX/2)$ equals $\exp(aX+bY)$ (no first
 BCH commutator), while the endpoint Lie step differs by $\tfrac{ab}{2}Z$ — the negative
-control against endpoint time-slicing of a Weyl-ordered cross-term Hamiltonian.  The general
-operator-norm Lie–Trotter limit is **not** proved: this Mathlib has no product formula, and
-`ChapterSirkTrotterKato` proves a different statement (strong resolvent convergence of a
-family), as the readiness ledger requires us to note.
+control against endpoint time-slicing of a Weyl-ordered cross-term Hamiltonian.  The bounded
+operator-norm product formula now lands separately in `ChapterTrotterProduct`; the unbounded
+form-sum version remains open, and `ChapterSirkTrotterKato` proves a different statement (strong
+resolvent convergence of a family), as the readiness ledger requires us to note.
 
 **Status (2026-11-27): H2 exact time-slicing at midpoint and endpoint ordering.**
 `BookProof/ChapterSymmetricTimeStepOrdering.lean` now carries the finite `N` version of
@@ -885,8 +885,9 @@ one-parameter subgroup; `symmetric_time_step_pow` shows `N` midpoint (Strang) st
 `endpoint_time_step_pow` compute the plain Lie step and show its central Weyl cocycle accumulates
 as `N·ab/2`; `endpoint_pow_ne_symmetric_pow` rules out endpoint slicing at every positive step
 count when the commutator is nonzero.  This is the exact finite-dimensional analogue of the
-continuum sum in `cft_path.md` §§1–3, not an operator-norm Lie–Trotter theorem: no unbounded form
-sum, Euclidean measure or physical Hamiltonian is involved.
+continuum sum in `cft_path.md` §§1–3, complementary to the bounded product formula in
+`ChapterTrotterProduct`; no unbounded form sum, Euclidean measure or physical Hamiltonian is
+involved here.
 
 **Status (2026-11-25): H3 landed (one slice only).**
 `BookProof/ReflectionPositivity/ChapterMehlerSliceReflectionPositivity.lean` identifies the
