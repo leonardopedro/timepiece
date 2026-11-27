@@ -1,19 +1,11 @@
 # Real scalar λφ⁴ in nested Fock space — Lean 4 formalization plan
 
-The scalar inner operator, its positive closure and its Mehler-window convergence
-are now instantiated in Lean. Each outer excitation carries the complete scalar
-configuration. All active formalization work focuses **100% on the constraint-free
-`book.tex` continuous-momentum SIRK / Mehler / nested-Fock formalism**:
-momentum space `k ∈ ℝ³` is **continuous** (integrated with `∫ d³k`, never
-discretized into a momentum sum — only the SIRK Krylov subspace / Hermite
-window is discrete). The quadratic spatial gradient `½ ∫ |∇φ|² d³x` becomes the
-pure diagonal continuous multiplier `½ ∫ |k|² |φ̂(k)|² d³k` (no spatial-derivative
-jet constraints or derivative convolutions needed), realized on `L²(ℝ³_k × ℝ_φ)`
-as `h_cont(k, φ) = ½ p_φ² + ½ |k|² φ² + (λ/4)(φ² − v²)²`, while the full
-coordinate-space quartic is the continuous composite-pair integral
-`(λ/4) ∫ d³Q |Ψ(Q)|²`. Periodic lattice modules (`siteModel`, `twoSite`,
-`RankTwo`) and the auxiliary static-jet model (`jetModel`) are frozen comparisons.
-[Master cheap-LLM plan](PHI4_IMPROVEMENT_PLAN.md) ·
+The implemented fibre `momContModel` acts on a wavefunction of a field amplitude
+and three continuous angular momenta. Its self-adjoint dynamics, Hermite-window
+convergence and unit-parameter return bounds are formalized. Its gradient term is
+the multiplier $|k|²φ²/2$. A separate Schwartz identity gives the localized
+double-well energy for fields whose Fourier components mix. Scalar spatial derivatives
+require no jet constraints. [Fibre and packet work order](PHI4_IMPROVEMENT_PLAN.md) ·
 [Analytical plan](../unfer/docs/PHI4_ANALYTIC_PLAN.md) ·
 [Numerical plan](../unfer/docs/PHI4_NUMERICAL_PLAN.md)
 
@@ -28,12 +20,11 @@ scale. A quantum mass requires a specified correlation function or spectral chan
 The constant λv⁴/4 in the potential density fixes the energy convention.
 [Square completion in the SM](BookProof/Sm/ChapterSmHamiltonian.lean)
 
-The primary scalar operator is `jetModel` on L²(ℝ⁴). Its four coordinates are the
-field value s and three independent derivative coordinates j₁, j₂, j₃. In the local
-energy-density normalization h = pₛ²/2 + (j₁² + j₂² + j₃²)/2 + U(s). Position can
-be carried as a continuous spectator factor. The core consists of product Hermites
-in continuous variables. A window cuts off basis occupations, and the rational
-Krylov rank counts shifted-solve vectors for that operator.
+The fibre benchmark is `momContModel`. Its field and momentum product Hermites
+span functions of continuous variables. A Hermite window restricts occupations,
+and Krylov rank counts shifted-solve vectors within that window. The older
+`jetModel` treats the three derivative coordinates as independent static variables.
+Its variance and return estimates refer to that comparison alone.
 
 The nested Hamiltonian is
 
@@ -163,7 +154,7 @@ The aggregate project build and a dedicated scalar Rust trajectory run remain se
 `ChapterScalarMehler` (Mehler core, one-particle ESA, Stone flow),
 `ChapterScalarMomentum` (`momContModel`: mean `17/8`, defect norm squared `553/32`,
 rank-one error, `unitMomCont_return_probability`), `ChapterScalarMomentumGap`
-(unconditional `unitMomCont_inner_gap` at `7/64`, unique outer vacuum, `φ ↦ −φ`
+(unit core floor `unitMomCont_inner_gap` at `7/64`, `φ ↦ −φ`
 and `k ↦ −k` parity), `ChapterScalarFourierIntegral` (continuous-`k` gradient identity
 and the composite-pair integral), `ChapterScalarMomRankTwo` (11-mode `S₃` certificate,
 shifts `10, 5`, `defect_split` with outside-window squared norm `9/2`),
@@ -171,46 +162,36 @@ shifts `10, 5`, `defect_split` with outside-window squared norm `9/2`),
 Gram certificates, `Model.orbit_error`, and the two-sided interval
 `[319447/320000, 39999/40000]` at `t = 1/100`) and `ChapterScalarSectorOps`
 (`dΓ(h+cI) = dΓ(h) + c·N_out`, and the `n = 1` outer sector identified with
-`M.innerHam`). `Work/Phi4Audit` audits all 241 public `BookProof.Phi4` theorems; every
-line prints only `propext`, `Classical.choice`, `Quot.sound`.
+`M.innerHam`). `Work/Phi4Audit` records the axiom checks for these endpoints.
 
-## Next proofs for the Lean4 specialist (100% continuous-momentum `book.tex` formalism)
+## Next proofs for the Lean4 specialist
 
-Detailed step-by-step instructions and pre-verified rational targets live in
-[PHI4_IMPROVEMENT_PLAN.md](PHI4_IMPROVEMENT_PLAN.md) (`P4`–`P10`). Do **not**
-discretize momentum space into sums, do **not** extend the frozen periodic
-lattice comparison (`siteModel`, `twoSite`, `ChapterScalarRankTwoOrbit`), and
-do **not** introduce spatial-derivative jet constraints for λφ⁴.
+For the existing fibre, `unitMomCont_closure_floor` extends the $7/64$ bound
+to the closed operator domain at unit parameters. `contGap_pos` proves positivity
+of a candidate constant for general parameters. The remaining fibre proofs are
+its general-parameter form bound and a sectorwise lower bound $nμ$ for the
+bosonic lift, including its domain and the resulting vacuum uniqueness theorem.
+[Exact gap statements](BookProof/Phi4/ChapterScalarMomentumGap.lean)
 
-1. **Continuous-momentum model `momContModel` & rank-1 bounds (`P5`).**
-   Create `BookProof/Phi4/ChapterScalarMomentum.lean`: define
-   `momContModel (p : Parameters) : Model 4 1 4` on `L²(ℝ³_k × ℝ_φ)` with
-   `h_cont(k, φ) = ½ p_φ² + ½(k₁² + k₂² + k₃²) φ² + (λ/4)(φ² − v²)²` (`form 0`
-   wall, `form 1..3 = X r * X 0`). Prove `unitMomCont_vacuum_column` (mean `17/8`,
-   explicit `He₂(φ) K₂` continuous momentum–field coupling), `unitMomCont_defect_norm_sq`
-   (`553/32`), `unitMomCont_rankOne_error`, and `unitMomCont_return_probability`
-   (`1 − (553/32) t²`).
-2. **Unconditional absolute inner gap, unique outer vacuum ground state, and `ℤ₂`
-   parity (`P6`).** Create `BookProof/Phi4/ChapterScalarMomentumGap.lean`:
-   combine `0 ≤ ‖(P₀ − iα X₀) ψ‖²` with square completion of `(λ/4)(φ² − v²)²`
-   at `α = min (1/(2v²)) (min (1/2) (λ/2))` and pointwise `½|k|²φ² ≥ 0` to prove
-   `momCont_inner_gap` (`≥ (7/32)α`; `7/64` for `unitMomCont`), lift to
-   `momCont_outer_gap` and `momCont_vacuum_unique_ground`, and prove `φ ↦ −φ` and
-   `k ↦ −k` symmetries via `ChapterQuadraticRotationEsa`.
-3. **Continuous momentum-space Fourier integral identities (`P7`).** Create
-   `BookProof/Phi4/ChapterScalarFourierIntegral.lean`: using
-   `ChapterNsAdvectionConvolution`, prove `fourier_grad_sq_identity` (diagonal
-   `‖𝓕(∂_m φ) k‖² = (2π ⟨k, m⟩)² ‖𝓕 φ k‖²` in continuous `k ∈ ℝ³`) and
-   `fourier_phi4_composite_integral` (`𝓕(φ⁴) R = ∫ Q, Ψ(Q) Ψ(R − Q)` —
-   continuous integral over `ℝ³`, zero discrete sums!).
-4. **3-mode `S₃`-symmetric rank-2 Hashimoto-SIRK & closed orbit interval on
-   `unitMomCont` (`P8`–`P9`).** Create `ChapterScalarMomRankTwo.lean` and
-   `ChapterScalarMomOrbit.lean`: certify the 11-mode full action of `unitMomCont`
-   on `{1, He₂(φ), K₂}` (Gram `diag(1, 2, 6)`), the exact rational Hashimoto
-   generator and dissipation at shifts `(10, 5)` from `phi4_momentum_mehler.json`,
-   forward contractivity of `e^{sG}`, and the kernel-checked two-sided return
-   interval `[319447/320000, 39999/40000]` at `t = 1/100` via `Model.orbit_error`.
-5. **Outer shift law & axiom audit (`P10`).** Create `ChapterScalarSectorOps.lean`
-   (`dΓ(h + cI) = dΓ(h) + c N_out` and 1-particle sector agreement) and
-   `Work/Phi4Audit.lean` auditing every public `BookProof.Phi4` endpoint against
-   `[propext, Classical.choice, Quot.sound]`.
+1. Use `localizedWall_fourier` and `localizedWall_energy` for the Schwartz test-field
+   calculation. For real χ and φ their common squared norm, multiplied by λ/4, equals
+   the localized double-well energy including the background. Momentum in these
+   identities is measured in cycles per length. Convert to angular momentum with
+   k = 2πξ when comparing the fibre multiplier. [Fourier proof](BookProof/Phi4/ChapterScalarFourierIntegral.lean)
+2. Define the finite *packet amplitude* model on a common Mehler core, specifying the
+   spatial Gram matrix, dual kinetic metric, gradient matrix and wall Gram matrix.
+   The mixed coefficient in the analytic fixture multiplies the ordered product
+   of the two squared coordinate operators. Evaluate a matrix element changing
+   both occupations by two, retaining the Gram normalization and the full products
+   before projection. The packets in the fixture overlap. Orthogonalize them or
+   transport the canonical momenta and Gram metric together.
+3. Prove positivity and closed dynamics for that same inner form, then apply one
+   outer lift and verify its one-excitation matrix element. Compare the full-action
+   residual with the Rust packet calculation. Increasing the amplitude window
+   leaves the spatial profile span fixed. Spatial refinement and the limit of the
+   localization need separate convergence estimates.
+4. For a continuum claim, specify a sequence of regulated scalar states, a common
+   family of centered smeared insertions and their limiting OS form. The October
+   Wilson extraction, November matched-run contract and six-flavour QCD phase budgets
+   give templates for these quantifiers. All scalar estimates and the interacting
+   scalar hierarchy must be supplied here. [Three archive statements](cftproof.md#three-continuum-reference-constructions)

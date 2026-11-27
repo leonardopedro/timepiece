@@ -62,6 +62,7 @@ theorem psiField_eq_fourier_mul (φ : 𝓢(V, ℂ)) (Q : V) :
 def phiSq (φ : 𝓢(V, ℂ)) : 𝓢(V, ℂ) :=
   SchwartzMap.pairing (ContinuousLinearMap.mul ℂ ℂ) φ φ
 
+omit [FiniteDimensional ℝ V] [MeasurableSpace V] [BorelSpace V] in
 @[simp] theorem phiSq_apply (φ : 𝓢(V, ℂ)) (x : V) :
     phiSq φ x = φ x * φ x := by
   simp [phiSq, SchwartzMap.pairing_apply_apply]
@@ -70,6 +71,7 @@ def phiSq (φ : 𝓢(V, ℂ)) : 𝓢(V, ℂ) :=
 def phiFourth (φ : 𝓢(V, ℂ)) : 𝓢(V, ℂ) :=
   SchwartzMap.pairing (ContinuousLinearMap.mul ℂ ℂ) (phiSq φ) (phiSq φ)
 
+omit [FiniteDimensional ℝ V] [MeasurableSpace V] [BorelSpace V] in
 @[simp] theorem phiFourth_apply (φ : 𝓢(V, ℂ)) (x : V) :
     phiFourth φ x = φ x ^ 4 := by
   simp [phiFourth, phiSq, SchwartzMap.pairing_apply_apply]
@@ -92,6 +94,39 @@ theorem fourier_phi4_composite_integral (φ : 𝓢(V, ℂ)) (R : V) :
   change 𝓕 (fun x => φ x * φ x) Q * 𝓕 (fun x => φ x * φ x) (R - Q) =
     psiField φ Q * psiField φ (R - Q)
   rw [← psiField_eq_fourier_mul, ← psiField_eq_fourier_mul]
+
+/-- Localize the whole shifted square so its constant background has finite norm. -/
+def localizedWall (χ φ : 𝓢(V, ℂ)) (v : ℝ) : 𝓢(V, ℂ) :=
+  SchwartzMap.pairing (ContinuousLinearMap.mul ℂ ℂ) χ (phiSq φ) - ((v : ℂ)^2) • χ
+
+/-- Each factor of the localized wall carries its own continuous momentum. -/
+theorem localizedWall_fourier (χ φ : 𝓢(V, ℂ)) (v : ℝ) (k : V) :
+    (𝓕 (localizedWall χ φ v) : 𝓢(V, ℂ)) k =
+      (∫ p, 𝓕 (χ : V → ℂ) p * psiField φ (k - p)) - (v : ℂ)^2 * 𝓕 (χ : V → ℂ) k := by
+  change (SchwartzMap.fourierTransformCLM ℂ (localizedWall χ φ v)) k = _
+  simp only [localizedWall, map_sub, map_smul, SchwartzMap.sub_apply, SchwartzMap.smul_apply,
+    smul_eq_mul]
+  congr 1
+  change (𝓕 (SchwartzMap.pairing (ContinuousLinearMap.mul ℂ ℂ) χ (phiSq φ)) : 𝓢(V, ℂ)) k = _
+  rw [SchwartzMap.fourier_coe]
+  have hprod : (SchwartzMap.pairing (ContinuousLinearMap.mul ℂ ℂ) χ (phiSq φ) : V → ℂ) =
+      fun x => χ x * phiSq φ x := by ext x; simp [SchwartzMap.pairing_apply_apply]
+  rw [hprod, fourier_mul_eq_convolution χ (phiSq φ)]
+  apply integral_congr_ae (Filter.Eventually.of_forall fun p => ?_)
+  rw [psiField_eq_fourier_mul]
+  simp [show (phiSq φ : V → ℂ) = fun x => φ x * φ x by ext x; simp]
+
+/-- Plancherel gives the full double-well energy after localization, including the
+constant term. For real fields the spatial integrand is |χ|² (φ² − v²)². -/
+theorem localizedWall_energy (χ φ : 𝓢(V, ℂ)) (v : ℝ) :
+    (∫ k, ‖(∫ p, 𝓕 (χ : V → ℂ) p * psiField φ (k - p)) -
+      (v : ℂ)^2 * 𝓕 (χ : V → ℂ) k‖^2) =
+      ∫ x, ‖χ x * ((φ x)^2 - (v : ℂ)^2)‖^2 := by
+  simp_rw [← localizedWall_fourier χ φ v]
+  rw [SchwartzMap.integral_norm_sq_fourier]
+  apply integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+  simp [localizedWall, SchwartzMap.pairing_apply_apply, sub_eq_add_neg, mul_add, pow_two,
+    mul_comm, mul_assoc]
 
 end
 

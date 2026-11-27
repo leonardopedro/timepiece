@@ -5,9 +5,8 @@ import BookProof.ChapterQuadraticRotationEsa
 /-!
 # Gap and parity of the continuous-momentum scalar model
 
-This chapter proves the unconditional absolute inner gap of `momContModel`, lifts it
-to the nested bosonic Fock space, identifies the outer vacuum, and records the exact
-`ℤ₂` field-reflection and spatial-parity superselection.
+This chapter proves a unit-parameter lower bound for the inner fibre and its graph
+closure, and records the field and spatial reflection identities on the core.
 
 The analytic input is the harmonic lower bound for the Gaussian core: the
 uncertainty identity for `P_j = momOp j` and `X_j = mulOp (X j)` gives
@@ -135,7 +134,7 @@ theorem harmonic_lower_bound (j : Fin d) {α : ℝ} (hα : 0 < α)
 def contAlpha (p : Parameters) : ℝ :=
   min (1 / (2 * p.vev ^ 2)) (min (1 / 2) (p.coupling / 2))
 
-/-- The absolute inner gap `(7/32) α` of `momContModel`. -/
+/-- Candidate lower bound for a general parameter pair. -/
 def contGap (p : Parameters) : ℝ := (7 / 32) * contAlpha p
 
 /-- The absolute inner gap scale is strictly positive for every admissible parameter. -/
@@ -380,7 +379,7 @@ private theorem unit_field_norm (ψ : polyGaussCore (d := 4)) :
   linarith
 
 set_option maxHeartbeats 4000000 in
-/-- The exact unit gap `7/64` on the Gaussian core. -/
+/-- The unit lower bound `7/64` on the Gaussian core. -/
 theorem unitMomCont_inner_gap (ψ : polyGaussCore (d := 4)) :
     (7 / 64 : ℝ) * ‖(ψ : L2d 4)‖ ^ 2 ≤
       (inner ℂ (ψ : L2d 4) (Model.innerHam unitMomCont ψ)).re := by
@@ -448,6 +447,29 @@ theorem unitMomCont_inner_gap (ψ : polyGaussCore (d := 4)) :
   have hnnQ : 0 ≤ ‖uFieldQ ψ‖ ^ 2 := sq_nonneg _
   nlinarith [henergy, hfield, hharm, hnnQ]
 
+
+private theorem floor_on_closure {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℂ F]
+    {D : Submodule ℂ F} (T : D →ₗ[ℂ] F) (hd : Dense (D : Set F)) (hs : SymmetricOn D T)
+    (m : ℝ) (hm : ∀ ψ : D, m * ‖(ψ : F)‖ ^ 2 ≤ (inner ℂ (ψ : F) (T ψ)).re)
+    (x : clDom T) : m * ‖(x : F)‖ ^ 2 ≤ (inner ℂ (x : F) (clExt T hd hs x)).re := by
+  let S : Set (F × F) := {p | m * ‖p.1‖ ^ 2 ≤ (inner ℂ p.1 p.2).re}
+  have hl : Continuous (fun p : F × F => m * ‖p.1‖ ^ 2) :=
+    continuous_const.mul (continuous_fst.norm.pow 2)
+  have hr : Continuous (fun p : F × F => (inner ℂ p.1 p.2).re) :=
+    Complex.continuous_re.comp (continuous_fst.inner continuous_snd)
+  have hclosed : IsClosed S := isClosed_le hl hr
+  have hsub : (opGraph T : Set _) ⊆ S := by
+    rintro _ ⟨ψ, rfl⟩
+    exact hm ψ
+  have hgraph : ((x : F), clFun T x) ∈ closure (opGraph T : Set _) := clFun_spec T x
+  exact (closure_minimal hsub hclosed) hgraph
+
+/-- The unit core estimate passes to every vector in the closed operator domain. -/
+theorem unitMomCont_closure_floor (x : clDom unitMomCont.innerHam) :
+    (7 / 64 : ℝ) * ‖(x : L2d 4)‖ ^ 2 ≤ FarisLavine.quadForm
+      (clExt unitMomCont.innerHam (polyGaussCore_dense (d := 4)) unitMomCont.symmetric) x :=
+  floor_on_closure unitMomCont.innerHam polyGaussCore_dense unitMomCont.symmetric
+    (7 / 64) unitMomCont_inner_gap x
 
 /-! ## The shifted-well comparison fails pointwise
 

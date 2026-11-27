@@ -1,5 +1,41 @@
 # Soft modes in the Mehler / nested-Fock Yang–Mills formalism
 
+## Which Gauss calculation can enter a gap bound?
+
+The finite 99-coordinate Mehler realization now has a closed skew-adjoint generator
+for each of its eight colour charges and a Stone flow for the self-adjoint charge.
+Use this result when testing invariance under those rotations. A spatially varying
+gauge parameter also translates the connection and multiplies it by a nonconstant
+function. On Schwartz fields, `gaussTangent_fourier` gives both the derivative of
+the parameter and the convolution with the connection.
+[Finite charge and flow](BookProof/Qym/ChapterYangMillsGaussGenerator.lean) ·
+[Spatial tangent and packet compression](BookProof/Qym/ChapterYangMillsMagneticPacket.lean)
+
+A two-colour test now quantifies the distinction. On the scalar spatial profile
+$w=e^{-\pi|x|^2}$ take parameters $wT^1,wT^2$ and input colour $T^2$. Compressing each
+colour rotation separately replaces multiplication by $w$ by its mean $a$ in the
+normalized $w^2 dx$ measure. Taking the commutator first uses the second moment $b$.
+For the rotation part, the first colour component of the difference in the ordering of
+`two_colour_projection_defect` is $-g^2(b-a^2)$, where $b-a^2=1/\sqrt8-8/27>0$.
+These are moments of the scalar profile. The transverse profiles below have different moments.
+The defect survives an increase of Krylov rank on this same spatial span.
+
+**Next proof.** Evaluate the *full affine* commutator on the two smearings, including
+the gradient of their bracket. Compare with projection after the full action, allowing
+the product profile and its gradient in the comparison space. Bound the residual with
+both profiles refined at fixed physical scale. A mass witness then needs an independently
+bounded absolute edge on the physical one-outer-particle form and an error budget uniform
+in the claimed ranks and spatial limits. The three archival targets and their quantifiers
+are listed in the [continuum work order](cftproof.md#three-continuum-reference-constructions).
+At a proposed coupling, if the estimator $θ$ has total error at most $ε$, then
+$θ>ε$ certifies positivity. To certify the stronger claim that the true mass exceeds
+$ε$, exhibit a separate lower bound above $ε$, or prove $θ>2ε$ with that same budget.
+Use October's separated trace test or a specified November matched-run insertion
+to identify a physical channel. The massive QCD target fixes calibrated quark data
+and leaves the particle spectrum open. [October trace](../OpenAI-YM-20261028/TraceBridge.lean) ·
+[November hierarchy](../OpenAI-YM-20261104/lean/YangMills/Existence.lean) ·
+[QCD target](../OpenAI-QCD-20261104/comparator/frozen/reference/YM/Massive/Target/Statement.lean)
+
 ## Local Gauss reduction of the soft trials · 2026-11-27
 
 The original widened Gaussian has a detectable local charge at every width. A second

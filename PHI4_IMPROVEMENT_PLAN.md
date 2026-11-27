@@ -1,45 +1,43 @@
-# Real Scalar λφ⁴ — Master Improvement Plan (Cheap-LLM Execution Guide)
+# Real scalar λφ⁴ in the nested Fock formalism
 
-> **Purpose:** Self-contained, step-by-step work plan for a smaller/cheaper LLM to
-> bring all real scalar λφ⁴ formalization (Lean 4 in `./`), analytical calculus
-> (Cadabra2 in `../unfer/docs/`), and numerical SIRK calculations (Rust in
-> `../unfer/nested_fock_algebra/` and `../unfer/fock_sirk/`) into strict alignment
-> with [book.tex](book.tex).
->
-> **Core architectural principles (pinned 2026-11-23):**
-> 1. **Continuous momentum space — integrals `∫ d³k`, NEVER discrete momentum sums.**
->    In the `book.tex` SIRK / Mehler / nested-Fock framework, **only the Krylov
->    subspace (and finite Mehler-Hermite occupation window) in SIRK approximations
->    is discrete — NEVER space and NEVER momentum space.** Every vector in the
->    discrete Krylov subspace remains a function of continuous variables
->    `(k₁, k₂, k₃, φ) ∈ ℝ³ × ℝ`.
-> 2. **No spatial-derivative jet constraints are needed for λφ⁴.** Coordinate-space
->    first-jet constraints `iD_x = 0` in `book.tex` are trivially satisfied (and
->    avoided) in continuous momentum space, where spatial derivatives become
->    multiplication by `k` and products become continuous momentum-convolution
->    integrals `∫ d³p`. Moreover, for λφ⁴ the gradient `½ ∫ |∇φ|² d³x` is
->    **quadratic** in `φ`, so by Plancherel it becomes the pure diagonal
->    continuous multiplier `½ ∫ |k|² |φ̂(k)|² d³k` (no derivative convolution
->    needed at all!), while the derivative-free quartic potential
->    `(λ/4) ∫ (φ² − v²)² d³x` is the continuous composite-pair integral
->    `(λ/4) ∫ d³Q |Ψ(Q)|²` with `Ψ(Q) = ∫ d³p φ̂(p) φ̂(Q − p) − v² δ⁽³⁾(Q)`.
-> 3. **100% focus on this continuous-momentum SIRK / Mehler / nested-Fock
->    formalism (`momContModel` on `L²(ℝ³_k × ℝ_φ) = L²(ℝ⁴)` + continuous Schwartz
->    convolution integral `∫ d³Q |Ψ(Q)|²`).** Periodic spatial lattices
->    (`siteModel`, `twoSite`, `ScalarGrid`), auxiliary static-jet models
->    (`jetModel`), discrete-momentum truncations, and legacy Higgs builders are
->    **frozen comparisons only**.
-> 4. **Leave `Book/` untouched** for now. Documentation in `../test/` is maintained
->    separately (do not rewrite `../test/` prose).
-> 5. **Zero `sorry`, zero skipped checks, zero unverified claims.** Run every
->    task's exact verification command and require exit code `0` before moving on.
+## Current result and next experiment · 2026-11-27
 
-Companion plans (synchronized with this guide):
-- [PHI4_FORMALIZATION_PLAN.md](PHI4_FORMALIZATION_PLAN.md) (Lean 4 contract)
-- [../unfer/docs/PHI4_ANALYTIC_PLAN.md](../unfer/docs/PHI4_ANALYTIC_PLAN.md) (Cadabra2 contract)
-- [../unfer/docs/PHI4_NUMERICAL_PLAN.md](../unfer/docs/PHI4_NUMERICAL_PLAN.md) (Rust / `fock_sirk` contract)
+The fibre benchmark acts on a wavefunction of one field amplitude and three continuous
+momenta. At unit parameters Lean gives the closed inner fibre lower bound $7/64$ and the
+normalized Gaussian return interval $[319447/320000,39999/40000]$ at $t=1/100$
+for the Stone evolution extending the stated core. The Rust shift-invert suite
+checks the compressed generator and its full-action defect. The two interval
+endpoints concern the full orbit. [Fibre floor](BookProof/Phi4/ChapterScalarMomentumGap.lean) ·
+[Return theorem](BookProof/Phi4/ChapterScalarMomOrbit.lean)
 
----
+For the cross-momentum scalar wall take real Schwartz functions $f,χ$ and define
+$B_χ=χ̂*(f̂*f̂)-v²χ̂$ in the cycles-per-length convention. Plancherel gives
+$\int |B_χ|²=\int |χ|²(f²-v²)²$. Thus λ/4 times either side keeps the background
+and all mixed pairs. Putting the unlocalized background into this norm would
+require squaring a Dirac mass. The gradient of the scalar field remains a diagonal
+Fourier multiplier. [Localized Fourier proof](BookProof/Phi4/ChapterScalarFourierIntegral.lean)
+
+**A measured coefficient.** With unit Gaussian envelopes and localization, packet
+centres $(1,0,0)$ and $(0,2,0)$, and $λ=v=1$, the $a²b²$ coefficient of the wall
+is $0.458627352548$. Deleting the mixed pair leaves $0.152875784183$. These are
+classical potential coefficients. The pair convolution at its polarized peak
+is $2^{-3/2}$ and reversing the transfer gives $e^{-2π}2^{-3/2}$.
+[Symbolic and numerical fixture](../unfer/docs/fixtures/phi4_localized_wall.json)
+
+1. Construct and check the two-amplitude quantum form, including the dual kinetic
+   metric and the mixed matrix element, as specified in the
+   [Lean plan](PHI4_FORMALIZATION_PLAN.md#next-proofs-for-the-lean4-specialist).
+2. Test the same ordered operator inside one outer excitation, using complete
+   products before window projection. Compare the return at fixed localization,
+   then refine the spatial packets with explicit error estimates.
+   [Symbolic plan](../unfer/docs/PHI4_ANALYTIC_PLAN.md) ·
+   [Numerical plan](../unfer/docs/PHI4_NUMERICAL_PLAN.md)
+3. Use one regulator family, state and observable dictionary in any continuum
+   comparison. The October Wilson hierarchy illustrates extraction, the November
+   Yang–Mills comparator ties matching to that run's chosen refinement, and the
+   QCD proof carries phase-specific errors on one calibration path. Their gauge and
+   matter theorems have different Hamiltonians from the scalar model.
+   [Reference contracts and proof paths](cftproof.md#three-continuum-reference-constructions)
 
 ## 1. Hard Framework Contract & Anti-Mixing Guardrails
 
@@ -48,7 +46,7 @@ Read this table before touching any file. **NEVER violate any row below:**
 | Topic | **DO (Exact `book.tex` Continuous-Momentum Framework)** | **DO NOT (Forbidden Mixing)** |
 |---|---|---|
 | **Continuous momentum arena** | Work on the **continuous** space `L²(ℝ³_k × ℝ_φ) = L²(ℝ⁴)` with coordinates `(φ, k₁, k₂, k₃)` (`0 ↦ φ`, `1,2,3 ↦ k₁, k₂, k₃`), Mehler Gaussian measure `e^{−(‖k‖²+φ²)/2}`, and probabilists' product Hermites `He_α(φ, k) e^{−(‖k‖²+φ²)/4}` (norm² `= α! (2π)²`). Momentum space is integrated with **`∫_{ℝ³} d³k`**; **only the Krylov / Hermite subspace in SIRK is discrete**. | **NEVER** discretize momentum space into sums `∑_m` or `∑_Q` over a periodic box. **NEVER** use a spatial lattice (`siteModel`, `ScalarGrid`) or finite-difference gradient as the primary model. **NEVER** introduce spatial-derivative jet constraints for λφ⁴. |
-| **Gradient & quartic potential** | On `L²(ℝ³_k × ℝ_φ)`, the continuous quadratic gradient couples `|k|²` directly to `φ²`: **`½ (k₁² + k₂² + k₃²) φ²`**. Retain the **entire** double-well square `U(φ) = (λ/4)(φ² − v²)²` (**including `λv⁴/4`**) inside `h_cont`:<br>`h_cont(k, φ) = ½ p_φ² + ½ |k|² φ² + (λ/4)(φ² − v²)²`.<br>For the full coordinate-space quartic in momentum space, write the **continuous integral** `(λ/4) ∫_{ℝ³} d³Q |Ψ(Q)|²` (never a discrete sum!), and state honestly that `h_cont` realizes the fibrewise-local quartic in `(k, φ)` while cross-momentum quartic convolution is the continuous integral operator over `ℝ³`. | **NEVER** decouple `k` from `φ` into `½(j₁²+j₂²+j₃²)` (that was the auxiliary `jetModel` with static uncoupled jets!). **NEVER** subtract `λv⁴/4`, **NEVER** normal-order `φ⁴` to drop contractions (`6:φ²: + 3`), **NEVER** Taylor-expand around `±v`, and **NEVER** use the legacy `nested_fock_algebra::cas` compiler. |
+| **Gradient & quartic potential** | On `L²(ℝ³_k × ℝ_φ)`, the continuous quadratic gradient couples `|k|²` directly to `φ²`: **`½ (k₁² + k₂² + k₃²) φ²`**. Retain the **entire** double-well square `U(φ) = (λ/4)(φ² − v²)²` (**including `λv⁴/4`**) inside `h_cont`:<br>`h_cont(k, φ) = ½ p_φ² + ½ |k|² φ² + (λ/4)(φ² − v²)²`.<br>For the localized classical wall use `(λ/4) ∫ |Bχ(Q)|² d³Q` as defined above. An interacting quantum form for these packets requires its own domain. | **NEVER** decouple `k` from `φ` into `½(j₁²+j₂²+j₃²)` (that was the auxiliary `jetModel` with static uncoupled jets!). **NEVER** subtract `λv⁴/4`, **NEVER** normal-order `φ⁴` to drop contractions (`6:φ²: + 3`), **NEVER** Taylor-expand around `±v`, and **NEVER** use the legacy `nested_fock_algebra::cas` compiler. |
 | **Outer enclosure (Quadratic Ordering)** | Assemble the complete inner operator `h` first, then apply a **single** outer lift `H = dΓ(h) = ∫ d³k dφ a†(k,φ) h(k,φ) a(k,φ) = ∑ᵢⱼ ⟨eᵢ, h eⱼ⟩ C†(eᵢ) A(eⱼ)` (`book.tex` lines 4030–4059), where `{eᵢ}` is a countable orthonormal basis of the separable Hilbert space `L²(ℝ³_k × ℝ_φ)` (NOT a discrete momentum grid!). | **NEVER** replace `dΓ(B²)` by `dΓ(B)²` (cross-particle defect at `n ≥ 2`). **NEVER** add number-changing outer terms. |
 | **CCR convention** | Lean & Rust (`ChapterScalarMehler`, `exact_inner.rs`): `Q = b† + b`, `P = i(b† − b)/2 = −i∂`, so `[Q, P] = +i`. Only `φ` (coordinate `0`) carries a conjugate momentum `p_φ`; `(k₁, k₂, k₃)` are continuous momentum multipliers. | **NEVER** decouple `φ` and `p_φ` into separate modes. |
 | **Mass gap terminology** | Distinguish strictly:<br>1. `H Ω = 0` (outer vacuum annihilation, needs no positivity).<br>2. Absolute inner lower bound `⟨ψ, hψ⟩ ≥ μ‖ψ‖²` (`μ > 0`) on all of `L²(ℝ³_k × ℝ_φ)` → lifts to strict outer gap `≥ μ` and unique outer vacuum ground state.<br>3. Inner excitation splitting `E_{odd,0} − E_{even,0}` inside the 1-outer-particle sector (NOT the outer vacuum gap). | **NEVER** call `E₁ − E₀` an outer mass gap. **NEVER** claim that `h_cont`'s unconditional local-fibre gap (`μ ≥ 7/64` at `λ=v=1`) settles full cross-momentum interacting QFT or 4D triviality. |
@@ -58,10 +56,10 @@ Read this table before touching any file. **NEVER violate any row below:**
 
 ---
 
-## 2. Pre-Verified Exact Mathematical Targets (Continuous Momentum `L²(ℝ³_k × ℝ_φ)`)
+## 2. Fibre formulas and proof targets
 
-All formulas and rational numbers below have been independently checked in exact
-rational arithmetic. Use them directly in Phases 1, 2, and 3.
+The unit-parameter rational certificate and the proposed general-parameter estimates
+have different verification status, as specified below.
 
 ### 2.1 Continuous-Momentum Inner Hamiltonian `momContModel` (`weylPoly` on `L²(ℝ⁴)`)
 
@@ -112,25 +110,27 @@ Exact invariants:
   - **Certified two-sided return probability interval for `unitMomCont` at `t = 1/100`:**
     `319447/320000 = 1 − (553/32)(1/100)² ≤ |⟨e, U_cont(1/100) e⟩|² ≤ 1 − (1/200)² = 39999/40000 < 1`.
 
-### 2.3 Unconditional Absolute Inner Gap & Continuous Momentum Dispersion Floor
+### 2.3 Unit fibre theorem and parameter-dependent targets
 
 1. Canonical uncertainty on `polyGaussCore (L²(ℝ⁴))` (`[X₀, P₀] = i`): for any `α > 0`,
    `0 ≤ ‖(P₀ − iα X₀) ψ‖² = ‖P₀ ψ‖² + α²‖X₀ ψ‖² − α‖ψ‖²`, so
    `½ ⟨ψ, (P₀² + α² X₀²) ψ⟩ ≥ (α/2)‖ψ‖²`.
 2. Since `½ |k|² φ² ≥ 0` pointwise for all `k ∈ ℝ³`, completing the square in
-   `u = φ² − v²` with `α := min (1 / (2 v²)) (min (1/2) (λ/2)) > 0` gives unconditionally:
-   `⟨ψ, h_cont ψ⟩ ≥ (7/32) α ‖ψ‖² > 0` (**`≥ 7/64 ‖ψ‖²`** at `λ = v = 1` with `α = 1/2`),
-   lifting to a strict outer gap and unique outer vacuum ground state on `hbosonicFock (L2dSpace 4)`.
+   `u = φ² − v²` with `α := min (1 / (2 v²)) (min (1/2) (λ/2)) > 0` gives the following analytic target:
+   `⟨ψ, h_cont ψ⟩ ≥ (7/32) α ‖ψ‖²`. At `λ = v = 1` the coefficient is `7/64`.
+   The unit estimate is formalized through the graph closure. For general parameters
+   Lean proves positivity of the proposed constant. A fibre-specific sectorwise
+   lift and vacuum uniqueness remain proof targets.
 3. **Continuous dispersion floor on momentum-localized wave-packets:** for any `k₀ ≥ 0`
-   and any `ψ ∈ polyGaussCore` (or `L²`) supported on `‖k‖ ≥ k₀`,
+   and any `ψ` in the joint quadratic-form domain supported on `‖k‖ ≥ k₀`,
    `½ ⟨ψ, (p_φ² + |k|² φ²) ψ⟩ ≥ ½ ⟨ψ, (p_φ² + k₀² φ²) ψ⟩ ≥ (k₀/2) ‖ψ‖²`.
 
 ---
 
-## 3. Atomic Execution Queue (`P0` → `P13`)
+## 3. Fibre implementation and replay specification (P0–P13)
 
-Execute **one task at a time** in strict order. Do not advance until the task's
-verification command exits `0`.
+The following is the original implementation specification for reproducing the fibre work.
+The current mixed-packet work order appears at the top.
 
 ---
 
@@ -267,7 +267,7 @@ verification command exits `0`.
   4. `momCont_outer_gap` and `momCont_vacuum_unique_ground`: for every
      `x : hbosonicFockDom (L2dSpace 4) polyGaussCore` with `(x : hbosonicFock _) 0 = 0`,
      `contGap p * ‖x‖^2 ≤ quadForm (momContModel p).outerHam x`, lifted to `clExt`.
-     *(Honesty docstring: unconditional gap of the continuous-momentum fibrewise-quartic `momContModel`; full cross-momentum quartic convolution is a separate continuous integral operator.)*
+     *(Honesty docstring: unconditional gap of the continuous-momentum fibrewise-quartic `momContModel`; full cross-momentum quartic convolution requires a separate quantum operator construction.)*
   5. Global `ℤ₂` field reflection `φ ↦ −φ` (`diag(-1, 1, 1, 1)`) and spatial parity `k ↦ −k` (`diag(1, -1, -1, -1)`): both proved orthogonal via `rotPoly`/`inner_pgLp_rotPoly` and commuting with `(momContModel p).innerHam` on `polyGaussCore`, giving exact parity superselection!
 - **Verify:**
   ```bash
@@ -374,9 +374,9 @@ verification command exits `0`.
 - **Read:** `../unfer/fock_sirk/src/joint_sirk.rs` (lines 299–430), `../unfer/fock_sirk/src/sm_defect.rs` (lines 168–550).
 - **Create:** `../unfer/fock_sirk/tests/phi4_momentum_sirk.rs`.
 - **Implement 5 integration tests using `solve_joint_sirk` (`JointKrylovMethod::ShiftInvert`) and `sm_defect`:**
-  1. `phi4_mom_rank_two_matches_cadabra_and_lean_interval`: degree-`≤ 2` even Hermite window (`cutoff = 2`, 5 basis states; `S₃` symmetry restricts the Krylov span from `e₀` to the exact 3D subspace `{1, He₂(φ), K₂}`!), shifts `[10i, 5i]`, `t = 0.01`; assert `p(0.01) ∈ [319447/320000, 39999/40000]`, `projected_action_tail_norms[0]^2 ≈ 9/2` (`< 1e-10`), `hermiticity_defect < 1e-12`.
+  1. `phi4_mom_rank_two_matches_cadabra_and_lean_interval`: degree-`≤ 2` even Hermite window (`cutoff = 2`, 5 basis states; `S₃` symmetry restricts the Krylov span from `e₀` to the exact 3D subspace `{1, He₂(φ), K₂}`!), shifts `[10i, 5i]`, `t = 0.01`; check the raw return against the compressed reference and the full-orbit estimate against the Lean interval, `projected_action_tail_norms[0]^2 ≈ 9/2` (`< 1e-10`), `hermiticity_defect < 1e-12`.
   2. `phi4_mom_independent_cutoff_and_rank_convergence`: at `λ = v = width_phi = width_k = 1, t = 0.05`, sweep Hermite occupation cutoff `C ∈ {4, 8, 12}` at fixed Krylov rank `m = 2`, and sweep Krylov rank `m ∈ {2, 4, 6}` at fixed `C = 8` via `hashimoto_unitary_shifts`; compute full unprojected `sm_defect::defect_terms` and outward-rounded `interval_terms`; verify cutoff tail decreases with `C` and window-internal error decreases with `m`.
-  3. `phi4_mom_coupling_and_momentum_scale_resolved`: paired runs `λ = 1.0` vs `1.1` (and null control `1.0` vs `1.0`), plus continuous momentum-spread test `width_k = 1.0` vs `width_k = 1.5`, at `v = 1, C = 8, m = 4, t = 0.05`; charge `2ε + ε²` per run from full-action error `ε`; assert null-control interval contains `0.0` and both physical response intervals strictly exclude `0.0`.
+  3. `phi4_mom_coupling_and_momentum_scale_resolved`: paired runs `λ = 1.0` vs `1.1` (and null control `1.0` vs `1.0`), plus continuous momentum-spread test `width_k = 1.0` vs `width_k = 1.5`, at `v = 1, C = 8, m = 4, t = 0.05`; charge `2ε + ε²` per run from full-action error `ε`; record zero inclusion for each response. The current spread interval excludes zero and the coupling interval includes it.
   4. `phi4_mom_parity_selection_and_unconditional_inner_gap`: run `solve_joint_sirk` on even (`He₀`) and odd (`He₁(φ)`) seeds at `C = 8, m = 4`; assert exact `ℤ₂` parity conservation (`φ ↦ −φ`); assert every Ritz value satisfies `θ₀ ≥ 7/64` (Lean `unitMomCont_inner_gap`); print odd-even splitting labeled as inner excitation splitting.
   5. `phi4_mom_vs_comparison_models_contrast`: assert distinct exact Gaussian variance & coupling for continuous `ScalarMomCont` (mean `17/8`, variance `553/32`, nonzero `He₂(φ) K₂` coupling `1/2`), frozen auxiliary `jetModel` (mean `17/8`, variance `145/32`, zero coupling), and frozen 2-site lattice `ScalarGrid::two_site` (mean `13/4`, variance `337/16`).
 - **Verify:**

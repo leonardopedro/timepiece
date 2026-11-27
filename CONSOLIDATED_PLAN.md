@@ -28664,3 +28664,28 @@ succeed with no warnings and no `sorry`; `#print axioms` on `exists_bound_genSum
 `hasDerivAt_gaussFlowOp_pgLp`, `hasDerivAt_gaussFlowOp`, `gaussPMap_closure_skewAdjoint`,
 `gaussChargeSelfAdjoint` and `gaussCharge_stoneFlow` gives
 `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-27 · archive comparison and localized packet tests
+
+This entry updates the proof status for the scalar fibre, the two-colour soft-mode
+test and normalized Euclidean insertions. Keep the earlier fixed-profile and finite-window
+results with their stated Hamiltonians.
+
+- **QYM.** Compressing two local colour rotations on the scalar Gaussian profile loses
+  a strictly positive multiplier variance before the Krylov solve. Compare the full
+  affine bracket, including its gradient, on an enlarged spatial span. A physical
+  strong-coupling witness still needs a lower bound on the absolute one-particle
+  edge above the uniform total error. [Mass-gap work order](softmodes.md)
+- **Continuum.** Each Wilson archive identifies its own selected hierarchy. The November
+  matching contract ties the perturbative reference to the selected run. Massive QCD
+  supplies a separate example of paying the comparison error before vacuum selection.
+  For the nested observable, bound the centered weighted residual and the partition
+  mass along the same regulator choices. The physical bridge remains open.
+  [Continuum work order and archive statements](cftproof.md)
+- **Scalar.** The unit fibre lower bound of 7/64 holds on the closed operator domain.
+  A theorem proving positivity of the candidate constant for all parameters leaves the
+  general-parameter energy inequality open. The sectorwise strict floor and vacuum
+  uniqueness remain to be instantiated. The localized classical wall now has a
+  Schwartz Plancherel proof and a two-packet coefficient reproduced in Cadabra and
+  Rust. Establish the ordered quantum matrix element on the same packets next.
+  [Scalar proof plan](PHI4_FORMALIZATION_PLAN.md) · [Packet checks](PHI4_IMPROVEMENT_PLAN.md)

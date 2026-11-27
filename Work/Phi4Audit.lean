@@ -4,8 +4,8 @@ Axiom audit for the real scalar `λφ⁴` formalization (`BookProof.Phi4.*`).
 Each module below contributes its public theorems.  The chain claims: the Mehler-core
 one-particle Hamiltonian is essentially self-adjoint with a Stone flow; the continuous
 momentum-space rank-one bounds and the two-sided return interval at `t = 1/100` hold with
-kernel-checked rational constants; the symmetric outer Fock Hamiltonian has a unique vacuum
-ground state; and second quantization obeys the shift law `dΓ(h + c·1) = dΓ(h) + c·N_out`
+kernel-checked rational constants; the unit inner fibre has a positive lower bound on its closure;
+the symmetric outer Fock Hamiltonian has a vacuum ground state; and second quantization obeys the shift law `dΓ(h + c·1) = dΓ(h) + c·N_out`
 together with the one-particle sector identification.  Every declaration must rest on
 `propext`, `Classical.choice`, `Quot.sound` only.
 
@@ -71,6 +71,7 @@ import BookProof.RoadmapAudit.AxiomAudit
 #audit_axioms BookProof.Phi4.spatialParity_inner
 #audit_axioms BookProof.Phi4.unit_wall_completion
 #audit_axioms BookProof.Phi4.unitMomCont_inner_gap
+#audit_axioms BookProof.Phi4.unitMomCont_closure_floor
 #audit_axioms BookProof.Phi4.shifted_well_comparison_false
 
 /-! ## `ChapterScalarFourierIntegral` -/
@@ -78,6 +79,8 @@ import BookProof.RoadmapAudit.AxiomAudit
 #audit_axioms BookProof.Phi4.fourier_grad_sq_identity
 #audit_axioms BookProof.Phi4.psiField_eq_fourier_mul
 #audit_axioms BookProof.Phi4.fourier_phi4_composite_integral
+#audit_axioms BookProof.Phi4.localizedWall_fourier
+#audit_axioms BookProof.Phi4.localizedWall_energy
 
 /-! ## `ChapterScalarMomRankTwo` -/
 

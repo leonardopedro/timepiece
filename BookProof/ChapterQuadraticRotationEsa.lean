@@ -119,6 +119,24 @@ theorem pderiv_rotPoly (O : Matrix (Fin d) (Fin d) ℝ) (k : Fin d)
       simp only [smul_eq_mul]
       ring
 
+/-- **Composition of substitutions is substitution by the matrix product**: applying `B`
+and then `A` is applying `A * B` (the order is the one that makes the action on functions
+a left action). -/
+theorem rotPoly_mul (A B : Matrix (Fin d) (Fin d) ℝ) (p : MvPolynomial (Fin d) ℂ) :
+    rotPoly A (rotPoly B p) = rotPoly (A * B) p := by
+  have h : (rotPoly A).comp (rotPoly B) = rotPoly (A * B) := by
+    refine MvPolynomial.algHom_ext fun i => ?_
+    rw [AlgHom.comp_apply, rotPoly_X, map_sum]
+    simp only [map_mul, rotPoly_C, rotPoly_X, Finset.mul_sum]
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun k _ => ?_
+    rw [Finset.sum_congr rfl fun x _ => (mul_assoc _ _ _).symm, ← Finset.sum_mul]
+    congr 1
+    rw [Matrix.mul_apply, Complex.ofReal_sum, map_sum]
+    refine Finset.sum_congr rfl fun j _ => ?_
+    rw [← map_mul, ← Complex.ofReal_mul, mul_comm (B j i) (A k j)]
+  exact congrArg (fun f => f p) h
+
 /-- The substitutions by `O` and by `Oᵀ` are mutually inverse. -/
 theorem rotPoly_rotPoly_transpose {O : Matrix (Fin d) (Fin d) ℝ} (hO : Oᵀ * O = 1)
     (p : MvPolynomial (Fin d) ℂ) : rotPoly O (rotPoly Oᵀ p) = p := by

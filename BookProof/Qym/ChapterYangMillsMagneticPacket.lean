@@ -241,6 +241,7 @@ noncomputable def alignedOrbit (w longitudinal : α → ℝ) (g τ : ℝ)
     Real.cos θ * A x 1 + Real.sin θ * A x 2,
     -Real.sin θ * A x 1 + Real.cos θ * A x 2]
 
+omit [MeasurableSpace α] in
 theorem alignedOrbit_add (w l : α → ℝ) (g s t : ℝ) (A : α → Fin 3 → ℝ) :
     alignedOrbit w l g t (alignedOrbit w l g s A) = alignedOrbit w l g (s+t) A := by
   funext x j
@@ -398,6 +399,22 @@ theorem gaussian_compression_defect :
   · rfl
   · nlinarith [Real.sq_sqrt (show 0 ≤ (1 / 8 : ℝ) by norm_num),
       Real.sqrt_nonneg (1 / 8), sq_nonneg (Real.sqrt (1 / 8) - 8 / 27)]
+
+/-- On the input colour e₂ the ordered commutator of the right rotations about
+e₁ and e₂ detects the difference between projecting w² and projecting w twice.
+Each application carries one power of the gauge coupling. -/
+theorem two_colour_projection_defect (g : ℝ) :
+    let x : Fin 3 → ℝ := ![0, 1, 0]
+    let e : Fin 3 → ℝ := ![1, 0, 0]
+    let rotation := fun (c : ℝ) (axis z : Fin 3 → ℝ) => (g * c) • (z ⨯₃ axis)
+    let exactBracket := (g^2 * compressedMoment 2) •
+      (((x ⨯₃ x) ⨯₃ e) - ((x ⨯₃ e) ⨯₃ x))
+    let a := compressedMoment 1
+    (exactBracket - (rotation a e (rotation a x x) - rotation a x (rotation a e x))) 0 =
+      -(g^2 * (Real.sqrt (1 / 8) - 8 / 27)) := by
+  rw [← gaussian_compression_defect.1]
+  simp [cross_apply]
+  ring
 
 end GaussianCompression
 

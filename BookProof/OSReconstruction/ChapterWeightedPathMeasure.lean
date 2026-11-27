@@ -80,4 +80,41 @@ theorem weighted_pathMeasure_le {ε m : ℝ} (hε : 0 ≤ ε) (V : ℝ → ℝ) 
       rw [pathMeasure_univ N ρ hρ x]
       simp
 
+/-- A measured event on which the action is bounded gives an explicit lower
+bound on the partition mass. Both inputs can depend on the regulator. -/
+theorem partition_mass_of_action_event {α : Type*} [MeasurableSpace α]
+    (μ : Measure α) [IsFiniteMeasure μ] (S : α → ℝ) (K : ℝ) (E : Set α)
+    (hE : MeasurableSet E) (hS : ∀ x ∈ E, S x ≤ K)
+    (hw : Integrable (fun x => Real.exp (-S x)) μ) :
+    μ.real E * Real.exp (-K) ≤ ∫ x, Real.exp (-S x) ∂μ := by
+  have hi := (integrable_const (μ := μ) (Real.exp (-K))).indicator hE
+  have h := integral_mono hi hw (fun x => show E.indicator (fun _ => Real.exp (-K)) x ≤ _ by
+    by_cases hx : x ∈ E
+    · simpa [hx] using Real.exp_le_exp.mpr (neg_le_neg (hS x hx))
+    · simp [hx, Real.exp_nonneg])
+  simpa only [integral_indicator_const _ hE, smul_eq_mul] using h
+
+/-- If the unnormalized insertion and partition mass converge on the same regulator
+filter, a strictly positive limiting mass gives the normalized insertion limit. -/
+theorem normalized_insertion_limit {ι α : Type*} [MeasurableSpace α] {l : Filter ι}
+    (μ : ι → Measure α) (w F : ι → α → ℝ) {a Z : ℝ}
+    (hnum : Tendsto (fun i => ∫ x, w i x * F i x ∂μ i) l (𝓝 a))
+    (hmass : Tendsto (fun i => ∫ x, w i x ∂μ i) l (𝓝 Z)) (hZ : 0 < Z) :
+    Tendsto (fun i => (∫ x, w i x * F i x ∂μ i) / ∫ x, w i x ∂μ i) l (𝓝 (a / Z)) :=
+  hnum.div hmass hZ.ne'
+
+/-- A lower bound on the measured mass converts the unnormalized centered residual
+into an error bar for a real insertion at this regulator. -/
+theorem normalized_insertion_error {α : Type*} [MeasurableSpace α] (μ : Measure α)
+    (w F : α → ℝ) (target ε z : ℝ) (hz : 0 < z) (hmass : z ≤ ∫ x, w x ∂μ)
+    (hw : Integrable w μ) (hF : Integrable (fun x => w x * F x) μ)
+    (herr : |∫ x, w x * (F x - target) ∂μ| ≤ ε) :
+    |(∫ x, w x * F x ∂μ) / (∫ x, w x ∂μ) - target| ≤ ε / z := by
+  have hZ := lt_of_lt_of_le hz hmass
+  simp_rw [mul_sub] at herr
+  rw [integral_sub hF (hw.mul_const target), integral_mul_const] at herr
+  rw [div_sub', abs_div, abs_of_pos hZ] <;> try exact hZ.ne'
+  exact (div_le_div_of_nonneg_right herr hZ.le).trans
+    (div_le_div_of_nonneg_left ((abs_nonneg _).trans herr) hz hmass)
+
 end BookProof.WeightedPathMeasure
