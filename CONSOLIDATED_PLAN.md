@@ -28862,3 +28862,11 @@ specialization `mehlerPathMeasure_history` (Dirac start plus `mehlerStep`), and
 history law).  This goes beyond the previously proved coordinates `0` and `1`; identifying these
 marginals with the `L`-indexed `pathMeasure` family, the interacting weight limit and
 positive-time RP are still open.  Axioms are `[propext, Classical.choice, Quot.sound]`.
+
+**H3 centered insertion comparison.** `ChapterWeightedPathMeasure.centered_insertion_error`
+carries out `cftproof.md`'s first-nested-comparison prescription for a centered two-point
+function: applying `normalized_insertion_error` to the product and both one-point insertions on
+the same weighted state gives
+`|⟨(F−cF)(G−cG)⟩_w − (cFG − cF·cG)| ≤ (εFG + |cF| εG + |cG| εF)/z` under `z ≤ ∫w`, with
+integrability of `w`, `wF`, `wG`, `wFG`.  The mass cancels exactly in the centering; no spectral
+or positivity hypothesis is used.  Axioms: `[propext, Classical.choice, Quot.sound]`.

@@ -33,7 +33,10 @@ upper bound on Strang mass supplies no lower bound. For $w=e^{-S}$,
 `partition_mass_of_action_event` gives $Z≥μ(E)e^{-K}$ on any measurable event
 where $S≤K$. Estimate the event probability along the chosen regulators. For a centered two-point
 function, apply the comparison to the product and both one-point insertions on
-the same state before centering. [Finite-weight estimates](BookProof/OSReconstruction/ChapterWeightedPathMeasure.lean)
+the same state before centering; `centered_insertion_error` now carries that step out, bounding
+$\langle(F-c_F)(G-c_G)\rangle_w-(c_{FG}-c_F c_G)$ by
+$(\varepsilon_{FG}+|c_F|\varepsilon_G+|c_G|\varepsilon_F)/z$ with no spectral hypothesis.
+[Finite-weight estimates](BookProof/OSReconstruction/ChapterWeightedPathMeasure.lean)
 
 The product Gaussian reference now satisfies Wick's identity at every order, with
 all joint coordinate cumulants of order at least three equal to zero. This gives a

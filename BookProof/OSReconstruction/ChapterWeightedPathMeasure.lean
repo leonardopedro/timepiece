@@ -117,4 +117,80 @@ theorem normalized_insertion_error {α : Type*} [MeasurableSpace α] (μ : Measu
   exact (div_le_div_of_nonneg_right herr hZ.le).trans
     (div_le_div_of_nonneg_left ((abs_nonneg _).trans herr) hz hmass)
 
+private lemma abs_sub_sub_le (A B C : ℝ) : |A - B - C| ≤ |A| + |B| + |C| := by
+  have heq : A - B - C = A + (-B) + (-C) := by ring
+  rw [heq]
+  calc |A + (-B) + (-C)| ≤ |A + (-B)| + |-C| := abs_add_le _ _
+    _ ≤ (|A| + |-B|) + |-C| := by gcongr; exact abs_add_le _ _
+    _ = |A| + |B| + |C| := by simp
+
+/-- The centered two-point insertion of `cftproof.md`'s first nested comparison.  Apply
+    `normalized_insertion_error` to the product and to both one-point insertions on the **same**
+    weighted state, then center: the error of `⟨(F−cF)(G−cG)⟩_w` against `cFG − cF·cG` is
+    `(εFG + |cF| εG + |cG| εF)/z`.  No spectral or positivity hypothesis is used, and the mass
+    `∫w` cancels exactly in the centering. -/
+theorem centered_insertion_error {α : Type*} [MeasurableSpace α] (μ : Measure α)
+    (w F G : α → ℝ) (cFG cF cG εFG εF εG z : ℝ) (hz : 0 < z)
+    (hmass : z ≤ ∫ x, w x ∂μ) (hw : Integrable w μ)
+    (hF : Integrable (fun x => w x * F x) μ)
+    (hG : Integrable (fun x => w x * G x) μ)
+    (hFG : Integrable (fun x => w x * (F x * G x)) μ)
+    (herrFG : |∫ x, w x * (F x * G x - cFG) ∂μ| ≤ εFG)
+    (herrF : |∫ x, w x * (F x - cF) ∂μ| ≤ εF)
+    (herrG : |∫ x, w x * (G x - cG) ∂μ| ≤ εG) :
+    |(∫ x, w x * ((F x - cF) * (G x - cG)) ∂μ) / (∫ x, w x ∂μ) -
+        (cFG - cF * cG)| ≤ (εFG + |cF| * εG + |cG| * εF) / z := by
+  have hZpos : 0 < ∫ x, w x ∂μ := lt_of_lt_of_le hz hmass
+  have h1 := normalized_insertion_error μ w (fun x => F x * G x) cFG εFG z hz hmass hw hFG
+    herrFG
+  have h2 := normalized_insertion_error μ w F cF εF z hz hmass hw hF herrF
+  have h3 := normalized_insertion_error μ w G cG εG z hz hmass hw hG herrG
+  have hint : Integrable (fun x => w x * ((F x - cF) * (G x - cG))) μ := by
+    have hmain : Integrable (fun x => w x * (F x * G x) - cG * (w x * F x) -
+        cF * (w x * G x) + (cF * cG) * w x) μ :=
+      ((hFG.sub (hF.const_mul cG)).sub (hG.const_mul cF)).add (hw.const_mul (cF * cG))
+    convert hmain using 1
+    ext x
+    ring
+  have hid : (∫ x, w x * ((F x - cF) * (G x - cG)) ∂μ) =
+      (∫ x, w x * (F x * G x) ∂μ) - cG * (∫ x, w x * F x ∂μ) -
+        cF * (∫ x, w x * G x ∂μ) + (cF * cG) * (∫ x, w x ∂μ) := by
+    let A : α → ℝ := fun x => w x * (F x * G x) - cG * (w x * F x) - cF * (w x * G x)
+    let B : α → ℝ := fun x => (cF * cG) * w x
+    let C : α → ℝ := fun x => w x * (F x * G x) - cG * (w x * F x)
+    let D : α → ℝ := fun x => cF * (w x * G x)
+    have hC : Integrable C μ := hFG.sub (hF.const_mul cG)
+    have hD : Integrable D μ := hG.const_mul cF
+    have hAeq : A = fun x => C x - D x := by funext x; dsimp [A, C, D]
+    have hfun : (fun x => w x * ((F x - cF) * (G x - cG))) = fun x => A x + B x := by
+      funext x
+      dsimp [A, B]
+      ring
+    rw [hfun, integral_add (hAeq ▸ hC.sub hD) (hw.const_mul (cF * cG))]
+    rw [hAeq]
+    rw [integral_sub hC hD]
+    dsimp [C, D]
+    rw [integral_sub hFG (hF.const_mul cG)]
+    simp only [integral_const_mul]
+  rw [hid]
+  have hrewrite :
+      ((∫ x, w x * (F x * G x) ∂μ) - cG * (∫ x, w x * F x ∂μ) -
+          cF * (∫ x, w x * G x ∂μ) + (cF * cG) * (∫ x, w x ∂μ)) /
+          (∫ x, w x ∂μ) - (cFG - cF * cG) =
+        ((∫ x, w x * (F x * G x) ∂μ) / (∫ x, w x ∂μ) - cFG) -
+          cG * ((∫ x, w x * F x ∂μ) / (∫ x, w x ∂μ) - cF) -
+          cF * ((∫ x, w x * G x ∂μ) / (∫ x, w x ∂μ) - cG) := by
+    field_simp [hZpos.ne']
+    ring
+  rw [hrewrite]
+  calc
+    |_ - _ - _| ≤ |(∫ x, w x * (F x * G x) ∂μ) / (∫ x, w x ∂μ) - cFG| +
+        |cG * ((∫ x, w x * F x ∂μ) / (∫ x, w x ∂μ) - cF)| +
+        |cF * ((∫ x, w x * G x ∂μ) / (∫ x, w x ∂μ) - cG)| := abs_sub_sub_le _ _ _
+    _ ≤ εFG / z + |cG| * (εF / z) + |cF| * (εG / z) := by
+      gcongr
+      · simpa [abs_mul] using mul_le_mul_of_nonneg_left h2 (abs_nonneg cG)
+      · simpa [abs_mul] using mul_le_mul_of_nonneg_left h3 (abs_nonneg cF)
+    _ = (εFG + |cF| * εG + |cG| * εF) / z := by ring
+
 end BookProof.WeightedPathMeasure
