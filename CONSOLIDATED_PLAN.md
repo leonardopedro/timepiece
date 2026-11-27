@@ -28853,3 +28853,12 @@ step's central cocycle accumulates as `N·ab/2`), and `endpoint_pow_ne_symmetric
 slicing fails at every positive step count when `ab ≠ 0`).  Boundary: an exact finite-dimensional
 model; no operator-norm Lie–Trotter limit, Euclidean measure or physical Hamiltonian is claimed.
 Axioms are `[propext, Classical.choice, Quot.sound]` for all five endpoints.
+
+**H3 all finite history marginals.** `ChapterMehlerTrajMeasure` now gives the general
+finite-marginal formula for the Ionescu–Tulcea path measure: `trajMeasure_map_history` (the law of
+history up to `n` is the initial measure composed with `partialTraj κ 0 n`), the Mehler
+specialization `mehlerPathMeasure_history` (Dirac start plus `mehlerStep`), and
+`mehlerPathMeasure_history_projective` (restriction to earlier times recovers the smaller
+history law).  This goes beyond the previously proved coordinates `0` and `1`; identifying these
+marginals with the `L`-indexed `pathMeasure` family, the interacting weight limit and
+positive-time RP are still open.  Axioms are `[propext, Classical.choice, Quot.sound]`.

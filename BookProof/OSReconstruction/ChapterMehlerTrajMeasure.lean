@@ -243,4 +243,42 @@ theorem mehlerPathMeasure_eval_one (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n) ^ 2 <
   rw [happly] at hsnd
   simpa [P, mehlerPathMeasure] using hsnd
 
+/-- The law of the history up to time `n` under any Ionescu–Tulcea path measure is the initial
+    measure composed with `partialTraj κ 0 n`.  This is the general finite-marginal formula:
+    every finite-dimensional distribution of the path process is determined by the kernel
+    family, with no assumption on the initial measure. -/
+lemma trajMeasure_map_history {μ₀ : Measure ℝ}
+    (κ : (n : ℕ) → Kernel (Π _ : Finset.Iic n, ℝ) ℝ) [∀ n, IsMarkovKernel (κ n)]
+    (n : ℕ) :
+    (trajMeasure (X := fun _ : ℕ => ℝ) μ₀ κ).map (frestrictLe n) =
+      (partialTraj (X := fun _ : ℕ => ℝ) κ 0 n) ∘ₘ
+        (μ₀.map (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm) := by
+  unfold trajMeasure
+  rw [Measure.map_comp _ _ (by fun_prop)]
+  rw [traj_map_frestrictLe]
+
+/-- The finite marginals of the Mehler path measure: the history up to `n` is `partialTraj`
+    applied to the Mehler kernels, started from the Dirac history at `x`.  This covers every
+    finite set of coordinates of the form `Iic n`, not just times `0` and `1`. -/
+theorem mehlerPathMeasure_history (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n) ^ 2 < 1) (x : ℝ) (n : ℕ) :
+    (mehlerPathMeasure ρ hρ x).map (frestrictLe n) =
+      (partialTraj (X := fun _ : ℕ => ℝ) (mehlerStep ρ hρ) 0 n) ∘ₘ
+        (Measure.dirac (fun _ : Finset.Iic 0 => x)) := by
+  dsimp [mehlerPathMeasure]
+  rw [trajMeasure_map_history]
+  congr 1
+  rw [Measure.map_dirac (MeasurableEquiv.piUnique (fun _ : Finset.Iic 0 => ℝ)).symm.measurable]
+  congr
+
+/-- The finite marginals are projective: restricting the history law at `n` to times `≤ m`
+    gives exactly the history law at `m`.  This is the compatibility the `pathMeasure` family
+    must satisfy for the nested finite-slice measures to define one process. -/
+theorem mehlerPathMeasure_history_projective (ρ : ℕ → ℝ) (hρ : ∀ n, (ρ n) ^ 2 < 1) (x : ℝ)
+    {m n : ℕ} (hmn : m ≤ n) :
+    ((mehlerPathMeasure ρ hρ x).map (frestrictLe (π := fun _ : ℕ => ℝ) n)).map
+        (frestrictLe₂ (π := fun _ : ℕ => ℝ) hmn) =
+      (mehlerPathMeasure ρ hρ x).map (frestrictLe (π := fun _ : ℕ => ℝ) m) := by
+  rw [← frestrictLe₂_comp_frestrictLe (π := fun _ : ℕ => ℝ) hmn]
+  rw [Measure.map_map (measurable_frestrictLe₂ hmn) (by fun_prop)]
+
 end BookProof.MehlerTrajMeasure
