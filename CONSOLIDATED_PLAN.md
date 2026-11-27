@@ -7,6 +7,11 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **QYM update (2026-11-27).** The widened Gaussian changes under a matched local
+> gauge transformation. A transverse interacting packet has zero projected charge
+> and a charge norm of one half when its driven longitudinal coordinate is restored.
+> [Gauge tests, exact orbit and next reduction](softmodes.md)
+>
 > **Current QYM and OS work (2026-11-26).** The three-profile absolute mass exceeds
 > its common variational error at coupling 2. The OS bridge transports the whole
 > stationary projection. The physical gauge reduction and selected Wilson comparison
@@ -28568,3 +28573,18 @@ finite-degree polynomial curve, and it is not proved here.
 `#print axioms` on `ymGaussVec_eq_sum_gaussMat`, `gaussMat_antisymm`, `gaussFlow_add`,
 `gaussFlow_transpose_mul`, `gaussFlowOp_pgLp`, `gaussFlowOp_mem_domain` and
 `gaussPMap_closure_skewAdjoint_of_rotation` gives `[propext, Classical.choice, Quot.sound]`.
+
+## 2026-11-27 · Local Gauss tests and the first orbit metric
+
+A matched Schwartz parameter translates the first amplitude of the soft trial
+by half a standard deviation. The conditional Ward estimate on a unit trial is
+at least 1/4 in charge norm. For the two transverse colour triples every projected
+translation vanishes and the rotation kills the Gaussian. At coupling 2 its
+interacting trial energy scales as 15.99217282 divided by the width. Including
+the longitudinal gradient of one smearing gives a charge norm of 1/2. Only the
+position-dependent colour rotation cancels the magnetic curvature variation
+along the exact orbit. The normalized longitudinal pairing picks a unique
+one-smearing slice, and its horizontal metric has a positive lower bound. The physical quotient measure, kinetic form and omitted-field energy are
+still required for a spectral claim. [Gauss identities](BookProof/Qym/ChapterYangMillsPacketCharge.lean) ·
+[Orbit geometry](BookProof/Qym/ChapterYangMillsMagneticPacket.lean) ·
+[Ladder replay](../unfer/fock_sirk/tests/qym_magnetic_packet.rs)

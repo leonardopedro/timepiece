@@ -159,6 +159,119 @@ magnetic half square, without dropping either the cubic or quartic interaction. 
 theorem magnetic_gauge_variation_zero (g : ℝ) (F W : Fin 3 → ℝ) :
     F ⬝ᵥ (g • (F ⨯₃ W)) = 0 := by simp [dotProduct_smul, dot_self_cross]
 
+/-- On a colour orbit with n perpendicular to the gauge axis e, the two
+directions n and n×e are orthonormal. A constant projected rotation leaves an
+uncancelled curvature component of size b. -/
+theorem projected_orbit_curvature (n e : Fin 3 → ℝ) (hn : n ⬝ᵥ n = 1)
+    (he : e ⬝ᵥ e = 1) (hperp : n ⬝ᵥ e = 0) (d b : ℝ) :
+    (d • n + b • (n ⨯₃ e)) ⬝ᵥ (d • n + b • (n ⨯₃ e)) = d^2 + b^2 := by
+  have hrev : e ⬝ᵥ n = 0 := by rw [dotProduct_comm, hperp]
+  have horth : (n ⨯₃ e) ⬝ᵥ n = 0 := by rw [dotProduct_comm, dot_self_cross]
+  simp [add_dotProduct, dotProduct_add, smul_dotProduct, dotProduct_smul, hn, he, hperp,
+    hrev, horth, cross_dot_cross, smul_eq_mul, sq]
+
+/-- Exact rotation of a colour vector about the first axis, in the right-cross convention. -/
+noncomputable def orbitColour (θ : ℝ) : Fin 3 → ℝ := ![0, Real.cos θ, -Real.sin θ]
+
+theorem orbitColour_derivative (θ : ℝ) :
+    HasDerivAt orbitColour (orbitColour θ ⨯₃ ![1, 0, 0]) θ := by
+  apply hasDerivAt_pi.mpr
+  intro j
+  fin_cases j
+  · simpa [orbitColour, cross_apply, Matrix.cons_val] using hasDerivAt_const θ (0 : ℝ)
+  · simpa [orbitColour, cross_apply, Matrix.cons_val] using Real.hasDerivAt_cos θ
+  · simpa [orbitColour, cross_apply, Matrix.cons_val] using (Real.hasDerivAt_sin θ).neg
+
+/-- With the actual spatially varying colour rotation, differentiating n
+gives the opposite of the longitudinal commutator in each curvature component. -/
+theorem local_orbit_curvature (n e : Fin 3 → ℝ) (uᵢ uⱼ wᵢ wⱼ d g τ : ℝ) :
+    d • n + (g*τ*(uⱼ*wᵢ-uᵢ*wⱼ)) • (n ⨯₃ e) +
+      g • ((uᵢ • n + (τ*wᵢ) • e) ⨯₃ (uⱼ • n + (τ*wⱼ) • e)) = d • n := by
+  ext k
+  fin_cases k <;> simp [cross_apply, Matrix.vecHead, Matrix.vecTail] <;> ring
+
+/-- Orthogonalizing the gauge-orbit velocity against the two retained transverse
+colour rows leaves the longitudinal norm J and the variance of the spatial multiplier.
+M is the common profile norm squared, b and a its normalized second and first moments. -/
+theorem orbit_metric_square (M J a b g σ dx r : ℝ) :
+    M*dx^2 + 2*M*a*g*σ*dx*r + (J + M*b*g^2*r^2)*σ^2 =
+      M*(dx + a*g*σ*r)^2 + (J + M*(b-a^2)*g^2*r^2)*σ^2 := by ring
+
+/-- Minimizing over the velocity along one gauge orbit. This is the reduced
+metric eigenvalue parallel to the retained colour rotation, times dx². -/
+theorem horizontal_metric_minimum (M J a b g r dx σ : ℝ) (hM : 0 < M)
+    (hJ : 0 < J) (hb : 0 < b) :
+    let D := J + M*b*g^2*r^2
+    M*dx^2 + 2*M*a*g*r*dx*σ + D*σ^2 =
+      M*dx^2 - (M*a*g*r*dx)^2/D + D*(σ + M*a*g*r*dx/D)^2 := by
+  dsimp
+  have hd : 0 < J + M*b*g^2*r^2 := by positivity
+  field_simp [hd.ne']
+  ring
+
+/-- The horizontal metric stays uniformly positive when the multiplier has positive
+variance b−a². Orthogonal directions keep their original metric coefficient M. -/
+theorem horizontal_metric_bounds (M J a b g r dx : ℝ) (hM : 0 < M)
+    (hJ : 0 < J) (hb : 0 < b) :
+    let D := J + M*b*g^2*r^2
+    M*(1-a^2/b)*dx^2 ≤ M*dx^2 - (M*a*g*r*dx)^2/D ∧
+      M*dx^2 - (M*a*g*r*dx)^2/D ≤ M*dx^2 := by
+  dsimp
+  have hd : 0 < J + M*b*g^2*r^2 := by positivity
+  constructor
+  · have h : M*dx^2 - (M*a*g*r*dx)^2/(J+M*b*g^2*r^2) - M*(1-a^2/b)*dx^2 =
+        M*a^2*J*dx^2/(b*(J+M*b*g^2*r^2)) := by
+      field_simp [hb.ne', hd.ne']
+      ring
+    apply sub_nonneg.mp
+    rw [h]
+    positivity
+  · exact sub_le_self _ (by positivity)
+
+section OneGaugeSlice
+
+variable {α : Type*} [MeasurableSpace α]
+
+/-- The exact colour rotation by gτw about a fixed axis and the shift τ∂w.
+The integration label can include the spatial component as well as position. -/
+noncomputable def alignedOrbit (w longitudinal : α → ℝ) (g τ : ℝ)
+    (A : α → Fin 3 → ℝ) (x : α) : Fin 3 → ℝ :=
+  let θ := g * τ * w x
+  ![A x 0 + τ * longitudinal x,
+    Real.cos θ * A x 1 + Real.sin θ * A x 2,
+    -Real.sin θ * A x 1 + Real.cos θ * A x 2]
+
+theorem alignedOrbit_add (w l : α → ℝ) (g s t : ℝ) (A : α → Fin 3 → ℝ) :
+    alignedOrbit w l g t (alignedOrbit w l g s A) = alignedOrbit w l g (s+t) A := by
+  funext x j
+  have h : g*(s+t)*w x = g*s*w x + g*t*w x := by ring
+  fin_cases j <;> simp [alignedOrbit, Matrix.cons_val, h, Real.cos_add, Real.sin_add] <;> ring
+
+/-- Read off the gauge direction in the aligned colour. -/
+noncomputable def orbitCoordinate (μ : Measure α) (l : α → ℝ) (A : α → Fin 3 → ℝ) : ℝ :=
+  (∫ x, l x * A x 0 ∂μ) / ∫ x, l x ^ 2 ∂μ
+
+theorem orbitCoordinate_shift (μ : Measure α) (w l : α → ℝ) (g τ : ℝ) (A : α → Fin 3 → ℝ)
+    (hA : Integrable (fun x => l x * A x 0) μ) (hl : Integrable (fun x => l x^2) μ)
+    (hJ : (∫ x, l x^2 ∂μ) ≠ 0) :
+    orbitCoordinate μ l (alignedOrbit w l g τ A) = orbitCoordinate μ l A + τ := by
+  unfold orbitCoordinate
+  change (∫ x, l x * (A x 0 + τ * l x) ∂μ) / _ = _
+  simp_rw [show ∀ x, l x * (A x 0 + τ * l x) = l x * A x 0 + τ*l x^2 by intro x; ring]
+  rw [integral_add hA (hl.const_mul τ), integral_const_mul]
+  field_simp
+
+/-- The gauge condition χ=0 picks exactly one representative on this one-parameter
+orbit. Its derivative along gauge time is one by the translation formula. -/
+theorem unique_aligned_slice (μ : Measure α) (w l : α → ℝ) (g : ℝ) (A : α → Fin 3 → ℝ)
+    (hA : Integrable (fun x => l x * A x 0) μ) (hl : Integrable (fun x => l x^2) μ)
+    (hJ : (∫ x, l x^2 ∂μ) ≠ 0) :
+    ∃! τ : ℝ, orbitCoordinate μ l (alignedOrbit w l g τ A) = 0 := by
+  simp_rw [orbitCoordinate_shift μ w l g _ A hA hl hJ]
+  exact ⟨-orbitCoordinate μ l A, by ring, fun t ht => by linarith⟩
+
+end OneGaugeSlice
+
 section SchwartzGauge
 
 open SchwartzMap FourierTransform LineDeriv

@@ -28,7 +28,7 @@ matrices:
 
 * `gaussFlow_zero`, `gaussFlow_add` — `E 0 = 1` and `E (s + t) = E s * E t`;
 * `gaussFlow_transpose_mul` — `(E t)ᵀ * E t = 1`, hence `‖E t x‖ = ‖x‖`;
-* `gaussFlow_hasDerivAt` — `E'(t) = M * E t`.
+* `gaussFlow_hasDerivAt` — `E'(t) = -M * E t`.
 
 The rotation acts on functions by `x ↦ E t x`.  Because it preserves the Gaussian measure,
 `gaussFlowOp t f = f ∘ E t` is a linear isometry of `L²(ℝ⁹⁹)`
@@ -248,9 +248,11 @@ theorem gaussMat_transpose (G : GaugeAlgebra 8) (d : Fin 8) :
 
 /-! ## The flow `E(t) = exp (t M)` and its orthogonality -/
 
-/-- **The residual colour rotation**: the matrix exponential of the Gauss generator. -/
+/-- **The residual colour rotation**: `E(t) = e^{-tM}`, the matrix exponential of the Gauss
+generator with the sign of the flow of the vector field `v = Mx` (a positive time moves the
+point along `v`, so the *function* is pulled back by `e^{-tM}`). -/
 def gaussFlow (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) : Matrix (Fin 99) (Fin 99) ℝ :=
-  NormedSpace.exp (t • gaussMat G d)
+  NormedSpace.exp ((-t) • gaussMat G d)
 
 @[simp] theorem gaussFlow_zero (G : GaugeAlgebra 8) (d : Fin 8) :
     gaussFlow G d 0 = 1 := by
@@ -259,38 +261,42 @@ def gaussFlow (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) : Matrix (Fin 99) (Fin 
 /-- The flow is a one-parameter group. -/
 theorem gaussFlow_add (G : GaugeAlgebra 8) (d : Fin 8) (s t : ℝ) :
     gaussFlow G d s * gaussFlow G d t = gaussFlow G d (s + t) := by
-  have hcomm : Commute (s • gaussMat G d) (t • gaussMat G d) :=
-    ((Commute.refl (gaussMat G d)).smul_left s).smul_right t
+  have hcomm : Commute ((-s) • gaussMat G d) ((-t) • gaussMat G d) :=
+    ((Commute.refl (gaussMat G d)).smul_left (-s)).smul_right (-t)
   simp only [gaussFlow]
-  calc NormedSpace.exp (s • gaussMat G d) * NormedSpace.exp (t • gaussMat G d)
-      = NormedSpace.exp (s • gaussMat G d + t • gaussMat G d) :=
+  calc NormedSpace.exp ((-s) • gaussMat G d) * NormedSpace.exp ((-t) • gaussMat G d)
+      = NormedSpace.exp ((-s) • gaussMat G d + (-t) • gaussMat G d) :=
         (NormedSpace.exp_add_of_commute hcomm).symm
-    _ = NormedSpace.exp ((s + t) • gaussMat G d) := by rw [add_smul]
+    _ = NormedSpace.exp ((-(s + t)) • gaussMat G d) := by
+        rw [← add_smul]
+        congr 1
+        linarith
 
 /-- **The flow is orthogonal**: `(E t)ᵀ * E t = 1`. -/
 theorem gaussFlow_transpose_mul (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) :
     Matrix.transpose (gaussFlow G d t) * gaussFlow G d t = 1 := by
-  have hM : Matrix.transpose (t • gaussMat G d) = -(t • gaussMat G d) := by
+  have hM : Matrix.transpose ((-t) • gaussMat G d) = -((-t) • gaussMat G d) := by
     rw [Matrix.transpose_smul, gaussMat_transpose, smul_neg]
   have htrans : Matrix.transpose (gaussFlow G d t)
-      = NormedSpace.exp (Matrix.transpose (t • gaussMat G d)) := by
+      = NormedSpace.exp (Matrix.transpose ((-t) • gaussMat G d)) := by
     rw [gaussFlow]
-    exact (Matrix.exp_transpose (t • gaussMat G d)).symm
+    exact (Matrix.exp_transpose ((-t) • gaussMat G d)).symm
   rw [htrans, hM]
-  change NormedSpace.exp (-(t • gaussMat G d)) * NormedSpace.exp (t • gaussMat G d) = 1
+  change NormedSpace.exp (-((-t) • gaussMat G d)) * NormedSpace.exp ((-t) • gaussMat G d) = 1
   rw [← NormedSpace.exp_add_of_commute
-    (Commute.neg_left (Commute.refl (t • gaussMat G d))), neg_add_cancel, NormedSpace.exp_zero]
+    (Commute.neg_left (Commute.refl ((-t) • gaussMat G d))), neg_add_cancel, NormedSpace.exp_zero]
 
-/-- **The flow's derivative** is left multiplication by the generator. -/
+/-- **The flow's derivative** is minus left multiplication by the generator. -/
 theorem gaussFlow_hasDerivAt (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) :
-    HasDerivAt (fun s : ℝ => gaussFlow G d s) (gaussMat G d * gaussFlow G d t) t :=
-  hasDerivAt_exp_smul_const' (gaussMat G d) t
+    HasDerivAt (fun s : ℝ => gaussFlow G d s) (-(gaussMat G d) * gaussFlow G d t) t := by
+  simpa only [gaussFlow, smul_neg, neg_smul] using
+    hasDerivAt_exp_smul_const' (-(gaussMat G d)) t
 
 /-- The flow acting on a fixed vector is differentiable, with derivative the generator. -/
 theorem gaussFlow_mulVec_hasDerivAt (G : GaugeAlgebra 8) (d : Fin 8) (x : Fin 99 → ℝ)
     (t : ℝ) :
     HasDerivAt (fun s : ℝ => gaussFlow G d s *ᵥ x)
-      ((gaussMat G d * gaussFlow G d t) *ᵥ x) t := by
+      (((-(gaussMat G d)) * gaussFlow G d t) *ᵥ x) t := by
   rw [hasDerivAt_pi]
   intro i
   have hfun : (fun s : ℝ => (gaussFlow G d s *ᵥ x) i)
@@ -299,7 +305,7 @@ theorem gaussFlow_mulVec_hasDerivAt (G : GaugeAlgebra 8) (d : Fin 8) (x : Fin 99
     simp [Matrix.mulVec, dotProduct]
   rw [hfun]
   have hentry : ∀ j : Fin 99, HasDerivAt (fun s : ℝ => gaussFlow G d s i j * x j)
-      ((gaussMat G d * gaussFlow G d t) i j * x j) t := fun j =>
+      (((-(gaussMat G d)) * gaussFlow G d t) i j * x j) t := fun j =>
     ((hasDerivAt_pi.1 ((hasDerivAt_pi.1 (gaussFlow_hasDerivAt G d t)) i)) j).mul_const (x j)
   exact HasDerivAt.fun_sum (u := Finset.univ) fun j _ => hentry j
 
