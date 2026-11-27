@@ -618,10 +618,11 @@ The last line is **tightness**: one threshold works at every scale, which is the
 of Prokhorov's theorem for the sequence of laws of the renormalised observables. That is the
 first rung of the observable limit estimate (C3e) and no more: Prokhorov's theorem itself and a
 limiting law are not proved here, and the renormalisation is the subtraction of the background
-rather than of an interacting divergence. The multi-point functions and the connected four- and
-five-point functions that *are* proved later in this chapter (`integral_shellLaw_coord_three`
-through `integral_shellLaw_coord_six`, `connectedFour_coord_eq_zero`,
-`connectedFive_coord_eq_zero`) are statements about this reference law, not about any limit.
+rather than of an interacting divergence. The multi-point functions and the connected four-,
+five- and six-point functions that *are* proved later in this chapter
+(`integral_shellLaw_coord_three` through `integral_shellLaw_coord_six`,
+`connectedFour_coord_eq_zero`, `connectedFive_coord_eq_zero`, `connectedSix_coord_eq_zero`) are
+statements about this reference law, not about any limit.
 
 The scalar sequence is not the only object that behaves this way. Replacing the renormalised
 observable by an affine image of it keeps every step intact: the last coordinate still carries the
@@ -851,13 +852,39 @@ connectedFiveShell_eq_zero :
 Each such block has zero moment under the reference law (`shellFace5_card_one`,
 `shellFace5_card_three`, `shellFace5_univ_eq_zero`), so every product in the Möbius sum carries a
 zero factor and the fifth cumulant vanishes: the reference law has no connected five-point part.
-This is the first cumulant above the fourth, and it is still one explicit partition sum; no
-cumulant of arbitrary order and no general partition-lattice Möbius inversion is claimed.
+This is still one explicit partition sum; no cumulant of arbitrary order and no general
+partition-lattice Möbius inversion is claimed.
+
+The sixth cumulant is where the vanishing stops being purely a count of block sizes. The Möbius
+sum runs over the two hundred and three partitions of six positions, with the same coefficients
+`(-1)^(k-1) (k-1)!` (`connectedSix_one` checks the list). Blocks of one and three positions still
+have zero moment and a block of five positions leaves a singleton, so the odd blocks drop out:
+
+```
+connectedSix :
+    m123456 - (the thirty-one two-block partitions) + 2(the ninety three-block partitions)
+      - 6(the sixty-five four-block partitions) + 24(the fifteen five-block partitions)
+      - 120 m1 m2 m3 m4 m5 m6
+connectedSix_eq_reduced :
+    (blocks of card 1 vanish) -> (blocks of card 3 vanish) ->
+      kappa = m123456 - (the fifteen 4+2 terms) + 2(the fifteen 2+2+2 terms)
+connectedSixShell_eq_zero :
+    kappa = 0
+```
+
+What survives is the whole set, the fifteen partitions into a four and a two, and the fifteen
+partitions into three pairs. Every surviving moment is an Isserlis sum, and the coefficients
+cancel matching by matching: one of the fifteen matchings of six sites appears once in `m123456`,
+three times in the `4 + 2` sum (once for each choice of the pair that is the two-block), and once
+with coefficient `2` in the `2 + 2 + 2` sum, so each contributes `1 - 3 + 2 = 0`. The sixth
+cumulant vanishes as well, now by a cancellation of Isserlis sums rather than by a zero factor.
+This is still one explicit partition sum at one arity: no cumulant of arbitrary order, and no
+general partition-lattice Möbius inversion, is claimed.
 
 What stays open is not these moments but their converse. `integral_shellLaw_coord_four` is
 Isserlis' theorem for the covariance `1`: it computes the four-point function of *this* law, and
 nothing in the module shows that a law with these moments is Gaussian, or computes a cumulant of
-arbitrary order (the fifth is the highest here), a connected correlation at separated points, or
+arbitrary order (the sixth is the highest here), a connected correlation at separated points, or
 any moment above the sixth. The general
 statements are uniform in the number of fields, but the per-pairing evaluation at four and six
 sites is a finite computation, so no closed form for the number of pairings at arbitrary `M` is

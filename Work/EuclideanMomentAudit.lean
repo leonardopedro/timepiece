@@ -461,3 +461,19 @@ hide behind the theorems' reports.
 #audit_axioms connectedFive_eq_zero
 #audit_axioms connectedFiveShell_eq_zero
 #audit_axioms connectedFive_coord_eq_zero
+
+/-! ## C3m: the connected six-point function of the reference law -/
+
+#audit_axioms connectedSix
+#audit_axioms connectedSix_one
+#audit_axioms shellFace6
+#audit_axioms shellFace6_singleton
+#audit_axioms shellFace6_card_one
+#audit_axioms shellFace6_card_three
+#audit_axioms shellFace6_univ
+#audit_axioms shellFace6_pair
+#audit_axioms shellFace6_four
+#audit_axioms connectedSix_eq_reduced
+#audit_axioms connectedSixShell
+#audit_axioms connectedSixShell_eq_zero
+#audit_axioms connectedSix_coord_eq_zero

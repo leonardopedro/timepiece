@@ -99,7 +99,12 @@ scale-indexed:
 * `connectedFive`, `connectedFive_eq_zero`, `connectedFiveShell_eq_zero`,
   `connectedFive_coord_eq_zero` — **the connected five-point function vanishes**: the fifth joint
   cumulant is the Möbius sum over the 52 partitions of the five positions, and on five positions
-  every partition has a block of one, three or five elements, whose moment is zero.
+  every partition has a block of one, three or five elements, whose moment is zero;
+* `connectedSix`, `connectedSix_eq_reduced`, `connectedSixShell_eq_zero`,
+  `connectedSix_coord_eq_zero` — **the connected six-point function vanishes too**: the sixth
+  joint cumulant is the Möbius sum over the 203 partitions of the six positions, the odd blocks
+  still drop out, and the surviving even partitions (`6`, `4 + 2`, `2 + 2 + 2`) cancel by
+  Isserlis matching by matching, `1 - 3 + 2 = 0`.
 
 ## Boundary
 
@@ -127,11 +132,11 @@ scale-indexed:
   end of this file, which starts C3e; no limiting law and no correlation estimate is proved.
   The only multi-point functions here are those of the *reference* law
   (`integral_shellLaw_coord_three` through `integral_shellLaw_coord_six`, the vanishing connected
-  four- and five-point functions `connectedFour_coord_eq_zero` and `connectedFive_coord_eq_zero`,
-  and the uniform Wick lemmas behind them), and they are Isserlis for independent unit Gaussians:
-  they say nothing about the interacting theory, no cluster or separated connected-correlation
-  statement is derived from them, and they are moments and two cumulants, not a characterisation
-  of Gaussianity.
+  four-, five- and six-point functions `connectedFour_coord_eq_zero`,
+  `connectedFive_coord_eq_zero` and `connectedSix_coord_eq_zero`, and the uniform Wick lemmas
+  behind them), and they are Isserlis for independent unit Gaussians: they say nothing about the
+  interacting theory, no cluster or separated connected-correlation statement is derived from
+  them, and they are moments and three cumulants, not a characterisation of Gaussianity.
 * `shellDensity` is *defined* as the `n`-fold iterated partial integral: it integrates the first
   `n` coordinates at fixed value of the last one.  The **tower identity** `∫ y, shellDensity n f y
   ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)` *is* proved, but only for measurable **bounded**
@@ -2315,16 +2320,24 @@ statements come first and are uniform in the number of fields; the low moments a
   partition contains a block of one, three or five elements (`shellFace5_card_one`,
   `shellFace5_card_three`, `shellFace5_univ_eq_zero`), and each such moment vanishes, so every
   product in the sum carries a zero factor and the cumulant is zero.
+* `connectedSix`, `connectedSix_eq_reduced`, `connectedSixShell_eq_zero` — the sixth joint
+  cumulant, the Möbius sum over all 203 partitions of the six positions with coefficients
+  `(-1)^(k-1) (k-1)!` (`connectedSix_one` checks the coefficient sum).  One-point and three-point
+  blocks vanish, a five-point block leaves a singleton, so the reduction
+  `connectedSix_eq_reduced` keeps only the even partitions: the whole set, the fifteen `4 + 2`
+  partitions and the fifteen `2 + 2 + 2` partitions (`shellFace6_four`, `shellFace6_pair`,
+  `shellFace6_univ`).  Expanding every surviving moment by Isserlis leaves `1 - 3 + 2 = 0` per
+  matching, so the cumulant is zero.
 
-**Boundary.** These are the moments and the fourth and fifth cumulants of *this* reference law.
-`integral_shellLaw_coord_four` and `integral_shellLaw_coord_six` are Isserlis' theorem for the
-covariance `1`, not a Gaussianity criterion: nothing here says a law with these moments is
-Gaussian, the fourth and fifth cumulants are computed and vanish but no cumulant of arbitrary
-order and no separated connected correlation is computed, and the vanishing is a property of this
-law rather than a characterisation of Gaussianity.  The general-`M` statements are uniform in the
-number of fields, but the per-pairing evaluation at four and six sites is discharged by `decide`
-on the concrete index types `Fin 4` and `Fin 6`; no closed form for the pairing count at
-arbitrary `M` is derived here.
+**Boundary.** These are the moments and the fourth, fifth and sixth cumulants of *this* reference
+law.  `integral_shellLaw_coord_four` and `integral_shellLaw_coord_six` are Isserlis' theorem for
+the covariance `1`, not a Gaussianity criterion: nothing here says a law with these moments is
+Gaussian, the fourth, fifth and sixth cumulants are computed and vanish but no cumulant of
+arbitrary order and no separated connected correlation is computed, and the vanishing is a
+property of this law rather than a characterisation of Gaussianity.  The general-`M` statements
+are uniform in the number of fields, but the per-pairing evaluation at four and six sites is
+discharged by `decide` on the concrete index types `Fin 4` and `Fin 6`; no closed form for the
+pairing count at arbitrary `M` is derived here.
 -/
 
 /-- The reference law is the product Gaussian of `GaussianMoments`: the same `Measure.pi` of `m`
@@ -3044,6 +3057,384 @@ theorem connectedFive_coord_eq_zero (m : ℕ) (i j k l r : Fin m) :
     connectedFive
       (fun s => ∫ p : Fin m → ℝ, ∏ t ∈ s, p (![i, j, k, l, r] t) ∂shellLaw m) = 0 :=
   connectedFiveShell_eq_zero m ![i, j, k, l, r]
+/-! ## The connected six-point function of the reference law
+
+The sixth joint cumulant is the Möbius sum over the two hundred and three partitions of the six
+positions,
+
+`κ = Σ_π (-1)^(k(π)-1) (k(π)-1)! ∏_{B ∈ π} m(B)`,
+
+the partition formula of `connectedFour` and `connectedFive`.  `connectedSix_one` checks the
+explicit list: six positions have `203 = Bell 6` partitions and their coefficients sum to zero.
+
+The odd-block argument that settled the fifth cumulant does not finish this one.  A partition with
+a block of one position dies on the vanishing one-point moment, one with a block of three on the
+vanishing three-point moment, and a block of five leaves a singleton.  What survives is exactly
+the partitions into blocks of even cardinality: the whole set, the fifteen `4 + 2` partitions and
+the fifteen `2 + 2 + 2` partitions.  Every surviving moment is an Isserlis sum, and their
+coefficients cancel:
+
+`1 - 3 + 2 = 0`.
+
+Each of the fifteen matchings of six sites appears once in the six-point function, three times in
+the `4 + 2` sum (once for each choice of the pair that is the two-block), and once in the
+`2 + 2 + 2` sum, whose coefficient is `2`.  So every matching contributes `1 - 3 + 2 = 0` and the
+sixth cumulant vanishes.
+
+This is one explicit partition sum at one arity.  No cumulant of arbitrary order, no
+partition-lattice Möbius inversion over general `n` and no general moment-cumulant theorem is
+claimed.
+-/
+
+/-- **The sixth joint cumulant**, as the Möbius sum over the 203 partitions of the six positions.
+A partition into `k` blocks contributes `(-1)^(k-1) (k-1)!` times the product of its block
+moments. -/
+def connectedSix {R : Type*} [CommRing R] (face : Finset (Fin 6) → R) : R :=
+  face Finset.univ
+    - (
+        face {0, 1, 2, 3, 4} * face {5} + face {0, 1, 2, 3, 5} * face {4}
+        + face {0, 1, 2, 3} * face {4, 5} + face {0, 1, 2, 4, 5} * face {3}
+        + face {0, 1, 2, 4} * face {3, 5} + face {0, 1, 2, 5} * face {3, 4}
+        + face {0, 1, 2} * face {3, 4, 5} + face {0, 1, 3, 4, 5} * face {2}
+        + face {0, 1, 3, 4} * face {2, 5} + face {0, 1, 3, 5} * face {2, 4}
+        + face {0, 1, 3} * face {2, 4, 5} + face {0, 1, 4, 5} * face {2, 3}
+        + face {0, 1, 4} * face {2, 3, 5} + face {0, 1, 5} * face {2, 3, 4}
+        + face {0, 1} * face {2, 3, 4, 5} + face {0, 2, 3, 4, 5} * face {1}
+        + face {0, 2, 3, 4} * face {1, 5} + face {0, 2, 3, 5} * face {1, 4}
+        + face {0, 2, 3} * face {1, 4, 5} + face {0, 2, 4, 5} * face {1, 3}
+        + face {0, 2, 4} * face {1, 3, 5} + face {0, 2, 5} * face {1, 3, 4}
+        + face {0, 2} * face {1, 3, 4, 5} + face {0, 3, 4, 5} * face {1, 2}
+        + face {0, 3, 4} * face {1, 2, 5} + face {0, 3, 5} * face {1, 2, 4}
+        + face {0, 3} * face {1, 2, 4, 5} + face {0, 4, 5} * face {1, 2, 3}
+        + face {0, 4} * face {1, 2, 3, 5} + face {0, 5} * face {1, 2, 3, 4}
+        + face {0} * face {1, 2, 3, 4, 5}
+      )
+    + 2 * (
+        face {0, 1, 2, 3} * face {4} * face {5} + face {0, 1, 2, 4} * face {3} * face {5}
+        + face {0, 1, 2, 5} * face {3} * face {4} + face {0, 1, 2} * face {3, 4} * face {5}
+        + face {0, 1, 2} * face {3, 5} * face {4} + face {0, 1, 2} * face {3} * face {4, 5}
+        + face {0, 1, 3, 4} * face {2} * face {5} + face {0, 1, 3, 5} * face {2} * face {4}
+        + face {0, 1, 3} * face {2, 4} * face {5} + face {0, 1, 3} * face {2, 5} * face {4}
+        + face {0, 1, 3} * face {2} * face {4, 5} + face {0, 1, 4, 5} * face {2} * face {3}
+        + face {0, 1, 4} * face {2, 3} * face {5} + face {0, 1, 4} * face {2, 5} * face {3}
+        + face {0, 1, 4} * face {2} * face {3, 5} + face {0, 1, 5} * face {2, 3} * face {4}
+        + face {0, 1, 5} * face {2, 4} * face {3} + face {0, 1, 5} * face {2} * face {3, 4}
+        + face {0, 1} * face {2, 3, 4} * face {5} + face {0, 1} * face {2, 3, 5} * face {4}
+        + face {0, 1} * face {2, 3} * face {4, 5} + face {0, 1} * face {2, 4, 5} * face {3}
+        + face {0, 1} * face {2, 4} * face {3, 5} + face {0, 1} * face {2, 5} * face {3, 4}
+        + face {0, 1} * face {2} * face {3, 4, 5} + face {0, 2, 3, 4} * face {1} * face {5}
+        + face {0, 2, 3, 5} * face {1} * face {4} + face {0, 2, 3} * face {1, 4} * face {5}
+        + face {0, 2, 3} * face {1, 5} * face {4} + face {0, 2, 3} * face {1} * face {4, 5}
+        + face {0, 2, 4, 5} * face {1} * face {3} + face {0, 2, 4} * face {1, 3} * face {5}
+        + face {0, 2, 4} * face {1, 5} * face {3} + face {0, 2, 4} * face {1} * face {3, 5}
+        + face {0, 2, 5} * face {1, 3} * face {4} + face {0, 2, 5} * face {1, 4} * face {3}
+        + face {0, 2, 5} * face {1} * face {3, 4} + face {0, 2} * face {1, 3, 4} * face {5}
+        + face {0, 2} * face {1, 3, 5} * face {4} + face {0, 2} * face {1, 3} * face {4, 5}
+        + face {0, 2} * face {1, 4, 5} * face {3} + face {0, 2} * face {1, 4} * face {3, 5}
+        + face {0, 2} * face {1, 5} * face {3, 4} + face {0, 2} * face {1} * face {3, 4, 5}
+        + face {0, 3, 4, 5} * face {1} * face {2} + face {0, 3, 4} * face {1, 2} * face {5}
+        + face {0, 3, 4} * face {1, 5} * face {2} + face {0, 3, 4} * face {1} * face {2, 5}
+        + face {0, 3, 5} * face {1, 2} * face {4} + face {0, 3, 5} * face {1, 4} * face {2}
+        + face {0, 3, 5} * face {1} * face {2, 4} + face {0, 3} * face {1, 2, 4} * face {5}
+        + face {0, 3} * face {1, 2, 5} * face {4} + face {0, 3} * face {1, 2} * face {4, 5}
+        + face {0, 3} * face {1, 4, 5} * face {2} + face {0, 3} * face {1, 4} * face {2, 5}
+        + face {0, 3} * face {1, 5} * face {2, 4} + face {0, 3} * face {1} * face {2, 4, 5}
+        + face {0, 4, 5} * face {1, 2} * face {3} + face {0, 4, 5} * face {1, 3} * face {2}
+        + face {0, 4, 5} * face {1} * face {2, 3} + face {0, 4} * face {1, 2, 3} * face {5}
+        + face {0, 4} * face {1, 2, 5} * face {3} + face {0, 4} * face {1, 2} * face {3, 5}
+        + face {0, 4} * face {1, 3, 5} * face {2} + face {0, 4} * face {1, 3} * face {2, 5}
+        + face {0, 4} * face {1, 5} * face {2, 3} + face {0, 4} * face {1} * face {2, 3, 5}
+        + face {0, 5} * face {1, 2, 3} * face {4} + face {0, 5} * face {1, 2, 4} * face {3}
+        + face {0, 5} * face {1, 2} * face {3, 4} + face {0, 5} * face {1, 3, 4} * face {2}
+        + face {0, 5} * face {1, 3} * face {2, 4} + face {0, 5} * face {1, 4} * face {2, 3}
+        + face {0, 5} * face {1} * face {2, 3, 4} + face {0} * face {1, 2, 3, 4} * face {5}
+        + face {0} * face {1, 2, 3, 5} * face {4} + face {0} * face {1, 2, 3} * face {4, 5}
+        + face {0} * face {1, 2, 4, 5} * face {3} + face {0} * face {1, 2, 4} * face {3, 5}
+        + face {0} * face {1, 2, 5} * face {3, 4} + face {0} * face {1, 2} * face {3, 4, 5}
+        + face {0} * face {1, 3, 4, 5} * face {2} + face {0} * face {1, 3, 4} * face {2, 5}
+        + face {0} * face {1, 3, 5} * face {2, 4} + face {0} * face {1, 3} * face {2, 4, 5}
+        + face {0} * face {1, 4, 5} * face {2, 3} + face {0} * face {1, 4} * face {2, 3, 5}
+        + face {0} * face {1, 5} * face {2, 3, 4} + face {0} * face {1} * face {2, 3, 4, 5}
+      )
+    - 6 * (
+        face {0, 1, 2} * face {3} * face {4} * face {5}
+        + face {0, 1, 3} * face {2} * face {4} * face {5}
+        + face {0, 1, 4} * face {2} * face {3} * face {5}
+        + face {0, 1, 5} * face {2} * face {3} * face {4}
+        + face {0, 1} * face {2, 3} * face {4} * face {5}
+        + face {0, 1} * face {2, 4} * face {3} * face {5}
+        + face {0, 1} * face {2, 5} * face {3} * face {4}
+        + face {0, 1} * face {2} * face {3, 4} * face {5}
+        + face {0, 1} * face {2} * face {3, 5} * face {4}
+        + face {0, 1} * face {2} * face {3} * face {4, 5}
+        + face {0, 2, 3} * face {1} * face {4} * face {5}
+        + face {0, 2, 4} * face {1} * face {3} * face {5}
+        + face {0, 2, 5} * face {1} * face {3} * face {4}
+        + face {0, 2} * face {1, 3} * face {4} * face {5}
+        + face {0, 2} * face {1, 4} * face {3} * face {5}
+        + face {0, 2} * face {1, 5} * face {3} * face {4}
+        + face {0, 2} * face {1} * face {3, 4} * face {5}
+        + face {0, 2} * face {1} * face {3, 5} * face {4}
+        + face {0, 2} * face {1} * face {3} * face {4, 5}
+        + face {0, 3, 4} * face {1} * face {2} * face {5}
+        + face {0, 3, 5} * face {1} * face {2} * face {4}
+        + face {0, 3} * face {1, 2} * face {4} * face {5}
+        + face {0, 3} * face {1, 4} * face {2} * face {5}
+        + face {0, 3} * face {1, 5} * face {2} * face {4}
+        + face {0, 3} * face {1} * face {2, 4} * face {5}
+        + face {0, 3} * face {1} * face {2, 5} * face {4}
+        + face {0, 3} * face {1} * face {2} * face {4, 5}
+        + face {0, 4, 5} * face {1} * face {2} * face {3}
+        + face {0, 4} * face {1, 2} * face {3} * face {5}
+        + face {0, 4} * face {1, 3} * face {2} * face {5}
+        + face {0, 4} * face {1, 5} * face {2} * face {3}
+        + face {0, 4} * face {1} * face {2, 3} * face {5}
+        + face {0, 4} * face {1} * face {2, 5} * face {3}
+        + face {0, 4} * face {1} * face {2} * face {3, 5}
+        + face {0, 5} * face {1, 2} * face {3} * face {4}
+        + face {0, 5} * face {1, 3} * face {2} * face {4}
+        + face {0, 5} * face {1, 4} * face {2} * face {3}
+        + face {0, 5} * face {1} * face {2, 3} * face {4}
+        + face {0, 5} * face {1} * face {2, 4} * face {3}
+        + face {0, 5} * face {1} * face {2} * face {3, 4}
+        + face {0} * face {1, 2, 3} * face {4} * face {5}
+        + face {0} * face {1, 2, 4} * face {3} * face {5}
+        + face {0} * face {1, 2, 5} * face {3} * face {4}
+        + face {0} * face {1, 2} * face {3, 4} * face {5}
+        + face {0} * face {1, 2} * face {3, 5} * face {4}
+        + face {0} * face {1, 2} * face {3} * face {4, 5}
+        + face {0} * face {1, 3, 4} * face {2} * face {5}
+        + face {0} * face {1, 3, 5} * face {2} * face {4}
+        + face {0} * face {1, 3} * face {2, 4} * face {5}
+        + face {0} * face {1, 3} * face {2, 5} * face {4}
+        + face {0} * face {1, 3} * face {2} * face {4, 5}
+        + face {0} * face {1, 4, 5} * face {2} * face {3}
+        + face {0} * face {1, 4} * face {2, 3} * face {5}
+        + face {0} * face {1, 4} * face {2, 5} * face {3}
+        + face {0} * face {1, 4} * face {2} * face {3, 5}
+        + face {0} * face {1, 5} * face {2, 3} * face {4}
+        + face {0} * face {1, 5} * face {2, 4} * face {3}
+        + face {0} * face {1, 5} * face {2} * face {3, 4}
+        + face {0} * face {1} * face {2, 3, 4} * face {5}
+        + face {0} * face {1} * face {2, 3, 5} * face {4}
+        + face {0} * face {1} * face {2, 3} * face {4, 5}
+        + face {0} * face {1} * face {2, 4, 5} * face {3}
+        + face {0} * face {1} * face {2, 4} * face {3, 5}
+        + face {0} * face {1} * face {2, 5} * face {3, 4}
+        + face {0} * face {1} * face {2} * face {3, 4, 5}
+      )
+    + 24 * (
+        face {0, 1} * face {2} * face {3} * face {4} * face {5}
+        + face {0, 2} * face {1} * face {3} * face {4} * face {5}
+        + face {0, 3} * face {1} * face {2} * face {4} * face {5}
+        + face {0, 4} * face {1} * face {2} * face {3} * face {5}
+        + face {0, 5} * face {1} * face {2} * face {3} * face {4}
+        + face {0} * face {1, 2} * face {3} * face {4} * face {5}
+        + face {0} * face {1, 3} * face {2} * face {4} * face {5}
+        + face {0} * face {1, 4} * face {2} * face {3} * face {5}
+        + face {0} * face {1, 5} * face {2} * face {3} * face {4}
+        + face {0} * face {1} * face {2, 3} * face {4} * face {5}
+        + face {0} * face {1} * face {2, 4} * face {3} * face {5}
+        + face {0} * face {1} * face {2, 5} * face {3} * face {4}
+        + face {0} * face {1} * face {2} * face {3, 4} * face {5}
+        + face {0} * face {1} * face {2} * face {3, 5} * face {4}
+        + face {0} * face {1} * face {2} * face {3} * face {4, 5}
+      )
+    - 120 * (face {0} * face {1} * face {2} * face {3} * face {4} * face {5})
+/-- A check on the explicit partition list: six positions have `203 = Bell 6` partitions and the
+Möbius coefficients `(-1)^(k-1) (k-1)!` sum to zero over them (the partition-lattice identity
+`Σ_π μ(π, ⊤) = 0` for `n ≥ 2`). -/
+theorem connectedSix_one : connectedSix (fun _ => (1 : ℤ)) = 0 := by
+  decide
+
+/-- The joint moment of the positions in `s`, for the tuple of six sites `f`. -/
+noncomputable def shellFace6 (m : ℕ) (f : Fin 6 → Fin m) (s : Finset (Fin 6)) : ℝ :=
+  ∫ p : Fin m → ℝ, ∏ t ∈ s, p (f t) ∂shellLaw m
+
+/-- A single position has zero moment under the reference law. -/
+theorem shellFace6_singleton (m : ℕ) (f : Fin 6 → Fin m) (i : Fin 6) :
+    shellFace6 m f {i} = 0 := by
+  simp only [shellFace6, Finset.prod_singleton]
+  exact integral_shellLaw_coord m (f i)
+
+/-- A block of one position has zero moment. -/
+theorem shellFace6_card_one (m : ℕ) (f : Fin 6 → Fin m) {s : Finset (Fin 6)}
+    (hs : s.card = 1) : shellFace6 m f s = 0 := by
+  obtain ⟨i, rfl⟩ := Finset.card_eq_one.mp hs
+  exact shellFace6_singleton m f i
+
+/-- A block of three positions has zero moment under the reference law. -/
+theorem shellFace6_card_three (m : ℕ) (f : Fin 6 → Fin m) {s : Finset (Fin 6)}
+    (hs : s.card = 3) : shellFace6 m f s = 0 := by
+  obtain ⟨a, b, c, hab, hac, hbc, rfl⟩ := Finset.card_eq_three.mp hs
+  have hprod : ∀ p : Fin m → ℝ,
+      (∏ t ∈ ({a, b, c} : Finset (Fin 6)), p (f t)) = p (f a) * p (f b) * p (f c) := by
+    intro p
+    rw [Finset.prod_insert (by simp [hab, hac]),
+      Finset.prod_insert (by simp [hbc]), Finset.prod_singleton]
+    ring
+  rw [show shellFace6 m f {a, b, c}
+      = ∫ p, p (f a) * p (f b) * p (f c) ∂shellLaw m from
+    integral_congr_ae (Eventually.of_forall fun p => hprod p)]
+  exact integral_shellLaw_coord_three m (f a) (f b) (f c)
+
+/-- The whole set is the six-point function. -/
+theorem shellFace6_univ (m : ℕ) (f : Fin 6 → Fin m) :
+    shellFace6 m f Finset.univ
+      = ∫ p, p (f 0) * p (f 1) * p (f 2) * p (f 3) * p (f 4) * p (f 5) ∂shellLaw m := by
+  simp only [shellFace6]
+  refine integral_congr_ae (Eventually.of_forall fun p => ?_)
+  simp [Fin.prod_univ_six]
+
+/-- A two-position face is a pair moment. -/
+theorem shellFace6_pair (m : ℕ) (f : Fin 6 → Fin m) {a b : Fin 6}
+    (h : ({a, b} : Finset (Fin 6)).card = 2) :
+    shellFace6 m f {a, b} = ∫ p, p (f a) * p (f b) ∂shellLaw m := by
+  have hab : a ≠ b := by
+    rintro rfl
+    simp at h
+  simp only [shellFace6]
+  refine integral_congr_ae (Eventually.of_forall fun p => ?_)
+  change (∏ t ∈ ({a, b} : Finset (Fin 6)), p (f t)) = p (f a) * p (f b)
+  rw [Finset.prod_pair hab]
+
+/-- A four-position face is a four-point function. -/
+theorem shellFace6_four (m : ℕ) (f : Fin 6 → Fin m) {a b c d : Fin 6}
+    (h : ({a, b, c, d} : Finset (Fin 6)).card = 4) :
+    shellFace6 m f {a, b, c, d}
+      = ∫ p, p (f a) * p (f b) * p (f c) * p (f d) ∂shellLaw m := by
+  have hprod : ∀ p : Fin m → ℝ,
+      (∏ t ∈ ({a, b, c, d} : Finset (Fin 6)), p (f t))
+        = p (f a) * p (f b) * p (f c) * p (f d) := by
+    intro p
+    have ha : a ∉ ({b, c, d} : Finset (Fin 6)) := by
+      intro hin
+      have he : ({a, b, c, d} : Finset (Fin 6)) = {b, c, d} := by
+        simpa using Finset.insert_eq_self.mpr hin
+      have hle : ({b, c, d} : Finset (Fin 6)).card ≤ 3 := by
+        have h1 : ({b, c, d} : Finset (Fin 6)).card ≤ ({c, d} : Finset (Fin 6)).card + 1 :=
+          Finset.card_insert_le b ({c, d} : Finset (Fin 6))
+        have h2 : ({c, d} : Finset (Fin 6)).card ≤ 2 := by
+          have h3 := Finset.card_insert_le c ({d} : Finset (Fin 6))
+          simpa using h3
+        omega
+      rw [he] at h
+      omega
+    have hb : b ∉ ({c, d} : Finset (Fin 6)) := by
+      intro hin
+      have he : ({b, c, d} : Finset (Fin 6)) = {c, d} := by
+        simpa using Finset.insert_eq_self.mpr hin
+      have hEq : ({a, b, c, d} : Finset (Fin 6)).card
+          = 1 + ({c, d} : Finset (Fin 6)).card := by
+        rw [show ({a, b, c, d} : Finset (Fin 6)) = insert a (insert b {c, d}) from rfl,
+          Finset.card_insert_of_notMem ha, he]
+        omega
+      have h2 : ({c, d} : Finset (Fin 6)).card ≤ 2 := by
+        have h3 := Finset.card_insert_le c ({d} : Finset (Fin 6))
+        simpa using h3
+      omega
+    have hc : c ≠ d := by
+      intro hcd
+      have h2 : ({c, d} : Finset (Fin 6)).card = 1 := by
+        rw [show ({c, d} : Finset (Fin 6)) = ({c} : Finset (Fin 6)) by simp [hcd]]
+        simp
+      have hEq : ({a, b, c, d} : Finset (Fin 6)).card = 3 := by
+        rw [show ({a, b, c, d} : Finset (Fin 6)) = insert a (insert b {c, d}) from rfl,
+          Finset.card_insert_of_notMem ha, Finset.card_insert_of_notMem hb, h2]
+      omega
+    rw [show ({a, b, c, d} : Finset (Fin 6)) = insert a (insert b (insert c {d})) from rfl,
+      Finset.prod_insert ha, Finset.prod_insert hb,
+      Finset.prod_insert (by simpa using hc), Finset.prod_singleton]
+    ring
+  rw [show shellFace6 m f {a, b, c, d}
+      = ∫ p, p (f a) * p (f b) * p (f c) * p (f d) ∂shellLaw m from
+    integral_congr_ae (Eventually.of_forall fun p => hprod p)]
+
+/-- **Only the even partitions survive.**  In the Möbius sum over the six positions a block of one
+position dies on the vanishing one-point moment, a block of three on the vanishing three-point
+moment, and a block of five leaves a singleton.  What remains is the whole set, the fifteen
+`4 + 2` partitions and the fifteen `2 + 2 + 2` partitions. -/
+theorem connectedSix_eq_reduced {R : Type*} [CommRing R] (face : Finset (Fin 6) → R)
+    (h1 : ∀ s, s.card = 1 → face s = 0) (h3 : ∀ s, s.card = 3 → face s = 0) :
+    connectedSix face = face Finset.univ
+      - (
+        face {0, 1, 2, 3} * face {4, 5} + face {0, 1, 2, 4} * face {3, 5}
+        + face {0, 1, 2, 5} * face {3, 4} + face {0, 1, 3, 4} * face {2, 5}
+        + face {0, 1, 3, 5} * face {2, 4} + face {0, 1, 4, 5} * face {2, 3}
+        + face {0, 2, 3, 4} * face {1, 5} + face {0, 2, 3, 5} * face {1, 4}
+        + face {0, 2, 4, 5} * face {1, 3} + face {0, 3, 4, 5} * face {1, 2}
+        + face {1, 2, 3, 4} * face {0, 5} + face {1, 2, 3, 5} * face {0, 4}
+        + face {1, 2, 4, 5} * face {0, 3} + face {1, 3, 4, 5} * face {0, 2}
+        + face {2, 3, 4, 5} * face {0, 1}
+        )
+      + 2 * (
+        face {0, 1} * face {2, 3} * face {4, 5} + face {0, 1} * face {2, 4} * face {3, 5}
+        + face {0, 1} * face {2, 5} * face {3, 4} + face {0, 2} * face {1, 3} * face {4, 5}
+        + face {0, 2} * face {1, 4} * face {3, 5} + face {0, 2} * face {1, 5} * face {3, 4}
+        + face {0, 3} * face {1, 2} * face {4, 5} + face {0, 3} * face {1, 4} * face {2, 5}
+        + face {0, 3} * face {1, 5} * face {2, 4} + face {0, 4} * face {1, 2} * face {3, 5}
+        + face {0, 4} * face {1, 3} * face {2, 5} + face {0, 4} * face {1, 5} * face {2, 3}
+        + face {0, 5} * face {1, 2} * face {3, 4} + face {0, 5} * face {1, 3} * face {2, 4}
+        + face {0, 5} * face {1, 4} * face {2, 3}
+        )
+    := by
+  simp [connectedSix, h1, h3]
+  ring
+
+/-- The connected six-point function of the reference law. -/
+noncomputable def connectedSixShell (m : ℕ) (f : Fin 6 → Fin m) : ℝ :=
+  connectedSix (shellFace6 m f)
+
+/-- **The connected six-point function of the reference law vanishes.**  The centred law has no
+connected six-point part: after the odd blocks drop out, the six-point function and the fifteen
+`4 + 2` partitions and the fifteen `2 + 2 + 2` partitions satisfy `1 - 3 + 2 = 0` matching by
+matching. -/
+theorem connectedSixShell_eq_zero (m : ℕ) (f : Fin 6 → Fin m) :
+    connectedSixShell m f = 0 := by
+  rw [connectedSixShell,
+    connectedSix_eq_reduced _ (fun _ hs => shellFace6_card_one m f hs)
+      (fun _ hs => shellFace6_card_three m f hs)]
+  rw [shellFace6_univ]
+  rw [shellFace6_four m f (a := 0) (b := 1) (c := 2) (d := 3) (by decide),
+    shellFace6_four m f (a := 0) (b := 1) (c := 2) (d := 4) (by decide),
+    shellFace6_four m f (a := 0) (b := 1) (c := 2) (d := 5) (by decide),
+    shellFace6_four m f (a := 0) (b := 1) (c := 3) (d := 4) (by decide),
+    shellFace6_four m f (a := 0) (b := 1) (c := 3) (d := 5) (by decide),
+    shellFace6_four m f (a := 0) (b := 1) (c := 4) (d := 5) (by decide),
+    shellFace6_four m f (a := 0) (b := 2) (c := 3) (d := 4) (by decide),
+    shellFace6_four m f (a := 0) (b := 2) (c := 3) (d := 5) (by decide),
+    shellFace6_four m f (a := 0) (b := 2) (c := 4) (d := 5) (by decide),
+    shellFace6_four m f (a := 0) (b := 3) (c := 4) (d := 5) (by decide),
+    shellFace6_four m f (a := 1) (b := 2) (c := 3) (d := 4) (by decide),
+    shellFace6_four m f (a := 1) (b := 2) (c := 3) (d := 5) (by decide),
+    shellFace6_four m f (a := 1) (b := 2) (c := 4) (d := 5) (by decide),
+    shellFace6_four m f (a := 1) (b := 3) (c := 4) (d := 5) (by decide),
+    shellFace6_four m f (a := 2) (b := 3) (c := 4) (d := 5) (by decide)]
+  rw [shellFace6_pair m f (a := 0) (b := 1) (by decide),
+    shellFace6_pair m f (a := 0) (b := 2) (by decide),
+    shellFace6_pair m f (a := 0) (b := 3) (by decide),
+    shellFace6_pair m f (a := 0) (b := 4) (by decide),
+    shellFace6_pair m f (a := 0) (b := 5) (by decide),
+    shellFace6_pair m f (a := 1) (b := 2) (by decide),
+    shellFace6_pair m f (a := 1) (b := 3) (by decide),
+    shellFace6_pair m f (a := 1) (b := 4) (by decide),
+    shellFace6_pair m f (a := 1) (b := 5) (by decide),
+    shellFace6_pair m f (a := 2) (b := 3) (by decide),
+    shellFace6_pair m f (a := 2) (b := 4) (by decide),
+    shellFace6_pair m f (a := 2) (b := 5) (by decide),
+    shellFace6_pair m f (a := 3) (b := 4) (by decide),
+    shellFace6_pair m f (a := 3) (b := 5) (by decide),
+    shellFace6_pair m f (a := 4) (b := 5) (by decide)]
+  simp only [integral_shellLaw_coord_six, integral_shellLaw_coord_four,
+    integral_shellLaw_coord_mul_coord]
+  ring
+
+/-- **The connected six-point function at six coordinates vanishes**: the sixth cumulant of
+`p_i, p_j, p_k, p_l, p_r, p_s` is zero. -/
+theorem connectedSix_coord_eq_zero (m : ℕ) (i j k l r s : Fin m) :
+    connectedSix
+      (fun t => ∫ p : Fin m → ℝ, ∏ u ∈ t, p (![i, j, k, l, r, s] u) ∂shellLaw m) = 0 :=
+  connectedSixShell_eq_zero m ![i, j, k, l, r, s]
 
 end BookProof.OSReconstruction
 

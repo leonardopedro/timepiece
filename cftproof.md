@@ -3737,3 +3737,57 @@ unchanged.
 `lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
 all twelve new declarations (351 rows in the ledger). `./patches/build-book.sh` under
 `nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
+
+**Landed 2026-11-27, twentieth slice: the connected six-point function vanishes (C3m).** The
+nineteenth slice computed the fifth cumulant and named the even case as the frontier: at six
+positions the surviving partitions (`6`, `4+2`, `2+2+2`) have non-zero Möbius coefficients, so the
+odd-block count cannot finish the job. This slice computes the sixth joint cumulant of the same
+reference law and proves it zero, this time by a genuine Isserlis cancellation. Thirteen
+declarations were added to the audit; all rest on standard axioms.
+
+* **The cumulant, by its partition formula.** `connectedSix` is the sixth joint cumulant as the
+  Möbius sum over all two hundred and three partitions of the six positions (`Bell 6 = 203`), with
+  the coefficient `(−1)^(k−1)(k−1)!` per partition into `k` blocks: one partition into one block,
+  thirty-one into two, ninety into three, sixty-five into four, fifteen into five and one into six.
+  `connectedSix_one` checks the list: with every face equal to one the sum is
+  `1 − 31 + 180 − 390 + 360 − 120 = 0`, the same partition-lattice identity `Σ_π μ(π, ⊤) = 0`.
+* **The reduction.** `connectedSix_eq_reduced` states the criterion on the face alone: if every face
+  of cardinality one and every face of cardinality three is zero, the Möbius sum is the whole-set
+  face minus the fifteen `4+2` products plus twice the fifteen `2+2+2` products. A block of five
+  positions is not a hypothesis: it always leaves a singleton, so its product carries a zero
+  factor. Only the even partitions survive.
+* **The moment lemmas.** `shellFace6 m f s = ∫ p, ∏ t ∈ s, p (f t)` is the joint moment of the
+  positions in `s`, with `shellFace6_singleton`/`shellFace6_card_one` for the centred one-point
+  function and `shellFace6_card_three` for a three-element block (read as three coordinates,
+  `integral_shellLaw_coord_three`). `shellFace6_univ` reads the whole set as the six-point
+  integral, `shellFace6_four` reads a four-element block as a four-point integral — the four
+  distinctness facts are derived from `({a, b, c, d}).card = 4`, not assumed — and `shellFace6_pair`
+  reads a pair.
+* **The vanishing.** `connectedSixShell_eq_zero` applies the reduction, rewrites every surviving
+  face as an integral, expands the six-point function into its fifteen Isserlis pairings
+  (`integral_shellLaw_coord_six`) and each four-point function into its three
+  (`integral_shellLaw_coord_four`), and closes the resulting identity in the fifteen `δ`-atoms with
+  `ring`: each of the fifteen matchings of six sites appears once in `m123456`, three times in the
+  `4+2` sum (once for each choice of the pair that is the two-block) and once with coefficient `2`
+  in the `2+2+2` sum, so every matching contributes `1 − 3 + 2 = 0`.
+  `connectedSix_coord_eq_zero` reads the result at six coordinates.
+
+Boundary of this twentieth slice: **the first cumulant whose vanishing is a cancellation rather
+than a count.** The cumulant is still one explicit two-hundred-and-three-term partition formula on
+`Fin 6`, not a general moment–cumulant transform, and no partition-lattice machinery is built. The
+cancellation is proved as a finite polynomial identity in the fifteen pairing indicators, not by a
+structural bijection between matchings and partitions, and no matching count at general order is
+derived. No cumulant of arbitrary order is defined; the odd case beyond six points and the even
+case beyond six would each need their own partition list. No separated connected correlation and no
+clustering estimate is derived: the vanishing is algebraic, not decay. It remains not a Gaussianity
+criterion — vanishing cumulants up to order six do not make a law Gaussian, and no converse is
+attempted. Everything remains a statement about the reference law; C3a–C3d, the half-space
+inequality, the OS reconstruction theorem and every field law are unchanged.
+
+**Verification.** `lake build BookProof.OSReconstruction.GaussianChainScales` succeeds (8028 jobs)
+with no new warnings. `lake env lean Work/EuclideanMomentAudit.lean` reports
+`[propext, Classical.choice, Quot.sound]` for all thirteen new declarations (364 rows in the
+ledger). `lake build BookProof` succeeds (9128 jobs). `./patches/build-book.sh` under
+`nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
+`scripts/health.sh` reports 3 pass, 0 warn, 0 gap, 0 fail; `check-links` resolves 273 relative
+links over 88 documents and the doc index is fresh (88 docs, 252 links).
