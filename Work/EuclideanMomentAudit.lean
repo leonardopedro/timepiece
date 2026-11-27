@@ -382,3 +382,12 @@ hide behind the theorems' reports.
 #audit_axioms integral_shellLaw_linear_mul_coord
 #audit_axioms integral_shellLaw_linear_mul_linear
 #audit_axioms integral_shellLaw_streamField_mul_linear
+
+/-! ## C3h: the cross-scale covariance and the coordinate-moment factorization -/
+
+#audit_axioms truncCoeff_castLE
+#audit_axioms sum_truncCoeff_mul
+#audit_axioms sum_streamCoeff_mul_pow
+#audit_axioms integral_shellLaw_streamField_mul_coord
+#audit_axioms integral_shellLaw_streamField_mul_smaller
+#audit_axioms integral_shellLaw_prod_coord_pow

@@ -5513,3 +5513,19 @@ sign swap is needed: the `−` from `[mulOp B, 𝒢] = −mulOp (𝒢 B)` is exa
 so the same `rotCoeff` that served the kinetic half serves here.  With `momSq_comm`,
 `ymHamPoly_comm` follows, then `ymOmega_comm_ymH` (via `brstCharge_comm_of_comm`) and
 the membership corollaries `ymH_mem_physicalStates` / `ymH_mem_exactStates`.
+
+### Executed: the Gauss-Casimir slice re-verified from the tree (2026-11-26b)
+
+The two entries above were re-run against the committed tree rather than trusted from the log. The
+2026-11-25f boundary paragraph still lists `ymGauss_comm_magSq` (and, after it, `ymOmega_comm_ymH`
+and the membership corollaries) as open; the reductions that follow it landed all of them, so that
+paragraph is superseded — the names to use are `magSq_comm`, `ymHamPoly_comm`,
+`ymOmega_comm_ymH`, `ymH_mem_physicalStates` and `ymH_mem_exactStates`, in
+`BookProof.Qym.ChapterYangMillsGaussCasimir`.
+
+**Verification.** `lake build BookProof` succeeds (9126 jobs) and
+`#print axioms` on `momSq_comm`, `magSq_comm`, `ymHamPoly_comm`, `ymOmega_comm_ymH`,
+`ymH_mem_physicalStates` and `ymH_mem_exactStates` each reports
+`[propext, Classical.choice, Quot.sound]`, as the module docstring claims. Two boundaries stand
+unchanged and are not closed by any of this: the `ymPolyH` packaging the earlier docstring
+promised still does not exist, and the physical Yang-Mills mass gap remains open.
