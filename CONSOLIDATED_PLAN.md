@@ -28568,3 +28568,21 @@ finite-degree polynomial curve, and it is not proved here.
 `#print axioms` on `ymGaussVec_eq_sum_gaussMat`, `gaussMat_antisymm`, `gaussFlow_add`,
 `gaussFlow_transpose_mul`, `gaussFlowOp_pgLp`, `gaussFlowOp_mem_domain` and
 `gaussPMap_closure_skewAdjoint_of_rotation` gives `[propext, Classical.choice, Quot.sound]`.
+
+## State of the project — 2026-11-27: pairing-count recursion and build repair
+
+`BookProof/OSReconstruction/ChapterPairingCount.lean` derives a counting recursion for
+`pairingSet` from the existing `wickSum_rec` bijection at the constant weight one:
+`wickSum_one_eq_card` and `card_pairingSet_rec`.  This is the first counting step named as open in
+the C3j seventeenth slice; the closed form `(2m−1)‼` and an `M`-uniform δ-algorithm are still open.
+
+Separately, `BookProof/Qym/ChapterYangMillsPacketCharge.lean` had two elaboration failures
+(`constant_row_ward` line 272, `translated_marginal_ne` line 315) introduced by external commit
+`6a5ab20`.  They are repaired with `rfl` after `push_cast` and a `change` to the integral form
+before `integral_map`.  `lakefile.toml` roots were updated for `ChapterPairingCount` and the stale
+`ChapterYangMillsGaussRotationFlow`.
+
+**Boundary.** No new cumulant, Gaussianity criterion, cluster estimate or field law; no mass gap.
+
+**Verification.** `lake build BookProof` green at 9127 jobs; `scripts/health.sh` 3 pass, 0 warn,
+0 fail; `#print axioms card_pairingSet_rec` gives `[propext, Classical.choice, Quot.sound]`.

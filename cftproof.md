@@ -3675,3 +3675,15 @@ unchanged.
 `lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
 all twelve new declarations (339 rows in the ledger). `./patches/build-book.sh` under
 `nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
+
+**Status (2026-11-27): pairing-count recursion (C3j).**
+`BookProof/OSReconstruction/ChapterPairingCount.lean` specializes the existing `wickSum_rec`
+bijection to the constant weight one: `wickSum_one_eq_card` identifies the Wick sum with
+`(pairingSet s).card`, and `card_pairingSet_rec` counts pairings by the partner of the least site
+and the pairings of the remaining sites. This is a counting recursion, not yet the closed form
+`(2m−1)‼` and not an `M`-uniform δ-algorithm; all declarations rest on standard axioms.
+
+**Verification note (2026-11-27).** `lake build BookProof` is green at 9127 jobs after repairing
+two elaboration failures in `BookProof/Qym/ChapterYangMillsPacketCharge.lean` (commit `6e62952`),
+and `scripts/health.sh` reports 3 pass, 0 warn, 0 fail after registering the `ChapterPairingCount`
+and `ChapterYangMillsGaussRotationFlow` roots.
