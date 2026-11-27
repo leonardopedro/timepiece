@@ -47,6 +47,45 @@ theorem symmetrizedGaussian_neg_invariant (v : ℝ) (σ : NNReal) :
   rw [gaussianReal_map_neg, gaussianReal_map_neg]
   simp [add_comm]
 
+/-- Every power of the identity is integrable under the symmetrized mixture. -/
+lemma integrable_pow_symmetrized (v : ℝ) (σ : NNReal) (n : ℕ) :
+    Integrable (fun x : ℝ => x ^ n) (symmetrizedGaussian v σ) := by
+  have hgauss (m : ℝ) : Integrable (fun x : ℝ => x ^ n) (gaussianReal m σ) := by
+    by_cases hn : n = 0
+    · subst n
+      simp
+    · have hmem : MemLp (id : ℝ → ℝ) (n : ENNReal) (gaussianReal m σ) := by
+        simpa using (memLp_id_gaussianReal (μ := m) (v := σ) (n : NNReal))
+      have hi : Integrable (fun x : ℝ => ‖x‖ ^ n) (gaussianReal m σ) :=
+        hmem.integrable_norm_pow hn
+      have hae : AEStronglyMeasurable (fun x : ℝ => x ^ n) (gaussianReal m σ) := by fun_prop
+      rw [← integrable_norm_iff hae]
+      simpa [Real.norm_eq_abs, abs_pow] using hi
+  dsimp [symmetrizedGaussian]
+  exact (hgauss v).smul_measure (by norm_num) |>.add_measure
+    ((hgauss (-v)).smul_measure (by norm_num))
+
+/-- Every odd moment of the symmetric mixture vanishes, by sign-flip invariance. -/
+theorem symmetrizedGaussian_odd_moment_eq_zero (v : ℝ) (σ : NNReal) (k : ℕ) :
+    (∫ x : ℝ, x ^ (2 * k + 1) ∂symmetrizedGaussian v σ) = 0 := by
+  let μ := symmetrizedGaussian v σ
+  have hinv : Measure.map (fun x : ℝ => -x) μ = μ := symmetrizedGaussian_neg_invariant v σ
+  have hmap := integral_map (by fun_prop : AEMeasurable (fun x : ℝ => -x) μ)
+    (by fun_prop : AEStronglyMeasurable (fun x : ℝ => x ^ (2 * k + 1))
+      (Measure.map (fun x : ℝ => -x) μ))
+  have hneg : (fun x : ℝ => (-x) ^ (2 * k + 1)) = fun x => -x ^ (2 * k + 1) := by
+    funext x
+    rw [neg_pow]
+    simp [show Odd (2 * k + 1) from ⟨k, by ring⟩]
+  rw [hinv, hneg] at hmap
+  have hI : Integrable (fun x : ℝ => x ^ (2 * k + 1)) μ := by
+    exact integrable_pow_symmetrized v σ (2 * k + 1)
+  have hnegint : (∫ x : ℝ, -x ^ (2 * k + 1) ∂μ) = -(∫ x : ℝ, x ^ (2 * k + 1) ∂μ) :=
+    integral_neg (fun x : ℝ => x ^ (2 * k + 1))
+  rw [hnegint] at hmap
+  change (∫ x : ℝ, x ^ (2 * k + 1) ∂μ) = 0
+  linarith
+
 /-- The second moment of a probability measure is its variance plus the square of its mean. -/
 lemma integral_sq_eq_variance_add_sq_mean {μ : Measure ℝ} [IsProbabilityMeasure μ]
     (h2 : MemLp (fun x : ℝ => x) 2 μ) :

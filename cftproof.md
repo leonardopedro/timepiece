@@ -337,7 +337,8 @@ weighted mixture of the Gaussians centered at `±v` is a probability measure who
 is zero, independently of `v` and `σ`.  The second moment is `σ + v²` (and hence the variance
 is `σ + v²`, since the mean vanishes), separating the common Gaussian fluctuation from the
 separation of the two centers.  `symmetrizedGaussian_neg_invariant` shows the mixture is
-invariant under `x ↦ −x` — the distribution-level form of the symmetric average.  This is the
+invariant under `x ↦ −x`, and `symmetrizedGaussian_odd_moment_eq_zero` deduces that every odd
+moment vanishes — the distribution-level form of the symmetric average.  This is the
 density-level form of the symmetric-average
 `⟨φ⟩ = 0` mechanism; no physical ground state, infinite-volume sector or cluster statement is
 implied.
