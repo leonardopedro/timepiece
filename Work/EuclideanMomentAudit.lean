@@ -446,3 +446,18 @@ hide behind the theorems' reports.
 #audit_axioms connectedFourShell_eq_zero
 #audit_axioms connectedFour_coord_eq
 #audit_axioms connectedFour_coord_eq_zero
+
+/-! ## C3l: the connected five-point function of the reference law -/
+
+#audit_axioms connectedFive
+#audit_axioms connectedFive_one
+#audit_axioms shellFace5
+#audit_axioms shellFace5_singleton
+#audit_axioms shellFace5_card_one
+#audit_axioms shellFace5_card_three
+#audit_axioms shellFace5_univ
+#audit_axioms shellFace5_univ_eq_zero
+#audit_axioms connectedFiveShell
+#audit_axioms connectedFive_eq_zero
+#audit_axioms connectedFiveShell_eq_zero
+#audit_axioms connectedFive_coord_eq_zero

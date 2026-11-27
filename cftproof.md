@@ -3692,3 +3692,48 @@ item from the seventeenth slice; an `M`-uniform δ-algorithm on `shellLaw` is st
 two elaboration failures in `BookProof/Qym/ChapterYangMillsPacketCharge.lean` (commit `6e62952`),
 and `scripts/health.sh` reports 3 pass, 0 warn, 0 fail after registering the `ChapterPairingCount`
 and `ChapterYangMillsGaussRotationFlow` roots.
+
+**Landed 2026-11-27, nineteenth slice: the connected five-point function vanishes (C3l).** The
+eighteenth slice computed the fourth cumulant and recorded "no cumulant above the fourth" as open.
+This slice computes the fifth joint cumulant of the same reference law — again by the Möbius
+partition formula — and proves it zero. Twelve declarations were added to the audit; all rest on
+standard axioms.
+
+* **The cumulant, by its partition formula.** `connectedFive` is the fifth joint cumulant as the
+  Möbius sum over all fifty-two partitions of the five positions (`Bell 5 = 52`), with the same
+  coefficient `(−1)^(k−1)(k−1)!` per partition into `k` blocks: one partition into one block,
+  fifteen into two (five singleton + quadruple, ten pair + triple), twenty-five into three, ten
+  into four, and one into five singletons. `connectedFive_one` checks the list: with every face
+  equal to one the sum is `1 − 15 + 50 − 60 + 24 = 0`, the partition-lattice identity
+  `Σ_π μ(π, ⊤) = 0` that has to hold for `n ≥ 2`.
+* **The structural vanishing condition.** `shellFace5 m f s = ∫ p, ∏ t ∈ s, p (f t)` is the joint
+  moment of the positions in `s`, with `shellFace5_singleton` giving the centred one-point
+  function. `connectedFive_eq_zero` states the criterion on the face alone: if every face of
+  cardinality one and of cardinality three is zero, and the full face is zero, then the Möbius sum
+  is zero. That is the whole content of the odd case — on five positions every partition has a
+  block of one, three or five elements, so every product in the sum carries a zero factor.
+* **The three block lemmas.** `shellFace5_card_one` (the centred law), `shellFace5_card_three`
+  (from `integral_shellLaw_coord_three`, after reading a three-element block as three
+  coordinates) and `shellFace5_univ_eq_zero` (from `integral_shellLaw_coord_five`, via
+  `shellFace5_univ`). No reduction to pair moments is needed: the odd blocks vanish on their own.
+* **The vanishing.** `connectedFiveShell_eq_zero` instantiates the structural lemma at
+  `connectedFive (shellFace5 m f)`, and `connectedFive_coord_eq_zero` reads it at five
+  coordinates. The reference law has no connected five-point part.
+
+Boundary of this nineteenth slice: **one more cumulant, still only odd-block vanishing.** The
+cumulant is defined by its explicit fifty-two-term partition formula on `Fin 5`, not by a general
+moment–cumulant transform, and no partition-lattice machinery is built. No cumulant of arbitrary
+order is defined; in particular the even case is untouched, where the surviving partitions at six
+points (`6`, `4+2`, `2+2+2`) have non-vanishing Möbius coefficients and a genuine Isserlis
+cancellation would have to be computed rather than an odd block observed. No separated connected
+correlation and no clustering estimate is derived: the vanishing here is algebraic, not decay. It
+is still not a Gaussianity criterion — vanishing fourth and fifth cumulants do not make a law
+Gaussian, and no converse is attempted. Everything remains a statement about the reference law;
+C3a–C3d, the half-space inequality, the OS reconstruction theorem and every field law are
+unchanged.
+
+**Verification.** `lake env lean BookProof/OSReconstruction/GaussianChainScales.lean` is clean and
+`lake build BookProof.OSReconstruction.GaussianChainScales` succeeds (8028 jobs).
+`lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
+all twelve new declarations (351 rows in the ledger). `./patches/build-book.sh` under
+`nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.

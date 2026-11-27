@@ -95,7 +95,11 @@ scale-indexed:
 * `connectedFour`, `connectedFourShell_eq`, `connectedFourShell_eq_zero`,
   `connectedFour_coord_eq_zero` — **the connected four-point function vanishes**: the joint
   cumulant is the Möbius sum over the partitions of the four positions, the centred law keeps only
-  the pairing partitions (`κ = m₁₂₃₄ − m₁₂ m₃₄ − m₁₃ m₂₄ − m₁₄ m₂₃`), and Isserlis makes it zero.
+  the pairing partitions (`κ = m₁₂₃₄ − m₁₂ m₃₄ − m₁₃ m₂₄ − m₁₄ m₂₃`), and Isserlis makes it zero;
+* `connectedFive`, `connectedFive_eq_zero`, `connectedFiveShell_eq_zero`,
+  `connectedFive_coord_eq_zero` — **the connected five-point function vanishes**: the fifth joint
+  cumulant is the Möbius sum over the 52 partitions of the five positions, and on five positions
+  every partition has a block of one, three or five elements, whose moment is zero.
 
 ## Boundary
 
@@ -123,10 +127,11 @@ scale-indexed:
   end of this file, which starts C3e; no limiting law and no correlation estimate is proved.
   The only multi-point functions here are those of the *reference* law
   (`integral_shellLaw_coord_three` through `integral_shellLaw_coord_six`, the vanishing connected
-  four-point function `connectedFour_coord_eq_zero`, and the uniform Wick lemmas behind them), and
-  they are Isserlis for independent unit Gaussians: they say nothing about the interacting theory,
-  no cluster or separated connected-correlation statement is derived from them, and they are
-  moments and one cumulant, not a characterisation of Gaussianity.
+  four- and five-point functions `connectedFour_coord_eq_zero` and `connectedFive_coord_eq_zero`,
+  and the uniform Wick lemmas behind them), and they are Isserlis for independent unit Gaussians:
+  they say nothing about the interacting theory, no cluster or separated connected-correlation
+  statement is derived from them, and they are moments and two cumulants, not a characterisation
+  of Gaussianity.
 * `shellDensity` is *defined* as the `n`-fold iterated partial integral: it integrates the first
   `n` coordinates at fixed value of the last one.  The **tower identity** `∫ y, shellDensity n f y
   ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)` *is* proved, but only for measurable **bounded**
@@ -2304,16 +2309,22 @@ statements come first and are uniform in the number of fields; the low moments a
   four-point function: the fourth joint cumulant (the Möbius sum over the partitions of the four
   positions) reduces for this centred law to `m₁₂₃₄ − m₁₂ m₃₄ − m₁₃ m₂₄ − m₁₄ m₂₃`, which
   vanishes because every term is an Isserlis pairing.
+* `connectedFive`, `connectedFive_eq_zero`, `connectedFiveShell_eq_zero` — the fifth joint cumulant,
+  the Möbius sum over all 52 partitions of the five positions with coefficients
+  `(-1)^(k-1) (k-1)!` (`connectedFive_one` checks the coefficient sum).  On five positions every
+  partition contains a block of one, three or five elements (`shellFace5_card_one`,
+  `shellFace5_card_three`, `shellFace5_univ_eq_zero`), and each such moment vanishes, so every
+  product in the sum carries a zero factor and the cumulant is zero.
 
-**Boundary.** These are the moments and the fourth cumulant of *this* reference law.
+**Boundary.** These are the moments and the fourth and fifth cumulants of *this* reference law.
 `integral_shellLaw_coord_four` and `integral_shellLaw_coord_six` are Isserlis' theorem for the
 covariance `1`, not a Gaussianity criterion: nothing here says a law with these moments is
-Gaussian, the fourth cumulant is computed and vanishes but no higher cumulant and no separated
-connected correlation is computed, and the vanishing is a property of this law rather than a
-characterisation of Gaussianity.  The general-`M` statements are uniform in the number of fields,
-but the per-pairing evaluation at four and six sites is discharged by `decide` on the concrete
-index types `Fin 4` and `Fin 6`; no closed form for the pairing count at arbitrary `M` is derived
-here.
+Gaussian, the fourth and fifth cumulants are computed and vanish but no cumulant of arbitrary
+order and no separated connected correlation is computed, and the vanishing is a property of this
+law rather than a characterisation of Gaussianity.  The general-`M` statements are uniform in the
+number of fields, but the per-pairing evaluation at four and six sites is discharged by `decide`
+on the concrete index types `Fin 4` and `Fin 6`; no closed form for the pairing count at
+arbitrary `M` is derived here.
 -/
 
 /-- The reference law is the product Gaussian of `GaussianMoments`: the same `Measure.pi` of `m`
@@ -2898,6 +2909,141 @@ theorem connectedFour_coord_eq (m : ℕ) (i j k l : Fin m) :
 theorem connectedFour_coord_eq_zero (m : ℕ) (i j k l : Fin m) :
     connectedFour (fun s => ∫ p : Fin m → ℝ, ∏ t ∈ s, p (![i, j, k, l] t) ∂shellLaw m) = 0 :=
   connectedFourShell_eq_zero m ![i, j, k, l]
+
+/-! ## The connected five-point function of the reference law
+
+The fifth joint cumulant is the Möbius sum over the fifty-two partitions of the five positions,
+
+`κ = Σ_π (-1)^(k(π)-1) (k(π)-1)! ∏_{B ∈ π} m(B)`,
+
+the partition formula that gives the fourth cumulant in `connectedFour` and the third cumulant at
+`connectedThree` in the QYM development (`../OpenAI-YM-20261104/lean/MSPositionLabels.lean`; the
+frozen `../QCD` copy of that development carries the same convention).
+
+On a five-element set every partition has a block of cardinality one, three or five: a partition
+with a small block has a singleton whenever a block has at most two elements, a partition into a
+two and a three has a triple, and the one-block partition is the whole set.  Under the reference
+law all three of those moments vanish, so every product in the Möbius sum carries a zero factor
+and the fifth cumulant is zero: the reference law has no connected five-point part.
+
+This is the first cumulant above the fourth, and it is still one explicit partition sum.  No
+cumulant of arbitrary order and no general partition-lattice Möbius inversion is claimed.
+-/
+
+/-- **The fifth joint cumulant**, as the Möbius sum over the 52 partitions of the five positions.
+A partition into `k` blocks contributes `(-1)^(k-1) (k-1)!` times the product of its block
+moments. -/
+def connectedFive {R : Type*} [CommRing R] (face : Finset (Fin 5) → R) : R :=
+  face Finset.univ
+    - (face {0} * face {1, 2, 3, 4} + face {0, 1} * face {2, 3, 4} + face {0, 1, 2} * face {3, 4}
+       + face {0, 1, 2, 3} * face {4} + face {0, 1, 2, 4} * face {3} + face {0, 1, 3} * face {2, 4}
+       + face {0, 1, 3, 4} * face {2} + face {0, 1, 4} * face {2, 3} + face {0, 2} * face {1, 3, 4}
+       + face {0, 2, 3} * face {1, 4} + face {0, 2, 3, 4} * face {1} + face {0, 2, 4} * face {1, 3}
+       + face {0, 3} * face {1, 2, 4} + face {0, 3, 4} * face {1, 2} + face {0, 4} * face {1, 2, 3})
+    + 2 * (face {0} * face {1} * face {2, 3, 4} + face {0} * face {1, 2} * face {3, 4}
+           + face {0} * face {1, 2, 3} * face {4} + face {0} * face {1, 2, 4} * face {3}
+           + face {0} * face {1, 3} * face {2, 4} + face {0} * face {1, 3, 4} * face {2}
+           + face {0} * face {1, 4} * face {2, 3} + face {0, 1} * face {2} * face {3, 4}
+           + face {0, 1} * face {2, 3} * face {4} + face {0, 1} * face {2, 4} * face {3}
+           + face {0, 1, 2} * face {3} * face {4} + face {0, 1, 3} * face {2} * face {4}
+           + face {0, 1, 4} * face {2} * face {3} + face {0, 2} * face {1} * face {3, 4}
+           + face {0, 2} * face {1, 3} * face {4} + face {0, 2} * face {1, 4} * face {3}
+           + face {0, 2, 3} * face {1} * face {4} + face {0, 2, 4} * face {1} * face {3}
+           + face {0, 3} * face {1} * face {2, 4} + face {0, 3} * face {1, 2} * face {4}
+           + face {0, 3} * face {1, 4} * face {2} + face {0, 3, 4} * face {1} * face {2}
+           + face {0, 4} * face {1} * face {2, 3} + face {0, 4} * face {1, 2} * face {3}
+           + face {0, 4} * face {1, 3} * face {2})
+    - 6 * (face {0} * face {1} * face {2} * face {3, 4}
+           + face {0} * face {1} * face {2, 3} * face {4}
+           + face {0} * face {1} * face {2, 4} * face {3}
+           + face {0} * face {1, 2} * face {3} * face {4}
+           + face {0} * face {1, 3} * face {2} * face {4}
+           + face {0} * face {1, 4} * face {2} * face {3}
+           + face {0, 1} * face {2} * face {3} * face {4}
+           + face {0, 2} * face {1} * face {3} * face {4}
+           + face {0, 3} * face {1} * face {2} * face {4}
+           + face {0, 4} * face {1} * face {2} * face {3})
+    + 24 * (face {0} * face {1} * face {2} * face {3} * face {4})
+
+/-- A check on the explicit partition list: five positions have `52 = Bell 5` partitions and the
+Möbius coefficients `(-1)^(k-1) (k-1)!` sum to zero over them (the partition-lattice identity
+`Σ_π μ(π, ⊤) = 0` for `n ≥ 2`). -/
+theorem connectedFive_one : connectedFive (fun _ => (1 : ℤ)) = 0 := by
+  decide
+
+/-- The joint moment of the positions in `s`, for the tuple of five sites `f`. -/
+noncomputable def shellFace5 (m : ℕ) (f : Fin 5 → Fin m) (s : Finset (Fin 5)) : ℝ :=
+  ∫ p : Fin m → ℝ, ∏ t ∈ s, p (f t) ∂shellLaw m
+
+/-- A single position has zero moment under the reference law. -/
+theorem shellFace5_singleton (m : ℕ) (f : Fin 5 → Fin m) (i : Fin 5) :
+    shellFace5 m f {i} = 0 := by
+  simp only [shellFace5, Finset.prod_singleton]
+  exact integral_shellLaw_coord m (f i)
+
+/-- A block of one position has zero moment. -/
+theorem shellFace5_card_one (m : ℕ) (f : Fin 5 → Fin m) {s : Finset (Fin 5)}
+    (hs : s.card = 1) : shellFace5 m f s = 0 := by
+  obtain ⟨i, rfl⟩ := Finset.card_eq_one.mp hs
+  exact shellFace5_singleton m f i
+
+/-- A block of three positions has zero moment under the reference law. -/
+theorem shellFace5_card_three (m : ℕ) (f : Fin 5 → Fin m) {s : Finset (Fin 5)}
+    (hs : s.card = 3) : shellFace5 m f s = 0 := by
+  obtain ⟨a, b, c, hab, hac, hbc, rfl⟩ := Finset.card_eq_three.mp hs
+  have hprod : ∀ p : Fin m → ℝ,
+      (∏ t ∈ ({a, b, c} : Finset (Fin 5)), p (f t)) = p (f a) * p (f b) * p (f c) := by
+    intro p
+    rw [Finset.prod_insert (by simp [hab, hac]),
+      Finset.prod_insert (by simp [hbc]), Finset.prod_singleton]
+    ring
+  rw [show shellFace5 m f {a, b, c}
+      = ∫ p, p (f a) * p (f b) * p (f c) ∂shellLaw m from
+    integral_congr_ae (Eventually.of_forall fun p => hprod p)]
+  exact integral_shellLaw_coord_three m (f a) (f b) (f c)
+
+/-- The whole set is the five-point function. -/
+theorem shellFace5_univ (m : ℕ) (f : Fin 5 → Fin m) :
+    shellFace5 m f Finset.univ
+      = ∫ p, p (f 0) * p (f 1) * p (f 2) * p (f 3) * p (f 4) ∂shellLaw m := by
+  simp only [shellFace5]
+  refine integral_congr_ae (Eventually.of_forall fun p => ?_)
+  simp [Fin.prod_univ_five]
+
+/-- **The five-point function vanishes**: an odd number of sites cannot all occur an even number
+of times. -/
+theorem shellFace5_univ_eq_zero (m : ℕ) (f : Fin 5 → Fin m) :
+    shellFace5 m f Finset.univ = 0 := by
+  rw [shellFace5_univ]
+  exact integral_shellLaw_coord_five m (f 0) (f 1) (f 2) (f 3) (f 4)
+
+/-- The connected five-point function of the reference law. -/
+noncomputable def connectedFiveShell (m : ℕ) (f : Fin 5 → Fin m) : ℝ :=
+  connectedFive (shellFace5 m f)
+
+/-- **A fifth cumulant vanishes when every block of one, three or five positions has zero
+moment.**  On five positions every partition has such a block, so the Möbius sum is a sum of
+products each carrying a zero factor. -/
+theorem connectedFive_eq_zero {R : Type*} [CommRing R] (face : Finset (Fin 5) → R)
+    (h1 : ∀ s, s.card = 1 → face s = 0) (h3 : ∀ s, s.card = 3 → face s = 0)
+    (h5 : face Finset.univ = 0) : connectedFive face = 0 := by
+  simp [connectedFive, h1, h3, h5]
+
+/-- **The connected five-point function of the reference law vanishes.**  The centred law has no
+connected five-point part. -/
+theorem connectedFiveShell_eq_zero (m : ℕ) (f : Fin 5 → Fin m) :
+    connectedFiveShell m f = 0 :=
+  connectedFive_eq_zero _
+    (fun _ hs => shellFace5_card_one m f hs)
+    (fun _ hs => shellFace5_card_three m f hs)
+    (shellFace5_univ_eq_zero m f)
+
+/-- **The connected five-point function at five coordinates vanishes**: the fifth cumulant of
+`p_i, p_j, p_k, p_l, p_r` is zero. -/
+theorem connectedFive_coord_eq_zero (m : ℕ) (i j k l r : Fin m) :
+    connectedFive
+      (fun s => ∫ p : Fin m → ℝ, ∏ t ∈ s, p (![i, j, k, l, r] t) ∂shellLaw m) = 0 :=
+  connectedFiveShell_eq_zero m ![i, j, k, l, r]
 
 end BookProof.OSReconstruction
 

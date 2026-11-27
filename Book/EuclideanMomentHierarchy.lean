@@ -618,10 +618,10 @@ The last line is **tightness**: one threshold works at every scale, which is the
 of Prokhorov's theorem for the sequence of laws of the renormalised observables. That is the
 first rung of the observable limit estimate (C3e) and no more: Prokhorov's theorem itself and a
 limiting law are not proved here, and the renormalisation is the subtraction of the background
-rather than of an interacting divergence. The multi-point functions and the connected four-point
-function that *are* proved later in this chapter (`integral_shellLaw_coord_three` through
-`integral_shellLaw_coord_six`, `connectedFour_coord_eq_zero`) are statements about this reference
-law, not about any limit.
+rather than of an interacting divergence. The multi-point functions and the connected four- and
+five-point functions that *are* proved later in this chapter (`integral_shellLaw_coord_three`
+through `integral_shellLaw_coord_six`, `connectedFour_coord_eq_zero`,
+`connectedFive_coord_eq_zero`) are statements about this reference law, not about any limit.
 
 The scalar sequence is not the only object that behaves this way. Replacing the renormalised
 observable by an affine image of it keeps every step intact: the last coordinate still carries the
@@ -833,10 +833,32 @@ the statement that a Gaussian's fourth cumulant vanishes, proved for this law ra
 It is a property of the law, not a criterion for one: a vanishing fourth cumulant does not make a
 law Gaussian, and `connectedFour_coord_eq_zero` does not assert that it does.
 
+The same partition formula runs one order higher. The fifth joint cumulant is the Möbius sum over
+the fifty-two partitions of five positions, with coefficients `(-1)^(k-1) (k-1)!` — the coefficient
+identity `connectedFive_one` checks the list — and on five positions every partition contains a
+block of one, three or five elements:
+
+```
+connectedFive :
+    m12345 - (the fifteen 1+4 and 2+3 partitions) + 2(the 1+1+3 and 1+2+2 partitions)
+      - 6(the 1+1+1+2 partitions) + 24 m1 m2 m3 m4 m5
+connectedFive_eq_zero :
+    (blocks of card 1 vanish) -> (blocks of card 3 vanish) -> face univ = 0 -> kappa = 0
+connectedFiveShell_eq_zero :
+    kappa = 0
+```
+
+Each such block has zero moment under the reference law (`shellFace5_card_one`,
+`shellFace5_card_three`, `shellFace5_univ_eq_zero`), so every product in the Möbius sum carries a
+zero factor and the fifth cumulant vanishes: the reference law has no connected five-point part.
+This is the first cumulant above the fourth, and it is still one explicit partition sum; no
+cumulant of arbitrary order and no general partition-lattice Möbius inversion is claimed.
+
 What stays open is not these moments but their converse. `integral_shellLaw_coord_four` is
 Isserlis' theorem for the covariance `1`: it computes the four-point function of *this* law, and
-nothing in the module shows that a law with these moments is Gaussian, or computes a cumulant above
-the fourth, a connected correlation at separated points, or any moment above the sixth. The general
+nothing in the module shows that a law with these moments is Gaussian, or computes a cumulant of
+arbitrary order (the fifth is the highest here), a connected correlation at separated points, or
+any moment above the sixth. The general
 statements are uniform in the number of fields, but the per-pairing evaluation at four and six
 sites is a finite computation, so no closed form for the number of pairings at arbitrary `M` is
 derived here. So Gaussianity as a property of a limit law is still unproved; only its first few
