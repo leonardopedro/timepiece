@@ -188,7 +188,156 @@ theorem local_charge_vacuum {n : ℕ} (e : Packets d n) (ω : Fin n → Profile)
       (Complex.I / 2) • (∑ j, C (translation e ω j : ℂ) * X j) :=
   charge_vacuum _ _ (rotation_skew e ω g f hf)
 
+/-- Gauge test obtained by multiplying the spatial packet by a linear coordinate. -/
+def matchedParameter (a : Space →L[ℝ] ℝ) (f : Profile) : Profile :=
+  smulLeftCLM ℝ a f
+
+private theorem matched_apply (a : Space →L[ℝ] ℝ) (f : Profile) (x : Space) :
+    matchedParameter a f x = a x * f x :=
+  smulLeftCLM_apply_apply (by fun_prop) f x
+
+/-- Integration by parts prices the gauge gradient on the raw field amplitude:
+the linear coordinate contributes half its slope times the packet metric. -/
+theorem matched_gradient (a : Space →L[ℝ] ℝ) (f : Profile) (v : Space) :
+    (∫ x, f x * ∂_{v} (matchedParameter a f) x) = a v * (∫ x, f x ^ 2) / 2 := by
+  let w := matchedParameter a f
+  have hw : (w : Space → ℝ) = fun x => a x * f x := funext (matched_apply a f)
+  have hd (x : Space) : ∂_{v} w x = a v * f x + a x * ∂_{v} f x := by
+    rw [lineDerivOp_apply_eq_fderiv, hw]
+    change fderiv ℝ ((a : Space → ℝ) * (f : Space → ℝ)) x v = _
+    rw [(a.hasFDerivAt.mul (f.hasFDerivAt x)).fderiv]
+    simp [lineDerivOp_apply_eq_fderiv, add_comm, mul_comm]
+  have hip := integral_mul_lineDerivOp_right_eq_neg_left (μ := volume) f w v
+  have hi : Integrable (fun x => f x * ∂_{v} w x) := (product f (∂_{v} w)).integrable
+  have hj : Integrable (fun x => ∂_{v} f x * w x) := (product (∂_{v} f) w).integrable
+  have hdiff : (∫ x, f x * ∂_{v} w x) - (∫ x, ∂_{v} f x * w x) = a v * ∫ x, f x ^ 2 := by
+    rw [← integral_sub hi hj, ← integral_const_mul]
+    apply integral_congr_ae
+    filter_upwards with x
+    rw [hd, matched_apply]
+    ring
+  change (∫ x, f x * ∂_{v} w x) = _
+  linarith
+
+/-- For f(x/L) and the parameter (x₁/L)f(x/L), division by the raw metric
+gives a translation of half a squeezed standard deviation at every width. -/
+theorem matched_standardized_shift (a : Space →L[ℝ] ℝ) (f : Profile) (v : Space)
+    {L : ℝ} (hL : 0 < L) (ha : a v = 1 / L) (hm : (∫ x, f x ^ 2) ≠ 0) :
+    L * (∫ x, f x * ∂_{v} (matchedParameter a f) x) / (∫ x, f x ^ 2) = 1 / 2 := by
+  rw [matched_gradient, ha]
+  field_simp
+
+/-- Divergence-free spatial packets have zero projected Gauss translation for every
+Schwartz gauge test. This uses physical-space derivatives of the fixed profiles. -/
+theorem transverse_translation {n : ℕ} (e : Packets d n) (ω : Fin n → Profile)
+    (j : Fin d) (hdiv : ∀ a x, ∑ l : Fin 3, ∂_{EuclideanSpace.single l (1 : ℝ)} (e j l a) x = 0) :
+    translation e ω j = 0 := by
+  unfold translation
+  change (∑ l, ∑ a, ∫ x, e j l a x * ∂_{EuclideanSpace.single l (1 : ℝ)} (ω a) x) = 0
+  rw [Finset.sum_comm]
+  apply Finset.sum_eq_zero
+  intro a _
+  simp_rw [integral_mul_lineDerivOp_right_eq_neg_left, Finset.sum_neg_distrib]
+  apply neg_eq_zero.mpr
+  rw [← integral_finset_sum]
+  · simp_rw [← Finset.sum_mul, hdiv, zero_mul, integral_zero]
+  · intro l _
+    exact (product (∂_{EuclideanSpace.single l (1 : ℝ)} (e j l a)) (ω a)).integrable
+
+/-- For transverse packets in orthonormal coordinates every local projected charge
+kills the inner Gaussian. Equal rescaling of all amplitudes preserves this conclusion. -/
+theorem transverse_charge_vacuum {n : ℕ} (e : Packets d n) (ω : Fin n → Profile) (g : ℝ)
+    (f : Fin n → Fin n → Fin n → ℝ) (hf : ∀ a b c, f a b c = -f b a c)
+    (hd : ∀ j a x, ∑ l : Fin 3, ∂_{EuclideanSpace.single l (1 : ℝ)} (e j l a) x = 0) :
+    charge (translation e ω) (rotation e ω g f) 1 = 0 := by
+  rw [local_charge_vacuum e ω g f hf]
+  simp [fun j => transverse_translation e ω j (hd j)]
+
 end SchwartzCoefficients
+
+section Ward
+
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H]
+
+private theorem sym_on_pg {S : Module.End ℂ (Poly d)} (h : PolySym S) (p q : Poly d) :
+    inner ℂ (pgLp (S p)) (pgLp q) = inner ℂ (pgLp p) (pgLp (S q)) := by
+  simpa only [inner_pgLp_pgLp] using h p q
+
+/-- The weak Ward identity on the actual Mehler polynomial core when the
+selected amplitude has no linear rotation component. -/
+theorem constant_row_ward (t : Fin d → ℝ) (m : Fin d → Fin d → ℝ) (j : Fin d)
+    (hm : ∀ k, m j k = 0) (p : Poly d) :
+    inner ℂ (pgLp (X j * p)) (pgLp (charge t m p)) -
+      inner ℂ (pgLp (charge t m p)) (pgLp (X j * p)) =
+        Complex.I * (t j : ℂ) * (‖pgLp p‖ : ℂ)^2 := by
+  have hx := sym_on_pg (mulOp_polySym (realCoeff_X j)) p (charge t m p)
+  simp only [mulOp_apply] at hx
+  rw [hx, sym_on_pg (charge_polySym t m), ← inner_sub_right]
+  simp only [← pgMap_apply, ← map_sub]
+  have hc := charge_coordinate t m j p
+  simp only [tangent, hm, Complex.ofReal_zero, zero_smul, Finset.sum_const_zero, add_zero] at hc
+  rw [← neg_sub, hc, map_neg, map_smul, ← smul_eq_C_mul, map_smul, pgMap_apply]
+  simp [inner_smul_right, mul_assoc]
+  change inner ℂ (pgLp p) ((t j : ℂ) • pgLp p) = _
+  rw [inner_smul_right, inner_self_eq_norm_sq_to_K]
+  push_cast
+
+/-- The weak commutator costs twice the product of the centered coordinate norm
+and the charge norm. Its form only uses first actions on the trial vector. -/
+theorem weak_charge_bound (qψ gψ : H) :
+    ‖inner ℂ qψ gψ - inner ℂ gψ qψ‖ ≤ 2 * ‖qψ‖ * ‖gψ‖ := by
+  calc
+    _ ≤ ‖inner ℂ qψ gψ‖ + ‖inner ℂ gψ qψ‖ := norm_sub_le _ _
+    _ ≤ ‖qψ‖ * ‖gψ‖ + ‖gψ‖ * ‖qψ‖ := add_le_add (norm_inner_le_norm _ _) (norm_inner_le_norm _ _)
+    _ = _ := by ring
+
+/-- A normalized trial with amplitude deviation 1/L and commutator i/(2L)
+has a charge residual bounded below uniformly in L. -/
+theorem squeezed_charge_floor (qψ gψ : H) {L : ℝ} (hL : 0 < L)
+    (hs : ‖qψ‖ = 1 / L)
+    (hw : inner ℂ qψ gψ - inner ℂ gψ qψ = ((1 / (2 * L) : ℝ) : ℂ) * Complex.I) :
+    1 / 4 ≤ ‖gψ‖ := by
+  have h := weak_charge_bound qψ gψ
+  rw [hw, norm_mul, Complex.norm_I, mul_one, Complex.norm_real,
+    Real.norm_eq_abs, abs_of_pos (by positivity), hs] at h
+  field_simp [hL.ne'] at h
+  nlinarith
+
+end Ward
+
+/-- A probability marginal with finite first moment cannot be invariant under
+a nonzero translation. This tests a regular unreduced amplitude in any proposed lift. -/
+theorem translated_marginal_ne (μ : MeasureTheory.Measure ℝ) [MeasureTheory.IsProbabilityMeasure μ]
+    (hμ : MeasureTheory.Integrable (fun x : ℝ => x) μ) {b : ℝ} (hb : b ≠ 0) :
+    μ.map (· + b) ≠ μ := by
+  intro h
+  have he := congrArg (fun ν : MeasureTheory.Measure ℝ => ∫ x, x ∂ν) h
+  rw [MeasureTheory.integral_map (by fun_prop) (by fun_prop),
+    MeasureTheory.integral_add hμ (MeasureTheory.integrable_const b)] at he
+  simp only [MeasureTheory.integral_const, MeasureTheory.measureReal_univ_eq_one,
+    smul_eq_mul, one_mul] at he
+  exact hb (by linarith)
+
+/-- A finite displacement by half a standard deviation changes the marginal
+of the standardized amplitude. It can be tested without an operator domain. -/
+theorem matched_marginal_changes :
+    (ProbabilityTheory.gaussianReal 0 1).map (· + (1 / 2 : ℝ)) ≠
+      ProbabilityTheory.gaussianReal 0 1 := by
+  rw [ProbabilityTheory.gaussianReal_map_add_const]
+  simp [ProbabilityTheory.gaussianReal_ext_iff]
+
+/-- At gauge time 2π the standardized amplitude shifts by π. Its bounded
+characteristic-function test at frequency one changes by a width-independent amount. -/
+theorem matched_characteristic_difference :
+    ‖MeasureTheory.charFun ((ProbabilityTheory.gaussianReal 0 1).map (· + Real.pi)) 1 -
+      MeasureTheory.charFun (ProbabilityTheory.gaussianReal 0 1) 1‖ =
+        2 * Real.exp (-(1 / 2 : ℝ)) := by
+  rw [ProbabilityTheory.gaussianReal_map_add_const]
+  simp only [zero_add, ProbabilityTheory.charFun_gaussianReal, Complex.ofReal_one, one_mul,
+    one_pow, NNReal.coe_one, Complex.ofReal_zero, mul_zero, zero_mul, zero_sub]
+  rw [sub_eq_add_neg ((Real.pi : ℂ) * Complex.I) _, Complex.exp_add, Complex.exp_pi_mul_I]
+  rw [show ∀ z : ℂ, -1 * z - z = -(2 * z) by intro z; ring]
+  simp [Complex.norm_exp]
 
 end
 end BookProof.YangMillsPacketCharge
