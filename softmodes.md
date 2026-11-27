@@ -193,41 +193,54 @@ laws, plus the triple chain $a \leftrightarrow M \leftrightarrow m$ imported fro
 
 ### 3. Plugging $m(M)$ into `U2–U5` and the finite-$(M_\star, m_\star)$ stopping rule
 
-Substituting `uSirk_horizon_total_tolerance` into **U2** splits the resolvent error into the
-horizon-controlled `U-SIRK` + deformed-CCR budget and the physical omitted-space tail:
+Substituting `uSirk_horizon_total_tolerance` and the **proved** rational budget API in
+[ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean) (`uSirkBudget`,
+`uSirkBudget_antitone_m`, `uSirkBudget_log_le`, `uSirkBudget_log_antitone_M`) into **U2** splits
+the resolvent error into the horizon-controlled `U-SIRK` + deformed-CCR budget and the physical
+omitted-space tail:
 
 $$e_R(g, L_{\mathrm{occ}}, M, m) \le \underbrace{\frac{2 q_{\mathrm{sirk}}^m}{1 - q_{\mathrm{sirk}}}}_{\le\, 1/M\text{ at } m(M)} + \underbrace{\frac{C_{\mathrm{hor}}(g, L_{\mathrm{occ}})}{M}}_{\text{horizon / deformed-CCR defect}} + \underbrace{T(g, L_{\mathrm{occ}}) + S(g, L_{\mathrm{occ}}) + O(g, L_{\mathrm{occ}}) + F(g, L_{\mathrm{occ}})}_{\text{omitted space, solves, leakage, rounding}}.$$
 
-Along $m(M) = \lfloor\log_2 M\rfloor + 3$, the first two terms sum to $\le (1 + C_{\mathrm{hor}})/M$,
-giving an automatic Crouzeix-free, monotone non-increasing guarantee in $M$ for the rational
-shift-transfer resolvent. For **U3–U5**, whenever an independently certified omitted-space + Gauss +
-rounding budget $E_{\mathrm{tail}}$ lies strictly below the certified spectral margin
-$\Delta_{\mathrm{cert}}$ (with headroom $\eta_{\mathrm{sol}} = \Delta_{\mathrm{cert}} - E_{\mathrm{tail}} > 0$),
-choosing
+Along $m(M) = \lfloor\log_2 M\rfloor + 3$, `uSirkBudget_log_le` collapses the first two terms to
+$\le (1 + C_{\mathrm{hor}})/M$, while `uSirkBudget_log_antitone_M` proves monotone non-increasing
+tightening in $M$ over $\mathbb{Q}$ with zero Crouzeix hypotheses. For **U3–U5**, whenever an
+independently certified omitted-space + Gauss + rounding budget $E_{\mathrm{tail}}$ lies strictly
+below the certified spectral margin $\Delta_{\mathrm{cert}}$ (with headroom
+$\eta_{\mathrm{sol}} = \Delta_{\mathrm{cert}} - E_{\mathrm{tail}} > 0$), choosing
 
 $$M_\star = 4^{q_\star} > \frac{1 + C_{\mathrm{hor}}}{\eta_{\mathrm{sol}}}, \qquad m_\star = m(M_\star) = \lfloor \log_2 M_\star \rfloor + 3$$
 
-forces $e_{\mathrm{SIRK}}(M_\star, m_\star) + \delta_{\mathrm{hor}}(M_\star) < \eta_{\mathrm{sol}}$
-and closes a finite-margin witness without taking $m \to \infty$ — while keeping explicit that
-$E_{\mathrm{tail}}$ cannot be reduced by increasing $m$ or $M$ alone.
+is formalized directly by the **proved** finite-horizon stopping rules
+`uSirk_finite_M_certifies_U4_gap` and `uSirk_finite_M_certifies_U3_gap` (giving strict shifted
+interval separation $r_1 + e < r_0 - e$ and positive shift-free inverse gap $1/(r_1 + e) -
+1/(r_0 - e) > 0$) without taking $m \to \infty$ — while keeping explicit that $E_{\mathrm{tail}}$
+cannot be reduced by increasing $m$ or $M$ alone.
 
 ### 4. Integration packets `U-S1`–`U-S4` and negative controls
 
 * **`U-S1` (`U0` / `ChapterBudgetEnvelope` coupling):** record $M = 4^q$ and $m(M) = \lfloor\log_2 M\rfloor + 3$
   inside the witness manifest alongside $(g, L_{\mathrm{occ}}, m, q)$, keeping solver rank $m$,
-  bit horizon $M$, and physical cutoffs $(a, L_{\mathrm{box}}, L_{\mathrm{occ}})$ strictly separated.
-* **`U-S2` (`U2` Crouzeix-free shift-transfer layer):** discharge the $(I - \tau R_g)^{-1}$
-  approximation term in **U2** via `uSirk_error_bound` / `uSirk_converges_to_M_tol_log_steps`,
-  `uSirk_error_bound_leaky`, and `uSirk_isometry_decideGram`, leaving the omitted-space block
-  norms $2\|QR_g P\| + \|QR_g Q\|$ and the local Gauss orbit metric as **U2**'s physical obligations.
+  bit horizon $M$, and physical cutoffs $(a, L_{\mathrm{box}}, L_{\mathrm{occ}})$ strictly separated;
+  rational budget monotonicity in $m$ and $M$ is proved by `uSirkBudget_antitone_m` and
+  `uSirkBudget_log_antitone_M`.
+* **`U-S2` (`U2` Crouzeix-free shift-transfer layer):** the rational full-space block
+  decomposition `‖R - V Bhat Vᵀ‖ ≤ δ_B + 2 δ_QP + δ_QQ` and shift-transfer error are now
+  **proved** via `uSirk_fullSpace_block_bound` (using `opBound_transpose`), `uSirk_error_bound`,
+  `uSirk_converges_to_M_tol_log_steps`, `uSirk_error_bound_leaky`, and
+  `uSirk_isometry_decideGram`, leaving the physical omitted-space block norms $2\|QR_g P\| +
+  \|QR_g Q\|$ and the local Gauss orbit metric as **U2**'s physical obligations.
 * **`U-S3` (Stage 0 $\to$ Stage 2 head-plus-tail Schur split in `U3`/`U4`):** pair
-  `uSirk_ritz_residual_bound` on the finite $m_\star = m(M_\star)$ head with **U4**'s orthogonal-tail
-  coercivity comparison $b^2 < a_{\mathrm{head}} d_{\mathrm{tail}}$, avoiding any false demand
-  for $e_R \to 0$ on a non-compact resolvent (`ChapterFiniteRankObstructions`).
+  `uSirk_ritz_residual_bound` on the finite $m_\star = m(M_\star)$ head with the **proved**
+  pure-$\mathbb{Q}$, square-root-free Schur coercivity bounds `uSirk_schur_head_tail_positive`
+  and `uSirk_U4_schur_head_tail_margin` ($c = (a_{\mathrm{head}} d_{\mathrm{tail}} - b^2) /
+  (a_{\mathrm{head}} + d_{\mathrm{tail}}) > 0$ when $b^2 < a_{\mathrm{head}} d_{\mathrm{tail}}$)
+  and `uSirk_finite_M_certifies_U4_gap`, avoiding any false demand for $e_R \to 0$ on a non-compact
+  resolvent (`ChapterFiniteRankObstructions`).
 * **`U-S4` (Stage 2 $\to$ Stage 3 continuum gap transfer via [cftproof.md](cftproof.md) `U-C1`–`U-C4`):**
   connect a positive local Gauss-reduced form floor (blocking the $1/L_{\mathrm{box}}$ widening
-  obstruction) to summable multiscale increments (**U-C3**) and stationary-space transport
-  (`ground_projection_error_eq`) along a matched running coupling $g_\star(a)$.
+  obstruction) to summable multiscale increments (**U-C3**, whose solver-plus-CCR remainder is
+  proved $\le (1 + C_{\mathrm{hor}})/6$ in `uSirk_c6_telescoping_bound`) and stationary-space
+  transport (`ground_projection_error_eq`) along a matched running coupling $g_\star(a)$.
 
 **Negative controls:** reject any argument that (i) promotes a positive gap certified at truncated
 $(M, m)$ to the continuum theory without pricing $E_{\mathrm{tail}}$, local Gauss reduction, and
@@ -615,6 +628,13 @@ A concrete way to expose the missing full-space estimate is to prove `V*V=I`, th
 $$\|R_g-V\widehat B V^*\|
  \le \|V^*R_gV-\widehat B\|+2\|QR_gP\|+\|QR_gQ\|.$$
 
+Over $\mathbb{Q}$, this block decomposition (`uSirk_fullSpace_block_bound` via
+`opBound_transpose`) and the Crouzeix-free rational budget non-growth rules
+(`uSirkBudget_antitone_m`, `uSirkBudget_log_le`, `uSirkBudget_log_antitone_M`) are now
+**proved** in [ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean),
+leaving the physical omitted-space block norms (`δ_QP`, `δ_QQ`) and local Gauss orbit metric as
+U2's open obligations.
+
 Price the off-block leakage and tail analytically, or replace the zero tail by a certified
 completion and bound its difference. Schur row/column bounds or form/Schur-complement
 estimates can avoid spurious factors `m` from summing entrywise bounds. Reuse
@@ -711,6 +731,10 @@ $$\frac{a+d-\sqrt{(a-d)^2+4b^2}}2\,(\|x\|^2+\|y\|^2).$$
 
 The margin is positive if `b²<ad`. This is a small-matrix Schur comparison, not an
 assumption of the final mass gap; U2 must supply the actual tail and coupling estimates.
+Over $\mathbb{Q}$, both the scalar/vector Schur coercivity margin (`c = (ad - b²)/(a + d) > 0`,
+`uSirk_schur_head_tail_positive`, `uSirk_U4_schur_head_tail_margin`) and the finite-`M` stopping
+rules (`uSirk_finite_M_certifies_U4_gap`, `uSirk_finite_M_certifies_U3_gap`) are now **proved** in
+[ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean).
 A proposed failure of Gershgorin in one basis calls for a different weighted/block form
 bound, not deletion of cross or quartic terms. Reuse the existing core-to-closed-form
 transfer and `ym_fock_mass_gap_of_one_particle_form_gap` after this strict absolute bound

@@ -207,6 +207,126 @@ theorem clDom_hamClosure_of_charge_graph_dense (G : GaugeAlgebra 8) (d : Fin 8)
   obtain ⟨z, hz⟩ := cauchySeq_tendsto_of_complete hc
   exact (mem_hamClosure_domain_of_core_seq G hx hz).1
 
+/-! ## The graph-norm estimate on the core
+
+`clDom_hamClosure_of_charge_graph_dense` leaves a statement quantified over all of `dom Ā`.
+On the polynomial Gauss core both operators are explicit endomorphisms — `hamEndo` for the
+Hamiltonian and `gaussEndo` for the charge — so the estimate can be stated, and in principle
+checked, on the core alone: `‖H x‖ ≤ C (‖x‖ + ‖𝒢_d x‖)` for core vectors `x`.  The section
+proves that this *core* inequality is enough.  Along any sequence of core vectors converging
+in the charge's graph norm the Hamiltonian images are then Cauchy, because the inequality
+controls their differences by the differences of the two convergent sequences.  Feeding that
+into `clDom_hamClosure_of_charge_graph_dense` gives the domain inclusion.
+
+So the analytic obligation is a two-term norm inequality between two operators whose action
+on the core is a finite polynomial computation — not a statement about the domains. -/
+
+/-- **The graph-norm estimate on the Gauss core**, with constant `C > 0`:
+`‖H x‖ ≤ C (‖x‖ + ‖𝒢_d x‖)` for every core vector, where the charge acts through its core
+endomorphism.  This is the elliptic-regularity input the common-core argument consumes,
+stated only on the core. -/
+def CoreChargeControlsHam (G : GaugeAlgebra 8) (d : Fin 8) (C : ℝ) : Prop :=
+  0 < C ∧ ∀ x : PolyCore,
+    ‖ymHamiltonian (coreRepPoly 99) G.f x‖
+      ≤ C * (‖((x : PolyCore) : L2d 99)‖
+        + ‖((gaussEndo G d x : PolyCore) : L2d 99)‖)
+
+/-- The charge value of a core vector, read through the core endomorphism. -/
+theorem gaussPMap_core_apply (G : GaugeAlgebra 8) (d : Fin 8) (x : PolyCore) :
+    (gaussPMap G d (coreRepPoly 99)) ⟨((x : PolyCore) : L2d 99), x.2⟩
+      = ((gaussEndo G d x : PolyCore) : L2d 99) := rfl
+
+set_option maxHeartbeats 800000 in
+-- the `clGraph`/`clDom` coercions need more than the default budget
+/-- **A charge graph-norm sequence has Cauchy Hamiltonian images.**  If core vectors `xₙ`
+converge, together with their charge values, then `H xₙ` is Cauchy: the core estimate bounds
+`‖H xₘ − H xₙ‖` by `C (‖xₘ − xₙ‖ + ‖𝒢_d xₘ − 𝒢_d xₙ‖)` (both operators are linear on the core). -/
+theorem cauchySeq_ham_of_core_sequences (G : GaugeAlgebra 8) (d : Fin 8) {C : ℝ}
+    (hC : CoreChargeControlsHam G d C) {x : ℕ → PolyCore} {y z : L2d 99}
+    (hx : Tendsto (fun n => ((x n : PolyCore) : L2d 99)) atTop (𝓝 y))
+    (hA : Tendsto (fun n => ((gaussEndo G d (x n) : PolyCore) : L2d 99)) atTop (𝓝 z)) :
+    CauchySeq (fun n => ymHamiltonian (coreRepPoly 99) G.f (x n)) := by
+  obtain ⟨hCpos, hbound⟩ := hC
+  refine Metric.cauchySeq_iff.2 fun ε hε => ?_
+  have hδ : 0 < ε / (8 * C) := by positivity
+  obtain ⟨Nx, hNx⟩ := Metric.cauchySeq_iff.1 hx.cauchySeq (ε / (8 * C)) hδ
+  obtain ⟨NA, hNA⟩ := Metric.cauchySeq_iff.1 hA.cauchySeq (ε / (8 * C)) hδ
+  refine ⟨max Nx NA, fun m hm n hn => ?_⟩
+  have hmx := hNx m (le_of_max_le_left hm) n (le_of_max_le_left hn)
+  have hmA := hNA m (le_of_max_le_right hm) n (le_of_max_le_right hn)
+  have hsub : ((x m - x n : PolyCore) : L2d 99)
+      = ((x m : PolyCore) : L2d 99) - ((x n : PolyCore) : L2d 99) := Submodule.coe_sub ..
+  have hAsub : ((gaussEndo G d (x m - x n) : PolyCore) : L2d 99)
+      = ((gaussEndo G d (x m) : PolyCore) : L2d 99)
+        - ((gaussEndo G d (x n) : PolyCore) : L2d 99) := by
+    rw [map_sub, Submodule.coe_sub]
+  have hlin : ymHamiltonian (coreRepPoly 99) G.f (x m)
+      - ymHamiltonian (coreRepPoly 99) G.f (x n)
+      = ymHamiltonian (coreRepPoly 99) G.f (x m - x n) := (map_sub _ _ _).symm
+  have hbound' := hbound (x m - x n)
+  rw [hsub, hAsub] at hbound'
+  rw [dist_eq_norm, hlin]
+  simp only [dist_eq_norm] at hmx hmA
+  have hval : C * (2 * (ε / (8 * C)) + 2 * (ε / (8 * C))) = ε / 2 := by
+    field_simp
+    norm_num
+  nlinarith [hbound', hmx, hmA, hCpos, hval, hε]
+
+set_option maxHeartbeats 800000 in
+-- the `clGraph`/`clDom` coercions need more than the default budget
+/-- **Every charge-domain vector has a core sequence whose charge values converge.**  This is
+`polyGaussCore_dense` unpacked through the closedness of the charge's graph: the graph of the
+closure is the closure of the core's graph. -/
+theorem exists_core_seq_of_mem_charge_closure (G : GaugeAlgebra 8) (d : Fin 8)
+    (y : (gaussPMap G d (coreRepPoly 99)).closure.domain) :
+    ∃ x : ℕ → PolyCore,
+      Tendsto (fun n => ((x n : PolyCore) : L2d 99)) atTop (𝓝 (y : L2d 99)) ∧
+      Tendsto (fun n => ((gaussEndo G d (x n) : PolyCore) : L2d 99)) atTop
+        (𝓝 ((gaussPMap G d (coreRepPoly 99)).closure y)) := by
+  have hmem : ((y : L2d 99), (gaussPMap G d (coreRepPoly 99)).closure y)
+      ∈ (gaussPMap G d (coreRepPoly 99)).graph.topologicalClosure := by
+    rw [(gaussPMap_polyGaussCore_isClosable G d).graph_closure_eq_closure_graph]
+    exact LinearPMap.mem_graph _ y
+  obtain ⟨z, hz, hztend⟩ := mem_closure_iff_seq_limit.1 hmem
+  choose x hx1 hx2 using fun n => (LinearPMap.mem_graph_iff _).1 (hz n)
+  have hzt : ∀ n, z n = (((x n : PolyCore) : L2d 99),
+      (gaussPMap G d (coreRepPoly 99)) ⟨((x n : PolyCore) : L2d 99), (x n).2⟩) :=
+    fun n => Prod.ext (hx1 n).symm (hx2 n).symm
+  have hseq : Tendsto (fun n => (((x n : PolyCore) : L2d 99),
+      (gaussPMap G d (coreRepPoly 99)) ⟨((x n : PolyCore) : L2d 99), (x n).2⟩)) atTop
+      (𝓝 ((y : L2d 99), (gaussPMap G d (coreRepPoly 99)).closure y)) :=
+    hztend.congr' (Filter.Eventually.of_forall fun n => hzt n)
+  refine ⟨x, (continuous_fst.tendsto _).comp hseq, ?_⟩
+  have hsecond : Tendsto (fun n => (gaussPMap G d (coreRepPoly 99))
+      ⟨((x n : PolyCore) : L2d 99), (x n).2⟩) atTop
+      (𝓝 ((gaussPMap G d (coreRepPoly 99)).closure y)) :=
+    (continuous_snd.tendsto _).comp hseq
+  exact hsecond.congr' (Filter.Eventually.of_forall fun n => gaussPMap_core_apply G d (x n))
+
+/-- **The core estimate gives the common-core density input.**  Every charge-domain vector is
+approximated by core vectors in the charge graph norm, and the core estimate makes their
+Hamiltonian images Cauchy. -/
+theorem hdense_of_core_estimate (G : GaugeAlgebra 8) (d : Fin 8) {C : ℝ}
+    (hC : CoreChargeControlsHam G d C) :
+    ∀ y ∈ (gaussPMap G d (coreRepPoly 99)).closure.domain,
+      ∃ x : ℕ → PolyCore,
+        Tendsto (fun n => ((x n : PolyCore) : L2d 99)) atTop (𝓝 y) ∧
+        CauchySeq (fun n => hamClosure G ⟨((x n : PolyCore) : L2d 99),
+          coe_mem_clDom _ (x n)⟩) := by
+  intro y hy
+  obtain ⟨x, hx, hA⟩ := exists_core_seq_of_mem_charge_closure G d ⟨y, hy⟩
+  refine ⟨x, hx, ?_⟩
+  simpa only [hamClosure_apply_core] using cauchySeq_ham_of_core_sequences G d hC hx hA
+
+/-- **The graph-norm estimate on the core puts the charge's domain inside the Hamiltonian's.**
+This is the estimate the request asks for, in the form the commutation argument consumes: the
+core inequality alone yields `dom Ā ⊆ dom H̄`, with no further domain-theoretic input. -/
+theorem clDom_hamClosure_of_core_estimate (G : GaugeAlgebra 8) (d : Fin 8) {C : ℝ}
+    (hC : CoreChargeControlsHam G d C) :
+    (gaussPMap G d (coreRepPoly 99)).closure.domain
+      ≤ clDom (ymHamiltonian (coreRepPoly 99) G.f) :=
+  clDom_hamClosure_of_charge_graph_dense G d (hdense_of_core_estimate G d hC)
+
 /-! ## The unbounded case: the graph argument at the Hamiltonian's closure -/
 
 set_option maxHeartbeats 800000 in

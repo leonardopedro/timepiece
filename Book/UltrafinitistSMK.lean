@@ -264,6 +264,12 @@ and *free of Crouzeix hypotheses*:
    $`\|Xu - \mu u\|^2 \le \varepsilon^2`; and `krawtchouk_uSirk_converges_to_M_tol`
    instantiates the full theorem on the finite Krawtchouk number Hamiltonian
    $`H_M = \mathrm{diag}(0,1,\dots,M)`.
+5. *Bridge certificates (`U2`–`U4` and dyadic `C6`):* `uSirk_fullSpace_block_bound` proves
+   the rational block bound $`\|R - V\widehat{B}V^\top\| \le \delta_B + 2\delta_{QP} + \delta_{QQ}`,
+   `uSirkBudget_log_antitone_M`, `uSirk_finite_M_certifies_U3_gap`, and
+   `uSirk_finite_M_certifies_U4_gap` give non-growth and finite-horizon stopping rules,
+   `uSirk_U4_schur_head_tail_margin` proves pure-$`\mathbb{Q}` Schur coercivity, and
+   `uSirk_c6_telescoping_bound` bounds the dyadic `C6` solver remainder uniformly by $`C / 6`.
 
 ```
 #check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uHashimoto_shift_bound
@@ -281,6 +287,12 @@ and *free of Crouzeix hypotheses*:
 #check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_isometry_decideGram
 #check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_ritz_residual_bound
 #check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.krawtchouk_uSirk_converges_to_M_tol
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_fullSpace_block_bound
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirkBudget_log_antitone_M
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_finite_M_certifies_U3_gap
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_finite_M_certifies_U4_gap
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_U4_schur_head_tail_margin
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_c6_telescoping_bound
 ```
 
 # Polynomial Approximation and the P versus NP Problem

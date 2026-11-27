@@ -214,17 +214,20 @@ without conflating numerical Krylov rank $m$, bit horizon $M$, and physical cuto
   $O(k d^2 / M)$ and CCR defect $2R/M$ are $O((a_q/a_0)^2)$ under Regime A (or $O((a_q/a_0)^2)$
   summably over $D_q$ sites under Regime B).
 * **`U-C3` (Stage 1 $\to$ Stage 2 summable Cauchy-increment factorization in `C3e` / `C6`).**
-  Substitute `uSirk_horizon_total_tolerance`
-  ([ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean)) into `C6`'s
-  scale-by-scale Cauchy certificate
+  Substitute `uSirk_horizon_total_tolerance` and the **proved** dyadic telescoping theorems
+  ([ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean):
+  `uSirk_dyadic_order_eq`, `uSirk_dyadic_inv_sum_eq`, `uSirk_dyadic_error_sum_bound`,
+  `uSirk_c6_telescoping_bound`, and `uSirk_fullSpace_block_bound`) into `C6`'s scale-by-scale
+  Cauchy certificate
   $$|S_{q+1}(F) - S_q(F)| \le |\widehat{S}_{q+1}(F) - \widehat{S}_q(F)| + \varepsilon_{q+1}(F) + \varepsilon_q(F).$$
-  Because `U-SIRK` bounds the solver-plus-deformed-CCR tolerance by
-  $\varepsilon_q(F) = O(1/M_q + q_{\mathrm{sirk}}^{m_q}) = O(4^{-q})$ when $M_q \ge 4^q$ and
-  $m_q = \lfloor\log_2 M_q\rfloor + 3$, the numerical/finite-horizon remainder $\sum_q \varepsilon_q(F)$
-  is **automatically summable**. This cleanly isolates the remaining Riesz–Fischer /
-  [BalabanRG/Convergence](BookProof/BalabanRG/Convergence.lean) obligation to the physical multiscale
-  increment $|\widehat{S}_{q+1}(F) - \widehat{S}_q(F)|$ (**C3b–C3d**) before OS/GNS completion
-  (**C7–C8**).
+  At dyadic scales $M_q = 4^{q+2}$ and $m_q = \lfloor\log_2 M_q\rfloor + 3 = 2q + 7$
+  (`uSirk_dyadic_order_eq`), `uSirk_dyadic_error_sum_bound` and `uSirk_c6_telescoping_bound`
+  **prove** that the solver-plus-deformed-CCR remainder sum obeys $\sum_{q < n} (\varepsilon_{q+1} +
+  \varepsilon_q) \le (1 + C_{\mathrm{hor}})/6$ uniformly in $n$. This discharges the
+  solver-summability half of `C6` and isolates the remaining Riesz–Fischer /
+  [BalabanRG/Convergence](BookProof/BalabanRG/Convergence.lean) obligation cleanly to the physical
+  multiscale increment $|\widehat{S}_{q+1}(F) - \widehat{S}_q(F)|$ (**C3b–C3d**) before OS/GNS
+  completion (**C7–C8**).
 * **`U-C4` (Stage 2 $\to$ Stage 3 strict limit order and Kopperman boundary).** Preserve the fourfold
   limit hierarchy corresponding to Stages 0 $\to$ 3:
   1. Krylov order $m_q = \lfloor\log_2 M_q\rfloor + 3 \ll M_q$ (always sub-horizon and Mehler-feasible);
@@ -510,11 +513,13 @@ continuum contracts enforces five structural rules:
 * **Finite-horizon rational U-SIRK baseline.** Its strictly finite `U-SMK` counterpart
   [ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean)
   (`uSirk_converges_to_M_tol_log_steps`, `uSirk_horizon_total_tolerance`,
-  `uSirk_exact_at_full_horizon`, `uSirk_isometry_decideGram`) evaluates shift-transfer resolvents
-  $(I - \tau X)^{-1}$ over $\mathbb{Q}$ with **zero Crouzeix hypotheses**, reaching tolerance
-  $1/M$ in $m = \lfloor \log_2 M \rfloor + 3 \le M$ Krylov steps along the horizon–lattice map
-  $M = M(a, L, R)$ (**U-C3**) while leaving the continuum unbounded-operator transfer below as
-  its separate analytic obligation.
+  `uSirk_exact_at_full_horizon`, `uSirk_isometry_decideGram`, `uSirk_fullSpace_block_bound`,
+  `uSirk_c6_telescoping_bound`) evaluates shift-transfer resolvents $(I - \tau X)^{-1}$ over
+  $\mathbb{Q}$ with **zero Crouzeix hypotheses**, reaching tolerance $1/M$ in
+  $m = \lfloor \log_2 M \rfloor + 3 \le M$ Krylov steps along the horizon–lattice map
+  $M = M(a, L, R)$ and closing the uniform $\le (1 + C_{\mathrm{hor}})/6$ solver remainder in
+  **U-C3**, while leaving the continuum unbounded-operator transfer below as its separate
+  analytic obligation.
 * **Friedrichs domain selection.** Use `hashimoto_shiftInvert_selects_friedrichs`
   ([ChapterHashimotoShiftInvert](BookProof/Sirk/ChapterHashimotoShiftInvert.lean)) to pin down
   the self-adjoint realization of $h_\sigma$ whose semigroup H2–H3 represent as a Feynman–Kac
@@ -718,16 +723,21 @@ for the continuum limit.
 
 ### Landed status log (2026-11-25 to 2026-11-27)
 
-**Status (2026-11-27): U-SIRK finite-horizon convergence and $M \leftrightarrow a$ continuum-ascent blueprint.**
+**Status (2026-11-27): U-SIRK finite-horizon convergence, `U2`–`U4`/`C6` bridge theorems, and $M \leftrightarrow a$ continuum-ascent blueprint.**
 `BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean` lands the rational, Crouzeix-free `U-SIRK`
 layer (`uHashimoto_shift_bound`, `uShiftInvert_perturbation_bound`,
 `hashimoto_shift_transfer_identity`, `uKrylov_poly_transfer`, `uSirk_error_bound`,
 `uSirk_error_bound_leaky`, `uSirk_converges_to_M_tol_log_steps`, `uSirk_exact_at_full_horizon`,
 `uSirk_horizon_total_tolerance`, `uSirk_order_mehler_feasible`, `uSirk_isometry_decideGram`,
-`uSirk_ritz_residual_bound`, `krawtchouk_uSirk_converges_to_M_tol`). This plan entry adds the
-four-stage `U-SMK` $\to$ `Riesz–Fischer` $\to$ `Kopperman` blueprint, explicit $M \leftrightarrow a$
-scaling dictionaries (Regimes A and B), and integration packets `U-C1`–`U-C4`; `U-C1`–`U-C4` and
-the continuum Bałaban / OS identification remain open planning targets, not yet proved limits.
+`uSirk_ritz_residual_bound`, `krawtchouk_uSirk_converges_to_M_tol`) together with the Section 7
+`U2`–`U4` and `C6` bridge theorems (`opBound_transpose`, `uSirk_fullSpace_block_bound`,
+`uSirkBudget`, `uSirkBudget_antitone_m`, `uSirkBudget_log_le`, `uSirkBudget_log_antitone_M`,
+`uSirk_finite_M_certifies_U4_gap`, `uSirk_finite_M_certifies_U3_gap`,
+`uSirk_schur_head_tail_positive`, `uSirk_U4_schur_head_tail_margin`, `uSirk_dyadic_order_eq`,
+`uSirk_dyadic_inv_sum_eq`, `uSirk_dyadic_error_sum_bound`, `uSirk_c6_telescoping_bound`). This
+discharges the rational block decomposition, non-growth, finite-`M` stopping, pure-`ℚ` Schur
+coercivity, and uniform `≤ (1 + C_hor)/6` dyadic `C6` solver-summability arithmetic; physical
+omitted-space norms, `C3b–C3d`, and continuum Bałaban / OS identification remain open targets.
 
 **Status (2026-11-27): H0 QYM closed Hamiltonian, Gauss generator and Stone flow.**
 `BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean` bridges the transported polynomial
@@ -1937,8 +1947,13 @@ A useful Cauchy certificate on a declared test/word norm is
 
 To infer existence from this route, prove the right-hand bound is summable for **all**
 scales with uniform test seminorm control. Finitely many good numerical comparisons are
-not that theorem. The Bałaban estimates can control unresolved scales; SIRK can certify
-finite heads and provide rigorously enclosed insertion/resolvent comparisons.
+not that theorem. Over $\mathbb{Q}$, the solver-plus-deformed-CCR half of this Cauchy step is now
+**proved** in [ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean):
+along $M_q = 4^{q+2}$ and $m_q = \lfloor\log_2 M_q\rfloor + 3 = 2q + 7$ (`uSirk_dyadic_order_eq`),
+`uSirk_dyadic_error_sum_bound` and `uSirk_c6_telescoping_bound` prove the uniform remainder bound
+$\le (1 + C_{\mathrm{hor}})/6$, while `uSirk_fullSpace_block_bound` supplies the rational block
+decomposition. The Bałaban estimates still control unresolved scales (`C3b–C3d`), while U-SIRK
+certifies finite heads and supplies the summable solver-side remainder.
 
 Do not demand finite-rank convergence in full operator norm to a unitary on an infinite
 space. Norm convergence of finite-rank resolvents also requires compactness that cannot

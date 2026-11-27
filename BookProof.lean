@@ -836,6 +836,17 @@ import BookProof.MCMC.GegenbauerEigenvalue
 -- prior-ratio specialisation (`huber_odds_eq_prior_ratio`), and the chain rule with the vanishing
 -- gradient on the knee (`hasFDerivAt_satPot`, `huberPh_fderiv_eq_zero_of_le`).
 import BookProof.MCMC.SatisficingTarget
+
+-- Wave (`pcnl.md` S1, Q1): the prior-refresh independence sampler's Doeblin certificate —
+-- `indKernel_ge_density` and `indKernel_minorant` with constant `Z/M`, through the rejection
+-- atom (`indStep_minorant`), with the mixture coefficient `ω Z/M` (`mixture_minorant`) and the
+-- set-level TV contraction `indStep_tv_bound`.
+import BookProof.MCMC.PriorRefreshDoeblin
+
+-- Wave (`pcnl.md` S1, Q2/T3): the product gap `1 − min(γ_r, 1−|ρ|)` independent of the
+-- complement dimension (`prod_eigen_le`, `product_eigenvalue_bound`), and T3's bounded-oscillation
+-- comparison chain (`gibbs_ratio_le_exp`, `gap_comparison_exp`, the lazy `½e^{−B}(1−ρ)` constant).
+import BookProof.MCMC.GaussianProductGap
 import BookProof.Toolbox.PhysMehler
 
 -- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
