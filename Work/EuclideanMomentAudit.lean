@@ -477,3 +477,25 @@ hide behind the theorems' reports.
 #audit_axioms connectedSixShell
 #audit_axioms connectedSixShell_eq_zero
 #audit_axioms connectedSix_coord_eq_zero
+
+/-! ## C3n: joint cumulants of arbitrary order, and the vanishing of all higher ones -/
+
+#audit_axioms cumulant
+#audit_axioms cumulant_unfold
+#audit_axioms cumulant_empty
+#audit_axioms cumulant_singleton
+#audit_axioms cumulant_pair_of_lt
+#audit_axioms moment_eq_sum_cumulant
+#audit_axioms sum_two_block
+#audit_axioms cumulant_eq_zero_of_wick
+#audit_axioms pairingSet_eq_empty_of_odd
+#audit_axioms wickSum_eq_zero_of_odd
+#audit_axioms cumulant_wickSum_eq_zero
+#audit_axioms cumulant_wickSum_six_eq_zero
+#audit_axioms shellMoment
+#audit_axioms shellMoment_eq_wickSum
+#audit_axioms shellMoment_empty
+#audit_axioms shellMoment_odd
+#audit_axioms shellMoment_wick
+#audit_axioms cumulant_shellMoment_eq_zero
+#audit_axioms cumulant_seven_eq_zero

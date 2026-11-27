@@ -878,18 +878,59 @@ cancel matching by matching: one of the fifteen matchings of six sites appears o
 three times in the `4 + 2` sum (once for each choice of the pair that is the two-block), and once
 with coefficient `2` in the `2 + 2 + 2` sum, so each contributes `1 - 3 + 2 = 0`. The sixth
 cumulant vanishes as well, now by a cancellation of Isserlis sums rather than by a zero factor.
-This is still one explicit partition sum at one arity: no cumulant of arbitrary order, and no
-general partition-lattice Möbius inversion, is claimed.
+This is still one explicit partition sum at one arity.
+
+At every higher order the same vanishing holds, and the general statement is now proved rather
+than repeated arity by arity. The cumulant of a moment function on `Finset (Fin M)` is defined as
+the Möbius inversion over the partition lattice, computed by splitting off the block of the least
+position:
+
+```
+cumulant :
+    kappa s = face s - (sum over the proper blocks t containing min s of kappa t * face (s \ t))
+moment_eq_sum_cumulant :
+    face s = (that sum) + kappa s
+cumulant_pair_of_lt :
+    kappa {x, y} = face {x, y} - face {x} * face {y}          (x < y)
+sum_two_block :
+    (sum over the two-element blocks) = (sum over b in s.erase (min s), at {min s, b})
+cumulant_eq_zero_of_wick :
+    face empty = 1 -> (odd moments vanish) -> (Wick recursion) -> 3 <= #s -> kappa s = 0
+```
+
+Only the two-element blocks survive the induction, and reindexing them by their second element
+turns the recursion into the Wick recursion (`sum_two_block`). For the reference law the moment of
+any finite set of positions is the pairing sum at every order, obtained from the general Wick
+recursion for linear forms (`wick_pi`) rather than from a pairing enumeration:
+
+```
+shellMoment_eq_wickSum :
+    E[prod over t in s of p_(f t)] = wickSum (fun a b => if f a = f b then 1 else 0) s
+shellMoment_wick :
+    E[...] = sum over b in s.erase (min s) of (delta) * E[... on the rest]
+cumulant_shellMoment_eq_zero :
+    3 <= #s -> kappa s = 0
+cumulant_seven_eq_zero :
+    kappa univ = 0                                   (seven positions)
+```
+
+The seventh cumulant is the order-seven instance and needs no matching cancellation: every
+partition of seven positions has a block of odd cardinality, and odd-cardinality moments vanish.
+The `3 + 2 + 2` partitions do not survive, because their block of three has zero moment; neither
+does `5 + 2`, nor the one-block partition. At odd order the vanishing is therefore a zero factor
+again, and the `1 - 3 + 2 = 0` of the sixth cumulant is not the last matching cancellation — at
+order eight the same argument runs, now with the general theorem in place of a hand-built
+partition list.
 
 What stays open is not these moments but their converse. `integral_shellLaw_coord_four` is
 Isserlis' theorem for the covariance `1`: it computes the four-point function of *this* law, and
-nothing in the module shows that a law with these moments is Gaussian, or computes a cumulant of
-arbitrary order (the sixth is the highest here), a connected correlation at separated points, or
-any moment above the sixth. The general
-statements are uniform in the number of fields, but the per-pairing evaluation at four and six
-sites is a finite computation, so no closed form for the number of pairings at arbitrary `M` is
-derived here. So Gaussianity as a property of a limit law is still unproved; only its first few
-consequences are.
+nothing in the module shows that a law with these moments is Gaussian, or computes a connected
+correlation at separated points. The general statements are uniform in the number of fields, and
+the vanishing of every higher cumulant is now a theorem (`cumulant_shellMoment_eq_zero`) rather
+than a list of arities; the per-pairing evaluation at four and six sites remains a finite
+computation, so no closed form for the number of pairings at arbitrary `M` is derived here, but
+the general vanishing no longer depends on one. So Gaussianity as a property of a limit law is
+still unproved; only its moments and the vanishing of its higher cumulants are.
 
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of

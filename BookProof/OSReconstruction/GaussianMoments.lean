@@ -61,6 +61,19 @@ double factorials `(m_i - 1)!!` of the multiplicities.
 * `sqrt_mul_transpose_sqrt` — `√K * √Kᵀ = K` for `K` positive semidefinite;
 * **`isserlis_multivariateGaussian`** — the same statement with the covariance `K` itself.
 
+## Joint cumulants of arbitrary order
+
+* `cumulant`, `cumulant_unfold`, `moment_eq_sum_cumulant` — the joint cumulant as the Möbius
+  inversion of the moment function over the partition lattice, computed by splitting off the block
+  of the least position: `κ s = face s − ∑_{t ⊆ s, min s ∈ t, t ≠ s} κ t · face (s \ t)`;
+* `cumulant_singleton`, `cumulant_pair_of_lt`, `sum_two_block` — the one- and two-element blocks
+  and the reindexing of the surviving two-element blocks by their second element;
+* **`cumulant_eq_zero_of_wick`** — **every cumulant of order at least three of a Gaussian face
+  vanishes**: unit total mass, vanishing odd moments and the Wick recursion are the only inputs;
+* `pairingSet_eq_empty_of_odd`, `wickSum_eq_zero_of_odd`, **`cumulant_wickSum_eq_zero`** — the
+  `wickSum` moment sequence has vanishing higher cumulants, which is the matching cancellation:
+  at order six the coefficient of a matching is `1 - 3 + 2 = 0`.
+
 The general-covariance half is ported from the accepted prove2.me solution of
 `LesHouchesWidth.wick_theorem` (Nickrobbins95, 2026-09-26), whose proof is the route above; the
 only adaptation is that the law is realised here as a linear image of independent standard
@@ -909,6 +922,300 @@ theorem wickSum_identity_eq_prod_doubleFactorial {N m : ℕ} (f : Fin m → Fin 
   exact isserlis_productGauss f
 
 end cov
+/-! ## 10. Joint cumulants of arbitrary order, and the vanishing of all higher ones
+
+The joint cumulant of a moment function `face` is the Möbius inversion of `face` over the
+partition lattice of the positions: `face s = ∑_π ∏_{B ∈ π} κ B`, equivalently
+`κ s = ∑_π μ(π, ⊤) ∏_{B ∈ π} face B` with `μ(π, ⊤) = (-1)^(k(π) - 1) (k(π) - 1)!`.  Enumerating
+the partitions of `s` is exponential in `card s`, but the Möbius sum is computed by splitting off
+the block of the least position, which gives the recursion
+
+`κ s = face s - ∑_{t ⊆ s, min s ∈ t, t ≠ s} κ t * face (s \ t)`
+
+of `cumulant`.  For a face with vanishing odd moments the surviving blocks are the even ones,
+and the only ones the induction keeps are the two-element blocks; `sum_two_block` reindexes those
+by their second element, which turns the recursion into the Wick recursion of `face`.
+`cumulant_eq_zero_of_wick` is then the general vanishing statement: **every** joint cumulant of
+order at least three of a Gaussian face vanishes, at every order.  `cumulant_wickSum_eq_zero`
+specialises it to the `wickSum` moment sequence, where it is the matching cancellation — at order
+six the coefficient of a matching is the `1 - 3 + 2 = 0` of `connectedSixShell_eq_zero`.
+
+This is the cumulant of *arbitrary* order.  The boundary is that the vanishing is proved for a
+moment function satisfying the three Gaussian hypotheses (unit total mass, odd moments zero, Wick
+recursion); the reference law's moment function is shown below (in `GaussianChainScales`) to
+satisfy them at every order, through `wick_pi`.  No claim is made about a law that fails the
+recursion, and no separated connected correlation is computed.
+-/
+
+section cumulant
+
+variable {M : ℕ}
+
+/-- **The joint cumulant over the partition lattice.**  `cumulant face s` is the Möbius sum
+`∑_π μ(π, ⊤) ∏_{B ∈ π} face B`, computed by the recursion that splits off the block of the least
+position (`cumulant_unfold`).  The value on the empty set is the harmless convention `face ∅`; the
+recursion never reads it, because every block of the recursion contains the least position. -/
+noncomputable def cumulant (face : Finset (Fin M) → ℝ) (s : Finset (Fin M)) : ℝ :=
+  WellFounded.fix (InvImage.wf Finset.card Nat.lt_wfRel.wf)
+    (fun s ih =>
+      if hs : s.Nonempty then
+        face s - (s.powerset.filter (fun t => s.min' hs ∈ t ∧ t ≠ s)).attach.sum
+          (fun t => ih t.1 (by
+            have hmem : (t.1 : Finset (Fin M)) ∈
+                s.powerset.filter (fun t => s.min' hs ∈ t ∧ t ≠ s) := t.2
+            exact Finset.card_lt_card (Finset.ssubset_iff_subset_ne.mpr
+              ⟨Finset.mem_powerset.mp (Finset.mem_filter.mp hmem).1,
+                (Finset.mem_filter.mp hmem).2.2⟩)) * face (s \ t.1))
+      else face s) s
+
+/-- Unfolding the recursion: the cumulant is the moment minus the sum over the proper blocks
+containing the least position. -/
+theorem cumulant_unfold (face : Finset (Fin M) → ℝ) {s : Finset (Fin M)} (hs : s.Nonempty) :
+    cumulant face s = face s - ∑ t ∈ s.powerset.filter (fun t => s.min' hs ∈ t ∧ t ≠ s),
+      cumulant face t * face (s \ t) := by
+  rw [cumulant, WellFounded.fix_eq, dif_pos hs]
+  rw [← Finset.sum_attach (s.powerset.filter (fun t => s.min' hs ∈ t ∧ t ≠ s))
+    (fun t => cumulant face t * face (s \ t))]
+  rfl
+
+theorem cumulant_empty (face : Finset (Fin M) → ℝ) : cumulant face ∅ = face ∅ := by
+  rw [cumulant, WellFounded.fix_eq]
+  simp
+
+theorem cumulant_singleton (face : Finset (Fin M) → ℝ) (x : Fin M) :
+    cumulant face {x} = face {x} := by
+  rw [cumulant_unfold _ (Finset.singleton_nonempty x)]
+  have hempty : ({x} : Finset (Fin M)).powerset.filter
+      (fun t => ({x} : Finset (Fin M)).min' (Finset.singleton_nonempty x) ∈ t ∧ t ≠ {x}) = ∅ := by
+    rw [Finset.eq_empty_iff_forall_notMem]
+    intro t ht
+    rw [Finset.mem_filter, Finset.mem_powerset] at ht
+    obtain ⟨hsub, hmin, hne⟩ := ht
+    rcases Finset.subset_singleton_iff.mp hsub with h | h
+    · rw [h] at hmin
+      exact absurd hmin (Finset.notMem_empty _)
+    · exact hne h
+  rw [hempty, Finset.sum_empty, sub_zero]
+
+/-- Two-element blocks have the pair cumulant `face {x, y} - face {x} face {y}`. -/
+theorem cumulant_pair_of_lt (face : Finset (Fin M) → ℝ) {x y : Fin M} (hxy : x < y) :
+    cumulant face {x, y} = face {x, y} - face {x} * face {y} := by
+  have hne : x ≠ y := hxy.ne
+  rw [cumulant_unfold _ (Finset.insert_nonempty x {y})]
+  rw [Finset.min'_pair, min_eq_left hxy.le]
+  have hF : ({x, y} : Finset (Fin M)).powerset.filter
+      (fun t => x ∈ t ∧ t ≠ {x, y}) = {{x}} := by
+    ext t
+    simp only [Finset.mem_filter, Finset.mem_powerset, Finset.mem_singleton]
+    constructor
+    · rintro ⟨hsub, hx, hne'⟩
+      have hcard : ({x, y} : Finset (Fin M)).card = 2 := Finset.card_pair hne
+      have ht1 : t.card ≤ 1 := by
+        rcases Nat.lt_or_ge t.card 2 with h | h
+        · omega
+        · exfalso
+          apply hne'
+          exact Finset.eq_of_subset_of_card_le hsub (by rw [hcard]; omega)
+      exact Finset.eq_singleton_iff_unique_mem.mpr
+        ⟨hx, fun z hz => Finset.card_le_one.mp ht1 z hz x hx⟩
+    · rintro rfl
+      refine ⟨Finset.singleton_subset_iff.mpr (by simp), by simp, ?_⟩
+      intro h
+      have h2 : y ∈ ({x} : Finset (Fin M)) := by rw [h]; simp
+      exact hxy.ne' (by simpa using h2)
+  rw [hF, Finset.sum_singleton, cumulant_singleton]
+  rw [Finset.sdiff_singleton_eq_erase, Finset.erase_insert (by simpa using hne)]
+
+
+/-- **The moment–cumulant relation**: the moment of `s` is the cumulant of `s` plus the Möbius
+sum over its proper blocks containing the least position.  Equivalently, `cumulant` satisfies
+`face s = ∑_π ∏_{B ∈ π} κ B` by construction. -/
+theorem moment_eq_sum_cumulant (face : Finset (Fin M) → ℝ) {s : Finset (Fin M)}
+    (hs : s.Nonempty) :
+    face s = (∑ t ∈ s.powerset.filter (fun t => s.min' hs ∈ t ∧ t ≠ s),
+      cumulant face t * face (s \ t)) + cumulant face s := by
+  rw [cumulant_unfold face hs]
+  ring
+
+/-- The surviving two-element blocks reindexed by their second element. -/
+theorem sum_two_block {x : Fin M} {s : Finset (Fin M)} (hx : x ∈ s) (hcard : 2 < s.card)
+    (f : Finset (Fin M) → ℝ) :
+    (∑ b ∈ s.erase x, f {x, b})
+      = ∑ T ∈ (s.powerset.filter (fun T => x ∈ T ∧ T ≠ s)).filter (fun T => T.card = 2), f T := by
+  refine Finset.sum_bij (s := s.erase x)
+    (t := (s.powerset.filter (fun T => x ∈ T ∧ T ≠ s)).filter (fun T => T.card = 2))
+    (f := fun b => f {x, b}) (g := f) (fun b _ => ({x, b} : Finset (Fin M))) ?_ ?_ ?_ ?_
+  · rintro b hb
+    rw [Finset.mem_erase] at hb
+    obtain ⟨hbx, hbs⟩ := hb
+    have hxb : x ≠ b := fun h => hbx h.symm
+    have hsub : ({x, b} : Finset (Fin M)) ⊆ s :=
+      Finset.insert_subset hx (Finset.singleton_subset_iff.mpr hbs)
+    have hc2 : ({x, b} : Finset (Fin M)).card = 2 := Finset.card_pair hxb
+    refine Finset.mem_filter.mpr ⟨Finset.mem_filter.mpr ⟨Finset.mem_powerset.mpr hsub, ?_, ?_⟩, hc2⟩
+    · simp
+    · intro hEq
+      have hEq2 : ({x, b} : Finset (Fin M)) = s := hEq
+      rw [hEq2] at hc2
+      omega
+  · intro b1 hb1 b2 hb2 hEq
+    rw [Finset.mem_erase] at hb1 hb2
+    have hEq2 : ({x, b1} : Finset (Fin M)) = {x, b2} := hEq
+    have h1 : b1 ∈ ({x, b2} : Finset (Fin M)) := by
+      rw [← hEq2]
+      simp
+    rw [Finset.mem_insert, Finset.mem_singleton] at h1
+    rcases h1 with h | h
+    · exact absurd h hb1.1
+    · exact h
+  · rintro T hT
+    rw [Finset.mem_filter] at hT
+    obtain ⟨hTF, hT2⟩ := hT
+    rw [Finset.mem_filter] at hTF
+    obtain ⟨hTsub, hxT, hne⟩ := hTF
+    rw [Finset.mem_powerset] at hTsub
+    obtain ⟨b, hb⟩ := Finset.card_eq_one.mp (by
+      rw [Finset.card_erase_of_mem hxT]; omega)
+    have hbT : b ∈ T := by
+      have h1 : b ∈ T.erase x := by rw [hb]; simp
+      exact Finset.mem_of_mem_erase h1
+    refine ⟨b, ?_, ?_⟩
+    · rw [Finset.mem_erase]
+      refine ⟨?_, hTsub hbT⟩
+      intro hbx
+      rw [hbx] at hb
+      exact Finset.notMem_erase x T (by rw [hb]; simp)
+    · change ({x, b} : Finset (Fin M)) = T
+      rw [show ({x, b} : Finset (Fin M)) = insert x {b} from rfl, ← hb,
+        Finset.insert_erase hxT]
+  · intro b _
+    rfl
+
+
+/-- **A Gaussian moment function has vanishing higher cumulants.**  If the moment function
+`face` has unit total mass, vanishes on odd-cardinality sets, and satisfies the Wick recursion
+with a covariance `c`, then every joint cumulant of order at least three vanishes. -/
+theorem cumulant_eq_zero_of_wick (face : Finset (Fin M) → ℝ) (c : Fin M → Fin M → ℝ)
+    (h_empty : face ∅ = 1)
+    (h_odd : ∀ s : Finset (Fin M), Odd s.card → face s = 0)
+    (h_wick : ∀ (s : Finset (Fin M)) (hs : s.Nonempty),
+      face s = ∑ b ∈ s.erase (s.min' hs), c (s.min' hs) b * face ((s.erase (s.min' hs)).erase b)) :
+    ∀ s : Finset (Fin M), 3 ≤ s.card → cumulant face s = 0 := by
+  intro s
+  induction s using Finset.strongInduction with
+  | H s ih =>
+    intro h3
+    have hs : s.Nonempty := by
+      rw [Finset.nonempty_iff_ne_empty]
+      intro h
+      rw [h] at h3
+      simp at h3
+    have hxmem : s.min' hs ∈ s := Finset.min'_mem s hs
+    have hxle : ∀ b ∈ s, s.min' hs ≤ b := fun b hb => Finset.min'_le s b hb
+    rw [cumulant_unfold face hs]
+    set x := s.min' hs with hxdef
+    have hxmem' : x ∈ s := by rw [hxdef]; exact hxmem
+    have hxle' : ∀ b ∈ s, x ≤ b := by
+      intro b hb
+      rw [hxdef]
+      exact hxle b hb
+    set F := s.powerset.filter (fun t => x ∈ t ∧ t ≠ s) with hF
+    have hfun : ∀ T : Finset (Fin M), T ∈ F → T ⊆ s ∧ x ∈ T ∧ T ≠ s := by
+      intro T hT
+      rw [hF, Finset.mem_filter, Finset.mem_powerset] at hT
+      exact hT
+    rcases Nat.even_or_odd s.card with hev | hod
+    · -- even cardinality: only the two-element blocks survive
+      have hcard2 : 2 < s.card := by
+        obtain ⟨k, hk⟩ := hev
+        omega
+      have hzero : ∀ T ∈ F, T ∉ F.filter (fun T => T.card = 2) →
+          cumulant face T * face (s \ T) = 0 := by
+        intro T hT hT'
+        obtain ⟨hTsub, hxT, hne⟩ := hfun T hT
+        have hssub : T ⊂ s := Finset.ssubset_iff_subset_ne.mpr ⟨hTsub, hne⟩
+        rcases Nat.lt_or_ge T.card 3 with hlt | hge
+        · interval_cases hTc : T.card
+          · exact absurd ((Finset.card_eq_zero.mp hTc) ▸ hxT) (by simp)
+          · obtain ⟨y, rfl⟩ := Finset.card_eq_one.mp hTc
+            rw [cumulant_singleton, h_odd _ ⟨0, by norm_num⟩, zero_mul]
+          · exact absurd hTc (fun h => hT' (Finset.mem_filter.mpr ⟨hT, h⟩))
+        · rw [ih T hssub hge, zero_mul]
+      rw [← Finset.sum_subset (Finset.filter_subset _ _) hzero]
+      rw [hF]
+      rw [← sum_two_block (f := fun T => cumulant face T * face (s \ T)) hxmem' hcard2]
+      have hterm : ∀ b ∈ s.erase x, cumulant face {x, b} * face (s \ {x, b})
+          = c x b * face ((s.erase x).erase b) := by
+        intro b hb
+        rw [Finset.mem_erase] at hb
+        obtain ⟨hbx, hbs⟩ := hb
+        have hxb : x < b := lt_of_le_of_ne (hxle' b hbs) (fun h => hbx h.symm)
+        have hpair : cumulant face {x, b} = c x b := by
+          rw [cumulant_pair_of_lt face hxb, h_odd {x} ⟨0, by norm_num⟩, zero_mul, sub_zero]
+          have hw := h_wick {x, b} (Finset.insert_nonempty (s := {b}) x)
+          rw [Finset.min'_pair, min_eq_left hxb.le] at hw
+          rw [hw, Finset.erase_insert (by simpa using hxb.ne), Finset.sum_singleton]
+          rw [show (({b} : Finset (Fin M)).erase b) = ∅ from by simp, h_empty, mul_one]
+        have hsdiff : s \ ({x, b} : Finset (Fin M)) = (s.erase x).erase b := by
+          ext z
+          simp only [Finset.mem_sdiff, Finset.mem_insert, Finset.mem_singleton,
+            Finset.mem_erase]
+          tauto
+        rw [hpair, hsdiff]
+      rw [Finset.sum_congr rfl hterm]
+      have hw := h_wick s hs
+      rw [← hxdef] at hw
+      rw [hw]
+      ring
+    · -- odd cardinality: every block carries a vanishing factor
+      have hzero : ∀ T ∈ F, cumulant face T * face (s \ T) = 0 := by
+        intro T hT
+        obtain ⟨hTsub, hxT, hne⟩ := hfun T hT
+        have hssub : T ⊂ s := Finset.ssubset_iff_subset_ne.mpr ⟨hTsub, hne⟩
+        have hle : T.card ≤ s.card := Finset.card_le_card hTsub
+        rcases Nat.lt_or_ge T.card 3 with hlt | hge
+        · interval_cases hTc : T.card
+          · exact absurd ((Finset.card_eq_zero.mp hTc) ▸ hxT) (by simp)
+          · obtain ⟨y, rfl⟩ := Finset.card_eq_one.mp hTc
+            rw [cumulant_singleton, h_odd _ ⟨0, by norm_num⟩, zero_mul]
+          · have hodd : Odd (s \ T).card := by
+              have hle2 : 2 ≤ s.card := hle
+              rw [Finset.card_sdiff, Finset.inter_eq_left.mpr hTsub, hTc]
+              exact Nat.Odd.sub_even hle2 hod ⟨1, by norm_num⟩
+            rw [h_odd _ hodd, mul_zero]
+        · rw [ih T hssub hge, zero_mul]
+      rw [Finset.sum_eq_zero hzero, h_odd s hod, sub_zero]
+
+
+lemma pairingSet_eq_empty_of_odd {s : Finset (Fin M)} (h : Odd s.card) : pairingSet s = ∅ := by
+  rw [Finset.eq_empty_iff_forall_notMem]
+  intro σ hσ
+  rw [mem_pairingSet] at hσ
+  have h2 := Equiv.Perm.two_dvd_card_support (σ := σ) (by rw [pow_two]; exact hσ.1)
+  rw [hσ.2] at h2
+  obtain ⟨k, hk⟩ := h2
+  obtain ⟨j, hj⟩ := h
+  omega
+
+lemma wickSum_eq_zero_of_odd (c : Fin M → Fin M → ℝ) {s : Finset (Fin M)}
+    (h : Odd s.card) : wickSum c s = 0 := by
+  rw [wickSum, pairingSet_eq_empty_of_odd h, Finset.sum_empty]
+
+/-- **The matching cancellation, for every order.**  The `wickSum` moment sequence has vanishing
+joint cumulants of order at least three.  At order six this is the cancellation
+`1 - 3 + 2 = 0`: the whole set contributes the matching weight once, the three `4 + 2` blocks
+subtract it once each, and the two `2 + 2 + 2` blocks add it twice. -/
+theorem cumulant_wickSum_eq_zero (c : Fin M → Fin M → ℝ) {s : Finset (Fin M)}
+    (h3 : 3 ≤ s.card) : cumulant (wickSum c) s = 0 :=
+  cumulant_eq_zero_of_wick (wickSum c) c (wickSum_empty c)
+    (fun _ h => wickSum_eq_zero_of_odd c h) (fun _ hs => wickSum_rec c hs) s h3
+
+/-- The six-point instance of the matching cancellation. -/
+theorem cumulant_wickSum_six_eq_zero (c : Fin 6 → Fin 6 → ℝ) :
+    cumulant (wickSum c) Finset.univ = 0 :=
+  cumulant_wickSum_eq_zero c (by simp)
+
+end cumulant
 end
 
 end BookProof.OSReconstruction

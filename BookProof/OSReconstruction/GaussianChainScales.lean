@@ -104,7 +104,16 @@ scale-indexed:
   `connectedSix_coord_eq_zero` — **the connected six-point function vanishes too**: the sixth
   joint cumulant is the Möbius sum over the 203 partitions of the six positions, the odd blocks
   still drop out, and the surviving even partitions (`6`, `4 + 2`, `2 + 2 + 2`) cancel by
-  Isserlis matching by matching, `1 - 3 + 2 = 0`.
+  Isserlis matching by matching, `1 - 3 + 2 = 0`;
+* `shellMoment`, `shellMoment_eq_wickSum` — **Isserlis' theorem in pairing form at every order**:
+  the joint moment of any finite set of positions is the `wickSum` of the `δ` covariance, by the
+  general Wick recursion `wick_pi` for linear forms rather than by enumerating pairings;
+* `cumulant`, `cumulant_eq_zero_of_wick`, `cumulant_wickSum_eq_zero` — **cumulants of arbitrary
+  order and the vanishing of all higher ones**: the cumulant is the Möbius inversion of the
+  moments over the partition lattice, every cumulant of order at least three of a Gaussian face
+  vanishes, and its `wickSum` form is the matching cancellation (`1 - 3 + 2 = 0` at order six);
+* `cumulant_shellMoment_eq_zero`, `cumulant_seven_eq_zero` — **every joint cumulant of the
+  reference law of order at least three vanishes**, the seventh included.
 
 ## Boundary
 
@@ -133,10 +142,11 @@ scale-indexed:
   The only multi-point functions here are those of the *reference* law
   (`integral_shellLaw_coord_three` through `integral_shellLaw_coord_six`, the vanishing connected
   four-, five- and six-point functions `connectedFour_coord_eq_zero`,
-  `connectedFive_coord_eq_zero` and `connectedSix_coord_eq_zero`, and the uniform Wick lemmas
-  behind them), and they are Isserlis for independent unit Gaussians: they say nothing about the
-  interacting theory, no cluster or separated connected-correlation statement is derived from
-  them, and they are moments and three cumulants, not a characterisation of Gaussianity.
+  `connectedFive_coord_eq_zero` and `connectedSix_coord_eq_zero`, and the vanishing cumulants of
+  every order `cumulant_shellMoment_eq_zero` with the uniform Wick lemmas behind them), and they
+  are Isserlis for independent unit Gaussians: they say nothing about the interacting theory, no
+  cluster or separated connected-correlation statement is derived from them, and they are
+  moments and cumulants, not a characterisation of Gaussianity.
 * `shellDensity` is *defined* as the `n`-fold iterated partial integral: it integrates the first
   `n` coordinates at fixed value of the last one.  The **tower identity** `∫ y, shellDensity n f y
   ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)` *is* proved, but only for measurable **bounded**
@@ -3435,6 +3445,102 @@ theorem connectedSix_coord_eq_zero (m : ℕ) (i j k l r s : Fin m) :
     connectedSix
       (fun t => ∫ p : Fin m → ℝ, ∏ u ∈ t, p (![i, j, k, l, r, s] u) ∂shellLaw m) = 0 :=
   connectedSixShell_eq_zero m ![i, j, k, l, r, s]
+
+/-! ## The joint cumulants of the reference law at every order
+
+The moments and cumulants above are one order at a time.  The same statements hold at *every*
+order, and this section proves them: `shellMoment m f s` is the joint moment of the positions in
+`s` for the tuple of sites `f`, and
+
+* `shellMoment_eq_wickSum` — **Isserlis' theorem in pairing form at every order**: the moment is
+  the `wickSum` of the `δ` covariance `a b ↦ if f a = f b then 1 else 0`.  The proof is the
+  general Wick recursion `wick_pi` for linear forms, at the unit vectors of the sites; it does not
+  enumerate pairings.
+* `shellMoment_empty`, `shellMoment_odd`, `shellMoment_wick` — the three Gaussian hypotheses of
+  `cumulant_eq_zero_of_wick`: unit total mass, zero odd moments, and the Wick recursion.
+* **`cumulant_shellMoment_eq_zero`** — **every joint cumulant of the reference law of order at
+  least three vanishes**, at every order.  This is the general form of
+  `connectedFourShell_eq_zero`, `connectedFiveShell_eq_zero` and `connectedSixShell_eq_zero`.
+* **`cumulant_seven_eq_zero`** — the seventh cumulant, as the order-seven instance.
+
+The order-six proof needed the explicit cancellation `1 - 3 + 2 = 0` of a matching, because the
+surviving `4 + 2` and `2 + 2 + 2` partitions are even.  At odd order the parity argument already
+suffices and no cancellation is left: every partition of seven positions has a block of odd
+cardinality (`3 + 2 + 2` has its block of three, `5 + 2` its block of five, and the one-block
+partition the whole set), and an odd-cardinality moment of this centred law vanishes.  The
+`3 + 2 + 2` partitions therefore do not survive the odd-block test; the general theorem covers
+them together with every other order.
+
+**Boundary.** The vanishing is proved for this reference law, whose `Finset`-indexed moments are
+those of the product standard Gaussian; nothing here characterises Gaussianity, computes a
+separated connected correlation, or treats a face function that fails the Wick recursion.
+-/
+
+section AllOrders
+
+variable {M : ℕ}
+
+/-- The joint moment of the positions in `s`, for the tuple of sites `f`. -/
+noncomputable def shellMoment (m : ℕ) (f : Fin M → Fin m) (s : Finset (Fin M)) : ℝ :=
+  ∫ p : Fin m → ℝ, ∏ t ∈ s, p (f t) ∂shellLaw m
+
+/-- **Isserlis' theorem in pairing form at every order**: the moment of the positions in `s` is
+the `wickSum` with the `δ` covariance of the site map. -/
+theorem shellMoment_eq_wickSum (m : ℕ) (f : Fin M → Fin m) (s : Finset (Fin M)) :
+    shellMoment m f s = wickSum (fun a b => if f a = f b then (1 : ℝ) else 0) s := by
+  have hfun : ∀ p : Fin m → ℝ, (∏ t ∈ s, p (f t))
+      = ∏ j ∈ s, (Pi.single (f j) (1 : ℝ) : Fin m → ℝ) ⬝ᵥ p := by
+    intro p
+    exact Finset.prod_congr rfl fun j _ => by simp [dotProduct, Pi.single_apply]
+  have hw : (fun a b =>
+        (Pi.single (f a) (1 : ℝ) : Fin m → ℝ) ⬝ᵥ (Pi.single (f b) (1 : ℝ) : Fin m → ℝ))
+      = fun a b => if f a = f b then (1 : ℝ) else 0 := by
+    funext a b
+    rw [dotProduct]
+    by_cases h : f a = f b
+    · rw [h]
+      simp [Pi.single_apply]
+    · have hne : f b ≠ f a := fun hh => h hh.symm
+      simp [Pi.single_apply, h, hne]
+  rw [shellMoment, shellLaw_eq_productGauss,
+    show (∫ p, ∏ t ∈ s, p (f t) ∂productGauss (Fin m))
+        = ∫ p, ∏ j ∈ s, (Pi.single (f j) (1 : ℝ) : Fin m → ℝ) ⬝ᵥ p
+            ∂productGauss (Fin m) from
+      MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall hfun),
+    wick_pi (fun j => (Pi.single (f j) (1 : ℝ) : Fin m → ℝ)) s, hw]
+
+/-- The empty set of positions has moment one. -/
+theorem shellMoment_empty (m : ℕ) (f : Fin M → Fin m) : shellMoment m f ∅ = 1 := by
+  simp [shellMoment]
+
+/-- An odd number of positions has zero moment. -/
+theorem shellMoment_odd (m : ℕ) (f : Fin M → Fin m) {s : Finset (Fin M)} (h : Odd s.card) :
+    shellMoment m f s = 0 := by
+  rw [shellMoment_eq_wickSum]
+  exact wickSum_eq_zero_of_odd _ h
+
+/-- **The Wick recursion for the moments of the reference law.** -/
+theorem shellMoment_wick (m : ℕ) (f : Fin M → Fin m) {s : Finset (Fin M)} (hs : s.Nonempty) :
+    shellMoment m f s = ∑ b ∈ s.erase (s.min' hs),
+      (if f (s.min' hs) = f b then (1 : ℝ) else 0) *
+        shellMoment m f ((s.erase (s.min' hs)).erase b) := by
+  rw [shellMoment_eq_wickSum, wickSum_rec _ hs]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  rw [shellMoment_eq_wickSum]
+
+/-- **All joint cumulants of the reference law of order at least three vanish.** -/
+theorem cumulant_shellMoment_eq_zero (m : ℕ) (f : Fin M → Fin m) {s : Finset (Fin M)}
+    (h3 : 3 ≤ s.card) : cumulant (shellMoment m f) s = 0 :=
+  cumulant_eq_zero_of_wick (shellMoment m f) (fun a b => if f a = f b then (1 : ℝ) else 0)
+    (shellMoment_empty m f) (fun _ h => shellMoment_odd m f h)
+    (fun _ hs => shellMoment_wick m f hs) s h3
+
+/-- **The seventh cumulant of the reference law vanishes.** -/
+theorem cumulant_seven_eq_zero (m : ℕ) (f : Fin 7 → Fin m) :
+    cumulant (shellMoment m f) Finset.univ = 0 :=
+  cumulant_shellMoment_eq_zero m f (by simp)
+
+end AllOrders
 
 end BookProof.OSReconstruction
 

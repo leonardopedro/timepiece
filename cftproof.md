@@ -3791,3 +3791,74 @@ ledger). `lake build BookProof` succeeds (9128 jobs). `./patches/build-book.sh` 
 `nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.
 `scripts/health.sh` reports 3 pass, 0 warn, 0 gap, 0 fail; `check-links` resolves 273 relative
 links over 88 documents and the doc index is fresh (88 docs, 252 links).
+
+**Landed 2026-11-27, twenty-first slice: cumulants of arbitrary order, and the vanishing of all
+higher ones (C3n).** The twentieth slice computed the sixth cumulant and closed it with the
+matching cancellation `1 − 3 + 2 = 0`, and named two boundaries: no cumulant of arbitrary order,
+and the cancellation itself locked inside one arity. This slice removes both. The joint cumulant is
+defined for every order as the Möbius inversion of the moments over the partition lattice, the
+vanishing of every cumulant of order at least three is proved as a single theorem, the matching
+cancellation is extracted as a standalone statement about the `wickSum` moments, and the seventh
+cumulant (the odd-order case, including the `3+2+2` partitions) is discharged by the general
+result. Nineteen declarations were added to the audit; all rest on standard axioms.
+
+* **The cumulant over the partition lattice.** `cumulant face s` is the Möbius sum
+  `Σ_π μ(π, ⊤) ∏_{B ∈ π} face B` — equivalently the `(−1)^(k−1)(k−1)!` sum over the `k`-block
+  partitions of `s` — computed by the standard recursion that splits off the block of the least
+  position: `κ s = face s − Σ_{t ⊆ s, min s ∈ t, t ≠ s} κ t · face (s \ t)`
+  (`cumulant_unfold`, with `cumulant_empty` fixing the empty-set convention). Enumerating the
+  partitions of `s` is exponential in `card s`, so this is the form that scales past six.
+  `moment_eq_sum_cumulant` records the inverse relation (the moment is the cumulant plus the proper
+  blocks), `cumulant_singleton` and `cumulant_pair_of_lt` compute the one- and two-element blocks
+  (`κ {x, y} = face {x, y} − face {x} face {y}`), and `sum_two_block` is the reindexing that turns
+  the surviving two-element blocks into a sum over `s.erase (min s)`: this is the only genuinely
+  new combinatorial step, and it is what makes the induction run at every order.
+* **All higher cumulants vanish.** `cumulant_eq_zero_of_wick` proves, by induction on `card s`,
+  that a moment function with unit total mass, vanishing odd moments and the Wick recursion
+  `face s = Σ_{b ∈ s.erase (min s)} c (min s) b · face (s \ {min s, b})` has **every** cumulant of
+  order at least three equal to zero. No partition list is inspected: odd moments kill the odd
+  blocks and the induction kills every even block except the two-element ones, whose sum is exactly
+  the Wick recursion.
+* **The matching cancellation, standalone.** `pairingSet_eq_empty_of_odd` (an involution has even
+  support, so an odd `s` carries no pairing) and `wickSum_eq_zero_of_odd` give the odd-moment
+  hypothesis for the `wickSum` moment sequence, `wickSum_rec` is its Wick recursion and
+  `wickSum_empty` its total mass. `cumulant_wickSum_eq_zero` is therefore the cancellation as a
+  statement about the pairing sum at **every** order, and `cumulant_wickSum_six_eq_zero` is its
+  order-six instance — the `1 − 3 + 2 = 0` of the twentieth slice, now a corollary of a general
+  theorem rather than a `ring` computation on `Fin 6`.
+* **The reference law at every order.** `shellMoment m f s = ∫ p, ∏ t ∈ s, p (f t) ∂shellLaw m`
+  is the joint moment of a finite set of positions. `shellMoment_eq_wickSum` is Isserlis' theorem
+  in pairing form at every order, `E[∏_{t ∈ s} p (f t)] = wickSum (fun a b ↦ if f a = f b then 1
+  else 0) s`, proved from the general Wick recursion for linear forms `wick_pi` (unit vectors at
+  the sites) and not from an enumeration of pairings. `shellMoment_empty`, `shellMoment_odd` and
+  `shellMoment_wick` supply the three hypotheses, and `cumulant_shellMoment_eq_zero` concludes that
+  **every joint cumulant of the reference law of order at least three vanishes at every order**,
+  the eleventh, the hundredth and so on included.
+* **The seventh cumulant, and the `3+2+2` partitions.** `cumulant_seven_eq_zero` is the order-seven
+  instance, `κ univ = 0` for seven positions. It needs no cancellation: every partition of seven
+  positions has a block of odd cardinality, and the `3+2+2` partitions are killed by their block of
+  three (`integral_shellLaw_coord_three`), `5+2` by its block of five, and the one-block partition
+  by the odd seven-point function. The twenty-first slice therefore records a correction to the
+  twentieth's guess: `3+2+2` does not survive the odd-block test. The `1 − 3 + 2` cancellation is
+  not the last one either — at order eight the general theorem again replaces a hand-built
+  partition list.
+
+Boundary of this twenty-first slice: **the vanishing is general in the order, not in the law.** The
+cumulant is the Möbius sum over the partition lattice, but it is computed by the recursion, not by
+a formalised `Finpartition` Möbius function: no `μ(π, ⊤) = (−1)^(k−1)(k−1)!` is proved from the
+partition lattice's own Möbius theory, and the equivalence between the recursion and an explicit
+partition sum is not formalised in general (it is checked in `connectedSix_one` and its
+predecessors only through the vanishing of the coefficient sum). The vanishing is proved for the
+reference law — the product standard Gaussian — through its three moment properties; it is not a
+Gaussianity criterion, no converse is attempted, and no connected correlation at separated points
+is computed. `cumulant_wickSum_eq_zero` is algebraic: it says nothing about decay, clustering or
+the interacting theory. Everything remains a statement about the reference law; C3a–C3d, the
+half-space inequality, the OS reconstruction theorem and every field law are unchanged.
+
+**Verification.** `lake build BookProof.OSReconstruction.GaussianMoments` and
+`...GaussianChainScales` succeed (8028 jobs) with no new warnings; `lake env lean
+Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for all nineteen
+new declarations (383 rows in the ledger). `lake build BookProof` succeeds (9128 jobs).
+`./patches/build-book.sh` under `nix-shell -p python3` renders the book and asserts
+`OK: no <base>; fragment links present`. `scripts/health.sh` reports 3 pass, 0 warn, 0 gap, 0 fail;
+`check-links` resolves 273 relative links over 88 documents and the doc index is fresh.
