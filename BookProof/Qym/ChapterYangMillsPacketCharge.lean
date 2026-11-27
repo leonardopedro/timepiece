@@ -317,7 +317,7 @@ theorem translated_marginal_ne (μ : MeasureTheory.Measure ℝ) [MeasureTheory.I
     ∫ x : ℝ, x ∂μ at he
   rw [MeasureTheory.integral_map (by fun_prop) (by fun_prop),
     MeasureTheory.integral_add hμ (MeasureTheory.integrable_const b)] at he
-  simp only [MeasureTheory.integral_const, MeasureTheory.measureReal_univ_eq_one,
+  simp only [MeasureTheory.integral_const, MeasureTheory.probReal_univ,
     smul_eq_mul, one_mul] at he
   exact hb (by linarith)
 
