@@ -28844,3 +28844,12 @@ root; `scripts/import_components.py` now names the satisficing/prior-refresh par
 **Verification.** `lake build BookProof.OSReconstruction.ChapterOverlapCollapse` green at 8030
 jobs; full `BookProof` build green at 9134 jobs; `#print axioms` on the four new theorems gives
 `[propext, Classical.choice, Quot.sound]`; doc index and drift gates green.
+
+**H2 time-slicing, exact in the Heisenberg model.** `ChapterSymmetricTimeStepOrdering` now
+carries finite `N` time-slicing, the algebraic half of `cft_path.md`'s Trotter step:
+`exp_Ngen_pow` (one-parameter subgroup), `symmetric_time_step_pow` (`N` midpoint steps equal
+`exp(N(aX+bY))` exactly), `endpoint_time_step_eq_exp` and `endpoint_time_step_pow` (the endpoint
+step's central cocycle accumulates as `N·ab/2`), and `endpoint_pow_ne_symmetric_pow` (endpoint
+slicing fails at every positive step count when `ab ≠ 0`).  Boundary: an exact finite-dimensional
+model; no operator-norm Lie–Trotter limit, Euclidean measure or physical Hamiltonian is claimed.
+Axioms are `[propext, Classical.choice, Quot.sound]` for all five endpoints.

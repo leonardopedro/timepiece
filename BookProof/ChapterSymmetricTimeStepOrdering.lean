@@ -25,6 +25,7 @@ used.  Axioms are `propext`, `Classical.choice`, `Quot.sound` only.
 set_option linter.unnecessarySeqFocus false
 set_option linter.unusedTactic false
 set_option linter.unreachableTactic false
+set_option linter.flexible false
 
 noncomputable section
 
@@ -81,5 +82,72 @@ theorem endpoint_defect (a b : ℝ) :
   rw [Heis_mul, Heis_mul]
   ext i j
   fin_cases i <;> fin_cases j <;> simp [Heis] <;> ring_nf
+
+/-- The exponential of a Heisenberg generator is a one-parameter subgroup: its `n`th power is
+    the exponential at `n` times the parameters.  This is the algebraic core of `cft_path.md`'s
+    time-slicing identity `exp(−iHT) = (exp(−iHε))^N` in the model where BCH terminates. -/
+theorem exp_Ngen_pow (a b : ℝ) (n : ℕ) :
+    (NormedSpace.exp (Ngen a b 0)) ^ n =
+      NormedSpace.exp (Ngen ((n : ℝ) * a) ((n : ℝ) * b) 0) := by
+  induction n with
+  | zero =>
+      simp only [pow_zero, Nat.cast_zero, zero_mul, zero_div]
+      rw [exp_Ngen]
+      ext i j <;> fin_cases i <;> fin_cases j <;> simp [Heis]
+  | succ n ih =>
+      rw [pow_succ, ih]
+      rw [exp_Ngen, exp_Ngen, exp_Ngen]
+      rw [Heis_mul]
+      ext i j <;> fin_cases i <;> fin_cases j <;> simp [Heis] <;> ring
+
+/-- Midpoint time-slicing is exact for every number of steps: `N` Strang steps at width `ε`
+    give the exponential of the full generator at time `Nε`.  This is the finite analogue of the
+    continuum sum in `cft_path.md` §1–§3, with no accumulated ordering error. -/
+theorem symmetric_time_step_pow (a b : ℝ) (n : ℕ) :
+    (NormedSpace.exp ((a / 2) • Xgen) * NormedSpace.exp (b • Ygen) *
+        NormedSpace.exp ((a / 2) • Xgen)) ^ n =
+      NormedSpace.exp (Ngen ((n : ℝ) * a) ((n : ℝ) * b) 0) := by
+  rw [symmetric_time_step, smul_Xgen, smul_Ygen, Ngen_X_add_Y]
+  exact exp_Ngen_pow a b n
+
+/-- The plain Lie step is the exponential of one generator whose central parameter is half the
+    commutator coefficient `ab/2` — the Weyl cocycle of the unordered product. -/
+theorem endpoint_time_step_eq_exp (a b : ℝ) :
+    NormedSpace.exp (a • Xgen) * NormedSpace.exp (b • Ygen) =
+      NormedSpace.exp (Ngen a b (a * b / 2)) := by
+  rw [smul_Xgen, smul_Ygen, exp_Ngen, exp_Ngen, exp_Ngen, Heis_mul]
+  ext i j <;> fin_cases i <;> fin_cases j <;> simp [Heis] <;> ring
+
+/-- Endpoint time-slicing accumulates its central defect linearly in the step count: `n` Lie
+    steps carry `n·ab/2` in the central parameter.  The defect does not cancel across steps. -/
+theorem endpoint_time_step_pow (a b : ℝ) (n : ℕ) :
+    (NormedSpace.exp (a • Xgen) * NormedSpace.exp (b • Ygen)) ^ n =
+      NormedSpace.exp (Ngen ((n : ℝ) * a) ((n : ℝ) * b) ((n : ℝ) * a * b / 2)) := by
+  rw [endpoint_time_step_eq_exp]
+  induction n with
+  | zero =>
+      simp only [pow_zero, Nat.cast_zero, zero_mul, zero_div]
+      rw [exp_Ngen]
+      ext i j <;> fin_cases i <;> fin_cases j <;> simp [Heis]
+  | succ n ih =>
+      rw [pow_succ, ih]
+      rw [exp_Ngen, exp_Ngen, exp_Ngen]
+      rw [Heis_mul]
+      ext i j <;> fin_cases i <;> fin_cases j <;> simp [Heis] <;> ring
+
+/-- Endpoint slicing never reproduces the Weyl exponential of the full generator once the
+    commutator is nonzero, at any positive step count.  The `n = 1` negative control
+    `endpoint_time_step_not_weyl` is the special case; no continuum limit repairs it here. -/
+theorem endpoint_pow_ne_symmetric_pow {a b : ℝ} (hab : a * b ≠ 0) {n : ℕ} (hn : 0 < n) :
+    (NormedSpace.exp (a • Xgen) * NormedSpace.exp (b • Ygen)) ^ n ≠
+      NormedSpace.exp (Ngen ((n : ℝ) * a) ((n : ℝ) * b) 0) := by
+  rw [endpoint_time_step_pow]
+  intro h
+  have hentry := congrFun (congrFun h 0) 2
+  simp [exp_Ngen, Heis] at hentry
+  rcases hentry with (hn0' | ha) | hb
+  · exact (ne_of_gt hn) hn0'
+  · exact hab (by simp [ha])
+  · exact hab (by simp [hb])
 
 end BookProof.SymmetricTimeStepOrdering

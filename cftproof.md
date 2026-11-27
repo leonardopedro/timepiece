@@ -877,6 +877,17 @@ operator-norm Lie–Trotter limit is **not** proved: this Mathlib has no product
 `ChapterSirkTrotterKato` proves a different statement (strong resolvent convergence of a
 family), as the readiness ledger requires us to note.
 
+**Status (2026-11-27): H2 exact time-slicing at midpoint and endpoint ordering.**
+`BookProof/ChapterSymmetricTimeStepOrdering.lean` now carries the finite `N` version of
+`cft_path.md`'s time-slicing step. `exp_Ngen_pow` makes the Heisenberg exponential a
+one-parameter subgroup; `symmetric_time_step_pow` shows `N` midpoint (Strang) steps give exactly
+`exp(N(aX+bY))` with no accumulated ordering error; `endpoint_time_step_eq_exp` and
+`endpoint_time_step_pow` compute the plain Lie step and show its central Weyl cocycle accumulates
+as `N·ab/2`; `endpoint_pow_ne_symmetric_pow` rules out endpoint slicing at every positive step
+count when the commutator is nonzero.  This is the exact finite-dimensional analogue of the
+continuum sum in `cft_path.md` §§1–3, not an operator-norm Lie–Trotter theorem: no unbounded form
+sum, Euclidean measure or physical Hamiltonian is involved.
+
 **Status (2026-11-25): H3 landed (one slice only).**
 `BookProof/ReflectionPositivity/ChapterMehlerSliceReflectionPositivity.lean` identifies the
 Mehler-kernel slice measure and proves its OS form nonnegative both directly (square of a
