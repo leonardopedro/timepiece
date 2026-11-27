@@ -23,6 +23,13 @@ The proof has three layers.
 * **`L²`.**  The squared `L²` norm of a Gauss polynomial is bounded by the Gaussian integral
   of `‖q‖²` (`norm_pgLp_sq_le`); dominated convergence then turns the pointwise limit into
   convergence of the integrals, hence differentiability in `L²`.
+
+That derivative is the hypothesis of Stone's theorem for the closed charge.  The last two
+sections package the result: `gaussChargeSelfAdjoint` makes `i 𝒢_d` self-adjoint and
+`gaussCharge_stoneFlow` gives its flow; `gaussFlowOp_eq_stoneU` then identifies the concrete
+rotation flow with that Stone group, so the flow is strongly continuous
+(`gaussFlowOp_continuous`) and the Gauss core sits in the generator's domain
+(`gaussCharge_core_le_genDomain`).
 -/
 
 namespace BookProof.Qym.GaussGenerator
@@ -947,6 +954,76 @@ operator `i 𝒢_d`, produces a strongly continuous one-parameter unitary group 
 theorem gaussCharge_stoneFlow (G : GaugeAlgebra 8) (dd : Fin 8) :
     ∃ U : ℝ → (L2d 99 →L[ℂ] L2d 99), IsStoneFlow (gaussChargeSelfAdjoint G dd) U :=
   ⟨_, isStoneFlow_stoneU _⟩
+
+/-! ## The rotation flow is that Stone flow -/
+
+set_option maxHeartbeats 1200000 in
+-- the closure domain, the scalar action and the core representation unfold together
+/-- **The Gauss core satisfies the charge's generator equation.**  The derivative of the
+concrete rotation flow on a core vector is the self-adjoint charge applied to it, which is
+the hypothesis of the uniqueness lemma. -/
+theorem hasDerivAt_gaussFlowOp_gaussCharge (G : GaugeAlgebra 8) (dd : Fin 8)
+    (x : L2d 99) (hx : x ∈ polyGaussCore (d := 99)) (t : ℝ) :
+    ∃ h : gaussFlowOp G dd t x ∈ (gaussChargeSelfAdjoint G dd).domain,
+      HasDerivAt (fun s : ℝ => gaussFlowOp G dd s x)
+        ((-Complex.I) • (gaussChargeSelfAdjoint G dd).op ⟨gaussFlowOp G dd t x, h⟩) t := by
+  let v : (gaussPMap G dd (coreRepPoly 99)).domain := ⟨x, hx⟩
+  have hmemCore : gaussFlowOp G dd t x ∈ polyGaussCore (d := 99) :=
+    gaussFlowOp_mem_core G dd t v.2
+  have hmem : gaussFlowOp G dd t x ∈ (gaussChargeSelfAdjoint G dd).domain :=
+    (LinearPMap.le_closure (gaussPMap G dd (coreRepPoly 99))).1
+      (by rw [gaussPMap_domain]; exact hmemCore)
+  refine ⟨hmem, ?_⟩
+  have hop : (-Complex.I) • (gaussChargeSelfAdjoint G dd).op ⟨gaussFlowOp G dd t x, hmem⟩
+      = gaussPMap G dd (coreRepPoly 99) ⟨gaussFlowOp G dd t x, hmemCore⟩ := by
+    have hsub : (⟨gaussFlowOp G dd t x, hmem⟩ : (gaussPMap G dd (coreRepPoly 99)).closure.domain)
+        = Submodule.inclusion (LinearPMap.le_closure (gaussPMap G dd (coreRepPoly 99))).1
+          ⟨gaussFlowOp G dd t x, by rw [gaussPMap_domain]; exact hmemCore⟩ :=
+      Subtype.ext rfl
+    rw [gaussChargeSelfAdjoint_op, LinearMap.smul_apply, smul_smul, hsub]
+    rw [show (-Complex.I) * Complex.I = 1 by
+      rw [neg_mul, Complex.I_mul_I]; norm_num, one_smul]
+    exact gaussPMap_closure_apply_core G dd (coreRepPoly 99)
+      ⟨gaussFlowOp G dd t x, hmemCore⟩
+  have hder := hasDerivAt_gaussFlowOp G dd v t
+  rw [hop]
+  simpa [v] using hder
+
+set_option maxHeartbeats 400000 in
+-- the flow equality unfolds the closure's domain and the Stone construction
+/-- **The residual rotation flow is the Stone flow of the Gauss charge**, so the flow built
+from the matrix exponential is the unitary group of the skew-adjoint closure. -/
+theorem gaussFlowOp_eq_stoneU (G : GaugeAlgebra 8) (dd : Fin 8) (t : ℝ) :
+    (gaussFlowOp G dd t).toContinuousLinearMap = (gaussChargeSelfAdjoint G dd).stoneU t :=
+  eq_stoneU_of_dense_core (T := gaussChargeSelfAdjoint G dd)
+    (U := fun t => (gaussFlowOp G dd t).toContinuousLinearMap) polyGaussCore_dense
+    (gaussFlowOp_zero G dd) (fun x t => hasDerivAt_gaussFlowOp_gaussCharge G dd x x.2 t) t
+
+/-- **The Stone flow is strongly continuous.**  Restated for the concrete rotation flow,
+using the group's continuity in time. -/
+theorem gaussFlowOp_continuous (G : GaugeAlgebra 8) (dd : Fin 8) (x : L2d 99) :
+    Continuous fun t : ℝ => gaussFlowOp G dd t x := by
+  have h := (isStoneFlow_stoneU (gaussChargeSelfAdjoint G dd)).continuous x
+  have heq : (fun t : ℝ => (gaussChargeSelfAdjoint G dd).stoneU t x)
+      = fun t : ℝ => gaussFlowOp G dd t x := by
+    funext t
+    rw [← gaussFlowOp_eq_stoneU]
+    rfl
+  rwa [heq] at h
+
+/-- **The core lies in the charge's domain**, hence in the generator's domain of the Stone
+flow (`domain_le_genDomain`). -/
+theorem gaussCharge_core_le_domain (G : GaugeAlgebra 8) (dd : Fin 8) :
+    polyGaussCore (d := 99) ≤ (gaussChargeSelfAdjoint G dd).domain := by
+  intro x hx
+  exact (LinearPMap.le_closure (gaussPMap G dd (coreRepPoly 99))).1
+    (by rw [gaussPMap_domain]; exact hx)
+
+/-- The generator domain of the Stone flow contains the Gauss core. -/
+theorem gaussCharge_core_le_genDomain (G : GaugeAlgebra 8) (dd : Fin 8) :
+    polyGaussCore (d := 99) ≤ (gaussChargeSelfAdjoint G dd).stoneGroup.genDomain :=
+  fun _ hx => (gaussChargeSelfAdjoint G dd).domain_le_genDomain
+    (gaussCharge_core_le_domain G dd hx)
 
 end
 

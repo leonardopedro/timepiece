@@ -47,6 +47,12 @@ dominated convergence give `hasDerivAt_gaussFlowOp_pgLp`, which transports to th
 `gaussPMap_closure_skewAdjoint_of_rotation` is `gaussPMap_closure_skewAdjoint` there.  So
 `hgen` no longer has to be supplied by a caller.
 
+The flow is also a group on `L²` (`gaussFlowOp_add`, `gaussFlowOp_mul`) and is *exactly*
+Stone's group of the Gauss charge: `gaussFlowOp_eq_stoneU` in the generator module, through
+the uniqueness lemma `BookProof.StoneBridge.eq_stoneU_of_dense_core`.  Consequently
+`gaussFlowOp_continuous` is the strong continuity of that Stone flow, and
+`gaussCharge_core_le_genDomain` puts the Gauss–polynomial core in the generator's domain.
+
 What remains open is a *different* statement, about the Hamiltonian rather than the charge:
 the elliptic-regularity / graph-norm domination input recorded in
 `BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean` — the Gauss–polynomial core
@@ -373,6 +379,31 @@ theorem gaussFlowOp_zero (G : GaugeAlgebra 8) (d : Fin 8) :
     funext x
     rw [gaussFlowIso_apply_zero]
   simpa [h2] using h1
+
+/-- **The rotation flow is a one-parameter group on `L²(ℝ⁹⁹)`.**  Proven on the dense
+Gauss–polynomial core, where it is the composition law of `rotPoly`. -/
+theorem gaussFlowOp_add (G : GaugeAlgebra 8) (d : Fin 8) (s t : ℝ) (f : L2d 99) :
+    gaussFlowOp G d s (gaussFlowOp G d t f) = gaussFlowOp G d (s + t) f := by
+  have hcont₁ : Continuous fun g : L2d 99 => gaussFlowOp G d s (gaussFlowOp G d t g) :=
+    (gaussFlowOp G d s).continuous.comp (gaussFlowOp G d t).continuous
+  have hcont₂ : Continuous fun g : L2d 99 => gaussFlowOp G d (s + t) g :=
+    (gaussFlowOp G d (s + t)).continuous
+  have hcore : Set.EqOn (fun g : L2d 99 => gaussFlowOp G d s (gaussFlowOp G d t g))
+      (fun g : L2d 99 => gaussFlowOp G d (s + t) g) (polyGaussCore (d := 99)) := by
+    intro g hg
+    obtain ⟨p, hp⟩ := hg
+    rw [← hp]
+    change gaussFlowOp G d s (gaussFlowOp G d t (pgLp p)) = gaussFlowOp G d (s + t) (pgLp p)
+    rw [gaussFlowOp_pgLp, gaussFlowOp_pgLp, gaussFlowOp_pgLp, rotPoly_mul, gaussFlow_add]
+  exact congrFun (Continuous.ext_on polyGaussCore_dense hcont₁ hcont₂ hcore) f
+
+/-- The group law as a product of continuous linear maps. -/
+theorem gaussFlowOp_mul (G : GaugeAlgebra 8) (d : Fin 8) (s t : ℝ) :
+    (gaussFlowOp G d s).toContinuousLinearMap * (gaussFlowOp G d t).toContinuousLinearMap
+      = (gaussFlowOp G d (s + t)).toContinuousLinearMap := by
+  refine ContinuousLinearMap.ext fun f => ?_
+  rw [ContinuousLinearMap.mul_apply]
+  exact gaussFlowOp_add G d s t f
 
 /-- The flow's operator norm is at most one. -/
 theorem gaussFlowOp_norm_le (G : GaugeAlgebra 8) (d : Fin 8) (t : ℝ) :

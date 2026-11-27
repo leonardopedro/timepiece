@@ -106,6 +106,7 @@ variable [CompleteSpace F]
 
 /-! ## Strong continuity of a Stone flow -/
 
+omit [CompleteSpace F] in
 /-- **A Stone flow is strongly continuous at the origin.**  On the domain this is continuity
 of a differentiable curve; elsewhere it follows from the isometry and density. -/
 theorem IsStoneFlow.tendsto_zero {T : UnboundedSelfAdjoint F} {U : ℝ → (F →L[ℂ] F)}
@@ -123,7 +124,7 @@ theorem IsStoneFlow.tendsto_zero {T : UnboundedSelfAdjoint F} {U : ℝ → (F �
   refine ⟨δ, hδ, fun t ht => ?_⟩
   have hsplit : U t x - x = U t (x - z) + (U t z - z) + (z - x) := by
     rw [map_sub]
-    abel
+    abel_nf
   have hzx : ‖z - x‖ = ‖x - z‖ := norm_sub_rev z x
   have hxz' : ‖x - z‖ < ε / 3 := by
     rw [dist_eq_norm] at hxz
@@ -139,6 +140,7 @@ theorem IsStoneFlow.tendsto_zero {T : UnboundedSelfAdjoint F} {U : ℝ → (F �
     _ = ‖x - z‖ + ‖U t z - z‖ + ‖z - x‖ := by rw [h.2.2.1 t (x - z)]
     _ < ε := by rw [hzx]; linarith
 
+omit [CompleteSpace F] in
 /-- **A Stone flow is strongly continuous in time on every vector.** -/
 theorem IsStoneFlow.continuous {T : UnboundedSelfAdjoint F} {U : ℝ → (F →L[ℂ] F)}
     (h : IsStoneFlow T U) (x : F) : Continuous (fun t : ℝ => U t x) := by
@@ -153,25 +155,23 @@ theorem IsStoneFlow.continuous {T : UnboundedSelfAdjoint F} {U : ℝ → (F →L
     funext t
     rw [← ContinuousLinearMap.mul_apply, ← h.2.1 t₀ (t - t₀)]
     congr 1
-    ring
+    ring_nf
   rwa [heq] at h3
 
 /-! ## Uniqueness from a dense core -/
 
-/-- **A Stone flow is determined by its generator on a dense submodule of the domain.**
-If an isometric one-parameter group solves the Schrödinger equation with generator `T` on a
-dense `D ≤ T.domain`, it is `e^{-itT}`. -/
+/-- **A Stone flow is determined by its generator on a dense core.**  If a family of
+operators solves the Schrödinger equation with generator `T` on a dense submodule `D`, it
+agrees with `e^{-itT}` at every time (no group law or isometry is needed for uniqueness). -/
 theorem eq_stoneU_of_dense_core {T : UnboundedSelfAdjoint F} {D : Submodule ℂ F}
-    (hDense : Dense (D : Set F)) (hD : D ≤ T.domain) {U : ℝ → (F →L[ℂ] F)}
-    (hU0 : U 0 = 1) (hUadd : ∀ s t, U (s + t) = U s * U t)
-    (hUnorm : ∀ t x, ‖U t x‖ = ‖x‖)
+    (hDense : Dense (D : Set F)) {U : ℝ → (F →L[ℂ] F)}
+    (hU0 : U 0 = 1)
     (hUderiv : ∀ (x : D) (t : ℝ), ∃ h : U t (x : F) ∈ T.domain,
       HasDerivAt (fun s : ℝ => U s (x : F)) ((-Complex.I) • T.op ⟨U t (x : F), h⟩) t) :
     ∀ t, U t = T.stoneU t := by
   intro t
   have key : ∀ x ∈ (D : Set F), U t x = T.stoneU t x := by
     intro x hx
-    obtain ⟨hUmem, -⟩ := hUderiv ⟨x, hx⟩ t
     -- the pairing against every domain vector is conserved
     have hpair : ∀ y ∈ (T.domain : Set F), inner ℂ (T.stoneU t y) (U t x)
         = inner ℂ y x := by
@@ -194,7 +194,7 @@ theorem eq_stoneU_of_dense_core {T : UnboundedSelfAdjoint F} {D : Submodule ℂ 
         have hzero : (⟪T.stoneU s y, (-Complex.I) • T.op ⟨U s x, husm⟩⟫_ℂ
             + ⟪T.stoneU s ((-Complex.I) • T.op y'), U s x⟫_ℂ) = 0 := by
           rw [inner_smul_right, map_smul, hop, inner_smul_left, Complex.conj_neg_I, hsym]
-          ring
+          ring_nf
         rw [hzero] at h
         simpa using h
       have hconst := is_const_of_deriv_eq_zero
@@ -210,22 +210,22 @@ theorem eq_stoneU_of_dense_core {T : UnboundedSelfAdjoint F} {D : Submodule ℂ 
       intro z hzdom
       set z' : T.domain := ⟨z, hzdom⟩ with hz'
       have h1 := hpair (T.stoneU (-t) z) (T.stoneU_mem_domain (-t) z')
-      rw [T.stoneU_apply_stoneU, show t + -t = 0 by ring, T.stoneU_zero] at h1
+      rw [T.stoneU_apply_stoneU, show t + -t = 0 by ring_nf, T.stoneU_zero] at h1
       simp only [ContinuousLinearMap.one_apply] at h1
       have hx0 : T.stoneU (-t) (T.stoneU t x) = x := by
         rw [T.stoneU_apply_stoneU]
         show T.stoneU (-t + t) x = x
-        rw [show -t + t = 0 by ring, T.stoneU_zero]
+        rw [show -t + t = 0 by ring_nf, T.stoneU_zero]
         rfl
       have hunit : inner ℂ (T.stoneU (-t) z) x = inner ℂ z (T.stoneU t x) := by
         conv_lhs => rw [← hx0]
-        rw [T.inner_stoneU_map_map]
+        rw [BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.inner_stoneU_map_map T]
       rw [hunit] at h1
       exact h1
-    refine sub_eq_zero.mp (T.denseDomain.eq_zero_of_inner_right fun v => ?_)
-    have := hz (v : F) v.2
-    rw [inner_sub_right, this, sub_self]
-  exact Continuous.ext_on hDense (U t).continuous (T.stoneU t).continuous key
+    exact BookProof.ChapterStoneMeasurable.WeakMeasurableUnitaryGroup.eq_of_inner_eq_on_dense
+      T.denseDomain hz
+  exact ContinuousLinearMap.ext fun f =>
+    congrFun (Continuous.ext_on hDense (U t).continuous (T.stoneU t).continuous key) f
 
 /-- **Stone's group is a Stone flow.** -/
 theorem isStoneFlow_stoneU (T : UnboundedSelfAdjoint F) : IsStoneFlow T T.stoneU := by
