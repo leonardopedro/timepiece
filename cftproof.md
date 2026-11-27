@@ -3513,3 +3513,57 @@ is elementary it is not yet done. There is also still no three-point function as
 no Gaussianity proof (the factorization is consistent with it but does not assert it), no
 conditional expectation, no multi-point cluster estimate, and no change to C3a–C3d, the half-space
 inequality, the OS reconstruction theorem or any field law.
+
+**Landed 2026-11-27, sixteenth slice: the three- and four-point functions of the reference law
+(C3i).** The fifteenth slice left one item open and named it: the factorization gives the
+four-point function as a product of one-dimensional moments, but the `δ`-form was arithmetic on
+the multiplicity pattern and needed a case analysis over the six equalities among `i, j, k, l`.
+This slice closes it — and the case analysis is not needed, because the pattern can be read
+through the *pairings* instead of through the multiplicities. Eleven declarations were added to the
+audit; all rest on standard axioms.
+
+* **The bridge.** `shellLaw_eq_productGauss`: `shellLaw m` *is*
+  `productGauss (Fin m) = Measure.pi (fun _ ↦ gaussianReal 0 1)`, by `rfl`. The reference law is
+  therefore exactly the product Gaussian whose moments `GaussianMoments` computes, and Isserlis'
+  theorem there applies at the level of sites rather than coordinate exponents.
+* **The factorization, indexed by sites.** `integral_shellLaw_prod_coord`: for any
+  `f : Fin M → Fin m`, `∫ p, ∏ t, p (f t) = ∏ a, ∫ z, z^(#{t | f t = a})`.
+  This is the site-indexed form of
+  `integral_shellLaw_prod_coord_pow` (an exponent vector is a multiplicity vector), and it is the
+  "factorization lemma" the rest of the slice is a corollary of.
+* **The four-point function.** `integral_shellLaw_coord_four`:
+  `E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`. The route is two steps, neither of
+  which looks at the equalities among the four indices. First
+  `wickSum_identity_eq_prod_doubleFactorial` identifies the multiplicity product with the weighted
+  pairing sum — this is the only place the factorization is used. Then `Fin 4` has exactly three
+  pairings, so the pairing sum is three terms: `pairingSet_four` lists them (`(0 1)(2 3)`,
+  `(0 2)(1 3)`, `(0 3)(1 2)` as `pairingSwap01/02/03`, checked by `decide`), `pairingProd01/02/03`
+  evaluate each filtered product to one contraction, and `wickSum_four` sums them. Substituting
+  `f = ![i, j, k, l]` turns the three contractions into `δ_ij δ_kl`, `δ_ik δ_jl`, `δ_il δ_jk`.
+* **The three-point function.** `integral_shellLaw_coord_three`:
+  `E[p_i p_j p_k] = 0`. Three sites cannot all occur an even number of times: their multiplicities
+  sum to `3` (`exists_odd_card_fiber_three`, by `Finset.sum_fiberwise` and the fact that a sum of
+  evens is even), so one factor of the multiplicity product is an odd power of a centred Gaussian,
+  and `integral_pow_odd_blockUnit` — the odd half of `integral_pow_gaussianReal_one_moment` — makes
+  that factor zero, whence `Finset.prod_eq_zero`.
+
+Boundary of this sixteenth slice: **these are the moments of this law, not a characterization of
+it.** `integral_shellLaw_coord_four` is Isserlis for the covariance `1`: nothing here shows that a
+law with these three- and four-point functions is Gaussian (the converse is false without extra
+hypotheses), no cumulant, connected correlation or clustered moment is computed, and no moment
+above the fourth exists as a Lean statement — a five-point function, or the general-`M` Wick
+recursion on `shellLaw` itself, is not proved (the general recursion stays in `GaussianMoments`,
+on `productGauss`). The multiplicity evaluations run through `decide` on the concrete index types
+`Fin 3` and `Fin 4`; no uniform-in-`M` combinatorial statement is extracted. There is still no
+conditional expectation, no multi-point cluster estimate, no limiting law, and no change to
+C3a–C3d, the half-space inequality, the OS reconstruction theorem or any field law.
+
+**Verification.** `lake env lean BookProof/OSReconstruction/GaussianChainScales.lean` is clean and
+`lake build BookProof.OSReconstruction.GaussianChainScales` succeeds (8028 jobs).
+`lake build BookProof` currently stops in `BookProof.Qym.ChapterYangMillsPacketCharge` (two
+`unsolved goals`, at `BookProof/Qym/ChapterYangMillsPacketCharge.lean:272` and `:315`), a module
+last touched by commit `6a5ab20` and unrelated to this slice, so the whole-library gate did not run
+to completion on this tree; the Gaussian chain module and the audit are independent of it.
+`lake env lean Work/EuclideanMomentAudit.lean` reports `[propext, Classical.choice, Quot.sound]` for
+all eleven new declarations (304 rows in the ledger). `./patches/build-book.sh` under
+`nix-shell -p python3` renders the book and asserts `OK: no <base>; fragment links present`.

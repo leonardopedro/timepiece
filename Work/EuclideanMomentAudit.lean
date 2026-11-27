@@ -391,3 +391,17 @@ hide behind the theorems' reports.
 #audit_axioms integral_shellLaw_streamField_mul_coord
 #audit_axioms integral_shellLaw_streamField_mul_smaller
 #audit_axioms integral_shellLaw_prod_coord_pow
+
+/-! ## C3i: the three- and four-point functions of the reference law -/
+
+#audit_axioms shellLaw_eq_productGauss
+#audit_axioms integral_shellLaw_prod_coord
+#audit_axioms pairingSet_four
+#audit_axioms pairingProd01
+#audit_axioms pairingProd02
+#audit_axioms pairingProd03
+#audit_axioms wickSum_four
+#audit_axioms integral_pow_odd_blockUnit
+#audit_axioms exists_odd_card_fiber_three
+#audit_axioms integral_shellLaw_coord_three
+#audit_axioms integral_shellLaw_coord_four

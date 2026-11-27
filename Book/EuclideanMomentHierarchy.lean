@@ -616,9 +616,11 @@ exists_shellTailLaw_le       : ε > 0 -> ∃ M > 0, ∀ n, shellTailLaw n c d M 
 
 The last line is **tightness**: one threshold works at every scale, which is the analytic premise
 of Prokhorov's theorem for the sequence of laws of the renormalised observables. That is the
-first rung of the observable limit estimate (C3e) and no more: Prokhorov's theorem itself, a
-limiting law and any multi-point function are not proved here, and the renormalisation is the
-subtraction of the background rather than of an interacting divergence.
+first rung of the observable limit estimate (C3e) and no more: Prokhorov's theorem itself and a
+limiting law are not proved here, and the renormalisation is the subtraction of the background
+rather than of an interacting divergence. The multi-point functions that *are* proved later in
+this chapter (`integral_shellLaw_coord_three`, `integral_shellLaw_coord_four`) are moments of this
+reference law, not of any limit.
 
 The scalar sequence is not the only object that behaves this way. Replacing the renormalised
 observable by an affine image of it keeps every step intact: the last coordinate still carries the
@@ -688,8 +690,9 @@ the drift term is the whole of the field's correlation with the exterior coordin
 leaves the accumulated covariance `K_n` alone — the same scale-uniform object the small-field bound
 was built on. These integrals are taken by Fubini for integrable functions, with the domination
 `|S · p_last| <= (S^2 + p_last^2)/2`, which is stronger than the truncation the totals needed; what
-is *not* available is anything beyond the pair. The interior cross moments, the four-point function
-and any statement that the law is Gaussian remain outside.
+is *not* available here is anything beyond the pair. The interior cross moments, the cross-scale
+pairing and the four-point function are supplied below; any statement that the law is Gaussian
+remains outside.
 
 The pair computed above is a special case of a complete second-moment calculus. Distinct
 coordinates are uncorrelated and a coordinate has unit variance, so the coordinates behave, as far
@@ -706,10 +709,10 @@ integral_shellLaw_streamField_mul_linear : E[S_n (sum w_j p_j)] = sum streamCoef
 The coefficient vector is explicit: `c^j` on the interior coordinates and the running drift
 `c^n d` on the exterior one. So a two-point function costs an inner product, and the whole family of
 second moments of linear statistics — the field, the renormalised field, any affine image of
-either — is a computation rather than an estimate. What the calculus does *not* yet contain is the
-cross-scale pairing between two different numbers of scales, which needs the coefficient vector
-reindexed along the inclusion of the smaller shell, and the four-point function, for which the
-pairing of four coordinates is no longer an inner product.
+either — is a computation rather than an estimate. What the calculus does not contain at this
+point is the cross-scale pairing between two different numbers of scales, which needs the
+coefficient vector reindexed along the inclusion of the smaller shell, and the four-point function,
+for which the pairing of four coordinates is no longer an inner product; both are supplied below.
 
 A second moment is not the end of what the reference law computes. Two further statements are
 proved in the same module, and the second is a complete moment calculus.
@@ -743,9 +746,35 @@ one-dimensional moments. The four-point function is the case in which the expone
 supported on four coordinates: with multiplicities `2, 2` the product is `1`, with multiplicities
 `1, 1, 1, 1` it is `0`, and with a single multiplicity `4` it is `3`, which is the Wick sum
 `δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk` read through the pattern of equalities among the four indices.
-Turning that reading into a Lean statement about the four indices — a case analysis over the
-equality pattern — is what the module does *not* yet do; it proves the factorization, not the
-`δ`-form.
+
+That reading is also a proof, and it does not need a case analysis over the equality pattern. The
+reference law *is* Mathlib's product Gaussian, so Isserlis' theorem applies at the level of the
+sites: `integral_shellLaw_prod_coord` is the same factorization indexed by a tuple of coordinates,
+the product of one-dimensional moments is identified with the weighted pairing sum by
+`wickSum_identity_eq_prod_doubleFactorial`, and the pairing sum over four sites is a sum of exactly
+three terms, because `Fin 4` has three pairings — listed by `pairingSet_four` and evaluated by
+`wickSum_four`:
+
+```
+integral_shellLaw_coord_four :
+    E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk
+```
+
+The parity that kills the `1, 1, 1, 1` and `3, 1` patterns is also the three-point function. Three
+sites cannot all occur an even number of times — their multiplicities sum to `3` — so one factor of
+the multiplicity product is an odd power of a centred Gaussian, and `integral_pow_odd_blockUnit`
+says that factor is zero:
+
+```
+integral_shellLaw_coord_three :
+    E[p_i p_j p_k] = 0
+```
+
+What stays open is not these moments but their converse. `integral_shellLaw_coord_four` is
+Isserlis' theorem for the covariance `1`: it computes the four-point function of *this* law, and
+nothing in the module shows that a law with these three- and four-point functions is Gaussian, or
+computes a cumulant, a connected correlation, or any moment above the fourth. So Gaussianity as a
+property of a limit law is still unproved; only its first few consequences are.
 
 Two honest qualifications belong here rather than in a footnote. First, the flow is a
 _weight_, not a renormalisation: `streamField` multiplies by `c`, the law is still a product of

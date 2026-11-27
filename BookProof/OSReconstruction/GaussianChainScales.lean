@@ -1,4 +1,5 @@
 import BookProof.OSReconstruction.GaussianBlockCoarseDensity
+import BookProof.OSReconstruction.GaussianMoments
 
 /-!
 # The block step through arbitrarily many scales
@@ -76,7 +77,15 @@ scale-indexed:
 * `shellTailLaw_le`, `shellTailLaw_le_inv` — **Chebyshev at the level of the law**, and its
   scale-uniform form `≤ 1/((1 − c²)M²)` when `c² < 1`;
 * `exists_shellTailLaw_le` — **tightness of the renormalised observables**: for every `ε > 0`
-  there is a threshold `M > 0` with `shellTailLaw n c d M ≤ ε` at *every* number of scales `n`.
+  there is a threshold `M > 0` with `shellTailLaw n c d M ≤ ε` at *every* number of scales `n`;
+* `shellLaw_eq_productGauss`, `integral_shellLaw_prod_coord` — the reference law is the product
+  Gaussian of `GaussianMoments`, and the multiplicity factorisation read at a tuple of sites;
+* `exists_odd_card_fiber_three`, `integral_pow_odd_blockUnit`, `integral_shellLaw_coord_three` —
+  **the three-point function vanishes**, because three sites cannot all occur an even number of
+  times;
+* `pairingSet_four`, `wickSum_four`, `integral_shellLaw_coord_four` — **the four-point function is
+  the sum over the three pairings**, `E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`,
+  by Isserlis' theorem on the product Gaussian.
 
 ## Boundary
 
@@ -101,8 +110,12 @@ scale-indexed:
   The tail bound is a second-moment (Chebyshev) estimate; there is still no bad-block entropy, no
   polymer expansion and no small-field/large-field *decomposition* of an interacting weight.  Its
   law-level form (`shellTailLaw_le_inv`, `exists_shellTailLaw_le`) is the tightness packet at the
-  end of this file, which starts C3e; no limiting law, correlation estimate or multi-point
-  function is proved.
+  end of this file, which starts C3e; no limiting law and no correlation estimate is proved.
+  The only multi-point functions here are those of the *reference* law
+  (`integral_shellLaw_coord_three`, `integral_shellLaw_coord_four`), and they are Isserlis for
+  independent unit Gaussians: they say nothing about the interacting theory, no cluster or
+  connected-correlation statement is derived from them, and they are moments, not a
+  characterisation of Gaussianity.
 * `shellDensity` is *defined* as the `n`-fold iterated partial integral: it integrates the first
   `n` coordinates at fixed value of the last one.  The **tower identity** `∫ y, shellDensity n f y
   ∂blockUnit = ∫ p, f p ∂shellLaw (n + 1)` *is* proved, but only for measurable **bounded**
@@ -180,12 +193,19 @@ scale-indexed:
 * The moment packet removes the pair restriction altogether in one step.
   `integral_shellLaw_prod_coord_pow` says every coordinate monomial factorises,
   `∫ ∏ i, (p i)^(e i) = ∏ i, ∫ z, z^(e i)`, by `integral_fintype_prod_eq_prod` on the product
-  law — no induction, no truncation and no domination.  The four-point function is the exponent
-  vector supported on four coordinates; its Wick form is then one-dimensional arithmetic on
-  multiplicities (`∫ z = 0`, `∫ z² = 1`, `∫ z³ = 0`, `∫ z⁴ = 3`) rather than an integral.  Still
-  open: that multiplicity case analysis (so the `δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk` form of the
-  four-point function is not yet a Lean statement), any three-point function, and any Gaussianity
-  statement.
+  law — no induction, no truncation and no domination.
+* The multi-point packet reads that factorisation at the *sites*.  `shellLaw_eq_productGauss`
+  identifies the reference law with the product Gaussian of `GaussianMoments`, where Isserlis'
+  theorem lives; `integral_shellLaw_prod_coord` is the multiplicity factorisation indexed by a
+  tuple of sites rather than by an exponent vector.  Two moments follow.  The three-point function
+  vanishes (`integral_shellLaw_coord_three`): the multiplicities of three sites sum to `3`, so one
+  of them is odd, and `integral_pow_odd_blockUnit` kills that factor.  The four-point function is
+  Isserlis' four-point theorem (`integral_shellLaw_coord_four`):
+  `E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`, obtained by identifying the multiplicity
+  product with the pairing sum (`wickSum_identity_eq_prod_doubleFactorial`) and evaluating that sum
+  on the three pairings of `Fin 4` (`pairingSet_four`, `wickSum_four`).  Still open: any
+  Gaussianity statement (nothing here shows the moments force a Gaussian law), and every moment
+  beyond the fourth.
 -/
 
 namespace BookProof.OSReconstruction
@@ -2240,6 +2260,170 @@ theorem integral_shellLaw_prod_coord_pow (m : ℕ) (e : Fin m → ℕ) :
   have h := integral_fintype_prod_eq_prod (μ := fun _ : Fin m => blockUnit)
     (f := fun i z => z ^ (e i))
   simpa only [shellLaw] using h
+
+/-! ## The three- and four-point functions of the reference law
+
+`shellLaw m` *is* Mathlib's product Gaussian on `Fin m → ℝ`, read through `blockUnit`, so Isserlis'
+theorem on that product (`GaussianMoments`) computes every higher moment of the reference law.  This
+section makes the two computations the Gaussianity statements of the plan ask for.
+
+* `integral_shellLaw_prod_coord` — the multiplicity factorisation indexed by *sites*: a product of
+  `M` coordinate values integrates to the product, over sites, of the one-dimensional moments of the
+  multiplicities.  `integral_shellLaw_prod_coord_pow` above is the same statement written with an
+  exponent vector instead of a tuple of indices.
+* `integral_shellLaw_coord_three` — the three-point function vanishes: three sites cannot all occur
+  an even number of times, so some factor is the integral of an odd power.
+* `integral_shellLaw_coord_four` — the four-point function is the sum over the three pairings,
+  `δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`.  The derivation runs through the multiplicity product: the
+  product of one-dimensional moments is identified with the pairing sum by
+  `wickSum_identity_eq_prod_doubleFactorial`, and the pairing sum over four sites is evaluated by
+  listing the three pairings of `Fin 4` (`pairingSet_four`, then `wickSum_four`).
+
+**Boundary.** These are the moments of *this* reference law.  `integral_shellLaw_coord_four` is
+Isserlis' theorem for the covariance `1`, not a Gaussianity criterion: nothing here says a law with
+these three- and four-point functions is Gaussian, and no five- or higher-point function, cumulant
+or connected correlation is computed.  The multiplicities are discharged by `decide` on the
+concrete index types `Fin 3` and `Fin 4`; the general-`M` Wick recursion lives in `GaussianMoments`
+and is not restated on `shellLaw`.
+-/
+
+/-- The reference law is the product Gaussian of `GaussianMoments`: the same `Measure.pi` of `m`
+independent unit Gaussians, with `blockUnit` unfolded. -/
+theorem shellLaw_eq_productGauss (m : ℕ) : shellLaw m = productGauss (Fin m) := rfl
+
+/-- **The multiplicity factorisation, indexed by sites**: the moment of a product of `M` coordinate
+values is the product, over sites, of the one-dimensional moments of the multiplicities. -/
+theorem integral_shellLaw_prod_coord {m M : ℕ} (f : Fin M → Fin m) :
+    ∫ p : Fin m → ℝ, ∏ t, p (f t) ∂shellLaw m
+      = ∏ a, ∫ z, z ^ (Fintype.card {t : Fin M // f t = a}) ∂blockUnit := by
+  rw [shellLaw_eq_productGauss]
+  simpa only [blockUnit] using integral_prod_coord_productGauss (ι := Fin m) (m := M) f
+
+/-- The pairing `(0 1)(2 3)` of four sites. -/
+def pairingSwap01 : Equiv.Perm (Fin 4) := Equiv.swap 0 1 * Equiv.swap 2 3
+
+/-- The pairing `(0 2)(1 3)` of four sites. -/
+def pairingSwap02 : Equiv.Perm (Fin 4) := Equiv.swap 0 2 * Equiv.swap 1 3
+
+/-- The pairing `(0 3)(1 2)` of four sites. -/
+def pairingSwap03 : Equiv.Perm (Fin 4) := Equiv.swap 0 3 * Equiv.swap 1 2
+
+/-- **The pairings of four sites, listed**: the three ways to split `{0, 1, 2, 3}` into two pairs.
+This is what turns the pairing sum into the three contractions of Isserlis' four-point theorem. -/
+theorem pairingSet_four :
+    pairingSet (Finset.univ : Finset (Fin 4))
+      = {pairingSwap01, pairingSwap02, pairingSwap03} := by
+  decide
+
+/-- The pairing `(0 1)(2 3)` contributes the contraction `c 0 1 * c 2 3`. -/
+theorem pairingProd01 (c : Fin 4 → Fin 4 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 4 => x < pairingSwap01 x), c x (pairingSwap01 x))
+      = c 0 1 * c 2 3 := by
+  rw [show Finset.univ.filter (fun x : Fin 4 => x < pairingSwap01 x) = {0, 2} from by decide]
+  have h0 : pairingSwap01 0 = 1 := by decide
+  have h2 : pairingSwap01 2 = 3 := by decide
+  simp [h0, h2]
+
+/-- The pairing `(0 2)(1 3)` contributes the contraction `c 0 2 * c 1 3`. -/
+theorem pairingProd02 (c : Fin 4 → Fin 4 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 4 => x < pairingSwap02 x), c x (pairingSwap02 x))
+      = c 0 2 * c 1 3 := by
+  rw [show Finset.univ.filter (fun x : Fin 4 => x < pairingSwap02 x) = {0, 1} from by decide]
+  have h0 : pairingSwap02 0 = 2 := by decide
+  have h1 : pairingSwap02 1 = 3 := by decide
+  simp [h0, h1]
+
+/-- The pairing `(0 3)(1 2)` contributes the contraction `c 0 3 * c 1 2`. -/
+theorem pairingProd03 (c : Fin 4 → Fin 4 → ℝ) :
+    (∏ x ∈ Finset.univ.filter (fun x : Fin 4 => x < pairingSwap03 x), c x (pairingSwap03 x))
+      = c 0 3 * c 1 2 := by
+  rw [show Finset.univ.filter (fun x : Fin 4 => x < pairingSwap03 x) = {0, 1} from by decide]
+  have h0 : pairingSwap03 0 = 3 := by decide
+  have h1 : pairingSwap03 1 = 2 := by decide
+  simp [h0, h1]
+
+/-- **Isserlis' four-point sum, evaluated**: over four sites the weighted pairing sum is
+`c 0 1 * c 2 3 + c 0 2 * c 1 3 + c 0 3 * c 1 2`. -/
+theorem wickSum_four (c : Fin 4 → Fin 4 → ℝ) :
+    wickSum c (Finset.univ : Finset (Fin 4))
+      = c 0 1 * c 2 3 + c 0 2 * c 1 3 + c 0 3 * c 1 2 := by
+  rw [wickSum, pairingSet_four, Finset.sum_insert (by decide), Finset.sum_insert (by decide),
+    Finset.sum_singleton, pairingProd01, pairingProd02, pairingProd03]
+  ring
+
+/-- An odd power of a centred Gaussian has zero integral: this is the parity half of the
+multiplicity factorisation, `∫ z z^n = 0` for odd `n`. -/
+theorem integral_pow_odd_blockUnit {n : ℕ} (hn : Odd n) : ∫ z, z ^ n ∂blockUnit = 0 := by
+  have h := integral_pow_gaussianReal_one_moment n
+  rw [show ∫ z : ℝ, z ^ n ∂blockUnit = ∫ z : ℝ, z ^ n ∂(gaussianReal 0 1) from rfl, h,
+    if_neg (by rintro ⟨b, hb⟩; obtain ⟨a, ha⟩ := hn; omega)]
+
+/-- **Three sites cannot all occur an even number of times**: the multiplicities sum to `3`, so one
+of them is odd. -/
+theorem exists_odd_card_fiber_three {m : ℕ} (f : Fin 3 → Fin m) :
+    ∃ a, Odd (Fintype.card {t : Fin 3 // f t = a}) := by
+  classical
+  by_contra h
+  have hall : ∀ a : Fin m, Even (Fintype.card {t : Fin 3 // f t = a}) := by
+    intro a
+    rcases Nat.even_or_odd (Fintype.card {t : Fin 3 // f t = a}) with he | ho
+    · exact he
+    · exact (h ⟨a, ho⟩).elim
+  have hsum : ∑ a : Fin m, Fintype.card {t : Fin 3 // f t = a} = 3 := by
+    have hfib := Finset.sum_fiberwise (Finset.univ : Finset (Fin 3)) f (fun _ => (1 : ℕ))
+    simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, smul_eq_mul, mul_one] at hfib
+    calc ∑ a : Fin m, Fintype.card {t : Fin 3 // f t = a}
+        = ∑ a : Fin m, (Finset.univ.filter (fun t : Fin 3 => f t = a)).card :=
+          Finset.sum_congr rfl fun a _ => Fintype.card_subtype _
+      _ = 3 := hfib
+  exact (by rw [hsum]; norm_num : ¬ Even (∑ a : Fin m,
+    Fintype.card {t : Fin 3 // f t = a})) (Finset.even_sum _ fun a _ => hall a)
+
+/-- **The three-point function vanishes**: with three coordinates some site is used an odd number
+of times, and the corresponding one-dimensional moment — the integral of an odd power — is zero.
+This is the parity half of the multiplicity factorisation, read at three sites. -/
+theorem integral_shellLaw_coord_three (m : ℕ) (i j k : Fin m) :
+    ∫ p : Fin m → ℝ, p i * p j * p k ∂shellLaw m = 0 := by
+  classical
+  set g : Fin 3 → Fin m := ![i, j, k] with hg
+  have hprod : ∀ p : Fin m → ℝ, p i * p j * p k = ∏ t, p (g t) := by
+    intro p
+    rw [Fin.prod_univ_three]
+    simp [g]
+  rw [show (∫ p : Fin m → ℝ, p i * p j * p k ∂shellLaw m)
+      = ∫ p : Fin m → ℝ, ∏ t, p (g t) ∂shellLaw m from
+    integral_congr_ae (Eventually.of_forall hprod), integral_shellLaw_prod_coord g]
+  obtain ⟨a, ha⟩ := exists_odd_card_fiber_three g
+  exact Finset.prod_eq_zero (Finset.mem_univ a) (integral_pow_odd_blockUnit ha)
+
+/-- **The four-point function**: `E[p_i p_j p_k p_l] = δ_ij δ_kl + δ_ik δ_jl + δ_il δ_jk`.
+
+The multiplicity factorisation turns the moment into the product of the one-dimensional moments of
+the four multiplicities; `wickSum_identity_eq_prod_doubleFactorial` identifies that product with the
+weighted pairing sum, and `wickSum_four` evaluates the sum over the three pairings of `Fin 4`, each
+pairing contributing the product of the two contractions. -/
+theorem integral_shellLaw_coord_four (m : ℕ) (i j k l : Fin m) :
+    ∫ p : Fin m → ℝ, p i * p j * p k * p l ∂shellLaw m
+      = (if i = j then 1 else 0) * (if k = l then 1 else 0)
+        + (if i = k then 1 else 0) * (if j = l then 1 else 0)
+        + (if i = l then 1 else 0) * (if j = k then 1 else 0) := by
+  classical
+  set g : Fin 4 → Fin m := ![i, j, k, l] with hg
+  have hprod : ∀ p : Fin m → ℝ, p i * p j * p k * p l = ∏ t, p (g t) := by
+    intro p
+    rw [Fin.prod_univ_four]
+    simp [g]
+  rw [show (∫ p : Fin m → ℝ, p i * p j * p k * p l ∂shellLaw m)
+      = ∫ p : Fin m → ℝ, ∏ t, p (g t) ∂shellLaw m from
+    integral_congr_ae (Eventually.of_forall hprod), integral_shellLaw_prod_coord g]
+  rw [show (∏ a, ∫ z, z ^ (Fintype.card {t : Fin 4 // g t = a}) ∂blockUnit)
+      = ∏ a, if Even (Fintype.card {t : Fin 4 // g t = a})
+          then (Nat.doubleFactorial (Fintype.card {t : Fin 4 // g t = a} - 1) : ℝ) else 0 from
+    Finset.prod_congr rfl fun a _ => by
+      simpa only [blockUnit] using integral_pow_gaussianReal_one_moment
+        (Fintype.card {t : Fin 4 // g t = a})]
+  rw [← wickSum_identity_eq_prod_doubleFactorial g, wickSum_four]
+  simp [g]
 
 end BookProof.OSReconstruction
 
