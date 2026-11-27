@@ -133,6 +133,28 @@ theorem charge_vacuum (t : Fin d → ℝ) (m : Fin d → Fin d → ℝ)
   intros
   ring
 
+/-- A single restored longitudinal coordinate in a unit-variance chart creates
+one first-Hermite excitation. Its norm relative to the seed is |t|/2. -/
+theorem single_translation_vacuum_norm (j : Fin d) (t : ℝ) (m : Fin d → Fin d → ℝ)
+    (hm : ∀ i k, m i k = -m k i) :
+    ‖pgLp (charge (Pi.single j t) m 1)‖ = |t| / 2 * ‖pgLp (1 : Poly d)‖ := by
+  classical
+  have hi : inner ℂ (pgLp (X j : Poly d)) (pgLp (X j)) =
+      inner ℂ (pgLp (1 : Poly d)) (pgLp 1) := by
+    simp only [inner_pgLp_pgLp, starP_X]
+    rw [← gaussInt_pderiv, pderiv_X_self]
+    simp [starP]
+  have hn : ‖pgLp (X j : Poly d)‖^2 = ‖pgLp (1 : Poly d)‖^2 := by
+    rw [← inner_self_eq_norm_sq (𝕜 := ℂ), ← inner_self_eq_norm_sq (𝕜 := ℂ), hi]
+  have he := (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).mp hn
+  rw [charge_vacuum _ _ hm]
+  have hsum : (∑ k, (C ((Pi.single j t : Fin d → ℝ) k : ℂ) : Poly d) * X k) = C (t : ℂ) * X j := by
+    simp [Pi.single_apply, apply_ite, ite_mul]
+  rw [hsum, ← smul_eq_C_mul, ← pgMap_apply, map_smul, map_smul, pgMap_apply, norm_smul,
+    norm_smul, he]
+  simp [Complex.norm_real, Real.norm_eq_abs]
+  ring
+
 section SchwartzCoefficients
 
 open MeasureTheory SchwartzMap LineDeriv

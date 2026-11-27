@@ -54,6 +54,14 @@ nested-Fock Hamiltonian and state produce that selected hierarchy.
    [Generator on differentiable orbits](BookProof/OSReconstruction/ChapterGeneratorTransport.lean) ·
    [Spectral work order](softmodes.md)
 
+For the first proposed Wilson insertion, also evaluate its nested representative
+after a spatially varying colour rotation. The November 27 packet calculation
+exhibits the failure of a magnetic half square computed with a constant projected
+rotation. On the exact local orbit the spatial derivative of the colour angle
+restores covariance. Use that identity when checking gauge invariance of a
+candidate positive-time word; its agreement at one gauge representative alone
+cannot establish the insertion dictionary. [Local gauge-orbit calculation](softmodes.md)
+
 ## Path-integral–Hamiltonian equivalence in the nested Fock / Mehler / SIRK formalism (2026-11-24)
 
 **Strategy update.** This section updates the forward execution plan to follow the two-part
