@@ -1,6 +1,195 @@
 # pCNL: Mehler operators, nested Fock representations and convergence certificates
 
+## Active work order: data/RL satisficing pCNL, intra-basin SWA, and inter-basin distillation · 2026-11-27
+
+This section supersedes the `2026-11-20` work order, the R12 signed-rotation priority, and
+the `2026-11-15` R9/Edge0-RLCD requirement as the active reading guide. Earlier dated sections
+remain preserved below as historical detail, and the mathematical machinery of Q0–Q6 and T0–T5
+remains reusable inside the active **S0–S6** proof packets below.
+
+This revision inspects Lean source (`timepiece` `58642e7`), Rust source and recorded logs
+(`../unfer` `a53714f`), and documentation (`../test` `454bb7a`); it runs no new Lean build or
+numerical experiment and claims no newly proved theorem.
+[R14 research plan](../unfer/pcnl/RESEARCH_PLAN.md) ·
+[R14 development plan](../unfer/pcnl/DEVELOPMENT_PLAN.md) ·
+[Results ledger](../unfer/docs/PCNL_STATUS.md) ·
+[nGPT documentation](../test/unfer/ngpt.md)
+
+Use **U** (unconditional within its stated model), **C** (conditional / proposed target),
+**N** (negative result or obstruction), and **B** (scope boundary).
+
+### Track disposition and retirement of RLCD
+
+- **Retired (2026-11-25) — R9 / Edge0-RLCD:**
+  [EDGE0_RLCD_PLAN.md](../unfer/pcnl/EDGE0_RLCD_PLAN.md) and `../unfer/pcnl/src/edge0_*.rs`
+  are frozen and no longer pursued. By explicit project direction, no likelihood or penalty
+  uses Edge0 latent-MoE or four-path REINFORCE Brier U-statistics; empirically, RLCD trailed
+  the supervised CE+Brier comparator (`+0.00223 ± 0.00184` Brier excess across 5 seeds;
+  `+0.00096 ± 0.00020` in the six-arm state-gate follow-up). Do not schedule Lean proofs for
+  Edge0 four-path RLCD identities.
+- **Deprioritized / historical — R12 signed rotation head:**
+  `../unfer/pcnl/src/rotation_head.rs` (Born $\cos^2(t)$ likelihood) remains recorded
+  evidence only. On 20 Newsgroups, its 32k preconditioned pilot accepted 57,523 of 64,000
+  proposals yet left predictive $\hat{R} = 1.152$ and parameter $\hat{R} = 2.125$; the
+  4-chain raw probe had pooled TV `0.0336` masking row-level TV `0.3476`; parallel
+  tempering reversed across seeds. It is no longer the primary Lean proof target.
+- **Active likelihood contract:** Target potentials derive exclusively from **(a)** a
+  supervised data loss $L_{\text{data}}(\theta) \ge 0$ (regression MSE / Gaussian NLL or
+  classification cross-entropy), or **(b)** a differentiable reinforcement-learning training
+  penalty $L_{\text{RL}}(\theta) \ge 0$ (behavior-regularized offline RL loss, Bellman/TD
+  residual, or differentiable policy-gradient surrogate on `../unfer/pcnl/src/mdp.rs` and
+  `../unfer/pcnl/src/policy_model.rs`).
+
+### Present formalization and empirical status (2026-11-27)
+
+| Source | Verified current state (`58642e7` / `a53714f` / `454bb7a`) | Scope / implication for active plan |
+|---|---|---|
+| **Lean `BookProof/MCMC/`** (27 modules, `sorry`-free) | **U:** Scalar Gaussian pCN operator, complete Hermite eigenbasis ($\rho^n$), sharp gap $1-|\rho|$, compactness, spectrum $\{0\}\cup\{\rho^n\}$, resolvent series, and bounded-deviation TV convergence (`gaussianPCN_spectral_theorem`, `isCompactOperator_gaussianPCNOp`, `spectrum_gaussianPCNOp_eq_insert_zero`, `gaussianPCN_tv_geometric_convergence_of_bounded`) in [KernelContract.lean](BookProof/MCMC/KernelContract.lean), [LpKernelOperator.lean](BookProof/MCMC/LpKernelOperator.lean), [GaussianPCNGap.lean](BookProof/MCMC/GaussianPCNGap.lean). | Reusable reference kernel and $L^2(\pi)$ contraction machinery for product and Doeblin extensions (`S1`, `S6`). |
+| **Lean SG-pCNL & Floor** | **U:** Exact unadjusted AR mean bias `b(1+ρ)/2` vs posterior `b` and unstable quadratic canary in [GaussianARBenchmark.lean](BookProof/MCMC/GaussianARBenchmark.lean), [GaussianARIterated.lean](BookProof/MCMC/GaussianARIterated.lean); box/floor MH-pCN stationarity, normalized probability target, `pcnPriorMass_gaussLike_eq`, conditional rate `pcnAbsorbingStep_rate_prob`, and **N** obstruction `pcnBallConst_no_uniform_floor` in [PCNGaussianFloor.lean](BookProof/MCMC/PCNGaussianFloor.lean); finite-state Doeblin contraction in [PositivityCone.lean](BookProof/MCMC/PositivityCone.lean). | Rules out naive global box minorization and confirms unadjusted bias must be priced (`S6`) and intra-basin AR variance controlled (`S2`). |
+| **Lean Core & Geometry** | **U:** Polynomial ladder/core bounds, conjugate Rayleigh equivalence, and geometric-ergodicity receivers in [FockLangevinOperator.lean](BookProof/MCMC/FockLangevinOperator.lean), [GroundStateConjugation.lean](BookProof/MCMC/GroundStateConjugation.lean), [GeometricErgodicity.lean](BookProof/MCMC/GeometricErgodicity.lean), [ConvergenceTheorem.lean](BookProof/MCMC/ConvergenceTheorem.lean); architecture estimates `scaleInvariant_gradient_orthogonal`, `sphereProj_deriv_opNorm_le` in [ScaleInvariance.lean](BayesianTransformer/Analysis/ScaleInvariance.lean), [SphereProj.lean](BayesianTransformer/Analysis/SphereProj.lean), [NGPTArchitecture.lean](BayesianTransformer/Transformer/NGPTArchitecture.lean). | **B:** None establish a nonlinear transformer posterior gap. Provides architectural regularity and convergence receivers once a concrete gap is supplied. |
+| **Rust `../unfer/pcnl` R13 gates** | **U (measured):** Exact mixing passes on 1-D unequal mixture (`known_target.rs`: $\hat{R}\le 1.0055$, bulk ESS $\ge 1148$, left mass `0.7338` vs `0.7386`) and 34-dim `ReadoutTarget` (HMC $\hat{R}=1.00935$, bulk ESS `3000.0`, tail `906.4`; exact-dense CN $\hat{R}=1.00616\to 1.00274$, ESS `620.9 → 3920.6`). CI-gated by `logs/pcnl_r13_gates/` and `scripts/check-pcnl-gates`. | Validates the MH/CN/HMC mechanics on low-dim and conditional posteriors; exposes the full-network sharp-Gibbs wall below. |
+| **Rust R13 `0.158` coverage & 57k wall** | **N (measured, 2026-11-23..25):** Full 57,378-dim sharp Gibbs stalls across HMC, pilot/hessdiag/lowrank-32, PT (`0–1/240` swaps at $\Delta U \approx 6\times 10^3\text{–}10^4$), and hit-and-run ($\hat{R}\in[2.01,3.03]$, ESS `4.5–5.3`). Readout 90% test coverage is `0.158` (`38/240`) despite `480/480` train coverage because full-convergence Adam memorized train (`0.000286` vs test `0.099276`, $\sigma=0.05$). | Directly motivates R14 (2026-11-25): abandon $T\to 0$ memorization and $O(10^4)$ sharp Gibbs for a bounded-energy satisficing plateau / knee floor. |
+| **Rust multimodality & R14 pivot** | **U (measured):** After fixing inert $W_q/W_k$ via `init_flat_prior` (`--start-scale prior`), `vector_basins.rs` finds distinct basins of comparable test RMSE (`0.070–0.087`) at relative distance `1.92–2.21`; `vector_stream.rs` retains prior blocks (`0.002–0.003` vs reset `0.18–0.28`). Active R14 specifies $\Phi_{\tau,\kappa,\alpha}$ (`P0–P7`). | Empirical basis for multi-basin resampling (`Stage 4`) and satisficing diffusion (`Stage 2`). |
+| **Docs `../test/unfer/ngpt.md`** | **2026-11-22..24:** Exact basin-mass odds $\pi_T(B_1)/\pi_T(B_2)$, optimizer-endpoint vs Gibbs distinction, anisotropic quadratic SGD counterexample (`1:9` noise ratio matches no scalar Gibbs law), Maurer PAC-Bayes Gaussian-mixture bound, SWA, ReLU permutation barrier, and squared-error distillation ambiguity identity. | Supplies the analytical statements targeted by `S2`, `S3`, and `S4`. |
+
+### The five-stage pipeline and its mathematical boundaries
+
+The active learning and inference architecture combines R14's satisficing basin target with
+intra-basin SWA and inter-basin posterior distillation to capture multi-basin Bayesian
+uncertainty at $1\times$ single-model serving cost:
+
+| Stage | Operation | Loss-landscape / Bayesian role | Mathematical status & boundary (`U`/`C`/`N`/`B`) |
+|---|---|---|---|
+| **1. Architecture** | Deep & narrow normalized transformer (`vector_model.rs`, `model.rs`, `policy_model.rs`) with `init_flat_prior` | Keeps $W_q/W_k$ active (`--start-scale prior`) and fixes prior parameterization $P_0 = N(m,C)$ | **C/B:** Prior skew toward wide hierarchical macro-basins is an empirical hypothesis, not an axiom; flatness alone does not prove generalization without specifying $P_0$ (Dinh et al.). |
+| **2. Knee / Satisficing Floor ($T > 0$)** | Halt warm entry at first entry into $\{L \le \tau\}$ (or slowdown knee); sample/diffuse under $\Phi_{\tau,\kappa,\alpha}$ | Avoids $T\to 0$ memorization (`0.158` coverage failure); keeps energy $O(1)\text{–}O(10)$ so $P_0$ weights wide plateau volume | **U (`S0`):** $\Phi_{\tau,\kappa,\alpha}\ge 0$ defines a proper target $0 < Z \le 1$. **N/B:** Constant-LR SGD is *not* isotropic scalar-temperature Langevin (`1:9` anisotropic noise obstruction); plain SGD knee stops sample an optimizer-endpoint distribution, whereas explicit-noise pCNL/SGLD targets $\pi_{\tau,\kappa,\alpha}$. |
+| **3. Intra-Basin Compression (SWA)** | Average checkpoints $\theta_{\text{SWA}} = K^{-1}\sum_{k=1}^K \theta_k$ along a single connected flat floor at constant $\eta$ ($T>0$) | Cancels thermal edge-bouncing and centers weights in the wide floor at $1\times$ inference cost | **U (`S2`):** Valid on convex floors and quadratic basins (variance $\le \frac{2-\gamma}{K\gamma}\operatorname{Tr}\Sigma$). **B/N:** Nonlinear transformer curvature can separate $f_{\theta_{\text{SWA}}}(x)$ from $K^{-1}\sum f_{\theta_k}(x)$; report straight-line barriers and compare weight mean vs output mean. Unaligned inter-basin averages fail across barriers (Git Re-Basin is a gated comparator only). |
+| **4. Inter-Basin Resampling** | Restart $M$ independent `init_flat_prior` runs to the knee / floor + within-basin pCNL (optionally SWA-centered) | Captures distinct functional abstraction modes $\{\theta_1,\dots,\theta_M\}$ across separated basins (`vector_basins.rs`) | **B:** Independent local chains in 57k dims do *not* certify global multi-basin equilibrium weights $\pi(B_m)\propto\int_{B_m} e^{-\Phi}dP_0$; exact equilibrium mass recovery is certified separately on low-dim plateau-vs-spike targets with prior-refresh MH-pCNL ($r>0$). |
+| **5. Inter-Basin Distillation** | Form $p_{\text{ens}}(y\mid x) = M^{-1}\sum_{m=1}^M p(y\mid x,\theta_m)$ (or mean+spread for vectors) and train $\theta_{\text{student}}$ via KL minimization | Transfers "dark knowledge" (multi-basin epistemic uncertainty) and blocks sharp $0/1$ memorization at $1\times$ serving latency | **U (`S4`, `S5`):** KL minimum occurs uniquely at $p_{\text{ens}}$; entropy gap equals mean KL to $p_{\text{ens}}$; finite-horizon RL return error bounds via Pinsker. **B:** Transfers only on the transfer input support (OOD can diverge); mean-only vector distillation collapses spread (`+v`/`-v` $\to 0$) unless a spread head is also fit; continual updates must retain evidence prefixes and original ensemble/chain state. |
+
+For Stage 2, given a declared nonnegative supervised data loss or differentiable RL penalty
+$L(\theta) \ge 0$, proper prior $P_0 = N(m, C)$, ceiling $\tau > 0$, confinement $\kappa > 0$,
+smoothing $\delta > 0$, and gentle tilt $0 \le \alpha \ll \kappa$, the satisficing potential and
+target are:
+
+$$\Phi_{\tau,\kappa,\alpha}(\theta) = \kappa\,\psi_\delta\big(L(\theta) - \tau\big) + \alpha\,L(\theta),\qquad
+\pi_{\tau,\kappa,\alpha}(d\theta) = Z^{-1}\exp\!\big[-\Phi_{\tau,\kappa,\alpha}(\theta)\big]\,P_0(d\theta),$$
+
+with $\psi_\delta$ either softplus $\delta\log(1+e^{u/\delta})$ or $C^1$ Huberized
+$\frac{1}{2}\max(0,u)^2$.
+
+### Lean 4 formalization packets S0–S6 (active proof order)
+
+Execute **S0 → S1 → S2 → S3 → S4 → S5 → S6** under `BookProof/MCMC/`. Every module must build
+`sorry`-free under `lake build` and pass `scripts/axiom-audit` (`propext`, `Classical.choice`,
+`Quot.sound` only). Keep Q6 (SIRK / Fock spectral certificates) optional and off the critical path.
+
+1. **S0 (`BookProof/MCMC/SatisficingTarget.lean`) — Satisficing potential & plateau-vs-spike odds:**
+   - Define softplus and $C^1$ Huberized $\psi_\delta$, $\Phi_{\tau,\kappa,\alpha}$, and
+     $\pi_{\tau,\kappa,\alpha}$ for nonnegative measurable $L$ (data loss or RL penalty).
+   - Prove $\Phi_{\tau,\kappa,\alpha} \ge 0$, $e^{-\Phi} \le 1$, proper-target normalization
+     $0 < Z \le 1$ when $\{L < \infty\}$ has positive $P_0$-measure, and explicit lower bound
+     $Z \ge P_0(A)\exp(-\sup_A \Phi)$.
+   - Prove the plateau-vs-spike odds bound
+     $\pi_T(B_{\text{plat}})/\pi_T(B_{\text{spike}}) \ge (P_0(B_{\text{plat}})/P_0(B_{\text{spike}}))\exp(-(\phi_1-\phi_2)/T)$
+     and the exact Huberized $\alpha=0$ specialization where odds inside $\{L \le \tau\}$ equal
+     the pure prior-volume ratio $P_0(B_{\text{plat}})/P_0(B_{\text{spike}})$.
+   - Prove the chain-rule gradient $\nabla\Phi_{\tau,\kappa,\alpha} = (\kappa\psi_\delta'(L-\tau)+\alpha)\nabla L$,
+     vanishing identically on $\{L < \tau\}$ for Huberized $\alpha=0$.
+2. **S1 (`BookProof/MCMC/PriorRefreshDoeblin.lean`, `BookProof/MCMC/GaussianProductGap.lean`) — Prior-refresh Doeblin & product gap (executes Q1 + Q2/T2/T3):**
+   - Prove independence-MH minorization $K_{\text{ind}}(x,\cdot) \ge (Z/M)\pi(\cdot)$ on
+     $\{L > 0\}$ (including the rejection atom), TV and centred $L^2(\pi)$ contraction $1-Z/M$,
+     and mixture contraction $c_\omega = \omega Z/M$ for $K_\omega = (1-\omega)K_{\text{local}} + \omega K_{\text{ind}}$.
+     Note explicitly how S0's $O(1)$ plateau avoids sharp Gibbs's $e^{-O(10^4)}$ collapse on
+     low-dimensional and product benchmarks.
+   - Lift [GaussianPCNGap.lean](BookProof/MCMC/GaussianPCNGap.lean) to product targets
+     $\pi_r \otimes \mu_n$ ($\Phi(z,w)=\Phi_r(z)$) with complement-dimension-independent absolute
+     gap $\min(\gamma_r, 1-|\rho|)$, and complete T3's bounded-oscillation lazy MH-pCN bound
+     $\frac{1}{2}e^{-B}(1-\rho)$.
+3. **S2 (`BookProof/MCMC/IntraBasinSWA.lean`) — Intra-basin SWA centering & obstructions:**
+   - **U (convex floor):** On any convex basin floor $U$ where $L$ is convex,
+     $\theta_{\text{SWA}} = K^{-1}\sum_{k=1}^K \theta_k \in U$ satisfies
+     $L(\theta_{\text{SWA}}) \le K^{-1}\sum L(\theta_k)$ and
+     $\Phi_{\tau,\kappa,\alpha}(\theta_{\text{SWA}}) \le K^{-1}\sum \Phi_{\tau,\kappa,\alpha}(\theta_k)$.
+   - **U (quadratic basin variance reduction):** Extending [GaussianARBenchmark.lean](BookProof/MCMC/GaussianARBenchmark.lean),
+     for a stationary reversible chain with absolute gap $\gamma > 0$ exploring a quadratic basin
+     at $T > 0$, prove $\mathbb{E}\|\theta_{\text{SWA}} - \theta^*\|^2 \le \frac{2-\gamma}{K\gamma}\operatorname{Tr}(\Sigma)$.
+   - **N (anisotropic SGD obstruction):** Formalize the 2-D isotropic-Hessian / 1:9-noise
+     quadratic counterexample showing constant-LR SGD stationary covariance $\frac{\eta}{2-\eta}V_B$
+     matches no scalar-temperature Gibbs law.
+   - **N (inter-basin barrier obstruction):** Formalize the 2-unit ReLU swap
+     $f(x)=\operatorname{ReLU}(x)-\operatorname{ReLU}(-x)=x$ whose unaligned midpoint
+     $\frac{1}{2}(\theta_A+\theta_B)$ collapses to $0$.
+4. **S3 (`BookProof/MCMC/PacBayesBasin.lean`) — PAC-Bayes & Gaussian-mixture KL bounds:**
+   - Prove the Gibbs variational identity
+     $\mathrm{KL}(Q\|\pi_T) = \mathrm{KL}(Q\|P_0) + \mathbb{E}_Q[U]/T + \log Z_T$.
+   - Prove exact basin conditioning cost $\mathrm{KL}(P_0|_A \| P_0) = -\log P_0(A)$.
+   - Prove mixture KL convexity $\mathrm{KL}(M^{-1}\sum_m Q_m \| P_0) \le M^{-1}\sum_m \mathrm{KL}(Q_m \| P_0)$
+     and exact diagonal-Gaussian KL matching `unfer/pcnl` P3.
+   - Prove Maurer/McAllester's finite-sample bound for bounded scores $b \in [0,1]$ on $N$ i.i.d.
+     examples (**B:** i.i.d. bounded score only).
+5. **S4 (`BookProof/MCMC/PosteriorDistillation.lean`) — Inter-basin KL distillation & ambiguity:**
+   - For finite-alphabet distributions $p_{\text{ens}}(y\mid x) = M^{-1}\sum_m p(y\mid x,\theta_m)$
+     and student $q(\cdot\mid x)$: prove $\mathrm{KL}(p_{\text{ens}}\|q) = H(p_{\text{ens}},q) - H(p_{\text{ens}}) \ge 0$
+     (unique minimizer $q=p_{\text{ens}}$), the dark-knowledge Jensen–Shannon identity
+     $$H(p_{\text{ens}}(\cdot\mid x)) - \frac{1}{M}\sum_{m=1}^M H(p(\cdot\mid x,\theta_m))
+       = \frac{1}{M}\sum_{m=1}^M \mathrm{KL}\big(p(\cdot\mid x,\theta_m)\,\|\,p_{\text{ens}}(\cdot\mid x)\big) \ge 0,$$
+     and Pinsker's inequality $\mathrm{TV}(p_{\text{ens}},q) \le \sqrt{\frac{1}{2}\mathrm{KL}(p_{\text{ens}}\|q)}$.
+   - For vector outputs: prove the exact squared-error ambiguity identity
+     $\|\bar f(x)-y\|^2 = M^{-1}\sum_m \|f_{\theta_m}(x)-y\|^2 - M^{-1}\sum_m \|f_{\theta_m}(x)-\bar f(x)\|^2$,
+     student triangle transfer, and the `+v`/`-v` mean-only variance-collapse counterexample.
+6. **S5 (`BookProof/MCMC/PolicyDistillationReturn.lean`) — Non-RLCD RL penalty & distilled return stability (upgrades Q5):**
+   - Prove the finite-horizon MDP coupling bound
+     $|V^{\pi_1} - V^{\pi_2}| \le \frac{1}{2} R_{\text{span}} H(H+1) \delta$ under uniform
+     action-TV error $\delta$.
+   - Combine with S4's Pinsker inequality to bound the distilled student's rollout return:
+     $$|V^{\pi_{\text{stu}}} - V^{\pi_{\text{ens}}}|
+       \le \frac{1}{2} R_{\text{span}}\, H(H+1)\sqrt{\tfrac{1}{2}\sup_{h,s}\mathrm{KL}\big(\pi_{\text{ens}}(\cdot\mid s_h)\,\|\,\pi_{\text{stu}}(\cdot\mid s_h)\big)}.$$
+   - **B:** Keep uniform reachability separate from off-policy average KL, keep return bounds
+     relative to $\pi_{\text{ens}}$ (not policy optimality), and keep per-step BMA, distilled
+     student, per-episode draw, and argmax policies distinct.
+7. **S6 (`BookProof/MCMC/PredictiveErrorFromGap.lean`, `BookProof/MCMC/ApproximateKernelError.lean`) — Correlated MC error & SG bias pricing (executes Q3/Q4/T5):**
+   - Prove stationary correlated variance bound
+     $\mathbb{E}\|\widehat F_N - \pi F\|^2 \le \frac{2-\gamma}{N\gamma}\operatorname{Tr}\Gamma_0$
+     and perturbation recurrences
+     $\|\nu_t - \pi\|_{\mathrm{TV}} \le (1-c)^t\|\nu_0-\pi\|_{\mathrm{TV}} + \sum_{j<t}(1-c)^{t-1-j}\varepsilon_j$
+     to price scalable unadjusted SG-pCNL (`../unfer/pcnl/src/sampler.rs`) against reference
+     MH-pCNL (`../unfer/pcnl/src/approx_pricing.rs`).
+
+### Cross-repository coordination and acceptance gates
+
+| Pipeline stage | Lean packet (`BookProof/MCMC/`) | Rust R14 packet (`../unfer/pcnl/`) | Docs & pedagogical counterpart |
+|---|---|---|---|
+| Stage 1 (Architecture) | `BayesianTransformer/` (`ScaleInvariance`, `SphereProj`, `NGPTArchitecture`) | `P0`/`P2` (`vector_model.rs`, `model.rs`, `policy_model.rs`, `init_flat_prior`) | [Book/BayesianTransformer.lean](Book/BayesianTransformer.lean) |
+| Stage 2 (Knee / $\Phi_{\tau,\kappa,\alpha}$) | `S0`, `S1`, `S6` | `P0`–`P2` (`target.rs`, `sampler.rs`, `approx_pricing.rs`) | [ngpt.md](../test/unfer/ngpt.md) §2–§4, §6.5 |
+| Stage 3 (Intra-basin SWA) | `S2`, `S3` | `P3`/`P4`/`P6` (online SWA + barrier & PAC-Bayes checks) | [ngpt.md](../test/unfer/ngpt.md) §"Averaging weights..." |
+| Stage 4 ($M$-basin resampling) | `S0`, `S1`, `S3` | `P1`, `P3`–`P5` (multi-start + functional rank, non-RLCD RL) | [ngpt.md](../test/unfer/ngpt.md) §"What temperature says..." |
+| Stage 5 (Distillation) | `S4`, `S5` | `P4`–`P6` (KL student for categorical/RL; mean+spread for vectors) | [ngpt.md](../test/unfer/ngpt.md) §"Averaging weights..." |
+
+- **Lean gate:** Each new `BookProof/MCMC/` module compiles with `lake build` and passes
+  `scripts/axiom-audit` with zero `sorry` and only standard axioms.
+- **Rust / numerical gates:** R14 `P1` plateau-vs-spike quadrature passes $\hat{R} < 1.01$,
+  bulk ESS $\ge 400$, and masses within MCSE; `P3` functional diversity / effective rank
+  catches permutation-copy ensembles (zero functional variance despite parameter distance);
+  SWA reports straight-line barrier checks and compares weight mean vs output mean; `P4`/`P5`
+  matched-compute comparisons evaluate **SWA** and the **distilled single student** alongside
+  the 6 R14 comparators (with paired intervals and trajectory-clustered SEs for non-RLCD RL
+  MDPs).
+
+> **Cross-repo sync note (for follow-up edits outside `timepiece`):**
+> 1. In `../unfer/pcnl/{RESEARCH_PLAN,DEVELOPMENT_PLAN}.md` (R14), elevate intra-basin SWA
+>    and inter-basin posterior distillation (KL distillation for categorical/RL policies;
+>    mean+spread distillation for vectors) from deferred `P6` notes into explicit `P4`/`P5`
+>    matched-compute deployment comparators, keeping RLCD retired and `P6` for gated
+>    heterogeneous architectures / Git Re-Basin / functional repulsion.
+> 2. In `../test/unfer/ngpt.md`, update the Reading Guide and §9 roadmap (which still cite R13
+>    and R9/RLCD in §9.3) to align with R14, the retirement of RLCD, the 2026-11-25 `0.158`
+>    memorization finding, and the unified five-stage SWA + distillation pipeline.
+
 ## Specialist work order and critical review · 2026-11-20
+
+> **Superseded (2026-11-27).** Superseded as the active work order by the `2026-11-27` section
+> above. R9/Edge0-RLCD is retired and R12 signed-rotation priority is demoted to historical
+> evidence; retain the mathematical observations below as background only.
 
 The sharp scalar Gaussian reference rate is now in Lean source. The highest-value
 open proof is to connect a *particular nonconstant likelihood*, its implemented
@@ -128,6 +317,11 @@ cost. [Core estimates](BookProof/MCMC/FockLangevinOperator.lean) ·
    under these controls, retain the project as a measured inference benchmark.
 
 ## Q0–Q7 programme: certify the target, the kernel and useful predictions (2026-11-15)
+
+> **Reading note (2026-11-27).** The mathematical machinery of Q0–Q6 remains reusable inside
+> active packets **S0–S6** above. The R9/Edge0-RLCD requirement in the paragraph below is
+> **retired** (2026-11-25); all likelihoods derive exclusively from supervised data loss or
+> non-RLCD differentiable RL penalties.
 
 These research packets supply the mathematical details for the specialist work order above.
 They refine T0–T5 and supersede older priorities that make a Fock drift bound the only missing

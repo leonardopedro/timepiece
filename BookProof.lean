@@ -829,6 +829,13 @@ import BookProof.MCMC.MehlerEigenfunction
 -- `Cₙ^{(λ)}(ρ)/Cₙ^{(λ)}(1)` (`pcnZonalEigen`), not `ρⁿ` (`pcnZonalEigen_two_ne_pow_two`,
 -- `d = 3`), and it tends to `ρⁿ` as `d → ∞` (`pcnZonalEigen_tendsto`).
 import BookProof.MCMC.GegenbauerEigenvalue
+
+-- Wave (`pcnl.md` S0): the satisficing potential `Φ_{τ,κ,α} = κ ψ(L−τ) + αL` for a nonnegative
+-- loss, its proper target (`0 < Z ≤ 1`, `satZ_pos_of_lower_bound`, `isProbabilityMeasure_satTarget`),
+-- the plateau-vs-spike odds bound (`plateau_odds_bound`) with the exact Huberised `α = 0`
+-- prior-ratio specialisation (`huber_odds_eq_prior_ratio`), and the chain rule with the vanishing
+-- gradient on the knee (`hasFDerivAt_satPot`, `huberPh_fderiv_eq_zero_of_le`).
+import BookProof.MCMC.SatisficingTarget
 import BookProof.Toolbox.PhysMehler
 
 -- Wave (2026-08-09, continuation of `PLAN_LEAN_SPECIALIST_COHERENT.md`): the
@@ -4289,6 +4296,7 @@ import BookProof.Phi4.ChapterScalarMomentumGap
 import BookProof.Phi4.ChapterScalarFourierIntegral
 import BookProof.Phi4.ChapterScalarMomRankTwo
 import BookProof.Phi4.ChapterScalarMomOrbit
+import BookProof.Phi4.ChapterScalarPacketForm
 import BookProof.Phi4.ChapterScalarOuter
 import BookProof.Phi4.ChapterScalarEnergy
 import BookProof.Phi4.ChapterScalarTwoSite
@@ -4901,10 +4909,11 @@ import BookProof.Sm.ChapterSmSectorFormDomain
 
 -- The Ultrafinitist Solovay–Mehler–Kopperman (`U-SMK`) theory: strictly finite dyadic
 -- Krawtchouk–Mehler tail, bounded deformed CCR resolving Wintner–Wielandt, resource-accounting
--- tensor product (no Hilbert's Hotel), polynomial-time rational Gram decidability, and
--- Mehler-damped effect logic resolving the Sorites and Parikh bounds.
+-- tensor product (no Hilbert's Hotel), polynomial-time rational Gram decidability,
+-- Mehler-damped effect logic resolving the Sorites and Parikh bounds, and ultrafinitist SIRK.
 import BookProof.Ultrafinitism.ChapterKrawtchoukTail
 import BookProof.Ultrafinitism.ChapterDeformedCCR
 import BookProof.Ultrafinitism.ChapterUltrafinitistTensor
 import BookProof.Ultrafinitism.ChapterMehlerFeasibility
 import BookProof.Ultrafinitism.ChapterGramPolyDecision
+import BookProof.Ultrafinitism.ChapterUltrafinitistSirk

@@ -19,6 +19,7 @@ import BookProof.Phi4.ChapterScalarMomentumGap
 import BookProof.Phi4.ChapterScalarFourierIntegral
 import BookProof.Phi4.ChapterScalarMomRankTwo
 import BookProof.Phi4.ChapterScalarMomOrbit
+import BookProof.Phi4.ChapterScalarPacketForm
 import BookProof.Phi4.ChapterScalarOuter
 import BookProof.Phi4.ChapterScalarEnergy
 import BookProof.Phi4.ChapterScalarWindows
@@ -298,3 +299,15 @@ import BookProof.RoadmapAudit.AxiomAudit
 #audit_axioms BookProof.Phi4.Model.cbosonicSectorOp_oneParticle
 #audit_axioms BookProof.Phi4.Model.outerHam_add_const
 #audit_axioms BookProof.Phi4.Model.outerHam_oneParticle_eq
+
+/-! ## `ChapterScalarPacketForm` -/
+
+#audit_axioms BookProof.Phi4.packetGram_isSymm
+#audit_axioms BookProof.Phi4.packetKinetic_comm
+#audit_axioms BookProof.Phi4.packetKineticMat_isSymm
+#audit_axioms BookProof.Phi4.packetGram_mul_packetDualKinetic
+#audit_axioms BookProof.Phi4.packetWall_isSymm
+#audit_axioms BookProof.Phi4.packetMixed_comm
+#audit_axioms BookProof.Phi4.packetMixed_eq_ordered_product
+#audit_axioms BookProof.Phi4.packetMixed_smul
+#audit_axioms BookProof.Phi4.packetNormalizedMixed_smul

@@ -40,6 +40,24 @@ symmetric operator commuting with a self-adjoint operator on a dense core can fa
 its domain preserved by the self-adjoint one.  So the module proves the graph argument in
 full and names the remaining density statement precisely; it does not pretend that
 `dom Ā ⊆ dom H̄` follows from what precedes it in the corpus.
+
+## The literal inclusion is false, and what replaces it
+
+`dom Ā ⊆ dom H̄` is not merely unproved here — it is false for an elliptic `H̄`.  The charge
+`𝒢_d = firstOrder (ymGaussVec G d)` is first order along the *linear* field `ymGaussVec`, so a
+rough radial function `f = ψ(|x|²)` with `ψ ∈ H¹ \\ H²` is annihilated by `𝒢_d` on smooth
+approximants and is therefore in `dom Ā`, while `f ∉ dom H̄` because `dom H̄` is the
+(`H²`-type) graph closure of the second-order `ymHamiltonian`.  So no proof of the inclusion
+exists, and none should be attempted.
+
+The statement the commutation argument actually consumes is the *graph-norm* one: every
+`y ∈ dom Ā` is the limit of Gauss core vectors `xₙ` with `H̄ xₙ` convergent.  That is
+exactly the joint-core hypothesis of `hamClosure_comm_gaussClosure_of_core_seq`, and the
+lemma `clDom_hamClosure_of_charge_graph_dense` records that this density input *implies* the
+inclusion, through `mem_hamClosure_domain_of_core_seq` (the closedness of the Hamiltonian's
+graph).  The analytic obligation is therefore neither the inclusion nor its negation, but the
+common-core density statement — an elliptic-regularity estimate for `H̄` on the charge's
+domain, which remains open.
 -/
 
 namespace BookProof.Qym.GaussHamiltonianDomain
@@ -128,6 +146,66 @@ theorem gaussClosure_bounded_preserves (G : GaugeAlgebra 8) (d : Fin 8)
         = S ((gaussPMap G d (coreRepPoly 99)).closure y) :=
   bounded_preserves_closure_domain (gaussPMap G d (coreRepPoly 99))
     (gaussPMap_polyGaussCore_isClosable G d) S hSmap hScomm y
+
+/-! ## The reduction: a common core is exactly what the inclusion needs
+
+The literal inclusion `dom Ā ⊆ dom H̄` is not the statement the corpus can prove, and it is
+not even true for an elliptic Hamiltonian: the charge `𝒢_d` is a first-order operator along
+the linear field `ymGaussVec`, so a rough function constant along that flow lies in `dom Ā`
+with `Ā = 0` while failing to lie in the (`H²`-type) domain of `H̄`.  What the commutation
+argument actually needs is the *graph-norm* statement: every `y ∈ dom Ā` is the limit of Gauss
+core vectors `xₙ` whose Hamiltonian images converge.  The lemma below is the half of that
+reduction which is pure closedness: once such a core sequence exists, `y ∈ dom H̄` and the
+Hamiltonian value is the limit. -/
+
+set_option maxHeartbeats 800000 in
+-- the `clGraph`/`clDom` projections need more than the default budget
+/-- **A Gauss core sequence converging in the Hamiltonian's graph norm lands in `dom H̄`.**
+If `xₙ → y` and `H̄ xₙ → z`, then `y` is in the domain of the closed Hamiltonian and
+`H̄ y = z`.  This is the graph closure of `T = ymHamiltonian` being closed; it converts the
+graph-norm density input into the domain inclusion, leaving the density itself as the only
+analytic obligation. -/
+theorem mem_hamClosure_domain_of_core_seq (G : GaugeAlgebra 8) {x : ℕ → PolyCore}
+    {y z : L2d 99}
+    (hx : Tendsto (fun n => ((x n : PolyCore) : L2d 99)) atTop (𝓝 y))
+    (hz : Tendsto (fun n => hamClosure G ⟨((x n : PolyCore) : L2d 99),
+      coe_mem_clDom _ (x n)⟩) atTop (𝓝 z)) :
+    ∃ hyH : y ∈ clDom (ymHamiltonian (coreRepPoly 99) G.f),
+      hamClosure G ⟨y, hyH⟩ = z := by
+  have hmem : ∀ n, (((x n : PolyCore) : L2d 99),
+      hamClosure G ⟨((x n : PolyCore) : L2d 99), coe_mem_clDom _ (x n)⟩)
+      ∈ clGraph (ymHamiltonian (coreRepPoly 99) G.f) := by
+    intro n
+    simpa only [hamClosure_apply_core G (x n)] using
+      (mem_clGraph_of_mem_opGraph
+        (mem_opGraph (ymHamiltonian (coreRepPoly 99) G.f) (x n)))
+  have hpair : Tendsto (fun n => (((x n : PolyCore) : L2d 99),
+      hamClosure G ⟨((x n : PolyCore) : L2d 99), coe_mem_clDom _ (x n)⟩)) atTop
+      (𝓝 (y, z)) := by
+    have := hx.prodMk hz
+    rwa [← nhds_prod_eq] at this
+  have hcl := (clGraph_isClosed (ymHamiltonian (coreRepPoly 99) G.f)).isSeqClosed hmem hpair
+  refine ⟨mem_clDom_iff.2 ⟨z, hcl⟩, ?_⟩
+  exact clFun_unique (polyGaussCore_dense (d := 99)) (ymHamiltonian_symmetricOn _ _) hcl
+
+set_option maxHeartbeats 800000 in
+-- unfolding the density input through the two closures needs a larger budget
+/-- **The graph-norm density input gives `dom Ā ⊆ dom H̄`.**  If every charge-domain vector
+is approximated by a Gauss core sequence whose Hamiltonian images are Cauchy, then the
+charge's domain is contained in the Hamiltonian's.  This is the sharp logical form of the
+missing elliptic-regularity estimate: no further information about `𝒢_d` is used. -/
+theorem clDom_hamClosure_of_charge_graph_dense (G : GaugeAlgebra 8) (d : Fin 8)
+    (hdense : ∀ y ∈ (gaussPMap G d (coreRepPoly 99)).closure.domain,
+      ∃ x : ℕ → PolyCore,
+        Tendsto (fun n => ((x n : PolyCore) : L2d 99)) atTop (𝓝 y) ∧
+        CauchySeq (fun n => hamClosure G ⟨((x n : PolyCore) : L2d 99),
+          coe_mem_clDom _ (x n)⟩)) :
+    (gaussPMap G d (coreRepPoly 99)).closure.domain
+      ≤ clDom (ymHamiltonian (coreRepPoly 99) G.f) := by
+  intro y hy
+  obtain ⟨x, hx, hc⟩ := hdense y hy
+  obtain ⟨z, hz⟩ := cauchySeq_tendsto_of_complete hc
+  exact (mem_hamClosure_domain_of_core_seq G hx hz).1
 
 /-! ## The unbounded case: the graph argument at the Hamiltonian's closure -/
 

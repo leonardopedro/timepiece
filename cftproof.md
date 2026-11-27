@@ -106,6 +106,136 @@ restores covariance. Use that identity when checking gauge invariance of a
 candidate positive-time word; its agreement at one gauge representative alone
 cannot establish the insertion dictionary. [Local gauge-orbit calculation](softmodes.md)
 
+## Ultrafinitist-to-Kopperman ascent and the horizon–lattice coupling M ↔ a (2026-11-27)
+
+### 1. Four-stage ascent blueprint: from `U-SMK` to Kopperman $L_{\omega_1,\omega_1}$
+
+The repository already formalizes a complete architectural bridge from a strictly finite,
+computable dyadic theory (`BookProof/Ultrafinitism/`) through a countable dense core and a
+separable Riesz–Fischer completion to the infinitary Kopperman $L_{\omega_1,\omega_1}$ / diffuse
+Gaussian framework ([PaFreeHilbert](Book/PaFreeHilbert.lean),
+[ChapterKopperman](BookProof/ChapterKopperman.lean)). Using that four-stage ascent as the
+structural template for `cftproof.md` (`H0–H7` and `C0–C10`) clarifies which limits remove
+finite-arithmetic / degree cutoffs, which limits remove physical spacetime regulators, and what
+each stage can and cannot prove:
+
+| Ascent stage | Foundation realization (`U-SMK` $\to$ Kopperman) | CFT continuum counterpart in `cftproof.md` (`H0–H7`, `C0–C10`) | Key boundary at this stage |
+|---|---|---|---|
+| **Stage 0: Strictly finite rational pre-limit** | `U-SMK_{D,M,ρ,B}` over $\mathbb{Q}$: dyadic Krawtchouk hypercube `BitCube M` (`ChapterKrawtchoukTail`), deformed CCR `[a_M, a_M†] = I - (2/M) N̂` (`ChapterDeformedCCR`), resource-accounting `MultiTail D M` (`ChapterUltrafinitistTensor`), Mehler feasibility `mehlerFeasEffect` (`ChapterMehlerFeasibility`), $O(m^3)$ `decideGram` (`ChapterGramPolyDecision`), and Crouzeix-free `U-SIRK` (`ChapterUltrafinitistSirk`) | Regulated finite-cutoff EFT at `(a, L, R)` with `D(a, L)` field modes, discrete time-slicing / Strang weights (**H0–H3**), and finite-order certified rational `U-SIRK` solves at each cutoff (**H4 / C6**) | No $M\to\infty$ or $a\to 0$; pre-limit tolerances controlled explicitly by $1/M$ and $2R/M$ |
+| **Stage 1: Countable dense computable core** | Removing $M\to\infty$ at fixed $D$ (Krawtchouk $\to$ Hermite, $2R/M \to 0$) into the finitely-supported rational core $\mathbb{N}\to_0\mathbb{Q}$ (`ChapterEll2Separable`: `ratVec_range_countable`, `ratVec_dense`; `ChapterPaFreeCompletion`) | Fixed-volume UV refinement $a\to 0, R\to\infty$ on a countable dense generating algebra of rational-smeared positive-time words $\mathcal{A}_+^{\mathrm{dense}}$ (**C4–C5**) | Countable dense approximants give no norm-limit or OS semigroup without uniform summable/tightness bounds |
+| **Stage 2: Complete separable Hilbert space** | Riesz–Fischer / Banach characterization `completeSpace_iff_summable_norm` (`ChapterRieszFischer`: `ell2_completeSpace`, `riesz_fischer_hasSum`, `completion_conservative_over_core`): Cauchy sequences $\leftrightarrow$ $\sum_n \|u_n\| < \infty$ | Half-space OS quotient completion $\mathcal{H}_{\mathrm{OS}} = \overline{\mathcal{A}_+/\mathcal{N}}$ and cyclic nested-Fock completion (**C3e / C6 / C7–C8**), where summable RG increments $\sum_q \|S_{q+1}(F)-S_q(F)\| < \infty$ (`Convergence`) play the role of $\sum_n \|u_n\| < \infty$ | Separability lets countable words pin `OsFockBridge`, but completion alone implies neither uniqueness nor mass gap |
+| **Stage 3: Infinitary Kopperman $L_{\omega_1,\omega_1}$ & diffuse Gaussian tail** | Infinite product tail $(\mathbb{R}^{\mathbb{N}}, \gamma)$ (`ChapterSolovayCoordinates`, `ChapterKopperman`, `PaFreeHilbert`): `Measure.noAtoms`, countable definability, and completeness $\neq$ logical decidability/uniqueness | Infinite-volume limit $L\to\infty$ (**H5–H7**, **C5 / C8 / C9**), `ObservablePhases.Law.trains` / `Vacua.Decomposes` phase disintegration, Kakutani orthogonality $\gamma_v \perp \gamma_0$ (`ChapterOverlapCollapse`), and separation of existence from IR mass gap (**C9**) | Infinitary continuum existence does not decide phase selection (`Wightman`), uniqueness, or an IR gap |
+
+Reference links for Stage 0–3:
+[UltrafinitistSMK](Book/UltrafinitistSMK.lean) ·
+[Krawtchouk tail](BookProof/Ultrafinitism/ChapterKrawtchoukTail.lean) ·
+[Deformed CCR](BookProof/Ultrafinitism/ChapterDeformedCCR.lean) ·
+[Ultrafinitist tensor](BookProof/Ultrafinitism/ChapterUltrafinitistTensor.lean) ·
+[Mehler feasibility](BookProof/Ultrafinitism/ChapterMehlerFeasibility.lean) ·
+[Gram poly decision](BookProof/Ultrafinitism/ChapterGramPolyDecision.lean) ·
+[Ultrafinitist SIRK](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean) ·
+[Separable ell2](BookProof/Definability/ChapterEll2Separable.lean) ·
+[PA-free completion](BookProof/Definability/ChapterPaFreeCompletion.lean) ·
+[Riesz–Fischer](BookProof/Definability/ChapterRieszFischer.lean) ·
+[Solovay coordinates](BookProof/ChapterSolovayCoordinates.lean) ·
+[Kopperman substrate](BookProof/ChapterKopperman.lean) ·
+[PaFreeHilbert](Book/PaFreeHilbert.lean).
+
+### 2. Horizon–lattice dictionary: relating $M$ and $a$ quantitatively
+
+In `U-SMK_{D,M,ρ,B}`, the infinite-dimensional coordinate tail $(\mathbb{R}^{\mathbb{N}}, \gamma)$ is
+replaced by `MultiTail D M` $= (\{-1,+1\}^M)^D$ with $M = 4^q = 2^{2q}$ ($q \in \mathbb{N}_+$). To
+couple `U-SMK` cleanly to a regulated Euclidean field theory at lattice spacing $a$, box size $L$,
+time horizon $T$, and inner occupation cutoff $R$, **keep the spatial coordinate capacity $D$ and
+the per-coordinate bit/degree horizon $M$ strictly separate**:
+
+* **Coordinate capacity $D = D(a, L)$** counts the active macroscopic field/momentum degrees of
+  freedom (`MultiTail D M`): for a $3\mathrm{D}$ spatial lattice slice of physical side $L$ and
+  local fibre dimension $c_{\mathrm{int}}$ ($c_{\mathrm{int}} = 24$ for $3$-space $\times$ $8$-colour
+  Weyl-gauge $\mathrm{SU}(3)$), $D_{3\mathrm{D}}(a, L) = c_{\mathrm{int}}(L/a)^3$; on a $4\mathrm{D}$
+  Euclidean spacetime slab of time extent $T$, $D_{4\mathrm{D}}(a, L, T) = c_{4\mathrm{D}} T L^3 / a^4$.
+* **Per-coordinate degree/bit horizon $M = 4^q$** (`BitCube M`) governs three purely verified
+  pre-limit defects: the dyadic Gaussian fourth-moment defect $2/M$ (`dyadicGauss_fourth_moment`),
+  the deformed-CCR defect $2R/M$ on grades $\le R$ (`deformed_ccr_defect_bound`), and the rational
+  `U-SIRK` solver tolerance $1/M$ (`uSirk_converges_to_M_tol_log_steps`).
+
+Fix a reference lattice scale $a_0 > 0$ and dyadic Bałaban blocking sequence $a_q = a_0\, 2^{-q}$. Two
+explicit coupling regimes relate $M$ and $a$:
+
+1. **Regime A — Baseline dyadic parity ($O(a^2)$ matching per mode).**
+   Choosing the per-coordinate bit horizon equal to the inverse-spacing square gives an exact
+   bijection between the Krawtchouk scale $q$, the integer Gaussian denominator $\sqrt{M} = 2^q$,
+   and the dyadic RG spacing $a_q$:
+   $$a(M) = \frac{a_0}{\sqrt{M}} = a_0 \cdot 2^{-q} \qquad \Longleftrightarrow \qquad M(a) = \left(\frac{a_0}{a}\right)^2 = 4^q, \qquad q = \log_2\!\left(\frac{a_0}{a}\right).$$
+   Under this coupling:
+   * $\sqrt{M} = 2^q = a_0 / a_q \in \mathbb{N}$, aligning `dyadicGauss q` directly with dyadic mesh
+     refinement;
+   * the Krawtchouk fourth-moment error $2/M = 2(a_q/a_0)^2$ matches standard $O(a^2)$ Wilson/Strang
+     discretization error, while the Berry–Esseen half-space error $O(1/\sqrt{M}) = O(a_q/a_0)$
+     vanishes linearly in $a_q$;
+   * `U-SIRK` reaches tolerance $1/M = (a_q/a_0)^2$ in only
+     $m(a_q) = \lfloor \log_2 M \rfloor + 3 = 2q + 3 = 2\log_2(a_0/a_q) + 3 \ll M$ Krylov steps
+     (logarithmic in $M$ and linear in the RG scale index $q$); and
+   * by `uSirk_order_mehler_feasible`, this Krylov order remains Mehler-feasible with truth value
+     $\ge 1 - (2q+3)/4^q \to 1$.
+
+   When the per-mode occupation cutoff $R(a)$ also grows slowly (e.g. $R(a) \sim \log^p(a_0/a)$ in
+   small-field windows), keeping the CCR defect $2R(a)/M \lesssim (a/a_0)^2$ refines Regime A to
+   $$M(a) = 4^{\lceil \log_4(R(a)(a_0/a)^2) \rceil} \qquad \Longleftrightarrow \qquad a(M) \sim a_0 \sqrt{\frac{R}{M}}.$$
+
+2. **Regime B — Extensive local-lattice / Bałaban volume-safe coupling.**
+   When local nonlinear interactions (e.g. $\sum_x a^3 B_{ia}(x)^2$ or
+   $\lambda \sum_x a^3 \phi(x)^4$) sum per-coordinate Krawtchouk/CCR defects over all $D(a, L)$
+   lattice coordinates without an auxiliary smearing/cancellation estimate, enforce
+   $D(a, L)\, R(a)^2 / M \lesssim (a/a_0)^2$, giving:
+   $$M_{\mathrm{ext}}(a, L, R) = 4^q \ge C\, D(a, L)\, R(a)^2 \left(\frac{a_0}{a}\right)^2 \asymp \begin{cases} C\,\dfrac{L^3 a_0^2 R(a)^2}{a^5} & \text{(3D spatial slice)}, \\[8pt] C\,\dfrac{T L^3 a_0^2 R(a)^2}{a^6} & \text{(4D Euclidean slab)}, \end{cases}$$
+   with inverse lattice scale
+   $$a(M, L, R) \asymp \left(\frac{C\, L^3 a_0^2 R^2}{M}\right)^{1/5} \text{(3D)} \qquad \text{or} \qquad \left(\frac{C\, T L^3 a_0^2 R^2}{M}\right)^{1/6} \text{(4D)}.$$
+   Even under this extensive polynomial scaling of $M$ in $L/a$, the `U-SIRK` Krylov order
+   $m(M) = \lfloor\log_2 M\rfloor + 3 = O(\log(L/a) + \log R) \ll M$ remains logarithmic in
+   inverse lattice spacing and volume and strictly feasible under `mehlerFeasEffect`.
+
+### 3. Integration packets `U-C1`–`U-C4` connecting `U-SMK` to `H0–H7` and `C0–C10`
+
+These four planning packets embed the $M \leftrightarrow a$ coupling cleanly into `cftproof.md`
+without conflating numerical Krylov rank $m$, bit horizon $M$, and physical cutoffs $(a, L, R)$:
+
+* **`U-C1` (Coupled regulator schedule in `ContinuumManifest`).** Extend `PhysicalCutoff` in
+  [ContinuumManifest](BookProof/OSReconstruction/ContinuumManifest.lean) with a finite horizon
+  schedule `(a_q, L, R_q, D_q, M_q, m_q)` satisfying $M_q = M(a_q, L, R_q) = 4^{q'}$ and
+  $m_q = \lfloor \log_2 M_q \rfloor + 3 \le M_q$, while preserving `krylov_not_continuum` (changing
+  $m_q$ alone never refines $a_q$ or $L$, and changing $M_q$ alone at fixed $(a_q, L, R_q)$ only
+  recovers the regulated continuous Gaussian slice).
+* **`U-C2` (Stage 0 $\to$ Stage 1 Krawtchouk-to-Mehler bridge along $M(a)$).** Connect
+  `ChapterKrawtchoukTail` and `ChapterDeformedCCR` quantitatively to `H1` / `C1`
+  ([ChapterMehlerTransitionDensity](BookProof/ReflectionPositivity/ChapterMehlerTransitionDensity.lean),
+  [ChapterHermiteProductBasis](BookProof/Toolbox/ChapterHermiteProductBasis.lean)), proving that on
+  feasible monomials of degree $d$ and mode count $k$, the discrete-to-continuous moment defect
+  $O(k d^2 / M)$ and CCR defect $2R/M$ are $O((a_q/a_0)^2)$ under Regime A (or $O((a_q/a_0)^2)$
+  summably over $D_q$ sites under Regime B).
+* **`U-C3` (Stage 1 $\to$ Stage 2 summable Cauchy-increment factorization in `C3e` / `C6`).**
+  Substitute `uSirk_horizon_total_tolerance`
+  ([ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean)) into `C6`'s
+  scale-by-scale Cauchy certificate
+  $$|S_{q+1}(F) - S_q(F)| \le |\widehat{S}_{q+1}(F) - \widehat{S}_q(F)| + \varepsilon_{q+1}(F) + \varepsilon_q(F).$$
+  Because `U-SIRK` bounds the solver-plus-deformed-CCR tolerance by
+  $\varepsilon_q(F) = O(1/M_q + q_{\mathrm{sirk}}^{m_q}) = O(4^{-q})$ when $M_q \ge 4^q$ and
+  $m_q = \lfloor\log_2 M_q\rfloor + 3$, the numerical/finite-horizon remainder $\sum_q \varepsilon_q(F)$
+  is **automatically summable**. This cleanly isolates the remaining Riesz–Fischer /
+  [BalabanRG/Convergence](BookProof/BalabanRG/Convergence.lean) obligation to the physical multiscale
+  increment $|\widehat{S}_{q+1}(F) - \widehat{S}_q(F)|$ (**C3b–C3d**) before OS/GNS completion
+  (**C7–C8**).
+* **`U-C4` (Stage 2 $\to$ Stage 3 strict limit order and Kopperman boundary).** Preserve the fourfold
+  limit hierarchy corresponding to Stages 0 $\to$ 3:
+  1. Krylov order $m_q = \lfloor\log_2 M_q\rfloor + 3 \ll M_q$ (always sub-horizon and Mehler-feasible);
+  2. UV/occupation refinement $(a_q \to 0,\; R_q \to \infty,\; M_q = M(a_q, L, R_q) \to \infty)$ at fixed
+     spatial volume $L$ on the countable rational smeared algebra (`Stage 1` $\to$ `Stage 2`);
+  3. Infinite-volume limit $L \to \infty$ ($D(a, L) \to \infty$) **before** external source removal
+     $J \to 0^+$ (**H5–H6**); and
+  4. Phase disintegration and OS reconstruction (`Stage 3`), maintaining the explicit honesty
+     boundary from [PaFreeHilbert](Book/PaFreeHilbert.lean) and **C9** that Hilbert-space
+     completeness / continuum existence settles neither uniqueness across phases nor an IR mass gap.
+
 ## Path-integral–Hamiltonian equivalence in the nested Fock / Mehler / SIRK formalism (2026-11-24, updated 2026-11-27)
 
 **Strategy update.** This section updates the forward execution plan to follow the two-part
@@ -377,6 +507,14 @@ continuum contracts enforces five structural rules:
   [ChapterSirkTruncation](BookProof/Sirk/ChapterSirkTruncation.lean) to bound the rational-Krylov
   approximation of $e^{-\tau K_\sigma} v$ from the bounded shift-invert resolvent
   $(K_\sigma + \gamma)^{-1}$ ($\gamma > 0$) with **zero Trotter time-step error**.
+* **Finite-horizon rational U-SIRK baseline.** Its strictly finite `U-SMK` counterpart
+  [ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean)
+  (`uSirk_converges_to_M_tol_log_steps`, `uSirk_horizon_total_tolerance`,
+  `uSirk_exact_at_full_horizon`, `uSirk_isometry_decideGram`) evaluates shift-transfer resolvents
+  $(I - \tau X)^{-1}$ over $\mathbb{Q}$ with **zero Crouzeix hypotheses**, reaching tolerance
+  $1/M$ in $m = \lfloor \log_2 M \rfloor + 3 \le M$ Krylov steps along the horizon–lattice map
+  $M = M(a, L, R)$ (**U-C3**) while leaving the continuum unbounded-operator transfer below as
+  its separate analytic obligation.
 * **Friedrichs domain selection.** Use `hashimoto_shiftInvert_selects_friedrichs`
   ([ChapterHashimotoShiftInvert](BookProof/Sirk/ChapterHashimotoShiftInvert.lean)) to pin down
   the self-adjoint realization of $h_\sigma$ whose semigroup H2–H3 represent as a Feynman–Kac
@@ -568,8 +706,10 @@ into **C0–C10** below and targets the three continuum reference contracts expl
 - (g) existential witnesses can be mixed across `OpenAI-YM-20261028`, `OpenAI-YM-20261104` (`Existence` vs. `Matching`), and `OpenAI-QCD-20261104` without an explicit comparison theorem;
 - (h) selecting a vacuum from `Vacua.Decomposes` proves that bare-torus boundary conditions realize that phase;
 - (i) massive-QCD quark mass signals (`Signals.Masses`/`PCAC`) imply a pure-gauge spectral gap;
-- (j) an upper bound on Strang mass normalizes weighted path expectations without a positive lower bound on $Z$ (e.g. `partition_mass_of_action_event` / `Run.Actual`); or
-- (k) theorems from the Lean 4.32.0 reference archives may be postulated as untracked axioms in the Lean 4.28.0 project.
+- (j) an upper bound on Strang mass normalizes weighted path expectations without a positive lower bound on $Z$ (e.g. `partition_mass_of_action_event` / `Run.Actual`);
+- (k) theorems from the Lean 4.32.0 reference archives may be postulated as untracked axioms in the Lean 4.28.0 project;
+- (l) taking the Krawtchouk horizon $M \to \infty$ at fixed $(a, L)$ constitutes a spacetime continuum limit (it recovers only the continuous Gaussian/Hermite slice at that same $(a, L)$, leaving UV/IR removal intact); or
+- (m) single-mode scaling $M = (a_0/a)^2$ controls extensive sums of nonlinear local interactions over $D(a, L)$ sites without either cancellation/smearing estimates or the extensive coupling $M_{\mathrm{ext}}(a, L, R)$.
 
 **Execution order:** **H0 → H1 → H2 → H3** (regulated Hamiltonian $\leftrightarrow$ Mehler
 Feynman–Kac equivalence), in parallel with **H4** (Euclidean SIRK transfer) and **H5 → H6**
@@ -577,6 +717,17 @@ Feynman–Kac equivalence), in parallel with **H4** (Euclidean SIRK transfer) an
 for the continuum limit.
 
 ### Landed status log (2026-11-25 to 2026-11-27)
+
+**Status (2026-11-27): U-SIRK finite-horizon convergence and $M \leftrightarrow a$ continuum-ascent blueprint.**
+`BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean` lands the rational, Crouzeix-free `U-SIRK`
+layer (`uHashimoto_shift_bound`, `uShiftInvert_perturbation_bound`,
+`hashimoto_shift_transfer_identity`, `uKrylov_poly_transfer`, `uSirk_error_bound`,
+`uSirk_error_bound_leaky`, `uSirk_converges_to_M_tol_log_steps`, `uSirk_exact_at_full_horizon`,
+`uSirk_horizon_total_tolerance`, `uSirk_order_mehler_feasible`, `uSirk_isometry_decideGram`,
+`uSirk_ritz_residual_bound`, `krawtchouk_uSirk_converges_to_M_tol`). This plan entry adds the
+four-stage `U-SMK` $\to$ `Riesz–Fischer` $\to$ `Kopperman` blueprint, explicit $M \leftrightarrow a$
+scaling dictionaries (Regimes A and B), and integration packets `U-C1`–`U-C4`; `U-C1`–`U-C4` and
+the continuum Bałaban / OS identification remain open planning targets, not yet proved limits.
 
 **Status (2026-11-27): H0 QYM closed Hamiltonian, Gauss generator and Stone flow.**
 `BookProof/Qym/ChapterYangMillsGaussHamiltonianClosure.lean` bridges the transported polynomial

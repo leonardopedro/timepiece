@@ -7,6 +7,15 @@
 > pointer below is stated once, in prose, at the top of a document that keeps growing past
 > its own header.
 >
+> **QYM entry (2026-11-27b):** “2026-11-27b — QYM: the rotation flow *is* the Stone flow of the
+> Gauss charge” (end of file).  `gaussFlowOp_eq_stoneU` proves the concrete rotation flow equals
+> `gaussChargeSelfAdjoint.stoneU` at every time, from `rotPoly_mul` + `gaussFlowOp_mul` (the group
+> law on `L²`) and the new toolbox lemma `eq_stoneU_of_dense_core` (an ODE on a dense core
+> determines a Stone flow).  Strong continuity `gaussFlowOp_continuous` and the core's membership
+> in `dom Ā` / `stoneGroup.genDomain` (`gaussCharge_core_le_domain`,
+> `gaussCharge_core_le_genDomain`) follow by reuse of the existing Stone lemmas.  Still open and
+> unchanged: `dom Ā ⊆ dom H̄`.
+>
 > **QYM update (2026-11-27).** The widened Gaussian changes under a matched local
 > gauge transformation. A transverse interacting packet has zero projected charge
 > and a charge norm of one half when its driven longitudinal coordinate is restored.
@@ -28689,3 +28698,125 @@ results with their stated Hamiltonians.
   Schwartz Plancherel proof and a two-packet coefficient reproduced in Cadabra and
   Rust. Establish the ordered quantum matrix element on the same packets next.
   [Scalar proof plan](PHI4_FORMALIZATION_PLAN.md) · [Packet checks](PHI4_IMPROVEMENT_PLAN.md)
+
+## 2026-11-27b — QYM: the rotation flow *is* the Stone flow of the Gauss charge
+
+This entry closes the identification that 2026-11-27a left implicit: 2026-11-27a produced the
+Stone group `gaussChargeSelfAdjoint.stoneU` and a separate concrete rotation `gaussFlowOp`, with
+only the shared ODE on the core relating them.  Here the two are proved equal as operators at
+every time, which makes the group law, the strong continuity and the core's membership in the
+generator domain properties of *the same* flow.  It supersedes nothing; 2026-11-27a remains the
+reading guide for the charge, the generator and the skew-adjointness argument.
+
+**The composition law on polynomials.**  `rotPoly_mul` (`ChapterQuadraticRotationEsa`) proves
+`rotPoly A (rotPoly B p) = rotPoly (A * B) p` by `MvPolynomial.induction_on`: constants are
+fixed by both sides, sums distribute, and the monomial case is `A * B` acting on the product of
+coordinates — the identity that turns "rotate, then rotate" into "rotate by the product".
+
+**The group law on `L²`.**  `gaussFlowOp_add` and `gaussFlowOp_mul`
+(`ChapterYangMillsGaussRotationFlow`) lift `gaussFlow_add` (`E(s+t) = E(s)E(t)`) through
+`rotPoly_mul` to the isometries of `L²(ℝ⁹⁹)`: `U(s+t) = U(s) ∘ U(t)`, with `U(0) = 1` already
+recorded.  The flow is therefore a one-parameter semigroup of contractions on the whole space,
+not only a family acting on the polynomial core.
+
+**The Stone bridge, reused rather than reproved.**  `BookProof/Toolbox/ChapterStoneBridge.lean`
+gains the three general facts the identification needs, all stated for an abstract
+`UnboundedSelfAdjoint`:
+`IsStoneFlow.tendsto_zero` (strong continuity at the origin, splitting `U t x - x` through a
+domain vector and using the isometry off the domain), `IsStoneFlow.continuous` (continuity in
+time from the group law and the origin estimate), and
+`eq_stoneU_of_dense_core`: a family solving the Schrödinger equation
+`d/dt (U t x) = -i T (U t x)` on a *dense* submodule is `T.stoneU` at every time.  The last
+lemma is deliberately weaker than its first draft — the group law, the isometry and `D ≤ T.domain`
+were all dropped after the linter showed the conservation argument uses only the ODE on a dense
+set.  Its final step is the existing
+`WeakMeasurableUnitaryGroup.eq_of_inner_eq_on_dense`, so no second density argument was written.
+
+**The identification.**  `hasDerivAt_gaussFlowOp_gaussCharge` restates 2026-11-27a's generator
+identity in the form `eq_stoneU_of_dense_core` consumes, at the `UnboundedSelfAdjoint` domain;
+`gaussFlowOp_eq_stoneU` then gives
+`gaussFlowOp G dd t = (gaussChargeSelfAdjoint G dd).stoneU t` for every `t`.  Consequently
+`gaussFlowOp_continuous` is the Stone group's strong continuity read backwards through that
+equality, and `gaussCharge_core_le_domain` / `gaussCharge_core_le_genDomain` place the Gauss
+polynomial core inside `dom Ā` and inside the generator domain `stoneGroup.genDomain`, the
+latter through the toolbox's `domain_le_genDomain`.
+
+**Boundary.**  This is the flow, not the Hamiltonian.  `dom Ā ⊆ dom H̄` is *not* proved here and
+is not a corollary: equality with the Stone group says nothing about the graph norm of
+`H̄ = hamClosure G`.  The missing input remains the elliptic-regularity / graph-norm statement
+recorded in `BookProof/Qym/ChapterYangMillsGaussHamiltonianDomain.lean`.  The flow is still a
+rotation of field-space coordinates; ghosts and the physical Gauss reduction are untouched.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsGaussGenerator` green at 8102 jobs,
+no warnings, no `sorry`; `lake build` of the full `BookProof` aggregate and of the in-tree PHI4
+work with `Work/Phi4Audit` green at 8227 jobs.  `#print axioms` on `rotPoly_mul`,
+`IsStoneFlow.tendsto_zero`, `IsStoneFlow.continuous`, `eq_stoneU_of_dense_core`,
+`gaussFlowOp_add`, `gaussFlowOp_mul`, `hasDerivAt_gaussFlowOp_gaussCharge`,
+`gaussFlowOp_eq_stoneU`, `gaussFlowOp_continuous`, `gaussCharge_core_le_domain` and
+`gaussCharge_core_le_genDomain` gives `[propext, Classical.choice, Quot.sound]`.
+Gates: `scripts/health.sh` 3 pass, 0 warn, 0 fail; `scripts/check-links` clean over 88 documents
+and 321 links; `scripts/verify-invariants` 6 pass, 0 fail, 1 `[gap]` (the `lake`-dependent check
+does not see `lake` inside the `nix-shell -p python3` wrapper); `scripts/check-todo-ledger` green.
+
+## 2026-11-27c — the Gauss domain gap and the two-amplitude scalar packet form
+
+This entry records two pieces of work that go *past* 2026-11-27b and 2026-11-27a: the domain
+statement 2026-11-27a left open, and PHI4 plan item 2 (the finite packet amplitude model).  It
+supersedes nothing; 2026-11-27a/b remain the reading guide for the charge, the flow and the
+skew-adjointness argument.
+
+**The Gauss domain gap — the literal inclusion is false.**  2026-11-27a's boundary recorded
+`dom Ā ⊆ dom H̄` as "the missing elliptic-regularity input".  It cannot be supplied, because it
+is false.  The charge `𝒢_d = firstOrder (ymGaussVec G d)` is first order along the linear field
+`ymGaussVec`, so a rough radial function `ψ(|x|²)` with `ψ ∈ H¹` but `ψ ∉ H²` is annihilated by
+`𝒢_d`, hence lies in `dom Ā` with `Ā = 0`, while it is not in `dom H̄`: that domain is the graph
+closure of the *second-order* `ymHamiltonian`, i.e. an `H²`-type space.  The older docstring
+only said the inclusion "is not derivable from symmetry and commutation alone"; it is
+stronger than that, and the module docstring now says so rather than listing the inclusion as
+pending.
+
+What the commutation argument actually consumes is the **common-core** statement: every
+`y ∈ dom Ā` is the limit of Gauss-core vectors `xₙ` with `H̄ xₙ` convergent.  Two lemmas now
+formalize the reduction and remove everything from the gap except that estimate:
+
+* `mem_hamClosure_domain_of_core_seq` — a core sequence with `xₙ → y` and `H̄ xₙ → z` puts `y` in
+  `clDom` with `H̄ y = z`, by closedness of `clGraph (ymHamiltonian …)`;
+* `clDom_hamClosure_of_charge_graph_dense` — if that density-with-Cauchy-images input holds on
+  all of `dom Ā`, then `dom Ā ≤ dom H̄`.
+
+So the remaining obligation is one analytic statement (elliptic regularity of `H̄` measured on
+`dom Ā`, equivalently that the Gauss core is a common core), not a domain inclusion, and
+`ChapterYangMillsGaussHamiltonianDomain`'s docstring carries the same correction.
+
+**The two-amplitude scalar packet form (PHI4 item 2).**  New chapter
+`BookProof/Phi4/ChapterScalarPacketForm.lean` defines the finite packet model on the common
+Schwartz/Mehler arena — no discrete momentum, no lattice: two real Schwartz packets `χ₀, χ₁`
+with
+
+* the spatial Gram matrix `packetGram` (`Gᵢⱼ = ∫ χᵢ χⱼ`), proved symmetric (`packetGram_isSymm`);
+* the kinetic Gram matrix `packetKinetic`/`packetKineticMat` (`Kᵢⱼ = ½ Σ_m ∫ ∂_m χᵢ ∂_m χⱼ`) in
+  an orthonormal frame, with symmetry (`packetKinetic_comm`, `packetKineticMat_isSymm`);
+* the **dual kinetic metric** `packetDualKinetic = G⁻¹ K`, and the identity
+  `packetGram_mul_packetDualKinetic : G · (G⁻¹K) = K` whenever `det G` is a unit — the packet
+  masses and the kinetic form are transported together, not projected separately;
+* the **gradient matrix** `packetGradient` (`Dᵢⱼ(m) = ∫ χᵢ ∂_m χⱼ`) and the **wall Gram matrix**
+  `packetWall` (`Wᵢⱼ = (λ/4) ∫ χᵢ χⱼ (Φ² − v²)²`, the full quartic weight in one piece), with
+  `packetWall_isSymm`;
+* the **both-occupations-by-two matrix element** `packetMixed = (λ/4) ∫ χ₀² χ₁²`, proved to be
+  the ordered product before projection (`packetMixed_eq_ordered_product`:
+  `∫ χ₀²χ₁² = ∫ (χ₀χ₁)²`), symmetric (`packetMixed_comm`), scaling as `(cd)²`
+  (`packetMixed_smul`), and with its Gram-normalized form invariant under independent packet
+  rescalings (`packetNormalizedMixed_smul`).
+
+**Boundary.**  The packet form is classical and finite: no Fock space, no domain, no positivity
+of `K + W`, no continuum limit, no ordered quantum operator on the two packets.  PHI4 items 3
+and 4 remain open, as does the common-core estimate above.
+
+**Verification.**  `lake build BookProof.Qym.ChapterYangMillsGaussHamiltonianDomain` green at
+8145 jobs; `lake build BookProof.Phi4.ChapterScalarPacketForm` green at 8193 jobs; both with no
+warnings and no `sorry`.  `#print axioms` on `mem_hamClosure_domain_of_core_seq`,
+`clDom_hamClosure_of_charge_graph_dense` and all nine `ChapterScalarPacketForm` endpoints
+(`packetGram_isSymm`, `packetKinetic_comm`, `packetKineticMat_isSymm`,
+`packetGram_mul_packetDualKinetic`, `packetWall_isSymm`, `packetMixed_comm`,
+`packetMixed_eq_ordered_product`, `packetMixed_smul`, `packetNormalizedMixed_smul`) gives
+`[propext, Classical.choice, Quot.sound]`; the last nine are recorded in `Work/Phi4Audit`.

@@ -204,6 +204,85 @@ with certified mean $`0` and variance $`1`.
 #check @BookProof.Ultrafinitism.ChapterMehlerFeasibility.ultraMul_overflow_moments
 ```
 
+# Ultrafinitist Hashimoto/SIRK and M-Controlled Convergence
+
+In the continuous theory ({ref "navier-stokes-hashimoto"}[the Hashimoto selection] and
+{ref "sirk-reliability"}[SIRK reliability]), the shift-invert rational Krylov (SIRK)
+algorithm applies the bounded resolvent $`X = (H + \gamma I)^{-1}` and requires two
+analytic external inputs — Crouzeix's inequality on a complex numerical-range domain
+$`\Sigma` and an $`e^{-hm}` rational approximation bound — to control
+$`\|e^{-itH} v - V_m \psi(B_m) V_m^* v\|`.
+
+In $`\mathrm{U\text{-}SMK}` (`BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean`), the
+entire Hashimoto/SIRK pipeline becomes *completely finite, computable over $`\mathbb{Q}`*,
+and *free of Crouzeix hypotheses*:
+
+1. *Rational Hashimoto shift-invert and shift transfer:* For any rational Hamiltonian
+   $`H` lower-bounded by $`e` (`IsLowerBounded H e`) and $`e + \gamma > 0`,
+   `uHashimoto_shift_bound` proves $`\|(H + \gamma I)v\|^2 \ge (e + \gamma)^2 \|v\|^2`,
+   giving $`\|X\| \le (e + \gamma)^{-1}` (`uShiftInvert_opBound`), exact resolvent
+   perturbation $`\|R_1 - R_2\| \le \|H_1 - H_2\|/(e + \gamma)^2`
+   (`uShiftInvert_perturbation_bound`), and the exact shift-transfer identity
+   $`(I - \tau X)^{-1} X = (H + (\gamma - \tau)I)^{-1}`
+   (`hashimoto_shift_transfer_identity`).
+
+2. *Unconditional Krylov compression and geometric remainder:* Given a rational isometric
+   basis $`V^\top V = I` whose range contains the Krylov iterates $`\{X^j v : j < k\}`,
+   `uKrylov_poly_transfer` proves exact polynomial transfer to $`B = V^\top X V` without
+   any external spectral assumption. Using the degree-$`k` Neumann–SIRK polynomial
+   $`p_k(X) = \sum_{j<k} (\tau X)^j` (`neumannPoly`) and its exact algebraic remainder
+   $`(I - \tau X)^{-1} - p_k(X) = (I - \tau X)^{-1}(\tau X)^k`
+   (`neumann_remainder_identity`), `uSirk_error_bound` proves unconditionally for
+   $`q = \tau r < 1`:
+
+   $$`\|(I - \tau X)^{-1} v - V(I - \tau B)^{-1} V^\top v\|^2 \le (2 q^k / (1 - q))^2 \|v\|^2.`
+
+   The rank-truncated variant `uSirk_error_bound_leaky` adds exact linear dependence
+   $`(1 - q)^{-1}\delta` on the discarded seed component $`\delta \ge \|v - V V^\top v\|`,
+   and `uSirk_restart_accumulation` recovers linear $`n\,\varepsilon` accumulation over $`n`
+   restarts.
+
+3. *Convergence with tolerance controlled by the horizon $`M`:*
+   * *Horizon-order decay (`uSirk_converges_at_horizon`):* When $`q = 1 - \beta`
+     ($`0 < \beta < 1`), Krylov order $`M` guarantees error at most
+     $`\frac{2}{\beta(1 + M\beta)}\|v\|`, shrinking as $`O(1/M)` with $`M`.
+   * *Logarithmic-step $`1/M` convergence (`uSirk_converges_to_M_tol_log_steps`):* When
+     $`q \le 1/2` and $`8 \le M`, just $`m = \lfloor\log_2 M\rfloor + 3 \le M` Krylov
+     steps suffice to drive the error below $`(1/M)\|v\|`, while `uSirk_order_mehler_feasible`
+     verifies that grade $`m` remains strictly feasible under `mehlerFeasEffect M (1 - 1/M)`
+     with truth value at least $`1 - m/M > 0`.
+   * *Exact full-horizon termination & combined defect:* At full horizon dimension
+     $`M + 1`, `uSirk_exact_at_full_horizon` proves the reconstruction error vanishes
+     identically. For a horizon-$`M` deformed-CCR Hamiltonian defect
+     $`\|H_{\mathrm{ref}} - H_M\| \le C_{\mathrm{ccr}}/M` (`deformed_ccr_defect_bound`),
+     `uSirk_horizon_total_tolerance` combines Hamiltonian perturbation and Krylov truncation
+     into an explicit $`O(1/M + q^m)` rational bound.
+
+4. *Certificates and Krawtchouk instantiation:* `uSirk_isometry_decideGram` certifies via
+   `decideGram` that an isometric Krylov basis of size $`m \le R` embeds inside capacity
+   $`R`; `uSirk_ritz_residual_bound` gives the rational Ritz residual certificate
+   $`\|Xu - \mu u\|^2 \le \varepsilon^2`; and `krawtchouk_uSirk_converges_to_M_tol`
+   instantiates the full theorem on the finite Krawtchouk number Hamiltonian
+   $`H_M = \mathrm{diag}(0,1,\dots,M)`.
+
+```
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uHashimoto_shift_bound
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uShiftInvert_perturbation_bound
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.hashimoto_shift_transfer_identity
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uKrylov_poly_transfer
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.neumann_remainder_identity
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_error_bound
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_error_bound_leaky
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_converges_at_horizon
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_converges_to_M_tol_log_steps
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_exact_at_full_horizon
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_horizon_total_tolerance
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_order_mehler_feasible
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_isometry_decideGram
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.uSirk_ritz_residual_bound
+#check @BookProof.Ultrafinitism.ChapterUltrafinitistSirk.krawtchouk_uSirk_converges_to_M_tol
+```
+
 # Polynomial Approximation and the P versus NP Problem
 
 At first sight, replacing infinite real spaces by finite polynomial expansions on
@@ -277,8 +356,13 @@ $`\mathrm{P} = \mathrm{NP}` or $`\mathrm{P} \neq \mathrm{NP}`.
 # Honest Boundary
 
 Everything in `BookProof/Ultrafinitism/` is `sorry`-free and relies only on Lean's
-standard axioms (with `ChapterKrawtchoukTail`, `ChapterUltrafinitistTensor`, and the
-executable `decideGram` witnesses purely constructive over `ℚ`). In keeping with
+standard axioms (with `ChapterKrawtchoukTail`, `ChapterUltrafinitistTensor`, the
+executable `decideGram` witnesses, and the rational `U-SIRK` definitions purely
+constructive over `ℚ`). Specifically, `ChapterUltrafinitistSirk` is completely
+constructive and Crouzeix-free over `ℚ` for shift-transfer resolvents
+$`(I - \tau X)^{-1}` satisfying $`\tau \|X\| < 1`, while general non-normal complex
+$`\varphi_k`-functions on unbounded operators remain the classical companion layer in
+{ref "sirk-reliability"}[SIRK reliability]. In keeping with
 {ref "pa-free-chapter"}[Completeness without Peano Arithmetic] and
 `BookProof/Toolbox/PhysMehler.lean`, nothing in $`\mathrm{U\text{-}SMK}` settles the
 classical Clay $`\mathrm{P}` versus $`\mathrm{NP}` problem (`SAT ∉ P`): low-degree

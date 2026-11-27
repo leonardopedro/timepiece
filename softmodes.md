@@ -112,6 +112,129 @@ smearing, estimate the omitted field directions, and test the energy there.
 The lower bound of 18.5 below applies to the original three fixed profiles.
 [Metric bounds](BookProof/Qym/ChapterYangMillsMagneticPacket.lean)
 
+## Ultrafinitist-to-Kopperman spectral ascent and the horizon–Krylov coupling M ↔ m · 2026-11-27
+
+### 1. Four-stage spectral ascent: from truncated SIRK gaps to Kopperman $L_{\omega_1,\omega_1}$
+
+When a Hamiltonian or SIRK expansion is truncated at finite horizon $(D, M, L_{\mathrm{occ}}, m)$,
+strictly positive spectral gaps can be certified in pure rational arithmetic (for example, the
+two-block inertia gap $[77/64, 79/64]$ in [ChapterFiniteModelWitness](BookProof/Sirk/ChapterFiniteModelWitness.lean)
+and the three-profile floor $37/2$ in [ChapterYangMillsPacketFloor](BookProof/Qym/ChapterYangMillsPacketFloor.lean)).
+Following the repository's verified four-stage ascent (`BookProof/Ultrafinitism/` $\to$
+[ChapterEll2Separable](BookProof/Definability/ChapterEll2Separable.lean) $\to$
+[ChapterRieszFischer](BookProof/Definability/ChapterRieszFischer.lean) $\to$
+[ChapterKopperman](BookProof/ChapterKopperman.lean) / [PaFreeHilbert](Book/PaFreeHilbert.lean))
+together with the continuum bridge of [cftproof.md](cftproof.md), keeps each spectral limit
+distinct from the next:
+
+| Ascent stage | Foundational realization (`U-SMK` $\to$ Kopperman) | Spectral-gap counterpart in `softmodes.md` (`U0–U6`) | Explicit gap/honesty boundary |
+|---|---|---|---|
+| **Stage 0: Ultrafinitist / truncated finite SIRK model** | `U-SMK_{D,M,ρ,B}` over $\mathbb{Q}$: `ChapterDeformedCCR`, `ChapterMehlerFeasibility`, `ChapterGramPolyDecision`, and Crouzeix-free `ChapterUltrafinitistSirk` (`uSirk_converges_to_M_tol_log_steps`, `uSirk_exact_at_full_horizon`, `uSirk_isometry_decideGram`, `uSirk_ritz_residual_bound`) | Fixed finite packet span ($D$ modes), finite Krawtchouk/occupation horizon ($M$ or $L_{\mathrm{occ}}$), and logarithmic Krylov subspace size $m(M) = \lfloor\log_2 M\rfloor + 3 \ll M$ verifying a rational positive margin over $\mathbb{Q}$ | Driving $m \to M + 1$ only eliminates Krylov truncation error inside that fixed finite operator; horizon defects $O(1/M)$, omitted spatial modes, and `two_colour_projection_defect` ($-g^2(b-a^2)$) remain untouched |
+| **Stage 1: Countable dense computable core** | Removing $M \to \infty$ at fixed $D$ (Krawtchouk $\to$ Hermite, CCR defect $2L_{\mathrm{occ}}/M \to 0$) into the finitely-supported rational core $\mathbb{N}\to_0\mathbb{Q}$ (`ChapterEll2Separable`, `ChapterPaFreeCompletion`) | Removing Krawtchouk/occupation cutoffs ($M, L_{\mathrm{occ}} \to \infty$) at fixed spatial profiles / fixed volume $L_{\mathrm{box}}$ (as proved at all Hermite degrees for three fixed profiles in `ChapterYangMillsPacketFloor`), with $\sum_q O(4^{-q}) < \infty$ along $M_q = 4^q$, $m_q = 2q + 3$ | Widening unreduced profiles ($x \mapsto x/L_{\mathrm{box}}$) drops the fixed-profile energy as $E_1/L_{\mathrm{box}} \to 0$; Stage 1 cannot bound soft modes without local Gauss reduction and spatial refinement |
+| **Stage 2: Complete separable infinite-dimensional Hilbert space** | Riesz–Fischer completion via summable series `completeSpace_iff_summable_norm` (`ChapterRieszFischer`) and summable multiscale increments (`cftproof.md` **U-C3**) | Complete separable physical (Gauss-reduced) continuous-momentum Hilbert space: **U2** full-space block bound $\|R_g - V\widehat{B}V^*\| \le \|V^*R_g V - \widehat{B}\| + 2\|QR_g P\| + \|QR_g Q\|$ and **U4** Schur-complement form split $b^2 < a_{\mathrm{head}} d_{\mathrm{tail}}$ | [ChapterFiniteRankObstructions](BookProof/Sirk/ChapterFiniteRankObstructions.lean) forbids full-norm convergence of finite-rank $m$ to a unitary or non-compact resolvent: finite $m(M)$ certifies the head, while an analytic coercivity bound covers the orthogonal tail |
+| **Stage 3: Infinitary Kopperman $L_{\omega_1,\omega_1}$ & continuum gap transfer** | Diffuse product Gaussian tail $(\mathbb{R}^{\mathbb{N}}, \gamma)$ (`ChapterSolovayCoordinates`, `ChapterKopperman`, `PaFreeHilbert`: completeness $\neq$ uniqueness/decidability) | Uniform-in-$(a, L_{\mathrm{box}})$ physical gap transfer along $(a \to 0, M(a,L_{\mathrm{box}},L_{\mathrm{occ}}) \to \infty)$ then $L_{\mathrm{box}} \to \infty$, matched phase/coupling $g_\star(a)$ (`cftproof.md` **H7 / C9**), `ChapterBridgeGapInvariance` (`ground_projection_error_eq`), and `ChapterEquivalenceNoGap` | Continuum existence / Hilbert completeness certifies no IR gap (`ChapterEquivalenceNoGap`), and a fixed strong bare coupling cannot substitute for a matched renormalized trajectory |
+
+Reference links:
+[UltrafinitistSMK](Book/UltrafinitistSMK.lean) ·
+[Ultrafinitist SIRK](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean) ·
+[Deformed CCR](BookProof/Ultrafinitism/ChapterDeformedCCR.lean) ·
+[Mehler feasibility](BookProof/Ultrafinitism/ChapterMehlerFeasibility.lean) ·
+[Gram poly decision](BookProof/Ultrafinitism/ChapterGramPolyDecision.lean) ·
+[Separable ell2](BookProof/Definability/ChapterEll2Separable.lean) ·
+[PA-free completion](BookProof/Definability/ChapterPaFreeCompletion.lean) ·
+[Riesz–Fischer](BookProof/Definability/ChapterRieszFischer.lean) ·
+[Kopperman](BookProof/ChapterKopperman.lean) ·
+[Solovay coordinates](BookProof/ChapterSolovayCoordinates.lean) ·
+[PaFreeHilbert](Book/PaFreeHilbert.lean) ·
+[Balaban convergence](BookProof/BalabanRG/Convergence.lean) ·
+[Gap invariance](BookProof/OSReconstruction/ChapterBridgeGapInvariance.lean) ·
+[Equivalence no-gap](BookProof/OSReconstruction/ChapterEquivalenceNoGap.lean) ·
+[Finite-rank obstructions](BookProof/Sirk/ChapterFiniteRankObstructions.lean) ·
+[Budget envelope](BookProof/Sirk/ChapterBudgetEnvelope.lean) ·
+[Resolvent budget](BookProof/Qym/ChapterYangMillsResolventBudget.lean).
+
+### 2. Horizon–Krylov dictionary: relating $M$ and Krylov subspace size $m$
+
+Inside `BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean`, the ultrafinitist Krawtchouk
+horizon $M = 4^q = 2^{2q}$ and the Krylov subspace dimension $m$ obey three exact bidirectional
+laws, plus the triple chain $a \leftrightarrow M \leftrightarrow m$ imported from [cftproof.md](cftproof.md):
+
+1. **Sub-horizon logarithmic scaling (optimal shift $q_{\mathrm{sirk}} = \tau r \le 1/2$, $M = 4^q \ge 8$).**
+   By `uSirk_converges_to_M_tol_log_steps`, matching the Krylov truncation error
+   $2 q_{\mathrm{sirk}}^m / (1 - q_{\mathrm{sirk}}) \le 4 \cdot 2^{-m}$ to the $1/M$ horizon
+   resolution gives the sharp logarithmic correspondence:
+   $$m(M) = \lfloor \log_2 M \rfloor + 3 = 2q + 3 \qquad \Longleftrightarrow \qquad M_{\mathrm{eff}}(m) = 2^{m - 3} \quad (\text{dyadic } 4^{\lfloor (m-3)/2 \rfloor}).$$
+   At this pairing, $m(M) \le M$ strictly (`log_krylov_order_bound`), the rational U-SIRK error
+   satisfies $\varepsilon_{\mathrm{SIRK}} \le 1/M = 2^{-(m-3)}$ over $\mathbb{Q}$ with zero
+   Crouzeix hypotheses, and `uSirk_order_mehler_feasible` guarantees that grade $m(M)$ remains
+   Mehler-feasible under `mehlerFeasEffect M (1 - 1/M)` with truth value $\ge 1 - m(M)/M \to 1$.
+
+2. **General contraction rate $q_{\mathrm{sirk}} = 1 - \beta \in (0, 1)$.**
+   * *Exponential form:* equating $\frac{2(1-\beta)^m}{\beta} \le \frac{1}{M}$ gives
+     $$m(M; \beta) = \left\lceil \frac{\ln(2M/\beta)}{|\ln(1-\beta)|} \right\rceil \qquad \Longleftrightarrow \qquad M_{\mathrm{eff}}(m; \beta) = \left\lfloor \frac{\beta}{2}(1-\beta)^{-m} \right\rfloor.$$
+   * *Logarithm-free rational Bernoulli form (`uSirk_converges_at_horizon`):* choosing linear
+     matching $m(M) = M \iff M(m) = m$ gives an exact rational error $\le \frac{2}{\beta(1 + M\beta)}\|v\|$
+     (slower $O(1/M)$ Krylov efficiency, zero transcendental functions).
+
+3. **Full-horizon ceiling (`uSirk_exact_at_full_horizon`) & multi-mode capacity (`uSirk_isometry_decideGram`).**
+   On a single $(M+1)$-dimensional Krawtchouk coordinate space, setting $m = M + 1$ eliminates
+   Krylov error identically ($\varepsilon_{\mathrm{SIRK}} = 0$). On $D$ active spatial/field modes
+   up to total degree $L_{\mathrm{occ}}$, any isometric Krylov basis of rank $m$ embeds inside
+   ambient capacity $R_{\mathrm{amb}} \le \binom{D + L_{\mathrm{occ}}}{L_{\mathrm{occ}}}$,
+   verified in $O(m^3)$ rational Schur operations by `decideGram (Vᵀ * V) R_amb = true`
+   whenever $m \le R_{\mathrm{amb}}$ (`uSirk_isometry_decideGram`).
+
+4. **Triple chain $a \leftrightarrow M \leftrightarrow m$ (`cftproof.md` Regimes A & B).**
+   Composing $M(a)$ from [cftproof.md](cftproof.md#2-horizonlattice-dictionary-relating-m-and-a-quantitatively)
+   with $m(M) = \lfloor\log_2 M\rfloor + 3$:
+   * *Regime A ($M = (a_0/a)^2 = 4^q$):* $m(a) = 2\log_2(a_0/a) + 3 = 2q + 3 \iff a(m) = a_0\, 2^{-(m-3)/2}$;
+   * *Regime B (extensive lattice $M_{\mathrm{ext}} \asymp C L_{\mathrm{box}}^3 a_0^2 L_{\mathrm{occ}}^2 / a^5$ in 3D, or $a^{-6}$ in 4D):*
+     $m(a, L_{\mathrm{box}}, L_{\mathrm{occ}}) = O(\log(L_{\mathrm{box}}/a) + \log L_{\mathrm{occ}}) \ll M_{\mathrm{ext}}$.
+
+### 3. Plugging $m(M)$ into `U2–U5` and the finite-$(M_\star, m_\star)$ stopping rule
+
+Substituting `uSirk_horizon_total_tolerance` into **U2** splits the resolvent error into the
+horizon-controlled `U-SIRK` + deformed-CCR budget and the physical omitted-space tail:
+
+$$e_R(g, L_{\mathrm{occ}}, M, m) \le \underbrace{\frac{2 q_{\mathrm{sirk}}^m}{1 - q_{\mathrm{sirk}}}}_{\le\, 1/M\text{ at } m(M)} + \underbrace{\frac{C_{\mathrm{hor}}(g, L_{\mathrm{occ}})}{M}}_{\text{horizon / deformed-CCR defect}} + \underbrace{T(g, L_{\mathrm{occ}}) + S(g, L_{\mathrm{occ}}) + O(g, L_{\mathrm{occ}}) + F(g, L_{\mathrm{occ}})}_{\text{omitted space, solves, leakage, rounding}}.$$
+
+Along $m(M) = \lfloor\log_2 M\rfloor + 3$, the first two terms sum to $\le (1 + C_{\mathrm{hor}})/M$,
+giving an automatic Crouzeix-free, monotone non-increasing guarantee in $M$ for the rational
+shift-transfer resolvent. For **U3–U5**, whenever an independently certified omitted-space + Gauss +
+rounding budget $E_{\mathrm{tail}}$ lies strictly below the certified spectral margin
+$\Delta_{\mathrm{cert}}$ (with headroom $\eta_{\mathrm{sol}} = \Delta_{\mathrm{cert}} - E_{\mathrm{tail}} > 0$),
+choosing
+
+$$M_\star = 4^{q_\star} > \frac{1 + C_{\mathrm{hor}}}{\eta_{\mathrm{sol}}}, \qquad m_\star = m(M_\star) = \lfloor \log_2 M_\star \rfloor + 3$$
+
+forces $e_{\mathrm{SIRK}}(M_\star, m_\star) + \delta_{\mathrm{hor}}(M_\star) < \eta_{\mathrm{sol}}$
+and closes a finite-margin witness without taking $m \to \infty$ — while keeping explicit that
+$E_{\mathrm{tail}}$ cannot be reduced by increasing $m$ or $M$ alone.
+
+### 4. Integration packets `U-S1`–`U-S4` and negative controls
+
+* **`U-S1` (`U0` / `ChapterBudgetEnvelope` coupling):** record $M = 4^q$ and $m(M) = \lfloor\log_2 M\rfloor + 3$
+  inside the witness manifest alongside $(g, L_{\mathrm{occ}}, m, q)$, keeping solver rank $m$,
+  bit horizon $M$, and physical cutoffs $(a, L_{\mathrm{box}}, L_{\mathrm{occ}})$ strictly separated.
+* **`U-S2` (`U2` Crouzeix-free shift-transfer layer):** discharge the $(I - \tau R_g)^{-1}$
+  approximation term in **U2** via `uSirk_error_bound` / `uSirk_converges_to_M_tol_log_steps`,
+  `uSirk_error_bound_leaky`, and `uSirk_isometry_decideGram`, leaving the omitted-space block
+  norms $2\|QR_g P\| + \|QR_g Q\|$ and the local Gauss orbit metric as **U2**'s physical obligations.
+* **`U-S3` (Stage 0 $\to$ Stage 2 head-plus-tail Schur split in `U3`/`U4`):** pair
+  `uSirk_ritz_residual_bound` on the finite $m_\star = m(M_\star)$ head with **U4**'s orthogonal-tail
+  coercivity comparison $b^2 < a_{\mathrm{head}} d_{\mathrm{tail}}$, avoiding any false demand
+  for $e_R \to 0$ on a non-compact resolvent (`ChapterFiniteRankObstructions`).
+* **`U-S4` (Stage 2 $\to$ Stage 3 continuum gap transfer via [cftproof.md](cftproof.md) `U-C1`–`U-C4`):**
+  connect a positive local Gauss-reduced form floor (blocking the $1/L_{\mathrm{box}}$ widening
+  obstruction) to summable multiscale increments (**U-C3**) and stationary-space transport
+  (`ground_projection_error_eq`) along a matched running coupling $g_\star(a)$.
+
+**Negative controls:** reject any argument that (i) promotes a positive gap certified at truncated
+$(M, m)$ to the continuum theory without pricing $E_{\mathrm{tail}}$, local Gauss reduction, and
+$1/L_{\mathrm{box}}$ widening; (ii) treats $m \to M + 1$ or $M \to \infty$ at fixed spatial span
+as continuum or IR gap removal; or (iii) conflates `m(M)`'s Krylov-subspace tolerance with
+full-operator-norm convergence of finite-rank matrices to a non-compact resolvent.
+
 ## Three-profile execution record · 2026-11-26
 
 At coupling $g=2$ the three-profile magnetic Hamiltonian has an absolute energy
@@ -464,7 +587,11 @@ particular target function; a propagator theorem does not automatically approxim
 Reuse `ChapterSirkPerSystem.ym_sirk_crouzeix_domain`: positivity puts the numerical ranges
 of `R_g` and every isometric compression in the common segment `[0,1/κ]`. For this
 self-adjoint case, a proved functional-calculus sup-norm estimate can replace a generic
-Crouzeix input where available. Supply an explicit admissible rational approximant with
+Crouzeix input where available. For shift-transfer resolvents $(I - \tau R_g)^{-1}$ over
+$\mathbb{Q}$, [ChapterUltrafinitistSirk](BookProof/Ultrafinitism/ChapterUltrafinitistSirk.lean)
+(`uSirk_converges_to_M_tol_log_steps`, `uSirk_error_bound_leaky`, `uSirk_isometry_decideGram`)
+already discharges the Crouzeix term completely at Krylov order $m(M) = \lfloor\log_2 M\rfloor + 3$
+(**U-S2**). Supply an explicit admissible rational approximant with
 scalar error bounded on that common segment. Nested admissible rational classes give a
 non-increasing **best-error envelope**; they do not make every computed Ritz residual or
 raw floating-point error monotone.
@@ -646,7 +773,10 @@ couplings or removal of spatial/ultraviolet/infrared regulators without the stat
    formal examples so no later theorem silently asks for an impossible norm limit.
 3. **Uniform rational and arithmetic budgets:** instantiate the shared QYM segment,
    constructive rational error, shift admissibility and `Cbar,Dbar,a`; certify solves,
-   orthogonality, Gram cutoff and precision with bounds uniform in admitted `m`.
+   orthogonality, Gram cutoff and precision with bounds uniform in admitted `m`. Packets
+   **U-S1**–**U-S4** above supply the finite-horizon rational $m(M)$ baseline feeding **U2**–**U5**,
+   leaving the omitted-space block norms and physical Gauss/continuum transfers as the open
+   analytic obligations.
 4. **Spectral coverage:** prove the required min–max/counting/projector result, or execute
    U4's direct form route. Reuse the existing second-edge Temple and form-lift modules
    where applicable. No residual-to-nearest-eigenvalue lemma substitutes for this packet.

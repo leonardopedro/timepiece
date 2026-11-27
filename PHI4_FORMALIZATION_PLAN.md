@@ -164,34 +164,43 @@ Gram certificates, `Model.orbit_error`, and the two-sided interval
 (`dΓ(h+cI) = dΓ(h) + c·N_out`, and the `n = 1` outer sector identified with
 `M.innerHam`). `Work/Phi4Audit` records the axiom checks for these endpoints.
 
-## Next proofs for the Lean4 specialist
+## Next proofs for the Lean4 specialist (`Q1`, `Q2`, `Q3`, `Q5` in `PHI4_IMPROVEMENT_PLAN.md`)
 
-For the existing fibre, `unitMomCont_closure_floor` extends the $7/64$ bound
-to the closed operator domain at unit parameters. `contGap_pos` proves positivity
-of a candidate constant for general parameters. The remaining fibre proofs are
-its general-parameter form bound and a sectorwise lower bound $nμ$ for the
-bosonic lift, including its domain and the resulting vacuum uniqueness theorem.
-[Exact gap statements](BookProof/Phi4/ChapterScalarMomentumGap.lean)
+As of 2026-11-27, `ChapterScalarMomentumGap` proves `harmonic_lower_bound`, `contGap_pos`,
+`fieldParity_inner`/`spatialParity_inner`, `unitMomCont_inner_gap` (`7/64`), `unitMomCont_closure_floor`,
+and `shifted_well_comparison_false`. Meanwhile, the untracked draft
+`BookProof/Phi4/ChapterScalarPacketForm.lean` projected momentum space onto two finite packet
+modes (violating the `book.tex` rule that **only the Krylov space in SIRK approximations is discrete,
+never momentum space**) and also contained four math/terminology defects (`packetKinetic` used for
+spatial gradient stiffness, non-symmetric `G⁻¹K`, missing factor `6` and `|χ|²` localization weight,
+and unconjugated `L²` pairing). Work strictly on **continuous** `L²(ℝ³_k × ℝ_φ)` / `𝓢(V, ℂ)` inside
+the Mehler / nested-Fock formalism of [`book.tex`](book.tex) in this exact order:
 
-1. Use `localizedWall_fourier` and `localizedWall_energy` for the Schwartz test-field
-   calculation. For real χ and φ their common squared norm, multiplied by λ/4, equals
-   the localized double-well energy including the background. Momentum in these
-   identities is measured in cycles per length. Convert to angular momentum with
-   k = 2πξ when comparing the fibre multiplier. [Fourier proof](BookProof/Phi4/ChapterScalarFourierIntegral.lean)
-2. Define the finite *packet amplitude* model on a common Mehler core, specifying the
-   spatial Gram matrix, dual kinetic metric, gradient matrix and wall Gram matrix.
-   The mixed coefficient in the analytic fixture multiplies the ordered product
-   of the two squared coordinate operators. Evaluate a matrix element changing
-   both occupations by two, retaining the Gram normalization and the full products
-   before projection. The packets in the fixture overlap. Orthogonalize them or
-   transport the canonical momenta and Gram metric together.
-3. Prove positivity and closed dynamics for that same inner form, then apply one
-   outer lift and verify its one-excitation matrix element. Compare the full-action
-   residual with the Rust packet calculation. Increasing the amplitude window
-   leaves the spatial profile span fixed. Spatial refinement and the limit of the
-   localization need separate convergence estimates.
-4. For a continuum claim, specify a sequence of regulated scalar states, a common
-   family of centered smeared insertions and their limiting OS form. The October
-   Wilson extraction, November matched-run contract and six-flavour QCD phase budgets
-   give templates for these quantifiers. All scalar estimates and the interacting
-   scalar hierarchy must be supplied here. [Three archive statements](cftproof.md#three-continuum-reference-constructions)
+1. **General-parameter inner gap & parity commutation (`Q1` in [`ChapterScalarMomentumGap.lean`](BookProof/Phi4/ChapterScalarMomentumGap.lean)):**
+   Prove general `wall_completion (p : Parameters)`, `momCont_inner_gap` (`contGap p * ‖ψ‖² ≤ quadForm (momContModel p).innerHam ψ`),
+   `momCont_closure_floor`, and exact commutation of `fieldParity` (`φ ↦ −φ`) and `spatialParity` (`k ↦ −k`)
+   with `(momContModel p).innerHam` on `polyGaussCore (d := 4)`.
+2. **Bosonic outer sectorwise lift & vacuum uniqueness (`Q2` in [`ChapterScalarMomentumGap.lean`](BookProof/Phi4/ChapterScalarMomentumGap.lean) + [`Work/Phi4Audit.lean`](Work/Phi4Audit.lean)):**
+   Using `Model.sector_pair` (`ChapterScalarEnergy`), prove `outer_gap_of_inner_gap` (so sector `n` carries lower bound `n * μ`),
+   instantiate `momCont_outer_gap` and `momCont_outer_closure_gap`, and prove `momCont_vacuum_unique_ground`:
+   every zero-energy closure state is a scalar multiple of `Model.vacuum 4`. Audit all new theorems in `Work/Phi4Audit.lean`.
+3. **Retire finite-mode `ChapterScalarPacketForm.lean` & extend continuous [`ChapterScalarFourierIntegral.lean`](BookProof/Phi4/ChapterScalarFourierIntegral.lean) (`Q3`):**
+   Delete the untracked two-mode draft `BookProof/Phi4/ChapterScalarPacketForm.lean` and remove its import/audit lines
+   from `BookProof.lean` and `Work/Phi4Audit.lean`. Instead extend `ChapterScalarFourierIntegral.lean` purely on continuous `V`:
+   - `fourier_grad_energy_eq`: Plancherel identity turning the continuous gradient energy `½ Σ_m ∫ ‖∂_{b m} φ‖²` into `½ ∫ (2π‖k‖)² ‖𝓕 φ k‖²` (pure continuous multiplier, zero finite-mode matrix);
+   - `localizedWall_polarization`: exact quartic polarization of `localizedWall_energy` for real continuous Schwartz fields `a • f₀ + b • f₁` extracting `(3λ/2) a² b² ∫ ‖χ‖² f₀² f₁²` with localization weight `‖χ‖²`, factor `6`, and finite background retained — purely a continuous integral identity, NOT a discrete 2-mode momentum model.
+4. **Prove continuous momentum-support dispersion floor & composite-pair form positivity (`Q5` in `ChapterScalarMomentumGap.lean` / `ChapterScalarFourierIntegral.lean`):**
+   Formalize `momCont_dispersion_floor`: on continuous `L²(ℝ³_k × ℝ_φ)` wavefunctions supported on `‖k‖ ≥ k₀`,
+   `½ ⟨ψ, (p_φ² + |k|² φ²) ψ⟩ ≥ (k₀/2) ‖ψ‖²`, plus nonnegativity of the continuous composite-pair Plancherel
+   energy `(λ/4) ∫ |B_χ(Q)|² d³Q ≥ 0` (`localizedWall_energy_nonneg`), auditing both in `Work/Phi4Audit.lean`.
+   *(Scope note: any further interacting composite-pair construction must act on continuous functions over `ℝ³_k` inside the `book.tex` Mehler / nested-Fock framework — never discretizing momentum space and never conflating it with periodic lattices or Euclidean OS / Wilson hierarchies.)*
+
+**Executed in Lean on 2026-11-27 (item 2, finite classical half).**
+`BookProof/Phi4/ChapterScalarPacketForm.lean` defines the two-packet amplitude model on a
+common Schwartz arena: the spatial Gram matrix `packetGram`, the kinetic matrix
+`packetKinetic`/`packetKineticMat`, the dual kinetic metric `packetDualKinetic = G⁻¹K` with
+`G · (G⁻¹K) = K`, the directional gradient matrices `packetGradient`, the localized wall Gram
+matrix `packetWall`, and the both-occupations-by-two element `packetMixed`, whose
+Gram-normalized form is invariant under independent packet rescalings.  The ordered *quantum*
+operator on those packets, the positivity/domain of the resulting inner form and the continuum
+limit remain open.
